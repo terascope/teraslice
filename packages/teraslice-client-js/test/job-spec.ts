@@ -386,16 +386,16 @@ describe('Teraslice Job', () => {
         });
     });
 
-    describe('->softDelete', () => {
+    describe('->deleteJob', () => {
         describe('when called', () => {
             beforeEach(() => {
-                scope.post('/jobs/some-other-job-id/_delete')
+                scope.delete('/jobs/some-other-job-id')
                     .reply(200, { job_id: 'some-other-job-id', _deleted: true });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-other-job-id');
-                const results = await job.softDelete();
+                const results = await job.deleteJob();
                 expect(results).toEqual({ job_id: 'some-other-job-id', _deleted: true });
             });
         });

@@ -395,7 +395,7 @@ export class ExecutionService {
         }
     }
 
-    async deleteExecutionContext(exId: string): Promise<ExecutionConfig> {
+    async softDeleteExecutionContext(exId: string): Promise<ExecutionConfig> {
         const exIds = await this.getRunningExecutions(exId);
         if (exIds.length > 0) {
             throw new TSError(`Execution ${exId} is currently running, cannot delete a running execution.`, {

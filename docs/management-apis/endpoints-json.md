@@ -410,33 +410,6 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_resu
 }
 ```
 
-## POST /v1/jobs/&#123;jobId&#125;/_delete
-
-Issues a delete command, deleting the job and all related execution contexts. Any orphaned K8s resources associated with the job will also be deleted. The job must have a terminal status to be deleted.
-
-**Usage:**
-
-```sh
-$ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_delete'
-{
-    "name": "Example",
-    "lifecycle": "persistent",
-    "workers": 1,
-    "operations": [
-        {
-            "_op": "noop"
-        }
-    ]
-    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
-    "_context": "job"
-    "_created": "2018-09-21T17:49:05.029Z",
-    "_updated": "2019-04-12T09:43:18.301Z",
-    "_deleted": true,
-    "_deleted_on": "2019-04-12T09:43:18.301Z",
-    "active": false,
-}
-```
-
 ## POST /v1/jobs/&#123;jobId&#125;/_recover
 
 **IMPORTANT** When recovering an job, the last execution ran will be recovered but any changes applied to the job since the recovery will be applied.
@@ -595,6 +568,33 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/errors'
         "error": "Error: Uh-oh"
     }
 ]
+```
+
+## DELETE /v1/jobs/&#123;jobId&#125;
+
+Issues a delete command, deleting the job and all related execution contexts. Any orphaned K8s resources associated with the job will also be deleted. The job must have a terminal status to be deleted.
+
+**Usage:**
+
+```sh
+$ curl -XDELETE 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd'
+{
+    "name": "Example",
+    "lifecycle": "persistent",
+    "workers": 1,
+    "operations": [
+        {
+            "_op": "noop"
+        }
+    ]
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
+    "_context": "job"
+    "_created": "2018-09-21T17:49:05.029Z",
+    "_updated": "2019-04-12T09:43:18.301Z",
+    "_deleted": true,
+    "_deleted_on": "2019-04-12T09:43:18.301Z",
+    "active": false,
+}
 ```
 
 ## GET /v1/ex

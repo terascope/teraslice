@@ -101,8 +101,8 @@ export default class Job extends Client {
         return this.update(body);
     }
 
-    async softDelete(): Promise<Teraslice.JobConfig> {
-        return this.post(`/jobs/${this._jobId}/_delete`);
+    async deleteJob(): Promise<Teraslice.JobConfig> {
+        return this.delete(`/jobs/${this._jobId}`);
     }
 
     async execution(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionConfig> {

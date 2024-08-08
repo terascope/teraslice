@@ -288,21 +288,8 @@ export class ApiService {
             const { active = '', deleted = undefined } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
-            if (active === 'true') {
-                query = 'job_id:* AND !active:false';
-            } else if (active === 'false') {
-                query = 'job_id:* AND active:false';
-            } else {
-                query = 'job_id:*';
-            }
-
-            if (deleted === 'only') {
-                query += ' AND _deleted:true';
-            } else if (!deleted || deleted === 'exclude') {
-                query += ' AND _deleted:false';
-            } else if (deleted === 'include') {
-                // default query will show all records
-            }
+            query = this.createJobActiveQuery(active as string);
+            query = this.addDeletedToQuery(deleted as string, query);
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of jobs');
             requestHandler(() => {
@@ -400,11 +387,11 @@ export class ApiService {
             });
         });
 
-        v1routes.post('/jobs/:jobId/_delete', (req, res) => {
+        v1routes.delete('/jobs/:jobId', (req, res) => {
             const { jobId } = req.params;
             // @ts-expect-error
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not delete job');
-            requestHandler(async () => jobsService.deleteJob(jobId));
+            requestHandler(async () => jobsService.softDeleteJob(jobId));
         });
 
         v1routes.post('/jobs/:jobId/_recover', (req, res) => {
@@ -486,13 +473,7 @@ export class ApiService {
                     query += ` AND (${statusTerms})`;
                 }
 
-                if (deleted === 'only') {
-                    query += ' AND _deleted:true';
-                } else if (!deleted || deleted === 'exclude') {
-                    query += ' AND _deleted:false';
-                } else if (deleted === 'include') {
-                    // default query will show all records
-                }
+                query = this.addDeletedToQuery(deleted as string, query);
 
                 return this.executionStorage.search(query, from, size, sort as string);
             });
@@ -573,29 +554,16 @@ export class ApiService {
         });
 
         this.app.get('/txt/jobs', (req, res) => {
-            let query: string;
             const { active = '', deleted = undefined } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
             const defaults = ['job_id', 'name', 'active', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
-
-            if (active === 'true') {
-                query = 'job_id:* AND !active:false';
-            } else if (active === 'false') {
-                query = 'job_id:* AND active:false';
-            } else {
-                query = 'job_id:*';
-            }
-
-            if (deleted === 'only') {
-                query += ' AND _deleted:true';
-                defaults.push('_deleted_on');
-            } else if (!deleted || deleted === 'exclude') {
-                query += ' AND _deleted:false';
-            } else if (deleted === 'include') {
-                // default query will show all records
+            if (deleted === 'only' || deleted === 'include') {
                 defaults.push('_deleted_on');
             }
+
+            let query = this.createJobActiveQuery(active as string);
+            query = this.addDeletedToQuery(deleted as string, query);
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all jobs');
             requestHandler(async () => {
@@ -613,17 +581,12 @@ export class ApiService {
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
             const defaults = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
-            let query: string;
-
-            if (deleted === 'only') {
-                query = 'ex_id:* AND _deleted:true';
-                defaults.push('_deleted_on');
-            } else if (!deleted || deleted === 'exclude') {
-                query = 'ex_id:* AND _deleted:false';
-            } else if (deleted === 'include') {
-                query = 'ex_id:*';
+            if (deleted === 'only' || deleted === 'include') {
                 defaults.push('_deleted_on');
             }
+
+            let query = 'ex_id:*';
+            query = this.addDeletedToQuery(deleted as string, query);
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all executions');
 
@@ -665,6 +628,30 @@ export class ApiService {
 
         this.available = true;
         this._updatePromMetrics();
+    }
+
+    private createJobActiveQuery(active: string) {
+        let query: string;
+        if (active === 'true') {
+            query = 'job_id:* AND !active:false';
+        } else if (active === 'false') {
+            query = 'job_id:* AND active:false';
+        } else {
+            query = 'job_id:*';
+        }
+        return query;
+    }
+
+    private addDeletedToQuery(deleted: string, query: string) {
+        let newQuery = query;
+        if (deleted === 'only') {
+            newQuery += ' AND _deleted:true';
+        } else if (!deleted || deleted === 'exclude') {
+            newQuery += ' AND _deleted:false';
+        } else if (deleted === 'include') {
+            // default query will show all records
+        }
+        return newQuery;
     }
 
     private async _waitForStop(exId: string, blocking?: boolean): Promise<Record<string, any>> {

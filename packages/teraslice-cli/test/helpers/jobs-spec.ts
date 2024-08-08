@@ -890,7 +890,7 @@ describe('Job helper class', () => {
                 .reply(200, { _status: 'stopped' })
                 .get(`/v1/jobs/${jobId}`)
                 .reply(200, testJobConfig(jobId))
-                .post(`/v1/jobs/${jobId}/_delete`)
+                .delete(`/v1/jobs/${jobId}`)
                 .reply(200, () => Promise.resolve({ _deleted: 'true' }));
 
             const config = buildCLIConfig(
@@ -919,9 +919,7 @@ describe('Job helper class', () => {
                 .get(`/v1/jobs/${jobId}/ex`)
                 .reply(200, { _status: 'running' })
                 .get(`/v1/jobs/${jobId}`)
-                .reply(200, testJobConfig(jobId))
-                .post(`/v1/jobs/${jobId}/_delete`)
-                .reply(200, () => Promise.resolve({ _deleted: 'true' }));
+                .reply(200, testJobConfig(jobId));
 
             const config = buildCLIConfig(
                 action,

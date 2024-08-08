@@ -516,7 +516,7 @@ export default class Jobs {
         }
 
         try {
-            await job.api.softDelete();
+            await job.api.deleteJob();
         } catch (e) {
             this.commandFailed(e.message, job);
         }

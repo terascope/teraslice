@@ -265,12 +265,13 @@ export class ExecutionStorage {
 
     async delete(exId: string) {
         try {
+            const date = makeISODate();
             return await this.updatePartial(
                 exId,
                 async (existing) => Object.assign(existing, {
                     _deleted: true,
-                    _deleted_on: makeISODate(),
-                    _updated: makeISODate()
+                    _deleted_on: date,
+                    _updated: date
                 })
             );
         } catch (err) {
