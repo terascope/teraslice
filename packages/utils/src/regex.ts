@@ -1,4 +1,4 @@
-import { WORD_CHARS } from './strings';
+import { WORD_CHARS } from './strings.js';
 
 export function isRegExp(input: unknown): input is RegExp {
     if (input == null) return false;

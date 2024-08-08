@@ -1,7 +1,7 @@
 import { CommandModule } from 'yargs';
-import { ImagesAction } from '../helpers/images/interfaces';
-import { images } from '../helpers/images';
-import { GlobalCMDOptions } from '../helpers/interfaces';
+import { ImagesAction } from '../helpers/images/interfaces.js';
+import { images } from '../helpers/images/index.js';
+import { GlobalCMDOptions } from '../helpers/interfaces.js';
 
 interface Options {
     action?: ImagesAction;
@@ -30,4 +30,4 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     },
 };
 
-export = cmd;
+export default cmd;

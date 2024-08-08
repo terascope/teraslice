@@ -1,9 +1,10 @@
 import {
-    ClientMetadata, DataTypeFieldConfig, xLuceneTypeConfig, indexedRequiredFieldTypes
+    ClientMetadata, DataTypeFieldConfig, xLuceneTypeConfig,
+    indexedRequiredFieldTypes
 } from '@terascope/types';
 import { castArray } from '@terascope/utils';
-import { GraphQLType, TypeESMapping } from '../interfaces';
-import { formatGQLComment } from '../graphql-helper';
+import { GraphQLType, TypeESMapping } from '../interfaces.js';
+import { formatGQLComment } from '../graphql-helper.js';
 
 export interface IBaseType {
     new(field: string, config: DataTypeFieldConfig): BaseType;

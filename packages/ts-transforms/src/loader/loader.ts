@@ -1,9 +1,9 @@
 import { Logger } from '@terascope/utils';
-import RulesLoader from './rules-loader';
-import RulesParser from './rules-parser';
-import RulesValidator from './rules-validator';
-import { ValidationResults, WatcherConfig } from '../interfaces';
-import { OperationsManager } from '../index';
+import RulesLoader from './rules-loader.js';
+import RulesParser from './rules-parser.js';
+import RulesValidator from './rules-validator.js';
+import { ValidationResults, WatcherConfig } from '../interfaces.js';
+import { OperationsManager } from '../index.js';
 
 export default class Loader {
     private opConfig: WatcherConfig;

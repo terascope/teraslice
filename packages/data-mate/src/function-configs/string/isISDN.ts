@@ -3,7 +3,7 @@ import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface IsISDNArgs {
     country?: string;

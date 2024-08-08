@@ -1,4 +1,4 @@
-import { jexl } from '../src';
+import { jexl } from '../src/index.js';
 
 describe('jexl', () => {
     it('can run basic field transforms', () => {

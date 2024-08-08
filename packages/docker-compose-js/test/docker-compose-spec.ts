@@ -1,14 +1,17 @@
 import 'jest-extended';
-import path from 'path';
-import { Compose } from '../src';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { Compose } from '../src/index.js';
 
 jest.setTimeout(60 * 1000);
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('compose', () => {
     let compose: Compose;
 
     beforeAll(() => {
-        compose = new Compose(path.join(__dirname, 'fixtures', 'example.yaml'));
+        compose = new Compose(path.join(dirname, 'fixtures', 'example.yaml'));
     });
 
     it('should be able to call compose.pull()', () => compose.pull(undefined, { quiet: '' }));

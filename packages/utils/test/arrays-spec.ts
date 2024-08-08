@@ -1,9 +1,5 @@
 import 'jest-extended';
-import {
-    uniqBy,
-    includes,
-    sortBy,
-} from '../src/arrays';
+import { uniqBy, includes, sortBy } from '../src/arrays.js';
 
 describe('Array Utils', () => {
     describe('uniqBy', () => {

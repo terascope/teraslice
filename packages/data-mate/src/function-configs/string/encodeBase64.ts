@@ -5,8 +5,8 @@ import {
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
-} from '../interfaces';
-import { bufferEncode } from './encode-utils';
+} from '../interfaces.js';
+import { bufferEncode } from './encode-utils.js';
 
 export const encodeBase64Config: FieldTransformConfig = {
     name: 'encodeBase64',

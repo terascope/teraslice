@@ -1,6 +1,6 @@
 import { Logger, debugLogger } from '@terascope/utils';
-import { PhaseManager } from './phases';
-import { WatcherConfig } from './interfaces';
+import { PhaseManager } from './phases/index.js';
+import { WatcherConfig } from './interfaces.js';
 
 export default class Matcher extends PhaseManager {
     constructor(opConfig: WatcherConfig, logger: Logger = debugLogger('ts-transforms')) {

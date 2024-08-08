@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { xLuceneFieldType, ClientParams } from '@terascope/types';
 import { TSError } from '@terascope/utils';
-import { QueryAccess } from '../src';
+import { QueryAccess } from '../src/index.js';
 
 describe('QueryAccess', () => {
     describe('when constructed without type_config', () => {

@@ -1,6 +1,6 @@
 import 'jest-extended';
-import { timesIter } from '../src';
-import { isEmpty } from '../src/empty';
+import { timesIter } from '../src/index.js';
+import { isEmpty } from '../src/empty.js';
 
 describe('Empty Utils', () => {
     describe('isEmpty', () => {

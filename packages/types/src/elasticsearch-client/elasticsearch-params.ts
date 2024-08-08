@@ -1,4 +1,4 @@
-import * as i from './elasticsearch-types';
+import * as i from './elasticsearch-types.js';
 
 export interface IndicesStatsParams {
     metric?: i.Metrics;

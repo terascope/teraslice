@@ -2,7 +2,7 @@ import {
     DataEntity, matchAll, get, set
 } from '@terascope/utils';
 import jexl from 'jexl';
-import { ExtractionConfig, InputOutputCardinality } from '../../../interfaces';
+import { ExtractionConfig, InputOutputCardinality } from '../../../interfaces.js';
 
 function isMutation(configs: ExtractionConfig[]): boolean {
     return configs.some((config) => config.mutate === true);

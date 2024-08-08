@@ -7,9 +7,9 @@ import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution, ClientMetadata } from '@terascope/types';
-import { Client } from './client';
-import { logWrapper } from './log-wrapper';
-import { ClientConfig } from './interfaces';
+import { Client } from './client.js';
+import { logWrapper } from './log-wrapper.js';
+import { ClientConfig } from './interfaces.js';
 
 const clientList = [opensearch1, opensearch2, elasticsearch7, elasticsearch6, elasticsearch8];
 
@@ -17,7 +17,7 @@ export async function createClient(
     config: ClientConfig,
     logger = debugLogger('elasticsearch-client')
 ): Promise<{ log: () => Logger, client: Client }> {
-    const distributionMetadata = await getClientMetadata(config, logger);
+    const distributionMetadata = await getDBMetadata(config, logger);
 
     const baseClient = await getBaseClient(
         distributionMetadata,
@@ -31,7 +31,7 @@ export async function createClient(
     };
 }
 
-async function getClientMetadata(
+async function getDBMetadata(
     config: Record<string, any>,
     logger: Logger
 ): Promise<ClientMetadata> {

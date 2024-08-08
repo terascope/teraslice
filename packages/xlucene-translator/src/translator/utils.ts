@@ -1,12 +1,10 @@
 import {
-    TSError,
-    isString,
-    isEmpty,
+    TSError, isString, isEmpty,
     matchWildcard,
 } from '@terascope/utils';
 import * as p from 'xlucene-parser';
 import * as i from '@terascope/types';
-import { UtilsTranslateQueryOptions } from './interfaces';
+import { UtilsTranslateQueryOptions } from './interfaces.js';
 
 type WildCardQueryResults =
     i.WildcardQuery

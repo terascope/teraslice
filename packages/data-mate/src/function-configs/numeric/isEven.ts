@@ -4,7 +4,7 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const isEvenConfig: FieldValidateConfig = {
     name: 'isEven',

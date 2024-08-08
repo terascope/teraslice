@@ -1,7 +1,5 @@
-'use strict';
-
-const { Suite } = require('./helpers');
-const { DataEntity } = require('../dist/src');
+import { Suite } from './helpers.js';
+import { DataEntity, isExecutedFile } from '../dist/src/index.js';
 
 const data = JSON.stringify({
     id: Math.random(),
@@ -31,10 +29,10 @@ const run = async () => Suite('DataEncoding')
         maxTime: 5,
     });
 
-if (require.main === module) {
+export default run;
+
+if (isExecutedFile()) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

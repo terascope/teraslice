@@ -1,16 +1,16 @@
 import 'jest-extended';
-import * as index from '../src';
+import { evaluate, transform, parse } from '../src/index.js';
 
 describe('index', () => {
     it('should export evaluate', () => {
-        expect(index.evaluate).toBeFunction();
+        expect(evaluate).toBeFunction();
     });
 
     it('should export transform', () => {
-        expect(index.transform).toBeFunction();
+        expect(transform).toBeFunction();
     });
 
     it('should export parse', () => {
-        expect(index.parse).toBeFunction();
+        expect(parse).toBeFunction();
     });
 });

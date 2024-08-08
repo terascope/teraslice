@@ -5,7 +5,7 @@ import {
     ProcessMode,
     FunctionDefinitionCategory,
     FunctionDefinitionType
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const isGeoJSONConfig: FieldValidateConfig = {
     name: 'isGeoJSON',

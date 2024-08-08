@@ -7,7 +7,7 @@ import {
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory,
     FunctionDefinitionExample
-} from '../interfaces';
+} from '../interfaces.js';
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {

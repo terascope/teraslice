@@ -1,14 +1,14 @@
 import { DataEntity } from '@terascope/utils';
-import { hasKeys } from './utils';
-import { OperationsManager } from '../operations';
+import { hasKeys } from './utils.js';
+import { OperationsManager } from '../operations/index.js';
 import {
     PostProcessConfig,
     WatcherConfig,
     PostProcessingDict,
     OperationsPipline,
     Operation
-} from '../interfaces';
-import PhaseBase from './base';
+} from '../interfaces.js';
+import PhaseBase from './base.js';
 
 export default class PostProcessPhase extends PhaseBase {
     constructor(

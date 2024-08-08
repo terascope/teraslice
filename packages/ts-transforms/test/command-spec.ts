@@ -1,8 +1,11 @@
 import execa from 'execa';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { pWhile } from '@terascope/utils';
 
-const cwd = path.join(__dirname, '../');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const cwd = path.join(dirname, '../');
 const cliPath = path.join(cwd, './bin/ts-transform.js');
 
 async function runCli(command: string, options: execa.Options = {}) {

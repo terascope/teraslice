@@ -1,7 +1,7 @@
-import * as ts from '@terascope/utils';
+import { uniq, isNil, isNumber } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-import { Repository, InputType } from '../interfaces';
-import { isArray } from '../validations/field-validator';
+import { Repository, InputType } from '../interfaces.js';
+import { isArray } from '../validations/field-validator.js';
 
 export const repository: Repository = {
     uniqueField: {
@@ -43,34 +43,34 @@ export const repository: Repository = {
 };
 
 export function uniqueField(input: unknown, _parentContext?: unknown): any[]|any|null {
-    if (ts.isNil(input)) return null;
-    if (isArray(input)) return ts.uniq(input);
+    if (isNil(input)) return null;
+    if (isArray(input)) return uniq(input);
     return input;
 }
 
 export function countField(input: unknown, _parentContext?: unknown): any[]|any|null {
-    if (ts.isNil(input)) return 0;
+    if (isNil(input)) return 0;
     if (isArray(input)) return input.length;
     return 1;
 }
 
 export function sumField(input: unknown, _parentContext?: unknown): any[]|any|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
     if (isArray(input)) {
         return input
-            .filter(ts.isNumber)
+            .filter(isNumber)
             .reduce((prev, curr) => prev + curr, 0);
     }
 
-    if (ts.isNumber(input)) return input;
+    if (isNumber(input)) return input;
     return null;
 }
 
 export function avgField(input: unknown, _parentContext?: unknown): any[]|any|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
     if (isArray(input)) {
         const numbers = input
-            .filter(ts.isNumber);
+            .filter(isNumber);
 
         const { length } = numbers;
 
@@ -78,28 +78,28 @@ export function avgField(input: unknown, _parentContext?: unknown): any[]|any|nu
         return numbers.reduce((prev, curr) => prev + curr, 0) / length;
     }
 
-    if (ts.isNumber(input)) return input;
+    if (isNumber(input)) return input;
     return null;
 }
 
 export function minField(input: unknown, _parentContext?: unknown): any[]|any|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
     if (isArray(input)) {
-        const numbers = input.filter(ts.isNumber);
+        const numbers = input.filter(isNumber);
         return Math.min.apply(null, numbers);
     }
 
-    if (ts.isNumber(input)) return input;
+    if (isNumber(input)) return input;
     return null;
 }
 
 export function maxField(input: unknown, _parentContext?: unknown): any[]|any|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
     if (isArray(input)) {
-        const numbers = input.filter(ts.isNumber);
+        const numbers = input.filter(isNumber);
         return Math.max.apply(null, numbers);
     }
 
-    if (ts.isNumber(input)) return input;
+    if (isNumber(input)) return input;
     return null;
 }

@@ -1,2 +1,2 @@
-export * as EvenDateData from './even-date-data';
-export * as UnevenDateData from './uneven-date-data';
+export * as EvenDateData from './even-date-data.js';
+export * as UnevenDateData from './uneven-date-data.js';

@@ -2,16 +2,13 @@ import {
     debugLogger, isString, parseGeoDistanceUnit
 } from '@terascope/utils';
 import {
-    xLuceneVariables,
-    xLuceneTypeConfig,
-    GeoDistanceUnit,
-    ElasticsearchDSLOptions,
-    ElasticsearchDSLResult,
+    xLuceneVariables, xLuceneTypeConfig, GeoDistanceUnit,
+    ElasticsearchDSLOptions, ElasticsearchDSLResult,
     ElasticsearchDistribution
 } from '@terascope/types';
 import { Parser } from 'xlucene-parser';
-import * as i from './interfaces';
-import * as utils from './utils';
+import { TranslatorOptions } from './interfaces.js';
+import { translateQuery } from './utils.js';
 
 const logger = debugLogger('xlucene-translator');
 
@@ -24,7 +21,7 @@ export class Translator {
     private _defaultGeoSortOrder: 'asc'|'desc' = 'asc';
     private _defaultGeoSortUnit: GeoDistanceUnit = 'meters';
 
-    constructor(input: string | Parser, options: i.TranslatorOptions = {}) {
+    constructor(input: string | Parser, options: TranslatorOptions = {}) {
         this.variables = options.variables;
 
         this.typeConfig = options.type_config || {};
@@ -56,7 +53,7 @@ export class Translator {
     }
 
     toElasticsearchDSL(opts: ElasticsearchDSLOptions = {}): ElasticsearchDSLResult {
-        const result = utils.translateQuery(this._parser, {
+        const result = translateQuery(this._parser, {
             logger,
             majorVersion: opts.majorVersion ?? 6,
             minorVersion: opts.minorVersion ?? 8,

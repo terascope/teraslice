@@ -1,4 +1,4 @@
-import { ReadableData } from '../core';
+import { ReadableData } from '../core/index.js';
 
 export type DataBuckets<T> = ReadableData<T>[]|readonly ReadableData<T>[];
 

@@ -9,7 +9,7 @@ import {
     createClient, getBaseClient, Client,
     ElasticsearchTestHelpers,
     isElasticsearch6,
-} from '../src';
+} from '../src/index.js';
 
 const {
     upload, populateIndex, cleanupIndex, waitForData,

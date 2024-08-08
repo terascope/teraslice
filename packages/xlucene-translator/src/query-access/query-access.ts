@@ -9,8 +9,8 @@ import {
     ElasticsearchDistribution,
     ClientParams
 } from '@terascope/types';
-import { CachedTranslator } from '../translator';
-import * as i from './interfaces';
+import { CachedTranslator } from '../translator/index.js';
+import * as i from './interfaces.js';
 
 export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly excludes: (keyof T)[];

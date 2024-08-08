@@ -1,6 +1,6 @@
 import { DataEntity, get, set } from '@terascope/utils';
-import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
-import TransformOpBase from './base';
+import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces.js';
+import TransformOpBase from './base.js';
 
 export default class MakeArray extends TransformOpBase {
     private fields!: string[];

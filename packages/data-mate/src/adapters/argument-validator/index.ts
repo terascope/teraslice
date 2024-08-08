@@ -2,8 +2,8 @@ import {
     isNil, isNumber, isBoolean, coerceToType,
     joinList, set, isEmpty,
 } from '@terascope/utils';
-import { getDataTypeFieldAndChildren } from '../utils';
-import { FunctionDefinitionConfig, DataTypeFieldAndChildren } from '../../function-configs/interfaces';
+import { getDataTypeFieldAndChildren } from '../utils.js';
+import { FunctionDefinitionConfig, DataTypeFieldAndChildren } from '../../function-configs/interfaces.js';
 
 function isEmptyLike(input: unknown): boolean {
     // if it nil, or [], {}, booleans are fine

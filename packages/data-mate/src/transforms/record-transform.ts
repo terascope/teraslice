@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import * as ts from '@terascope/utils';
-import { Repository, RecordInput, InputType } from '../interfaces';
-import { isString, isArray } from '../validations/field-validator';
+import { Repository, RecordInput, InputType } from '../interfaces.js';
+import { isString, isArray } from '../validations/field-validator.js';
 
 export const repository: Repository = {
     renameField: {

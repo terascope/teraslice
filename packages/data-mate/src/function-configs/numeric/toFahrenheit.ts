@@ -7,7 +7,7 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const toFahrenheitConfig: FieldTransformConfig = {
     name: 'toFahrenheit',

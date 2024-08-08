@@ -5,7 +5,7 @@ import {
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface SetDateArgs {
     value: number

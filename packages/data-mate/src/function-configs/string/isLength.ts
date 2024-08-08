@@ -4,7 +4,7 @@ import validator from 'validator';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface IsLengthArgs {
     /** Check to see if it exactly matches size */

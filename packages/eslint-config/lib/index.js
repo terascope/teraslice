@@ -1,9 +1,7 @@
-'use strict';
+import rules from './rules/index.js';
+import overrides from './overrides.js';
 
-const rules = require('./rules');
-const overrides = require('./overrides');
-
-module.exports = {
+export {
     rules,
     overrides,
 };

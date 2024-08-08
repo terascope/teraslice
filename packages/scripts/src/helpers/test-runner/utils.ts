@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import fse from 'fs-extra';
 import {
     debugLogger, get, flatten,
@@ -7,12 +7,12 @@ import {
 import {
     ArgsMap, ExecEnv, exec,
     fork,
-} from '../scripts';
-import { TestOptions, GroupedPackages } from './interfaces';
-import { PackageInfo, Service } from '../interfaces';
-import { getServicesForSuite } from '../misc';
-import * as config from '../config';
-import signale from '../signale';
+} from '../scripts.js';
+import { TestOptions, GroupedPackages } from './interfaces.js';
+import { PackageInfo, Service } from '../interfaces.js';
+import { getServicesForSuite } from '../misc.js';
+import * as config from '../config.js';
+import signale from '../signale.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -70,7 +70,8 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
         NODE_VERSION: config.NODE_VERSION,
         KIND_CLUSTER: options.kindClusterName,
         TERASLICE_PORT: config.TERASLICE_PORT,
-        TJM_TEST_MODE: suite !== 'e2e' ? 'true' : 'false'
+        TJM_TEST_MODE: suite !== 'e2e' ? 'true' : 'false',
+        NODE_OPTIONS: '--experimental-vm-modules'
     };
 
     if (config.DOCKER_NETWORK_NAME) {

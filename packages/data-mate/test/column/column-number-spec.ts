@@ -3,7 +3,7 @@ import { FieldType, Maybe } from '@terascope/types';
 import { bigIntToJSON } from '@terascope/utils';
 import {
     Column
-} from '../../src';
+} from '../../src/index.js';
 
 describe('Column (Number Types)', () => {
     describe('when field type is Short', () => {

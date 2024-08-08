@@ -3,11 +3,9 @@ import {
     joinList, toISO8601, subtractFromDateFP, AdjustDateArgs
 } from '@terascope/utils';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 // AdjustDateArgs is not export as addFromDate does so, cannot double export
 

@@ -1,8 +1,6 @@
-'use strict';
+import { rules, overrides } from './lib/index.js';
 
-const { rules, overrides } = require('./lib');
-
-module.exports = {
+export default {
     extends: ['airbnb-base'],
     parserOptions: {
         ecmaVersion: 'latest',

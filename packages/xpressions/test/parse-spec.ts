@@ -1,6 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 import 'jest-extended';
-import { NodeType, parse } from '../src';
+import { NodeType, parse } from '../src/index.js';
 
 describe('parse', () => {
     describe('when given non-templated string', () => {

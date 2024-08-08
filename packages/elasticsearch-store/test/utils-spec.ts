@@ -1,11 +1,9 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import {
-    isTemplatedIndex,
-    isTimeSeriesIndex,
-    validateIndexConfig,
+    isTemplatedIndex, isTimeSeriesIndex, validateIndexConfig,
     uniqueFieldQuery,
-} from '../src/utils';
+} from '../src/utils/index.js';
 
 describe('Elasticsearch Store Utils', () => {
     describe('uniqueFieldQuery', () => {

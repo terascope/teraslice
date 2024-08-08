@@ -6,7 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
     DataTypeFieldAndChildren
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface RandomArgs {
     readonly min: number;

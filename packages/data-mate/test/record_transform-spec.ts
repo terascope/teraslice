@@ -1,5 +1,5 @@
 import { cloneDeep } from '@terascope/utils';
-import { RecordTransform } from '../src';
+import { RecordTransform } from '../src/index.js';
 
 describe('record transforms', () => {
     describe('renameField', () => {

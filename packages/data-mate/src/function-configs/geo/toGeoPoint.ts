@@ -7,7 +7,7 @@ import {
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory,
     isNumericType
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const toGeoPointConfig: FieldTransformConfig = {
     name: 'toGeoPoint',

@@ -1,7 +1,7 @@
 import { Logger } from '@terascope/utils';
-import { parseConfig } from './utils';
-import { OperationConfig, ValidationResults } from '../interfaces';
-import { OperationsManager } from '../index';
+import { parseConfig } from './utils.js';
+import { OperationConfig, ValidationResults } from '../interfaces.js';
+import { OperationsManager } from '../index.js';
 
 export default class RulesValidator {
     private configList: OperationConfig[];

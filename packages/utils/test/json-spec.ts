@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { parseJSON } from '../src/json';
+import { parseJSON } from '../src/json.js';
 
 describe('Utils', () => {
     describe('parseJSON', () => {

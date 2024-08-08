@@ -1,8 +1,6 @@
 import 'jest-extended';
 import { xLuceneTypeConfig, xLuceneFieldType, FieldType } from '@terascope/types';
-import {
-    DataType, DataTypeConfig, LATEST_VERSION
-} from '../src';
+import { DataType, DataTypeConfig, LATEST_VERSION } from '../src/index.js';
 
 describe('DataType (xlucene)', () => {
     describe('->toXlucene', () => {

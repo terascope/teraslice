@@ -1,17 +1,18 @@
 /* eslint-disable no-console */
 
-'use strict';
+import { pDelay, toHumanTime } from '@terascope/utils';
+import MultiMap from 'mnemonist/multi-map';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { DataFrame } from '../dist/src/index.js';
 
-const { pDelay, toHumanTime } = require('@terascope/utils');
-const MultiMap = require('mnemonist/multi-map');
-const fs = require('fs');
-const path = require('path');
-const { DataFrame } = require('./src');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function readFile(fileName) {
-    const filePath = fs.existsSync(path.join(__dirname, 'fixtures', `.local.${fileName}`))
-        ? path.join(__dirname, 'fixtures', `.local.${fileName}`)
-        : path.join(__dirname, 'fixtures', fileName);
+    const filePath = fs.existsSync(path.join(dirname, 'fixtures', `.local.${fileName}`))
+        ? path.join(dirname, 'fixtures', `.local.${fileName}`)
+        : path.join(dirname, 'fixtures', fileName);
 
     return async function _readFile() {
         console.time(`readFile ${fileName}`);
@@ -32,9 +33,9 @@ function readFile(fileName) {
 }
 
 function readFileStream(fileName) {
-    const filePath = fs.existsSync(path.join(__dirname, 'fixtures', `.local.${fileName}`))
-        ? path.join(__dirname, 'fixtures', `.local.${fileName}`)
-        : path.join(__dirname, 'fixtures', fileName);
+    const filePath = fs.existsSync(path.join(dirname, 'fixtures', `.local.${fileName}`))
+        ? path.join(dirname, 'fixtures', `.local.${fileName}`)
+        : path.join(dirname, 'fixtures', fileName);
 
     return async function* _readFile() {
         console.time(`readFileStream ${fileName}`);

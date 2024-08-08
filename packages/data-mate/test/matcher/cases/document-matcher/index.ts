@@ -1,12 +1,12 @@
-import geo from './geo';
-import basicQueries from './basic-terms-and-logic';
-import range from './range';
-import regexp from './regexp';
-import ip from './ip';
-import dates from './dates';
-import wildcard from './wildcard';
-import complexQueries from './complex-queries';
-import partialVariables from './partial-variables';
+import geo from './geo.js';
+import basicQueries from './basic-terms-and-logic.js';
+import range from './range.js';
+import regexp from './regexp.js';
+import ip from './ip.js';
+import dates from './dates.js';
+import wildcard from './wildcard.js';
+import complexQueries from './complex-queries.js';
+import partialVariables from './partial-variables.js';
 
 export default {
     basic_queries_and_logic: basicQueries,

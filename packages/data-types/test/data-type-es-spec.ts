@@ -1,8 +1,6 @@
 import 'jest-extended';
 import { DataTypeConfig, ElasticsearchDistribution, FieldType } from '@terascope/types';
-import {
-    DataType, LATEST_VERSION, ESMappingOptions
-} from '../src';
+import { DataType, LATEST_VERSION, ESMappingOptions } from '../src/index.js';
 
 describe('DataType (elasticsearch)', () => {
     describe('->toESMapping', () => {

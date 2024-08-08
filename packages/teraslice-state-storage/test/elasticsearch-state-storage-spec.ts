@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { DataEntity, debugLogger, times } from '@terascope/utils';
 import { ClientParams, ClientResponse } from '@terascope/types';
-import { ESCachedStateStorage, ESStateStorageConfig } from '../src';
+import { ESCachedStateStorage, ESStateStorageConfig } from '../src/index.js';
 
 // TODO: this should search against elasticsearch
 describe('elasticsearch-state-storage', () => {

@@ -1,15 +1,16 @@
-'use strict';
+import { times, random } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
+import fs from 'node:fs';
+import path from 'node:path';
+import shuffle from 'lodash/shuffle';
+import Chance from 'chance';
+import util from 'node:util';
+import stream from 'node:stream';
+import { once } from 'node:events';
+import { fileURLToPath } from 'node:url';
+import { DataFrame } from '../dist/src/index.js';
 
-const { times, random } = require('@terascope/utils');
-const { FieldType } = require('@terascope/types');
-const fs = require('fs');
-const path = require('path');
-const shuffle = require('lodash/shuffle');
-const Chance = require('chance');
-const util = require('util');
-const stream = require('stream');
-const { once } = require('events');
-const { DataFrame } = require('./src');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const chance = new Chance();
 
@@ -147,7 +148,7 @@ console.dir({
             config: dataTypeConfig,
             data: records
         });
-        fs.writeFile(path.join(__dirname, 'fixtures/data.json'), data, (err) => {
+        fs.writeFile(path.join(dirname, 'fixtures/data.json'), data, (err) => {
             if (err) reject();
             else resolve();
         });
@@ -161,7 +162,7 @@ const finished = util.promisify(stream.finished);
     const frame = DataFrame.fromJSON(dataTypeConfig, records);
 
     const writable = fs.createWriteStream(
-        path.join(__dirname, 'fixtures/data.dfjson'),
+        path.join(dirname, 'fixtures/data.dfjson'),
         { encoding: 'utf8' }
     );
     console.time('write column stream');

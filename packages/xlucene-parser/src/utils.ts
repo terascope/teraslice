@@ -25,9 +25,10 @@ import {
 } from '@terascope/utils';
 
 import {
-    xLuceneFieldType, xLuceneVariables, CoordinateTuple, Maybe
+    xLuceneFieldType, xLuceneVariables, CoordinateTuple,
+    Maybe
 } from '@terascope/types';
-import * as i from './interfaces';
+import * as i from './interfaces.js';
 
 export const logger = debugLogger('xlucene-parser');
 

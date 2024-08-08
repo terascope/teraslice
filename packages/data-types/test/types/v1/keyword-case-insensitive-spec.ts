@@ -1,5 +1,5 @@
 import { ESFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
-import KeywordCaseInsensitive from '../../../src/types/v1/keyword-case-insensitive';
+import KeywordCaseInsensitive from '../../../src/types/v1/keyword-case-insensitive.js';
 
 describe('KeywordCaseInsensitive V1', () => {
     const field = 'someField';

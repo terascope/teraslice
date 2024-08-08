@@ -1,7 +1,5 @@
-'use strict';
-
-const { config, data } = require('./fixtures/data.json');
-const { Column } = require('./src');
+import { config, data } from './fixtures/data.json';
+import { Column } from '../dist/src/index.js';
 
 const name = 'results';
 const fieldConfig = config.fields[name];
@@ -23,4 +21,6 @@ console.log('DONE', endRSS - startRSS);
 setTimeout(() => console.error('exiting...'), 5000);
 
 // this ensures it is kept in memory
-module.exports = column;
+export {
+    column
+};

@@ -1,6 +1,9 @@
 import { getTypeOf, isInteger } from '@terascope/utils';
 import type { Maybe, TypedArrayConstructor } from '@terascope/types';
-import SparseMap from 'mnemonist/sparse-map';
+import * as dataStructurePkg from 'mnemonist';
+
+// @ts-expect-error
+const { SparseMap } = dataStructurePkg.default;
 
 /**
  * A generic write-only optimized view of data used for Builders.
@@ -26,7 +29,7 @@ export class WritableData<T> {
     /**
      * The value to indices Map
     */
-    private readonly _values: SparseMap<T>;
+    private readonly _values: dataStructurePkg.SparseMap<T>;
 
     /**
      * The total number of values stored
@@ -39,7 +42,6 @@ export class WritableData<T> {
         }
 
         this._values = Values ? new SparseMap(
-            // @ts-expect-error because the types are wrong
             Values, size
         ) : new SparseMap(size);
 
@@ -88,7 +90,7 @@ export class WritableData<T> {
         );
     }
 
-    rawValues(): SparseMap<T> {
+    rawValues(): any {
         return this._values;
     }
 }

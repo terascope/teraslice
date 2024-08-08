@@ -2,7 +2,7 @@ import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
 import {
     Column, dataFrameAdapter, functionConfigRepository, Vector
-} from '../../src';
+} from '../../src/index.js';
 
 describe('Column (String Types)', () => {
     describe('when field type is Keyword', () => {

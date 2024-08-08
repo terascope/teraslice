@@ -1,14 +1,14 @@
 import * as k8sClient from '@kubernetes/client-node';
-import fs from 'fs';
+import fs from 'node:fs';
 import ms from 'ms';
-import path from 'path';
+import path from 'node:path';
 import execa from 'execa';
 import { cloneDeep, debugLogger, pDelay } from '@terascope/utils';
 import { Terafoundation as TF, Teraslice as TS } from '@terascope/types';
-import { getE2eK8sDir } from '../../helpers/packages';
-import signale from '../signale';
-import * as config from '../config';
-import { getVolumesFromDockerfile } from '../kind';
+import { getE2eK8sDir } from '../../helpers/packages.js';
+import signale from '../signale.js';
+import * as config from '../config.js';
+import { getVolumesFromDockerfile } from '../kind.js';
 
 const logger = debugLogger('ts-scripts:k8s-env');
 export class K8s {

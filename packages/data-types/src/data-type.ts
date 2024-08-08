@@ -1,18 +1,16 @@
-import * as ts from '@terascope/utils';
+import { isString, set, startsWith } from '@terascope/utils';
 import {
-    DataTypeConfig,
-    ElasticsearchDistribution,
-    ESMapping,
-    ESTypeMappings,
-    ReadonlyDataTypeFields,
-    xLuceneTypeConfig
+    DataTypeConfig, ElasticsearchDistribution, ESMapping,
+    ESTypeMappings, ReadonlyDataTypeFields, xLuceneTypeConfig
 } from '@terascope/types';
-import defaultsDeep from 'lodash/defaultsDeep';
-import { formatSchema, formatGQLComment } from './graphql-helper';
-import * as i from './interfaces';
-import BaseType from './types/base-type';
-import * as utils from './utils';
-import { getTypes, LATEST_VERSION, getGroupedFields } from './types';
+import lodash from 'lodash';
+import { formatSchema, formatGQLComment } from './graphql-helper.js';
+import * as i from './interfaces.js';
+import BaseType from './types/base-type.js';
+import * as utils from './utils.js';
+import { getTypes, LATEST_VERSION, getGroupedFields } from './types/index.js';
+
+const { defaultsDeep } = lodash;
 
 /**
  * A DataType is used to define the structure of data with version support
@@ -45,7 +43,7 @@ export class DataType {
         const names: string[] = [];
 
         types.forEach((type) => {
-            if (!type.name || !ts.isString(type.name)) {
+            if (!type.name || !isString(type.name)) {
                 throw new Error('Unable to process DataType with missing type name');
             }
 
@@ -164,17 +162,17 @@ export class DataType {
                         ? ['mappings', indexType, 'properties', key]
                         : ['mappings', 'properties', key];
 
-                    ts.set(esMapping, keyPath, config);
+                    set(esMapping, keyPath, config);
                 }
             }
             if (analyzer) {
                 for (const [key, config] of Object.entries(analyzer)) {
-                    ts.set(esMapping, ['settings', 'analysis', 'analyzer', key], config);
+                    set(esMapping, ['settings', 'analysis', 'analyzer', key], config);
                 }
             }
             if (tokenizer) {
                 for (const [key, config] of Object.entries(tokenizer)) {
-                    ts.set(esMapping, ['settings', 'analysis', 'tokenizer', key], config);
+                    set(esMapping, ['settings', 'analysis', 'tokenizer', key], config);
                 }
             }
         }
@@ -219,7 +217,7 @@ export class DataType {
 
             if (createInputType) {
                 if (args.includeAllInputFields
-                    || !ts.startsWith(typeClass.field, '_')) {
+                    || !startsWith(typeClass.field, '_')) {
                     const inputResult = typeClass.toGraphQL({
                         typeName,
                         isInput: true,

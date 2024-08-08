@@ -1,25 +1,21 @@
-import fs from 'fs';
-import os from 'os';
+import fs from 'node:fs';
+import os from 'node:os';
 import ms from 'ms';
-import path from 'path';
+import path from 'node:path';
 import execa from 'execa';
 import fse from 'fs-extra';
 import yaml from 'js-yaml';
 import {
-    debugLogger,
-    isString,
-    get,
-    pWhile,
-    pDelay,
-    TSError
+    debugLogger, isString, get,
+    pWhile, pDelay, TSError
 } from '@terascope/utils';
-import { TSCommands, PackageInfo } from './interfaces';
-import { getRootDir } from './misc';
-import signale from './signale';
-import * as config from './config';
-import { getE2eK8sDir } from '../helpers/packages';
-import { YamlDeploymentResource, YamlServiceResource } from './k8s-env/interfaces';
-import { Kind } from './kind';
+import { TSCommands, PackageInfo } from './interfaces.js';
+import { getRootDir } from './misc.js';
+import signale from './signale.js';
+import * as config from './config.js';
+import { getE2eK8sDir } from '../helpers/packages.js';
+import { YamlDeploymentResource, YamlServiceResource } from './k8s-env/interfaces.js';
+import { Kind } from './kind.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -460,18 +456,23 @@ export async function loadThenDeleteImageFromCache(imageName: string): Promise<b
     signale.time(`unzip and load ${imageName}`);
     const fileName = imageName.trim().replace(/[/:]/g, '_');
     const filePath = path.join(config.DOCKER_CACHE_PATH, `${fileName}.tar.gz`);
+
     if (!fs.existsSync(filePath)) {
         signale.error(`No file found at ${filePath}. Have you restored the cache?`);
         return false;
     }
+
     const result = await execa.command(`gunzip -c ${filePath} | docker load`, { shell: true });
     signale.info('Result: ', result);
+
     if (result.exitCode !== 0) {
         signale.error(`Error loading ${filePath} to docker`);
         return false;
     }
+
     fs.rmSync(filePath);
     signale.timeEnd(`unzip and load ${imageName}`);
+
     return true;
 }
 

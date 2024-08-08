@@ -1,6 +1,9 @@
 import { FieldType, DataTypeFields } from '@terascope/types';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
-import * as ts from '@terascope/utils';
+import {
+    cloneDeep, isPlainObject, concat,
+    getWordParts, firstToUpper, isNumberLike
+} from '@terascope/utils';
 
 /** JSON Schema */
 export const schema = {
@@ -55,15 +58,15 @@ export function addDefaultSchema(input: Record<string, any>): Record<string, any
  * Deep copy two levels deep (useful for mapping and schema)
  */
 export function mergeDefaults<T>(source: T, from: Partial<T>): T {
-    const output = ts.cloneDeep(source);
-    const _mapping = from ? ts.cloneDeep(from) : {};
+    const output = cloneDeep(source);
+    const _mapping = from ? cloneDeep(from) : {};
 
     for (const [key, val] of Object.entries(_mapping)) {
         if (output[key] != null) {
-            if (ts.isPlainObject(val)) {
+            if (isPlainObject(val)) {
                 output[key] = Object.assign(output[key], val);
             } else if (Array.isArray(val)) {
-                output[key] = ts.concat(output[key], val);
+                output[key] = concat(output[key], val);
             } else {
                 output[key] = val;
             }
@@ -74,7 +77,7 @@ export function mergeDefaults<T>(source: T, from: Partial<T>): T {
 }
 
 export function toInstanceName(name: string): string {
-    return ts.getWordParts(name).map(ts.firstToUpper).join('');
+    return getWordParts(name).map(firstToUpper).join('');
 }
 
 const _wildcardRegex = /[^A-Za-z0-9]/gm;
@@ -83,7 +86,7 @@ export function uniqueFieldQuery(field: string): string {
         .replace(_wildcardRegex, '.')
         .split('')
         .map((char) => {
-            if (char !== '.' && !ts.isNumberLike(char)) {
+            if (char !== '.' && !isNumberLike(char)) {
                 return `[${char.toLowerCase()}${char.toUpperCase()}]`;
             }
             return char;

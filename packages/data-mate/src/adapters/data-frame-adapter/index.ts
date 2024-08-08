@@ -1,19 +1,19 @@
 import { isNil, isFunction, isString } from '@terascope/utils';
-import { validateFunctionArgs } from '../argument-validator';
+import { validateFunctionArgs } from '../argument-validator/index.js';
 import {
     Column, validateAccepts,
     getFieldTypesFromFieldConfigAndChildConfig,
     ColumnOptions, mapVectorEach, mapVectorEachValue,
     dynamicMapVectorEach, dynamicMapVectorEachValue
-} from '../../column';
-import { DataFrame } from '../../data-frame';
+} from '../../column/index.js';
+import { DataFrame } from '../../data-frame/index.js';
 import {
     FieldTransformConfig, isFieldTransform, isFieldValidation, ProcessMode,
     FieldValidateConfig, DataTypeFieldAndChildren, FunctionDefinitionConfig,
     FunctionContext, DynamicFrameFunctionContext
-} from '../../function-configs/interfaces';
-import { Builder, copyVectorToBuilder } from '../../builder';
-import { WritableData } from '../../core';
+} from '../../function-configs/interfaces.js';
+import { Builder, copyVectorToBuilder } from '../../builder/index.js';
+import { WritableData } from '../../core/index.js';
 
 export interface DataFrameAdapterOptions<T extends Record<string, any>> {
     args?: T | ((index: number) => T),

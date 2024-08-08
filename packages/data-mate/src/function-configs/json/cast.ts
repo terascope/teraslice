@@ -8,7 +8,7 @@ import {
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export type CastArgs = DataTypeFieldConfig & { child_config?: DataTypeFields }
 

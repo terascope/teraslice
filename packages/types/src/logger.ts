@@ -1,6 +1,6 @@
 /* eslint-disable */
-import Stream from 'stream';
-import { EventEmitter } from 'events';
+import Stream from 'node:stream';
+import { EventEmitter } from 'node:events';
 
 // This includes additional properties from terafoundation
 // Type definitions for bunyan 1.8
@@ -9,7 +9,7 @@ import { EventEmitter } from 'events';
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 
-declare class Logger extends EventEmitter {
+export declare class Logger extends EventEmitter {
     constructor(options: Logger.LoggerOptions);
     addStream(stream: Logger.Stream): void;
     addSerializers(serializers: Logger.Serializers): void;
@@ -210,7 +210,7 @@ declare class Logger extends EventEmitter {
     flush(): Promise<boolean>;
 }
 
-declare namespace Logger {
+export declare namespace Logger {
     const TRACE: number;
     const DEBUG: number;
     const INFO: number;
@@ -305,5 +305,3 @@ declare namespace Logger {
         rotate(): void;
     }
 }
-
-export { Logger };

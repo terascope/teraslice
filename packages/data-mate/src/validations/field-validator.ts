@@ -13,9 +13,9 @@ import {
     LengthConfig,
     PostalCodeLocale,
     ArgsISSNOptions,
-} from './interfaces';
+} from './interfaces.js';
 
-import * as i from '../interfaces';
+import * as i from '../interfaces.js';
 
 export const repository: i.Repository = {
     isBoolean: { fn: isBoolean, config: {}, primary_input_type: i.InputType.Boolean },

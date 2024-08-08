@@ -1,5 +1,5 @@
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
-import IPType from '../../../src/types/v1/ip';
+import IPType from '../../../src/types/v1/ip.js';
 
 describe('IP V1', () => {
     const field = 'someField';

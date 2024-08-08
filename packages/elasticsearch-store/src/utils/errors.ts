@@ -1,4 +1,4 @@
-import * as ts from '@terascope/utils';
+import { TSError, isString, get } from '@terascope/utils';
 import ajv from 'ajv';
 
 export function getErrorMessages(errors: ErrorLike[]): string {
@@ -11,7 +11,7 @@ export function throwValidationError(errors: ErrorLike[] | null | undefined): st
 
     const errorMsg = getErrorMessages(errors);
 
-    const error = new ts.TSError(errorMsg, {
+    const error = new TSError(errorMsg, {
         statusCode: 400,
     });
 
@@ -21,18 +21,18 @@ export function throwValidationError(errors: ErrorLike[] | null | undefined): st
 
 export function getErrorMessage(err: ErrorLike): string {
     const defaultErrorMsg = 'Unknown Error';
-    if (err && ts.isString(err)) {
+    if (err && isString(err)) {
         return err;
     }
 
-    const message: string = ts.get(err, ['message']) || ts.get(err, ['msg'], defaultErrorMsg);
-    const prefix = ts.get(err, ['dataPath']);
+    const message: string = get(err, ['message']) || get(err, ['msg'], defaultErrorMsg);
+    const prefix = get(err, ['dataPath']);
 
     return `${prefix ? `${prefix} ` : ''}${message}`;
 }
 
 export function getErrorType(err: unknown): string {
-    return ts.get(err, ['error', 'type'], '');
+    return get(err, ['error', 'type'], '');
 }
 
 export type ErrorLike =

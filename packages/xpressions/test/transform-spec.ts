@@ -1,6 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 import 'jest-extended';
-import { transform } from '../src';
+import { transform } from '../src/index.js';
 
 describe('transform', () => {
     describe('when given non-templated string', () => {

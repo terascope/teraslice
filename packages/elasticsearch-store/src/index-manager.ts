@@ -1,12 +1,16 @@
-import * as ts from '@terascope/utils';
+import {
+    TSError, Logger, toNumber, get,
+    isTest, parseError, isEmpty, cloneDeep,
+    pRetry, debugLogger
+} from '@terascope/utils';
 import {
     ClientParams, ClientResponse, ClientMetadata, ESMapping
 } from '@terascope/types';
-import * as utils from './utils';
-import { IndexConfig, MigrateIndexOptions } from './interfaces';
-import { Client } from './elasticsearch-client';
+import * as utils from './utils/index.js';
+import { IndexConfig, MigrateIndexOptions } from './interfaces.js';
+import { Client } from './elasticsearch-client/index.js';
 
-const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
+const _loggers = new WeakMap<IndexConfig<any>, Logger>();
 
 /**
  * Manage Elasticsearch Indices
@@ -17,9 +21,9 @@ export class IndexManager {
 
     enableIndexMutations: boolean;
 
-    constructor(client: Client, enableIndexMutations = ts.isTest) {
+    constructor(client: Client, enableIndexMutations = isTest) {
         if (!utils.isValidClient(client)) {
-            throw new ts.TSError('IndexManager requires elasticsearch client', {
+            throw new TSError('IndexManager requires elasticsearch client', {
                 fatalError: true,
             });
         }
@@ -27,7 +31,7 @@ export class IndexManager {
         this.enableIndexMutations = enableIndexMutations;
         const { version, distribution } = utils.getClientMetadata(client);
 
-        const [majorVersion = 6, minorVersion = 8] = version.split('.').map(ts.toNumber);
+        const [majorVersion = 6, minorVersion = 8] = version.split('.').map(toNumber);
         this.clientMetadata = {
             version,
             distribution,
@@ -168,7 +172,7 @@ export class IndexManager {
                 )
             );
         } catch (err) {
-            const errStr = ts.parseError(err, true);
+            const errStr = parseError(err, true);
             if (!errStr.includes('already_exists_exception')) {
                 throw err;
             }
@@ -191,7 +195,7 @@ export class IndexManager {
     async isIndexActive(index: string): Promise<boolean> {
         const stats = await this.client.indices.recovery({ index });
 
-        if (ts.isEmpty(stats)) return false;
+        if (isEmpty(stats)) return false;
 
         const getShardsPath = utils.shardsPath(index);
         const shards = getShardsPath(stats);
@@ -208,7 +212,7 @@ export class IndexManager {
      * @todo add support for timeseries and templated indexes
      * @todo add support for complicated re-indexing behaviors
      */
-    async migrateIndex<T extends ts.AnyObject>(
+    async migrateIndex<T extends Record<string, any>>(
         options: MigrateIndexOptions<T>
     ): Promise<ClientResponse.ReindexResponse | boolean> {
         const {
@@ -218,7 +222,7 @@ export class IndexManager {
         utils.validateIndexConfig(config);
 
         const logger = this._logger(config);
-        let previousConfig = ts.cloneDeep(config);
+        let previousConfig = cloneDeep(config);
 
         if (!config.index_schema || !previousConfig.index_schema) {
             logger.warn('Missing index_schema on config, skipping migration');
@@ -241,7 +245,7 @@ export class IndexManager {
             previousConfig.index_schema.version = previousVersion;
         } else {
             // try and decrement the to last version
-            const _previousConfig = ts.cloneDeep(previousConfig);
+            const _previousConfig = cloneDeep(previousConfig);
             _previousConfig.index_schema!.version!--;
             if (_previousConfig.index_schema!.version! > 0) {
                 const _indexName = this.formatIndexName(_previousConfig);
@@ -309,7 +313,7 @@ export class IndexManager {
      * **WARNING:** This only updates the mapping if it exists
      */
     async updateMapping(
-        index: string, type: string, mapping: Record<string, any>, logger: ts.Logger
+        index: string, type: string, mapping: Record<string, any>, logger: Logger
     ): Promise<void> {
         const result = await this.getMapping(index);
 
@@ -317,8 +321,8 @@ export class IndexManager {
             'mappings', 'properties'
         ] : ['mappings', type, 'properties'];
 
-        const existing = ts.get(result[index], propertiesPath, {});
-        const current = ts.get(mapping, propertiesPath, {});
+        const existing = get(result[index], propertiesPath, {});
+        const current = get(mapping, propertiesPath, {});
 
         let breakingChange = false;
         let safeChange = false;
@@ -387,7 +391,7 @@ export class IndexManager {
      * Safely create or update a template
      */
     async upsertTemplate(
-        template: ESMapping, logger?: ts.Logger
+        template: ESMapping, logger?: Logger
     ): Promise<void> {
         const { template: name, version } = template;
 
@@ -425,17 +429,17 @@ export class IndexManager {
             terminate_after: 1,
         };
 
-        await ts.pRetry(() => this.client.search(query), utils.getRetryConfig());
+        await pRetry(() => this.client.search(query), utils.getRetryConfig());
     }
 
-    private _logger<T extends Record<string, any>>(config: IndexConfig<T>): ts.Logger {
+    private _logger<T extends Record<string, any>>(config: IndexConfig<T>): Logger {
         if (config.logger) return config.logger;
 
         const logger = _loggers.get(config);
         if (logger) return logger;
 
         const debugLoggerName = `elasticsearch-store:index-manager:${config.name}`;
-        const newLogger = ts.debugLogger(debugLoggerName);
+        const newLogger = debugLogger(debugLoggerName);
 
         _loggers.set(config, newLogger);
         return newLogger;

@@ -1,8 +1,6 @@
 import { Maybe } from '@terascope/types';
-import {
-    ReadonlySparseMap
-} from './interfaces';
-import { WritableData } from './WritableData';
+import { ReadonlySparseMap } from './interfaces.js';
+import { WritableData } from './WritableData.js';
 
 /**
  * A generic readonly optimized view of data used for Vectors.

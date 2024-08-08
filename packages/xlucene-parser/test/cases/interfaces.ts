@@ -1,6 +1,6 @@
 import { xLuceneVariables, xLuceneTypeConfig } from '@terascope/types';
 
-import { Node } from '../../src';
+import { Node } from '../../src/index.js';
 
 export type TestCase = [
     // when give query %s

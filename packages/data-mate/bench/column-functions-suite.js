@@ -1,13 +1,11 @@
-'use strict';
-
-const { isEmpty } = require('@terascope/utils');
-const { FieldType } = require('@terascope/types');
-const { Suite } = require('./helpers');
-const { config, data } = require('./fixtures/data.json');
-const {
+import { isEmpty, isExecutedFile } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
+import { Suite } from './helpers.js';
+import { config, data } from './fixtures/data.json';
+import {
     DataFrame, functionConfigRepository,
     FunctionDefinitionType, dataFrameAdapter
-} = require('./src');
+} from '../dist/src/index.js';
 
 /**
  * @todo add tuple support
@@ -71,10 +69,11 @@ const run = async () => {
         maxTime: 20,
     });
 };
-if (require.main === module) {
+
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

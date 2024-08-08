@@ -1,8 +1,8 @@
-import path from 'path';
+import path from 'node:path';
 import fse from 'fs-extra';
-import { getRootDir, listMdFiles, writeIfChanged } from '../misc';
-import { PackageInfo } from '../interfaces';
-import { getWorkspaceNames } from '../packages';
+import { getRootDir, listMdFiles, writeIfChanged } from '../misc.js';
+import { PackageInfo } from '../interfaces.js';
+import { getWorkspaceNames } from '../packages.js';
 
 function getSubcategories(pkgDocFolder: string): string[] {
     const docsFolder = path.join(getRootDir(), 'docs');

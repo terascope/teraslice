@@ -3,7 +3,7 @@ import { LATEST_VERSION } from '@terascope/data-types';
 import {
     DataTypeConfig, FieldType, GeoShape, GeoShapeType, Maybe
 } from '@terascope/types';
-import { DataFrame } from '../src';
+import { DataFrame } from '../src/index.js';
 
 describe('DataFrame->search', () => {
     type Person = {

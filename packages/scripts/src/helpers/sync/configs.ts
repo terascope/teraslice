@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
-import { getRootInfo, getRootTsConfig, writeIfChanged } from '../misc';
-import { PackageInfo } from '../interfaces';
+import fs from 'node:fs';
+import path from 'node:path';
+import { getRootInfo, getRootTsConfig, writeIfChanged } from '../misc.js';
+import { PackageInfo } from '../interfaces.js';
 
 export async function generateTSConfig(
     pkgInfos: PackageInfo[], log: boolean

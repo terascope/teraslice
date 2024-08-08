@@ -1,4 +1,4 @@
-import { TestCase } from './interfaces';
+import { TestCase } from './interfaces.js';
 
 const ageData = [
     { age: 33 },

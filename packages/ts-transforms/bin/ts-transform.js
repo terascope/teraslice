@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
-'use strict';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const path = require('path');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 try {
     // this path.join is only used for pkg asset injection
-    path.join(__dirname, '../package.json');
-    require('../dist/src/command');
+    path.join(dirname, '../package.json');
+    import('../dist/src/command.js');
 } catch (err) {
     // eslint-disable-next-line
     console.error('error while attempting to invoke cli command', err.toString());

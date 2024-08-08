@@ -1,7 +1,5 @@
-'use strict';
+import generate from '../scripts/generate-engine.js';
 
-const generate = require('../scripts/generate-engine');
-
-module.exports = () => {
+export default () => {
     generate();
 };

@@ -4,14 +4,13 @@ import {
 } from '@terascope/utils';
 import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
-import {
-    IndexStore, createClient, Client, getClientMetadata,
-    fixMappingRequest, Semver
-} from '../../src';
+import { createClient, Client, Semver } from '../elasticsearch-client/index.js';
+import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
+import type { IndexStore } from '../index-store.js';
 import {
     ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
     OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST
-} from './config';
+} from './config.js';
 
 const semver = ELASTICSEARCH_VERSION.split('.').map(toNumber);
 const isOpensearchTest = process.env.TEST_OPENSEARCH != null;

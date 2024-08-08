@@ -1,11 +1,11 @@
-import { Logger } from './logger-interface';
-import STATUS_CODES from './status-codes';
-import { AnyObject } from './interfaces';
-import { getFirst } from './arrays';
-import { isFunction } from './functions';
-import { getTypeOf, isPlainObject } from './deps';
-import { tryParseJSON } from './json';
-import * as s from './strings';
+import type { Logger } from '@terascope/types';
+import STATUS_CODES from './status-codes.js';
+import { AnyObject } from './interfaces.js';
+import { getFirst } from './arrays.js';
+import { isFunction } from './functions.js';
+import { getTypeOf, isPlainObject } from './deps.js';
+import { tryParseJSON } from './json.js';
+import * as s from './strings.js';
 
 /**
  * A custom Error class with additional properties,

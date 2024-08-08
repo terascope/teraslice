@@ -1,16 +1,17 @@
-'use strict';
+import { createRequire } from 'node:module';
+import rules from './rules/index.js';
 
-const rules = require('./rules');
+const require = createRequire(import.meta.url);
 
-let hasTypescript;
+let hasTypescript = false;;
+
 try {
     require.resolve('typescript');
     hasTypescript = true;
-} catch (err) {
-    hasTypescript = false;
-}
+} catch (err) {}
 
 const overrides = [];
+
 if (hasTypescript) {
     overrides.push(
         {
@@ -81,4 +82,4 @@ if (hasTypescript) {
     );
 }
 
-module.exports = overrides;
+export default overrides;

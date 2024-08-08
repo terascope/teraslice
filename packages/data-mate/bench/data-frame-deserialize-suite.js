@@ -1,12 +1,12 @@
-'use strict';
+import { timesIter, isExecutedFile } from '@terascope/utils';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { Suite } from './helpers.js';
+import { DataFrame } from '../dist/src/index.js';
 
-const { timesIter } = require('@terascope/utils');
-const fs = require('fs');
-const path = require('path');
-const { Suite } = require('./helpers');
-const { DataFrame } = require('./src');
-
-const _dfJSON = fs.readFileSync(path.join(__dirname, './fixtures/data.dfjson'));
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const _dfJSON = fs.readFileSync(path.join(dirname, './fixtures/data.dfjson'));
 
 const run = async () => {
     const suite = Suite('DataFrame#deserialize');
@@ -44,10 +44,11 @@ const run = async () => {
         maxTime: 30,
     });
 };
-if (require.main === module) {
+
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

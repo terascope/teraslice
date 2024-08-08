@@ -1,9 +1,9 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { pImmediate, BigLRUMap } from '@terascope/utils';
-
 import {
-    CacheConfig, MGetCacheResponse, SetTuple, ValuesFn, EvictedEvent
-} from '../interfaces';
+    CacheConfig, MGetCacheResponse, SetTuple,
+    ValuesFn, EvictedEvent
+} from '../interfaces.js';
 
 export default class CachedStateStorage<T> extends EventEmitter {
     private _cache: BigLRUMap<T>;

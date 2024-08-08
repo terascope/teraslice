@@ -1,42 +1,44 @@
 import * as utils from '@terascope/utils';
-import * as t from '@terascope/types';
 import {
-    toString,
-    geoRelationFP,
-    validateListCoords,
+    GeoQuery, GeoShapeType, ESGeoShapeType,
+    xLuceneVariables, GeoShape, GeoShapeRelation,
+    AnyQuery, CoordinateTuple, xLuceneFieldType
+} from '@terascope/types';
+import {
+    toString, geoRelationFP, validateListCoords,
     polyHasHoles
 } from '@terascope/utils';
-import * as i from '../../interfaces';
-import { getFieldValue, logger } from '../../utils';
+import * as i from '../../interfaces.js';
+import { getFieldValue, logger } from '../../utils.js';
 
 const compatMapping = {
-    [t.GeoShapeType.Polygon]: t.ESGeoShapeType.Polygon,
-    [t.GeoShapeType.MultiPolygon]: t.ESGeoShapeType.MultiPolygon,
+    [GeoShapeType.Polygon]: ESGeoShapeType.Polygon,
+    [GeoShapeType.MultiPolygon]: ESGeoShapeType.MultiPolygon,
 } as const;
 
 interface Holes {
     bool: {
-        must_not: t.GeoQuery[];
+        must_not: GeoQuery[];
     };
 }
 interface PolyHolesQuery {
     bool: {
-        should: [t.GeoQuery, Holes];
+        should: [GeoQuery, Holes];
     };
 }
 
-const relations = new Set(Object.values(t.GeoShapeRelation));
+const relations = new Set(Object.values(GeoShapeRelation));
 
 function validate(
     params: i.Term[],
-    variables: t.xLuceneVariables
-): { polygonShape: t.GeoShape; relation: t.GeoShapeRelation } {
+    variables: xLuceneVariables
+): { polygonShape: GeoShape; relation: GeoShapeRelation } {
     const geoPointsParam = params.find((node) => node.field === 'points');
     const geoRelationParam = params.find((node) => node.field === 'relation');
-    let relation: t.GeoShapeRelation;
+    let relation: GeoShapeRelation;
 
     if (geoRelationParam) {
-        const geoRelationValue = getFieldValue<t.GeoShapeRelation>(
+        const geoRelationValue = getFieldValue<GeoShapeRelation>(
             geoRelationParam.value, variables
         );
         if (!relations.has(geoRelationValue)) {
@@ -44,15 +46,15 @@ function validate(
         }
         relation = geoRelationValue;
     } else {
-        relation = t.GeoShapeRelation.Within;
+        relation = GeoShapeRelation.Within;
     }
 
     if (geoPointsParam == null) {
         throw new TypeError('Invalid geoPolygon query, need to specify a "points" parameter');
     }
 
-    let polygonShape: t.GeoShape = {
-        type: t.GeoShapeType.Polygon,
+    let polygonShape: GeoShape = {
+        type: GeoShapeType.Polygon,
         coordinates: []
     };
 
@@ -65,7 +67,7 @@ function validate(
             throw new TypeError('Invalid points parameter, it must either be a geoShape or be an array of geo-points');
         }
 
-        const points: t.CoordinateTuple[] = geoPointsValue.map((node) => {
+        const points: CoordinateTuple[] = geoPointsValue.map((node) => {
             const value = node.value || node;
             const { lat, lon } = utils.parseGeoPoint(value);
             return [lon, lat];
@@ -111,17 +113,17 @@ const geoPolygon: i.FunctionDefinition = {
             // can remove the second check when "geo" if fully deprecated
         }
 
-        const targetIsGeoPoint = type === t.xLuceneFieldType.GeoPoint
-                || type === t.xLuceneFieldType.Geo
+        const targetIsGeoPoint = type === xLuceneFieldType.GeoPoint
+                || type === xLuceneFieldType.Geo
                 || type === undefined;
 
-        const isDisjoint = relation === t.GeoShapeRelation.Disjoint;
+        const isDisjoint = relation === GeoShapeRelation.Disjoint;
 
         if (targetIsGeoPoint && polyHasHoles(polygonShape) && isDisjoint) {
             throw new Error('Invalid argument points, when running a disjoint query with a polygon/multi-polygon with holes, it must be against data of type geo-json');
         }
 
-        function makeESPolyQuery(field: string, points: t.CoordinateTuple[]) {
+        function makeESPolyQuery(field: string, points: CoordinateTuple[]) {
             return {
                 geo_polygon: {
                     [field]: {
@@ -133,8 +135,8 @@ const geoPolygon: i.FunctionDefinition = {
 
         function makePolygonQuery(
             field: string,
-            coordinates: t.CoordinateTuple[][]
-        ): t.GeoQuery | PolyHolesQuery {
+            coordinates: CoordinateTuple[][]
+        ): GeoQuery | PolyHolesQuery {
             const query = {
                 bool: {
                     should: [] as any
@@ -153,7 +155,7 @@ const geoPolygon: i.FunctionDefinition = {
                 }
             };
 
-            if (relation === t.GeoShapeRelation.Disjoint) {
+            if (relation === GeoShapeRelation.Disjoint) {
                 // we do not want results that the field does not exist
                 filter.bool.filter.push({ exists: { field } });
                 holes.bool.must_not.push(makeESPolyQuery(field, coordinates[0]));
@@ -189,7 +191,7 @@ const geoPolygon: i.FunctionDefinition = {
                     bool: {}
                 };
 
-                if (relation === t.GeoShapeRelation.Disjoint) {
+                if (relation === GeoShapeRelation.Disjoint) {
                     query.bool.must = dsl;
                 } else {
                     query.bool.should = dsl;
@@ -204,7 +206,7 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function esPolyToPolyQuery(field: string) {
-            const esType = compatMapping[polygonShape.type] || t.ESGeoShapeType.Polygon;
+            const esType = compatMapping[polygonShape.type] || ESGeoShapeType.Polygon;
             const query = {
                 geo_shape: {
                     [field]: {
@@ -215,15 +217,15 @@ const geoPolygon: i.FunctionDefinition = {
                         relation
                     }
                 }
-            } as t.AnyQuery;
+            } as AnyQuery;
             if (logger.level() === 10) logger.trace('built geo polygon to polygon query', { query });
 
             return { query };
         }
 
         if (targetIsGeoPoint) {
-            if (relation === t.GeoShapeRelation.Contains) {
-                throw new Error(`Cannot query against geo-points with relation set to "${t.GeoShapeRelation.Contains}"`);
+            if (relation === GeoShapeRelation.Contains) {
+                throw new Error(`Cannot query against geo-points with relation set to "${GeoShapeRelation.Contains}"`);
             }
             return {
                 match: geoRelationFP(polygonShape, relation),

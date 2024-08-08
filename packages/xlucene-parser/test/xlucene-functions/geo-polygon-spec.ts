@@ -1,7 +1,7 @@
 /* eslint-disable jest/no-commented-out-tests */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import 'jest-extended';
-import { debugLogger, toString } from '@terascope/utils';
+import { debugLogger } from '@terascope/utils';
 import {
     xLuceneFieldType,
     xLuceneTypeConfig,
@@ -12,8 +12,8 @@ import {
 } from '@terascope/types';
 import { randomPolygon } from '@turf/random';
 import { getCoords } from '@turf/invariant';
-import { Parser, initFunction } from '../../src';
-import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces';
+import { Parser, initFunction } from '../../src/index.js';
+import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces.js';
 
 describe('geoPolygon', () => {
     describe('with typeconfig field set to GeoPoint', () => {

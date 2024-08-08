@@ -1,2 +1,2 @@
-export * from './query-access';
-export * from './translator';
+export * from './query-access/index.js';
+export * from './translator/index.js';

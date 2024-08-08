@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable max-len */
-import { getValidDate, getTime } from '../dates';
-import { getTypeOf } from '../deps';
-import { isSimpleObject } from '../objects';
-import { ensureBuffer, isBuffer } from '../buffers';
-import { parseJSON } from '../json';
-import * as i from './interfaces';
-import * as utils from './utils';
-import { locked } from '../decorators';
+import { getValidDate, getTime } from '../dates.js';
+import { getTypeOf } from '../deps.js';
+import { isSimpleObject } from '../objects.js';
+import { ensureBuffer, isBuffer } from '../buffers.js';
+import { parseJSON } from '../json.js';
+import * as i from './interfaces.js';
+import {
+    isDataEntity, defineEntityProperties, makeMetadata,
+    isValidKey, jsonToBuffer
+} from './utils.js';
+import { locked } from '../decorators.js';
 
 interface Metadata<M> {
     metadata: i._DataEntityMetadata<M>;
@@ -130,7 +133,7 @@ export class DataEntity<
     static isDataEntity<T = Record<string, any>, M = Record<string, any>>(
         input: unknown
     ): input is DataEntity<T, M> {
-        return utils.isDataEntity(input);
+        return isDataEntity(input);
     }
 
     /**
@@ -142,7 +145,7 @@ export class DataEntity<
         if (input == null) return false;
         if (!Array.isArray(input)) return false;
         if (input.length === 0) return true;
-        return utils.isDataEntity(input[0]);
+        return isDataEntity(input[0]);
     }
 
     /**
@@ -171,7 +174,7 @@ export class DataEntity<
         if (this.name !== 'DataEntity' && this.name !== 'Object') {
             return false;
         }
-        return utils.isDataEntity(instance);
+        return isDataEntity(instance);
     }
 
     // @ts-expect-error the initializer is set in defineEntityProperties
@@ -184,10 +187,10 @@ export class DataEntity<
             throw new Error(`Invalid data source, must be an object, got "${getTypeOf(data)}"`);
         }
 
-        utils.defineEntityProperties(this);
+        defineEntityProperties(this);
 
         // @ts-expect-error the initializer is set in defineEntityProperties
-        this[i.__ENTITY_METADATA_KEY].metadata = utils.makeMetadata(metadata as i._DataEntityMetadata<M>);
+        this[i.__ENTITY_METADATA_KEY].metadata = makeMetadata(metadata as i._DataEntityMetadata<M>);
 
         if (data) {
             Object.assign(this, data);
@@ -235,7 +238,7 @@ export class DataEntity<
     @locked()
     getKey(): string|number {
         const key = this[i.__ENTITY_METADATA_KEY].metadata._key;
-        if (!utils.isValidKey(key)) {
+        if (!isValidKey(key)) {
             throw new Error('No key has been set in the metadata');
         }
         return key;
@@ -247,7 +250,7 @@ export class DataEntity<
     */
     @locked()
     setKey(key: string|number): void {
-        if (!utils.isValidKey(key)) {
+        if (!isValidKey(key)) {
             throw new Error('Invalid key to set in metadata');
         }
         this[i.__ENTITY_METADATA_KEY].metadata._key = key;
@@ -384,7 +387,7 @@ export class DataEntity<
     toBuffer(opConfig: i.EncodingConfig = {}): Buffer {
         const { _encoding = i.DataEncoding.JSON } = opConfig;
         if (_encoding === i.DataEncoding.JSON) {
-            return utils.jsonToBuffer(this);
+            return jsonToBuffer(this);
         }
 
         if (_encoding === i.DataEncoding.RAW) {

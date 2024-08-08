@@ -1,17 +1,16 @@
 import { DataTypeConfig, FieldType } from '@terascope/types';
 import { BigMap, isArray, castArray } from '@terascope/utils';
 import {
-    Column,
-    KeyAggregation, ValueAggregation, valueAggMap,
+    Column, KeyAggregation, ValueAggregation, valueAggMap,
     FieldAgg, KeyAggFn, keyAggMap, makeUniqueKeyAgg
-} from '../column';
-import { getCommonTupleType, isNumberLike, Vector } from '../vector';
-import { Builder } from '../builder';
-import { getBuilderForField, getMaxColumnSize } from './utils';
+} from '../column/index.js';
+import { getCommonTupleType, isNumberLike, Vector } from '../vector/index.js';
+import { Builder } from '../builder/index.js';
+import { getBuilderForField, getMaxColumnSize } from './utils.js';
 import {
     FieldArg, flattenStringArg, freezeArray, getFieldsFromArg
-} from '../core';
-import { columnsToDataTypeConfig, makeKeyForRow } from '../data-frame/utils';
+} from '../core/index.js';
+import { columnsToDataTypeConfig, makeKeyForRow } from '../data-frame/utils.js';
 
 /**
  * A deferred execution frame dedicated to running a aggregations.

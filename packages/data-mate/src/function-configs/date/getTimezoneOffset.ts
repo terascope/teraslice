@@ -1,11 +1,9 @@
 import { FieldType } from '@terascope/types';
 import { getTimezoneOffsetFP } from '@terascope/utils';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface GetTimezoneOffsetArgs {
     timezone: string;

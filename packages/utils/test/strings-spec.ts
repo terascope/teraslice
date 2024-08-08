@@ -1,7 +1,5 @@
 import 'jest-extended';
-import {
-    escapeString
-} from '../src/deps';
+import { escapeString } from '../src/deps.js';
 import {
     toSafeString,
     unescapeString,
@@ -33,7 +31,7 @@ import {
     stringEntropy,
     StringEntropy,
     shannonEntropy
-} from '../src/strings';
+} from '../src/strings.js';
 
 describe('String Utils', () => {
     describe('isString', () => {

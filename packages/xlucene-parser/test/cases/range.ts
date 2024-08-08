@@ -1,7 +1,7 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { NodeType, Range, RangeNode } from '../../src';
-import { TestCase } from './interfaces';
-import { dateMath } from './range-date-math';
+import { NodeType, Range, RangeNode } from '../../src/index.js';
+import { TestCase } from './interfaces.js';
+import { dateMath } from './range-date-math.js';
 
 export default ([
     ['count: >=10', 'gte ranges', {

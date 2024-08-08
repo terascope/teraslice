@@ -1,8 +1,9 @@
 import { isBooleanLike } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
-} from '../interfaces';
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory
+} from '../interfaces.js';
 
 export const isBooleanLikeConfig: FieldValidateConfig = {
     name: 'isBooleanLike',

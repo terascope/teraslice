@@ -1,5 +1,5 @@
-import { Vector, VectorOptions } from '../Vector';
-import { VectorType, DataBuckets } from '../interfaces';
+import { Vector, VectorOptions } from '../Vector.js';
+import { VectorType, DataBuckets } from '../interfaces.js';
 
 export class IPRangeVector extends Vector<string> {
     toJSONCompatibleValue = undefined;

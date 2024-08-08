@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import peg from 'peggy';
+// eslint-disable-next-line import/no-unresolved
+import tspegjs from 'ts-pegjs';
 
-const fs = require('fs');
-const path = require('path');
-const peg = require('peggy');
-const tspegjs = require('ts-pegjs');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-function generate() {
-    const input = path.join(__dirname, '..', 'peg', 'lucene.pegjs');
-    const output = path.join(__dirname, '..', 'src', 'peg-engine.ts');
+export default function generate() {
+    const input = path.join(dirname, '..', 'peg', 'lucene.pegjs');
+    const output = path.join(dirname, '..', 'src', 'peg-engine.ts');
 
     const current = fs.existsSync(output) && fs.readFileSync(output, 'utf8');
     const grammar = fs.readFileSync(input, 'utf8');
@@ -18,10 +20,10 @@ function generate() {
         optimize: 'speed',
         plugins: [tspegjs],
         parser: {},
-        format: 'commonjs',
+        format: 'es',
         tspegjs: {
-            noTslint: true,
-            customHeader: "import { makeContext } from './context';\nimport * as i from './interfaces';\nimport { xLuceneFieldType } from '@terascope/types';"
+            skipTypeComputation: true,
+            customHeader: "import { xLuceneFieldType } from '@terascope/types';\nimport { makeContext } from './context.js';\nimport * as i from './interfaces.js';"
         },
     });
 
@@ -30,11 +32,14 @@ function generate() {
     return output;
 }
 
-if (require.main === module) {
-    const outputFile = generate();
-    if (outputFile) {
-        console.error(`* generated ${path.relative(process.cwd(), outputFile)}`);
+if (import.meta.url.startsWith('file:')) {
+    const modulePath = fileURLToPath(import.meta.url);
+    const executePath = process.argv[1];
+
+    if (executePath === modulePath) {
+        const outputFile = generate();
+        if (outputFile) {
+            console.error(`* generated ${path.relative(process.cwd(), outputFile)}`);
+        }
     }
-} else {
-    module.exports = generate;
 }

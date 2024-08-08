@@ -1,8 +1,9 @@
-import { evaluate, evaluateVariableNode } from './evaluate';
+import { evaluate, evaluateVariableNode } from './evaluate.js';
 import {
-    Nodes, isExpressionNode, isLiteralNode, Options, isVariableNode
-} from './interfaces';
-import { parse } from './parse';
+    Nodes, isExpressionNode, isLiteralNode,
+    Options, isVariableNode
+} from './interfaces.js';
+import { parse } from './parse.js';
 
 /**
  * Evaluate all of the templated variables in a xpression string

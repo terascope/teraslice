@@ -4,7 +4,7 @@ import { DateFormat, FieldType, Maybe } from '@terascope/types';
 import formatDate from 'date-fns/format';
 import {
     Column, dataFrameAdapter, functionConfigRepository, Vector
-} from '../../src';
+} from '../../src/index.js';
 
 describe('Column (Date Types)', () => {
     describe('when field type is Date', () => {

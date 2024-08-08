@@ -23,7 +23,7 @@ import {
     shortenIPv6Address,
     getFirstUsableIPInCIDR,
     getLastUsableIPInCIDR
-} from '../src/ip';
+} from '../src/ip.js';
 
 describe('IP Utils', () => {
     describe('isIP', () => {

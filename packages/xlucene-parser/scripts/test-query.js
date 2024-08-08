@@ -1,11 +1,10 @@
 /* eslint-disable no-console */
 
-'use strict';
-
-const { xLuceneFieldType } = require('@terascope/types');
-const { Parser } = require('../dist/src');
+import { xLuceneFieldType } from '@terascope/types';
+import { Parser } from '../dist/src/index.js';
 
 console.time('parse');
+
 const { ast } = new Parser('name:(foo bar)', {
     type_config: {
         name: xLuceneFieldType.String,
@@ -16,6 +15,6 @@ const { ast } = new Parser('name:(foo bar)', {
         num: xLuceneFieldType.Integer,
     }
 });
-console.timeEnd('parse');
 
+console.timeEnd('parse');
 console.dir(ast);

@@ -4,13 +4,13 @@ import isCidr from 'is-cidr';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
 import { parse, stringify } from 'ip-bigint';
 import ip6addr from 'ip6addr';
-import { isString } from './strings';
+import { isString } from './strings.js';
 import {
     toInteger, isNumberLike, toBigIntOrThrow,
     isNumber
-} from './numbers';
-import { getTypeOf } from './deps';
-import { isBoolean } from './booleans';
+} from './numbers.js';
+import { getTypeOf } from './deps.js';
+import { isBoolean } from './booleans.js';
 
 export function isIP(input: unknown): input is string {
     return isString(input) && _isIP(input);

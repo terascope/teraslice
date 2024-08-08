@@ -142,7 +142,7 @@ describe('Test Runner Helpers', () => {
 /**
  * Used for more readable test failures
 */
-function mapInfo(pkgInfos: PackageInfo[]): { name: string; suite?: string }[] {
+function mapInfo(pkgInfos: PackageInfo[] = []): { name: string; suite?: string }[] {
     return pkgInfos.map((pkgInfo) => ({
         name: pkgInfo.name,
         suite: pkgInfo.terascope.testSuite

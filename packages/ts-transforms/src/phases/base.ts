@@ -1,5 +1,5 @@
 import { DataEntity } from '@terascope/utils';
-import { OperationsPipline, WatcherConfig } from '../interfaces';
+import { OperationsPipline, WatcherConfig } from '../interfaces.js';
 
 export default abstract class PhaseBase {
     readonly phase: OperationsPipline;

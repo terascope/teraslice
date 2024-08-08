@@ -1,4 +1,4 @@
-import { BinaryToTextEncoding } from 'crypto';
+import { BinaryToTextEncoding } from 'node:crypto';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,8 +6,8 @@ import {
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
-} from '../interfaces';
-import { cryptoEncode } from './encode-utils';
+} from '../interfaces.js';
+import { cryptoEncode } from './encode-utils.js';
 
 export interface EncodeSHAArgs {
     hash?: string;

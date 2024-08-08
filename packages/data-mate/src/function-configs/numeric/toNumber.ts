@@ -8,7 +8,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
     isNumericType
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const toNumberConfig: FieldTransformConfig = {
     name: 'toNumber',

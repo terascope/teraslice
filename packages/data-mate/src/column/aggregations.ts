@@ -3,8 +3,9 @@ import {
 } from '@terascope/utils';
 import { Maybe, ISO8601DateSegment } from '@terascope/types';
 import {
-    Vector, VectorType, getNumericValues, SerializeOptions, ParsedNumericObject
-} from '../vector';
+    Vector, VectorType, getNumericValues, SerializeOptions,
+    ParsedNumericObject
+} from '../vector/index.js';
 
 export enum ValueAggregation {
     avg = 'avg',

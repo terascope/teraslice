@@ -1,8 +1,8 @@
 import { xLuceneFieldType } from '@terascope/types';
 import {
     LogicalGroup, Negation, NodeType, Term
-} from '../../src';
-import { TestCase } from './interfaces';
+} from '../../src/index.js';
+import { TestCase } from './interfaces.js';
 
 export default [
     [

@@ -1,9 +1,7 @@
 import 'jest-extended';
 
 import {
-    dockerRun,
-    dockerStop,
-    getContainerInfo,
+    dockerRun, dockerStop, getContainerInfo,
     dockerPull
 } from '../src/helpers/scripts';
 

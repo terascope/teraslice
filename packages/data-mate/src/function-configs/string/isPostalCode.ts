@@ -4,7 +4,7 @@ import validator from 'validator';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface IsPostalCodeArgs {
     locale?: validator.PostalCodeLocale;

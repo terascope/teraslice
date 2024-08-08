@@ -1,15 +1,17 @@
 import validator from 'validator';
-import lTrim from 'lodash/trim';
-import lTrimStart from 'lodash/trimStart';
-import lTrimEnd from 'lodash/trimEnd';
-import lCamelCase from 'lodash/camelCase';
-import lSnakeCase from 'lodash/snakeCase';
-import lKebabCase from 'lodash/kebabCase';
-import lStartCase from 'lodash/startCase';
+import {
+    trim as lTrim,
+    trimStart as lTrimStart,
+    trimEnd as lTrimEnd,
+    camelCase as lCamelCase,
+    snakeCase as lSnakeCase,
+    kebabCase as lKebabCase,
+    startCase as lStartCase,
+} from 'lodash-es';
 import { MACDelimiter } from '@terascope/types';
-import { isArrayLike } from './arrays';
-import { getTypeOf } from './deps';
-import { bigIntToJSON } from './numbers';
+import { isArrayLike } from './arrays.js';
+import { getTypeOf } from './deps.js';
+import { bigIntToJSON } from './numbers.js';
 
 /** A simplified implementation of lodash isString */
 export function isString(val: unknown): val is string {

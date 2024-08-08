@@ -9,7 +9,7 @@ import {
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const toJSONConfig: FieldTransformConfig = {
     name: 'toJSON',

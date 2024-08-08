@@ -1,6 +1,6 @@
 import { isObjectEntity, cloneDeep, isFunction } from '@terascope/utils';
-import { validateFunctionArgs } from '../../argument-validator';
-import { RecordValidationConfig, InitialFunctionContext, FunctionContext } from '../../../function-configs/interfaces';
+import { validateFunctionArgs } from '../../argument-validator/index.js';
+import { RecordValidationConfig, InitialFunctionContext, FunctionContext } from '../../../function-configs/interfaces.js';
 
 export function recordValidationExecution<
     T extends Record<string, any>,

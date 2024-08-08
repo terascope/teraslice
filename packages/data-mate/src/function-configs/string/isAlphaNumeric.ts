@@ -4,7 +4,7 @@ import validator from 'validator';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionCategory,
     FunctionDefinitionType, FunctionDefinitionExample
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface IsAlphaNumericArgs {
     locale?: validator.AlphanumericLocale;

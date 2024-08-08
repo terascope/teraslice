@@ -5,7 +5,7 @@ import {
 import { FieldType } from '@terascope/types';
 import {
     Vector, Builder, WritableData, ListVector
-} from '../../src';
+} from '../../src/index.js';
 
 describe('ListVector', () => {
     type Case = [type: FieldType, input: any[], output?: any[]];

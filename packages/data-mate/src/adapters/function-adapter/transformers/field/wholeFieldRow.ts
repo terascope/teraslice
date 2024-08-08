@@ -1,15 +1,10 @@
 import {
-    isObjectEntity,
-    get,
-    set,
-    cloneDeep,
-    isNil,
-    unset,
-    isFunction
+    isObjectEntity, get, set, cloneDeep,
+    isNil, unset, isFunction
 } from '@terascope/utils';
-import { FieldTransformConfig, InitialFunctionContext, FunctionContext } from '../../../../function-configs/interfaces';
-import { DynamicFunctionAdapterContext, FunctionAdapterContext } from '../../interfaces';
-import { validateFunctionArgs } from '../../../argument-validator';
+import { FieldTransformConfig, InitialFunctionContext, FunctionContext } from '../../../../function-configs/interfaces.js';
+import { DynamicFunctionAdapterContext, FunctionAdapterContext } from '../../interfaces.js';
+import { validateFunctionArgs } from '../../../argument-validator/index.js';
 
 export function wholeFieldTransformRowExecution<
     T extends Record<string, any> = Record<string, unknown>
