@@ -26,8 +26,14 @@ export interface AssetUploadQuery {
     blocking?: boolean;
 }
 
+export enum ListDeletedOption {
+    exclude = 'exclude',
+    include = 'include',
+    only = 'only',
+}
+
 export interface JobSearchParams extends APISearchParams {
-    deleted?: 'exclude' | 'include' | 'only';
+    deleted?: ListDeletedOption;
     active?: boolean;
 }
 
@@ -73,12 +79,6 @@ export enum RecoveryCleanupType {
     all = 'all',
     errors = 'errors',
     pending = 'pending'
-}
-
-export enum ListDeletedOption {
-    exclude = 'exclude',
-    include = 'include',
-    only = 'only',
 }
 
 export interface ExecutionConfig extends ValidatedJobConfig {

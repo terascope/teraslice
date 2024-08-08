@@ -35,7 +35,7 @@ export default {
         const header = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
         const format = `${output}Horizontal`;
         if (deleted !== 'exclude') {
-            header.push('_deleted');
+            header.push('_deleted_on');
         }
 
         try {
