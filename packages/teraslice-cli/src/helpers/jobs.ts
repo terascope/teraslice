@@ -495,9 +495,10 @@ export default class Jobs {
 
     async delete(): Promise<void> {
         if (this.jobs.length === 1 && this.config.args.yes !== true) {
+            const { _action, clusterAlias, clusterUrl } = this.config.args;
             const prompt = await display.showPrompt(
-                this.config.args._action,
-                `job ${this.jobs[0].id} on ${this.config.args.clusterAlias}`
+                _action,
+                `job ${this.jobs[0].id} on ${clusterAlias ?? clusterUrl}`
             );
             if (!prompt) return;
         }
