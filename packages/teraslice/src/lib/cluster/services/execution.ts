@@ -402,7 +402,7 @@ export class ExecutionService {
                 statusCode: 409
             });
         }
-        return this.executionStorage.delete(exId);
+        return this.executionStorage.softDelete(exId);
     }
 
     async getRunningExecutions(exId: string | undefined) {

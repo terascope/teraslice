@@ -263,7 +263,7 @@ export class ExecutionStorage {
         }
     }
 
-    async delete(exId: string) {
+    async softDelete(exId: string) {
         try {
             const date = makeISODate();
             return await this.updatePartial(
