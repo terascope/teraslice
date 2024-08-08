@@ -696,27 +696,39 @@ export default class Jobs {
         return localJobConfigs;
     }
 
-    printDiff(diffResult: Diff.Change[]) {
+    printDiff(diffResult: Diff.Change[], showUpdateField: boolean) {
         diffResult.forEach((part) => {
             let color: chalk.Chalk;
             let symbol: string;
+            let pointer: string;
             if (part.added) {
                 color = chalk.green;
                 symbol = '+';
+                pointer = '   <--- local job file value';
             } else if (part.removed) {
                 color = chalk.red;
                 symbol = '-';
+                pointer = '   <--- state cluster value';
             } else {
                 color = chalk.grey;
                 symbol = ' ';
+                pointer = '';
             }
             const lines = part.value.split('\n');
             lines.forEach((line) => {
-                /// These fields aren't in the job file so don't compare in diff
-                if (line.includes('"_created":') || line.includes('"_context":')) {
-                    process.stdout.write(chalk.grey(` ${line}\n`));
-                } else if (line.length !== 0) {
-                    process.stdout.write(color(`${symbol} ${line}\n`));
+                /// Don't print blank lines
+                if (line.length !== 0) {
+                    /// These fields aren't in the job file so don't compare in diff
+                    if (!line.includes('"_created":') && !line.includes('"_context":')) {
+                        /// Check to see if we want to display _updated field
+                        if (line.includes('"_updated":')) {
+                            if (showUpdateField) {
+                                process.stdout.write(color(`${symbol} ${line}${pointer}\n`));
+                            }
+                        } else {
+                            process.stdout.write(color(`${symbol} ${line}${pointer}\n`));
+                        }
+                    }
                 }
             });
         });
@@ -728,7 +740,18 @@ export default class Jobs {
             this.config.args.jobFile
         );
         const diffObject = diff.diffJson(job.config, localJobConfigs[job.id]);
-        this.printDiff(diffObject);
+
+        /// "_update" fields on the job file are always off by a couple milliseconds
+        /// We only want to display a diff of this field if it's greater than a minute
+        let showUpdateField = false;
+        const jobConfigUpdateTime = new Date(job.config._updated).getTime();
+        const localConfigUpdateTime = new Date(localJobConfigs[job.id]._updated).getTime();
+        const timeDiff = Math.abs(localConfigUpdateTime - jobConfigUpdateTime);
+        if (timeDiff > (1000 * 60)) {
+            showUpdateField = true;
+        }
+
+        this.printDiff(diffObject, showUpdateField);
     }
 
     /**
