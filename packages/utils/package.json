@@ -61,7 +61,7 @@
         "latlon-geohash": "^1.1.0",
         "lodash": "^4.17.21",
         "mnemonist": "^0.39.8",
-        "p-map": "^4.0.0",
+        "p-map": "^7.0.2",
         "shallow-clone": "^3.0.1",
         "validator": "^13.12.0"
     },
