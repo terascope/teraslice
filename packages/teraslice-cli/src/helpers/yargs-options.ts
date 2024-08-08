@@ -228,6 +228,11 @@ export default class Options {
             describe: 'Silence non-error logging.',
             type: 'boolean'
         }),
+        diff: () => ({
+            describe: 'Shows diff on a job in a cluster and a job file',
+            default: false,
+            type: 'boolean'
+        })
     };
 
     private positionals: Record<string, (...args: any[]) => yargs.PositionalOptions> = {
