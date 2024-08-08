@@ -589,12 +589,12 @@ export class ApiService {
 
             if (deleted === 'only') {
                 query += ' AND _deleted:true';
-                defaults.push('_deleted');
+                defaults.push('_deleted_on');
             } else if (!deleted || deleted === 'exclude') {
                 query += ' AND _deleted:false';
             } else if (deleted === 'include') {
                 // default query will show all records
-                defaults.push('_deleted');
+                defaults.push('_deleted_on');
             }
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all jobs');
@@ -608,7 +608,7 @@ export class ApiService {
             });
         });
 
-        this.app.get('/txt/ex', (req, res) => { // FIXME filter out deleted
+        this.app.get('/txt/ex', (req, res) => {
             const { deleted = undefined } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
@@ -617,12 +617,12 @@ export class ApiService {
 
             if (deleted === 'only') {
                 query = 'ex_id:* AND _deleted:true';
-                defaults.push('_deleted');
+                defaults.push('_deleted_on');
             } else if (!deleted || deleted === 'exclude') {
                 query = 'ex_id:* AND _deleted:false';
             } else if (deleted === 'include') {
                 query = 'ex_id:*';
-                defaults.push('_deleted');
+                defaults.push('_deleted_on');
             }
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all executions');
