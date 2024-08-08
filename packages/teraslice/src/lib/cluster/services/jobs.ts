@@ -250,7 +250,7 @@ export class JobsService {
         return this.executionService.resumeExecution(exId);
     }
 
-    async deleteJob(jobId: string) {
+    async softDeleteJob(jobId: string) {
         const activeExecution = await this._getActiveExecution(jobId, true);
 
         // searching for an active execution, if there is then we reject
@@ -290,9 +290,10 @@ export class JobsService {
         jobSpec._deleted = true;
         jobSpec._deleted_on = makeISODate();
         jobSpec.active = false;
+
         const executions = await this.getAllExecutions(jobId, undefined, true);
         for (const execution of executions) {
-            await this.executionService.deleteExecutionContext(execution.ex_id);
+            await this.executionService.softDeleteExecutionContext(execution.ex_id);
         }
         return this.jobsStorage.update(jobId, jobSpec);
     }
