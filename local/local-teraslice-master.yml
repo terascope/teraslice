@@ -1,0 +1,27 @@
+terafoundation:
+    environment: 'development'
+    log_level: info
+    prom_metrics_enabled: true
+    prom_metrics_port: 3333
+    prom_metrics_add_default: true
+    connectors:
+        elasticsearch-next:
+            default:
+                node:
+                    - "http://127.0.0.1:9200"
+        s3:
+            default:
+                endpoint: "http://127.0.0.1:9000"
+                accessKeyId: "minioadmin"
+                secretAccessKey: "minioadmin"
+                forcePathStyle: true
+                sslEnabled: false
+                region: "us-east-1"
+teraslice:
+    assets_directory: '/Users/peterluitjens/WORKSPACE/teraslice/assets'
+    autoload_directory: '/Users/peterluitjens/WORKSPACE/teraslice/autoload'
+    workers: 8
+    master: true
+    master_hostname: "127.0.0.1"
+    port: 5678
+    name: "teracluster"
