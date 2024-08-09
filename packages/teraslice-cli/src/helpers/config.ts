@@ -70,6 +70,10 @@ export default class Config {
         return `${this.configDir}/aliases.yaml`;
     }
 
+    get defaultExportDir(): string {
+        return `${this.configDir}/export/${this.args.clusterAlias}`;
+    }
+
     get jobStateDir(): string {
         return `${this.configDir}/job_state_files`;
     }
@@ -85,7 +89,8 @@ export default class Config {
     get allSubDirs(): string[] {
         return [
             this.jobStateDir,
-            this.assetDir
+            this.assetDir,
+            this.defaultExportDir,
         ];
     }
 
@@ -96,9 +101,13 @@ export default class Config {
 
         this.allSubDirs.forEach((dir) => {
             if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir);
+                fs.mkdirSync(dir, { recursive: true });
             }
         });
+
+        if (this.args.exportDir && !fs.existsSync(this.args.exportDir)) {
+            fs.mkdirSync(this.args.exportDir, { recursive: true });
+        }
     }
 
     private _addJobAction() {

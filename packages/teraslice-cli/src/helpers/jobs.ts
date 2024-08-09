@@ -10,7 +10,7 @@ import { Job } from 'teraslice-client-js';
 import TerasliceUtil from './teraslice-util.js';
 import Display from './display.js';
 import reply from './reply.js';
-import { getJobConfigFromFile } from './tjm-util.js';
+import { getJobConfigFromFile, saveJobConfigToFile } from './tjm-util.js';
 import Config from './config.js';
 import {
     JobMetadata,
@@ -804,6 +804,22 @@ export default class Jobs {
         }
 
         this.printDiff(diffObject, showUpdateField);
+    }
+
+    async export() {
+        await pMap(
+            this.jobs,
+            (job) => this.exportOne(job.config),
+            { concurrency: this.concurrency }
+        );
+    }
+
+    async exportOne(jobConfig: Teraslice.JobConfig) {
+        const dirName = this.config.args.exportDir || this.config.defaultExportDir;
+        const fileNameIndex = this.config.args.jobId.indexOf(jobConfig.job_id);
+        const fileName = this.config.args.fileName[fileNameIndex] || `${jobConfig.name}.json`;
+        const fullPath = path.join(dirName, fileName);
+        await saveJobConfigToFile(jobConfig, fullPath);
     }
 
     /**

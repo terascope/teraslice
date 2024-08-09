@@ -233,6 +233,17 @@ export default class Options {
             default: false,
             type: 'boolean'
         }),
+        'export-dir': () => ({
+            describe: 'Directory where exported job file will be saved',
+            type: 'string',
+            nargs: 1,
+        }),
+        'file-name': () => ({
+            alias: 'f',
+            describe: 'Names that files will be exported as. Ensure same order as job IDs',
+            type: 'string',
+            array: true
+        }),
         'active-job': () => ({
             describe: 'List active jobs',
             type: 'boolean'
