@@ -1,4 +1,4 @@
-import { isString, TSError } from '@terascope/utils';
+import { TSError } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client.js';
@@ -26,10 +26,9 @@ export default class Jobs extends Client {
     }
 
     async list(
-        status?: Teraslice.JobListStatusQuery,
+        query?: Teraslice.JobSearchParams,
         searchOptions: SearchOptions = {}
     ): Promise<Teraslice.JobConfig[]> {
-        const query = _parseListOptions(status);
         return this.get('/jobs', this.makeOptions(query, searchOptions));
     }
 
@@ -40,11 +39,4 @@ export default class Jobs extends Client {
     wrap(jobId: string): Job {
         return new Job(this._config, jobId);
     }
-}
-
-function _parseListOptions(options?: Teraslice.JobListStatusQuery): Teraslice.JobSearchParams {
-    // support legacy
-    if (!options) return { status: '*' };
-    if (isString(options)) return { status: options };
-    return options;
 }

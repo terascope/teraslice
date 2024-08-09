@@ -92,7 +92,10 @@ Returns a text table of all job listings.
 **Query Options:**
 
 - `fields: string`
-- `active: [true|false]`
+- `active: string = [true|false]`
+- `deleted: string = [exclude|include|only]`
+
+**Note:** When showing `deleted` records the `_deleted_on` field will be added to the default fields.
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="job_id,pid"` or `fields="job_id pid"`.
@@ -110,6 +113,8 @@ ie `fields="job_id,pid"` or `fields="job_id pid"`.
 - `job_id`
 - `_created`
 - `_updated`
+- `_deleted`
+- `_deleted_on`
 
 **Default Fields:**
 
@@ -139,6 +144,9 @@ Returns a text table of all job execution contexts.
 **Query Options:**
 
 - `fields: string`
+- `deleted: string = [exclude|include|only]`
+
+**Note:** When showing `deleted` records the `_deleted_on` field will be added to the default fields.
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="job_id,pid"` or `fields="job_id pid"`.
@@ -156,6 +164,8 @@ ie `fields="job_id,pid"` or `fields="job_id pid"`.
 - `job_id`
 - `_created`
 - `_updated`
+- `_deleted`
+- `_deleted_on`
 
 **Default Fields:**
 

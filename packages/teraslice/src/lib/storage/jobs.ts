@@ -60,7 +60,8 @@ export class JobsStorage {
             job_id: uuid(),
             _context: this.jobType,
             _created: date,
-            _updated: date
+            _updated: date,
+            _deleted: false,
         });
 
         try {
@@ -84,7 +85,8 @@ export class JobsStorage {
             {
                 job_id: jobId,
                 _context: this.jobType,
-                _updated: makeISODate()
+                _updated: makeISODate(),
+                _deleted: false
             }
         ));
 

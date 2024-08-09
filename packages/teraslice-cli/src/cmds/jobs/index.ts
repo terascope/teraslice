@@ -1,5 +1,6 @@
 import { CMD } from '../../interfaces.js';
 import awaitCmd from './await.js';
+import deleteJob from './delete.js';
 import errors from './errors.js';
 import list from './list.js';
 import pause from './pause.js';
@@ -16,6 +17,7 @@ import workers from './workers.js';
 
 const commandList = [
     awaitCmd,
+    deleteJob,
     errors,
     list,
     pause,

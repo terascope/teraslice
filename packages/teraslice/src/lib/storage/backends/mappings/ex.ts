@@ -48,6 +48,12 @@ export default {
                 },
                 _updated: {
                     type: 'date'
+                },
+                _deleted: {
+                    type: 'boolean'
+                },
+                _deleted_on: {
+                    type: 'date'
                 }
             }
         }

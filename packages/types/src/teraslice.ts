@@ -26,15 +26,18 @@ export interface AssetUploadQuery {
     blocking?: boolean;
 }
 
+export enum ListDeletedOption {
+    exclude = 'exclude',
+    include = 'include',
+    only = 'only',
+}
+
 export interface JobSearchParams extends APISearchParams {
-    status: SearchJobStatus;
+    deleted?: ListDeletedOption;
+    active?: boolean;
 }
 
 export type SearchQuery = APISearchParams & Record<string, any>;
-
-export type JobListStatusQuery = SearchJobStatus | JobSearchParams;
-
-export type SearchJobStatus = '*' | ExecutionStatus;
 
 export interface APISearchParams {
     size?: number;
@@ -68,6 +71,8 @@ export interface JobConfig extends ValidatedJobConfig {
     _context: 'job';
     _created: string | Date;
     _updated: string | Date;
+    _deleted: boolean;
+    _deleted_on?: string | Date;
 }
 
 export enum RecoveryCleanupType {
@@ -82,6 +87,8 @@ export interface ExecutionConfig extends ValidatedJobConfig {
     _context: 'ex';
     _created: string | Date;
     _updated: string | Date;
+    _deleted: boolean;
+    _deleted_on?: string | Date;
     // TODO: fix this
     metadata: Record<string, any>;
     recovered_execution?: string;
