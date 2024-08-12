@@ -1,7 +1,8 @@
+'use strict';
 
-import { INDENT } from './constants.js';
+const { INDENT } = require('./constants');
 
-export default {
+module.exports = {
     // airbnb overrides
     indent: ['error', INDENT],
     'max-len': ['error', {

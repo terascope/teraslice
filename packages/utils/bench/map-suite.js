@@ -1,5 +1,5 @@
 import { Suite } from './helpers.js';
-import { BigMap } from '../dist/src/index.js';
+import { BigMap, isExecutedFile } from '../dist/src/index.js';
 
 const iterationsPer = 1000;
 

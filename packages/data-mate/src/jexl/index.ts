@@ -33,13 +33,13 @@ class Jexl extends jexlCore.Jexl {
 
 const jexl = new Jexl();
 
-function bridgeToJexl(jexl: Jexl, fn: any) {
+function bridgeToJexl(jexlClass: Jexl, fn: any) {
     return (value: any, _context: Record<string, any> | undefined, _config: any) => {
         let config;
         let context;
 
         if (isNil(config)) {
-            context = jexl._context;
+            context = jexlClass._context;
             config = _context;
         } else {
             config = _config;
@@ -48,7 +48,7 @@ function bridgeToJexl(jexl: Jexl, fn: any) {
 
         return fn(value, context, config as any);
     };
-};
+}
 
 function setup(operationClass: any) {
     for (const config of Object.values(operationClass.repository as Repository)) {
@@ -150,7 +150,7 @@ export function extract(
 
     function extractValue() {
         let extractedResult;
-        console.log('start', start)
+
         if (regex) {
             extractedResult = extractField(input, matchRegex);
         } else if (start && end) {

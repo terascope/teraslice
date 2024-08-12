@@ -3,7 +3,7 @@ import { promises as fsp } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { uniq } from '@terascope/utils';
-import { functionConfigRepository, FunctionDefinitionConfig} from '../../src/index.js';
+import { functionConfigRepository, FunctionDefinitionConfig } from '../../src/index.js';
 import { functionTestHarness } from './functionTestHarness.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -48,7 +48,7 @@ describe('function registries', () => {
 });
 
 function sanitize(file: string) {
-    return file.replace('.js','').replace(/\W/g, '');
+    return file.replace('.js', '').replace(/\W/g, '');
 }
 
 async function parseIndexFile(indexPath: string): Promise<string[]> {

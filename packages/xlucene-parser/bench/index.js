@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,6 +13,7 @@ export default function start(name, dir) {
 
     printHeader(`(${benchmarks.length}) ${name} benchmarks found`, '*');
     benchmarks.forEach((file) => {
+        // eslint
         console.log(`- ${file}`);
     });
 

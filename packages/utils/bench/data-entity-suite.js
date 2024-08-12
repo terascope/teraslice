@@ -1,7 +1,9 @@
 /* eslint-disable no-unused-expressions */
 import { Suite } from './helpers.js';
 import FakeDataEntity from './fixtures/fake-data-entity.js';
-import { DataEntity, times, fastCloneDeep } from '../dist/src/index.js';
+import {
+    DataEntity, times, fastCloneDeep, isExecutedFile
+} from '../dist/src/index.js';
 
 const data = {};
 

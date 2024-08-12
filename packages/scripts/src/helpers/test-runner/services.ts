@@ -8,7 +8,7 @@ import execa from 'execa';
 import {
     pWhile, TSError, debugLogger,
     toHumanTime, getErrorStatusCode
- } from '@terascope/utils';
+} from '@terascope/utils';
 import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo,
@@ -165,7 +165,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
 
 export async function loadOrPullServiceImages(suite: string): Promise<void> {
     const launchServices = getServicesForSuite(suite);
-    console.log('here', config.ELASTICSEARCH_VERSION)
+
     try {
         const images: string[] = [];
         const loadFailedList: string[] = [];

@@ -1,5 +1,5 @@
 import { Suite } from './helpers.js';
-import { once } from '../dist/src/index.js';
+import { once, isExecutedFile } from '../dist/src/index.js';
 
 let hi = 1;
 let hello = 1;

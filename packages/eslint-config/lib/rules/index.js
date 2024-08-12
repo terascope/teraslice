@@ -1,9 +1,11 @@
-import javascriptRules from './javascript.js';
-import typescriptRules from './typescript.js';
-import reactRules from './react.js';
-import jestRules from './jest.js';
+'use strict';
 
-export default {
+const javascriptRules = require('./javascript');
+const typescriptRules = require('./typescript');
+const reactRules = require('./react');
+const jestRules = require('./jest');
+
+module.exports = {
     javascript: javascriptRules,
     typescript: typescriptRules,
     react: reactRules,

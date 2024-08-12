@@ -1,5 +1,3 @@
-'use strict';
-
 const { ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { debugLogger } = require('@terascope/utils');
 const opensearch = require('@opensearch-project/opensearch');

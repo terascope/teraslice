@@ -1,5 +1,5 @@
 import { Suite } from './helpers.js';
-import { getHashCodeFrom } from '../dist/src/index.js';
+import { getHashCodeFrom, isExecutedFile } from '../dist/src/index.js';
 
 const run = async () => {
     const str6 = Array.from({ length: 6 }, () => 'a').join('');

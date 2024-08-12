@@ -23,10 +23,10 @@ const run = async () => Suite('DataFrame Insert')
         maxTime: 20,
     });
 
-    export default run;
+export default run;
 
-    if (isExecutedFile(import.meta.url)) {
-        run().then((suite) => {
-            suite.on('complete', () => {});
-        });
-    }
+if (isExecutedFile(import.meta.url)) {
+    run().then((suite) => {
+        suite.on('complete', () => {});
+    });
+}

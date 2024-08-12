@@ -19,7 +19,6 @@ const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
 const yargsInstance = yargs(hideBin(process.argv));
 
-
 // TODO Use yargs api to validate field types and usage
 const command = yargsInstance
     .alias('t', 'types-fields')

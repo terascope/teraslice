@@ -9,7 +9,7 @@ import {
 } from '../dist/src/index.js';
 
 const json = fs.readFileSync(path.join('.', './fixtures/data.json'));
-const { config, data } = JSON.parse(json)
+const { config, data } = JSON.parse(json);
 
 const run = async () => {
     const suite = Suite('Aggregate');

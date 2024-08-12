@@ -1,7 +1,9 @@
-import { INDENT } from './constants.js';
-import tsRules from './typescript.js';
+'use strict';
 
-export default Object.assign({}, tsRules, {
+const { INDENT } = require('./constants');
+const tsRules = require('./typescript');
+
+module.exports = Object.assign({}, tsRules, {
     // overides
     'no-console': ['error', { allow: ['warn', 'error', 'debug'] }],
     // react rules

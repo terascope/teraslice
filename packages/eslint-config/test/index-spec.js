@@ -1,5 +1,7 @@
-import 'jest-extended';
-import Index from '../index.js';
+'use strict';
+
+require('jest-extended');
+const Index = require('..');
 
 describe('ESLint Config Index', () => {
     it('should export an object of rules', () => {

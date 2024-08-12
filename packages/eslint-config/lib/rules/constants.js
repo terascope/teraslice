@@ -1,2 +1,7 @@
+'use strict';
 
-export const INDENT = 4;
+const INDENT = 4;
+
+module.exports = {
+    INDENT
+};
