@@ -20,6 +20,7 @@ export default class OperationBase {
     }
 
     protected validateConfig(config: OperationConfig) {
+        console.log('\nbase this is run')
         // we don't need to check target or source for selector ops
         if (this.constructor.name === 'Selector') return;
         const {
@@ -33,6 +34,8 @@ export default class OperationBase {
         this.target = targetField;
         hasStringValues(this.source);
         hasStringValues(this.target);
+        console.log('\nbase this is run', this)
+
     }
 
     set(doc: DataEntity, data: any) {

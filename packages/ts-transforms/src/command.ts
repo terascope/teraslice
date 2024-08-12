@@ -1,8 +1,9 @@
-import yargs from 'yargs';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import readline from 'node:readline';
+import { hideBin } from 'yargs/helpers';
+import yargs from 'yargs';
 import {
     DataEntity, debugLogger, parseList, AnyObject, get
 } from '@terascope/utils';
@@ -16,8 +17,11 @@ const logger = debugLogger('ts-transform-cli');
 const packagePath = path.join(dirname, '../../package.json');
 const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
+const yargsInstance = yargs(hideBin(process.argv));
+
+
 // TODO Use yargs api to validate field types and usage
-const command = yargs
+const command = yargsInstance
     .alias('t', 'types-fields')
     .alias('T', 'types-file')
     .alias('r', 'rules')
