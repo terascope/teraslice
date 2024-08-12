@@ -1,7 +1,7 @@
-const { ElasticsearchTestHelpers } = require('elasticsearch-store');
-const { debugLogger } = require('@terascope/utils');
-const opensearch = require('@opensearch-project/opensearch');
-const API = require('../index');
+import { ElasticsearchTestHelpers } from 'elasticsearch-store';
+import { debugLogger } from '@terascope/utils';
+import opensearch from '@opensearch-project/opensearch';
+import API from '../index.js';
 
 const logger = debugLogger('retry spec');
 const port = '1111';

@@ -1,10 +1,7 @@
-const {
-    debugLogger,
-    cloneDeep,
-    DataEntity
-} = require('@terascope/utils');
-const { ElasticsearchTestHelpers } = require('elasticsearch-store');
-const elasticsearchAPI = require('../index');
+import { jest } from '@jest/globals';
+import { debugLogger, cloneDeep, DataEntity } from '@terascope/utils';
+import { ElasticsearchTestHelpers } from 'elasticsearch-store';
+import elasticsearchAPI from '../index.js';
 
 const {
     makeClient, cleanupIndex, EvenDateData,
