@@ -23,10 +23,10 @@
     ],
     "scripts": {
         "benchmark": "yarn build && node bench/index.js",
-        "postinstall": "./scripts/fix-deps.js",
         "prebuild": "./scripts/generate-engine.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
+        "postinstall": "./scripts/fix-deps.js",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
@@ -52,6 +52,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite":  "unit-esm"
+        "testSuite": "unit-esm"
     }
 }

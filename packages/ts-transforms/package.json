@@ -13,9 +13,9 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
-    "type": "module",
     "bin": {
         "ts-match": "./bin/ts-transform.js",
         "ts-transform": "./bin/ts-transform.js"
@@ -67,6 +67,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite":  "unit-esm"
+        "testSuite": "unit-esm"
     }
 }

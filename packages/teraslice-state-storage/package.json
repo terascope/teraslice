@@ -10,9 +10,9 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
-    "type": "module",
     "files": [
         "dist/src/**/*"
     ],
@@ -38,6 +38,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite":  "unit-esm"
+        "testSuite": "unit-esm"
     }
 }
