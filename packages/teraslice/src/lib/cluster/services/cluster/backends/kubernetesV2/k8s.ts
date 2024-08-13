@@ -432,6 +432,7 @@ export class K8s {
         }
 
         await this._deleteObjByExId(exId, 'execution_controller', 'jobs', force);
+        await this._deleteObjByExId(exId, 'execution_controller', 'services', force);
     }
 
     /**
