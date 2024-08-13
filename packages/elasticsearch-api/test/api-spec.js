@@ -1,6 +1,6 @@
 import {
     debugLogger, cloneDeep, DataEntity,
-    isEmpty
+    isEmpty, pDelay
 } from '@terascope/utils';
 import esApi from '../index.js';
 
@@ -64,11 +64,12 @@ describe('elasticsearch-api', () => {
         };
     }
 
-    function waitFor(time, fn) {
-        return new Promise((resolve) => setTimeout(() => {
-            if (fn) fn();
-            resolve(true);
-        }, time));
+    async function waitFor(time, fn) {
+        await pDelay(time);
+        if (fn) {
+            fn();
+        }
+        return true;
     }
 
     function postedData(action, id) {
