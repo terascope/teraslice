@@ -435,6 +435,17 @@ export async function dockerPush(image: string): Promise<void> {
     }
 }
 
+async function dockerImageRm(image: string): Promise<void> {
+    const subprocess = await execa.command(
+        `docker image rm ${image}`,
+        { reject: false }
+    );
+
+    if (subprocess.exitCode !== 0) {
+        throw new Error(`Unable to remove docker image ${image}, ${subprocess.stderr}`);
+    }
+}
+
 /**
  * Unzips and loads a Docker image from a Docker cache
  * If successful the image will be deleted from the cache
@@ -487,7 +498,8 @@ export async function pgrep(name: string): Promise<string> {
 }
 
 /**
- * Save a docker image as a tar.gz to a local directory
+ * Save a docker image as a tar.gz to a local directory.
+ * Then remove the image from docker
  * @param {string} imageName Name of image to pull and save
  * @param {string} imageSavePath Location where image will be saved and compressed.
  * @returns void
@@ -498,6 +510,7 @@ export async function saveAndZip(imageName:string, imageSavePath: string) {
     const filePath = path.join(imageSavePath, `${fileName}.tar`);
     const command = `docker save ${imageName} | gzip > ${filePath}.gz`;
     await execa.command(command, { shell: true });
+    await dockerImageRm(imageName);
 }
 
 export async function getCommitHash(): Promise<string> {

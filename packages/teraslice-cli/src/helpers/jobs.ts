@@ -3,6 +3,9 @@ import {
     has, toString, pDelay, pMap,
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
+import chalk from 'chalk';
+import * as diff from 'diff';
+import path from 'node:path';
 import { Job } from 'teraslice-client-js';
 import TerasliceUtil from './teraslice-util.js';
 import Display from './display.js';
@@ -669,6 +672,88 @@ export default class Jobs {
         }
     }
 
+    formatJobConfig(jobConfig: JobConfigFile) {
+        const finalJobConfig: Partial<Teraslice.JobConfig> = {};
+        Object.keys(jobConfig).forEach((key) => {
+            if (key === '__metadata') {
+                finalJobConfig.job_id = jobConfig[key].cli.job_id;
+                finalJobConfig._updated = jobConfig[key].cli.updated;
+            } else {
+                finalJobConfig[key] = jobConfig[key];
+            }
+        });
+        return finalJobConfig;
+    }
+
+    getLocalJSONConfigs(srcDir: string, files: string[]) {
+        const localJobConfigs = {};
+        for (const file of files) {
+            const filePath = path.join(srcDir, file);
+            const jobConfig: JobConfigFile = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+            const formattedJobConfig = this.formatJobConfig(jobConfig);
+            localJobConfigs[formattedJobConfig.job_id as string] = formattedJobConfig;
+        }
+        return localJobConfigs;
+    }
+
+    printDiff(diffResult: Diff.Change[], showUpdateField: boolean) {
+        diffResult.forEach((part) => {
+            let color: chalk.Chalk;
+            let symbol: string;
+            let pointer: string;
+            if (part.added) {
+                color = chalk.green;
+                symbol = '+';
+                pointer = '   <--- local job file value';
+            } else if (part.removed) {
+                color = chalk.red;
+                symbol = '-';
+                pointer = '   <--- state cluster value';
+            } else {
+                color = chalk.grey;
+                symbol = ' ';
+                pointer = '';
+            }
+            const lines = part.value.split('\n');
+            lines.forEach((line) => {
+                /// Don't print blank lines
+                if (line.length !== 0) {
+                    /// These fields aren't in the job file so don't compare in diff
+                    if (!line.includes('"_created":') && !line.includes('"_context":')) {
+                        /// Check to see if we want to display _updated field
+                        if (line.includes('"_updated":')) {
+                            if (showUpdateField) {
+                                process.stdout.write(color(`${symbol} ${line}${pointer}\n`));
+                            }
+                        } else {
+                            process.stdout.write(color(`${symbol} ${line}${pointer}\n`));
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+    getJobDiff(job: JobMetadata) {
+        const localJobConfigs = this.getLocalJSONConfigs(
+            this.config.args.srcDir,
+            this.config.args.jobFile
+        );
+        const diffObject = diff.diffJson(job.config, localJobConfigs[job.id]);
+
+        /// "_update" fields on the job file are always off by a couple milliseconds
+        /// We only want to display a diff of this field if it's greater than a minute
+        let showUpdateField = false;
+        const jobConfigUpdateTime = new Date(job.config._updated).getTime();
+        const localConfigUpdateTime = new Date(localJobConfigs[job.id]._updated).getTime();
+        const timeDiff = Math.abs(localConfigUpdateTime - jobConfigUpdateTime);
+        if (timeDiff > (1000 * 60)) {
+            showUpdateField = true;
+        }
+
+        this.printDiff(diffObject, showUpdateField);
+    }
+
     /**
      * @param args action and final property, final indicates if it is part of a series of commands
      * @param job job metadata
@@ -692,7 +777,11 @@ export default class Jobs {
             ({ message, final } = this.getUpdateMessage(action, job));
         }
 
-        reply.yellow(`> ${message}`);
+        if (this.config.args.diff && action === 'view') {
+            this.getJobDiff(job);
+        } else {
+            reply.yellow(`> ${message}`);
+        }
 
         if (final) {
             reply.green(`${jobInfoString}`);
