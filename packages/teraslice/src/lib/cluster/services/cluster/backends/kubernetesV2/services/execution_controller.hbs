@@ -1,0 +1,25 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "svc-{{name}}",
+    "labels": {
+      "app.kubernetes.io/name": "teraslice",
+      "app.kubernetes.io/component": "execution_controller",
+      "teraslice.terascope.io/exId": "{{exId}}",
+      "teraslice.terascope.io/jobId": "{{jobId}}"
+    }
+  },
+  "spec": {
+    "selector": {
+      "app.kubernetes.io/component": "execution_controller",
+      "teraslice.terascope.io/exId": "{{exId}}"
+    },
+    "ports": [
+      {
+        "port": 45680,
+        "targetPort": 45680
+      }
+    ]
+  }
+}

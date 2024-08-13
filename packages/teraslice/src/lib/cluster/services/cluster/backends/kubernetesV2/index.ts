@@ -113,11 +113,21 @@ export class KubernetesClusterBackendV2 {
             execution,
             this.logger
         );
+        const exServiceResource = new K8sResource(
+            'services',
+            'execution_controller',
+            this.context.sysconfig.teraslice,
+            execution,
+            this.logger
+        );
         const exJob = exJobResource.resource;
+        const exService = exServiceResource.resource;
 
         this.logger.debug(exJob, 'execution allocating slicer');
 
         const jobResult = await this.k8s.post(exJob, 'job') as K8sClient.V1Job;
+        const serviceResult = await this.k8s.post(exService, 'service') as K8sClient.V1Service;
+
         this.logger.debug(jobResult, 'k8s slicer job submitted');
 
         let controllerLabel: string;
@@ -131,6 +141,8 @@ export class KubernetesClusterBackendV2 {
 
         const controllerUid = jobResult.spec?.selector?.matchLabels?.[controllerLabel];
 
+        // Right now this is waiting for the selected pod to come up in a "running"
+        // state. It may be better to check for a readieness probe instead
         const pod = await this.k8s.waitForSelectedPod(
             `${controllerLabel}=${controllerUid}`,
             undefined,
@@ -141,8 +153,12 @@ export class KubernetesClusterBackendV2 {
             const error = new Error('pod.status.podIP must be defined');
             return Promise.reject(error);
         }
-        this.logger.debug(`Slicer is using IP: ${pod.status.podIP}`);
-        execution.slicer_hostname = `${pod.status.podIP}`;
+        const exServiceName = serviceResult.metadata?.name;
+        const k8sNamespace = this.context.sysconfig.teraslice.kubernetes_namespace;
+        const exServiceHostName = `${exServiceName}.${k8sNamespace}`;
+        this.logger.debug(`Slicer is using host name: ${exServiceHostName}`);
+
+        execution.slicer_hostname = `${exServiceHostName}`;
 
         return execution;
     }
