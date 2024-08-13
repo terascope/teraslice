@@ -917,11 +917,15 @@ export class ExecutionController {
 
         if (includes(terminalStatuses, status)) {
             error = new Error(invalidStateMsg('terminal'));
-        } else if (includes(runningStatuses, status)) {
+        } else if (
+            includes(runningStatuses, status)
+            && process.env.ALLOW_EX_RESTART !== 'true'
+        ) {
             error = new Error(invalidStateMsg('running'));
             // If in a running status the execution process
             // crashed and k8s is trying to restart the pod,
             // e.g. execution controller OOM.
+            // Restarting an execution is allowed in k8sV2 backend
             this.logger.warn(`Changing execution status from ${status} to failed`);
             await this.executionStorage.setStatus(
                 this.exId,
