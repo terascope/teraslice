@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
 import { deprecate } from 'util';
 import validator from 'validator';
-import ValidationOpBase from '../../lib/validations/base';
-import { PostProcessConfig, PluginClassType, InputOutputCardinality } from '../../../interfaces';
+import ValidationOpBase from '../../lib/validations/base.js';
+import { PostProcessConfig, PluginClassType, InputOutputCardinality } from '../../../interfaces.js';
 
 export class Validator extends ValidationOpBase<any> {
     private method: string;

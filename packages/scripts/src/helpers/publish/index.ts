@@ -1,26 +1,21 @@
 import {
-    get, concat, pMap, isString, toHumanTime
+    get, concat, pMap,
+    isString, toHumanTime
 } from '@terascope/utils';
-import { PackageInfo } from '../interfaces';
-import { listPackages, getMainPackageInfo, getPublishTag } from '../packages';
-import { PublishAction, PublishOptions, PublishType } from './interfaces';
+import { PackageInfo } from '../interfaces.js';
+import { listPackages, getMainPackageInfo, getPublishTag } from '../packages.js';
+import { PublishAction, PublishOptions, PublishType } from './interfaces.js';
 import {
-    shouldNPMPublish,
-    formatDailyTag,
-    buildDevDockerImage,
+    shouldNPMPublish, formatDailyTag, buildDevDockerImage,
     removeNodeSuffixFromTag
-} from './utils';
+} from './utils.js';
 import {
-    yarnPublish,
-    yarnRun,
-    remoteDockerImageExists,
-    dockerBuild,
-    dockerPush,
-    yarnPublishV2,
+    yarnPublish, yarnRun, remoteDockerImageExists,
+    dockerBuild, dockerPush, yarnPublishV2,
     getNodeVersionFromImage
-} from '../scripts';
-import { getRootInfo, getDevDockerImage, formatList } from '../misc';
-import signale from '../signale';
+} from '../scripts.js';
+import { getRootInfo, getDevDockerImage, formatList } from '../misc.js';
+import signale from '../signale.js';
 
 export async function publish(action: PublishAction, options: PublishOptions): Promise<void> {
     signale.info(`publishing to ${action}...`, { dryRun: options.dryRun });

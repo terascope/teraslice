@@ -1,9 +1,9 @@
 import fse from 'fs-extra';
-import * as config from '../config';
-import { ImagesAction } from './interfaces';
-import signale from '../signale';
-import { dockerPull, saveAndZip } from '../scripts';
-import { getRootInfo } from '../misc';
+import * as config from '../config.js';
+import { ImagesAction } from './interfaces.js';
+import signale from '../signale.js';
+import { dockerPull, saveAndZip } from '../scripts.js';
+import { getRootInfo } from '../misc.js';
 
 export async function images(action: ImagesAction): Promise<void> {
     if (action === ImagesAction.List) {

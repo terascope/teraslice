@@ -1,14 +1,12 @@
-import {
-    getTypeOf, TSError
-} from '@terascope/utils';
+import { getTypeOf, TSError } from '@terascope/utils';
 import {
     DataTypeFields, FieldType, ReadonlyDataTypeFields,
     TypedArray, TypedArrayConstructor
 } from '@terascope/types';
 import {
-    FieldArg,
-    MAX_16BIT_INT, MAX_32BIT_INT, MAX_8BIT_INT,
-} from './interfaces';
+    FieldArg, MAX_16BIT_INT, MAX_32BIT_INT,
+    MAX_8BIT_INT,
+} from './interfaces.js';
 
 export function getFieldsFromArg<
     K extends(number|string|symbol)

@@ -1,5 +1,5 @@
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
-import Keyword from '../../../src/types/v1/keyword';
+import Keyword from '../../../src/types/v1/keyword.js';
 
 describe('Keyword V1', () => {
     const field = 'someField';

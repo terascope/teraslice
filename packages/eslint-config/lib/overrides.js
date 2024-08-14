@@ -11,6 +11,7 @@ try {
 }
 
 const overrides = [];
+
 if (hasTypescript) {
     overrides.push(
         {

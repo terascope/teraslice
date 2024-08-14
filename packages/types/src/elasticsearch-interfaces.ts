@@ -1,4 +1,4 @@
-import * as geo from './geo-interfaces';
+import * as geo from './geo-interfaces.js';
 
 /**
  * The sort direction

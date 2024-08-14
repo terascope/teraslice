@@ -1,6 +1,6 @@
 import 'jest-extended';
-import { once, memoize } from '../src/functions';
-import { times, random } from '../src';
+import { once, memoize } from '../src/functions.js';
+import { times, random } from '../src/index.js';
 
 describe('Function Utils', () => {
     describe('once', () => {

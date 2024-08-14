@@ -1,12 +1,12 @@
 import 'jest-extended';
-import { promises as fsp } from 'fs';
-import path from 'path';
+import { promises as fsp } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { uniq } from '@terascope/utils';
-import {
-    functionConfigRepository,
-    FunctionDefinitionConfig,
-} from '../../src';
-import { functionTestHarness } from './functionTestHarness';
+import { functionConfigRepository, FunctionDefinitionConfig } from '../../src/index.js';
+import { functionTestHarness } from './functionTestHarness.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('function configs', () => {
     Object.entries(functionConfigRepository).forEach(([key, fnDef]) => {
@@ -28,7 +28,7 @@ describe('function configs', () => {
 
 describe('function registries', () => {
     it('should ensure that each config file is exported', async () => {
-        const dirPath = path.join(__dirname, '..', '..', 'src', 'function-configs');
+        const dirPath = path.join(dirname, '..', '..', 'src', 'function-configs');
         const configDirs = await fsp.readdir(dirPath);
 
         for (const item of configDirs) {
@@ -38,7 +38,6 @@ describe('function registries', () => {
             const functionPath = path.join(dirPath, item);
 
             const imports = await parseIndexFile(path.join(functionPath, 'index.ts'));
-
             const configFiles = await fsp.readdir(functionPath);
 
             for (const f of configFiles.filter((i) => !(i.endsWith('utils.ts') || i === 'index.ts'))) {
@@ -48,12 +47,17 @@ describe('function registries', () => {
     });
 });
 
+function sanitize(file: string) {
+    return file.replace('.js', '').replace(/\W/g, '');
+}
+
 async function parseIndexFile(indexPath: string): Promise<string[]> {
     const indexFile = await fsp.readFile(indexPath, 'utf-8');
 
     return indexFile.split('\n').reduce((imports: string[], line) => {
         if (line.includes('import')) {
-            imports.push(line.split('from', 2)[1].replace(/\W/g, ''));
+            const sourceFile = line.split('from', 2)[1];
+            imports.push(sanitize(sourceFile));
         }
 
         return imports;

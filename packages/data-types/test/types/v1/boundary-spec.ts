@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { ESFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
-import Boundary from '../../../src/types/v1/boundary';
+import Boundary from '../../../src/types/v1/boundary.js';
 
 describe('Boundary V1', () => {
     const field = 'someField';

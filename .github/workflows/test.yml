@@ -45,12 +45,6 @@ jobs:
       env:
         YARN_SETUP_ARGS: "--prod=false --silent"
 
-    - name: Lint codebase
-      run: yarn lint
-
-    - name: Sync codebase
-      run: yarn sync --verify
-
   check-docker-limit-before:
    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f5e098fa861fe7744fa61842e82124f806364be9
    secrets: inherit
@@ -203,6 +197,32 @@ jobs:
       - name: Test ${{ matrix.search-version }}
         run: yarn --silent test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
+
+  lint-and-sync:
+    runs-on: ubuntu-latest
+    needs: [compute, verify-build, cache-docker-images]
+    # will remove the checkout, build and setup when the artifact is made to just
+    # test the linting and syncing of the codebase
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSION_MAIN) }}
+        cache: 'yarn'
+
+    - name: Install and build packages
+      run: yarn setup
+      env:
+        YARN_SETUP_ARGS: "--prod=false --silent"
+
+    - name: Lint codebase
+      run: yarn lint
+
+    - name: Sync codebase
+      run: yarn sync --verify
 
   elasticsearch-api-tests:
     runs-on: ubuntu-latest

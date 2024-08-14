@@ -1,6 +1,6 @@
-import _isEqualWith from 'lodash/isEqualWith';
-import { toBigIntOrThrow } from '.';
-import { isDataEntity } from './entities/utils';
+import { isEqualWith } from 'lodash-es';
+import { toBigIntOrThrow } from './numbers.js';
+import { isDataEntity } from './entities/utils.js';
 
 /**
  * Verify that two values are the same (uses a reference check).
@@ -45,7 +45,7 @@ export function isEqualFP<T>(target: T): (input: T) => input is T {
 export function isDeepEqual<T>(target: T, input: unknown): input is T;
 export function isDeepEqual<T>(target: T, input: unknown): boolean;
 export function isDeepEqual<T>(target: T, input: unknown): target is T {
-    return _isEqualWith(input, target, _isEqualCustomizer);
+    return isEqualWith(input, target, _isEqualCustomizer);
 }
 
 function _isEqualCustomizer(objValue: unknown, otherObject: unknown): boolean|undefined {

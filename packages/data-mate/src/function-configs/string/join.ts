@@ -3,7 +3,7 @@ import { isNotNil } from '@terascope/utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionExample, FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface JoinArgs {
     delimiter?: string;

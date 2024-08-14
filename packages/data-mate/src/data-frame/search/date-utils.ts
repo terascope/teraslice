@@ -1,12 +1,10 @@
-import isWithinInterval from 'date-fns/isWithinInterval';
-import isEqual from 'date-fns/isEqual';
-import subMilliseconds from 'date-fns/subMilliseconds';
-import addMilliseconds from 'date-fns/addMilliseconds';
-import { getTypeOf, getValidDate } from '@terascope/utils';
 import {
-    isInfiniteMax, isInfiniteMin, ParsedRange
-} from 'xlucene-parser';
-import { MatchValueFn } from './interfaces';
+    isWithinInterval, isEqual, subMilliseconds,
+    addMilliseconds
+} from 'date-fns';
+import { getTypeOf, getValidDate } from '@terascope/utils';
+import { isInfiniteMax, isInfiniteMin, ParsedRange } from 'xlucene-parser';
+import { MatchValueFn } from './interfaces.js';
 
 // TODO: handle datemath
 

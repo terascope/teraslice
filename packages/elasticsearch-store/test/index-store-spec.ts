@@ -7,11 +7,11 @@ import { Translator } from 'xlucene-translator';
 import { ElasticsearchDistribution } from '@terascope/types';
 import {
     SimpleRecord, SimpleRecordInput, dataType, schema
-} from './helpers/simple-index';
+} from './helpers/simple-index.js';
 import {
     IndexStore, IndexConfig, OnBulkConflictFn,
     UpsertWithScript, ElasticsearchTestHelpers
-} from '../src';
+} from '../src/index.js';
 
 const {
     makeClient, cleanupIndexStore, TEST_INDEX_PREFIX,

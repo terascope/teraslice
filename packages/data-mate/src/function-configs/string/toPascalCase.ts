@@ -5,7 +5,7 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const toPascalCaseConfig: FieldTransformConfig = {
     name: 'toPascalCase',

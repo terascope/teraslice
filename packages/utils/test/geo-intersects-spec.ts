@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { GeoShapeType, GeoInput } from '@terascope/types';
-import { geoIntersectsFP, geoIntersects } from '../src/geo';
+import { geoIntersectsFP, geoIntersects } from '../src/geo.js';
 
 type GeoIntersectsCase = [
     msg: string,

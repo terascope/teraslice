@@ -1,19 +1,19 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {
-    AssetJsonInfo,
-    BumpAssetOnlyOptions,
-    BumpPkgInfo,
+    AssetJsonInfo, BumpAssetOnlyOptions, BumpPkgInfo,
     BumpPackageOptions
-} from './interfaces';
-import { listPackages, isMainPackage, updatePkgJSON } from '../packages';
-import { Hook, PackageInfo } from '../interfaces';
-
-import { getRootInfo, writeIfChanged } from '../misc';
-import * as utils from './utils';
-import signale from '../signale';
-import { syncVersions } from '../sync/utils';
-import { executeHook } from '../hooks';
+} from './interfaces.js';
+import { listPackages, isMainPackage, updatePkgJSON } from '../packages.js';
+import { Hook, PackageInfo } from '../interfaces.js';
+import { getRootInfo, writeIfChanged } from '../misc.js';
+import {
+    bumpPackagesList, getPackagesToBump, getBumpCommitMessages,
+    bumpVersion
+} from './utils.js';
+import signale from '../signale.js';
+import { syncVersions } from '../sync/utils.js';
+import { executeHook } from '../hooks.js';
 
 export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean): Promise<void> {
     const rootInfo = getRootInfo();
@@ -21,11 +21,11 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
 
     // The bumpAssetVersion function requires rootInfo to be the last object in the packages array
     const packages: PackageInfo[] = [..._packages, rootInfo as any];
-    const packagesToBump = await utils.getPackagesToBump(packages, options);
-    utils.bumpPackagesList(packagesToBump, packages);
+    const packagesToBump = await getPackagesToBump(packages, options);
+    bumpPackagesList(packagesToBump, packages);
     const bumpAssetInfo = await bumpAssetVersion(packages, options, isAsset);
     const allBumps = { ...packagesToBump, ...bumpAssetInfo };
-    const commitMsgs = utils.getBumpCommitMessages(allBumps, options.release);
+    const commitMsgs = getBumpCommitMessages(allBumps, options.release);
 
     const mainInfo = packages.find(isMainPackage);
     const bumpedMain = mainInfo ? packagesToBump[mainInfo.name] : false;
@@ -63,7 +63,7 @@ export async function bumpAssetOnly(
     // The bumpAssetVersion function requires rootInfo to be the last object in the packages array
     const packages: PackageInfo[] = [..._packages, rootInfo as any];
     const bumpAssetInfo = await bumpAssetVersion(packages, options, isAsset);
-    const commitMsgs = utils.getBumpCommitMessages(bumpAssetInfo, options.release);
+    const commitMsgs = getBumpCommitMessages(bumpAssetInfo, options.release);
 
     for (const pkgInfo of packages) {
         await updatePkgJSON(pkgInfo);
@@ -88,7 +88,7 @@ export async function bumpAssetVersion(
     const bumpAssetInfo: Record<string, BumpPkgInfo> = {};
     const rootPkgInfo = packages[packages.length - 1];
     const oldVersion = rootPkgInfo.version;
-    const newVersion = utils.bumpVersion(rootPkgInfo, options.release, options?.preId);
+    const newVersion = bumpVersion(rootPkgInfo, options.release, options?.preId);
 
     const relativeDirsToFind = ['.', 'asset'];
     const pkgsToUpdate = packages.filter((pkg) => relativeDirsToFind.includes(pkg.relativeDir));

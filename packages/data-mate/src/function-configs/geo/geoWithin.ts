@@ -6,7 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
     FunctionDefinitionExample
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface GeoWithinArgs {
     value: GeoInput;

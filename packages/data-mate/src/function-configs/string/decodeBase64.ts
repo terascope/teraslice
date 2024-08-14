@@ -5,7 +5,7 @@ import {
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const decodeBase64Config: FieldTransformConfig = {
     name: 'decodeBase64',

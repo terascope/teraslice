@@ -1,14 +1,7 @@
-import {
-    parseGeoDistance,
-    parseGeoPoint,
-} from '@terascope/utils';
-import {
-    GeoPoint,
-    xLuceneFieldType,
-    xLuceneTypeConfig,
-} from '@terascope/types';
-import * as i from './interfaces';
-import * as utils from './utils';
+import { parseGeoDistance, parseGeoPoint } from '@terascope/utils';
+import { GeoPoint, xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
+import * as i from './interfaces.js';
+import * as utils from './utils.js';
 
 const inferredFieldTypes = Object.freeze({
     [xLuceneFieldType.String]: true,

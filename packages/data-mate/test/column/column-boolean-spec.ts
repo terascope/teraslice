@@ -4,7 +4,7 @@ import { toBoolean } from '@terascope/utils';
 import {
     Column, Vector,
     dataFrameAdapter, functionConfigRepository
-} from '../../src';
+} from '../../src/index.js';
 
 describe('Column (Boolean Types)', () => {
     describe('when field type is Boolean', () => {

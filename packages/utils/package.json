@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "displayName": "Utils",
-    "version": "0.60.0",
+    "version": "1.0.0",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -11,6 +11,7 @@
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
     "sideEffects": false,
+    "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "files": [
@@ -28,7 +29,7 @@
         "debug": "^4.3.4"
     },
     "dependencies": {
-        "@terascope/types": "^0.18.0",
+        "@terascope/types": "^1.0.0",
         "@turf/bbox": "^6.4.0",
         "@turf/bbox-polygon": "^6.4.0",
         "@turf/boolean-contains": "^6.4.0",
@@ -41,7 +42,7 @@
         "@turf/helpers": "^6.2.0",
         "@turf/invariant": "^6.2.0",
         "@turf/line-to-polygon": "^6.4.0",
-        "@types/lodash": "^4.14.202",
+        "@types/lodash-es": "^4.17.12",
         "@types/validator": "^13.11.10",
         "awesome-phonenumber": "^2.70.0",
         "date-fns": "^2.30.0",
@@ -59,7 +60,7 @@
         "js-string-escape": "^1.0.1",
         "kind-of": "^6.0.3",
         "latlon-geohash": "^1.1.0",
-        "lodash": "^4.17.21",
+        "lodash-es": "^4.17.21",
         "mnemonist": "^0.39.8",
         "p-map": "^4.0.0",
         "shallow-clone": "^3.0.1",
@@ -82,6 +83,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit"
+        "testSuite": "unit-esm"
     }
 }

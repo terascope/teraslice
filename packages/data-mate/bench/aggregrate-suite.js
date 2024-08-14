@@ -1,11 +1,15 @@
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { FieldType } from '@terascope/types';
+import { isExecutedFile } from '@terascope/utils';
+import { Suite } from './helpers.js';
+import {
+    DataFrame, isNumberLike, ValueAggregation,
+    KeyAggregation
+} from '../dist/src/index.js';
 
-const { FieldType } = require('@terascope/types');
-const { Suite } = require('./helpers');
-const { config, data } = require('./fixtures/data.json');
-const {
-    DataFrame, isNumberLike, ValueAggregation, KeyAggregation
-} = require('./src');
+const json = fs.readFileSync(path.join('.', './fixtures/data.json'));
+const { config, data } = JSON.parse(json);
 
 const run = async () => {
     const suite = Suite('Aggregate');
@@ -49,10 +53,11 @@ const run = async () => {
         maxTime: 20,
     });
 };
-if (require.main === module) {
+
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

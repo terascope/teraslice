@@ -5,8 +5,8 @@ import {
     xLuceneVariables
 } from '@terascope/types';
 import { parseGeoPoint, geoContainsFP } from '@terascope/utils';
-import { getFieldValue, logger } from '../../utils';
-import * as i from '../../interfaces';
+import { getFieldValue, logger } from '../../utils.js';
+import * as i from '../../interfaces.js';
 
 function validate(params: i.Term[], variables: xLuceneVariables) {
     const geoPointParam = params.find((node) => node.field === 'point');

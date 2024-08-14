@@ -1,24 +1,24 @@
-import { extractMappedIPv4Config } from './extractMappedIPv4';
-import { getCIDRBroadcastConfig } from './getCIDRBroadcast';
-import { getCIDRMaxConfig } from './getCIDRMax';
-import { getCIDRMinConfig } from './getCIDRMin';
-import { getFirstIPInCIDRConfig } from './getFirstIpInCIDR';
-import { getLastIPInCIDRConfig } from './getLastIpInCIDR';
-import { getFirstUsableIPInCIDRConfig } from './getFirstUsableIPInCIDR';
-import { getLastUsableIPInCIDRConfig } from './getLastUsableIPInCIDR';
-import { getCIDRNetworkConfig } from './getCIDRNetwork';
-import { inIPRangeConfig, InIPRangeArgs } from './inIPRange';
-import { intToIPConfig, IntToIPArgs } from './intToIP';
-import { ipToIntConfig } from './ipToInt';
-import { isCIDRConfig } from './isCIDR';
-import { isIPConfig } from './isIP';
-import { isIPv4Config } from './isIPv4';
-import { isIPv6Config } from './isIPv6';
-import { isMappedIPv4Config } from './isMappedIPv4';
-import { isNonRoutableIPConfig } from './isNonRoutableIP';
-import { isRoutableIPConfig } from './isRoutableIP';
-import { reverseIPConfig } from './reverseIP';
-import { toCIDRConfig, ToCIDRArgs } from './toCIDR';
+import { extractMappedIPv4Config } from './extractMappedIPv4.js';
+import { getCIDRBroadcastConfig } from './getCIDRBroadcast.js';
+import { getCIDRMaxConfig } from './getCIDRMax.js';
+import { getCIDRMinConfig } from './getCIDRMin.js';
+import { getFirstIPInCIDRConfig } from './getFirstIpInCIDR.js';
+import { getLastIPInCIDRConfig } from './getLastIpInCIDR.js';
+import { getFirstUsableIPInCIDRConfig } from './getFirstUsableIPInCIDR.js';
+import { getLastUsableIPInCIDRConfig } from './getLastUsableIPInCIDR.js';
+import { getCIDRNetworkConfig } from './getCIDRNetwork.js';
+import { inIPRangeConfig, InIPRangeArgs } from './inIPRange.js';
+import { intToIPConfig, IntToIPArgs } from './intToIP.js';
+import { ipToIntConfig } from './ipToInt.js';
+import { isCIDRConfig } from './isCIDR.js';
+import { isIPConfig } from './isIP.js';
+import { isIPv4Config } from './isIPv4.js';
+import { isIPv6Config } from './isIPv6.js';
+import { isMappedIPv4Config } from './isMappedIPv4.js';
+import { isNonRoutableIPConfig } from './isNonRoutableIP.js';
+import { isRoutableIPConfig } from './isRoutableIP.js';
+import { reverseIPConfig } from './reverseIP.js';
+import { toCIDRConfig, ToCIDRArgs } from './toCIDR.js';
 
 export const ipRepository = {
     isIP: isIPConfig,

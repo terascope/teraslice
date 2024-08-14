@@ -11,7 +11,7 @@ import {
     setPrecision,
     toFahrenheit,
     toCelsius
-} from '../src/numbers';
+} from '../src/numbers.js';
 
 describe('Numbers', () => {
     const bigNumber = BigInt(Number.MAX_SAFE_INTEGER) * BigInt(2);

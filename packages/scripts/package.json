@@ -1,7 +1,7 @@
 {
     "name": "@terascope/scripts",
     "displayName": "Scripts",
-    "version": "0.83.3",
+    "version": "1.0.0",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
@@ -10,6 +10,7 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "bin": {
@@ -32,7 +33,7 @@
     },
     "dependencies": {
         "@kubernetes/client-node": "^0.20.0",
-        "@terascope/utils": "^0.60.0",
+        "@terascope/utils": "^1.0.0",
         "codecov": "^3.8.3",
         "execa": "^5.1.0",
         "fs-extra": "^11.2.0",
@@ -83,6 +84,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": false,
-        "testSuite": "unit"
+        "testSuite": "unit-esm"
     }
 }

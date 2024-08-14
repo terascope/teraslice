@@ -1,8 +1,8 @@
 import { DataType } from '@terascope/data-types';
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import * as p from 'xlucene-parser';
-import type { DataFrame } from '../DataFrame';
-import { buildMatcherForNode } from './buildMatcherForNode';
+import type { DataFrame } from '../DataFrame.js';
+import { buildMatcherForNode } from './buildMatcherForNode.js';
 
 export function buildSearchMatcherForQuery(
     dataFrame: DataFrame<any>,

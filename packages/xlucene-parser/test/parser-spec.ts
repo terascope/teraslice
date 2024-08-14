@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError, times, toString } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
-import allTestCases, { filterNilTestCases } from './cases';
+import allTestCases, { filterNilTestCases } from './cases/index.js';
 import {
     Parser, NodeType, FieldValue, TermLikeNode
 } from '../src';

@@ -1,12 +1,14 @@
-import { address } from 'ip';
+import ipPkg from 'ip';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
     toBoolean, toSafeString, isCI, toIntegerOrThrow
 } from '@terascope/utils';
-import { Service } from './interfaces';
-import { kafkaVersionMapper } from './mapper';
+import { Service } from './interfaces.js';
+import { kafkaVersionMapper } from './mapper.js';
+
+const { address } = ipPkg;
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)

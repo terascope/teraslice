@@ -1,10 +1,10 @@
-import fieldGroup from './field-group';
-import geo from './geo';
-import logicalGroup from './logical-group';
-import termLevel from './term';
-import ipRange from './ip-range';
+import fieldGroup from './field-group.js';
+import geo from './geo.js';
+import logicalGroup from './logical-group.js';
+import termLevel from './term.js';
+import ipRange from './ip-range.js';
 
-export * from './interfaces';
+export * from './interfaces.js';
 
 export default {
     term_level: termLevel,

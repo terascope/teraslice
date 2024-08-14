@@ -1,7 +1,7 @@
 import 'jest-extended';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { cloneDeep } from '@terascope/utils';
 import { BumpPackageOptions, BumpType, BumpPkgInfo } from '../src/helpers/bump/interfaces';
 import { PackageInfo } from '../src/helpers/interfaces';

@@ -1,7 +1,5 @@
-'use strict';
-
-const { Suite } = require('./helpers');
-const { once } = require('../dist/src');
+import { Suite } from './helpers.js';
+import { once, isExecutedFile } from '../dist/src/index.js';
 
 let hi = 1;
 let hello = 1;
@@ -32,10 +30,10 @@ const run = async () => Suite('fn')
         maxTime: 60
     });
 
-if (require.main === module) {
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

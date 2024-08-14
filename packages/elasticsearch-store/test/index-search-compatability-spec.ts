@@ -5,7 +5,7 @@ import {
     IndexModel, IndexModelRecord, IndexModelConfig,
     IndexModelOptions, makeRecordDataType, Client,
     ElasticsearchTestHelpers
-} from '../src';
+} from '../src/index.js';
 
 const { makeClient, cleanupIndexStore, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
 

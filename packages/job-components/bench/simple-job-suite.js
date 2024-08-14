@@ -1,9 +1,8 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
+import { isExecutedFile } from '@terascope/utils';
 import { Suite } from '@terascope/utils/bench/helpers.js';
 import { TestContext, newTestExecutionConfig, WorkerExecutionContext } from '../dist/src/index.js';
-
 import SimpleFetcher from './fixtures/simple-reader/fetcher.js';
 import SimpleMap from './fixtures/simple-map/processor.js';
 import SimpleFilter from './fixtures/simple-filter/processor.js';
@@ -147,10 +146,10 @@ const run = async () => {
         });
 };
 
-if (require.main === module) {
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
-'use strict';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const path = require('path');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // this path.join is only used for pkg asset injection
-path.join(__dirname, '../package.json');
+path.join(dirname, '../package.json');
 // eslint-disable-next-line import/no-unresolved
-require('../dist/src/command');
+import('../dist/src/command.js');

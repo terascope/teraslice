@@ -1,6 +1,6 @@
 import addDays from 'date-fns/addDays';
 import { xLuceneFieldType } from '@terascope/types';
-import { TestCase } from './interfaces';
+import { TestCase } from './interfaces.js';
 
 const now = new Date();
 

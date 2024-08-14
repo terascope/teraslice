@@ -1,11 +1,9 @@
 import 'jest-extended';
-import {
-    FieldType, Maybe, GeoPointInput
-} from '@terascope/types';
+import { FieldType, Maybe, GeoPointInput } from '@terascope/types';
 import {
     functionConfigRepository, FunctionDefinitionType,
     ProcessMode, Column, dataFrameAdapter, FunctionContext
-} from '../../../src';
+} from '../../../src/index.js';
 
 const toGeoPointConfig = functionConfigRepository.toGeoPoint;
 

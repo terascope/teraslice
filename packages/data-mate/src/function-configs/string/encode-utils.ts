@@ -1,4 +1,4 @@
-import { createHash, BinaryToTextEncoding } from 'crypto';
+import { createHash, BinaryToTextEncoding } from 'node:crypto';
 import { primitiveToString } from '@terascope/utils';
 
 export function bufferEncode(bufferEncoding: BufferEncoding) {

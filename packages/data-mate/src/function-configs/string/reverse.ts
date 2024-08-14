@@ -6,7 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
     FunctionDefinitionExample
-} from '../interfaces';
+} from '../interfaces.js';
 
 function _reverse(input: unknown): string|null {
     if (!isString(input)) {

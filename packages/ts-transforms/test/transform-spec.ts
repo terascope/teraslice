@@ -1,10 +1,13 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DataEntity, get, cloneDeep } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
-import TestHarness from './test-harness';
-import { WatcherConfig } from '../src';
-import Plugins from './fixtures/plugins';
+import TestHarness from './test-harness.js';
+import { WatcherConfig } from '../src/index.js';
+import Plugins from './fixtures/plugins/index.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('can transform matches', () => {
     let opTest: TestHarness;
@@ -14,7 +17,7 @@ describe('can transform matches', () => {
     });
 
     function getPath(fileName: string) {
-        return path.join(__dirname, `./fixtures/${fileName}`);
+        return path.join(dirname, `./fixtures/${fileName}`);
     }
 
     function encode(str: string, type: string) {

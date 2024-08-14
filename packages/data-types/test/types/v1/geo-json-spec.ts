@@ -1,10 +1,8 @@
 import {
-    DataTypeFieldConfig,
-    FieldType,
-    ClientMetadata,
+    DataTypeFieldConfig, FieldType, ClientMetadata,
     ElasticsearchDistribution
 } from '@terascope/types';
-import GeoJSONType from '../../../src/types/v1/geo-json';
+import GeoJSONType from '../../../src/types/v1/geo-json.js';
 
 describe('GeoJSON V1', () => {
     const field = 'someField';

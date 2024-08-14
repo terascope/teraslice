@@ -1,1 +1,1 @@
-export * from './buildSearchMatcherForQuery';
+export * from './buildSearchMatcherForQuery.js';

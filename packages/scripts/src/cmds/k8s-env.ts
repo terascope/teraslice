@@ -1,7 +1,7 @@
 import { CommandModule } from 'yargs';
-import * as config from '../helpers/config';
-import { launchK8sEnv, rebuildTeraslice } from '../helpers/k8s-env';
-import { K8sEnvOptions } from '../helpers/k8s-env/interfaces';
+import * as config from '../helpers/config.js';
+import { launchK8sEnv, rebuildTeraslice } from '../helpers/k8s-env/index.js';
+import { K8sEnvOptions } from '../helpers/k8s-env/interfaces.js';
 
 const cmd: CommandModule = {
     command: 'k8s-env',
@@ -107,4 +107,4 @@ const cmd: CommandModule = {
     },
 };
 
-export = cmd;
+export default cmd;

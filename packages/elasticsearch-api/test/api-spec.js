@@ -1,10 +1,8 @@
-'use strict';
-
-const Promise = require('bluebird');
-const {
-    debugLogger, cloneDeep, DataEntity, isEmpty
-} = require('@terascope/utils');
-const esApi = require('..');
+import {
+    debugLogger, cloneDeep, DataEntity,
+    isEmpty, pDelay
+} from '@terascope/utils';
+import esApi from '../index.js';
 
 describe('elasticsearch-api', () => {
     let recordsReturned = [];
@@ -66,11 +64,12 @@ describe('elasticsearch-api', () => {
         };
     }
 
-    function waitFor(time, fn) {
-        return new Promise((resolve) => setTimeout(() => {
-            if (fn) fn();
-            resolve(true);
-        }, time));
+    async function waitFor(time, fn) {
+        await pDelay(time);
+        if (fn) {
+            fn();
+        }
+        return true;
     }
 
     function postedData(action, id) {

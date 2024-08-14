@@ -1,28 +1,26 @@
 /* eslint-disable camelcase */
 
-'use strict';
-
 // polyfill because opensearch has references to an api that won't exist
 // on the client side, should be able to remove in the future
-require('setimmediate');
-
-const Promise = require('bluebird');
-const {
+import Promise from 'bluebird';
+import {
     isTest, TSError, isFatalError,
     parseError, getBackoffDelay, isRetryableError,
     get, toNumber, isString, isSimpleObject,
     castArray, flatten, toBoolean,
     uniq, random, cloneDeep, DataEntity,
     isDeepEqual, getTypeOf, isProd
-} = require('@terascope/utils');
-const { ElasticsearchDistribution } = require('@terascope/types');
+} from '@terascope/utils';
+import { ElasticsearchDistribution } from '@terascope/types';
+
+import('setimmediate');
 
 const DOCUMENT_EXISTS = 409;
 const TOO_MANY_REQUESTS = 429;
 
 // Module to manage persistence in Elasticsearch.
 // All functions in this module return promises that must be resolved to get the final result.
-module.exports = function elasticsearchApi(client, logger, _opConfig) {
+export default function elasticsearchApi(client, logger, _opConfig) {
     const config = _opConfig || {};
     if (!client) {
         throw new Error('Elasticsearch API requires client');
@@ -1288,4 +1286,4 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         getESVersion,
         isErrorRetryable
     };
-};
+}

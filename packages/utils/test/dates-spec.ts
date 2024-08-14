@@ -36,7 +36,7 @@ import {
     subtractFromDate,
     toTimeZone,
     toTimeZoneUsingLocationFP,
-} from '../src/dates';
+} from '../src/dates.js';
 
 describe('date utils', () => {
     describe('isISO8601', () => {

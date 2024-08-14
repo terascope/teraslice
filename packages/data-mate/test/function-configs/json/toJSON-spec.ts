@@ -1,12 +1,10 @@
 import 'jest-extended';
 import { isEmpty } from '@terascope/utils';
-import {
-    FieldType, DataTypeFields, Maybe
-} from '@terascope/types';
+import { FieldType, DataTypeFields, Maybe } from '@terascope/types';
 import {
     functionConfigRepository, FunctionDefinitionType,
     ProcessMode, Column, dataFrameAdapter, FunctionContext
-} from '../../../src';
+} from '../../../src/index.js';
 
 const toJSONConfig = functionConfigRepository.toJSON;
 

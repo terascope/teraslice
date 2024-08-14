@@ -1,6 +1,6 @@
 import validator from 'validator';
-import ValidationOpBase from './base';
-import { PostProcessConfig } from '../../../interfaces';
+import ValidationOpBase from './base.js';
+import { PostProcessConfig } from '../../../interfaces.js';
 
 export default class StringValidation extends ValidationOpBase<any> {
     private length?: number;

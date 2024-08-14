@@ -4,8 +4,8 @@ import {
 } from '@terascope/utils';
 import { ClientParams, ClientResponse } from '@terascope/types';
 import esApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
-import { ESStateStorageConfig, MGetCacheResponse } from '../interfaces';
-import CachedStateStorage from '../cached-state-storage';
+import { ESStateStorageConfig, MGetCacheResponse } from '../interfaces.js';
+import CachedStateStorage from '../cached-state-storage/index.js';
 
 export default class ESCachedStateStorage {
     private index: string;

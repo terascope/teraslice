@@ -6,7 +6,7 @@ import {
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const toGeoJSONConfig: FieldTransformConfig = {
     name: 'toGeoJSON',

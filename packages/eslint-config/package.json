@@ -10,6 +10,7 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "type": "commonjs",
     "main": "index.js",
     "scripts": {
         "test": "ts-scripts test . --",
@@ -40,6 +41,6 @@
     },
     "terascope": {
         "enableTypedoc": false,
-        "testSuite": "unit"
+        "testSuite":  "unit-esm"
     }
 }

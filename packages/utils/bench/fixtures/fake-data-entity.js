@@ -1,6 +1,4 @@
-'use strict';
-
-class FakeDataEntity {
+export default class FakeDataEntity {
     constructor(d, m) {
         this.metadata = Object.assign({}, m, { _createTime: Date.now() });
 
@@ -15,5 +13,3 @@ class FakeDataEntity {
         this.metadata[key] = val;
     }
 }
-
-module.exports = FakeDataEntity;

@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
-import GeoPointType from '../../../src/types/v1/geo-point';
+import GeoPointType from '../../../src/types/v1/geo-point.js';
 
 describe('GeoPoint V1', () => {
     const field = 'someField';

@@ -32,14 +32,14 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test . --",
-        "test:debug": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test --debug . --",
-        "test:watch": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test --watch . --"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^1.0.0",
-        "@terascope/types": "^0.18.0",
-        "@terascope/utils": "^0.60.0",
+        "@terascope/types": "^1.0.0",
+        "@terascope/utils": "^1.0.0",
         "chalk": "^4.1.2",
         "cli-table3": "^0.6.4",
         "diff": "^5.2.0",
@@ -55,7 +55,7 @@
         "pretty-bytes": "^5.6.0",
         "prompts": "^2.4.2",
         "signale": "^1.4.0",
-        "teraslice-client-js": "^0.61.0",
+        "teraslice-client-js": "^1.0.0",
         "tmp": "^0.2.0",
         "tty-table": "^4.2.3",
         "yargs": "^17.7.2",
