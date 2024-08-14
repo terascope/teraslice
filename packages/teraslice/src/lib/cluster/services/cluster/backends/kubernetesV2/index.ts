@@ -154,8 +154,7 @@ export class KubernetesClusterBackendV2 {
             return Promise.reject(error);
         }
         const exServiceName = serviceResult.metadata?.name;
-        const k8sNamespace = this.context.sysconfig.teraslice.kubernetes_namespace;
-        const exServiceHostName = `${exServiceName}.${k8sNamespace}`;
+        const exServiceHostName = `${exServiceName}.${this.k8s.defaultNamespace}`;
         this.logger.debug(`Slicer is using host name: ${exServiceHostName}`);
 
         execution.slicer_hostname = `${exServiceHostName}`;
