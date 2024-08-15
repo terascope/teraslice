@@ -113,6 +113,18 @@ export class KubernetesClusterBackendV2 {
             execution,
             this.logger
         );
+        const exJob = exJobResource.resource;
+
+        this.logger.debug(exJob, 'execution allocating slicer');
+
+        const jobResult = await this.k8s.post(exJob, 'job') as K8sClient.V1Job;
+
+        // I need to add these here to create the ex service resource
+        // @ts-expect-error
+        execution.k8sName = jobResult.metadata.name;
+        // @ts-expect-error
+        execution.k8sUid = jobResult.metadata.uid;
+
         const exServiceResource = new K8sResource(
             'services',
             'execution_controller',
@@ -120,12 +132,9 @@ export class KubernetesClusterBackendV2 {
             execution,
             this.logger
         );
-        const exJob = exJobResource.resource;
+
         const exService = exServiceResource.resource;
 
-        this.logger.debug(exJob, 'execution allocating slicer');
-
-        const jobResult = await this.k8s.post(exJob, 'job') as K8sClient.V1Job;
         const serviceResult = await this.k8s.post(exService, 'service') as K8sClient.V1Service;
 
         this.logger.debug(jobResult, 'k8s slicer job submitted');
@@ -142,7 +151,7 @@ export class KubernetesClusterBackendV2 {
         const controllerUid = jobResult.spec?.selector?.matchLabels?.[controllerLabel];
 
         // Right now this is waiting for the selected pod to come up in a "running"
-        // state. It may be better to check for a readieness probe instead
+        // state. It may be better to check for a readiness probe instead
         const pod = await this.k8s.waitForSelectedPod(
             `${controllerLabel}=${controllerUid}`,
             undefined,

@@ -3,6 +3,17 @@
   "apiVersion": "v1",
   "metadata": {
     "name": "svc-{{name}}",
+    "namespace": "{{namespace}}",
+    "ownerReferences": [
+      {
+          "apiVersion": "batch/v1",
+          "controller": false,
+          "blockOwnerDeletion": false,
+          "kind": "Job",
+          "name": "{{exName}}",
+          "uid": "{{exUid}}"
+      }
+    ],
     "labels": {
       "app.kubernetes.io/name": "teraslice",
       "app.kubernetes.io/component": "execution_controller",
