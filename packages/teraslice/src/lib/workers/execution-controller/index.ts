@@ -198,7 +198,7 @@ export class ExecutionController {
         if (this.metrics != null) {
             await this.metrics.initialize();
         }
-
+        /// We set this to true later down the line. Not sure why
         this.isInitialized = true;
 
         this.server.onClientOnline((workerId) => {
@@ -917,10 +917,7 @@ export class ExecutionController {
 
         if (includes(terminalStatuses, status)) {
             error = new Error(invalidStateMsg('terminal'));
-        } else if (
-            includes(runningStatuses, status)
-            && process.env.ALLOW_EX_RESTART !== 'true'
-        ) {
+        } else if (includes(runningStatuses, status)) {
             error = new Error(invalidStateMsg('running'));
             // If in a running status the execution process
             // crashed and k8s is trying to restart the pod,

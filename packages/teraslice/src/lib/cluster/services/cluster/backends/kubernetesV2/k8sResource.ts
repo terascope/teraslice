@@ -115,13 +115,7 @@ export class K8sResource {
     }
 
     _setEnvVariables() {
-        /// Once the V2 backend is preffered over the old one, we may want to remove this env
-        this.resource.spec.template.spec.containers[0].env.push(
-            {
-                name: 'ALLOW_EX_RESTART',
-                value: 'true'
-            }
-        );
+        /// TODO: Use this later when we need to set env vars in workers/ex controllers
     }
 
     _mountLocalTeraslice(contextType: string): void {
