@@ -198,7 +198,7 @@ export class ExecutionController {
         if (this.metrics != null) {
             await this.metrics.initialize();
         }
-
+        /// We set this to true later down the line. Not sure why
         this.isInitialized = true;
 
         this.server.onClientOnline((workerId) => {

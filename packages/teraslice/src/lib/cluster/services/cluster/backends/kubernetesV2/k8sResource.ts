@@ -75,36 +75,60 @@ export class K8sResource {
         this.templateConfig = this._makeConfig();
         this.resource = this.templateGenerator(this.templateConfig);
 
-        this._setJobLabels();
+        if (resourceType !== 'services') {
+            this._setJobLabels();
 
-        // Apply job `targets` setting as k8s nodeAffinity
-        // We assume that multiple targets require both to match ...
-        // NOTE: If you specify multiple `matchExpressions` associated with
-        // `nodeSelectorTerms`, then the pod can be scheduled onto a node
-        // only if *all* `matchExpressions` can be satisfied.
-        this._setTargets();
-        this._setResources();
-        this._setVolumes();
-        this._setAssetsVolume();
-        this._setImagePullSecret();
-        this._setEphemeralStorage();
-        this._setExternalPorts();
-        this._setPriorityClassName();
+            // Apply job `targets` setting as k8s nodeAffinity
+            // We assume that multiple targets require both to match ...
+            // NOTE: If you specify multiple `matchExpressions` associated with
+            // `nodeSelectorTerms`, then the pod can be scheduled onto a node
+            // only if *all* `matchExpressions` can be satisfied.
+            this._setTargets();
+            this._setResources();
+            this._setVolumes();
+            if (process.env.MOUNT_LOCAL_TERASLICE !== undefined) {
+                this._mountLocalTeraslice(resourceName);
+            }
+            this._setEnvVariables();
+            this._setAssetsVolume();
+            this._setImagePullSecret();
+            this._setEphemeralStorage();
+            this._setExternalPorts();
+            this._setPriorityClassName();
 
-        if (resourceName === 'worker') {
-            this._setWorkerAntiAffinity();
+            if (resourceName === 'worker') {
+                this._setWorkerAntiAffinity();
+            }
+
+            // Execution controller targets are required nodeAffinities, if
+            // required job targets are also supplied, then *all* of the matches
+            // will have to be satisfied for the job to be scheduled.  This also
+            // adds tolerations for any specified targets
+            if (resourceName === 'execution_controller') {
+                this._setExecutionControllerTargets();
+            }
+
+            if (this.terasliceConfig.kubernetes_overrides_enabled) {
+                this._mergePodSpecOverlay();
+            }
         }
+    }
 
-        // Execution controller targets are required nodeAffinities, if
-        // required job targets are also supplied, then *all* of the matches
-        // will have to be satisfied for the job to be scheduled.  This also
-        // adds tolerations for any specified targets
-        if (resourceName === 'execution_controller') {
-            this._setExecutionControllerTargets();
-        }
+    _setEnvVariables() {
+        /// TODO: Use this later when we need to set env vars in workers/ex controllers
+    }
 
-        if (this.terasliceConfig.kubernetes_overrides_enabled) {
-            this._mergePodSpecOverlay();
+    _mountLocalTeraslice(contextType: string): void {
+        const devMounts = JSON.parse(process.env.MOUNT_LOCAL_TERASLICE as string);
+        this.resource.spec.template.spec.containers[0].volumeMounts.push(...devMounts.volumeMounts);
+        this.resource.spec.template.spec.volumes.push(...devMounts.volumes);
+
+        if (contextType === 'execution_controller') {
+            this.resource.spec.template.spec.containers[0].args = [
+                'yarn',
+                'node',
+                'service.js'
+            ];
         }
     }
 
