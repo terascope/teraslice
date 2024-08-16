@@ -311,6 +311,8 @@ export class ExecutionController {
         this.logger.info(`execution: ${this.exId} initialized execution_controller`);
 
         this.isInitialized = true;
+        /// This will change the  '/ready' endpoint to Ready
+        this.server.executionReady = true;
     }
 
     async run() {
