@@ -19,7 +19,8 @@
         "test": "test"
     },
     "files": [
-        "dist/src/**/*"
+        "dist/src/**/*",
+        "scripts/fix-deps.js"
     ],
     "scripts": {
         "benchmark": "yarn build && node bench/index.js",
