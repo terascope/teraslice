@@ -35,12 +35,12 @@
     "dependencies": {
         "@terascope/types": "^1.0.0",
         "@terascope/utils": "^1.0.0",
-        "ts-pegjs": "^4.2.1"
+        "ts-pegjs": "^4.2.1",
+        "peggy": "~4.0.3"
     },
     "devDependencies": {
         "@turf/invariant": "^6.2.0",
-        "@turf/random": "^6.4.0",
-        "peggy": "~4.0.3"
+        "@turf/random": "^6.4.0"
     },
     "engines": {
         "node": ">=14.17.0",
