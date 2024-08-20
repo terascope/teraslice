@@ -1,5 +1,4 @@
 import { isNumber, get, Queue } from '@terascope/utils';
-import http from 'node:http';
 import { SliceCompletePayload, EnqueuedWorker, Slice } from '@terascope/types';
 import * as core from '../messenger/index.js';
 import * as i from './interfaces.js';
@@ -13,7 +12,8 @@ export class Server extends core.Server {
 
     constructor(opts: i.ServerOptions) {
         const {
-            port, actionTimeout, networkLatencyBuffer, workerDisconnectTimeout, logger
+            port, actionTimeout, networkLatencyBuffer,
+            workerDisconnectTimeout, logger, requestListener
         } = opts;
 
         if (!isNumber(workerDisconnectTimeout)) {
@@ -23,6 +23,7 @@ export class Server extends core.Server {
         super({
             port,
             actionTimeout,
+            requestListener,
             networkLatencyBuffer,
             clientDisconnectTimeout: workerDisconnectTimeout,
             serverName: 'ExecutionController',
@@ -32,9 +33,6 @@ export class Server extends core.Server {
         this.queue = new Queue();
         this._activeWorkers = {};
         this.executionReady = false;
-
-        this.httpServer.removeListener('request', core.defaultRequestListener);
-        this.httpServer.on('request', this.requestListener);
     }
 
     async start(): Promise<void> {
@@ -197,20 +195,5 @@ export class Server extends core.Server {
         this.queue.remove(workerId, 'workerId');
 
         return true;
-    }
-
-    private requestListener(req: http.IncomingMessage, res: http.ServerResponse) {
-        if (req.url === '/health') {
-            if (this.executionReady) {
-                res.writeHead(201);
-                res.end('Ready');
-            } else {
-                res.writeHead(503);
-                res.end('Service Unavailable');
-            }
-        } else {
-            res.writeHead(501);
-            res.end('Not Implemented');
-        }
     }
 }
