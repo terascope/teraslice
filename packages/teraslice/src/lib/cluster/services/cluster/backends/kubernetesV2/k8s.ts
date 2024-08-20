@@ -104,7 +104,16 @@ export class K8s {
             }
 
             if (pod) {
-                if (get(pod, 'status.phase') === 'Running') return pod;
+                if (pod.status?.conditions) {
+                    for (const condition of pod.status.conditions) {
+                        if (
+                            condition.type === 'ContainersReady'
+                            && condition.status === 'True'
+                        ) {
+                            return pod;
+                        }
+                    }
+                }
             }
             if (now > end) throw new Error(`Timeout waiting for pod matching: ${selector}`);
             this.logger.debug(`waiting for pod matching: ${selector}`);
