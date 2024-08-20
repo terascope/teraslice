@@ -35,8 +35,8 @@
     "dependencies": {
         "@terascope/types": "^1.0.0",
         "@terascope/utils": "^1.0.0",
-        "ts-pegjs": "^4.2.1",
-        "peggy": "~4.0.3"
+        "peggy": "~4.0.3",
+        "ts-pegjs": "^4.2.1"
     },
     "devDependencies": {
         "@turf/invariant": "^6.2.0",
