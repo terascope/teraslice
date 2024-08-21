@@ -30,17 +30,6 @@
                     "image": "{{dockerImage}}",
                     "name": "{{name}}",
                     "ports": [{ "containerPort": 45680 }],
-                    "readinessProbe": {
-                        "httpGet": {
-                            "path": "/health",
-                            "port": 45680
-                        },
-                        "initialDelaySeconds": 5,
-                        "periodSeconds": 10,
-                        "timeoutSeconds": 5,
-                        "successThreshold": 1,
-                        "failureThreshold": 3
-                    },
                     "volumeMounts": [{
                         "mountPath": "/app/config",
                         "name": "config"
