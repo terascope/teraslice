@@ -80,11 +80,10 @@ export class ExecutionController {
         const workerDisconnectTimeout = get(config, 'worker_disconnect_timeout');
         const nodeDisconnectTimeout = get(config, 'node_disconnect_timeout');
         const shutdownTimeout = get(config, 'shutdown_timeout');
-        const requestListener = this.requestListener as ExController.RequestListener;
         this.server = new ExController.Server({
             port: slicerPort,
             networkLatencyBuffer,
-            requestListener,
+            requestListener: this.requestListener.bind(this),
             actionTimeout,
             workerDisconnectTimeout,
             logger
@@ -1184,7 +1183,7 @@ export class ExecutionController {
     requestListener(req: http.IncomingMessage, res: http.ServerResponse) {
         if (req.url === '/health') {
             if (this.server.executionReady) {
-                res.writeHead(201);
+                res.writeHead(200);
                 res.end('Ready');
             } else {
                 res.writeHead(503);
