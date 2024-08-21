@@ -132,7 +132,6 @@ export class KubernetesClusterBackend {
 
         const pod = await this.k8s.waitForSelectedPod(
             `${controllerLabel}=${controllerUid}`,
-            'pod-status',
             undefined,
             this.context.sysconfig.teraslice.slicer_timeout
         );
@@ -162,14 +161,6 @@ export class KubernetesClusterBackend {
         execution.k8sName = jobs.items[0].metadata.name;
         // @ts-expect-error
         execution.k8sUid = jobs.items[0].metadata.uid;
-
-        /// Wait for ex readiness probe to return 'Ready'
-        await this.k8s.waitForSelectedPod(
-            selector,
-            'readiness-probe',
-            undefined,
-            this.context.sysconfig.teraslice.slicer_timeout
-        );
 
         const kr = new K8sResource(
             'deployments',
