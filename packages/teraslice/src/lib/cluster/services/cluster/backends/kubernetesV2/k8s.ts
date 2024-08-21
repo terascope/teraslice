@@ -87,7 +87,7 @@ export class K8s {
      * TODO: Should this use the cluster state that gets polled periodically,
      * rather than making it's own k8s API calls
      */
-    async waitForSelectedPod(selector: string, ns?: string, timeout = 10000) {
+    async waitForSelectedPod(selector: string, statusType: string, ns?: string, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
         let now = Date.now();
         const end = now + timeout;
@@ -104,15 +104,19 @@ export class K8s {
             }
 
             if (pod) {
-                if (pod.status?.conditions) {
-                    for (const condition of pod.status.conditions) {
-                        if (
-                            condition.type === 'ContainersReady'
-                            && condition.status === 'True'
-                        ) {
-                            return pod;
+                if (statusType === 'readiness-probe') {
+                    if (pod.status?.conditions) {
+                        for (const condition of pod.status.conditions) {
+                            if (
+                                condition.type === 'ContainersReady'
+                                && condition.status === 'True'
+                            ) {
+                                return pod;
+                            }
                         }
                     }
+                } else if (statusType === 'pod-status') {
+                    if (get(pod, 'status.phase') === 'Running') return pod;
                 }
             }
             if (now > end) throw new Error(`Timeout waiting for pod matching: ${selector}`);
