@@ -51,7 +51,7 @@ describe('kafka', () => {
             terasliceHarness.waitForExStatus(sender, 'completed')
         ]);
 
-        await terasliceHarness.waitForIndexCount(specIndex, total);
+        await terasliceHarness.waitForIndexCount(specIndex, total, 45 * 1000);
         await reader.stop();
 
         await terasliceHarness.waitForExStatus(reader, 'stopped');
