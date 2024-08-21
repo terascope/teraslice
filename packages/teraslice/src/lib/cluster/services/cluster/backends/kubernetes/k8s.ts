@@ -87,6 +87,7 @@ export class K8s {
      * NOTE: If your selector will return multiple pods, this method probably
      * won't work for you.
      * @param {String} selector kubernetes selector, like 'controller-uid=XXX'
+     * @param {String} statusType type of status to check, either pod status or readiness probe
      * @param {String} ns       namespace to search, this will override the default
      * @param {Number} timeout  time, in ms, to wait for pod to start
      * @return {Object}         pod
@@ -94,7 +95,7 @@ export class K8s {
      * TODO: Should this use the cluster state that gets polled periodically,
      * rather than making it's own k8s API calls
      */
-    async waitForSelectedPod(selector: string, ns?: string, timeout = 10000) {
+    async waitForSelectedPod(selector: string, statusType: string, ns?: string, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
         let now = Date.now();
         const end = now + timeout;
@@ -112,7 +113,20 @@ export class K8s {
             }
 
             if (typeof pod !== 'undefined' && pod) {
-                if (get(pod, 'status.phase') === 'Running') return pod;
+                if (statusType === 'readiness-probe') {
+                    if (pod.status?.conditions) {
+                        for (const condition of pod.status.conditions) {
+                            if (
+                                condition.type === 'ContainersReady'
+                                && condition.status === 'True'
+                            ) {
+                                return pod;
+                            }
+                        }
+                    }
+                } else if (statusType === 'pod-status') {
+                    if (get(pod, 'status.phase') === 'Running') return pod;
+                }
             }
             if (now > end) throw new Error(`Timeout waiting for pod matching: ${selector}`);
             this.logger.debug(`waiting for pod matching: ${selector}`);
