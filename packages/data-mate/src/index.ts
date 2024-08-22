@@ -12,22 +12,23 @@ import { AggregationFrame } from './aggregation-frame/AggregationFrame.js';
 import { FieldTransformInterface, RecordTransformInterface } from './interfaces.js';
 
 // import are immutable, so we rename and clone to alter methods
-const tempFieldTransform = { repository: cloneDeep(RTransform.repository) };
+const tmpFieldTransform = { };
 for (const key of Object.keys(FTransform)) {
-    tempFieldTransform[key] = FTransform[key];
+    tmpFieldTransform[key] = FTransform[key];
 }
-tempFieldTransform.repository.extract = extractConfig;
-(tempFieldTransform as FieldTransformInterface).extract = extract;
-const FieldTransform: FieldTransformInterface = tempFieldTransform as FieldTransformInterface;
+(tmpFieldTransform as FieldTransformInterface).repository = cloneDeep(RTransform.repository);
+(tmpFieldTransform as FieldTransformInterface).repository.extract = extractConfig;
+(tmpFieldTransform as FieldTransformInterface).extract = extract;
+const FieldTransform: FieldTransformInterface = tmpFieldTransform as FieldTransformInterface;
 
-const tempRecordTransform = { repository: cloneDeep(FTransform.repository) };
+const tmpRecordTransform = {};
 for (const key of Object.keys(RTransform)) {
-    tempRecordTransform[key] = RTransform[key];
+    tmpRecordTransform[key] = RTransform[key];
 }
-
-tempRecordTransform.repository.transformRecord = transformRecordConfig;
-(tempRecordTransform as RecordTransformInterface).transformRecord = transformRecord;
-const RecordTransform: RecordTransformInterface = tempRecordTransform as RecordTransformInterface;
+(tmpRecordTransform as RecordTransformInterface).repository = cloneDeep(FTransform.repository);
+(tmpRecordTransform as RecordTransformInterface).repository.transformRecord = transformRecordConfig;
+(tmpRecordTransform as RecordTransformInterface).transformRecord = transformRecord;
+const RecordTransform: RecordTransformInterface = tmpRecordTransform as RecordTransformInterface;
 
 declare module './aggregation-frame/AggregationFrame' {
     interface AggregationFrame<T extends Record<string, any>> {
