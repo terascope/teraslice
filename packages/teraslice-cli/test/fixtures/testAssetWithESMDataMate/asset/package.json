@@ -1,0 +1,15 @@
+{
+    "name": "test-asset-with-esm-data-mate",
+    "version": "0.0.1",
+    "description": "testAsset",
+    "main": "index.js",
+    "type": "module",
+    "author": "",
+    "scripts": {
+        "asset:build": "echo foo"
+    },
+    "dependencies": {
+        "@terascope/data-mate": "1.0.3"
+    },
+    "license": "MIT"
+}

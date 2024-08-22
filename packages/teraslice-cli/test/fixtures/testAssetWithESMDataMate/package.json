@@ -1,0 +1,12 @@
+{
+    "name": "test-asset-with-esm-data-mate",
+    "version": "0.0.1",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "author": "",
+    "scripts": { },
+    "devDependencies": { },
+    "dependencies": {},
+    "license": "MIT"
+}

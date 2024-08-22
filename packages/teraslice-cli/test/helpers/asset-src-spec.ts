@@ -11,6 +11,7 @@ describe('AssetSrc', () => {
     const JSTestAssetSrcDir = path.join(dirname, '../fixtures/testAsset');
     const TSTestAssetSrcDir = path.join(dirname, '../fixtures/testAssetTypescript');
     const buildAssetDir = path.join(dirname, '../fixtures/testAssetWithBuild');
+    const ESMWithDataMateAssetDir = path.join(dirname, '../fixtures/testAssetWithESMDataMate');
 
     it('should have srcDir and assetFile properties', () => {
         const testAsset = new AssetSrc(buildAssetDir);
@@ -138,6 +139,31 @@ describe('AssetSrc', () => {
         try {
             resp = await myTestAsset.build();
             expect(resp.name).toContain('node-18');
+        } finally {
+            if (resp) {
+                await fs.remove(resp.name);
+            }
+        }
+    });
+
+    it('can build to ESM format when importing data-mate', async () => {
+        expect.hasAssertions();
+
+        const devMode = false;
+        const debug = false;
+        const bundle = true;
+        const bundleTarget = 'node18';
+        const overwrite = false;
+
+        const myTestAsset = new AssetSrc(
+            ESMWithDataMateAssetDir, devMode, debug, bundle, bundleTarget, overwrite
+        );
+
+        let resp: any;
+
+        try {
+            resp = await myTestAsset.build();
+            expect(resp.name).toContain('ESMDataMate');
         } finally {
             if (resp) {
                 await fs.remove(resp.name);
