@@ -1,4 +1,3 @@
-import { cloneDeep } from '@terascope/utils';
 import { DataFrame } from './data-frame/index.js';
 import {
     jexl, extract, extractConfig,
@@ -16,7 +15,6 @@ const tmpFieldTransform = { };
 for (const key of Object.keys(FTransform)) {
     tmpFieldTransform[key] = FTransform[key];
 }
-(tmpFieldTransform as FieldTransformInterface).repository = cloneDeep(RTransform.repository);
 (tmpFieldTransform as FieldTransformInterface).repository.extract = extractConfig;
 (tmpFieldTransform as FieldTransformInterface).extract = extract;
 const FieldTransform: FieldTransformInterface = tmpFieldTransform as FieldTransformInterface;
@@ -25,7 +23,6 @@ const tmpRecordTransform = {};
 for (const key of Object.keys(RTransform)) {
     tmpRecordTransform[key] = RTransform[key];
 }
-(tmpRecordTransform as RecordTransformInterface).repository = cloneDeep(FTransform.repository);
 (tmpRecordTransform as RecordTransformInterface).repository.transformRecord = transformRecordConfig;
 (tmpRecordTransform as RecordTransformInterface).transformRecord = transformRecord;
 const RecordTransform: RecordTransformInterface = tmpRecordTransform as RecordTransformInterface;
