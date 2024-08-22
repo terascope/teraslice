@@ -8,10 +8,12 @@ const { Available, Unavailable } = core.ClientState;
 export class Server extends core.Server {
     private _activeWorkers: i.ActiveWorkers;
     queue: Queue<EnqueuedWorker>;
+    executionReady: boolean;
 
     constructor(opts: i.ServerOptions) {
         const {
-            port, actionTimeout, networkLatencyBuffer, workerDisconnectTimeout, logger
+            port, actionTimeout, networkLatencyBuffer,
+            workerDisconnectTimeout, logger, requestListener
         } = opts;
 
         if (!isNumber(workerDisconnectTimeout)) {
@@ -21,14 +23,16 @@ export class Server extends core.Server {
         super({
             port,
             actionTimeout,
+            requestListener,
             networkLatencyBuffer,
             clientDisconnectTimeout: workerDisconnectTimeout,
             serverName: 'ExecutionController',
-            logger,
+            logger
         });
 
         this.queue = new Queue();
         this._activeWorkers = {};
+        this.executionReady = false;
     }
 
     async start(): Promise<void> {
