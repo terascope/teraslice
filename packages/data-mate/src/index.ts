@@ -8,24 +8,19 @@ import {
     RecordTransform as RTransform
 } from './transforms/index.js';
 import { AggregationFrame } from './aggregation-frame/AggregationFrame.js';
-import { FieldTransformInterface, RecordTransformInterface } from './interfaces.js';
 
 // import are immutable, so we rename and clone to alter methods
-const tmpFieldTransform = {};
-for (const key of Object.keys(FTransform)) {
-    tmpFieldTransform[key] = FTransform[key];
-}
-(tmpFieldTransform as FieldTransformInterface).repository.extract = extractConfig;
-(tmpFieldTransform as FieldTransformInterface).extract = extract;
-const FieldTransform: FieldTransformInterface = tmpFieldTransform as FieldTransformInterface;
+const FieldTransform = {
+    ...FTransform
+};
+FieldTransform.repository.extract = extractConfig;
+FieldTransform.extract = extract;
 
-const tmpRecordTransform = {};
-for (const key of Object.keys(RTransform)) {
-    tmpRecordTransform[key] = RTransform[key];
-}
-(tmpRecordTransform as RecordTransformInterface).repository.transformRecord = transformRecordConfig;
-(tmpRecordTransform as RecordTransformInterface).transformRecord = transformRecord;
-const RecordTransform: RecordTransformInterface = tmpRecordTransform as RecordTransformInterface;
+const RecordTransform = {
+    ...RTransform
+};
+RecordTransform.repository.transformRecord = transformRecordConfig;
+RecordTransform.transformRecord = transformRecord;
 
 declare module './aggregation-frame/AggregationFrame' {
     interface AggregationFrame<T extends Record<string, any>> {
