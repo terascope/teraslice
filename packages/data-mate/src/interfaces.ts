@@ -1,5 +1,5 @@
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
-import { FieldTransform, RecordTransform } from './transforms';
+import { FieldTransform, RecordTransform } from './transforms/index.js';
 
 export type ArgSchema = Config & { description?: string };
 

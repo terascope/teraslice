@@ -11,7 +11,7 @@ import { AggregationFrame } from './aggregation-frame/AggregationFrame.js';
 import { FieldTransformInterface, RecordTransformInterface } from './interfaces.js';
 
 // import are immutable, so we rename and clone to alter methods
-const tmpFieldTransform = { };
+const tmpFieldTransform = {};
 for (const key of Object.keys(FTransform)) {
     tmpFieldTransform[key] = FTransform[key];
 }
