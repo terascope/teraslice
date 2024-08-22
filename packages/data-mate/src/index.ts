@@ -9,13 +9,20 @@ import {
     RecordTransform as RTransform
 } from './transforms/index.js';
 import { AggregationFrame } from './aggregation-frame/AggregationFrame.js';
+import { FieldTransformInterface, RecordTransformInterface } from './interfaces.js';
 
 // import are immutable, so we rename and clone to alter methods
-const FieldTransform = cloneDeep(FTransform);
-const RecordTransform = cloneDeep(RTransform);
-
+const FieldTransform: FieldTransformInterface = { repository: cloneDeep(RTransform.repository) };
+for (const key of Object.keys(FTransform)) {
+    FieldTransform[key] = FTransform[key];
+}
 FieldTransform.repository.extract = extractConfig;
 FieldTransform.extract = extract;
+
+const RecordTransform: RecordTransformInterface = { repository: cloneDeep(FTransform.repository) };
+for (const key of Object.keys(RTransform)) {
+    RecordTransform[key] = RTransform[key];
+}
 
 RecordTransform.repository.transformRecord = transformRecordConfig;
 RecordTransform.transformRecord = transformRecord;
