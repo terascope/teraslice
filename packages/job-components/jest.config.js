@@ -8,37 +8,4 @@ const module = await import(configModulePath);
 
 const config = module.default(dirPath);
 
-config.extensionsToTreatAsEsm = ['.ts'];
-config.moduleNameMapper = {
-    '^(\\.{1,2}/.*)\\.js$': '$1',
-};
-config.testTimeout = 60 * 1000;
-
-// using swc for some reason throws rust file not found errors,
-// seems like a bug on their end, hope to change back later
-config.transform = {};
-config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
-    jsc: {
-        loose: true,
-        parser: {
-            syntax: 'typescript',
-            tsx: false,
-            decorators: true
-        },
-        transform: {
-            legacyDecorator: true,
-            decoratorMetadata: true
-        },
-        target: 'esnext'
-    },
-    module: {
-        type: 'es6',
-        strictMode: false,
-        noInterop: false,
-        ignoreDynamic: true
-    }
-}];
-
-config.transformIgnorePatterns = [];
-config.preset = '';
 export default config;

@@ -50,15 +50,17 @@ export default (projectDir) => {
             `<rootDir>/${parentFolder}/*/dist`,
             `<rootDir>/${parentFolder}/teraslice-cli/test/fixtures/`
         ],
-        transformIgnorePatterns: ['^.+\\.js$'],
-        moduleNameMapper: {},
+        transformIgnorePatterns: [],
+        moduleNameMapper: {
+            '^(\\.{1,2}/.*)\\.js$': '$1',
+        },
         moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs', 'mjs'],
+        extensionsToTreatAsEsm: ['.ts'],
         collectCoverage: true,
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
         coverageReporters,
         coverageDirectory: `${packageRoot}/coverage`,
-        preset: 'ts-jest',
         watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
         workerIdleMemoryLimit: '200MB'
     };
@@ -82,24 +84,46 @@ export default (projectDir) => {
     config.globals = {
         availableExtensions: ['.js', '.ts', '.mjs', 'cjs']
     };
-    config.transform = {};
 
-    if (isTypescript) {
-        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
-            isolatedModules: true,
-            tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
-            diagnostics: true,
-            pretty: true,
-            useESM: true
-        }];
-    } else {
-        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
-            isolatedModules: true,
-            diagnostics: true,
-            pretty: true,
-            useESM: true
-        }];
-    }
+    config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
+        jsc: {
+            loose: true,
+            parser: {
+                syntax: 'typescript',
+                tsx: false,
+                decorators: true
+            },
+            transform: {
+                legacyDecorator: true,
+                decoratorMetadata: true
+            },
+            target: 'esnext'
+        },
+        module: {
+            type: 'es6',
+            strictMode: false,
+            noInterop: false,
+            ignoreDynamic: true
+        }
+    }];
+    config.testTimeout = 60 * 1000;
+
+    // if (isTypescript) {
+    //     config.transform['\\.[jt]sx?$'] = ['ts-jest', {
+    //         isolatedModules: true,
+    //         tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
+    //         diagnostics: true,
+    //         pretty: true,
+    //         useESM: true
+    //     }];
+    // } else {
+    //     config.transform['\\.[jt]sx?$'] = ['ts-jest', {
+    //         isolatedModules: true,
+    //         diagnostics: true,
+    //         pretty: true,
+    //         useESM: true
+    //     }];
+    // }
 
     config.roots = [`${packageRoot}/test`];
 

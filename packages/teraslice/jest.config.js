@@ -8,13 +8,4 @@ const module = await import(configModulePath);
 
 const config = module.default(dirPath);
 
-config.extensionsToTreatAsEsm = ['.ts'];
-config.moduleNameMapper = {
-    '^(\\.{1,2}/.*)\\.js$': '$1',
-};
-config.testTimeout = 60 * 1000;
-config.transform = {};
-
-config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
-
 export default config;
