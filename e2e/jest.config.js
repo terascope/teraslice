@@ -1,6 +1,6 @@
-/* eslint-disable import/no-import-module-exports */
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import URL from 'node:url';
 
 const dirPath = fileURLToPath(new URL('.', import.meta.url));
 const configModulePath = path.join(dirPath, '../jest.config.base.js');

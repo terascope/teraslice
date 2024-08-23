@@ -1,18 +1,18 @@
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { isCI } from '@terascope/utils';
 
-const fs = require('fs');
-const path = require('path');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const isCI = process.env.CI === 'true';
-
-module.exports = (projectDir) => {
+export default (projectDir) => {
     let parentFolder;
     let workspaceName;
     let packageRoot;
     let rootDir;
 
     const name = path.basename(projectDir);
-    const runInDir = process.cwd() !== __dirname;
+    const runInDir = process.cwd() !== dirname;
 
     if (name === 'e2e') {
         parentFolder = name;
@@ -80,7 +80,7 @@ module.exports = (projectDir) => {
     }
 
     config.globals = {
-        availableExtensions: ['.js', '.ts', '.mjs']
+        availableExtensions: ['.js', '.ts', '.mjs', 'cjs']
     };
     config.transform = {};
 

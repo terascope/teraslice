@@ -31,7 +31,7 @@
         "k8s:rebuild": "ts-scripts k8s-env --rebuild",
         "k8s:restart": "ts-scripts k8s-env --rebuild --skip-build",
         "k8sV2": "TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 CLUSTERING_TYPE='kubernetesV2' ts-scripts k8s-env",
-        "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
+        "lint": "eslint",
         "lint:fix": "yarn lint --fix && yarn sync",
         "setup": "yarn $YARN_SETUP_ARGS && yarn run build --force",
         "start": "node service.js",
@@ -47,6 +47,7 @@
         "nan": "^2.19.0"
     },
     "devDependencies": {
+        "@eslint/js": "^9.9.0",
         "@swc/core": "1.4.0",
         "@swc/jest": "^0.2.36",
         "@types/bluebird": "^3.5.42",
@@ -57,7 +58,7 @@
         "@types/lodash": "^4.14.202",
         "@types/node": "^18.14.2",
         "@types/uuid": "^9.0.8",
-        "eslint": "^8.5.0",
+        "eslint": "^9.9.0",
         "jest": "^29.7.0",
         "jest-extended": "^3.2.4",
         "jest-watch-typeahead": "^2.2.2",
@@ -66,9 +67,10 @@
         "ts-jest": "^29.1.4",
         "typescript": "~5.2.2"
     },
+    "type": "module",
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "os": [
         "darwin",

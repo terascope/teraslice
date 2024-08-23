@@ -1,10 +1,11 @@
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { isCI } from '@terascope/utils';
 
-const fs = require('fs');
-const path = require('path');
-const { isCI } = require('@terascope/utils');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const packagesPath = path.join(__dirname, 'packages');
+const packagesPath = path.join(dirname, 'packages');
 const projects = fs
     .readdirSync(packagesPath)
     .filter((pkgName) => {
@@ -26,16 +27,17 @@ const projects = fs
     .map((pkgName) => `<rootDir>/packages/${pkgName}`);
 
 const coverageReporters = ['lcov', 'html'];
+
 if (!isCI) {
     coverageReporters.push('text-summary');
 }
 
-module.exports = {
+export default {
     rootDir: '.',
     verbose: true,
     projects,
     globals: {
-        availableExtensions: ['.js', '.ts', 'mjs']
+        availableExtensions: ['.js', '.ts', '.mjs', '.cjs']
     },
     testMatch: [
         '<rootDir>/packages/*/test/**/*-spec.{ts,js}',
