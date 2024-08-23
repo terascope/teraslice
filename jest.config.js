@@ -68,5 +68,31 @@ export default {
     ],
     coverageReporters,
     coverageDirectory: '<rootDir>/coverage',
-    preset: 'ts-jest'
+    moduleNameMapper: {
+        '^(\\.{1,2}/.*)\\.js$': '$1',
+    },
+    extensionsToTreatAsEsm: ['.ts'],
+    transform: {
+        ['^.+\\.(t|j)sx?$']: ['@swc/jest', {
+            jsc: {
+                loose: true,
+                parser: {
+                    syntax: 'typescript',
+                    tsx: false,
+                    decorators: true
+                },
+                transform: {
+                    legacyDecorator: true,
+                    decoratorMetadata: true
+                },
+                target: 'esnext'
+            },
+            module: {
+                type: 'es6',
+                strictMode: false,
+                noInterop: false,
+                ignoreDynamic: true
+            }
+        }]
+    }
 };

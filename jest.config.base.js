@@ -108,23 +108,6 @@ export default (projectDir) => {
     }];
     config.testTimeout = 60 * 1000;
 
-    // if (isTypescript) {
-    //     config.transform['\\.[jt]sx?$'] = ['ts-jest', {
-    //         isolatedModules: true,
-    //         tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
-    //         diagnostics: true,
-    //         pretty: true,
-    //         useESM: true
-    //     }];
-    // } else {
-    //     config.transform['\\.[jt]sx?$'] = ['ts-jest', {
-    //         isolatedModules: true,
-    //         diagnostics: true,
-    //         pretty: true,
-    //         useESM: true
-    //     }];
-    // }
-
     config.roots = [`${packageRoot}/test`];
 
     if (fs.existsSync(path.join(projectDir, 'lib'))) {
