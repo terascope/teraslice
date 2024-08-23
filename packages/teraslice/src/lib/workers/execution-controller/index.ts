@@ -1,5 +1,6 @@
 import ms from 'ms';
 import _ from 'lodash';
+import http from 'node:http';
 import {
     formatURL, ExecutionController as ExController, ClusterMaster
 } from '@terascope/teraslice-messaging';
@@ -79,10 +80,10 @@ export class ExecutionController {
         const workerDisconnectTimeout = get(config, 'worker_disconnect_timeout');
         const nodeDisconnectTimeout = get(config, 'node_disconnect_timeout');
         const shutdownTimeout = get(config, 'shutdown_timeout');
-
         this.server = new ExController.Server({
             port: slicerPort,
             networkLatencyBuffer,
+            requestListener: this.requestListener.bind(this),
             actionTimeout,
             workerDisconnectTimeout,
             logger
@@ -198,7 +199,7 @@ export class ExecutionController {
         if (this.metrics != null) {
             await this.metrics.initialize();
         }
-
+        /// We set this to true later down the line. Not sure why
         this.isInitialized = true;
 
         this.server.onClientOnline((workerId) => {
@@ -311,6 +312,8 @@ export class ExecutionController {
         this.logger.info(`execution: ${this.exId} initialized execution_controller`);
 
         this.isInitialized = true;
+        /// This will change the  '/ready' endpoint to Ready
+        this.server.executionReady = true;
     }
 
     async run() {
@@ -1174,6 +1177,21 @@ export class ExecutionController {
                 },
                 1
             );
+        }
+    }
+
+    requestListener(req: http.IncomingMessage, res: http.ServerResponse) {
+        if (req.url === '/health') {
+            if (this.server.executionReady) {
+                res.writeHead(200);
+                res.end('Ready');
+            } else {
+                res.writeHead(503);
+                res.end('Service Unavailable');
+            }
+        } else {
+            res.writeHead(501);
+            res.end('Not Implemented');
         }
     }
 }

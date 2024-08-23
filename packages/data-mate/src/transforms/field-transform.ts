@@ -1294,7 +1294,7 @@ export function toISO8601(
     return _makeIso(input, args);
 }
 
-interface FormatDateConfig {
+export interface FormatDateConfig {
     format: string;
     resolution?: 'seconds' | 'milliseconds';
 }
@@ -1355,7 +1355,7 @@ export function formatDate(
     return _formatDate(input, args);
 }
 
-interface ParseDateConfig {
+export interface ParseDateConfig {
     format: string;
 }
 
