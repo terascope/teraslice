@@ -570,7 +570,7 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/errors'
 ]
 ```
 
-## DELETE /v1/jobs/&#123;jobId&#125;
+## DELETE /v1/jobs/\{jobId\};
 
 Issues a delete command, deleting the job and all related execution contexts. Any orphaned K8s resources associated with the job will also be deleted. The job must have a terminal status to be deleted.
 
