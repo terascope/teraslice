@@ -382,9 +382,9 @@ teraslice-cli jobs list <cluster>
 # list jobs
 teraslice-cli jobs list local
 # list only active jobs
-teraslice-cli jobs list local --active true
+teraslice-cli jobs list local --active=true
 # list all jobs, including deleted
-teraslice-cli jobs list local --deleted include
+teraslice-cli jobs list local --deleted=include
 ```
 
 ### jobs view
