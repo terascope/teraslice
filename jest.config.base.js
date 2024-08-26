@@ -62,7 +62,35 @@ export default (projectDir) => {
         coverageReporters,
         coverageDirectory: `${packageRoot}/coverage`,
         watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
-        workerIdleMemoryLimit: '200MB'
+        workerIdleMemoryLimit: '200MB',
+        testTimeout: 60 * 1000,
+        globals:  {
+            availableExtensions: ['.js', '.ts', '.mjs', 'cjs']
+        },
+        transform: {
+            ['^.+\\.(t|j)sx?$']: ['@swc/jest', {
+            jsc: {
+                    loose: true,
+                    parser: {
+                        syntax: 'typescript',
+                        tsx: false,
+                        decorators: true
+                    },
+                    transform: {
+                        legacyDecorator: true,
+                        decoratorMetadata: true
+                    },
+                    target: 'esnext'
+                },
+                module: {
+                    type: 'es6',
+                    strictMode: false,
+                    noInterop: false,
+                    ignoreDynamic: true
+                }
+            }]
+        },
+        roots: [`${packageRoot}/test`]
     };
 
     if (fs.existsSync(path.join(projectDir, 'test/global.setup.js'))) {
@@ -80,35 +108,6 @@ export default (projectDir) => {
     if (fs.existsSync(path.join(projectDir, 'test/test.setup.js'))) {
         config.setupFilesAfterEnv.push(`${packageRoot}/test/test.setup.js`);
     }
-
-    config.globals = {
-        availableExtensions: ['.js', '.ts', '.mjs', 'cjs']
-    };
-
-    config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
-        jsc: {
-            loose: true,
-            parser: {
-                syntax: 'typescript',
-                tsx: false,
-                decorators: true
-            },
-            transform: {
-                legacyDecorator: true,
-                decoratorMetadata: true
-            },
-            target: 'esnext'
-        },
-        module: {
-            type: 'es6',
-            strictMode: false,
-            noInterop: false,
-            ignoreDynamic: true
-        }
-    }];
-    config.testTimeout = 60 * 1000;
-
-    config.roots = [`${packageRoot}/test`];
 
     if (fs.existsSync(path.join(projectDir, 'lib'))) {
         config.roots.push(`${packageRoot}/lib`);
