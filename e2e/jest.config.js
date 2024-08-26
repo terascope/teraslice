@@ -16,5 +16,4 @@ config.testPathIgnorePatterns = process.env.CLUSTERING_TYPE !== 'native' ? ['dat
 config.collectCoverage = false;
 config.testTimeout = 3 * 60 * 1000;
 
-
 export default config;
