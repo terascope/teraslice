@@ -494,10 +494,10 @@ export default class Jobs {
     }
 
     async delete(): Promise<void> {
-        if (this.jobs.length === 1 && this.config.args.yes !== true) {
-            const { _action, clusterAlias, clusterUrl } = this.config.args;
+        if (!this.config.args.jobId.includes('all') && this.config.args.yes !== true) {
+            const { _action: action, clusterAlias, clusterUrl } = this.config.args;
             const prompt = await display.showPrompt(
-                _action,
+                action,
                 `job ${this.jobs[0].id} on ${clusterAlias ?? clusterUrl}`
             );
             if (!prompt) return;
@@ -583,13 +583,13 @@ export default class Jobs {
 
     private async getAllJobs() {
         if (await this.prompt()) {
-            const { _action, clusterAlias } = this.config.args;
+            const { _action: action, clusterAlias } = this.config.args;
             // if action is start and not from a restart
             // or if action is delete
             // then need to get job ids from saved state
-            if (_action === 'start' || _action === 'delete') {
+            if (action === 'start' || action === 'delete') {
                 if (fs.pathExistsSync(this.config.jobStateFile) === false) {
-                    reply.fatal(`Could not find job state file for ${clusterAlias}, this is required to ${_action} all jobs`);
+                    reply.fatal(`Could not find job state file for ${clusterAlias}, this is required to ${action} all jobs`);
                 }
 
                 return this.getJobIdsFromSavedState();
