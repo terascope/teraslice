@@ -300,7 +300,7 @@ export class JobsService {
     }
 
     /**
-     * Get all executions realted to a jobId
+     * Get all executions related to a jobId
      *
      * @param {string} jobId
      * @param {string} [query]
@@ -321,7 +321,7 @@ export class JobsService {
         ) as ExecutionConfig[];
 
         if (!allowZeroResults && !executions.length) {
-            throw new TSError(`No execution was found for job ${jobId}`, {
+            throw new TSError(`No executions were found for job ${jobId}`, {
                 statusCode: 404
             });
         }

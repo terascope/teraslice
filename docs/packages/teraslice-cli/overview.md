@@ -420,7 +420,7 @@ teraslice-cli jobs workers remove 5 cluster1 99999999-9999-9999-9999-99999999999
 
 ### jobs delete
 
-Delete a job or jobs by job_id from a teraslice cluster. Jobs must be stopped.
+Delete a job or jobs by job_id from a teraslice cluster. Jobs must be in a terminal state.
 
 ```sh
 teraslice-cli jobs delete <cluster> <job_id>
@@ -461,16 +461,16 @@ teraslice-cli jobs status local --status failing
 
 ### ex list
 
-Display execution ids on the cluster, default is exclude deleted and show all statuses
+Display execution ids on the cluster, default is to exclude deleted and show all statuses
 
 ```bash
 teraslice-cli ex list <cluster>
 # list ex_ids
 teraslice-cli ex list local
 # list failed ex_ids
-teraslice-cli ex list local --status failed
+teraslice-cli ex list local --status=failed
 # list deleted ex_ids
-teraslice-cli ex list local --deleted only
+teraslice-cli ex list local --deleted=only
 ```
 
 ## Nodes
