@@ -8,7 +8,7 @@ const yargsOptions = new YargsOptions();
 
 export default {
     command: 'delete <job-file...>',
-    describe: 'Delete a job or jobs by referencing the job file. Jobs must be stopped.',
+    describe: 'Delete a job or jobs by referencing the job file. Jobs must be in a terminal state.',
     builder(yargs: any) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));

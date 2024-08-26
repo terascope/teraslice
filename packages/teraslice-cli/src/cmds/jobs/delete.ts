@@ -8,7 +8,7 @@ const yargsOptions = new YargsOptions();
 
 export default {
     command: 'delete <cluster-alias> <job-id...>',
-    describe: 'Delete jobs from the teraslice cluster. Jobs must be stopped.',
+    describe: 'Delete jobs from the teraslice cluster. Jobs must be in a terminal state.',
     builder(yargs: any) {
         yargs.positional('job-id', yargsOptions.buildPositional('job-id'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
