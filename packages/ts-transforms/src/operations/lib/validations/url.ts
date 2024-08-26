@@ -1,5 +1,5 @@
 import { DataEntity } from '@terascope/utils';
-import * as url from 'valid-url';
+import url from 'valid-url';
 import { PostProcessConfig } from '../../../interfaces.js';
 import ValidationOpBase from './base.js';
 
