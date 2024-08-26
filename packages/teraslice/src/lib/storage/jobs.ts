@@ -85,8 +85,7 @@ export class JobsStorage {
             {
                 job_id: jobId,
                 _context: this.jobType,
-                _updated: makeISODate(),
-                _deleted: false
+                _updated: makeISODate()
             }
         ));
 
