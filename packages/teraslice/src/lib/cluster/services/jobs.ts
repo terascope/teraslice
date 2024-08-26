@@ -271,8 +271,6 @@ export class JobsService {
             }
             const exIdsArr = Array.from(exIdsSet);
             const exIdsString = exIdsArr.join(', ');
-            // FIXME: we could alternatively throw an error here and make the user force remove
-            // resources manually as we do with 'startJob'
             this.logger.info(`There are orphaned resources for job: ${jobId}, exId: ${exIdsString}.\n`
                  + 'Removing resources before job deletion.');
             await Promise.all(exIdsArr
