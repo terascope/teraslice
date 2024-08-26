@@ -31,8 +31,6 @@ export default (projectDir) => {
         rootDir = '../../';
     }
 
-    const isTypescript = fs.existsSync(path.join(projectDir, 'tsconfig.json'));
-
     const coverageReporters = ['lcov', 'html'];
     if (!isCI) {
         coverageReporters.push('text-summary');
@@ -69,7 +67,7 @@ export default (projectDir) => {
         },
         transform: {
             ['^.+\\.(t|j)sx?$']: ['@swc/jest', {
-            jsc: {
+                jsc: {
                     loose: true,
                     parser: {
                         syntax: 'typescript',

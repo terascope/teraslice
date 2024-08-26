@@ -61,4 +61,13 @@ export default {
         'always',
         { exceptAfterSingleLine: true },
     ],
+    'no-unused-vars': [
+        'error',
+        // and variable with an underscore can be ignored
+        {
+            "varsIgnorePattern": "^_",
+            "argsIgnorePattern": "^_",
+            "caughtErrorsIgnorePattern":  "^_",
+        }
+    ]
 };

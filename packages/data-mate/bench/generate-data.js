@@ -149,7 +149,7 @@ console.dir({
             data: records
         });
         fs.writeFile(path.join(dirname, 'fixtures/data.json'), data, (err) => {
-            if (err) reject();
+            if (err) reject(err);
             else resolve();
         });
     });

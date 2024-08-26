@@ -2,7 +2,6 @@ import js from "@eslint/js";
 import globals from "globals";
 import { rules, ignores } from './lib/index.js';
 
-
 /** @type {import('eslint').Linter.FlatConfig[]} */
 const eslintConfig = [
     {

@@ -452,7 +452,7 @@ describe('elasticsearch-api', () => {
         searchError = { body: { error: { type: 'some_thing_else' } } };
         try {
             await api.search(query);
-        } catch (e) {
+        } catch (_err) {
             queryFailed = true;
         }
         return expect(queryFailed).toEqual(true);
@@ -485,7 +485,7 @@ describe('elasticsearch-api', () => {
                     failures = [];
                 })
             ]);
-        } catch (e) {
+        } catch (_err) {
             queryFailed = true;
         }
         return expect(queryFailed).toEqual(true);

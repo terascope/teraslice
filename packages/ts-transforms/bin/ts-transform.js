@@ -10,7 +10,7 @@ try {
     path.join(dirname, '../package.json');
     import('../dist/src/command.js');
 } catch (err) {
-    // eslint-disable-next-line
+     
     console.error('error while attempting to invoke cli command', err.toString());
     process.exit(1);
 }

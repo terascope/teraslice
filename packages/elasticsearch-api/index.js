@@ -1177,7 +1177,7 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         clientName,
         _time
     ) {
-        // eslint-disable-line
+         
         const giveupAfter = Date.now() + (_time || 10000);
         return new Promise((resolve, reject) => {
             const attemptToCreateIndex = () => {

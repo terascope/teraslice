@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import URL from 'node:url';
+import { URL } from 'node:url';
 
 const dirPath = fileURLToPath(new URL('.', import.meta.url));
 const configModulePath = path.join(dirPath, '../jest.config.base.js');
@@ -16,33 +16,5 @@ config.testPathIgnorePatterns = process.env.CLUSTERING_TYPE !== 'native' ? ['dat
 config.collectCoverage = false;
 config.testTimeout = 3 * 60 * 1000;
 
-config.extensionsToTreatAsEsm = ['.ts'];
-config.moduleNameMapper = {
-    '^(\\.{1,2}/.*)\\.js$': '$1',
-};
-config.transform = {};
-config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
-    jsc: {
-        loose: true,
-        parser: {
-            syntax: 'typescript',
-            tsx: false,
-            decorators: true
-        },
-        transform: {
-            legacyDecorator: true,
-            decoratorMetadata: true
-        },
-        target: 'esnext'
-    },
-    module: {
-        type: 'es6',
-        strictMode: false,
-        noInterop: false,
-        ignoreDynamic: true
-    }
-}];
-config.transformIgnorePatterns = [];
-config.preset = '';
 
 export default config;

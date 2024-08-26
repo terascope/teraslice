@@ -1,5 +1,3 @@
-'use strict';
-
 require('jest-extended');
 const Index = require('..');
 
