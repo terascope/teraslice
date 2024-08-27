@@ -5,7 +5,7 @@ import { ClientParams, ClientResponse } from '@terascope/types';
 import { Logger } from '@terascope/utils';
 import { ClientMetadata } from '@terascope/types'
 
-export = elasticsearchAPI;
+export default elasticsearchAPI;
 
 declare function elasticsearchAPI(client: Client, logger: Logger, config?: elasticsearchAPI.Config): elasticsearchAPI.Client;
 
