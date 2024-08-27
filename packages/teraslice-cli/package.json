@@ -70,10 +70,10 @@
         "@types/prompts": "^2.4.9",
         "@types/signale": "^1.4.7",
         "@types/tmp": "^0.2.6",
-        "@types/yargs": "^17.0.32",
+        "@types/yargs": "^17.0.33",
         "decompress": "^4.2.1",
         "jest-fixtures": "^0.6.0",
-        "nock": "^13.5.1"
+        "nock": "^13.5.5"
     },
     "engines": {
         "node": ">=18.18.0",

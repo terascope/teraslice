@@ -26,7 +26,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "resolutions": {
-        "debug": "^4.3.4"
+        "debug": "^4.3.6"
     },
     "dependencies": {
         "@terascope/types": "^1.0.1",
@@ -48,7 +48,7 @@
         "date-fns": "^2.30.0",
         "date-fns-tz": "^1.3.7",
         "datemath-parser": "^1.0.6",
-        "debug": "^4.3.4",
+        "debug": "^4.3.6",
         "geo-tz": "^7.0.7",
         "ip-bigint": "^3.0.3",
         "ip-cidr": "^3.1.0",

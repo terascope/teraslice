@@ -28,7 +28,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/file-asset-apis": "^0.13.0",
+        "@terascope/file-asset-apis": "^1.0.1",
         "@terascope/types": "^1.0.1",
         "@terascope/utils": "^1.0.1",
         "bluebird": "^3.7.2",
@@ -42,7 +42,7 @@
         "js-yaml": "^4.1.0",
         "nanoid": "^3.3.4",
         "node-webhdfs": "^1.0.2",
-        "prom-client": "15.1.2",
+        "prom-client": "15.1.3",
         "yargs": "^17.7.2"
     },
     "devDependencies": {
