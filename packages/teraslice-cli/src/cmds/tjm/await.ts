@@ -1,4 +1,3 @@
-/* eslint-disable import/no-import-module-exports */
 import { CMD } from '../../interfaces.js';
 import YargsOptions from '../../helpers/yargs-options.js';
 import Config from '../../helpers/config.js';

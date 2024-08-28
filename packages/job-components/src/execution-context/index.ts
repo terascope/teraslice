@@ -17,8 +17,7 @@ export function isSlicerExecutionContext(context: unknown): context is SlicerExe
 }
 
 export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;
-
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+ 
 export async function makeExecutionContext(
     config: ExecutionContextConfig
 ): Promise<ExecutionContext> {

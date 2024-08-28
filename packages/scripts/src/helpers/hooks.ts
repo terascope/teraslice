@@ -11,7 +11,7 @@ export async function executeHook(hook: Hook, quiet: boolean, ...args: any[]): P
     const { terascope: { hook_file } } = getRootInfo();
     if (!hook_file) return;
 
-    let hookFile = require(path.resolve(hook_file));
+    let hookFile = await import(path.resolve(hook_file));
     if (hookFile.default) {
         hookFile = hookFile.default;
     }

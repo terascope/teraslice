@@ -2,7 +2,7 @@ import { INDENT } from './constants.js';
 
 export default {
     // airbnb overrides
-    indent: ['error', INDENT],
+    // indent: ['error', INDENT],
     'max-len': ['error', {
         code: 100,
         tabWidth: INDENT,
@@ -68,6 +68,7 @@ export default {
             "varsIgnorePattern": "^_",
             "argsIgnorePattern": "^_",
             "caughtErrorsIgnorePattern":  "^_",
+            "ignoreRestSiblings": true
         }
     ]
 };

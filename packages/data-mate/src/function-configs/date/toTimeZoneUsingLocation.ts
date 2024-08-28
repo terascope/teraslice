@@ -5,11 +5,11 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces.js';
 
-export interface toTimeZoneUsingLocationArgs {
+export interface TimeZoneUsingLocationArgs {
     location: GeoInput;
 }
 
-export const toTimeZoneUsingLocationConfig: FieldTransformConfig<toTimeZoneUsingLocationArgs> = {
+export const toTimeZoneUsingLocationConfig: FieldTransformConfig<TimeZoneUsingLocationArgs> = {
     name: 'toTimeZoneUsingLocation',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

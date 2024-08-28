@@ -6,8 +6,7 @@ import * as utils from './utils.js';
 const inferredFieldTypes = Object.freeze({
     [xLuceneFieldType.String]: true,
 });
-
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+ 
 export function makeContext(arg: i.ContextArg) {
     let typeConfig: xLuceneTypeConfig;
     // eslint-disable-next-line

@@ -79,7 +79,7 @@ export function debugLogger(testName: string, param?: DebugParam, otherName?: st
             }
             return undefined;
         }
-        // eslint-disable-next-line
+         
         return logLevels[logLevel] || 20;
     };
     // @ts-expect-error

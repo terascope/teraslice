@@ -80,7 +80,7 @@ describe('cluster api', () => {
             try {
                 await p;
                 return false;
-            } catch (err) {
+            } catch (_err) {
                 return true;
             }
         }

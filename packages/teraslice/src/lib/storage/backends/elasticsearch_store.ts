@@ -1,4 +1,3 @@
-/* eslint-disable default-param-last */
 import ms from 'ms';
 import {
     TSError, parseError, isTest, pDelay,

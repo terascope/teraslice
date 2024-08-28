@@ -51,8 +51,8 @@ import { toDailyDateConfig } from './toDailyDate.js';
 import { toDateConfig, ToDateArgs } from './toDate.js';
 import { toHourlyDateConfig } from './toHourlyDate.js';
 import { toMonthlyDateConfig } from './toMonthlyDate.js';
-import { toTimeZoneConfig, toTimeZoneArgs } from './toTimeZone.js';
-import { toTimeZoneUsingLocationConfig, toTimeZoneUsingLocationArgs } from './toTimeZoneUsingLocation.js';
+import { toTimeZoneConfig, TimeZoneArgs } from './toTimeZone.js';
+import { toTimeZoneUsingLocationConfig, TimeZoneUsingLocationArgs } from './toTimeZoneUsingLocation.js';
 import { toYearlyDateConfig } from './toYearlyDate.js';
 
 export const dateRepository = {
@@ -134,6 +134,6 @@ export type {
     SetTimezoneArgs,
     SetYearArgs,
     ToDateArgs,
-    toTimeZoneArgs,
-    toTimeZoneUsingLocationArgs
+    TimeZoneArgs,
+    TimeZoneUsingLocationArgs
 };

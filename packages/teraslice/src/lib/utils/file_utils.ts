@@ -64,7 +64,7 @@ export interface AssetJSON {
     node_version?: number;
 }
 
-export type metaCheckFN = (data: AssetMetadata) => Promise<AssetMetadata>
+export type MetaCheckFN = (data: AssetMetadata) => Promise<AssetMetadata>
 
 export interface AssetMetadata extends AssetJSON {
     id: string
@@ -127,7 +127,7 @@ async function _saveAsset(
     assetsPath: string,
     id: string,
     binaryData: Buffer,
-    metaCheck?: metaCheckFN
+    metaCheck?: MetaCheckFN
 ): Promise<AssetMetadata> {
     const newPath = path.join(assetsPath, id);
 
@@ -162,7 +162,7 @@ export async function saveAsset(
     assetsPath: string,
     id: string,
     binaryData: Buffer,
-    metaCheck?: metaCheckFN
+    metaCheck?: MetaCheckFN
 ) {
     return mutex.runExclusive(() => _saveAsset(
         logger, assetsPath, id, binaryData, metaCheck

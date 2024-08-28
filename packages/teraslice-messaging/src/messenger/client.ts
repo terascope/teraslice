@@ -1,3 +1,5 @@
+/*eslint-disable prefer-const*/
+
 import ms from 'ms';
 import SocketIOClient from 'socket.io-client';
 import {

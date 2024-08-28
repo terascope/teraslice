@@ -114,11 +114,11 @@ export abstract class Vector<T = unknown> {
     ) {
         this.type = type;
         const res = getDataBuckets(data);
-        // eslint-disable-next-line prefer-destructuring
+         
         this.data = res[0];
-        // eslint-disable-next-line prefer-destructuring
+         
         this.__size = res[1];
-        // eslint-disable-next-line prefer-destructuring
+         
         this.__consistentSize = res[2];
         this.name = options.name;
         this.config = options.config;

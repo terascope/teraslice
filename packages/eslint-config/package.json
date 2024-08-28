@@ -18,15 +18,20 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
+        "@eslint/js": "^9.9.1",
+        "@types/eslint__js": "^8.42.3",
         "@typescript-eslint/eslint-plugin": "^6.21.0",
         "@typescript-eslint/parser": "^6.21.0",
+        "eslint": "^9.9.1",
         "eslint-config-airbnb": "^19.0.4",
         "eslint-config-airbnb-base": "^15.0.0",
         "eslint-plugin-import": "~2.29.1",
         "eslint-plugin-jest": "^28.8.0",
         "eslint-plugin-jsx-a11y": "^6.9.0",
         "eslint-plugin-react": "^7.35.0",
-        "eslint-plugin-react-hooks": "^4.4.0"
+        "eslint-plugin-react-hooks": "^4.4.0",
+        "typescript": "^5.5.4",
+        "typescript-eslint": "^8.3.0"
     },
     "engines": {
         "node": ">=18.18.0",

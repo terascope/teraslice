@@ -1,8 +1,23 @@
 import js from "@eslint/js";
+import jest from 'eslint-plugin-jest';
 import globals from "globals";
+import reactHooks from 'eslint-plugin-react-hooks';
+import react from 'eslint-plugin-react';
 import { rules, ignores } from './lib/index.js';
 
-/** @type {import('eslint').Linter.FlatConfig[]} */
+import tsEslint from 'typescript-eslint';
+
+const typescriptLint = tsEslint.config(
+    js.configs.recommended,
+    ...tsEslint.configs.recommended,
+    {
+        rules: rules.typescript
+    }
+  );
+
+// TODO: Temporary disabling of plugins checking spec files
+typescriptLint[2].ignores = ['**/test/**']
+
 const eslintConfig = [
     {
         // In your eslint.config.js file, if an ignores key is used without any other
@@ -17,13 +32,9 @@ const eslintConfig = [
         // overrides just for react files
         files: ['*.jsx', '*.tsx'],
         ignores,
-        plugins: ['@typescript-eslint', '@typescript-eslint/recommended', 'react-hooks/recommended', 'airbnb'],
-        parser: '@typescript-eslint/parser',
-        env: {
-            jest: true,
-            jasmine: false,
-            node: false,
-            browser: true,
+        plugins: {
+            'react-hooks': reactHooks,
+            react
         },
         languageOptions: {
             parserOptions: {
@@ -32,26 +43,31 @@ const eslintConfig = [
                 },
             },
         },
-        rules: rules.react,
+        rules: {
+            ...rules.react,
+        }
     },
-    {
-        // overrides just for typescript files
-        files: ['*.ts'],
-        ignores,
-        plugins: ['@typescript-eslint', '@typescript-eslint/recommended', 'airbnb-base'],
-        parser: '@typescript-eslint/parser',
-        rules: rules.typescript,
-    },
+    // {
+    //     // overrides just for spec files
+    //     files: ['*-spec.js', '*-spec.ts', '*-spec.tsx', '*-spec.jsx'],
+    //     plugins: {
+    //         jest
+    //     },
+    //     rules: {
+    //         ...rules.jest,
+    //     }
+    // },
+    ...typescriptLint,
+
     {
         // overrides just for spec files
-        files: ['*-spec.js', '*-spec.ts', '*-spec.tsx', '*-spec.jsx'],
-        plugins: ['jest'],
-        env: {
-            'jest/globals': true
-        },
-        rules: rules.jest,
+        files: [ '**/*.-spec.{js,ts,tsx,jsx}'],
+        ...jest.configs['flat/all'],
+        rules: {
+            ...jest.configs['flat/all'].rules,
+            ...rules.jest,
+        }
     },
-    js.configs.recommended,
     {
         languageOptions: {
             globals: {

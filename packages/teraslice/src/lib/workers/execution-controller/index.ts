@@ -42,7 +42,7 @@ export class ExecutionController {
     private isExecutionFinished = false;
     isExecutionDone = false;
     private workersHaveConnected = false;
-    // eslint-disable-next-line no-spaced-func
+     
     private _handlers = new Map<string, (arg: any) => void>();
     executionAnalytics: ExecutionAnalytics;
     readonly scheduler: Scheduler;

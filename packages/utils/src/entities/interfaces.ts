@@ -2,10 +2,9 @@ import { AnyObject } from '../interfaces.js';
 
 export type TYPE_IS_DATAENTITY_KEY = '__isDataEntity';
 export type TYPE_ENTITY_METADATA_KEY = '___EntityMetadata';
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
+ 
 export const __IS_DATAENTITY_KEY: TYPE_IS_DATAENTITY_KEY = '__isDataEntity';
-// eslint-disable-next-line @typescript-eslint/naming-convention
+ 
 export const __ENTITY_METADATA_KEY: TYPE_ENTITY_METADATA_KEY = '___EntityMetadata';
 
 export type _DataEntityMetadataType = DataEntityMetadata | AnyObject;

@@ -1,3 +1,5 @@
+/*eslint-disable prefer-const*/
+
 import {
     get, getFullErrorStack, isFatalError,
     logError, pWhile, Logger

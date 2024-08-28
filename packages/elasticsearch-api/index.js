@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-
 // polyfill because opensearch has references to an api that won't exist
 // on the client side, should be able to remove in the future
 import Promise from 'bluebird';

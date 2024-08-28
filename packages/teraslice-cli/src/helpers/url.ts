@@ -5,7 +5,7 @@ export default class Url {
 
     check(inUrl: string): boolean {
         // check that url starts with http:// but allow for https://
-        return (startsWith(inUrl, 'http://' || 'https://') || startsWith(inUrl, 'https://'));
+        return (startsWith(inUrl, 'http://') || startsWith(inUrl, 'https://'));
     }
 
     build(inUrl: string): string {

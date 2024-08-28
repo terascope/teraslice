@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { DataEntity } from '@terascope/utils';
 import { RecordTransform } from '@terascope/data-mate';
 import { InjectMethod } from '../mixins.js';
