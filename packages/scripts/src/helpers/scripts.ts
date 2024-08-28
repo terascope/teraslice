@@ -150,7 +150,11 @@ export async function runJest(
     extraArgs?: string[],
     debug?: boolean
 ): Promise<void> {
-    const args = mapToArgs(argsMap);
+    // When running jest in yarn3 PnP with ESM we must call 'yarn jest <...args>'
+    // to prevent module not found errors. Therefore we will call fork with the yarn
+    // command and set jest to the first argument.
+    const args = ['jest'];
+    args.push(...mapToArgs(argsMap));
     if (extraArgs) {
         extraArgs.forEach((extraArg) => {
             if (extraArg.startsWith('-') && args.includes(extraArg)) {
@@ -168,7 +172,7 @@ export async function runJest(
     }
 
     await fork({
-        cmd: 'jest',
+        cmd: 'yarn',
         cwd,
         args,
         env,
