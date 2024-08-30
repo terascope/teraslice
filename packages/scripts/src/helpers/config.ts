@@ -1,7 +1,4 @@
 import ipPkg from 'ip';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import {
     toBoolean, toSafeString, isCI, toIntegerOrThrow
 } from '@terascope/utils';
@@ -71,11 +68,10 @@ export const MINIO_HOSTNAME = process.env.MINIO_HOSTNAME || HOST_IP;
 export const MINIO_PORT = process.env.MINIO_PORT || '49000';
 export const ENCRYPT_MINIO = toBoolean(process.env.ENCRYPT_MINIO ?? false);
 export const MINIO_HOST = `http${ENCRYPT_MINIO ? 's' : ''}://${MINIO_HOSTNAME}:${MINIO_PORT}`;
-export const MINIO_VERSION = process.env.MINIO_VERSION || 'RELEASE.2022-06-11T19-55-32Z';
+export const MINIO_VERSION = process.env.MINIO_VERSION || 'RELEASE.2022-09-22T18-57-27Z';
 export const MINIO_DOCKER_IMAGE = process.env.MINIO_DOCKER_IMAGE || 'minio/minio';
 export const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY || 'minioadmin';
 export const MINIO_SECRET_KEY = process.env.MINIO_SECRET_KEY || 'minioadmin';
-export const MINIO_VOLUME = fs.mkdtempSync(path.join(os.tmpdir(), 'ts-minio'));
 
 export const RABBITMQ_VERSION = process.env.RABBITMQ_VERSION || '3.8.16-management-alpine';
 export const RABBITMQ_DOCKER_IMAGE = process.env.RABBITMQ_DOCKER_IMAGE || 'rabbitmq';
