@@ -131,15 +131,15 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         name: `${config.TEST_NAMESPACE}_${config.MINIO_NAME}`,
         /// We will be able to go back and use this on a later version of minio
         /// Minio issue ref: https://github.com/minio/minio/issues/15733
-        // tmpfs: config.SERVICES_USE_TMPFS
-        //     ? ['/data']
-        //     : undefined,
+        tmpfs: config.SERVICES_USE_TMPFS
+            ? ['/data']
+            : undefined,
         ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`],
-        mount: config.ENCRYPT_MINIO
-            ? [`type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`,
-                `type=bind,source=${config.MINIO_VOLUME},target=/data`
-            ]
-            : [`type=bind,source=${config.MINIO_VOLUME},target=/data`],
+        // mount: config.ENCRYPT_MINIO
+        //     ? [`type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`
+        //         // `type=bind,source=${config.MINIO_VOLUME},target=/data`
+        //     ]
+        //     : [`type=bind,source=${config.MINIO_VOLUME},target=/data`],
         env: {
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
