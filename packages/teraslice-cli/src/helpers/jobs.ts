@@ -817,7 +817,7 @@ export default class Jobs {
     async exportOne(jobConfig: Teraslice.JobConfig) {
         const dirName = this.config.args.exportDir || this.config.defaultExportDir;
         const fileNameIndex = this.config.args.jobId.indexOf(jobConfig.job_id);
-        const fileName = this.config.args.fileName[fileNameIndex] || `${jobConfig.name}.json`;
+        const fileName = this.config.args.fileName ? this.config.args.fileName[fileNameIndex] : `${jobConfig.name}.json`;
         const fullPath = path.join(dirName, fileName);
         await saveJobConfigToFile(jobConfig, fullPath);
     }
