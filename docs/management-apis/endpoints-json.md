@@ -197,7 +197,7 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 **Query Options:**
 
 - `active: string = [true|false]`
-- `deleted: string = [exclude|include|only]`
+- `deleted: string = [true|false]`
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
@@ -208,10 +208,9 @@ have an `active` property.  If your query sets `active` to `false` it will only
 return the jobs with the `active` property set to false.  If the `active` query
 parameter is not provided, all jobs will be returned.
 
-Setting `deleted` to `only` will return only the jobs where `_deleted` is set
-to `true`. Setting `_deleted` to `include` will return all jobs. Setting
-`_deleted` to `exclude` or not providing the query parameter will return jobs
-where `_deleted` is set to `false`.
+Setting `deleted` to `false` or not setting the option will return jobs
+where `_deleted` is set to `false` or the `_deleted` key is not present.
+Setting `deleted` to `true` will return all `_deleted: true` jobs.
 
 The parameter `size` is the number of documents returned, `from` is how many
 documents in and `sort` is a lucene query.
@@ -233,7 +232,6 @@ $ curl 'localhost:5678/v1/jobs'
         "job_id": "013b52c3-a4db-4fc4-8a65-7569b6b61951",
         "_created": "2018-09-21T17:49:05.029Z",
         "_updated": "2018-11-01T13:15:22.743Z",
-        "_deleted": false,
         "_context": "job"
     }
 ]
@@ -572,7 +570,7 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/errors'
 
 ## DELETE /v1/jobs/\{jobId\};
 
-Issues a delete command, deleting the job and all related execution contexts. Any orphaned K8s resources associated with the job will also be deleted. The job must have a terminal status to be deleted.
+Issues a delete command, deleting the job and all related execution contexts. Any orphaned K8s resources associated with the job will also be deleted. The job must have a terminal status to be deleted. The `active` field will automatically be set to `false`.
 
 **Usage:**
 
@@ -607,14 +605,13 @@ Returns all execution contexts (job invocations).
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
 - `status: string = "*"`
-- `deleted: string = [exclude|include|only]`
+- `deleted: string = [true|false]`
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
-Setting `deleted` to `only` will return only the execution contexts where `_deleted` is set
-to `true`. Setting `_deleted` to `include` will return all execution contexts. Setting
-`_deleted` to `exclude` or not providing the query parameter will return execution contexts
-where `_deleted` is set to `false`.
+Setting `deleted` to `false` or not setting the option will return execution contexts
+where `_deleted` is set to `false` or the `_deleted` key is not present.
+Setting `deleted` to `true` will return all execution contexts with `_deleted: true`.
 **Usage:**
 
 ```sh
@@ -637,7 +634,6 @@ $ curl 'localhost:5678/v1/ex?status=running&size=10'
         "ex_id": "863678b3-daf3-4ea9-8cb0-88b846cd7e57",
         "_created": "2018-11-01T13:15:50.704Z",
         "_updated": "2018-11-01T13:16:14.122Z",
-        "_deleted": false,
         "_context": "ex",
         "_status": "completed",
         "slicer_hostname": "localhost",

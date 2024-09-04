@@ -299,8 +299,8 @@ teraslice-cli tjm workers total 50 JOB.JSON
 Delete a job or jobs from a teraslice cluster by referencing the job file. Jobs must be stopped.
 
 ```sh
-teraslice-cli tjm delete JOB.json
-teraslice-cli tjm delete JOB1.json JOB2.JSON
+teraslice-cli tjm delete JOB.JSON
+teraslice-cli tjm delete JOB1.JSON JOB2.JSON
 ```
 
 ## Jobs
@@ -381,10 +381,11 @@ Display jobs registered on the cluster
 teraslice-cli jobs list <cluster>
 # list jobs
 teraslice-cli jobs list local
-# list only active jobs
+# list only deleted jobs
+teraslice-cli jobs list local --deleted=true
+# list only active jobs that have not been deleted
 teraslice-cli jobs list local --active=true
-# list all jobs, including deleted
-teraslice-cli jobs list local --deleted=include
+
 ```
 
 ### jobs view
@@ -470,7 +471,7 @@ teraslice-cli ex list local
 # list failed ex_ids
 teraslice-cli ex list local --status=failed
 # list deleted ex_ids
-teraslice-cli ex list local --deleted=only
+teraslice-cli ex list local --deleted=true
 ```
 
 ## Nodes

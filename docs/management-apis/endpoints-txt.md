@@ -93,7 +93,7 @@ Returns a text table of all job listings.
 
 - `fields: string`
 - `active: string = [true|false]`
-- `deleted: string = [exclude|include|only]`
+- `deleted: string = [true|false]`
 
 **Note:** When showing `deleted` records the `_deleted_on` field will be added to the default fields.
 
@@ -144,7 +144,7 @@ Returns a text table of all job execution contexts.
 **Query Options:**
 
 - `fields: string`
-- `deleted: string = [exclude|include|only]`
+- `deleted: string = [true|false]]`
 
 **Note:** When showing `deleted` records the `_deleted_on` field will be added to the default fields.
 
