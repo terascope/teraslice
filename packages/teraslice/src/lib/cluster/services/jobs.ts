@@ -261,6 +261,8 @@ export class JobsService {
             });
         }
 
+        // This will return any orphaned resources in k8s clustering
+        // or an empty array in native clustering
         let currentResources = await this.executionService.listResourcesForJobId(jobId);
 
         if (currentResources.length > 0) {

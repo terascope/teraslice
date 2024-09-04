@@ -71,7 +71,7 @@ export interface JobConfig extends ValidatedJobConfig {
     _context: 'job';
     _created: string | Date;
     _updated: string | Date;
-    _deleted: boolean;
+    _deleted?: boolean;
     _deleted_on?: string | Date;
 }
 
@@ -87,7 +87,7 @@ export interface ExecutionConfig extends ValidatedJobConfig {
     _context: 'ex';
     _created: string | Date;
     _updated: string | Date;
-    _deleted: boolean;
+    _deleted?: boolean;
     _deleted_on?: string | Date;
     // TODO: fix this
     metadata: Record<string, any>;

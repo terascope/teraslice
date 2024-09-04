@@ -41,7 +41,6 @@ describe('Teraslice Jobs', () => {
             workers: 1,
             _created: date,
             _updated: date,
-            _deleted: false,
             _context: 'job'
         },
     ];

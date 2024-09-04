@@ -101,7 +101,6 @@ export class ExecutionStorage {
             _context: this.jobType,
             _created: date,
             _updated: date,
-            _deleted: false,
             _has_errors: false,
             _slicer_stats: {},
             _failureReason: ''
@@ -277,7 +276,7 @@ export class ExecutionStorage {
         } catch (err) {
             throw new TSError(err, {
                 statusCode: 422,
-                reason: `Unable to set execution ${exId} _deleted to true`
+                reason: `Unable to delete execution ${exId}`
             });
         }
     }

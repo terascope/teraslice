@@ -34,7 +34,7 @@ export default {
         const teraslice = new TerasliceUtil(cliConfig);
         const format = `${output}Horizontal`;
         const header = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
-        if (deleted !== 'exclude') {
+        if (deleted === true) {
             header.push('_deleted_on');
         }
 

@@ -235,12 +235,13 @@ export default class Options {
         }),
         'active-job': () => ({
             describe: 'List active jobs',
-            choices: ['true', 'false']
+            type: 'boolean'
+
         }),
         'show-deleted': () => ({
             describe: 'List deleted records',
-            choices: ['exclude', 'include', 'only'],
-            default: 'exclude'
+            default: false,
+            type: 'boolean'
         })
     };
 
