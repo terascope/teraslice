@@ -22,7 +22,7 @@ const RecordTransform = {
 RecordTransform.repository.transformRecord = transformRecordConfig;
 RecordTransform.transformRecord = transformRecord;
 
-declare module './aggregation-frame/AggregationFrame' {
+declare module './aggregation-frame/AggregationFrame.d.ts' {
     interface AggregationFrame<T extends Record<string, any>> {
         /**
          * Run aggregations and flatten the grouped data into a DataFrame
