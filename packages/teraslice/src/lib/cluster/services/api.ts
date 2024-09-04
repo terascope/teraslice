@@ -14,6 +14,7 @@ import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/
 import {
     makePrometheus, isPrometheusTerasliceRequest, makeTable,
     sendError, handleTerasliceRequest, getSearchOptions,
+    createJobActiveQuery, addDeletedToQuery
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
@@ -290,8 +291,8 @@ export class ApiService {
             requestHandler(() => {
                 validateGetDeletedOption(deleted as ListDeletedOption);
 
-                const partialQuery = this.createJobActiveQuery(active as string);
-                const query = this.addDeletedToQuery(deleted as string, partialQuery);
+                const partialQuery = createJobActiveQuery(active as string);
+                const query = addDeletedToQuery(deleted as string, partialQuery);
 
                 return this.jobsStorage.search(query, from, size, sort as string);
             });
@@ -472,7 +473,7 @@ export class ApiService {
                     partialQuery += ` AND (${statusTerms})`;
                 }
 
-                const query = this.addDeletedToQuery(deleted as string, partialQuery);
+                const query = addDeletedToQuery(deleted as string, partialQuery);
 
                 return this.executionStorage.search(query, from, size, sort as string);
             });
@@ -566,8 +567,8 @@ export class ApiService {
                     defaults.push('_deleted_on');
                 }
 
-                const partialQuery = this.createJobActiveQuery(active as string);
-                const query = this.addDeletedToQuery(deleted as string, partialQuery);
+                const partialQuery = createJobActiveQuery(active as string);
+                const query = addDeletedToQuery(deleted as string, partialQuery);
 
                 const jobs = await this.jobsStorage.search(
                     query, from, size, sort as string
@@ -593,7 +594,7 @@ export class ApiService {
                 }
 
                 const partialQuery = 'ex_id:*';
-                const query = this.addDeletedToQuery(deleted as string, partialQuery);
+                const query = addDeletedToQuery(deleted as string, partialQuery);
 
                 const exs = await this.executionStorage.search(
                     query, from, size, sort as string
@@ -631,23 +632,6 @@ export class ApiService {
 
         this.available = true;
         this._updatePromMetrics();
-    }
-
-    private createJobActiveQuery(active: string) {
-        if (active === 'true') {
-            return 'job_id:* AND !active:false';
-        }
-        if (active === 'false') {
-            return 'job_id:* AND active:false';
-        }
-        return 'job_id:*';
-    }
-
-    private addDeletedToQuery(deleted: string, query: string) {
-        if (deleted === 'false') {
-            return `${query} AND (_deleted:false OR (* AND -_deleted:*))`;
-        }
-        return `${query} AND _deleted:true`;
     }
 
     private async _waitForStop(exId: string, blocking?: boolean): Promise<Record<string, any>> {

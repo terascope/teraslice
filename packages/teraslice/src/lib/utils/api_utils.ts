@@ -170,3 +170,20 @@ export function logTerasliceRequest(req: TerasliceRequest) {
     const { method, path } = req;
     req.logger.trace(`${method.toUpperCase()} ${path} endpoint has been called, ${queryInfo}`);
 }
+
+export function createJobActiveQuery(active: string) {
+    if (active === 'true') {
+        return 'job_id:* AND !active:false';
+    }
+    if (active === 'false') {
+        return 'job_id:* AND active:false';
+    }
+    return 'job_id:*';
+}
+
+export function addDeletedToQuery(deleted: string, query: string) {
+    if (deleted === 'false') {
+        return `${query} AND (_deleted:false OR (* AND -_deleted:*))`;
+    }
+    return `${query} AND _deleted:true`;
+}
