@@ -104,6 +104,32 @@ describe('cluster api', () => {
         expect(result).toEqual([true, true, true, true]);
     });
 
+    it('will not delete a job until stopped', async () => {
+        const jobSpec = terasliceHarness.newJob('generator');
+        const deletedJobProperties = {
+            _deleted: true,
+            _deleted_on: expect.anything(),
+            active: false
+        };
+
+        // Set resource constraints on workers within CI
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+            jobSpec.resources_requests_cpu = 0.05;
+        }
+
+        const job = await terasliceHarness.teraslice.jobs.submit(jobSpec, false);
+        const jobId = job.id();
+        const { ex_id: exId } = await job.execution();
+        const ex = terasliceHarness.teraslice.executions.wrap(exId);
+
+        await expect(terasliceHarness.teraslice.jobs.delete(`/jobs/${jobId}`)).rejects.toThrow();
+
+        await terasliceHarness.teraslice.jobs.post(`/jobs/${jobId}/_stop`);
+        await terasliceHarness.waitForExStatus(ex, 'stopped', 100, 1000);
+
+        await expect(terasliceHarness.teraslice.jobs.delete(`/jobs/${jobId}`)).resolves.toMatchObject(deletedJobProperties);
+    });
+
     it('api end point /assets should return an array of json objects of asset metadata', async () => {
         const response = await terasliceHarness.teraslice.cluster.get('/assets');
 
