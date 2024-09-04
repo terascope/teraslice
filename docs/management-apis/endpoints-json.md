@@ -449,6 +449,8 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_work
 
 ## POST /v1/jobs/&#123;jobId&#125;/_active
 
+**DEPRECATED** - Jobs should instead be deleted
+
 Sets the `active` property on the specified job as `true`.
 
 **Query Options:**
@@ -477,6 +479,8 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_acti
 ```
 
 ## POST /v1/jobs/&#123;jobId&#125;/_inactive
+
+**DEPRECATED** - Jobs should instead be deleted
 
 Sets the `active` property on the specified job as `false`.
 
