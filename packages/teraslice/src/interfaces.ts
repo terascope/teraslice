@@ -11,8 +11,7 @@ import type {
 export interface TerasliceRequest extends Request {
     logger: Logger
 }
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+ 
 export interface TerasliceResponse extends Response {}
 
 export interface ClusterMasterContext extends Context {

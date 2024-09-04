@@ -48,7 +48,7 @@ function _isDataEntity(input: any): input is DataEntity {
 const _cloneTypeHandlers = Object.freeze({
     object(input: any): any {
         const descriptors = Object.getOwnPropertyDescriptors(input);
-        // eslint-disable-next-line guard-for-in
+         
         for (const key in descriptors) {
             descriptors[key].value = cloneDeep(descriptors[key].value);
         }
@@ -75,7 +75,7 @@ export function cloneDeep<T = any>(input: T): T {
  * Determine the type of an input
  * @return a human friendly string that describes the input
  */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+ 
 export function getTypeOf(val: any): string {
     if (val === undefined) return 'undefined';
     if (val === null) return 'null';

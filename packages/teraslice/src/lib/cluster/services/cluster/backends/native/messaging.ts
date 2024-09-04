@@ -1,3 +1,4 @@
+/*eslint-disable prefer-const*/
 import _ from 'lodash';
 import type { EventEmitter } from 'node:events';
 import { nanoid } from 'nanoid';

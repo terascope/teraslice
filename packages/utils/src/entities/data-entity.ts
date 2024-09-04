@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable max-len */
 import { getValidDate, getTime } from '../dates.js';
 import { getTypeOf } from '../deps.js';

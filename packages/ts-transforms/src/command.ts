@@ -5,7 +5,8 @@ import readline from 'node:readline';
 import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs';
 import {
-    DataEntity, debugLogger, parseList, AnyObject, get
+    DataEntity, debugLogger, parseList,
+    AnyObject, get, pMap
 } from '@terascope/utils';
 import { PhaseManager } from './index.js';
 import { PhaseConfig } from './interfaces.js';
@@ -67,7 +68,7 @@ try {
         });
     }
     if (command.T) {
-        typesConfig = require(command.T as string);
+        typesConfig = await import(command.T as string);
     }
 } catch (err) {
     console.error('could not load and parse types', err);
@@ -231,10 +232,10 @@ async function initCommand() {
         let plugins = [];
         if (command.p) {
             const pluginList = parseList(command.p as string);
-            plugins = pluginList.map((pluginPath) => {
-                const mod = require(path.resolve(pluginPath));
+            plugins = await pMap(pluginList, async (pluginPath) => {
+                const mod = await import(path.resolve(pluginPath));
                 return mod.default || mod;
-            });
+            })
         }
         let manager: PhaseManager;
 

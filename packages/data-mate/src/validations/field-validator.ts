@@ -4,9 +4,8 @@ import _isIP from 'is-ip';
 import ip6addr from 'ip6addr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
-import * as url from 'valid-url';
+import url from 'valid-url';
 import { FieldType, GeoShapePoint, MACDelimiter } from '@terascope/types';
-
 import {
     FQDNOptions,
     HashConfig,

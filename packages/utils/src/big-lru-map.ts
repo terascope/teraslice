@@ -1,5 +1,3 @@
-/* eslint-disable max-classes-per-file */
-
 import { TypedArray } from '@terascope/types';
 import dataStructurePkg from 'mnemonist';
 import { BigMap } from './big-map.js';
@@ -11,7 +9,7 @@ import { BigMap } from './big-map.js';
 * */
 export class FlexibleArray {
     constructor() {
-        // eslint-disable-next-line no-constructor-return
+         
         return [];
     }
 }

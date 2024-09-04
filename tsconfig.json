@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
         "baseUrl": ".",
-        "module": "commonjs",
         "moduleResolution": "node",
-        "target": "ES2019",
+        "target": "ESNext",
+        "module": "ESNext",
         "skipLibCheck": true,
         "experimentalDecorators": true,
         "strict": true,

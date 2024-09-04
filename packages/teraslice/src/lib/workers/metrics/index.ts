@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { EventEmitter } from 'node:events';
 import {
     debugLogger, isTest, Logger

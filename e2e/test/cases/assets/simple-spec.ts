@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-disabled-tests */
 import 'jest-extended';
 import fs from 'node:fs';
 import os from 'os';

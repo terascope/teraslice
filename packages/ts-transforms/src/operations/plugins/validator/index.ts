@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { deprecate } from 'util';
 import validator from 'validator';
 import ValidationOpBase from '../../lib/validations/base.js';
@@ -25,7 +24,7 @@ function setup(method: string) {
         static cardinality: InputOutputCardinality = 'one-to-one';
 
         constructor(config: PostProcessConfig) {
-            // eslint-disable-next-line no-constructor-return
+             
             return new Validator(config, method);
         }
     };

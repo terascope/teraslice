@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-shadow */
 /**
  * Omit the properties available to type.
  * Useful for excluding properties from a type
@@ -53,14 +52,13 @@ export type Unwrapped<T> = NonNullable<T>;
 export type WithoutNil<T> = { [P in keyof T]: T[P] extends Nil ? never : T[P] };
 
 /** A simple definitions of array */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+ 
 export interface Many<T> extends Array<T> {}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+ 
 export interface RecursiveArray<T> extends Many<T|(RecursiveArray<T>)> {}
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+ 
 export interface ListOfRecursiveArraysOrValues<T> extends Many<T|RecursiveArray<T>> {}
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+ 
 export interface EmptyObject {}
 
 /** A simple object with any values */
@@ -104,7 +102,7 @@ export type FilteredResult<T, I extends(keyof T), E extends (keyof T)> = {
 */
 export type Unpacked<T> =
 T extends (infer U)[] ? U :
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     T extends (...args: any[]) => infer U ? U :
         T extends Promise<infer U> ? U :
             T;

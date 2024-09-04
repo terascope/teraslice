@@ -1,8 +1,6 @@
-'use strict';
+import { BatchProcessor } from '@terascope/job-components';
 
-const { BatchProcessor } = require('@terascope/job-components');
-
-class Summarize extends BatchProcessor {
+export default class Summarize extends BatchProcessor {
     async initialize() {
         this.logger.debug('summarizing...');
     }
@@ -51,5 +49,3 @@ class Summarize extends BatchProcessor {
         }
     }
 }
-
-module.exports = Summarize;

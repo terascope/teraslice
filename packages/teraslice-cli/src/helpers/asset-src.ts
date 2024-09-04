@@ -246,13 +246,16 @@ export class AssetSrc {
             spaces: 4,
         });
 
+        let packageType = { type: 'commonjs'}
+
         if (isESM) {
-            const esmModule = { type: 'module' };
-            // write asset.json into bundleDir
-            await fs.writeJSON(path.join(bundleDir.name, 'package.json'), esmModule, {
-                spaces: 4,
-            });
+            packageType = { type: 'module' };
         }
+
+         // write asset.json into bundleDir
+         await fs.writeJSON(path.join(bundleDir.name, 'package.json'), packageType, {
+            spaces: 4,
+        });
 
         // run npm --cwd srcDir/asset --prod --silent --no-progress
         reply.info('* running yarn --prod --no-progress');

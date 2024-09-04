@@ -98,8 +98,7 @@ export class K8s {
         const namespace = ns || this.defaultNamespace;
         let now = Date.now();
         const end = now + timeout;
-
-        // eslint-disable-next-line no-constant-condition
+         
         while (true) {
             const result = await pRetry(() => this.client
                 .api.v1.namespaces(namespace).pods()
@@ -137,8 +136,7 @@ export class K8s {
         const namespace = ns || this.defaultNamespace;
         let now = Date.now();
         const end = now + timeout;
-
-        // eslint-disable-next-line no-constant-condition
+         
         while (true) {
             const result = await pRetry(() => this.client
                 .api.v1.namespaces(namespace).pods()

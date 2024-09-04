@@ -30,9 +30,9 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-types": "^1.0.0",
-        "@terascope/types": "^1.0.0",
-        "@terascope/utils": "^1.0.0",
+        "@terascope/data-types": "^1.0.1",
+        "@terascope/types": "^1.0.1",
+        "@terascope/utils": "^1.0.1",
         "@types/validator": "^13.11.10",
         "awesome-phonenumber": "^2.70.0",
         "date-fns": "^2.30.0",
@@ -47,7 +47,7 @@
         "uuid": "^9.0.1",
         "valid-url": "^1.0.9",
         "validator": "^13.12.0",
-        "xlucene-parser": "^1.0.2"
+        "xlucene-parser": "^1.0.3"
     },
     "devDependencies": {
         "@types/ip6addr": "^0.2.6",
@@ -57,8 +57,8 @@
         "lodash": "^4.17.21"
     },
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",

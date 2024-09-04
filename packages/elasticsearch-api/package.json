@@ -24,8 +24,8 @@
         "test:watch": "TEST_RESTRAINED_ELASTICSEARCH='true' ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/types": "^1.0.0",
-        "@terascope/utils": "^1.0.0",
+        "@terascope/types": "^1.0.1",
+        "@terascope/utils": "^1.0.1",
         "bluebird": "^3.7.2",
         "setimmediate": "^1.0.5"
     },
@@ -39,8 +39,8 @@
         "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0"
     },
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",

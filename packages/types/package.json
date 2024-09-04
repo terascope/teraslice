@@ -1,7 +1,7 @@
 {
     "name": "@terascope/types",
     "displayName": "Types",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A collection of typescript interfaces",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/types#readme",
     "bugs": {
@@ -28,8 +28,8 @@
         "prom-client": "^15.1.3"
     },
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",

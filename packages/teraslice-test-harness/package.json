@@ -36,14 +36,14 @@
         "fs-extra": "^11.2.0"
     },
     "devDependencies": {
-        "@terascope/job-components": "^1.2.0"
+        "@terascope/job-components": "^1.2.1"
     },
     "peerDependencies": {
-        "@terascope/job-components": ">=1.2.0"
+        "@terascope/job-components": ">=1.2.1"
     },
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",

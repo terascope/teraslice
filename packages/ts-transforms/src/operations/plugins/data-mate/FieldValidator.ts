@@ -1,5 +1,3 @@
-/* eslint-disable max-classes-per-file */
-
 import { DataEntity, get } from '@terascope/utils';
 import { FieldValidator } from '@terascope/data-mate';
 import { InjectMethod } from '../mixins.js';

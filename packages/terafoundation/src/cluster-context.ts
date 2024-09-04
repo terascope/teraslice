@@ -65,7 +65,7 @@ export class ClusterContext<
     }
 
     private _errorHandler(err: any) {
-        // eslint-disable-next-line no-console
+         
         const logErr = this.logger
             ? this.logger.error.bind(this.logger)
             : console.error;

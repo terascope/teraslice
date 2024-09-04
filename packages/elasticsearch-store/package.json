@@ -31,9 +31,9 @@
     },
     "dependencies": {
         "@terascope/data-mate": "^1.0.4",
-        "@terascope/data-types": "^1.0.0",
-        "@terascope/types": "^1.0.0",
-        "@terascope/utils": "^1.0.0",
+        "@terascope/data-types": "^1.0.1",
+        "@terascope/types": "^1.0.1",
+        "@terascope/utils": "^1.0.1",
         "ajv": "^6.12.6",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
@@ -42,14 +42,14 @@
         "opensearch2": "npm:@opensearch-project/opensearch@^2.2.1",
         "setimmediate": "^1.0.5",
         "uuid": "^9.0.1",
-        "xlucene-translator": "^1.0.2"
+        "xlucene-translator": "^1.0.3"
     },
     "devDependencies": {
         "@types/uuid": "^9.0.8"
     },
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",

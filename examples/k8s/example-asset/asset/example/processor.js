@@ -1,8 +1,6 @@
-'use strict';
+import { BatchProcessor } from '@terascope/job-components';
 
-const { BatchProcessor } = require('@terascope/job-components');
-
-class Example extends BatchProcessor {
+export default class Example extends BatchProcessor {
     onBatch(dataArray) {
         // example code, processor code goes here
         dataArray.forEach((doc) => {
@@ -11,5 +9,3 @@ class Example extends BatchProcessor {
         return dataArray;
     }
 }
-
-module.exports = Example;

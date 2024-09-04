@@ -17,7 +17,11 @@ function start(name, dir) {
         console.log(`- ${file}`);
     });
 
-    async function run(list) {
+    async function run() {
+        const list = await pMap(benchmarks, async (file) => {
+            return import(path.join(dir, file))
+        });
+
         for (const initSuite of list) {
             const suite = await initSuite();
 
@@ -29,7 +33,7 @@ function start(name, dir) {
         }
     }
 
-    run(benchmarks.map((file) => require(path.join(dir, file))))
+    run()
         .then(() => {})
         .catch((err) => {
             console.error(err);

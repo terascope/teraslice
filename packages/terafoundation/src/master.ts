@@ -36,7 +36,7 @@ export default function masterModule<
 
         let workersAlive = 0;
         let funcRun = 0;
-        let shutdownInterval: NodeJS.Timeout;
+        const shutdownInterval = setInterval(shutdownWorkers, 1000);
 
         const emitShutdown = once(() => {
             // optional hook for shutdown sequences
@@ -71,8 +71,6 @@ export default function masterModule<
                 logAndFinish();
             }
         }
-
-        shutdownInterval = setInterval(shutdownWorkers, 1000);
 
         function logAndFinish() {
             logger.info('All workers have exited. Ending.');

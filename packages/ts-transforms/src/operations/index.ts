@@ -1,5 +1,3 @@
-/* eslint-disable max-classes-per-file */
-
 import { deprecate } from 'util';
 
 import OperationBase from './lib/base.js';

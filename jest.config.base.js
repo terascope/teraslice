@@ -1,18 +1,18 @@
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { isCI } from '@terascope/utils';
 
-const fs = require('fs');
-const path = require('path');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const isCI = process.env.CI === 'true';
-
-module.exports = (projectDir) => {
+export default (projectDir) => {
     let parentFolder;
     let workspaceName;
     let packageRoot;
     let rootDir;
 
     const name = path.basename(projectDir);
-    const runInDir = process.cwd() !== __dirname;
+    const runInDir = process.cwd() !== dirname;
 
     if (name === 'e2e') {
         parentFolder = name;
@@ -31,8 +31,6 @@ module.exports = (projectDir) => {
         rootDir = '../../';
     }
 
-    const isTypescript = fs.existsSync(path.join(projectDir, 'tsconfig.json'));
-
     const coverageReporters = ['lcov', 'html'];
     if (!isCI) {
         coverageReporters.push('text-summary');
@@ -50,17 +48,47 @@ module.exports = (projectDir) => {
             `<rootDir>/${parentFolder}/*/dist`,
             `<rootDir>/${parentFolder}/teraslice-cli/test/fixtures/`
         ],
-        transformIgnorePatterns: ['^.+\\.js$'],
-        moduleNameMapper: {},
+        transformIgnorePatterns: [],
+        moduleNameMapper: {
+            '^(\\.{1,2}/.*)\\.js$': '$1',
+        },
         moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs', 'mjs'],
+        extensionsToTreatAsEsm: ['.ts'],
         collectCoverage: true,
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
         coverageReporters,
         coverageDirectory: `${packageRoot}/coverage`,
-        preset: 'ts-jest',
         watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
-        workerIdleMemoryLimit: '200MB'
+        workerIdleMemoryLimit: '200MB',
+        testTimeout: 60 * 1000,
+        globals:  {
+            availableExtensions: ['.js', '.ts', '.mjs', 'cjs']
+        },
+        transform: {
+            ['^.+\\.(t|j)sx?$']: ['@swc/jest', {
+                jsc: {
+                    loose: true,
+                    parser: {
+                        syntax: 'typescript',
+                        tsx: false,
+                        decorators: true
+                    },
+                    transform: {
+                        legacyDecorator: true,
+                        decoratorMetadata: true
+                    },
+                    target: 'esnext'
+                },
+                module: {
+                    type: 'es6',
+                    strictMode: false,
+                    noInterop: false,
+                    ignoreDynamic: true
+                }
+            }]
+        },
+        roots: [`${packageRoot}/test`]
     };
 
     if (fs.existsSync(path.join(projectDir, 'test/global.setup.js'))) {
@@ -78,30 +106,6 @@ module.exports = (projectDir) => {
     if (fs.existsSync(path.join(projectDir, 'test/test.setup.js'))) {
         config.setupFilesAfterEnv.push(`${packageRoot}/test/test.setup.js`);
     }
-
-    config.globals = {
-        availableExtensions: ['.js', '.ts', '.mjs']
-    };
-    config.transform = {};
-
-    if (isTypescript) {
-        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
-            isolatedModules: true,
-            tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
-            diagnostics: true,
-            pretty: true,
-            useESM: true
-        }];
-    } else {
-        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
-            isolatedModules: true,
-            diagnostics: true,
-            pretty: true,
-            useESM: true
-        }];
-    }
-
-    config.roots = [`${packageRoot}/test`];
 
     if (fs.existsSync(path.join(projectDir, 'lib'))) {
         config.roots.push(`${packageRoot}/lib`);

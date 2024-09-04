@@ -29,8 +29,8 @@
     },
     "dependencies": {
         "@terascope/file-asset-apis": "^1.0.1",
-        "@terascope/types": "^1.0.0",
-        "@terascope/utils": "^1.0.0",
+        "@terascope/types": "^1.0.1",
+        "@terascope/utils": "^1.0.1",
         "bluebird": "^3.7.2",
         "bunyan": "^1.8.15",
         "convict": "^6.2.4",
@@ -55,8 +55,8 @@
         "got": "^11.8.3"
     },
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",

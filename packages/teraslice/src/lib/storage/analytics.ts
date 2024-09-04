@@ -1,4 +1,3 @@
-/* eslint-disable default-param-last */
 import { Context, WorkerExecutionContext } from '@terascope/job-components';
 import { pMap, Logger } from '@terascope/utils';
 import { Slice, SliceAnalyticsData } from '@terascope/types';

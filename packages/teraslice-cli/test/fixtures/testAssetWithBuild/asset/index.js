@@ -1,12 +1,12 @@
-const procProcessor = require('./proc/processor');
-const procSchema = require('./proc/schema');
-const procSlicer = require('./proc/slicer');
+import procProcessor from './proc/processor.js';
+import procSchema from './proc/schema.js';
+import procSlicer from './proc/slicer.js';
 
-const proc2API = require('./proc2/api');
-const proc2Schema = require('./proc2/schema');
-const proc2Fetcher = require('./proc2/fetcher');
+import proc2API from './proc2/api.js';
+import proc2Schema from './proc2/schema.js';
+import proc2Fetcher from './proc2/fetcher.js';
 
-module.exports = {
+export default {
     proc: {
         Processor: procProcessor,
         Schema: procSchema,

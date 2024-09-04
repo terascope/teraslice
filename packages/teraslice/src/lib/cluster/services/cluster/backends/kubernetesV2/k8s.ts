@@ -6,7 +6,7 @@ import * as k8s from '@kubernetes/client-node';
 import { IncomingMessage } from 'node:http';
 import { getRetryConfig } from './utils.js';
 
-interface kubeConfigOptions {
+interface KubeConfigOptions {
     clusters: k8s.Cluster[];
     contexts: k8s.Context[];
     currentContext: k8s.Context['name'];
@@ -29,7 +29,7 @@ export class K8s {
 
     constructor(
         logger: Logger,
-        clientConfig: kubeConfigOptions | null,
+        clientConfig: KubeConfigOptions | null,
         defaultNamespace: string | null,
         apiPollDelay: number,
         shutdownTimeout: number
@@ -92,7 +92,6 @@ export class K8s {
         let now = Date.now();
         const end = now + timeout;
 
-        // eslint-disable-next-line no-constant-condition
         while (true) {
             const result = await pRetry(() => this.k8sCoreV1Api
                 .listNamespacedPod(namespace, undefined, undefined, undefined, undefined, selector),
@@ -143,7 +142,6 @@ export class K8s {
         let now = Date.now();
         const end = now + timeout;
 
-        // eslint-disable-next-line no-constant-condition
         while (true) {
             const result = await pRetry(() => this.k8sCoreV1Api
                 .listNamespacedPod(namespace, undefined, undefined, undefined, undefined, selector),

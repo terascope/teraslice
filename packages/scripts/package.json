@@ -33,7 +33,7 @@
     },
     "dependencies": {
         "@kubernetes/client-node": "^0.21.0",
-        "@terascope/utils": "^1.0.0",
+        "@terascope/utils": "^1.0.1",
         "codecov": "^3.8.3",
         "execa": "^5.1.0",
         "fs-extra": "^11.2.0",
@@ -74,8 +74,8 @@
         }
     },
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",

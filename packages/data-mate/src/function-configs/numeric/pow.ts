@@ -41,7 +41,7 @@ export const powConfig: FieldTransformConfig<PowerArgs> = {
         }
     ],
     create({ args: { value } }) {
-        // eslint-disable-next-line no-restricted-properties
+         
         return runMathFn(Math.pow, value);
     },
     accepts: [

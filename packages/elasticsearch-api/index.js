@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-
 // polyfill because opensearch has references to an api that won't exist
 // on the client side, should be able to remove in the future
 import Promise from 'bluebird';
@@ -1177,7 +1175,7 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         clientName,
         _time
     ) {
-        // eslint-disable-line
+         
         const giveupAfter = Date.now() + (_time || 10000);
         return new Promise((resolve, reject) => {
             const attemptToCreateIndex = () => {

@@ -111,7 +111,7 @@ export class AssetsStorage {
     private async _assetExistsInFS(id: string): Promise<boolean> {
         try {
             if (!this.assetsPath) return false;
-            // eslint-disable-next-line no-bitwise
+             
             const access = fse.constants.F_OK | fse.constants.R_OK | fse.constants.W_OK;
             await fse.access(path.join(this.assetsPath, id), access);
 
