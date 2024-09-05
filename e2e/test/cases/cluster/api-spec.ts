@@ -121,6 +121,7 @@ describe('cluster api', () => {
         const jobId = job.id();
         const { ex_id: exId } = await job.execution();
         const ex = terasliceHarness.teraslice.executions.wrap(exId);
+        await terasliceHarness.waitForExStatus(ex, 'running', 100, 1000);
 
         await expect(terasliceHarness.teraslice.jobs.delete(`/jobs/${jobId}`)).rejects.toThrow();
 
