@@ -514,7 +514,9 @@ export default class Jobs {
 
     async deleteOne(job: JobMetadata) {
         if (!this.inTerminalStatus(job)) {
-            this.commandFailed(`Job is in non-terminal status ${job.status}, cannot delete`, job);
+            const { jobInfoString } = this.getJobIdentifiers(job);
+
+            reply.error(`Job is in non-terminal status ${job.status}, cannot delete. Skipping\n${jobInfoString}`);
             return;
         }
 
