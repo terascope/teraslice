@@ -42,7 +42,7 @@ export class ExecutionController {
     private isExecutionFinished = false;
     isExecutionDone = false;
     private workersHaveConnected = false;
-     
+
     private _handlers = new Map<string, (arg: any) => void>();
     executionAnalytics: ExecutionAnalytics;
     readonly scheduler: Scheduler;
@@ -420,6 +420,15 @@ export class ExecutionController {
                 await this.client.sendExecutionFinished(shutdownError.message);
             }
         }
+        await this.stateStorage.refresh();
+        const status = await this.executionStorage.getStatus(this.exId);
+        /// This is an indication that the cluster_master did not call for this
+        /// shutdown. We want to restart in this case.
+        if (process.env.ALLOW_EX_RESTART === 'true' && status === 'running') {
+            this.logger.info('Skipping shutdown to allow restart...');
+            return;
+        }
+
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         if (this.isShuttingDown) {
@@ -921,6 +930,11 @@ export class ExecutionController {
         if (includes(terminalStatuses, status)) {
             error = new Error(invalidStateMsg('terminal'));
         } else if (includes(runningStatuses, status)) {
+            // In the case of a `running` state on startup we
+            // want to continue to start up. Only in V2.
+            if (process.env.ALLOW_EX_RESTART === 'true') {
+                return true;
+            }
             error = new Error(invalidStateMsg('running'));
             // If in a running status the execution process
             // crashed and k8s is trying to restart the pod,
