@@ -26,14 +26,8 @@ export interface AssetUploadQuery {
     blocking?: boolean;
 }
 
-export enum ListDeletedOption {
-    exclude = 'exclude',
-    include = 'include',
-    only = 'only',
-}
-
 export interface JobSearchParams extends APISearchParams {
-    deleted?: ListDeletedOption;
+    deleted?: boolean;
     active?: boolean;
 }
 
