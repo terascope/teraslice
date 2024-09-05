@@ -937,7 +937,11 @@ export class ExecutionController {
             // In the case of a `running` state on startup we
             // want to continue to start up. Only in V2.
             if (process.env.ALLOW_EX_RESTART === 'true') {
-                return true;
+                // Check to see if `isRestartable` exists.
+                // Allows for older assets to work with k8sV2
+                if (this.executionContext.slicer().isRestartable) {
+                    return this.executionContext.slicer().isRestartable();
+                }
             }
             error = new Error(invalidStateMsg('running'));
             // If in a running status the execution process
