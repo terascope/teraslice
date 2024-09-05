@@ -66,12 +66,20 @@ export default class Config {
         }
     }
 
-    get aliasesFile(): string {
-        return `${this.configDir}/aliases.yaml`;
+    /**
+     * Returns the user provided export directory or a
+     * default directory at <configDir>/export/<clusterAlias>
+     */
+    get exportDir(): string {
+        if (this.args.exportDir) {
+            return this.args.exportDir;
+        } else {
+            return `${this.configDir}/export/${this.args.clusterAlias}`;
+        }
     }
 
-    get defaultExportDir(): string {
-        return `${this.configDir}/export/${this.args.clusterAlias}`;
+    get aliasesFile(): string {
+        return `${this.configDir}/aliases.yaml`;
     }
 
     get jobStateDir(): string {
@@ -90,7 +98,7 @@ export default class Config {
         return [
             this.jobStateDir,
             this.assetDir,
-            this.defaultExportDir,
+            this.exportDir,
         ];
     }
 
@@ -104,10 +112,6 @@ export default class Config {
                 fs.mkdirSync(dir, { recursive: true });
             }
         });
-
-        if (this.args.exportDir && !fs.existsSync(this.args.exportDir)) {
-            fs.mkdirSync(this.args.exportDir, { recursive: true });
-        }
     }
 
     private _addJobAction() {

@@ -604,6 +604,12 @@ export default class Jobs {
                 return this.getActiveAndInactiveJobIds();
             }
 
+            // if action is export we need to get inactive
+            // as well as active jobs
+            if (this.config.args._action === 'export') {
+                return this.getActiveAndInactiveJobIds();
+            }
+
             return this.getActiveJobIds();
         }
 
@@ -681,11 +687,11 @@ export default class Jobs {
     }
 
     noJobsWithStatus() {
-        const cluster = `cluster: ${this.config.args.clusterUrl}`;
+        const cluster = `cluster: ${this.config.clusterUrl}`;
         const targetedStatus = `${this.config.args.status.join(' or ')}`;
 
         if (this.config.args.jobId.includes('all')) {
-            reply.fatal(`No jobs on ${cluster} with status ${targetedStatus}`);
+            reply.fatal(`No jobs on ${cluster} with status ${targetedStatus || '"any"'}`);
         }
 
         reply.fatal(`Jobs: ${this.config.args.jobId.join(', ')} on ${cluster} do not have status ${targetedStatus}`);
@@ -807,15 +813,21 @@ export default class Jobs {
     }
 
     async export() {
+        const jobIds = this.jobs.map((job) => job.id);
+
+        reply.yellow(`Saving jobFile for ${jobIds.join(', ')} on ${this.config.args.clusterAlias}`);
+
         await pMap(
             this.jobs,
             (job) => this.exportOne(job.config),
             { concurrency: this.concurrency }
         );
+
+        reply.green(`Saved jobFile to ${this.config.exportDir}`);
     }
 
     async exportOne(jobConfig: Teraslice.JobConfig) {
-        const dirName = this.config.args.exportDir || this.config.defaultExportDir;
+        const dirName = this.config.exportDir;
         const fileNameIndex = this.config.args.jobId.indexOf(jobConfig.job_id);
         const fileName = this.config.args.fileName ? this.config.args.fileName[fileNameIndex] : `${jobConfig.name}.json`;
         const fullPath = path.join(dirName, fileName);
