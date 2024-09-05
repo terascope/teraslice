@@ -425,6 +425,7 @@ export class ExecutionController {
         if (process.env.ALLOW_EX_RESTART === 'true') {
             await this.stateStorage.refresh();
             const status = await this.executionStorage.getStatus(this.exId);
+            this.logger.debug(`Execution ${this.exId} is currently in a ${status} state`);
             /// This is an indication that the cluster_master did not call for this
             /// shutdown. We want to restart in this case.
             if (status === 'running') {
@@ -940,7 +941,14 @@ export class ExecutionController {
                 // Check to see if `isRestartable` exists.
                 // Allows for older assets to work with k8sV2
                 if (this.executionContext.slicer().isRestartable) {
-                    return this.executionContext.slicer().isRestartable();
+                    this.logger.info(`Execution ${this.exId} detected to have been restarted..`);
+                    const restartable = this.executionContext.slicer().isRestartable();
+                    if (restartable) {
+                        this.logger.info(`Execution ${this.exId} is restarable and will continue reinitializing...`);
+                    } else {
+                        this.logger.error(`Execution ${this.exId} is not restarable and will shutdown...`);
+                    }
+                    return restartable;
                 }
             }
             error = new Error(invalidStateMsg('running'));
