@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import nock from 'nock';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +11,7 @@ import {
     clusterControllers,
     getJobExecution
 } from './helpers.js';
+import reply from '../../src/helpers/reply.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -912,7 +914,8 @@ describe('Job helper class', () => {
             await expect(job.delete()).resolves.toBeUndefined();
         });
 
-        it('should throw an error if job is not in a terminal status', async () => {
+        it('should log an error if job is not in a terminal status', async () => {
+            reply.error = jest.fn()
             const [jobId] = makeJobIds(1);
 
             tsClient
@@ -937,7 +940,8 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('running');
 
-            await expect(job.delete()).rejects.toThrow('Job is in non-terminal status running, cannot delete');
+            await expect(job.delete()).resolves.toBe(undefined);
+            expect(reply.error).toHaveBeenCalledWith(expect.stringContaining('Job is in non-terminal status running, cannot delete. Skipping'))
         });
     });
 });
