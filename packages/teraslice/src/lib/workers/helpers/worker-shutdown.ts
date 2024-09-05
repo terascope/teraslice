@@ -44,7 +44,12 @@ export function shutdownHandler(
     const isProcessRestart = process.env.process_restart;
     // everything but the k8s execution_controller should not be allowed be allowed to
     // set a non-zero exit code (to avoid being restarted)
-    const allowNonZeroExitCode = !(isK8s && assignment === 'execution_controller');
+    // This is overridden in V2 because it can restart
+    const allowNonZeroExitCode = !(
+        isK8s
+        && assignment === 'execution_controller'
+        && process.env.ALLOW_EX_RESTART !== 'true'
+    );
     const api = {
         exiting: false,
         exit
