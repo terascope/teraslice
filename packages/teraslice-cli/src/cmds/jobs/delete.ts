@@ -17,7 +17,7 @@ export default {
         yargs.strict()
             .example('$0 jobs delete CLUSTER_ALIAS JOB_ID', 'deletes job on a cluster')
             .example('$0 jobs delete CLUSTER_ALIAS JOB_ID1 JOB_ID2', 'deletes multiple jobs on a cluster')
-            .example('$0 jobs delete CLUSTER_ALIAS all', 'deletes all jobs on a cluster from the state file');
+            .example('$0 jobs delete CLUSTER_ALIAS all', 'deletes all non-active jobs on a cluster');
         return yargs;
     },
     async handler(argv: any) {

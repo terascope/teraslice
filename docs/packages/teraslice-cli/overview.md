@@ -427,7 +427,7 @@ Delete a job or jobs by job_id from a teraslice cluster. Jobs must be in a termi
 teraslice-cli jobs delete <cluster> <job_id>
 # delete a job
 teraslice-cli jobs delete cluster1 99999999-9999-9999-9999-999999999999
-# delete all jobs on a cluster, no prompt.
+# delete all stopped jobs on a cluster, no prompt. Active jobs will be skipped.
 teraslice-cli jobs delete cluster1 all -y
 ```
 

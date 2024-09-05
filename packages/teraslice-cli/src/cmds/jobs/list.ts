@@ -19,8 +19,8 @@ export default {
         yargs.options('active', yargsOptions.buildOption('active-job'));
         yargs.strict()
             .example('$0 jobs list CLUSTER_ALIAS')
-            .example('$0 jobs list CLUSTER_ALIAS --deleted include', 'Show all jobs in cluster, including deleted')
-            .example('$0 jobs list CLUSTER_ALIAS --active true', 'Show only active jobs in cluster');
+            .example('$0 jobs list CLUSTER_ALIAS --deleted=true', 'Show only deleted jobs in cluster')
+            .example('$0 jobs list CLUSTER_ALIAS --active=true', 'Show only active jobs in cluster');
         return yargs;
     },
     async handler(argv: any) {

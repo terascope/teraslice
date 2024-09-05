@@ -19,7 +19,7 @@ export default {
         yargs.strict()
             .example('$0 ex list cluster1', 'Show executions in a cluster')
             .example('$0 ex list cluster1 --status=failing', 'Show all executions in cluster with a status of failing')
-            .example('$0 ex list cluster1 --deleted=include', 'Show all executions in cluster, including deleted');
+            .example('$0 ex list cluster1 --deleted=true', 'Show only deleted executions in cluster');
         return yargs;
     },
     async handler(argv) {
