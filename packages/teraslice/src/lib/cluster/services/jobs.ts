@@ -131,8 +131,7 @@ export class JobsService {
         }
 
         return this.jobsStorage.update(jobId, Object.assign({}, jobSpec, {
-            _created: originalJob._created,
-            _deleted: originalJob._deleted
+            _created: originalJob._created
         }));
     }
 
