@@ -6,7 +6,7 @@ import {
     parseErrorInfo, parseList, logError,
     TSError, startsWith, Logger, pWhile
 } from '@terascope/utils';
-import { ExecutionStatusEnum, ListDeletedOption } from '@terascope/types';
+import { ExecutionStatusEnum } from '@terascope/types';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
@@ -289,7 +289,7 @@ export class ApiService {
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of jobs');
             requestHandler(() => {
-                validateGetDeletedOption(deleted as ListDeletedOption);
+                validateGetDeletedOption(deleted as string);
 
                 const partialQuery = createJobActiveQuery(active as string);
                 const query = addDeletedToQuery(deleted as string, partialQuery);
@@ -463,7 +463,7 @@ export class ApiService {
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of execution contexts');
             requestHandler(async () => {
-                validateGetDeletedOption(deleted as ListDeletedOption);
+                validateGetDeletedOption(deleted as string);
                 const statuses = parseList(status);
 
                 let partialQuery = 'ex_id:*';
@@ -561,7 +561,7 @@ export class ApiService {
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all jobs');
             requestHandler(async () => {
-                validateGetDeletedOption(deleted as ListDeletedOption);
+                validateGetDeletedOption(deleted as string);
 
                 if (deleted !== 'false') {
                     defaults.push('_deleted_on');
@@ -587,7 +587,7 @@ export class ApiService {
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all executions');
 
             requestHandler(async () => {
-                validateGetDeletedOption(deleted as ListDeletedOption);
+                validateGetDeletedOption(deleted as string);
 
                 if (deleted !== 'false') {
                     defaults.push('_deleted_on');
