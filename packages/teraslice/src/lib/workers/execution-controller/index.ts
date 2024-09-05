@@ -420,13 +420,17 @@ export class ExecutionController {
                 await this.client.sendExecutionFinished(shutdownError.message);
             }
         }
-        await this.stateStorage.refresh();
-        const status = await this.executionStorage.getStatus(this.exId);
-        /// This is an indication that the cluster_master did not call for this
-        /// shutdown. We want to restart in this case.
-        if (process.env.ALLOW_EX_RESTART === 'true' && status === 'running') {
-            this.logger.info('Skipping shutdown to allow restart...');
-            return;
+
+        /// This only applies to kubernetesV2
+        if (process.env.ALLOW_EX_RESTART === 'true') {
+            await this.stateStorage.refresh();
+            const status = await this.executionStorage.getStatus(this.exId);
+            /// This is an indication that the cluster_master did not call for this
+            /// shutdown. We want to restart in this case.
+            if (status === 'running') {
+                this.logger.info('Skipping shutdown to allow restart...');
+                return;
+            }
         }
 
         if (this.isShutdown) return;
