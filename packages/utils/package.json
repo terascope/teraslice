@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "displayName": "Utils",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -29,7 +29,7 @@
         "debug": "^4.3.6"
     },
     "dependencies": {
-        "@terascope/types": "^1.0.1",
+        "@terascope/types": "^1.1.0",
         "@turf/bbox": "^6.4.0",
         "@turf/bbox-polygon": "^6.4.0",
         "@turf/boolean-contains": "^6.4.0",
