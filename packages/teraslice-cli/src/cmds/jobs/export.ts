@@ -24,7 +24,7 @@ export default {
             return true;
         });
         yargs.check((argv: { jobId: string[]; fileName: string[]; }) => {
-            if (argv.jobId.includes('all') && argv.fileName.length > 0) {
+            if (argv.jobId.includes('all') && argv.fileName) {
                 throw new Error('Cannot use custom file names when exporting all.');
             }
             return true;
