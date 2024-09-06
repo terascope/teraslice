@@ -1,8 +1,11 @@
-import { EventEmitter } from 'events';
-import { TestContext } from '../src';
+import { EventEmitter } from 'node:events';
+import { debugLogger } from '@terascope/utils';
+import { TestContext } from '../src/index.js';
+
+const logger = debugLogger('TestContext');
 
 describe('TestContext', () => {
-    it('should have a TestContext', () => {
+    it('should have a TestContext', async () => {
         expect(TestContext).toBeTruthy();
         type HelloAPIs = {
             hello: {
@@ -16,7 +19,7 @@ describe('TestContext', () => {
             };
         }
 
-        const context = new TestContext<HelloSysConfig, HelloAPIs>({
+        const context = await TestContext.createContext<HelloSysConfig, HelloAPIs>({
             name: 'test-name',
             sysconfig: {
                 hello: {
@@ -30,14 +33,8 @@ describe('TestContext', () => {
         expect(context.sysconfig).toHaveProperty('hello.name', 'superman');
         expect(context).toHaveProperty('cluster');
         expect(context).toHaveProperty('apis');
-        expect(context).toHaveProperty('foundation');
+
         expect(context.apis.foundation.getSystemEvents()).toBeInstanceOf(EventEmitter);
-        expect(() => {
-            context.apis.foundation.getConnection({
-                endpoint: 'default',
-                type: 'example',
-            });
-        }).toThrowError('No client was found for connection "example:default"');
         expect(context.apis.foundation.makeLogger()).toBeTruthy();
         expect(context.apis.foundation.makeLogger({ module: 'hi' })).toBeTruthy();
 
@@ -46,66 +43,13 @@ describe('TestContext', () => {
         expect(context.apis.hello.there()).toEqual('peter');
     });
 
-    it('should be able to get and set clients', () => {
-        const context = new TestContext({
-            name: 'test-clients',
-            clients: [
-                {
-                    create() {
-                        return { client: 'hello' };
-                    },
-                    type: 'test'
-                }
-            ]
-        });
-
-        expect(context.apis.getTestClients()).toEqual({});
-
-        expect(context.apis.foundation.getConnection({
-            type: 'test',
-            endpoint: 'default'
-        })).toEqual({ client: 'hello' });
-
-        expect(context.apis.getTestClients()).toEqual({
-            test: {
-                default: {
-                    client: 'hello'
-                }
-            }
-        });
-
-        context.apis.setTestClients([
-            {
-                create() {
-                    return { client: 'howdy' };
-                },
-                type: 'test'
-            }
-        ]);
-
-        expect(context.apis.getTestClients()).toEqual({});
-
-        expect(context.apis.foundation.getConnection({
-            type: 'test',
-            endpoint: 'default'
-        })).toEqual({ client: 'howdy' });
-
-        expect(context.apis.getTestClients()).toEqual({
-            test: {
-                default: {
-                    client: 'howdy'
-                }
-            }
-        });
-    });
-
     it('should be able to get and set async clients', async () => {
-        const context = new TestContext({
+        const context = await TestContext.createContext({
             name: 'test-clients',
             clients: [
                 {
                     async createClient() {
-                        return { client: 'hello' };
+                        return { client: 'hello', logger };
                     },
                     type: 'test'
                 }
@@ -118,6 +62,22 @@ describe('TestContext', () => {
             type: 'test',
             endpoint: 'default'
         });
-        expect(results).toEqual({ client: 'hello' });
+
+        expect(results).toEqual({ client: 'hello', logger });
+    });
+
+    it('should be able to init prom_metrics_api', async () => {
+        const context = await TestContext.createContext();
+        context.sysconfig.teraslice = { cluster_manager_type: 'kubernetes', name: 'ts-test' };
+        context.sysconfig.terafoundation.prom_metrics_enabled = true;
+        const config = {
+            terasliceName: context.sysconfig.teraslice.name,
+            tf_prom_metrics_enabled: true,
+            tf_prom_metrics_port: 3333,
+            tf_prom_metrics_add_default: false,
+            logger: context.logger,
+            assignment: 'master'
+        };
+        expect(await context.apis.foundation.promMetrics.init(config)).toBe(true);
     });
 });

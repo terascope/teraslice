@@ -2,26 +2,26 @@ import ms from 'ms';
 import got from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
-import path from 'path';
-import * as ts from '@terascope/utils';
+import path from 'node:path';
 import { Kafka } from 'kafkajs';
-import { getServicesForSuite, getRootDir } from '../misc';
+import execa from 'execa';
 import {
-    dockerRun,
-    DockerRunOptions,
-    getContainerInfo,
-    dockerStop,
-    dockerPull,
-    k8sStartService,
-    k8sStopService
-} from '../scripts';
-import { Kind } from '../kind';
-import { TestOptions } from './interfaces';
-import { Service } from '../interfaces';
-import * as config from '../config';
-import signale from '../signale';
+    pWhile, TSError, debugLogger,
+    toHumanTime, getErrorStatusCode
+} from '@terascope/utils';
+import { getServicesForSuite, getRootDir } from '../misc.js';
+import {
+    dockerRun, DockerRunOptions, getContainerInfo,
+    dockerStop, k8sStartService, k8sStopService,
+    loadThenDeleteImageFromCache, dockerPull
+} from '../scripts.js';
+import { Kind } from '../kind.js';
+import { TestOptions } from './interfaces.js';
+import { Service } from '../interfaces.js';
+import * as config from '../config.js';
+import signale from '../signale.js';
 
-const logger = ts.debugLogger('ts-scripts:cmd:test');
+const logger = debugLogger('ts-scripts:cmd:test');
 
 const serviceUpTimeout = ms(config.SERVICE_UP_TIMEOUT);
 
@@ -52,7 +52,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.RestrainedElasticsearch]: {
         image: config.ELASTICSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
-        mount: `type=bind,source=${restrainedElasticsearchConfigPath},target=/usr/share/elasticsearch/config/elasticsearch.yml`,
+        mount: [`type=bind,source=${restrainedElasticsearchConfigPath},target=/usr/share/elasticsearch/config/elasticsearch.yml`],
         ports: [`${config.RESTRAINED_ELASTICSEARCH_PORT}:${config.RESTRAINED_ELASTICSEARCH_PORT}`],
         env: {
             ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
@@ -133,18 +133,23 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             ? ['/data']
             : undefined,
         ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`],
+        mount: config.ENCRYPT_MINIO
+            ? [`type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`]
+            : [],
         env: {
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
         },
         network: config.DOCKER_NETWORK_NAME,
-        args: ['server', '--address', `0.0.0.0:${config.MINIO_PORT}`, '/data']
+        args: config.ENCRYPT_MINIO
+            ? ['server', '-S', '/opt/certs', '--address', `0.0.0.0:${config.MINIO_PORT}`, '/data']
+            : ['server', '--address', `0.0.0.0:${config.MINIO_PORT}`, '/data']
     },
     [Service.RabbitMQ]: {
         image: config.RABBITMQ_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.RABBITMQ_NAME}`,
         ports: [`${config.RABBITMQ_MANAGEMENT_PORT}:15672`, `${config.RABBITMQ_PORT}:5672`],
-        mount: `type=bind,source=${rabbitConfigPath},target=/etc/rabbitmq/rabbitmq.conf`,
+        mount: [`type=bind,source=${rabbitConfigPath},target=/etc/rabbitmq/rabbitmq.conf`],
         env: {
             RABBITMQ_HOSTNAME: '0.0.0.0',
             RABBITMQ_USER: config.RABBITMQ_USER,
@@ -154,44 +159,45 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     }
 };
 
-export async function pullServices(suite: string, options: TestOptions): Promise<void> {
+export async function loadOrPullServiceImages(suite: string): Promise<void> {
     const launchServices = getServicesForSuite(suite);
 
     try {
         const images: string[] = [];
+        const loadFailedList: string[] = [];
 
         if (launchServices.includes(Service.Elasticsearch)) {
-            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${options.elasticsearchVersion}`;
+            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.Opensearch)) {
-            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${options.opensearchVersion}`;
+            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.OPENSEARCH_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.RestrainedOpensearch)) {
-            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${options.opensearchVersion}`;
+            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.OPENSEARCH_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.RestrainedElasticsearch)) {
-            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${options.elasticsearchVersion}`;
+            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.Kafka)) {
-            const image = `${config.KAFKA_DOCKER_IMAGE}:${options.kafkaImageVersion}`;
+            const image = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.Zookeeper)) {
-            const image = `${config.ZOOKEEPER_DOCKER_IMAGE}:${options.zookeeperVersion}`;
+            const image = `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.ZOOKEEPER_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.Minio)) {
-            const image = `${config.MINIO_DOCKER_IMAGE}:${options.minioVersion}`;
+            const image = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}`;
             images.push(image);
         }
 
@@ -200,14 +206,27 @@ export async function pullServices(suite: string, options: TestOptions): Promise
             images.push(image);
         }
 
-        await Promise.all(images.map(async (image) => {
-            const label = `docker pull ${image}`;
-            signale.time(label);
-            await dockerPull(image);
-            signale.timeEnd(label);
-        }));
+        if (fs.existsSync(config.DOCKER_CACHE_PATH)) {
+            await Promise.all(images.map(async (imageName) => {
+                const success = await loadThenDeleteImageFromCache(imageName);
+                if (!success) {
+                    loadFailedList.push(imageName);
+                }
+            }));
+        } else {
+            loadFailedList.push(...images);
+        }
+
+        if (loadFailedList.length > 0) {
+            await Promise.all(loadFailedList.map(async (image) => {
+                const label = `docker pull ${image}`;
+                signale.time(label);
+                await dockerPull(image);
+                signale.timeEnd(label);
+            }));
+        }
     } catch (err) {
-        throw new ts.TSError(err, {
+        throw new TSError(err, {
             message: `Failed to pull services for test suite "${suite}", ${err.message}`
         });
     }
@@ -287,6 +306,17 @@ export async function ensureZookeeper(options: TestOptions): Promise<() => void>
 
 export async function ensureMinio(options: TestOptions): Promise<() => void> {
     let fn = () => { };
+    // Create fresh certs before loading minio if encryption enabled
+    if (options.encryptMinio) {
+        try {
+            signale.pending('Generating new ca-certificates for minio...');
+            const scriptLocation = path.join(getRootDir(), '/scripts/generate-cert.sh');
+            await execa(scriptLocation, ['localhost', 'minio', config.MINIO_HOSTNAME]);
+        } catch (err) {
+            throw new TSError(`Error generating ca-certificates for minio: ${err.message}`);
+        }
+        signale.success('Successfully created new certificates for minio');
+    }
     const startTime = Date.now();
     fn = await startService(options, Service.Minio);
     await checkMinio(options, startTime);
@@ -341,7 +371,7 @@ async function stopService(service: Service) {
     const startTime = Date.now();
     signale.pending(`stopping service ${service}`);
     await dockerStop(name);
-    signale.success(`stopped service ${service}, took ${ts.toHumanTime(Date.now() - startTime)}`);
+    signale.success(`stopped service ${service}, took ${toHumanTime(Date.now() - startTime)}`);
 }
 
 async function checkRestrainedOpensearch(
@@ -355,7 +385,7 @@ async function checkRestrainedOpensearch(
     if (dockerGateways.includes(config.OPENSEARCH_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking restrained opensearch at ${host}`);
@@ -371,7 +401,7 @@ async function checkRestrainedOpensearch(
                     https: { rejectUnauthorized: false },
                     responseType: 'json',
                     throwHttpErrors: true,
-                    retry: 0,
+                    retry: 0
                 }));
             } catch (err) {
                 error = err.message;
@@ -389,15 +419,15 @@ async function checkRestrainedOpensearch(
             }
 
             const actual: string = body.version.number;
-            const expected = options.opensearchVersion;
+            const expected = config.OPENSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`restrained opensearch@${actual} is running at ${host}, took ${took}`);
                 return true;
             }
 
-            throw new ts.TSError(
+            throw new TSError(
                 `restrained opensearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
                 {
                     retryable: false,
@@ -422,7 +452,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
     if (dockerGateways.includes(config.OPENSEARCH_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking opensearch at ${host}`);
@@ -456,15 +486,15 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             }
 
             const actual: string = body.version.number;
-            const expected = options.opensearchVersion;
+            const expected = config.OPENSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`opensearch@${actual} is running at ${host}, took ${took}`);
                 return true;
             }
 
-            throw new ts.TSError(
+            throw new TSError(
                 `Opensearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
                 {
                     retryable: false,
@@ -489,7 +519,7 @@ async function checkRestrainedElasticsearch(
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking restrained elasticsearch at ${host}`);
@@ -520,15 +550,15 @@ async function checkRestrainedElasticsearch(
             }
 
             const actual: string = body.version.number;
-            const expected = options.elasticsearchVersion;
+            const expected = config.ELASTICSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
                 return true;
             }
 
-            throw new ts.TSError(
+            throw new TSError(
                 `Restrained Elasticsearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
                 {
                     retryable: false,
@@ -551,7 +581,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking elasticsearch at ${host}`);
@@ -582,15 +612,15 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
             }
 
             const actual: string = body.version.number;
-            const expected = options.elasticsearchVersion;
+            const expected = config.ELASTICSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
                 return true;
             }
 
-            throw new ts.TSError(
+            throw new TSError(
                 `Elasticsearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
                 {
                     retryable: false,
@@ -613,7 +643,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
     if (dockerGateways.includes(config.MINIO_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking MinIO at ${host}`);
@@ -622,16 +652,20 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
             }
 
             let statusCode: number;
+            const rootCaPath = path.join(getRootDir(), 'e2e/test/certs/CAs/rootCA.pem');
             try {
                 ({ statusCode } = await got('minio/health/live', {
                     prefixUrl: host,
                     responseType: 'json',
                     throwHttpErrors: false,
+                    https: config.ENCRYPT_MINIO
+                        ? { certificateAuthority: fs.readFileSync(rootCaPath) }
+                        : {},
                     retry: 0,
                 }));
             } catch (err) {
                 error = err.message;
-                statusCode = ts.getErrorStatusCode(err);
+                statusCode = getErrorStatusCode(err);
             }
 
             if (options.trace) {
@@ -641,7 +675,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
             }
 
             if (statusCode === 200) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`MinIO is running at ${host}, took ${took}`);
                 return true;
             }
@@ -663,7 +697,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
     if (dockerGateways.includes(config.RABBITMQ_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking RabbitMQ at ${managementEndpoint}`);
@@ -684,7 +718,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
                 }));
             } catch (err) {
                 error = err.message;
-                statusCode = ts.getErrorStatusCode(err);
+                statusCode = getErrorStatusCode(err);
             }
 
             if (options.trace) {
@@ -694,7 +728,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
             }
 
             if (statusCode === 200) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`RabbitMQ is running at ${managementEndpoint}, took ${took}`);
                 return true;
             }
@@ -738,7 +772,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
         }
     });
     const producer = kafka.producer();
-    const took = ts.toHumanTime(Date.now() - startTime);
+    const took = toHumanTime(Date.now() - startTime);
     try {
         await producer.connect();
     } catch (err) {
@@ -749,11 +783,11 @@ async function checkKafka(options: TestOptions, startTime: number) {
         }
         throw new Error(err.message);
     }
-    signale.success(`kafka@${options.kafkaVersion} is running at ${config.KAFKA_BROKER}, took ${took}`);
+    signale.success(`kafka@${config.KAFKA_VERSION} is running at ${config.KAFKA_BROKER}, took ${took}`);
 }
 
 async function checkZookeeper(options: TestOptions, startTime: number) {
-    const took = ts.toHumanTime(Date.now() - startTime);
+    const took = toHumanTime(Date.now() - startTime);
     signale.success(` zookeeper*might* be running, took ${took}`);
 }
 
@@ -769,10 +803,10 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     }
     let version:string;
     if (serviceName === 'kafka') {
-        version = options[`${serviceName}ImageVersion`] as string;
-        signale.pending(`starting ${service}@${options.kafkaVersion} service...`);
+        version = config[`${serviceName.toUpperCase()}_IMAGE_VERSION`] as string;
+        signale.pending(`starting ${service}@${config.KAFKA_VERSION} service...`);
     } else {
-        version = options[`${serviceName}Version`] as string;
+        version = config[`${serviceName.toUpperCase()}_VERSION`] as string;
         signale.pending(`starting ${service}@${version} service...`);
     }
     if (options.useExistingServices) {
@@ -780,8 +814,8 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         return () => { };
     }
 
-    if (options.testPlatform === 'kubernetes') {
-        const kind = new Kind(options.k8sVersion, options.kindClusterName);
+    if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
+        const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
         await kind.loadServiceImage(service, services[service].image, version);
         await k8sStopService(service);
         await k8sStartService(service, services[service].image, version, kind);
@@ -802,7 +836,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
             fn();
         } catch (err) {
             signale.error(
-                new ts.TSError(err, {
+                new TSError(err, {
                     reason: `Failed to stop ${service}@${version} service`,
                 })
             );

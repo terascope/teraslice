@@ -1,52 +1,53 @@
 import validator from 'validator';
 import parser from 'datemath-parser';
-import parseDate from 'date-fns/parse';
-import formatDate from 'date-fns/format';
-import differenceInMilliseconds from 'date-fns/differenceInMilliseconds';
-import differenceInSeconds from 'date-fns/differenceInSeconds';
-import differenceInMinutes from 'date-fns/differenceInMinutes';
-import differenceInHours from 'date-fns/differenceInHours';
-import differenceInDays from 'date-fns/differenceInDays';
-import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
-import differenceInBusinessDays from 'date-fns/differenceInBusinessDays';
-import differenceInWeeks from 'date-fns/differenceInWeeks';
-import differenceInCalendarISOWeeks from 'date-fns/differenceInCalendarISOWeeks';
-import differenceInCalendarISOWeekYears from 'date-fns/differenceInCalendarISOWeekYears';
-import differenceInMonths from 'date-fns/differenceInMonths';
-import differenceInCalendarMonths from 'date-fns/differenceInCalendarMonths';
-import differenceInQuarters from 'date-fns/differenceInQuarters';
-import differenceInCalendarQuarters from 'date-fns/differenceInCalendarQuarters';
-import differenceInYears from 'date-fns/differenceInYears';
-import differenceInCalendarYears from 'date-fns/differenceInCalendarYears';
-import differenceInISOWeekYears from 'date-fns/differenceInISOWeekYears';
-import intervalToDuration from 'date-fns/intervalToDuration';
-import formatISODuration from 'date-fns/formatISODuration';
-import _isFuture from 'date-fns/isFuture';
-import _isPast from 'date-fns/isPast';
-import _isLeapYear from 'date-fns/isLeapYear';
-import _isToday from 'date-fns/isToday';
-import _isTomorrow from 'date-fns/isTomorrow';
-import _isYesterday from 'date-fns/isYesterday';
-import add from 'date-fns/add';
-import sub from 'date-fns/sub';
-import _isBefore from 'date-fns/isBefore';
-import _isAfter from 'date-fns/isAfter';
 import {
-    DateFormat,
-    ISO8601DateSegment,
-    DateTuple,
-    DateInputTypes,
-    GetTimeBetweenArgs
+    parse as parseDate,
+    format as formatDate,
+    differenceInMilliseconds,
+    differenceInSeconds,
+    differenceInMinutes,
+    differenceInHours,
+    differenceInDays,
+    differenceInCalendarDays,
+    differenceInBusinessDays,
+    differenceInWeeks,
+    differenceInCalendarISOWeeks,
+    differenceInCalendarISOWeekYears,
+    differenceInMonths,
+    differenceInCalendarMonths,
+    differenceInQuarters,
+    differenceInCalendarQuarters,
+    differenceInYears,
+    differenceInCalendarYears,
+    differenceInISOWeekYears,
+    intervalToDuration,
+    formatISODuration,
+    isFuture as _isFuture,
+    isPast as _isPast,
+    isLeapYear as _isLeapYear,
+    isToday as _isToday,
+    isTomorrow as _isTomorrow,
+    isYesterday as _isYesterday,
+    add,
+    sub,
+    isBefore as _isBefore,
+    isAfter as _isAfter,
+} from 'date-fns';
+import {
+    DateFormat, ISO8601DateSegment, DateTuple,
+    DateInputTypes, GetTimeBetweenArgs
 } from '@terascope/types';
-import tzOffset from 'date-fns-tz/getTimezoneOffset';
-import { getTypeOf } from './deps';
+import dateTimezonePkg from 'date-fns-tz';
+import { getTypeOf } from './deps.js';
 import {
     bigIntToJSON, isNumber, toInteger,
     isInteger, inNumberRange
-} from './numbers';
-import { isString } from './strings';
-import { isBoolean } from './booleans';
-import { lookupTimezone } from './geo';
+} from './numbers.js';
+import { isString } from './strings.js';
+import { isBoolean } from './booleans.js';
+import { lookupTimezone } from './geo.js';
+
+const { getTimezoneOffset: tzOffset } = dateTimezonePkg;
 
 // date-fns doesn't handle utc correctly here
 // https://github.com/date-fns/date-fns/issues/376
@@ -70,13 +71,13 @@ export function makeISODate(value?: Date|number|string|null|undefined|DateTuple)
 
 /** A simplified implementation of moment(new Date(val)).isValid() */
 export function isValidDate(val: unknown): boolean {
-    return getValidDate(val as any) !== false;
+    return _getValidDate(val as any) !== false;
 }
 
 /**
  * Coerces value into a valid date, returns false if it is invalid
 */
-export function getValidDate(val: unknown): Date | false {
+function _getValidDate(val: unknown): Date | false {
     // this is our hot path since this is how commonly store this
     if (typeof val === 'number') {
         if (!Number.isInteger(val)) return false;
@@ -103,7 +104,54 @@ export function getValidDate(val: unknown): Date | false {
 
     if (isValidDateInstance(d)) return d;
 
+    // safari needs slashes when in month-date-year format
+    // don't call _getValidDate - could cause infinite loop
+    if (typeof val === 'string') {
+        const dashesToSlashes = new Date(val.replace(/-/g, '/'));
+        if (isValidDateInstance(dashesToSlashes)) {
+            return dashesToSlashes;
+        }
+    }
+
     return false;
+}
+
+/**
+ * Coerces value into a valid date, returns false if it is invalid.
+ * Has added support for converting from date math (i.e. now+1h, now-1m, now+2d/y, 2021-01-01||+2d)
+*/
+export function getValidDate(val: unknown, relativeNow = new Date()): Date | false {
+    const validDate = _getValidDate(val);
+    if (validDate) return validDate;
+
+    if (!relativeNow) return false;
+    return parseRelativeDate(val, relativeNow);
+}
+
+/**
+ * tries to date math values to dates
+ */
+function parseRelativeDate(input: unknown, now: Date): Date|false {
+    if (!input || typeof input !== 'string') return false;
+
+    // remove any spaces and ensure lowercase 'now' (keep all others normal case)
+    const trimmed = input.replace(/\s/g, '').replace(/(n|N)(o|O)(w|W)/g, 'now');
+
+    const dateMath = parseDateMath(trimmed, now);
+    if (dateMath) return dateMath;
+
+    return false;
+}
+
+/**
+ * tries to parse date math (i.e. now+1h, now-1m) to a date
+ */
+function parseDateMath(value: string, now: Date): Date|false {
+    try {
+        return _getValidDate(new Date(parser.parse(value, now)));
+    } catch (err) {
+        return false;
+    }
 }
 
 /**
@@ -186,7 +234,7 @@ export function getValidDateOrNumberOrThrow(val: unknown): Date|number {
     if (typeof val === 'number' && !Number.isInteger(val)) return val;
     if (isDateTuple(val)) return val[0];
 
-    const date = getValidDate(val as any);
+    const date = getValidDate(val);
     if (date === false) {
         throw new TypeError(`Expected ${val} (${getTypeOf(val)}) to be in a standard date format`);
     }

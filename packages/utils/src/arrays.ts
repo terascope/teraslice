@@ -1,7 +1,7 @@
 import { TypedArray } from '@terascope/types';
-import { Many, ListOfRecursiveArraysOrValues } from './interfaces';
-import { get } from './deps';
-import { isBuffer } from './buffers';
+import { Many, ListOfRecursiveArraysOrValues } from './interfaces.js';
+import { get } from './deps.js';
+import { isBuffer } from './buffers.js';
 
 /** A native implementation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {

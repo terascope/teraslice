@@ -1,5 +1,5 @@
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
-import FloatType from '../../../src/types/v1/float';
+import FloatType from '../../../src/types/v1/float.js';
 
 describe('Float V1', () => {
     const field = 'someField';

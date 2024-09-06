@@ -1,11 +1,15 @@
-import * as ts from '@terascope/utils';
+import {
+    isString, AnyObject, PartialDeep,
+    get, isFunction, getTypeOf
+} from '@terascope/utils';
+import type { Terafoundation } from '@terascope/types';
 import { nanoid } from 'nanoid';
-import * as i from './interfaces';
-import { CoreContext } from './core-context';
-import validateConfigs from './validate-configs';
+import { CoreContext } from './core-context.js';
+import validateConfigs from './validate-configs.js';
+import { PromMetrics } from './api/prom-metrics/prom-metrics-api.js';
 
 interface ClientFactoryFns {
-    [prop: string]: i.ClientFactoryFn | i.CreateClientFactoryFn;
+    [prop: string]: Terafoundation.CreateClientFactoryFn;
 }
 
 export interface CachedClients {
@@ -14,8 +18,7 @@ export interface CachedClients {
 
 export interface TestClientConfig {
     type: string;
-    create?: i.ClientFactoryFn;
-    createClient?: i.CreateClientFactoryFn;
+    createClient?: Terafoundation.CreateClientFactoryFn;
     config?: Record<string, any>;
     endpoint?: string;
 }
@@ -40,12 +43,12 @@ type GetKeyOpts = {
 
 function getKey(opts: GetKeyOpts) {
     const { type, endpoint = 'default' } = opts;
-    if (!ts.isString(type)) throw new Error('A type must be specified when registering a Client');
+    if (!isString(type)) throw new Error('A type must be specified when registering a Client');
     return `${type}:${endpoint}`;
 }
 
 function setConnectorConfig<T extends Record<string, any>>(
-    sysconfig: i.FoundationSysConfig<Record<string, any>>,
+    sysconfig: Terafoundation.SysConfig<Record<string, any>>,
     opts: GetKeyOpts,
     config: T,
     override = true
@@ -61,30 +64,30 @@ function setConnectorConfig<T extends Record<string, any>>(
     return connectors[type][endpoint];
 }
 
-const _cachedClients = new WeakMap<TestContext<ts.AnyObject, ts.AnyObject>, CachedClients>();
-const _createClientFns = new WeakMap<TestContext<ts.AnyObject, ts.AnyObject>, ClientFactoryFns>();
+const _cachedClients = new WeakMap<TestContext<AnyObject, AnyObject>, CachedClients>();
+const _createClientFns = new WeakMap<TestContext<AnyObject, AnyObject>, ClientFactoryFns>();
 
 export interface TestContextOptions<S> {
     name?: string;
     assignment?: any;
     clients?: TestClientConfig[];
-    sysconfig?: ts.PartialDeep<i.FoundationSysConfig<S>>;
+    sysconfig?: PartialDeep<Terafoundation.SysConfig<S>>;
 }
 
 function getDefaultSysconfig<S>(
     options: TestContextOptions<S>
-): ts.PartialDeep<i.FoundationSysConfig<S>> {
+): PartialDeep<Terafoundation.SysConfig<S>> {
     return {
         terafoundation: {
             connectors: {
-                elasticsearch: {
-                    default: {},
-                },
                 'elasticsearch-next': {
                     default: {},
                 },
+                s3: {
+                    default: {}
+                }
             },
-            ...ts.get(options.sysconfig, 'terafoundation', {})
+            ...get(options.sysconfig, 'terafoundation', {})
         },
         ...options.sysconfig
     };
@@ -95,26 +98,19 @@ export class TestContext<
     A extends Record<string, any>,
     D extends string = string,
 > extends CoreContext<S, A & TestContextAPIs, D> {
-    constructor(options: TestContextOptions<S> = {}) {
-        const sysconfig = getDefaultSysconfig(options);
-        const config: i.FoundationConfig<S, A & TestContextAPIs, D> = {
-            name: options.name || 'test-context',
-        };
-        const cluster: i.Cluster = {
-            isMaster: false,
-            worker: {
-                id: nanoid(8),
-            }
-        } as any;
-
-        super(config, cluster, validateConfigs(cluster, config, sysconfig));
+    constructor(
+        config: Terafoundation.Config<S, A & TestContextAPIs, D>,
+        cluster: any,
+        sysconfig: Terafoundation.SysConfig<S>
+    ) {
+        super(config, cluster, sysconfig);
 
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const ctx = this;
         _cachedClients.set(this, {});
         _createClientFns.set(this, {});
 
-        this.apis.foundation.getConnection = (opts: i.ConnectionConfig) => {
+        this.apis.foundation.createClient = async (opts: Terafoundation.ConnectionConfig) => {
             const { cached } = opts;
 
             const cachedClients = _cachedClients.get(ctx) || {};
@@ -127,36 +123,8 @@ export class TestContext<
             const create = clientFns[key];
 
             if (!create) throw new Error(`No client was found for connection "${key}"`);
-            if (!ts.isFunction(create)) {
-                const actual = ts.getTypeOf(create);
-                throw new Error(`Registered Client for connection "${key}" is not a function, got ${actual}`);
-            }
-
-            const connectorConfig = setConnectorConfig(ctx.sysconfig, opts, {}, false);
-
-            const client = create(connectorConfig, ctx.logger, opts);
-
-            cachedClients[key] = client;
-            _cachedClients.set(ctx, cachedClients);
-
-            return client;
-        };
-
-        this.apis.foundation.createClient = async (opts: i.ConnectionConfig) => {
-            const { cached } = opts;
-
-            const cachedClients = _cachedClients.get(ctx) || {};
-            const key = getKey(opts);
-            if (cached && cachedClients[key] != null) {
-                return cachedClients[key];
-            }
-
-            const clientFns = _createClientFns.get(ctx) || {};
-            const create = clientFns[key];
-
-            if (!create) throw new Error(`No client was found for connection "${key}"`);
-            if (!ts.isFunction(create)) {
-                const actual = ts.getTypeOf(create);
+            if (!isFunction(create)) {
+                const actual = getTypeOf(create);
                 throw new Error(`Registered Client for connection "${key}" is not a function, got ${actual}`);
             }
 
@@ -170,15 +138,17 @@ export class TestContext<
             return client;
         };
 
+        this.apis.foundation.promMetrics = new PromMetrics(ctx.logger);
+
         this.apis.setTestClients = (clients: TestClientConfig[] = []) => {
             clients.forEach((clientConfig) => {
-                const { create, createClient, config: connectionConfig = {} } = clientConfig;
-                const createFN = createClient || create;
+                const { createClient, config: connectionConfig = {} } = clientConfig;
+                const createFN = createClient;
                 const clientFns = _createClientFns.get(ctx) || {};
 
                 const key = getKey(clientConfig);
-                if (!ts.isFunction(createFN)) {
-                    const actual = ts.getTypeOf(createFN);
+                if (!isFunction(createFN)) {
+                    const actual = getTypeOf(createFN);
                     throw new Error(`Test Client for connection "${key}" is not a function, got ${actual}`);
                 }
 
@@ -209,11 +179,32 @@ export class TestContext<
 
             return clients;
         };
+    }
 
-        this.foundation.getConnection = this.apis.foundation.getConnection;
+    static async createContext<
+        S extends Record<string, any>,
+        A extends Record<string, any>,
+        D extends string = string,
+    >(options: TestContextOptions<S> = {}) {
+        const defaultSysconfig = getDefaultSysconfig(options);
+        const config: Terafoundation.Config<S, A & TestContextAPIs, D> = {
+            name: options.name || 'test-context',
+        };
+
+        const cluster: Terafoundation.Cluster = {
+            isMaster: false,
+            worker: {
+                id: nanoid(8),
+            }
+        } as any;
+
+        const sysConfig = await validateConfigs(cluster, config, defaultSysconfig);
+        const context = new TestContext<S, A, D>(config, cluster, sysConfig);
 
         if (options.clients) {
-            this.apis.setTestClients(options.clients);
+            context.apis.setTestClients(options.clients);
         }
+
+        return context;
     }
 }

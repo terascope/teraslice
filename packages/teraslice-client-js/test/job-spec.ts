@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { Teraslice } from '@terascope/types';
-import Job from '../src/job';
+import Job from '../src/job.js';
 
 describe('Teraslice Job', () => {
     let scope: nock.Scope;
@@ -76,7 +76,7 @@ describe('Teraslice Job', () => {
     };
     const date = new Date().toISOString();
 
-    const executionResults: Teraslice.ExecutionRecord[] = [
+    const executionResults: Teraslice.ExecutionConfig[] = [
         {
             active: true,
             analytics: false,
@@ -308,7 +308,7 @@ describe('Teraslice Job', () => {
 
     describe('->update', () => {
         describe('when updating the whole config', () => {
-            const body: Teraslice.JobRecord = {
+            const body: Teraslice.JobConfig = {
                 name: 'hello',
                 apis: [],
                 operations: [],
@@ -325,7 +325,7 @@ describe('Teraslice Job', () => {
                 _context: 'job',
                 job_id: 'some-job-id',
                 _created: 'hello',
-                _updated: 'hello',
+                _updated: 'hello'
             };
 
             beforeEach(() => {
@@ -343,7 +343,7 @@ describe('Teraslice Job', () => {
 
     describe('->updatePartial', () => {
         describe('when updating a partial config', () => {
-            const body: Teraslice.JobRecord = {
+            const body: Teraslice.JobConfig = {
                 name: 'hello',
                 apis: [],
                 operations: [],
@@ -360,7 +360,7 @@ describe('Teraslice Job', () => {
                 _context: 'job',
                 job_id: 'some-job-id',
                 _created: 'hello',
-                _updated: 'hello',
+                _updated: 'hello'
             };
 
             const expected = {
@@ -379,6 +379,21 @@ describe('Teraslice Job', () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
                 const result = await job.updatePartial({ name: 'howdy' });
                 expect(result).toEqual(expected);
+            });
+        });
+    });
+
+    describe('->deleteJob', () => {
+        describe('when called', () => {
+            beforeEach(() => {
+                scope.delete('/jobs/some-other-job-id')
+                    .reply(200, { job_id: 'some-other-job-id', _deleted: true });
+            });
+
+            it('should resolve json results from Teraslice', async () => {
+                const job = new Job({ baseUrl }, 'some-other-job-id');
+                const results = await job.deleteJob();
+                expect(results).toEqual({ job_id: 'some-other-job-id', _deleted: true });
             });
         });
     });

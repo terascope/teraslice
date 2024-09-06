@@ -1,10 +1,10 @@
-import path from 'path';
-import { updateReadme, ensureOverview } from './overview';
-import { build } from '../scripts';
-import { updateSidebarJSON } from './sidebar';
-import { PackageInfo } from '../interfaces';
-import { generateTSDocs } from './typedoc';
-import { getRootDir, writePkgHeader } from '../misc';
+import path from 'node:path';
+import { updateReadme, ensureOverview } from './overview.js';
+import { build } from '../scripts.js';
+import { updateSidebarJSON } from './sidebar.js';
+import { PackageInfo } from '../interfaces.js';
+import { generateTSDocs } from './typedoc.js';
+import { getRootDir, writePkgHeader } from '../misc.js';
 
 export async function buildPackages(pkgInfos: PackageInfo[]) {
     let runOnce = false;

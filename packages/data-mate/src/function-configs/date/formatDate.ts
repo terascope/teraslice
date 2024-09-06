@@ -3,11 +3,9 @@ import {
     formatDateValue, getValidDateWithTimezoneOrThrow
 } from '@terascope/utils';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface FormatDateArgs {
     format?: string|DateFormat;

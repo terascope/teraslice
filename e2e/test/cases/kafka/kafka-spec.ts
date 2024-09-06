@@ -22,7 +22,7 @@ describe('kafka', () => {
         const readerSpec = terasliceHarness.newJob('kafka-reader');
 
         // Set resource constraints on workers and ex controllers within CI
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             senderSpec.resources_requests_cpu = 0.05;
             senderSpec.cpu_execution_controller = 0.4;
             readerSpec.resources_requests_cpu = 0.05;
@@ -51,7 +51,7 @@ describe('kafka', () => {
             terasliceHarness.waitForExStatus(sender, 'completed')
         ]);
 
-        await terasliceHarness.waitForIndexCount(specIndex, total);
+        await terasliceHarness.waitForIndexCount(specIndex, total, 45 * 1000);
         await reader.stop();
 
         await terasliceHarness.waitForExStatus(reader, 'stopped');

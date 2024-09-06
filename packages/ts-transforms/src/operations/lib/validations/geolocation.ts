@@ -1,6 +1,6 @@
 import { parseNumberList } from '@terascope/utils';
-import ValidationOpBase from './base';
-import { PostProcessConfig } from '../../../interfaces';
+import ValidationOpBase from './base.js';
+import { PostProcessConfig } from '../../../interfaces.js';
 
 export default class Geolocation extends ValidationOpBase<any> {
     constructor(config: PostProcessConfig) {

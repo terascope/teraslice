@@ -1,18 +1,14 @@
 export interface K8sEnvOptions {
-    elasticsearchVersion: string;
-    kafkaVersion: string;
-    kafkaImageVersion: string,
-    zookeeperVersion: string,
-    minioVersion: string;
-    rabbitmqVersion: string;
-    opensearchVersion: string;
-    nodeVersion: string;
+    encryptMinio: boolean;
     skipBuild: boolean;
     tsPort: string;
     kindClusterName: string;
-    k8sVersion: string;
+    assetStorage: string;
     terasliceImage?: string;
     resetStore?: boolean;
+    clusteringType: 'kubernetes' | 'kubernetesV2',
+    keepOpen: boolean
+    dev: boolean;
 }
 
 // TODO: create a common parent for each resource type,

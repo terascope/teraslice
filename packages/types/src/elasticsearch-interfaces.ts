@@ -1,4 +1,4 @@
-import * as geo from './geo-interfaces';
+import * as geo from './geo-interfaces.js';
 
 /**
  * The sort direction
@@ -219,6 +219,7 @@ export interface ESTypeMappings {
         enabled?: boolean;
         [key: string]: any;
     };
+    _meta?: Record<string, any>;
     dynamic?: boolean;
     properties: {
         [key: string]: ESTypeMapping;
@@ -233,7 +234,8 @@ export interface ESMapping {
     order?: number;
     aliases?: any;
     index_patterns?: string[];
-    settings: ESIndexSettings;
+    settings?: ESIndexSettings;
+    version?: number;
 }
 
 export interface ESIndexSettings {

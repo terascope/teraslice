@@ -1,20 +1,12 @@
-import os from 'os';
+import os from 'node:os';
 import convict from 'convict';
 import {
-    AnyObject,
-    DataEncoding,
-    dataEncodings,
-    flatten,
-    getField,
-    getTypeOf,
-    hasOwn,
-    isNotNil,
-    isNumber,
-    isPlainObject,
-    isString,
-    logLevels,
+    AnyObject, DataEncoding, dataEncodings,
+    flatten, getField, getTypeOf,
+    hasOwn, isNotNil, isNumber,
+    isPlainObject, isString, logLevels,
 } from '@terascope/utils';
-import { Context } from './interfaces';
+import { Context } from './interfaces/index.js';
 
 const cpuCount = os.cpus().length;
 const workers = cpuCount < 5 ? cpuCount : 5;
@@ -224,7 +216,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
 
     const clusteringType = context.sysconfig.teraslice.cluster_manager_type;
 
-    if (clusteringType === 'kubernetes') {
+    if (clusteringType === 'kubernetes' || clusteringType === 'kubernetesV2') {
         schemas.targets = {
             default: [],
             doc: 'array of key/value labels used for targeting teraslice jobs to nodes',
@@ -245,7 +237,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         };
 
         schemas.cpu = {
-            doc: 'number of cpus to reserve per teraslice worker in kubernetes',
+            doc: 'DEPRECATED: number of cpus to reserve per teraslice worker in kubernetes',
             default: undefined,
             format: 'Number',
         };
@@ -309,7 +301,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         };
 
         schemas.memory = {
-            doc: 'memory, in bytes, to reserve per teraslice worker in Kubernetes',
+            doc: 'DEPRECATED: memory, in bytes, to reserve per teraslice worker in Kubernetes',
             default: undefined,
             format: 'Number',
         };
@@ -381,6 +373,24 @@ export function jobSchema(context: Context): convict.Schema<any> {
             doc: 'Specify a custom image name for kubernetes, this only applies to kubernetes systems',
             default: undefined,
             format: 'optional_String',
+        };
+
+        schemas.prom_metrics_enabled = {
+            default: undefined,
+            doc: 'Create a prometheus exporter. Overrides terafoundation value',
+            format: Boolean,
+        };
+
+        schemas.prom_metrics_port = {
+            doc: 'Port of prometheus exporter server for teraslice process. Overrides terafoundation value',
+            default: undefined,
+            format: Number
+        };
+
+        schemas.prom_metrics_add_default = {
+            doc: 'Display default node metrics in prom client. Overrides terafoundation value',
+            default: undefined,
+            format: Boolean
         };
     }
 

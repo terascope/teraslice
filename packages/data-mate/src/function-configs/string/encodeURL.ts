@@ -5,8 +5,8 @@ import {
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
-} from '../interfaces';
-import { encodeURL } from './encode-utils';
+} from '../interfaces.js';
+import { encodeURL } from './encode-utils.js';
 
 export const encodeURLConfig: FieldTransformConfig = {
     name: 'encodeURL',

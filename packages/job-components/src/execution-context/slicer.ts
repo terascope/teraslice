@@ -1,14 +1,11 @@
 import { cloneDeep } from '@terascope/utils';
 import {
-    SlicerOperationLifeCycle,
-    ExecutionStats,
-    Slice,
-    SliceResult,
-    SlicerRecoveryData,
-} from '../interfaces';
-import SlicerCore from '../operations/core/slicer-core';
-import { ExecutionContextConfig, JobAPIInstances } from './interfaces';
-import BaseExecutionContext from './base';
+    SlicerOperationLifeCycle, ExecutionStats, Slice,
+    SliceResult, SlicerRecoveryData,
+} from '../interfaces/index.js';
+import SlicerCore from '../operations/core/slicer-core.js';
+import { ExecutionContextConfig, JobAPIInstances } from './interfaces.js';
+import BaseExecutionContext from './base.js';
 
 /**
  * SlicerExecutionContext is designed to add more
@@ -19,7 +16,7 @@ export class SlicerExecutionContext
     extends BaseExecutionContext<SlicerOperationLifeCycle>
     implements SlicerOperationLifeCycle {
     // ...
-    private readonly _slicer: SlicerCore;
+    private readonly _slicer!: SlicerCore;
 
     constructor(config: ExecutionContextConfig) {
         super(config, 'slicer_context');
@@ -28,27 +25,34 @@ export class SlicerExecutionContext
         this._methodRegistry.set('onSliceDispatch', new Set());
         this._methodRegistry.set('onSliceEnqueued', new Set());
         this._methodRegistry.set('onExecutionStats', new Set());
+    }
+
+    static async createContext(config: ExecutionContextConfig): Promise<SlicerExecutionContext> {
+        const context = new SlicerExecutionContext(config);
 
         // then register the apis specified in config.apis
-        for (const apiConfig of this.config.apis || []) {
+        for (const apiConfig of context.config.apis || []) {
             const name = apiConfig._name;
-            const apiMod = this._loader.loadAPI(name, this.assetIds);
+            const apiMod = await context._loader.loadAPI(name, context.assetIds);
 
-            this.api.addToRegistry(name, apiMod.API);
+            context.api.addToRegistry(name, apiMod.API);
         }
 
-        const readerConfig = this.config.operations[0];
-        const mod = this._loader.loadReader(readerConfig._op, this.assetIds);
+        const readerConfig = context.config.operations[0];
+        const mod = await context._loader.loadReader(readerConfig._op, context.assetIds);
 
         if (mod.API) {
-            this.api.addToRegistry(readerConfig._op, mod.API);
+            context.api.addToRegistry(readerConfig._op, mod.API);
         }
 
-        const op = new mod.Slicer(this.context, cloneDeep(readerConfig), this.config);
-        this._slicer = op;
-        this.addOperation(op);
+        const op = new mod.Slicer(context.context, cloneDeep(readerConfig), context.config);
+        // @ts-expect-error
+        context._slicer = op;
+        context.addOperation(op);
 
-        this._resetMethodRegistry();
+        context._resetMethodRegistry();
+
+        return context;
     }
 
     /**

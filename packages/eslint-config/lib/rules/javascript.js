@@ -1,10 +1,8 @@
-'use strict';
+import { INDENT } from './constants.js';
 
-const { INDENT } = require('./constants');
-
-module.exports = {
+export default {
     // airbnb overrides
-    indent: ['error', INDENT],
+    // indent: ['error', INDENT],
     'max-len': ['error', {
         code: 100,
         tabWidth: INDENT,
@@ -63,4 +61,14 @@ module.exports = {
         'always',
         { exceptAfterSingleLine: true },
     ],
+    'no-unused-vars': [
+        'error',
+        // and variable with an underscore can be ignored
+        {
+            "varsIgnorePattern": "^_",
+            "argsIgnorePattern": "^_",
+            "caughtErrorsIgnorePattern":  "^_",
+            "ignoreRestSiblings": true
+        }
+    ]
 };

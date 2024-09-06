@@ -1,37 +1,23 @@
-import fs from 'fs';
-import * as pathModule from 'path';
+import fs from 'node:fs';
+import * as pathModule from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
-    isString,
-    uniq,
-    parseError,
-    castArray,
-    get,
-    has,
-    joinList,
+    isString, uniq, parseError,
+    castArray, get, has, joinList,
 } from '@terascope/utils';
+import { resolve } from 'import-meta-resolve';
 import {
-    OperationAPIConstructor,
-    FetcherConstructor,
-    SlicerConstructor,
-    ProcessorConstructor,
-    ObserverConstructor,
-    SchemaConstructor,
-    ProcessorModule,
-    APIModule,
-    ReaderModule,
-} from '../operations';
-import { readerShim, processorShim } from '../operations/shims';
+    OperationAPIConstructor, FetcherConstructor, SlicerConstructor,
+    ProcessorConstructor, ObserverConstructor, SchemaConstructor,
+    ProcessorModule, APIModule, ReaderModule,
+} from '../operations/index.js';
 import {
-    ASSET_KEYWORD,
-    LoaderOptions,
-    ValidLoaderOptions,
-    AssetBundleType,
-    OperationLocationType,
-    OpTypeToRepositoryKey,
-    OperationResults,
-    FindOperationResults,
-    OperationTypeName
-} from './interfaces';
+    ASSET_KEYWORD, LoaderOptions, ValidLoaderOptions,
+    AssetBundleType, OperationLocationType, OpTypeToRepositoryKey,
+    OperationResults, FindOperationResults, OperationTypeName
+} from './interfaces.js';
+
+const dirname = pathModule.dirname(fileURLToPath(import.meta.url));
 
 export class OperationLoader {
     private readonly options: ValidLoaderOptions;
@@ -51,15 +37,16 @@ export class OperationLoader {
         };
     }
 
-    private _getBundledRepository(dirPath: string): Record<string, any>|undefined {
-        const asset = this.require(dirPath);
+    private async _getBundledRepository(dirPath: string): Promise<Record<string, any>|undefined> {
+        const asset = await this.require(dirPath);
         return get(asset, ASSET_KEYWORD) ?? get(asset, `default.${ASSET_KEYWORD}`);
     }
 
-    private _getBundledOperation<T>(
+    private async _getBundledOperation<T>(
         dirPath: string, opName: string, type: OperationTypeName
-    ): T {
-        const repository = this._getBundledRepository(dirPath);
+    ): Promise<T> {
+        const repository = await this._getBundledRepository(dirPath);
+
         if (repository == null) {
             throw new Error(`Empty asset repository found at path: ${dirPath}`);
         }
@@ -75,51 +62,38 @@ export class OperationLoader {
             throw new Error(`Operation ${opName}, does not have ${repoType} registered`);
         }
 
-        return opType;
+        return opType.default ?? opType;
     }
 
-    private isBundledOperation(dirPath: string, name: string):boolean {
+    private async isBundledOperation(dirPath: string, name: string): Promise<boolean> {
         try {
-            const repository = this._getBundledRepository(dirPath);
+            const repository = await this._getBundledRepository(dirPath);
             return has(repository, name);
         } catch (_err) {
             return false;
         }
     }
 
-    private getBundleType({
+    private async getBundleType({
         codePath,
         name
-    }: { codePath: string|null, name: string}): AssetBundleType|null {
+    }: { codePath: string|null, name: string}): Promise<AssetBundleType|null> {
         if (!codePath) return null;
 
-        if (this.isBundledOperation(codePath, name)) {
+        if (await this.isBundledOperation(codePath, name)) {
             return AssetBundleType.BUNDLED;
-        }
-
-        if (this.isLegacyOperation(codePath)) {
-            return AssetBundleType.LEGACY;
         }
 
         return AssetBundleType.STANDARD;
     }
 
-    private isLegacyOperation(codePath: string): boolean {
-        try {
-            const results = this.require(codePath);
-            return ['newReader', 'newSlicer', 'newProcessor'].some((key) => has(results, key));
-        } catch (_err) {
-            return false;
-        }
-    }
-
-    find(name: string, assetIds?: string[]): FindOperationResults {
+    async find(name: string, assetIds?: string[]): Promise<FindOperationResults> {
         let filePath: string | null = null;
         let location: OperationLocationType | null = null;
 
         const findCodeFn = this.findCode(name);
 
-        const findCodeByConvention = (basePath?: string, subfolders?: string[]) => {
+        const findCodeByConvention = async (basePath?: string, subfolders?: string[]) => {
             if (!basePath) return;
             if (!fs.existsSync(basePath)) return;
             if (!subfolders || !subfolders.length) return;
@@ -127,7 +101,7 @@ export class OperationLoader {
             for (const folder of subfolders) {
                 const folderPath = pathModule.join(basePath, folder);
                 // we check for v3 version of asset
-                if (this.isBundledOperation(folderPath, name)) {
+                if (await this.isBundledOperation(folderPath, name)) {
                     filePath = folderPath;
                 }
 
@@ -139,18 +113,18 @@ export class OperationLoader {
 
         for (const assetPath of this.options.assetPath) {
             location = OperationLocationType.asset;
-            findCodeByConvention(assetPath, assetIds);
+            await findCodeByConvention(assetPath, assetIds);
             if (filePath) break;
         }
 
         if (!filePath) {
             location = OperationLocationType.builtin;
-            findCodeByConvention(this.getBuiltinDir(), ['.']);
+            await findCodeByConvention(this.getBuiltinDir(), ['.']);
         }
 
         if (!filePath) {
             location = OperationLocationType.teraslice;
-            findCodeByConvention(this.options.terasliceOpPath, ['readers', 'processors']);
+            await findCodeByConvention(this.options.terasliceOpPath, ['readers', 'processors']);
         }
 
         if (!filePath) {
@@ -158,36 +132,36 @@ export class OperationLoader {
             filePath = this.resolvePath(name);
         }
 
-        const bundle_type = this.getBundleType({ codePath: filePath, name });
+        const bundle_type = await this.getBundleType({ codePath: filePath, name });
 
         return { path: filePath, location, bundle_type };
     }
 
-    loadProcessor(name: string, assetIds?: string[]): ProcessorModule {
-        const { path, bundle_type } = this.findOrThrow(name, assetIds);
-
-        if (bundle_type === AssetBundleType.LEGACY) {
-            return this.shimLegacyProcessor(name, path);
-        }
+    async loadProcessor(name: string, assetIds?: string[]): Promise<ProcessorModule> {
+        const { path, bundle_type } = await this.findOrThrow(name, assetIds);
 
         let Processor: ProcessorConstructor | undefined;
         let Schema: SchemaConstructor | undefined;
         let API: OperationAPIConstructor | undefined;
 
         try {
-            Processor = this.require(path, OperationTypeName.processor, { name, bundle_type });
+            Processor = await this.require(
+                path,
+                OperationTypeName.processor,
+                { name, bundle_type }
+            );
         } catch (err) {
             throw new Error(`Failure loading processor from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Schema = this.require(path, OperationTypeName.schema, { name, bundle_type });
+            Schema = await this.require(path, OperationTypeName.schema, { name, bundle_type });
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            API = this.require(path, OperationTypeName.api, { name, bundle_type });
+            API = await this.require(path, OperationTypeName.api, { name, bundle_type });
         } catch (err) {
             // do nothing
         }
@@ -201,12 +175,8 @@ export class OperationLoader {
         };
     }
 
-    loadReader(name: string, assetIds?: string[]): ReaderModule {
-        const { path, bundle_type } = this.findOrThrow(name, assetIds);
-
-        if (bundle_type === AssetBundleType.LEGACY) {
-            return this.shimLegacyReader(name, path);
-        }
+    async loadReader(name: string, assetIds?: string[]): Promise<ReaderModule> {
+        const { path, bundle_type } = await this.findOrThrow(name, assetIds);
 
         let Fetcher: FetcherConstructor | undefined;
         let Slicer: SlicerConstructor | undefined;
@@ -214,25 +184,25 @@ export class OperationLoader {
         let API: OperationAPIConstructor | undefined;
 
         try {
-            Slicer = this.require(path, OperationTypeName.slicer, { name, bundle_type });
+            Slicer = await this.require(path, OperationTypeName.slicer, { name, bundle_type });
         } catch (err) {
             throw new Error(`Failure loading slicer from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Fetcher = this.require(path, OperationTypeName.fetcher, { name, bundle_type });
+            Fetcher = await this.require(path, OperationTypeName.fetcher, { name, bundle_type });
         } catch (err) {
             throw new Error(`Failure loading fetcher from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Schema = this.require(path, OperationTypeName.schema, { name, bundle_type });
+            Schema = await this.require(path, OperationTypeName.schema, { name, bundle_type });
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            API = this.require(path, OperationTypeName.api, { name, bundle_type });
+            API = await this.require(path, OperationTypeName.api, { name, bundle_type });
         } catch (err) {
             // do nothing
         }
@@ -248,14 +218,14 @@ export class OperationLoader {
         };
     }
 
-    loadAPI(name: string, assetIds?: string[]): APIModule {
+    async loadAPI(name: string, assetIds?: string[]): Promise<APIModule> {
         const [apiName] = name.split(':', 1);
-        const { path, bundle_type } = this.findOrThrow(apiName, assetIds);
+        const { path, bundle_type } = await this.findOrThrow(apiName, assetIds);
 
         let API: OperationAPIConstructor | undefined;
 
         try {
-            API = this.require(path, OperationTypeName.api, { name: apiName, bundle_type });
+            API = await this.require(path, OperationTypeName.api, { name: apiName, bundle_type });
         } catch (err) {
             // do nothing
         }
@@ -263,7 +233,7 @@ export class OperationLoader {
         let Observer: ObserverConstructor | undefined;
 
         try {
-            Observer = this.require(
+            Observer = await this.require(
                 path, OperationTypeName.observer, { name: apiName, bundle_type }
             );
         } catch (err) {
@@ -273,7 +243,11 @@ export class OperationLoader {
         let Schema: SchemaConstructor | undefined;
 
         try {
-            Schema = this.require(path, OperationTypeName.schema, { name: apiName, bundle_type });
+            Schema = await this.require(
+                path,
+                OperationTypeName.schema,
+                { name: apiName, bundle_type }
+            );
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${apiName}, error: ${parseError(err, true)}`);
         }
@@ -295,10 +269,9 @@ export class OperationLoader {
         };
     }
 
-    private findOrThrow(name: string, assetIds?: string[]): OperationResults {
+    private async findOrThrow(name: string, assetIds?: string[]): Promise<OperationResults> {
         this.verifyOpName(name);
-
-        const results = this.find(name, assetIds);
+        const results = await this.find(name, assetIds);
 
         if (!results.path) {
             throw new Error(`Unable to find module for operation: ${name}`);
@@ -315,27 +288,27 @@ export class OperationLoader {
         return results as OperationResults;
     }
 
-    private shimLegacyReader(name: string, codePath: string): ReaderModule {
-        try {
-            return readerShim(this.require(codePath));
-        } catch (err) {
-            throw new Error(`Failure loading reader: ${name}, error: ${parseError(err, true)}`);
+    private _adjustFilePath(filePath: string): string {
+        let results = filePath;
+
+        const chunks = results.split('/').pop() as string;
+        const isAsset = chunks.length === 40;
+        // currently /app/assets/${assetID} throw as an invalid url
+        // we don't fully know why
+        if (results.startsWith('//file:')) {
+            results = pathModule.join(fileURLToPath(new URL(filePath)), 'dist', 'index.js');
+        } else if (isAsset) {
+            results = pathModule.join(filePath, 'index.js');
         }
+
+        return results;
     }
 
-    private shimLegacyProcessor(name: string, codePath: string): ProcessorModule {
-        try {
-            return processorShim(this.require(codePath));
-        } catch (err) {
-            throw new Error(`Failure loading processor: ${name}, error: ${parseError(err, true)}`);
-        }
-    }
-
-    private require<T>(
+    private async require<T>(
         dir: string,
         type?: OperationTypeName,
         { bundle_type, name }: { bundle_type?: AssetBundleType, name?: string } = {}
-    ): T {
+    ): Promise<T> {
         const filePaths = type
             ? this.availableExtensions.map((ext) => pathModule.format({
                 dir,
@@ -358,8 +331,13 @@ export class OperationLoader {
         } else {
             for (const filePath of filePaths) {
                 try {
-                    const mod = require(filePath);
-                    return mod.default || mod;
+                    const modPath = this._adjustFilePath(filePath);
+                    const mod = await import(modPath);
+
+                    // importing bundled cjs assets like this seems to cause them
+                    // to be wrapped twice in the `default` key
+                    const core = mod.default ?? mod;
+                    return core.default ?? core;
                 } catch (_err) {
                     err = _err;
                 }
@@ -378,17 +356,18 @@ export class OperationLoader {
         if (fs.existsSync(filePath)) return filePath;
 
         try {
-            return require.resolve(filePath);
+            return resolve(filePath, import.meta.url);
         } catch (err) {
             for (const ext of this.availableExtensions) {
                 try {
                     return pathModule.dirname(
-                        require.resolve(
+                        resolve(
                             pathModule.format({
                                 dir: filePath,
                                 name: 'schema',
                                 ext,
-                            })
+                            }),
+                            import.meta.url
                         )
                     );
                 } catch (_err) {
@@ -448,9 +427,9 @@ export class OperationLoader {
 
     private getBuiltinDir() {
         if (this.availableExtensions.includes('.ts')) {
-            return pathModule.join(__dirname, '../builtin');
+            return pathModule.join(dirname, '../builtin');
         }
-        return pathModule.join(__dirname, '..', '..', '..', 'dist', 'src', 'builtin');
+        return pathModule.join(dirname, '..', '..', '..', 'dist', 'src', 'builtin');
     }
 
     private validateOptions(options: LoaderOptions): ValidLoaderOptions {

@@ -1,6 +1,6 @@
 import { escapeString } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
-import { TestCase } from './interfaces';
+import { TestCase } from './interfaces.js';
 
 export default [
     [

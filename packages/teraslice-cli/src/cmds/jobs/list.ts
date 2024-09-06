@@ -15,29 +15,39 @@ export default {
     builder(yargs: any) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
+        yargs.options('deleted', yargsOptions.buildOption('show-deleted'));
+        yargs.options('active', yargsOptions.buildOption('active-job'));
         yargs.strict()
-            .example('$0 jobs list CLUSTER_ALIAS');
+            .example('$0 jobs list CLUSTER_ALIAS')
+            .example('$0 jobs list CLUSTER_ALIAS --deleted=true', 'Show only deleted jobs in cluster')
+            .example('$0 jobs list CLUSTER_ALIAS --active=true', 'Show only active jobs in cluster');
         return yargs;
     },
     async handler(argv: any) {
-        let response: Teraslice.JobConfig[];
-        const active = false;
+        let response: Teraslice.JobConfigParams[];
+        const displayActive = false;
         const parse = true;
         const cliConfig = new Config(argv);
+        const {
+            active, clusterAlias, deleted, output
+        } = cliConfig.args;
         const teraslice = new TerasliceUtil(cliConfig);
         const header = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
-        const format = `${cliConfig.args.output}Horizontal`;
+        const format = `${output}Horizontal`;
+        if (deleted === true) {
+            header.push('_deleted_on');
+        }
 
         try {
-            response = await teraslice.client.jobs.list();
+            response = await teraslice.client.jobs.list({ active, deleted });
         } catch (err) {
-            reply.fatal(`Error getting jobs list on ${cliConfig.args.clusterAlias}\n${err}`);
+            reply.fatal(`Error getting jobs list on ${clusterAlias}\n${err}`);
         }
         // @ts-expect-error
         if (response.length === 0) {
-            reply.fatal(`> No jobs on ${cliConfig.args.clusterAlias}`);
+            reply.fatal(`> No jobs on ${clusterAlias} match with "deleted: ${deleted}" and "active: ${active}"`);
         }
         // @ts-expect-error
-        await display.display(header, response, format, active, parse);
+        await display.display(header, response, format, displayActive, parse);
     }
 } as CMD;

@@ -1,4 +1,6 @@
-export type ClusterManagerType = 'native'|'kubernetes';
+import { SysConfig as BaseSysconfig } from './terafoundation.js';
+
+export type ClusterManagerType = 'native'|'kubernetes'|'kubernetesV2';
 
 export interface AssetRecord {
     blob: SharedArrayBuffer | string | Buffer
@@ -25,14 +27,11 @@ export interface AssetUploadQuery {
 }
 
 export interface JobSearchParams extends APISearchParams {
-    status: SearchJobStatus;
+    deleted?: boolean;
+    active?: boolean;
 }
 
 export type SearchQuery = APISearchParams & Record<string, any>;
-
-export type JobListStatusQuery = SearchJobStatus | JobSearchParams;
-
-export type SearchJobStatus = '*' | ExecutionStatus;
 
 export interface APISearchParams {
     size?: number;
@@ -61,11 +60,13 @@ export interface AnalyticsRecord {
 
 // TODO: make type for valid states
 // TODO: fix types here
-export interface JobRecord extends ValidatedJobConfig {
+export interface JobConfig extends ValidatedJobConfig {
     job_id: string;
     _context: 'job';
     _created: string | Date;
     _updated: string | Date;
+    _deleted?: boolean;
+    _deleted_on?: string | Date;
 }
 
 export enum RecoveryCleanupType {
@@ -74,12 +75,14 @@ export enum RecoveryCleanupType {
     pending = 'pending'
 }
 
-export interface ExecutionRecord extends ValidatedJobConfig {
+export interface ExecutionConfig extends ValidatedJobConfig {
     job_id: string;
     ex_id: string;
     _context: 'ex';
     _created: string | Date;
     _updated: string | Date;
+    _deleted?: boolean;
+    _deleted_on?: string | Date;
     // TODO: fix this
     metadata: Record<string, any>;
     recovered_execution?: string;
@@ -88,7 +91,7 @@ export interface ExecutionRecord extends ValidatedJobConfig {
     _has_errors: boolean;
     _slicer_stats: Record<string, any>;
     _failureReason?: string
-    slicer_port?: number;
+    slicer_port: number;
     slicer_hostname: string;
 }
 
@@ -167,8 +170,15 @@ export interface Slice {
     _created: string;
 }
 
+/**
+ * The metadata created by the Slicer and ran through a job pipeline
+ *
+ * See [[Slice]]
+ */
 export interface SliceRequest {
+    /** A reserved key for sending work to a particular worker */
     request_worker?: string;
+    /** The slice request can contain any metdata */
     [prop: string]: any;
 }
 
@@ -191,7 +201,7 @@ export interface SliceCompletePayload {
 
 export type LifeCycle = 'once' | 'persistent';
 
-export interface JobConfig extends Partial<ValidatedJobConfig> {
+export interface JobConfigParams extends Partial<ValidatedJobConfig> {
     operations: OpConfig[];
 }
 
@@ -283,8 +293,15 @@ export interface ValidatedJobConfig {
     volumes?: Volume[];
     /** This will only be available in the context of k8s */
     kubernetes_image?: string;
+    /** This will only be available in the context of k8s */
+    prom_metrics_enabled?: boolean;
+    /** This will only be available in the context of k8s */
+    prom_metrics_port?: number;
+    /** This will only be available in the context of k8s */
+    prom_metrics_add_default?: boolean;
 }
 
+// TODO: rename ExecutionControllerTargets???
 export interface Targets {
     key: string;
     value: string;
@@ -292,7 +309,7 @@ export interface Targets {
 
 export interface ExternalPort {
     name: string;
-    containerPort: number
+    port: number
 }
 
 export interface Volume {
@@ -443,6 +460,9 @@ export interface Config {
     analytics_rate: number|60000;
     api_response_timeout?: number|300000;
     assets_directory?: string[] | string;
+    asset_storage_connection_type: string;
+    asset_storage_connection: string;
+    asset_storage_bucket: string;
     assets_volume?: string;
     cluster_manager_type: ClusterManagerType;
     /** This will only be available in the context of k8s */
@@ -477,15 +497,17 @@ export interface Config {
     slicer_allocation_attempts: number|3;
     slicer_port_range: string|'45679:46678';
     slicer_timeout: number|180000;
-    state: ConnectionConfig;
+    state: { connection: string };
     env_vars: { [key: string]: string };
     worker_disconnect_timeout: number|300000;
     workers: number|4;
 }
 
-export interface ConnectionConfig {
-    connection: string|'default';
+export interface TerasliceConfig {
+    teraslice: Config,
 }
+
+export interface SysConfig extends BaseSysconfig<TerasliceConfig> {}
 
 export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';
 

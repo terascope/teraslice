@@ -1,9 +1,8 @@
-'use strict';
+import jsRules from './javascript.js';
+// TODO: temporary till we have styles
+// import { INDENT } from './constants.js';
 
-const { INDENT } = require('./constants');
-const jsRules = require('./javascript');
-
-module.exports = Object.assign({}, jsRules, {
+export default Object.assign({}, jsRules, {
     // typescript preferences
     '@typescript-eslint/no-object-literal-type-assertion': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
@@ -29,14 +28,6 @@ module.exports = Object.assign({}, jsRules, {
 
     // The following rules make compatibility between eslint rules and typescript rules
     'consistent-return': 'off',
-    'brace-style': 'off',
-    '@typescript-eslint/brace-style': [
-        'error',
-        '1tbs',
-        {
-            allowSingleLine: true
-        }
-    ],
     'no-extra-parens': 'off',
     '@typescript-eslint/no-extra-parens': [
         'off',
@@ -54,10 +45,6 @@ module.exports = Object.assign({}, jsRules, {
     'no-undef': 'off',
     'no-shadow': 'off',
     '@typescript-eslint/no-shadow': ['error'],
-    'func-call-spacing': 'off',
-    '@typescript-eslint/func-call-spacing': ['error', 'never'],
-    indent: 'off',
-    '@typescript-eslint/indent': ['error', INDENT],
     'no-underscore-dangle': 'off',
     'no-useless-constructor': 'off',
     '@typescript-eslint/prefer-for-of': ['error'],
@@ -71,7 +58,7 @@ module.exports = Object.assign({}, jsRules, {
             trailingUnderscore: 'allow',
             filter: {
                 // you can expand this regex to add more allowed names
-                regex: '^__',
+                regex: '^__|',
                 match: false
             }
         },
@@ -98,10 +85,30 @@ module.exports = Object.assign({}, jsRules, {
     '@typescript-eslint/no-unused-vars': [
         'error',
         {
-            vars: 'all',
-            args: 'after-used',
-            ignoreRestSiblings: true,
-            argsIgnorePattern: '^_',
-        },
+            "varsIgnorePattern": "^_",
+            "argsIgnorePattern": "^_",
+            "caughtErrorsIgnorePattern":  "^_",
+            "ignoreRestSiblings": true,
+            // TODO: check this again with stylistic checks
+            "caughtErrors" : "none"
+        }
     ],
+    '@typescript-eslint/no-empty-object-type': 'warn',
+    // TODO: look into this
+    '@typescript-eslint/no-unused-expressions': 'warn'
+    /*
+        Stylistic rules that will be done in a separate PR
+    */
+       // 'func-call-spacing': 'off',
+    // '@typescript-eslint/func-call-spacing': ['error', 'never'],
+    // indent: 'off',
+    // '@typescript-eslint/indent': ['error', INDENT],
+        // 'brace-style': 'off',
+    // '@typescript-eslint/brace-style': [
+    //     'error',
+    //     '1tbs',
+    //     {
+    //         allowSingleLine: true
+    //     }
+    // ],
 });

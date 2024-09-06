@@ -1,10 +1,10 @@
 import debugFn from 'debug';
-import { EventEmitter } from 'events';
-import { isPlainObject } from './deps';
-import { toString, isString, trimAndToLower } from './strings';
-import { Logger } from './logger-interface';
-import { uniq } from './arrays';
-import { isTest } from './env';
+import { EventEmitter } from 'node:events';
+import type { Logger } from '@terascope/types';
+import { isPlainObject } from './deps.js';
+import { toString, isString, trimAndToLower } from './strings.js';
+import { uniq } from './arrays.js';
+import { isTest } from './env.js';
 
 interface DebugParamObj {
     module: string;
@@ -79,7 +79,7 @@ export function debugLogger(testName: string, param?: DebugParam, otherName?: st
             }
             return undefined;
         }
-        // eslint-disable-next-line
+         
         return logLevels[logLevel] || 20;
     };
     // @ts-expect-error

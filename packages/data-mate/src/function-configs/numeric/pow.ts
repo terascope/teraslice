@@ -4,8 +4,8 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
-import { runMathFn } from './utils';
+} from '../interfaces.js';
+import { runMathFn } from './utils.js';
 
 export interface PowerArgs {
     readonly value: number;
@@ -41,7 +41,7 @@ export const powConfig: FieldTransformConfig<PowerArgs> = {
         }
     ],
     create({ args: { value } }) {
-        // eslint-disable-next-line no-restricted-properties
+         
         return runMathFn(Math.pow, value);
     },
     accepts: [

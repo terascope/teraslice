@@ -1,13 +1,14 @@
-'use strict';
+import fs from 'node:fs';
+import { times, isExecutedFile } from '@terascope/utils';
+import turf from '@turf/random';
+import { multiPolygon } from '@turf/helpers';
+import { xLuceneFieldType } from '@terascope/types';
+import { toXluceneQuery } from '@terascope/data-mate';
+import { Suite } from './helpers';
+import { Parser } from '../dist/src/index.js';
 
-const { times } = require('@terascope/utils');
-const turf = require('@turf/random');
-const { multiPolygon } = require('@turf/helpers');
-const { xLuceneFieldType } = require('@terascope/types');
-const { toXluceneQuery } = require('@terascope/data-mate');
-const { Suite } = require('./helpers');
-const { Parser } = require('../dist/src');
-const greenlandGeoData = require('./fixtures/greenland.json');
+const dataFile = fs.readFileSync('./fixtures/greenland.json');
+const greenlandGeoData = JSON.parse(dataFile);
 
 const featureCollection = turf.randomPolygon(1, { num_vertices: 800 });
 const [polygon] = featureCollection.features;
@@ -85,10 +86,10 @@ const run = async () => Suite('Parser')
         maxTime: 10,
     });
 
-if (require.main === module) {
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

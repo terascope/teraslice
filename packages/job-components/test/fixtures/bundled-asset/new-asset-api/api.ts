@@ -1,4 +1,5 @@
-import { OperationAPI, AnyObject } from '../../../../src';
+import { AnyObject } from '@terascope/utils';
+import { OperationAPI } from '../../../../src/index.js';
 
 export class AssetExampleAPI extends OperationAPI {
     _initialized = false;

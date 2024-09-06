@@ -1,7 +1,9 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import { DataEntity } from '@terascope/utils';
 import {
-    Fetcher, DataEntity, newTestExecutionConfig, TestContext, WorkerContext
-} from '../../src';
+    Fetcher, newTestExecutionConfig, TestContext,
+    Context
+} from '../../src/index.js';
 
 describe('Fetcher', () => {
     class ExampleFetcher extends Fetcher<Record<string, any>> {
@@ -21,7 +23,7 @@ describe('Fetcher', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleFetcher(context as WorkerContext, opConfig, exConfig);
+        operation = new ExampleFetcher(context as Context, opConfig, exConfig);
     });
 
     describe('->fetch', () => {

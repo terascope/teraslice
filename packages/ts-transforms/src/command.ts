@@ -1,20 +1,27 @@
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import readline from 'node:readline';
+import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs';
-import path from 'path';
-import fs from 'fs';
-import readline from 'readline';
 import {
-    DataEntity, debugLogger, parseList, AnyObject, get
+    DataEntity, debugLogger, parseList,
+    AnyObject, get, pMap
 } from '@terascope/utils';
-import { PhaseManager } from './index';
-import { PhaseConfig } from './interfaces';
+import { PhaseManager } from './index.js';
+import { PhaseConfig } from './interfaces.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const logger = debugLogger('ts-transform-cli');
 // change pathing due to /dist/src issues
-const packagePath = path.join(__dirname, '../../package.json');
+const packagePath = path.join(dirname, '../../package.json');
 const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
+const yargsInstance = yargs(hideBin(process.argv));
+
 // TODO Use yargs api to validate field types and usage
-const command = yargs
+const command = yargsInstance
     .alias('t', 'types-fields')
     .alias('T', 'types-file')
     .alias('r', 'rules')
@@ -61,7 +68,7 @@ try {
         });
     }
     if (command.T) {
-        typesConfig = require(command.T as string);
+        typesConfig = await import(command.T as string);
     }
 } catch (err) {
     console.error('could not load and parse types', err);
@@ -225,10 +232,10 @@ async function initCommand() {
         let plugins = [];
         if (command.p) {
             const pluginList = parseList(command.p as string);
-            plugins = pluginList.map((pluginPath) => {
-                const mod = require(path.resolve(pluginPath));
+            plugins = await pMap(pluginList, async (pluginPath) => {
+                const mod = await import(path.resolve(pluginPath));
                 return mod.default || mod;
-            });
+            })
         }
         let manager: PhaseManager;
 

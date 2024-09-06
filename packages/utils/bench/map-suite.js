@@ -1,7 +1,5 @@
-'use strict';
-
-const { Suite } = require('./helpers');
-const { BigMap } = require('../dist/src');
+import { Suite } from './helpers.js';
+import { BigMap, isExecutedFile } from '../dist/src/index.js';
 
 const iterationsPer = 1000;
 
@@ -49,10 +47,10 @@ const run = async () => Suite('Map vs BigMap')
         maxTime: 5
     });
 
-if (require.main === module) {
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

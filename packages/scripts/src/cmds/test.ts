@@ -1,12 +1,12 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import { CommandModule } from 'yargs';
 import { toBoolean, castArray } from '@terascope/utils';
-import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
-import { getAvailableTestSuites } from '../helpers/misc';
-import * as config from '../helpers/config';
-import { listPackages } from '../helpers/packages';
-import { runTests } from '../helpers/test-runner';
-import { coercePkgArg } from '../helpers/args';
+import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces.js';
+import { getAvailableTestSuites } from '../helpers/misc.js';
+import * as config from '../helpers/config.js';
+import { listPackages } from '../helpers/packages.js';
+import { runTests } from '../helpers/test-runner/index.js';
+import { coercePkgArg } from '../helpers/args.js';
 
 type Options = {
     debug: boolean;
@@ -17,18 +17,11 @@ type Options = {
     'keep-open': boolean;
     'trace': boolean;
     'report-coverage': boolean;
-    'elasticsearch-version': string;
-    'elasticsearch-api-version': string;
-    'kafka-version': string;
-    'minio-version': string;
-    'rabbitmq-version': string;
-    'opensearch-version': string;
-    'node-version': string;
+    'encrypt-minio': boolean;
     'use-existing-services': boolean;
     packages?: PackageInfo[];
     'ignore-mount': boolean;
     'test-platform': string;
-    'k8s-version': string | undefined;
 };
 
 const jestArgs = getExtraArgs();
@@ -92,40 +85,10 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: config.USE_EXISTING_SERVICES,
             })
-            .option('elasticsearch-version', {
-                description: 'The elasticsearch version to use',
-                type: 'string',
-                default: config.ELASTICSEARCH_VERSION,
-            })
-            .option('elasticsearch-api-version', {
-                description: 'The elasticsearch client API version to use',
-                type: 'string',
-                default: config.ELASTICSEARCH_API_VERSION,
-            })
-            .option('kafka-version', {
-                description: 'The kafka version to use',
-                type: 'string',
-                default: config.KAFKA_VERSION,
-            })
-            .option('minio-version', {
-                description: 'The minio version to use',
-                type: 'string',
-                default: config.MINIO_VERSION,
-            })
-            .option('rabbitmq-version', {
-                description: 'The rabbitmq version to use',
-                type: 'string',
-                default: config.RABBITMQ_VERSION,
-            })
-            .option('opensearch-version', {
-                description: 'The opensearch version to use',
-                type: 'string',
-                default: config.OPENSEARCH_VERSION,
-            })
-            .option('node-version', {
-                description: 'Node version, there must be a Docker base image with this version (e.g. 18.18.2)',
-                type: 'string',
-                default: config.NODE_VERSION
+            .option('encrypt-minio', {
+                description: 'Add TLS encryption to minio service',
+                type: 'boolean',
+                default: config.ENCRYPT_MINIO,
             })
             .option('ignore-mount', {
                 description: 'If we should ignore configured mount',
@@ -136,11 +99,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 description: 'Clustering platform for e2e tests',
                 type: 'string',
                 default: config.TEST_PLATFORM,
-            })
-            .option('k8s-version', {
-                description: 'Version of kubernetes to use in the kind cluster.',
-                type: 'string',
-                default: config.K8S_VERSION
+                choices: ['native', 'kubernetes', 'kubernetesV2']
             })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
@@ -162,18 +121,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const keepOpen = hoistJestArg(argv, 'keep-open', 'boolean');
         const reportCoverage = hoistJestArg(argv, 'report-coverage', 'boolean');
         const useExistingServices = hoistJestArg(argv, 'use-existing-services', 'boolean');
-        const elasticsearchVersion = hoistJestArg(argv, 'elasticsearch-version', 'string');
-        const elasticsearchAPIVersion = hoistJestArg(argv, 'elasticsearch-api-version', 'string');
-        const kafkaVersion = hoistJestArg(argv, 'kafka-version', 'string');
-        const minioVersion = hoistJestArg(argv, 'minio-version', 'string');
-        const rabbitmqVersion = hoistJestArg(argv, 'rabbitmq-version', 'string');
-        const opensearchVersion = hoistJestArg(argv, 'opensearch-version', 'string');
-        const nodeVersion = hoistJestArg(argv, 'node-version', 'string');
+        const encryptMinio = hoistJestArg(argv, 'encrypt-minio', 'boolean');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
-        const testPlatform = hoistJestArg(argv, 'test-platform', 'string');
-        const kindClusterName = testPlatform === 'kubernetes' ? 'k8s-e2e' : 'default';
-        const k8sVersion = hoistJestArg(argv, 'k8s-version', 'string');
+        const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native'|'kubernetes'|'kubernetesV2';
+        const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -188,22 +140,13 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             keepOpen,
             forceSuite,
             useExistingServices,
-            elasticsearchVersion,
-            elasticsearchAPIVersion,
-            kafkaVersion,
-            kafkaImageVersion: config.KAFKA_IMAGE_VERSION,
-            zookeeperVersion: config.ZOOKEEPER_VERSION,
-            minioVersion,
-            rabbitmqVersion,
-            opensearchVersion,
-            nodeVersion,
+            encryptMinio,
             all: !argv.packages || !argv.packages.length,
             reportCoverage,
             jestArgs,
             ignoreMount,
             testPlatform,
             kindClusterName,
-            k8sVersion,
         });
     },
 };
@@ -269,4 +212,4 @@ function getPkgInfos(packages?: PackageInfo[]): PackageInfo[] {
     return listPackages();
 }
 
-export = cmd;
+export default cmd;

@@ -4,8 +4,9 @@ import { pipeline as streamPipeline } from 'node:stream/promises';
 import { RecoveryCleanupType, TerasliceConfig } from '@terascope/job-components';
 import {
     parseErrorInfo, parseList, logError,
-    TSError, startsWith, Logger
+    TSError, startsWith, Logger, pWhile
 } from '@terascope/utils';
+import { ExecutionStatusEnum } from '@terascope/types';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
@@ -13,6 +14,7 @@ import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/
 import {
     makePrometheus, isPrometheusTerasliceRequest, makeTable,
     sendError, handleTerasliceRequest, getSearchOptions,
+    createJobActiveQuery, addDeletedToQuery
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
@@ -34,6 +36,14 @@ function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
         const types = Object.values(RecoveryCleanupType);
         throw new TSError(`cleanup_type must be empty or set to ${types.join(', ')}`, {
+            statusCode: 400
+        });
+    }
+}
+
+function validateGetDeletedOption(deletedOption: string) {
+    if (!['true', 'false', ''].includes(deletedOption)) {
+        throw new TSError('deleted query option must true or false', {
             statusCode: 400
         });
     }
@@ -274,19 +284,18 @@ export class ApiService {
         });
 
         v1routes.get('/jobs', (req, res) => {
-            let query: string;
+            const { active = '', deleted = 'false' } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
-            if (req.query.active === 'true') {
-                query = 'job_id:* AND !active:false';
-            } else if (req.query.active === 'false') {
-                query = 'job_id:* AND active:false';
-            } else {
-                query = 'job_id:*';
-            }
-
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of jobs');
-            requestHandler(() => this.jobsStorage.search(query, from, size, sort as string));
+            requestHandler(() => {
+                validateGetDeletedOption(deleted as string);
+
+                const partialQuery = createJobActiveQuery(active as string);
+                const query = addDeletedToQuery(deleted as string, partialQuery);
+
+                return this.jobsStorage.search(query, from, size, sort as string);
+            });
         });
 
         v1routes.get('/jobs/:jobId', (req, res) => {
@@ -378,6 +387,13 @@ export class ApiService {
             });
         });
 
+        v1routes.delete('/jobs/:jobId', (req, res) => {
+            const { jobId } = req.params;
+            // @ts-expect-error
+            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not delete job');
+            requestHandler(async () => jobsService.softDeleteJob(jobId));
+        });
+
         v1routes.post('/jobs/:jobId/_recover', (req, res) => {
             const cleanupType = req.query.cleanup_type || req.query.cleanup;
             const { jobId } = req.params;
@@ -442,19 +458,22 @@ export class ApiService {
         });
 
         v1routes.get('/ex', (req, res) => {
-            const { status = '' } = req.query;
+            const { status = '', deleted = 'false' } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of execution contexts');
             requestHandler(async () => {
+                validateGetDeletedOption(deleted as string);
                 const statuses = parseList(status);
 
-                let query = 'ex_id:*';
+                let partialQuery = 'ex_id:*';
 
                 if (statuses.length) {
                     const statusTerms = statuses.map((s) => `_status:"${s}"`).join(' OR ');
-                    query += ` AND (${statusTerms})`;
+                    partialQuery += ` AND (${statusTerms})`;
                 }
+
+                const query = addDeletedToQuery(deleted as string, partialQuery);
 
                 return this.executionStorage.search(query, from, size, sort as string);
             });
@@ -483,7 +502,6 @@ export class ApiService {
                 return stats;
             });
         });
-
         v1routes.get(['/cluster/slicers', '/cluster/controllers'], (req, res) => {
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get execution statistics');
             requestHandler(() => this._controllerStats());
@@ -504,7 +522,7 @@ export class ApiService {
                 defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
             }
 
-            if (this.clusterType === 'kubernetes') {
+            if (this.clusterType === 'kubernetes' || this.clusterType === 'kubernetesV2') {
                 defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pod_name', 'image'];
             }
 
@@ -536,21 +554,22 @@ export class ApiService {
         });
 
         this.app.get('/txt/jobs', (req, res) => {
-            let query: string;
+            const { active = '', deleted = 'false' } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
             const defaults = ['job_id', 'name', 'active', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
 
-            if (req.query.active === 'true') {
-                query = 'job_id:* AND !active:false';
-            } else if (req.query.active === 'false') {
-                query = 'job_id:* AND active:false';
-            } else {
-                query = 'job_id:*';
-            }
-
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all jobs');
             requestHandler(async () => {
+                validateGetDeletedOption(deleted as string);
+
+                if (deleted !== 'false') {
+                    defaults.push('_deleted_on');
+                }
+
+                const partialQuery = createJobActiveQuery(active as string);
+                const query = addDeletedToQuery(deleted as string, partialQuery);
+
                 const jobs = await this.jobsStorage.search(
                     query, from, size, sort as string
                 ) as Record<string, any>[];
@@ -560,14 +579,23 @@ export class ApiService {
         });
 
         this.app.get('/txt/ex', (req, res) => {
+            const { deleted = 'false' } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
             const defaults = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
-            const query = 'ex_id:*';
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all executions');
 
             requestHandler(async () => {
+                validateGetDeletedOption(deleted as string);
+
+                if (deleted !== 'false') {
+                    defaults.push('_deleted_on');
+                }
+
+                const partialQuery = 'ex_id:*';
+                const query = addDeletedToQuery(deleted as string, partialQuery);
+
                 const exs = await this.executionStorage.search(
                     query, from, size, sort as string
                 ) as Record<string, any>[];
@@ -603,6 +631,7 @@ export class ApiService {
             });
 
         this.available = true;
+        this._updatePromMetrics();
     }
 
     private async _waitForStop(exId: string, blocking?: boolean): Promise<Record<string, any>> {
@@ -627,5 +656,206 @@ export class ApiService {
 
             checkExecution();
         });
+    }
+
+    /**
+     * Starts an interval if prom metrics is enabled to periodically grab
+     * cluster state/info and set metrics.
+     * @async
+     * @private
+     * @function _updatePromMetrics
+     * @return {Promise<void>}
+     */
+    private async _updatePromMetrics() {
+        function extractVersionFromImageTag(imageTag: string): string {
+            // Define the version number regex pattern
+            const versionRegex = /(\d+\.\d+\.\d+)/;
+            const match = imageTag.match(versionRegex);
+            return match ? match[0] : 'Version number not available';
+        }
+
+        const { terafoundation, teraslice } = this.context.sysconfig;
+        if (terafoundation.prom_metrics_enabled && teraslice.cluster_manager_type !== 'native') {
+            try {
+                const apiTimeout = 15000;
+                const apiTimeoutError = `Unable to verify that prom metrics API is running after ${apiTimeout / 1000} seconds`;
+                await pWhile(
+                    async () => this.context.apis.foundation.promMetrics.verifyAPI(),
+                    { timeoutMs: apiTimeout, error: apiTimeoutError }
+                );
+            } catch (err) {
+                this.logger.error(err);
+            }
+            /// Interval is hardcoded to refresh metrics every 10 seconds
+            if (this.context.apis.foundation.promMetrics.verifyAPI()) {
+                setInterval(async () => {
+                    try {
+                        this.logger.trace('Updating cluster_master prom metrics..');
+                        const controllers = await this.executionService.getControllerStats();
+
+                        for (const controller of controllers) {
+                            const controllerLabels = {
+                                ex_id: controller.ex_id,
+                                job_id: controller.job_id,
+                                job_name: controller.name
+                            };
+
+                            this.context.apis.foundation.promMetrics.set(
+                                'controller_workers_active',
+                                controllerLabels,
+                                controller.workers_active
+                            );
+                            this.context.apis.foundation.promMetrics.set(
+                                'controller_workers_available',
+                                controllerLabels,
+                                controller.workers_available
+                            );
+                            this.context.apis.foundation.promMetrics.set(
+                                'controller_workers_joined',
+                                controllerLabels,
+                                controller.workers_joined
+                            );
+                            this.context.apis.foundation.promMetrics.set(
+                                'controller_workers_reconnected',
+                                controllerLabels,
+                                controller.workers_reconnected
+                            );
+                            this.context.apis.foundation.promMetrics.set(
+                                'controller_workers_disconnected',
+                                controllerLabels,
+                                controller.workers_disconnected
+                            );
+                            this.context.apis.foundation.promMetrics.set(
+                                'controller_slices_processed',
+                                controllerLabels,
+                                controller.processed
+                            );
+                            this.context.apis.foundation.promMetrics.set(
+                                'controller_slices_failed',
+                                controllerLabels,
+                                controller.failed
+                            );
+                            this.context.apis.foundation.promMetrics.set(
+                                'controller_slices_queued',
+                                controllerLabels,
+                                controller.queued
+                            );
+                            this.context.apis.foundation.promMetrics.set(
+                                'controller_slicers_count',
+                                controllerLabels,
+                                controller.slicers
+                            );
+                        }
+                        const exList = await this.executionStorage.search('ex_id:*');
+                        for (const ex of exList) {
+                            const controllerLabels = {
+                                ex_id: ex.ex_id,
+                                job_id: ex.job_id,
+                                job_name: ex.name
+                            };
+                            if (ex.resources_requests_cpu) {
+                                this.context.apis.foundation.promMetrics.set(
+                                    'execution_cpu_request',
+                                    controllerLabels,
+                                    ex.resources_requests_cpu
+                                );
+                            }
+                            if (ex.resources_limits_cpu) {
+                                this.context.apis.foundation.promMetrics.set(
+                                    'execution_cpu_limit',
+                                    controllerLabels,
+                                    ex.resources_limits_cpu
+                                );
+                            }
+                            if (ex.resources_requests_memory) {
+                                this.context.apis.foundation.promMetrics.set(
+                                    'execution_memory_request',
+                                    controllerLabels,
+                                    ex.resources_requests_memory
+                                );
+                            }
+                            if (ex.resources_limits_memory) {
+                                this.context.apis.foundation.promMetrics.set(
+                                    'execution_memory_limit',
+                                    controllerLabels,
+                                    ex.resources_limits_memory
+                                );
+                            }
+                            this.context.apis.foundation.promMetrics.set(
+                                'execution_created_timestamp_seconds',
+                                controllerLabels,
+                                new Date(ex._created).getTime() / 1000
+                            );
+                            this.context.apis.foundation.promMetrics.set(
+                                'execution_updated_timestamp_seconds',
+                                controllerLabels,
+                                new Date(ex._updated).getTime() / 1000
+                            );
+                            this.context.apis.foundation.promMetrics.set(
+                                'execution_slicers',
+                                controllerLabels,
+                                ex.slicers
+                            );
+                            this.context.apis.foundation.promMetrics.set(
+                                'execution_workers',
+                                controllerLabels,
+                                ex.workers
+                            );
+                            for (const status in ExecutionStatusEnum) {
+                                if (ExecutionStatusEnum[status]) {
+                                    const statusLabels = {
+                                        ...controllerLabels,
+                                        status: ExecutionStatusEnum[status]
+                                    };
+                                    let state: number;
+                                    if (ExecutionStatusEnum[status] === ex._status) {
+                                        state = 1;
+                                    } else {
+                                        state = 0;
+                                    }
+                                    this.context.apis.foundation.promMetrics.set(
+                                        'execution_status',
+                                        statusLabels,
+                                        state
+                                    );
+                                }
+                            }
+                        }
+
+                        const clusterState = this.clusterService.getClusterState();
+
+                        /// Filter out information about kubernetes ex pods
+                        const filteredExecutions = {};
+                        for (const cluster in clusterState) {
+                            if (clusterState[cluster].active) {
+                                for (const worker of clusterState[cluster].active) {
+                                    if (!filteredExecutions[worker.ex_id]) {
+                                        filteredExecutions[worker.ex_id] = worker.ex_id;
+                                        const exLabel = {
+                                            ex_id: worker.ex_id,
+                                            job_id: worker.job_id,
+                                            image: worker.image,
+                                            version: extractVersionFromImageTag(worker.image)
+
+                                        };
+                                        this.context.apis.foundation.promMetrics.set(
+                                            'execution_info',
+                                            exLabel,
+                                            1
+                                        );
+                                    }
+                                }
+                            }
+                        }
+
+                        this.logger.trace('Updated cluster_master prom metrics..');
+                    } catch (err) {
+                        this.logger.error(err, 'Unable to update cluster_master prom metrics.');
+                    }
+                }, 10000);
+            } else {
+                console.warn('Unable to trigger cluster_master prom Metrics interval due to inactive Prom Metrics API');
+            }
+        }
     }
 }

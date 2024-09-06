@@ -3,6 +3,9 @@ import {
     has, toString, pDelay, pMap,
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
+import chalk from 'chalk';
+import * as diff from 'diff';
+import path from 'node:path';
 import { Job } from 'teraslice-client-js';
 import TerasliceUtil from './teraslice-util.js';
 import Display from './display.js';
@@ -75,7 +78,7 @@ export default class Jobs {
         return this.jobs;
     }
 
-    async submitJobConfig(jobConfig: Teraslice.JobConfig) {
+    async submitJobConfig(jobConfig: Teraslice.JobConfigParams) {
         try {
             return this.teraslice.client.jobs.submit(jobConfig, true);
         } catch (e) {
@@ -89,7 +92,7 @@ export default class Jobs {
         for (const jobFile of cliConfig.args.jobFile) {
             const jobConfig = getJobConfigFromFile(cliConfig.args.srcDir, jobFile) as JobConfigFile;
             if (
-                clusterStats.clustering_type === 'kubernetes'
+                (clusterStats.clustering_type === 'kubernetes' || clusterStats.clustering_type === 'kubernetesV2')
                 && jobConfig.kubernetes_image !== undefined
                 && !jobConfig.kubernetes_image?.includes(clusterStats.teraslice_version)
                 && !jobConfig.kubernetes_image?.includes('dev-')
@@ -240,7 +243,7 @@ export default class Jobs {
 
     private async getJobState(
         job: JobMetadata
-    ): Promise<[Teraslice.ExecutionRecord, Teraslice.ExecutionList]> {
+    ): Promise<[Teraslice.ExecutionConfig, Teraslice.ExecutionList]> {
         try {
             return Promise.all([job.api.execution(), job.api.controller()]);
         } catch (e) {
@@ -490,6 +493,42 @@ export default class Jobs {
         }
     }
 
+    async delete(): Promise<void> {
+        if (!this.config.args.jobId.includes('all') && this.config.args.yes !== true) {
+            const jobsString = this.jobs.length === 1
+                ? `job ${this.jobs[0].id}`
+                : `jobs ${this.jobs.map((job) => job.id).join(', ')}`;
+            const prompt = await display.showPrompt(
+                this.config.args._action,
+                `${jobsString} on ${this.config.clusterUrl}`
+            );
+            if (!prompt) return;
+        }
+
+        await pMap(
+            this.jobs,
+            (job) => this.deleteOne(job),
+            { concurrency: this.concurrency }
+        );
+    }
+
+    async deleteOne(job: JobMetadata) {
+        if (!this.inTerminalStatus(job)) {
+            const { jobInfoString } = this.getJobIdentifiers(job);
+
+            reply.error(`Job is in non-terminal status ${job.status}, cannot delete. Skipping\n${jobInfoString}`);
+            return;
+        }
+
+        try {
+            await job.api.deleteJob();
+        } catch (e) {
+            this.commandFailed(e.message, job);
+        }
+
+        this.logUpdate({ action: 'deleted', job });
+    }
+
     private inTerminalStatus(job: JobMetadata): boolean {
         return this.terminalStatuses.includes(job.status);
     }
@@ -548,14 +587,21 @@ export default class Jobs {
 
     private async getAllJobs() {
         if (await this.prompt()) {
+            const { _action: action, clusterAlias } = this.config.args;
             // if action is start and not from a restart
             // then need to get job ids from saved state
-            if (this.config.args._action === 'start') {
+            if (action === 'start') {
                 if (fs.pathExistsSync(this.config.jobStateFile) === false) {
-                    reply.fatal(`Could not find job state file for ${this.config.args.clusterAlias}, this is required to start all jobs`);
+                    reply.fatal(`Could not find job state file for ${clusterAlias}, this is required to ${action} all jobs`);
                 }
 
                 return this.getJobIdsFromSavedState();
+            }
+
+            // if action is delete we need to get inactive
+            // as well as active jobs
+            if (action === 'delete') {
+                return this.getActiveAndInactiveJobIds();
             }
 
             return this.getActiveJobIds();
@@ -569,6 +615,15 @@ export default class Jobs {
         const state = await fs.readJson(this.config.jobStateFile);
 
         return Object.keys(state);
+    }
+
+    private async getActiveAndInactiveJobIds() {
+        try {
+            const jobs = await this.teraslice.client.jobs.list();
+            return jobs.map((job) => job.job_id);
+        } catch (e) {
+            throw Error(e);
+        }
     }
 
     private async getActiveJobIds(): Promise<string[]> {
@@ -669,6 +724,88 @@ export default class Jobs {
         }
     }
 
+    formatJobConfig(jobConfig: JobConfigFile) {
+        const finalJobConfig: Partial<Teraslice.JobConfig> = {};
+        Object.keys(jobConfig).forEach((key) => {
+            if (key === '__metadata') {
+                finalJobConfig.job_id = jobConfig[key].cli.job_id;
+                finalJobConfig._updated = jobConfig[key].cli.updated;
+            } else {
+                finalJobConfig[key] = jobConfig[key];
+            }
+        });
+        return finalJobConfig;
+    }
+
+    getLocalJSONConfigs(srcDir: string, files: string[]) {
+        const localJobConfigs = {};
+        for (const file of files) {
+            const filePath = path.join(srcDir, file);
+            const jobConfig: JobConfigFile = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+            const formattedJobConfig = this.formatJobConfig(jobConfig);
+            localJobConfigs[formattedJobConfig.job_id as string] = formattedJobConfig;
+        }
+        return localJobConfigs;
+    }
+
+    printDiff(diffResult: Diff.Change[], showUpdateField: boolean) {
+        diffResult.forEach((part) => {
+            let color: chalk.Chalk;
+            let symbol: string;
+            let pointer: string;
+            if (part.added) {
+                color = chalk.green;
+                symbol = '+';
+                pointer = '   <--- local job file value';
+            } else if (part.removed) {
+                color = chalk.red;
+                symbol = '-';
+                pointer = '   <--- state cluster value';
+            } else {
+                color = chalk.grey;
+                symbol = ' ';
+                pointer = '';
+            }
+            const lines = part.value.split('\n');
+            lines.forEach((line) => {
+                /// Don't print blank lines
+                if (line.length !== 0) {
+                    /// These fields aren't in the job file so don't compare in diff
+                    if (!line.includes('"_created":') && !line.includes('"_context":')) {
+                        /// Check to see if we want to display _updated field
+                        if (line.includes('"_updated":')) {
+                            if (showUpdateField) {
+                                process.stdout.write(color(`${symbol} ${line}${pointer}\n`));
+                            }
+                        } else {
+                            process.stdout.write(color(`${symbol} ${line}${pointer}\n`));
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+    getJobDiff(job: JobMetadata) {
+        const localJobConfigs = this.getLocalJSONConfigs(
+            this.config.args.srcDir,
+            this.config.args.jobFile
+        );
+        const diffObject = diff.diffJson(job.config, localJobConfigs[job.id]);
+
+        /// "_update" fields on the job file are always off by a couple milliseconds
+        /// We only want to display a diff of this field if it's greater than a minute
+        let showUpdateField = false;
+        const jobConfigUpdateTime = new Date(job.config._updated).getTime();
+        const localConfigUpdateTime = new Date(localJobConfigs[job.id]._updated).getTime();
+        const timeDiff = Math.abs(localConfigUpdateTime - jobConfigUpdateTime);
+        if (timeDiff > (1000 * 60)) {
+            showUpdateField = true;
+        }
+
+        this.printDiff(diffObject, showUpdateField);
+    }
+
     /**
      * @param args action and final property, final indicates if it is part of a series of commands
      * @param job job metadata
@@ -692,7 +829,11 @@ export default class Jobs {
             ({ message, final } = this.getUpdateMessage(action, job));
         }
 
-        reply.yellow(`> ${message}`);
+        if (this.config.args.diff && action === 'view') {
+            this.getJobDiff(job);
+        } else {
+            reply.yellow(`> ${message}`);
+        }
 
         if (final) {
             reply.green(`${jobInfoString}`);
@@ -770,6 +911,10 @@ export default class Jobs {
             cannot_stop: {
                 message: `No need to stop, job is already in terminal status ${status}`,
                 final: this.finalAction(action)
+            },
+            deleted: {
+                message: `${name} has been deleted`,
+                final: true
             }
         };
 

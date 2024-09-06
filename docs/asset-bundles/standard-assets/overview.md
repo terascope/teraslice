@@ -1,5 +1,5 @@
 ---
-title: Standard (standard-assets)
+title: "Standard (standard-assets)"
 sidebar_label: Standard
 ---
 

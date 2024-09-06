@@ -1,4 +1,3 @@
-/* eslint-disable default-param-last */
 import ms from 'ms';
 import {
     TSError, parseError, isTest, pDelay,
@@ -6,15 +5,15 @@ import {
     get, random, isInteger, Logger
 } from '@terascope/utils';
 import elasticsearchApi from '@terascope/elasticsearch-api';
-import { getClientAsync, Context } from '@terascope/job-components';
+import { getClient, Context } from '@terascope/job-components';
 import { ClientParams } from '@terascope/types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { timeseriesIndex } from '../../utils/date_utils.js';
-import analyticsSchema from './mappings/analytics.json' assert { type: 'json' };
-import assetSchema from './mappings/asset.json' assert { type: 'json' };
-import executionSchema from './mappings/ex.json' assert { type: 'json' };
-import jobsSchema from './mappings/job.json' assert { type: 'json' };
-import stateSchema from './mappings/state.json' assert { type: 'json' };
+import analyticsSchema from './mappings/analytics.js';
+import assetSchema from './mappings/asset.js';
+import executionSchema from './mappings/ex.js';
+import jobsSchema from './mappings/job.js';
+import stateSchema from './mappings/state.js';
 
 function validateId(recordId: string, recordType: string) {
     if (!recordId || !isString(recordId)) {
@@ -52,7 +51,7 @@ function _getTimeout(timeout: number | string | undefined) {
     return undefined;
 }
 
-export interface TerasliceStorageConfig {
+export interface TerasliceESStorageConfig {
     context: Context;
     indexName: string;
     recordType: string;
@@ -91,7 +90,7 @@ export class TerasliceElasticsearchStorage {
     readonly mapping: Record<string, any>;
     api!: elasticsearchApi.Client;
 
-    constructor(backendConfig: TerasliceStorageConfig) {
+    constructor(backendConfig: TerasliceESStorageConfig) {
         const {
             context, indexName, recordType,
             idField, storageName, bulkSize = 1000,
@@ -165,10 +164,6 @@ export class TerasliceElasticsearchStorage {
         }
 
         const { connection } = config.state;
-        // TODO: write a ticket on this
-        // if (config.state.endpoint) {
-        //     connection += `:${config.state.endpoint}`;
-        // }
 
         const options = {
             full_response: !!this.options.fullResponse,
@@ -177,7 +172,7 @@ export class TerasliceElasticsearchStorage {
 
         await pWhile(async () => {
             try {
-                const client = await getClientAsync(this.context, connectionConfig, 'elasticsearch-next');
+                const client = await getClient(this.context, connectionConfig, 'elasticsearch-next');
 
                 this.api = elasticsearchApi(client, this.logger, options);
                 await this._createIndex(newIndex);
@@ -212,7 +207,11 @@ export class TerasliceElasticsearchStorage {
         }, random(9000, 11000));
     }
 
-    async get(recordId: string, index = this.defaultIndexName, fields?: string| string[]) {
+    async get(
+        recordId: string,
+        index = this.defaultIndexName,
+        fields?: string| string[]
+    ) {
         validateId(recordId, this.recordType);
         this.logger.trace(`getting record id: ${recordId}`);
 

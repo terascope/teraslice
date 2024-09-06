@@ -1,26 +1,33 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
     newTestJobConfig,
     DataEntity,
     Slicer,
     Fetcher,
-    BatchProcessor
+    BatchProcessor,
+    debugLogger,
+    TestClientConfig
 } from '@terascope/job-components';
-import { JobTestHarness } from '../src';
+import { JobTestHarness } from '../src/index.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('JobTestHarness', () => {
-    const assetDir = path.join(__dirname, 'fixtures');
+    const assetDir = path.join(dirname, 'fixtures');
+    const logger = debugLogger('JobTestHarness');
 
-    const clients = [
+    const clients: TestClientConfig[] = [
         {
             type: 'example',
-            create: () => ({
+            createClient: async () => ({
                 client: {
                     say() {
                         return 'hello';
                     }
-                }
+                },
+                logger
             })
         }
     ];
@@ -38,7 +45,7 @@ describe('JobTestHarness', () => {
         ];
 
         const jobHarness = new JobTestHarness(job, {
-            assetDir: path.join(__dirname, 'fixtures'),
+            assetDir: path.join(dirname, 'fixtures'),
             clients,
         });
 

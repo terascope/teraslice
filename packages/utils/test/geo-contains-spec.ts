@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { GeoShapeType, GeoInput } from '@terascope/types';
-import { geoContains, geoContainsFP } from '../src/geo';
+import { geoContains, geoContainsFP } from '../src/geo.js';
 
 type GeoContainsCase = [
     msg: string,

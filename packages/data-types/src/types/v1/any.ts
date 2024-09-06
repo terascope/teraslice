@@ -1,6 +1,6 @@
 import { xLuceneTypeConfig } from '@terascope/types';
-import BaseType from '../base-type';
-import { GraphQLType, TypeESMapping } from '../../interfaces';
+import BaseType from '../base-type.js';
+import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
 export default class AnyType extends BaseType {
     toESMapping(): TypeESMapping {

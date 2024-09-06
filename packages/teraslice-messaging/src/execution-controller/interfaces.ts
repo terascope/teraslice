@@ -1,4 +1,5 @@
 import { Logger } from '@terascope/utils';
+import http from 'node:http';
 
 export interface ClientOptions {
     executionControllerUrl: string;
@@ -16,9 +17,13 @@ export interface ServerOptions {
     workerDisconnectTimeout: number;
     networkLatencyBuffer?: number;
     actionTimeout: number;
+    requestListener?: RequestListener;
     logger?: Logger;
 }
 
+export interface RequestListener {
+    (request: http.IncomingMessage, response: http.ServerResponse): void;
+}
 export interface Worker {
     workerId: string;
 }

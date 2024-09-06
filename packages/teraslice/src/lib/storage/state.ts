@@ -6,7 +6,7 @@ import {
 } from '@terascope/utils';
 import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
-import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store.js';
+import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 
 export const SliceState = Object.freeze({
     pending: 'pending',
@@ -33,7 +33,7 @@ export class StateStorage {
         const indexName = `${_index}*`;
         const timeseriesFormat = config.index_rollover_frequency.state as TimeseriesFormat;
 
-        const backendConfig: TerasliceStorageConfig = {
+        const backendConfig: TerasliceESStorageConfig = {
             context,
             indexName,
             recordType,

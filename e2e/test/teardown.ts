@@ -25,7 +25,7 @@ export async function teardown(testClient?: Client) {
     const errors = [];
 
     try {
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             const k8s = new K8s(TERASLICE_PORT, KIND_CLUSTER);
             await k8s.deleteTerasliceNamespace('ts-ns.yaml');
             await cleanupIndex(client, 'ts-dev1_*');

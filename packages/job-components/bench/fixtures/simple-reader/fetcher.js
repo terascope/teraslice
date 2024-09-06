@@ -1,8 +1,6 @@
-'use strict';
+import { Fetcher, DataEntity } from '../../../dist/src/index.js';
 
-const { Fetcher, DataEntity } = require('../../../dist/src');
-
-class SimpleFetcher extends Fetcher {
+export default class SimpleFetcher extends Fetcher {
     async fetch({ count = 1000, precreate, addMetadata } = {}) {
         const result = [];
         for (let i = 0; i < count; i++) {
@@ -27,5 +25,3 @@ class SimpleFetcher extends Fetcher {
         return result;
     }
 }
-
-module.exports = SimpleFetcher;

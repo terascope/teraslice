@@ -1,9 +1,9 @@
 import * as ts from '@terascope/utils';
 import { FieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
-import { isArray } from './field-validator';
-import { DocumentMatcher } from '../document-matcher';
-import { Repository, RecordInput, InputType } from '../interfaces';
-import { isString } from '../validations/field-validator';
+import { isArray } from './field-validator.js';
+import { DocumentMatcher } from '../document-matcher/index.js';
+import { Repository, RecordInput, InputType } from '../interfaces.js';
+import { isString } from '../validations/field-validator.js';
 
 export const repository: Repository = {
     required: {

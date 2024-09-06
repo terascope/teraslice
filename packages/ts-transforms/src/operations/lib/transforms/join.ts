@@ -1,8 +1,8 @@
 import {
     DataEntity, set, get, flattenDeep
 } from '@terascope/utils';
-import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
-import TransformOpBase from './base';
+import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces.js';
+import TransformOpBase from './base.js';
 
 export default class Join extends TransformOpBase {
     private delimiter: string;

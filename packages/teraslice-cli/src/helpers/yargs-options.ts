@@ -1,4 +1,4 @@
-import os from 'os';
+import os from 'node:os';
 import yargs from 'yargs';
 import Url from './url.js';
 
@@ -70,7 +70,8 @@ export default class Options {
             choices: [
                 'node16',
                 'node18',
-                'node20'
+                'node20',
+                'node22'
             ],
             // I have disabled this because for some reason this requirement was
             // being enforced even when `bundle-target` wasn't specified.
@@ -227,6 +228,21 @@ export default class Options {
             describe: 'Silence non-error logging.',
             type: 'boolean'
         }),
+        diff: () => ({
+            describe: 'Shows diff on a job in a cluster and a job file',
+            default: false,
+            type: 'boolean'
+        }),
+        'active-job': () => ({
+            describe: 'List active jobs',
+            type: 'boolean'
+
+        }),
+        'show-deleted': () => ({
+            describe: 'List deleted records',
+            default: false,
+            type: 'boolean'
+        })
     };
 
     private positionals: Record<string, (...args: any[]) => yargs.PositionalOptions> = {

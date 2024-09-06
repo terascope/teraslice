@@ -1,8 +1,8 @@
 import 'jest-extended';
 import nock from 'nock';
 import { Teraslice } from '@terascope/types';
-import Job from '../src/job';
-import Jobs from '../src/jobs';
+import Job from '../src/job.js';
+import Jobs from '../src/jobs.js';
 
 describe('Teraslice Jobs', () => {
     let jobs: Jobs;
@@ -22,7 +22,7 @@ describe('Teraslice Jobs', () => {
 
     const date = new Date().toISOString();
 
-    const list: Teraslice.JobRecord[] = [
+    const list: Teraslice.JobConfig[] = [
         {
             job_id: 'some-random-job-id',
             active: true,
@@ -170,7 +170,6 @@ describe('Teraslice Jobs', () => {
         describe('when called with nothing', () => {
             beforeEach(() => {
                 scope.get('/jobs')
-                    .query({ status: '*' })
                     .reply(200, list);
             });
 
@@ -180,22 +179,9 @@ describe('Teraslice Jobs', () => {
             });
         });
 
-        describe('when called with a string', () => {
-            beforeEach(() => {
-                scope.get('/jobs')
-                    .query({ status: Teraslice.ExecutionStatusEnum.running })
-                    .reply(200, list);
-            });
-
-            it('should resolve json result from Teraslice', async () => {
-                const results = await jobs.list(Teraslice.ExecutionStatusEnum.running);
-                expect(results).toEqual(list);
-            });
-        });
-
-        describe('when called with an object', () => {
+        describe('when called with an query and search objects', () => {
             const searchOptions = { headers: { 'Some-Header': 'yes' } };
-            const queryOptions = { status: Teraslice.ExecutionStatusEnum.running, size: 10 };
+            const queryOptions = { active: true } as const;
 
             beforeEach(() => {
                 scope.get('/jobs')

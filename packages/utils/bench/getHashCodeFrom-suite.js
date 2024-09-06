@@ -1,7 +1,5 @@
-'use strict';
-
-const { Suite } = require('./helpers');
-const { getHashCodeFrom } = require('../dist/src');
+import { Suite } from './helpers.js';
+import { getHashCodeFrom, isExecutedFile } from '../dist/src/index.js';
 
 const run = async () => {
     const str6 = Array.from({ length: 6 }, () => 'a').join('');
@@ -76,10 +74,10 @@ const run = async () => {
         });
 };
 
-if (require.main === module) {
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

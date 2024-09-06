@@ -3,7 +3,7 @@ import { setYear, isInteger, toISO8601 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface SetYearArgs {
     value: number

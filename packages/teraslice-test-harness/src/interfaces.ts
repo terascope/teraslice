@@ -1,24 +1,22 @@
 import {
-    WorkerContext,
     WorkerExecutionContext,
     SlicerExecutionContext,
     TestClientConfig,
     ProcessorConstructor,
     SlicerConstructor,
     Slice,
-    DataEntity
+    DataEntity,
+    ClusterManagerType
 } from '@terascope/job-components';
 
+export type { Context } from '@terascope/job-components';
+
 export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;
-export type Context = WorkerContext;
 
 export interface JobHarnessOptions {
     assetDir?: string | string[];
     clients?: TestClientConfig[];
-}
-
-export interface OpTestHarnessOptions {
-    clients?: TestClientConfig[];
+    cluster_manager_type?: ClusterManagerType
 }
 
 export type AnyOperationConstructor = ProcessorConstructor|SlicerConstructor;

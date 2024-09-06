@@ -1,12 +1,11 @@
-import { WithoutNil, FilteredResult } from './interfaces';
-import { isBooleanLike } from './booleans';
-import { get, getTypeOf, isPlainObject } from './deps';
-import { DataEntity } from './entities';
-import { isArrayLike, isArray } from './arrays';
-import { isBuffer } from './buffers';
-import { isString, trim } from './strings';
-import { toNumber } from './numbers';
-import { isPrimitiveValue } from '.';
+import { WithoutNil, FilteredResult } from './interfaces.js';
+import { isBooleanLike } from './booleans.js';
+import { get, getTypeOf, isPlainObject } from './deps.js';
+import { DataEntity } from './entities/index.js';
+import { isArrayLike, isArray } from './arrays.js';
+import { isBuffer } from './buffers.js';
+import { isString, trim, isPrimitiveValue } from './strings.js';
+import { toNumber } from './numbers.js';
 
 /**
  * Similar to is-plain-object but works better when you cloneDeep a DataEntity
@@ -203,7 +202,7 @@ export function getField<T, P extends keyof T, V>(
  * Check if a object has property (and not included in the prototype)
  * Different from has since it doesn't deal with dot notation values.
 */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+ 
 export function hasOwn(obj: any, prop: string|symbol|number): boolean {
     return Object.prototype.hasOwnProperty.call(obj, prop);
 }

@@ -1,7 +1,7 @@
 import { AnyObject, FieldType, Maybe } from '@terascope/types';
 import { isNotNil, getHashCodeFrom } from '@terascope/utils';
-import { Vector, VectorOptions } from './Vector';
-import { DataBuckets, SerializeOptions, VectorType } from './interfaces';
+import { Vector, VectorOptions } from './Vector.js';
+import { DataBuckets, SerializeOptions, VectorType } from './interfaces.js';
 
 export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
     getComparableValue = undefined;

@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import fse from 'fs-extra';
 import {
     debugLogger, get, flatten,
@@ -7,12 +7,12 @@ import {
 import {
     ArgsMap, ExecEnv, exec,
     fork,
-} from '../scripts';
-import { TestOptions, GroupedPackages } from './interfaces';
-import { PackageInfo, Service } from '../interfaces';
-import { getServicesForSuite } from '../misc';
-import * as config from '../config';
-import signale from '../signale';
+} from '../scripts.js';
+import { TestOptions, GroupedPackages } from './interfaces.js';
+import { PackageInfo, Service } from '../interfaces.js';
+import { getServicesForSuite } from '../misc.js';
+import * as config from '../config.js';
+import signale from '../signale.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -67,10 +67,11 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
         FORCE_COLOR: config.FORCE_COLOR,
         TEST_NAMESPACE: config.TEST_NAMESPACE,
         TZ: 'utc',
-        NODE_VERSION: options.nodeVersion,
+        NODE_VERSION: config.NODE_VERSION,
         KIND_CLUSTER: options.kindClusterName,
         TERASLICE_PORT: config.TERASLICE_PORT,
-        TJM_TEST_MODE: suite !== 'e2e' ? 'true' : 'false'
+        TJM_TEST_MODE: suite !== 'e2e' ? 'true' : 'false',
+        NODE_OPTIONS: '--experimental-vm-modules'
     };
 
     if (config.DOCKER_NETWORK_NAME) {
@@ -85,8 +86,7 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
         Object.assign(env, {
             TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
             ELASTICSEARCH_HOST: config.ELASTICSEARCH_HOST,
-            ELASTICSEARCH_VERSION: options.elasticsearchVersion,
-            ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
+            ELASTICSEARCH_VERSION: config.ELASTICSEARCH_VERSION,
             SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
         });
     }
@@ -95,8 +95,7 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
         Object.assign(env, {
             TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
             ELASTICSEARCH_HOST: config.RESTRAINED_ELASTICSEARCH_HOST,
-            ELASTICSEARCH_VERSION: options.elasticsearchVersion,
-            ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
+            ELASTICSEARCH_VERSION: config.ELASTICSEARCH_VERSION,
             SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
         });
     }
@@ -104,7 +103,7 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
     if (launchServices.includes(Service.Minio)) {
         Object.assign(env, {
             MINIO_HOST: config.MINIO_HOST,
-            MINIO_VERSION: options.minioVersion,
+            MINIO_VERSION: config.MINIO_VERSION,
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
         });
@@ -113,7 +112,7 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
     if (launchServices.includes(Service.Kafka)) {
         Object.assign(env, {
             KAFKA_BROKER: config.KAFKA_BROKER,
-            KAFKA_VERSION: options.kafkaVersion,
+            KAFKA_VERSION: config.KAFKA_VERSION,
         });
     }
 
@@ -121,7 +120,7 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
         Object.assign(env, {
             RABBITMQ_HOSTNAME: config.RABBITMQ_HOSTNAME,
             RABBITMQ_USER: config.RABBITMQ_USER,
-            RABBITMQ_VERSION: options.rabbitmqVersion,
+            RABBITMQ_VERSION: config.RABBITMQ_VERSION,
             RABBITMQ_PORT: config.RABBITMQ_PORT,
             RABBITMQ_MANAGEMENT_PORT: config.RABBITMQ_MANAGEMENT_PORT,
             RABBITMQ_PASSWORD: config.RABBITMQ_PASSWORD,

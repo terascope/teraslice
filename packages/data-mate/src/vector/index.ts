@@ -1,10 +1,10 @@
-import { _newVector } from './utils';
-import { Vector } from './Vector';
+import { _newVector } from './utils.js';
+import { Vector } from './Vector.js';
 
-export * from './interfaces';
-export * from './ListVector';
-export * from './types';
-export * from './utils';
-export * from './Vector';
+export * from './interfaces.js';
+export * from './ListVector.js';
+export * from './types/index.js';
+export * from './utils.js';
+export * from './Vector.js';
 
 Vector.make = _newVector;

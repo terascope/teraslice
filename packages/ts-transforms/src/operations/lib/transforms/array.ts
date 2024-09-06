@@ -1,10 +1,9 @@
 import { DataEntity, get, set } from '@terascope/utils';
-import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
-import TransformOpBase from './base';
+import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces.js';
+import TransformOpBase from './base.js';
 
 export default class MakeArray extends TransformOpBase {
-    private fields!: string[];
-
+    declare private fields: string[];
     static cardinality: InputOutputCardinality = 'many-to-one';
 
     constructor(config: PostProcessConfig) {
@@ -15,6 +14,7 @@ export default class MakeArray extends TransformOpBase {
     protected validateConfig(config: PostProcessConfig): void {
         const { target: tField } = config;
         const fields = config.fields || config.sources;
+
         if (!tField || typeof tField !== 'string' || tField.length === 0) {
             const { name } = this.constructor;
             throw new Error(
@@ -30,6 +30,7 @@ export default class MakeArray extends TransformOpBase {
 
     run(doc: DataEntity): DataEntity {
         const results: any[] = [];
+
         this.fields.forEach((field) => {
             const data = get(doc, field);
             if (data !== undefined) {

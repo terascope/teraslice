@@ -1,25 +1,21 @@
 import {
-    get, concat, pMap, isString, toHumanTime
+    get, concat, pMap,
+    isString, toHumanTime
 } from '@terascope/utils';
-import { PackageInfo } from '../interfaces';
-import { listPackages, getMainPackageInfo, getPublishTag } from '../packages';
-import { PublishAction, PublishOptions, PublishType } from './interfaces';
+import { PackageInfo } from '../interfaces.js';
+import { listPackages, getMainPackageInfo, getPublishTag } from '../packages.js';
+import { PublishAction, PublishOptions, PublishType } from './interfaces.js';
 import {
-    shouldNPMPublish,
-    formatDailyTag,
-    buildDevDockerImage,
+    shouldNPMPublish, formatDailyTag, buildDevDockerImage,
     removeNodeSuffixFromTag
-} from './utils';
+} from './utils.js';
 import {
-    yarnPublish,
-    yarnRun,
-    remoteDockerImageExists,
-    dockerBuild,
-    dockerPush,
-    yarnPublishV2
-} from '../scripts';
-import { getRootInfo, getDevDockerImage, formatList } from '../misc';
-import signale from '../signale';
+    yarnPublish, yarnRun, remoteDockerImageExists,
+    dockerBuild, dockerPush, yarnPublishV2,
+    getNodeVersionFromImage
+} from '../scripts.js';
+import { getRootInfo, getDevDockerImage, formatList } from '../misc.js';
+import signale from '../signale.js';
 
 export async function publish(action: PublishAction, options: PublishOptions): Promise<void> {
     signale.info(`publishing to ${action}...`, { dryRun: options.dryRun });
@@ -94,7 +90,10 @@ async function publishToDocker(options: PublishOptions) {
     let err: any|undefined;
     for (const registry of registries) {
         let imageToBuild = '';
-        const nodeVersionSuffix = `nodev${options.nodeVersion}`;
+
+        /// NOTE: When publishing images, we always want the full node semver version
+        /// on the tag
+        const nodeVersionSuffix = `node${await getNodeVersionFromImage(devImage)}`;
 
         if (options.type === PublishType.Latest) {
             imageToBuild = `${registry}:latest-${nodeVersionSuffix}`;
@@ -138,7 +137,14 @@ async function publishToDocker(options: PublishOptions) {
         }
         signale.debug(`building docker image ${imageToBuild}`);
 
-        await dockerBuild(imageToBuild, [devImage], undefined, `NODE_VERSION=${options.nodeVersion}`);
+        const buildTimestamp = new Date().toISOString();
+        const sha = process.env.GITHUB_SHA;
+        const { version } = getRootInfo();
+        await dockerBuild(imageToBuild,
+            [devImage],
+            undefined,
+            [`NODE_VERSION=${options.nodeVersion}`, `TERASLICE_VERSION=${version}`, `BUILD_TIMESTAMP=${buildTimestamp}`, `GITHUB_SHA=${sha}`]
+        );
 
         if (!imagesToPush.includes(imageToBuild)) {
             imagesToPush.push(imageToBuild);

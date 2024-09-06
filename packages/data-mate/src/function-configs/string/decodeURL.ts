@@ -5,7 +5,7 @@ import {
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const decodeURLConfig: FieldTransformConfig = {
     name: 'decodeURL',

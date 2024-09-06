@@ -1,7 +1,7 @@
 import { isString, isNumber } from '@terascope/utils';
 import { AggregatedExecutionAnalytics } from '@terascope/types';
-import * as i from './interfaces';
-import * as core from '../messenger';
+import * as i from './interfaces.js';
+import * as core from '../messenger/index.js';
 
 export class Client extends core.Client {
     public readonly exId: string;

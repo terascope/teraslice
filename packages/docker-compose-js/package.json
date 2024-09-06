@@ -1,7 +1,7 @@
 {
     "name": "@terascope/docker-compose-js",
     "displayName": "Docker Compose Js",
-    "version": "1.3.2",
+    "version": "1.3.3",
     "description": "Node.js driver for controlling docker-compose testing environments.",
     "keywords": [
         "docker",
@@ -33,14 +33,14 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "resolutions": {
-        "debug": "^4.3.4"
+        "debug": "^4.3.6"
     },
     "dependencies": {
-        "debug": "^4.3.4"
+        "debug": "^4.3.6"
     },
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",

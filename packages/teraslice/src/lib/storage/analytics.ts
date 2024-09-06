@@ -1,10 +1,9 @@
-/* eslint-disable default-param-last */
 import { Context, WorkerExecutionContext } from '@terascope/job-components';
 import { pMap, Logger } from '@terascope/utils';
 import { Slice, SliceAnalyticsData } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils.js';
-import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store.js';
+import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
@@ -23,7 +22,7 @@ export class AnalyticsStorage {
         // making this to pass down to backend for dynamic index searches
         const indexName = `${_index}*`;
 
-        const backendConfig: TerasliceStorageConfig = {
+        const backendConfig: TerasliceESStorageConfig = {
             context,
             indexName,
             recordType: 'analytics',
@@ -34,7 +33,7 @@ export class AnalyticsStorage {
             storageName: 'analytics',
             logger
         };
-        this.workerId = `${context.sysconfig.teraslice.hostname}__${context.cluster.worker.id}`;
+        this.workerId = `${context.sysconfig.teraslice.hostname}__${context.cluster.worker?.id}`;
         this.timeseriesFormat = config.index_rollover_frequency.analytics as TimeseriesFormat;
         this.baseIndex = _index;
         this.logger = logger;

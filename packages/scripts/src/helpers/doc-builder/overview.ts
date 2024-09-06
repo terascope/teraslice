@@ -1,8 +1,8 @@
-import path from 'path';
+import path from 'node:path';
 import fse from 'fs-extra';
-import { PackageInfo } from '../interfaces';
-import { writeIfChanged, getRootInfo } from '../misc';
-import { getDocPath } from '../packages';
+import { PackageInfo } from '../interfaces.js';
+import { writeIfChanged, getRootInfo } from '../misc.js';
+import { getDocPath } from '../packages.js';
 
 export async function generateReadme(pkgInfo: PackageInfo): Promise<string> {
     const rootInfo = getRootInfo();
@@ -24,7 +24,7 @@ export async function generateReadme(pkgInfo: PackageInfo): Promise<string> {
 
 > ${pkgInfo.description}
 
-This a package within the [${rootInfo.displayName}](${rootInfo.homepage}) monorepo. See our [documentation](${
+This is a package within the [${rootInfo.displayName}](${rootInfo.homepage}) monorepo. See our [documentation](${
     rootInfo.documentation
 }/${isGithub ? docsPath : `${docsPath}.md`}) for more information or the [issues](${issuesUrl}) associated with this package
 

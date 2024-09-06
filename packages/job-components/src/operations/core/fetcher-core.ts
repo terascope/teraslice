@@ -1,6 +1,6 @@
 import { DataEntity } from '@terascope/utils';
-import { OpConfig } from '../../interfaces';
-import OperationCore from './operation-core';
+import { OpConfig } from '../../interfaces/index.js';
+import OperationCore from './operation-core.js';
 
 /**
  * A base class for supporting "Fetcher" that run on a "Worker".

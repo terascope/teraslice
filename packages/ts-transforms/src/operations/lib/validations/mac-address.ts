@@ -1,7 +1,7 @@
 import { DataEntity } from '@terascope/utils';
 import validator from 'validator';
-import ValidationOpBase from './base';
-import { PostProcessConfig } from '../../../interfaces';
+import ValidationOpBase from './base.js';
+import { PostProcessConfig } from '../../../interfaces.js';
 
 export default class MacAddress extends ValidationOpBase<any> {
     private case: 'lowercase' | 'uppercase';

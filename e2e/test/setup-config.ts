@@ -2,9 +2,11 @@ import { cloneDeep } from '@terascope/utils';
 import path from 'node:path';
 import fse from 'fs-extra';
 import {
-    WORKERS_PER_NODE, KAFKA_BROKER, ELASTICSEARCH_HOST,
-    TEST_HOST, TERASLICE_PORT, ELASTICSEARCH_API_VERSION,
-    CLUSTER_NAME, HOST_IP, CONFIG_PATH,
+    WORKERS_PER_NODE, KAFKA_BROKER,
+    TEST_HOST, TERASLICE_PORT, CLUSTER_NAME,
+    HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
+    ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST,
+    ENCRYPT_MINIO, ROOT_CERT_PATH
 } from './config.js';
 
 const baseConfig = {
@@ -20,17 +22,6 @@ const baseConfig = {
         ],
         log_path: '/app/logs',
         connectors: {
-            elasticsearch: {
-                default: {
-                    host: [ELASTICSEARCH_HOST],
-                    apiVersion: ELASTICSEARCH_API_VERSION,
-                    requestTimeout: '1 minute',
-                    deadTimeout: '45 seconds',
-                    sniffOnStart: false,
-                    sniffOnConnectionFault: false,
-                    suggestCompression: false
-                }
-            },
             'elasticsearch-next': {
                 default: {
                     node: [TEST_HOST],
@@ -42,6 +33,17 @@ const baseConfig = {
             kafka: {
                 default: {
                     brokers: [KAFKA_BROKER]
+                }
+            },
+            s3: {
+                default: {
+                    endpoint: MINIO_HOST,
+                    accessKeyId: 'minioadmin',
+                    secretAccessKey: 'minioadmin',
+                    forcePathStyle: true,
+                    sslEnabled: false,
+                    region: 'us-east-1',
+                    caCertificate: ''
                 }
             }
         }
@@ -62,6 +64,8 @@ const baseConfig = {
         name: CLUSTER_NAME,
         master: true,
         master_hostname: HOST_IP,
+        asset_storage_connection_type: ASSET_STORAGE_CONNECTION_TYPE,
+        asset_storage_connection: ASSET_STORAGE_CONNECTION,
         index_settings: {
             analytics: {
                 number_of_shards: 1,
@@ -97,6 +101,11 @@ export default async function setupTerasliceConfig() {
 async function writeMasterConfig() {
     const masterConfig = cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
+    if (ENCRYPT_MINIO === 'true') {
+        const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
+        masterConfig.terafoundation.connectors.s3.default.sslEnabled = true;
+        masterConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
+    }
 
     const masterConfigPath = path.join(CONFIG_PATH, 'teraslice-master.json');
     await fse.writeJSON(masterConfigPath, masterConfig, {
@@ -107,6 +116,11 @@ async function writeMasterConfig() {
 async function writeWorkerConfig() {
     const workerConfig = cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
+    if (ENCRYPT_MINIO === 'true') {
+        const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
+        workerConfig.terafoundation.connectors.s3.default.sslEnabled = true;
+        workerConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
+    }
 
     const workerConfigPath = path.join(CONFIG_PATH, 'teraslice-worker.json');
     await fse.writeJSON(workerConfigPath, workerConfig, {

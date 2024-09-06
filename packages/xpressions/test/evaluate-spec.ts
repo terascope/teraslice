@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { evaluate } from '../src';
+import { evaluate } from '../src/index.js';
 
 describe('evaluate', () => {
     describe('when the key of variable', () => {

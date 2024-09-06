@@ -202,23 +202,19 @@ terafoundation:
   - console: info
   - elasticsearch: info
   connectors:
-    elasticsearch:
+    elasticsearch-next:
       default:
-        host:
-        - 127.0.0.1:9200
+        node:
+        - YOUR_ELASTICSEARCH_IP:9200
         keepAlive: true
         maxRetries: 5
         maxSockets: 20
       endpoint2:
-         host:
+         node:
          - 127.0.0.1:9215
          keepAlive: true
          maxRetries: 5
          maxSockets: 20
-    elasticsearch-next:
-      default:
-        node:
-          - YOUR_ELASTICSEARCH_IP:9200"
     mongo:
       default:
         host: 127.0.0.1
@@ -233,7 +229,7 @@ The values are once again objects with keys set to different endpoints within ea
 
 Each endpoint will have its own configuration which will then be used by the actual client of the library
 
-The difference between `elasticsearch` and `elasticsearch-next` is that the former relies on a legacy client that works on version 6 and 7.9.0 or lower, while the later dynamically queries the cluster to verify the version and distribution and returns the appropriate client. It can work with versions 6, 7, 8 and with opensearch.
+The `elasticsearch-next` connector dynamically queries the cluster to verify the version and distribution and returns the appropriate client. It can work with versions 6, 7, 8 and with opensearch.
 
 ### Configuration Settings
 

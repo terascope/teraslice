@@ -1,7 +1,7 @@
-import path from 'path';
-import { Hook } from './interfaces';
-import { getRootInfo } from './misc';
-import signale from './signale';
+import path from 'node:path';
+import { Hook } from './interfaces.js';
+import { getRootInfo } from './misc.js';
+import signale from './signale.js';
 
 /**
  * If the terascope.hook_file is set in the root package.json
@@ -11,7 +11,7 @@ export async function executeHook(hook: Hook, quiet: boolean, ...args: any[]): P
     const { terascope: { hook_file } } = getRootInfo();
     if (!hook_file) return;
 
-    let hookFile = require(path.resolve(hook_file));
+    let hookFile = await import(path.resolve(hook_file));
     if (hookFile.default) {
         hookFile = hookFile.default;
     }

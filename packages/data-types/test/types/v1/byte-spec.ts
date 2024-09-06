@@ -1,5 +1,5 @@
 import { xLuceneFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
-import ByteType from '../../../src/types/v1/byte';
+import ByteType from '../../../src/types/v1/byte.js';
 
 describe('Byte V1', () => {
     const field = 'someField';

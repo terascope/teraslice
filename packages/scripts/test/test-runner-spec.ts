@@ -18,15 +18,7 @@ describe('Test Runner Helpers', () => {
         keepOpen: false,
         reportCoverage: false,
         useExistingServices: false,
-        elasticsearchAPIVersion: '',
-        elasticsearchVersion: '',
-        kafkaVersion: '',
-        kafkaImageVersion: '',
-        zookeeperVersion: '',
-        minioVersion: '',
-        rabbitmqVersion: '',
-        opensearchVersion: '',
-        nodeVersion: '',
+        encryptMinio: false,
         ignoreMount: true,
         testPlatform: 'native',
         kindClusterName: 'default'
@@ -92,14 +84,14 @@ describe('Test Runner Helpers', () => {
                     suite: ['unit']
                 }));
 
-                const cliTests = filterBySuite(packages, makeTestOptions({
+                const unitEsmTests = filterBySuite(packages, makeTestOptions({
                     all: true,
-                    suite: ['cli']
+                    suite: ['unit-esm']
                 }));
 
                 const unitAndESPackages = [
                     ...unitTests,
-                    ...cliTests,
+                    ...unitEsmTests,
                     ...restrainedTests,
                     ...opensearchTests,
                     ...elasticsearchTests
@@ -150,7 +142,7 @@ describe('Test Runner Helpers', () => {
 /**
  * Used for more readable test failures
 */
-function mapInfo(pkgInfos: PackageInfo[]): { name: string; suite?: string }[] {
+function mapInfo(pkgInfos: PackageInfo[] = []): { name: string; suite?: string }[] {
     return pkgInfos.map((pkgInfo) => ({
         name: pkgInfo.name,
         suite: pkgInfo.terascope.testSuite

@@ -10,6 +10,8 @@ nodes:
     hostPort: 45678
   - containerPort: 30092 # Map internal kafka service to host port
     hostPort: 49092
+  - containerPort: 30900 # Map internal minio service to host port
+    hostPort: 49000
   extraMounts:
   - hostPath: ./e2e/autoload
     containerPath: /autoload

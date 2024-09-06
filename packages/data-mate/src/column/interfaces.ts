@@ -1,6 +1,5 @@
 import {
-    DataTypeFieldConfig, Maybe,
-    ReadonlyDataTypeFields
+    DataTypeFieldConfig, Maybe, ReadonlyDataTypeFields
 } from '@terascope/types';
 
 /**

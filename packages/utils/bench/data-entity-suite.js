@@ -1,10 +1,9 @@
-'use strict';
-
 /* eslint-disable no-unused-expressions */
-
-const { Suite } = require('./helpers');
-const FakeDataEntity = require('./fixtures/fake-data-entity');
-const { DataEntity, times, fastCloneDeep } = require('../dist/src');
+import { Suite } from './helpers.js';
+import FakeDataEntity from './fixtures/fake-data-entity.js';
+import {
+    DataEntity, times, fastCloneDeep, isExecutedFile
+} from '../dist/src/index.js';
 
 const data = {};
 
@@ -73,10 +72,10 @@ const run = async () => Suite('DataEntity')
         maxTime: 5
     });
 
-if (require.main === module) {
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

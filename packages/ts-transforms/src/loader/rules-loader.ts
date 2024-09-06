@@ -1,8 +1,8 @@
-import fs from 'fs';
-import readline from 'readline';
-import { Readable } from 'stream';
+import fs from 'node:fs';
+import readline from 'node:readline';
+import { Readable } from 'node:stream';
 import { Logger } from '@terascope/utils';
-import { WatcherConfig, OperationConfigInput } from '../interfaces';
+import { WatcherConfig, OperationConfigInput } from '../interfaces.js';
 
 export default class RulesLoader {
     private opConfig: WatcherConfig;

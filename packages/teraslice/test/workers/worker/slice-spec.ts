@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import times from 'lodash/times';
 import { SliceExecution } from '../../../src/lib/workers/worker/slice.js';
 import { TestContext } from '../helpers/index.js';
@@ -345,7 +346,6 @@ describe('Slice', () => {
 
             beforeEach(async () => {
                 testContext = new TestContext({ analytics: true });
-
                 slice = await setupSlice(testContext);
             });
 
@@ -365,7 +365,6 @@ describe('Slice', () => {
 
             beforeEach(async () => {
                 testContext = new TestContext({ analytics: true });
-
                 slice = await setupSlice(testContext);
                 slice.slice = 'hello-there' as any;
             });

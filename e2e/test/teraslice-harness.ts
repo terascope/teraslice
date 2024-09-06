@@ -16,18 +16,21 @@ import {
 } from './config.js';
 import { scaleWorkers, getElapsed } from './docker-helpers.js';
 import signale from './signale.js';
-import generatorToESJob from './fixtures/jobs/generate-to-es.json' assert { type: 'json' };
-import generatorAssetJob from './fixtures/jobs/generator-asset.json' assert { type: 'json' };
-import generatorJob from './fixtures/jobs/generator.json' assert { type: 'json' };
-import idJob from './fixtures/jobs/id.json' assert { type: 'json' };
-import kafkaReaderJob from './fixtures/jobs/kafka-reader.json' assert { type: 'json' };
-import kafkaSenderJob from './fixtures/jobs/kafka-sender.json' assert { type: 'json' };
-import multisendJob from './fixtures/jobs/multisend.json' assert { type: 'json' };
-import reindexJob from './fixtures/jobs/reindex.json' assert { type: 'json' };
+import generatorToESJob from './fixtures/jobs/generate-to-es.js';
+import generatorAssetJob from './fixtures/jobs/generator-asset.js';
+import generatorLargeAssetJob from './fixtures/jobs/generator-large-asset.js';
+import generatorJob from './fixtures/jobs/generator.js';
+import idJob from './fixtures/jobs/id.js';
+import kafkaReaderJob from './fixtures/jobs/kafka-reader.js';
+import kafkaSenderJob from './fixtures/jobs/kafka-sender.js';
+import multisendJob from './fixtures/jobs/multisend.js';
+import reindexJob from './fixtures/jobs/reindex.js';
+import { defaultAssetBundles } from './download-assets.js';
 
 const JobDict = Object.freeze({
     'generate-to-es': generatorToESJob,
     'generator-asset': generatorAssetJob,
+    'generator-large-asset': generatorLargeAssetJob,
     generator: generatorJob,
     id: idJob,
     'kafka-reader': kafkaReaderJob,
@@ -132,10 +135,10 @@ export class TerasliceHarness {
     async resetState() {
         const startTime = Date.now();
 
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             try {
                 cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
-                await showState(TERASLICE_PORT);
+                await showState(TERASLICE_PORT); // adds logs at debug level
             } catch (err) {
                 signale.error('Failure to clean indices and assets', err);
                 throw err;
@@ -401,6 +404,24 @@ export class TerasliceHarness {
         return this.forLength(_forWorkers, workerCount + 1);
     }
 
+    async waitForWorkerCount(exId: string, workerCount = DEFAULT_WORKERS, timeoutMs = 30000) {
+        const endAt = Date.now() + timeoutMs;
+
+        const _waitForK8sWorker = async (): Promise<number> => {
+            if (Date.now() > endAt) {
+                throw new Error(`Failure scaling workers to ${workerCount} within ${timeoutMs}ms`);
+            }
+
+            const workers = (await this.teraslice.executions.wrap(exId).workers()).length;
+
+            if (workerCount === workers) return workers;
+            await pDelay(1000);
+            return _waitForK8sWorker();
+        };
+
+        return _waitForK8sWorker();
+    }
+
     async scaleWorkersAndWait(workersToAdd = 0) {
         const workerCount = DEFAULT_WORKERS + workersToAdd;
         await pDelay(500);
@@ -465,7 +486,7 @@ export class TerasliceHarness {
                 return _waitForClusterState();
             }
 
-            if (TEST_PLATFORM === 'kubernetes') {
+            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
                 // A get request to 'cluster/state' will return an empty object in kubernetes.
                 // Therefore nodes will be 0.
                 if (nodes === 0) return nodes;
@@ -514,7 +535,7 @@ export class TerasliceHarness {
 
         const nodes = await this.waitForClusterState();
 
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             signale.success('Teraslice is ready to go', getElapsed(startTime));
         } else {
             signale.success(`Teraslice is ready to go with ${nodes} nodes`, getElapsed(startTime));
@@ -556,7 +577,7 @@ export class TerasliceHarness {
         } as any;
 
         try {
-            if (TEST_PLATFORM === 'kubernetes') {
+            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
                 // Set resource constraints on workers and ex controllers within CI
                 jobSpec.resources_requests_cpu = 0.05;
                 jobSpec.cpu_execution_controller = 0.4;
@@ -608,14 +629,38 @@ export class TerasliceHarness {
         }
     }
 
-    async clearNonBaseAssets() {
+    /*
+    * Returns the IDs of the defaultAssetBundles that were downloaded into the autoload_directory
+    * during jest global.setup, then autoloaded into the asset_directory. It might be better to use
+    * AssetsStorage._getAssetId() for each asset a jobSpec needs for a test, but initializing an
+    * AssetsStorage instance within a test was throwing errors. It may be related to the context
+    * used to create it.
+    */
+    async getBaseAssetIds() {
         const assetList = await this.teraslice.assets.list();
-        const baseAssets = ['standard', 'elasticsearch', 'kafka'];
-        const assetsToDelete = assetList.filter((assetObj) => !baseAssets.includes(assetObj.name));
+        const baseAssetNames = defaultAssetBundles.map((bundle) => bundle.name);
+        const baseAssetIds = assetList
+            .filter((assetObj) => baseAssetNames.includes(assetObj.name))
+            .map((assetObj) => assetObj.id);
+        return baseAssetIds;
+    }
 
-        for (const asset of assetsToDelete) {
-            const response = await this.teraslice.assets.remove(asset.id);
-            signale.debug(`Deleted asset with id ${response._id}`);
-        }
+    async addWorkers(exId: string, workersToAdd: number): Promise<number> {
+        const currentWorkers = (await this.teraslice.executions.wrap(exId).workers()).length;
+        const workerCount = currentWorkers + workersToAdd;
+        await this.teraslice.jobs.post(`ex/${exId}/_workers?add=${workersToAdd}`);
+        return this.waitForWorkerCount(exId, workerCount);
+    }
+
+    async removeWorkers(exId: string, workersToRemove: number): Promise<number> {
+        const currentWorkers = (await this.teraslice.executions.wrap(exId).workers()).length;
+        const workerCount = currentWorkers - workersToRemove;
+        await this.teraslice.jobs.post(`ex/${exId}/_workers?remove=${workersToRemove}`);
+        return this.waitForWorkerCount(exId, workerCount);
+    }
+
+    async setWorkers(exId: string, workerTotal: number): Promise<number> {
+        await this.teraslice.jobs.post(`ex/${exId}/_workers?total=${workerTotal}`);
+        return this.waitForWorkerCount(exId, workerTotal);
     }
 }

@@ -1,6 +1,6 @@
-import * as i from './interfaces';
-import { isString } from '../strings';
-import { isNumber } from '../numbers';
+import * as i from './interfaces.js';
+import { isString } from '../strings.js';
+import { isNumber } from '../numbers.js';
 
 export function defineEntityProperties(entity: unknown): void {
     Object.defineProperty(entity, i.__IS_DATAENTITY_KEY, {

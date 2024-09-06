@@ -137,7 +137,7 @@ export default class Display {
      @param id - id value used to filter results by job_id or ex_id
      */
     async display(
-        // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+         
         header: any,
         items: any[] | any,
         type: string,

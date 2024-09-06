@@ -1,13 +1,16 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DataEntity } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
-import TestHarness from './test-harness';
-import { WatcherConfig } from '../src';
+import TestHarness from './test-harness.js';
+import { WatcherConfig } from '../src/index.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('matcher', () => {
-    const matchRules1Path = path.join(__dirname, './fixtures/matchRules1.txt');
-    const matchVariableRulesPath = path.join(__dirname, './fixtures/matchRules2.txt');
+    const matchRules1Path = path.join(dirname, './fixtures/matchRules1.txt');
+    const matchVariableRulesPath = path.join(dirname, './fixtures/matchRules2.txt');
 
     let opTest: TestHarness;
 

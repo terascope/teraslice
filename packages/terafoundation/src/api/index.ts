@@ -1,13 +1,14 @@
-import { EventEmitter } from 'events';
-import * as ts from '@terascope/utils';
-import { createConnection, createClient as createDBClient } from '../connector-utils';
-import { createRootLogger } from './utils';
-import * as i from '../interfaces';
+import { EventEmitter } from 'node:events';
+import { isPlainObject, times } from '@terascope/utils';
+import type { Terafoundation } from '@terascope/types';
+import { createClient as createDBClient } from '../connector-utils.js';
+import { createRootLogger } from './utils.js';
+import { PromMetrics } from './prom-metrics/prom-metrics-api.js';
 
 /*
  * This module controls the API endpoints that are exposed under context.apis.
  */
-export default function registerApis(context: i.FoundationContext): void {
+export default function registerApis(context: Terafoundation.Context): void {
     const foundationConfig = context.sysconfig.terafoundation;
     const events = new EventEmitter();
     context.logger = createRootLogger(context);
@@ -15,7 +16,7 @@ export default function registerApis(context: i.FoundationContext): void {
     // connection cache
     const connections = Object.create(null);
 
-    const foundationApis: i.FoundationAPIs = {
+    const foundationApis: Terafoundation.FoundationAPIs = {
         async createClient(options) {
             const { type, endpoint = 'default', cached } = options;
 
@@ -61,56 +62,17 @@ export default function registerApis(context: i.FoundationContext): void {
 
             throw new Error(`No connection configuration found for ${type}`);
         },
-        getConnection(options) {
-            const { type, endpoint = 'default', cached } = options;
-
-            // If it's acceptable to use a cached connection just return instead
-            // of creating a new one
-            const key = `${type}:${endpoint}`;
-
-            // Location in the configuration where we look for connectors.
-            const { connectors } = foundationConfig;
-
-            if (cached && Object.prototype.hasOwnProperty.call(connections, key)) {
-                return connections[key];
-            }
-
-            if (Object.prototype.hasOwnProperty.call(connectors, type)) {
-                context.logger.info(`creating connection for ${type}`);
-
-                let moduleConfig = {};
-
-                if (Object.prototype.hasOwnProperty.call(connectors[type], endpoint)) {
-                    moduleConfig = Object.assign(
-                        {},
-                        foundationConfig.connectors[type][endpoint]
-                    );
-                    // If an endpoint was specified and doesn't exist we need to error.
-                } else if (endpoint) {
-                    throw new Error(`No ${type} endpoint configuration found for ${endpoint}`);
-                }
-
-                const connection = createConnection(
-                    type,
-                    moduleConfig,
-                    context.logger,
-                    options
-                );
-
-                if (cached) {
-                    connections[key] = connection;
-                }
-
-                return connection;
-            }
-
-            throw new Error(`No connection configuration found for ${type}`);
+        // @ts-expect-error we are doing this for backwards compatibility,
+        // though removing it from types will ensure proper code changes when updated
+        // need to remove this in the future
+        async createClientAsync(options) {
+            return this.createClient(options);
         },
         makeLogger(...args: any[]) {
             // If there is already a logger defined we're just creating a
             // child logger using the same config.
 
-            const childLogger = context.logger.child(ts.isPlainObject(args[0])
+            const childLogger = context.logger.child(isPlainObject(args[0])
                 ? args[0]
                 : args[2]);
             // add flush fn to the new logger
@@ -136,10 +98,10 @@ export default function registerApis(context: i.FoundationContext): void {
                 env.service_context = JSON.stringify(envOptions);
             }
 
-            const workers: i.FoundationWorker[] = [];
+            const workers: Terafoundation.FoundationWorker[] = [];
             if (cluster.isMaster) {
                 context.logger.info(`Starting ${num} ${env.assignment}`);
-                ts.times(num, () => {
+                times(num, () => {
                     const worker = cluster.fork(env);
 
                     // for cluster master reference, when a worker dies, you
@@ -151,19 +113,11 @@ export default function registerApis(context: i.FoundationContext): void {
             }
 
             return workers;
-        }
+        },
+        promMetrics: new PromMetrics(context.logger)
     };
     function _registerFoundationAPIs() {
         registerAPI('foundation', foundationApis);
-    }
-
-    // Accessing these APIs directly under context.foundation is deprecated.
-    function _registerLegacyAPIs() {
-        const { getSystemEvents, ...legacyApis } = foundationApis;
-        context.foundation = {
-            ...legacyApis,
-            getEventEmitter: getSystemEvents,
-        };
     }
 
     /*
@@ -186,5 +140,4 @@ export default function registerApis(context: i.FoundationContext): void {
     } as any;
 
     _registerFoundationAPIs();
-    _registerLegacyAPIs();
 }

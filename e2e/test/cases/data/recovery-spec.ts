@@ -31,7 +31,7 @@ describe('recovery', () => {
             path.join(CONFIG_PATH, 'teraslice-master.json')
         );
         sysconfig.teraslice.assets_directory = ASSETS_PATH;
-        context = makeTerafoundationContext({
+        context = await makeTerafoundationContext({
             sysconfig
         });
 
@@ -42,14 +42,12 @@ describe('recovery', () => {
     beforeEach(async () => {
         const jobSpec = terasliceHarness.newJob('generate-to-es');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'test recovery job';
 
-        const files = await fse.readdir(ASSETS_PATH);
-        jobSpec.assets = files.filter((asset) => asset.length === 40);
-
+        jobSpec.assets = await terasliceHarness.getBaseAssetIds();
         specIndex = terasliceHarness.newSpecIndex('test-recovery-job');
 
         if (!jobSpec.operations) {

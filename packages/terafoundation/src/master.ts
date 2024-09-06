@@ -1,20 +1,20 @@
-import { cpus } from 'os';
+import { cpus } from 'node:os';
 import { times, once } from '@terascope/utils';
-import * as i from './interfaces';
+import type { Terafoundation } from '@terascope/types';
 
 export default function masterModule<
     S = Record<string, any>,
     A = Record<string, any>,
     D extends string = string
 >(
-    context: i.FoundationContext<S, A, D>,
-    config: i.FoundationConfig<S, A, D>
+    context: Terafoundation.Context<S, A, D>,
+    config: Terafoundation.Config<S, A, D>
 ): void {
     const { logger } = context;
-    const cluster = context.cluster as i.Cluster;
+    const cluster = context.cluster as Terafoundation.Cluster;
     const configWorkers = context.sysconfig.terafoundation.workers;
     let startWorkers = true;
-    const events = context.foundation.getEventEmitter();
+    const events = context.apis.foundation.getSystemEvents();
 
     if (config.start_workers === false) {
         startWorkers = false;
@@ -36,7 +36,7 @@ export default function masterModule<
 
         let workersAlive = 0;
         let funcRun = 0;
-        let shutdownInterval: NodeJS.Timeout;
+        const shutdownInterval = setInterval(shutdownWorkers, 1000);
 
         const emitShutdown = once(() => {
             // optional hook for shutdown sequences
@@ -72,8 +72,6 @@ export default function masterModule<
             }
         }
 
-        shutdownInterval = setInterval(shutdownWorkers, 1000);
-
         function logAndFinish() {
             logger.info('All workers have exited. Ending.');
             logger.flush()
@@ -93,7 +91,7 @@ export default function masterModule<
     }
 
     // assignment is set at /lib/api/start_workers
-    function determineWorkerENV(worker: i.FoundationWorker) {
+    function determineWorkerENV(worker: Terafoundation.FoundationWorker) {
         const options: any = {};
 
         if (worker.service_context) {
@@ -123,7 +121,7 @@ export default function masterModule<
     }
 
     cluster.on('exit', (_worker, code, signal) => {
-        const worker = _worker as i.FoundationWorker;
+        const worker = _worker as Terafoundation.FoundationWorker;
         const type = worker.assignment ? worker.assignment : 'worker';
         logger.info(`${type} has exited, id: ${worker.id}, code: ${code}, signal: ${signal}`);
         if (!shuttingDown && shouldProcessRestart(code, signal)) {

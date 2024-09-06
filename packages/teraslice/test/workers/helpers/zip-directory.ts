@@ -2,7 +2,6 @@ import path from 'node:path';
 import random from 'lodash/random';
 // @ts-expect-error
 import BufferStreams from 'bufferstreams';
-// @ts-expect-error
 import archiver from 'archiver';
 import { newId } from '../../../src/lib/utils/id_utils.js';
 

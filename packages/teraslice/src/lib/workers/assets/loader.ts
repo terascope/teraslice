@@ -5,6 +5,7 @@ import type { Context } from '@terascope/job-components';
 import { AssetsStorage } from '../../storage/index.js';
 import { makeLogger } from '../helpers/terafoundation.js';
 import { saveAsset } from '../../utils/file_utils.js';
+import { getBackendConfig } from '../../storage/assets.js';
 
 export class AssetLoader {
     readonly context: Context;
@@ -53,8 +54,22 @@ export class AssetLoader {
 
                 const assetRecord = await this.assetsStorage.get(assetIdentifier);
                 this.logger.info(`loading assets: ${assetIdentifier}`);
+                let buff: Buffer;
 
-                const buff = Buffer.from(assetRecord.blob as string, 'base64');
+                const { context, logger } = this;
+                const connectionType = getBackendConfig(context, logger).assetConnectionType;
+                if (connectionType === 's3') {
+                    buff = assetRecord.blob as Buffer;
+                } else {
+                    if (!assetRecord.blob) {
+                        throw new Error(`No asset blob found in elasticsearch index for asset identifier: ${assetIdentifier}.\n`
+                            + `Confirm that "teraslice.ASSET_STORAGE_CONNECTION_TYPE" should be ${connectionType}.\n`
+                            + 'Then try deleting and redeploying the asset.'
+                        );
+                    }
+                    buff = Buffer.from(assetRecord.blob as string, 'base64');
+                }
+
                 const saveResult = await saveAsset(
                     this.logger,
                     this.assetsDirectory,

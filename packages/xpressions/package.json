@@ -1,7 +1,7 @@
 {
     "name": "xpressions",
     "displayName": "Xpressions",
-    "version": "0.22.0",
+    "version": "1.1.0",
     "description": "Variable expressions with date-math support",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xpressions#readme",
     "bugs": {
@@ -10,6 +10,7 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "files": [
@@ -23,14 +24,14 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.55.0"
+        "@terascope/utils": "^1.1.0"
     },
     "devDependencies": {
-        "@terascope/types": "^0.14.0"
+        "@terascope/types": "^1.1.0"
     },
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",
@@ -38,7 +39,7 @@
     },
     "srcMain": "src/index.ts",
     "terascope": {
-        "testSuite": "unit",
+        "testSuite": "unit-esm",
         "enableTypedoc": true
     }
 }

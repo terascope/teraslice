@@ -1,8 +1,9 @@
 import { FieldType } from '@terascope/types';
 import { getHours } from '@terascope/utils';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
-} from '../interfaces';
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory,
+} from '../interfaces.js';
 
 export const getHoursConfig: FieldTransformConfig = {
     name: 'getHours',

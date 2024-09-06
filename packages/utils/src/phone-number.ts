@@ -1,7 +1,7 @@
 import PhoneValidator from 'awesome-phonenumber';
-import { toString, isString } from './strings';
+import { toString, isString } from './strings.js';
 
-import { isNumber, inNumberRange } from './numbers';
+import { isNumber, inNumberRange } from './numbers.js';
 
 export function parsePhoneNumber(input: string|number): string {
     const preppedInput = _prepPhoneNumber(toString(input).trim());

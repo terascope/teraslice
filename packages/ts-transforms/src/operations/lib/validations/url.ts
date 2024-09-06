@@ -1,7 +1,7 @@
 import { DataEntity } from '@terascope/utils';
-import * as url from 'valid-url';
-import { PostProcessConfig } from '../../../interfaces';
-import ValidationOpBase from './base';
+import url from 'valid-url';
+import { PostProcessConfig } from '../../../interfaces.js';
+import ValidationOpBase from './base.js';
 
 export default class Url extends ValidationOpBase<any> {
     constructor(config: PostProcessConfig) {

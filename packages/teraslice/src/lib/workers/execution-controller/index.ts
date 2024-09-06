@@ -1,5 +1,6 @@
 import ms from 'ms';
 import _ from 'lodash';
+import http from 'node:http';
 import {
     formatURL, ExecutionController as ExController, ClusterMaster
 } from '@terascope/teraslice-messaging';
@@ -9,7 +10,9 @@ import {
     pDelay, getFullErrorStack, logError,
     pWhile, makeISODate, Logger
 } from '@terascope/utils';
-import { Context, SlicerExecutionContext, Slice } from '@terascope/job-components';
+import {
+    Context, SlicerExecutionContext, Slice, isPromAvailable
+} from '@terascope/job-components';
 import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
 import { StateStorage, ExecutionStorage, SliceState } from '../../storage/index.js';
 import { makeLogger, generateWorkerId } from '../helpers/terafoundation.js';
@@ -17,6 +20,7 @@ import { ExecutionAnalytics } from './execution-analytics.js';
 import { SliceAnalytics } from './slice-analytics.js';
 import { Scheduler } from './scheduler.js';
 import { Metrics } from '../metrics/index.js';
+import { getPackageJSON } from '../../utils/file_utils.js';
 
 export class ExecutionController {
     readonly context: Context;
@@ -38,7 +42,7 @@ export class ExecutionController {
     private isExecutionFinished = false;
     isExecutionDone = false;
     private workersHaveConnected = false;
-    // eslint-disable-next-line no-spaced-func
+     
     private _handlers = new Map<string, (arg: any) => void>();
     executionAnalytics: ExecutionAnalytics;
     readonly scheduler: Scheduler;
@@ -76,10 +80,10 @@ export class ExecutionController {
         const workerDisconnectTimeout = get(config, 'worker_disconnect_timeout');
         const nodeDisconnectTimeout = get(config, 'node_disconnect_timeout');
         const shutdownTimeout = get(config, 'shutdown_timeout');
-
         this.server = new ExController.Server({
             port: slicerPort,
             networkLatencyBuffer,
+            requestListener: this.requestListener.bind(this),
             actionTimeout,
             workerDisconnectTimeout,
             logger
@@ -136,6 +140,30 @@ export class ExecutionController {
     }
 
     async initialize() {
+        if (this.context.sysconfig.teraslice.cluster_manager_type === 'native') {
+            this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
+        } else {
+            const { terafoundation } = this.context.sysconfig;
+            const { config, exId, jobId } = this.executionContext;
+            await this.context.apis.foundation.promMetrics.init({
+                terasliceName: this.context.sysconfig.teraslice.name,
+                assignment: 'execution_controller',
+                logger: this.logger,
+                tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
+                tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                tf_prom_metrics_port: terafoundation.prom_metrics_port,
+                job_prom_metrics_add_default: config.prom_metrics_add_default,
+                job_prom_metrics_enabled: config.prom_metrics_enabled,
+                job_prom_metrics_port: config.prom_metrics_port,
+                labels: {
+                    ex_id: exId,
+                    job_id: jobId,
+                    job_name: config.name,
+                }
+            });
+            await this.setupPromMetrics();
+        }
+
         await Promise.all([
             this.executionStorage.initialize(),
             this.stateStorage.initialize(),
@@ -171,7 +199,7 @@ export class ExecutionController {
         if (this.metrics != null) {
             await this.metrics.initialize();
         }
-
+        /// We set this to true later down the line. Not sure why
         this.isInitialized = true;
 
         this.server.onClientOnline((workerId) => {
@@ -284,6 +312,8 @@ export class ExecutionController {
         this.logger.info(`execution: ${this.exId} initialized execution_controller`);
 
         this.isInitialized = true;
+        /// This will change the  '/ready' endpoint to Ready
+        this.server.executionReady = true;
     }
 
     async run() {
@@ -377,7 +407,19 @@ export class ExecutionController {
         await this._endExecution();
     }
 
-    async shutdown(block = true) {
+    async shutdown(eventType?: string, shutdownError?: Error, block: boolean = true) {
+        if (eventType === 'error' && shutdownError) {
+            /// Add errors to this list as needed. Errors not in this list won't cleanup resources
+            const errorList = [
+                'index specified in reader does not exist'
+            ];
+            /// Tell cluster_master that shutdown is due to a specific error
+            /// Cleans up kubernetes resources. For native, kills processes
+            if (errorList.includes(shutdownError.message)) {
+                this.logger.warn('sent request to cluster_master to cleanup job resources.');
+                await this.client.sendExecutionFinished(shutdownError.message);
+            }
+        }
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         if (this.isShuttingDown) {
@@ -873,13 +915,22 @@ export class ExecutionController {
 
         const invalidStateMsg = (state: string) => {
             const prefix = `Execution ${this.exId} was starting in ${state} status`;
-            return `${prefix} sending execution:finished event to cluster master`;
+            return `${prefix}, sending execution:finished event to cluster master`;
         };
 
         if (includes(terminalStatuses, status)) {
             error = new Error(invalidStateMsg('terminal'));
         } else if (includes(runningStatuses, status)) {
             error = new Error(invalidStateMsg('running'));
+            // If in a running status the execution process
+            // crashed and k8s is trying to restart the pod,
+            // e.g. execution controller OOM.
+            this.logger.warn(`Changing execution status from ${status} to failed`);
+            await this.executionStorage.setStatus(
+                this.exId,
+                'failed',
+                this.executionStorage.executionMetaData(null, getFullErrorStack(error))
+            );
         } else {
             return true;
         }
@@ -1079,5 +1130,68 @@ export class ExecutionController {
         }
 
         this.pendingDispatches++;
+    }
+
+    /**
+     * Adds all prom metrics specific to the execution_controller.
+     *
+     * If trying to add a new metric for the execution_controller, it belongs here.
+     * @async
+     * @function setupPromMetrics
+     * @return {Promise<void>}
+     * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
+     */
+    async setupPromMetrics() {
+        if (isPromAvailable(this.context)) {
+            this.logger.info(`adding ${this.context.assignment} prom metrics...`);
+            const { context, executionAnalytics } = this;
+            await Promise.all([
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'info',
+                    'Information about Teraslice execution controller',
+                    ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'slices_processed',
+                    'Number of slices processed by all workers',
+                    [],
+                    function collect() {
+                        const slicesProcessed = executionAnalytics.get('processed');
+                        const defaultLabels = {
+                            ...context.apis.foundation.promMetrics.getDefaultLabels()
+                        };
+                        this.set(defaultLabels, slicesProcessed);
+                    }
+                )
+            ]);
+
+            this.context.apis.foundation.promMetrics.set(
+                'info',
+                {
+                    arch: this.context.arch,
+                    clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
+                    name: this.context.sysconfig.teraslice.name,
+                    node_version: process.version,
+                    platform: this.context.platform,
+                    teraslice_version: getPackageJSON().version
+                },
+                1
+            );
+        }
+    }
+
+    requestListener(req: http.IncomingMessage, res: http.ServerResponse) {
+        if (req.url === '/health') {
+            if (this.server.executionReady) {
+                res.writeHead(200);
+                res.end('Ready');
+            } else {
+                res.writeHead(503);
+                res.end('Service Unavailable');
+            }
+        } else {
+            res.writeHead(501);
+            res.end('Not Implemented');
+        }
     }
 }

@@ -1,25 +1,21 @@
-import fs from 'fs';
-import os from 'os';
+import fs from 'node:fs';
+import os from 'node:os';
 import ms from 'ms';
-import path from 'path';
+import path from 'node:path';
 import execa from 'execa';
 import fse from 'fs-extra';
 import yaml from 'js-yaml';
 import {
-    debugLogger,
-    isString,
-    get,
-    pWhile,
-    pDelay,
-    TSError
+    debugLogger, isString, get,
+    pWhile, pDelay, TSError
 } from '@terascope/utils';
-import { TSCommands, PackageInfo } from './interfaces';
-import { getRootDir } from './misc';
-import signale from './signale';
-import * as config from './config';
-import { getE2eK8sDir } from '../helpers/packages';
-import { YamlDeploymentResource, YamlServiceResource } from './k8s-env/interfaces';
-import { Kind } from './kind';
+import { TSCommands, PackageInfo } from './interfaces.js';
+import { getRootDir } from './misc.js';
+import signale from './signale.js';
+import * as config from './config.js';
+import { getE2eK8sDir } from '../helpers/packages.js';
+import { YamlDeploymentResource, YamlServiceResource } from './k8s-env/interfaces.js';
+import { Kind } from './kind.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -154,7 +150,11 @@ export async function runJest(
     extraArgs?: string[],
     debug?: boolean
 ): Promise<void> {
-    const args = mapToArgs(argsMap);
+    // When running jest in yarn3 PnP with ESM we must call 'yarn jest <...args>'
+    // to prevent module not found errors. Therefore we will call fork with the yarn
+    // command and set jest to the first argument.
+    const args = ['jest'];
+    args.push(...mapToArgs(argsMap));
     if (extraArgs) {
         extraArgs.forEach((extraArg) => {
             if (extraArg.startsWith('-') && args.includes(extraArg)) {
@@ -172,7 +172,7 @@ export async function runJest(
     }
 
     await fork({
-        cmd: 'jest',
+        cmd: 'yarn',
         cwd,
         args,
         env,
@@ -206,6 +206,18 @@ export async function dockerTag(from: string, to: string): Promise<void> {
         args: ['tag', from, to],
     });
     signale.success(`Image ${from} re-tagged as ${to}`);
+}
+
+export async function getNodeVersionFromImage(image: string): Promise<string> {
+    try {
+        const { stdout } = await execa(
+            'docker',
+            ['run', image, 'node', '-v']
+        );
+        return stdout;
+    } catch (err) {
+        throw new Error(`Unable to get node version from image due to Error: ${err}`);
+    }
 }
 
 export async function getContainerInfo(name: string): Promise<any> {
@@ -243,7 +255,7 @@ export type DockerRunOptions = {
     env?: ExecEnv;
     network?: string;
     args?: string[];
-    mount?: string
+    mount?: string[]
 };
 
 export async function dockerRun(
@@ -259,7 +271,9 @@ export async function dockerRun(
     }
 
     if (opt.mount && !ignoreMount) {
-        args.push('--mount', opt.mount);
+        for (const mount of opt.mount) {
+            args.push('--mount', mount);
+        }
     }
 
     if (opt.ports && opt.ports.length) {
@@ -393,7 +407,8 @@ export async function dockerBuild(
     tag: string,
     cacheFrom?: string[],
     target?: string,
-    buildArg?: string
+    buildArgs?: string[],
+    useDevFile?: boolean
 ): Promise<void> {
     const cacheFromArgs: string[] = [];
 
@@ -402,11 +417,14 @@ export async function dockerBuild(
     });
 
     const targetArgs: string[] = target ? ['--target', target] : [];
-    const buildsArgs: string[] = buildArg ? ['--build-arg', buildArg] : [];
+    const buildsArgs: string[] = buildArgs
+        ? ['--build-arg', ...buildArgs.join(',--build-arg,').split(',')]
+        : [];
+    const dockerFilePath = useDevFile ? ['-f', 'Dockerfile.dev', '.'] : ['.'];
 
     await fork({
         cmd: 'docker',
-        args: ['build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--tag', tag, '.'],
+        args: ['build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--tag', tag, ...dockerFilePath],
     });
 }
 
@@ -419,6 +437,52 @@ export async function dockerPush(image: string): Promise<void> {
     if (subprocess.exitCode !== 0) {
         throw new Error(`Unable to push docker image ${image}, ${subprocess.stderr}`);
     }
+}
+
+async function dockerImageRm(image: string): Promise<void> {
+    const subprocess = await execa.command(
+        `docker image rm ${image}`,
+        { reject: false }
+    );
+
+    if (subprocess.exitCode !== 0) {
+        throw new Error(`Unable to remove docker image ${image}, ${subprocess.stderr}`);
+    }
+}
+
+/**
+ * Unzips and loads a Docker image from a Docker cache
+ * If successful the image will be deleted from the cache
+ * @param {string} imageName Name of the image to load
+ * @returns {Promise<boolean>} Whether or not the image loaded successfully
+ */
+export async function loadThenDeleteImageFromCache(imageName: string): Promise<boolean> {
+    signale.time(`unzip and load ${imageName}`);
+    const fileName = imageName.trim().replace(/[/:]/g, '_');
+    const filePath = path.join(config.DOCKER_CACHE_PATH, `${fileName}.tar.gz`);
+
+    if (!fs.existsSync(filePath)) {
+        signale.error(`No file found at ${filePath}. Have you restored the cache?`);
+        return false;
+    }
+
+    const result = await execa.command(`gunzip -c ${filePath} | docker load`, { shell: true });
+    signale.info('Result: ', result);
+
+    if (result.exitCode !== 0) {
+        signale.error(`Error loading ${filePath} to docker`);
+        return false;
+    }
+
+    fs.rmSync(filePath);
+    signale.timeEnd(`unzip and load ${imageName}`);
+
+    return true;
+}
+
+export async function deleteDockerImageCache() {
+    signale.info(`Deleting Docker image cache at ${config.DOCKER_CACHE_PATH}`);
+    fse.removeSync(config.DOCKER_CACHE_PATH);
 }
 
 export async function pgrep(name: string): Promise<string> {
@@ -435,6 +499,22 @@ export async function pgrep(name: string): Promise<string> {
         return found;
     }
     return '';
+}
+
+/**
+ * Save a docker image as a tar.gz to a local directory.
+ * Then remove the image from docker
+ * @param {string} imageName Name of image to pull and save
+ * @param {string} imageSavePath Location where image will be saved and compressed.
+ * @returns void
+ */
+export async function saveAndZip(imageName:string, imageSavePath: string) {
+    signale.info(`Saving Docker image: ${imageName}`);
+    const fileName = imageName.replace(/[/:]/g, '_');
+    const filePath = path.join(imageSavePath, `${fileName}.tar`);
+    const command = `docker save ${imageName} | gzip > ${filePath}.gz`;
+    await execa.command(command, { shell: true });
+    await dockerImageRm(imageName);
 }
 
 export async function getCommitHash(): Promise<string> {
@@ -579,7 +659,7 @@ export async function k8sStartService(
 ): Promise<void> {
     // services that have an available k8s deployment yaml file
     const availableServices = [
-        'elasticsearch', 'kafka', 'zookeeper', // 'opensearch', 'minio', 'rabbitmq'
+        'elasticsearch', 'kafka', 'zookeeper', 'minio' // 'opensearch', 'rabbitmq'
     ];
 
     if (!availableServices.includes(serviceName)) {

@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /* eslint-disable no-param-reassign */
 
-import { toString } from './strings';
+import { toString } from './strings.js';
 
 type ArgType<T> = T extends (...args: infer A) => any ? A : any;
 
@@ -60,7 +61,6 @@ export function memoize<T extends MemoizeFn>(fn: T): T {
 }
 
 /** Verify an input is a function */
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function isFunction(input: unknown): input is Function {
     return !!(input && typeof input === 'function');
 }

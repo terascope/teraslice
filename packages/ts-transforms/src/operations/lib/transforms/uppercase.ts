@@ -1,6 +1,6 @@
 import { DataEntity, get } from '@terascope/utils';
-import { PostProcessConfig } from '../../../interfaces';
-import TransformOpBase from './base';
+import { PostProcessConfig } from '../../../interfaces.js';
+import TransformOpBase from './base.js';
 
 export default class Uppercase extends TransformOpBase {
     constructor(config: PostProcessConfig) {

@@ -5,30 +5,30 @@ import {
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
-} from '../misc';
-import { ensureServices, pullServices } from './services';
-import { PackageInfo } from '../interfaces';
-import { TestOptions } from './interfaces';
+} from '../misc.js';
+import { ensureServices, loadOrPullServiceImages } from './services.js';
+import { PackageInfo } from '../interfaces.js';
+import { TestOptions } from './interfaces.js';
 import {
-    runJest,
-    dockerTag,
-    isKindInstalled,
-    isKubectlInstalled
-} from '../scripts';
-import { Kind } from '../kind';
+    runJest, dockerTag, isKindInstalled,
+    isKubectlInstalled, loadThenDeleteImageFromCache,
+    deleteDockerImageCache
+} from '../scripts.js';
+import { Kind } from '../kind.js';
 import {
     getArgs, filterBySuite, reportCoverage,
     logE2E, getEnv, groupBySuite
-} from './utils';
-import signale from '../signale';
+} from './utils.js';
+import signale from '../signale.js';
+import { getE2EDir, readPackageInfo, listPackages } from '../packages.js';
+import { buildDevDockerImage } from '../publish/utils.js';
+import { PublishOptions, PublishType } from '../publish/interfaces.js';
+import { TestTracker } from './tracker.js';
 import {
-    getE2EDir, readPackageInfo, listPackages
-} from '../packages';
-import { buildDevDockerImage } from '../publish/utils';
-import { PublishOptions, PublishType } from '../publish/interfaces';
-import { TestTracker } from './tracker';
-import { MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT } from '../config';
-import { K8s } from '../k8s-env/k8s';
+    MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
+    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION
+} from '../config.js';
+import { K8s } from '../k8s-env/k8s.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -103,6 +103,11 @@ async function runTestSuite(
     tracker: TestTracker,
 ): Promise<void> {
     if (suite === 'e2e') return;
+
+    if (isCI) {
+        // load the services from cache in CI
+        await loadOrPullServiceImages(suite);
+    }
 
     const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
 
@@ -197,7 +202,7 @@ async function runE2ETest(
         throw new Error('Missing e2e test directory');
     }
 
-    if (options.testPlatform === 'kubernetes') {
+    if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
         try {
             const kindInstalled = await isKindInstalled();
             if (!kindInstalled && !isCI) {
@@ -211,8 +216,11 @@ async function runE2ETest(
                 process.exit(1);
             }
 
-            kind = new Kind(options.k8sVersion, options.kindClusterName);
+            kind = new Kind(K8S_VERSION, options.kindClusterName);
             try {
+                if (isCI) {
+                    await loadThenDeleteImageFromCache('kindest/node:v1.30.0');
+                }
                 await kind.createCluster();
             } catch (err) {
                 signale.error(err);
@@ -227,22 +235,28 @@ async function runE2ETest(
     }
 
     const rootInfo = getRootInfo();
-    const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
+    const e2eImage = `${rootInfo.name}:e2e-nodev${NODE_VERSION}`;
 
-    if (isCI && options.testPlatform === 'native') {
-        // pull the services first in CI
-        await pullServices(suite, options);
+    if (isCI) {
+        // load service if in native. In k8s services will be loaded directly to kind
+        if (options.testPlatform === 'native') {
+            await loadOrPullServiceImages(suite);
+            await deleteDockerImageCache();
+        }
+
+        // load the base docker image
+        await loadThenDeleteImageFromCache(`${BASE_DOCKER_IMAGE}:${NODE_VERSION}`);
     }
 
     try {
         if (SKIP_DOCKER_BUILD_IN_E2E) {
-            const devImage = getDevDockerImage(options.nodeVersion);
+            const devImage = getDevDockerImage(NODE_VERSION);
             await dockerTag(devImage, e2eImage);
         } else {
             const publishOptions: PublishOptions = {
                 dryRun: true,
                 nodeSuffix: true,
-                nodeVersion: options.nodeVersion,
+                nodeVersion: NODE_VERSION,
                 type: PublishType.Dev
             };
             const devImage = await buildDevDockerImage(publishOptions);
@@ -252,7 +266,7 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
-    if (options.testPlatform === 'kubernetes' && kind) {
+    if (kind && (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2')) {
         try {
             await kind.loadTerasliceImage(e2eImage);
         } catch (err) {
@@ -268,6 +282,8 @@ async function runE2ETest(
     } catch (err) {
         tracker.addError(err);
     }
+
+    await deleteDockerImageCache();
 
     if (!tracker.hasErrors()) {
         const timeLabel = `test suite "${suite}"`;
@@ -308,7 +324,8 @@ async function runE2ETest(
         }
     }
 
-    if (options.testPlatform === 'kubernetes' && !options.keepOpen && kind) {
+    if ((options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2')
+        && !options.keepOpen && kind) {
         await kind.destroyCluster();
     }
 }

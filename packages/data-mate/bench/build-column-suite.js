@@ -1,9 +1,8 @@
-'use strict';
-
-const { getGroupedFields } = require('@terascope/data-types');
-const { Suite } = require('./helpers');
-const { config, data } = require('./fixtures/data.json');
-const { Column } = require('./src');
+import { getGroupedFields } from '@terascope/data-types';
+import { isExecutedFile } from '@terascope/utils';
+import { Suite } from './helpers.js';
+import { config, data } from './fixtures/data.json';
+import { Column } from '../dist/src/index.js';
 
 const run = async () => {
     const suite = Suite('Build Column');
@@ -26,10 +25,11 @@ const run = async () => {
         maxTime: 20,
     });
 };
-if (require.main === module) {
+
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

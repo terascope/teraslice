@@ -1,18 +1,11 @@
 import {
-    DataTypeFieldConfig,
-    Maybe, SortOrder,
+    DataTypeFieldConfig, Maybe, SortOrder,
     ReadonlyDataTypeFields,
 } from '@terascope/types';
-import {
-    isPrimitiveValue, getHashCodeFrom,
-} from '@terascope/utils';
-import { inspect } from 'util';
-import {
-    ReadableData, WritableData
-} from '../core';
-import {
-    DataBuckets, SerializeOptions, VectorType
-} from './interfaces';
+import { isPrimitiveValue, getHashCodeFrom } from '@terascope/utils';
+import { inspect } from 'node:util';
+import { ReadableData, WritableData } from '../core/index.js';
+import { DataBuckets, SerializeOptions, VectorType } from './interfaces.js';
 
 /**
  * An immutable typed Array class with a constrained API.
@@ -121,11 +114,11 @@ export abstract class Vector<T = unknown> {
     ) {
         this.type = type;
         const res = getDataBuckets(data);
-        // eslint-disable-next-line prefer-destructuring
+         
         this.data = res[0];
-        // eslint-disable-next-line prefer-destructuring
+         
         this.__size = res[1];
-        // eslint-disable-next-line prefer-destructuring
+         
         this.__consistentSize = res[2];
         this.name = options.name;
         this.config = options.config;

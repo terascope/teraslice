@@ -1,12 +1,10 @@
 import {
-    xLuceneTypeConfig,
-    PropertyESTypeMapping,
-    PropertyESTypes,
+    xLuceneTypeConfig, PropertyESTypeMapping, PropertyESTypes,
     ClientMetadata,
 } from '@terascope/types';
 import { firstToUpper } from '@terascope/utils';
-import BaseType, { ToGraphQLOptions } from './base-type';
-import { GraphQLType, TypeESMapping } from '../interfaces';
+import BaseType, { ToGraphQLOptions } from './base-type.js';
+import { GraphQLType, TypeESMapping } from '../interfaces.js';
 
 export type NestedTypes = { [field: string]: BaseType };
 

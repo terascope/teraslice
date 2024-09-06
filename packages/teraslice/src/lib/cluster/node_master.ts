@@ -2,6 +2,7 @@ import ms from 'ms';
 import _ from 'lodash';
 import { Mutex } from 'async-mutex';
 import { getFullErrorStack } from '@terascope/utils';
+import { Terafoundation } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { Messaging } from './services/cluster/backends/native/messaging.js';
 import { spawnAssetLoader } from '../workers/assets/spawn.js';
@@ -80,8 +81,6 @@ export async function nodeMaster(context: ClusterMasterContext) {
     }
 
     function canAllocateWorkers(requestedWorkers: number) {
-        // @ts-expect-error TODO: fix this, type issue due to divergent types of
-        // job-components and terafoundation
         const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
         // if there is an over allocation, send back rest to be enqueued
         if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
@@ -120,7 +119,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
             const createSlicerMsg = createSlicerRequest.payload;
             logger.info(`starting execution_controller for execution ${createSlicerMsg.ex_id}...`);
 
-            allocateWorkers(1, createSlicerMsg, () => {
+            allocateWorkers(1, createSlicerMsg, async () => {
                 const controllerContext = {
                     assignment: 'execution_controller',
                     NODE_TYPE: 'execution_controller',
@@ -132,8 +131,8 @@ export async function nodeMaster(context: ClusterMasterContext) {
                     slicer_port: createSlicerMsg.slicer_port
                 };
                 logger.trace('starting a execution controller', controllerContext);
-                // @ts-expect-error TODO: check this
-                return context.foundation.startWorkers(1, controllerContext);
+
+                return context.apis.foundation.startWorkers(1, controllerContext);
             })
                 .then(() => messaging.respond(createSlicerRequest))
                 .catch((error) => {
@@ -161,9 +160,9 @@ export async function nodeMaster(context: ClusterMasterContext) {
                 return;
             }
 
-            allocateWorkers(requestedWorkers, createWorkerMsg, () => {
+            allocateWorkers(requestedWorkers, createWorkerMsg, async () => {
                 let newWorkers = requestedWorkers;
-                // @ts-expect-error
+
                 const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
                 // if there is an over allocation, send back rest to be enqueued
                 if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
@@ -172,11 +171,11 @@ export async function nodeMaster(context: ClusterMasterContext) {
                     logger.warn(`reducing allocation to ${newWorkers} workers.`);
                 }
 
-                let workers = [];
+                let workers: Terafoundation.FoundationWorker[] = [];
                 if (newWorkers > 0) {
                     logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
-                    // @ts-expect-error
-                    workers = context.foundation.startWorkers(newWorkers, {
+
+                    workers = context.apis.foundation.startWorkers(newWorkers, {
                         NODE_TYPE: 'worker',
                         EX: safeEncode(createWorkerMsg.job),
                         assignment: 'worker',
@@ -207,7 +206,6 @@ export async function nodeMaster(context: ClusterMasterContext) {
     // this fires when entire server will be shutdown
     events.once('terafoundation:shutdown', () => {
         logger.debug('received shutdown notice from terafoundation');
-        // @ts-expect-error
         const filterFn = () => context.cluster.workers;
         const isActionCompleteFn = () => _.isEmpty(getNodeState().active);
         shutdownProcesses({}, filterFn, isActionCompleteFn, true);
@@ -220,10 +218,10 @@ export async function nodeMaster(context: ClusterMasterContext) {
             logger.debug(`received cluster execution stop for execution ${exId}`);
 
             const filterFn = () => _.filter(
-                // @ts-expect-error
                 context.cluster.workers,
                 (worker: Record<string, any>) => worker.ex_id === exId
             );
+
             function actionCompleteFn() {
                 const children = getNodeState().active;
                 const workers = _.filter(
@@ -303,11 +301,10 @@ export async function nodeMaster(context: ClusterMasterContext) {
         const allWorkersForJob = filterFn();
         _.each(allWorkersForJob, (worker: Record<string, any>) => {
             const workerID = worker.worker_id || worker.id;
-            // @ts-expect-error
             if (_.has(context.cluster.workers, workerID)) {
-                // @ts-expect-error
                 const clusterWorker = context.cluster.workers[workerID];
                 const processId = clusterWorker.process.pid;
+
                 if (clusterWorker.isDead()) return;
                 // if the worker has already been sent a SIGTERM signal it should send a SIGKILL
                 logger.warn(`sending ${signal} to process ${processId}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
@@ -358,7 +355,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
             total: context.sysconfig.teraslice.workers,
             state: 'connected'
         } as Partial<NodeState>;
-        // @ts-expect-error
+
         const clusterWorkers = context.cluster.workers;
         const active: WorkerNode[] = [];
 
@@ -399,20 +396,32 @@ export async function nodeMaster(context: ClusterMasterContext) {
 
     if (context.sysconfig.teraslice.master) {
         logger.debug(`node ${context.sysconfig._nodeName} is creating the cluster_master`);
-        // @ts-expect-error
-        context.foundation.startWorkers(1, {
+
+        const [clusterMaster] = context.apis.foundation.startWorkers(1, {
             assignment: 'cluster_master',
             assets_port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
         });
 
+        clusterMaster.on('exit', (code: any) => {
+            if (code !== 0) {
+                throw Error(`Cluster master has shutdown with exit code ${code}!`);
+            }
+        });
+
         logger.debug(`node ${context.sysconfig._nodeName} is creating assets endpoint on port ${ports.assetsPort}`);
-        // @ts-expect-error
-        context.foundation.startWorkers(1, {
+
+        const [assetService] = context.apis.foundation.startWorkers(1, {
             assignment: 'assets_service',
             // key needs to be called port to bypass cluster port sharing
             port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
+        });
+
+        assetService.on('exit', (code: any) => {
+            if (code !== 0) {
+                throw Error(`Asset Service has shutdown with exit code ${code}!`);
+            }
         });
     }
 }

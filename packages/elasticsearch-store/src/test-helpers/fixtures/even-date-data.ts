@@ -1,6 +1,6 @@
 import { DataEntity } from '@terascope/utils';
 import { DataType } from '@terascope/data-types';
-import type { Data } from './interfaces';
+import type { Data } from './interfaces.js';
 
 export type EvenData = Data;
 

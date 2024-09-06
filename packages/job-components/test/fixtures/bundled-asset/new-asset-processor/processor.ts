@@ -1,4 +1,5 @@
-import { DataEntity, BatchProcessor, times } from '../../../../src';
+import { DataEntity, times } from '@terascope/utils';
+import { BatchProcessor } from '../../../../src/index.js';
 
 export class AssetProcessorExampleBatch extends BatchProcessor {
     _initialized = false;

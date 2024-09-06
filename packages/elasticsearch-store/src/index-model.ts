@@ -1,11 +1,18 @@
-import * as ts from '@terascope/utils';
+import {
+    isTest, debugLogger, concat,
+    Logger, makeISODate, toSafeString,
+    trim, trimAndToLower, TSError
+} from '@terascope/utils';
 import { JoinBy } from '@terascope/data-mate';
 import { QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { v4 as uuid } from 'uuid';
-import { Client } from './elasticsearch-client';
-import { IndexStore, AnyInput } from './index-store';
-import * as utils from './utils';
-import * as i from './interfaces';
+import { Client } from './elasticsearch-client/index.js';
+import { IndexStore, AnyInput } from './index-store.js';
+import {
+    addDefaultSchema, toInstanceName, validateId,
+    validateIds, uniqueFieldQuery
+} from './utils/index.js';
+import * as i from './interfaces.js';
 
 /**
  * An high-level, opinionated, abstract class
@@ -13,7 +20,7 @@ import * as i from './interfaces';
  */
 export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStore<T> {
     readonly name: string;
-    readonly logger: ts.Logger;
+    readonly logger: Logger;
 
     private _uniqueFields: readonly (keyof T)[];
     private _sanitizeFields: i.SanitizeFields;
@@ -44,14 +51,14 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
                 version,
             },
             data_schema: {
-                schema: utils.addDefaultSchema(schema),
+                schema: addDefaultSchema(schema),
                 strict: strict_mode !== false,
                 all_formatters: true,
                 validate_on_read: false,
             },
             index_settings: {
-                'index.number_of_shards': ts.isTest ? 1 : 5,
-                'index.number_of_replicas': ts.isTest ? 0 : 2,
+                'index.number_of_shards': isTest ? 1 : 5,
+                'index.number_of_replicas': isTest ? 0 : 2,
                 ...index_settings
             },
             default_query_access: new QueryAccess({
@@ -71,11 +78,11 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
 
         super(client, indexConfig);
 
-        this.name = utils.toInstanceName(this.config.name);
+        this.name = toInstanceName(this.config.name);
         const debugLoggerName = `elasticsearch-store:index-model:${this.name}`;
-        this.logger = options.logger || ts.debugLogger(debugLoggerName);
+        this.logger = options.logger || debugLogger(debugLoggerName);
 
-        this._uniqueFields = ts.concat('_key', uniqueFields);
+        this._uniqueFields = concat('_key', uniqueFields);
         this._sanitizeFields = sanitizeFields || {};
 
         this.readHooks.add((doc) => {
@@ -92,7 +99,7 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
         options?: i.FindOneOptions<T>,
         queryAccess?: QueryAccess<T>
     ): Promise<T> {
-        utils.validateId(anyId, 'fetchRecord');
+        validateId(anyId, 'fetchRecord');
         const fields: Partial<T> = {};
 
         for (const field of this._uniqueFields) {
@@ -110,14 +117,14 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
 
     private _createRecord(record: i.CreateRecordInput<T>, allowOverrides?: boolean): T {
         const docInput = allowOverrides ? {
-            _created: ts.makeISODate(),
-            _updated: ts.makeISODate(),
+            _created: makeISODate(),
+            _updated: makeISODate(),
             ...record,
             _deleted: false,
         } as T : {
             ...record,
-            _created: ts.makeISODate(),
-            _updated: ts.makeISODate(),
+            _created: makeISODate(),
+            _updated: makeISODate(),
             _deleted: false,
         } as T;
 
@@ -128,13 +135,13 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
     }
 
     async updateRecord(id: string, record: i.UpdateRecordInput<T>): Promise<T> {
-        utils.validateId(id, 'updateRecord');
+        validateId(id, 'updateRecord');
 
         return this.updatePartial(id, async (existing) => {
             const doc = this._sanitizeRecord({
                 ...existing,
                 ...record,
-                _updated: ts.makeISODate(),
+                _updated: makeISODate(),
                 _key: id
             } as T);
 
@@ -160,7 +167,7 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
      * Soft deletes a record by ID
      */
     async deleteRecord(id: string, clientId?: number): Promise<boolean> {
-        utils.validateId(id, 'deleteRecord');
+        validateId(id, 'deleteRecord');
 
         const exists = await this.recordExists(id, clientId);
         if (!exists) return false;
@@ -191,7 +198,7 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
     }
 
     async recordExists(id: string[] | string, clientId?: number): Promise<boolean> {
-        const ids = utils.validateIds(id, 'recordExists');
+        const ids = validateIds(id, 'recordExists');
         if (!ids.length) return true;
 
         const count = await this.countRecords({
@@ -209,13 +216,13 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
 
             switch (method) {
                 case 'trim':
-                    record[field] = ts.trim(record[field]);
+                    record[field] = trim(record[field]);
                     break;
                 case 'trimAndToLower':
-                    record[field] = ts.trimAndToLower(record[field]);
+                    record[field] = trimAndToLower(record[field]);
                     break;
                 case 'toSafeString':
-                    record[field] = ts.toSafeString(record[field]);
+                    record[field] = toSafeString(record[field]);
                     break;
                 default:
                     continue;
@@ -230,7 +237,7 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
             if (field === '_key') continue;
             if (field === 'client_id') continue;
             if (!existing && record[field] == null) {
-                throw new ts.TSError(`${this.name} requires field ${String(field)}`, {
+                throw new TSError(`${this.name} requires field ${String(field)}`, {
                     statusCode: 422,
                 });
             }
@@ -238,7 +245,7 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
 
             const fieldKey = this._hasTextAnalyzer(field) ? `${String(field)}.text` : String(field);
 
-            let query = `${fieldKey}:${utils.uniqueFieldQuery(String(record[field]))}`;
+            let query = `${fieldKey}:${uniqueFieldQuery(String(record[field]))}`;
 
             if (record.client_id && record.client_id > 0) {
                 query += ` AND client_id: ${record.client_id}`;
@@ -249,7 +256,7 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
             const count = await this.count(query);
 
             if (count > 0) {
-                throw new ts.TSError(`${this.name} requires ${String(field)} to be unique`, {
+                throw new TSError(`${this.name} requires ${String(field)} to be unique`, {
                     statusCode: 409,
                 });
             }

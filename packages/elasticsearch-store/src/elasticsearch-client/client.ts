@@ -1,5 +1,5 @@
 import { ClientParams, ClientResponse, ClientMetadata } from '@terascope/types';
-import * as methods from './method-helpers';
+import * as methods from './method-helpers/index.js';
 
 export class Client {
     private client: any;
@@ -290,7 +290,7 @@ export class Client {
     /**
      * Returns search hits that match the query defined in the request.
      * @param SearchParams
-     * @returns Array of Record<string, any>
+     * @returns {Record<string,any>[]}
     */
     async search<T = Record<string, unknown>>(
         params: ClientParams.SearchParams
@@ -308,7 +308,7 @@ export class Client {
     /**
      * The multi search execution of several searches within the same API request
      * @param MSearchParams
-     * @returns Array of Record<string, any>
+     * @returns {Record<string,any>[]}
     */
     async msearch(
         params: ClientParams.MSearchParams
@@ -326,7 +326,7 @@ export class Client {
     /**
      * The multi get execution of multiple-get searches from a single API request
      * @param MGetParams
-     * @returns Array of Record<string, any>
+     * @returns {Record<string,any>[]}
     */
     async mget(
         params: ClientParams.MGetParams

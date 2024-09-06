@@ -1,8 +1,9 @@
 import { xLuceneFieldType } from '@terascope/types';
 import {
-    FieldGroup, GroupLikeNode, NodeType, Range, Term, Wildcard
-} from '../../src';
-import { TestCase } from './interfaces';
+    FieldGroup, GroupLikeNode, NodeType,
+    Range, Term, Wildcard
+} from '../../src/index.js';
+import { TestCase } from './interfaces.js';
 
 export default [
     ['count:(>=10 AND <=20 AND >=100)', 'a field group expression with ranges', {
@@ -597,7 +598,7 @@ export const filterNilFieldGroup: TestCase[] = [
             left: {
                 operator: 'gte',
                 field_type: xLuceneFieldType.Integer,
-                value: { type: 'variable', value: 'foo', },
+                value: { type: 'value', value: 20, },
             }
         } as Range,
     ],

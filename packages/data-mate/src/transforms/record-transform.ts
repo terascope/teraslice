@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import * as ts from '@terascope/utils';
-import { Repository, RecordInput, InputType } from '../interfaces';
-import { isString, isArray } from '../validations/field-validator';
+import { Repository, RecordInput, InputType } from '../interfaces.js';
+import { isString, isArray } from '../validations/field-validator.js';
 
 export const repository: Repository = {
     renameField: {
@@ -279,7 +279,7 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
 export function transformRecord(
     _input: RecordInput,
     _parentContext: RecordInput,
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+     
     _args: any
 ): ts.AnyObject|null { return null; }
 

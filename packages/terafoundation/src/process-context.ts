@@ -1,8 +1,9 @@
+import type { Terafoundation } from '@terascope/types';
 import { nanoid } from 'nanoid';
-import validateConfigs from './validate-configs';
-import { CoreContext } from './core-context';
-import { getArgs } from './sysconfig';
-import * as i from './interfaces';
+import validateConfigs from './validate-configs.js';
+import { CoreContext } from './core-context.js';
+import { getArgs } from './sysconfig.js';
+import { ParsedArgs } from './interfaces.js';
 
 /**
  * A Single Process Context, this should be used when running
@@ -18,24 +19,28 @@ export class ProcessContext<
     A = Record<string, any>,
     D extends string = string
 > extends CoreContext<S, A, D> {
-    constructor(
-        config: i.FoundationConfig<S, A, D>,
-        overrideArgs?: i.ParsedArgs<S>
+    static async createContext<
+        S = Record<string, any>,
+        A = Record<string, any>,
+        D extends string = string
+    >(
+        config: Terafoundation.Config<S, A, D>,
+        overrideArgs?: ParsedArgs<S>
     ) {
-        const cluster: i.Cluster = {
+        const cluster: Terafoundation.Cluster = {
             isMaster: false,
             worker: {
                 id: nanoid(8),
             }
         } as any;
 
-        const parsedArgs = overrideArgs || getArgs<S>(
+        const parsedArgs = overrideArgs || await getArgs<S>(
             config.default_config_file
         );
 
-        const sysconfig = validateConfigs(cluster, config, parsedArgs.configfile);
+        const sysconfig = await validateConfigs(cluster, config, parsedArgs.configfile);
 
-        super(
+        return new ProcessContext<S, A, D>(
             config,
             cluster,
             sysconfig,

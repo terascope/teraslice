@@ -1,21 +1,12 @@
-import { Context, WorkerContext } from '../interfaces';
-import { SlicerExecutionContext } from './slicer';
-import { WorkerExecutionContext } from './worker';
-import { ExecutionContextConfig } from './interfaces';
+import { SlicerExecutionContext } from './slicer.js';
+import { WorkerExecutionContext } from './worker.js';
+import { ExecutionContextConfig } from './interfaces.js';
 
-export * from './api';
-export * from './interfaces';
-export * from './slicer';
-export * from './worker';
-export * from './utils';
-
-export function isWorkerContext(context: Context): context is WorkerContext {
-    return context.assignment === 'worker';
-}
-
-export function isSlicerContext(context: Context): context is WorkerContext {
-    return context.assignment === 'execution_controller';
-}
+export * from './api.js';
+export * from './interfaces.js';
+export * from './slicer.js';
+export * from './worker.js';
+export * from './utils.js';
 
 export function isWorkerExecutionContext(context: unknown): context is WorkerExecutionContext {
     return context instanceof WorkerExecutionContext;
@@ -26,15 +17,16 @@ export function isSlicerExecutionContext(context: unknown): context is SlicerExe
 }
 
 export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;
-
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function makeExecutionContext(config: ExecutionContextConfig): ExecutionContext {
-    if (isSlicerContext(config.context)) {
-        return new SlicerExecutionContext(config);
+ 
+export async function makeExecutionContext(
+    config: ExecutionContextConfig
+): Promise<ExecutionContext> {
+    if (config.context.assignment === 'execution_controller') {
+        return SlicerExecutionContext.createContext(config);
     }
 
-    if (isWorkerContext(config.context)) {
-        return new WorkerExecutionContext(config);
+    if (config.context.assignment === 'worker') {
+        return WorkerExecutionContext.createContext(config);
     }
 
     throw new Error('ExecutionContext requires an assignment of "execution_controller" or "worker"');

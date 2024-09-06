@@ -5,7 +5,7 @@ import {
     IndexModel, IndexModelRecord, IndexModelConfig,
     IndexModelOptions, makeRecordDataType, Client,
     ElasticsearchTestHelpers
-} from '../src';
+} from '../src/index.js';
 
 const { makeClient, cleanupIndexStore, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
 
@@ -26,7 +26,7 @@ describe('IndexSearchCompatability', () => {
     }
 
     const dataType = makeRecordDataType({
-        name: 'SearchCompatability',
+        name: 'SearchCompatibility',
         fields: {
             id: { type: FieldType.Keyword },
             foo: { type: FieldType.Keyword },

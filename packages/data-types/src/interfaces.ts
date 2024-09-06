@@ -1,14 +1,12 @@
 import {
-    ESTypeMapping, ESMapping,
-    availableFieldTypes, DataTypeFieldConfig,
-    DataTypeVersion, dataTypeVersions,
+    ESTypeMapping, ESMapping, availableFieldTypes,
+    DataTypeFieldConfig, DataTypeVersion, dataTypeVersions,
     DataTypeFields, DataTypeConfig,
-    DeprecatedFieldType,
-    FieldType,
+    DeprecatedFieldType, FieldType,
     ClientMetadata,
 } from '@terascope/types';
 
-import BaseType from './types/base-type';
+import BaseType from './types/base-type.js';
 
 /** An object of base fields with their child fields */
 export type GroupedFields = Record<string, string[]>;
@@ -106,4 +104,9 @@ export interface ESMappingOptions extends ClientMetadata {
      * uses a deep assignment so nested fields can be overwritten.
      */
     overrides?: Partial<ESMapping>;
+
+    /**
+     * Any metadata to add to the index mapping
+     */
+    _meta?: Record<string, any>;
 }

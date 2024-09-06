@@ -4,5 +4,9 @@
         "outDir": "dist",
         "rootDir": "."
     },
-    "include": ["src", "test"]
+    "include": [
+        "src",
+        "test",
+        "test/fixtures/test.txt"
+    ]
 }

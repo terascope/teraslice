@@ -3,14 +3,12 @@ import {
     DataTypeFieldConfig, Maybe, SortOrder,
     DataTypeFields, FieldType, ReadonlyDataTypeFields
 } from '@terascope/types';
-import { Builder } from '../builder';
-import {
-    SerializeOptions, Vector
-} from '../vector';
-import { ColumnConfig, ColumnOptions } from './interfaces';
-import { runVectorAggregation, ValueAggregation } from './aggregations';
-import { getVectorId } from './utils';
-import { ReadableData, WritableData } from '../core';
+import { Builder } from '../builder/index.js';
+import { SerializeOptions, Vector } from '../vector/index.js';
+import { ColumnConfig, ColumnOptions } from './interfaces.js';
+import { runVectorAggregation, ValueAggregation } from './aggregations.js';
+import { getVectorId } from './utils.js';
+import { ReadableData, WritableData } from '../core/index.js';
 
 type NameType = (number|string|symbol);
 /**

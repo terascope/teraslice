@@ -1,9 +1,9 @@
-import { Logger } from '@terascope/utils';
+import type { Logger } from '@terascope/utils';
 import {
     SortOrder, xLuceneTypeConfig, xLuceneVariables,
     GeoDistanceUnit, GeoPoint, ClientMetadata
 } from '@terascope/types';
-import { ParserOptions } from 'packages/xlucene-parser/dist/src';
+import { ParserOptions } from 'xlucene-parser';
 
 export interface TranslatorOptions extends ParserOptions {
     logger?: Logger;

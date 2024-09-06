@@ -1,9 +1,9 @@
-import fieldTransforms from './FieldTransform';
-import fieldValidators from './FieldValidator';
-import recordValidators from './RecordValidator';
-import recordTransforms from './RecordTransform';
+import fieldTransforms from './FieldTransform.js';
+import fieldValidators from './FieldValidator.js';
+import recordValidators from './RecordValidator.js';
+import recordTransforms from './RecordTransform.js';
 
-import { PluginClassType } from '../../../interfaces';
+import { PluginClassType } from '../../../interfaces.js';
 
 export default class DataMatePlugins implements PluginClassType {
     init() {

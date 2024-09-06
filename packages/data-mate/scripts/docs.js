@@ -1,19 +1,11 @@
 #!/usr/bin/env node
-
-'use strict';
-
-const {
-    toTitleCase,
-    isEmpty,
-    flatten,
-    flattenDeep,
-    firstToUpper,
-    uniq,
-    isPlainObject,
-    trimEnd,
-} = require('@terascope/utils');
-const { inspect } = require('util');
-const { functionConfigRepository } = require('..');
+import {
+    toTitleCase, isEmpty, flatten,
+    flattenDeep, firstToUpper, uniq,
+    isPlainObject, trimEnd,
+} from '@terascope/utils';
+import { inspect } from 'node:util';
+import { functionConfigRepository } from '../dist/src/index.js';
 
 function prettyPrint(input) {
     if (isPlainObject(input) && !Object.keys(input).length) {

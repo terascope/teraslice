@@ -1,9 +1,9 @@
-import APICore from './api-core';
-import FetcherCore from './fetcher-core';
-import OperationCore from './operation-core';
-import ProcessorCore from './processor-core';
-import SchemaCore from './schema-core';
-import SlicerCore from './slicer-core';
+import APICore from './api-core.js';
+import FetcherCore from './fetcher-core.js';
+import OperationCore from './operation-core.js';
+import ProcessorCore from './processor-core.js';
+import SchemaCore from './schema-core.js';
+import SlicerCore from './slicer-core.js';
 
 export {
     APICore,

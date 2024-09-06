@@ -1,6 +1,5 @@
-/* eslint-disable max-classes-per-file */
 import { RepoConfig, InputType } from '@terascope/data-mate';
-import { InputOutputCardinality } from '../../interfaces';
+import { InputOutputCardinality } from '../../interfaces.js';
 
 export const OneToOneMixin = (Base: any) => class extends Base {
     static cardinality: InputOutputCardinality = 'one-to-one';

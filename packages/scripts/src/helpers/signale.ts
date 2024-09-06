@@ -1,5 +1,7 @@
 import { isTest } from '@terascope/utils';
-import { Signale } from 'signale';
+import signalePkg from 'signale';
+
+const { Signale } = signalePkg;
 
 export default new Signale({
     logLevel: isTest ? 'error' : 'info',

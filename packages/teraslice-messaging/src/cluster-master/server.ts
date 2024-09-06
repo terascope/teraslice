@@ -1,6 +1,6 @@
 import { isNumber, cloneDeep } from '@terascope/utils';
-import * as i from './interfaces';
-import * as core from '../messenger';
+import * as i from './interfaces.js';
+import * as core from '../messenger/index.js';
 
 export class Server extends core.Server {
     private clusterAnalytics: i.ClusterAnalytics;

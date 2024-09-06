@@ -1,16 +1,20 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import {
-    ExtractionPhase, Loader, OperationsManager, ExtractionProcessingDict
-} from '../../src';
+    ExtractionPhase, Loader, OperationsManager,
+    ExtractionProcessingDict
+} from '../../src/index.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('extraction phase', () => {
     const logger = debugLogger('extractionPhaseTest');
     const opManager = new OperationsManager();
 
     async function getConfigList(fileName: string): Promise<ExtractionProcessingDict> {
-        const filePath = path.join(__dirname, `../fixtures/${fileName}`);
+        const filePath = path.join(dirname, `../fixtures/${fileName}`);
         const myFileLoader = new Loader({ rules: [filePath] }, logger);
         const { extractions } = await myFileLoader.load(opManager);
         return extractions;

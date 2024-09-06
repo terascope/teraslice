@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "1.0.2",
+    "version": "2.3.0",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -32,56 +32,52 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test . --",
-        "test:debug": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test --debug . --",
-        "test:watch": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test --watch . --"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/fetch-github-release": "^0.8.7",
-        "@terascope/types": "^0.14.0",
-        "@terascope/utils": "^0.55.0",
+        "@terascope/fetch-github-release": "^1.0.0",
+        "@terascope/types": "^1.1.0",
+        "@terascope/utils": "^1.1.0",
         "chalk": "^4.1.2",
-        "cli-table3": "^0.6.3",
+        "cli-table3": "^0.6.4",
+        "diff": "^5.2.0",
         "easy-table": "^1.2.0",
-        "esbuild": "^0.15.9",
+        "ejs": "^3.1.10",
+        "esbuild": "^0.21.5",
         "events": "^3.3.0",
         "execa": "^5.1.0",
         "fs-extra": "^11.2.0",
         "glob": "^8.0.3",
         "glob-promise": "5.0.0",
-        "got": "^11.8.3",
         "js-yaml": "^4.1.0",
         "pretty-bytes": "^5.6.0",
         "prompts": "^2.4.2",
         "signale": "^1.4.0",
-        "teraslice-client-js": "^0.56.0",
+        "teraslice-client-js": "^1.1.0",
         "tmp": "^0.2.0",
         "tty-table": "^4.2.3",
         "yargs": "^17.7.2",
-        "yeoman-environment": "^3.15.1",
-        "yeoman-generator": "^5.8.0",
         "yo": "^4.3.1"
     },
     "devDependencies": {
         "@types/decompress": "^4.2.7",
+        "@types/diff": "^5.2.1",
         "@types/easy-table": "^1.2.0",
+        "@types/ejs": "^3.1.5",
         "@types/js-yaml": "^4.0.9",
         "@types/prompts": "^2.4.9",
         "@types/signale": "^1.4.7",
         "@types/tmp": "^0.2.6",
-        "@types/yargs": "^17.0.32",
-        "@types/yeoman-assert": "^3.1.4",
-        "@types/yeoman-environment": "^2.10.11",
-        "@types/yeoman-generator": "^5.2.14",
+        "@types/yargs": "^17.0.33",
         "decompress": "^4.2.1",
         "jest-fixtures": "^0.6.0",
-        "nock": "^13.5.1",
-        "yeoman-assert": "^3.1.1",
-        "yeoman-test": "^6.3.0"
+        "nock": "^13.5.5"
     },
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",
@@ -96,7 +92,7 @@
     },
     "srcMain": "src/index.ts",
     "terascope": {
-        "testSuite": "cli",
+        "testSuite": "unit-esm",
         "enableTypedoc": true
     }
 }

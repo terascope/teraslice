@@ -12,7 +12,7 @@ declare -a cmds=(
     "${baseCmd} assets build"
     "${baseCmd} assets delete"
     "${baseCmd} assets deploy"
-    "${baseCmd} assets init"
+    "${baseCmd} assets registry"
     "${baseCmd} assets list"
     "${baseCmd} controllers"
     "${baseCmd} controllers list"

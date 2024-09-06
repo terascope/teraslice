@@ -4,10 +4,8 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import type { EventEmitter } from 'node:events';
 import { createTempDirSync, cleanupTempDirs } from 'jest-fixtures';
-import {
-    newTestSlice, get, pWhile,
-    ExecutionContext
-} from '@terascope/job-components';
+import { newTestSlice, ExecutionContext } from '@terascope/job-components';
+import { get, pWhile, } from '@terascope/utils';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import {
     AssetsStorage, StateStorage, AnalyticsStorage,
@@ -53,10 +51,10 @@ export class TestContext {
     nodeId!: string;
     exId!: string;
     jobId!: string;
-    events: EventEmitter;
+    events!: EventEmitter;
     _cleanupFns: Array<() => void> = [];
     executionContext!: ExecutionContext;
-
+    assignment: string;
     clusterMaster!: ClusterMaster.Server;
     _stores: TestStoreContainer = {};
     cleanups = {};
@@ -80,12 +78,8 @@ export class TestContext {
         });
 
         this.config = newConfig(options);
-
-        this.context = makeTerafoundationContext({ sysconfig: this.sysconfig });
-        this.context.assignment = options.assignment || 'worker';
-        this.events = this.context.apis.foundation.getSystemEvents();
-
         this.cleanups[this.setupId] = () => this.cleanup();
+        this.assignment = options.assignment || 'worker';
     }
 
     // make sure we cleanup if any test fails to cleanup properly
@@ -127,6 +121,10 @@ export class TestContext {
     }
 
     async initialize(makeItReal = false, initOptions = {}) {
+        this.context = await makeTerafoundationContext({ sysconfig: this.sysconfig });
+        this.context.assignment = this.assignment;
+        this.events = this.context.apis.foundation.getSystemEvents();
+
         if (makeItReal) {
             await Promise.all([
                 this.addJobStore(),
@@ -191,7 +189,6 @@ export class TestContext {
 
         if (!exists) {
             const err = new Error(`Asset Directory ${assetDir} does not exist`);
-            console.error(err.stack); // eslint-disable-line no-console
             throw err;
         }
 

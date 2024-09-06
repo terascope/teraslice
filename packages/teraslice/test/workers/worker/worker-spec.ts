@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+import { jest } from '@jest/globals';
 import 'jest-extended';
 import { pDelay } from '@terascope/utils';
 import { ExecutionController } from '@terascope/teraslice-messaging';
@@ -249,8 +249,8 @@ describe('Worker', () => {
             const operations = worker.executionContext.getOperations();
 
             for (const op of operations) {
-                // @ts-expect-error TODO verify this works
-                op.processorFn = jest.fn().mockRejectedValue(new Error('Bad news bears'));
+                // @ts-expect-error
+                op.handle = jest.fn().mockRejectedValue(new Error('Bad news bears'));
             }
 
             server.onSliceSuccess((workerId, _msg) => {

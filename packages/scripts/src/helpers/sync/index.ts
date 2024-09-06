@@ -1,14 +1,17 @@
 import { pMap } from '@terascope/utils';
-import { listPackages, updatePkgJSON } from '../packages';
-import { SyncOptions } from './interfaces';
-import { getRootInfo } from '../misc';
-import * as utils from './utils';
-import { generateTSConfig } from './configs';
-import { executeHook } from '../hooks';
-import { Hook } from '../interfaces';
+import { listPackages, updatePkgJSON } from '../packages.js';
+import { SyncOptions } from './interfaces.js';
+import { getRootInfo } from '../misc.js';
+import {
+    verifyCommitted, syncVersions, syncPackage,
+    verify
+} from './utils.js';
+import { generateTSConfig } from './configs.js';
+import { executeHook } from '../hooks.js';
+import { Hook } from '../interfaces.js';
 
 export async function syncAll(options: SyncOptions): Promise<void> {
-    await utils.verifyCommitted(options);
+    await verifyCommitted(options);
 
     let pkgInfos = listPackages();
     if (options.tsconfigOnly) {
@@ -19,13 +22,12 @@ export async function syncAll(options: SyncOptions): Promise<void> {
     const files: string[] = [];
 
     const rootInfo = getRootInfo();
-
-    utils.syncVersions(pkgInfos, rootInfo);
+    syncVersions(pkgInfos, rootInfo);
 
     await executeHook(Hook.AFTER_SYNC, options.quiet === true, rootInfo.version);
     await updatePkgJSON(rootInfo, !options.quiet);
 
-    await pMap(pkgInfos, (pkgInfo) => utils.syncPackage(files, pkgInfo, options), {
+    await pMap(pkgInfos, (pkgInfo) => syncPackage(files, pkgInfo, options), {
         concurrency: 10
     });
 
@@ -35,5 +37,5 @@ export async function syncAll(options: SyncOptions): Promise<void> {
         await generateTSConfig(pkgInfos, !options.quiet);
     }
 
-    await utils.verify(files, options);
+    await verify(files, options);
 }

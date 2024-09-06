@@ -1,5 +1,5 @@
-import * as ts from '@terascope/utils';
-import { buildSchema, printSchema } from 'graphql/utilities';
+import { trim } from '@terascope/utils';
+import { buildSchema, printSchema } from 'graphql/utilities/index.js';
 
 export function formatSchema(schemaStr: string, removeScalars = false): string {
     const schema = buildSchema(schemaStr);
@@ -12,7 +12,7 @@ export function formatSchema(schemaStr: string, removeScalars = false): string {
 }
 
 export function formatGQLDescription(desc?: string, prefix?: string): string {
-    let description = ts.trim(desc);
+    let description = trim(desc);
     if (prefix) {
         description = description ? `${prefix} - ${description}` : prefix;
     }

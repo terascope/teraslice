@@ -1,6 +1,6 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { Logger } from '@terascope/utils';
-import { Context, ExecutionConfig, OperationLifeCycle } from '../../interfaces';
+import { Context, ExecutionConfig, OperationLifeCycle } from '../../interfaces/index.js';
 
 /**
  * The core class for creating for all varients or base classes for an operation.

@@ -4,7 +4,7 @@ import { DateFormat, FieldType, Maybe } from '@terascope/types';
 import formatDate from 'date-fns/format';
 import {
     Column, dataFrameAdapter, functionConfigRepository, Vector
-} from '../../src';
+} from '../../src/index.js';
 
 describe('Column (Date Types)', () => {
     describe('when field type is Date', () => {
@@ -255,12 +255,51 @@ describe('Column (Date Types)', () => {
             }, values);
         });
 
-        it('should fail when transforming using toDate', () => {
-            expect(() => {
-                dataFrameAdapter(
-                    functionConfigRepository.toDate,
-                ).column(col);
-            }).toThrowError('Expected value 1600844405020 to be a valid date');
+        it('should be able to transform using toDate()', () => {
+            const newCol = dataFrameAdapter(functionConfigRepository.toDate)
+                .column(col);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.Date
+            });
+            expect(newCol.toJSON()).toEqual([
+                '2020-09-23T07:00:05.020Z',
+                undefined,
+                '2020-01-20T07:00:20.931Z'
+            ]);
+        });
+
+        it('should be able to transform using formatDate(format: "milliseconds")', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.formatDate,
+                { args: { format: DateFormat.milliseconds } }
+            ).column(col);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.Number
+            });
+            expect(newCol.toJSON()).toEqual([
+                1600844405020,
+                undefined,
+                1579503620931,
+            ]);
+        });
+
+        it('should return valid dates when transform formatDate(format: "seconds")', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.formatDate,
+                { args: { format: DateFormat.seconds } }
+            ).column(col);
+
+            expect(newCol.toJSON()).toEqual([
+                1600844405,
+                undefined,
+                1579503620,
+            ]);
         });
 
         it('should fail to transform toDate using an invalid format', () => {

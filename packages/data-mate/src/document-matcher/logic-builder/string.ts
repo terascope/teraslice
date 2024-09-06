@@ -1,10 +1,8 @@
 import {
-    isPlainObject,
-    wildCardToRegex,
-    matchWildcard,
+    isPlainObject, wildCardToRegex, matchWildcard,
     match
 } from '@terascope/utils';
-import { BooleanCB } from '../interfaces';
+import { BooleanCB } from '../interfaces.js';
 
 export function regexp(regexStr: string|undefined) {
     if (regexStr === undefined) return () => false;

@@ -1,4 +1,5 @@
-import { APIFactory, AnyObject } from '../../../../src';
+import { AnyObject } from '@terascope/utils';
+import { APIFactory } from '../../../../src/index.js';
 
 export default class ExampleAPIFactory extends APIFactory<AnyObject, AnyObject> {
     _initialized = false;

@@ -1,13 +1,14 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import execa from 'execa';
 import yaml from 'js-yaml';
-import { Logger, debugLogger } from '@terascope/utils';
-import signale from './signale';
-import { getE2eK8sDir } from '../helpers/packages';
-import { KindCluster } from './interfaces';
-import { TERASLICE_PORT } from './config';
+import { Logger, debugLogger, isCI } from '@terascope/utils';
+import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
+import signale from './signale.js';
+import { getE2eK8sDir } from '../helpers/packages.js';
+import { KindCluster, TsVolumeSet } from './interfaces.js';
+import { DOCKER_CACHE_PATH, TERASLICE_PORT } from './config.js';
 
 export class Kind {
     clusterName: string;
@@ -22,7 +23,7 @@ export class Kind {
         this.k8sVersion = k8sVersion;
     }
 
-    async createCluster(teraslicePort = TERASLICE_PORT): Promise<void> {
+    async createCluster(teraslicePort = TERASLICE_PORT, devMode: boolean = false): Promise<void> {
         this.kindVersion = await this.getKindVersion();
 
         const e2eK8sDir = getE2eK8sDir();
@@ -33,10 +34,10 @@ export class Kind {
         let configPath: string;
 
         // clusterName must match 'name' in kind config yaml file
-        if (this.clusterName === 'k8s-env') {
-            configPath = path.join(e2eK8sDir, 'kindConfigDefaultPorts.yaml');
-        } else if (this.clusterName === 'k8s-e2e') {
+        if (this.clusterName === 'k8s-e2e') {
             configPath = path.join(e2eK8sDir, 'kindConfigTestPorts.yaml');
+        } else if (this.clusterName === 'k8s-env') {
+            configPath = path.join(e2eK8sDir, 'kindConfigDefaultPorts.yaml');
         } else {
             signale.error(`No config file for cluster with name ${this.clusterName}`);
             process.exit(1);
@@ -48,6 +49,10 @@ export class Kind {
         }
         if (configFile.nodes[0].extraMounts) {
             configFile.nodes[0].extraMounts[0].hostPath = path.join(e2eK8sDir, '..', 'autoload');
+            if (devMode) {
+                const dockerFileMounts = getVolumesFromDockerfile(true, this.logger).extraMounts;
+                configFile.nodes[0].extraMounts.push(...dockerFileMounts);
+            }
         }
         configFile.nodes[0].extraPortMappings[1].hostPort = Number.parseInt(teraslicePort, 10);
         const updatedYaml = yaml.dump(configFile);
@@ -77,11 +82,27 @@ export class Kind {
     async loadServiceImage(
         serviceName: string, serviceImage: string, version: string
     ): Promise<void> {
+        let subprocess;
         try {
-            const subprocess = await execa.command(`kind load docker-image ${serviceImage}:${version} --name ${this.clusterName}`);
-            this.logger.debug(subprocess.stderr);
+            if (isCI) {
+                // In CI we load images directly from the github docker image cache
+                const fileName = `${serviceImage}_${version}`.replace(/[/:]/g, '_');
+                const filePath = path.join(DOCKER_CACHE_PATH, `${fileName}.tar.gz`);
+                const tarPath = path.join(DOCKER_CACHE_PATH, `${fileName}.tar`);
+                if (!fs.existsSync(filePath)) {
+                    throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
+                }
+                subprocess = await execa.command(`gunzip -d ${filePath}`);
+                signale.info(`${subprocess.command}: successful`);
+                subprocess = await execa.command(`kind load --name ${this.clusterName} image-archive ${tarPath}`);
+                fs.rmSync(tarPath);
+            } else {
+                subprocess = await execa.command(`kind load --name ${this.clusterName} docker-image ${serviceImage}:${version}`);
+            }
+            signale.info(`${subprocess.command}: successful`);
         } catch (err) {
-            this.logger.debug(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded. It may not be present locally.`);
+            signale.info(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded. It may not be present locally.`);
+            signale.info('Error: ', err);
         }
     }
 
@@ -94,6 +115,94 @@ export class Kind {
             throw new Error('Kind version could not be determined.');
         }
     }
+}
+
+export function getVolumesFromDockerfile(
+    mountNodeModules: boolean,
+    logger: Logger,
+    dockerfilePath = path.join(process.cwd(), 'Dockerfile')
+):TsVolumeSet {
+    const finalResult:TsVolumeSet = {
+        extraMounts: [],
+        volumes: [],
+        volumeMounts: []
+    };
+    try {
+        logger.debug(`Reading Dockerfile at path: ${dockerfilePath}`);
+        const dockerfile = fs.readFileSync(dockerfilePath, 'utf-8');
+
+        const dockerfileArray = dockerfile.split(/\r?\n/);
+
+        const copyLines = dockerfileArray.filter((line) => {
+            if (line.substring(0, 4) === 'COPY') {
+                return true;
+            }
+            return false;
+        }).map((value) => value.slice(5).split(' '));
+
+        if (mountNodeModules) {
+            copyLines.push(['node_modules', '/app/source/node_modules']);
+        }
+        // Grab all files/directories found in dockerfile to show in debugger
+        const foundVolumes = [];
+        for (const line of copyLines) {
+            foundVolumes.push(...line.slice(0, -1));
+        }
+        logger.info(`Found the following files/directories to be used as volume Mounts: ${foundVolumes}`);
+
+        /// Check if directory or file
+        for (const line of copyLines) {
+            for (let index = 0; index < line.length - 1; index++) {
+                const exMount:any = {
+                    hostPath: '',
+                    containerPath: ''
+                };
+                const volume:V1Volume = {
+                    name: ''
+                };
+                const volumeMount:V1VolumeMount = {
+                    name: '',
+                    mountPath: ''
+                };
+                const currentMount = line[index];
+                const containerDir = line[line.length - 1];
+                const fileStat = fs.statSync(currentMount);
+
+                // Map exMount
+                exMount.hostPath = `./${currentMount}`;
+                // Must be an absolute path
+                exMount.containerPath = currentMount.substring(0, 1) === '/' ? currentMount : `/${currentMount}`;
+
+                // remove all '/', '_' and '.' from name
+                volumeMount.name = currentMount.replace(/[./_]/g, '');
+
+                volume.name = volumeMount.name;
+                if (fileStat.isFile()) {
+                    volume.hostPath = {
+                        path: exMount.containerPath,
+                        type: 'File'
+                    };
+                    /// If it's a file we need to map the path with the file name
+                    volumeMount.mountPath = path.join(containerDir, currentMount);
+                    // volumeMount.mountPath = containerDir;
+                } else if (fileStat.isDirectory()) {
+                    volume.hostPath = {
+                        path: exMount.containerPath,
+                        type: 'Directory'
+                    };
+                    volumeMount.mountPath = containerDir;
+                } else {
+                    throw new Error(`Path ${line[index]} is neither a file or directory`);
+                }
+                finalResult.extraMounts.push(exMount);
+                finalResult.volumeMounts.push(volumeMount);
+                finalResult.volumes.push(volume);
+            }
+        }
+    } catch (err) {
+        throw new Error(`Failed to extract Docker volumes from Dockerfile. Reason: ${err}`);
+    }
+    return finalResult;
 }
 
 const kindToK8sVersionMap = {

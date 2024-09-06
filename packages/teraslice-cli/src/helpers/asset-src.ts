@@ -3,21 +3,20 @@ import prettyBytes from 'pretty-bytes';
 import glob from 'glob-promise';
 import fs from 'fs-extra';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import tmp from 'tmp';
 import { build } from 'esbuild';
-
 import {
-    isCI,
-    toInteger,
-    TSError,
-    toPascalCase,
-    set,
-    toUpperCase
+    isCI, toInteger, TSError,
+    toPascalCase, set, toUpperCase,
+    toLowerCase,
 } from '@terascope/utils';
 
 import reply from './reply.js';
 import { wasmPlugin, getPackage } from './utils.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 interface ZipResults {
     name: string;
@@ -30,7 +29,12 @@ interface AssetRegistry {
     }
 }
 
-type OpType = 'API' | 'Fetcher' | 'Processor' | 'Schema' | 'Slicer';
+// These should match AssetRepositoryKey values from
+// @terascope/job-components/src/operation-loader/interfaces.ts
+const OP_TYPES = ['API', 'Fetcher', 'Processor', 'Schema', 'Slicer', 'Observer'] as const;
+
+type OpTypeTuple = typeof OP_TYPES;
+type OpType = OpTypeTuple[number];
 
 export class AssetSrc {
     /**
@@ -49,7 +53,7 @@ export class AssetSrc {
     outputFileName: string;
     debug: boolean;
     overwrite: boolean;
-
+    isESM = false;
     devMode = false;
 
     constructor(
@@ -76,6 +80,10 @@ export class AssetSrc {
 
         if (!this.assetFile || !fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);
+        }
+
+        if (this.packageJson.type === 'module') {
+            this.isESM = true;
         }
 
         const asset = fs.readJSONSync(this.assetFile);
@@ -111,15 +119,17 @@ export class AssetSrc {
 
     /**
      * operatorFiles finds all of the Teraslice operator files, including:
-     *   api.js
-     *   fetcher.js
-     *   processor.js
-     *   schema.js
-     *   slicer.js
+     *   api.js/ts
+     *   fetcher.js/ts
+     *   processor.js/ts
+     *   schema.js/ts
+     *   slicer.js/ts
+     *   observer.js/ts
      * @returns {Array} array of paths to all of the operator files
      */
-    async operatorFiles(): Promise<string[]> {
-        const matchString = path.join(this.srcDir, 'asset', '**/{api,fetcher,processor,schema,slicer}.js');
+    async operatorFiles(ext: 'js' | 'ts'): Promise<string[]> {
+        const OP_TYPE_FILE_NAMES = OP_TYPES.map(toLowerCase);
+        const matchString = path.join(this.srcDir, 'asset', `**/{${OP_TYPE_FILE_NAMES}}.${ext}`);
         return glob(matchString, { ignore: ['**/node_modules/**', '**/_*/**', '**/.*/**'] });
     }
 
@@ -127,33 +137,51 @@ export class AssetSrc {
      * generates the registry object that is used to generate the index.js asset
      * registry
      */
-    async generateRegistry(): Promise<AssetRegistry> {
+    async generateRegistry(): Promise<[AssetRegistry, string]> {
         const assetRegistry: AssetRegistry = {};
-        const files = await this.operatorFiles();
+        const typescript = fs.existsSync(path.join(this.srcDir, 'tsconfig.json'));
+        const fileExt = typescript ? 'ts' : 'js';
 
+        const files = await this.operatorFiles(fileExt);
         for (const file of files) {
             const parsedPath = path.parse(file);
             const opDirectory = parsedPath.dir.split(path.sep).pop();
-
-            const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
-
-            if (opDirectory) {
-                set(
-                    assetRegistry,
-                    `${opDirectory}.${pathName}`,
-                    parsedPath.base
-                );
-            } else {
+            if (!opDirectory) {
                 throw new Error(`Error: unable to get 'op_directory' from ${parsedPath}`);
             }
+
+            const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
+            let value: string | [string, string];
+
+            if (typescript) {
+                let importName: string;
+                if (pathName === 'Processor') {
+                    importName = toPascalCase(opDirectory);
+                } else if (opDirectory.endsWith('api')) {
+                    importName = pathName === 'API'
+                        ? toPascalCase(opDirectory).slice(0, -3) + pathName
+                        : `${toPascalCase(opDirectory).slice(0, -3)}API${pathName}`;
+                } else {
+                    importName = toPascalCase(opDirectory) + pathName;
+                }
+                value = [importName, parsedPath.name];
+            } else {
+                value = parsedPath.base;
+            }
+
+            set(
+                assetRegistry,
+                `${opDirectory}.${pathName}`,
+                value
+            );
         }
 
-        return assetRegistry;
+        return [assetRegistry, fileExt];
     }
 
     async build(): Promise<ZipResults> {
         let zipOutput;
-
+        const { isESM } = this;
         if (!this.overwrite && fs.pathExistsSync(this.outputFileName)) {
             throw new Error(`Zipfile already exists "${this.outputFileName}"`);
         }
@@ -218,6 +246,17 @@ export class AssetSrc {
             spaces: 4,
         });
 
+        let packageType = { type: 'commonjs'}
+
+        if (isESM) {
+            packageType = { type: 'module' };
+        }
+
+         // write asset.json into bundleDir
+         await fs.writeJSON(path.join(bundleDir.name, 'package.json'), packageType, {
+            spaces: 4,
+        });
+
         // run npm --cwd srcDir/asset --prod --silent --no-progress
         reply.info('* running yarn --prod --no-progress');
         await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
@@ -239,6 +278,8 @@ export class AssetSrc {
             reply.fatal(`Unable to resolve entry point due to error: ${err}`);
         }
 
+        const injectPath = path.join(dirname, './esm-shims.js');
+
         const result = await build({
             bundle: true,
             entryPoints: [entryPoint],
@@ -247,7 +288,8 @@ export class AssetSrc {
             sourcemap: false,
             target: this.bundleTarget,
             plugins: [wasmPlugin],
-            keepNames: true
+            keepNames: true,
+            ...(isESM && { format: 'esm', inject: [injectPath] })
         });
 
         // Test require the asset to make sure it loads, if the process node

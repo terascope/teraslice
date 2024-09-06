@@ -1,15 +1,18 @@
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import {
     OutputPhase, Loader, OperationsManager, OutputValidation
-} from '../../src';
+} from '../../src/index.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('output phase', () => {
     const logger = debugLogger('outputPhaseTest');
     const opManager = new OperationsManager();
 
     async function getConfigList(fileName: string): Promise<OutputValidation> {
-        const filePath = path.join(__dirname, `../fixtures/${fileName}`);
+        const filePath = path.join(dirname, `../fixtures/${fileName}`);
         const myFileLoader = new Loader({ rules: [filePath] }, logger);
         const { output } = await myFileLoader.load(opManager);
         return output;

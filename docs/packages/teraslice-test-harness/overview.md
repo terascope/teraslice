@@ -20,7 +20,7 @@ npm install --save-dev teraslice-test-harness
 
 This package exports a few different test harnesses for running your operation.
 
-**Note:** All TestHarnesses except `OpTestHarness` can take a path to the asset directory so it can the test can load and fully validate multiple different operations, if none are specified then it will assume it is running in a [asset bundle](../../asset-bundles/development.md).
+**Note:** All TestHarnesses can take a path to the asset directory so it can the test can load and fully validate multiple different operations, if none are specified then it will assume it is running in a [asset bundle](../../asset-bundles/development.md).
 
 ### SlicerTestHarness
 
@@ -362,36 +362,6 @@ describe('Example Asset (Job)', () => {
                 expect(result.scale).toBe(6);
             }
         }
-    });
-});
-```
-
-### OpTestHarness
-
-A simple test harness for running an single operation with minimal customizations. Based of the older [teraslice-op-test-harness](../teraslice-op-test-harness/overview.md) package.
-
-**This is useful for testing Data in -> out on a Fetcher or Processor.**
-
-**Usage:**
-
-```js
-const { OpTestHarness } = require('teraslice-test-harness');
-const ExampleProcessor = require('../asset/example/processor');
-
-describe('Example Asset (Op)', () => {
-    let harness;
-    beforeEach(() => {
-        harness = new OpTestHarness(ExampleProcessor);
-        return harness.initialize();
-    });
-
-    afterEach(() => {
-        return harness.shutdown();
-    });
-
-    it('should be able to run a slice', () => {
-        const input = [{ foo: 'bar' }, { bar: 'baz' }];
-        return expect(harness.run(input)).resolves.toBeArrayOfSize(2);
     });
 });
 ```

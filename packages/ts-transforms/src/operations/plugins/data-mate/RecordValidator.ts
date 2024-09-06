@@ -1,10 +1,8 @@
-/* eslint-disable max-classes-per-file */
-
 import { DataEntity } from '@terascope/utils';
 import { RecordValidator } from '@terascope/data-mate';
-import { InjectMethod } from '../mixins';
-import OperationBase from '../../lib/base';
-import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
+import { InjectMethod } from '../mixins.js';
+import OperationBase from '../../lib/base.js';
+import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces.js';
 
 const RecordValidatorContainer = {} as any;
 

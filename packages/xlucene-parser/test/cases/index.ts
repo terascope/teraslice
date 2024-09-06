@@ -1,15 +1,15 @@
-import empty from './empty';
-import exists, { filterNilExists } from './exists';
-import fieldGroup, { filterNilFieldGroup } from './field-group';
-import logicalGroup, { filterNilLogical } from './logical-group';
-import negation, { filterNilNegation } from './negation';
-import range, { filterNilRange } from './range';
-import regexp, { filterNilRegex } from './regexp';
-import term, { filterNilTerm } from './term';
-import wildcard, { filterNilWildcard } from './wildcard';
-import geo, { filterNilGeo } from './geo';
+import empty from './empty.js';
+import exists, { filterNilExists } from './exists.js';
+import fieldGroup, { filterNilFieldGroup } from './field-group.js';
+import logicalGroup, { filterNilLogical } from './logical-group.js';
+import negation, { filterNilNegation } from './negation.js';
+import range, { filterNilRange } from './range.js';
+import regexp, { filterNilRegex } from './regexp.js';
+import term, { filterNilTerm } from './term.js';
+import wildcard, { filterNilWildcard } from './wildcard.js';
+import geo, { filterNilGeo } from './geo.js';
 
-export * from './interfaces';
+export * from './interfaces.js';
 export default {
     empty,
     term,

@@ -24,10 +24,6 @@ terafoundation:
     log_path: '/path/to/logs'
 
     connectors:
-        elasticsearch:
-            default:
-                host:
-                    - YOUR_ELASTICSEARCH_IP:9200
         elasticsearch-next:
             default:
                 node:
@@ -49,10 +45,6 @@ terafoundation:
     log_path: '/path/to/logs'
 
     connectors:
-        elasticsearch:
-            default:
-                host:
-                    - YOUR_ELASTICSEARCH_IP:9200
         elasticsearch-next:
             default:
                 node:

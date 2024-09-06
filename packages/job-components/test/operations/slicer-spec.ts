@@ -1,11 +1,9 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import { jest } from '@jest/globals';
 import {
-    Slicer,
-    SlicerResult,
-    newTestExecutionConfig,
-    TestContext,
-    WorkerContext
-} from '../../src';
+    Slicer, SlicerResult, newTestExecutionConfig,
+    TestContext, Context
+} from '../../src/index.js';
 
 describe('Slicer', () => {
     class ExampleSlicer<T = Record<string, any>> extends Slicer<T> {
@@ -35,7 +33,7 @@ describe('Slicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleSlicer(context as WorkerContext, opConfig, exConfig);
+            slicer = new ExampleSlicer(context as Context, opConfig, exConfig);
             await slicer.initialize([]);
         });
 
@@ -112,7 +110,7 @@ describe('Slicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleSlicer(context as WorkerContext, opConfig, exConfig);
+            slicer = new ExampleSlicer(context as Context, opConfig, exConfig);
             slicer.subslice = true;
 
             await slicer.initialize([]);

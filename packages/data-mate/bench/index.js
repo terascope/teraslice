@@ -1,11 +1,13 @@
-'use strict';
-
 // See: https://github.com/funkia/list/blob/master/test/bench/index.js
 /* eslint-disable no-console */
 
-const fs = require('fs');
-const path = require('path');
-const { printHeader } = require('./helpers');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { isExecutedFile, pMap } from '@terascope/utils';
+import { printHeader } from './helpers.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function start(name, dir) {
     const benchmarks = fs.readdirSync(dir).filter((filename) => filename.match(/-suite\.js$/));
@@ -15,7 +17,11 @@ function start(name, dir) {
         console.log(`- ${file}`);
     });
 
-    async function run(list) {
+    async function run() {
+        const list = await pMap(benchmarks, async (file) => {
+            return import(path.join(dir, file))
+        });
+
         for (const initSuite of list) {
             const suite = await initSuite();
 
@@ -27,15 +33,15 @@ function start(name, dir) {
         }
     }
 
-    run(benchmarks.map((file) => require(path.join(dir, file))))
+    run()
         .then(() => {})
         .catch((err) => {
             console.error(err);
         });
 }
 
-if (require.main === module) {
-    start('@terascope/data-mate', __dirname);
-} else {
-    module.exports = start;
+export default start;
+
+if (isExecutedFile(import.meta.url)) {
+    start('@terascope/data-mate', dirname);
 }

@@ -1,8 +1,8 @@
 import { FieldType } from '@terascope/types';
 import { isNotNil } from '@terascope/utils';
-import { Vector, VectorOptions } from '../Vector';
-import { SerializeOptions, VectorType, DataBuckets } from '../interfaces';
-import { getChildDataTypeConfig } from '../../core';
+import { Vector, VectorOptions } from '../Vector.js';
+import { SerializeOptions, VectorType, DataBuckets } from '../interfaces.js';
+import { getChildDataTypeConfig } from '../../core/index.js';
 
 type ChildFields<T extends Record<string, any>> = readonly (
     [field: (keyof T), vector: Vector<any>]

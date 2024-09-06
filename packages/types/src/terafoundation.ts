@@ -3,8 +3,12 @@ import {
     Cluster as NodeJSCluster,
     Worker as NodeJSWorker
 } from 'node:cluster';
-import type { Overwrite } from './utility';
-import type { Logger } from './logger';
+import {
+    CollectFunction, Counter, Gauge,
+    Histogram, Summary
+} from 'prom-client';
+import type { Overwrite } from './utility.js';
+import type { Logger } from './logger.js';
 
 interface Format {
     name?: string | undefined;
@@ -22,6 +26,26 @@ interface SchemaObj<T = any> {
     nullable?: boolean | undefined;
     [key: string]: any;
 }
+
+export type Schema<T> = {
+    [P in keyof T]: Schema<T[P]> | SchemaObj<T[P]>;
+};
+
+export type Initializers<S = Record<string, any>> = {
+    schema: Schema<S>
+    validatorFn?: ValidatorFn<S>
+}
+
+export type ValidationObj<S>= {
+    config: Record<string, any>,
+    validatorFn?: ValidatorFn<S>,
+    connector?: boolean
+}
+
+export type ValidatorFn<S = Record<string, any>> = (
+    config: Record<string, any>,
+    sysconfig: SysConfig<S>
+) => void
 
 export type Config<
     S = Record<string, any>,
@@ -52,17 +76,16 @@ export interface ConnectionConfig {
     type: string;
 }
 
-export type ClientFactoryFn = (
-    config: Record<string, any>,
-    logger: Logger,
-    options: ConnectionConfig
-) => { client: any };
+export interface ConnectorOutput {
+    client: any;
+    logger: Logger
+}
 
 export type CreateClientFactoryFn = (
     config: Record<string, any>,
     logger: Logger,
     options: ConnectionConfig
-) => Promise<{ client: any }>;
+) => Promise<ConnectorOutput>;
 
 export interface FoundationAPIs {
     /** Create a child logger */
@@ -70,19 +93,9 @@ export interface FoundationAPIs {
     /** Create the root logger (usually done automatically) */
     makeLogger(name: string, filename: string): Logger;
     getSystemEvents(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
-    createClient(config: ConnectionConfig): Promise<{ client: any }>;
-    startWorkers(num: number, envOptions: Record<string, string>): void;
-}
-
-export interface LegacyFoundationApis {
-    /** Create a child logger */
-    makeLogger(metadata?: Record<string, string>): Logger;
-    /** Create the root logger (usually done automatically) */
-    makeLogger(name: string, filename: string): Logger;
-    getEventEmitter(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
-    startWorkers(num: number, envOptions: Record<string, string>): void;
+    createClient(config: ConnectionConfig): Promise<ConnectorOutput>;
+    startWorkers(num: number, envOptions: Record<string, any>): FoundationWorker[];
+    promMetrics: PromMetrics
 }
 
 export type ContextAPIs = {
@@ -110,16 +123,21 @@ export type Cluster = Overwrite<NodeJSCluster, {
     };
 }>;
 
+export interface TerafoundationConfig {
+    workers: number;
+    environment: 'production'|'development'|'test'|string;
+    connectors: Record<string, Record<string, any>>;
+    log_path: string;
+    log_level: LogLevelConfig;
+    logging: LogType[];
+    prom_metrics_enabled: boolean;
+    prom_metrics_port: number;
+    prom_metrics_add_default: boolean;
+}
+
 export type SysConfig<S> = {
     _nodeName: string;
-    terafoundation: {
-        workers: number;
-        environment: 'production'|'development'|'test'|string;
-        connectors: Record<string, any>;
-        log_path: string;
-        log_level: LogLevelConfig;
-        logging: LogType[];
-    };
+    terafoundation: TerafoundationConfig;
 } & S;
 
 export type Context<
@@ -129,7 +147,6 @@ export type Context<
 > = {
     sysconfig: SysConfig<S>;
     apis: ContextAPIs & A;
-    foundation: LegacyFoundationApis;
     logger: Logger;
     name: string;
     arch: string;
@@ -138,3 +155,66 @@ export type Context<
     cluster_name?: string;
     cluster: Cluster;
 }
+
+// the interface for the connector itself
+export interface Connector<S = Record<string, any>> {
+    createClient: (
+        moduleConfig: Record<string, any>, logger: Logger, options: Record<string, any>
+    ) => Promise<ConnectorOutput>
+    config_schema: () => Schema<S>,
+    validate_config?: ValidatorFn<S>
+}
+
+export interface PromMetricsInitConfig {
+    terasliceName: string;
+    assignment: string;
+    logger: Logger;
+    tf_prom_metrics_enabled: boolean;
+    tf_prom_metrics_port: number;
+    tf_prom_metrics_add_default: boolean;
+    job_prom_metrics_enabled?: boolean;
+    job_prom_metrics_port?: number;
+    job_prom_metrics_add_default?: boolean;
+    labels?: Record<string, string>;
+    prefix?: string;
+}
+
+export interface PromMetricsAPIConfig {
+    assignment: string;
+    port: number;
+    default_metrics: boolean;
+    labels?: Record<string, string>;
+    prefix?: string;
+}
+
+export interface PromMetrics {
+    init: (config: PromMetricsInitConfig) => Promise<boolean>;
+    set: (name: string, labels: Record<string, string>, value: number) => void;
+    inc: (name: string, labelValues: Record<string, string>, value: number) => void;
+    dec: (name: string, labelValues: Record<string, string>, value: number) => void;
+    observe: (name: string, labelValues: Record<string, string>, value: number) => void;
+    addGauge: (name: string, help: string, labelNames: Array<string>,
+        collectFn?: CollectFunction<Gauge>) => Promise<void>;
+    addCounter: (name: string, help: string, labelNames: Array<string>,
+        collectFn?: CollectFunction<Counter>) => Promise<void>;
+    addHistogram: (name: string, help: string, labelNames: Array<string>,
+        collectFn?: CollectFunction<Histogram>, buckets?: Array<number>) => Promise<void>;
+    addSummary: (name: string, help: string, labelNames: Array<string>,
+        collectFn?: CollectFunction<Summary>, maxAgeSeconds?: number,
+        ageBuckets?: number, percentiles?: Array<number>) => Promise<void>;
+    hasMetric: (name: string) => boolean;
+    deleteMetric: (name: string) => Promise<boolean>;
+    verifyAPI: () => boolean;
+    shutdown: () => Promise<void>;
+    getDefaultLabels: () => Record<string, string>;
+}
+
+export type MetricList = Record<string, {
+    readonly name?: string,
+    readonly metric?: Gauge<any> | Counter<any> | Histogram<any> | Summary<any>,
+    readonly functions?: Set<string>
+}>;
+
+export type {
+    CollectFunction, Counter, Gauge, Histogram, Summary
+} from 'prom-client';

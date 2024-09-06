@@ -1,4 +1,4 @@
-import { PackageInfo } from '../interfaces';
+import { PackageInfo } from '../interfaces.js';
 
 export type TestOptions = {
     bail: boolean;
@@ -11,20 +11,11 @@ export type TestOptions = {
     forceSuite?: string;
     suite?: string[];
     useExistingServices: boolean;
-    elasticsearchVersion: string;
-    elasticsearchAPIVersion: string;
-    kafkaVersion: string;
-    kafkaImageVersion: any;
-    zookeeperVersion: string;
-    minioVersion: string;
-    rabbitmqVersion: string;
-    opensearchVersion: string;
-    nodeVersion: string;
+    encryptMinio: boolean;
     jestArgs?: string[];
     ignoreMount: boolean;
-    testPlatform: string;
+    testPlatform: 'native'|'kubernetes'|'kubernetesV2';
     kindClusterName: string;
-    k8sVersion?: string;
 };
 
 export type GroupedPackages = {

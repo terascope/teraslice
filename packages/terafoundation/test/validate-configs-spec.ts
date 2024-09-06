@@ -1,11 +1,12 @@
 import 'jest-extended';
-import os from 'os';
-import { Cluster } from '../src';
-import validateConfigs from '../src/validate-configs';
+import os from 'node:os';
+import type { Terafoundation, PartialDeep } from '@terascope/types';
+import validateConfigs from '../src/validate-configs.js';
+import { getConnectorSchemaAndValFn } from '../src/connector-utils.js';
 
 describe('Validate Configs', () => {
     describe('when using mainly defaults', () => {
-        const cluster: Cluster = {
+        const cluster: Terafoundation.Cluster = {
             isWorker: true,
             isMaster: false,
             worker: {
@@ -15,7 +16,9 @@ describe('Validate Configs', () => {
 
         const configFile = {
             terafoundation: {
-
+                connectors: {
+                    'elasticsearch-next': {}
+                }
             },
             other: {
                 test: 'custom'
@@ -41,8 +44,10 @@ describe('Validate Configs', () => {
             ]
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(cluster, config as any, configFile as any);
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(
+                cluster, config as any, configFile as any
+            );
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {},
@@ -56,14 +61,14 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe('when using using connectors that exist', () => {
+    describe('when using connectors that exist', () => {
         const configFile = {
             terafoundation: {
                 log_level: [
                     { console: 'warn' }
                 ],
                 connectors: {
-                    elasticsearch: {
+                    'elasticsearch-next': {
                         default: {}
                     },
                     hdfs_ha: {
@@ -72,24 +77,15 @@ describe('Validate Configs', () => {
                     hdfs: {
                         default: {}
                     },
-                    mongodb: {
-                        default: {}
-                    },
-                    redis: {
-                        default: {}
-                    },
                     s3: {
-                        default: {}
-                    },
-                    statsd: {
                         default: {}
                     },
                 }
             }
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(
                 { foo: 'bar' } as any,
                 { foo: 'bar' } as any,
                 configFile as any
@@ -100,17 +96,13 @@ describe('Validate Configs', () => {
                         { console: 'warn' }
                     ],
                     connectors: {
-                        elasticsearch: {
+                        'elasticsearch-next': {
                             default: {
-                                apiVersion: '6.5',
-                                deadTimeout: 30000,
-                                host: [
-                                    '127.0.0.1:9200'
-                                ],
-                                maxRetries: 3,
-                                requestTimeout: 120000,
-                                sniffOnConnectionFault: false,
+                                node: ['http://127.0.0.1:9200'],
                                 sniffOnStart: false,
+                                sniffOnConnectionFault: false,
+                                requestTimeout: 120000,
+                                maxRetries: 3,
                             }
                         },
                         hdfs_ha: {
@@ -129,35 +121,17 @@ describe('Validate Configs', () => {
                                 user: 'webuser'
                             }
                         },
-                        mongodb: {
-                            default: {
-                                servers: 'mongodb://localhost:27017/test'
-                            }
-                        },
-                        redis: {
-                            default: {
-                                host: '127.0.0.1',
-                                port: 6379
-                            }
-                        },
                         s3: {
                             default: {
                                 accessKeyId: null,
                                 certLocation: '',
                                 endpoint: '127.0.0.1:80',
-                                maxRedirects: 10,
                                 maxRetries: 3,
                                 region: 'us-east-1',
                                 bucketEndpoint: false,
                                 forcePathStyle: false,
                                 secretAccessKey: null,
                                 sslEnabled: true,
-                            }
-                        },
-                        statsd: {
-                            default: {
-                                host: '127.0.0.1',
-                                mock: false
                             }
                         },
                     },
@@ -168,11 +142,11 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe("when using using a connector that doesn't exist", () => {
+    describe("when using a connector that doesn't exist", () => {
         const configFile = {
             terafoundation: {
                 connectors: {
-                    elasticsearch: {
+                    'elasticsearch-next': {
                         default: {}
                     },
                     missing_connector: {},
@@ -180,8 +154,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(
                 { foo: 'bar' } as any,
                 { foo: 'bar' } as any,
                 configFile as any
@@ -189,7 +163,7 @@ describe('Validate Configs', () => {
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {
-                        elasticsearch: {},
+                        'elasticsearch-next': {},
                         missing_connector: {}
                     },
                 },
@@ -198,28 +172,7 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe('when given an logging config', () => {
-        const configFile = {
-            terafoundation: {
-                log_level: 'uhoh',
-            },
-            other: {}
-        };
-        const cluster = {
-            isMaster: true,
-        };
-        const config = {
-            config_schema() {
-                return {};
-            }
-        };
-
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrowError('Error validating configuration');
-        });
-    });
-
-    describe('when given an invalid log_level', () => {
+    describe('when given an invalid logging config', () => {
         const configFile = {
             terafoundation: {
                 logging: 'hello'
@@ -235,8 +188,76 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrowError('Error validating configuration');
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).rejects.toThrow('Error validating configuration');
         });
+    });
+
+    describe('when given an invalid log_level', () => {
+        const configFile = {
+            terafoundation: {
+                log_level: 'uhoh',
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).rejects.toThrow('Error validating configuration');
+        });
+    });
+
+    describe('when given a config_schema with a validator fn that fails', () => {
+        const configFile = {
+            teraslice: {
+                workers: 4
+            },
+            terafoundation: {
+                connectors: {
+                    'elasticsearch-next': {
+                        default: {}
+                    }
+                },
+                workers: 3
+            }
+        };
+        const cluster = {
+            isMaster: true,
+        };
+
+        const testFn = (
+            subconfig: PartialDeep<Terafoundation.SysConfig<any>>,
+            sysconfig: Terafoundation.SysConfig<any>) => {
+            const typedSubConfig = subconfig as unknown as Terafoundation.SysConfig<any>;
+            if (sysconfig.terafoundation.workers !== typedSubConfig.workers) {
+                throw new Error('validatorFn test failed');
+            }
+        };
+        const config = {
+            config_schema() {
+                return { schema: { teraslice: {} }, validatorFn: testFn };
+            }
+        };
+
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .rejects.toThrow('Cross-field validation failed for \'teraslice\': Error: validatorFn test failed');
+        });
+    });
+});
+
+describe('getConnectorInitializers', () => {
+    it('should return an initializer with schema key', async () => {
+        const connector = 'elasticsearch-next';
+
+        const results = await getConnectorSchemaAndValFn(connector);
+        expect(results).toContainKey('schema');
     });
 });

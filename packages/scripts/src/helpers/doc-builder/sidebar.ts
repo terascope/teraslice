@@ -1,8 +1,8 @@
-import path from 'path';
+import path from 'node:path';
 import fse from 'fs-extra';
-import { getRootDir, listMdFiles, writeIfChanged } from '../misc';
-import { PackageInfo } from '../interfaces';
-import { getWorkspaceNames } from '../packages';
+import { getRootDir, listMdFiles, writeIfChanged } from '../misc.js';
+import { PackageInfo } from '../interfaces.js';
+import { getWorkspaceNames } from '../packages.js';
 
 function getSubcategories(pkgDocFolder: string): string[] {
     const docsFolder = path.join(getRootDir(), 'docs');
@@ -34,16 +34,16 @@ export async function updateSidebarJSON(pkgInfos: PackageInfo[], log?: boolean) 
             pkgMap[pkgInfo.folderName] = false;
         });
 
-        const processList = (list: (Subcategory|string|undefined)[], addMissing: boolean) => {
-            const existing = list.map((pkg): Subcategory|undefined => {
+        const processList = (list: (Category|string|undefined)[], addMissing: boolean) => {
+            const existing = list.map((pkg): Category|undefined => {
                 if (typeof pkg === 'string') {
                     pkgMap[pkg] = true;
                     return {
-                        type: 'subcategory',
+                        type: 'category',
                         label: pkg,
-                        ids: [`${name}/${pkg}/overview`],
+                        items: [`${name}/${pkg}/overview`],
                     };
-                } if (pkg?.type === 'subcategory') {
+                } if (pkg?.type === 'category') {
                     pkgMap[pkg.label] = true;
                     return pkg;
                 }
@@ -52,24 +52,24 @@ export async function updateSidebarJSON(pkgInfos: PackageInfo[], log?: boolean) 
 
             const missing = addMissing ? Object.entries(pkgMap)
                 .filter(([, exists]) => !exists)
-                .map(([label]): Subcategory => ({
-                    type: 'subcategory',
+                .map(([label]): Category => ({
+                    type: 'category',
                     label,
-                    ids: [`${name}/${label}/overview`],
+                    items: [`${name}/${label}/overview`],
                 })) : [];
 
             return existing
                 .concat(missing)
-                .map((pkg): Subcategory|undefined => {
+                .map((pkg): Category|undefined => {
                     if (!pkg) return;
 
                     const filePath = path.join(docsFilePath, pkg.label);
                     const hasDocs = fse.existsSync(filePath);
                     if (!hasDocs) return;
 
-                    return { ...pkg, ids: getSubcategories(filePath) };
+                    return { ...pkg, items: getSubcategories(filePath) };
                 })
-                .filter(Boolean) as Subcategory[];
+                .filter(Boolean) as Category[];
         };
 
         const extraCategories = Object.keys(sidebarJSON[name])
@@ -90,8 +90,8 @@ export async function updateSidebarJSON(pkgInfos: PackageInfo[], log?: boolean) 
     await writeIfChanged(sidebarFilePath, sidebarJSON, { log });
 }
 
-type Subcategory = {
-    type: 'subcategory';
+type Category = {
+    type: 'category';
     label: string;
-    ids: string[];
+    items: string[];
 };

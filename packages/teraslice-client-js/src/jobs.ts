@@ -1,9 +1,9 @@
-import { isString, TSError } from '@terascope/utils';
+import { TSError } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
-import Client from './client';
-import Job from './job';
-import { SearchOptions, ClientConfig } from './interfaces';
+import Client from './client.js';
+import Job from './job.js';
+import { SearchOptions, ClientConfig } from './interfaces.js';
 
 export default class Jobs extends Client {
     constructor(config: ClientConfig) {
@@ -11,7 +11,7 @@ export default class Jobs extends Client {
         autoBind(this);
     }
 
-    async submit(jobSpec: Teraslice.JobConfig, shouldNotStart?: boolean): Promise<Job> {
+    async submit(jobSpec: Teraslice.JobConfigParams, shouldNotStart?: boolean): Promise<Job> {
         if (!jobSpec) {
             throw new TSError('Submit requires a jobSpec', {
                 statusCode: 400
@@ -26,10 +26,9 @@ export default class Jobs extends Client {
     }
 
     async list(
-        status?: Teraslice.JobListStatusQuery,
+        query?: Teraslice.JobSearchParams,
         searchOptions: SearchOptions = {}
-    ): Promise<Teraslice.JobRecord[]> {
-        const query = _parseListOptions(status);
+    ): Promise<Teraslice.JobConfig[]> {
         return this.get('/jobs', this.makeOptions(query, searchOptions));
     }
 
@@ -40,11 +39,4 @@ export default class Jobs extends Client {
     wrap(jobId: string): Job {
         return new Job(this._config, jobId);
     }
-}
-
-function _parseListOptions(options?: Teraslice.JobListStatusQuery): Teraslice.JobSearchParams {
-    // support legacy
-    if (!options) return { status: '*' };
-    if (isString(options)) return { status: options };
-    return options;
 }

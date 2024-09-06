@@ -1,7 +1,9 @@
 import { createReadStream } from 'node:fs';
 import { cloneDeep, pDelay } from '@terascope/utils';
+import { JobConfig } from '@terascope/types';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { TEST_PLATFORM } from '../../config.js';
+import { Ex, Job } from 'teraslice-client-js';
 
 describe('cluster api', () => {
     let terasliceHarness: TerasliceHarness;
@@ -17,7 +19,7 @@ describe('cluster api', () => {
         const testStream = createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.05;
         }
         await terasliceHarness.teraslice.assets.upload(testStream, {
@@ -34,10 +36,10 @@ describe('cluster api', () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         const { workers, slicers } = jobSpec;
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.05;
         }
-        const alteredJob = cloneDeep(jobSpec);
+        const alteredJob: Partial<JobConfig> = cloneDeep(jobSpec);
         alteredJob.workers = 3;
         delete alteredJob.slicers;
 
@@ -64,7 +66,7 @@ describe('cluster api', () => {
         const specIndex = terasliceHarness.newSpecIndex('api');
         jobSpec.name = 'basic reindex for lifecycle';
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.05;
         }
 
@@ -79,7 +81,7 @@ describe('cluster api', () => {
             try {
                 await p;
                 return false;
-            } catch (err) {
+            } catch (_err) {
                 return true;
             }
         }
@@ -146,5 +148,72 @@ describe('cluster api', () => {
     it('api end point /txt/assets/assetName/version should return a text table', async () => {
         const response = await terasliceHarness.teraslice.cluster.txt('assets/ex1/0.0.1');
         expect(response).toBeString();
+    });
+
+    describe('DELETE /jobs/<jobId>', () => {
+        // NOTE: every test in this section will use a single job
+
+        const deletedJobProperties = {
+            _deleted: true,
+            _deleted_on: expect.anything(),
+            active: false
+        };
+
+        let job: Job;
+        let jobId: string;
+        let ex: Ex;
+        let jobSpec: JobConfig;
+
+        beforeAll(async () => {
+            jobSpec = terasliceHarness.newJob('generator');
+            // Set resource constraints on workers within CI
+            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+                jobSpec.resources_requests_cpu = 0.05;
+            }
+
+            job = await terasliceHarness.teraslice.jobs.submit(jobSpec, false);
+            jobId = job.id();
+            const { ex_id: exId } = await job.execution();
+            ex = terasliceHarness.teraslice.executions.wrap(exId);
+        })
+
+        it('will not delete a running job', async () => {
+            await terasliceHarness.waitForExStatus(ex, 'running', 100, 1000);
+
+            await expect(terasliceHarness.teraslice.jobs.delete(`/jobs/${jobId}`)).rejects.toThrow();
+        });
+
+        it('will delete a stopped job', async () => {
+            await terasliceHarness.teraslice.jobs.post(`/jobs/${jobId}/_stop`);
+            await terasliceHarness.waitForExStatus(ex, 'stopped', 100, 1000);
+
+            await expect(terasliceHarness.teraslice.jobs.delete(`/jobs/${jobId}`)).resolves.toMatchObject(deletedJobProperties);
+        });
+
+        it('will not list a deleted job by default', async () => {
+            const list = await terasliceHarness.teraslice.jobs.list();
+            const jobIds = list.map((job) => job.job_id);
+            expect(jobIds).toEqual(expect.arrayContaining([expect.not.stringMatching(jobId)]));
+        });
+
+        it('will list a deleted job when passed "{ deleted: true }"', async () => {
+            const list = await terasliceHarness.teraslice.jobs.list({ deleted: true });
+            expect(list).toEqual(expect.arrayContaining([expect.objectContaining({ ...jobSpec, job_id: jobId })]));
+        });
+
+        it('will not start a deleted job', async () => {
+            await expect(terasliceHarness.teraslice.jobs.post(`/jobs/${jobId}/_start`)).rejects.toThrow(`Job ${jobId} has been deleted and cannot be started.`);
+
+        });
+
+        it('will not update a deleted job', async () => {
+            await expect(terasliceHarness.teraslice.jobs.put(`/jobs/${jobId}`, { workers: 1 })).rejects.toThrow(`Job ${jobId} has been deleted and cannot be updated.`);
+
+        });
+
+        it('will not recover a deleted job', async () => {
+            await expect(terasliceHarness.teraslice.jobs.post(`/jobs/${jobId}/_recover`)).rejects.toThrow(`Job ${jobId} has been deleted and cannot be recovered.`);
+
+        });
     });
 });

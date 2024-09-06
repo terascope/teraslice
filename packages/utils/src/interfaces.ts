@@ -1,4 +1,4 @@
-import type { DataEntity } from './entities/data-entity';
+import type { DataEntity } from './entities/data-entity.js';
 
 export type {
     Omit,

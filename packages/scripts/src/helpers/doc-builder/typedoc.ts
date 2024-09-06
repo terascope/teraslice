@@ -1,9 +1,9 @@
-import path from 'path';
+import path from 'node:path';
 import fse from 'fs-extra';
 import { Application, TSConfigReader } from 'typedoc';
-import { PackageInfo } from '../interfaces';
-import { listMdFiles, getName, writeIfChanged } from '../misc';
-import signale from '../signale';
+import { PackageInfo } from '../interfaces.js';
+import { listMdFiles, getName, writeIfChanged } from '../misc.js';
+import signale from '../signale.js';
 
 function isOverview(filePath: string): boolean {
     return path.basename(filePath, '.md') === 'overview';
@@ -24,7 +24,7 @@ async function writeDocFile(
     // fix path
     contents = contents
         // eslint-disable-next-line no-useless-escape
-        .replace(/(\]\([\w\.\/]*)README\.md/g, '$1overview.md');
+        .replace(/(\]\([\w\.\/\-]*)README\.md/g, '$1overview.md');
     // build final content
     contents = `---
 title: ${title}
@@ -78,6 +78,10 @@ async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
             title: `${displayName}: \`${component}\``,
             sidebarLabel: component,
         });
+        if (fileName === 'README') {
+            const pathOnly = path.dirname(filePath);
+            await fse.rename(filePath, path.join(pathOnly, 'overview.md'));
+        }
     });
 
     await Promise.all(promises);
@@ -104,6 +108,22 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): P
             },
             [new TSConfigReader()]
         );
+
+        // typedoc-plugin-markdown specific options
+        app.options.setValue('outputFileStrategy', 'members');
+        app.options.setValue('membersWithOwnFile', ['Class', 'Enum', 'Interface']);
+        app.options.setValue('useHTMLAnchors', true);
+        app.options.setValue('sanitizeComments', true);
+        app.options.setValue('indexFormat', 'table');
+        app.options.setValue('parametersFormat', 'table');
+
+        // this option causes errors with mdx
+        // app.options.setValue('enumMembersFormat', 'table');
+
+        // try these when we upgrade to version 4.1.0
+        // app.options.setValue('interfacePropertiesFormat', 'table');
+        // app.options.setValue('classPropertiesFormat', 'table');
+        // app.options.setValue('propertyMembersFormat', 'table');
 
         if (app.logger.hasErrors()) {
             signale.error(`found errors typedocs for package ${pkgInfo.name}`);

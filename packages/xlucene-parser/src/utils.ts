@@ -19,13 +19,16 @@ import {
     isIPv6,
     getFirstIPInCIDR,
     getLastIPInCIDR,
-    toCIDR
+    toCIDR,
+    isValidDate,
+    getValidDate
 } from '@terascope/utils';
 
 import {
-    xLuceneFieldType, xLuceneVariables, CoordinateTuple, Maybe
+    xLuceneFieldType, xLuceneVariables, CoordinateTuple,
+    Maybe
 } from '@terascope/types';
-import * as i from './interfaces';
+import * as i from './interfaces.js';
 
 export const logger = debugLogger('xlucene-parser');
 
@@ -254,6 +257,12 @@ export const coerceValueFns: CoerceValueFns = Object.freeze({
         if (!isPrimitiveValue(value)) {
             throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a date like format`);
         }
+
+        if (isValidDate(value)) return value;
+
+        const coerced = getValidDate(value, new Date());
+        if (coerced) return coerced;
+
         return value;
     },
     [xLuceneFieldType.Number](value) {

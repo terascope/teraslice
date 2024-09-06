@@ -1,20 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
+import { Queue } from '@terascope/utils';
 import {
-    Queue
-} from '@terascope/utils';
-import {
-    OpConfig,
-    ExecutionConfig,
-    Slice,
-    SliceRequest,
-    SlicerOperationLifeCycle,
-    ExecutionStats,
-    WorkerContext,
-    SlicerRecoveryData,
+    OpConfig, ExecutionConfig, Slice,
+    SliceRequest, SlicerOperationLifeCycle,
+    ExecutionStats, Context, SlicerRecoveryData,
     OpAPI
-} from '../../interfaces';
-import Core from './core';
-import { makeExContextLogger } from '../../utils';
+} from '../../interfaces/index.js';
+import Core from './core.js';
+import { makeExContextLogger } from '../../utils.js';
 
 /**
  * A base class for supporting "Slicers" that run on a "Execution Controller",
@@ -26,7 +19,7 @@ import { makeExContextLogger } from '../../utils';
  */
 
 export default abstract class SlicerCore<T = OpConfig>
-    extends Core<WorkerContext>
+    extends Core<Context>
     implements SlicerOperationLifeCycle {
     // ...
     protected stats: ExecutionStats;
@@ -34,7 +27,7 @@ export default abstract class SlicerCore<T = OpConfig>
     protected readonly opConfig: Readonly<OpConfig & T>;
     private readonly queue: Queue<Slice>;
 
-    constructor(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
+    constructor(context: Context, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
         const logger = makeExContextLogger(context, executionConfig, 'slicer', {
             opName: opConfig._op,
         });

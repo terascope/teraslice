@@ -1,10 +1,10 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { parseJSON, fastCloneDeep, DataEntity } from '@terascope/utils';
-import { TestReaderConfig } from './interfaces';
-import { Fetcher } from '../../operations';
-import { SliceRequest } from '../../interfaces';
-import defaultData from './data/fetcher-data';
+import { TestReaderConfig } from './interfaces.js';
+import { Fetcher } from '../../operations/index.js';
+import { SliceRequest } from '../../interfaces/index.js';
+import defaultData from './data/fetcher-data.js';
 
 export default class TestFetcher extends Fetcher<TestReaderConfig> {
     cachedData: Buffer|null = null;

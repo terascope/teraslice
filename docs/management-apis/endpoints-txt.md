@@ -92,7 +92,10 @@ Returns a text table of all job listings.
 **Query Options:**
 
 - `fields: string`
-- `active: [true|false]`
+- `active: string = [true|false]`
+- `deleted: string = [true|false]`
+
+**Note:** When showing `deleted` records the `_deleted_on` field will be added to the default fields.
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="job_id,pid"` or `fields="job_id pid"`.
@@ -110,6 +113,8 @@ ie `fields="job_id,pid"` or `fields="job_id pid"`.
 - `job_id`
 - `_created`
 - `_updated`
+- `_deleted`
+- `_deleted_on`
 
 **Default Fields:**
 
@@ -139,6 +144,9 @@ Returns a text table of all job execution contexts.
 **Query Options:**
 
 - `fields: string`
+- `deleted: string = [true|false]]`
+
+**Note:** When showing `deleted` records the `_deleted_on` field will be added to the default fields.
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="job_id,pid"` or `fields="job_id pid"`.
@@ -156,6 +164,8 @@ ie `fields="job_id,pid"` or `fields="job_id pid"`.
 - `job_id`
 - `_created`
 - `_updated`
+- `_deleted`
+- `_deleted_on`
 
 **Default Fields:**
 
@@ -267,7 +277,7 @@ zipfile  0.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.
 otherzip 1.0.1    d94hy8d0b0fe679698d781ef71b332915d020570  2017-05-29T18:19:18.638Z  Some description
 ```
 
-## GET /txt/assets/{assetName}
+## GET /txt/assets/\{assetName\}
 
 Returns a text table of all assets by the given name, sorted by the most recent at the top.
 
@@ -308,7 +318,7 @@ zipfile  1.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.
 zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description
 ```
 
-## GET /txt/assets/{assetName}/{version}
+## GET /txt/assets/\{assetName\}/\{version\}
 
 Returns a text table of all assets by a given name and version, sorted by the most recent at the top.
 

@@ -1,7 +1,7 @@
 {
     "name": "ts-transforms",
     "displayName": "TS Transforms",
-    "version": "0.81.0",
+    "version": "1.1.0",
     "description": "An ETL framework built upon xlucene-evaluator",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ts-transforms#readme",
     "bugs": {
@@ -13,6 +13,7 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "bin": {
@@ -35,29 +36,29 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-mate": "^0.52.0",
-        "@terascope/types": "^0.14.0",
-        "@terascope/utils": "^0.55.0",
+        "@terascope/data-mate": "^1.1.0",
+        "@terascope/types": "^1.1.0",
+        "@terascope/utils": "^1.1.0",
         "awesome-phonenumber": "^2.70.0",
         "graphlib": "^2.1.8",
         "is-ip": "^3.1.0",
         "jexl": "^2.2.2",
         "nanoid": "^3.3.4",
         "valid-url": "^1.0.9",
-        "validator": "^13.11.0",
+        "validator": "^13.12.0",
         "yargs": "^17.7.2"
     },
     "devDependencies": {
         "@types/graphlib": "^2.1.12",
         "@types/jexl": "^2.3.4",
         "@types/valid-url": "^1.0.7",
-        "@types/validator": "^13.11.9",
-        "@types/yargs": "^17.0.32",
+        "@types/validator": "^13.11.10",
+        "@types/yargs": "^17.0.33",
         "execa": "^5.1.0"
     },
     "engines": {
-        "node": ">=14.17.0",
-        "yarn": ">=1.16.0"
+        "node": ">=18.18.0",
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",
@@ -66,6 +67,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit"
+        "testSuite": "unit-esm"
     }
 }

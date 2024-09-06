@@ -3,11 +3,12 @@ import fse from 'fs-extra';
 import crypto from 'node:crypto';
 import {
     TSError, uniq, isString,
-    toString, filterObject, Logger
+    toString, filterObject, Logger, pDelay
 } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
 import { ClientResponse, AssetRecord } from '@terascope/types';
-import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store.js';
+import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
+import { S3Store, TerasliceS3StorageConfig } from './backends/s3_store.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { saveAsset, AssetMetadata } from '../utils/file_utils.js';
 import {
@@ -39,21 +40,40 @@ function _metaIsUnique(backend: TerasliceElasticsearchStorage) {
     };
 }
 
+export function getBackendConfig(context: Context, logger: Logger) {
+    const { teraslice } = context.sysconfig;
+
+    const connectionType = teraslice.asset_storage_connection_type;
+    const storageConnection = teraslice.asset_storage_connection;
+    const storageBucket = teraslice.asset_storage_bucket;
+
+    /// Check teraslice first before setting to terafoundation configs
+    const s3BackendConfig: TerasliceS3StorageConfig = {
+        context,
+        terafoundation: context.sysconfig.terafoundation,
+        connection: storageConnection,
+        bucket: storageBucket,
+        logger
+    };
+    return { s3BackendConfig, assetConnectionType: connectionType };
+}
+
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
 export class AssetsStorage {
     readonly assetsPath: string;
-    private backend: TerasliceElasticsearchStorage;
+    private esBackend: TerasliceElasticsearchStorage;
     private readonly context: Context;
     logger: Logger;
+    private s3Backend?: S3Store;
 
     constructor(context: Context) {
         const logger = makeLogger(context, 'assets_storage');
         const config = context.sysconfig.teraslice;
         const indexName = `${config.name}__assets`;
 
-        const backendConfig: TerasliceStorageConfig = {
+        const esBackendConfig: TerasliceESStorageConfig = {
             context,
             indexName,
             recordType: 'asset',
@@ -67,19 +87,31 @@ export class AssetsStorage {
         this.logger = logger;
         // TODO: verify this behavior of string vs string[] and undefined
         this.assetsPath = config.assets_directory as string;
-        this.backend = new TerasliceElasticsearchStorage(backendConfig);
+        this.esBackend = new TerasliceElasticsearchStorage(esBackendConfig);
+
+        const { assetConnectionType, s3BackendConfig } = getBackendConfig(context, logger);
+        if (assetConnectionType === 's3' && s3BackendConfig.connection) {
+            this.s3Backend = new S3Store(s3BackendConfig);
+        }
     }
 
     async initialize() {
         await this.ensureAssetDir();
-        await this.backend.initialize();
+        if (this.s3Backend) {
+            await Promise.all([
+                this.s3Backend.initialize(),
+                this.esBackend.initialize()
+            ]);
+        } else {
+            await this.esBackend.initialize();
+        }
         this.logger.info('assets storage initialized');
     }
 
     private async _assetExistsInFS(id: string): Promise<boolean> {
         try {
             if (!this.assetsPath) return false;
-            // eslint-disable-next-line no-bitwise
+             
             const access = fse.constants.F_OK | fse.constants.R_OK | fse.constants.W_OK;
             await fse.access(path.join(this.assetsPath, id), access);
 
@@ -89,10 +121,14 @@ export class AssetsStorage {
         }
     }
 
-    private async _assetExistsInES(id: string): Promise<boolean> {
+    private async _assetExistsInStorage(id: string): Promise<boolean> {
         try {
-            const result = await this.backend.get(id, undefined, ['id', 'name']);
-            return result != null;
+            const inES = await this.esBackend.get(id, undefined, ['id', 'name']);
+            if (this.s3Backend) {
+                const inS3 = await this.s3Backend.get(id);
+                return inES != null && inS3 != null;
+            }
+            return inES != null;
         } catch (err) {
             if (err.statusCode === 404) {
                 return false;
@@ -106,11 +142,28 @@ export class AssetsStorage {
     private async _assetExists(id: string) {
         const [readable, exists] = await Promise.all([
             this._assetExistsInFS(id),
-            this._assetExistsInES(id)
+            this._assetExistsInStorage(id)
         ]);
 
         return readable && exists;
     }
+
+    private async _saveToEs(
+        id: string,
+        assetRecord: Partial<AssetRecord>,
+        blocking: boolean,
+        responseTimeout: number,
+        startTime: number
+    ) {
+        if (blocking) {
+            const elapsed = Date.now() - startTime;
+            const remaining = responseTimeout - elapsed;
+            await this.esBackend.indexWithId(id, assetRecord, undefined, remaining);
+        } else {
+            await this.esBackend.indexWithId(id, assetRecord, undefined, responseTimeout);
+        }
+    }
+
     // data is the buffer form of asset, stored in filesystem
     // esData is the base64 version which is stored in elasticsearch
     private async _saveAndUpload({
@@ -124,7 +177,7 @@ export class AssetsStorage {
             this.assetsPath,
             id,
             data,
-            _metaIsUnique(this.backend)
+            _metaIsUnique(this.esBackend)
         );
 
         const assetRecord = Object.assign({
@@ -132,19 +185,46 @@ export class AssetsStorage {
             _created: new Date().toISOString()
         }, metaData);
 
-        if (blocking) {
-            const elapsed = Date.now() - startTime;
-            const remaining = responseTimeout - elapsed;
-            await this.backend.indexWithId(id, assetRecord, undefined, remaining);
-        } else {
-            await this.backend.indexWithId(id, assetRecord, undefined, responseTimeout);
+        await this._saveToEs(id, assetRecord, blocking, responseTimeout, startTime);
+        this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
+    }
+
+    private async _saveAndUploadS3({
+        id, data, blocking
+    }: { id: string, data: Buffer, blocking: boolean }) {
+        const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
+        const startTime = Date.now();
+
+        if (this.s3Backend) {
+            if (blocking) {
+                const elapsed = Date.now() - startTime;
+                const remaining = responseTimeout - elapsed;
+                await this.s3Backend.save(id, data, remaining);
+            } else {
+                await this.s3Backend.save(id, data, responseTimeout);
+            }
+
+            this.logger.info(`asset id: ${id} has been saved to s3 store`);
         }
 
+        const metaData = await saveAsset(
+            this.logger,
+            this.assetsPath,
+            id,
+            data,
+            _metaIsUnique(this.esBackend)
+        );
+
+        const assetRecord = Object.assign({
+            _created: new Date().toISOString()
+        }, metaData);
+
+        await this._saveToEs(id, assetRecord, blocking, responseTimeout, startTime);
         this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
     }
 
     /**
-     * Save an asset to disk and upload to elasticsearch
+     * Save an asset to disk and upload to elasticsearch or s3
      *
      * @param data {Buffer} A buffer of the asset file (zipped)
      * @param blocking {boolean=true} If false, save the asset in the background
@@ -158,16 +238,26 @@ export class AssetsStorage {
 
         if (exists) {
             this.logger.info(`asset id: ${id} already exists`);
-        } else if (blocking) {
+        } else if (blocking && this.s3Backend) {
+            await this._saveAndUploadS3({
+                id, data, blocking
+            });
+        } else if (blocking && !this.s3Backend) {
             await this._saveAndUpload({
                 id, data, esData, blocking
             });
         } else {
             // kick this of in the background since it is not blocking
             try {
-                await this._saveAndUpload({
-                    id, data, esData, blocking
-                });
+                if (this.s3Backend) {
+                    await this._saveAndUploadS3({
+                        id, data, blocking
+                    });
+                } else {
+                    await this._saveAndUpload({
+                        id, data, esData, blocking
+                    });
+                }
             } catch (err) {
                 this.logger.error(err, `Failure saving asset: ${id}`);
             }
@@ -186,21 +276,37 @@ export class AssetsStorage {
         sort?: string,
         fields?: string | string[]
     ): Promise<ClientResponse.SearchResponse<AssetRecord>> {
-        return this.backend.search(
+        return this.esBackend.search(
             query, from, size, sort, fields
         ) as unknown as ClientResponse.SearchResponse<AssetRecord>;
     }
+
+    /*
+     * Get all the asset records out of the S3 bucket
+     * Returns an array of Records containing: { File: any, Size: any }
+    */
+    async grabS3Info(): Promise<Record<string, any>[]> {
+        return await this.s3Backend?.list() as Record<string, any>[];
+    }
+
     // this should be a SearchResponse as full_response is set to true in backendConfig
     // however for some reason the api ignores that for get and mget, and fullResponse
     // is an argument to the call itself, which can defy the config, defaults to false
     async get(id: string): Promise<AssetRecord> {
-        return this.backend.get(id);
+        let record;
+        if (this.s3Backend) {
+            record = await this.esBackend.get(id);
+            record.blob = await this.s3Backend.get(id);
+        } else {
+            record = this.esBackend.get(id);
+        }
+        return record;
     }
 
     private async _getAssetId(assetIdentifier: string) {
         // is full _id
         if (assetIdentifier.length === 40) {
-            const count = await this.backend.count(`id:"${assetIdentifier}"`);
+            const count = await this.esBackend.count(`id:"${assetIdentifier}"`);
             if (count === 1) return assetIdentifier;
         }
 
@@ -208,7 +314,7 @@ export class AssetsStorage {
         const sort = '_created:desc';
         const fields = ['id', 'name', 'version', 'platform', 'arch', 'node_version'];
 
-        const response = await this.backend.search(
+        const response = await this.esBackend.search(
             `name:"${name}" AND ${toVersionQuery(version)}`,
             undefined,
             10000,
@@ -219,7 +325,7 @@ export class AssetsStorage {
         const assets = response.hits.hits.map((doc) => doc._source);
 
         if (!assets.length) {
-            throw new TSError(`No assets found for "${assetIdentifier}`, {
+            throw new TSError(`No assets found for "${assetIdentifier}"`, {
                 statusCode: 404
             });
         }
@@ -242,12 +348,20 @@ export class AssetsStorage {
 
     async shutdown(forceShutdown: boolean) {
         this.logger.info('shutting asset store down.');
-        return this.backend.shutdown(forceShutdown);
+        if (this.s3Backend) {
+            return Promise.all([
+                this.esBackend.shutdown(forceShutdown),
+                this.s3Backend.shutdown()
+            ]);
+        }
+        return Promise.all([
+            this.esBackend.shutdown(forceShutdown)
+        ]);
     }
 
     async remove(assetId: string) {
         try {
-            await this.backend.get(assetId, undefined, ['name']);
+            await this.esBackend.get(assetId, undefined, ['name']);
         } catch (err) {
             if (toString(err).indexOf('Not Found')) {
                 const error = new TSError(`Unable to find asset ${assetId}`, {
@@ -258,8 +372,31 @@ export class AssetsStorage {
             }
             throw err;
         }
-        await this.backend.remove(assetId);
-        await fse.remove(path.join(this.assetsPath, assetId));
+        let inFS = true;
+        let inStorage = true;
+        let delayMS = 100;
+        const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
+        const timeoutID = setTimeout(() => { throw new TSError(`Timeout deleting asset ${assetId}`); }, responseTimeout);
+        while (inFS || inStorage) {
+            try {
+                await this.esBackend.remove(assetId);
+                if (this.s3Backend) {
+                    await this.s3Backend.remove(assetId);
+                }
+                await fse.remove(path.join(this.assetsPath, assetId));
+
+                [inFS, inStorage] = await Promise.all([
+                    this._assetExistsInFS(assetId),
+                    this._assetExistsInStorage(assetId)
+                ]);
+            } catch (err) {
+                this.logger.error(err, `Failure deleting asset ${assetId} from S3: ${err}`);
+                await pDelay(delayMS);
+                if (delayMS < 300000) delayMS *= 2;
+            } finally {
+                clearTimeout(timeoutID);
+            }
+        }
     }
 
     private async ensureAssetDir() {
@@ -314,10 +451,16 @@ export class AssetsStorage {
     }
 
     verifyClient() {
-        return this.backend.verifyClient();
+        if (this.s3Backend) {
+            return this.esBackend.verifyClient() && this.s3Backend.verifyClient();
+        }
+        return this.esBackend.verifyClient();
     }
 
     async waitForClient() {
-        return this.backend.waitForClient();
+        if (this.s3Backend) {
+            return Promise.all([this.esBackend.waitForClient(), this.s3Backend.waitForClient()]);
+        }
+        return this.esBackend.waitForClient();
     }
 }

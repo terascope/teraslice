@@ -1,17 +1,13 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import addDays from 'date-fns/addDays';
 import {
-    DataEntity,
-    DataEncoding,
-    __IS_DATAENTITY_KEY,
-    __ENTITY_METADATA_KEY,
-    DataEntityMetadata,
-} from '../src/entities';
+    DataEntity, DataEncoding, __IS_DATAENTITY_KEY,
+    __ENTITY_METADATA_KEY, DataEntityMetadata,
+} from '../src/entities/index.js';
 import {
-    parseJSON,
-    cloneDeep,
-    fastCloneDeep,
+    parseJSON, cloneDeep, fastCloneDeep,
     firstToLower,
-} from '../src';
+} from '../src/index.js';
 
 describe('DataEntity', () => {
     const methods: readonly (keyof DataEntity)[] = [
@@ -374,6 +370,15 @@ describe('DataEntity', () => {
                     expect(dataEntity[setMethod]()).toBeNil();
                     const result = dataEntity[getMethod]() as Date;
                     expect(result).toBeDate();
+                });
+
+                it('should be able to set a valid date by date math', () => {
+                    const date = 'now+2d';
+                    expect(dataEntity[setMethod](date)).toBeNil();
+                    const twoDaysFromNow = addDays(new Date().setUTCHours(0, 0, 0, 0), 2);
+                    const result = new Date((dataEntity[getMethod]()).setUTCHours(0, 0, 0, 0));
+                    expect(result).toBeDate();
+                    expect(result.toISOString()).toEqual(twoDaysFromNow.toISOString());
                 });
             } else {
                 it('should return a date for valid time', () => {

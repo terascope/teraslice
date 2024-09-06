@@ -1,7 +1,7 @@
 import { coerceToType } from '@terascope/utils';
-import { WritableData } from '../../core';
-import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../Builder';
+import { WritableData } from '../../core/index.js';
+import { VectorType } from '../../vector/index.js';
+import { Builder, BuilderOptions } from '../Builder.js';
 
 export class BooleanBuilder extends Builder<boolean> {
     _valueFrom = coerceToType<boolean>(this.config, this.childConfig);

@@ -1,6 +1,6 @@
 import { DataEntity, get } from '@terascope/utils';
-import TransformOpBase from './base';
-import { PostProcessConfig } from '../../../interfaces';
+import TransformOpBase from './base.js';
+import { PostProcessConfig } from '../../../interfaces.js';
 
 export default class JsonParse extends TransformOpBase {
     constructor(config: PostProcessConfig) {

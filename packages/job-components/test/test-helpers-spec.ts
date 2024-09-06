@@ -1,13 +1,10 @@
 import 'jest-extended';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
+import { debugLogger } from '@terascope/utils';
 import {
-    debugLogger,
-    newTestJobConfig,
-    newTestSlice,
-    newTestExecutionContext,
-    newTestExecutionConfig,
+    newTestJobConfig, newTestSlice, newTestExecutionConfig,
     TestContext,
-} from '../src';
+} from '../src/index.js';
 
 describe('Test Helpers', () => {
     it('should have a debugLogger', async () => {
@@ -63,26 +60,6 @@ describe('Test Helpers', () => {
         expect(slice._created).toBeString();
     });
 
-    it('should have a newTestExecutionContext (ExecutionController)', () => {
-        expect(newTestExecutionConfig).toBeFunction();
-
-        const exConfig = newTestExecutionConfig();
-        const exContext = newTestExecutionContext('execution_controller', exConfig);
-        expect(exContext.config).toEqual(exConfig);
-        expect(exContext.reader).toBeNull();
-        expect(exContext.slicer).toBeFunction();
-    });
-
-    it('should have a newTestExecutionContext (Worker)', () => {
-        expect(newTestExecutionContext).toBeFunction();
-
-        const exConfig = newTestExecutionConfig();
-        const exContext = newTestExecutionContext('worker', exConfig);
-        expect(exContext.config).toEqual(exConfig);
-        expect(exContext.reader).toBeFunction();
-        expect(exContext.slicer).toBeFunction();
-    });
-
     it('should have a TestContext', () => {
         expect(TestContext).toBeTruthy();
         const context = new TestContext('test-name');
@@ -90,29 +67,23 @@ describe('Test Helpers', () => {
         expect(context.sysconfig).toHaveProperty('_nodeName');
         expect(context).toHaveProperty('cluster');
         expect(context).toHaveProperty('apis');
-        expect(context).toHaveProperty('foundation');
         expect(context.apis.foundation.getSystemEvents()).toBeInstanceOf(EventEmitter);
-        expect(() => {
-            context.apis.foundation.getConnection({
-                endpoint: 'default',
-                type: 'example',
-            });
-        }).toThrowError('No client was found for connection "example:default"');
         expect(context.apis.foundation.makeLogger()).toBeTruthy();
         expect(context.apis.foundation.makeLogger({ module: 'hi' })).toBeTruthy();
-        expect(context.apis.foundation.makeLogger('hello')).toBeTruthy();
+        expect(context.apis.foundation.makeLogger({ hello: 'world' })).toBeTruthy();
 
         const api = { there: () => 'peter' };
         expect(context.apis.registerAPI('hello', api)).toBeUndefined();
         expect(context.apis.hello.there()).toEqual('peter');
     });
 
-    it('should be able to get and set clients', () => {
+    it('should be able to get and set clients', async () => {
+        const logger = debugLogger('test-name');
         const context = new TestContext('test-clients', {
             clients: [
                 {
-                    create() {
-                        return { client: 'hello' };
+                    async createClient() {
+                        return { client: 'hello', logger };
                     },
                     type: 'test'
                 }
@@ -121,23 +92,20 @@ describe('Test Helpers', () => {
 
         expect(context.apis.getTestClients()).toEqual({});
 
-        expect(context.apis.foundation.getConnection({
+        const result = await context.apis.foundation.createClient({
             type: 'test',
             endpoint: 'default'
-        })).toEqual({ client: 'hello' });
-
-        expect(context.apis.getTestClients()).toEqual({
-            test: {
-                default: {
-                    client: 'hello'
-                }
-            }
         });
+
+        expect(result).toHaveProperty('client');
+        expect(result).toHaveProperty('logger');
+
+        expect(result.client).toEqual('hello');
 
         context.apis.setTestClients([
             {
-                create() {
-                    return { client: 'howdy' };
+                async createClient() {
+                    return { client: 'howdy', logger };
                 },
                 type: 'test'
             }
@@ -145,39 +113,111 @@ describe('Test Helpers', () => {
 
         expect(context.apis.getTestClients()).toEqual({});
 
-        expect(context.apis.foundation.getConnection({
+        const result2 = await context.apis.foundation.createClient({
             type: 'test',
             endpoint: 'default'
-        })).toEqual({ client: 'howdy' });
-
-        expect(context.apis.getTestClients()).toEqual({
-            test: {
-                default: {
-                    client: 'howdy'
-                }
-            }
         });
+
+        expect(result2).toHaveProperty('client');
+        expect(result2).toHaveProperty('logger');
+
+        expect(result2.client).toEqual('howdy');
+
+        const results3 = context.apis.getTestClients();
+
+        expect(results3).toHaveProperty('test');
+        expect(results3).toHaveProperty('test.default');
+        expect(results3).toHaveProperty('test.default.client');
+        expect(results3).toHaveProperty('test.default.logger');
+        expect(results3.test.default.client).toEqual('howdy');
     });
 
-    it('should be able to get and set async clients', async () => {
-        const context = new TestContext('test-clients', {
-            clients: [
-                {
-                    async createClient() {
-                        return { client: 'hello' };
-                    },
-                    type: 'test'
-                }
-            ]
+    describe('MockPromMetrics', () => {
+        const context = new TestContext('test-prom-metrics');
+        context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
+        const config = {
+            terasliceName: context.sysconfig.teraslice.name,
+            assignment: 'master',
+            logger: debugLogger('test-helpers-spec-logger'),
+            tf_prom_metrics_enabled: true,
+            tf_prom_metrics_port: 3333,
+            tf_prom_metrics_add_default: false,
+        };
+
+        it('should be able to init a mock prom_metrics_api', async () => {
+            expect(await context.apis.foundation.promMetrics.init(config)).toBe(true);
+            expect(context.apis.foundation.promMetrics.verifyAPI()).toBe(true);
         });
 
-        expect(context.apis.getTestClients()).toEqual({});
-
-        const results = await context.apis.foundation.createClient({
-            type: 'test',
-            endpoint: 'default'
+        it('should throw if API already initialized', async () => {
+            await expect(context.apis.foundation.promMetrics.init(config)).rejects.toThrow('Prom metrics API cannot be initialized more than once.');
         });
 
-        expect(results).toEqual({ client: 'hello' });
+        it('should add, inc and delete counter', async () => {
+            await context.apis.foundation.promMetrics.addCounter('test_counter', 'test_counter help string', ['uuid', 'name', 'assignment'], function collect() {
+                this.inc({ uuid: 'e&vgv%56' }, 1);
+            });
+            context.apis.foundation.promMetrics.inc('test_counter', { uuid: 'e&vgv%56' }, 1);
+            expect(context.apis.foundation.promMetrics.hasMetric('test_counter')).toBe(true);
+            expect(await context.apis.foundation.promMetrics.deleteMetric('test_counter')).toBe(true);
+        });
+
+        it('should inc, dec, and set gauge', async () => {
+            await context.apis.foundation.promMetrics.addGauge('test_gauge', 'help string', ['uuid', 'name', 'assignment']);
+            context.apis.foundation.promMetrics.set('test_gauge', { uuid: '437Ev89h' }, 10);
+            context.apis.foundation.promMetrics.inc('test_gauge', { uuid: '437Ev89h' }, 1);
+            context.apis.foundation.promMetrics.dec('test_gauge', { uuid: '437Ev89h' }, 2);
+            const metrics: string = await context.apis.scrapePromMetrics();
+            const sum = metrics.split('\n').filter((line) => line.includes('437Ev89h'))[0].split(' ')[1];
+            expect(sum).toBe('9');
+        });
+
+        it('should throw if inc called on metric that doesn\'t exist', async () => {
+            expect(() => context.apis.foundation.promMetrics.inc('missing_test_gauge', { uuid: 'fg7HUI5' }, 1))
+                .toThrow('Metric missing_test_gauge is not setup');
+        });
+
+        it('should throw if dec called on metric that doesn\'t exist', async () => {
+            expect(() => context.apis.foundation.promMetrics.dec('missing_test_gauge', { uuid: 'fg7HUI5' }, 1))
+                .toThrow('Metric missing_test_gauge is not setup');
+        });
+
+        it('should throw if set called on metric that doesn\'t exist', async () => {
+            expect(() => context.apis.foundation.promMetrics.set('missing_test_gauge', { uuid: 'fg7HUI5' }, 1))
+                .toThrow('Metric missing_test_gauge is not setup');
+        });
+        it('should add and observe summary', async () => {
+            await context.apis.foundation.promMetrics.addSummary('test_summary', 'test_summary help string', ['uuid', 'name', 'assignment']);
+            context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 12);
+            context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 5);
+            context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 18);
+            const metrics: string = await context.apis.scrapePromMetrics();
+            const sum = metrics.split('\n').filter((line) => line.includes('test_summary_sum'))[0].split(' ')[1];
+            const count = metrics.split('\n').filter((line) => line.includes('test_summary_count'))[0].split(' ')[1];
+            expect(sum).toBe('35');
+            expect(count).toBe('3');
+        });
+
+        it('should add and observe histogram', async () => {
+            await context.apis.foundation.promMetrics.addHistogram('test_histogram', 'test_histogram help string', ['uuid', 'name', 'assignment']);
+            context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 10);
+            context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 30);
+            context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 2);
+            const metrics: string = await context.apis.scrapePromMetrics();
+            const sum = metrics.split('\n').filter((line) => line.includes('test_histogram_sum'))[0].split(' ')[1];
+            const count = metrics.split('\n').filter((line) => line.includes('test_histogram_count'))[0].split(' ')[1];
+            expect(sum).toBe('42');
+            expect(count).toBe('3');
+        });
+
+        it('should throw if observe called on metric that doesn\'t exist', async () => {
+            expect(() => context.apis.foundation.promMetrics.observe('missing_test_histogram', { uuid: 'Hz4XpL9' }, 1))
+                .toThrow('Metric missing_test_histogram is not setup');
+        });
+
+        it('should shutdown', async () => {
+            await context.apis.foundation.promMetrics.shutdown();
+            expect(context.mockPromMetrics).toBeNull();
+        });
     });
 });

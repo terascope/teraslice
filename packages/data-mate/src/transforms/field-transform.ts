@@ -1,17 +1,17 @@
 import * as ts from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import PhoneValidator from 'awesome-phonenumber';
 import { format as dateFormat, parse } from 'date-fns';
-import { ReplaceLiteralConfig, ReplaceRegexConfig, ExtractFieldConfig } from './interfaces';
+import { ReplaceLiteralConfig, ReplaceRegexConfig, ExtractFieldConfig } from './interfaces.js';
 import {
     isString,
     isValidDate,
     isNumber,
     isArray,
     isNumberTuple
-} from '../validations/field-validator';
-import { Repository, InputType } from '../interfaces';
+} from '../validations/field-validator.js';
+import { Repository, InputType } from '../interfaces.js';
 
 export const repository: Repository = {
     toString: {
@@ -1294,7 +1294,7 @@ export function toISO8601(
     return _makeIso(input, args);
 }
 
-interface FormatDateConfig {
+export interface FormatDateConfig {
     format: string;
     resolution?: 'seconds' | 'milliseconds';
 }
@@ -1355,7 +1355,7 @@ export function formatDate(
     return _formatDate(input, args);
 }
 
-interface ParseDateConfig {
+export interface ParseDateConfig {
     format: string;
 }
 

@@ -1,5 +1,5 @@
 import { DataTypeFieldConfig, DateFormat, FieldType } from '@terascope/types';
-import DateType from '../../../src/types/v1/date';
+import DateType from '../../../src/types/v1/date.js';
 
 describe('Date V1', () => {
     const field = 'someField';

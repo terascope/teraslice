@@ -1,18 +1,19 @@
 /* eslint-disable no-console */
 
-'use strict';
+import { pDelay } from '@terascope/utils';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+// const heapdump from 'heapdump';
+import { DataFrame } from '../dist/src/index.js';
 
-const { pDelay } = require('@terascope/utils');
-const fs = require('fs');
-const path = require('path');
-// const heapdump = require('heapdump');
-const { DataFrame } = require('./src');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function readData() {
     console.time('readData');
     try {
         return await new Promise((resolve, reject) => {
-            fs.readFile(path.join(__dirname, 'fixtures/data.dfjson'), (err, buf) => {
+            fs.readFile(path.join(dirname, 'fixtures/data.dfjson'), (err, buf) => {
                 if (err) reject(err);
                 else resolve(DataFrame.deserialize(buf));
             });

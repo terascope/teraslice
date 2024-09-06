@@ -23,7 +23,6 @@ export default class TerasliceUtil {
         try {
             clusterInfo = await this.info();
             if (has(clusterInfo, 'clustering_type')) {
-                // @ts-expect-error
                 clusteringType = clusterInfo.clustering_type;
             } else {
                 clusteringType = 'native';

@@ -1,11 +1,11 @@
-import { booleanRepository } from './boolean';
-import { dateRepository } from './date';
-import { geoRepository } from './geo';
-import { jsonRepository } from './json';
-import { numericRepository } from './numeric';
-import { objectRepository } from './object';
-import { stringRepository } from './string';
-import { ipRepository } from './ip';
+import { booleanRepository } from './boolean/index.js';
+import { dateRepository } from './date/index.js';
+import { geoRepository } from './geo/index.js';
+import { jsonRepository } from './json/index.js';
+import { numericRepository } from './numeric/index.js';
+import { objectRepository } from './object/index.js';
+import { stringRepository } from './string/index.js';
+import { ipRepository } from './ip/index.js';
 
 export const functionConfigRepository = {
     ...booleanRepository,

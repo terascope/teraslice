@@ -1,5 +1,6 @@
 import ip from 'ip';
-import path from 'path';
+import path from 'node:path';
+import { Terafoundation, Teraslice } from '@terascope/types';
 import {
     isPlainObject, isString, isArray,
     isInteger
@@ -7,6 +8,7 @@ import {
 import { cpus } from 'node:os';
 
 const workerCount = cpus().length;
+const DEFAULT_ASSET_STORAGE_CONNECTION_TYPE = 'elasticsearch-next';
 
 /**
  * This schema object is for the Teraslice configuration settings coming from
@@ -223,7 +225,7 @@ export const schema = {
     cluster_manager_type: {
         doc: 'determines which cluster system should be used',
         default: 'native',
-        format: ['native', 'kubernetes']
+        format: ['native', 'kubernetes', 'kubernetesV2']
     },
     cpu: {
         doc: 'number of cpus to reserve per teraslice worker in kubernetes',
@@ -319,11 +321,66 @@ export const schema = {
         doc: 'Enable Teraslice woker pod AntiAffinity in Kubernetes',
         default: false,
         format: Boolean
-    }
+    },
+    asset_storage_connection_type: {
+        doc: 'Name of the connection type used to store assets',
+        default: DEFAULT_ASSET_STORAGE_CONNECTION_TYPE,
+        format: String
+    },
+    asset_storage_connection: {
+        doc: 'Name of the connection used to store assets.',
+        default: 'default',
+        format: String
+    },
+    asset_storage_bucket: {
+        doc: 'Name of S3 bucket used to store assets. Can only be used if "asset_storage_connection_type" is "s3".',
+        default: undefined,
+        format: String
+    },
 };
 
 export function configSchema() {
-    return { teraslice: schema };
+    return {
+        schema: { teraslice: schema },
+        validatorFn: (
+            config: Teraslice.Config,
+            sysconfig: Terafoundation.SysConfig<Teraslice.Config>
+        ) => {
+            const connectionType = config.asset_storage_connection_type
+                || DEFAULT_ASSET_STORAGE_CONNECTION_TYPE;
+            const connectionTypesPresent = Object.keys(sysconfig.terafoundation.connectors);
+            const validConnectionTypes = ['elasticsearch-next', 's3'];
+
+            // checks on asset_storage_connection_type
+            if (!validConnectionTypes
+                .includes(connectionType)) {
+                throw new Error(`Invalid asset_storage_connection_type. Valid types: ${validConnectionTypes.toString()}`);
+            }
+
+            if (!connectionTypesPresent
+                .includes(connectionType)) {
+                throw new Error('asset_storage_connection_type not found in terafoundation.connectors');
+            }
+
+            // checks on asset_storage_connection
+            const connectionsPresent = Object.keys(sysconfig.terafoundation.connectors[`${connectionType}`]);
+            /// Check to make sure the asset_storage_connection exists inside the connector
+            /// Exclude elasticsearch as this connection type does not utilize this value
+            if (
+                connectionType !== 'elasticsearch-next'
+                && config.asset_storage_connection
+                && !connectionsPresent.includes(config.asset_storage_connection)
+            ) {
+                throw new Error(`${config.asset_storage_connection} not found in terafoundation.connectors.${connectionType}`);
+            }
+
+            // checks on asset_storage_bucket
+            if (config.asset_storage_bucket && connectionType !== 's3') {
+                throw new Error('asset_storage_bucket can only be used if asset_storage_connection_type is set to "s3"');
+            }
+            // TODO: add regex to check if valid bucket name
+        }
+    };
 }
 
 // TODO: fix this

@@ -1,4 +1,4 @@
-import { parsePhoneNumber, isISDN, isPhoneNumberLike } from '../src';
+import { parsePhoneNumber, isISDN, isPhoneNumberLike } from '../src/index.js';
 
 describe('parsePhoneNumber', () => {
     test.each([

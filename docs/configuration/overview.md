@@ -13,13 +13,9 @@ The configuration file is provided to the Teraslice process at startup using the
 #### Example Config
 
 ```yaml
-```yaml
 terafoundation:
+    log_level: info
     connectors:
-        elasticsearch:
-            default:
-                host:
-                    - localhost:9200
         elasticsearch-next:
             default:
                 node:
@@ -35,13 +31,18 @@ teraslice:
 ```
 
 ## Terafoundation Configuration Reference
+NOTE: All `asset_storage` related fields are deprecated. Please use the fields in the teraslice config instead. Also the `asset_storage` fields in the teraslice config will take precedence over the ones that are in terafoundation.
 
 |      Field      |    Type    |     Default     |                                      Description                                      |
 | :-------------: | :--------: | :-------------: | :-----------------------------------------------------------------------------------: |
+| **connectors** |  `Object`  | none |       Required. An object whose keys are connection types and values are objects describing each connection of that type. See [Terafoundation Connectors](#terafoundation-connectors).        |
 | **environment** |  `String`  | `"development"` |       If set to `development` console logging will automatically be turned on.        |
 |  **log_level**  |  `String`  |    `"info"`     |                                Default logging levels                                 |
 |  **log_path**   |  `String`  |    `"$PWD"`     |          Directory where the logs will be stored if logging is set to `file`          |
 |   **logging**   | `String[]` |  `["console"]`  | Logging destinations. Expects an array of logging targets. options: `console`, `file` |
+| **prom_metrics_enabled** | `Boolean` |  `false` | Create prometheus exporters. Kubernetes clustering only |
+| **prom_metrics_port** | `Number` |  `3333` | Port of prometheus exporter server. Kubernetes clustering only. Metrics will be visible at `http://localhost:<PORT>/metrics` |
+| **prom_metrics_add_default** | `Boolean` |  `true` | Display default node metrics in prom exporter. Kubernetes clustering only |
 |   **workers**   |  `Number`  |       `4`       |                             Number of workers per server                              |
 
 ## Teraslice Configuration Reference
@@ -52,9 +53,12 @@ teraslice:
 |               **analytics_rate**                |             `duration`             |          `60000`           |                                           Rate in ms in which to push analytics to cluster master                                           |
 |            **api_response_timeout**             |             `duration`             |          `300000`          |    maximum time, in milliseconds, requests to the teraslice API will wait to complete a response without error (e.g. posting large assets)  |
 |              **assets_directory**               |              `String`              |      `"$PWD/assets"`       |                                                        directory to look for assets                                                         |
+| **asset_storage_bucket** |  `String` | `ts-assets-<teraslice.name>` |       Name of S3 bucket if using S3 external asset storage.        |
+| **asset_storage_connection** |  `String`  | `"default"` |       Name of the connection of `asset_storage_connection_type` where asset bundles will be stored.        |
+| **asset_storage_connection_type** |  `String`  | `"elasticsearch-next"` |       Name of the connection type that will store asset bundles. options: `elasticsearch-next`, `s3`.        |
 |                **assets_volume**                |              `String`              |             -              |                                                      name of shared asset volume (k8s)                                                      |
 |             **autoload_directory**              |              `String`              |     `"$PWD/autoload"`      |                                     directory to look for assets to auto deploy when teraslice boots up                                     |
-|            **cluster_manager_type**             |     `"native"`, `"kubernetes"`     |         `"native"`         |                                               determines which cluster system should be used                                                |
+|            **cluster_manager_type**             |     `"native"`, `"kubernetes", "kubernetesV2"`     |         `"native"`         |                                               determines which cluster system should be used                                                |
 |                     **cpu**                     |              `Number`              |             -              |                                        number of cpus to reserve per teraslice worker in kubernetes                                         |
 |                  **hostname**                   |              `String`              |        `"$HOST_IP"`        |                                                          IP or hostname for server                                                          |
 |     **index_rollover_frequency.analytics**      | `"daily"`, `"monthly"`, `"yearly"` |        `"monthly"`         |                                              How frequently the analytics indices are created                                               |
@@ -104,18 +108,6 @@ For Example
 terafoundation:
     # ...
     connectors:
-        elasticsearch:
-            default:
-                host:
-                    - '127.0.0.1:9200'
-                keepAlive: false
-                maxRetries: 5
-                maxSockets: 20
-            secondary:
-                host:
-                    - 'some-other-ip:9200'
-                apiVersion: '6.5'
-                maxRetries: 0
         elasticsearch-next:
             default:
                 node:
@@ -126,11 +118,11 @@ terafoundation:
 # ...
 ```
 
-In this example we specify two different connector types: `elasticsearch`, `elasticsearch-next` and `kafka`. Under each connector type you may then create custom endpoint configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. In the elasticsearch example there is the `default` endpoint and the `secondary` endpoint which connects to a different elasticsearch cluster. Each endpoint has independent configuration options.
+In this example we specify two different connector types: `elasticsearch-next` and `kafka`. Under each connector type you may then create custom endpoint configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. Each endpoint has independent configuration options.
 
 These different endpoints can be retrieved through terafoundations's connector API. As it's name implies, the `default` connector is what will be provided if a connection is requested without providing a specific name. In general we don't recommend doing that if you have multiple clusters, but it's convenient if you only have one.
 
-The difference between `elasticsearch` and `elasticsearch-next` is that the former relies on a legacy client that works on version 6 and 7.9 or lower, while the later dynamically queries the cluster to verify the version and distribution and returns the appropriate client. It can work with versions 6, 7, 8 and with opensearch.
+The `elasticsearch-next` connector dynamically queries the cluster to verify the version and distribution and returns the appropriate client. It can work with versions 6, 7, 8 and with opensearch.
 
 ## Configuration Single Node / Native Clustering - Cluster Master
 
@@ -149,10 +141,6 @@ terafoundation:
     log_path: '/path/to/logs'
 
     connectors:
-        elasticsearch:
-            default:
-                host:
-                    - YOUR_ELASTICSEARCH_IP:9200
         elasticsearch-next:
             default:
                 node:
@@ -174,12 +162,50 @@ terafoundation:
     log_path: '/path/to/logs'
 
     connectors:
-        elasticsearch:
-            default:
-                host:
-                    - YOUR_ELASTICSEARCH_IP:9200
         elasticsearch-next:
             default:
                 node:
                     - YOUR_ELASTICSEARCH_IP:9200"
 ```
+
+## Configuration Asset Storage
+
+By default asset bundles are stored in Elasticsearch when uploaded. Defining the `asset_storage_connection_type` will allow Teraslice to store assets in an external storage medium. If using a connection besides `default`, specify it with the `asset_storage_connection` field.
+
+Currently S3 is the only external asset storage type enabled. Use the `asset_storage_bucket` field to specify the S3 bucket where assets will be stored. Assets will be stored in S3 as `<AssetID>.zip` where AssetID is a hash of the zipped asset.
+
+**Note**: All asset metadata will always be stored in Elasticsearch.
+
+
+```yaml
+terafoundation:
+    asset_storage_connection_type: s3
+    asset_storage_connection: minio1
+    asset_storage_bucket: ts-assets
+    log_level: info
+    connectors:
+        elasticsearch-next:
+            default:
+                node:
+                    - "http://localhost:9200"
+        s3:
+            default:
+                endpoint: "http://minio:9000"
+                accessKeyId: "minioadmin"
+                secretAccessKey: "minioadmin"
+                forcePathStyle: true
+                sslEnabled: false
+                region: "us-east-1"
+            minio1:
+                endpoint: "http://minio:9000"
+                accessKeyId: "minioadmin"
+                secretAccessKey: "minioadmin"
+                forcePathStyle: true
+                sslEnabled: false
+                region: "us-east-1"
+teraslice:
+    workers: 8
+    master: true
+    master_hostname: 127.0.0.1
+    name: teraslice
+    hostname: 127.0.0.1

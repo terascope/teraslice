@@ -1,16 +1,12 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { parseJSON, castArray } from '@terascope/utils';
+import { Terafoundation } from '@terascope/types';
 import {
-    ConnectionConfig,
-    Context,
-    ValidatedJobConfig,
-    ExecutionConfig,
-    OpConfig,
-    GetClientConfig,
-    WorkerContextAPIs
-} from './interfaces';
-import { ExecutionContextAPI } from './execution-context';
+    Context, ValidatedJobConfig, ExecutionConfig,
+    OpConfig, GetClientConfig,
+} from './interfaces/index.js';
+import { ExecutionContextAPI } from './execution-context/index.js';
 
 /** Get the first opConfig from an operation name */
 export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig | undefined {
@@ -59,39 +55,16 @@ interface AssetJSON {
 }
 
 /*
- * This will request a connection based on the 'connection' attribute of an opConfig.
- * Intended as a context API endpoint. Use getClientAsync for elasticsearch connections
- */
-export function getClient(context: Context, config: GetClientConfig, type: string): any {
-    const clientConfig: ConnectionConfig = {
-        type,
-        cached: true,
-        endpoint: 'default',
-    };
-
-    if (config && config.connection) {
-        clientConfig.endpoint = config.connection || 'default';
-        const isCached = config.connection_cache != null;
-        clientConfig.cached = isCached ? config.connection_cache : true;
-    } else {
-        clientConfig.endpoint = 'default';
-        clientConfig.cached = true;
-    }
-
-    return context.foundation.getConnection(clientConfig).client;
-}
-
-/*
  * This will request a connection based on the 'connection' attribute of
  * an opConfig. Used to create new client types for elasticsearch, not for use
  * for other connection types other than elasticsearch-next
  */
-export async function getClientAsync(
+export async function getClient(
     context: Context,
     config: GetClientConfig,
     type: string
 ): Promise<any> {
-    const clientConfig: ConnectionConfig = {
+    const clientConfig: Terafoundation.ConnectionConfig = {
         type,
         cached: true,
         endpoint: 'default',
@@ -115,7 +88,8 @@ export function registerApis(
     job: ValidatedJobConfig | ExecutionConfig,
     assetIds?: string[]
 ): void {
-    const cleanupApis: (keyof WorkerContextAPIs)[] = ['op_runner', 'executionContext', 'job_runner', 'assets'];
+    const cleanupApis = ['op_runner', 'executionContext', 'job_runner', 'assets'];
+
     for (const api of cleanupApis) {
         if (context.apis[api] != null) {
             delete context.apis[api];
@@ -125,12 +99,12 @@ export function registerApis(
     context.apis.registerAPI('executionContext', new ExecutionContextAPI(context, job as ExecutionConfig));
 
     context.apis.registerAPI('op_runner', {
-        // DEPRECATED, PLEASE USE "getClientAsync"
-        getClient(config: GetClientConfig, type: string): { client: any } {
+        getClient(config: GetClientConfig, type: string): Promise<{ client: any }> {
             return getClient(context, config, type);
         },
+        // For backward compatibility, but it will not show up on the type
         getClientAsync(config: GetClientConfig, type: string): Promise<{ client: any }> {
-            return getClientAsync(context, config, type);
+            return getClient(context, config, type);
         },
     });
 

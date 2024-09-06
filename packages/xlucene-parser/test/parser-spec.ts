@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError, times, toString } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
-import allTestCases, { filterNilTestCases } from './cases';
+import allTestCases, { filterNilTestCases } from './cases/index.js';
 import {
     Parser, NodeType, FieldValue, TermLikeNode
 } from '../src';
@@ -9,20 +9,29 @@ import {
 describe('Parser', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
         describe(`when testing ${key.replace('_', ' ')} queries`, () => {
-            describe.each(testCases)('given query %s', (query, msg, ast, typeConfig, variables) => {
+            describe.each(testCases)('given query %s', (query, msg, ast, typeConfig, variables, resolved, testDatesFn) => {
                 if (variables) {
                     it(`should be able to parse ${msg} with variables ${toString(variables)}`, () => {
+                        const now = new Date();
                         const parser = new Parser(query, {
                             type_config: typeConfig,
                         }).resolveVariables(variables);
 
+                        if (testDatesFn) {
+                            testDatesFn(now, parser.ast);
+                        }
                         expect(parser.ast).toMatchObject(ast);
                     });
                 } else {
                     it(`should be able to parse ${msg}`, () => {
+                        const now = new Date();
                         const parser = new Parser(query, {
                             type_config: typeConfig,
                         });
+
+                        if (testDatesFn) {
+                            testDatesFn(now, parser.ast);
+                        }
                         expect(parser.ast).toMatchObject(ast);
                     });
                 }

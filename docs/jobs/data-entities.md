@@ -4,7 +4,7 @@ title: Data Entities
 
 A DataEntity is wrapper for data that can hold additional metadata properties without mutating the original data.
 
-Check out the [API docs](../packages/utils/api/classes/dataentity.md) for more details.
+Check out the [API docs](../packages/utils/api/entities/data-entity/classes/DataEntity.md) for more details.
 
 ## Usage
 

@@ -2,7 +2,7 @@ import { isString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const isStringConfig: FieldValidateConfig = {
     name: 'isString',

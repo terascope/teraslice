@@ -1,17 +1,22 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
-    debugLogger, has, isPlainObject, get
+    debugLogger, has, isPlainObject,
+    get
 } from '@terascope/utils';
 import {
-    RulesLoader, RulesParser, OperationConfig, OperationConfigInput
+    RulesLoader, RulesParser, OperationConfig,
+    OperationConfigInput
 } from '../../src';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('Loader', () => {
     const logger = debugLogger('rules-loader-test');
 
     async function getConfigList(fileName: string): Promise<OperationConfig[]> {
-        const filePath = path.join(__dirname, `../fixtures/${fileName}`);
+        const filePath = path.join(dirname, `../fixtures/${fileName}`);
         const myFileLoader = new RulesLoader({ rules: [filePath] }, logger);
         const configList = await myFileLoader.load();
         const rulesParser = new RulesParser(configList, logger);

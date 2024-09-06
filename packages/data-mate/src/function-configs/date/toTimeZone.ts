@@ -1,19 +1,15 @@
-import {
-    DateFormat, FieldType
-} from '@terascope/types';
+import { DateFormat, FieldType } from '@terascope/types';
 import { toTimeZone } from '@terascope/utils';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
-export interface toTimeZoneArgs {
+export interface TimeZoneArgs {
     timezone: string
 }
 
-export const toTimeZoneConfig: FieldTransformConfig<toTimeZoneArgs> = {
+export const toTimeZoneConfig: FieldTransformConfig<TimeZoneArgs> = {
     name: 'toTimeZone',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

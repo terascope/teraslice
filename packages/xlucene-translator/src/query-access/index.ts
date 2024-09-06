@@ -1,3 +1,3 @@
-export * from './cached-query-access';
-export * from './query-access';
-export * from './interfaces';
+export * from './cached-query-access.js';
+export * from './query-access.js';
+export * from './interfaces.js';

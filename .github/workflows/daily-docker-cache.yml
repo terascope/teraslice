@@ -1,0 +1,11 @@
+name: Daily Docker Cache
+
+on:
+  schedule:
+    - cron: '0 12 * * 1-5' # Monday - Friday at 5am Arizona Time
+  workflow_dispatch:
+
+jobs:
+  call-refresh-docker-cache-workflow:
+    uses: terascope/workflows/.github/workflows/refresh-docker-cache.yml@f5e098fa861fe7744fa61842e82124f806364be9
+    secrets: inherit

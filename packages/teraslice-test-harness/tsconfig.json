@@ -2,7 +2,8 @@
     "extends": "../../tsconfig",
     "compilerOptions": {
         "outDir": "dist",
-        "rootDir": "."
+        "rootDir": ".",
+        "esModuleInterop": true
     },
     "include": ["src", "test"]
 }

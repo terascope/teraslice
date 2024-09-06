@@ -1,10 +1,10 @@
 import {
     DataEntity, AnyObject, unset, has
 } from '@terascope/utils';
-import { hasKeys } from './utils';
-import { WatcherConfig, OutputValidation } from '../interfaces';
-import PhaseBase from './base';
-import { OperationsManager } from '../operations';
+import { hasKeys } from './utils.js';
+import { WatcherConfig, OutputValidation } from '../interfaces.js';
+import PhaseBase from './base.js';
+import { OperationsManager } from '../operations/index.js';
 
 type Filter = (key: string) => boolean;
 

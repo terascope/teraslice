@@ -124,7 +124,7 @@ export class ExecutionAnalytics {
         this.executionAnalytics[key] = value;
     }
 
-    increment(key: string) {
+    increment(key: keyof EStats) {
         if (!has(this.executionAnalytics, key)) {
             this.logger.warn(`"${key}" is not a valid analytics property`);
             return;

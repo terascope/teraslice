@@ -21,7 +21,7 @@ export default class Aliases {
         return yaml.load(content) as AnyObject;
     }
 
-    config: AnyObject;
+    config: Record<string, Record<string, any>>;
     aliasesFile: string;
 
     constructor(aliasesFile: string) {

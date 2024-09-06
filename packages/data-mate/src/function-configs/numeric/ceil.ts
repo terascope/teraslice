@@ -4,8 +4,8 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
-import { runMathFn } from './utils';
+} from '../interfaces.js';
+import { runMathFn } from './utils.js';
 
 export const ceilConfig: FieldTransformConfig = {
     name: 'ceil',

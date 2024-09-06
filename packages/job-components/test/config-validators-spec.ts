@@ -1,13 +1,14 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
 import { Schema } from 'convict';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { logLevels } from '@terascope/utils';
 import {
-    jobSchema,
-    validateJobConfig,
-    validateOpConfig,
-    TestContext,
-    validateAPIConfig,
-    logLevels
-} from '../src';
+    jobSchema, validateJobConfig, validateOpConfig,
+    TestContext, validateAPIConfig,
+} from '../src/index.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('when using native clustering', () => {
     describe('when passed a valid jobSchema and jobConfig', () => {
@@ -46,7 +47,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with an invalid op', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -54,7 +55,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+                prom_metrics_enabled: false,
+                prom_metrics_port: 3333,
+                prom_metrics_add_default: true,
+            });
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
@@ -75,7 +81,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with an invalid operations', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -83,8 +89,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
-
+                prom_metrics_enabled: false,
+                prom_metrics_port: 3333,
+                prom_metrics_add_default: true,
+            });
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
             const schema = jobSchema(context);
             const job = {
                 operations: [{ _op: 'noop' }],
@@ -99,8 +109,8 @@ describe('when using native clustering', () => {
     describe('when passed a job without a known operation connector', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.teraslice.assets_directory = [__dirname];
-            context.sysconfig.terafoundation = {
+            context.sysconfig.teraslice.assets_directory = [dirname];
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -108,7 +118,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+                prom_metrics_enabled: false,
+                prom_metrics_port: 3333,
+                prom_metrics_add_default: true,
+            });
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
@@ -133,7 +148,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with an invalid api', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -141,7 +156,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+                prom_metrics_enabled: false,
+                prom_metrics_port: 3333,
+                prom_metrics_add_default: true,
+            });
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
@@ -165,7 +185,7 @@ describe('when using native clustering', () => {
     describe('when passed a job without api _name', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -173,7 +193,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+                prom_metrics_enabled: false,
+                prom_metrics_port: 3333,
+                prom_metrics_add_default: true,
+            });
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
@@ -196,7 +221,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with duplicate api names', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -204,7 +229,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+                prom_metrics_enabled: false,
+                prom_metrics_port: 3333,
+                prom_metrics_add_default: true,
+            });
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
@@ -234,7 +264,7 @@ describe('when using native clustering', () => {
     describe('when passed a job without a known api connector', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -242,7 +272,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+                prom_metrics_enabled: false,
+                prom_metrics_port: 3333,
+                prom_metrics_add_default: true,
+            });
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
@@ -665,6 +700,177 @@ describe('when using native clustering', () => {
 describe('when validating k8s clustering', () => {
     const context = new TestContext('teraslice-operations');
     context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
+
+    describe('when passed a jobConfig with cpu and memory', () => {
+        it('should return a completed and valid jobConfig', () => {
+            const schema = jobSchema(context);
+            const job = {
+                cpu: 1,
+                memory: 805306368,
+                operations: [
+                    {
+                        _op: 'noop',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            const jobConfig = validateJobConfig(schema, job);
+            expect(jobConfig.cpu).toEqual(job.cpu);
+            expect(jobConfig.memory).toEqual(job.memory);
+        });
+    });
+
+    describe('when passed a jobConfig with cpu and memory resources', () => {
+        it('should return a completed and valid jobConfig', () => {
+            const schema = jobSchema(context);
+            const job = {
+                resources_requests_cpu: 1,
+                resources_requests_memory: 805306368,
+                resources_limits_cpu: 1.5,
+                resources_limits_memory: 905306368,
+                operations: [
+                    {
+                        _op: 'noop',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            const jobConfig = validateJobConfig(schema, job);
+            expect(jobConfig.resources_requests_cpu).toEqual(job.resources_requests_cpu);
+            expect(jobConfig.resources_requests_memory).toEqual(job.resources_requests_memory);
+            expect(jobConfig.resources_limits_cpu).toEqual(job.resources_limits_cpu);
+            expect(jobConfig.resources_limits_memory).toEqual(job.resources_limits_memory);
+        });
+    });
+
+    describe('when passed a jobConfig with old and new cpu and memory resources', () => {
+        it('should throw an exception', () => {
+            const schema = jobSchema(context);
+            const job = {
+                cpu: 1,
+                memory: 805306368,
+                resources_requests_cpu: 1,
+                resources_limits_cpu: 1.5,
+                resources_requests_memory: 805306368,
+                resources_limits_memory: 905306368,
+                operations: [
+                    {
+                        _op: 'noop',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            expect(() => {
+                validateJobConfig(schema, job);
+            }).toThrowError('Validation failed for job config: undefined - cpu/memory can\'t be mixed with resource settings of the same type.');
+        });
+    });
+
+    describe('when passed a jobConfig with targets', () => {
+        it('should return a completed and valid jobConfig', () => {
+            const schema = jobSchema(context);
+            const job = {
+                targets: [
+                    {
+                        key: 'zone',
+                        value: 'west',
+                    },
+                ],
+                operations: [
+                    {
+                        _op: 'noop',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            const validJob = {
+                analytics: true,
+                assets: null,
+                lifecycle: 'once',
+                max_retries: 3,
+                name: 'Custom Job',
+                apis: [],
+                operations: [{ _op: 'noop' }, { _op: 'noop' }],
+                probation_window: 300000,
+                performance_metrics: false,
+                slicers: 1,
+                targets: [
+                    {
+                        key: 'zone',
+                        value: 'west',
+                    },
+                ],
+                volumes: [],
+            };
+
+            const jobConfig = validateJobConfig(schema, job);
+            delete (jobConfig as any).workers;
+            expect(jobConfig).toMatchObject(validJob);
+        });
+    });
+
+    describe('when passed a jobConfig with volumes', () => {
+        it('should return a completed and valid jobConfig', () => {
+            const schema = jobSchema(context);
+            const job = {
+                volumes: [
+                    {
+                        name: 'pvc-name',
+                        path: '/srv',
+                    },
+                ],
+                operations: [
+                    {
+                        _op: 'noop',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+            const validJob = {
+                analytics: true,
+                assets: null,
+                lifecycle: 'once',
+                max_retries: 3,
+                name: 'Custom Job',
+                apis: [],
+                env_vars: {},
+                operations: [{ _op: 'noop' }, { _op: 'noop' }],
+                probation_window: 300000,
+                performance_metrics: false,
+                targets: [],
+                volumes: [
+                    {
+                        name: 'pvc-name',
+                        path: '/srv',
+                    },
+                ],
+                slicers: 1,
+            };
+
+            const jobConfig = validateJobConfig(schema, job);
+            delete (jobConfig as any).workers;
+            expect(jobConfig).toMatchObject(validJob);
+        });
+    });
+});
+
+describe('when validating k8s v2 clustering', () => {
+    const context = new TestContext('teraslice-operations');
+    context.sysconfig.teraslice.cluster_manager_type = 'kubernetesV2';
 
     describe('when passed a jobConfig with cpu and memory', () => {
         it('should return a completed and valid jobConfig', () => {

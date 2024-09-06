@@ -1,17 +1,12 @@
 import {
-    isObjectEntity,
-    get,
-    set,
-    cloneDeep,
-    isNil,
-    unset,
-    isFunction
+    isObjectEntity, get, set, cloneDeep,
+    isNil, unset, isFunction
 } from '@terascope/utils';
 import {
     FieldValidateConfig, InitialFunctionContext, FunctionContext,
-} from '../../../../function-configs/interfaces';
-import { validateFunctionArgs } from '../../../argument-validator';
-import { FunctionAdapterContext, DynamicFunctionAdapterContext } from '../../interfaces';
+} from '../../../../function-configs/interfaces.js';
+import { validateFunctionArgs } from '../../../argument-validator/index.js';
+import { FunctionAdapterContext, DynamicFunctionAdapterContext } from '../../interfaces.js';
 
 export function wholeFieldValidationRowExecution<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,

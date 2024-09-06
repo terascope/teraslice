@@ -1,8 +1,8 @@
 import ms from 'ms';
 import { getFullErrorStack, isString, isFunction } from '@terascope/utils';
-import { TestOptions, CleanupFN } from './interfaces';
-import signale from '../signale';
-import { formatList } from '../misc';
+import { TestOptions, CleanupFN } from './interfaces.js';
+import signale from '../signale.js';
+import { formatList } from '../misc.js';
 
 export class TestTracker {
     started = 0;
@@ -113,7 +113,8 @@ export class TestTracker {
             process.stderr.write('\n');
             signale.fatal(`${errorMsg}`);
             process.stderr.write('\n');
-            const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
+            const codeNum = Number(process.exitCode);
+            const exitCode = (codeNum || 0) > 0 ? codeNum : 1;
             process.exit(exitCode);
         }
 

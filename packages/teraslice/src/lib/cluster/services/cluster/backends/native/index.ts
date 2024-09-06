@@ -5,7 +5,7 @@ import {
     pDelay, cloneDeep, Logger
 } from '@terascope/utils';
 import type { EventEmitter } from 'node:events';
-import { ExecutionRecord } from '@terascope/types';
+import { ExecutionConfig } from '@terascope/types';
 import type { ClusterMasterContext, NodeState } from '../../../../../../interfaces.js';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
 import { findWorkersByExecutionID } from '../state-utils.js';
@@ -318,7 +318,7 @@ export class NativeClustering {
     }
 
     // designed to allocate additional workers, not any future slicers
-    async allocateWorkers(execution: ExecutionRecord, numOfWorkersRequested: number) {
+    async allocateWorkers(execution: ExecutionConfig, numOfWorkersRequested: number) {
         const exId = execution.ex_id;
         const jobId = execution.job_id;
         const jobStr = JSON.stringify(execution);
@@ -403,7 +403,7 @@ export class NativeClustering {
         return Promise.all(results);
     }
 
-    private async _createSlicer(ex: ExecutionRecord, errorNodes: Record<string, any>) {
+    private async _createSlicer(ex: ExecutionConfig, errorNodes: Record<string, any>) {
         const execution = cloneDeep(ex);
         const sortedNodes = _.orderBy(this.clusterState, 'available', 'desc');
         const slicerNodeID = this._findNodeForSlicer(sortedNodes, errorNodes);
@@ -449,7 +449,7 @@ export class NativeClustering {
         }
     }
 
-    async allocateSlicer(ex: ExecutionRecord): Promise<ExecutionRecord> {
+    async allocateSlicer(ex: ExecutionConfig): Promise<ExecutionConfig> {
         let retryCount = 0;
         const errorNodes = {};
         // @ts-expect-error

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-empty-interface */
-import * as i from './elasticsearch-types';
+import * as i from './elasticsearch-types.js';
 
 export interface IndicesStatsResponse {
     indices?: Record<string, i.IndicesStatsIndicesStats>
