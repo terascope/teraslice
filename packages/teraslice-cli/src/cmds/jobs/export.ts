@@ -23,6 +23,12 @@ export default {
             }
             return true;
         });
+        yargs.check((argv: { jobId: string[]; fileName: string[]; }) => {
+            if (argv.jobId.includes('all') && argv.fileName.length > 0) {
+                throw new Error('Cannot use custom file names when exporting all.');
+            }
+            return true;
+        });
         yargs.strict()
             .example('$0 jobs export CLUSTER_ALIAS JOB1', 'exports job config as a tjm compatible JSON file')
             .example('$0 jobs export CLUSTER_ALIAS JOB1 JOB2', 'exports job config for two jobs')

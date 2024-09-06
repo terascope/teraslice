@@ -240,7 +240,7 @@ export default class Options {
         }),
         'file-name': () => ({
             alias: 'f',
-            describe: 'Names that files will be exported as. Ensure same order as job IDs',
+            describe: 'Name to use for exported file. If exporting multiple files ensure same order as job IDs',
             type: 'string',
             array: true
         }),
