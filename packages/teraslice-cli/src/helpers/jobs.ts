@@ -493,6 +493,42 @@ export default class Jobs {
         }
     }
 
+    async delete(): Promise<void> {
+        if (!this.config.args.jobId.includes('all') && this.config.args.yes !== true) {
+            const jobsString = this.jobs.length === 1
+                ? `job ${this.jobs[0].id}`
+                : `jobs ${this.jobs.map((job) => job.id).join(', ')}`;
+            const prompt = await display.showPrompt(
+                this.config.args._action,
+                `${jobsString} on ${this.config.clusterUrl}`
+            );
+            if (!prompt) return;
+        }
+
+        await pMap(
+            this.jobs,
+            (job) => this.deleteOne(job),
+            { concurrency: this.concurrency }
+        );
+    }
+
+    async deleteOne(job: JobMetadata) {
+        if (!this.inTerminalStatus(job)) {
+            const { jobInfoString } = this.getJobIdentifiers(job);
+
+            reply.error(`Job is in non-terminal status ${job.status}, cannot delete. Skipping\n${jobInfoString}`);
+            return;
+        }
+
+        try {
+            await job.api.deleteJob();
+        } catch (e) {
+            this.commandFailed(e.message, job);
+        }
+
+        this.logUpdate({ action: 'deleted', job });
+    }
+
     private inTerminalStatus(job: JobMetadata): boolean {
         return this.terminalStatuses.includes(job.status);
     }
@@ -551,14 +587,21 @@ export default class Jobs {
 
     private async getAllJobs() {
         if (await this.prompt()) {
+            const { _action: action, clusterAlias } = this.config.args;
             // if action is start and not from a restart
             // then need to get job ids from saved state
-            if (this.config.args._action === 'start') {
+            if (action === 'start') {
                 if (fs.pathExistsSync(this.config.jobStateFile) === false) {
-                    reply.fatal(`Could not find job state file for ${this.config.args.clusterAlias}, this is required to start all jobs`);
+                    reply.fatal(`Could not find job state file for ${clusterAlias}, this is required to ${action} all jobs`);
                 }
 
                 return this.getJobIdsFromSavedState();
+            }
+
+            // if action is delete we need to get inactive
+            // as well as active jobs
+            if (action === 'delete') {
+                return this.getActiveAndInactiveJobIds();
             }
 
             return this.getActiveJobIds();
@@ -572,6 +615,15 @@ export default class Jobs {
         const state = await fs.readJson(this.config.jobStateFile);
 
         return Object.keys(state);
+    }
+
+    private async getActiveAndInactiveJobIds() {
+        try {
+            const jobs = await this.teraslice.client.jobs.list();
+            return jobs.map((job) => job.job_id);
+        } catch (e) {
+            throw Error(e);
+        }
     }
 
     private async getActiveJobIds(): Promise<string[]> {
@@ -859,6 +911,10 @@ export default class Jobs {
             cannot_stop: {
                 message: `No need to stop, job is already in terminal status ${status}`,
                 final: this.finalAction(action)
+            },
+            deleted: {
+                message: `${name} has been deleted`,
+                final: true
             }
         };
 

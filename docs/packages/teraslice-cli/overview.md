@@ -294,11 +294,20 @@ teraslice-cli tjm workers remove 5 JOB.JSON
 teraslice-cli tjm workers total 50 JOB.JSON
 ```
 
+### tjm delete
+
+Delete a job or jobs from a teraslice cluster by referencing the job file. Jobs must be stopped.
+
+```sh
+teraslice-cli tjm delete JOB.JSON
+teraslice-cli tjm delete JOB1.JSON JOB2.JSON
+```
+
 ## Jobs
 
 *** Job control commands start, stop, pause, resume, and restart all function with the same syntax.***
 
-- `-all` or `-a` performs action on all the jobs on a given cluster.
+- Providing a job_id of `all` will perform the action on all the jobs on a given cluster.
 - `--yes` or `y` answers yes to all prompts
 
 - When jobs are stopped or paused the state of the jobs are saved in `~/.teraslice/job_state_files`
@@ -306,7 +315,7 @@ teraslice-cli tjm workers total 50 JOB.JSON
 Commands:
 
 ```bash
-teraslice-cli jobs <command> <cluster> [-all|-a]
+teraslice-cli jobs <command> <cluster> [job_id | all]
 # stop
 teraslice-cli jobs stop local 99999999-9999-9999-9999-999999999999
 # start
@@ -318,7 +327,7 @@ teraslice-cli jobs resume local 99999999-9999-9999-9999-999999999999
 # restart job
 teraslice-cli jobs restart local 99999999-9999-9999-9999-999999999999
 # restart all jobs, no prompt
-teraslice-cli jobs restart local --all -y
+teraslice-cli jobs restart local all -y
 ```
 
 ### jobs await
@@ -372,6 +381,11 @@ Display jobs registered on the cluster
 teraslice-cli jobs list <cluster>
 # list jobs
 teraslice-cli jobs list local
+# list only deleted jobs
+teraslice-cli jobs list local --deleted=true
+# list only active jobs that have not been deleted
+teraslice-cli jobs list local --active=true
+
 ```
 
 ### jobs view
@@ -405,6 +419,18 @@ teraslice-cli jobs workers add 5 cluster1 99999999-9999-9999-9999-999999999999
 teraslice-cli jobs workers remove 5 cluster1 99999999-9999-9999-9999-999999999999
 ```
 
+### jobs delete
+
+Delete a job or jobs by job_id from a teraslice cluster. Jobs must be in a terminal state.
+
+```sh
+teraslice-cli jobs delete <cluster> <job_id>
+# delete a job
+teraslice-cli jobs delete cluster1 99999999-9999-9999-9999-999999999999
+# delete all stopped jobs on a cluster, no prompt. Active jobs will be skipped.
+teraslice-cli jobs delete cluster1 all -y
+```
+
 ## Executions
 
 ### ex errors
@@ -436,14 +462,16 @@ teraslice-cli jobs status local --status failing
 
 ### ex list
 
-Display execution ids on the cluster, default is `running` and `failing`
+Display execution ids on the cluster, default is to exclude deleted and show all statuses
 
 ```bash
 teraslice-cli ex list <cluster>
 # list ex_ids
 teraslice-cli ex list local
 # list failed ex_ids
-teraslice-cli ex list local --status failed
+teraslice-cli ex list local --status=failed
+# list deleted ex_ids
+teraslice-cli ex list local --deleted=true
 ```
 
 ## Nodes

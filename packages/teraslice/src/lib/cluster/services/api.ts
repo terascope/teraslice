@@ -14,6 +14,7 @@ import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/
 import {
     makePrometheus, isPrometheusTerasliceRequest, makeTable,
     sendError, handleTerasliceRequest, getSearchOptions,
+    createJobActiveQuery, addDeletedToQuery
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
@@ -35,6 +36,14 @@ function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
         const types = Object.values(RecoveryCleanupType);
         throw new TSError(`cleanup_type must be empty or set to ${types.join(', ')}`, {
+            statusCode: 400
+        });
+    }
+}
+
+function validateGetDeletedOption(deletedOption: string) {
+    if (!['true', 'false', ''].includes(deletedOption)) {
+        throw new TSError('deleted query option must true or false', {
             statusCode: 400
         });
     }
@@ -275,19 +284,18 @@ export class ApiService {
         });
 
         v1routes.get('/jobs', (req, res) => {
-            let query: string;
+            const { active = '', deleted = 'false' } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
-            if (req.query.active === 'true') {
-                query = 'job_id:* AND !active:false';
-            } else if (req.query.active === 'false') {
-                query = 'job_id:* AND active:false';
-            } else {
-                query = 'job_id:*';
-            }
-
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of jobs');
-            requestHandler(() => this.jobsStorage.search(query, from, size, sort as string));
+            requestHandler(() => {
+                validateGetDeletedOption(deleted as string);
+
+                const partialQuery = createJobActiveQuery(active as string);
+                const query = addDeletedToQuery(deleted as string, partialQuery);
+
+                return this.jobsStorage.search(query, from, size, sort as string);
+            });
         });
 
         v1routes.get('/jobs/:jobId', (req, res) => {
@@ -379,6 +387,13 @@ export class ApiService {
             });
         });
 
+        v1routes.delete('/jobs/:jobId', (req, res) => {
+            const { jobId } = req.params;
+            // @ts-expect-error
+            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not delete job');
+            requestHandler(async () => jobsService.softDeleteJob(jobId));
+        });
+
         v1routes.post('/jobs/:jobId/_recover', (req, res) => {
             const cleanupType = req.query.cleanup_type || req.query.cleanup;
             const { jobId } = req.params;
@@ -443,19 +458,22 @@ export class ApiService {
         });
 
         v1routes.get('/ex', (req, res) => {
-            const { status = '' } = req.query;
+            const { status = '', deleted = 'false' } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of execution contexts');
             requestHandler(async () => {
+                validateGetDeletedOption(deleted as string);
                 const statuses = parseList(status);
 
-                let query = 'ex_id:*';
+                let partialQuery = 'ex_id:*';
 
                 if (statuses.length) {
                     const statusTerms = statuses.map((s) => `_status:"${s}"`).join(' OR ');
-                    query += ` AND (${statusTerms})`;
+                    partialQuery += ` AND (${statusTerms})`;
                 }
+
+                const query = addDeletedToQuery(deleted as string, partialQuery);
 
                 return this.executionStorage.search(query, from, size, sort as string);
             });
@@ -536,21 +554,22 @@ export class ApiService {
         });
 
         this.app.get('/txt/jobs', (req, res) => {
-            let query: string;
+            const { active = '', deleted = 'false' } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
             const defaults = ['job_id', 'name', 'active', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
 
-            if (req.query.active === 'true') {
-                query = 'job_id:* AND !active:false';
-            } else if (req.query.active === 'false') {
-                query = 'job_id:* AND active:false';
-            } else {
-                query = 'job_id:*';
-            }
-
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all jobs');
             requestHandler(async () => {
+                validateGetDeletedOption(deleted as string);
+
+                if (deleted !== 'false') {
+                    defaults.push('_deleted_on');
+                }
+
+                const partialQuery = createJobActiveQuery(active as string);
+                const query = addDeletedToQuery(deleted as string, partialQuery);
+
                 const jobs = await this.jobsStorage.search(
                     query, from, size, sort as string
                 ) as Record<string, any>[];
@@ -560,14 +579,23 @@ export class ApiService {
         });
 
         this.app.get('/txt/ex', (req, res) => {
+            const { deleted = 'false' } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
             const defaults = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
-            const query = 'ex_id:*';
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all executions');
 
             requestHandler(async () => {
+                validateGetDeletedOption(deleted as string);
+
+                if (deleted !== 'false') {
+                    defaults.push('_deleted_on');
+                }
+
+                const partialQuery = 'ex_id:*';
+                const query = addDeletedToQuery(deleted as string, partialQuery);
+
                 const exs = await this.executionStorage.search(
                     query, from, size, sort as string
                 ) as Record<string, any>[];

@@ -262,6 +262,25 @@ export class ExecutionStorage {
         }
     }
 
+    async softDelete(exId: string) {
+        try {
+            const date = makeISODate();
+            return await this.updatePartial(
+                exId,
+                async (existing) => Object.assign(existing, {
+                    _deleted: true,
+                    _deleted_on: date,
+                    _updated: date
+                })
+            );
+        } catch (err) {
+            throw new TSError(err, {
+                statusCode: 422,
+                reason: `Unable to delete execution ${exId}`
+            });
+        }
+    }
+
     async remove(exId: string) {
         return this.backend.remove(exId);
     }

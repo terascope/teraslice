@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import nock from 'nock';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +11,7 @@ import {
     clusterControllers,
     getJobExecution
 } from './helpers.js';
+import reply from '../../src/helpers/reply.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -877,6 +879,69 @@ describe('Job helper class', () => {
 
             const jobs = new Jobs(cliArgs);
             expect(jobs).toBeDefined();
+        });
+    });
+
+    describe('delete', () => {
+        const action = 'delete';
+        it('should delete a stopped job', async () => {
+            const [jobId] = makeJobIds(1);
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'stopped' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, testJobConfig(jobId))
+                .delete(`/v1/jobs/${jobId}`)
+                .reply(200, () => Promise.resolve({ _deleted: 'true' }));
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': [jobId],
+                    jobId: [jobId],
+                    yes: true,
+                    y: true
+                }
+            );
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            expect(job.jobs[0].status).toBe('stopped');
+
+            await expect(job.delete()).resolves.toBeUndefined();
+        });
+
+        it('should log an error if job is not in a terminal status', async () => {
+            reply.error = jest.fn()
+            const [jobId] = makeJobIds(1);
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, testJobConfig(jobId));
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': [jobId],
+                    jobId: [jobId],
+                    yes: true,
+                    y: true
+                }
+            );
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            expect(job.jobs[0].status).toBe('running');
+
+            await expect(job.delete()).resolves.toBe(undefined);
+            expect(reply.error).toHaveBeenCalledWith(expect.stringContaining('Job is in non-terminal status running, cannot delete. Skipping'))
         });
     });
 });

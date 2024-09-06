@@ -197,6 +197,7 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 **Query Options:**
 
 - `active: string = [true|false]`
+- `deleted: string = [true|false]`
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
@@ -205,7 +206,11 @@ Setting `active` to `true` will return only the jobs considered active, which
 includes the jobs that have `active` set to `true` as well as those that do not
 have an `active` property.  If your query sets `active` to `false` it will only
 return the jobs with the `active` property set to false.  If the `active` query
-parameteris not provided, all jobs will be returned.
+parameter is not provided, all jobs will be returned.
+
+Setting `deleted` to `false` or not setting the option will return jobs
+where `_deleted` is set to `false` or the `_deleted` key is not present.
+Setting `deleted` to `true` will return all `_deleted: true` jobs.
 
 The parameter `size` is the number of documents returned, `from` is how many
 documents in and `sort` is a lucene query.
@@ -444,6 +449,8 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_work
 
 ## POST /v1/jobs/\{jobId\}/_active
 
+**DEPRECATED** - Jobs should instead be deleted
+
 Sets the `active` property on the specified job as `true`.
 
 **Query Options:**
@@ -472,6 +479,8 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_acti
 ```
 
 ## POST /v1/jobs/\{jobId\}/_inactive
+
+**DEPRECATED** - Jobs should instead be deleted
 
 Sets the `active` property on the specified job as `false`.
 
@@ -563,6 +572,34 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/errors'
 ]
 ```
 
+## DELETE /v1/jobs/\{jobId\};
+
+Issues a delete command, deleting the job and all related execution contexts. Deletion is PERMANENT. Once a job is deleted it cannot be started, updated, or recovered. The job must have a terminal status to be deleted. Any orphaned K8s resources associated with the job will also be deleted. The `active` field will automatically be set to `false`.
+
+
+**Usage:**
+
+```sh
+$ curl -XDELETE 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd'
+{
+    "name": "Example",
+    "lifecycle": "persistent",
+    "workers": 1,
+    "operations": [
+        {
+            "_op": "noop"
+        }
+    ]
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
+    "_context": "job"
+    "_created": "2018-09-21T17:49:05.029Z",
+    "_updated": "2019-04-12T09:43:18.301Z",
+    "_deleted": true,
+    "_deleted_on": "2019-04-12T09:43:18.301Z",
+    "active": false,
+}
+```
+
 ## GET /v1/ex
 
 Returns all execution contexts (job invocations).
@@ -573,9 +610,13 @@ Returns all execution contexts (job invocations).
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
 - `status: string = "*"`
+- `deleted: string = [true|false]`
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
+Setting `deleted` to `false` or not setting the option will return execution contexts
+where `_deleted` is set to `false` or the `_deleted` key is not present.
+Setting `deleted` to `true` will return all execution contexts with `_deleted: true`.
 **Usage:**
 
 ```sh
