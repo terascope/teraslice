@@ -48,7 +48,7 @@ export function shutdownHandler(
     const allowNonZeroExitCode = !(
         isK8s
         && assignment === 'execution_controller'
-        && process.env.ALLOW_EX_RESTART !== 'true'
+        && context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2'
     );
     const api = {
         exiting: false,

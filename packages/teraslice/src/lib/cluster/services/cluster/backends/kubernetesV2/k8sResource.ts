@@ -89,7 +89,7 @@ export class K8sResource {
             if (process.env.MOUNT_LOCAL_TERASLICE !== undefined) {
                 this._mountLocalTeraslice(resourceName);
             }
-            this._setEnvVariables(resourceName);
+            this._setEnvVariables();
             this._setAssetsVolume();
             this._setImagePullSecret();
             this._setEphemeralStorage();
@@ -114,17 +114,7 @@ export class K8sResource {
         }
     }
 
-    _setEnvVariables(resourceName: string) {
-        // Pass in env var to let ex know it can restart in
-        // certain scenarios
-        if (resourceName === 'execution_controller') {
-            this.resource.spec.template.spec.containers[0].env.push(
-                {
-                    name: 'ALLOW_EX_RESTART',
-                    value: 'true'
-                }
-            );
-        }
+    _setEnvVariables() {
     }
 
     _mountLocalTeraslice(contextType: string): void {

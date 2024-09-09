@@ -422,7 +422,10 @@ export class ExecutionController {
         }
 
         /// This only applies to kubernetesV2
-        if (process.env.ALLOW_EX_RESTART === 'true') {
+        if (
+            this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2'
+            && eventType === 'SIGTERM'
+        ) {
             await this.stateStorage.refresh();
             const status = await this.executionStorage.getStatus(this.exId);
             this.logger.debug(`Execution ${this.exId} is currently in a ${status} state`);
@@ -937,7 +940,7 @@ export class ExecutionController {
         } else if (includes(runningStatuses, status)) {
             // In the case of a `running` state on startup we
             // want to continue to start up. Only in V2.
-            if (process.env.ALLOW_EX_RESTART === 'true') {
+            if (this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2') {
                 // Check to see if `isRestartable` exists.
                 // Allows for older assets to work with k8sV2
                 if (this.executionContext.slicer().isRestartable) {
