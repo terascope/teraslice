@@ -239,16 +239,9 @@ export default class Options {
             type: 'string',
             nargs: 1,
         }),
-        'file-name': () => ({
-            alias: 'f',
-            describe: 'Name to use for exported file. If exporting multiple files ensure same order as job IDs',
-            type: 'string',
-            array: true
-        }),
         'active-job': () => ({
             describe: 'List active jobs',
             type: 'boolean'
-
         }),
         'show-deleted': () => ({
             describe: 'List deleted records',
