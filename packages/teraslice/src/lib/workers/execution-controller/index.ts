@@ -434,7 +434,10 @@ export class ExecutionController {
             /// shutdown. We want to restart in this case.
             if (status !== 'stopping' && includes(runningStatuses, status)) {
                 this.logger.info('Skipping shutdown to allow restart...');
-                await this.executionStorage.setStatus(this.exId, 'paused');
+                await this.executionStorage.setStatus(this.exId, 'paused')
+                .catch((err) => {
+                    logError(this.logger, err, 'failure to set status to paused while restarting..');
+                });
                 return;
             }
         }
