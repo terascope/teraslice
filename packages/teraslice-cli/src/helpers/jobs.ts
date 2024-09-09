@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import {
-    has, toString, pDelay, pMap,
+    has, toString, pDelay, pMap, pRetry,
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import chalk from 'chalk';
@@ -598,15 +598,9 @@ export default class Jobs {
                 return this.getJobIdsFromSavedState();
             }
 
-            // if action is delete we need to get inactive
-            // as well as active jobs
-            if (action === 'delete') {
-                return this.getActiveAndInactiveJobIds();
-            }
-
-            // if action is export we need to get inactive
-            // as well as active jobs
-            if (this.config.args._action === 'export') {
+            // if action is delete or export  we need to
+            // get inactive as well as active jobs
+            if (action === 'delete' || action === 'export') {
                 return this.getActiveAndInactiveJobIds();
             }
 
@@ -827,8 +821,10 @@ export default class Jobs {
     }
 
     async exportOne(jobConfig: Teraslice.JobConfig) {
-        const filePath = this.createUniqueFilePath(jobConfig.name);
-        await saveJobConfigToFile(jobConfig, filePath, this.config.clusterUrl);
+        await pRetry(() => {
+            const filePath = this.createUniqueFilePath(jobConfig.name);
+            return saveJobConfigToFile(jobConfig, filePath, this.config.clusterUrl);
+        })
     }
 
     /**
