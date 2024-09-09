@@ -823,17 +823,38 @@ export default class Jobs {
             { concurrency: this.concurrency }
         );
 
-        reply.green(`Saved jobFile to ${this.config.exportDir}`);
+        reply.green(`Saved jobFile to ${this.config.outdir}`);
     }
 
     async exportOne(jobConfig: Teraslice.JobConfig) {
-        const dirName = this.config.exportDir;
-        const fileNameIndex = this.config.args.jobId.indexOf(jobConfig.job_id);
-        const fileName = this.config.args.fileName ? this.config.args.fileName[fileNameIndex] : `${jobConfig.name}.json`;
-        const fullPath = path.join(dirName, fileName);
-        await saveJobConfigToFile(jobConfig, fullPath);
+        const filePath = this.createUniqueFilePath(jobConfig.name);
+        await saveJobConfigToFile(jobConfig, filePath, this.config.clusterUrl);
     }
 
+    /**
+     * Using the name from a jobConfig and the outdir from this.config,
+     * creates a unique file path where a job can be exported.
+     * Spaces in the job name are replaced with underscores. If the file name
+     * exists a '-N' suffix will be added to the name.
+     * ex: First export: '~/my_current_directory/my_job_name.json'
+     *    Second export: '~/my_current_directory/my_job_name-1.json'
+     * @param { string } jobConfigName
+     * @returns {string} A unique file path
+     */
+    private createUniqueFilePath(jobConfigName: string) {
+        const dirName = this.config.outdir;
+        const fileName = `${jobConfigName.replaceAll(' ', '_')}.json`;
+        const fullPath = path.join(dirName, fileName);
+        let uniquePath = fullPath;
+        let i = 1;
+
+        while (fs.existsSync(uniquePath)) {
+            uniquePath = `${fullPath.slice(0, -5)}-${i}.json`;
+            i++;
+        }
+
+        return uniquePath;
+    }
     /**
      * @param args action and final property, final indicates if it is part of a series of commands
      * @param job job metadata

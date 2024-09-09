@@ -66,20 +66,20 @@ export default class Config {
         }
     }
 
-    /**
-     * Returns the user provided export directory or a
-     * default directory at <configDir>/export/<clusterAlias>
-     */
-    get exportDir(): string {
-        if (this.args.exportDir) {
-            return this.args.exportDir;
-        } else {
-            return `${this.configDir}/export/${this.args.clusterAlias}`;
-        }
-    }
-
     get aliasesFile(): string {
         return `${this.configDir}/aliases.yaml`;
+    }
+
+    /**
+     * Returns the user provided output directory or
+     * the current directory as default
+     */
+    get outdir(): string {
+        if (this.args.outdir) {
+            return this.args.outdir;
+        } else {
+            return process.cwd();
+        }
     }
 
     get jobStateDir(): string {
@@ -98,7 +98,7 @@ export default class Config {
         return [
             this.jobStateDir,
             this.assetDir,
-            this.exportDir,
+            this.outdir,
         ];
     }
 

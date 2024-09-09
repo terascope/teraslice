@@ -233,7 +233,8 @@ export default class Options {
             default: false,
             type: 'boolean'
         }),
-        'export-dir': () => ({
+        'outdir': () => ({
+            alias: 'o',
             describe: 'Directory where exported job file will be saved',
             type: 'string',
             nargs: 1,

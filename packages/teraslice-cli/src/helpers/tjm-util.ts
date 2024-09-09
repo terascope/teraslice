@@ -211,15 +211,21 @@ function hasMetadata(jobConfig: Record<string, any>): boolean {
     return has(jobConfig, '__metadata');
 }
 
-export async function saveJobConfigToFile(jobConfig: Teraslice.JobConfig, filePath: string) {
+export async function saveJobConfigToFile(
+    jobConfig: Teraslice.JobConfig,
+    filePath: string,
+    clusterUrl: string
+) {
     const jobConfigCopy = {};
-    const keysToSkip = ['_created', '_updated', '_deleted', '_deleted_on', '_context', 'job_id'];
+    const keysToSkip = ['job_id', '_created', '_context', '_updated', '_deleted', '_deleted_on']
 
     for (const key of Object.keys(jobConfig)) {
         if (!keysToSkip.includes(key)) {
             jobConfigCopy[key] = cloneDeep(jobConfig[key]);
         }
     }
+
+    addMetaData(jobConfigCopy, jobConfig.job_id, clusterUrl);
 
     await fs.writeJSON(filePath, jobConfigCopy);
 }
