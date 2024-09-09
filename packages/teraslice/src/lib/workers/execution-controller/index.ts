@@ -428,11 +428,13 @@ export class ExecutionController {
         ) {
             await this.stateStorage.refresh();
             const status = await this.executionStorage.getStatus(this.exId);
+            const runningStatuses = this.executionStorage.getRunningStatuses();
             this.logger.debug(`Execution ${this.exId} is currently in a ${status} state`);
             /// This is an indication that the cluster_master did not call for this
             /// shutdown. We want to restart in this case.
-            if (status === 'running') {
+            if (status !== 'stopping' && includes(runningStatuses, status)) {
                 this.logger.info('Skipping shutdown to allow restart...');
+                await this.executionStorage.setStatus(this.exId, 'paused');
                 return;
             }
         }
@@ -938,9 +940,12 @@ export class ExecutionController {
         if (includes(terminalStatuses, status)) {
             error = new Error(invalidStateMsg('terminal'));
         } else if (includes(runningStatuses, status)) {
-            // In the case of a `running` state on startup we
+            // In the case of a `paused` state on startup we
             // want to continue to start up. Only in V2.
-            if (this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2') {
+            if (
+                this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2'
+                && status === 'paused'
+            ) {
                 // Check to see if `isRestartable` exists.
                 // Allows for older assets to work with k8sV2
                 if (this.executionContext.slicer().isRestartable) {
