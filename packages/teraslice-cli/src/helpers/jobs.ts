@@ -828,29 +828,31 @@ export default class Jobs {
     }
 
     /**
-     * Using the name from a jobConfig and the outdir from this.config,
-     * creates a unique file path where a job can be exported.
-     * Spaces in the job name are replaced with underscores. If the file name
-     * exists a '-N' suffix will be added to the name.
-     * ex: First export: '~/my_current_directory/my_job_name.json'
-     *    Second export: '~/my_current_directory/my_job_name-1.json'
      * @param { string } jobConfigName
      * @returns {string} A unique file path
+     *
+     * Using the name from a jobConfig and the outdir,
+     * creates a unique file path where a job can be exported.
+     * Spaces in the job name are replaced with underscores.
+     * If the file name exists a '-N' suffix will be added to the name.
+     *     ex: First export: '~/my_current_directory/my_job_name.json'
+     *        Second export: '~/my_current_directory/my_job_name-1.json'
      */
     private createUniqueFilePath(jobConfigName: string) {
         const dirName = this.config.outdir;
         const fileName = `${jobConfigName.replaceAll(' ', '_')}.json`;
-        const fullPath = path.join(dirName, fileName);
-        let uniquePath = fullPath;
+        const filePath = path.join(dirName, fileName);
+        let uniquePath = filePath;
         let i = 1;
 
         while (fs.existsSync(uniquePath)) {
-            uniquePath = `${fullPath.slice(0, -5)}-${i}.json`;
+            uniquePath = `${filePath.slice(0, -5)}-${i}.json`;
             i++;
         }
 
         return uniquePath;
     }
+
     /**
      * @param args action and final property, final indicates if it is part of a series of commands
      * @param job job metadata
