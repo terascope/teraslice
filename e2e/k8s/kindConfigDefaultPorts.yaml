@@ -12,6 +12,8 @@ nodes:
     hostPort: 9092
   - containerPort: 30900 # Map internal minio service to host port
     hostPort: 9000
+  - containerPort: 30901 # Map internal minio service to host port
+    hostPort: 9001
   extraMounts:
   - hostPath: ./e2e/autoload
     containerPath: /autoload
