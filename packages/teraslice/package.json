@@ -46,7 +46,7 @@
         "@terascope/utils": "^1.1.0",
         "async-mutex": "^0.5.0",
         "barbe": "^3.0.16",
-        "body-parser": "^1.20.2",
+        "body-parser": "^1.20.3",
         "decompress": "^4.2.1",
         "easy-table": "^1.2.0",
         "event-loop-stats": "^1.4.1",
