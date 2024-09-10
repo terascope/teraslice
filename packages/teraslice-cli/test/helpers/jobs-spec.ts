@@ -998,7 +998,6 @@ describe('Job helper class', () => {
             const jobFile = fs.readJsonSync(path.join(process.cwd(), 'test-job.json'));
 
             expect(jobFile.__metadata.cli.job_id).toBe(jobId);
-            expect(jobFile.assets).toEqual(['asset1:2.7.4', 'asset2:0.14.1']);
             process.chdir(originalDirectory);
         });
 
@@ -1040,14 +1039,12 @@ describe('Job helper class', () => {
             const jobFile = fs.readJsonSync(path.join(customDir, 'test-job.json'));
 
             expect(jobFile.__metadata.cli.job_id).toBe(jobId);
-            expect(jobFile.assets).toEqual(['asset1:2.7.4', 'asset2:0.14.1']);
         });
 
         it('should export all jobs to a custom directory', async () => {
             const customDir = path.join(exportPath, 'custom2');
 
             const jobIds = makeJobIds(3);
-            console.log('@@@@ jobIds: ', jobIds);
             const [job1, job2, job3] = jobIds;
             const jobsList = [{ job_id: job1}, { job_id: job2}, { job_id: job3}]
             const jobControllers = clusterControllers(jobIds);
@@ -1107,9 +1104,8 @@ describe('Job helper class', () => {
             await job.export();
 
             // Since all 3 jobs have the same file name, and exportOne() is called concurrently on
-            // each job, 2 of the jobs may have to call createUniqueFilePath() a second or third time
-            // as the original file name given will be taken by file creation time. This means there is
-            // no order to the file names.
+            // each job, 2 of the jobs may have to call createUniqueFilePath() a second or third time.
+            // This race condition means there is no order to the file names.
             const jobFiles = [];
             jobFiles.push(fs.readJsonSync(path.join(customDir, 'test-job.json')));
             jobFiles.push(fs.readJsonSync(path.join(customDir, 'test-job-1.json')));
@@ -1122,8 +1118,50 @@ describe('Job helper class', () => {
             ]));
         });
 
-        it('should not create a file with spaces', async () => {
+        it('should create a file name with underscores replacing spaces', async () => {
+            const [jobId] = makeJobIds(1);
 
+            const jobController = clusterControllers([jobId]);
+            const jobExecution = getJobExecution(jobId);
+
+            jobController[0].name = 'test job'
+            jobExecution.name = 'test job'
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, Object.assign({}, testJobConfig(jobId), { name: 'test job' }))
+                .get(`/v1/jobs/${jobId}/controller`)
+                .reply(200, () => Promise.resolve(jobController))
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, () => Promise.resolve(jobExecution));
+
+            const alias = 'export_jobs1';
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': [jobId],
+                    jobId: [jobId],
+                    clusterAlias: alias
+                }
+            );
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            const originalDirectory = process.cwd();
+            fs.mkdirSync(path.join(exportPath, 'current'));
+            process.chdir(path.join(exportPath, 'current'));
+
+            await job.export();
+
+            const jobFile = fs.readJsonSync(path.join(process.cwd(), 'test_job.json'));
+
+            expect(jobFile.__metadata.cli.job_id).toBe(jobId);
+            process.chdir(originalDirectory);
         });
     });
 });

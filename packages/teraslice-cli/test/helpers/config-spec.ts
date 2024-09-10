@@ -66,8 +66,8 @@ describe('config', () => {
 
     describe('-> outdir', () => {
         test('default directory should be defined', () => {
-            const edir = process.cwd();
-            expect(testConfig.outdir).toBe(edir);
+            const odir = process.cwd();
+            expect(testConfig.outdir).toBe(odir);
         });
 
         test('custom directory should be defined', () => {
@@ -104,11 +104,11 @@ describe('config', () => {
         test('should be defined', () => {
             const jdir = path.join(cliArgs['config-dir'], 'job_state_files');
             const adir = path.join(cliArgs['config-dir'], 'assets');
-            const edir = process.cwd();
+            const odir = process.cwd();
             expect(testConfig.allSubDirs).toBeDefined();
             expect(testConfig.allSubDirs[0]).toBe(jdir);
             expect(testConfig.allSubDirs[1]).toBe(adir);
-            expect(testConfig.allSubDirs[2]).toBe(edir);
+            expect(testConfig.allSubDirs[2]).toBe(odir);
         });
     });
 
