@@ -405,6 +405,10 @@ export class PromMetrics {
         return this.apiRunning;
     }
 
+    resetMetrics() {
+        this.metricExporter.resetMetrics();
+    }
+
     async shutdown(): Promise<void> {
         this.logger.info('prom_metrics_API exporter shutdown');
         try {

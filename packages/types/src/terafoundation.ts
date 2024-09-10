@@ -205,6 +205,7 @@ export interface PromMetrics {
     hasMetric: (name: string) => boolean;
     deleteMetric: (name: string) => Promise<boolean>;
     verifyAPI: () => boolean;
+    resetMetrics: () => void;
     shutdown: () => Promise<void>;
     getDefaultLabels: () => Record<string, string>;
 }

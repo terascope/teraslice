@@ -499,6 +499,11 @@ export class TestContext implements i.Context {
                     verifyAPI(): boolean {
                         return ctx.mockPromMetrics !== null;
                     },
+                    resetMetrics() {
+                        if (ctx.mockPromMetrics) {
+                            ctx.mockPromMetrics.metricList = {};
+                        }
+                    },
                     async shutdown(): Promise<void> {
                         ctx.mockPromMetrics = null;
                     }

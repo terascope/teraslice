@@ -48,4 +48,8 @@ export default class Exporter {
     async deleteMetric(name: string): Promise<void> {
         promClient.register.removeSingleMetric(name);
     }
+
+    resetMetrics() {
+        promClient.register.resetMetrics();
+    }
 }
