@@ -689,6 +689,7 @@ export class ApiService {
             /// Interval is hardcoded to refresh metrics every 10 seconds
             if (this.context.apis.foundation.promMetrics.verifyAPI()) {
                 setInterval(async () => {
+                    this.context.apis.foundation.promMetrics.resetMetrics();
                     try {
                         this.logger.trace('Updating cluster_master prom metrics..');
                         const controllers = await this.executionService.getControllerStats();
@@ -746,7 +747,8 @@ export class ApiService {
                                 controller.slicers
                             );
                         }
-                        const exList = await this.executionStorage.search('ex_id:*');
+                        const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
+                        const exList = await this.executionStorage.search(query, undefined, 10000);
                         for (const ex of exList) {
                             const controllerLabels = {
                                 ex_id: ex.ex_id,
