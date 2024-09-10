@@ -809,7 +809,7 @@ export default class Jobs {
     async export() {
         const jobIds = this.jobs.map((job) => job.id);
 
-        reply.yellow(`Saving jobFile for ${jobIds.join(', ')} on ${this.config.args.clusterAlias}`);
+        reply.yellow(`Saving jobFile(s) for ${jobIds.join(', ')} on ${this.config.args.clusterAlias}`);
 
         await pMap(
             this.jobs,
@@ -817,7 +817,7 @@ export default class Jobs {
             { concurrency: this.concurrency }
         );
 
-        reply.green(`Saved jobFile to ${this.config.outdir}`);
+        reply.green(`Saved jobFile(s) to ${this.config.outdir}`);
     }
 
     async exportOne(jobConfig: Teraslice.JobConfig) {
