@@ -179,9 +179,9 @@ describe('Teraslice Jobs', () => {
             });
         });
 
-        describe('when called with an query and search objects', () => {
+        describe('when called with a query and search objects', () => {
             const searchOptions = { headers: { 'Some-Header': 'yes' } };
-            const queryOptions = { active: true } as const;
+            const queryOptions = { active: true, size: 10 };
 
             beforeEach(() => {
                 scope.get('/jobs')

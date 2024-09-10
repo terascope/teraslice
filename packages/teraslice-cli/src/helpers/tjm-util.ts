@@ -4,8 +4,10 @@ import {
     has,
     set,
     unset,
-    get
+    get,
+    cloneDeep
 } from '@terascope/utils';
+import { Teraslice } from '@terascope/types';
 import Config from './config.js';
 import Jobs from './jobs.js';
 import { getPackage } from './utils.js';
@@ -207,4 +209,27 @@ export function saveConfig(
 
 function hasMetadata(jobConfig: Record<string, any>): boolean {
     return has(jobConfig, '__metadata');
+}
+
+export async function saveJobConfigToFile(
+    jobConfig: Teraslice.JobConfig,
+    filePath: string,
+    clusterUrl: string
+) {
+    const jobConfigCopy = {};
+    const keysToSkip = ['job_id', '_created', '_context', '_updated', '_deleted', '_deleted_on']
+
+    for (const key of Object.keys(jobConfig)) {
+        if (!keysToSkip.includes(key)) {
+            jobConfigCopy[key] = cloneDeep(jobConfig[key]);
+        }
+    }
+
+    addMetaData(jobConfigCopy, jobConfig.job_id, clusterUrl);
+
+    if (!fs.existsSync(filePath)) {
+        await fs.writeJSON(filePath, jobConfigCopy);
+    } else {
+        throw new Error(`File already exists at ${filePath}`);
+    }
 }

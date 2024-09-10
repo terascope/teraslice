@@ -944,4 +944,224 @@ describe('Job helper class', () => {
             expect(reply.error).toHaveBeenCalledWith(expect.stringContaining('Job is in non-terminal status running, cannot delete. Skipping'))
         });
     });
+
+    describe('export', () => {
+        const action = 'export';
+
+        const exportPath = path.join(dirname, '..', 'fixtures', 'job_exports');
+
+        beforeEach(() => {
+            fs.mkdirSync(exportPath);
+        })
+
+        afterEach(async () => {
+            fs.removeSync(exportPath);
+        });
+
+        it('should export a job to the default directory', async () => {
+            const [jobId] = makeJobIds(1);
+
+            const jobController = clusterControllers([jobId]);
+            const jobExecution = getJobExecution(jobId);
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, testJobConfig(jobId))
+                .get(`/v1/jobs/${jobId}/controller`)
+                .reply(200, () => Promise.resolve(jobController))
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, () => Promise.resolve(jobExecution));
+
+            const alias = 'export_jobs1';
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': [jobId],
+                    jobId: [jobId],
+                    clusterAlias: alias
+                }
+            );
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            const originalDirectory = process.cwd();
+            fs.mkdirSync(path.join(exportPath, 'current'));
+            process.chdir(path.join(exportPath, 'current'));
+
+            await job.export();
+
+            const jobFile = fs.readJsonSync(path.join(process.cwd(), 'test-job.json'));
+
+            expect(jobFile.__metadata.cli.job_id).toBe(jobId);
+            process.chdir(originalDirectory);
+        });
+
+        it('should export a job to a custom directory', async () => {
+            const customDir = path.join(exportPath, 'custom1');
+            const [jobId] = makeJobIds(1);
+
+            const jobController = clusterControllers([jobId]);
+            const jobExecution = getJobExecution(jobId);
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, testJobConfig(jobId))
+                .get(`/v1/jobs/${jobId}/controller`)
+                .reply(200, () => Promise.resolve(jobController))
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, () => Promise.resolve(jobExecution));
+
+            const alias = 'export_jobs1';
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': [jobId],
+                    jobId: [jobId],
+                    clusterAlias: alias,
+                    outdir: customDir
+                }
+            );
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            await job.export();
+
+            const jobFile = fs.readJsonSync(path.join(customDir, 'test-job.json'));
+
+            expect(jobFile.__metadata.cli.job_id).toBe(jobId);
+        });
+
+        it('should export all jobs to a custom directory', async () => {
+            const customDir = path.join(exportPath, 'custom2');
+
+            const jobIds = makeJobIds(3);
+            const [job1, job2, job3] = jobIds;
+            const jobsList = [{ job_id: job1}, { job_id: job2}, { job_id: job3}]
+            const jobControllers = clusterControllers(jobIds);
+
+            const [jobC1, jobC2, jobC3] = jobControllers;
+
+            const jobEx1 = getJobExecution(job1);
+            const jobEx2 = getJobExecution(job2);
+            const jobEx3 = getJobExecution(job3);
+
+            tsClient
+                .get('/v1/jobs')
+                .reply(200, () => Promise.resolve(jobsList))
+                .get(`/v1/jobs/${job1}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${job2}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${job3}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${job1}`)
+                .reply(200, testJobConfig(job1))
+                .get(`/v1/jobs/${job2}`)
+                .reply(200, testJobConfig(job2))
+                .get(`/v1/jobs/${job3}`)
+                .reply(200, testJobConfig(job3))
+                .get(`/v1/jobs/${job1}/controller`)
+                .reply(200, () => Promise.resolve([jobC1]))
+                .get(`/v1/jobs/${job1}/ex`)
+                .reply(200, () => Promise.resolve(jobEx1))
+                .get(`/v1/jobs/${job2}/controller`)
+                .reply(200, () => Promise.resolve([jobC2]))
+                .get(`/v1/jobs/${job2}/ex`)
+                .reply(200, () => Promise.resolve(jobEx2))
+                .get(`/v1/jobs/${job3}/controller`)
+                .reply(200, () => Promise.resolve([jobC3]))
+                .get(`/v1/jobs/${job3}/ex`)
+                .reply(200, () => Promise.resolve(jobEx3));
+
+            const alias = 'export_jobs1';
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': ['all'],
+                    jobId: ['all'],
+                    clusterAlias: alias,
+                    outdir: customDir,
+                    yes: true,
+                    y: true
+                }
+            );
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            await job.export();
+
+            // Since all 3 jobs have the same file name, and exportOne() is called concurrently on
+            // each job, 2 of the jobs may have to call createUniqueFilePath() a second or third time.
+            // This race condition means there is no order to the file names.
+            const jobFiles = [];
+            jobFiles.push(fs.readJsonSync(path.join(customDir, 'test-job.json')));
+            jobFiles.push(fs.readJsonSync(path.join(customDir, 'test-job-1.json')));
+            jobFiles.push(fs.readJsonSync(path.join(customDir, 'test-job-2.json')));
+
+            expect(jobFiles).toEqual(expect.arrayContaining([
+                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job1 })}}),
+                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job2 })}}),
+                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job3 })}})
+            ]));
+        });
+
+        it('should create a file name with underscores replacing spaces', async () => {
+            const [jobId] = makeJobIds(1);
+
+            const jobController = clusterControllers([jobId]);
+            const jobExecution = getJobExecution(jobId);
+
+            jobController[0].name = 'test job'
+            jobExecution.name = 'test job'
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, Object.assign({}, testJobConfig(jobId), { name: 'test job' }))
+                .get(`/v1/jobs/${jobId}/controller`)
+                .reply(200, () => Promise.resolve(jobController))
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, () => Promise.resolve(jobExecution));
+
+            const alias = 'export_jobs1';
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': [jobId],
+                    jobId: [jobId],
+                    clusterAlias: alias
+                }
+            );
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            const originalDirectory = process.cwd();
+            fs.mkdirSync(path.join(exportPath, 'current'));
+            process.chdir(path.join(exportPath, 'current'));
+
+            await job.export();
+
+            const jobFile = fs.readJsonSync(path.join(process.cwd(), 'test_job.json'));
+
+            expect(jobFile.__metadata.cli.job_id).toBe(jobId);
+            process.chdir(originalDirectory);
+        });
+    });
 });

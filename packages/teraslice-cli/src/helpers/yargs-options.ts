@@ -233,10 +233,15 @@ export default class Options {
             default: false,
             type: 'boolean'
         }),
+        'outdir': () => ({
+            alias: 'o',
+            describe: 'Directory where exported job file will be saved',
+            type: 'string',
+            nargs: 1,
+        }),
         'active-job': () => ({
             describe: 'List active jobs',
             type: 'boolean'
-
         }),
         'show-deleted': () => ({
             describe: 'List deleted records',
