@@ -941,6 +941,9 @@ export class ExecutionController {
         } else if (includes(runningStatuses, status)) {
             // In the case of a running status on startup we
             // want to continue to start up. Only in V2.
+            // Right now we will depend on kubernetes `crashloopbackoff` in the case of
+            // an unexpected exit to the ex process. Ex: an OOM
+            // NOTE: If this becomes an issue we may want to add a new state. Maybe `interrupted`
             if (this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2') {
                 // Check to see if `isRestartable` exists.
                 // Allows for older assets to work with k8sV2
