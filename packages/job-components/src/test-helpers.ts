@@ -159,6 +159,7 @@ export class TestContext implements i.Context {
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
+                prom_metrics_display_url: 'http://localhost',
             },
             teraslice: {
                 action_timeout: 10000,

@@ -41,7 +41,7 @@ export class PromMetrics {
         const {
             assignment, job_prom_metrics_add_default, job_prom_metrics_enabled,
             job_prom_metrics_port, tf_prom_metrics_add_default, tf_prom_metrics_enabled,
-            tf_prom_metrics_port, labels, prefix, terasliceName
+            tf_prom_metrics_port, labels, prefix, terasliceName, prom_metrics_display_url
         } = config;
 
         const portToUse = job_prom_metrics_port || tf_prom_metrics_port;
@@ -67,6 +67,7 @@ export class PromMetrics {
             this.default_labels = {
                 name: terasliceName,
                 assignment: apiConfig.assignment,
+                url: prom_metrics_display_url,
                 ...apiConfig.labels
             };
             await this.createAPI(apiConfig);

@@ -17,7 +17,8 @@ describe('promMetrics foundation API', () => {
                             log_level: 'debug',
                             prom_metrics_enabled: true,
                             prom_metrics_port: 3333,
-                            prom_metrics_add_default: true
+                            prom_metrics_add_default: true,
+                            prom_metrics_display_url: 'http://localhost'
                         },
                         teraslice: {
                             cluster_manager_type: 'kubernetes',
@@ -33,7 +34,8 @@ describe('promMetrics foundation API', () => {
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
                     logger: debugLogger('prom-metrics-spec-logger'),
-                    assignment: 'worker'
+                    assignment: 'worker',
+                    prom_metrics_display_url: terafoundation.prom_metrics_display_url
                 };
 
                 beforeAll(() => {
@@ -58,7 +60,7 @@ describe('promMetrics foundation API', () => {
 
                 it('should have correct default labels', async () => {
                     const labels = await context.apis.foundation.promMetrics.getDefaultLabels();
-                    expect(labels).toEqual({ assignment: 'worker', name: 'tera-test' });
+                    expect(labels).toEqual({ assignment: 'worker', name: 'tera-test', url: 'http://localhost' });
                 });
 
                 it('should throw an error if promMetricsAPI is already initialized', async () => {

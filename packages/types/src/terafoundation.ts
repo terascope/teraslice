@@ -133,6 +133,7 @@ export interface TerafoundationConfig {
     prom_metrics_enabled: boolean;
     prom_metrics_port: number;
     prom_metrics_add_default: boolean;
+    prom_metrics_display_url: string;
 }
 
 export type SysConfig<S> = {
@@ -177,6 +178,7 @@ export interface PromMetricsInitConfig {
     job_prom_metrics_add_default?: boolean;
     labels?: Record<string, string>;
     prefix?: string;
+    prom_metrics_display_url: string;
 }
 
 export interface PromMetricsAPIConfig {
