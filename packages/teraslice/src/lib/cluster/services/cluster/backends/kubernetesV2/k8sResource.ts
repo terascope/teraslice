@@ -115,7 +115,6 @@ export class K8sResource {
     }
 
     _setEnvVariables() {
-        /// TODO: Use this later when we need to set env vars in workers/ex controllers
     }
 
     _mountLocalTeraslice(contextType: string): void {
@@ -292,14 +291,14 @@ export class K8sResource {
                 // eslint-disable-next-line max-len
                 this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
                 if (this.execution.stateful) {
-                     
+
                     this.resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
                 }
             }
             if (this.nodeType === 'worker' && this.execution.stateful) {
                 // eslint-disable-next-line max-len
                 this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
-                 
+
                 this.resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
             }
         }
