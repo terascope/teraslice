@@ -19,15 +19,12 @@ spec:
     spec:
       containers:
       - name: minio
-        image: ''
+        image: minio/minio:RELEASE.2020-02-07T23-28-16Z
         args:
-        - minio server /data --console-address :9001
+        - server
+        - /data
         ports:
         - containerPort: 9000
-        - containerPort: 9001
-        command:
-        - /bin/bash
-        - -c
         env:
           - name: MINIO_ROOT_USER
             value: minioadmin
@@ -50,7 +47,3 @@ spec:
     name: minio
     targetPort: 9000
     nodePort: 30900
-  - port: 9001
-    name: minio1
-    targetPort: 9001
-    nodePort: 30901
