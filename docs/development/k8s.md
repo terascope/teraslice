@@ -368,6 +368,7 @@ The `PromMetrics` class lives within `packages/terafoundation/src/api/prom-metri
 | hasMetric | check if a metric exists | `(name: string) => boolean` |
 | deleteMetric | delete a metric from the metric list | `(name: string) => Promise<boolean>` |
 | verifyAPI | verfiy that the API is running | `() => boolean` |
+| resetMetrics | reset the values of all metrics | `() => void` |
 | shutdown | disable API and shutdown exporter server | `() => Promise<void>` |
 | getDefaultLabels | retrieve the default labels set at init | `() => Record<string, string>` |
 
