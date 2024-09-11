@@ -400,7 +400,7 @@ teraslice-cli jobs view local 99999999-9999-9999-9999-999999999999
 
 ### jobs export
 
-Export job on a cluster to a json file. By default the file is saved to the current working directory as <job.name>.json
+Export job on a cluster to a json file. By default the file is saved to the current working directory as \<job.name\>.json
 
 ```sh
 teraslice-cli jobs export <cluster> <job_id>
