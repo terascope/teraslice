@@ -153,7 +153,8 @@ export class ClusterMaster {
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     logger: this.logger,
                     assignment: 'master',
-                    prefix: 'teraslice_'
+                    prefix: 'teraslice_',
+                    prom_metrics_display_url: terafoundation.prom_metrics_display_url
                 });
 
                 await this.setupPromMetrics();
@@ -239,6 +240,36 @@ export class ClusterMaster {
                     'master_info',
                     'Information about Teraslice cluster master',
                     ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version']
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'slices_processed',
+                    'Total slices processed across the cluster',
+                    []
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'slices_failed',
+                    'Total slices failed across the cluster',
+                    []
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'slices_queued',
+                    'Total slices queued across the cluster',
+                    []
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'workers_joined',
+                    'Total workers joined across the cluster',
+                    []
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'workers_disconnected',
+                    'Total workers disconnected across the cluster',
+                    []
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'workers_reconnected',
+                    'Total workers reconnected across the cluster',
+                    []
                 ),
                 this.context.apis.foundation.promMetrics.addGauge(
                     'controller_workers_active',

@@ -159,7 +159,9 @@ export class ExecutionController {
                     ex_id: exId,
                     job_id: jobId,
                     job_name: config.name,
-                }
+                },
+                prom_metrics_display_url: terafoundation.prom_metrics_display_url
+
             });
             await this.setupPromMetrics();
         }
