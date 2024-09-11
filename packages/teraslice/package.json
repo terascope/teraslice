@@ -50,7 +50,7 @@
         "decompress": "^4.2.1",
         "easy-table": "^1.2.0",
         "event-loop-stats": "^1.4.1",
-        "express": "^4.19.2",
+        "express": "^4.20.0",
         "fs-extra": "^11.2.0",
         "gc-stats": "^1.4.0",
         "got": "^11.8.3",
