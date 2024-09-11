@@ -8,10 +8,19 @@ import Exporter from '../../src/api/prom-metrics/exporter.js';
 
 describe('prometheus exporter', () => {
     let exporter: Exporter;
+
+    async function getExporterMetrics(): Promise<string> {
+        const response: Record<string, any> = await got('http://127.0.0.1:3344/metrics', {
+            throwHttpErrors: true
+        });
+        return response.body;
+    }
+
     beforeAll(() => {
         const logger = debugLogger('prometheus_exporter');
         exporter = new Exporter(logger);
     });
+
     describe('create', () => {
         const config: tf.PromMetricsAPIConfig = {
             assignment: 'worker',
@@ -32,8 +41,9 @@ describe('prometheus exporter', () => {
             expect(response.body).toBeString();
         });
     });
+
     describe('delete', () => {
-        it('should shutdown the express server', async () => {
+        it('should delete a metric', async () => {
             new Counter({
                 name: 'delete_test',
                 help: 'delete_test_help_message',
@@ -48,15 +58,27 @@ describe('prometheus exporter', () => {
             const bodyAfter = await getExporterMetrics();
             const valueAfter = bodyAfter.split('\n').filter((line: string) => line.includes('delete_test counter'))[0];
             expect(valueAfter).toBe(undefined);
-
-            async function getExporterMetrics(): Promise<string> {
-                const response: Record<string, any> = await got('http://127.0.0.1:3344/metrics', {
-                    throwHttpErrors: true
-                });
-                return response.body;
-            }
-        }, 3000000);
+        });
     });
+
+    describe('reset', () => {
+        it('should reset the prom metrics registry', async () => {
+            const counter = new Counter({
+                name: 'reset_test',
+                help: 'reset_test_help_message',
+                labelNames: ['reset_test_label'],
+            });
+
+            counter.inc(100);
+            const bodyBefore = await getExporterMetrics();
+            expect(bodyBefore).toInclude('reset_test 100');
+
+            exporter.resetMetrics();
+            const bodyAfter = await getExporterMetrics();
+            expect(bodyAfter).not.toInclude('reset_test 100');
+        });
+    });
+
     describe('shutdown', () => {
         it('should shutdown the express server', async () => {
             await exporter.shutdown();
