@@ -511,6 +511,7 @@ export class K8s {
             }
         }
 
+        // TODO: this assumes only one item will ever be in objList
         const name = objList.items[0].metadata?.name;
         if (name === undefined) {
             const err = new Error(`Cannot delete ${objType} for ExId: ${exId} by name because it has no name`);

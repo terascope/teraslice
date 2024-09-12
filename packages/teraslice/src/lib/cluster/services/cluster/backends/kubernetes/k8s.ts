@@ -430,7 +430,7 @@ export class K8s {
         }
 
         if (!isEmpty(objList.items)) {
-            // this assumes only one item will ever be in objList
+            // TODO: this assumes only one item will ever be in objList
             const name: string = get(objList, 'items[0].metadata.name');
             this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} deleting: ${name}`);
 
