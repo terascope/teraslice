@@ -345,6 +345,10 @@ export class K8s {
      * @return {Object}                k8s delete response body.
      */
     async delete(name: string, objType: string, force?: boolean) {
+        if (name === undefined || name.trim() === '') {
+            throw new Error(`Name of resource to delete must be specified. Received: "${name}".`);
+        }
+
         let responseObj: {
             response: IncomingMessage,
             body: k8s.V1Status | k8s.V1Pod | k8s.V1Service

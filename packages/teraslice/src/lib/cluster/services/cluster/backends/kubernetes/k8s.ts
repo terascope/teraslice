@@ -98,7 +98,7 @@ export class K8s {
         const namespace = ns || this.defaultNamespace;
         let now = Date.now();
         const end = now + timeout;
-         
+
         while (true) {
             const result = await pRetry(() => this.client
                 .api.v1.namespaces(namespace).pods()
@@ -136,7 +136,7 @@ export class K8s {
         const namespace = ns || this.defaultNamespace;
         let now = Date.now();
         const end = now + timeout;
-         
+
         while (true) {
             const result = await pRetry(() => this.client
                 .api.v1.namespaces(namespace).pods()
@@ -304,6 +304,10 @@ export class K8s {
      * @return {Object}                k8s delete response body.
      */
     async delete(name: string, objType: string, force?: boolean) {
+        if (name === undefined || name.trim() === '') {
+            throw new Error(`Name of resource to delete must be specified. Received: "${name}".`);
+        }
+
         let response;
 
         // To get a Job to remove the associated pods you have to
@@ -410,7 +414,7 @@ export class K8s {
         }
 
         const deletePodResponses = [];
-        if (forcePodsList?.items) {
+        if (!isEmpty(forcePodsList?.items)) {
             this.logger.info(`k8s._deleteObjByExId: ${exId} force deleting all pods`);
             for (const pod of forcePodsList.items) {
                 const podName = pod.metadata.name;
@@ -425,15 +429,18 @@ export class K8s {
             }
         }
 
-        const name = get(objList, 'items[0].metadata.name');
-        this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} deleting: ${name}`);
+        if (!isEmpty(objList.items)) {
+            // this assumes only one item will ever be in objList
+            const name: string = get(objList, 'items[0].metadata.name');
+            this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} deleting: ${name}`);
 
-        try {
-            deleteResponse = await this.delete(name, objType, force);
-        } catch (e) {
-            const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${name} failed with: ${e}`);
-            this.logger.error(err);
-            return Promise.reject(err);
+            try {
+                deleteResponse = await this.delete(name, objType, force);
+            } catch (e) {
+                const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${name} failed with: ${e}`);
+                this.logger.error(err);
+                return Promise.reject(err);
+            }
         }
 
         if (deletePodResponses.length > 0) {
