@@ -93,9 +93,10 @@ export default Object.assign({}, jsRules, {
             "caughtErrors" : "none"
         }
     ],
-    '@typescript-eslint/no-empty-object-type': 'warn',
+    '@typescript-eslint/no-empty-object-type': ['warn', { allowInterfaces: 'with-single-extends' }],
+    'no-unused-expressions': 'off',
     // TODO: look into this
-    '@typescript-eslint/no-unused-expressions': 'warn'
+    '@typescript-eslint/no-unused-expressions': ['warn', { allowShortCircuit: true, allowTernary: true }]
     /*
         Stylistic rules that will be done in a separate PR
     */

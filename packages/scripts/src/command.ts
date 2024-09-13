@@ -11,7 +11,7 @@ import test from './cmds/test.js';
 
 const yargsInstance = yargs(hideBin(process.argv));
 
-// eslint-disable-next-line no-unused-expressions
+// eslint-disable-next-line no-unused-expressions, @typescript-eslint/no-unused-expressions
 yargsInstance
     .usage('Usage: $0 <command> [options]')
     .command(bumpAsset)

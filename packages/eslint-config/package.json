@@ -18,20 +18,24 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@eslint/js": "^9.9.1",
+        "@eslint/compat": "^1.1.1",
+        "@eslint/js": "^9.10.0",
         "@types/eslint__js": "^8.42.3",
-        "@typescript-eslint/eslint-plugin": "^6.21.0",
-        "@typescript-eslint/parser": "^6.21.0",
-        "eslint": "^9.9.1",
+        "@typescript-eslint/eslint-plugin": "^8.5.0",
+        "@typescript-eslint/parser": "^8.5.0",
+        "eslint": "^9.10.0",
         "eslint-config-airbnb": "^19.0.4",
         "eslint-config-airbnb-base": "^15.0.0",
-        "eslint-plugin-import": "~2.29.1",
-        "eslint-plugin-jest": "^28.8.0",
-        "eslint-plugin-jsx-a11y": "^6.9.0",
-        "eslint-plugin-react": "^7.35.0",
+        "eslint-plugin-import": "~2.30.0",
+        "eslint-plugin-jest": "^28.8.3",
+        "eslint-plugin-jest-dom": "^5.4.0",
+        "eslint-plugin-jsx-a11y": "^6.10.0",
+        "eslint-plugin-react": "^7.36.0",
         "eslint-plugin-react-hooks": "^4.4.0",
+        "eslint-plugin-testing-library": "^6.3.0",
+        "globals": "^15.9.0",
         "typescript": "^5.2.2",
-        "typescript-eslint": "^8.3.0"
+        "typescript-eslint": "^8.5.0"
     },
     "engines": {
         "node": ">=18.18.0",

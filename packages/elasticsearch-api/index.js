@@ -67,13 +67,13 @@ export default function elasticsearchApi(client, logger, _opConfig) {
 
     function search(query) {
         const {
-            _sourceInclude, _source_includes,
-            _sourceExclude, _source_excludes,
+            _sourceInclude, _source_includes: oldSourIncludes,
+            _sourceExclude, _source_excludes: oldSourExcludes,
             ...safeQuery
         } = query;
 
-        const sourceIncludes = _sourceInclude || _source_includes;
-        const sourceExcludes = _sourceExclude || _source_excludes;
+        const sourceIncludes = _sourceInclude || oldSourIncludes;
+        const sourceExcludes = _sourceExclude || oldSourExcludes;
 
         if (sourceIncludes) {
             safeQuery._source_includes = sourceIncludes;
@@ -1175,7 +1175,7 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         clientName,
         _time
     ) {
-         
+
         const giveupAfter = Date.now() + (_time || 10000);
         return new Promise((resolve, reject) => {
             const attemptToCreateIndex = () => {
