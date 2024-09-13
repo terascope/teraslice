@@ -6,6 +6,7 @@ import KubeClient from 'kubernetes-client';
 // @ts-expect-error
 import Request from 'kubernetes-client/backends/request/index.js';
 import { getRetryConfig } from './utils.js';
+import { IncomingMessage } from 'node:http';
 
 // @ts-expect-error
 const { Client, KubeConfig } = KubeClient;
@@ -298,7 +299,7 @@ export class K8s {
      * Deletes k8s object of specified objType
      * @param  {String}  name          Name of the resource to delete
      * @param  {String}  objType       Type of k8s object to get, valid options:
-     *                                 'deployments', 'services', 'jobs'
+     *                                 'deployments', 'services', 'jobs', 'pods'
      * @param  {Boolean} force         Forcefully delete resource by setting gracePeriodSeconds to 1
      *                                 to be forcefully stopped.
      * @return {Object}                k8s delete response body.
@@ -325,23 +326,48 @@ export class K8s {
             deleteOptions.body.gracePeriodSeconds = 1;
         }
 
+        const deleteWithErrorHandling = async (deleteFn: () => Promise<{
+            response: IncomingMessage,
+            body: Record<string, any>
+        }>) => {
+            try {
+                const res = await deleteFn();
+                return res;
+            } catch (e) {
+                if (e.statusCode) {
+                    if (e.statusCode === 404) {
+                        this.logger.info(`No ${objType} with name ${name} found while attempting to delete.`);
+                        return e;
+                    }
+
+                    if (e.statusCode >= 400) {
+                        const err = new TSError(`Unexpected response code (${e.statusCode}), when deleting name: ${name}`);
+                        this.logger.error(err);
+                        err.code = e.statusCode.toString();
+                        return Promise.reject(err);
+                    }
+                }
+                throw e;
+            }
+        }
+
         try {
             if (objType === 'services') {
-                response = await pRetry(() => this.client
+                response = await pRetry(() => deleteWithErrorHandling(() => this.client
                     .api.v1.namespaces(this.defaultNamespace).services(name)
-                    .delete(), getRetryConfig());
+                    .delete(deleteOptions)), getRetryConfig());
             } else if (objType === 'deployments') {
-                response = await pRetry(() => this.client
+                response = await pRetry(() => deleteWithErrorHandling(() => this.client
                     .apis.apps.v1.namespaces(this.defaultNamespace).deployments(name)
-                    .delete(), getRetryConfig());
+                    .delete(deleteOptions)), getRetryConfig());
             } else if (objType === 'jobs') {
-                response = await pRetry(() => this.client
+                response = await pRetry(() => deleteWithErrorHandling(() => this.client
                     .apis.batch.v1.namespaces(this.defaultNamespace).jobs(name)
-                    .delete(deleteOptions), getRetryConfig());
+                    .delete(deleteOptions)), getRetryConfig());
             } else if (objType === 'pods') {
-                response = await pRetry(() => this.client
+                response = await pRetry(() => deleteWithErrorHandling(() => this.client
                     .api.v1.namespaces(this.defaultNamespace).pods(name)
-                    .delete(deleteOptions), getRetryConfig());
+                    .delete(deleteOptions)), getRetryConfig());
             } else {
                 throw new Error(`Invalid objType: ${objType}`);
             }
@@ -351,20 +377,13 @@ export class K8s {
             return Promise.reject(err);
         }
 
-        if (response.statusCode >= 400) {
-            const err = new TSError(`Unexpected response code (${response.statusCode}), when deleting name: ${name}`);
-            this.logger.error(err);
-            err.code = response.statusCode;
-            return Promise.reject(err);
-        }
-
         return response.body;
     }
 
     /**
      * Delete all of Kubernetes resources related to the specified exId
      * @param  {String}   exId    ID of the execution
-     * @param  {Boolean}  force   Forcefully stop all related pod, deployment, and job resources
+     * @param  {Boolean}  force   Forcefully stop all pod, deployment, service and job resources
      * @return {Promise}
      */
     async deleteExecution(exId: string, force = false) {
@@ -373,22 +392,28 @@ export class K8s {
         }
 
         await this._deleteObjByExId(exId, 'execution_controller', 'jobs', force);
+
+        if (force) {
+            await this._deleteObjByExId(exId, 'execution_controller', 'services', force);
+            await this._deleteObjByExId(exId, 'execution_controller', 'pods', force);
+            await this._deleteObjByExId(exId, 'worker', 'deployments', force);
+            await this._deleteObjByExId(exId, 'worker', 'pods', force);
+        }
     }
 
     /**
-     * Finds the k8s object by nodeType and exId and then deletes it
+     * Finds the k8s objects by nodeType and exId and then deletes them
      * @param  {String}  exId     Execution ID
      * @param  {String}  nodeType valid Teraslice k8s node type:
      *                            'worker', 'execution_controller'
      * @param  {String}  objType  valid object type: `services`, `deployments`,
-     *                            'jobs'
-     * @param  {Boolean}  force    Forcefully stop all related pod, deployment, and job resources
+     *                            `jobs`, `pods`
+     * @param  {Boolean}  force    Forcefully stop all resources
      * @return {Promise}
      */
     async _deleteObjByExId(exId: string, nodeType: string, objType: string, force?: boolean) {
         let objList;
-        let forcePodsList;
-        let deleteResponse;
+        const deleteResponses = [];
 
         try {
             objList = await this.list(`app.kubernetes.io/component=${nodeType},teraslice.terascope.io/exId=${exId}`, objType);
@@ -398,44 +423,22 @@ export class K8s {
             return Promise.reject(err);
         }
 
-        if (force) {
-            try {
-                forcePodsList = await this.list(`teraslice.terascope.io/exId=${exId}`, 'pods');
-            } catch (e) {
-                const err = new Error(`Request pods list in _deleteObjByExId with exId: ${exId} failed with: ${e}`);
-                this.logger.error(err);
-                return Promise.reject(err);
-            }
-        }
-
-        if (isEmpty(objList.items) && isEmpty(forcePodsList?.items)) {
+        if (isEmpty(objList.items)) {
             this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} has already been deleted`);
             return Promise.resolve();
         }
 
-        const deletePodResponses = [];
-        if (!isEmpty(forcePodsList?.items)) {
-            this.logger.info(`k8s._deleteObjByExId: ${exId} force deleting all pods`);
-            for (const pod of forcePodsList.items) {
-                const podName = pod.metadata.name;
-
-                try {
-                    deletePodResponses.push(await this.delete(podName, 'pods', force));
-                } catch (e) {
-                    const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${podName} failed with: ${e}`);
-                    this.logger.error(err);
-                    return Promise.reject(err);
-                }
+        for (const obj of objList.items) {
+            const name = obj.metadata.name;
+            if (!name) {
+                const err = new Error(`Cannot delete ${objType} for ExId: ${exId} by name because it has no name`);
+                this.logger.error(err);
+                return Promise.reject(err);
             }
-        }
-
-        if (!isEmpty(objList.items)) {
-            // TODO: this assumes only one item will ever be in objList
-            const name: string = get(objList, 'items[0].metadata.name');
             this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} deleting: ${name}`);
 
             try {
-                deleteResponse = await this.delete(name, objType, force);
+                deleteResponses.push(await this.delete(name, objType, force));
             } catch (e) {
                 const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${name} failed with: ${e}`);
                 this.logger.error(err);
@@ -443,10 +446,7 @@ export class K8s {
             }
         }
 
-        if (deletePodResponses.length > 0) {
-            deleteResponse.deletePodResponses = deletePodResponses;
-        }
-        return deleteResponse;
+        return deleteResponses;
     }
 
     /**
