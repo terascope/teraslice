@@ -398,6 +398,18 @@ teraslice-cli jobs view <cluster> <job_id>
 teraslice-cli jobs view local 99999999-9999-9999-9999-999999999999
 ```
 
+### jobs export
+
+Export job on a cluster to a json file. By default the file is saved to the current working directory as \<job.name\>.json
+
+```sh
+teraslice-cli jobs export <cluster> <job_id>
+# export job to current directory
+teraslice-cli jobs export local 99999999-9999-9999-9999-999999999999
+# export job to custom directory
+teraslice-cli jobs export local 99999999-9999-9999-9999-999999999999 --outdir ~/my_jobs
+```
+
 ### jobs recover
 
 Recover a crashed jobs

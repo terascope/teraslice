@@ -70,6 +70,18 @@ export default class Config {
         return `${this.configDir}/aliases.yaml`;
     }
 
+    /**
+     * Returns the user provided output directory or
+     * the current directory as default
+     */
+    get outdir(): string {
+        if (this.args.outdir) {
+            return this.args.outdir;
+        } else {
+            return process.cwd();
+        }
+    }
+
     get jobStateDir(): string {
         return `${this.configDir}/job_state_files`;
     }
@@ -85,7 +97,8 @@ export default class Config {
     get allSubDirs(): string[] {
         return [
             this.jobStateDir,
-            this.assetDir
+            this.assetDir,
+            this.outdir,
         ];
     }
 
@@ -96,7 +109,7 @@ export default class Config {
 
         this.allSubDirs.forEach((dir) => {
             if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir);
+                fs.mkdirSync(dir, { recursive: true });
             }
         });
     }

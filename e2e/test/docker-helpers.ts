@@ -3,6 +3,7 @@ import ms from 'ms';
 import semver from 'semver';
 import { DEFAULT_WORKERS, NODE_VERSION } from './config.js';
 import signale from './signale.js';
+import { pRetry } from '@terascope/utils';
 
 const compose = new Compose('docker-compose.yml');
 
@@ -36,7 +37,14 @@ export async function dockerUp() {
     });
     signale.success('Docker environment is good to go', getElapsed(startTime));
 
-    const e2eNodeVersion = await compose.runCmd('exec', undefined, 'teraslice-master', 'node', '--version');
+    const e2eNodeVersion = await pRetry(async () => {
+        const version = await compose.runCmd('exec', undefined, 'teraslice-master', 'node', '--version');
+        if (version === undefined) {
+            throw new Error('Node version check failed to return a result.');
+        }
+        return version;
+    })
+
     const scriptsNodeVersion = semver.coerce(NODE_VERSION);
     const parsedVersion = semver.parse(e2eNodeVersion);
     signale.info('Teraslice node version: ', parsedVersion?.version);

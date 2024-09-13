@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import {
-    has, toString, pDelay, pMap,
+    has, toString, pDelay, pMap, pRetry,
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import chalk from 'chalk';
@@ -10,7 +10,7 @@ import { Job } from 'teraslice-client-js';
 import TerasliceUtil from './teraslice-util.js';
 import Display from './display.js';
 import reply from './reply.js';
-import { getJobConfigFromFile } from './tjm-util.js';
+import { getJobConfigFromFile, saveJobConfigToFile } from './tjm-util.js';
 import Config from './config.js';
 import {
     JobMetadata,
@@ -598,9 +598,9 @@ export default class Jobs {
                 return this.getJobIdsFromSavedState();
             }
 
-            // if action is delete we need to get inactive
-            // as well as active jobs
-            if (action === 'delete') {
+            // if action is delete or export  we need to
+            // get inactive as well as active jobs
+            if (action === 'delete' || action === 'export') {
                 return this.getActiveAndInactiveJobIds();
             }
 
@@ -681,11 +681,11 @@ export default class Jobs {
     }
 
     noJobsWithStatus() {
-        const cluster = `cluster: ${this.config.args.clusterUrl}`;
+        const cluster = `cluster: ${this.config.clusterUrl}`;
         const targetedStatus = `${this.config.args.status.join(' or ')}`;
 
         if (this.config.args.jobId.includes('all')) {
-            reply.fatal(`No jobs on ${cluster} with status ${targetedStatus}`);
+            reply.fatal(`No jobs on ${cluster} with status ${targetedStatus || '"any"'}`);
         }
 
         reply.fatal(`Jobs: ${this.config.args.jobId.join(', ')} on ${cluster} do not have status ${targetedStatus}`);
@@ -804,6 +804,53 @@ export default class Jobs {
         }
 
         this.printDiff(diffObject, showUpdateField);
+    }
+
+    async export() {
+        const jobIds = this.jobs.map((job) => job.id);
+
+        reply.yellow(`Saving jobFile(s) for ${jobIds.join(', ')} on ${this.config.args.clusterAlias}`);
+
+        await pMap(
+            this.jobs,
+            (job) => this.exportOne(job.config),
+            { concurrency: this.concurrency }
+        );
+
+        reply.green(`Saved jobFile(s) to ${this.config.outdir}`);
+    }
+
+    async exportOne(jobConfig: Teraslice.JobConfig) {
+        await pRetry(() => {
+            const filePath = this.createUniqueFilePath(jobConfig.name);
+            return saveJobConfigToFile(jobConfig, filePath, this.config.clusterUrl);
+        })
+    }
+
+    /**
+     * @param { string } jobConfigName
+     * @returns {string} A unique file path
+     *
+     * Using the name from a jobConfig and the outdir,
+     * creates a unique file path where a job can be exported.
+     * Spaces in the job name are replaced with underscores.
+     * If the file name exists a '-N' suffix will be added to the name.
+     *     ex: First export: '~/my_current_directory/my_job_name.json'
+     *        Second export: '~/my_current_directory/my_job_name-1.json'
+     */
+    private createUniqueFilePath(jobConfigName: string) {
+        const dirName = this.config.outdir;
+        const fileName = `${jobConfigName.replaceAll(' ', '_')}.json`;
+        const filePath = path.join(dirName, fileName);
+        let uniquePath = filePath;
+        let i = 1;
+
+        while (fs.existsSync(uniquePath)) {
+            uniquePath = `${filePath.slice(0, -5)}-${i}.json`;
+            i++;
+        }
+
+        return uniquePath;
     }
 
     /**

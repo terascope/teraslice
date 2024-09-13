@@ -148,6 +148,14 @@ export default abstract class SlicerCore<T = OpConfig>
     }
 
     /**
+     * Used to indicate whether this slicer is restartable. Only relevant for
+     * kubernetesV2 backend
+     */
+    isRestartable(): boolean {
+        return false;
+    }
+
+    /**
      * Used to determine the maximum number of slices queued.
      * Defaults to 10000
      * NOTE: if you want to base of the number of

@@ -5,3 +5,5 @@ clusters:
     host: http://test-host
   save_jobs2:
     host: http://test-host
+  export_jobs1:
+    host: http://test-host
