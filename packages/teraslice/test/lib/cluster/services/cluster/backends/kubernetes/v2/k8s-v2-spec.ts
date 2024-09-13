@@ -182,8 +182,8 @@ describe('k8s', () => {
 
     describe('->delete', () => {
         it('will throw if name is undefined', async () => {
-            await expect(k8s.delete('', 'deployments'))
-                .rejects.toThrow('Name of resource to delete must be specified. Received: "".');
+            await expect(k8s.delete(undefined as unknown as string, 'deployments'))
+                .rejects.toThrow('Name of resource to delete must be specified. Received: "undefined".');
         });
 
         it('will throw if name is an empty string', async () => {
@@ -350,36 +350,6 @@ describe('k8s', () => {
             const response = await k8s._deleteObjByExId('testPods', 'worker', 'pods');
             expect(response).toEqual([expect.objectContaining(testPod1), expect.objectContaining(testPod2)]);
         });
-        // it('can force delete a job', async () => {
-        //     nock(_url)
-        //         .get('/apis/batch/v1/namespaces/default/jobs')
-        //         .query({ labelSelector: /app\.kubernetes\.io\/component=execution_controller,teraslice\.terascope\.io\/exId=.*/ })
-        //         .reply(200, {
-        //             kind: 'JobList',
-        //             items: [job]
-        //         })
-        //         .get('/api/v1/namespaces/default/pods')
-        //         .query({ labelSelector: /teraslice\.terascope\.io\/exId=.*/ })
-        //         .reply(200, {
-        //             kind: 'PodList',
-        //             items: [exPod, wkrPod]
-        //         })
-        //         .delete('/api/v1/namespaces/default/pods/testEx1')
-        //         .reply(200, exPod)
-        //         .delete('/api/v1/namespaces/default/pods/testWkr1')
-        //         .reply(200, wkrPod)
-        //         .delete('/apis/batch/v1/namespaces/default/jobs/testJob1')
-        //         .reply(200, status);
-
-        //     const response = await k8s._deleteObjByExId('testJob1', 'execution_controller', 'jobs', true);
-        //     expect(response).toEqual([
-        //         expect.objectContaining(status),
-        //         [
-        //             expect.objectContaining(exPod),
-        //             expect.objectContaining(wkrPod)
-        //         ]
-        //     ]);
-        // });
     });
 
     describe('->scaleExecution', () => {

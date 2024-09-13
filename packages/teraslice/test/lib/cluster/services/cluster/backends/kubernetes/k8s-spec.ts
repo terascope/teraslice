@@ -171,8 +171,8 @@ describe('k8s', () => {
 
     describe('->delete', () => {
         it('will throw if name is undefined', async () => {
-            await expect(k8s.delete('', 'deployments'))
-                .rejects.toThrow('Name of resource to delete must be specified. Received: "".');
+            await expect(k8s.delete(undefined as unknown as string, 'deployments'))
+                .rejects.toThrow('Name of resource to delete must be specified. Received: "undefined".');
         });
 
         it('will throw if name is an empty string', async () => {
