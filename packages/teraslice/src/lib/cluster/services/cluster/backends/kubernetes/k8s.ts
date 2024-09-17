@@ -164,7 +164,7 @@ export class K8s {
     * returns list of k8s objects matching provided selector
     * @param  {String} selector kubernetes selector, like 'app=teraslice'
     * @param  {String} objType  Type of k8s object to get, valid options:
-    *                           'pods', 'deployment', 'services', 'jobs'
+    *                           'pods', 'deployment', 'services', 'jobs', 'replicasets'
     * @param  {String} ns       namespace to search, this will override the default
     * @return {Object}          body of k8s get response.
     */
@@ -188,6 +188,10 @@ export class K8s {
             } else if (objType === 'jobs') {
                 response = await pRetry(() => this.client
                     .apis.batch.v1.namespaces(namespace).jobs()
+                    .get({ qs: { labelSelector: selector } }), getRetryConfig());
+            } else if (objType === 'replicasets') {
+                response = await pRetry(() => this.client
+                    .apis.apps.v1.namespaces(namespace).replicasets()
                     .get({ qs: { labelSelector: selector } }), getRetryConfig());
             } else {
                 const error = new Error(`Wrong objType provided to get: ${objType}`);
@@ -299,9 +303,8 @@ export class K8s {
      * Deletes k8s object of specified objType
      * @param  {String}  name          Name of the resource to delete
      * @param  {String}  objType       Type of k8s object to get, valid options:
-     *                                 'deployments', 'services', 'jobs', 'pods'
+     *                                 'deployments', 'services', 'jobs', 'pods', 'replicasets'
      * @param  {Boolean} force         Forcefully delete resource by setting gracePeriodSeconds to 1
-     *                                 to be forcefully stopped.
      * @return {Object}                k8s delete response body.
      */
     async delete(name: string, objType: string, force?: boolean) {
@@ -368,6 +371,10 @@ export class K8s {
                 response = await pRetry(() => deleteWithErrorHandling(() => this.client
                     .api.v1.namespaces(this.defaultNamespace).pods(name)
                     .delete(deleteOptions)), getRetryConfig());
+            } else if (objType === 'replicasets') {
+                response = await pRetry(() => deleteWithErrorHandling(() => this.client
+                    .apis.apps.v1.namespaces(this.defaultNamespace).replicasets(name)
+                    .delete(deleteOptions)), getRetryConfig());
             } else {
                 throw new Error(`Invalid objType: ${objType}`);
             }
@@ -383,7 +390,8 @@ export class K8s {
     /**
      * Delete all of Kubernetes resources related to the specified exId
      * @param  {String}   exId    ID of the execution
-     * @param  {Boolean}  force   Forcefully stop all pod, deployment, service and job resources
+     * @param  {Boolean}  force   Forcefully stop all pod, deployment,
+     *                            service, replicaset and job resources
      * @return {Promise}
      */
     async deleteExecution(exId: string, force = false) {
@@ -392,7 +400,10 @@ export class K8s {
         }
 
         if (force) {
+            // Order matters. If we delete a parent resource before its children it
+            // will be marked for background deletion and then can't be force deleted.
             await this._deleteObjByExId(exId, 'worker', 'pods', force);
+            await this._deleteObjByExId(exId, 'worker', 'replicasets', force);
             await this._deleteObjByExId(exId, 'worker', 'deployments', force);
             await this._deleteObjByExId(exId, 'execution_controller', 'pods', force);
             await this._deleteObjByExId(exId, 'execution_controller', 'services', force);
@@ -407,7 +418,7 @@ export class K8s {
      * @param  {String}  nodeType valid Teraslice k8s node type:
      *                            'worker', 'execution_controller'
      * @param  {String}  objType  valid object type: `services`, `deployments`,
-     *                            `jobs`, `pods`
+     *                            `jobs`, `pods`, `replicasets`
      * @param  {Boolean}  force    Forcefully stop all resources
      * @return {Promise}
      */
