@@ -28,7 +28,7 @@ export class ObjectVector<
             return this.#childFields;
         }
         const childFields: ChildFields<T> = Object.entries(this.childConfig)
-            .map(([field, config]): [string, Vector<any>]|undefined => {
+            .map(([field, config]): [string, Vector<any>] | undefined => {
                 const [base] = field.split('.', 1);
                 if (base !== field && this.childConfig![base]) return;
 
@@ -66,9 +66,11 @@ export class ObjectVector<
         for (const [field, vector] of this.childFields) {
             if (input[field] != null) {
                 const fieldValue = (
-                    vector.toJSONCompatibleValue ? vector.toJSONCompatibleValue(
-                        input[field], options
-                    ) : input[field]
+                    vector.toJSONCompatibleValue
+                        ? vector.toJSONCompatibleValue(
+                            input[field], options
+                        )
+                        : input[field]
                 );
                 if (fieldValue == null) {
                     if (!skipNilValues && nilValue === null) {
@@ -89,7 +91,7 @@ export class ObjectVector<
         return result;
     }
 
-    private _getChildName(field: string): string|undefined {
+    private _getChildName(field: string): string | undefined {
         if (!this.name) return undefined;
         return `${this.name}.${field}`;
     }

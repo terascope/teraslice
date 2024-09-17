@@ -25,7 +25,7 @@ export default class Transformer extends MapProcessor<TransformerConfig> {
         return data;
     }
 
-    simpleAPI(): SimpleAPI|null {
+    simpleAPI(): SimpleAPI | null {
         try {
             return this.getAPI('simple-api') as SimpleAPI;
         } catch (err) {

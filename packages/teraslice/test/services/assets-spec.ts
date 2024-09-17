@@ -161,8 +161,8 @@ describe('Assets Service', () => {
 
             expect(resultTable).toEqual(
                 'name                         version  id                                        description                     node_version  platform  arch\n'
-            + '---------------------------  -------  ----------------------------------------  ------------------------------  ------------  --------  ----\n'
-            + 'asset-with-long-description  3.6.3    ba53aa515e20e0c7da93bd2a373b84819fba7b2a  This description is longer tha  18                          \n'
+                + '---------------------------  -------  ----------------------------------------  ------------------------------  ------------  --------  ----\n'
+                + 'asset-with-long-description  3.6.3    ba53aa515e20e0c7da93bd2a373b84819fba7b2a  This description is longer tha  18                          \n'
             );
         });
     });

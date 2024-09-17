@@ -69,7 +69,7 @@ export function debugLogger(testName: string, param?: DebugParam, otherName?: st
     logger.src = false;
 
     // @ts-expect-error
-    logger.level = (value: Logger.LogLevel): number|undefined => {
+    logger.level = (value: Logger.LogLevel): number | undefined => {
         if (value) {
             for (const [level, code] of Object.entries(logLevels)) {
                 if (value === level || value === code) {
@@ -79,7 +79,7 @@ export function debugLogger(testName: string, param?: DebugParam, otherName?: st
             }
             return undefined;
         }
-         
+
         return logLevels[logLevel] || 20;
     };
     // @ts-expect-error

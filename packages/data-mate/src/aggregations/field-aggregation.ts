@@ -42,19 +42,19 @@ export const repository: Repository = {
     }
 };
 
-export function uniqueField(input: unknown, _parentContext?: unknown): any[]|any|null {
+export function uniqueField(input: unknown, _parentContext?: unknown): any[] | any | null {
     if (isNil(input)) return null;
     if (isArray(input)) return uniq(input);
     return input;
 }
 
-export function countField(input: unknown, _parentContext?: unknown): any[]|any|null {
+export function countField(input: unknown, _parentContext?: unknown): any[] | any | null {
     if (isNil(input)) return 0;
     if (isArray(input)) return input.length;
     return 1;
 }
 
-export function sumField(input: unknown, _parentContext?: unknown): any[]|any|null {
+export function sumField(input: unknown, _parentContext?: unknown): any[] | any | null {
     if (isNil(input)) return null;
     if (isArray(input)) {
         return input
@@ -66,7 +66,7 @@ export function sumField(input: unknown, _parentContext?: unknown): any[]|any|nu
     return null;
 }
 
-export function avgField(input: unknown, _parentContext?: unknown): any[]|any|null {
+export function avgField(input: unknown, _parentContext?: unknown): any[] | any | null {
     if (isNil(input)) return null;
     if (isArray(input)) {
         const numbers = input
@@ -82,7 +82,7 @@ export function avgField(input: unknown, _parentContext?: unknown): any[]|any|nu
     return null;
 }
 
-export function minField(input: unknown, _parentContext?: unknown): any[]|any|null {
+export function minField(input: unknown, _parentContext?: unknown): any[] | any | null {
     if (isNil(input)) return null;
     if (isArray(input)) {
         const numbers = input.filter(isNumber);
@@ -93,7 +93,7 @@ export function minField(input: unknown, _parentContext?: unknown): any[]|any|nu
     return null;
 }
 
-export function maxField(input: unknown, _parentContext?: unknown): any[]|any|null {
+export function maxField(input: unknown, _parentContext?: unknown): any[] | any | null {
     if (isNil(input)) return null;
     if (isArray(input)) {
         const numbers = input.filter(isNumber);

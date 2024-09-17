@@ -50,18 +50,18 @@ function validateIPRange(rangeQuery: ParsedRange) {
 
     if (isInfiniteMin(minValue)) {
         if (isIP.v6(maxValue)) {
-            minValue = MIN_IPV6_IP
+            minValue = MIN_IPV6_IP;
         } else {
             minValue = MIN_IPV4_IP;
         }
     }
-    
+
     if (isInfiniteMax(maxValue)) {
-        if(isIP.v6(minValue)) {
+        if (isIP.v6(minValue)) {
             maxValue = MAX_IPV6_IP;
-         } else {
+        } else {
             maxValue = MAX_IPV4_IP;
-         }
+        }
     }
 
     if (!incMin) {

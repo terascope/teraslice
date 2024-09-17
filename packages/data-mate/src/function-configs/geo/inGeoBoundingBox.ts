@@ -9,7 +9,7 @@ import {
 
 export interface InGeoBoundingBoxArgs {
     top_left: GeoPointInput;
-    bottom_right: GeoPointInput
+    bottom_right: GeoPointInput;
 }
 
 export const inGeoBoundingBoxConfig: FieldValidateConfig<InGeoBoundingBoxArgs> = {

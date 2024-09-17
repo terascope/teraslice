@@ -147,7 +147,7 @@ export class K8s {
                 .listNamespacedPod(namespace, undefined, undefined, undefined, undefined, selector),
             getRetryConfig());
 
-            const podList:k8s.V1Pod[] | undefined = get(result, 'body.items');
+            const podList: k8s.V1Pod[] | undefined = get(result, 'body.items');
 
             if (podList && Array.isArray(podList)) {
                 if (podList.length === number) return podList;
@@ -172,8 +172,8 @@ export class K8s {
     async list(selector: string, objType: string, ns?: string) {
         const namespace = ns || this.defaultNamespace;
         let responseObj: {
-            response: IncomingMessage,
-            body: k8s.V1PodList | k8s.V1DeploymentList | k8s.V1ServiceList | k8s.V1JobList
+            response: IncomingMessage;
+            body: k8s.V1PodList | k8s.V1DeploymentList | k8s.V1ServiceList | k8s.V1JobList;
         };
 
         try {
@@ -257,8 +257,8 @@ export class K8s {
      */
     async post(manifest: Record<string, any>, manifestType: string) {
         let responseObj: {
-            response: IncomingMessage,
-            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job
+            response: IncomingMessage;
+            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job;
         };
 
         try {
@@ -301,8 +301,8 @@ export class K8s {
     // on this to require `objType` to support patching other things
     async patch(record: Record<string, any>, name: string) {
         let responseObj: {
-            response: IncomingMessage,
-            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job
+            response: IncomingMessage;
+            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job;
         };
 
         try {
@@ -346,8 +346,8 @@ export class K8s {
      */
     async delete(name: string, objType: string, force?: boolean) {
         let responseObj: {
-            response: IncomingMessage,
-            body: k8s.V1Status | k8s.V1Pod | k8s.V1Service
+            response: IncomingMessage;
+            body: k8s.V1Status | k8s.V1Pod | k8s.V1Service;
         };
 
         // To get a Job to remove the associated pods you have to

@@ -7,9 +7,9 @@ export interface IndicesStatsParams {
     fielddata_fields?: string | string[];
     fields?: string | string[];
     groups?: string | string[];
-    level?: i.Level
+    level?: i.Level;
     types?: string | string[];
-    expand_wildcards?: i.ExpandWildcards
+    expand_wildcards?: i.ExpandWildcards;
 }
 
 export interface DeleteByQueryParams {
@@ -43,7 +43,7 @@ export interface DeleteByQueryParams {
     wait_for_completion?: boolean;
     requests_per_second?: number;
     slices?: number | string;
-    body?: Record<string, any>,
+    body?: Record<string, any>;
 }
 
 export interface ExistsParams {
@@ -118,7 +118,7 @@ export interface IndicesDeleteParams {
     master_timeout?: i.TimeSpan;
     ignore_unavailable?: boolean;
     allow_no_indices?: boolean;
-    expand_wildcards?: i.ExpandWildcards
+    expand_wildcards?: i.ExpandWildcards;
 }
 
 export interface IndicesDeleteTemplateParams {
@@ -131,7 +131,7 @@ export interface IndicesExistsParams {
     local?: boolean;
     ignore_unavailable?: boolean;
     allow_no_indices?: boolean;
-    expand_wildcards?: i.ExpandWildcards
+    expand_wildcards?: i.ExpandWildcards;
     flat_settings?: boolean;
     include_defaults?: boolean;
 }
@@ -156,15 +156,15 @@ export interface IndicesGetParams {
 }
 
 export interface IndicesGetFieldMappingParams {
-    fields: string | string[]
-    index?: string | string[]
+    fields: string | string[];
+    index?: string | string[];
     include_type_name?: boolean;
     type?: string | string[];
-    allow_no_indices?: boolean
-    expand_wildcards?: i.ExpandWildcards
-    ignore_unavailable?: boolean
-    include_defaults?: boolean
-    local?: boolean
+    allow_no_indices?: boolean;
+    expand_wildcards?: i.ExpandWildcards;
+    ignore_unavailable?: boolean;
+    include_defaults?: boolean;
+    local?: boolean;
 }
 
 export interface IndicesGetIndexTemplateParams {
@@ -176,26 +176,26 @@ export interface IndicesGetIndexTemplateParams {
 }
 
 export interface IndicesGetMappingParams {
-    index?: string | string[]
+    index?: string | string[];
     type?: string | string[];
     include_type_name?: boolean;
-    allow_no_indices?: boolean
-    expand_wildcards?: i.ExpandWildcards
-    ignore_unavailable?: boolean
-    local?: boolean
-    master_timeout?: string | number
+    allow_no_indices?: boolean;
+    expand_wildcards?: i.ExpandWildcards;
+    ignore_unavailable?: boolean;
+    local?: boolean;
+    master_timeout?: string | number;
 }
 
 export interface IndicesGetSettingsParams {
-    index?: string | string[]
-    name?: string | string[]
-    allow_no_indices?: boolean
-    expand_wildcards?: i.ExpandWildcards
-    flat_settings?: boolean
-    ignore_unavailable?: boolean
-    include_defaults?: boolean
-    local?: boolean
-    master_timeout?: number | string
+    index?: string | string[];
+    name?: string | string[];
+    allow_no_indices?: boolean;
+    expand_wildcards?: i.ExpandWildcards;
+    flat_settings?: boolean;
+    ignore_unavailable?: boolean;
+    include_defaults?: boolean;
+    local?: boolean;
+    master_timeout?: number | string;
 }
 
 export interface IndicesGetTemplateParams {
@@ -207,23 +207,23 @@ export interface IndicesGetTemplateParams {
 }
 
 export interface IndicesPutMappingParams {
-    index?: string | string []
-    type?: string
-    include_type_name?: boolean
-    allow_no_indices?: boolean
-    expand_wildcards?: i.ExpandWildcards
-    ignore_unavailable?: boolean
-    master_timeout?: string | number
-    timeout?: string | number
-    write_index_only?: boolean
+    index?: string | string [];
+    type?: string;
+    include_type_name?: boolean;
+    allow_no_indices?: boolean;
+    expand_wildcards?: i.ExpandWildcards;
+    ignore_unavailable?: boolean;
+    master_timeout?: string | number;
+    timeout?: string | number;
+    write_index_only?: boolean;
     body?: {
         all_field?: i.MappingAllField;
         date_detection?: boolean;
         dynamic?: boolean | i.MappingDynamicMapping;
         dynamic_date_formats?: string[];
         dynamic_templates?:
-        | Record<string, i.MappingDynamicTemplate>
-        | Record<string, i.MappingDynamicTemplate>[];
+            | Record<string, i.MappingDynamicTemplate>
+            | Record<string, i.MappingDynamicTemplate>[];
         field_names_field?: i.MappingFieldNamesField;
         index_field?: i.MappingIndexField;
         meta?: Record<string, any>;
@@ -237,16 +237,16 @@ export interface IndicesPutMappingParams {
 }
 
 export interface IndicesPutSettingsParams {
-    index?: string | string []
-    allow_no_indices?: boolean
-    expand_wildcards?: i.ExpandWildcards
-    flat_settings?: boolean
-    ignore_unavailable?: boolean
-    cluster_manager_timeout?: number | string
-    master_timeout?: number | string
-    preserve_existing?: boolean
-    timeout?: number | string
-    body: i.IndicesPutSettingsIndexSettingsBody
+    index?: string | string [];
+    allow_no_indices?: boolean;
+    expand_wildcards?: i.ExpandWildcards;
+    flat_settings?: boolean;
+    ignore_unavailable?: boolean;
+    cluster_manager_timeout?: number | string;
+    master_timeout?: number | string;
+    preserve_existing?: boolean;
+    timeout?: number | string;
+    body: i.IndicesPutSettingsIndexSettingsBody;
 }
 
 export interface IndicesPutTemplateParams {
@@ -255,7 +255,7 @@ export interface IndicesPutTemplateParams {
     order?: number;
     create?: boolean;
     master_timeout?: i.TimeSpan;
-    body: i.IndexTemplateProperties
+    body: i.IndexTemplateProperties;
 }
 
 export interface IndicesRecoveryParams {
@@ -301,7 +301,7 @@ export interface MGetParams {
     _source?: boolean | string | string[];
     _source_excludes?: string | string[];
     _source_includes?: string | string[];
-    body: i.MGetBody
+    body: i.MGetBody;
 }
 
 export interface MSearchParams {
@@ -318,9 +318,9 @@ export interface MSearchParams {
 }
 
 export interface NodesInfoParams {
-    node_id?: string
+    node_id?: string;
     metric?: string | string[];
-    flat_settings?: boolean
+    flat_settings?: boolean;
     master_timeout?: string | number;
     timeout?: string | number;
 }
@@ -364,9 +364,9 @@ export interface SearchParams {
     default_operator?: string;
     df?: string;
     docvalue_fields?: string;
-    expand_wildcards?: i.ExpandWildcards,
+    expand_wildcards?: i.ExpandWildcards;
     explain?: boolean;
-    from?:number;
+    from?: number;
     index?: string | string[];
     ignore?: number | number[];
     ignore_throttled?: boolean;
@@ -396,7 +396,7 @@ export interface SearchParams {
     suggest_text?: string;
     terminate_after?: number;
     timeout?: i.TimeSpan;
-    track_scores?: boolean
+    track_scores?: boolean;
     track_total_hits?: boolean | number;
     type?: string;
     typed_keys?: boolean;
@@ -443,9 +443,9 @@ export interface UpdateParams<TDocument = unknown, TPartialDocument = unknown> {
     _source?: boolean | string | string[];
     _source_excludes?: string | string[];
     _source_includes?: string | string[];
-    if_seq_no?: number,
-    if_primary_term?: number,
-    version?: number,
+    if_seq_no?: number;
+    if_primary_term?: number;
+    version?: number;
     body?: {
         detect_noop?: boolean;
         doc?: TPartialDocument;
@@ -472,7 +472,7 @@ export interface BulkParams<TDocument = unknown, TPartialDocument = unknown> {
         | i.BulkOperationContainer
         | i.BulkUpdateAction<TDocument, TPartialDocument>
         | TDocument
-    )[]
+    )[];
 }
 
 export interface CatIndicesParams {
@@ -482,18 +482,18 @@ export interface CatIndicesParams {
     health?: i.Health;
     include_unloaded_segments?: boolean;
     pri?: boolean;
-    format?: string
+    format?: string;
     h?: string | string[];
-    help?: boolean
-    local?: boolean
+    help?: boolean;
+    local?: boolean;
     master_timeout?: string | number;
-    s?: string[],
-    v?: boolean
+    s?: string[];
+    v?: boolean;
 }
 
 export interface ClusterGetSettingsParams {
-    flat_settings?: boolean
-    include_defaults?: boolean
+    flat_settings?: boolean;
+    include_defaults?: boolean;
     timeout?: string | number;
 }
 
@@ -508,7 +508,7 @@ export interface ClusterHealthParams {
     wait_for_events?: 'immediate' | 'urgent' | 'high' | 'normal' | 'low' | 'languid';
     wait_for_no_relocating_shards?: boolean;
     wait_for_no_initializing_shards?: boolean;
-    wait_for_status?: i.Health
+    wait_for_status?: i.Health;
 }
 
 export interface CountParams {
@@ -552,5 +552,5 @@ export interface DeleteParams {
     timeout?: string | number;
     version?: number;
     version_type?: i.VersionType;
-    wait_for_active_shards?: number | 'all'
+    wait_for_active_shards?: number | 'all';
 }

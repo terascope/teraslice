@@ -49,6 +49,8 @@ export const isMappedIPv4Config: FieldValidateConfig = {
         },
     ],
     description: 'Returns the input if it is an IPv4 address mapped to an IPv6 address, otherwise returns null',
-    create() { return isMappedIPv4; },
+    create() {
+        return isMappedIPv4;
+    },
     accepts: [FieldType.String, FieldType.IP],
 };

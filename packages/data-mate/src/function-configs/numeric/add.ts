@@ -8,10 +8,10 @@ import {
 } from '../interfaces.js';
 
 export interface AddArgs {
-    readonly value: number
+    readonly value: number;
 }
 
-function isLargeNumberType(type: FieldType|undefined) {
+function isLargeNumberType(type: FieldType | undefined) {
     if (type == null) return false;
     return type === FieldType.Long;
 }
@@ -65,7 +65,7 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
         }
     ],
     create({ args: { value }, inputConfig }) {
-        if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
+        if (isLargeNumberType(inputConfig?.field_config.type as FieldType | undefined)) {
             return addFP(toBigIntOrThrow(value));
         }
 
@@ -86,7 +86,7 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
 
 function addFP(value: bigint): (input: unknown) => bigint;
 function addFP(value: number): (input: unknown) => number;
-function addFP(value: number|bigint): (input: unknown) => number|bigint {
+function addFP(value: number | bigint): (input: unknown) => number | bigint {
     const bigInt = isBigInt(value);
     return function _add(num) {
         if (bigInt && !isBigInt(num)) {

@@ -21,7 +21,7 @@ import { JobHarnessOptions } from './interfaces';
  * This is useful for testing Slicers.
 */
 
-type SliceResults = (SliceRequest|Slice|null)[];
+type SliceResults = (SliceRequest | Slice | null)[];
 
 export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionContext> {
     readonly stats: ExecutionStats = {
@@ -73,6 +73,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
             this.executionContext.onExecutionStats(this.stats);
         }, 100);
     }
+
     /**
      * Create Slices, always returns an Array of slices or slice requests.
      * To adjust the number of slicers change the job configuration
@@ -86,16 +87,16 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
      *
      * @returns an array of Slices including the metadata or the just the Slice Request.
     */
-    async createSlices(): Promise<(SliceRequest|null)[]>;
-    async createSlices(options: { fullResponse: false }): Promise<(SliceRequest|null)[]>;
-    async createSlices(options: { fullResponse: true }): Promise<(Slice|null)[]>;
-    async createSlices({ fullResponse = false } = {}): Promise<(SliceRequest|Slice|null)[]> {
+    async createSlices(): Promise<(SliceRequest | null)[]>;
+    async createSlices(options: { fullResponse: false }): Promise<(SliceRequest | null)[]>;
+    async createSlices(options: { fullResponse: true }): Promise<(Slice | null)[]>;
+    async createSlices({ fullResponse = false } = {}): Promise<(SliceRequest | Slice | null)[]> {
         const slicers = this.slicer().slicers();
 
         await this.slicer().handle();
 
         const slices = this.slicer().getSlices(10000);
-        const sliceRequests: (Slice | SliceRequest|null)[] = [];
+        const sliceRequests: (Slice | SliceRequest | null)[] = [];
         const slicesBySlicers: (Slice[])[] = [];
 
         for (const slice of slices) {
@@ -131,13 +132,13 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     }
 
     async getAllSlices(): Promise<SliceResults>;
-    async getAllSlices(options: { fullResponse: false }): Promise<(Slice|null)[]>;
-    async getAllSlices(options: { fullResponse: true }): Promise<(SliceRequest|null)[]>;
+    async getAllSlices(options: { fullResponse: false }): Promise<(Slice | null)[]>;
+    async getAllSlices(options: { fullResponse: true }): Promise<(SliceRequest | null)[]>;
     async getAllSlices({ fullResponse = false } = {}): Promise<SliceResults> {
         if (this.executionContext.config.lifecycle !== 'once') {
             throw new Error('This method can only be used when lifecycle is set to "once"');
         }
-        const results: (SliceRequest|Slice|null)[] = [];
+        const results: (SliceRequest | Slice | null)[] = [];
 
         const run = async (): Promise<void> => {
             let sliceResults: SliceResults;

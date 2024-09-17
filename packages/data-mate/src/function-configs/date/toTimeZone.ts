@@ -6,7 +6,7 @@ import {
 } from '../interfaces.js';
 
 export interface TimeZoneArgs {
-    timezone: string
+    timezone: string;
 }
 
 export const toTimeZoneConfig: FieldTransformConfig<TimeZoneArgs> = {

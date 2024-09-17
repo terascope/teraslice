@@ -25,12 +25,12 @@ export async function createImageList(): Promise<void> {
     let list;
     if (repo === 'elasticsearch-assets') {
         list = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
-               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH2_VERSION}`;
+        + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
+        + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
+        + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH2_VERSION}`;
     } else if (repo === 'kafka-asset-bundle') {
         list = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
-               + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}`;
+        + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}`;
     } else if (repo === 'file-assets-bundle') {
         list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}`;
     } else if (repo === 'teraslice-workspace') {
@@ -38,14 +38,14 @@ export async function createImageList(): Promise<void> {
             .reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version}\n`, '');
 
         list = `${baseImages}`
-               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
-               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH2_VERSION}\n`
-               + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
-               + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
-               + `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
-               + `${config.KIND_DOCKER_IMAGE}:${config.KIND_VERSION}`;
+        + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
+        + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
+        + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
+        + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH2_VERSION}\n`
+        + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
+        + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
+        + `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
+        + `${config.KIND_DOCKER_IMAGE}:${config.KIND_VERSION}`;
     } else {
         list = '';
     }

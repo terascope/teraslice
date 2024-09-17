@@ -114,8 +114,8 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         const targetIsGeoPoint = type === xLuceneFieldType.GeoPoint
-                || type === xLuceneFieldType.Geo
-                || type === undefined;
+            || type === xLuceneFieldType.Geo
+            || type === undefined;
 
         const isDisjoint = relation === GeoShapeRelation.Disjoint;
 

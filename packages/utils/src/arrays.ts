@@ -18,7 +18,7 @@ export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
 }
 
 /** A simplified implementation of lodash castArray */
-export function castArray<T>(input: T|undefined|null|(T[])|(readonly T[])): T[] {
+export function castArray<T>(input: T | undefined | null|(T[])|(readonly T[])): T[] {
     if (input == null) return [];
     if (isArrayLike(input)) return input;
     if (input instanceof Set) return [...input];
@@ -40,14 +40,14 @@ export function concat<T>(arr: T|(T[]), arr1?: T|(T[])): T[] {
 }
 
 /** A native implementation of lodash uniq */
-export function uniq<T>(arr: T[]|Set<T>): T[] {
+export function uniq<T>(arr: T[] | Set<T>): T[] {
     if (arr instanceof Set) return [...arr];
     return [...new Set(arr)];
 }
 
 /** Sort an arr or set */
 export function sort<T>(
-    arr: T[]|(readonly T[])|Set<T>,
+    arr: T[]|(readonly T[]) | Set<T>,
     compare?: (a: T, b: T) => number
 ): T[] {
     if (arr instanceof Set) return [...arr].sort(compare);
@@ -62,8 +62,8 @@ const numLike = {
 
 /** Sort by path or function that returns the values to sort with */
 export function sortBy<T, V = any>(
-    arr: T[]|Set<T>,
-    fnOrPath: ((value: T) => V)|string,
+    arr: T[] | Set<T>,
+    fnOrPath: ((value: T) => V) | string,
 ): T[] {
     return sort(arr, (a, b) => {
         const aVal = _getValFnOrPath(a, fnOrPath);
@@ -81,7 +81,7 @@ export function sortBy<T, V = any>(
     });
 }
 
-function _getValFnOrPath<T, V = any>(input: T, fnOrPath: ((value: T) => V)|string): V {
+function _getValFnOrPath<T, V = any>(input: T, fnOrPath: ((value: T) => V) | string): V {
     const uniqVal = typeof fnOrPath === 'function'
         ? fnOrPath(input)
         : get(input, fnOrPath);
@@ -92,8 +92,8 @@ function _getValFnOrPath<T, V = any>(input: T, fnOrPath: ((value: T) => V)|strin
  * Get the unique values by a path or function that returns the unique values
 */
 export function uniqBy<T, V = any>(
-    values: T[]|readonly T[],
-    fnOrPath: ((value: T) => V)|string,
+    values: T[] | readonly T[],
+    fnOrPath: ((value: T) => V) | string,
 ): T[] {
     const _values = new Set<V>();
     const result: T[] = [];
@@ -118,7 +118,7 @@ export function times<T>(n: number, fn?: (index: number) => T): (T[])|(number[])
 /** Like times but an iterable */
 export function timesIter(n: number): Iterable<number>;
 export function timesIter<T>(n: number, fn: (index: number) => T): Iterable<T>;
-export function* timesIter<T>(n: number, fn?: (index: number) => T): Iterable<number|T> {
+export function* timesIter<T>(n: number, fn?: (index: number) => T): Iterable<number | T> {
     for (let i = 0; i < n; i++) {
         if (fn) yield fn(i);
         yield i;
@@ -136,7 +136,7 @@ export function* chunkIter<T>(dataArray: Iterable<T>, size: number): Iterable<T[
         throw new RangeError(`Expected chunk size to be >0, got ${size}`);
     }
     if (isArrayLike(dataArray)) {
-        yield* _chunkArrayIterator(dataArray, size);
+        yield * _chunkArrayIterator(dataArray, size);
         return;
     }
 
@@ -183,7 +183,7 @@ export function includes(input: unknown, key: string): boolean {
  * If the input is an array it will return the first item
  * else if it will return the input
  */
-export function getFirst<T>(input: T|(T[])|(readonly T[])): T|undefined {
+export function getFirst<T>(input: T|(T[])|(readonly T[])): T | undefined {
     return castArray(input)[0];
 }
 
@@ -191,7 +191,7 @@ export function getFirst<T>(input: T|(T[])|(readonly T[])): T|undefined {
  * If the input is an array it will return the first item
  * else if it will return the input
  */
-export function getLast<T>(input: T|(T[])|(readonly T[])): T|undefined {
+export function getLast<T>(input: T|(T[])|(readonly T[])): T | undefined {
     return castArray(input).slice(-1)[0];
 }
 

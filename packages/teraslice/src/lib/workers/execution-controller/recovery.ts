@@ -51,6 +51,7 @@ export class RecoveryModule {
             this.events.removeListener('slice:success', this._sliceComplete.bind(this));
         });
     }
+
     // TODO: this is wrong
     private _sliceComplete(sliceData: SliceCompletePayload) {
         this.retryState.set(sliceData.slice.slice_id, false);
@@ -163,7 +164,9 @@ export class RecoveryModule {
                     }, 100);
                 }),
                 this.timeout,
-                (err) => { logError(this.logger, err); }
+                (err) => {
+                    logError(this.logger, err);
+                }
             );
         } finally {
             this.isShutdown = true;

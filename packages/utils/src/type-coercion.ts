@@ -20,7 +20,7 @@ import { noop } from './functions.js';
 import { isNotNil } from './empty.js';
 import { isIterator } from './iterators.js';
 
-type CoerceFN<T = unknown> = (input: unknown) => T
+type CoerceFN<T = unknown> = (input: unknown) => T;
 
 /** Will return a function that will coerce the input values to the DataTypeFieldConfig provided.
  * The parameter childConfig is only necessary with Tuple or Object field types
@@ -164,15 +164,16 @@ export function getHashCodeFrom(value: unknown): string {
     return `:${hash}`;
 }
 
-export function md5(value: string|Buffer): string {
-    return createHash('md5').update(value).digest('hex');
+export function md5(value: string | Buffer): string {
+    return createHash('md5').update(value)
+        .digest('hex');
 }
 
 function getChildDataTypeConfig(
-    config: DataTypeFields|ReadonlyDataTypeFields,
+    config: DataTypeFields | ReadonlyDataTypeFields,
     baseField: string,
     fieldType: FieldType
-): DataTypeFields|undefined {
+): DataTypeFields | undefined {
     // Tuples are configured like objects except the nested field names
     // are the positional indexes in the tuple
     if (fieldType !== FieldType.Object && fieldType !== FieldType.Tuple) return;
@@ -197,7 +198,7 @@ function formatObjectChildFields(childConfigs?: DataTypeFields) {
     }
 
     const childFields: ChildFields = Object.entries(childConfigs)
-        .map(([field, config]): [field: string, transformer: CoerceFN]|undefined => {
+        .map(([field, config]): [field: string, transformer: CoerceFN] | undefined => {
             const [base] = field.split('.', 1);
             if (base !== field && childConfigs![base]) return;
 

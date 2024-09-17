@@ -19,8 +19,8 @@ export function isRegExpLike(input: unknown, strict = true): boolean {
     return isRegExp(input);
 }
 
-type RegexFlag = 'g'|'i'|'s'|'m'|'x';
-function _uniqFlags(existing?: string, flags?: RegexFlag[]): string|undefined {
+type RegexFlag = 'g' | 'i' | 's' | 'm' | 'x';
+function _uniqFlags(existing?: string, flags?: RegexFlag[]): string | undefined {
     if (!existing) {
         if (flags?.length) return flags.join('');
         return undefined;
@@ -33,7 +33,7 @@ function _uniqFlags(existing?: string, flags?: RegexFlag[]): string|undefined {
 }
 
 export function formatRegex(
-    input: RegExp|string, flags?: RegexFlag[]
+    input: RegExp | string, flags?: RegexFlag[]
 ): RegExp {
     if (typeof input === 'string') {
         const result = /^\/(.*)\/([igsmx]{1,})?$/.exec(input);
@@ -47,7 +47,7 @@ export function formatRegex(
     return new RegExp(input, _uniqFlags(existingFlags, flags));
 }
 
-export function match(regexp: string|RegExp, value: string): string | null {
+export function match(regexp: string | RegExp, value: string): string | null {
     if (!isRegExpLike(regexp, false)) return null;
 
     const regex = formatRegex(regexp);
@@ -60,11 +60,11 @@ export function match(regexp: string|RegExp, value: string): string | null {
 /**
  * A functional version of match
 */
-export function matchFP(regexp: string|RegExp): (value: string) => string | null {
+export function matchFP(regexp: string | RegExp): (value: string) => string | null {
     return match.bind(match, regexp);
 }
 
-export function matchAll(regexp: RegExp|string, value: string): string[]|null {
+export function matchAll(regexp: RegExp | string, value: string): string[] | null {
     if (!isRegExpLike(regexp, false)) return null;
 
     const regex = formatRegex(regexp, ['g']);
@@ -88,7 +88,7 @@ export function matchAll(regexp: RegExp|string, value: string): string[]|null {
 /**
  * A functional version of matchAll
 */
-export function matchAllFP(regexp: string|RegExp): (value: string) => string[]|null {
+export function matchAllFP(regexp: string | RegExp): (value: string) => string[] | null {
     return matchAll.bind(matchAll, regexp);
 }
 

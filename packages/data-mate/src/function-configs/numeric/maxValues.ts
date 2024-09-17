@@ -6,9 +6,9 @@ import {
 } from '../interfaces.js';
 
 function maxValuesReducer(
-    acc: number|null,
-    curr: (number|bigint|null)[]|(number|bigint|null)
-): number|null {
+    acc: number | null,
+    curr: (number | bigint | null)[]|(number | bigint | null)
+): number | null {
     const currValue = (Array.isArray(curr) ? maxValuesFn(curr) : curr);
     if (currValue == null) return acc;
     if (acc == null) return toFloatOrThrow(currValue);
@@ -16,7 +16,7 @@ function maxValuesReducer(
     return toFloatOrThrow(currValue);
 }
 
-function maxValuesFn(value: unknown): bigint|number|null {
+function maxValuesFn(value: unknown): bigint | number | null {
     if (isNumber(value) || isBigInt(value)) return value;
     if (!Array.isArray(value)) return null;
 

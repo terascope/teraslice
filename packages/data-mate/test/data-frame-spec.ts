@@ -278,7 +278,7 @@ describe('DataFrame', () => {
     });
 
     describe('when manipulating a DataFrame', () => {
-        type Person = { name: string; age?: number; friends?: string[] }
+        type Person = { name: string; age?: number; friends?: string[] };
         let peopleDataFrame: DataFrame<Person>;
 
         type DeepObj = {
@@ -289,10 +289,10 @@ describe('DataFrame', () => {
                 owner?: {
                     id?: string;
                     name?: string;
-                }
+                };
             };
             states?: { id?: string; name?: string }[];
-        }
+        };
 
         const deepObjectDTConfig: DataTypeConfig = {
             version: LATEST_VERSION,
@@ -348,7 +348,7 @@ describe('DataFrame', () => {
         };
         type Special = {
             ip?: string;
-            long?: bigint|number;
+            long?: bigint | number;
             date?: string;
             location?: string;
             geometry?: GeoShape;
@@ -413,7 +413,8 @@ describe('DataFrame', () => {
                     }
                 },
                 states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
-            }, {
+            },
+            {
                 _key: 'id-2',
                 config: {
                     id: 'config-2',
@@ -489,7 +490,8 @@ describe('DataFrame', () => {
                         }
                     },
                     states: [{ name: 'state-1' }, { name: 'state-2' }]
-                }, {
+                },
+                {
                     _key: 'id-2',
                     config: {
                         name: 'config-2',
@@ -519,7 +521,8 @@ describe('DataFrame', () => {
                         }
                     },
                     states: [{}, {}]
-                }, {
+                },
+                {
                     _key: 'id-2',
                     config: {
                         name: 'config-2',
@@ -549,7 +552,8 @@ describe('DataFrame', () => {
                             name: 'config-owner-name-1'
                         }
                     },
-                }, {
+                },
+                {
                     config: {
                         id: 'config-2',
                         name: 'config-2',
@@ -626,7 +630,8 @@ describe('DataFrame', () => {
                             }
                         },
                         states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
-                    }, {
+                    },
+                    {
                         _key: 'id-1',
                         config: {
                             id: 'config-1',
@@ -637,7 +642,8 @@ describe('DataFrame', () => {
                             }
                         },
                         states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
-                    }, {
+                    },
+                    {
                         _key: 'id-2',
                         config: {
                             id: 'config-2',
@@ -648,7 +654,8 @@ describe('DataFrame', () => {
                             }
                         },
                         states: [{ id: 'state-3', name: 'state-3' }, { id: 'state-3', name: 'state-3' }]
-                    }, {
+                    },
+                    {
                         _key: 'id-2',
                         config: {
                             id: 'config-2',
@@ -691,7 +698,8 @@ describe('DataFrame', () => {
                             }
                         },
                         states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
-                    }, {
+                    },
+                    {
                         _key: 'id-2',
                         config: {
                             id: 'config-2',
@@ -702,7 +710,8 @@ describe('DataFrame', () => {
                             }
                         },
                         states: [{ id: 'state-3', name: 'state-3' }]
-                    }, {
+                    },
+                    {
                         _key: 'id-2',
                         config: {
                             id: 'config-2',

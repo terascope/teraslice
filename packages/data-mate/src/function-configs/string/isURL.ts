@@ -70,6 +70,8 @@ export const isURLConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Returns the input if it is a valid url string, otherwise returns null.',
     examples,
-    create() { return isURL; },
+    create() {
+        return isURL;
+    },
     accepts: [FieldType.String]
 };

@@ -41,7 +41,7 @@ describe('Function Utils', () => {
         });
 
         it('should handle multiple args', () => {
-            const fn = memoize((...args: (number|undefined)[]): number[] => times(
+            const fn = memoize((...args: (number | undefined)[]): number[] => times(
                 args.reduce(
                     (c = 0, n = 0) => c + n,
                     0

@@ -4,14 +4,14 @@ import { pDelay, pDefer } from '@terascope/utils';
 export interface MakeShutdownEarlyFnArgs {
     enabled?: boolean;
     exController: {
-        shutdown: () => Promise<void>
-    }
+        shutdown: () => Promise<void>;
+    };
 }
 
 export interface ShutdownFn {
-    error: () => Error | { message: string }
-    wait: () => Promise<void>
-    shutdown: () => Promise<void>
+    error: () => Error | { message: string };
+    wait: () => Promise<void>;
+    shutdown: () => Promise<void>;
 }
 
 export function makeShutdownEarlyFn(
@@ -59,7 +59,6 @@ export function makeShutdownEarlyFn(
 export function getTestCases(testCases: any[]) {
     const onlyCases = _.filter(testCases, (ts) => ts[1].only);
     if (onlyCases.length > 0) {
-        // eslint-disable-next-line no-console
         console.warn(
             '[WARNING]: test cases includes a "only" property, make sure to remove this before committing'
         );
@@ -68,7 +67,6 @@ export function getTestCases(testCases: any[]) {
 
     const cases = _.reject(testCases, (ts) => ts[1].skip);
     if (cases.length !== testCases.length) {
-        // eslint-disable-next-line no-console
         console.warn(
             '[WARNING]: test cases includes a "skip" property, make sure to remove this before committing'
         );

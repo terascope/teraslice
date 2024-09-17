@@ -8,7 +8,7 @@ import {
 } from '../interfaces.js';
 
 export interface FormatDateArgs {
-    format?: string|DateFormat;
+    format?: string | DateFormat;
 }
 
 export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
@@ -26,7 +26,8 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         field: 'testField',
         input: '2019-10-22T00:00:00.000Z',
         output: '2019-10-22',
-    }, {
+    },
+    {
         args: { },
         config: {
             version: 1,
@@ -35,7 +36,8 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         field: 'testField',
         input: 102390933,
         output: '1970-01-02T04:26:30.933Z'
-    }, {
+    },
+    {
         args: { format: DateFormat.milliseconds },
         config: {
             version: 1,
@@ -48,7 +50,8 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         field: 'testField',
         input: '1973-03-31T01:55:33.000Z',
         output: 102390933000,
-    }, {
+    },
+    {
         args: { format: DateFormat.iso_8601 },
         config: {
             version: 1,
@@ -62,7 +65,8 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         input: [1622760480654, 60],
         output: '2021-06-03T23:48:00.654Z',
         test_only: true,
-    }, {
+    },
+    {
         args: {},
         config: {
             version: 1,
@@ -73,7 +77,7 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         output: '2001-01-01T01:00:00.000Z'
     },
     {
-        args: { format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX" },
+        args: { format: 'yyyy-MM-dd\'T\'HH:mm:ss.SSSXXXXX' },
         config: {
             version: 1,
             fields: { testField: { type: FieldType.String } }
@@ -83,7 +87,7 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         output: '2018-01-22T18:00:00.000Z',
     }],
     create({ args: { format } }) {
-        return function formatDate(input: unknown): string|number {
+        return function formatDate(input: unknown): string | number {
             return formatDateValue(
                 getValidDateWithTimezoneOrThrow(input), format
             );
@@ -114,7 +118,7 @@ Default: iso_8601 for strings and epoch_millis for numbers`
     }
 };
 
-function isNumberOutput(format: DateFormat|string|undefined) {
+function isNumberOutput(format: DateFormat | string | undefined) {
     if (format === DateFormat.epoch || format === DateFormat.epoch_millis) return true;
     if (format === DateFormat.seconds || format === DateFormat.milliseconds) return true;
     return false;

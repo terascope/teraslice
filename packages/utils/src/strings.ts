@@ -432,7 +432,8 @@ function _replaceFirstWordChar(str: string, fn: (char: string) => string): strin
             return fn(s);
         }
         return s;
-    }).join('');
+    })
+        .join('');
 }
 
 /** Change first character in string to upper case */
@@ -577,12 +578,12 @@ export function parseList(input: unknown): string[] {
     return strings.map((s) => s.trim()).filter((s) => !!s);
 }
 
-type JoinListType = string|number|boolean|symbol|null|undefined;
+type JoinListType = string | number | boolean | symbol | null | undefined;
 /**
  * Create a sentence from a list (all items will be unique, empty values will be skipped)
 */
 export function joinList(
-    input: (JoinListType)[]|readonly (JoinListType)[],
+    input: (JoinListType)[] | readonly (JoinListType)[],
     sep = ',',
     join = 'and'
 ): string {
@@ -611,7 +612,7 @@ export function joinList(
     }, '');
 }
 
-export type StringEntropyFN = (input: unknown) => number
+export type StringEntropyFN = (input: unknown) => number;
 
 // inspired from https://gist.github.com/jabney/5018b4adc9b2bf488696
 /** Performs a Shannon entropy calculation on string inputs */

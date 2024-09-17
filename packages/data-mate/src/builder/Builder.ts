@@ -101,7 +101,7 @@ export abstract class Builder<T = unknown> {
     */
     valueFrom(
         value: unknown,
-        indices?: number|Iterable<number>,
+        indices?: number | Iterable<number>,
     ): T {
         try {
             return this._valueFrom(value);
@@ -113,7 +113,7 @@ export abstract class Builder<T = unknown> {
     private _throwValueFromError(
         _err: unknown,
         value: unknown,
-        indices?: number|Iterable<number>,
+        indices?: number | Iterable<number>,
     ): never {
         let err = _err as any;
         if (typeof err?.message !== 'string') {
@@ -212,7 +212,7 @@ export interface BuilderOptions {
     /**
      * The field config
     */
-    config: DataTypeFieldConfig|Readonly<DataTypeFieldConfig>;
+    config: DataTypeFieldConfig | Readonly<DataTypeFieldConfig>;
 
     /**
      * The name of field, if specified this will just be used for metadata
@@ -224,7 +224,7 @@ export interface BuilderOptions {
  * Copy the values from a Vector to a Builder
 */
 export function copyVectorToBuilder<T, R>(
-    vector: Vector<T>|ListVector<T>,
+    vector: Vector<T> | ListVector<T>,
     builder: Builder<R>,
 ): Vector<R> {
     for (const [i, v] of vector.values()) {
@@ -237,9 +237,9 @@ export function copyVectorToBuilder<T, R>(
  * Copy the values from a Vector to a Builder
 */
 export function transformVectorToBuilder<T, R>(
-    vector: Vector<T>|ListVector<T>,
+    vector: Vector<T> | ListVector<T>,
     builder: Builder<R>,
-    transform: (value: T|readonly Maybe<T>[], index: number) => Maybe<R>|readonly Maybe<R>[],
+    transform: (value: T | readonly Maybe<T>[], index: number) => Maybe<R> | readonly Maybe<R>[],
 ): Vector<R> {
     for (const [i, v] of vector.values()) {
         builder.set(i, transform(v, i));

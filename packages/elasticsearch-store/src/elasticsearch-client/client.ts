@@ -456,7 +456,7 @@ export class Client {
             */
             async deleteTemplate(
                 params: ClientParams.IndicesDeleteTemplateParams
-            ):Promise<ClientResponse.IndicesDeleteTemplateResponse> {
+            ): Promise<ClientResponse.IndicesDeleteTemplateResponse> {
                 const parsedParams = methods.convertIndicesDeleteTemplateParams(
                     params as ClientParams.IndicesDeleteTemplateParams,
                     distributionMeta
@@ -490,7 +490,7 @@ export class Client {
             */
             async getTemplate(
                 params: ClientParams.IndicesGetTemplateParams
-            ):Promise<ClientResponse.IndicesGetTemplateResponse> {
+            ): Promise<ClientResponse.IndicesGetTemplateResponse> {
                 const parsedParams = methods.convertIndicesGetTemplateParams(
                     params as ClientParams.IndicesGetTemplateParams,
                     distributionMeta

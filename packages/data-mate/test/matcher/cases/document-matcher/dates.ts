@@ -125,7 +125,7 @@ export default [
         [
             { _created: { some: 'thing' } },
             { _created: [3, 53, 2342] },
-            { _created: false, },
+            { _created: false },
             { _created: null },
             { _created: 'asdfiuyasdf8yhkjlasdf' },
         ],

@@ -14,7 +14,7 @@ export default [
                 type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: { type: 'value', value: 'Madman', },
+                value: { type: 'value', value: 'Madman' },
             },
         },
     ],
@@ -27,7 +27,7 @@ export default [
                 type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: { type: 'value', value: 'Madman', },
+                value: { type: 'value', value: 'Madman' },
             },
         },
     ],
@@ -40,7 +40,7 @@ export default [
                 type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: { type: 'value', value: 'Madman', },
+                value: { type: 'value', value: 'Madman' },
             },
         },
     ],
@@ -53,7 +53,7 @@ export default [
                 type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: { type: 'variable', value: 'foo', },
+                value: { type: 'variable', value: 'foo' },
             },
         },
         { name: xLuceneFieldType.String },
@@ -67,7 +67,7 @@ export default [
                 type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: { type: 'variable', value: 'foo', },
+                value: { type: 'variable', value: 'foo' },
             },
         },
         { name: xLuceneFieldType.String },
@@ -81,7 +81,7 @@ export default [
                 type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: { type: 'variable', value: 'foo', },
+                value: { type: 'variable', value: 'foo' },
             },
         },
         { name: xLuceneFieldType.String },
@@ -95,7 +95,7 @@ export default [
                 type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: { type: 'variable', value: 'foo', },
+                value: { type: 'variable', value: 'foo' },
             },
         },
         { name: xLuceneFieldType.String },
@@ -112,7 +112,7 @@ export default [
                         {
                             type: NodeType.Term,
                             field: 'foo',
-                            value: { type: 'value', value: 'bar', },
+                            value: { type: 'value', value: 'bar' },
                         },
                         {
                             type: NodeType.Negation,
@@ -120,7 +120,7 @@ export default [
                                 type: NodeType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
-                                value: { type: 'value', value: 'Madman', },
+                                value: { type: 'value', value: 'Madman' },
                             },
                         },
                     ],
@@ -140,7 +140,7 @@ export default [
                         {
                             type: NodeType.Term,
                             field: 'foo',
-                            value: { type: 'value', value: 'bar', },
+                            value: { type: 'value', value: 'bar' },
                         },
                     ],
                 },
@@ -153,7 +153,7 @@ export default [
                                 type: NodeType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
-                                value: { type: 'value', value: 'Madman', },
+                                value: { type: 'value', value: 'Madman' },
                             },
                         },
                     ],
@@ -173,7 +173,7 @@ export default [
                         {
                             type: NodeType.Term,
                             field: 'foo',
-                            value: { type: 'value', value: 'bar', },
+                            value: { type: 'value', value: 'bar' },
                         },
                         {
                             type: NodeType.Negation,
@@ -181,7 +181,7 @@ export default [
                                 type: NodeType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
-                                value: { type: 'value', value: 'Madman', },
+                                value: { type: 'value', value: 'Madman' },
                             },
                         },
                     ],
@@ -201,7 +201,7 @@ export default [
                         {
                             type: NodeType.Term,
                             field: 'foo',
-                            value: { type: 'value', value: 'bar', },
+                            value: { type: 'value', value: 'bar' },
                         },
                     ],
                 },
@@ -214,7 +214,7 @@ export default [
                                 type: NodeType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
-                                value: { type: 'value', value: 'Madman', },
+                                value: { type: 'value', value: 'Madman' },
                             },
                         },
                     ],
@@ -234,7 +234,7 @@ export default [
                         {
                             type: NodeType.Term,
                             field: 'foo',
-                            value: { type: 'value', value: 'bar', },
+                            value: { type: 'value', value: 'bar' },
                         },
                     ],
                 },
@@ -247,7 +247,7 @@ export default [
                                 type: NodeType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
-                                value: { type: 'value', value: 'Madman', },
+                                value: { type: 'value', value: 'Madman' },
                             },
                         },
                     ],
@@ -267,7 +267,7 @@ export default [
                         {
                             type: NodeType.Term,
                             field: 'a',
-                            value: { type: 'value', value: 1, },
+                            value: { type: 'value', value: 1 },
                         },
                         {
                             type: NodeType.Negation,
@@ -280,7 +280,7 @@ export default [
                                             {
                                                 type: NodeType.Term,
                                                 field: 'b',
-                                                value: { type: 'value', value: 1, },
+                                                value: { type: 'value', value: 1 },
                                             } as Term,
                                         ],
                                     },
@@ -290,7 +290,7 @@ export default [
                                             {
                                                 type: NodeType.Term,
                                                 field: 'c',
-                                                value: { type: 'value', value: 1, },
+                                                value: { type: 'value', value: 1 },
                                             } as Term,
                                         ],
                                     },
@@ -342,7 +342,7 @@ export const filterNilNegation: TestCase[] = [
         {
             type: NodeType.Term,
             field: 'foo',
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         } as Term
     ],
     [
@@ -351,7 +351,7 @@ export const filterNilNegation: TestCase[] = [
         {
             type: NodeType.Term,
             field: 'foo',
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         } as Term
     ],
     [
@@ -360,7 +360,7 @@ export const filterNilNegation: TestCase[] = [
         {
             type: NodeType.Term,
             field: 'foo',
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         } as Term
     ],
     [
@@ -369,7 +369,7 @@ export const filterNilNegation: TestCase[] = [
         {
             type: NodeType.Term,
             field: 'foo',
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         } as Term
     ],
     [
@@ -378,7 +378,7 @@ export const filterNilNegation: TestCase[] = [
         {
             type: NodeType.Term,
             field: 'foo',
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         } as Term
     ],
     [
@@ -393,14 +393,14 @@ export const filterNilNegation: TestCase[] = [
                         {
                             type: NodeType.Term,
                             field: 'a',
-                            value: { type: 'value', value: 1, },
+                            value: { type: 'value', value: 1 },
                         },
                         {
                             type: NodeType.Negation,
                             node: {
                                 type: NodeType.Term,
                                 field: 'b',
-                                value: { type: 'value', value: 1, },
+                                value: { type: 'value', value: 1 },
                             },
                         } as Negation,
                     ],

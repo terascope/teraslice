@@ -58,7 +58,7 @@ describe('IndexModel', () => {
         }
     }
 
-    let indexModel : ExampleIndexModel;
+    let indexModel: ExampleIndexModel;
 
     beforeAll(async () => {
         const client = await makeClient();

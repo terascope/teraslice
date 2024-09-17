@@ -10,9 +10,11 @@ describe('Error Utils', () => {
     describe('TSError', () => {
         const testCases: [any, any, Record<string, unknown>][] = [
             ['hello', undefined, { message: 'hello', statusCode: 500, fatalError: false }],
-            ['hello', {}, {
-                message: 'hello', statusCode: 500, fatalError: false, code: 'INTERNAL_SERVER_ERROR'
-            }],
+            ['hello',
+                {},
+                {
+                    message: 'hello', statusCode: 500, fatalError: false, code: 'INTERNAL_SERVER_ERROR'
+                }],
             ['hello', { statusCode: 411 }, { statusCode: 411, fatalError: false, code: 'LENGTH_REQUIRED' }],
             ['hello', { fatalError: true, statusCode: 502, retryable: true }, { fatalError: true, statusCode: 502, retryable: undefined }],
             ['hello', { fatalError: false, statusCode: 504, retryable: true }, { fatalError: false, statusCode: 504, retryable: true }],
@@ -81,7 +83,7 @@ describe('Error Utils', () => {
                 },
             ],
             [
-                new TSError("I'm a teapot", {
+                new TSError('I\'m a teapot', {
                     context: {
                         iamteapot: true,
                     },
@@ -89,7 +91,7 @@ describe('Error Utils', () => {
                 }),
                 { reason: 'IDK' },
                 {
-                    message: "IDK, caused by TSError: I'm a teapot",
+                    message: 'IDK, caused by TSError: I\'m a teapot',
                     statusCode: 418,
                     context: {
                         iamteapot: true,

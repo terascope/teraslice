@@ -8,7 +8,7 @@ import {
     FunctionDefinitionExample
 } from '../interfaces.js';
 
-function _reverse(input: unknown): string|null {
+function _reverse(input: unknown): string | null {
     if (!isString(input)) {
         throw new Error(`Invalid input ${JSON.stringify(input)}, expected string got ${getTypeOf(input)}`);
     }

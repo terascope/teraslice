@@ -14,8 +14,8 @@ export type PackageInfo = {
     description: string;
     license: string;
     publishConfig?: {
-        access: 'public'|'private';
-        registry: string|undefined;
+        access: 'public' | 'private';
+        registry: string | undefined;
     };
     terascope: PackageConfig;
     resolutions: {
@@ -55,7 +55,7 @@ export type PackageConfig = {
     linkToMain?: boolean;
     root?: boolean;
     asset?: boolean;
-    tests?: Record<string, Record<string, string[]>>
+    tests?: Record<string, Record<string, string[]>>;
 };
 
 export enum Hook {
@@ -75,13 +75,13 @@ export type RootPackageInfo = {
     };
     documentation: string;
     homepage: string;
-    workspaces: string[]|{ packages: string[] };
+    workspaces: string[] | { packages: string[] };
     terascope: {
         root: boolean;
         asset: boolean;
         type: 'monorepo';
         target: string;
-        version?: 1|2;
+        version?: 1 | 2;
         compilerOptions?: Record<string, unknown>;
         tests: {
             suites: {
@@ -119,8 +119,14 @@ export type RootPackageInfo = {
 };
 
 export const AvailablePackageConfigKeys: readonly (keyof PackageConfig)[] = [
-    'enableTypedoc', 'testSuite', 'main', 'allowBumpWhenPrivate',
-    'linkToMain', 'root', 'tests', 'asset'
+    'enableTypedoc',
+    'testSuite',
+    'main',
+    'allowBumpWhenPrivate',
+    'linkToMain',
+    'root',
+    'tests',
+    'asset'
 ];
 
 export type TSCommands = 'docs';
@@ -148,7 +154,7 @@ export type KindCluster = {
                     containerPort: number;
                     hostPort: number;
                 }
-            ]
+            ];
             extraMounts?: [
                 {
                     hostPath: string;
@@ -156,11 +162,11 @@ export type KindCluster = {
                 }
             ];
         }
-    ]
-}
+    ];
+};
 
 export interface TsVolumeSet {
-    extraMounts: any[],
-    volumes: V1Volume[],
-    volumeMounts: V1VolumeMount[]
+    extraMounts: any[];
+    volumes: V1Volume[];
+    volumeMounts: V1VolumeMount[];
 }

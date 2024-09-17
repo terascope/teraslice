@@ -22,7 +22,7 @@ export default function generate() {
         format: 'es',
         tspegjs: {
             skipTypeComputation: true,
-            customHeader: "import { xLuceneFieldType } from '@terascope/types';\nimport { makeContext } from './context.js';\nimport * as i from './interfaces.js';"
+            customHeader: 'import { xLuceneFieldType } from \'@terascope/types\';\nimport { makeContext } from \'./context.js\';\nimport * as i from \'./interfaces.js\';'
         },
     });
 

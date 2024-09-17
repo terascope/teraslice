@@ -174,7 +174,7 @@ export class WorkerExecutionContext
 
     get jobObserver(): JobObserver {
         const jobObserver = this.api.getObserver<JobObserver>('job-observer');
-        if (jobObserver == null) throw new Error("Job Observer hasn't not be initialized");
+        if (jobObserver == null) throw new Error('Job Observer hasn\'t not be initialized');
         return jobObserver;
     }
 

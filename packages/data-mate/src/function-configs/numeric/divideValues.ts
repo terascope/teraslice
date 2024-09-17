@@ -6,16 +6,16 @@ import {
 } from '../interfaces.js';
 
 function divideValuesReducer(
-    acc: number|null,
-    curr: (number|bigint|null)[]|(number|bigint|null)
-): number|null {
+    acc: number | null,
+    curr: (number | bigint | null)[]|(number | bigint | null)
+): number | null {
     const currValue = (Array.isArray(curr) ? divideValuesFn(curr) : curr);
     if (currValue == null) return acc;
     if (acc == null) return toNumberOrThrow(currValue);
     return acc / toNumberOrThrow(currValue);
 }
 
-function divideValuesFn(value: unknown): bigint|number|null {
+function divideValuesFn(value: unknown): bigint | number | null {
     if (isNumber(value) || isBigInt(value)) return value;
     if (!Array.isArray(value)) return null;
 

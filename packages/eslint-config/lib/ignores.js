@@ -41,4 +41,4 @@ export default [
     '.pnp.**',
     '*.min.js',
     '*.min.css'
-]
+];

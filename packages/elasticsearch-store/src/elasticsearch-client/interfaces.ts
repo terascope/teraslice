@@ -19,7 +19,7 @@ export interface NodeOptions {
         master: boolean;
         data: boolean;
         ingest: boolean;
-    }
+    };
 }
 
 interface ClientOptions {
@@ -42,7 +42,7 @@ interface ClientOptions {
     name?: string | symbol;
     auth?: {
         username: string;
-        password: string
+        password: string;
     };
     proxy?: string | URL;
     enableMetaHeader?: boolean;
@@ -55,7 +55,7 @@ interface ClientOptions {
     memoryCircuitBreaker?: {
         enabled: boolean;
         maxPercentage: number;
-    }
+    };
 }
 
 export interface ClientConfig extends ClientOptions {
@@ -67,5 +67,5 @@ export interface ClientOnlyParams {
     ignore?: string | string[] | number | number[];
     headers?: string | string [];
     requestTimeout?: number | string;
-    maxRetries?: number
+    maxRetries?: number;
 }

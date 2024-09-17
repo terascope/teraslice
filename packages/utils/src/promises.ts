@@ -226,15 +226,15 @@ export type PWhileOptions = {
 
     /** the minimum the jitter wait time will be (in milliseconds),
      * defaults to 100ms */
-    minJitter?: number
+    minJitter?: number;
 
     /** the maximum the jitter wait time will be (in milliseconds),
      * defaults to 3x the minJitter setting, but less than timeoutMs
      *  */
-    maxJitter?: number
+    maxJitter?: number;
 
     /** error that can be expressed if the timer ends because the function does not return true */
-    error?: string
+    error?: string;
 };
 
 /**
@@ -414,9 +414,9 @@ export async function pRaceWithTimeout(
  * Considered bad practice in most cases, use the Promise constructor
 */
 export function pDefer(): {
-    resolve: (value?: unknown) => void,
-    reject: (reason?: any) => void,
-    promise: Promise<any>
+    resolve: (value?: unknown) => void;
+    reject: (reason?: any) => void;
+    promise: Promise<any>;
 } {
     let resolve: (value?: unknown) => void;
     let reject: (reason?: any) => void;

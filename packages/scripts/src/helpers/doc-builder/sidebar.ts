@@ -34,8 +34,8 @@ export async function updateSidebarJSON(pkgInfos: PackageInfo[], log?: boolean) 
             pkgMap[pkgInfo.folderName] = false;
         });
 
-        const processList = (list: (Category|string|undefined)[], addMissing: boolean) => {
-            const existing = list.map((pkg): Category|undefined => {
+        const processList = (list: (Category | string | undefined)[], addMissing: boolean) => {
+            const existing = list.map((pkg): Category | undefined => {
                 if (typeof pkg === 'string') {
                     pkgMap[pkg] = true;
                     return {
@@ -50,17 +50,19 @@ export async function updateSidebarJSON(pkgInfos: PackageInfo[], log?: boolean) 
                 throw new Error(`Unknown pkg, ${pkg}`);
             });
 
-            const missing = addMissing ? Object.entries(pkgMap)
-                .filter(([, exists]) => !exists)
-                .map(([label]): Category => ({
-                    type: 'category',
-                    label,
-                    items: [`${name}/${label}/overview`],
-                })) : [];
+            const missing = addMissing
+                ? Object.entries(pkgMap)
+                    .filter(([, exists]) => !exists)
+                    .map(([label]): Category => ({
+                        type: 'category',
+                        label,
+                        items: [`${name}/${label}/overview`],
+                    }))
+                : [];
 
             return existing
                 .concat(missing)
-                .map((pkg): Category|undefined => {
+                .map((pkg): Category | undefined => {
                     if (!pkg) return;
 
                     const filePath = path.join(docsFilePath, pkg.label);

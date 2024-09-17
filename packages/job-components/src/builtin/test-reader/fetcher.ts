@@ -7,7 +7,7 @@ import { SliceRequest } from '../../interfaces/index.js';
 import defaultData from './data/fetcher-data.js';
 
 export default class TestFetcher extends Fetcher<TestReaderConfig> {
-    cachedData: Buffer|null = null;
+    cachedData: Buffer | null = null;
     lastFilePath = '';
 
     async initialize(): Promise<void> {

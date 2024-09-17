@@ -9,7 +9,7 @@ export type TestCase = [
     // property in dot notation form
     string,
     // toHaveProperty($property, %j)
-    AnyQuery|ElasticsearchDSLResult,
+    AnyQuery | ElasticsearchDSLResult,
     // optional translator options
     TranslatorOptions?,
     // optional options to pass into toElasticsearchDSL

@@ -332,7 +332,7 @@ export function isGeoShapePoint(
 ): input is GeoShapePoint[];
 export function isGeoShapePoint(
     input: unknown, _parentContext?: unknown
-): input is GeoShapePoint[]|GeoShapePoint {
+): input is GeoShapePoint[] | GeoShapePoint {
     if (ts.isNil(input)) return false;
     if (isArray(input)) return _lift(handleArgs(ts.isGeoShapePoint), input, _parentContext);
 

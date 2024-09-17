@@ -20,7 +20,7 @@ export function getBuildersForConfig<T extends Record<string, any> = Record<stri
     const groupedFieldEntries = Object.entries(getGroupedFields(config.fields));
 
     for (const [field, nested] of groupedFieldEntries) {
-        let childConfig: DataTypeFields|undefined;
+        let childConfig: DataTypeFields | undefined;
         nested.forEach((fullField) => {
             if (fullField === field) return;
             const nestedField = fullField.replace(`${field}.`, '');

@@ -416,7 +416,7 @@ describe('IndexStore', () => {
             const records: SimpleRecordInput[] = times(100, (n) => ({
                 test_id: `bulk-${n + 1}`,
                 test_keyword: keyword,
-                test_object: { example: 'bulk', },
+                test_object: { example: 'bulk' },
                 test_number: (n + 10) * 2,
                 test_boolean: n % 2 === 0,
                 _updated: new Date().toISOString(),

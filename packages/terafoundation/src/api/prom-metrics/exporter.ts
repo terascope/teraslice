@@ -41,6 +41,7 @@ export default class Exporter {
             this.logger.error('Prometheus exporter creation failed: ', err);
         }
     }
+
     async shutdown() {
         this.metricServer.close();
     }

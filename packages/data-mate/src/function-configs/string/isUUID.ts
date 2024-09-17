@@ -50,6 +50,8 @@ export const isUUIDConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Returns the input if it is a valid UUID, otherwise returns null.',
     examples,
-    create() { return isUUID; },
+    create() {
+        return isUUID;
+    },
     accepts: [FieldType.String]
 };

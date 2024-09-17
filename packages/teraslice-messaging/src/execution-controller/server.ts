@@ -118,7 +118,7 @@ export class Server extends core.Server {
         });
     }
 
-    sendExecutionFinishedToAll(exId: string): Promise<(core.Message|null)[]> {
+    sendExecutionFinishedToAll(exId: string): Promise<(core.Message | null)[]> {
         return this.sendToAll(
             'execution:finished',
             { exId },

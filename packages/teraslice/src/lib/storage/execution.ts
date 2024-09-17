@@ -61,7 +61,8 @@ export class ExecutionStorage {
 
     // encompasses all executions in either initialization or running statuses
     async getActiveExecution(exId: string): Promise<ExecutionConfig> {
-        const str = this.getTerminalStatuses().map((state) => ` _status:${state} `).join('OR');
+        const str = this.getTerminalStatuses().map((state) => ` _status:${state} `)
+            .join('OR');
         const query = `ex_id:"${exId}" NOT (${str.trim()})`;
         const executions = await this.backend.search(query, undefined, 1, '_created:desc') as any[];
 
@@ -174,6 +175,7 @@ export class ExecutionStorage {
         const ex = await this.get(exId) as ExecutionConfig;
         return ex.metadata ?? {};
     }
+
     // TODO: type this
     async updateMetadata(exId: string, metadata = {}) {
         await this.backend.update(exId, {
@@ -193,6 +195,7 @@ export class ExecutionStorage {
             });
         }
     }
+
     // TODO: type this
     // verify the current status to make sure it can be updated to the desired status
     async verifyStatusUpdate(exId: string, desiredStatus: string) {
@@ -232,6 +235,7 @@ export class ExecutionStorage {
         // otherwise allow the update
         return status;
     }
+
     // TODO: type this
     /**
      * Set the status
@@ -325,6 +329,7 @@ export class ExecutionStorage {
     private _isInitStatus(status: string) {
         return includes(INIT_STATUS, status);
     }
+
     // TODO: fix types
     /**
      * @param {import('@terascope/job-components').ExecutionConfig} recoverFrom

@@ -474,7 +474,8 @@ describe('can transform matches', () => {
         // should not expect anything back
         const data2 = DataEntity.makeArray([{
             domain: 'example.com', hello: 'world', data: 'otherData', date, key
-        }, {}]);
+        },
+        {}]);
 
         // should not expect anything back
         const data3 = DataEntity.makeArray([
@@ -543,7 +544,8 @@ describe('can transform matches', () => {
         // should not expect anything back
         const data2 = DataEntity.makeArray([{
             domain: 'example.com', hello: 'world', data: 'otherData', date, key
-        }, {}]);
+        },
+        {}]);
 
         // should not expect anything back
         const data3 = DataEntity.makeArray([
@@ -613,7 +615,8 @@ describe('can transform matches', () => {
         // should not expect anything back
         const data2 = DataEntity.makeArray([{
             domain: 'example.com', hello: 'world', data: 'otherData', date, key
-        }, {}]);
+        },
+        {}]);
 
         // should not expect anything back
         const data3 = DataEntity.makeArray([

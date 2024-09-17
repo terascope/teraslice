@@ -3,11 +3,11 @@ import debugFn from 'debug';
 
 const debug = debugFn('docker-compose-js');
 
-type Arg = string|number|boolean;
+type Arg = string | number | boolean;
 export type RunOptions = {
-    [arg: string]: Arg|null;
-}
-type Services = string[]|string;
+    [arg: string]: Arg | null;
+};
+type Services = string[] | string;
 
 export class Compose {
     composeFile: string;
@@ -64,7 +64,7 @@ export class Compose {
             debug('docker-compose', args);
 
             /// runs a spawn instance of either 'docker compose' or 'docker-compose'
-            function runCommand(sCommand:string, a:Array<string>) {
+            function runCommand(sCommand: string, a: Array<string>) {
                 const cmd = spawn(sCommand, a, {
                     env: process.env
                 });
@@ -105,7 +105,7 @@ export class Compose {
         });
     }
 
-    up(options: RunOptions, services?: string[]|string): Promise<string> {
+    up(options: RunOptions, services?: string[] | string): Promise<string> {
         options.d = '';
         return this.runCmd('up', options, services);
     }
@@ -166,7 +166,7 @@ export class Compose {
         return this.runCmd('rm', options, services);
     }
 
-    port(service: string, privatePort: number|string, options?: RunOptions): Promise<string> {
+    port(service: string, privatePort: number | string, options?: RunOptions): Promise<string> {
         return this.runCmd('port', options, service, privatePort);
     }
 }

@@ -1,7 +1,7 @@
 export interface MatchRowFn {
-    (rowIndex: number): boolean
+    (rowIndex: number): boolean;
 }
 
 export interface MatchValueFn {
-    (value: unknown): boolean
+    (value: unknown): boolean;
 }

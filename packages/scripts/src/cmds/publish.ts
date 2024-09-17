@@ -33,7 +33,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .example('$0 publish', '--dry-run npm')
             .example('$0 publish', '--skip-reset npm')
             .option('dry-run', {
-                description: "For testing purposes, don't pushing or publishing",
+                description: 'For testing purposes, don\'t pushing or publishing',
                 type: 'boolean',
                 default: !isCI,
             })

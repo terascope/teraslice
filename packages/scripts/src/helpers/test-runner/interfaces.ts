@@ -14,7 +14,7 @@ export type TestOptions = {
     encryptMinio: boolean;
     jestArgs?: string[];
     ignoreMount: boolean;
-    testPlatform: 'native'|'kubernetes'|'kubernetesV2';
+    testPlatform: 'native' | 'kubernetes' | 'kubernetesV2';
     kindClusterName: string;
 };
 
@@ -22,8 +22,8 @@ export type GroupedPackages = {
     [suite: string]: PackageInfo[];
 };
 
-export type CleanupFN = (...args: any[]) => (Promise<void>|void);
+export type CleanupFN = (...args: any[]) => (Promise<void> | void);
 export type RunSuiteResult = {
     errors: string[];
     cleanup: CleanupFN;
-}
+};

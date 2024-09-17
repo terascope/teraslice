@@ -13,7 +13,7 @@ export default class ExampleAPIFactory extends APIFactory<AnyObject, AnyObject> 
 
     async create(
         name: string, config: AnyObject
-    ): Promise<{ client: AnyObject, config: AnyObject}> {
+    ): Promise<{ client: AnyObject; config: AnyObject }> {
         return { client: { name, config }, config };
     }
 

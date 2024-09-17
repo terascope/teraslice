@@ -24,7 +24,8 @@ export function formatGQLComment(desc?: string, prefix?: string): string {
 
     return description
         .split('\n')
-        .map((str) => trim(str).replace(/^#/, '').trim())
+        .map((str) => trim(str).replace(/^#/, '')
+            .trim())
         .filter(Boolean)
         .map((str) => `# ${str}`)
         .join('\n');

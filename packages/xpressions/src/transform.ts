@@ -10,7 +10,7 @@ import { parse } from './parse.js';
  *
  * @returns the input with the translated values
 */
-export function transform(input: Nodes|string, options: Options): string {
+export function transform(input: Nodes | string, options: Options): string {
     const ast = typeof input === 'string' ? parse(input) : input;
     return ast.map((node): string => {
         if (isLiteralNode(node)) return node.value;

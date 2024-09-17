@@ -274,7 +274,7 @@ export class TestContext implements i.Context {
                         }
 
                         if (job_prom_metrics_enabled === true
-                        || (job_prom_metrics_enabled === undefined && tf_prom_metrics_enabled)) {
+                            || (job_prom_metrics_enabled === undefined && tf_prom_metrics_enabled)) {
                             ctx.mockPromMetrics = {
                                 metricList: {},
                                 prefix: finalPrefix,

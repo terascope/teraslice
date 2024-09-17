@@ -54,7 +54,7 @@ export class TupleVector<
         return result;
     }
 
-    private _getChildName(index: number): string|undefined {
+    private _getChildName(index: number): string | undefined {
         if (!this.name) return undefined;
         return `${this.name}.${index}`;
     }

@@ -6,7 +6,7 @@ export default class Counter extends ParallelSlicer<AnyObject> {
     async newSlicer(id: number): Promise<() => Promise<({
         count: number;
         id: number;
-    }|null)>> {
+    } | null)>> {
         let count = 3;
         return async () => {
             const delay = Math.round(100 * Math.random());

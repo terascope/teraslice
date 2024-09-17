@@ -32,8 +32,12 @@ export const formats: pkg.Format[] = [
     {
         name: 'optional_String',
         validate(val: unknown) {
-            if (!val) { return; }
-            if (isString(val)) { return; }
+            if (!val) {
+                return;
+            }
+            if (isString(val)) {
+                return;
+            }
             throw new Error('This field is optional but if specified it must be of type string');
         },
         coerce(val: any) {
@@ -43,9 +47,13 @@ export const formats: pkg.Format[] = [
     {
         name: 'optional_Date',
         validate(val: unknown) {
-            if (!val) { return; }
+            if (!val) {
+                return;
+            }
             if (isString(val) || isInteger(val)) {
-                if (isValidDate(val)) { return; }
+                if (isValidDate(val)) {
+                    return;
+                }
                 try {
                     dateMath.parse(val);
                 } catch (err) {

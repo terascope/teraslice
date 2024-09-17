@@ -73,7 +73,7 @@ export class Parser {
 
             if (utils.logger.level() === 10) {
                 const astJSON = JSON.stringify(this.ast, null, 4);
-                utils.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
+                utils.logger.trace(`parsed ${this.query ? this.query : '\'\''} to `, astJSON);
             }
         } catch (err) {
             if (err && err.message.includes('Expected ,')) {
@@ -100,7 +100,7 @@ export class Parser {
                                     return filterNode(n, clone);
                                 }
                                 if (utils.isNegation(n)
-                                && (utils.isConjunction(n.node) || utils.isLogicalGroup(n.node))) {
+                                    && (utils.isConjunction(n.node) || utils.isLogicalGroup(n.node))) {
                                     const _node = filterNode(n.node, clone);
                                     if (utils.isEmptyNode(_node)) return;
                                     return {
@@ -154,7 +154,7 @@ export class Parser {
                 if (!keepLeft) {
                     unset(clone, 'left');
                     if (keepRight && clone.right) {
-                        clone.left = { ...clone.right, };
+                        clone.left = { ...clone.right };
                     }
                 }
 
@@ -207,7 +207,7 @@ export class Parser {
     /**
      * Recursively Iterate over all or select set of the nodes types
     */
-    forTypes<T extends i.NodeType[]|readonly i.NodeType[]>(
+    forTypes<T extends i.NodeType[] | readonly i.NodeType[]>(
         types: T, cb: (node: i.Node) => void, skipFunctionParams = false
     ): void {
         const walkNode = (node: i.Node) => {
@@ -288,13 +288,13 @@ export class Parser {
         fieldValidator: (field: string) => void,
         valueValidator: (fieldValue: i.FieldValue<any>) => void,
     ): void {
-        function callValidateField(node: i.TermLikeNode|i.RangeNode) {
+        function callValidateField(node: i.TermLikeNode | i.RangeNode) {
             if ('field' in node && node.field) {
                 fieldValidator(node.field);
             }
         }
 
-        function callValidateValue(node: i.Node|i.RangeNode) {
+        function callValidateValue(node: i.Node | i.RangeNode) {
             if ('value' in node) {
                 if (Array.isArray(node.value)) {
                     node.value.forEach(valueValidator);
@@ -448,7 +448,7 @@ function coerceRange(node: i.Range, variables: xLuceneVariables, allowNil?: bool
 }
 
 function coerceNodeValue(
-    node: i.Term|i.Regexp|i.Wildcard|i.RangeNode,
+    node: i.Term | i.Regexp | i.Wildcard | i.RangeNode,
     variables: xLuceneVariables,
     skipAutoFieldGroup?: boolean,
     allowNil?: boolean,

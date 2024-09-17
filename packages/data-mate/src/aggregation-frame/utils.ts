@@ -33,7 +33,7 @@ export function getBuilderForField(
             col.name, col.vector.childConfig
         );
     }
-    let type: FieldType|undefined;
+    let type: FieldType | undefined;
     if (valueAgg === ValueAggregation.avg) {
         if (currentType === FieldType.Long) {
             type = FieldType.Double;

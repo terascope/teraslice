@@ -141,34 +141,34 @@ export interface FunctionDefinitionConfig<T extends Record<string, any>> {
     readonly validate_arguments?: (args: T) => void;
 }
 export interface FunctionContext<T extends Record<string, any> = Record<string, unknown>> {
-    readonly args: T,
-    readonly inputConfig?: DataTypeFieldAndChildren,
-    readonly outputConfig?: DataTypeFieldAndChildren,
-    readonly parent: Column<unknown>|unknown[]
+    readonly args: T;
+    readonly inputConfig?: DataTypeFieldAndChildren;
+    readonly outputConfig?: DataTypeFieldAndChildren;
+    readonly parent: Column<unknown> | unknown[];
 }
 
 export interface DynamicFrameFunctionContext<
     T extends Record<string, any> = Record<string, unknown>
 > {
-    readonly args: (index: number) => T,
-    readonly inputConfig?: DataTypeFieldAndChildren,
-    readonly outputConfig?: DataTypeFieldAndChildren,
-    readonly parent: Column<unknown>
+    readonly args: (index: number) => T;
+    readonly inputConfig?: DataTypeFieldAndChildren;
+    readonly outputConfig?: DataTypeFieldAndChildren;
+    readonly parent: Column<unknown>;
 }
 
 export interface DynamicFunctionContext<T extends Record<string, any> = Record<string, unknown>> {
-    readonly args: (index: number) => T,
-    readonly inputConfig?: DataTypeFieldAndChildren,
-    readonly outputConfig?: DataTypeFieldAndChildren,
-    readonly parent: unknown[]
+    readonly args: (index: number) => T;
+    readonly inputConfig?: DataTypeFieldAndChildren;
+    readonly outputConfig?: DataTypeFieldAndChildren;
+    readonly parent: unknown[];
 }
 
 export interface InitialFunctionContext<T extends Record<string, any> = Record<string, unknown>> {
-    readonly args: T | ((index: number) => T),
-    readonly inputConfig?: DataTypeFieldAndChildren,
-    readonly preserveNulls: boolean,
-    readonly preserveEmptyObjects: boolean,
-    readonly field?: string
+    readonly args: T | ((index: number) => T);
+    readonly inputConfig?: DataTypeFieldAndChildren;
+    readonly preserveNulls: boolean;
+    readonly preserveEmptyObjects: boolean;
+    readonly field?: string;
 }
 
 export interface FieldValidateConfig<
@@ -186,8 +186,8 @@ export interface FieldValidateConfig<
 export interface FieldTransformConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
-    readonly type: FunctionDefinitionType.FIELD_TRANSFORM,
-    readonly process_mode: ProcessMode,
+    readonly type: FunctionDefinitionType.FIELD_TRANSFORM;
+    readonly process_mode: ProcessMode;
     readonly output_type?: (
         inputConfig: DataTypeFieldAndChildren,
         args: T
@@ -210,34 +210,34 @@ export interface FieldMetaTransform<
 export interface RecordTransformConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
-    readonly type: FunctionDefinitionType.RECORD_TRANSFORM,
+    readonly type: FunctionDefinitionType.RECORD_TRANSFORM;
     readonly output_type: (
         inputConfig: ReadonlyDataTypeFields,
         args?: T
-    ) => ReadonlyDataTypeFields,
+    ) => ReadonlyDataTypeFields;
     readonly create: (
         config: FunctionContext<T>
-    ) => (value: Record<string, unknown>, index: number) => Record<string, unknown>
+    ) => (value: Record<string, unknown>, index: number) => Record<string, unknown>;
 }
 
 export interface RecordValidationConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
-    readonly type: FunctionDefinitionType.RECORD_VALIDATION,
+    readonly type: FunctionDefinitionType.RECORD_VALIDATION;
     readonly create: (config: FunctionContext<T>) =>
-    (value: Record<string, unknown>, index: number) => boolean
+    (value: Record<string, unknown>, index: number) => boolean;
 }
 
 export interface OutputType<T> {
     output_type: (
         inputConfig: DataTypeFieldAndChildren,
         args?: T
-    ) => DataTypeFieldAndChildren
+    ) => DataTypeFieldAndChildren;
 }
 
 export interface DataTypeFieldAndChildren {
-    readonly field_config: Readonly<DataTypeFieldConfig>,
-    readonly child_config?: ReadonlyDataTypeFields
+    readonly field_config: Readonly<DataTypeFieldConfig>;
+    readonly child_config?: ReadonlyDataTypeFields;
 }
 
 // TODO: verify this type

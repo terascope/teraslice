@@ -9,7 +9,7 @@ import {
 } from './interfaces.js';
 
 export function getFieldsFromArg<
-    K extends(number|string|symbol)
+    K extends(number | string | symbol)
 >(fields: readonly K[], arg: FieldArg<K>[]): ReadonlySet<K> {
     if (!Array.isArray(arg)) {
         throw new Error(`Expected field arg to an array, got ${arg} (${getTypeOf(arg)})`);
@@ -29,7 +29,7 @@ export function getFieldsFromArg<
 }
 
 export function flattenStringArg<
-    K extends(number|string|symbol)
+    K extends(number | string | symbol)
 >(arg: FieldArg<K>[]): ReadonlySet<K> {
     if (!Array.isArray(arg)) {
         throw new Error(`Expected field arg to an array, got ${arg} (${getTypeOf(arg)})`);
@@ -98,10 +98,10 @@ export function freezeArray<T extends ArrLike>(
  * since we use dot notation for nested field configurations
 */
 export function getChildDataTypeConfig(
-    config: DataTypeFields|ReadonlyDataTypeFields,
+    config: DataTypeFields | ReadonlyDataTypeFields,
     baseField: string,
     fieldType: FieldType
-): DataTypeFields|undefined {
+): DataTypeFields | undefined {
     // Tuples are configured like objects except the nested field names
     // are the positional indexes in the tuple
     if (fieldType !== FieldType.Object && fieldType !== FieldType.Tuple) return;

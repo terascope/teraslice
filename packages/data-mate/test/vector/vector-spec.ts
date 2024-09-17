@@ -566,7 +566,8 @@ describe('Vector', () => {
 
     it('should be able to find the correct data bucket index (5) with consistent sizing of 2', () => {
         const vector = Vector.make(times(10, () => (
-            new ReadableData(new WritableData(2).set(0, 'hi').set(1, 'hello'))
+            new ReadableData(new WritableData(2).set(0, 'hi')
+                .set(1, 'hello'))
         )), {
             config: {
                 type: FieldType.String,
@@ -585,7 +586,8 @@ describe('Vector', () => {
 
     it('should be able to find the correct data bucket index (4) with consistent sizing of 2', () => {
         const vector = Vector.make(times(10, () => (
-            new ReadableData(new WritableData(2).set(0, 'hi').set(1, 'hello'))
+            new ReadableData(new WritableData(2).set(0, 'hi')
+                .set(1, 'hello'))
         )), {
             config: {
                 type: FieldType.String,
@@ -604,7 +606,8 @@ describe('Vector', () => {
 
     it('should be able to find the correct data bucket index (10) with consistent sizing of 2', () => {
         const vector = Vector.make(times(10, () => (
-            new ReadableData(new WritableData(2).set(0, 'hi').set(1, 'hello'))
+            new ReadableData(new WritableData(2).set(0, 'hi')
+                .set(1, 'hello'))
         )), {
             config: {
                 type: FieldType.String,
@@ -623,7 +626,9 @@ describe('Vector', () => {
 
     it('should be able to find the correct data bucket index (9) with consistent sizing of 3', () => {
         const vector = Vector.make(times(10, () => (
-            new ReadableData(new WritableData(3).set(0, 'hi').set(1, 'hello').set(2, 'howdy'))
+            new ReadableData(new WritableData(3).set(0, 'hi')
+                .set(1, 'hello')
+                .set(2, 'howdy'))
         )), {
             config: {
                 type: FieldType.String,

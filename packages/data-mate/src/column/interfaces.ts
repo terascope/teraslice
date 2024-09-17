@@ -5,7 +5,7 @@ import {
 /**
  * Column options
  */
-export interface ColumnOptions<N extends (number|string|symbol) = string> {
+export interface ColumnOptions<N extends (number | string | symbol) = string> {
     name: N;
     version?: number;
 }

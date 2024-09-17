@@ -255,7 +255,7 @@ export type DockerRunOptions = {
     env?: ExecEnv;
     network?: string;
     args?: string[];
-    mount?: string[]
+    mount?: string[];
 };
 
 export async function dockerRun(
@@ -508,7 +508,7 @@ export async function pgrep(name: string): Promise<string> {
  * @param {string} imageSavePath Location where image will be saved and compressed.
  * @returns void
  */
-export async function saveAndZip(imageName:string, imageSavePath: string) {
+export async function saveAndZip(imageName: string, imageSavePath: string) {
     signale.info(`Saving Docker image: ${imageName}`);
     const fileName = imageName.replace(/[/:]/g, '_');
     const filePath = path.join(imageSavePath, `${fileName}.tar`);

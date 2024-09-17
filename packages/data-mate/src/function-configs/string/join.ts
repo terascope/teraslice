@@ -119,7 +119,7 @@ export const joinConfig: FieldTransformConfig<JoinArgs> = {
     }
 };
 
-function joinFn(delimiter: string): (input: unknown) => string|null {
+function joinFn(delimiter: string): (input: unknown) => string | null {
     return function _join(input) {
         if (input == null) return null;
         if (!Array.isArray(input)) {

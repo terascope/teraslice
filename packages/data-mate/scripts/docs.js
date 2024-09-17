@@ -132,7 +132,8 @@ function generateFunctionDoc(fnDef) {
 
 **Type:** \`${fnDef.type}\`
 ${generateAliases(fnDef)}
-> ${firstToUpper(trimEnd(fnDef.description.trim(), '.')).split('\n').join('\n>')}`.trim(),
+> ${firstToUpper(trimEnd(fnDef.description.trim(), '.')).split('\n')
+        .join('\n>')}`.trim(),
         ...generateArgDocs(fnDef),
         ...generateAccepts(fnDef),
         ...generateExamples(fnDef, fnDef.examples)
@@ -144,7 +145,8 @@ function generateDocsForCategory([category, fnsByType]) {
 
     return [
         `## CATEGORY: ${category === 'JSON'
-            ? category : toTitleCase(category.toLowerCase())}`,
+            ? category
+            : toTitleCase(category.toLowerCase())}`,
         ...fns.map(generateFunctionDoc)
     ];
 }

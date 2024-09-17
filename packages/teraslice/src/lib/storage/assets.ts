@@ -111,7 +111,7 @@ export class AssetsStorage {
     private async _assetExistsInFS(id: string): Promise<boolean> {
         try {
             if (!this.assetsPath) return false;
-             
+
             const access = fse.constants.F_OK | fse.constants.R_OK | fse.constants.W_OK;
             await fse.access(path.join(this.assetsPath, id), access);
 
@@ -168,7 +168,7 @@ export class AssetsStorage {
     // esData is the base64 version which is stored in elasticsearch
     private async _saveAndUpload({
         id, data, esData, blocking
-    }: { id: string, data: Buffer, esData: string, blocking: boolean }) {
+    }: { id: string; data: Buffer; esData: string; blocking: boolean }) {
         const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
         const startTime = Date.now();
 
@@ -191,7 +191,7 @@ export class AssetsStorage {
 
     private async _saveAndUploadS3({
         id, data, blocking
-    }: { id: string, data: Buffer, blocking: boolean }) {
+    }: { id: string; data: Buffer; blocking: boolean }) {
         const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
         const startTime = Date.now();
 
@@ -232,7 +232,8 @@ export class AssetsStorage {
     */
     async save(data: Buffer, blocking = true) {
         const esData = data.toString('base64');
-        const id = crypto.createHash('sha1').update(esData).digest('hex');
+        const id = crypto.createHash('sha1').update(esData)
+            .digest('hex');
 
         const exists = await this._assetExists(id);
 
@@ -376,7 +377,9 @@ export class AssetsStorage {
         let inStorage = true;
         let delayMS = 100;
         const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
-        const timeoutID = setTimeout(() => { throw new TSError(`Timeout deleting asset ${assetId}`); }, responseTimeout);
+        const timeoutID = setTimeout(() => {
+            throw new TSError(`Timeout deleting asset ${assetId}`);
+        }, responseTimeout);
         while (inFS || inStorage) {
             try {
                 await this.esBackend.remove(assetId);

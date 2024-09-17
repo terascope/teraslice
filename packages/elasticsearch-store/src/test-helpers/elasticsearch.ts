@@ -197,7 +197,7 @@ export async function waitForData(
 }
 
 export interface TestENVClientInfo extends ClientMetadata {
-    host: string
+    host: string;
 }
 
 function parseVersion(version: string): Semver {
@@ -210,8 +210,7 @@ function parseVersion(version: string): Semver {
     return [majorVersion, minorVersion, patchVersion];
 }
 
-export function getTestENVClientInfo()
-: TestENVClientInfo {
+export function getTestENVClientInfo(): TestENVClientInfo {
     if (process.env.TEST_OPENSEARCH != null) {
         const version = OPENSEARCH_VERSION;
         const [majorVersion, minorVersion] = parseVersion(version);

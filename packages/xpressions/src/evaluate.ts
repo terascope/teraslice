@@ -10,7 +10,7 @@ import { parseExpression } from './parse.js';
  *
  * @returns the translated expression
 */
-export function evaluate(input: string|ExpressionNode, options: Options): string {
+export function evaluate(input: string | ExpressionNode, options: Options): string {
     const expr = typeof input === 'string' ? parseExpression(input) : input;
     let output = '';
     for (const node of expr.nodes) {

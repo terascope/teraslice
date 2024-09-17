@@ -8,7 +8,7 @@ import {
 } from '../interfaces.js';
 
 export interface SetHoursArgs {
-    value: number
+    value: number;
 }
 
 export const setHoursConfig: FieldTransformConfig<SetHoursArgs> = {

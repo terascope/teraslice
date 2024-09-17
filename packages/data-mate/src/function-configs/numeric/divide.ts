@@ -8,10 +8,10 @@ import {
 } from '../interfaces.js';
 
 export interface DivideArgs {
-    readonly value: number
+    readonly value: number;
 }
 
-function isLargeNumberType(type: FieldType|undefined) {
+function isLargeNumberType(type: FieldType | undefined) {
     if (type == null) return false;
     return type === FieldType.Long;
 }
@@ -55,7 +55,7 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
         }
     ],
     create({ args: { value }, inputConfig }) {
-        if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
+        if (isLargeNumberType(inputConfig?.field_config.type as FieldType | undefined)) {
             return divideFP(toBigIntOrThrow(value));
         }
 
@@ -76,7 +76,7 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
 
 function divideFP(value: bigint): (input: unknown) => bigint;
 function divideFP(value: number): (input: unknown) => number;
-function divideFP(value: number|bigint): (input: unknown) => number|bigint {
+function divideFP(value: number | bigint): (input: unknown) => number | bigint {
     const bigInt = isBigInt(value);
     return function _divide(num) {
         if (bigInt && !isBigInt(num)) {

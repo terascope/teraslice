@@ -12,9 +12,9 @@ export interface ExecutionContextConfig {
     terasliceOpPath?: string;
     assetIds?: string[];
 }
- 
+
 export interface SlicerOperations extends Set<SlicerOperationLifeCycle> {}
- 
+
 export interface WorkerOperations extends Set<WorkerOperationLifeCycle> {}
 
 /** event handlers that should be cleaned up */

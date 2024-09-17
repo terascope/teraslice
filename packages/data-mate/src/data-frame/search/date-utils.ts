@@ -64,9 +64,9 @@ export function dateRange(
     };
 }
 
-function convertDate(val: unknown, inclusive: number, throwErr: false): Date|undefined;
+function convertDate(val: unknown, inclusive: number, throwErr: false): Date | undefined;
 function convertDate(val: unknown, inclusive: number, throwErr: true): Date;
-function convertDate(val: unknown, inclusive: number, throwErr: boolean): Date|undefined {
+function convertDate(val: unknown, inclusive: number, throwErr: boolean): Date | undefined {
     const result = getValidDate(val as any);
     if (result) return handleInclusive(result, inclusive);
 

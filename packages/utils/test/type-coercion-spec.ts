@@ -5,12 +5,15 @@ import { coerceToGeoBoundary, coerceToNumberType } from '../src/type-coercion.js
 describe('type-coercion', () => {
     describe('coerceToNumberType', () => {
         const numberTypes = [
-            FieldType.Float, FieldType.Number,
-            FieldType.Double, FieldType.Integer,
-            FieldType.Byte, FieldType.Short,
+            FieldType.Float,
+            FieldType.Number,
+            FieldType.Double,
+            FieldType.Integer,
+            FieldType.Byte,
+            FieldType.Short,
             FieldType.Long
         ];
-        type ValidTestCases = [type: FieldType, input: unknown, output: number|bigint][];
+        type ValidTestCases = [type: FieldType, input: unknown, output: number | bigint][];
         const validTestCases: ValidTestCases = [
             [FieldType.Float, 12.3, 12.3],
             [FieldType.Float, 12, 12],

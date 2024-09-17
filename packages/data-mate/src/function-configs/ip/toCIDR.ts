@@ -11,7 +11,7 @@ import {
 } from '../interfaces.js';
 
 export interface ToCIDRArgs {
-    suffix: number | string
+    suffix: number | string;
 }
 
 export const toCIDRConfig: FieldTransformConfig<ToCIDRArgs> = {

@@ -284,11 +284,11 @@ describe('k8s', () => {
     describe('->scaleExecution', () => {
         let scope: nock.Scope;
         let deployment: {
-            apiVersion: string,
-            kind: string,
-            metadata: { name: string},
-            spec: { replicas: number },
-            status: string
+            apiVersion: string;
+            kind: string;
+            metadata: { name: string };
+            spec: { replicas: number };
+            status: string;
         };
         beforeEach(() => {
             deployment = {

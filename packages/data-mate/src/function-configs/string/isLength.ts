@@ -64,18 +64,18 @@ export const isLengthConfig: FieldValidateConfig<IsLengthArgs> = {
         size: {
             type: FieldType.Number,
             array: false,
-            description: "The value's length must equal this parameter if specified"
+            description: 'The value\'s length must equal this parameter if specified'
         },
         min: {
             type: FieldType.Number,
             array: false,
-            description: "The value's length must be greater than or equal to this parameter if specified"
+            description: 'The value\'s length must be greater than or equal to this parameter if specified'
 
         },
         max: {
             type: FieldType.Number,
             array: false,
-            description: "The value's length must be less than or equal to this parameter if specified"
+            description: 'The value\'s length must be less than or equal to this parameter if specified'
         }
     },
     validate_arguments({ min, max, size }) {

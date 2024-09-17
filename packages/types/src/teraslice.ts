@@ -1,9 +1,9 @@
 import { SysConfig as BaseSysconfig } from './terafoundation.js';
 
-export type ClusterManagerType = 'native'|'kubernetes'|'kubernetesV2';
+export type ClusterManagerType = 'native' | 'kubernetes' | 'kubernetesV2';
 
 export interface AssetRecord {
-    blob: SharedArrayBuffer | string | Buffer
+    blob: SharedArrayBuffer | string | Buffer;
     name: string;
     version: string;
     id: string;
@@ -11,7 +11,7 @@ export interface AssetRecord {
     arch?: string;
     platform?: string;
     node_version?: number;
-    _created: string|Date;
+    _created: string | Date;
 }
 
 export interface AssetStatusResponse {
@@ -20,7 +20,7 @@ export interface AssetStatusResponse {
 
 export type AssetIDResponse = {
     _id: string;
-}
+};
 // On asset upload
 export interface AssetUploadQuery {
     blocking?: boolean;
@@ -55,7 +55,7 @@ export interface AnalyticsRecord {
     state: string;
     time: number;
     memory: number;
-    '@timestamp': string|Date;
+    '@timestamp': string | Date;
 }
 
 // TODO: make type for valid states
@@ -90,7 +90,7 @@ export interface ExecutionConfig extends ValidatedJobConfig {
     _status: ExecutionStatus;
     _has_errors: boolean;
     _slicer_stats: Record<string, any>;
-    _failureReason?: string
+    _failureReason?: string;
     slicer_port: number;
     slicer_hostname: string;
 }
@@ -101,8 +101,8 @@ export interface StateRecord {
     slicer_id: string;
     slicer_order: number;
     state: string;
-    _created: string|Date;
-    _updated: string|Date;
+    _created: string | Date;
+    _updated: string | Date;
     error?: string;
 }
 
@@ -112,33 +112,33 @@ export interface ErrorRecord extends StateRecord {
 }
 
 export interface ExecutionAnalytics extends AggregatedExecutionAnalytics {
-    workers_available: number,
-    workers_active: number,
-    subslices: number,
-    slice_range_expansion: number,
-    slicers: number,
-    subslice_by_key: number,
-    started: undefined | string | number | Date,
-    queuing_complete: undefined | string | number | Date,
+    workers_available: number;
+    workers_active: number;
+    subslices: number;
+    slice_range_expansion: number;
+    slicers: number;
+    subslice_by_key: number;
+    started: undefined | string | number | Date;
+    queuing_complete: undefined | string | number | Date;
 }
 
 export interface ExecutionAnalyticsResponse extends ExecutionAnalytics {
     ex_id: string;
     job_id: string;
-    name: string
+    name: string;
 }
 
-export type ExecutionList = ExecutionAnalyticsResponse[]
+export type ExecutionList = ExecutionAnalyticsResponse[];
 
 // TODO: better description here of what this is
 export interface AggregatedExecutionAnalytics {
-    processed: number,
-    failed: number,
-    queued: number,
-    job_duration: number,
-    workers_joined: number,
-    workers_reconnected: number,
-    workers_disconnected: number,
+    processed: number;
+    failed: number;
+    queued: number;
+    job_duration: number;
+    workers_joined: number;
+    workers_reconnected: number;
+    workers_disconnected: number;
 }
 
 export interface ClusterStats {
@@ -274,7 +274,7 @@ export interface ValidatedJobConfig {
     /** This will only be available in the context of k8s */
     ephemeral_storage?: boolean;
     /** This will only be available in the context of k8s */
-    external_ports?: (number|ExternalPort)[];
+    external_ports?: (number | ExternalPort)[];
     /** This will only be available in the context of k8s */
     memory?: number;
     /** This will only be available in the context of k8s */
@@ -309,7 +309,7 @@ export interface Targets {
 
 export interface ExternalPort {
     name: string;
-    port: number
+    port: number;
 }
 
 export interface Volume {
@@ -421,33 +421,33 @@ export enum ExecutionStatusEnum {
     terminated = 'terminated'
 }
 
-export type ExecutionStatus = keyof typeof ExecutionStatusEnum
+export type ExecutionStatus = keyof typeof ExecutionStatusEnum;
 
 export type ExecutionInitStatus =
-ExecutionStatusEnum.pending |
-ExecutionStatusEnum.scheduling |
-ExecutionStatusEnum.recovering;
+    ExecutionStatusEnum.pending |
+    ExecutionStatusEnum.scheduling |
+    ExecutionStatusEnum.recovering;
 
 export type ExecutionRunningStatus =
-ExecutionStatusEnum.recovering |
-ExecutionStatusEnum.running |
-ExecutionStatusEnum.failing |
-ExecutionStatusEnum.paused |
-ExecutionStatusEnum.stopping;
+    ExecutionStatusEnum.recovering |
+    ExecutionStatusEnum.running |
+    ExecutionStatusEnum.failing |
+    ExecutionStatusEnum.paused |
+    ExecutionStatusEnum.stopping;
 
 export type ExecutionTerminalStatus =
-ExecutionStatusEnum.completed |
-ExecutionStatusEnum.stopped |
-ExecutionStatusEnum.rejected |
-ExecutionStatusEnum.failed |
-ExecutionStatusEnum.terminated;
+    ExecutionStatusEnum.completed |
+    ExecutionStatusEnum.stopped |
+    ExecutionStatusEnum.rejected |
+    ExecutionStatusEnum.failed |
+    ExecutionStatusEnum.terminated;
 
 export interface ExecutionControllerTargets {
     key: string;
     value: string;
 }
 
-export type RolloverFrequency = 'daily'|'montly'|'yearly';
+export type RolloverFrequency = 'daily' | 'montly' | 'yearly';
 
 // TODO: is this really double?
 export interface IndexRolloverFrequency {
@@ -456,9 +456,9 @@ export interface IndexRolloverFrequency {
 }
 
 export interface Config {
-    action_timeout: number|300000;
-    analytics_rate: number|60000;
-    api_response_timeout?: number|300000;
+    action_timeout: number | 300000;
+    analytics_rate: number | 60000;
+    api_response_timeout?: number | 300000;
     assets_directory?: string[] | string;
     asset_storage_connection_type: string;
     asset_storage_connection: string;
@@ -468,48 +468,48 @@ export interface Config {
     /** This will only be available in the context of k8s */
     cpu?: number;
     /** This will only be available in the context of k8s */
-    cpu_execution_controller?: number|0.5;
+    cpu_execution_controller?: number | 0.5;
     /** This will only be available in the context of k8s */
-    ephemeral_storage?: boolean|false;
+    ephemeral_storage?: boolean | false;
     execution_controller_targets?: ExecutionControllerTargets[];
     hostname: string;
     index_rollover_frequency: IndexRolloverFrequency;
-    kubernetes_api_poll_delay?: number|1000;
-    kubernetes_config_map_name?: string|'teraslice-worker';
-    kubernetes_image_pull_secret?: string|'';
-    kubernetes_image?: string|'terascope/teraslice';
-    kubernetes_namespace?: string|'default';
-    kubernetes_overrides_enabled?: boolean|false;
-    kubernetes_priority_class_name?: string|'';
-    kubernetes_worker_antiaffinity?: boolean|false;
-    master_hostname: string|'localhost';
-    master: boolean|false;
+    kubernetes_api_poll_delay?: number | 1000;
+    kubernetes_config_map_name?: string | 'teraslice-worker';
+    kubernetes_image_pull_secret?: string | '';
+    kubernetes_image?: string | 'terascope/teraslice';
+    kubernetes_namespace?: string | 'default';
+    kubernetes_overrides_enabled?: boolean | false;
+    kubernetes_priority_class_name?: string | '';
+    kubernetes_worker_antiaffinity?: boolean | false;
+    master_hostname: string | 'localhost';
+    master: boolean | false;
     /** This will only be available in the context of k8s */
     memory?: number;
     /** This will only be available in the context of k8s */
-    memory_execution_controller?: number|512000000; // 512 MB
-    name: string|'teracluster';
-    network_latency_buffer: number|15000;
-    node_disconnect_timeout: number|300000;
-    node_state_interval: number|5000;
-    port: number|5678;
-    shutdown_timeout: number|number;
-    slicer_allocation_attempts: number|3;
-    slicer_port_range: string|'45679:46678';
-    slicer_timeout: number|180000;
+    memory_execution_controller?: number | 512000000; // 512 MB
+    name: string | 'teracluster';
+    network_latency_buffer: number | 15000;
+    node_disconnect_timeout: number | 300000;
+    node_state_interval: number | 5000;
+    port: number | 5678;
+    shutdown_timeout: number | number;
+    slicer_allocation_attempts: number | 3;
+    slicer_port_range: string | '45679:46678';
+    slicer_timeout: number | 180000;
     state: { connection: string };
     env_vars: { [key: string]: string };
-    worker_disconnect_timeout: number|300000;
-    workers: number|4;
+    worker_disconnect_timeout: number | 300000;
+    workers: number | 4;
 }
 
 export interface TerasliceConfig {
-    teraslice: Config,
+    teraslice: Config;
 }
 
 export interface SysConfig extends BaseSysconfig<TerasliceConfig> {}
 
-export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';
+export type Assignment = 'assets_service' | 'cluster_master' | 'node_master' | 'execution_controller' | 'worker';
 
 interface BaseWorkerNode {
     worker_id: number;
@@ -524,11 +524,11 @@ export enum ProcessAssignment {
 }
 
 export interface ClusterNode extends BaseWorkerNode {
-    assignment: ProcessAssignment.cluster_master
+    assignment: ProcessAssignment.cluster_master;
 }
 
 export interface AssetNode extends BaseWorkerNode {
-    assignment: ProcessAssignment.assets_service
+    assignment: ProcessAssignment.assets_service;
 }
 
 export interface ExecutionNode extends BaseWorkerNode {
@@ -542,7 +542,7 @@ export interface WorkerNode extends BaseWorkerNode {
     job_id: string;
 }
 
-type ExecutionProcess = ExecutionNode | WorkerNode
+type ExecutionProcess = ExecutionNode | WorkerNode;
 
 export function isExecutionProcess(node: ProcessNode): node is ExecutionProcess {
     const { assignment: type } = node;
@@ -553,9 +553,9 @@ export function isExecutionProcess(node: ProcessNode): node is ExecutionProcess 
 }
 
 export type ProcessNode = ClusterNode
-| AssetNode
-| ExecutionNode
-| WorkerNode
+    | AssetNode
+    | ExecutionNode
+    | WorkerNode;
 
 // TODO: find out about state
 export interface NodeState {
@@ -571,7 +571,7 @@ export interface NodeState {
 }
 
 export interface ClusterState {
-    [nodeId: string] : NodeState
+    [nodeId: string]: NodeState;
 }
 
 export type ChangeWorkerQueryParams = 'add' | 'remove' | 'total';

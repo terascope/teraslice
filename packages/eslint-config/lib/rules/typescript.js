@@ -15,12 +15,13 @@ export default Object.assign({}, jsRules, {
     '@typescript-eslint/explicit-function-return-type': 'off',
 
     // we SHOULD really make this an error but we've become dependent on it
-    '@typescript-eslint/ban-ts-comment': ['warn', {
-        'ts-expect-error': false,
-        'ts-ignore': true,
-        'ts-nocheck': false,
-        'ts-check': false,
-    }],
+    '@typescript-eslint/ban-ts-comment': ['warn',
+        {
+            'ts-expect-error': false,
+            'ts-ignore': true,
+            'ts-nocheck': false,
+            'ts-check': false,
+        }],
 
     // https://github.com/typescript-eslint/typescript-eslint/issues/291
     'no-dupe-class-members': 'off',
@@ -74,23 +75,24 @@ export default Object.assign({}, jsRules, {
         },
     ],
     'no-use-before-define': 'off',
-    '@typescript-eslint/no-use-before-define': ['error', {
-        functions: false,
-        classes: false,
-        typedefs: false
-    }],
+    '@typescript-eslint/no-use-before-define': ['error',
+        {
+            functions: false,
+            classes: false,
+            typedefs: false
+        }],
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': [
         'error',
         {
-            "varsIgnorePattern": "^_",
-            "argsIgnorePattern": "^_",
-            "caughtErrorsIgnorePattern":  "^_",
-            "ignoreRestSiblings": true,
+            varsIgnorePattern: '^_',
+            argsIgnorePattern: '^_',
+            caughtErrorsIgnorePattern: '^_',
+            ignoreRestSiblings: true,
             // TODO: check this again with stylistic checks
-            "caughtErrors" : "none"
+            caughtErrors: 'none'
         }
     ],
     '@typescript-eslint/no-empty-object-type': ['warn', { allowInterfaces: 'with-single-extends' }],
@@ -100,11 +102,11 @@ export default Object.assign({}, jsRules, {
     /*
         Stylistic rules that will be done in a separate PR
     */
-       // 'func-call-spacing': 'off',
+    // 'func-call-spacing': 'off',
     // '@typescript-eslint/func-call-spacing': ['error', 'never'],
     // indent: 'off',
     // '@typescript-eslint/indent': ['error', INDENT],
-        // 'brace-style': 'off',
+    // 'brace-style': 'off',
     // '@typescript-eslint/brace-style': [
     //     'error',
     //     '1tbs',

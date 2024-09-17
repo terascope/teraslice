@@ -15,19 +15,19 @@ type TermQueryResults =
     | i.TermQuery
     | i.MatchQuery
     | i.MatchPhraseQuery
-    | i.MultiMatchQuery
+    | i.MultiMatchQuery;
 
 type RangeQueryResults =
     | i.RangeQuery
     | i.MultiMatchQuery
-    | undefined
+    | undefined;
 
 export function translateQuery(
     parser: p.Parser,
     options: UtilsTranslateQueryOptions
 ): i.ElasticsearchDSLResult {
     const { logger, type_config: typeConfig, variables } = options;
-    let sort: i.AnyQuerySort|i.AnyQuerySort[]|undefined;
+    let sort: i.AnyQuerySort | i.AnyQuerySort[] | undefined;
 
     function buildAnyQuery(node: p.Node): i.AnyQuery | undefined {
         // if no field and is wildcard
@@ -158,7 +158,7 @@ export function translateQuery(
         return rangeQuery;
     }
 
-    function buildTermQuery(node: p.Term): TermQueryResults|undefined {
+    function buildTermQuery(node: p.Term): TermQueryResults | undefined {
         const value = p.getFieldValue(node.value, variables, true);
         if (value == null) return;
 
@@ -193,7 +193,7 @@ export function translateQuery(
         return termQuery;
     }
 
-    function buildWildcardQuery(node: p.Wildcard): WildCardQueryResults|undefined {
+    function buildWildcardQuery(node: p.Wildcard): WildCardQueryResults | undefined {
         const value = p.getFieldValue(node.value, variables, true);
         if (value == null) return;
 
@@ -225,7 +225,7 @@ export function translateQuery(
 
     function buildRegExprQuery(
         node: p.Regexp
-    ): i.RegExprQuery|i.MultiMatchQuery|i.QueryStringQuery|undefined {
+    ): i.RegExprQuery | i.MultiMatchQuery | i.QueryStringQuery | undefined {
         const value = p.getFieldValue(node.value, variables, true);
         if (value == null) return;
 
@@ -269,7 +269,7 @@ export function translateQuery(
         return existsQuery;
     }
 
-    function buildBoolQuery(node: p.GroupLikeNode): i.BoolQuery|undefined {
+    function buildBoolQuery(node: p.GroupLikeNode): i.BoolQuery | undefined {
         const should: i.AnyQuery[] = [];
 
         for (const conj of node.flow) {
@@ -288,7 +288,7 @@ export function translateQuery(
         return boolQuery;
     }
 
-    function buildConjunctionQuery(conj: p.Conjunction): i.BoolQuery|undefined {
+    function buildConjunctionQuery(conj: p.Conjunction): i.BoolQuery | undefined {
         const filter: i.AnyQuery[] = [];
         for (const node of conj.nodes) {
             const query = buildAnyQuery(node);
@@ -316,7 +316,7 @@ export function translateQuery(
         };
     }
 
-    let topLevelQuery: i.MatchAllQuery|i.ConstantScoreQuery;
+    let topLevelQuery: i.MatchAllQuery | i.ConstantScoreQuery;
     if (p.isEmptyNode(parser.ast)) {
         topLevelQuery = {
             match_all: {},

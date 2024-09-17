@@ -196,7 +196,9 @@ describe('Messenger', () => {
         const clientErrorFn: ClientFn = jest.fn();
 
         beforeAll((done) => {
-            clientAvailableFn = jest.fn(() => { done(); });
+            clientAvailableFn = jest.fn(() => {
+                done();
+            });
 
             async function setup() {
                 clientId = await newMsgId();
@@ -404,7 +406,7 @@ describe('Messenger', () => {
         });
 
         // eslint-disable-next-line jest/no-disabled-tests
-        xdescribe('when the client responds with an error', () => {
+        describe.skip('when the client responds with an error', () => {
             let responseMsg: Message | Record<string, any> | undefined;
             let responseErr: Error | undefined;
 

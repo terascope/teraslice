@@ -82,7 +82,7 @@ export default class Aliases {
         }
     }
 
-    update(clusterAlias: string, newClusterUrl: string) : void {
+    update(clusterAlias: string, newClusterUrl: string): void {
         if (has(this.config.clusters, clusterAlias)) {
             this.config.clusters[clusterAlias] = {
                 host: newClusterUrl,

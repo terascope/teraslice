@@ -12,7 +12,7 @@ export const asinConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: "Returns the arcsine (in radians) of the given number if it's between -1 and 1",
+    description: 'Returns the arcsine (in radians) of the given number if it\'s between -1 and 1',
     examples: [
         {
             args: {},

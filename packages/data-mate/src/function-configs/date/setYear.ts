@@ -6,7 +6,7 @@ import {
 } from '../interfaces.js';
 
 export interface SetYearArgs {
-    value: number
+    value: number;
 }
 
 export const setYearConfig: FieldTransformConfig<SetYearArgs> = {

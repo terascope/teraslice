@@ -4,7 +4,7 @@ import { xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import { DocumentMatcher } from '../../src/index.js';
 import allTestCases from './cases/document-matcher/index.js';
 
-const modes: ('normal'|'filterNil')[] = ['normal', 'filterNil'];
+const modes: ('normal' | 'filterNil')[] = ['normal', 'filterNil'];
 
 describe('Document-Matcher', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {

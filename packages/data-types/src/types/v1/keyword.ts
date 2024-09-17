@@ -7,12 +7,14 @@ export default class Keyword extends BaseType {
         this._validateESMapping();
         return {
             mapping: {
-                [this.field]: this.config.indexed === false ? {
-                    type: 'keyword' as ESFieldType,
-                    index: false
-                } : {
-                    type: 'keyword' as ESFieldType
-                }
+                [this.field]: this.config.indexed === false
+                    ? {
+                        type: 'keyword' as ESFieldType,
+                        index: false
+                    }
+                    : {
+                        type: 'keyword' as ESFieldType
+                    }
             }
         };
     }

@@ -1,4 +1,4 @@
-/*eslint-disable prefer-const*/
+/* eslint-disable prefer-const */
 
 import ms from 'ms';
 import SocketIOClient from 'socket.io-client';
@@ -233,7 +233,7 @@ export class Client extends Core {
         return this._connect(elapsed, attempt + 1);
     }
 
-    async sendAvailable(payload?: i.Payload): Promise<i.Message|null|undefined> {
+    async sendAvailable(payload?: i.Payload): Promise<i.Message | null | undefined> {
         if (this.available) return;
 
         this.available = true;
@@ -242,7 +242,7 @@ export class Client extends Core {
         });
     }
 
-    async sendUnavailable(payload?: i.Payload): Promise<i.Message|null|undefined> {
+    async sendUnavailable(payload?: i.Payload): Promise<i.Message | null | undefined> {
         if (!this.available) return;
 
         this.available = false;

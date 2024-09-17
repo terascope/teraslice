@@ -17,8 +17,8 @@ interface SliceOperationStat {
 
 interface SliceAnalyticsStats {
     time: SliceOperationStat[];
-    size: SliceOperationStat[]
-    memory: SliceOperationStat[]
+    size: SliceOperationStat[];
+    memory: SliceOperationStat[];
 }
 
 // TODO: more types

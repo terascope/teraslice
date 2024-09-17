@@ -73,26 +73,27 @@ export default {
     },
     extensionsToTreatAsEsm: ['.ts'],
     transform: {
-        ['^.+\\.(t|j)sx?$']: ['@swc/jest', {
-            jsc: {
-                loose: true,
-                parser: {
-                    syntax: 'typescript',
-                    tsx: false,
-                    decorators: true
+        ['^.+\\.(t|j)sx?$']: ['@swc/jest',
+            {
+                jsc: {
+                    loose: true,
+                    parser: {
+                        syntax: 'typescript',
+                        tsx: false,
+                        decorators: true
+                    },
+                    transform: {
+                        legacyDecorator: true,
+                        decoratorMetadata: true
+                    },
+                    target: 'esnext'
                 },
-                transform: {
-                    legacyDecorator: true,
-                    decoratorMetadata: true
-                },
-                target: 'esnext'
-            },
-            module: {
-                type: 'es6',
-                strictMode: false,
-                noInterop: false,
-                ignoreDynamic: true
-            }
-        }]
+                module: {
+                    type: 'es6',
+                    strictMode: false,
+                    noInterop: false,
+                    ignoreDynamic: true
+                }
+            }]
     }
 };

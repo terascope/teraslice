@@ -14,7 +14,7 @@ const baseConfig = {
         environment: 'development',
         log_level: [
             { console: 'warn' },
-            { file: process.env.DEBUG_LOG_LEVEL || 'info', }
+            { file: process.env.DEBUG_LOG_LEVEL || 'info' }
         ],
         logging: [
             'console',

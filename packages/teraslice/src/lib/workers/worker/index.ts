@@ -1,4 +1,4 @@
-/*eslint-disable prefer-const*/
+/* eslint-disable prefer-const */
 
 import {
     get, getFullErrorStack, isFatalError,

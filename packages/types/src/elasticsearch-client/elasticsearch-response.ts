@@ -1,9 +1,9 @@
 import * as i from './elasticsearch-types.js';
 
 export interface IndicesStatsResponse {
-    indices?: Record<string, i.IndicesStatsIndicesStats>
-    _shards: i.ShardStatistics
-    _all: i.IndicesStatsIndicesStats
+    indices?: Record<string, i.IndicesStatsIndicesStats>;
+    _shards: i.ShardStatistics;
+    _all: i.IndicesStatsIndicesStats;
 }
 
 export interface DeleteByQueryResponse {
@@ -28,7 +28,7 @@ export interface DeleteByQueryResponse {
 
 export type ExistsResponse = boolean;
 
-export type GetResponse<T = Record<string, any>> = i.SearchResult<T>
+export type GetResponse<T = Record<string, any>> = i.SearchResult<T>;
 
 export interface IndexResponse extends i.WriteResponseBase {}
 
@@ -39,11 +39,11 @@ export interface IndicesCreateResponse {
 }
 
 export interface IndicesDeleteResponse {
-    acknowledged: boolean
+    acknowledged: boolean;
 }
 
 export interface IndicesDeleteTemplateResponse {
-    acknowledged: boolean
+    acknowledged: boolean;
 }
 
 export type IndicesExistsResponse = boolean;
@@ -52,23 +52,23 @@ export type IndicesExistsTemplateResponse = boolean;
 
 export interface IndicesGetResponse {
     [indexName: string]: {
-        settings: Record<string, any>,
-        mappings: Record<string, any>
-    }
+        settings: Record<string, any>;
+        mappings: Record<string, any>;
+    };
 }
 
-export type IndicesGetMappingResponse = Record<string, i.IndicesGetMappingIndexMappingRecord>
+export type IndicesGetMappingResponse = Record<string, i.IndicesGetMappingIndexMappingRecord>;
 
 export interface IndicesPutTemplateResponse {
-    acknowledged: boolean
+    acknowledged: boolean;
 }
 
 export type IndicesRefreshResponse = {
     _shards: i.ShardStatistics;
-}
+};
 
 export interface MGetResponse {
-    docs: GetResponse[]
+    docs: GetResponse[];
 }
 
 export interface MSearchResponse<T = Record<string, unknown>> {
@@ -120,7 +120,7 @@ export interface InfoResponse {
         lucene_version: string;
         minimum_wire_compatibility_version: string;
         minimum_index_compatibility_version: string;
-    },
+    };
     tagline: string;
 }
 
@@ -167,12 +167,12 @@ export interface CreateResponse extends i.WriteResponseBase {}
 export interface DeleteResponse extends i.WriteResponseBase {}
 
 export type IndicesGetFieldMappingResponse = Record<
-string,
-i.IndicesGetFieldMappingTypeFieldMappings
->
+    string,
+    i.IndicesGetFieldMappingTypeFieldMappings
+>;
 
 export interface IndicesGetSettingsResponse {
-    [key: string]: i.IndicesIndexState
+    [key: string]: i.IndicesIndexState;
 }
 
 export interface IndicesGetIndexTemplateResponse {
@@ -184,11 +184,11 @@ export interface IndicesGetTemplateResponse {
 }
 
 export interface IndicesPutMappingResponse extends i.IndicesResponseBase {
-    _shards: i.ShardStatistics
+    _shards: i.ShardStatistics;
 }
 
 export interface IndicesPutSettingsResponse extends i.IndicesResponseBase {
-    _shards: i.ShardStatistics
+    _shards: i.ShardStatistics;
 }
 
 export interface IndicesRecoveryResponse
@@ -229,13 +229,13 @@ export interface ReindexCompletedResponse {
     throttled_millis: number;
     requests_per_second: number;
     throttled_until_millis: number;
-    failures: any[]
+    failures: any[];
 }
 
 export interface ReindexTaskResponse {
-    task: string
+    task: string;
 }
 
-export type ReindexResponse = ReindexCompletedResponse | ReindexTaskResponse
+export type ReindexResponse = ReindexCompletedResponse | ReindexTaskResponse;
 
 export interface SearchResponse<T = Record<string, unknown>> extends i.SearchRecordResponse<T> {}

@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import 'jest-extended';
 import { jest } from '@jest/globals';
 import OperationCore from '../../../src/operations/core/operation-core.js';

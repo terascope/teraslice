@@ -396,12 +396,12 @@ export default [
         'can handle the query "a:false NOT b:true AND c:false"',
         'a:false NOT b:true AND c:false',
         [
-            { a: false, b: false, c: false, },
-            { a: true, b: false, c: false, },
-            { a: true, b: true, c: false, },
-            { a: false, b: true, c: false, },
-            { a: false, b: true, c: true, },
-            { a: false, b: false, c: true, },
+            { a: false, b: false, c: false },
+            { a: true, b: false, c: false },
+            { a: true, b: true, c: false },
+            { a: false, b: true, c: false },
+            { a: false, b: true, c: true },
+            { a: false, b: false, c: true },
         ],
         [
             true,
@@ -416,10 +416,10 @@ export default [
         'can handle the query "a:false, NOT b:true, AND c:false"',
         'a:false OR b:false AND c:true',
         [
-            { a: false, b: true, c: true, },
-            { a: true, b: false, c: true, },
-            { a: false, b: false, c: false, },
-            { a: true, b: true, c: true, },
+            { a: false, b: true, c: true },
+            { a: true, b: false, c: true },
+            { a: false, b: false, c: false },
+            { a: true, b: true, c: true },
         ],
         [
             true,

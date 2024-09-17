@@ -9,7 +9,7 @@ import {
 } from '../interfaces.js';
 
 export interface SetTimezoneArgs {
-    timezone: number | string
+    timezone: number | string;
 }
 
 export const setTimezoneConfig: FieldTransformConfig<SetTimezoneArgs> = {

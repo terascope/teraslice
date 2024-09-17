@@ -6,16 +6,16 @@ import {
 } from '../interfaces.js';
 
 function subtractValuesReducer(
-    acc: number|null,
-    curr: (number|bigint|null)[]|(number|bigint|null)
-): number|null {
+    acc: number | null,
+    curr: (number | bigint | null)[]|(number | bigint | null)
+): number | null {
     const currValue = (Array.isArray(curr) ? subtractValuesFn(curr) : curr);
     if (currValue == null) return acc;
     if (acc == null) return toFloatOrThrow(currValue);
     return acc - toFloatOrThrow(currValue);
 }
 
-function subtractValuesFn(value: unknown): bigint|number|null {
+function subtractValuesFn(value: unknown): bigint | number | null {
     if (isNumber(value) || isBigInt(value)) return value;
     if (!Array.isArray(value)) return null;
 

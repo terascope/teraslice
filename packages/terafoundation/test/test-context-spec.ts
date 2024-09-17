@@ -17,7 +17,7 @@ describe('TestContext', () => {
             hello: {
                 name: string;
             };
-        }
+        };
 
         const context = await TestContext.createContext<HelloSysConfig, HelloAPIs>({
             name: 'test-name',

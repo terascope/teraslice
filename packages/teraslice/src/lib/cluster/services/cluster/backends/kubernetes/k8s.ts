@@ -98,7 +98,7 @@ export class K8s {
         const namespace = ns || this.defaultNamespace;
         let now = Date.now();
         const end = now + timeout;
-         
+
         while (true) {
             const result = await pRetry(() => this.client
                 .api.v1.namespaces(namespace).pods()
@@ -136,7 +136,7 @@ export class K8s {
         const namespace = ns || this.defaultNamespace;
         let now = Date.now();
         const end = now + timeout;
-         
+
         while (true) {
             const result = await pRetry(() => this.client
                 .api.v1.namespaces(namespace).pods()
@@ -489,9 +489,9 @@ export class K8s {
 
 interface DeleteOptions {
     body: {
-        apiVersion: string,
-        kind: string,
-        propagationPolicy: string,
-        gracePeriodSeconds?: number
-    }
+        apiVersion: string;
+        kind: string;
+        propagationPolicy: string;
+        gracePeriodSeconds?: number;
+    };
 }

@@ -8,7 +8,7 @@ import {
 
 describe('Column (Date Types)', () => {
     describe('when field type is Date', () => {
-        let col: Column<string|number>;
+        let col: Column<string | number>;
         const values: Maybe<any>[] = [
             '2020-09-23T14:54:21.020Z',
             '1941-08-20T07:00:00.000Z',
@@ -19,7 +19,7 @@ describe('Column (Date Types)', () => {
         ];
 
         beforeEach(() => {
-            col = Column.fromJSON<string|number>('date', {
+            col = Column.fromJSON<string | number>('date', {
                 type: FieldType.Date,
             }, values);
         });

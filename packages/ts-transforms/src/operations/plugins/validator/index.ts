@@ -24,7 +24,6 @@ function setup(method: string) {
         static cardinality: InputOutputCardinality = 'one-to-one';
 
         constructor(config: PostProcessConfig) {
-             
             return new Validator(config, method);
         }
     };

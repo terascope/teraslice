@@ -25,7 +25,7 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
 
     validate(inputConfig: Record<string, any>): APIConfig & T;
     validate(inputConfig: Record<string, any>): OpConfig & T;
-    validate(inputConfig: Record<string, any>): OpConfig|APIConfig & T {
+    validate(inputConfig: Record<string, any>): OpConfig | APIConfig & T {
         if (this.opType === 'api') {
             return validateAPIConfig(this.schema, inputConfig);
         }

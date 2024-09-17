@@ -1,11 +1,9 @@
-/* eslint-disable no-console */
-
 import fs from 'fs-extra';
 import path from 'node:path';
 import type { EventEmitter } from 'node:events';
 import { createTempDirSync, cleanupTempDirs } from 'jest-fixtures';
 import { newTestSlice, ExecutionContext } from '@terascope/job-components';
-import { get, pWhile, } from '@terascope/utils';
+import { get, pWhile } from '@terascope/utils';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import {
     AssetsStorage, StateStorage, AnalyticsStorage,
@@ -28,8 +26,8 @@ interface TestStoreContainer {
     assetsStorage?: AssetsStorage;
     stateStorage?: StateStorage;
     analyticsStorage?: AnalyticsStorage;
-    executionStorage?: ExecutionStorage
-    jobsStorage?: JobsStorage
+    executionStorage?: ExecutionStorage;
+    jobsStorage?: JobsStorage;
 }
 
 export interface TestContextArgs extends TestJobConfig {

@@ -77,7 +77,8 @@ export function mergeDefaults<T>(source: T, from: Partial<T>): T {
 }
 
 export function toInstanceName(name: string): string {
-    return getWordParts(name).map(firstToUpper).join('');
+    return getWordParts(name).map(firstToUpper)
+        .join('');
 }
 
 const _wildcardRegex = /[^A-Za-z0-9]/gm;

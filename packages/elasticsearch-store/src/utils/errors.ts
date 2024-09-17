@@ -2,7 +2,8 @@ import { TSError, isString, get } from '@terascope/utils';
 import ajv from 'ajv';
 
 export function getErrorMessages(errors: ErrorLike[]): string {
-    return errors.filter(Boolean).map(getErrorMessage).join(',');
+    return errors.filter(Boolean).map(getErrorMessage)
+        .join(',');
 }
 
 export function throwValidationError(errors: ErrorLike[] | null | undefined): string | null {

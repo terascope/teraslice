@@ -57,7 +57,8 @@ export default [
 export const filterNilGeo: TestCase[] = [
     [
         'location:geoDistance(point:"33.435518,-111.873616", distance:$foo, third: "data")',
-        'a geo distance query with point double quoted & distance variable undefined', {
+        'a geo distance query with point double quoted & distance variable undefined',
+        {
             type: NodeType.Function,
             field: 'location',
             name: 'geoDistance'
@@ -65,13 +66,15 @@ export const filterNilGeo: TestCase[] = [
     ],
     [
         'location:geoDistance(point:$foo, distance:$bar, third:$baz)',
-        'a geo distance query with point/distance/third as undefined variables', {
+        'a geo distance query with point/distance/third as undefined variables',
+        {
             type: NodeType.Empty,
         },
     ],
     [
         'location:geoBox(bottom_right:$foo top_left:"33.906320,-112.758421")',
-        'a geo point query bottom right and top left variables, 1 missing', {
+        'a geo point query bottom right and top left variables, 1 missing',
+        {
             type: NodeType.Function,
             field: 'location',
             name: 'geoBox'
@@ -79,7 +82,8 @@ export const filterNilGeo: TestCase[] = [
     ],
     [
         'location:geoBox(bottom_right:$foo top_left:$bar)',
-        'a geo point query bottom right and top left variables, both missing', {
+        'a geo point query bottom right and top left variables, both missing',
+        {
             type: NodeType.Empty,
         },
     ],

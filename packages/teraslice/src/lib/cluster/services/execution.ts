@@ -46,7 +46,7 @@ export class ExecutionService {
 
     constructor(
         context: ClusterMasterContext,
-        { clusterMasterServer }: { clusterMasterServer: ClusterMaster.Server}
+        { clusterMasterServer }: { clusterMasterServer: ClusterMaster.Server }
     ) {
         this.context = context;
         this.logger = makeLogger(context, 'execution_service');
@@ -157,7 +157,8 @@ export class ExecutionService {
         this.allocateInterval = undefined;
         this.reapInterval = undefined;
 
-        const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
+        const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`)
+            .join(' OR ');
         const executions = await this.executionStorage.search(query) as ExecutionConfig[];
 
         await Promise.all(executions.map(async (execution) => {
@@ -406,7 +407,8 @@ export class ExecutionService {
     }
 
     async getRunningExecutions(exId: string | undefined) {
-        let query = this.executionStorage.getRunningStatuses().map((state) => ` _status:${state} `).join('OR');
+        let query = this.executionStorage.getRunningStatuses().map((state) => ` _status:${state} `)
+            .join('OR');
 
         if (exId) {
             query = `ex_id:"${exId}" AND (${query.trim()})`;

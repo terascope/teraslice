@@ -6,9 +6,9 @@ import { DataFrame } from '../src/index.js';
 describe('AggregationFrame', () => {
     type Person = {
         name: string;
-        gender: 'F'|'M';
+        gender: 'F' | 'M';
         age: number;
-        scores: number[],
+        scores: number[];
         date: string;
     };
     let dataFrame: DataFrame<Person>;
@@ -399,7 +399,8 @@ describe('AggregationFrame', () => {
             const uniqFrame = dataFrame.assign([
                 dataFrame.getColumnOrThrow('gender').unique()
             ]);
-            const resultFrame = await uniqFrame.aggregate().count('gender').run();
+            const resultFrame = await uniqFrame.aggregate().count('gender')
+                .run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -526,7 +527,8 @@ describe('AggregationFrame', () => {
     describe('->hourly(date)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = await grouped.hourly('date').count('name').run();
+            const resultFrame = await grouped.hourly('date').count('name')
+                .run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 1,
@@ -582,7 +584,8 @@ describe('AggregationFrame', () => {
     describe('->daily(date)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = await grouped.daily('date').count('name', 'count').run();
+            const resultFrame = await grouped.daily('date').count('name', 'count')
+                .run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -629,7 +632,8 @@ describe('AggregationFrame', () => {
     describe('->monthly(date)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = await grouped.monthly('date').count('name').run();
+            const resultFrame = await grouped.monthly('date').count('name')
+                .run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 5,
@@ -664,7 +668,8 @@ describe('AggregationFrame', () => {
     describe('->yearly(date)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = await grouped.yearly('date').count('name', 'count').run();
+            const resultFrame = await grouped.yearly('date').count('name', 'count')
+                .run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -772,7 +777,7 @@ describe('AggregationFrame', () => {
     describe('when there are duplicate values across the groupBy fields', () => {
         type Person2 = {
             name: Maybe<string>;
-            gender: Maybe<'F'|'M'>;
+            gender: Maybe<'F' | 'M'>;
             age: Maybe<number>;
             friends: Maybe<number>;
         };
@@ -841,7 +846,7 @@ describe('AggregationFrame', () => {
     describe('when avg includes irrational values', () => {
         type Person2 = {
             name: Maybe<string>;
-            gender: Maybe<'F'|'M'>;
+            gender: Maybe<'F' | 'M'>;
             age: Maybe<number>;
             friends: Maybe<number>;
         };

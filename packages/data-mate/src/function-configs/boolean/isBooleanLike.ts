@@ -20,7 +20,8 @@ export const isBooleanLikeConfig: FieldValidateConfig = {
         field: 'testField',
         input: 'TRUE',
         output: 'TRUE'
-    }, {
+    },
+    {
         args: {},
         config: {
             version: 1,
@@ -29,7 +30,8 @@ export const isBooleanLikeConfig: FieldValidateConfig = {
         field: 'testField',
         input: 'false',
         output: 'false'
-    }, {
+    },
+    {
         args: {},
         config: {
             version: 1,
@@ -38,7 +40,8 @@ export const isBooleanLikeConfig: FieldValidateConfig = {
         field: 'testField',
         input: 1,
         output: 1
-    }, {
+    },
+    {
         args: {},
         config: {
             version: 1,
@@ -47,7 +50,8 @@ export const isBooleanLikeConfig: FieldValidateConfig = {
         field: 'testField',
         input: 102,
         output: null
-    }, {
+    },
+    {
         args: {},
         config: {
             version: 1,

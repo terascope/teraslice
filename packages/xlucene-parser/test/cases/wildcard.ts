@@ -139,7 +139,7 @@ export const filterNilWildcard: TestCase[] = [
             type: NodeType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: null,
-            value: { type: 'value', value: '*', },
+            value: { type: 'value', value: '*' },
         } as Wildcard,
     ],
     [

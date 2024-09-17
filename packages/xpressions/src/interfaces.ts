@@ -1,7 +1,7 @@
 import type { xLuceneVariables } from '@terascope/types';
 
 export interface Options {
-    variables: xLuceneVariables
+    variables: xLuceneVariables;
 }
 
 export type Nodes = readonly Node[];
@@ -17,7 +17,7 @@ export interface Node {
     readonly loc: {
         readonly start: number;
         readonly end: number;
-    }
+    };
 }
 
 export interface LiteralNode extends Node {

@@ -105,13 +105,13 @@ function _validMinAndMax(min: string, max: string): boolean {
         && ip6addr.compare(min, max) === -1;
 }
 
-export function isRoutableIP(input: unknown):boolean {
+export function isRoutableIP(input: unknown): boolean {
     if (!isIP(input)) return false;
 
     return !_isPrivateIP(input as string);
 }
 
-export function isNonRoutableIP(input: unknown):boolean {
+export function isNonRoutableIP(input: unknown): boolean {
     if (!isIP(input)) return false;
 
     return _isPrivateIP(input as string);
@@ -227,7 +227,8 @@ export function getLastIPInCIDR(input: unknown): string {
  */
 export function getFirstUsableIPInCIDR(input: unknown) {
     if (isCIDR(input)) {
-        return createCIDR(input).first().toString();
+        return createCIDR(input).first()
+            .toString();
     }
 
     throw Error('input must be a valid IP address in CIDR notation');
@@ -240,7 +241,8 @@ export function getFirstUsableIPInCIDR(input: unknown) {
  */
 export function getLastUsableIPInCIDR(input: unknown) {
     if (isCIDR(input)) {
-        return createCIDR(input).last().toString();
+        return createCIDR(input).last()
+            .toString();
     }
 
     throw Error('input must be a valid IP address in CIDR notation');
@@ -357,11 +359,12 @@ export function reverseIP(input: unknown): string {
 }
 
 function _reverseIPv6(ip: ipaddr.IPv6): string {
-    return ip.toNormalizedString().split(':').reduce((parts: string[], part: string) => {
-        parts.push(_expandIPv6Part(part));
+    return ip.toNormalizedString().split(':')
+        .reduce((parts: string[], part: string) => {
+            parts.push(_expandIPv6Part(part));
 
-        return parts;
-    }, [])
+            return parts;
+        }, [])
         .join('')
         .split('')
         .reverse()

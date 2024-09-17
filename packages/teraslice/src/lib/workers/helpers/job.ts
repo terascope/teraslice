@@ -21,14 +21,14 @@ export async function validateJob(context: Context, jobSpec: JobConfigParams) {
 }
 
 interface TestExecution {
-    context: Context
+    context: Context;
     config: JobConfig | ExecutionConfig;
-    stores?: { jobStore: JobsStorage, exStore: ExecutionStorage, stateStore: StateStorage};
+    stores?: { jobStore: JobsStorage; exStore: ExecutionStorage; stateStore: StateStorage };
     isRecovery?: boolean;
     cleanupType?: RecoveryCleanupType;
     createRecovery?: boolean;
     shutdownStores?: boolean;
-    recoverySlices?: Slice[],
+    recoverySlices?: Slice[];
     lastStatus?: string;
 }
 

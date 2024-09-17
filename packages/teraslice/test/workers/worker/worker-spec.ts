@@ -9,9 +9,9 @@ import { TestContext } from '../helpers/index.js';
 
 describe('Worker', () => {
     interface SetupTestResults {
-        server: ExecutionController.Server
-        worker: Worker
-        testContext: TestContext
+        server: ExecutionController.Server;
+        worker: Worker;
+        testContext: TestContext;
     }
 
     async function setupTest(options: any = {}): Promise<SetupTestResults> {
@@ -372,7 +372,7 @@ describe('Worker', () => {
         it('should throw an error', () => {
             expect(() => {
                 // @ts-expect-error
-                new Worker(); // eslint-disable-line
+                new Worker();
             }).toThrow();
         });
     });

@@ -1,4 +1,3 @@
-/* eslint-disable object-curly-newline */
 import 'jest-extended';
 import { DataEntity } from '@terascope/utils';
 

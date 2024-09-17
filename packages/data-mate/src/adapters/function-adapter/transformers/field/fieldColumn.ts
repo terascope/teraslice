@@ -12,7 +12,7 @@ export function fieldTransformColumnExecution<
 ) {
     return function _fieldTransformColumnExecution(
         input: unknown[],
-    ): (unknown|null)[] {
+    ): (unknown | null)[] {
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of values');
         }

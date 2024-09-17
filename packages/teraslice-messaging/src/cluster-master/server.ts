@@ -52,15 +52,15 @@ export class Server extends core.Server {
         await this.listen();
     }
 
-    sendExecutionPause(exId: string): Promise<core.Message|null> {
+    sendExecutionPause(exId: string): Promise<core.Message | null> {
         return this.send(exId, 'execution:pause');
     }
 
-    sendExecutionResume(exId: string): Promise<core.Message|null> {
+    sendExecutionResume(exId: string): Promise<core.Message | null> {
         return this.send(exId, 'execution:resume');
     }
 
-    sendExecutionAnalyticsRequest(exId: string): Promise<core.Message|null> {
+    sendExecutionAnalyticsRequest(exId: string): Promise<core.Message | null> {
         return this.send(exId, 'execution:analytics');
     }
 

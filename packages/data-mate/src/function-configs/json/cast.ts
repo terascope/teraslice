@@ -10,7 +10,7 @@ import {
     FunctionDefinitionCategory,
 } from '../interfaces.js';
 
-export type CastArgs = DataTypeFieldConfig & { child_config?: DataTypeFields }
+export type CastArgs = DataTypeFieldConfig & { child_config?: DataTypeFields };
 
 export const castConfig: FieldMetaTransform<CastArgs> = {
     name: 'cast',
@@ -99,8 +99,8 @@ export const castConfig: FieldMetaTransform<CastArgs> = {
         child_config: {
             type: FieldType.Object,
             description: 'If parsing an object, you can specify the DataTypeFields of the key/values of the object.'
-            + ' This is an object whose keys are the name of the fields, whose value is an object with all of the other properties listed above'
-            + ' (ie type, array, locale, format but not child_config).'
+                + ' This is an object whose keys are the name of the fields, whose value is an object with all of the other properties listed above'
+                + ' (ie type, array, locale, format but not child_config).'
         }
     },
     validate_arguments(args) {

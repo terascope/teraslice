@@ -26,11 +26,11 @@ interface StateMessage {
     to: string;
     message: string;
     node_id: string;
-    payload: Record<string, any>,
+    payload: Record<string, any>;
     __source: string;
 }
 
- type Message = StateMessage
+ type Message = StateMessage;
 
 export class NativeClustering {
     context: ClusterMasterContext;
@@ -391,10 +391,11 @@ export class NativeClustering {
                 } else {
                     this.logger.debug(`node ${nodeId} allocated ${createdWorkers}`);
                 }
-            }).catch((err) => {
-                this.logger.error(err, `An error has occurred in allocating : ${workerCount} workers to node : ${nodeId}, the worker request has been enqueued`);
-                this.pendingWorkerRequests.enqueue(requestedWorkersData);
-            });
+            })
+                .catch((err) => {
+                    this.logger.error(err, `An error has occurred in allocating : ${workerCount} workers to node : ${nodeId}, the worker request has been enqueued`);
+                    this.pendingWorkerRequests.enqueue(requestedWorkersData);
+                });
 
             results.push(createRequest);
         });
@@ -605,7 +606,7 @@ export class NativeClustering {
 
     clusterAvailable() {}
 
-    async stopExecution(exId: string, options?:StopExecutionOptions) {
+    async stopExecution(exId: string, options?: StopExecutionOptions) {
         // we are allowing stopExecution to be non blocking, we block at api level
         this.pendingWorkerRequests.remove(exId, 'ex_id');
         const sendingMessage = { message: 'cluster:execution:stop' } as Record<string, any>;

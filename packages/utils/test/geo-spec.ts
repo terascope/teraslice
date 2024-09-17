@@ -14,7 +14,7 @@ describe('geo utils', () => {
         type Case = [
             msg: string,
             input: GeoPointInput,
-            output: GeoPoint|null
+            output: GeoPoint | null
         ];
         const testCases: Case[] = [
             [
@@ -206,7 +206,7 @@ describe('geo utils', () => {
     describe('->toGeoJSON', () => {
         type Case = [
             msg: string,
-            input: GeoPointInput | JoinGeoShape |GeoPointInput[],
+            input: GeoPointInput | JoinGeoShape | GeoPointInput[],
             output: GeoShape
         ];
         const testCases: Case[] = [

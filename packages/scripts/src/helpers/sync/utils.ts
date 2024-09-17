@@ -119,7 +119,7 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
     /**
      * verify an external dependency and return the correct version to use
     */
-    function getLatest(name: string, val: VersionVal): VersionVal|string|null {
+    function getLatest(name: string, val: VersionVal): VersionVal | string | null {
         const internal = internalVersions[name];
         const external = externalVersions[name];
         if (internal != null) {
@@ -146,7 +146,7 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
         return external;
     }
 
-    function forDeps(pkgInfo: PackageInfo|RootPackageInfo, key: DepKey): void {
+    function forDeps(pkgInfo: PackageInfo | RootPackageInfo, key: DepKey): void {
         const deps = pkgInfo[key] || {};
         for (let [name, version] of Object.entries(deps)) {
             const originalName = name;
@@ -183,7 +183,7 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
         }
     }
 
-    let mainVersion: string|undefined;
+    let mainVersion: string | undefined;
     const linkedToMain: PackageInfo[] = [];
 
     for (const pkgInfo of packages) {
@@ -239,8 +239,8 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
 }
 
 function getVersion(input: string, strict: false): VersionVal;
-function getVersion(input: string, strict: true): VersionVal|undefined;
-function getVersion(input: string, strict: boolean): VersionVal|undefined {
+function getVersion(input: string, strict: true): VersionVal | undefined;
+function getVersion(input: string, strict: boolean): VersionVal | undefined {
     if (input === '*') {
         if (strict) return undefined;
         return {
@@ -251,7 +251,7 @@ function getVersion(input: string, strict: boolean): VersionVal|undefined {
     }
 
     const firstChar = getFirstChar(input.trim());
-    const range: string|undefined = ['~', '^'].includes(firstChar)
+    const range: string | undefined = ['~', '^'].includes(firstChar)
         ? firstChar
         : undefined;
 

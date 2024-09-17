@@ -57,7 +57,7 @@ export const timezoneOffset = new Date().getTimezoneOffset() * 60_000;
 /**
  * A helper function for making an ISODate string
  */
-export function makeISODate(value?: Date|number|string|null|undefined|DateTuple): string {
+export function makeISODate(value?: Date | number | string | null | undefined | DateTuple): string {
     if (value == null) return new Date().toISOString();
 
     const date = getValidDate(value);
@@ -131,7 +131,7 @@ export function getValidDate(val: unknown, relativeNow = new Date()): Date | fal
 /**
  * tries to date math values to dates
  */
-function parseRelativeDate(input: unknown, now: Date): Date|false {
+function parseRelativeDate(input: unknown, now: Date): Date | false {
     if (!input || typeof input !== 'string') return false;
 
     // remove any spaces and ensure lowercase 'now' (keep all others normal case)
@@ -146,7 +146,7 @@ function parseRelativeDate(input: unknown, now: Date): Date|false {
 /**
  * tries to parse date math (i.e. now+1h, now-1m) to a date
  */
-function parseDateMath(value: string, now: Date): Date|false {
+function parseDateMath(value: string, now: Date): Date | false {
     try {
         return _getValidDate(new Date(parser.parse(value, now)));
     } catch (err) {
@@ -165,7 +165,7 @@ export function getValidDateOrThrow(val: unknown): Date {
     return date;
 }
 
-export function toTimeZone(val:unknown, timezone: string): DateTuple|null {
+export function toTimeZone(val: unknown, timezone: string): DateTuple | null {
     if (!isString(timezone)) {
         throw new Error(`Invalid argument timezone, it must be a string, got ${getTypeOf(timezone)}`);
     }
@@ -230,7 +230,7 @@ export function getValidDateWithTimezone(val: unknown, getUTC = false): Date | f
 /**
  * Returns a valid date or throws, {@see getValidDate}
 */
-export function getValidDateOrNumberOrThrow(val: unknown): Date|number {
+export function getValidDateOrNumberOrThrow(val: unknown): Date | number {
     if (typeof val === 'number' && !Number.isInteger(val)) return val;
     if (isDateTuple(val)) return val[0];
 
@@ -306,7 +306,8 @@ export function toISO8601(value: unknown): string {
         // anytime we have a date tuple, manifest it in local time not UTC
         const localTime = value[0] + (value[1] * 60_000);
 
-        return new Date(localTime).toISOString().replace('Z', _genISOTimezone(value[1]));
+        return new Date(localTime).toISOString()
+            .replace('Z', _genISOTimezone(value[1]));
     }
 
     return makeISODate(value as any);
@@ -334,7 +335,7 @@ function _padNum(input: number): string {
 /**
  * Set the timezone offset of a date, returns a date tuple
  */
-export function setTimezone(input: unknown, timezone: string|number): DateTuple {
+export function setTimezone(input: unknown, timezone: string | number): DateTuple {
     const validTZ: number = isNumber(timezone) ? timezone : timezoneToOffset(timezone);
     return _makeDateTuple(input, validTZ);
 }
@@ -342,7 +343,7 @@ export function setTimezone(input: unknown, timezone: string|number): DateTuple 
 /**
  * A curried version of setTimezone
 */
-export function setTimezoneFP(timezone: string|number): (input: unknown) => DateTuple {
+export function setTimezoneFP(timezone: string | number): (input: unknown) => DateTuple {
     const validTZ: number = isNumber(timezone) ? timezone : timezoneToOffset(timezone);
 
     return function _setTimezone(input: unknown): DateTuple {
@@ -496,7 +497,7 @@ export function parseCustomDateFormat(
 */
 export function parseDateValue(
     value: unknown,
-    format: DateFormat|string|undefined,
+    format: DateFormat | string | undefined,
     referenceDate: Date
 ): number {
     if (format === DateFormat.epoch || format === DateFormat.seconds) {
@@ -522,9 +523,9 @@ export function parseDateValue(
  * Format the parsed date value
 */
 export function formatDateValue(
-    value: Date|number|DateTuple,
-    format: DateFormat|string|undefined,
-): string|number {
+    value: Date | number | DateTuple,
+    format: DateFormat | string | undefined,
+): string | number {
     const inMs = _toMilliseconds(value);
 
     if (format === DateFormat.epoch_millis || format === DateFormat.milliseconds) {
@@ -724,7 +725,7 @@ export function isYesterday(input: unknown): boolean {
 
 export type AdjustDateArgs = {
     readonly expr: string;
-}|{
+} | {
     readonly years?: number;
     readonly months?: number;
     readonly weeks?: number;
@@ -733,7 +734,7 @@ export type AdjustDateArgs = {
     readonly minutes?: number;
     readonly seconds?: number;
     readonly milliseconds?: number;
-}
+};
 
 export function addToDate(input: unknown, args: AdjustDateArgs): number {
     const date = getValidDateWithTimezoneOrThrow(input, false);
@@ -876,7 +877,7 @@ export function setMinutes(minutes: number): (input: unknown) => number {
     };
 }
 
-export function setHours(hours: number):(input: unknown) => number {
+export function setHours(hours: number): (input: unknown) => number {
     if (!isInteger(hours) || !inNumberRange(hours, { min: 0, max: 23, inclusive: true })) {
         throw Error(`hours value must be an integer between 0 and 23, received ${hours}`);
     }
@@ -975,7 +976,7 @@ export function getYear(input: unknown): number {
 }
 
 /** Will convert a date to its epoch millisecond format or throw if invalid  */
-export function toEpochMSOrThrow(input: unknown): DateTuple|number {
+export function toEpochMSOrThrow(input: unknown): DateTuple | number {
     if (isDateTuple(input)) return input;
 
     const epochMillis = getTime(input as any);

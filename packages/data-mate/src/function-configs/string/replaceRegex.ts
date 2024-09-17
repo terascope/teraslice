@@ -9,7 +9,7 @@ export interface ReplaceRegexArgs {
     regex: string;
     replace: string;
     ignoreCase?: boolean;
-    global?: boolean
+    global?: boolean;
 }
 
 const examples: FunctionDefinitionExample<ReplaceRegexArgs>[] = [

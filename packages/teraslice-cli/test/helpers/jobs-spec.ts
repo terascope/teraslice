@@ -915,7 +915,7 @@ describe('Job helper class', () => {
         });
 
         it('should log an error if job is not in a terminal status', async () => {
-            reply.error = jest.fn()
+            reply.error = jest.fn();
             const [jobId] = makeJobIds(1);
 
             tsClient
@@ -941,7 +941,7 @@ describe('Job helper class', () => {
             expect(job.jobs[0].status).toBe('running');
 
             await expect(job.delete()).resolves.toBe(undefined);
-            expect(reply.error).toHaveBeenCalledWith(expect.stringContaining('Job is in non-terminal status running, cannot delete. Skipping'))
+            expect(reply.error).toHaveBeenCalledWith(expect.stringContaining('Job is in non-terminal status running, cannot delete. Skipping'));
         });
     });
 
@@ -952,7 +952,7 @@ describe('Job helper class', () => {
 
         beforeEach(() => {
             fs.mkdirSync(exportPath);
-        })
+        });
 
         afterEach(async () => {
             fs.removeSync(exportPath);
@@ -1046,7 +1046,7 @@ describe('Job helper class', () => {
 
             const jobIds = makeJobIds(3);
             const [job1, job2, job3] = jobIds;
-            const jobsList = [{ job_id: job1}, { job_id: job2}, { job_id: job3}]
+            const jobsList = [{ job_id: job1 }, { job_id: job2 }, { job_id: job3 }];
             const jobControllers = clusterControllers(jobIds);
 
             const [jobC1, jobC2, jobC3] = jobControllers;
@@ -1112,9 +1112,9 @@ describe('Job helper class', () => {
             jobFiles.push(fs.readJsonSync(path.join(customDir, 'test-job-2.json')));
 
             expect(jobFiles).toEqual(expect.arrayContaining([
-                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job1 })}}),
-                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job2 })}}),
-                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job3 })}})
+                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job1 }) } }),
+                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job2 }) } }),
+                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job3 }) } })
             ]));
         });
 
@@ -1124,8 +1124,8 @@ describe('Job helper class', () => {
             const jobController = clusterControllers([jobId]);
             const jobExecution = getJobExecution(jobId);
 
-            jobController[0].name = 'test job'
-            jobExecution.name = 'test job'
+            jobController[0].name = 'test job';
+            jobExecution.name = 'test job';
 
             tsClient
                 .get(`/v1/jobs/${jobId}/ex`)

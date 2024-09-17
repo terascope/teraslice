@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { times, random } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import fs from 'node:fs';
@@ -97,10 +98,12 @@ let records = times(numRecords, () => {
         return {
             type: age > 20 ? 'parent' : 'child',
             number_of_friends: random(1, 2000),
-            requests: random(0, 20) ? {
-                total: random(10, maxInt),
-                last: chance.date().toISOString()
-            } : null,
+            requests: random(0, 20)
+                ? {
+                    total: random(10, maxInt),
+                    last: chance.date().toISOString()
+                }
+                : null,
         };
     }
     return {

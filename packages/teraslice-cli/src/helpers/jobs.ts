@@ -824,7 +824,7 @@ export default class Jobs {
         await pRetry(() => {
             const filePath = this.createUniqueFilePath(jobConfig.name);
             return saveJobConfigToFile(jobConfig, filePath, this.config.clusterUrl);
-        })
+        });
     }
 
     /**
@@ -860,7 +860,7 @@ export default class Jobs {
      * Logs status updates relative to the actions being performed on the job
      */
 
-    private logUpdate(args: { action?: string, msg?: string, job: JobMetadata }) {
+    private logUpdate(args: { action?: string; msg?: string; job: JobMetadata }) {
         const {
             action,
             msg,
@@ -887,7 +887,7 @@ export default class Jobs {
         }
     }
 
-    private getUpdateMessage(action: string, job: JobMetadata): { message: string, final: boolean} {
+    private getUpdateMessage(action: string, job: JobMetadata): { message: string; final: boolean } {
         const {
             name,
             id,
@@ -975,7 +975,7 @@ export default class Jobs {
 
         if ((action === 'stopped' || action === 'stopTerminal')
             && (this.config.args._action === 'restart'
-            || this.config.args._action === 'update')) return false;
+                || this.config.args._action === 'update')) return false;
 
         return true;
     }

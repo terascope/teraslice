@@ -7,12 +7,14 @@ export default class Text extends BaseType {
         this._validateESMapping();
         return {
             mapping: {
-                [this.field]: this.config.indexed === false ? {
-                    type: 'text' as ESFieldType,
-                    index: false
-                } : {
-                    type: 'text' as ESFieldType
-                }
+                [this.field]: this.config.indexed === false
+                    ? {
+                        type: 'text' as ESFieldType,
+                        index: false
+                    }
+                    : {
+                        type: 'text' as ESFieldType
+                    }
             }
         };
     }

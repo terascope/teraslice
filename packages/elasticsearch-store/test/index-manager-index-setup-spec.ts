@@ -280,9 +280,11 @@ describe('IndexManager->indexSetup()', () => {
             const mapping = get(config, ['index_schema', 'mapping'], {});
             const version = get(config, ['index_schema', 'version'], 1);
 
-            const mappings = esVersion !== 6 ? mapping : {
-                [config.name]: mapping
-            };
+            const mappings = esVersion !== 6
+                ? mapping
+                : {
+                    [config.name]: mapping
+                };
 
             const newVersion = version + 1;
             await indexManager.upsertTemplate({
@@ -303,9 +305,11 @@ describe('IndexManager->indexSetup()', () => {
             const version = get(config, ['index_schema', 'version'], 1);
             mapping._meta = { baz: 'baz' };
 
-            const mappings = esVersion !== 6 ? mapping : {
-                [config.name]: mapping
-            };
+            const mappings = esVersion !== 6
+                ? mapping
+                : {
+                    [config.name]: mapping
+                };
             await indexManager.upsertTemplate({
                 template: 'foo',
                 settings: config.index_settings,

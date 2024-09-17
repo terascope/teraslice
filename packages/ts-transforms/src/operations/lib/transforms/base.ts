@@ -2,7 +2,7 @@ import { DataEntity, get } from '@terascope/utils';
 import OperationBase from '../base.js';
 
 export default abstract class TransformOpBase extends OperationBase {
-    protected execute(doc: DataEntity, fn: (value: any) => any): DataEntity|null {
+    protected execute(doc: DataEntity, fn: (value: any) => any): DataEntity | null {
         try {
             const value = get(doc, this.source);
             if (Array.isArray(value)) {

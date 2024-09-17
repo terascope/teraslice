@@ -49,7 +49,7 @@ export default class GroupType extends BaseType {
         };
     }
 
-    toGraphQL(options: ToGraphQLOptions = {}):GraphQLType {
+    toGraphQL(options: ToGraphQLOptions = {}): GraphQLType {
         const { typeName = 'Object', isInput, includePrivate } = options;
 
         const customTypeName = this._formatGQLTypeName(

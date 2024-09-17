@@ -11,9 +11,9 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
         this.invert = this.config.output === false;
     }
 
-    abstract validate (data: T|null|undefined): boolean;
+    abstract validate(data: T | null | undefined): boolean;
 
-    normalize? (data: any, _doc: DataEntity): any;
+    normalize?(data: any, _doc: DataEntity): any;
 
     run(doc: DataEntity) {
         let value;

@@ -14,12 +14,12 @@ export const dateMath = [
             left: {
                 operator: 'gte',
                 field_type: xLuceneFieldType.String,
-                value: { type: 'value', value: 'now-3d', }
+                value: { type: 'value', value: 'now-3d' }
             },
             right: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.String,
-                value: { type: 'value', value: 'now+2d', }
+                value: { type: 'value', value: 'now+2d' }
             }
         },
     ],
@@ -32,12 +32,12 @@ export const dateMath = [
             left: {
                 operator: 'gte',
                 field_type: xLuceneFieldType.String,
-                value: { type: 'value', value: 'now-2w', }
+                value: { type: 'value', value: 'now-2w' }
             },
             right: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.String,
-                value: { type: 'value', value: 'now+2y', }
+                value: { type: 'value', value: 'now+2y' }
             }
         },
     ],
@@ -59,7 +59,8 @@ export const dateMath = [
             }
         },
         { val: xLuceneFieldType.Date },
-        undefined, undefined,
+        undefined,
+        undefined,
         (now: Date, ast: any) => {
             const _now = new Date(now.setUTCHours(0, 0, 0, 0));
             const astStartDate = new Date(ast.left.value.value.setUTCHours(0, 0, 0, 0));
@@ -87,7 +88,8 @@ export const dateMath = [
             }
         },
         { val: xLuceneFieldType.Date },
-        undefined, undefined,
+        undefined,
+        undefined,
         (now: Date, ast: any) => {
             const _now = new Date(now.setUTCHours(0, 0, 0, 0));
             const astStartDate = new Date(ast.left.value.value.setUTCHours(0, 0, 0, 0));
@@ -115,7 +117,8 @@ export const dateMath = [
             }
         },
         { val: xLuceneFieldType.Date },
-        undefined, undefined,
+        undefined,
+        undefined,
         (now: Date, ast: any) => {
             const _now = new Date(now.setUTCHours(0, 0, 0, 0));
             const astStartDate = ast.left.value.value;
@@ -143,7 +146,8 @@ export const dateMath = [
             }
         },
         { val: xLuceneFieldType.Date },
-        undefined, undefined,
+        undefined,
+        undefined,
         (now: Date, ast: any) => {
             const _now = new Date(now.setUTCHours(0, 0, 0, 0));
             const astStartDate = new Date(ast.left.value.value.setUTCHours(0, 0, 0, 0));
@@ -171,7 +175,8 @@ export const dateMath = [
             }
         },
         { val: xLuceneFieldType.Date },
-        undefined, undefined,
+        undefined,
+        undefined,
         (now: Date, ast: any) => {
             // /y should make it start of year
             expect(new Date(ast.left.value.value).toISOString()).toInclude('01-01T00:00:00.000');

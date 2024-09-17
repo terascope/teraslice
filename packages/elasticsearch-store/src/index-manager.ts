@@ -317,9 +317,11 @@ export class IndexManager {
     ): Promise<void> {
         const result = await this.getMapping(index);
 
-        const propertiesPath = !utils.isElasticsearch6(this.client) ? [
-            'mappings', 'properties'
-        ] : ['mappings', type, 'properties'];
+        const propertiesPath = !utils.isElasticsearch6(this.client)
+            ? [
+                'mappings', 'properties'
+            ]
+            : ['mappings', type, 'properties'];
 
         const existing = get(result[index], propertiesPath, {});
         const current = get(mapping, propertiesPath, {});
@@ -335,7 +337,7 @@ export class IndexManager {
             existing: eFlattened
         }, `flattened mapping changes for ${index}`);
 
-        const changes: [type: 'changed'|'removed'|'added', field: string][] = [];
+        const changes: [type: 'changed' | 'removed' | 'added', field: string][] = [];
         for (const [field, [cType, cExtra]] of Object.entries(cFlattened)) {
             const eConfig = eFlattened[field];
             if (eConfig == null) {

@@ -44,7 +44,7 @@ export function isBigInt(input: unknown): input is bigint {
 }
 
 /** Convert any input to a bigint */
-export function toBigInt(input: unknown): bigint|false {
+export function toBigInt(input: unknown): bigint | false {
     if (!supportsBigInt) {
         throw new Error('BigInt isn\'t supported in this environment');
     }
@@ -102,7 +102,7 @@ export function toBigIntOrThrow(input: unknown): bigint {
 /**
  * Convert a BigInt to either a number or a string
 */
-export function bigIntToJSON(int: bigint): string|number {
+export function bigIntToJSON(int: bigint): string | number {
     if (typeof int === 'number') return int;
     if (int <= _maxBigInt) {
         return Number.parseInt(int.toString(10), 10);
@@ -241,7 +241,7 @@ function isConvertibleToNumber(item: unknown): boolean {
 export interface InNumberRangeArg {
     min?: number;
     max?: number;
-    inclusive?: boolean
+    inclusive?: boolean;
 }
 
 /**
@@ -284,8 +284,8 @@ export function setPrecision(
     truncate = false
 ): number {
     if (Number.isNaN(input)
-            || input === Number.POSITIVE_INFINITY
-            || input === Number.NEGATIVE_INFINITY) {
+        || input === Number.POSITIVE_INFINITY
+        || input === Number.NEGATIVE_INFINITY) {
         return input as number;
     }
 

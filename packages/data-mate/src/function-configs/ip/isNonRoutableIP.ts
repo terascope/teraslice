@@ -49,6 +49,8 @@ export const isNonRoutableIPConfig: FieldValidateConfig = {
         },
     ],
     description: 'Returns the input if it is a non-routable IP address, handles IPv6 and IPv4 address. See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml',
-    create() { return isNonRoutableIP; },
+    create() {
+        return isNonRoutableIP;
+    },
     accepts: [FieldType.String, FieldType.IP],
 };

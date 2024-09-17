@@ -19,7 +19,7 @@ export interface OpRunnerAPI {
 
 export interface JobRunnerAPI {
     /** Get the first opConfig from an operation name */
-    getOpConfig(name: string): Teraslice.OpConfig|undefined;
+    getOpConfig(name: string): Teraslice.OpConfig | undefined;
 }
 
 export interface AssetsAPI {
@@ -52,7 +52,7 @@ export interface ExecutionContextAPIs {
 }
 
 export interface Context extends Terafoundation.Context<Teraslice.SysConfig, ExecutionContextAPIs> {
-    assignment: Teraslice.Assignment
+    assignment: Teraslice.Assignment;
 }
 
 export interface TestClientConfig {
@@ -76,5 +76,5 @@ export interface TestClientsByEndpoint {
 }
 
 export interface TestContextType extends Terafoundation.Context<
-Teraslice.SysConfig, TestContextApis> {
+    Teraslice.SysConfig, TestContextApis> {
 }

@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import 'jest-extended';
 import {
     newTestExecutionConfig, TestContext, Context,

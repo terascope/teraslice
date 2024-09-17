@@ -731,10 +731,10 @@ describe('elasticsearch-api', () => {
         return expect(results).toBeTruthy();
     });
 
-    it('can warn window size with version', () => {
+    it('can warn window size with version', async () => {
         const api = esApi(client, logger, { index: 'some_index' });
 
-        return api.version();
+        await expect(() => api.version()).toResolve();
     });
 
     it('can call putTemplate', async () => {
@@ -1157,7 +1157,7 @@ describe('elasticsearch-api', () => {
         expect(api.buildQuery(opConfig3, msg4)).toEqual(makeResponse(opConfig3, msg1, response5));
     });
 
-    it('can set up an index', () => {
+    it('can set up an index', async () => {
         const api = esApi(client, logger);
         const clusterName = 'teracluster';
         const newIndex = 'teracluster__state';

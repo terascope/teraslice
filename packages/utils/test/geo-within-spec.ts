@@ -420,7 +420,7 @@ describe('->geoWithin', () => {
 });
 
 describe('->geoWithinFP', () => {
-    test.each(withinTestCases)('should %s', ((_msg, firstGeo, secondGeo, output) => {
+    test.each(withinTestCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
         expect(geoWithinFP(secondGeo)(firstGeo)).toEqual(output);
-    }));
+    });
 });

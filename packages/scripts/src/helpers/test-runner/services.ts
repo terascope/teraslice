@@ -801,7 +801,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     if (serviceName === 'restrained_opensearch') {
         serviceName = Service.Opensearch;
     }
-    let version:string;
+    let version: string;
     if (serviceName === 'kafka') {
         version = config[`${serviceName.toUpperCase()}_IMAGE_VERSION`] as string;
         signale.pending(`starting ${service}@${config.KAFKA_VERSION} service...`);

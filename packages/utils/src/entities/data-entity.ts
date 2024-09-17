@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { getValidDate, getTime } from '../dates.js';
 import { getTypeOf } from '../deps.js';
 import { isSimpleObject } from '../objects.js';
@@ -13,7 +12,7 @@ import { locked } from '../decorators.js';
 
 interface Metadata<M> {
     metadata: i._DataEntityMetadata<M>;
-    rawData: Buffer|null;
+    rawData: Buffer | null;
 }
 
 /**
@@ -43,9 +42,9 @@ export class DataEntity<
         metadata?: M
     ): DataEntity<T, M>;
     static make<
-        T extends Record<string, any>|DataEntity<any, any> = Record<string, any>,
+        T extends Record<string, any> | DataEntity<any, any> = Record<string, any>,
         M extends i._DataEntityMetadataType = Record<string, any>
-    >(input: T, metadata?: M): T|DataEntity<T, M> {
+    >(input: T, metadata?: M): T | DataEntity<T, M> {
         if (DataEntity.isDataEntity(input)) {
             if (metadata) {
                 for (const [key, val] of Object.entries(metadata)) {
@@ -108,7 +107,7 @@ export class DataEntity<
      * @param metadata Optionally add any metadata
      */
     static fromBuffer<T = Record<string, any>, M = Record<string, any>>(
-        input: Buffer|string,
+        input: Buffer | string,
         opConfig?: i.EncodingConfig,
         metadata?: M
     ): DataEntity<T, M> {
@@ -156,12 +155,12 @@ export class DataEntity<
      *
      * @deprecated
      */
-    static getMetadata<V = any>(input: unknown, field?: string): V|undefined {
+    static getMetadata<V = any>(input: unknown, field?: string): V | undefined {
         if (input == null) return undefined;
 
         if (DataEntity.isDataEntity(input)) {
             const val = field ? input.getMetadata(field) : input.getMetadata();
-            return val as V|undefined;
+            return val as V | undefined;
         }
 
         return field ? (input as any)[field] : undefined;
@@ -181,7 +180,7 @@ export class DataEntity<
     // @ts-expect-error the initializer is set in defineEntityProperties
     private readonly [i.__IS_DATAENTITY_KEY]: true;
 
-    constructor(data: T|null|undefined, metadata?: M) {
+    constructor(data: T | null | undefined, metadata?: M) {
         if (data && !isSimpleObject(data)) {
             throw new Error(`Invalid data source, must be an object, got "${getTypeOf(data)}"`);
         }
@@ -204,7 +203,9 @@ export class DataEntity<
     getMetadata<K extends i.DataEntityMetadataValue<M>>(key: K): i.EntityMetadataValue<M, K>;
 
     @locked()
-    getMetadata<K extends i.DataEntityMetadataValue<M>>(key?: K): i.EntityMetadataValue<M, K>|i._DataEntityMetadata<M> {
+    getMetadata<K extends i.DataEntityMetadataValue<M>>(
+        key?: K
+    ): i.EntityMetadataValue<M, K> | i._DataEntityMetadata<M> {
         if (key) {
             return this[i.__ENTITY_METADATA_KEY].metadata[key];
         }
@@ -235,7 +236,7 @@ export class DataEntity<
      * If no `_key` is found, an error will be thrown
     */
     @locked()
-    getKey(): string|number {
+    getKey(): string | number {
         const key = this[i.__ENTITY_METADATA_KEY].metadata._key;
         if (!isValidKey(key)) {
             throw new Error('No key has been set in the metadata');
@@ -248,7 +249,7 @@ export class DataEntity<
      * If no `_key` is found, an error will be thrown
     */
     @locked()
-    setKey(key: string|number): void {
+    setKey(key: string | number): void {
         if (!isValidKey(key)) {
             throw new Error('Invalid key to set in metadata');
         }
@@ -275,7 +276,7 @@ export class DataEntity<
      * If an invalid date is found, `false` will be returned.
     */
     @locked()
-    getIngestTime(): Date|false|undefined {
+    getIngestTime(): Date | false | undefined {
         const val = this[i.__ENTITY_METADATA_KEY].metadata._ingestTime;
         if (val == null) return undefined;
         return getValidDate(val);
@@ -288,7 +289,7 @@ export class DataEntity<
      * If an invalid date is given, an error will be thrown.
      */
     @locked()
-    setIngestTime(val?: string|number|Date): void {
+    setIngestTime(val?: string | number | Date): void {
         const unixTime = getTime(val);
         if (unixTime === false) {
             throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
@@ -303,7 +304,7 @@ export class DataEntity<
      * If an invalid date is found, `false` will be returned.
     */
     @locked()
-    getProcessTime(): Date|false|undefined {
+    getProcessTime(): Date | false | undefined {
         const val = this[i.__ENTITY_METADATA_KEY].metadata._ingestTime;
         if (val == null) return undefined;
         return getValidDate(val);
@@ -316,7 +317,7 @@ export class DataEntity<
     * If an invalid date is given, an error will be thrown.
     */
     @locked()
-    setProcessTime(val?: string|number|Date): void {
+    setProcessTime(val?: string | number | Date): void {
         const unixTime = getTime(val);
         if (unixTime === false) {
             throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
@@ -331,7 +332,7 @@ export class DataEntity<
      * If an invalid date is found, `false` will be returned.
     */
     @locked()
-    getEventTime(): Date|false|undefined {
+    getEventTime(): Date | false | undefined {
         const val = this[i.__ENTITY_METADATA_KEY].metadata._ingestTime;
         if (val == null) return undefined;
         return getValidDate(val);
@@ -344,7 +345,7 @@ export class DataEntity<
      * If an invalid date is given, an error will be thrown.
      */
     @locked()
-    setEventTime(val?: string|number|Date): void {
+    setEventTime(val?: string | number | Date): void {
         const unixTime = getTime(val);
         if (unixTime === false) {
             throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
@@ -368,7 +369,7 @@ export class DataEntity<
      * If given `null`, it will unset the data
     */
     @locked()
-    setRawData(buf: Buffer|string|null): void {
+    setRawData(buf: Buffer | string | null): void {
         if (buf === null) {
             this[i.__ENTITY_METADATA_KEY].rawData = null;
             return;

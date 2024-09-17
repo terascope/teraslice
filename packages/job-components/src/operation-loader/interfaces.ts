@@ -15,7 +15,7 @@ export interface ValidLoaderOptions {
     /** Path to teraslice lib directory */
     terasliceOpPath?: string;
     /** Path to where the assets are stored */
-    assetPath: string[]
+    assetPath: string[];
 }
 
 export enum AssetBundleType {
@@ -66,7 +66,7 @@ export enum OperationLocationType {
     /** is located in builtin dir */
     builtin = 'builtin',
     /** is located natively in teraslice */
-    'teraslice' = 'teraslice'
+    teraslice = 'teraslice'
 }
 
 export enum OperationTypeName {
@@ -88,37 +88,37 @@ export const AssetRepositoryKey = {
 } as const;
 
 export interface BundledProcessorOperation {
-    [AssetRepositoryKey.processor]: ProcessorConstructor,
-    [AssetRepositoryKey.schema]: SchemaConstructor,
-    [AssetRepositoryKey.api]?: APIConstructor,
+    [AssetRepositoryKey.processor]: ProcessorConstructor;
+    [AssetRepositoryKey.schema]: SchemaConstructor;
+    [AssetRepositoryKey.api]?: APIConstructor;
 }
 
 export interface BundledReaderOperation {
-    [AssetRepositoryKey.fetcher]: FetcherConstructor,
-    [AssetRepositoryKey.slicer]: SlicerConstructor,
-    [AssetRepositoryKey.schema]: SchemaConstructor,
-    [AssetRepositoryKey.api]?: APIConstructor
+    [AssetRepositoryKey.fetcher]: FetcherConstructor;
+    [AssetRepositoryKey.slicer]: SlicerConstructor;
+    [AssetRepositoryKey.schema]: SchemaConstructor;
+    [AssetRepositoryKey.api]?: APIConstructor;
 }
 
 export interface BundledAPIOperation {
-    [AssetRepositoryKey.api]: APIConstructor
-    [AssetRepositoryKey.schema]:SchemaConstructor,
+    [AssetRepositoryKey.api]: APIConstructor;
+    [AssetRepositoryKey.schema]: SchemaConstructor;
 }
 
 export interface BundledObserverOperation {
-    [AssetRepositoryKey.observer]: ObserverConstructor
-    [AssetRepositoryKey.schema]: SchemaConstructor,
+    [AssetRepositoryKey.observer]: ObserverConstructor;
+    [AssetRepositoryKey.schema]: SchemaConstructor;
 }
 
 export type RepositoryOperation = BundledProcessorOperation
-| BundledReaderOperation
-| BundledAPIOperation
-| BundledObserverOperation
+    | BundledReaderOperation
+    | BundledAPIOperation
+    | BundledObserverOperation;
 
 export interface AssetRepository {
     [ASSET_KEYWORD]: {
-        [key: string]: RepositoryOperation
-    }
+        [key: string]: RepositoryOperation;
+    };
 }
 
 /** This map what type of operation the loader is looking for with
@@ -136,11 +136,11 @@ export const OpTypeToRepositoryKey = {
 export interface OperationResults {
     path: string;
     location: OperationLocationType;
-    bundle_type: AssetBundleType
+    bundle_type: AssetBundleType;
 }
 
 export interface FindOperationResults {
-    path: string|null;
-    location: OperationLocationType|null;
-    bundle_type: AssetBundleType|null
+    path: string | null;
+    location: OperationLocationType | null;
+    bundle_type: AssetBundleType | null;
 }

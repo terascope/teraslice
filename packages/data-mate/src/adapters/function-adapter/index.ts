@@ -23,18 +23,18 @@ import { getDataTypeFieldAndChildren } from '../utils.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: FieldValidateConfig<T>|FieldTransformConfig<T>,
+    fnDef: FieldValidateConfig<T> | FieldTransformConfig<T>,
     options?: FunctionAdapterOptions<T>
-): FieldFunctionAdapterOperation
+): FieldFunctionAdapterOperation;
 function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: RecordValidationConfig<T>|RecordTransformConfig<T>|FunctionDefinitionConfig<T>,
+    fnDef: RecordValidationConfig<T> | RecordTransformConfig<T> | FunctionDefinitionConfig<T>,
     options?: FunctionAdapterOptions<T>
-): RecordFunctionAdapterOperation
+): RecordFunctionAdapterOperation;
 function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
     /** The field validation or transform function definition */
     fnDef: FunctionDefinitionConfig<T>,
     options: FunctionAdapterOptions<T> = {}
-): RecordFunctionAdapterOperation|FieldFunctionAdapterOperation {
+): RecordFunctionAdapterOperation | FieldFunctionAdapterOperation {
     const {
         field,
         config,

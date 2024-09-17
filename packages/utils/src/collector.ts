@@ -15,7 +15,7 @@ export class Collector<T> {
     readonly wait: number;
 
     private _queue: T[] = [];
-    private _startTime: number|null = null;
+    private _startTime: number | null = null;
 
     constructor(max: { wait: number; size: number }) {
         this.wait = max.wait;
@@ -39,7 +39,7 @@ export class Collector<T> {
     /**
      * Add a record, or records, to the in-memory queue.
     */
-    add(_records: T[]|T): void {
+    add(_records: T[] | T): void {
         if (!this._queue.length) {
             this._startTime = Date.now();
         }
@@ -54,7 +54,7 @@ export class Collector<T> {
      * @returns null if the batch isn't ready
      * @returns the a batch of records, less or equal to the max size
     */
-    getBatch(): T[]|null {
+    getBatch(): T[] | null {
         const isValid = this._checkTime();
         if (isValid && this._queue.length < this.size) return null;
 

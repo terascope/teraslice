@@ -113,6 +113,8 @@ export const isFQDNConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Returns the input if it is a fully qualified domain name, otherwise returns null.',
     examples,
-    create() { return isFQDN; },
+    create() {
+        return isFQDN;
+    },
     accepts: [FieldType.String],
 };

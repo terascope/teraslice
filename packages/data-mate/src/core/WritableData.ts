@@ -41,9 +41,11 @@ export class WritableData<T> {
             throw new Error(`Invalid size given to WritableData, got ${size} (${getTypeOf(size)})`);
         }
 
-        this._values = Values ? new SparseMap(
-            Values, size
-        ) : new SparseMap(size);
+        this._values = Values
+            ? new SparseMap(
+                Values, size
+            )
+            : new SparseMap(size);
 
         this.size = size;
     }

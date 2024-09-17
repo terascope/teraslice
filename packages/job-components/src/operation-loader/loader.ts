@@ -37,7 +37,7 @@ export class OperationLoader {
         };
     }
 
-    private async _getBundledRepository(dirPath: string): Promise<Record<string, any>|undefined> {
+    private async _getBundledRepository(dirPath: string): Promise<Record<string, any> | undefined> {
         const asset = await this.require(dirPath);
         return get(asset, ASSET_KEYWORD) ?? get(asset, `default.${ASSET_KEYWORD}`);
     }
@@ -77,7 +77,7 @@ export class OperationLoader {
     private async getBundleType({
         codePath,
         name
-    }: { codePath: string|null, name: string}): Promise<AssetBundleType|null> {
+    }: { codePath: string | null; name: string }): Promise<AssetBundleType | null> {
         if (!codePath) return null;
 
         if (await this.isBundledOperation(codePath, name)) {
@@ -307,7 +307,7 @@ export class OperationLoader {
     private async require<T>(
         dir: string,
         type?: OperationTypeName,
-        { bundle_type, name }: { bundle_type?: AssetBundleType, name?: string } = {}
+        { bundle_type, name }: { bundle_type?: AssetBundleType; name?: string } = {}
     ): Promise<T> {
         const filePaths = type
             ? this.availableExtensions.map((ext) => pathModule.format({
@@ -433,7 +433,7 @@ export class OperationLoader {
     }
 
     private validateOptions(options: LoaderOptions): ValidLoaderOptions {
-        const assetPath = castArray<string|undefined>(options.assetPath);
+        const assetPath = castArray<string | undefined>(options.assetPath);
         const validOptions = Object.assign({}, options, { assetPath });
         return validOptions as ValidLoaderOptions;
     }

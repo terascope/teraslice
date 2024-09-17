@@ -22,7 +22,7 @@ export enum FieldType {
     IPRange = 'IPRange',
     IP = 'IP',
     KeywordCaseInsensitive = 'KeywordCaseInsensitive',
-    KeywordTokensCaseInsensitive= 'KeywordTokensCaseInsensitive',
+    KeywordTokensCaseInsensitive = 'KeywordTokensCaseInsensitive',
     KeywordPathAnalyzer = 'KeywordPathAnalyzer',
     KeywordTokens = 'KeywordTokens',
     Keyword = 'Keyword',
@@ -113,7 +113,7 @@ export interface DataTypeFieldConfig {
     /**
      * The type of field
     */
-    type: FieldType|DeprecatedFieldType;
+    type: FieldType | DeprecatedFieldType;
 
     /**
      * Indicates whether the field is an array
@@ -198,7 +198,7 @@ export type ReadonlyDataTypeConfig = Readonly<Overwrite<DataTypeConfig, {
     /**
      *  The fields configuration
     */
-    fields: ReadonlyDataTypeFields
+    fields: ReadonlyDataTypeFields;
 }>>;
 
 export const indexedRequiredFieldTypes = {

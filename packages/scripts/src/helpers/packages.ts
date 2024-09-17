@@ -21,10 +21,10 @@ import * as i from './interfaces.js';
 const { MultiMap } = mem;
 
 let _packages: i.PackageInfo[] = [];
-let _e2eDir: string|undefined;
-let _e2e_k8s_dir: string|undefined;
+let _e2eDir: string | undefined;
+let _e2e_k8s_dir: string | undefined;
 
-export function getE2EDir(): string|undefined {
+export function getE2EDir(): string | undefined {
     if (_e2eDir) return _e2eDir;
 
     if (fs.existsSync(path.join(getRootDir(), 'e2e'))) {
@@ -35,7 +35,7 @@ export function getE2EDir(): string|undefined {
     return undefined;
 }
 
-export function getE2eK8sDir(): string|undefined {
+export function getE2eK8sDir(): string | undefined {
     if (_e2e_k8s_dir) return _e2e_k8s_dir;
 
     if (fs.existsSync(path.join(getRootDir(), 'e2e/k8s'))) {
@@ -46,7 +46,7 @@ export function getE2eK8sDir(): string|undefined {
     return undefined;
 }
 
-function _loadPackage(packagePath: string): i.PackageInfo|undefined {
+function _loadPackage(packagePath: string): i.PackageInfo | undefined {
     const pkgJsonPath = path.join(packagePath, 'package.json');
     if (fs.existsSync(pkgJsonPath)) {
         return readPackageInfo(packagePath);
@@ -107,7 +107,7 @@ export function listPackages(
  * Sort the packages by dependencies
 */
 function getSortedPackages(packages: i.PackageInfo[]): readonly string[] {
-    const used: [string, string|undefined][] = [];
+    const used: [string, string | undefined][] = [];
     const noDependencies: string[] = [];
     const noDependents: string[] = [];
     const names = new Set(packages.map((pkg) => pkg.name));
@@ -263,7 +263,7 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
 }
 
 export function updatePkgJSON(
-    pkgInfo: i.PackageInfo|i.RootPackageInfo,
+    pkgInfo: i.PackageInfo | i.RootPackageInfo,
     log?: boolean
 ): Promise<boolean> {
     if (!get(pkgInfo, 'terascope.root')) {
@@ -310,17 +310,18 @@ export function getDocPath(pkgInfo: i.PackageInfo, withFileName: boolean, withEx
 }
 
 export function fixDepPkgName(name: string): string {
-    return trim(name).replace(/^\*\*\//, '').trim();
+    return trim(name).replace(/^\*\*\//, '')
+        .trim();
 }
 
 export async function getRemotePackageVersion(
     pkgInfo: i.PackageInfo,
     /** @internal this is used internally within this function and should not be used externally */
-    forceTag?: 'prerelease'|'latest'
+    forceTag?: 'prerelease' | 'latest'
 ): Promise<string> {
     if (pkgInfo.private) return pkgInfo.version;
 
-    const registryUrl: string|undefined = get(pkgInfo, 'publishConfig.registry');
+    const registryUrl: string | undefined = get(pkgInfo, 'publishConfig.registry');
     const tag = forceTag ?? getPublishTag(pkgInfo.version);
 
     try {
@@ -346,7 +347,7 @@ export async function getRemotePackageVersion(
     }
 }
 
-export function getPublishTag(version: string): 'prerelease'|'latest' {
+export function getPublishTag(version: string): 'prerelease' | 'latest' {
     const parsed = semver.parse(version);
     if (!parsed) {
         throw new Error(`Unable to publish invalid version "${version}"`);

@@ -240,11 +240,15 @@ describe('field FieldTransforms', () => {
         it('throw an error if input cannot be coerced to a number', () => {
             try {
                 expect(FieldTransform.toNumber('bobsyouruncle')).toBe(12321);
-            } catch (e) { expect(e.message).toBe('Could not convert input of type String to a number'); }
+            } catch (e) {
+                expect(e.message).toBe('Could not convert input of type String to a number');
+            }
 
             try {
                 expect(FieldTransform.toNumber({})).toBe(12321);
-            } catch (e) { expect(e.message).toBe('Could not convert input of type Object to a number'); }
+            } catch (e) {
+                expect(e.message).toBe('Could not convert input of type Object to a number');
+            }
         });
 
         it('will return null when given undefined or null', () => {
@@ -314,15 +318,21 @@ describe('field FieldTransforms', () => {
 
             try {
                 expect(FieldTransform.toUnixTime('notADate')).toBe(1577836800);
-            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform notADate to unix time'); }
+            } catch (e) {
+                expect(e.message).toBe('Not a valid date, cannot transform notADate to unix time');
+            }
 
             try {
                 expect(FieldTransform.toUnixTime(true)).toBe(1577836800);
-            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform true to unix time'); }
+            } catch (e) {
+                expect(e.message).toBe('Not a valid date, cannot transform true to unix time');
+            }
 
             try {
                 expect(FieldTransform.toUnixTime({})).toBe(1577836800);
-            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform [object Object] to unix time'); }
+            } catch (e) {
+                expect(e.message).toBe('Not a valid date, cannot transform [object Object] to unix time');
+            }
         });
 
         it('convert an array of values, ignores undefined/null', () => {
@@ -385,7 +395,9 @@ describe('field FieldTransforms', () => {
         it('should throw error if date cannot be formated', () => {
             try {
                 expect(FieldTransform.formatDate('bad date', {}, { format: 'yyyy-MM-dd' })).toBe('2020-02-06');
-            } catch (e) { expect(e.message).toBe('Input is not valid date'); }
+            } catch (e) {
+                expect(e.message).toBe('Input is not valid date');
+            }
         });
 
         it('convert an array of values, ignores undefined/null', () => {
@@ -405,7 +417,9 @@ describe('field FieldTransforms', () => {
         it('should throw error if cannot parse', () => {
             try {
                 expect(FieldTransform.parseDate('2020-01-10', {}, { format: 't' })).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
-            } catch (e) { expect(e.message).toBe('Cannot parse date'); }
+            } catch (e) {
+                expect(e.message).toBe('Cannot parse date');
+            }
         });
 
         it('convert an array of values, ignores undefined/null', () => {
@@ -438,19 +452,27 @@ describe('field FieldTransforms', () => {
         it('throw an error when it can not determine the phone number', () => {
             try {
                 FieldTransform.toISDN('34');
-            } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
+            } catch (e) {
+                expect(e.message).toBe('Could not determine the incoming phone number');
+            }
 
             try {
                 FieldTransform.toISDN('notAphoneNumber');
-            } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
+            } catch (e) {
+                expect(e.message).toBe('Could not determine the incoming phone number');
+            }
 
             try {
                 FieldTransform.toISDN('n/a');
-            } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
+            } catch (e) {
+                expect(e.message).toBe('Could not determine the incoming phone number');
+            }
 
             try {
                 FieldTransform.toISDN('+467+070+123+4567');
-            } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
+            } catch (e) {
+                expect(e.message).toBe('Could not determine the incoming phone number');
+            }
         });
 
         it('convert of an array of values, ignores undefined/null', () => {

@@ -19,7 +19,9 @@ export default class Ex extends Client {
         this._exId = exId;
     }
 
-    id(): string { return this._exId; }
+    id(): string {
+        return this._exId;
+    }
 
     async stop(
         query?: Teraslice.StopQuery,

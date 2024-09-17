@@ -34,7 +34,9 @@ export const getFirstIPInCIDRConfig: FieldTransformConfig = {
         }
     ],
     description: 'Returns the first address of a CIDR range, all inclusive',
-    create() { return getFirstIPInCIDR; },
+    create() {
+        return getFirstIPInCIDR;
+    },
     accepts: [FieldType.String, FieldType.IPRange],
     output_type({ field_config }) {
         return {

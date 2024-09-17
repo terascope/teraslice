@@ -304,7 +304,6 @@ describe('k8sResource', () => {
                 .toEqual('--max-old-space-size=1843');
         });
 
-        // eslint-disable-next-line jest/no-disabled-tests
         it('has separate memory and cpu limits and requests when set on execution', () => {
             execution.resources_requests_cpu = 1;
             execution.resources_limits_cpu = 2;
@@ -667,7 +666,6 @@ describe('k8sResource', () => {
             execution.external_ports = [9090];
             const kr = new K8sResource('deployments', 'worker', terasliceConfig, execution, logger);
 
-            // eslint-disable-next-line no-console
             // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
             expect(kr.resource.spec.template.spec.containers[0].ports)
                 .toEqual([
@@ -680,7 +678,6 @@ describe('k8sResource', () => {
             execution.external_ports = [9090];
             const kr = new K8sResource('jobs', 'execution_controller', terasliceConfig, execution, logger);
 
-            // eslint-disable-next-line no-console
             // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
             expect(kr.resource.spec.template.spec.containers[0].ports)
                 .toEqual([
@@ -698,7 +695,6 @@ describe('k8sResource', () => {
             ];
             const kr = new K8sResource('deployments', 'worker', terasliceConfig, execution, logger);
 
-            // eslint-disable-next-line no-console
             // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
             expect(kr.resource.spec.template.spec.containers[0].ports)
                 .toEqual([
@@ -712,7 +708,6 @@ describe('k8sResource', () => {
             execution.external_ports = [9090, 9091];
             const kr = new K8sResource('jobs', 'execution_controller', terasliceConfig, execution, logger);
 
-            // eslint-disable-next-line no-console
             // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
             expect(kr.resource.spec.template.spec.containers[0].ports)
                 .toEqual([
@@ -903,7 +898,7 @@ describe('k8sResource', () => {
             expect(krWorker.resource.kind).toBe('Deployment');
             expect(krWorker.resource.spec.template.spec).toHaveProperty('priorityClassName');
             expect(krWorker.resource.spec.template.spec.priorityClassName).toEqual('testPriorityClass');
-            // eslint-disable-next-line max-len
+
             expect(krWorker.resource.spec.template.metadata.labels['job-property.teraslice.terascope.io/stateful']).toEqual('true');
 
             const krExporter = new K8sResource('jobs', 'execution_controller', terasliceConfig, execution, logger);
@@ -913,7 +908,7 @@ describe('k8sResource', () => {
 
             expect(krExporter.resource.spec.template.spec).toHaveProperty('priorityClassName');
             expect(krExporter.resource.spec.template.spec.priorityClassName).toEqual('testPriorityClass');
-            // eslint-disable-next-line max-len
+
             expect(krExporter.resource.spec.template.metadata.labels['job-property.teraslice.terascope.io/stateful']).toEqual('true');
         });
     });

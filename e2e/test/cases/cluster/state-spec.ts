@@ -1,3 +1,4 @@
+/* eslint-disable jest/expect-expect */
 import { pDelay, flatten } from '@terascope/utils';
 import signale from '../../signale.js';
 import { TerasliceHarness } from '../../teraslice-harness.js';
@@ -33,7 +34,7 @@ describe('cluster state', () => {
 
     function verifyClusterMaster(state: any) {
         // verify that the cluster master worker exists within the state
-        const nodes = Object.values(state).filter((node:any) => {
+        const nodes = Object.values(state).filter((node: any) => {
             const cms = findWorkers(node.active, 'cluster_master');
             return cms.length > 0;
         }) as any;

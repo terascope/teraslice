@@ -43,7 +43,7 @@ export async function dockerUp() {
             throw new Error('Node version check failed to return a result.');
         }
         return version;
-    })
+    });
 
     const scriptsNodeVersion = semver.coerce(NODE_VERSION);
     const parsedVersion = semver.parse(e2eNodeVersion);

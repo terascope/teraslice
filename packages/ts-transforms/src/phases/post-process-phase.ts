@@ -66,4 +66,4 @@ function process(phase: Operation[], record: MaybeRecord): MaybeRecord {
     return results;
 }
 
-type MaybeRecord = DataEntity|null;
+type MaybeRecord = DataEntity | null;

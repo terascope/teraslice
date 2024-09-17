@@ -24,7 +24,7 @@ function validDistributionAndVersion(
     return (distribution === ElasticsearchDistribution.elasticsearch
         && supportedEsVersions.includes(majorVersion))
         || (distribution === ElasticsearchDistribution.opensearch
-         && supportedOpenVersions.includes(majorVersion)
+            && supportedOpenVersions.includes(majorVersion)
         );
 }
 

@@ -6,16 +6,16 @@ describe('Array Utils', () => {
         it('should be able to remove the uniq values by path', () => {
             const input = [{ a: 1 }, { a: 2 }, { a: 1 }];
             expect(uniqBy(input, 'a')).toStrictEqual([
-                { a: 1, },
-                { a: 2, },
+                { a: 1 },
+                { a: 2 },
             ]);
         });
 
         it('should be able to remove the uniq values by function', () => {
             const input = [{ a: 2 }, { a: 2 }, { a: 1 }];
             expect(uniqBy(input, (obj) => obj.a + 1)).toStrictEqual([
-                { a: 2, },
-                { a: 1, },
+                { a: 2 },
+                { a: 1 },
             ]);
         });
     });
@@ -24,20 +24,20 @@ describe('Array Utils', () => {
         it('should be able to sort values by path', () => {
             const input = [{ a: 2 }, { a: 3 }, { a: 1 }, { a: '0' }];
             expect(sortBy(input, 'a')).toStrictEqual([
-                { a: '0', },
-                { a: 1, },
-                { a: 2, },
-                { a: 3, },
+                { a: '0' },
+                { a: 1 },
+                { a: 2 },
+                { a: 3 },
             ]);
         });
 
         it('should be able to sort string values by path', () => {
             const input = [{ a: 'DD' }, { a: 'CC' }, { a: 'EE' }, { a: 'AA' }];
             expect(sortBy(input, 'a')).toStrictEqual([
-                { a: 'AA', },
-                { a: 'CC', },
-                { a: 'DD', },
-                { a: 'EE', },
+                { a: 'AA' },
+                { a: 'CC' },
+                { a: 'DD' },
+                { a: 'EE' },
             ]);
         });
 

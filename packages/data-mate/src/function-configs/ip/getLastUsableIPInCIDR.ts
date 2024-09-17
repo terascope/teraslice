@@ -34,7 +34,9 @@ export const getLastUsableIPInCIDRConfig: FieldTransformConfig = {
         }
     ],
     description: 'Returns the last address of a CIDR range, excluding the broadcast address for IPv4 addresses',
-    create() { return getLastUsableIPInCIDR; },
+    create() {
+        return getLastUsableIPInCIDR;
+    },
     accepts: [FieldType.String, FieldType.IPRange],
     output_type({ field_config }) {
         return {

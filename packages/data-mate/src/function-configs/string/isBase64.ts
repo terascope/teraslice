@@ -57,6 +57,8 @@ export const isBase64Config: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     examples,
     description: 'Returns the input if it is a valid base64 string, otherwise returns null.',
-    create() { return isBase64; },
+    create() {
+        return isBase64;
+    },
     accepts: [FieldType.String],
 };

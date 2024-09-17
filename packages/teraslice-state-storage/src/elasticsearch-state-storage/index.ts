@@ -74,16 +74,16 @@ export default class ESCachedStateStorage {
         return this.setCacheByKey(key, doc);
     }
 
-    setCacheByKey(key: string|number, doc: DataEntity): void {
+    setCacheByKey(key: string | number, doc: DataEntity): void {
         return this.cache.set(key, doc);
     }
 
-    getFromCache(doc: DataEntity): DataEntity|undefined {
+    getFromCache(doc: DataEntity): DataEntity | undefined {
         const key = this.getIdentifier(doc);
         return this.getFromCacheByKey(key);
     }
 
-    getFromCacheByKey(key: string|number): DataEntity|undefined {
+    getFromCacheByKey(key: string | number): DataEntity | undefined {
         return this.cache.get(key);
     }
 
@@ -92,11 +92,11 @@ export default class ESCachedStateStorage {
         return this.isKeyCached(key);
     }
 
-    isKeyCached(key: string|number): boolean {
+    isKeyCached(key: string | number): boolean {
         return this.cache.has(key);
     }
 
-    async get(doc: DataEntity): Promise<DataEntity|undefined> {
+    async get(doc: DataEntity): Promise<DataEntity | undefined> {
         const key = this.getIdentifier(doc);
         const cached = this.getFromCacheByKey(key);
         if (cached) return cached;
@@ -185,7 +185,7 @@ export default class ESCachedStateStorage {
         }
     }
 
-    private async _esGet(key: string): Promise<DataEntity|undefined> {
+    private async _esGet(key: string): Promise<DataEntity | undefined> {
         const request: ClientParams.GetParams = {
             index: this.index,
             type: this.type,

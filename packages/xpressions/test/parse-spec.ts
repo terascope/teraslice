@@ -1,4 +1,3 @@
-/* eslint-disable no-template-curly-in-string */
 import 'jest-extended';
 import { NodeType, parse } from '../src/index.js';
 
@@ -100,14 +99,16 @@ describe('parse', () => {
                     start: 2,
                     end: 9
                 }
-            }, {
+            },
+            {
                 type: NodeType.LITERAL,
                 value: ' OR ',
                 loc: {
                     start: 9,
                     end: 14
                 }
-            }, {
+            },
+            {
                 type: NodeType.EXPRESSION,
                 value: 'bar_var',
                 nodes: [{
@@ -123,14 +124,16 @@ describe('parse', () => {
                     start: 16,
                     end: 23
                 }
-            }, {
+            },
+            {
                 type: NodeType.LITERAL,
                 value: ' AND foo:',
                 loc: {
                     start: 23,
                     end: 33
                 }
-            }, {
+            },
+            {
                 type: NodeType.EXPRESSION,
                 value: 'foo_var',
                 nodes: [{
@@ -200,7 +203,8 @@ describe('parse', () => {
                     start: 0,
                     end: 2
                 }
-            }, {
+            },
+            {
                 type: NodeType.EXPRESSION,
                 value: 'foo_var',
                 nodes: [{

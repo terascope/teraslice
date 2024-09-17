@@ -3,7 +3,7 @@ import { toHumanTime } from './dates.js';
 import { debugLogger } from './logger.js';
 import { pImmediate } from './promises.js';
 
-let _eventLoop: EventLoop|undefined;
+let _eventLoop: EventLoop | undefined;
 
 /**
  * A simple class for detecting when the event loop is blocked.
@@ -19,7 +19,7 @@ export class EventLoop {
      * and will the delay will get slower the longer the event loop
      * is block (with an upper limit)
     */
-    static wait(): Promise<void>|void {
+    static wait(): Promise<void> | void {
         if (!_eventLoop) {
             EventLoop.init(debugLogger('event-loop'));
         }

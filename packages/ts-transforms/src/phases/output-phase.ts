@@ -75,7 +75,7 @@ function restrictFields(data: DataEntity[], restrictOutput: AnyObject) {
 }
 
 function isKeyMatchRequiredFn(matchRequirements: AnyObject) {
-    return function isKeyMatchRequired(key: string,) {
+    return function isKeyMatchRequired(key: string) {
         return matchRequirements[key] !== undefined;
     };
 }

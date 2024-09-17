@@ -76,7 +76,7 @@ export default class JobObserver extends Observer {
         this._initialized = null;
     }
 
-    getAnalytics(): SliceAnalyticsData|undefined {
+    getAnalytics(): SliceAnalyticsData | undefined {
         if (!this.analyticsData) return;
 
         const { time, memory, size } = this.analyticsData;

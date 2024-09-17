@@ -1,3 +1,3 @@
 import eslintConfig from '@terascope/eslint-config';
 
-export default eslintConfig
+export default eslintConfig;

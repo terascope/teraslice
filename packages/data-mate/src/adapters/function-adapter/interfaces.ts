@@ -5,8 +5,8 @@ export interface FunctionAdapterOptions<T extends Record<string, any>> {
     /**
      * Required with using the data field config
     */
-    readonly field?: string,
-    readonly args?: T | ((index: number) => T),
+    readonly field?: string;
+    readonly args?: T | ((index: number) => T);
     readonly config?: DataTypeConfig;
     readonly preserveNulls?: boolean;
     readonly preserveEmptyObjects?: boolean;
@@ -22,12 +22,12 @@ export interface FieldFunctionAdapterOperation extends RecordFunctionAdapterOper
 export interface FunctionAdapterContext<T extends Record<string, any>> extends FunctionContext<T> {
     preserveNulls: boolean;
     preserveEmptyObjects: boolean;
-    field?: string
+    field?: string;
 }
 
 export interface DynamicFunctionAdapterContext<T extends Record<string, any>>
     extends DynamicFunctionContext<T> {
     preserveNulls: boolean;
     preserveEmptyObjects: boolean;
-    field?: string
+    field?: string;
 }

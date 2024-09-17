@@ -107,7 +107,7 @@ export const encodeConfig: FieldTransformConfig<EncodeArgs> = {
             type: FieldType.String,
             array: false,
             description: 'The hash digest applied to the input, may be set to either "base64" or "hex", defaults to "hex". '
-            + 'Only used when algorithm is not base64, hex, or url'
+                + 'Only used when algorithm is not base64, hex, or url'
         }
     },
     required_arguments: ['algo'],

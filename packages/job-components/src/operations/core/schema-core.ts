@@ -18,4 +18,4 @@ export default abstract class SchemaCore<T> {
     abstract validateJob?(job: ValidatedJobConfig): void;
 }
 
-export type OpType = 'operation'|'api';
+export type OpType = 'operation' | 'api';

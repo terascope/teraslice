@@ -121,7 +121,7 @@ export class DataType {
 
         if (
             distribution === ElasticsearchDistribution.elasticsearch
-             && majorVersion === 6
+            && majorVersion === 6
         ) {
             Object.assign(mappingSettings, {
                 _all: {
@@ -134,7 +134,7 @@ export class DataType {
 
         if (
             distribution === ElasticsearchDistribution.elasticsearch
-             && majorVersion === 6
+            && majorVersion === 6
         ) {
             mappings = {
                 [indexType]: mappingSettings,
@@ -180,7 +180,7 @@ export class DataType {
         return defaultsDeep({}, overrides, esMapping);
     }
 
-    toGraphQL(args?: i.GraphQLOptions, removeScalars = false):string {
+    toGraphQL(args?: i.GraphQLOptions, removeScalars = false): string {
         const { baseType, inputType, customTypes } = this.toGraphQLTypes(args);
         const schema = utils.joinStrings(
             customTypes, baseType, inputType, args?.customTypes
@@ -244,7 +244,7 @@ export class DataType {
             }`
         );
 
-        let inputType: string|undefined;
+        let inputType: string | undefined;
 
         if (createInputType) {
             inputType = utils.joinStrings(

@@ -14,18 +14,18 @@ const packagePath = path.join(process.cwd(), './package.json');
 export interface PackageJSON {
     name: string;
     version: string;
-    scripts: Record<string, string>
-    resolutions: Record<string, string>
-    devDependencies: Record<string, string>
+    scripts: Record<string, string>;
+    resolutions: Record<string, string>;
+    devDependencies: Record<string, string>;
     terascope: {
         root?: boolean;
         type?: string;
         target?: string;
         tests?: {
-            [key: string]: string[]
+            [key: string]: string[];
         };
         version?: number;
-    }
+    };
 }
 
 let _packageJSON: PackageJSON | undefined;
@@ -64,10 +64,10 @@ export interface AssetJSON {
     node_version?: number;
 }
 
-export type MetaCheckFN = (data: AssetMetadata) => Promise<AssetMetadata>
+export type MetaCheckFN = (data: AssetMetadata) => Promise<AssetMetadata>;
 
 export interface AssetMetadata extends AssetJSON {
-    id: string
+    id: string;
 }
 
 export async function verifyAssetJSON(id: string, newPath: string): Promise<AssetMetadata> {
@@ -115,7 +115,7 @@ export async function verifyAssetJSON(id: string, newPath: string): Promise<Asse
         return metadata;
     } catch (_err) {
         const err = new TSError(_err, {
-            message: "Failure parsing asset.json, please ensure that's it formatted correctly",
+            message: 'Failure parsing asset.json, please ensure that\'s it formatted correctly',
             statusCode: 422
         });
         throw err;

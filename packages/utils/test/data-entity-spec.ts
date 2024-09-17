@@ -82,7 +82,7 @@ describe('DataEntity', () => {
                 ...hiddenProps,
             ] as string[])('should NOT be able to enumerate ->%s', (key: string) => {
                 expect(Object.keys(dataEntity)).not.toContain(key);
-                // eslint-disable-next-line guard-for-in
+
                 for (const prop in dataEntity) {
                     expect(prop).not.toEqual(key);
                 }

@@ -41,7 +41,6 @@ export const powConfig: FieldTransformConfig<PowerArgs> = {
         }
     ],
     create({ args: { value } }) {
-         
         return runMathFn(Math.pow, value);
     },
     accepts: [

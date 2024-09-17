@@ -61,7 +61,7 @@ export interface TerasliceESStorageConfig {
     fullResponse?: boolean;
     logRecord?: boolean;
     forceRefresh?: boolean;
-    logger?: Logger
+    logger?: Logger;
 }
 
 export interface TerasliceStorageOptions {
@@ -210,7 +210,7 @@ export class TerasliceElasticsearchStorage {
     async get(
         recordId: string,
         index = this.defaultIndexName,
-        fields?: string| string[]
+        fields?: string | string[]
     ) {
         validateId(recordId, this.recordType);
         this.logger.trace(`getting record id: ${recordId}`);

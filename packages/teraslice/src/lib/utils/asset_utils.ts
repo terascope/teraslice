@@ -9,7 +9,7 @@ export function findMatchingAsset(
     records: AssetRecord[],
     name: string,
     version: string
-): AssetRecord|undefined {
+): AssetRecord | undefined {
     const range = toSemverRange(version);
     const assets = records
         .filter(_isCompatibleAsset(name, range, false))
@@ -53,7 +53,7 @@ export function getInCompatibilityReason(assets?: AssetRecord[], prefix?: string
     return `${prefix ? `${trim(prefix)} ` : ''}${joinList(reasons, ',', 'or')} mismatch`;
 }
 
-export function getMajorVersion(version: string|number): number {
+export function getMajorVersion(version: string | number): number {
     if (version == null) return version;
     if (isInteger(version)) return version;
     return semver.major(version);
@@ -63,7 +63,7 @@ const SYSTEM_NODE_VERSION = getMajorVersion(process.version);
 /**
  * This just compares the major version
 */
-function isCompatibleNodeVersion(version: string|number | undefined) {
+function isCompatibleNodeVersion(version: string | number | undefined) {
     if (version == null) return true;
 
     // anything less than or equal to current node version

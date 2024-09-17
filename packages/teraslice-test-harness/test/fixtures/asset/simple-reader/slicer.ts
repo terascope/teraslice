@@ -10,7 +10,7 @@ export default class TestSlicer extends Slicer<SimpleReaderConfig> {
         this.client = await this.context.apis.op_runner.getClient({}, 'simple-client');
     }
 
-    async slice(): Promise<{ count: number }[]|null> {
+    async slice(): Promise<{ count: number }[] | null> {
         const { slicesToCreate, recordsToFetch } = this.opConfig;
 
         if (this.client.isFinished()) {

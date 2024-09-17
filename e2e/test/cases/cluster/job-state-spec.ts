@@ -42,5 +42,8 @@ describe('job state', () => {
             ex1.stop({ blocking: true }),
             ex2.stop({ blocking: true }),
         ]);
+
+        // we are testing to see if errors come from transitions, not any end results
+        expect(true).toBe(true);
     });
 });

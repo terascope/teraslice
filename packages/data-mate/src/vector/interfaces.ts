@@ -1,6 +1,6 @@
 import { ReadableData } from '../core/index.js';
 
-export type DataBuckets<T> = ReadableData<T>[]|readonly ReadableData<T>[];
+export type DataBuckets<T> = ReadableData<T>[] | readonly ReadableData<T>[];
 
 /**
  * The Vector Type, this will change how the data is stored and read
@@ -51,18 +51,18 @@ export type OldData<T> = Readonly<{
      *
      * @internal
     */
-    readonly indices: readonly (string|null)[];
+    readonly indices: readonly (string | null)[];
 
     /**
      * The unique values
      *
      * @internal
     */
-    readonly values: ReadonlyMap<string|null, DataValueTuple<T>>;
+    readonly values: ReadonlyMap<string | null, DataValueTuple<T>>;
 }>;
 
 export type DataValueTuple<T> = readonly [
-    indices: readonly number[], value: T|null
+    indices: readonly number[], value: T | null
 ];
 
 /**

@@ -12,7 +12,7 @@ export function fieldValidationColumnExecution<T extends Record<string, any>>(
 ) {
     return function _fieldValidationColumnExecution(
         input: unknown[],
-    ): (unknown|null)[] {
+    ): (unknown | null)[] {
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of values');
         }

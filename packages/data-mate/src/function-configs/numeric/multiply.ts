@@ -8,10 +8,10 @@ import {
 } from '../interfaces.js';
 
 export interface MultiplyArgs {
-    readonly value: number
+    readonly value: number;
 }
 
-function isLargeNumberType(type: FieldType|undefined) {
+function isLargeNumberType(type: FieldType | undefined) {
     if (type == null) return false;
     return type === FieldType.Long;
 }
@@ -41,7 +41,8 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
         field: 'testField',
         input: 10,
         output: -20
-    }, {
+    },
+    {
         args: { value: 2 },
         config: {
             version: 1,
@@ -52,7 +53,7 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
         output: 20
     }],
     create({ args: { value }, inputConfig }) {
-        if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
+        if (isLargeNumberType(inputConfig?.field_config.type as FieldType | undefined)) {
             return multiplyFP(toBigIntOrThrow(value));
         }
 
@@ -73,7 +74,7 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
 
 function multiplyFP(value: bigint): (input: unknown) => bigint;
 function multiplyFP(value: number): (input: unknown) => number;
-function multiplyFP(value: number|bigint): (input: unknown) => number|bigint {
+function multiplyFP(value: number | bigint): (input: unknown) => number | bigint {
     const bigInt = isBigInt(value);
     return function _multiply(num) {
         if (bigInt && !isBigInt(num)) {

@@ -9,16 +9,15 @@ import { BigMap } from './big-map.js';
 * */
 export class FlexibleArray {
     constructor() {
-         
         return [];
     }
 }
 
-export class BigLRUMap<V> extends dataStructurePkg.LRUMap<string|number, V> {
+export class BigLRUMap<V> extends dataStructurePkg.LRUMap<string | number, V> {
     constructor(
         mapSize: number,
-        keyArray: FlexibleArray|TypedArray = FlexibleArray,
-        valueArray: FlexibleArray|TypedArray = FlexibleArray
+        keyArray: FlexibleArray | TypedArray = FlexibleArray,
+        valueArray: FlexibleArray | TypedArray = FlexibleArray
     ) {
         super(keyArray as any, valueArray as any, mapSize);
         // @ts-expect-error

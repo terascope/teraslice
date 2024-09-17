@@ -5,7 +5,7 @@ import {
 } from '@terascope/utils';
 import { mapping } from './types/mapping.js';
 
-type ConcatStrType = string|undefined|((string|undefined)[])
+type ConcatStrType = string | undefined|((string | undefined)[]);
 export function concatUniqueStrings(...values: ConcatStrType[]): string[] {
     const set = new Set<string>();
     values.forEach((vals) => {

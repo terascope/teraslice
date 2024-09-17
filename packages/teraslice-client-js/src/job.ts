@@ -39,7 +39,9 @@ export default class Job extends Client {
         autoBind(this);
     }
 
-    id(): string { return this._jobId; }
+    id(): string {
+        return this._jobId;
+    }
 
     async slicer(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionList> {
         return this.get(`/jobs/${this._jobId}/slicer`, requestOptions);

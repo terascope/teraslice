@@ -7,12 +7,14 @@ export default class BooleanType extends BaseType {
         this._validateESMapping();
         return {
             mapping: {
-                [this.field]: this.config.indexed === false ? {
-                    type: 'boolean' as ESFieldType,
-                    index: false
-                } : {
-                    type: 'boolean' as ESFieldType
-                }
+                [this.field]: this.config.indexed === false
+                    ? {
+                        type: 'boolean' as ESFieldType,
+                        index: false
+                    }
+                    : {
+                        type: 'boolean' as ESFieldType
+                    }
             }
         };
     }

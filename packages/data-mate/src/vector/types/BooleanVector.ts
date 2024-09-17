@@ -5,7 +5,7 @@ export class BooleanVector extends Vector<boolean> {
     toJSONCompatibleValue = undefined;
     getComparableValue = undefined;
 
-    constructor(data:DataBuckets<boolean>, options: VectorOptions) {
+    constructor(data: DataBuckets<boolean>, options: VectorOptions) {
         super(VectorType.Boolean, data, options);
     }
 }

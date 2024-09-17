@@ -8,10 +8,12 @@ export default class GeoType extends BaseType {
         this._validateESMapping();
         return {
             mapping: {
-                [this.field]: this.config.indexed === false ? {
-                    type: 'geo_point' as ESFieldType,
-                    index: false
-                } : { type: 'geo_point' as ESFieldType }
+                [this.field]: this.config.indexed === false
+                    ? {
+                        type: 'geo_point' as ESFieldType,
+                        index: false
+                    }
+                    : { type: 'geo_point' as ESFieldType }
             }
         };
     }

@@ -31,7 +31,7 @@ export function createRootLogger(
     context: Terafoundation.Context<Record<string, any>>
 ): Logger {
     const useDebugLogger = (toBoolean(process.env.USE_DEBUG_LOGGER || isTest))
-                        && !toBoolean(process.env.TESTING_LOG_LEVEL);
+        && !toBoolean(process.env.TESTING_LOG_LEVEL);
     const filename = context.name;
     const name = context.assignment || filename;
     const foundationConfig = context.sysconfig.terafoundation;

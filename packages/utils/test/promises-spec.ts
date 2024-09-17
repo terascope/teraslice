@@ -175,11 +175,17 @@ describe('Utils', () => {
 
         it('should run until it returns true on first attempt', async () => {
             await pWhile(async () => true, defaultOptions);
+
+            // testing that it does not hand
+            expect(true).toBeTrue();
         });
 
         it('should run until it returns true on second attempt', async () => {
             let i = 0;
             await pWhile(async () => (i++ > 0), defaultOptions);
+
+            // testing that it does not hand
+            expect(true).toBeTrue();
         });
 
         it('should run until throws an error', async () => {

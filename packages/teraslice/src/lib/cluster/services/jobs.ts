@@ -273,7 +273,7 @@ export class JobsService {
             const exIdsArr = Array.from(exIdsSet);
             const exIdsString = exIdsArr.join(', ');
             this.logger.info(`There are orphaned resources for job: ${jobId}, exId: ${exIdsString}.\n`
-                 + 'Removing resources before job deletion.');
+                + 'Removing resources before job deletion.');
             await Promise.all(exIdsArr
                 .map((exId) => this.executionService.stopExecution(exId, { force: true }))
             );

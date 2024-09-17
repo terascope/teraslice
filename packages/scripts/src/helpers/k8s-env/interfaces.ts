@@ -6,8 +6,8 @@ export interface K8sEnvOptions {
     assetStorage: string;
     terasliceImage?: string;
     resetStore?: boolean;
-    clusteringType: 'kubernetes' | 'kubernetesV2',
-    keepOpen: boolean
+    clusteringType: 'kubernetes' | 'kubernetesV2';
+    keepOpen: boolean;
     dev: boolean;
 }
 
@@ -21,7 +21,7 @@ export interface YamlDeploymentResource {
         labels: {
             'app.kubernetes.io/name': string;
             'app.kubernetes.io/component': string;
-        }
+        };
     };
     spec: {
         replicas: number;
@@ -51,7 +51,7 @@ export interface YamlDeploymentResource {
                         env: [
                             {
                                 name: string;
-                                value:string;
+                                value: string;
                             },
                             {
                                 name: string;
@@ -72,20 +72,20 @@ export interface YamlServiceResource {
         name: string;
         labels: {
             'app.kubernetes.io/name': string;
-        }
-    }
+        };
+    };
     spec: {
         selector: {
             'app.kubernetes.io/name': string;
             'app.kubernetes.io/component': string;
-        },
+        };
         ports: [
             {
                 port: number;
                 targetPort: number;
                 nodePort: number;
             }
-        ],
+        ];
         type: string;
-    }
+    };
 }

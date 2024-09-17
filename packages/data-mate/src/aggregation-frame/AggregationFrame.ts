@@ -86,7 +86,7 @@ export class AggregationFrame<
     private _merge?: boolean;
 
     constructor(
-        columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
+        columns: Column<any, keyof T>[] | readonly Column<any, keyof T>[],
         options: AggregationFrameOptions
     ) {
         this.columns = freezeArray(columns);
@@ -158,14 +158,14 @@ export class AggregationFrame<
     [ValueAggregation.avg]<A extends string>(
         field: keyof T,
         as?: A
-    ): this|AggregationFrame<WithAlias<T, A, number>> {
+    ): this | AggregationFrame<WithAlias<T, A, number>> {
         const { name } = this._ensureColumn(field, as);
         this._ensureNumericLike(name, ValueAggregation.avg);
 
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.avg;
         this._aggregations.set(name, aggObject);
-        return this as AggregationFrame<T|WithAlias<T, A, number>>;
+        return this as AggregationFrame<T | WithAlias<T, A, number>>;
     }
 
     /**
@@ -183,14 +183,14 @@ export class AggregationFrame<
     [ValueAggregation.sum]<A extends string>(
         field: keyof T,
         as?: A
-    ): this|AggregationFrame<WithAlias<T, A, number>> {
+    ): this | AggregationFrame<WithAlias<T, A, number>> {
         const { name } = this._ensureColumn(field, as);
         this._ensureNumericLike(name, ValueAggregation.sum);
 
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.sum;
         this._aggregations.set(name, aggObject);
-        return this as AggregationFrame<T|WithAlias<T, A, number>>;
+        return this as AggregationFrame<T | WithAlias<T, A, number>>;
     }
 
     /**
@@ -208,14 +208,14 @@ export class AggregationFrame<
     [ValueAggregation.min]<A extends string>(
         field: keyof T,
         as?: A
-    ): this|AggregationFrame<WithAlias<T, A, number>> {
+    ): this | AggregationFrame<WithAlias<T, A, number>> {
         const { name } = this._ensureColumn(field, as);
         this._ensureNumericLike(name, ValueAggregation.min);
 
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.min;
         this._aggregations.set(name, aggObject);
-        return this as AggregationFrame<T|WithAlias<T, A, number>>;
+        return this as AggregationFrame<T | WithAlias<T, A, number>>;
     }
 
     /**
@@ -233,14 +233,14 @@ export class AggregationFrame<
     [ValueAggregation.max]<A extends string>(
         field: keyof T,
         as?: A
-    ): this|AggregationFrame<WithAlias<T, A, number>> {
+    ): this | AggregationFrame<WithAlias<T, A, number>> {
         const { name } = this._ensureColumn(field, as);
         this._ensureNumericLike(name, ValueAggregation.max);
 
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.max;
         this._aggregations.set(name, aggObject);
-        return this as AggregationFrame<T|WithAlias<T, A, number>>;
+        return this as AggregationFrame<T | WithAlias<T, A, number>>;
     }
 
     /**
@@ -256,12 +256,12 @@ export class AggregationFrame<
     [ValueAggregation.count]<A extends string>(
         field: keyof T,
         as?: A
-    ): this|AggregationFrame<WithAlias<T, A, number>> {
+    ): this | AggregationFrame<WithAlias<T, A, number>> {
         const { name } = this._ensureColumn(field, as);
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.count;
         this._aggregations.set(name, aggObject);
-        return this as AggregationFrame<T|WithAlias<T, A, number>>;
+        return this as AggregationFrame<T | WithAlias<T, A, number>>;
     }
 
     /**
@@ -342,7 +342,7 @@ export class AggregationFrame<
     */
     orderBy(...fieldArgs: FieldArg<string>[]): this;
     orderBy(...fieldArgs: FieldArg<keyof T>[]): this;
-    orderBy(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): this {
+    orderBy(...fieldArgs: (FieldArg<keyof T>[] | FieldArg<string>[])): this {
         const fields = flattenStringArg(fieldArgs);
         if (fields.size > 1) {
             throw new Error('AggregationFrame.orderBy can only works with one field currently');
@@ -359,7 +359,7 @@ export class AggregationFrame<
     */
     sort(...fieldArgs: FieldArg<string>[]): this;
     sort(...fieldArgs: FieldArg<keyof T>[]): this;
-    sort(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): this {
+    sort(...fieldArgs: (FieldArg<keyof T>[] | FieldArg<string>[])): this {
         return this.orderBy(...fieldArgs);
     }
 
@@ -382,7 +382,7 @@ export class AggregationFrame<
     /**
      * Get a column by name
     */
-    getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
+    getColumn<P extends keyof T>(field: P): Column<T[P], P> | undefined {
         if (this._fieldToColumnIndexCache?.has(field)) {
             return this.getColumnAt<P>(this._fieldToColumnIndexCache.get(field)!);
         }
@@ -412,8 +412,8 @@ export class AggregationFrame<
     /**
      * Get a column by index
     */
-    getColumnAt<P extends keyof T>(index: number): Column<T[P], P>|undefined {
-        return this.columns[index] as Column<any, P>|undefined;
+    getColumnAt<P extends keyof T>(index: number): Column<T[P], P> | undefined {
+        return this.columns[index] as Column<any, P> | undefined;
     }
 
     /**
@@ -436,22 +436,26 @@ export class AggregationFrame<
             return field;
         }));
 
-        this._sortFields = this._sortFields ? Object.freeze(
-            (this._sortFields as string[]).map((field) => {
-                if (field === name) return renameTo;
-                if (field.startsWith(`${String(name)}:`)) {
-                    return field.replace(`${String(name)}:`, `${renameTo}:`);
-                }
-                return field;
-            }) as any[]
-        ) : this._sortFields;
+        this._sortFields = this._sortFields
+            ? Object.freeze(
+                (this._sortFields as string[]).map((field) => {
+                    if (field === name) return renameTo;
+                    if (field.startsWith(`${String(name)}:`)) {
+                        return field.replace(`${String(name)}:`, `${renameTo}:`);
+                    }
+                    return field;
+                }) as any[]
+            )
+            : this._sortFields;
 
-        this._selectFields = this._selectFields ? Object.freeze(
-            this._selectFields.map((field) => {
-                if (field === name) return renameTo;
-                return field;
-            })
-        ) : this._selectFields;
+        this._selectFields = this._selectFields
+            ? Object.freeze(
+                this._selectFields.map((field) => {
+                    if (field === name) return renameTo;
+                    return field;
+                })
+            )
+            : this._selectFields;
 
         this._groupByFields = Object.freeze(
             this._groupByFields.map((field) => {
@@ -496,8 +500,8 @@ export class AggregationFrame<
     }
 
     private _ensureColumn(field: keyof T, as?: string): {
-        name: keyof T,
-        type: FieldType
+        name: keyof T;
+        type: FieldType;
     } {
         const col = this.getColumnOrThrow(field);
 
@@ -743,20 +747,20 @@ export class AggregationFrame<
 }
 
 type AggObject = {
-    key?: KeyAggregation; value?: ValueAggregation
+    key?: KeyAggregation; value?: ValueAggregation;
 };
 
 type WithAlias<T extends Record<string, unknown>, A extends string, V> = {
-    [P in (keyof T)|A]: V;
-}
+    [P in (keyof T) | A]: V;
+};
 
 type FieldAggMaker = [fieldAgg: () => FieldAgg, vector: Vector<any>];
 
 type FieldAggsMap<T extends Record<string, unknown>> = Map<keyof T, FieldAgg> & {
-    adjustsSelectedRow: boolean
+    adjustsSelectedRow: boolean;
 };
 type Bucket<T extends Record<string, unknown>> = [
-    fieldAggs: FieldAggsMap<T>, startIndex: number|number[]
+    fieldAggs: FieldAggsMap<T>, startIndex: number | number[]
 ];
 
 interface AggBuilders<T extends Record<string, any>> {
@@ -780,7 +784,7 @@ function curryFieldAgg(
 }
 
 function makeGetFieldAggs<T extends Record<string, any>>(buckets: BigMap<string, Bucket<T>>) {
-    return function getFieldAggs(key: string, index: number|number[]): FieldAggsMap<T> {
+    return function getFieldAggs(key: string, index: number | number[]): FieldAggsMap<T> {
         const fieldAggRes = buckets.get(key);
 
         if (!fieldAggRes) {
@@ -794,7 +798,7 @@ function makeGetFieldAggs<T extends Record<string, any>>(buckets: BigMap<string,
 }
 
 function makeProcessFieldAgg<T extends Record<string, any>>(
-    fieldAggs: FieldAggsMap<T>, index: number|number[]
+    fieldAggs: FieldAggsMap<T>, index: number | number[]
 ) {
     return function processFieldAgg(maker: FieldAggMaker, field: keyof T) {
         let agg = fieldAggs.get(field);
