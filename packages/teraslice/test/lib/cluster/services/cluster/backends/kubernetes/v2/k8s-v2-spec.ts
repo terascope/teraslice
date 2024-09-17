@@ -103,6 +103,16 @@ describe('k8s', () => {
             const jobs = await k8s.list('app=teraslice', 'jobs');
             expect(jobs.kind).toEqual('JobList');
         });
+
+        it('can get ReplicaSetList', async () => {
+            nock(_url)
+                .get('/apis/apps/v1/namespaces/default/replicasets')
+                .query({ labelSelector: 'app=teraslice' })
+                .reply(200, { kind: 'ReplicaSetList' });
+
+            const jobs = await k8s.list('app=teraslice', 'replicasets');
+            expect(jobs.kind).toEqual('ReplicaSetList');
+        });
     });
 
     describe('->nonEmptyList', () => {
@@ -224,6 +234,15 @@ describe('k8s', () => {
                 .reply(200, {});
 
             const response = await k8s.delete('test1', 'pods');
+            expect(response).toEqual({});
+        });
+
+        it('can delete a replicaset by name', async () => {
+            nock(_url)
+                .delete('/apis/apps/v1/namespaces/default/replicasets/test1')
+                .reply(200, {});
+
+            const response = await k8s.delete('test1', 'replicasets');
             expect(response).toEqual({});
         });
 
