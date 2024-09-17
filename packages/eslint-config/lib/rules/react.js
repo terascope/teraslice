@@ -1,7 +1,13 @@
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 import { INDENT } from './constants.js';
 import tsRules from './typescript.js';
 
 export default Object.assign({}, tsRules, {
+    ...react.configs.flat.recommended.rules,
+    ...jsxA11y.flatConfigs.recommended.rules,
+    ...reactHooks.configs.recommended.rules,
     // overrides
     'no-console': ['error', { allow: ['warn', 'error', 'debug'] }],
     // react rules
@@ -14,5 +20,7 @@ export default Object.assign({}, tsRules, {
     'react/jsx-indent': ['error', INDENT],
     'react/jsx-indent-props': ['error', INDENT],
     'react/jsx-props-no-spreading': 'off',
-    'jsx-a11y/label-has-associated-control': 'off'
+    'jsx-a11y/label-has-associated-control': 'off',
+    // This rule triggers incorrectly on other non react files
+    'react/no-is-mounted': 'off'
 });

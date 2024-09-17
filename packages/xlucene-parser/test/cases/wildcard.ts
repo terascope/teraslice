@@ -13,7 +13,7 @@ export default [
             type: NodeType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
-            value: { type: 'value', value: 'the?e', },
+            value: { type: 'value', value: 'the?e' },
         },
     ],
     [
@@ -39,7 +39,7 @@ export default [
             type: NodeType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
-            value: { type: 'value', value: '?here', },
+            value: { type: 'value', value: '?here' },
         },
         {
             hi: xLuceneFieldType.String
@@ -52,7 +52,7 @@ export default [
             type: NodeType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
-            value: { type: 'value', value: 'ther*', },
+            value: { type: 'value', value: 'ther*' },
         },
         {
             hi: xLuceneFieldType.String
@@ -65,7 +65,7 @@ export default [
             type: NodeType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
-            value: { type: 'value', value: 'the?*', },
+            value: { type: 'value', value: 'the?*' },
         },
         {
             hi: xLuceneFieldType.String
@@ -78,7 +78,7 @@ export default [
             type: NodeType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
-            value: { type: 'value', value: 'th?r*', },
+            value: { type: 'value', value: 'th?r*' },
         },
         {
             hi: xLuceneFieldType.String
@@ -90,7 +90,7 @@ export default [
         {
             type: NodeType.Wildcard,
             field: null,
-            value: { type: 'value', value: '*', },
+            value: { type: 'value', value: '*' },
         } as Wildcard,
     ],
     [
@@ -99,7 +99,7 @@ export default [
         {
             type: NodeType.Wildcard,
             field: null,
-            value: { type: 'value', value: '*', },
+            value: { type: 'value', value: '*' },
         },
     ],
     [
@@ -108,7 +108,7 @@ export default [
         {
             type: NodeType.Wildcard,
             field: null,
-            value: { type: 'value', value: '?', },
+            value: { type: 'value', value: '?' },
         },
     ],
 ] as TestCase[];
@@ -163,7 +163,7 @@ export const filterNilWildcard: TestCase[] = [
                         {
                             type: NodeType.Term,
                             field: 'b',
-                            value: { type: 'value', value: 1, },
+                            value: { type: 'value', value: 1 },
                         } as Term,
                     ],
                 },

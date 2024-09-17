@@ -19,7 +19,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'value', value: 10, },
+                            value: { type: 'value', value: 10 },
                         }
                     },
                     {
@@ -28,7 +28,7 @@ export default [
                         left: {
                             operator: 'lte',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'value', value: 20, },
+                            value: { type: 'value', value: 20 },
                         }
                     },
                     {
@@ -37,7 +37,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'value', value: 100, },
+                            value: { type: 'value', value: 100 },
                         }
                     }
                 ]
@@ -57,7 +57,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'variable', value: 'foo', },
+                            value: { type: 'variable', value: 'foo' },
                         }
                     },
                     {
@@ -66,7 +66,7 @@ export default [
                         left: {
                             operator: 'lte',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'variable', value: 'bar', },
+                            value: { type: 'variable', value: 'bar' },
                         }
                     },
                     {
@@ -75,7 +75,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'variable', value: 'baz', },
+                            value: { type: 'variable', value: 'baz' },
                         }
                     }
                 ]
@@ -95,7 +95,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'value', value: 10, },
+                            value: { type: 'value', value: 10 },
                         }
                     },
                 ]
@@ -109,7 +109,7 @@ export default [
                         left: {
                             operator: 'lte',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'value', value: 20, },
+                            value: { type: 'value', value: 20 },
                         }
                     },
                 ]
@@ -123,7 +123,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'value', value: 100, },
+                            value: { type: 'value', value: 100 },
                         }
                     }
                 ]
@@ -140,7 +140,7 @@ export default [
                     {
                         type: NodeType.Term,
                         field_type: xLuceneFieldType.String,
-                        value: { type: 'value', value: 'AqMvPMCS76u0', },
+                        value: { type: 'value', value: 'AqMvPMCS76u0' },
                     }
                 ]
             },
@@ -150,7 +150,7 @@ export default [
                     {
                         type: NodeType.Term,
                         field_type: xLuceneFieldType.String,
-                        value: { type: 'value', value: '497qIZuha9_u', },
+                        value: { type: 'value', value: '497qIZuha9_u' },
                     }
                 ]
             },
@@ -160,7 +160,7 @@ export default [
                     {
                         type: NodeType.Term,
                         field_type: xLuceneFieldType.String,
-                        value: { type: 'value', value: 'Oc2DG0O2gbcY', },
+                        value: { type: 'value', value: 'Oc2DG0O2gbcY' },
                     }
                 ]
             }
@@ -175,7 +175,7 @@ export default [
                 nodes: [
                     {
                         type: NodeType.Wildcard,
-                        value: { type: 'value', value: 'Bob*', },
+                        value: { type: 'value', value: 'Bob*' },
                     }
                 ]
             },
@@ -184,7 +184,7 @@ export default [
                 nodes: [
                     {
                         type: NodeType.Wildcard,
-                        value: { type: 'value', value: 'Joe*', },
+                        value: { type: 'value', value: 'Joe*' },
                     }
                 ]
             },
@@ -432,7 +432,7 @@ export default [
                             type: NodeType.Term,
                             field: 'val',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'value', value: 1, },
+                            value: { type: 'value', value: 1 },
                         }
                     },
                     {
@@ -458,7 +458,7 @@ export default [
                             type: NodeType.Term,
                             field: 'val',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'variable', value: 'foo', },
+                            value: { type: 'variable', value: 'foo' },
                         }
                     },
                     {
@@ -476,14 +476,14 @@ export default [
         field_type: xLuceneFieldType.String,
         field: 'some_ref',
         quoted: true,
-        value: { type: 'value', value: 'A', },
+        value: { type: 'value', value: 'A' },
     }],
     ["some_ref:('A')", 'single value field group', {
         type: NodeType.Term,
         field_type: xLuceneFieldType.String,
         field: 'some_ref',
         quoted: true,
-        value: { type: 'value', value: 'A', },
+        value: { type: 'value', value: 'A' },
     }],
     ['foo:(bar baz)', 'multi-value field group with no quotes', {
         type: NodeType.FieldGroup,
@@ -496,7 +496,7 @@ export default [
                         type: NodeType.Term,
                         field: 'foo',
                         field_type: xLuceneFieldType.String,
-                        value: { type: 'value', value: 'bar', },
+                        value: { type: 'value', value: 'bar' },
                     },
                 ],
             },
@@ -524,7 +524,7 @@ export default [
                         type: NodeType.Term,
                         field: 'foo',
                         field_type: xLuceneFieldType.String,
-                        value: { type: 'variable', scoped: true, value: '@bar', },
+                        value: { type: 'variable', scoped: true, value: '@bar' },
                     } as Term,
                 ],
             },
@@ -557,7 +557,7 @@ export default [
                             type: NodeType.Term,
                             field: 'val',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'value', value: 155, },
+                            value: { type: 'value', value: 155 },
                         },
                     ],
                 },
@@ -587,7 +587,7 @@ export const filterNilFieldGroup: TestCase[] = [
             left: {
                 operator: 'gte',
                 field_type: xLuceneFieldType.Integer,
-                value: { type: 'variable', value: 'foo', },
+                value: { type: 'variable', value: 'foo' },
             }
         } as Range,
         { count: xLuceneFieldType.Integer },
@@ -598,7 +598,7 @@ export const filterNilFieldGroup: TestCase[] = [
             left: {
                 operator: 'gte',
                 field_type: xLuceneFieldType.Integer,
-                value: { type: 'value', value: 20, },
+                value: { type: 'value', value: 20 },
             }
         } as Range,
     ],
@@ -702,7 +702,7 @@ export const filterNilFieldGroup: TestCase[] = [
                             type: NodeType.Term,
                             field: 'foo',
                             field_type: xLuceneFieldType.String,
-                            value: { type: 'variable', scoped: true, value: '@bar', },
+                            value: { type: 'variable', scoped: true, value: '@bar' },
                         } as Term,
                     ],
                 },
@@ -726,7 +726,7 @@ export const filterNilFieldGroup: TestCase[] = [
         'chained OR with wildcards',
         {
             type: NodeType.Wildcard,
-            value: { type: 'value', value: 'Bob*', },
+            value: { type: 'value', value: 'Bob*' },
         } as Wildcard
     ],
 ];

@@ -20,12 +20,11 @@
     "dependencies": {
         "@eslint/compat": "^1.1.1",
         "@eslint/js": "^9.10.0",
+        "@stylistic/eslint-plugin": "^2.8.0",
         "@types/eslint__js": "^8.42.3",
         "@typescript-eslint/eslint-plugin": "^8.5.0",
         "@typescript-eslint/parser": "^8.5.0",
         "eslint": "^9.10.0",
-        "eslint-config-airbnb": "^19.0.4",
-        "eslint-config-airbnb-base": "^15.0.0",
         "eslint-plugin-import": "~2.30.0",
         "eslint-plugin-jest": "^28.8.3",
         "eslint-plugin-jest-dom": "^5.4.0",

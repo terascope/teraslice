@@ -91,8 +91,7 @@ describe('cluster state', () => {
         verifyClusterState(await terasliceHarness.scaleWorkersAndWait());
     });
 
-    // eslint-disable-next-line jest/no-focused-tests
-    fit('should be correct for running job with 1 worker', async () => {
+    it('should be correct for running job with 1 worker', async () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         const specIndex = terasliceHarness.newSpecIndex('state');
         // Set resource constraints on workers within CI

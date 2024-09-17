@@ -11,7 +11,7 @@ import {
 */
 export function parse(input: string): Nodes {
     const len = input.length;
-    const ast: (LiteralNode|ExpressionNode|VariableNode)[] = [];
+    const ast: (LiteralNode | ExpressionNode | VariableNode)[] = [];
     let chunkStart = 0;
     let chunk = '';
     function finishChunk(chunkEnd: number) {

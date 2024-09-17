@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 import { Suite } from './helpers.js';
 import FakeDataEntity from './fixtures/fake-data-entity.js';
 import {
@@ -31,7 +30,6 @@ const run = async () => Suite('DataEntity')
             let entity = Object.assign({}, input);
             entity.metadata = Object.assign({}, metadata, { _createTime: Date.now() });
             entity.hello = Math.random();
-            entity.hello;
             entity = null;
             return entity;
         }
@@ -41,7 +39,6 @@ const run = async () => Suite('DataEntity')
             const input = fastCloneDeep(data);
             let entity = new FakeDataEntity(input, metadata);
             entity.hello = Math.random();
-            entity.hello;
             entity = null;
             return entity;
         }
@@ -51,7 +48,6 @@ const run = async () => Suite('DataEntity')
             const input = fastCloneDeep(data);
             let entity = new DataEntity(input, metadata);
             entity.hello = Math.random();
-            entity.hello;
             entity = null;
             return entity;
         }
@@ -61,7 +57,6 @@ const run = async () => Suite('DataEntity')
             const input = fastCloneDeep(data);
             let entity = DataEntity.make(input, metadata);
             entity.hello = Math.random();
-            entity.hello;
             entity = null;
             return entity;
         }

@@ -1,6 +1,8 @@
+import js from "@eslint/js";
 import { INDENT } from './constants.js';
 
 export default {
+    ...js.configs.recommended.rules,
     // airbnb overrides
     // indent: ['error', INDENT],
     'max-len': ['error', {
