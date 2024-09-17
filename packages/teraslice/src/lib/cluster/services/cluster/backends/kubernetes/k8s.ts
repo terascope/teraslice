@@ -391,14 +391,14 @@ export class K8s {
             throw new Error('deleteExecution requires an executionId');
         }
 
-        await this._deleteObjByExId(exId, 'execution_controller', 'jobs', force);
-
         if (force) {
-            await this._deleteObjByExId(exId, 'execution_controller', 'services', force);
-            await this._deleteObjByExId(exId, 'execution_controller', 'pods', force);
-            await this._deleteObjByExId(exId, 'worker', 'deployments', force);
             await this._deleteObjByExId(exId, 'worker', 'pods', force);
+            await this._deleteObjByExId(exId, 'worker', 'deployments', force);
+            await this._deleteObjByExId(exId, 'execution_controller', 'pods', force);
+            await this._deleteObjByExId(exId, 'execution_controller', 'services', force);
         }
+
+        await this._deleteObjByExId(exId, 'execution_controller', 'jobs', force);
     }
 
     /**
@@ -429,14 +429,22 @@ export class K8s {
         }
 
         for (const obj of objList.items) {
-            const name = obj.metadata.name;
+            const { name, deletionTimestamp } = obj.metadata;
+
             if (!name) {
                 const err = new Error(`Cannot delete ${objType} for ExId: ${exId} by name because it has no name`);
                 this.logger.error(err);
                 return Promise.reject(err);
             }
-            this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} deleting: ${name}`);
 
+            // If deletionTimestamp is present then the resource is already terminating.
+            // K8s will not change the grace period in this case, so force deletion is not possible
+            if (force && deletionTimestamp) {
+                this.logger.warn(`Cannot force delete ${name} for ExId: ${exId}. It will finish deleting gracefully by ${deletionTimestamp}`);
+                return Promise.resolve();
+            }
+
+            this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} ${force ? 'force' : ''} deleting: ${name}`);
             try {
                 deleteResponses.push(await this.delete(name, objType, force));
             } catch (e) {
