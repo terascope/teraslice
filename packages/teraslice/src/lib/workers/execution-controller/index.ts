@@ -433,7 +433,7 @@ export class ExecutionController {
             /// This is an indication that the cluster_master did not call for this
             /// shutdown. We want to restart in this case.
             if (status !== 'stopping' && includes(runningStatuses, status)) {
-                this.logger.info('Skipping shutdown to allow restart...');
+                this.logger.info('Skipping shutdown to allow for relocation...');
                 return;
             }
         }
@@ -945,17 +945,17 @@ export class ExecutionController {
             // an unexpected exit to the ex process. Ex: an OOM
             // NOTE: If this becomes an issue we may want to add a new state. Maybe `interrupted`
             if (this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2') {
-                // Check to see if `isRestartable` exists.
+                // Check to see if `isRelocatable` exists.
                 // Allows for older assets to work with k8sV2
-                if (this.executionContext.slicer().isRestartable) {
+                if (this.executionContext.slicer().isRelocatable) {
                     this.logger.info(`Execution ${this.exId} detected to have been restarted..`);
-                    const restartable = this.executionContext.slicer().isRestartable();
-                    if (restartable) {
+                    const relocatable = this.executionContext.slicer().isRelocatable();
+                    if (relocatable) {
                         this.logger.info(`Execution ${this.exId} is restarable and will continue reinitializing...`);
                     } else {
                         this.logger.error(`Execution ${this.exId} is not restarable and will shutdown...`);
                     }
-                    return restartable;
+                    return relocatable;
                 }
             }
             error = new Error(invalidStateMsg('running'));
