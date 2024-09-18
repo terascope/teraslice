@@ -227,7 +227,7 @@ export class KubernetesClusterBackend {
      */
     async listResourcesForJobId(jobId: string) {
         const resources = [];
-        const resourceTypes = ['pods', 'deployments', 'services', 'jobs'];
+        const resourceTypes = ['pods', 'deployments', 'services', 'jobs', 'replicasets'];
         for (const type of resourceTypes) {
             const list = await this.k8s.list(`teraslice.terascope.io/jobId=${jobId}`, type);
             if (list.items.length > 0) {

@@ -338,6 +338,7 @@ export class K8s {
                 return res;
             } catch (e) {
                 if (e.statusCode) {
+                    // 404 should be an acceptable response to a delete request, not an error
                     if (e.statusCode === 404) {
                         this.logger.info(`No ${objType} with name ${name} found while attempting to delete.`);
                         return e;
