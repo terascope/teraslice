@@ -694,6 +694,20 @@ export class ApiService {
                         this.logger.trace('Updating cluster_master prom metrics..');
                         const controllers = await this.executionService.getControllerStats();
                         const stats = this.executionService.getClusterAnalytics();
+                        const { cluster_manager_type, name } = this.context.sysconfig.teraslice;
+
+                        this.context.apis.foundation.promMetrics.set(
+                            'master_info',
+                            {
+                                arch: this.context.arch,
+                                clustering_type: cluster_manager_type,
+                                name,
+                                node_version: process.version,
+                                platform: this.context.platform,
+                                teraslice_version: getPackageJSON().version
+                            },
+                            1
+                        );
 
                         this.context.apis.foundation.promMetrics.set(
                             'slices_processed',

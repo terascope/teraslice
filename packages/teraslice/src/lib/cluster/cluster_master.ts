@@ -12,7 +12,6 @@ import {
 } from './services/index.js';
 import { JobsStorage, ExecutionStorage, StateStorage } from '../storage/index.js';
 import { ClusterMasterContext } from '../../interfaces.js';
-import { getPackageJSON } from '../utils/file_utils.js';
 
 export class ClusterMaster {
     context: ClusterMasterContext;
@@ -374,19 +373,6 @@ export class ClusterMaster {
                     ['ex_id', 'job_id', 'job_name'],
                 ),
             ]);
-
-            this.context.apis.foundation.promMetrics.set(
-                'master_info',
-                {
-                    arch: this.context.arch,
-                    clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
-                    name: this.context.sysconfig.teraslice.name,
-                    node_version: process.version,
-                    platform: this.context.platform,
-                    teraslice_version: getPackageJSON().version
-                },
-                1
-            );
         }
     }
 }
