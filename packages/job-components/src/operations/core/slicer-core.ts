@@ -148,10 +148,10 @@ export default abstract class SlicerCore<T = OpConfig>
     }
 
     /**
-     * Used to indicate whether this slicer is restartable. Only relevant for
+     * Used to indicate whether this slicer is relocatable. Only relevant for
      * kubernetesV2 backend
      */
-    isRestartable(): boolean {
+    isRelocatable(): boolean {
         return false;
     }
 
