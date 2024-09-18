@@ -86,7 +86,7 @@ export class K8sResource {
         this._setResources();
         this._setVolumes();
         if (process.env.MOUNT_LOCAL_TERASLICE !== undefined) {
-            this._mountLocalTeraslice(resourceName);
+            this._mountLocalTeraslice();
         }
         this._setAssetsVolume();
         this._setImagePullSecret();
@@ -111,18 +111,15 @@ export class K8sResource {
         }
     }
 
-    _mountLocalTeraslice(contextType: string) {
+    _mountLocalTeraslice() {
         const devMounts = JSON.parse(process.env.MOUNT_LOCAL_TERASLICE as string);
         this.resource.spec.template.spec.containers[0].volumeMounts.push(...devMounts.volumeMounts);
         this.resource.spec.template.spec.volumes.push(...devMounts.volumes);
 
-        if (contextType === 'execution_controller') {
-            this.resource.spec.template.spec.containers[0].args = [
-                'yarn',
-                'node',
-                'service.js'
-            ];
-        }
+        this.resource.spec.template.spec.containers[0].args = [
+            'node',
+            'service.js'
+        ];
     }
 
     _makeConfig(): K8sConfig {
@@ -285,14 +282,14 @@ export class K8sResource {
                 // eslint-disable-next-line max-len
                 this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
                 if (this.execution.stateful) {
-                     
+
                     this.resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
                 }
             }
             if (this.nodeType === 'worker' && this.execution.stateful) {
                 // eslint-disable-next-line max-len
                 this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
-                 
+
                 this.resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
             }
         }
