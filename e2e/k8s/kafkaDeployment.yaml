@@ -28,15 +28,17 @@ spec:
           - name: KAFKA_ZOOKEEPER_CONNECT
             value: zookeeper:2181
           - name: KAFKA_ADVERTISED_LISTENERS
-            value: INTERNAL://cpkafka.services-dev1:9092
+            value: INTERNAL://cpkafka.services-dev1:9092,EXTERNAL://localhost:9094
           - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-            value: INTERNAL:PLAINTEXT
+            value: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
           - name: KAFKA_INTER_BROKER_LISTENER_NAME
             value: INTERNAL
           - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
             value: "1"
         ports:
         - containerPort: 9092
+        - containerPort: 9094
+
 ---
 kind: Service
 apiVersion: v1
@@ -54,3 +56,7 @@ spec:
     name: cpkafka
     targetPort: 9092
     nodePort: 30092
+  - port: 9094
+    name: cpkafkalocal
+    targetPort: 9094
+    nodePort: 30094

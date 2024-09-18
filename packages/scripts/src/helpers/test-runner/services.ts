@@ -132,7 +132,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         tmpfs: config.SERVICES_USE_TMPFS
             ? ['/data']
             : undefined,
-        ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`],
+        ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`, `${config.MINIO_UI_PORT}:${config.MINIO_UI_PORT}`],
         mount: config.ENCRYPT_MINIO
             ? [`type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`]
             : [],
@@ -142,8 +142,8 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         },
         network: config.DOCKER_NETWORK_NAME,
         args: config.ENCRYPT_MINIO
-            ? ['server', '-S', '/opt/certs', '--address', `0.0.0.0:${config.MINIO_PORT}`, '/data']
-            : ['server', '--address', `0.0.0.0:${config.MINIO_PORT}`, '/data']
+            ? ['server', '-S', '/opt/certs', '--address', `0.0.0.0:${config.MINIO_PORT}`, '--console-address', `:${config.MINIO_UI_PORT}`, '/data']
+            : ['server', '--address', `0.0.0.0:${config.MINIO_PORT}`, '--console-address', `:${config.MINIO_UI_PORT}`, '/data']
     },
     [Service.RabbitMQ]: {
         image: config.RABBITMQ_DOCKER_IMAGE,
