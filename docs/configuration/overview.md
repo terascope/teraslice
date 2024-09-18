@@ -43,6 +43,7 @@ NOTE: All `asset_storage` related fields are deprecated. Please use the fields i
 | **prom_metrics_enabled** | `Boolean` |  `false` | Create prometheus exporters. Kubernetes clustering only |
 | **prom_metrics_port** | `Number` |  `3333` | Port of prometheus exporter server. Kubernetes clustering only. Metrics will be visible at `http://localhost:<PORT>/metrics` |
 | **prom_metrics_add_default** | `Boolean` |  `true` | Display default node metrics in prom exporter. Kubernetes clustering only |
+| **prom_metrics_display_url** | `String` |  `""` | Value to display as url label for prometheus metrics |
 |   **workers**   |  `Number`  |       `4`       |                             Number of workers per server                              |
 
 ## Teraslice Configuration Reference
