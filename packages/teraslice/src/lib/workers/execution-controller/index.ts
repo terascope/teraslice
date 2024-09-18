@@ -951,9 +951,9 @@ export class ExecutionController {
                     this.logger.info(`Execution ${this.exId} detected to have been restarted..`);
                     const relocatable = this.executionContext.slicer().isRelocatable();
                     if (relocatable) {
-                        this.logger.info(`Execution ${this.exId} is restarable and will continue reinitializing...`);
+                        this.logger.info(`Execution ${this.exId} is relocatable and will continue reinitializing...`);
                     } else {
-                        this.logger.error(`Execution ${this.exId} is not restarable and will shutdown...`);
+                        this.logger.error(`Execution ${this.exId} is not relocatable and will shutdown...`);
                     }
                     return relocatable;
                 }
