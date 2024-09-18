@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "2.3.1",
+    "version": "2.3.1-dev-1",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -64,7 +64,6 @@
         "jest-extended": "^3.2.4",
         "jest-watch-typeahead": "^2.2.2",
         "node-notifier": "^10.0.1",
-        "nodemon": "^3.1.4",
         "ts-jest": "^29.2.5",
         "typescript": "~5.2.2"
     },
