@@ -66,6 +66,7 @@ export const KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR = process.env.KAFKA_OFFSETS_
 export const MINIO_NAME = process.env.MINIO_NAME || 'minio';
 export const MINIO_HOSTNAME = process.env.MINIO_HOSTNAME || HOST_IP;
 export const MINIO_PORT = process.env.MINIO_PORT || '49000';
+export const MINIO_UI_PORT = process.env.MINIO_UI_PORT || '49001';
 export const ENCRYPT_MINIO = toBoolean(process.env.ENCRYPT_MINIO ?? false);
 export const MINIO_HOST = `http${ENCRYPT_MINIO ? 's' : ''}://${MINIO_HOSTNAME}:${MINIO_PORT}`;
 export const MINIO_VERSION = process.env.MINIO_VERSION || 'RELEASE.2022-09-22T18-57-27Z';
