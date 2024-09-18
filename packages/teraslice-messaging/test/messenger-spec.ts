@@ -159,12 +159,15 @@ describe('Messenger', () => {
         describe('when the port is already in-use', () => {
             let port: number;
 
-            beforeAll((done) => {
-                findPort().then((_port) => {
-                    port = _port;
+            beforeAll(async () => {
+                port = await findPort();
+
+                return new Promise((resolves) => {
                     http.createServer((req, res) => {
                         res.end(req.url);
-                    }).listen(port, done);
+                    }).listen(port, () => {
+                        resolves(true);
+                    });
                 });
             });
 
@@ -195,58 +198,60 @@ describe('Messenger', () => {
         const clientShutdownFn: ClientFn = jest.fn();
         const clientErrorFn: ClientFn = jest.fn();
 
-        beforeAll((done) => {
-            clientAvailableFn = jest.fn(() => {
-                done();
-            });
-
-            async function setup() {
-                clientId = await newMsgId();
-                const port = await findPort();
-                const hostUrl = formatURL('localhost', port);
-
-                server = new Messenger.Server({
-                    port,
-                    networkLatencyBuffer: 0,
-                    actionTimeout: 1000,
-                    serverTimeout: 2000,
-                    clientDisconnectTimeout: 3000,
-                    serverName: 'example'
+        beforeAll(() => {
+            return new Promise((resolves) => {
+                clientAvailableFn = jest.fn(() => {
+                    resolves(true);
                 });
 
-                server.onClientOnline(clientOnlineFn);
-                server.onClientAvailable(clientAvailableFn);
-                server.onClientUnavailable(clientUnavailableFn);
-                server.onClientDisconnect(clientDisconnectFn);
-                server.onClientReconnect(clientReconnectFn);
-                server.onClientShutdown(clientShutdownFn);
-                server.onClientError(clientErrorFn);
+                async function setup() {
+                    clientId = await newMsgId();
+                    const port = await findPort();
+                    const hostUrl = formatURL('localhost', port);
 
-                client = new Messenger.Client({
-                    serverName: 'example',
-                    clientId,
-                    clientType: 'example',
-                    hostUrl,
-                    clientDisconnectTimeout: 1000,
-                    networkLatencyBuffer: 0,
-                    actionTimeout: 1000,
-                    connectTimeout: 5000,
-                // this last arg is for overriding the
-                // connect timeout for the socket.io client
-                }, 500);
+                    server = new Messenger.Server({
+                        port,
+                        networkLatencyBuffer: 0,
+                        actionTimeout: 1000,
+                        serverTimeout: 2000,
+                        clientDisconnectTimeout: 3000,
+                        serverName: 'example'
+                    });
 
-                // let the client connect first so
-                // we can test that client can come up
-                // before the server
-                await Promise.all([
-                    client.connect(),
-                    pDelay(1000).then(() => server.listen())
-                ]);
+                    server.onClientOnline(clientOnlineFn);
+                    server.onClientAvailable(clientAvailableFn);
+                    server.onClientUnavailable(clientUnavailableFn);
+                    server.onClientDisconnect(clientDisconnectFn);
+                    server.onClientReconnect(clientReconnectFn);
+                    server.onClientShutdown(clientShutdownFn);
+                    server.onClientError(clientErrorFn);
 
-                await client.sendAvailable();
-            }
+                    client = new Messenger.Client({
+                        serverName: 'example',
+                        clientId,
+                        clientType: 'example',
+                        hostUrl,
+                        clientDisconnectTimeout: 1000,
+                        networkLatencyBuffer: 0,
+                        actionTimeout: 1000,
+                        connectTimeout: 5000,
+                    // this last arg is for overriding the
+                    // connect timeout for the socket.io client
+                    }, 500);
 
-            setup();
+                    // let the client connect first so
+                    // we can test that client can come up
+                    // before the server
+                    await Promise.all([
+                        client.connect(),
+                        pDelay(1000).then(() => server.listen())
+                    ]);
+
+                    await client.sendAvailable();
+                }
+
+                setup();
+            });
         });
 
         afterAll(async () => {
@@ -430,12 +435,17 @@ describe('Messenger', () => {
         });
 
         describe('when testing reconnect', () => {
-            it('should call server.onClientReconnect', (done) => {
-                server.onClientReconnect(() => {
-                    done();
-                });
+            it('should call server.onClientReconnect', () => {
+                expect.hasAssertions();
 
-                client.forceReconnect();
+                return new Promise((resolves) => {
+                    server.onClientReconnect(() => {
+                        resolves(true);
+                        expect(true).toBeTrue();
+                    });
+
+                    client.forceReconnect();
+                });
             });
         });
     });

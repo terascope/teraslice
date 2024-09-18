@@ -43,7 +43,8 @@ export async function updateSidebarJSON(pkgInfos: PackageInfo[], log?: boolean) 
                         label: pkg,
                         items: [`${name}/${pkg}/overview`],
                     };
-                } if (pkg?.type === 'category') {
+                }
+                if (pkg?.type === 'category') {
                     pkgMap[pkg.label] = true;
                     return pkg;
                 }

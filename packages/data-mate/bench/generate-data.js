@@ -136,7 +136,6 @@ function randNull(fn, arg) {
     return fn.call(chance, arg);
 }
 
-// eslint-disable-next-line no-console
 console.dir({
     dataTypeConfig,
     records,
@@ -144,6 +143,7 @@ console.dir({
     maxArrayLength: 1,
     depth: 5
 });
+
 (async function writeRow() {
     console.time('write row');
     await new Promise((resolve, reject) => {

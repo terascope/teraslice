@@ -15,7 +15,7 @@ const column = Column.fromJSON(name, fieldConfig, values);
 console.timeEnd(`Built ${values.length} rows`);
 
 const endRSS = process.memoryUsage().rss;
-// eslint-disable-next-line no-console
+
 console.log('DONE', endRSS - startRSS);
 
 setTimeout(() => console.error('exiting...'), 5000);

@@ -595,13 +595,15 @@ describe('IndexModel', () => {
 
     describe('when appending to an array', () => {
         it('should return early if given empty values', async () => {
-            await indexModel.appendToArray('example', 'name', []);
+            const result = await indexModel.appendToArray('example', 'name', []);
+            expect(result).toBeUndefined();
         });
     });
 
     describe('when removing from an array', () => {
         it('should return early if given empty values', async () => {
-            await indexModel.removeFromArray('example', 'name', []);
+            const result = await indexModel.removeFromArray('example', 'name', []);
+            expect(result).toBeUndefined();
         });
     });
 });

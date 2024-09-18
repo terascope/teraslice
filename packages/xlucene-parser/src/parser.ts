@@ -100,7 +100,9 @@ export class Parser {
                                     return filterNode(n, clone);
                                 }
                                 if (utils.isNegation(n)
-                                    && (utils.isConjunction(n.node) || utils.isLogicalGroup(n.node))) {
+                                    && (
+                                        utils.isConjunction(n.node) || utils.isLogicalGroup(n.node))
+                                ) {
                                     const _node = filterNode(n.node, clone);
                                     if (utils.isEmptyNode(_node)) return;
                                     return {

@@ -353,9 +353,9 @@ describe('Slice', () => {
                 await testContext.cleanup();
             });
 
-            it('should not throw an error if given invalid state', () => {
+            it('should not throw an error if given invalid state', async () => {
                 const data = { should: 'break' };
-                return slice._logAnalytics(data as any);
+                await expect(slice._logAnalytics(data as any)).resolves.not.toThrow();
             });
         });
 
@@ -375,7 +375,7 @@ describe('Slice', () => {
 
             it('should handle the case when the slice is a string', async () => {
                 // TODO: this is not actually testing a string
-                await slice._logAnalytics({} as any);
+                await expect(slice._logAnalytics({} as any)).resolves.not.toThrow();
             });
         });
     });

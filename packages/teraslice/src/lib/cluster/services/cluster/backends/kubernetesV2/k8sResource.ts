@@ -198,32 +198,33 @@ export class K8sResource {
                 _.set(this.resource, targetKey, []);
             }
 
-            this.resource.spec.template.spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution.push(
-                {
-                    weight: 1,
-                    podAffinityTerm: {
-                        labelSelector: {
-                            matchExpressions: [
-                                {
-                                    key: 'app.kubernetes.io/name',
-                                    operator: 'In',
-                                    values: [
-                                        'teraslice'
-                                    ]
-                                },
-                                {
-                                    key: 'app.kubernetes.io/instance',
-                                    operator: 'In',
-                                    values: [
-                                        this.templateConfig.clusterNameLabel
-                                    ]
-                                }
-                            ]
-                        },
-                        topologyKey: 'kubernetes.io/hostname'
+            this.resource.spec.template.spec.affinity
+                .podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution.push(
+                    {
+                        weight: 1,
+                        podAffinityTerm: {
+                            labelSelector: {
+                                matchExpressions: [
+                                    {
+                                        key: 'app.kubernetes.io/name',
+                                        operator: 'In',
+                                        values: [
+                                            'teraslice'
+                                        ]
+                                    },
+                                    {
+                                        key: 'app.kubernetes.io/instance',
+                                        operator: 'In',
+                                        values: [
+                                            this.templateConfig.clusterNameLabel
+                                        ]
+                                    }
+                                ]
+                            },
+                            topologyKey: 'kubernetes.io/hostname'
+                        }
                     }
-                }
-            );
+                );
         }
     }
 
@@ -287,14 +288,16 @@ export class K8sResource {
 
     _setPriorityClassName() {
         if (this.terasliceConfig.kubernetes_priority_class_name) {
+            const className = this.terasliceConfig.kubernetes_priority_class_name;
+
             if (this.nodeType === 'execution_controller') {
-                this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
+                this.resource.spec.template.spec.priorityClassName = className;
                 if (this.execution.stateful) {
                     this.resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
                 }
             }
             if (this.nodeType === 'worker' && this.execution.stateful) {
-                this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
+                this.resource.spec.template.spec.priorityClassName = className;
 
                 this.resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
             }

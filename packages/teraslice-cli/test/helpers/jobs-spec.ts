@@ -1104,17 +1104,23 @@ describe('Job helper class', () => {
             await job.export();
 
             // Since all 3 jobs have the same file name, and exportOne() is called concurrently on
-            // each job, 2 of the jobs may have to call createUniqueFilePath() a second or third time.
-            // This race condition means there is no order to the file names.
+            // each job, 2 of the jobs may have to call createUniqueFilePath() a second or
+            // third time. This race condition means there is no order to the file names.
             const jobFiles = [];
             jobFiles.push(fs.readJsonSync(path.join(customDir, 'test-job.json')));
             jobFiles.push(fs.readJsonSync(path.join(customDir, 'test-job-1.json')));
             jobFiles.push(fs.readJsonSync(path.join(customDir, 'test-job-2.json')));
 
             expect(jobFiles).toEqual(expect.arrayContaining([
-                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job1 }) } }),
-                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job2 }) } }),
-                expect.objectContaining({ __metadata: { cli: expect.objectContaining({ job_id: job3 }) } })
+                expect.objectContaining(
+                    { __metadata: { cli: expect.objectContaining({ job_id: job1 }) } }
+                ),
+                expect.objectContaining(
+                    { __metadata: { cli: expect.objectContaining({ job_id: job2 }) } }
+                ),
+                expect.objectContaining(
+                    { __metadata: { cli: expect.objectContaining({ job_id: job3 }) } }
+                )
             ]));
         });
 

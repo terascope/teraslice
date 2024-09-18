@@ -887,7 +887,10 @@ export default class Jobs {
         }
     }
 
-    private getUpdateMessage(action: string, job: JobMetadata): { message: string; final: boolean } {
+    private getUpdateMessage(
+        action: string,
+        job: JobMetadata
+    ): { message: string; final: boolean } {
         const {
             name,
             id,

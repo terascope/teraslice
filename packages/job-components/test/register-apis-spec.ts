@@ -237,7 +237,7 @@ describe('registerApis', () => {
             }
         }
 
-        type apiType = () => string;
+        type APIType = () => string;
 
         describe('->addToRegistry', () => {
             it('should succeed', () => {
@@ -259,12 +259,12 @@ describe('registerApis', () => {
             });
 
             it('should return the api and return hello when called', async () => {
-                const result = await context.apis.executionContext.initAPI<apiType>('hello');
+                const result = await context.apis.executionContext.initAPI<APIType>('hello');
                 expect(result()).toEqual('hello');
             });
 
             it('should not throw the API is already created', async () => {
-                const result = await context.apis.executionContext.initAPI<apiType>('hello');
+                const result = await context.apis.executionContext.initAPI<APIType>('hello');
                 expect(result()).toEqual('hello');
             });
         });
@@ -281,7 +281,7 @@ describe('registerApis', () => {
             });
 
             it('should return the api and return hello when called', () => {
-                const result = context.apis.executionContext.getAPI<apiType>('hello');
+                const result = context.apis.executionContext.getAPI<APIType>('hello');
                 expect(result()).toEqual('hello');
             });
         });

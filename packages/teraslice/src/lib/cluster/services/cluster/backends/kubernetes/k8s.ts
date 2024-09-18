@@ -213,7 +213,7 @@ export class K8s {
         const jobs = await this.list(selector, objType);
         if (jobs.items.length === 1) {
             return jobs;
-        } if (jobs.items.length === 0) {
+        } else if (jobs.items.length === 0) {
             const msg = `Teraslice ${objType} matching the following selector was not found: ${selector} (retriable)`;
             this.logger.warn(msg);
             throw new TSError(msg, { retryable: true });

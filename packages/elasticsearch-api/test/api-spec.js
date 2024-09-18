@@ -1165,17 +1165,17 @@ describe('elasticsearch-api', () => {
         const recordType = 'state';
         const clientName = 'default';
 
-        return api.indexSetup(
+        await expect(api.indexSetup(
             clusterName,
             newIndex,
             migrantIndexName,
             template,
             recordType,
             clientName
-        );
+        )).resolves.not.toThrow();
     });
 
-    it('can set up an index and wait for availability', () => {
+    it('can set up an index and wait for availability', async () => {
         const api = esApi(client, logger);
         const clusterName = 'teracluster';
         const newIndex = 'teracluster__state';
@@ -1185,7 +1185,7 @@ describe('elasticsearch-api', () => {
 
         searchError = true;
 
-        return Promise.all([
+        await expect(Promise.all([
             waitFor(300, () => {
                 searchError = false;
             }),
@@ -1197,10 +1197,10 @@ describe('elasticsearch-api', () => {
                 recordType,
                 clientName
             )
-        ]);
+        ])).resolves.not.toThrow();
     });
 
-    it('can wait for elasticsearch availability', () => {
+    it('can wait for elasticsearch availability', async () => {
         const api = esApi(client, logger);
         const clusterName = 'teracluster';
         const newIndex = 'teracluster__state';
@@ -1211,7 +1211,7 @@ describe('elasticsearch-api', () => {
         elasticDown = true;
         recoverError = true;
 
-        return Promise.all([
+        await expect(Promise.all([
             api.indexSetup(
                 clusterName,
                 newIndex,
@@ -1227,7 +1227,7 @@ describe('elasticsearch-api', () => {
             waitFor(1200, () => {
                 recoverError = false;
             })
-        ]);
+        ])).resolves.not.toThrow();
     });
 
     it('can send template on state mapping changes, does not migrate', async () => {

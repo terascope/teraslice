@@ -8,7 +8,13 @@ import testingLibraryPlugin from 'eslint-plugin-testing-library';
 import react from 'eslint-plugin-react';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import stylistic from '@stylistic/eslint-plugin';
+import importPlugin from 'eslint-plugin-import';
 import { rules, ignores } from './lib/index.js';
+
+
+/*
+import/no-import-module-exports
+*/
 
 import tsEslint from 'typescript-eslint';
 // console.log('styles', stylistic)

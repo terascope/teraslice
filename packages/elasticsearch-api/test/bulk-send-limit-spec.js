@@ -41,7 +41,9 @@ describe('bulkSend', () => {
                 return api.bulkSend(formattedData);
             }, { concurrency: 9 });
 
-            await waitForData(client, index, EvenDateData.data.length, logger, THREE_MINUTES);
+            await expect(
+                waitForData(client, index, EvenDateData.data.length, logger, THREE_MINUTES)
+            ).resolves.not.toThrow();
         });
     });
 });

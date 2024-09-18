@@ -59,7 +59,9 @@ describe('DataEntity', () => {
             });
 
             it('should be to set an additional property', () => {
-                dataEntity.teal = 'neal';
+                expect(() => {
+                    dataEntity.teal = 'neal';
+                }).not.toThrow();
             });
 
             it('should have the input properties top-level', () => {

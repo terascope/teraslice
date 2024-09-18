@@ -133,11 +133,13 @@ describe('ExecutionController', () => {
         });
 
         describe('when the client is ready', () => {
-            beforeAll((done) => {
-                server.onClientAvailable(() => {
-                    done();
+            beforeAll(() => {
+                return new Promise((resolve) => {
+                    server.onClientAvailable(() => {
+                        resolve(true);
+                    });
+                    client.sendAvailable();
                 });
-                client.sendAvailable();
             });
 
             it('should have one client connected', async () => {

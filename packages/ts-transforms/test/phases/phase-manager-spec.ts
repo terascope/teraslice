@@ -16,7 +16,7 @@ describe('phase manager', () => {
     it('can instantiate', async () => {
         const opConfig = { type: 'matcher', rules: [matchRules1Path] };
         const manager = new PhaseManager(opConfig, logger);
-        return manager.init();
+        await expect(manager.init()).resolves.not.toThrow();
     });
 
     it('match only has selection phase activated', async () => {
