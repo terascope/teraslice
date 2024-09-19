@@ -32,7 +32,7 @@
         "typescript": "~5.2.2"
     },
     "dependencies": {
-        "@kubernetes/client-node": "^0.21.0",
+        "@kubernetes/client-node": "^0.22.0",
         "@terascope/utils": "^1.1.0",
         "codecov": "^3.8.3",
         "execa": "9.4.0",
