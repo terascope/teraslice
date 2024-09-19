@@ -259,11 +259,12 @@ export class KubernetesClusterBackendV2 {
     /**
      * Returns a list of all k8s resources associated with a job ID
      * @param {string}         jobId   The job ID of the job to list associated resources
-     * @returns {Array<any>}
+     * @returns {Array<K8sClient.V1PodList | K8sClient.V1DeploymentList | K8sClient.V1ServiceList
+     *  | K8sClient.V1JobList | K8sClient.V1ReplicaSetList>}
      */
     async listResourcesForJobId(jobId: string) {
         const resources = [];
-        const resourceTypes = ['pods', 'deployments', 'services', 'jobs'];
+        const resourceTypes = ['pods', 'deployments', 'services', 'jobs', 'replicasets'];
         for (const type of resourceTypes) {
             const list = await this.k8s.list(`teraslice.terascope.io/jobId=${jobId}`, type);
             if (list.items.length > 0) {
