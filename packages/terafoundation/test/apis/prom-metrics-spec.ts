@@ -17,7 +17,8 @@ describe('promMetrics foundation API', () => {
                             log_level: 'debug',
                             prom_metrics_enabled: true,
                             prom_metrics_port: 3333,
-                            prom_metrics_add_default: true
+                            prom_metrics_add_default: true,
+                            prom_metrics_display_url: 'http://localhost'
                         },
                         teraslice: {
                             cluster_manager_type: 'kubernetes',
@@ -33,7 +34,8 @@ describe('promMetrics foundation API', () => {
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
                     logger: debugLogger('prom-metrics-spec-logger'),
-                    assignment: 'worker'
+                    assignment: 'worker',
+                    prom_metrics_display_url: terafoundation.prom_metrics_display_url
                 };
 
                 beforeAll(() => {
@@ -58,7 +60,7 @@ describe('promMetrics foundation API', () => {
 
                 it('should have correct default labels', async () => {
                     const labels = await context.apis.foundation.promMetrics.getDefaultLabels();
-                    expect(labels).toEqual({ assignment: 'worker', name: 'tera-test' });
+                    expect(labels).toEqual({ assignment: 'worker', name: 'tera-test', url: 'http://localhost' });
                 });
 
                 it('should throw an error if promMetricsAPI is already initialized', async () => {
@@ -663,4 +665,74 @@ describe('promMetrics foundation API', () => {
             });
         });
     });
+
+    describe('resetMetrics', () => {
+        const context = {
+            sysconfig: {
+                terafoundation: {
+                    log_level: 'debug',
+                    prom_metrics_enabled: true,
+                    prom_metrics_port: 3337,
+                    prom_metrics_add_default: false
+                },
+                teraslice: {
+                    cluster_manager_type: 'kubernetes',
+                    name: 'tera-test'
+                }
+            },
+        } as any;
+
+        const { terafoundation, teraslice } = context.sysconfig;
+        const config = {
+            terasliceName: teraslice.name,
+            tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+            tf_prom_metrics_port: terafoundation.prom_metrics_port,
+            tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
+            logger: debugLogger('prom-metrics-spec-logger'),
+            assignment: 'master',
+            prefix: 'foundation_test_'
+        };
+
+        beforeAll(async () => {
+            // This sets up the API endpoints in the context.
+            api(context);
+            context.logger = debugLogger('terafoundation-tests');
+            await context.apis.foundation.promMetrics.init(config);
+        });
+
+        afterAll(async () => {
+            await context.apis.foundation.promMetrics.shutdown();
+        });
+
+        it('should reset metrics', async () => {
+            await context.apis.foundation.promMetrics.addGauge('gauge2', 'help message', ['uuid'], function collect(this: Gauge) {
+                const defaultLabels = context.apis.foundation.promMetrics.getDefaultLabels();
+                this.inc({ uuid: '7oBd9L3sJB', ...defaultLabels }, 0);
+            });
+            context.apis.foundation.promMetrics.inc('gauge2', { uuid: '7oBd9L3sJB' }, 200);
+            const response1: Record<string, any> = await got(`http://127.0.0.1:${config.tf_prom_metrics_port}/metrics`, {
+                throwHttpErrors: true
+            });
+
+            const value1 = response1.body
+                .split('\n')
+                .filter((line: string) => line.includes('7oBd9L3sJB'))[0]
+                .split(' ')[1];
+
+            expect(value1).toBe('200');
+
+            context.apis.foundation.promMetrics.resetMetrics();
+
+            const response2: Record<string, any> = await got(`http://127.0.0.1:${config.tf_prom_metrics_port}/metrics`, {
+                throwHttpErrors: true
+            });
+
+            const value2 = response2.body
+                .split('\n')
+                .filter((line: string) => line.includes('7oBd9L3sJB'))[0]
+                .split(' ')[1];
+
+            expect(value2).toBe('0');
+        });
+    })
 });

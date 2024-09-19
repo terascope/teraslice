@@ -76,7 +76,8 @@ describe('TestContext', () => {
             tf_prom_metrics_port: 3333,
             tf_prom_metrics_add_default: false,
             logger: context.logger,
-            assignment: 'master'
+            assignment: 'master',
+            prom_metrics_display_url: context.sysconfig.terafoundation.prom_metrics_display_url
         };
         expect(await context.apis.foundation.promMetrics.init(config)).toBe(true);
     });

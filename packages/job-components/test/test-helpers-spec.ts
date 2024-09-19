@@ -142,6 +142,7 @@ describe('Test Helpers', () => {
             tf_prom_metrics_enabled: true,
             tf_prom_metrics_port: 3333,
             tf_prom_metrics_add_default: false,
+            prom_metrics_display_url: 'http://localhost'
         };
 
         it('should be able to init a mock prom_metrics_api', async () => {
@@ -214,6 +215,11 @@ describe('Test Helpers', () => {
             expect(() => context.apis.foundation.promMetrics.observe('missing_test_histogram', { uuid: 'Hz4XpL9' }, 1))
                 .toThrow('Metric missing_test_histogram is not setup');
         });
+
+        it('should reset metrics', () => {
+            context.apis.foundation.promMetrics.resetMetrics();
+            expect(context.mockPromMetrics?.metricList).toBeEmptyObject();
+        })
 
         it('should shutdown', async () => {
             await context.apis.foundation.promMetrics.shutdown();
