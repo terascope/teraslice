@@ -9,7 +9,7 @@ import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
-const RUNNING_STATUS = ['recovering', 'running', 'failing', 'paused', 'stopping'];
+const RUNNING_STATUS = ['recovering', 'running', 'failing', 'paused', 'stopping', 'relocating'];
 const TERMINAL_STATUS = ['completed', 'stopped', 'rejected', 'failed', 'terminated'];
 
 const VALID_STATUS = INIT_STATUS.concat(RUNNING_STATUS).concat(TERMINAL_STATUS);
