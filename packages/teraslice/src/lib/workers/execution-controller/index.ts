@@ -8,7 +8,7 @@ import type { EventEmitter } from 'node:events';
 import {
     TSError, includes, get,
     pDelay, getFullErrorStack, logError,
-    pWhile, makeISODate, Logger
+    pWhile, makeISODate, Logger, isFunction
 } from '@terascope/utils';
 import {
     Context, SlicerExecutionContext, Slice, isPromAvailable
@@ -957,9 +957,10 @@ export class ExecutionController {
             ) {
                 // Check to see if `isRelocatable` exists.
                 // Allows for older assets to work with k8sV2
-                if (this.executionContext.slicer().isRelocatable) {
+                const currentSlicer = this.executionContext.slicer();
+                if (isFunction(currentSlicer.isRelocatable)) {
                     this.logger.info(`Execution ${this.exId} detected to have been restarted..`);
-                    const relocatable = this.executionContext.slicer().isRelocatable();
+                    const relocatable = currentSlicer.isRelocatable();
                     if (relocatable) {
                         this.logger.info(`Execution ${this.exId} is relocatable and will continue reinitializing...`);
                     } else {
