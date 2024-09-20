@@ -428,8 +428,9 @@ export class ExecutionController {
             this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2'
             && eventType === 'SIGTERM'
         ) {
-            if (this.executionContext.slicer().isRelocatable) {
-                if (this.executionContext.slicer().isRelocatable()) {
+            const currentSlicer = this.executionContext.slicer();
+            if (isFunction(currentSlicer.isRelocatable)) {
+                if (currentSlicer.isRelocatable()) {
                     await this.stateStorage.refresh();
                     const status = await this.executionStorage.getStatus(this.exId);
                     const runningStatuses = this.executionStorage.getRunningStatuses();
