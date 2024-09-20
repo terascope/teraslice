@@ -1,5 +1,5 @@
 import { TSError, isString, get } from '@terascope/utils';
-import ajv from 'ajv';
+import { ErrorObject } from 'ajv';
 
 export function getErrorMessages(errors: ErrorLike[]): string {
     return errors.filter(Boolean).map(getErrorMessage)
@@ -43,5 +43,5 @@ export type ErrorLike =
         statusCode?: number;
         status?: number;
     }
-    | ajv.ErrorObject
+    | ErrorObject
     | string;
