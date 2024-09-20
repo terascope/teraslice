@@ -320,6 +320,8 @@ export class ExecutionController {
         this.server.executionReady = true;
         if (this.startOnPaused) {
             await this.pause();
+            /// We need to set the status back to paused
+            await this.executionStorage.setStatus(this.exId, 'paused');
         }
     }
 
