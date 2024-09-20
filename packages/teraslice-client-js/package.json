@@ -34,7 +34,7 @@
     "dependencies": {
         "@terascope/types": "^1.1.0",
         "@terascope/utils": "^1.1.0",
-        "auto-bind": "^4.0.0",
+        "auto-bind": "^5.0.1",
         "got": "^13.0.0"
     },
     "devDependencies": {
