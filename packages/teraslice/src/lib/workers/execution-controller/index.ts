@@ -62,6 +62,7 @@ export class ExecutionController {
     private slicerFailed = false;
     private startTime: number | undefined;
     private isDoneDispatching!: boolean | undefined;
+    private startOnPaused: boolean;
 
     constructor(context: Context, executionContext: SlicerExecutionContext) {
         const workerId = generateWorkerId(context);
@@ -80,6 +81,7 @@ export class ExecutionController {
         const workerDisconnectTimeout = get(config, 'worker_disconnect_timeout');
         const nodeDisconnectTimeout = get(config, 'node_disconnect_timeout');
         const shutdownTimeout = get(config, 'shutdown_timeout');
+        this.startOnPaused = false;
         this.server = new ExController.Server({
             port: slicerPort,
             networkLatencyBuffer,
@@ -316,6 +318,9 @@ export class ExecutionController {
         this.isInitialized = true;
         /// This will change the  '/ready' endpoint to Ready
         this.server.executionReady = true;
+        if (this.startOnPaused) {
+            await this.pause();
+        }
     }
 
     async run() {
@@ -437,9 +442,17 @@ export class ExecutionController {
                     this.logger.debug(`Execution ${this.exId} is currently in a ${status} state`);
                     /// This is an indication that the cluster_master did not call for this
                     /// shutdown. We want to relocate in this case.
-                    if (status !== 'stopping' && includes(runningStatuses, status)) {
-                        this.logger.info('Setting  execution status to relocating');
-                        await this.executionStorage.setStatus(this.exId, 'relocating');
+                    if (
+                        !includes(['stopping', 'recovering'], status)
+                        && includes(runningStatuses, status)
+                    ) {
+                        if (status === 'running') {
+                            this.logger.info('Setting  execution status to relocating-resume');
+                            await this.executionStorage.setStatus(this.exId, 'relocating-resume');
+                        } else if (status === 'paused') {
+                            this.logger.info('Setting  execution status to relocating-paused');
+                            await this.executionStorage.setStatus(this.exId, 'relocating-paused');
+                        }
                         this.logger.info('Skipping shutdown to allow for relocation...');
                         return;
                     }
@@ -952,9 +965,10 @@ export class ExecutionController {
         } else if (includes(runningStatuses, status)) {
             // In the case of a relocating status on startup we
             // want to continue to start up. Only in V2.
+            console.log('@@@@@ status: ', status);
             if (
                 this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2'
-                && status === 'relocating'
+                && (status === 'relocating-resume' || status === 'relocating-paused')
             ) {
                 // Check to see if `isRelocatable` exists.
                 // Allows for older assets to work with k8sV2
@@ -964,6 +978,9 @@ export class ExecutionController {
                     const relocatable = currentSlicer.isRelocatable();
                     if (relocatable) {
                         this.logger.info(`Execution ${this.exId} is relocatable and will continue reinitializing...`);
+                        if (status === 'relocating-paused') {
+                            this.startOnPaused = true;
+                        }
                     } else {
                         this.logger.error(`Execution ${this.exId} is not relocatable and will shutdown...`);
                     }
