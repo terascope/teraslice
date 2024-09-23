@@ -219,7 +219,7 @@ describe('Test Helpers', () => {
         it('should reset metrics', () => {
             context.apis.foundation.promMetrics.resetMetrics();
             expect(context.mockPromMetrics?.metricList).toBeEmptyObject();
-        })
+        });
 
         it('should shutdown', async () => {
             await context.apis.foundation.promMetrics.shutdown();

@@ -330,8 +330,8 @@ export class K8s {
         }
 
         const deleteWithErrorHandling = async (deleteFn: () => Promise<{
-            response: IncomingMessage,
-            body: Record<string, any>
+            response: IncomingMessage;
+            body: Record<string, any>;
         }>) => {
             try {
                 const res = await deleteFn();
@@ -353,7 +353,7 @@ export class K8s {
                 }
                 throw e;
             }
-        }
+        };
 
         try {
             if (objType === 'services') {

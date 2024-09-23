@@ -733,5 +733,5 @@ describe('promMetrics foundation API', () => {
 
             expect(value2).toBe('0');
         });
-    })
+    });
 });

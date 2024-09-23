@@ -798,7 +798,8 @@ export class ApiService {
                                 controller.slicers
                             );
                         }
-                        const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
+                        const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`)
+                            .join(' OR ');
                         const exList = await this.executionStorage.search(query, undefined, 10000);
                         for (const ex of exList) {
                             const controllerLabels = {
