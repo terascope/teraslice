@@ -1,4 +1,4 @@
-import execa from 'execa';
+import { execa } from 'execa';
 import prettyBytes from 'pretty-bytes';
 import glob from 'glob-promise';
 import fs from 'fs-extra';
