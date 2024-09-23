@@ -54,7 +54,7 @@
         "@types/valid-url": "^1.0.7",
         "@types/validator": "^13.11.10",
         "@types/yargs": "^17.0.33",
-        "execa": "^5.1.0"
+        "execa": "6.0.0"
     },
     "engines": {
         "node": ">=18.18.0",
