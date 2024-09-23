@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url';
 import { fixupPluginRules } from '@eslint/compat';
 import jest from 'eslint-plugin-jest';
 import jestDOM from 'eslint-plugin-jest-dom';
@@ -8,27 +7,21 @@ import testingLibraryPlugin from 'eslint-plugin-testing-library';
 import react from 'eslint-plugin-react';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import stylistic from '@stylistic/eslint-plugin';
-import importPlugin from 'eslint-plugin-import';
+import tsEslint from 'typescript-eslint';
 import { rules, ignores } from './lib/index.js';
 
+/**
+    TODO: check to see if import plugins works with eslint 9
+ */
 
-/*
-import/no-import-module-exports
-*/
-
-import tsEslint from 'typescript-eslint';
-// console.log('styles', stylistic)
-const dirname = fileURLToPath(new URL('../..', import.meta.url));
-// console.log("jest.configs['flat/recommended']", jest.configs['flat/recommended'])
 const typescriptLint = tsEslint.config(
     ...tsEslint.configs.recommended,
     {
         languageOptions: {
             parserOptions: {
                 projectService: true,
-                // tsconfigRootDir: dirname,
                 warnOnUnsupportedTypeScriptVersion: false,
-                allowDefaultProject: ['*.js*']
+                allowDefaultProject: ['*.{js,cjs}']
             }
         },
         rules: {
@@ -37,15 +30,11 @@ const typescriptLint = tsEslint.config(
     }
 ).map((obj) => {
     if (!obj.plugins) {
-        obj.ignores = ['**/*.js', '**/test/**'];
+        obj.ignores = ['**/*.js'];
     }
     return obj;
 });
 
-// TODO: Temporary disabling of plugins checking spec files
-// typescriptLint[2].ignores = ['**/test/**'];
-
-// console.log('\n', tsEslint.configs.recommended[0])
 const eslintConfig = [
     {
         // In your eslint.config.js file, if an ignores key is used without any other
@@ -63,7 +52,7 @@ const eslintConfig = [
             'react-hooks': fixupPluginRules(reactHooks),
             'testing-library': fixupPluginRules(testingLibraryPlugin),
             'jsx-a11y': jsxA11y,
-            react
+            react,
         },
         languageOptions: {
             parserOptions: {
@@ -107,9 +96,8 @@ const eslintConfig = [
         },
         rules: {
             ...rules.styles
-        }
+        },
     }
 ];
 
-console.dir(eslintConfig[eslintConfig.length - 1].rules, { depth: 40 });
 export default eslintConfig;

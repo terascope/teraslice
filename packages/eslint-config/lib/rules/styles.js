@@ -42,4 +42,8 @@ export default {
     '@stylistic/newline-per-chained-call': ['error', { ignoreChainWithDepth: 2 }],
     '@stylistic/no-extra-semi': 'error',
     '@stylistic/nonblock-statement-body-position': ['error', 'beside', { overrides: { while: 'below' } }],
+    '@stylistic/jsx-indent-props': ['error', INDENT],
+    '@stylistic/jsx-child-element-spacing': 'error',
+    '@stylistic/one-var-declaration-per-line': ['error', 'always'],
+    '@stylistic/object-curly-newline': ['error', { consistent: true, multiline: true, minProperties: 5 }]
 };

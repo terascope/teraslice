@@ -4,5 +4,14 @@
         "outDir": "dist",
         "rootDir": ".",
     },
-    "include": ["src", "test"]
+    "include": [
+        "src",
+        "test",
+        "test/fixtures/asset/.dot-private-op/processor.ts",
+        "test/fixtures/asset/.dot-private-op/schema.ts"
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/build/**/*"
+    ],
 }

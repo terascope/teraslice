@@ -1,6 +1,4 @@
 import jsRules from './javascript.js';
-// TODO: temporary till we have styles
-// import { INDENT } from './constants.js';
 
 export default Object.assign({}, jsRules, {
     // typescript preferences
@@ -10,11 +8,7 @@ export default Object.assign({}, jsRules, {
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/explicit-member-accessibility': 'off',
     '@typescript-eslint/no-empty-function': 'off',
-    // this is often better turned off, even though types are good
-    // it is a little more strict than it should be
     '@typescript-eslint/explicit-function-return-type': 'off',
-
-    // we SHOULD really make this an error but we've become dependent on it
     '@typescript-eslint/ban-ts-comment': ['warn',
         {
             'ts-expect-error': false,
@@ -99,19 +93,4 @@ export default Object.assign({}, jsRules, {
     'no-unused-expressions': 'off',
     // TODO: look into this
     '@typescript-eslint/no-unused-expressions': ['warn', { allowShortCircuit: true, allowTernary: true }],
-    /*
-        Stylistic rules that will be done in a separate PR
-    */
-    // 'func-call-spacing': 'off',
-    // '@typescript-eslint/func-call-spacing': ['error', 'never'],
-    // indent: 'off',
-    // '@typescript-eslint/indent': ['error', INDENT],
-    // 'brace-style': 'off',
-    // '@typescript-eslint/brace-style': [
-    //     'error',
-    //     '1tbs',
-    //     {
-    //         allowSingleLine: true
-    //     }
-    // ],
 });
