@@ -68,6 +68,10 @@ export async function exec(opts: ExecOpts, log = true): Promise<string> {
         _opts.env = env;
         const subprocess = _exec(_opts);
         const { stdout } = await subprocess;
+
+        if (typeof stdout !== 'string') {
+            throw new Error('exec() requires ExecOpts that result in a stdout string. See the execa docs for details.');
+        }
         const result = stdout.trim();
         logger.debug(`exec result: ${opts.cmd} ${(opts.args || []).join(' ')}`, log && result);
         return result;
@@ -235,7 +239,7 @@ export async function dockerNetworkExists(name: string): Promise<boolean> {
         `docker network ls --format='{{json .Name}}' | grep '"${name}"'`,
         { reject: false }
     );
-    return subprocess.exitCode > 0;
+    return subprocess.exitCode ? subprocess.exitCode > 0 : false;
 }
 
 export async function remoteDockerImageExists(image: string): Promise<boolean> {
@@ -330,7 +334,7 @@ export async function dockerRun(
         try {
             const result = await subprocess;
 
-            if (result.exitCode > 0) {
+            if (result.exitCode && result.exitCode > 0) {
                 stderr = result.all;
                 error = new Error(`${result.command} failed`);
             }
