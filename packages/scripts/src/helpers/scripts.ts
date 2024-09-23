@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import ms from 'ms';
 import path from 'node:path';
-import execa from 'execa';
+import { Options, execa, execaCommand } from 'execa';
 import fse from 'fs-extra';
 import yaml from 'js-yaml';
 import {
@@ -32,7 +32,7 @@ type ExecOpts = {
 
 function _exec(opts: ExecOpts) {
     let subprocess;
-    const options: execa.Options = {
+    const options: Options = {
         cwd: opts.cwd || getRootDir(),
         env: opts.env,
         preferLocal: true,
@@ -231,7 +231,7 @@ export async function getContainerInfo(name: string): Promise<any> {
 }
 
 export async function dockerNetworkExists(name: string): Promise<boolean> {
-    const subprocess = await execa.command(
+    const subprocess = await execaCommand(
         `docker network ls --format='{{json .Name}}' | grep '"${name}"'`,
         { reject: false }
     );
@@ -429,7 +429,7 @@ export async function dockerBuild(
 }
 
 export async function dockerPush(image: string): Promise<void> {
-    const subprocess = await execa.command(
+    const subprocess = await execaCommand(
         `docker push ${image}`,
         { reject: false }
     );
@@ -440,7 +440,7 @@ export async function dockerPush(image: string): Promise<void> {
 }
 
 async function dockerImageRm(image: string): Promise<void> {
-    const subprocess = await execa.command(
+    const subprocess = await execaCommand(
         `docker image rm ${image}`,
         { reject: false }
     );
@@ -466,7 +466,7 @@ export async function loadThenDeleteImageFromCache(imageName: string): Promise<b
         return false;
     }
 
-    const result = await execa.command(`gunzip -c ${filePath} | docker load`, { shell: true });
+    const result = await execaCommand(`gunzip -c ${filePath} | docker load`, { shell: true });
     signale.info('Result: ', result);
 
     if (result.exitCode !== 0) {
@@ -513,7 +513,7 @@ export async function saveAndZip(imageName: string, imageSavePath: string) {
     const fileName = imageName.replace(/[/:]/g, '_');
     const filePath = path.join(imageSavePath, `${fileName}.tar`);
     const command = `docker save ${imageName} | gzip > ${filePath}.gz`;
-    await execa.command(command, { shell: true });
+    await execaCommand(command, { shell: true });
     await dockerImageRm(imageName);
 }
 
@@ -622,7 +622,7 @@ export async function yarnPublish(
 
 export async function isKindInstalled(): Promise<boolean> {
     try {
-        const subprocess = await execa.command('command -v kind');
+        const subprocess = await execaCommand('command -v kind');
         return !!subprocess.stdout;
     } catch (err) {
         return false;
@@ -631,7 +631,7 @@ export async function isKindInstalled(): Promise<boolean> {
 
 export async function isKubectlInstalled(): Promise<boolean> {
     try {
-        const subprocess = await execa.command('command -v kubectl');
+        const subprocess = await execaCommand('command -v kubectl');
         return !!subprocess.stdout;
     } catch (err) {
         return false;
@@ -647,7 +647,7 @@ export async function k8sStopService(serviceName: string): Promise<void> {
     try {
         // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
         const yamlFile = `${serviceName}Deployment.yaml`;
-        const subprocess = await execa.command(`kubectl delete -n services-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
+        const subprocess = await execaCommand(`kubectl delete -n services-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
         logger.debug(subprocess.stdout);
     } catch (err) {
         // Do nothing. This should fail because no services should be up yet.
@@ -686,7 +686,7 @@ export async function k8sStartService(
         const updatedYaml = jsDoc.map((doc) => yaml.dump(doc)).join('---\n');
         const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
         fs.writeFileSync(path.join(tempDir, `${serviceName}Deployment.yaml`), updatedYaml);
-        const subprocess = await execa.command(`kubectl create -n services-dev1 -f ${path.join(tempDir, `${serviceName}Deployment.yaml`)}`);
+        const subprocess = await execaCommand(`kubectl create -n services-dev1 -f ${path.join(tempDir, `${serviceName}Deployment.yaml`)}`);
         logger.debug(subprocess.stdout);
         fs.rmSync(tempDir, { recursive: true, force: true });
     } catch (err) {
@@ -708,7 +708,7 @@ function waitForKafkaRunning(timeoutMs = 120000): Promise<void> {
 
         let kafkaRunning = false;
         try {
-            const kubectlResponse = await execa.command('kubectl -n services-dev1 get pods -l app.kubernetes.io/name=cpkafka -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"');
+            const kubectlResponse = await execaCommand('kubectl -n services-dev1 get pods -l app.kubernetes.io/name=cpkafka -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"');
             const kafkaReady = kubectlResponse.stdout;
             if (kafkaReady === '"true"') {
                 kafkaRunning = true;
@@ -729,27 +729,27 @@ function waitForKafkaRunning(timeoutMs = 120000): Promise<void> {
 }
 
 export async function setAlias(tsPort: string) {
-    let subprocess = await execa.command('earl aliases remove k8s-e2e 2> /dev/null || true', { shell: true });
+    let subprocess = await execaCommand('earl aliases remove k8s-e2e 2> /dev/null || true', { shell: true });
     logger.debug(subprocess.stdout);
-    subprocess = await execa.command(`earl aliases add k8s-e2e http://${config.HOST_IP}:${tsPort}`);
+    subprocess = await execaCommand(`earl aliases add k8s-e2e http://${config.HOST_IP}:${tsPort}`);
     logger.debug(subprocess.stdout);
 }
 
 export async function showState(tsPort: string) {
-    const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
+    const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
     logger.debug(subprocess.stdout);
     logger.debug(await showESIndices());
     logger.debug(await showAssets(tsPort));
 }
 
 async function showESIndices() {
-    const subprocess = await execa.command(`curl ${config.HOST_IP}:${config.ELASTICSEARCH_PORT}/_cat/indices?v`);
+    const subprocess = await execaCommand(`curl ${config.HOST_IP}:${config.ELASTICSEARCH_PORT}/_cat/indices?v`);
     return subprocess.stdout;
 }
 
 async function showAssets(tsPort: string) {
     try {
-        const subprocess = await execa.command(`curl ${config.HOST_IP}:${tsPort}/v1/assets`);
+        const subprocess = await execaCommand(`curl ${config.HOST_IP}:${tsPort}/v1/assets`);
         return subprocess.stdout;
     } catch (err) {
         return err;

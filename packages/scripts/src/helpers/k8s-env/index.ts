@@ -1,4 +1,4 @@
-import execa from 'execa';
+import { execaCommandSync } from 'execa';
 import {
     dockerTag, isKindInstalled, isKubectlInstalled,
     k8sStartService, k8sStopService, getNodeVersionFromImage
@@ -85,7 +85,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         }
         signale.info(`Running yarn setup with node ${process.version}...`);
         try {
-            execa.commandSync('yarn setup');
+            execaCommandSync('yarn setup');
         } catch (err) {
             signale.fatal(err);
             await kind.destroyCluster();
