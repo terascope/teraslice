@@ -4,7 +4,7 @@ import {
     ESTypeMappings, ReadonlyDataTypeFields, xLuceneTypeConfig
 } from '@terascope/types';
 import lodash from 'lodash';
-import { formatSchema, formatGQLComment } from './graphql-helper.js';
+import { formatSchema, formatGQLDescription } from './graphql-helper.js';
 import * as i from './interfaces.js';
 import BaseType from './types/base-type.js';
 import * as utils from './utils.js';
@@ -232,13 +232,13 @@ export class DataType {
 
         if (references.length) {
             baseProperties.push(utils.joinStrings(
-                formatGQLComment('references and virtual fields'),
+                formatGQLDescription('references and virtual fields'),
                 references
             ));
         }
 
         const baseType = utils.joinStrings(
-            formatGQLComment(description),
+            formatGQLDescription(description),
             `type ${typeName} {
                 ${utils.joinStrings(baseProperties)}
             }`
@@ -248,7 +248,7 @@ export class DataType {
 
         if (createInputType) {
             inputType = utils.joinStrings(
-                formatGQLComment(description, `Input for ${typeName}`),
+                formatGQLDescription(description, `Input for ${typeName}`),
                 `input ${inputName} {
                     ${utils.joinStrings(inputProperties)}
                 }`

@@ -10,10 +10,13 @@ ENV YARN_SETUP_ARGS "--prod=false --silent --frozen-lockfile"
 # Check to see if distutils is installed because python 3.12 removed it
 RUN python3 -c "import distutils" || (apk update && apk add py3-setuptools)
 
+# Install nodemon globally so we can use it with the CMD
+RUN yarn global add nodemon@3.1.4
+
 EXPOSE 5678
 
 # set up the volumes
 VOLUME /app/config /app/logs /app/assets
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 
-CMD ["yarn", "start:nodemon"]
+CMD ["nodemon", "--exitcrash", "service.js"]

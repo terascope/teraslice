@@ -12,7 +12,6 @@ import {
 } from './services/index.js';
 import { JobsStorage, ExecutionStorage, StateStorage } from '../storage/index.js';
 import { ClusterMasterContext } from '../../interfaces.js';
-import { getPackageJSON } from '../utils/file_utils.js';
 
 export class ClusterMaster {
     context: ClusterMasterContext;
@@ -153,7 +152,8 @@ export class ClusterMaster {
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     logger: this.logger,
                     assignment: 'master',
-                    prefix: 'teraslice_'
+                    prefix: 'teraslice_',
+                    prom_metrics_display_url: terafoundation.prom_metrics_display_url
                 });
 
                 await this.setupPromMetrics();
@@ -239,6 +239,36 @@ export class ClusterMaster {
                     'master_info',
                     'Information about Teraslice cluster master',
                     ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version']
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'slices_processed',
+                    'Total slices processed across the cluster',
+                    []
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'slices_failed',
+                    'Total slices failed across the cluster',
+                    []
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'slices_queued',
+                    'Total slices queued across the cluster',
+                    []
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'workers_joined',
+                    'Total workers joined across the cluster',
+                    []
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'workers_disconnected',
+                    'Total workers disconnected across the cluster',
+                    []
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'workers_reconnected',
+                    'Total workers reconnected across the cluster',
+                    []
                 ),
                 this.context.apis.foundation.promMetrics.addGauge(
                     'controller_workers_active',
@@ -343,19 +373,6 @@ export class ClusterMaster {
                     ['ex_id', 'job_id', 'job_name'],
                 ),
             ]);
-
-            this.context.apis.foundation.promMetrics.set(
-                'master_info',
-                {
-                    arch: this.context.arch,
-                    clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
-                    name: this.context.sysconfig.teraslice.name,
-                    node_version: process.version,
-                    platform: this.context.platform,
-                    teraslice_version: getPackageJSON().version
-                },
-                1
-            );
         }
     }
 }

@@ -4,7 +4,7 @@ import {
 } from '@terascope/types';
 import { castArray } from '@terascope/utils';
 import { GraphQLType, TypeESMapping } from '../interfaces.js';
-import { formatGQLComment } from '../graphql-helper.js';
+import { formatGQLDescription } from '../graphql-helper.js';
 
 export interface IBaseType {
     new(field: string, config: DataTypeFieldConfig): BaseType;
@@ -73,5 +73,5 @@ function makeCustomTypes(customType?: string|(string[])): string[] {
 
 export function formatGQLType(type: string, desc?: string): string {
     if (!desc) return type;
-    return `${formatGQLComment(desc)}\n${type}`;
+    return `${formatGQLDescription(desc)}\n${type}`;
 }

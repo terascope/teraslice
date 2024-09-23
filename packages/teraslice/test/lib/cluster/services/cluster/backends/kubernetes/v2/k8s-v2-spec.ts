@@ -103,6 +103,16 @@ describe('k8s', () => {
             const jobs = await k8s.list('app=teraslice', 'jobs');
             expect(jobs.kind).toEqual('JobList');
         });
+
+        it('can get ReplicaSetList', async () => {
+            nock(_url)
+                .get('/apis/apps/v1/namespaces/default/replicasets')
+                .query({ labelSelector: 'app=teraslice' })
+                .reply(200, { kind: 'ReplicaSetList' });
+
+            const jobs = await k8s.list('app=teraslice', 'replicasets');
+            expect(jobs.kind).toEqual('ReplicaSetList');
+        });
     });
 
     describe('->nonEmptyList', () => {
@@ -181,10 +191,20 @@ describe('k8s', () => {
     });
 
     describe('->delete', () => {
+        it('will throw if name is undefined', async () => {
+            await expect(k8s.delete(undefined as unknown as string, 'deployments'))
+                .rejects.toThrow('Name of resource to delete must be specified. Received: "undefined".');
+        });
+
+        it('will throw if name is an empty string', async () => {
+            await expect(k8s.delete('', 'deployments'))
+                .rejects.toThrow('Name of resource to delete must be specified. Received: "".');
+        });
+
         it('can delete a deployment by name', async () => {
             nock(_url)
                 .delete('/apis/apps/v1/namespaces/default/deployments/test1')
-                .reply(200, { });
+                .reply(200, {});
 
             const response = await k8s.delete('test1', 'deployments');
             expect(response).toEqual({});
@@ -193,7 +213,7 @@ describe('k8s', () => {
         it('can delete a service by name', async () => {
             nock(_url)
                 .delete('/api/v1/namespaces/default/services/test1')
-                .reply(200, { });
+                .reply(200, {});
 
             const response = await k8s.delete('test1', 'services');
             expect(response).toEqual({});
@@ -202,7 +222,7 @@ describe('k8s', () => {
         it('can delete a job by name', async () => {
             nock(_url)
                 .delete('/apis/batch/v1/namespaces/default/jobs/test1')
-                .reply(200, { });
+                .reply(200, {});
 
             const response = await k8s.delete('test1', 'jobs');
             expect(response).toEqual({});
@@ -216,6 +236,50 @@ describe('k8s', () => {
             const response = await k8s.delete('test1', 'pods');
             expect(response).toEqual({});
         });
+
+        it('can delete a replicaset by name', async () => {
+            nock(_url)
+                .delete('/apis/apps/v1/namespaces/default/replicasets/test1')
+                .reply(200, {});
+
+            const response = await k8s.delete('test1', 'replicasets');
+            expect(response).toEqual({});
+        });
+
+        it('will throw on a reponse code >= 400, excluding 404', async () => {
+            nock(_url)
+                .delete('/api/v1/namespaces/default/pods/bad-response')
+                .replyWithError({ statusCode: 400 })
+                .delete('/api/v1/namespaces/default/pods/bad-response')
+                .replyWithError({ statusCode: 400 })
+                .delete('/api/v1/namespaces/default/pods/bad-response')
+                .replyWithError({ statusCode: 400 });
+
+            await expect(k8s.delete('bad-response', 'pods'))
+                .rejects.toThrow('Request k8s.delete with name: bad-response failed with: TSError: Unexpected response code (400), when deleting name: bad-response');
+        });
+
+        it('will succeed on a 404 response code', async () => {
+            const notFoundResponse = {
+                body: {
+                    kind: 'Status',
+                    apiVersion: 'v1',
+                    metadata: {},
+                    status: 'Failure',
+                    message: 'pods "non-existent" not found',
+                    reason: 'NotFound',
+                    details: { name: 'non-existent', kind: 'pods' },
+                    code: 404
+                },
+                statusCode: 404
+            }
+            nock(_url)
+                .delete('/api/v1/namespaces/default/pods/non-existent')
+                .replyWithError(notFoundResponse);
+
+            const response = await k8s.delete('non-existent', 'pods');
+            expect(response).toEqual(notFoundResponse.body);
+        });
     });
 
     describe('->_deletObjByExId', () => {
@@ -225,16 +289,22 @@ describe('k8s', () => {
             metadata: { name: 'testJob1' }
         };
 
-        const exPod = {
-            apiVersion: 'v1',
-            kind: 'Pod',
-            metadata: { name: 'testEx1' }
+        const jobNoName = {
+            apiVersion: '1.0.0',
+            kind: 'Job',
+            metadata: { name: undefined }
         };
 
-        const wkrPod = {
+        const testPod1 = {
             apiVersion: 'v1',
             kind: 'Pod',
-            metadata: { name: 'testWkr1' }
+            metadata: { name: 'testPod1' }
+        };
+
+        const testPod2 = {
+            apiVersion: 'v1',
+            kind: 'Pod',
+            metadata: { name: 'testPod2' }
         };
 
         const status = {
@@ -249,35 +319,55 @@ describe('k8s', () => {
             status: 'Success'
         };
 
-        it('can force delete a job', async () => {
+        it('will throw if name is undefined', async () => {
+            nock(_url)
+                .get('/apis/batch/v1/namespaces/default/jobs')
+                .query({ labelSelector: /app\.kubernetes\.io\/component=execution_controller,teraslice\.terascope\.io\/exId=.*/ })
+                .reply(200, {
+                    kind: 'JobList',
+                    items: [jobNoName]
+                });
+
+            await expect(k8s._deleteObjByExId('no-name', 'execution_controller', 'jobs'))
+                .rejects.toThrow('Cannot delete jobs for ExId: no-name by name because it has no name');
+
+        });
+
+        it('can delete a single object', async () => {
             nock(_url)
                 .get('/apis/batch/v1/namespaces/default/jobs')
                 .query({ labelSelector: /app\.kubernetes\.io\/component=execution_controller,teraslice\.terascope\.io\/exId=.*/ })
                 .reply(200, {
                     kind: 'JobList',
                     items: [job]
-                })
-                .get('/api/v1/namespaces/default/pods')
-                .query({ labelSelector: /teraslice\.terascope\.io\/exId=.*/ })
-                .reply(200, {
-                    kind: 'PodList',
-                    items: [exPod, wkrPod]
-                })
-                .delete('/api/v1/namespaces/default/pods/testEx1')
-                .reply(200, exPod)
-                .delete('/api/v1/namespaces/default/pods/testWkr1')
-                .reply(200, wkrPod)
+                });
+
+            nock(_url)
                 .delete('/apis/batch/v1/namespaces/default/jobs/testJob1')
                 .reply(200, status);
 
-            const response = await k8s._deleteObjByExId('testJob1', 'execution_controller', 'jobs', true);
-            expect(response).toEqual([
-                expect.objectContaining(status),
-                [
-                    expect.objectContaining(exPod),
-                    expect.objectContaining(wkrPod)
-                ]
-            ]);
+            const response = await k8s._deleteObjByExId('testJob1', 'execution_controller', 'jobs');
+            expect(response).toEqual([expect.objectContaining(status)]);
+        });
+
+        it('can delete a multiple objects', async () => {
+            nock(_url)
+                .get('/api/v1/namespaces/default/pods')
+                .query({ labelSelector: /app\.kubernetes\.io\/component=worker,teraslice\.terascope\.io\/exId=.*/ })
+                .reply(200, {
+                    kind: 'PodList',
+                    items: [
+                        { metadata: { name: 'testPod1' } },
+                        { metadata: { name: 'testPod2' } }
+                    ]
+                })
+                .delete('/api/v1/namespaces/default/pods/testPod1')
+                .reply(200, testPod1)
+                .delete('/api/v1/namespaces/default/pods/testPod2')
+                .reply(200, testPod2);
+
+            const response = await k8s._deleteObjByExId('testPods', 'worker', 'pods');
+            expect(response).toEqual([expect.objectContaining(testPod1), expect.objectContaining(testPod2)]);
         });
     });
 

@@ -87,7 +87,7 @@ export class K8sResource {
             this._setResources();
             this._setVolumes();
             if (process.env.MOUNT_LOCAL_TERASLICE !== undefined) {
-                this._mountLocalTeraslice(resourceName);
+                this._mountLocalTeraslice();
             }
             this._setEnvVariables();
             this._setAssetsVolume();
@@ -115,21 +115,17 @@ export class K8sResource {
     }
 
     _setEnvVariables() {
-        /// TODO: Use this later when we need to set env vars in workers/ex controllers
     }
 
-    _mountLocalTeraslice(contextType: string): void {
+    _mountLocalTeraslice(): void {
         const devMounts = JSON.parse(process.env.MOUNT_LOCAL_TERASLICE as string);
         this.resource.spec.template.spec.containers[0].volumeMounts.push(...devMounts.volumeMounts);
         this.resource.spec.template.spec.volumes.push(...devMounts.volumes);
 
-        if (contextType === 'execution_controller') {
-            this.resource.spec.template.spec.containers[0].args = [
-                'yarn',
-                'node',
-                'service.js'
-            ];
-        }
+        this.resource.spec.template.spec.containers[0].args = [
+            'node',
+            'service.js'
+        ];
     }
 
     _makeConfig(): K8sConfig {
@@ -298,7 +294,6 @@ export class K8sResource {
             }
             if (this.nodeType === 'worker' && this.execution.stateful) {
                 this.resource.spec.template.spec.priorityClassName = className;
-
                 this.resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
             }
         }

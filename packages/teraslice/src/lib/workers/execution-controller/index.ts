@@ -159,7 +159,9 @@ export class ExecutionController {
                     ex_id: exId,
                     job_id: jobId,
                     job_name: config.name,
-                }
+                },
+                prom_metrics_display_url: terafoundation.prom_metrics_display_url
+
             });
             await this.setupPromMetrics();
         }
@@ -420,6 +422,24 @@ export class ExecutionController {
                 await this.client.sendExecutionFinished(shutdownError.message);
             }
         }
+
+        /// This only applies to kubernetesV2
+        if (
+            this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2'
+            && eventType === 'SIGTERM'
+        ) {
+            await this.stateStorage.refresh();
+            const status = await this.executionStorage.getStatus(this.exId);
+            const runningStatuses = this.executionStorage.getRunningStatuses();
+            this.logger.debug(`Execution ${this.exId} is currently in a ${status} state`);
+            /// This is an indication that the cluster_master did not call for this
+            /// shutdown. We want to restart in this case.
+            if (status !== 'stopping' && includes(runningStatuses, status)) {
+                this.logger.info('Skipping shutdown to allow for relocation...');
+                return;
+            }
+        }
+
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         if (this.isShuttingDown) {
@@ -921,6 +941,25 @@ export class ExecutionController {
         if (includes(terminalStatuses, status)) {
             error = new Error(invalidStateMsg('terminal'));
         } else if (includes(runningStatuses, status)) {
+            // In the case of a running status on startup we
+            // want to continue to start up. Only in V2.
+            // Right now we will depend on kubernetes `crashloopbackoff` in the case of
+            // an unexpected exit to the ex process. Ex: an OOM
+            // NOTE: If this becomes an issue we may want to add a new state. Maybe `interrupted`
+            if (this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2') {
+                // Check to see if `isRelocatable` exists.
+                // Allows for older assets to work with k8sV2
+                if (this.executionContext.slicer().isRelocatable) {
+                    this.logger.info(`Execution ${this.exId} detected to have been restarted..`);
+                    const relocatable = this.executionContext.slicer().isRelocatable();
+                    if (relocatable) {
+                        this.logger.info(`Execution ${this.exId} is relocatable and will continue reinitializing...`);
+                    } else {
+                        this.logger.error(`Execution ${this.exId} is not relocatable and will shutdown...`);
+                    }
+                    return relocatable;
+                }
+            }
             error = new Error(invalidStateMsg('running'));
             // If in a running status the execution process
             // crashed and k8s is trying to restart the pod,

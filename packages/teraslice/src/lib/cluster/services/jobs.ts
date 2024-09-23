@@ -162,8 +162,7 @@ export class JobsService {
             const exIdsArr = Array.from(exIdsSet);
             const exIdsString = exIdsArr.join(', ');
             throw new TSError(`There are orphaned resources for job: ${jobId}, exId: ${exIdsString}.
-            To remove orphaned resources:
-                curl -XPOST <teraslice host>/v1/jobs/${jobId}/_stop?force=true`);
+            Please wait for Kubernetes to clean up orphaned resources.`);
         }
 
         const jobSpec = await this.jobsStorage.get(jobId);

@@ -689,9 +689,61 @@ export class ApiService {
             /// Interval is hardcoded to refresh metrics every 10 seconds
             if (this.context.apis.foundation.promMetrics.verifyAPI()) {
                 setInterval(async () => {
+                    this.context.apis.foundation.promMetrics.resetMetrics();
                     try {
                         this.logger.trace('Updating cluster_master prom metrics..');
                         const controllers = await this.executionService.getControllerStats();
+                        const stats = this.executionService.getClusterAnalytics();
+                        const { cluster_manager_type, name } = this.context.sysconfig.teraslice;
+
+                        this.context.apis.foundation.promMetrics.set(
+                            'master_info',
+                            {
+                                arch: this.context.arch,
+                                clustering_type: cluster_manager_type,
+                                name,
+                                node_version: process.version,
+                                platform: this.context.platform,
+                                teraslice_version: getPackageJSON().version
+                            },
+                            1
+                        );
+
+                        this.context.apis.foundation.promMetrics.set(
+                            'slices_processed',
+                            {},
+                            stats.controllers.processed
+                        );
+
+                        this.context.apis.foundation.promMetrics.set(
+                            'slices_failed',
+                            {},
+                            stats.controllers.failed
+                        );
+
+                        this.context.apis.foundation.promMetrics.set(
+                            'slices_queued',
+                            {},
+                            stats.controllers.queued
+                        );
+
+                        this.context.apis.foundation.promMetrics.set(
+                            'workers_joined',
+                            {},
+                            stats.controllers.workers_joined
+                        );
+
+                        this.context.apis.foundation.promMetrics.set(
+                            'workers_disconnected',
+                            {},
+                            stats.controllers.workers_disconnected
+                        );
+
+                        this.context.apis.foundation.promMetrics.set(
+                            'workers_reconnected',
+                            {},
+                            stats.controllers.workers_reconnected
+                        );
 
                         for (const controller of controllers) {
                             const controllerLabels = {
@@ -746,7 +798,8 @@ export class ApiService {
                                 controller.slicers
                             );
                         }
-                        const exList = await this.executionStorage.search('ex_id:*');
+                        const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
+                        const exList = await this.executionStorage.search(query, undefined, 10000);
                         for (const ex of exList) {
                             const controllerLabels = {
                                 ex_id: ex.ex_id,
@@ -826,9 +879,9 @@ export class ApiService {
 
                         /// Filter out information about kubernetes ex pods
                         const filteredExecutions = {};
-                        for (const cluster in clusterState) {
-                            if (clusterState[cluster].active) {
-                                for (const worker of clusterState[cluster].active) {
+                        for (const node in clusterState) {
+                            if (clusterState[node].active) {
+                                for (const worker of clusterState[node].active) {
                                     if (!filteredExecutions[worker.ex_id]) {
                                         filteredExecutions[worker.ex_id] = worker.ex_id;
                                         const exLabel = {

@@ -234,8 +234,7 @@ export class S3Store {
         if (this.isShuttingDown) return false;
 
         const command = {
-            Bucket: this.bucket,
-            MaxKeys: 0
+            Bucket: this.bucket
         };
         const config = this.terafoundation.connectors.s3[this.connection];
         try {

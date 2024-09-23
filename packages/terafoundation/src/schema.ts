@@ -83,6 +83,11 @@ export function foundationSchema() {
             doc: 'Display default node metrics in prom exporter',
             default: true,
             format: Boolean
+        },
+        prom_metrics_display_url: {
+            doc: 'Value to display as url label for prometheus metrics',
+            default: '',
+            format: String
         }
     };
 

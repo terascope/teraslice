@@ -159,6 +159,7 @@ export class TestContext implements i.Context {
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
+                prom_metrics_display_url: 'http://localhost',
             },
             teraslice: {
                 action_timeout: 10000,
@@ -500,6 +501,11 @@ export class TestContext implements i.Context {
                     },
                     verifyAPI(): boolean {
                         return ctx.mockPromMetrics !== null;
+                    },
+                    resetMetrics() {
+                        if (ctx.mockPromMetrics) {
+                            ctx.mockPromMetrics.metricList = {};
+                        }
                     },
                     async shutdown(): Promise<void> {
                         ctx.mockPromMetrics = null;
