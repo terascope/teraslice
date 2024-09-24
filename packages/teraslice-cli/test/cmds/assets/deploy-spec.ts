@@ -75,9 +75,7 @@ describe('assets deploy', () => {
                 _id: 'assset_test_id'
             });
 
-            await expect(async () => {
-                await handler(argv);
-            }).resolves.not.toThrow();
+            await expect(handler(argv)).resolves.not.toThrow();
 
             teraNock.done();
         });
@@ -99,9 +97,7 @@ describe('assets deploy', () => {
                     _id: 'assset_test_id'
                 });
 
-            await expect(async () => {
-                await handler(argv);
-            }).resolves.not.toThrow();
+            await expect(handler(argv)).resolves.not.toThrow();
 
             teraNock.done();
         });
@@ -123,9 +119,7 @@ describe('assets deploy', () => {
                     _id: 'assset_test_id'
                 });
 
-            await expect(async () => {
-                await handler(argv);
-            }).resolves.not.toThrow();
+            await expect(handler(argv)).resolves.not.toThrow();
 
             teraNock.done();
         });
