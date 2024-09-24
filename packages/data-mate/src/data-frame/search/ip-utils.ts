@@ -1,6 +1,6 @@
 import isCidr from 'is-cidr';
 import ip6addr from 'ip6addr';
-import isIP from 'is-ip';
+import { isIP, isIPv6 } from 'is-ip';
 import { isInfiniteMin, isInfiniteMax, ParsedRange } from 'xlucene-parser';
 import { getTypeOf, isString, isNonZeroCidr } from '@terascope/utils';
 import { MatchValueFn } from './interfaces.js';

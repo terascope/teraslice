@@ -1,4 +1,7 @@
-import _isIP from 'is-ip';
+import {
+    isIP as _isIP, isIPv4 as _isIPv4,
+    isIPv6 as _isIPv6, ipVersion as _ipVersion
+} from 'is-ip';
 import IPCIDR from 'ip-cidr';
 import isCidr from 'is-cidr';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
@@ -35,11 +38,11 @@ export function isIPOrThrow(input: unknown): string {
 }
 
 export function isIPv6(input: unknown): boolean {
-    return isString(input) && _isIP.v6(input);
+    return isString(input) && _isIPv6(input);
 }
 
 export function isIPv4(input: unknown): boolean {
-    return isString(input) && _isIP.v4(input);
+    return isString(input) && _isIPv4(input);
 }
 
 export function isMappedIPv4(input: unknown): boolean {
@@ -74,7 +77,7 @@ export function inIPRange(
         return isCIDR(args.cidr) && ip6addr.createCIDR(args.cidr).contains(input as string);
     }
 
-    const ipType = _isIP.version(input as string);
+    const ipType = _ipVersion(input as string);
 
     const min = args.min || _assignMin(ipType as number);
     const max = args.max || _assignMax(ipType as number);
@@ -101,7 +104,7 @@ function _assignMax(ipType: number, max?: string): string {
 
 function _validMinAndMax(min: string, max: string): boolean {
     return isIP(min) && isIP(max)
-        && _isIP.version(min) === _isIP.version(max)
+        && _ipVersion(min) === _ipVersion(max)
         && ip6addr.compare(min, max) === -1;
 }
 
@@ -289,7 +292,7 @@ export function getCIDRNetwork(input: unknown): string {
 }
 
 export function toCIDR(input: unknown, suffix: string | number): string {
-    if (isIP(input) && _validSuffix(_isIP.version(input as string), suffix)) {
+    if (isIP(input) && _validSuffix(_ipVersion(input as string), suffix)) {
         return createCIDR(input as string, toInteger(suffix) as number).toString();
     }
 

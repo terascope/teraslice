@@ -1,6 +1,6 @@
 import isCidr from 'is-cidr';
 import ip6addr from 'ip6addr';
-import isIP from 'is-ip';
+import { isIP, isIPv6 } from 'is-ip';
 import { isInfiniteMin, isInfiniteMax, ParsedRange } from 'xlucene-parser';
 import { isString, isNonZeroCidr } from '@terascope/utils';
 import { BooleanCB } from '../interfaces.js';
@@ -89,6 +89,7 @@ function checkCidr(ip: string, range: any) {
 
 function pRangeTerm(range: any) {
     return function checkIP(ip: string) {
+        if (typeof ip !== 'string') return false;
         if (isNonZeroCidr(ip)) {
             return checkCidr(ip, range);
         }
