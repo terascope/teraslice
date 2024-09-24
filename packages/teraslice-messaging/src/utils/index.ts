@@ -2,11 +2,8 @@ import os from 'node:os';
 import url from 'node:url';
 import { nanoid } from 'nanoid';
 
-export function newMsgId(): Promise<string> {
-    return new Promise((resolve) => {
-        const id = nanoid(10);
-        resolve(id);
-    });
+export async function newMsgId(): Promise<string> {
+    return nanoid(10);
 }
 
 export function formatURL(hostname: string, port: number): string {
