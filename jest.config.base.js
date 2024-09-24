@@ -63,7 +63,8 @@ export default (projectDir) => {
         workerIdleMemoryLimit: '200MB',
         testTimeout: 60 * 1000,
         globals: {
-            availableExtensions: ['.js', '.ts', '.mjs', 'cjs']
+            availableExtensions: ['.js', '.ts', '.mjs', 'cjs'],
+            window: {}
         },
         transform: {
             ['^.+\\.(t|j)sx?$']: ['@swc/jest',

@@ -37,7 +37,8 @@ export default {
     verbose: true,
     projects,
     globals: {
-        availableExtensions: ['.js', '.ts', '.mjs', '.cjs']
+        availableExtensions: ['.js', '.ts', '.mjs', '.cjs'],
+        window: {}
     },
     testMatch: [
         '<rootDir>/packages/*/test/**/*-spec.{ts,js}',
@@ -95,5 +96,5 @@ export default {
                     ignoreDynamic: true
                 }
             }]
-    }
+    },
 };

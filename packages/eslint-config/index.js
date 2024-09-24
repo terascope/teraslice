@@ -21,7 +21,7 @@ const typescriptLint = tsEslint.config(
             parserOptions: {
                 projectService: true,
                 warnOnUnsupportedTypeScriptVersion: false,
-                allowDefaultProject: ['*.{js,cjs}']
+                allowDefaultProject: ['*.{js,cjs,mjs}']
             }
         },
         rules: {
