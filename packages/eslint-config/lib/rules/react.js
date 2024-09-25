@@ -31,8 +31,6 @@ export default Object.assign({}, tsRules, {
             ignoreExclusiveCheckedAttribute: true
         }
     ],
-    'react/forbid-component-props': 'error',
-    'react/forbid-dom-props': 'off',
     'react/function-component-definition': 'error',
     'react/hook-use-state': ['error', { allowDestructuredState: true }],
     'react/jsx-child-element-spacing': 'error',

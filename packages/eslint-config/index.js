@@ -72,7 +72,6 @@ const eslintConfig = [
     {
         // overrides just for spec files
         files: ['**/*-spec.{js,ts,tsx,jsx}'],
-        // ...jest.configs['flat/recommended'],
         plugins: {
             jest,
             'jest-dom': jestDOM

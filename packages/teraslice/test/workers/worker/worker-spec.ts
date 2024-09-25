@@ -104,18 +104,21 @@ describe('Worker', () => {
             server.onClientAvailable(() => {
                 server.dispatchSlice(sliceConfig, worker.workerId);
             });
+
             let shutdownPromise;
 
             server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
-                setTimeout(() => {
+                setTimeout(async () => {
+                    await pDelay(1000);
                     shutdownPromise = server.shutdown();
                 });
             });
 
             server.onSliceFailure((workerId, _msg) => {
                 sliceFailure = _msg;
-                setTimeout(() => {
+                setTimeout(async () => {
+                    await pDelay(1000);
                     shutdownPromise = server.shutdown();
                 });
             });

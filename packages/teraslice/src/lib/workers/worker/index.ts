@@ -214,6 +214,7 @@ export class Worker {
                 slice: this.slice.slice,
                 analytics: this.slice.analyticsData
             });
+
             sentSliceComplete = true;
 
             await this.executionContext.onSliceFinished();
