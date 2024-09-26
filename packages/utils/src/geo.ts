@@ -29,9 +29,8 @@ import {
     multiPolygon,
     polygon as tPolygon,
     point as tPoint,
-
 } from '@turf/helpers';
-import {
+import type {
     MultiPolygon,
     Feature,
     GeoJsonProperties,
