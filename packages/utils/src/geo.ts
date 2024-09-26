@@ -29,12 +29,15 @@ import {
     multiPolygon,
     polygon as tPolygon,
     point as tPoint,
+
+} from '@turf/helpers';
+import {
     MultiPolygon,
     Feature,
-    Properties,
+    GeoJsonProperties,
     Polygon,
     Position,
-} from '@turf/helpers';
+} from 'geojson';
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
 import { find as geoToTimezone, setCache } from 'geo-tz';
@@ -188,7 +191,10 @@ export function isGeoPoint(input: unknown): boolean {
     return parseGeoPoint(input as GeoPointInput, false) != null;
 }
 
-export function makeGeoBBox(point1: GeoPoint, point2: GeoPoint): Feature<Polygon, Properties> {
+export function makeGeoBBox(
+    point1: GeoPoint,
+    point2: GeoPoint
+): Feature<Polygon, GeoJsonProperties> {
     const line = lineString([
         makeCoordinatesFromGeoPoint(point1),
         makeCoordinatesFromGeoPoint(point2)
@@ -492,9 +498,7 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
 
         if (isGeoShapePoint(inputGeoEntity)) {
             if (hasQueryHoles) {
-                const withinQueryHole = queryHoles.some(
-                    intersect.bind(intersect, inputFeature)
-                );
+                const withinQueryHole = queryHoles.some((holeFeature) => intersect(inputFeature, holeFeature));
                 if (withinQueryHole) return false;
             }
 
@@ -514,7 +518,7 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
 
                     if (bool && inputHoles.length) {
                         // if they are equal, then don't immediately falsify
-                        const inner = !inputHoles.some(equal.bind(equal, qHole));
+                        const inner = !inputHoles.some((inputHole) => equal(qHole, inputHole));
                         return inner;
                     }
                     return bool;
