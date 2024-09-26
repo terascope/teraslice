@@ -34,6 +34,7 @@
             "development/tests",
             "development/e2e",
             "development/k8s",
+            "development/node",
             "development/contributing"
         ]
     },
