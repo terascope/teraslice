@@ -217,7 +217,7 @@ export async function saveJobConfigToFile(
     clusterUrl: string
 ) {
     const jobConfigCopy = {};
-    const keysToSkip = ['job_id', '_created', '_context', '_updated', '_deleted', '_deleted_on']
+    const keysToSkip = ['job_id', '_created', '_context', '_updated', '_deleted', '_deleted_on'];
 
     for (const key of Object.keys(jobConfig)) {
         if (!keysToSkip.includes(key)) {

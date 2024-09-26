@@ -9,23 +9,23 @@ import type {
 } from './lib/cluster/services';
 
 export interface TerasliceRequest extends Request {
-    logger: Logger
+    logger: Logger;
 }
- 
+
 export interface TerasliceResponse extends Response {}
 
 export interface ClusterMasterContext extends Context {
     stores: {
         executionStorage: ExecutionStorage;
         stateStorage: StateStorage;
-        jobsStorage: JobsStorage
-    }
+        jobsStorage: JobsStorage;
+    };
     services: {
         executionService: ExecutionService;
         jobsService: JobsService;
         clusterService: ClusterServiceType;
         apiService: ApiService;
-    }
+    };
 }
 
 export enum ProcessAssignment {
@@ -41,11 +41,11 @@ interface BaseWorkerNode {
 }
 
 export interface ClusterNode extends BaseWorkerNode {
-    assignment: ProcessAssignment.cluster_master
+    assignment: ProcessAssignment.cluster_master;
 }
 
 export interface AssetNode extends BaseWorkerNode {
-    assignment: ProcessAssignment.assets_service
+    assignment: ProcessAssignment.assets_service;
 }
 
 export interface ExecutionNode extends BaseWorkerNode {
@@ -60,9 +60,9 @@ export interface WorkerNode extends BaseWorkerNode {
 }
 
 export type ProcessNode = ClusterNode
-| AssetNode
-| ExecutionNode
-| WorkerNode
+    | AssetNode
+    | ExecutionNode
+    | WorkerNode;
 
 // TODO: find out about state
 export interface NodeState {
@@ -78,12 +78,12 @@ export interface NodeState {
 }
 
 export interface ClusterState {
-    [nodeId: string] : NodeState
+    [nodeId: string]: NodeState;
 }
 
 export interface ExecutionNodeWorker extends NodeState {
     node_id: string;
-    hostname: string
+    hostname: string;
 }
 
 export interface ControllerStats extends ExecutionAnalytics {

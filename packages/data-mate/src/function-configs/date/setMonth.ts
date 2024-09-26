@@ -8,7 +8,7 @@ import {
 } from '../interfaces.js';
 
 export interface SetMonthArgs {
-    value: number
+    value: number;
 }
 
 export const setMonthConfig: FieldTransformConfig<SetMonthArgs> = {

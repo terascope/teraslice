@@ -8,7 +8,7 @@ import {
 } from '../interfaces.js';
 
 export interface SetMillisecondsArgs {
-    value: number
+    value: number;
 }
 
 export const setMillisecondsConfig: FieldTransformConfig<SetMillisecondsArgs> = {

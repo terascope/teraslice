@@ -42,7 +42,7 @@ export class DataFrame<
     static fromJSON<
         R extends Record<string, unknown> = Record<string, any>,
     >(
-        config: DataTypeConfig|ReadonlyDataTypeConfig,
+        config: DataTypeConfig | ReadonlyDataTypeConfig,
         records?: R[],
         options?: DataFrameOptions
     ): DataFrame<R> {
@@ -56,7 +56,7 @@ export class DataFrame<
     static empty<
         R extends Record<string, unknown> = Record<string, any>,
     >(
-        config: DataTypeConfig|ReadonlyDataTypeConfig,
+        config: DataTypeConfig | ReadonlyDataTypeConfig,
         options?: DataFrameOptions
     ): DataFrame<R> {
         const columns = distributeRowsToColumns<R>(config, []);
@@ -72,11 +72,11 @@ export class DataFrame<
     */
     static async deserializeIterator<
         R extends Record<string, unknown> = Record<string, any>,
-    >(data: Iterable<Buffer|string>|AsyncIterable<Buffer|string>): Promise<DataFrame<R>> {
+    >(data: Iterable<Buffer | string> | AsyncIterable<Buffer | string>): Promise<DataFrame<R>> {
         let index = -1;
 
-        let metadata: Record<string, unknown>|undefined;
-        let name: string|undefined;
+        let metadata: Record<string, unknown> | undefined;
+        let name: string | undefined;
         const columns: Column<any, keyof R>[] = [];
 
         for await (const row of data) {
@@ -113,7 +113,7 @@ export class DataFrame<
     */
     static async deserialize<
         R extends Record<string, unknown> = Record<string, any>,
-    >(data: Buffer|string): Promise<DataFrame<R>> {
+    >(data: Buffer | string): Promise<DataFrame<R>> {
         return DataFrame.deserializeIterator(
             splitOnNewLineIterator(data)
         );
@@ -154,7 +154,7 @@ export class DataFrame<
     protected _fieldToColumnIndexCache?: Map<(keyof T), number>;
 
     constructor(
-        columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
+        columns: Column<any, keyof T>[] | readonly Column<any, keyof T>[],
         options?: DataFrameOptions
     ) {
         this.name = options?.name;
@@ -162,7 +162,7 @@ export class DataFrame<
 
         const cols: Column<any, keyof T>[] = [];
         const fields: (keyof T)[] = [];
-        let size: number|undefined;
+        let size: number | undefined;
         const len = columns.length;
 
         for (let i = 0; i < len; i++) {
@@ -187,7 +187,7 @@ export class DataFrame<
      * Iterate over each row, this returns the JSON compatible values.
     */
     * [Symbol.iterator](): IterableIterator<DataEntity<T>> {
-        yield* this.rows(true);
+        yield * this.rows(true);
     }
 
     /**
@@ -195,13 +195,13 @@ export class DataFrame<
     */
     entries(
         json: true, options?: SerializeOptions
-    ): IterableIterator<[index: number, row: DataEntity<T>]>
+    ): IterableIterator<[index: number, row: DataEntity<T>]>;
     entries(
-        json?: false|undefined, options?: SerializeOptions
-    ): IterableIterator<[index: number, row: T]>
+        json?: false | undefined, options?: SerializeOptions
+    ): IterableIterator<[index: number, row: T]>;
     * entries(
         json?: boolean, options?: SerializeOptions
-    ): IterableIterator<[index: number, row: T|DataEntity<T>]> {
+    ): IterableIterator<[index: number, row: T | DataEntity<T>]> {
         for (let i = 0; i < this.size; i++) {
             // cast the type of json to true since typescript
             // can't detect what the return type should be here
@@ -214,12 +214,12 @@ export class DataFrame<
      * Iterate each row
     */
     rows(json: true, options?: SerializeOptions): IterableIterator<DataEntity<T>>;
-    rows(json?: false|undefined, options?: SerializeOptions): IterableIterator<T>;
-    * rows(json?: boolean, options?: SerializeOptions): IterableIterator<T|DataEntity<T>> {
+    rows(json?: false | undefined, options?: SerializeOptions): IterableIterator<T>;
+    * rows(json?: boolean, options?: SerializeOptions): IterableIterator<T | DataEntity<T>> {
         if (options?.skipDuplicateObjects) {
             // cast the type of json to true since typescript
             // can't detect what the return type should be here
-            yield* this.rowsWithoutDuplicates(json as true, options);
+            yield * this.rowsWithoutDuplicates(json as true, options);
             return;
         }
 
@@ -239,13 +239,13 @@ export class DataFrame<
     */
     rowsWithoutDuplicates(
         json: true, options?: SerializeOptions
-    ): IterableIterator<T|DataEntity<T>>;
+    ): IterableIterator<T | DataEntity<T>>;
     rowsWithoutDuplicates(
-        json?: false|undefined, options?: SerializeOptions
+        json?: false | undefined, options?: SerializeOptions
     ): IterableIterator<T>;
     * rowsWithoutDuplicates(
         json?: boolean, options?: SerializeOptions
-    ): IterableIterator<T|DataEntity<T>> {
+    ): IterableIterator<T | DataEntity<T>> {
         const hashes = new Set<string>();
         for (let i = 0; i < this.size; i++) {
             // cast the type of json to true since typescript
@@ -282,7 +282,7 @@ export class DataFrame<
      * Create a new DataFrame with the same metadata but with different data
     */
     fork<R extends Record<string, unknown> = T>(
-        columns: Column<any, keyof R>[]|readonly Column<any, keyof R>[]
+        columns: Column<any, keyof R>[] | readonly Column<any, keyof R>[]
     ): DataFrame<R> {
         return new DataFrame<R>(columns, {
             name: this.name,
@@ -315,7 +315,7 @@ export class DataFrame<
      * this function handle more suitable for production environments
     */
     deepSelect<R extends T>(
-        fieldSelectors: string[]|readonly string[],
+        fieldSelectors: string[] | readonly string[],
     ): DataFrame<R> {
         const columns: Column<any, any>[] = [];
 
@@ -385,7 +385,7 @@ export class DataFrame<
     */
     orderBy(...fieldArgs: FieldArg<string>[]): DataFrame<T>;
     orderBy(...fieldArgs: FieldArg<keyof T>[]): DataFrame<T>;
-    orderBy(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): DataFrame<T> {
+    orderBy(...fieldArgs: (FieldArg<keyof T>[] | FieldArg<string>[])): DataFrame<T> {
         const fields = flattenStringArg(fieldArgs);
         const sortBy = [...fields].map(
             (fieldArg): { field: keyof T; vector: Vector<any>; direction: SortOrder } => {
@@ -427,7 +427,7 @@ export class DataFrame<
     */
     sort(...fieldArgs: FieldArg<string>[]): DataFrame<T>;
     sort(...fieldArgs: FieldArg<keyof T>[]): DataFrame<T>;
-    sort(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): DataFrame<T> {
+    sort(...fieldArgs: (FieldArg<keyof T>[] | FieldArg<string>[])): DataFrame<T> {
         return this.orderBy(...fieldArgs);
     }
 
@@ -457,7 +457,7 @@ export class DataFrame<
                     return row[field] != null;
                 };
             },
-            undefined as FilterByFn<T>|undefined
+            undefined as FilterByFn<T> | undefined
         )!;
         return this._filterByFn(hasRequiredFields, false);
     }
@@ -477,7 +477,7 @@ export class DataFrame<
      *         }
      *     });
     */
-    filterBy(filters: FilterByFields<T>|FilterByFn<T>, json?: boolean): DataFrame<T> {
+    filterBy(filters: FilterByFields<T> | FilterByFn<T>, json?: boolean): DataFrame<T> {
         if (isFunction(filters)) {
             return this._filterByFn(filters, json ?? false);
         }
@@ -746,9 +746,9 @@ export class DataFrame<
      * Concat rows, or columns, to the end of the existing Columns
     */
     concat(arg: (
-        Partial<T>[]|Column<any, keyof T>[]
+        Partial<T>[] | Column<any, keyof T>[]
     )|(
-        readonly Partial<T>[]|readonly Column<any, keyof T>[]
+        readonly Partial<T>[] | readonly Column<any, keyof T>[]
     )): DataFrame<T> {
         if (!arg?.length) return this;
 
@@ -940,7 +940,7 @@ export class DataFrame<
     /**
      * Get a column by name
     */
-    getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
+    getColumn<P extends keyof T>(field: P): Column<T[P], P> | undefined {
         const index = this.getColumnIndex(field);
         return this.getColumnAt<P>(index);
     }
@@ -980,8 +980,8 @@ export class DataFrame<
     /**
      * Get a column by index
     */
-    getColumnAt<P extends keyof T>(index: number): Column<T[P], P>|undefined {
-        return this.columns[index] as Column<any, P>|undefined;
+    getColumnAt<P extends keyof T>(index: number): Column<T[P], P> | undefined {
+        return this.columns[index] as Column<any, P> | undefined;
     }
 
     /**
@@ -991,17 +991,17 @@ export class DataFrame<
         index: number,
         json?: true,
         options?: SerializeOptions,
-    ): DataEntity<T>|undefined
+    ): DataEntity<T> | undefined;
     getRow(
         index: number,
-        json?: false|undefined,
+        json?: false | undefined,
         options?: SerializeOptions,
-    ): T|undefined
+    ): T | undefined;
     getRow(
         index: number,
-        json?: true|false,
+        json?: true | false,
         options?: SerializeOptions,
-    ): T|DataEntity<T>|undefined {
+    ): T | DataEntity<T> | undefined {
         if (index > (this.size - 1)) return;
         if (json == null || json === false) return this._getRawRow(index);
 
@@ -1076,8 +1076,8 @@ export class DataFrame<
      * A negative value will select from the ending indices
     */
     limit(num: number): DataFrame<T> {
-        let start: number|undefined;
-        let end: number|undefined;
+        let start: number | undefined;
+        let end: number | undefined;
         if (num < 0) {
             start = num;
         } else {

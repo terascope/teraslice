@@ -66,7 +66,7 @@ export class ApiService {
 
     constructor(
         context: ClusterMasterContext,
-        { assetsUrl, app }: { assetsUrl: string, app: Express }
+        { assetsUrl, app }: { assetsUrl: string; app: Express }
     ) {
         this.context = context;
         this.logger = makeLogger(context, 'api_service');
@@ -352,7 +352,7 @@ export class ApiService {
                 timeout,
                 blocking = true,
                 force = false
-            } = req.query as unknown as { timeout: number, blocking: boolean, force: boolean };
+            } = req.query as unknown as { timeout: number; blocking: boolean; force: boolean };
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not stop execution');
             requestHandler(async () => {
@@ -798,7 +798,8 @@ export class ApiService {
                                 controller.slicers
                             );
                         }
-                        const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
+                        const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`)
+                            .join(' OR ');
                         const exList = await this.executionStorage.search(query, undefined, 10000);
                         for (const ex of exList) {
                             const controllerLabels = {

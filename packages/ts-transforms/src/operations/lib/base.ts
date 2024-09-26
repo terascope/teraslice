@@ -4,10 +4,10 @@ import {
 import { OperationConfig, InputOutputCardinality } from '../../interfaces.js';
 
 export default class OperationBase {
-    protected source!: string|string[];
-    protected target!: string|string[];
+    protected source!: string | string[];
+    protected target!: string | string[];
     readonly config: OperationConfig;
-    protected destination: string|string[];
+    protected destination: string | string[];
     protected hasTarget: boolean;
 
     static cardinality: InputOutputCardinality = 'one-to-one';
@@ -52,7 +52,7 @@ export default class OperationBase {
     }
 }
 
-function hasStringValues(value: string|string[]) {
+function hasStringValues(value: string | string[]) {
     if (Array.isArray(value)) {
         if (value.length === 0) throw new Error('if input is an array it must have string values inside');
         const bool = value.every(isString);

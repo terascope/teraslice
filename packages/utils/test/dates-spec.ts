@@ -174,7 +174,7 @@ describe('date utils', () => {
             [[1620640800000, -60], '2021-05-10T09:59:00.000+02:00', 'milliseconds', 3660000],
             [[1620640800000, -60], '2021-05-10T10:00:00.000-02:00', 'milliseconds', -10800000]
         ])('should return duration between %p and %p, in %p as %p for start values', (input, start, interval, expected) => {
-            const args: { start: any, interval: any } = { start, interval };
+            const args: { start: any; interval: any } = { start, interval };
 
             expect(getTimeBetween(input, args)).toBe(expected);
         });
@@ -200,7 +200,7 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', '2023-01-09T18:19:23.132Z', 'ISO8601', 'P1Y7M30DT8H19M23S'],
             [[1620640800000, -60], '2021-05-10T10:00:00.000-02:00', 'milliseconds', 10800000]
         ])('should return duration between %p and %p, in %p as %p for end values', (input, end, interval, expected) => {
-            const args: { end: any, interval: any } = { end, interval };
+            const args: { end: any; interval: any } = { end, interval };
 
             expect(getTimeBetween(input, args)).toBe(expected);
         });
@@ -213,23 +213,29 @@ describe('date utils', () => {
             [1620764444501, '05/10/2028 UTC', 'milliseconds', 220765155499],
             [new Date(1620764444501), new Date('2028-05-10T11:01:33.192Z'), 'milliseconds', 220804848691],
         ])('should return duration between %p and %p, in %p as %p for different date intervals', (input, end, interval, expected) => {
-            const args: { end: any, interval: any } = { end, interval };
+            const args: { end: any; interval: any } = { end, interval };
 
             expect(getTimeBetween(input, args)).toBe(expected);
         });
 
         it('should throw if end and start are missing', () => {
-            expect(() => { getTimeBetween('2021-05-10T10:00:00.000Z', { interval: 'seconds' }); })
+            expect(() => {
+                getTimeBetween('2021-05-10T10:00:00.000Z', { interval: 'seconds' });
+            })
                 .toThrowError('Must provide a start or an end argument');
         });
 
         it('should throw if input is an invalid date', () => {
-            expect(() => { getTimeBetween('bad date', { start: 1715472000000, interval: 'seconds' }); })
+            expect(() => {
+                getTimeBetween('bad date', { start: 1715472000000, interval: 'seconds' });
+            })
                 .toThrowError('Expected bad date (String) to be in a standard date format');
         });
 
         it('should throw if start or end arg is an invalid date', () => {
-            expect(() => { getTimeBetween('1715472000000', { start: 'bad date', interval: 'seconds' }); })
+            expect(() => {
+                getTimeBetween('1715472000000', { start: 'bad date', interval: 'seconds' });
+            })
                 .toThrowError('Expected bad date (String) to be in a standard date format');
         });
     });
@@ -326,17 +332,23 @@ describe('date utils', () => {
         });
 
         it('should throw if milliseconds value is above 999', () => {
-            expect(() => { setMilliseconds(1000)('2021-05-14T20:45:30.000Z'); })
+            expect(() => {
+                setMilliseconds(1000)('2021-05-14T20:45:30.000Z');
+            })
                 .toThrowError('milliseconds value must be an integer between 0 and 999, received 1000');
         });
 
         it('should throw if milliseconds value is negative', () => {
-            expect(() => { setMilliseconds(-232)('2021-05-14T20:45:30.000Z'); })
+            expect(() => {
+                setMilliseconds(-232)('2021-05-14T20:45:30.000Z');
+            })
                 .toThrowError('milliseconds value must be an integer between 0 and 999, received -232');
         });
 
         it('should throw if milliseconds value is not an integer', () => {
-            expect(() => { setMilliseconds(12.34)('2021-05-14T20:45:30.000Z'); })
+            expect(() => {
+                setMilliseconds(12.34)('2021-05-14T20:45:30.000Z');
+            })
                 .toThrowError('milliseconds value must be an integer between 0 and 999, received 12.34');
         });
     });
@@ -352,7 +364,9 @@ describe('date utils', () => {
         });
 
         it('should throw if seconds value is above 59', () => {
-            expect(() => { setSeconds(84)('2021-05-14T20:45:30.000Z'); })
+            expect(() => {
+                setSeconds(84)('2021-05-14T20:45:30.000Z');
+            })
                 .toThrowError('seconds value must be an integer between 0 and 59, received 84');
         });
     });
@@ -369,7 +383,9 @@ describe('date utils', () => {
         });
 
         it('should throw if minutes value is above 59', () => {
-            expect(() => { setMinutes(84)('2021-05-14T20:45:30.000Z'); })
+            expect(() => {
+                setMinutes(84)('2021-05-14T20:45:30.000Z');
+            })
                 .toThrowError('minutes value must be an integer between 0 and 59, received 84');
         });
     });
@@ -397,12 +413,16 @@ describe('date utils', () => {
         });
 
         it('should throw if date value is above 31', () => {
-            expect(() => { setDate(84)('2021-05-14T20:45:30.000Z'); })
+            expect(() => {
+                setDate(84)('2021-05-14T20:45:30.000Z');
+            })
                 .toThrowError('date value must be an integer between 1 and 31, received 84');
         });
 
         it('should throw if date value is below 1', () => {
-            expect(() => { setDate(0)('2021-05-14T20:45:30.000Z'); })
+            expect(() => {
+                setDate(0)('2021-05-14T20:45:30.000Z');
+            })
                 .toThrowError('date value must be an integer between 1 and 31, received 0');
         });
     });
@@ -418,12 +438,16 @@ describe('date utils', () => {
         });
 
         it('should throw if month value is above 12', () => {
-            expect(() => { setMonth(13)('2021-05-14T20:45:30.000Z'); })
+            expect(() => {
+                setMonth(13)('2021-05-14T20:45:30.000Z');
+            })
                 .toThrowError('month value must be an integer between 1 and 12, received 13');
         });
 
         it('should throw if date value is below 1', () => {
-            expect(() => { setMonth(-10)('2021-05-14T20:45:30.000Z'); })
+            expect(() => {
+                setMonth(-10)('2021-05-14T20:45:30.000Z');
+            })
                 .toThrowError('month value must be an integer between 1 and 12, received -10');
         });
     });
@@ -440,7 +464,9 @@ describe('date utils', () => {
         });
 
         it('should throw if year value is not an integer', () => {
-            expect(() => { setYear(234.343)('2021-05-14T20:45:30.000Z'); })
+            expect(() => {
+                setYear(234.343)('2021-05-14T20:45:30.000Z');
+            })
                 .toThrowError('year value must be an integer, received 234.343');
         });
     });
@@ -458,7 +484,9 @@ describe('date utils', () => {
         });
 
         it('should throw if input cannot be parsed to a date', () => {
-            expect(() => { getMilliseconds('nope'); })
+            expect(() => {
+                getMilliseconds('nope');
+            })
                 .toThrowError('Expected nope (String) to be in a standard date format');
         });
     });
@@ -476,7 +504,9 @@ describe('date utils', () => {
         });
 
         it('should throw if input cannot be parsed to a date', () => {
-            expect(() => { getSeconds('nope'); })
+            expect(() => {
+                getSeconds('nope');
+            })
                 .toThrowError('Expected nope (String) to be in a standard date format');
         });
     });
@@ -496,7 +526,9 @@ describe('date utils', () => {
         });
 
         it('should throw if input cannot be parsed to a date', () => {
-            expect(() => { getMinutes(true); })
+            expect(() => {
+                getMinutes(true);
+            })
                 .toThrowError('Expected true (Boolean) to be in a standard date format');
         });
     });
@@ -516,7 +548,9 @@ describe('date utils', () => {
         });
 
         it('should throw if input cannot be parsed to a date', () => {
-            expect(() => { getUTCMinutes(true); })
+            expect(() => {
+                getUTCMinutes(true);
+            })
                 .toThrowError('Expected true (Boolean) to be in a standard date format');
         });
     });
@@ -536,7 +570,9 @@ describe('date utils', () => {
         });
 
         it('should throw if input cannot be parsed to a date', () => {
-            expect(() => { getHours(false); })
+            expect(() => {
+                getHours(false);
+            })
                 .toThrowError('Expected false (Boolean) to be in a standard date format');
         });
     });
@@ -556,7 +592,9 @@ describe('date utils', () => {
         });
 
         it('should throw if input cannot be parsed to a date', () => {
-            expect(() => { getUTCHours(false); })
+            expect(() => {
+                getUTCHours(false);
+            })
                 .toThrowError('Expected false (Boolean) to be in a standard date format');
         });
     });
@@ -573,7 +611,9 @@ describe('date utils', () => {
         });
 
         it('should throw if input cannot be parsed to a date', () => {
-            expect(() => { getDate([]); })
+            expect(() => {
+                getDate([]);
+            })
                 .toThrowError('Expected  (Array) to be in a standard date format');
         });
     });
@@ -590,7 +630,9 @@ describe('date utils', () => {
         });
 
         it('should throw if input cannot be parsed to a date', () => {
-            expect(() => { getUTCDate([]); })
+            expect(() => {
+                getUTCDate([]);
+            })
                 .toThrowError('Expected  (Array) to be in a standard date format');
         });
     });

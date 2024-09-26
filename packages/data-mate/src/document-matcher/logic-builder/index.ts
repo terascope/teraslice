@@ -29,7 +29,7 @@ function makeGetFn(field?: string): (data: any) => unknown {
     };
 }
 
-function logicNode(field: string|undefined, cb: BooleanCB): BooleanCB {
+function logicNode(field: string | undefined, cb: BooleanCB): BooleanCB {
     if (field && isWildCardString(field)) {
         return findWildcardField(field, cb);
     }
@@ -168,7 +168,7 @@ function getAnyValue(
 }
 
 function typeFunctions(
-    node: p.Term|p.Range,
+    node: p.Term | p.Range,
     typeConfig: xLuceneTypeConfig,
     variables: xLuceneVariables,
     defaultCb: BooleanCB

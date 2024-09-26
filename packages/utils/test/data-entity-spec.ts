@@ -59,7 +59,9 @@ describe('DataEntity', () => {
             });
 
             it('should be to set an additional property', () => {
-                dataEntity.teal = 'neal';
+                expect(() => {
+                    dataEntity.teal = 'neal';
+                }).not.toThrow();
             });
 
             it('should have the input properties top-level', () => {
@@ -82,7 +84,7 @@ describe('DataEntity', () => {
                 ...hiddenProps,
             ] as string[])('should NOT be able to enumerate ->%s', (key: string) => {
                 expect(Object.keys(dataEntity)).not.toContain(key);
-                // eslint-disable-next-line guard-for-in
+
                 for (const prop in dataEntity) {
                     expect(prop).not.toEqual(key);
                 }

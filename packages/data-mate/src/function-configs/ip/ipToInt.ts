@@ -28,7 +28,9 @@ export const ipToIntConfig: FieldTransformConfig = {
         }
     ],
     description: 'Returns the IP as an integer or a big int',
-    create() { return ipToInt; },
+    create() {
+        return ipToInt;
+    },
     accepts: [FieldType.String, FieldType.IP],
     output_type({ field_config }) {
         return {

@@ -32,7 +32,7 @@ export class IndexStore<T extends Record<string, any>> {
     readonly name: string;
     refreshByDefault = true;
     readonly clientMetadata: ClientMetadata;
-    protected _defaultQueryAccess: QueryAccess<T>|undefined;
+    protected _defaultQueryAccess: QueryAccess<T> | undefined;
     readonly xLuceneTypeConfig: xLuceneTypeConfig;
 
     readonly writeHooks = new Set<WriteHook<T>>();
@@ -128,10 +128,10 @@ export class IndexStore<T extends Record<string, any>> {
     async bulk(action: 'index' | 'create', doc: Partial<T>, id?: string, retryOnConflict?: number, onBulkQueueConflict?: OnBulkConflictFn<T>): Promise<void>;
     async bulk(action: 'update', doc: Partial<T>, id?: string, retryOnConflict?: number, onBulkQueueConflict?: OnBulkConflictFn<T>): Promise<void>;
     async bulk(action: 'upsert-with-script', script: UpsertWithScript<T>, id?: string, retryOnConflict?: number, onBulkQueueConflict?: OnBulkConflictFn<T>): Promise<void>;
-    async bulk(_action: i.BulkAction|'upsert-with-script', ...args: any[]): Promise<void> {
-        let retry_on_conflict: number|undefined;
-        let id: string|undefined;
-        let onBulkQueueConflict: OnBulkConflictFn<T>|undefined;
+    async bulk(_action: i.BulkAction | 'upsert-with-script', ...args: any[]): Promise<void> {
+        let retry_on_conflict: number | undefined;
+        let id: string | undefined;
+        let onBulkQueueConflict: OnBulkConflictFn<T> | undefined;
 
         const last = args[args.length - 1];
         const secondToLast = args[args.length - 2];
@@ -155,14 +155,16 @@ export class IndexStore<T extends Record<string, any>> {
         const action: i.BulkAction = _action === 'upsert-with-script' ? 'update' : _action;
         const metadata: BulkRequestMetadata = {};
 
-        metadata[action] = !isElasticsearch6(this.client) ? {
-            _index: this.writeIndex,
-            retry_on_conflict
-        } : {
-            _index: this.writeIndex,
-            _type: this.config.name,
-            retry_on_conflict
-        };
+        metadata[action] = !isElasticsearch6(this.client)
+            ? {
+                _index: this.writeIndex,
+                retry_on_conflict
+            }
+            : {
+                _index: this.writeIndex,
+                _type: this.config.name,
+                retry_on_conflict
+            };
 
         let data: BulkRequestData<Partial<T>> = null;
 
@@ -507,15 +509,17 @@ export class IndexStore<T extends Record<string, any>> {
 
     getDefaultParams<P extends Record<string, any> = { index: string; [prop: string]: any }>(
         index: string,
-        ...params: ((Partial<P> & Record<string, any>)|undefined)[]
+        ...params: ((Partial<P> & Record<string, any>) | undefined)[]
     ): P {
         return Object.assign(
-            !isElasticsearch6(this.client) ? {
-                index,
-            } : {
-                index,
-                type: this.config.name,
-            },
+            !isElasticsearch6(this.client)
+                ? {
+                    index,
+                }
+                : {
+                    index,
+                    type: this.config.name,
+                },
             ...params
         ) as P;
     }
@@ -902,7 +906,7 @@ export class IndexStore<T extends Record<string, any>> {
     /**
      * Run additional validation after retrieving the record from elasticsearch
     */
-    private _runReadHooks(doc: T, critical: boolean): T|false {
+    private _runReadHooks(doc: T, critical: boolean): T | false {
         let _doc = doc;
         for (const hook of this.readHooks) {
             const result = hook(_doc, critical);
@@ -918,7 +922,7 @@ export class IndexStore<T extends Record<string, any>> {
     /**
      * Run additional validation before updating or creating the record
     */
-    private _runWriteHooks(doc: T|Partial<T>, critical: boolean): T {
+    private _runWriteHooks(doc: T | Partial<T>, critical: boolean): T {
         let _doc = doc;
         for (const hook of this.writeHooks) {
             const result = hook(_doc, critical);
@@ -964,9 +968,9 @@ export type UpsertWithScript<T> = {
         source: string;
         lang: 'painless';
         params: Record<string, unknown>;
-    },
+    };
     upsert: Partial<T>;
-}
+};
 
 export type BulkRequestData<T> = T | { doc: Partial<T> } | UpsertWithScript<T> | null;
 
@@ -981,7 +985,7 @@ export type BulkRequestMetadata = {
 export type OnBulkConflictFn<T> = (
     existingItem: BulkRequest<Partial<T>>,
     newItem: BulkRequest<Partial<T>>
-) => BulkRequest<Partial<T>>|null;
+) => BulkRequest<Partial<T>> | null;
 
 type ReservedParams = 'index' | 'type';
 type PartialParam<T, E = any> = {
@@ -994,5 +998,5 @@ export type AnyInput<T> = { [P in keyof T]?: T[P] | any };
 export type JoinBy = 'AND' | 'OR';
 export type UpdateBody<T> = ({ doc: Partial<T> })|({ script: any });
 
-export type WriteHook<T> = (doc: Partial<T>, critical: boolean) => T|Partial<T>;
-export type ReadHook<T> = (doc: T, critical: boolean) => T|false;
+export type WriteHook<T> = (doc: Partial<T>, critical: boolean) => T | Partial<T>;
+export type ReadHook<T> = (doc: T, critical: boolean) => T | false;

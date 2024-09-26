@@ -16,7 +16,7 @@ import { Builder, copyVectorToBuilder } from '../../builder/index.js';
 import { WritableData } from '../../core/index.js';
 
 export interface DataFrameAdapterOptions<T extends Record<string, any>> {
-    args?: T | ((index: number) => T),
+    args?: T | ((index: number) => T);
     field?: string;
 }
 

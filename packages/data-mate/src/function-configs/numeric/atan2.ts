@@ -64,7 +64,7 @@ export const atan2Config: FieldTransformConfig = {
     }
 };
 
-function atan2(input: unknown): number|null {
+function atan2(input: unknown): number | null {
     if (input == null) return null;
 
     const [x, y] = getCoordinates(input);

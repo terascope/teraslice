@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,7 +19,6 @@ const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
 const yargsInstance = yargs(hideBin(process.argv));
 
-// eslint-disable-next-line no-unused-expressions
 yargsInstance
     .command({
         command: 'es-mapping',

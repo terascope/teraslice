@@ -3,7 +3,7 @@ import { getTypeOf } from './deps.js';
 /**
  * Convert an input to a Buffer if possible
 */
-export function ensureBuffer(input: string|Buffer, encoding: BufferEncoding = 'utf8'): Buffer {
+export function ensureBuffer(input: string | Buffer, encoding: BufferEncoding = 'utf8'): Buffer {
     if (typeof input === 'string') {
         return Buffer.from(input, encoding);
     }

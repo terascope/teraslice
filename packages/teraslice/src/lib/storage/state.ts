@@ -106,6 +106,7 @@ export class StateStorage {
 
         return { record, index };
     }
+
     // TODO: type this better
     async updateState(slice: Slice, state: string, error?: Error) {
         if (!SliceState[state]) {

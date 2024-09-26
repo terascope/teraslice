@@ -15,13 +15,13 @@ export interface SimpleRecord {
 }
 
 export type SimpleRecordInput = Overwrite<
-SimpleRecord,
-{
-    test_number?: number;
-    test_boolean?: boolean;
-    _created?: string;
-    _updated?: string;
-}
+    SimpleRecord,
+    {
+        test_number?: number;
+        test_boolean?: boolean;
+        _created?: string;
+        _updated?: string;
+    }
 >;
 
 export const dataType = new DataType({

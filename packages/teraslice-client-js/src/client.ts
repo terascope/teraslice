@@ -54,9 +54,9 @@ export default class Client {
     }
 
     private async _makeRequest<T = any>(
-        method: 'get'|'post'|'put'|'delete',
+        method: 'get' | 'post' | 'put' | 'delete',
         endpoint: string,
-        searchOptions?: RequestOptions|SearchOptions,
+        searchOptions?: RequestOptions | SearchOptions,
         data?: any
     ): Promise<T> {
         const errorMsg = validateRequestOptions(endpoint, searchOptions);
@@ -106,7 +106,7 @@ export default class Client {
     }
 
     protected makeOptions(
-        searchParams: Record<string, any>|undefined, options: RequestOptions | SearchOptions
+        searchParams: Record<string, any> | undefined, options: RequestOptions | SearchOptions
     ): RequestOptions {
         return { ...options, searchParams };
     }
@@ -175,7 +175,7 @@ function makeErrorFromResponse(response: any): OldErrorOutput {
 }
 
 // TODO: do more validations
-function validateRequestOptions(endpoint: string, _options?: RequestOptions|SearchOptions) {
+function validateRequestOptions(endpoint: string, _options?: RequestOptions | SearchOptions) {
     if (!endpoint) {
         return 'endpoint must not be empty';
     }
@@ -186,7 +186,7 @@ function validateRequestOptions(endpoint: string, _options?: RequestOptions|Sear
 }
 
 function getRequestOptionsWithData(
-    data: any, options: RequestOptions|SearchOptions
+    data: any, options: RequestOptions | SearchOptions
 ): RequestOptions {
     if (isPlainObject(data) || Array.isArray(data)) {
         return { ...options, json: data };

@@ -7,12 +7,14 @@ export default class Float extends BaseType {
         this._validateESMapping();
         return {
             mapping: {
-                [this.field]: this.config.indexed === false ? {
-                    type: 'float' as ESFieldType,
-                    index: false
-                } : {
-                    type: 'float' as ESFieldType
-                }
+                [this.field]: this.config.indexed === false
+                    ? {
+                        type: 'float' as ESFieldType,
+                        index: false
+                    }
+                    : {
+                        type: 'float' as ESFieldType
+                    }
             }
         };
     }

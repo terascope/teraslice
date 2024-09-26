@@ -6,9 +6,9 @@ import {
 } from '../interfaces.js';
 
 function minValuesReducer(
-    acc: number|null,
-    curr: (number|bigint|null)[]|(number|bigint|null)
-): number|null {
+    acc: number | null,
+    curr: (number | bigint | null)[]|(number | bigint | null)
+): number | null {
     const currValue = (Array.isArray(curr) ? minValuesFn(curr) : curr);
     if (currValue == null) return acc;
     if (acc == null) return toFloatOrThrow(currValue);
@@ -16,7 +16,7 @@ function minValuesReducer(
     return toFloatOrThrow(currValue);
 }
 
-function minValuesFn(value: unknown): bigint|number|null {
+function minValuesFn(value: unknown): bigint | number | null {
     if (isNumber(value) || isBigInt(value)) return value;
     if (!Array.isArray(value)) return null;
 

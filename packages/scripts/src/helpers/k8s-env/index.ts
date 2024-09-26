@@ -70,7 +70,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     // If --dev is true, we must run yarn setup before creating resources
     // We need a local node_modules folder built to add it as a volume
     if (options.dev) {
-        let imageVersion:string;
+        let imageVersion: string;
         try {
             imageVersion = await getNodeVersionFromImage(e2eImage);
         } catch (err) {
@@ -171,7 +171,7 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
     signale.timeEnd('Rebuild teraslice');
 }
 
-async function buildAndTagTerasliceImage(options:K8sEnvOptions) {
+async function buildAndTagTerasliceImage(options: K8sEnvOptions) {
     let runImage;
     if (options.terasliceImage) {
         runImage = options.terasliceImage;

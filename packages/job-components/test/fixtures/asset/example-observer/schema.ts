@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-import-module-exports
 import { ConvictSchema } from '../../../../src/index.js';
 
 export default class Schema extends ConvictSchema<any, any> {

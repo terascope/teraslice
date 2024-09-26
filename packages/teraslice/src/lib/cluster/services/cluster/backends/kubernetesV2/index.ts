@@ -234,6 +234,7 @@ export class KubernetesClusterBackendV2 {
         await this.k8s.scaleExecution(exId, numWorkers, 'remove');
         return { action: 'remove', ex_id: exId, workerNum: numWorkers };
     }
+
     // TODO: fix types here
     async setWorkers(executionContext: any, numWorkers: number) {
         await this.k8s.scaleExecution(executionContext.ex_id, numWorkers, 'set');

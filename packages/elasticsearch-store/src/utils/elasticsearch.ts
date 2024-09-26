@@ -178,7 +178,7 @@ export function isOpensearch2(client: Client): boolean {
 
 // TODO: move this logic over to datatype
 export function fixMappingRequest(
-    client: Client, _params: { body: ESMapping, name?: string, index?: string }, isTemplate: boolean
+    client: Client, _params: { body: ESMapping; name?: string; index?: string }, isTemplate: boolean
 ): any {
     if (!_params || !_params.body) {
         throw new Error('Invalid mapping request');
@@ -254,10 +254,12 @@ export function getFlattenedNamesAndTypes(config: ESTypeMapping): FlattenPropert
 
         const extraSorted = ts.sortKeys(extra, { deep: true });
 
-        output[field] = ts.isEmpty(extraSorted) ? [type] : [
-            type,
-            JSON.stringify(extraSorted)
-        ];
+        output[field] = ts.isEmpty(extraSorted)
+            ? [type]
+            : [
+                type,
+                JSON.stringify(extraSorted)
+            ];
 
         // this means the object is nested
         if (properties) {

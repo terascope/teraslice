@@ -72,7 +72,9 @@ export const isPortConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Returns the input it it is a valid TCP or UDP port, otherwise returns null.',
     examples,
-    create() { return isPort; },
+    create() {
+        return isPort;
+    },
     accepts: [
         FieldType.String,
         FieldType.Number

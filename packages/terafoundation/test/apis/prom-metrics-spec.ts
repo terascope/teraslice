@@ -1,4 +1,3 @@
-/* eslint-disable import/first */
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import got from 'got';
@@ -734,5 +733,5 @@ describe('promMetrics foundation API', () => {
 
             expect(value2).toBe('0');
         });
-    })
+    });
 });

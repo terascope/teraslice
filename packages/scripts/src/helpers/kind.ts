@@ -121,8 +121,8 @@ export function getVolumesFromDockerfile(
     mountNodeModules: boolean,
     logger: Logger,
     dockerfilePath = path.join(process.cwd(), 'Dockerfile')
-):TsVolumeSet {
-    const finalResult:TsVolumeSet = {
+): TsVolumeSet {
+    const finalResult: TsVolumeSet = {
         extraMounts: [],
         volumes: [],
         volumeMounts: []
@@ -153,14 +153,14 @@ export function getVolumesFromDockerfile(
         /// Check if directory or file
         for (const line of copyLines) {
             for (let index = 0; index < line.length - 1; index++) {
-                const exMount:any = {
+                const exMount: any = {
                     hostPath: '',
                     containerPath: ''
                 };
-                const volume:V1Volume = {
+                const volume: V1Volume = {
                     name: ''
                 };
-                const volumeMount:V1VolumeMount = {
+                const volumeMount: V1VolumeMount = {
                     name: '',
                     mountPath: ''
                 };

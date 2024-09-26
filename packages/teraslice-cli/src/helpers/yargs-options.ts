@@ -11,7 +11,7 @@ export default class Options {
         arch: () => ({
             choices: ['x32', 'x64'],
             describe: 'The architecture of the Teraslice cluster.'
-                    + '  Determined automatically on newer Teraslice releases.',
+                + '  Determined automatically on newer Teraslice releases.',
             nargs: 1,
             type: 'string'
         }),
@@ -55,7 +55,7 @@ export default class Options {
         // TODO: what is default here
         build: () => ({
             describe: 'Build asset from source prior to upload.  The current'
-                    + ' directory is used if no argument is passed to this option',
+                + ' directory is used if no argument is passed to this option',
             type: 'boolean'
         }),
         bundle: () => ({
@@ -65,7 +65,7 @@ export default class Options {
         }),
         'bundle-target': () => ({
             describe: 'Specify which version of node is used as the target for esbuild.'
-                    + ' Defaults to current major node version',
+                + ' Defaults to current major node version',
             default: `node${process.version.split('.', 1)[0].substring(1)}`,
             choices: [
                 'node16',
@@ -94,7 +94,7 @@ export default class Options {
         file: () => ({
             alias: 'f',
             describe: 'When specified with a path to an asset file, uploads provided'
-                    + ' asset without retrieving from GitHub.  Useful for offline use.',
+                + ' asset without retrieving from GitHub.  Useful for offline use.',
             nargs: 1,
             type: 'string'
         }),
@@ -109,7 +109,7 @@ export default class Options {
         }),
         'node-version': () => ({
             describe: 'The node version of the Teraslice cluster, like: `v8.11.1`, `v10.13.0`'
-                    + '  Determined automatically on newer Teraslice releases.',
+                + '  Determined automatically on newer Teraslice releases.',
             nargs: 1,
             type: 'string'
         }),
@@ -127,7 +127,7 @@ export default class Options {
         platform: () => ({
             choices: ['darwin', 'linux'],
             describe: 'The platform of the Teraslice cluster.'
-                    + '  Determined automatically on newer Teraslice releases.',
+                + '  Determined automatically on newer Teraslice releases.',
             nargs: 1,
             type: 'string'
         }),
@@ -233,7 +233,7 @@ export default class Options {
             default: false,
             type: 'boolean'
         }),
-        'outdir': () => ({
+        outdir: () => ({
             alias: 'o',
             describe: 'Directory where exported job file will be saved',
             type: 'string',

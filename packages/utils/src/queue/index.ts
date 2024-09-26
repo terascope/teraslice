@@ -25,7 +25,7 @@ export class Queue<T> {
         this._size += 1;
     }
 
-    dequeue(): T|undefined {
+    dequeue(): T | undefined {
         if (this._size === 0 || this.head == null) {
             return;
         }
@@ -81,11 +81,11 @@ export class Queue<T> {
 
         // there is anything left in list
         if (this.head) {
-            let currentNode: Node<T>|undefined = this.head;
+            let currentNode: Node<T> | undefined = this.head;
 
             while (currentNode) {
                 const previousNode = currentNode.prev;
-                const nextNode: Node<T>|undefined = currentNode.next;
+                const nextNode: Node<T> | undefined = currentNode.next;
 
                 if (currentNode.value[key] === id) {
                     if (nextNode) {
@@ -111,16 +111,16 @@ export class Queue<T> {
     /**
      * Search the queue for a key that matches a value and return the match
     */
-    extract(key: string, val: unknown): T|undefined {
+    extract(key: string, val: unknown): T | undefined {
         if (val == null) return;
 
         if (this.head) {
-            let currentNode: Node<T>|undefined = this.head;
+            let currentNode: Node<T> | undefined = this.head;
             let isFound = false;
 
             while (currentNode && !isFound) {
                 const previousNode = currentNode.prev;
-                const nextNode: Node<T>|undefined = currentNode.next;
+                const nextNode: Node<T> | undefined = currentNode.next;
 
                 if (currentNode.value[key] === val) {
                     const data = currentNode.value;

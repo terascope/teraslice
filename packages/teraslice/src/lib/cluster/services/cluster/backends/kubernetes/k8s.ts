@@ -218,7 +218,7 @@ export class K8s {
         const jobs = await this.list(selector, objType);
         if (jobs.items.length === 1) {
             return jobs;
-        } if (jobs.items.length === 0) {
+        } else if (jobs.items.length === 0) {
             const msg = `Teraslice ${objType} matching the following selector was not found: ${selector} (retriable)`;
             this.logger.warn(msg);
             throw new TSError(msg, { retryable: true });
@@ -330,8 +330,8 @@ export class K8s {
         }
 
         const deleteWithErrorHandling = async (deleteFn: () => Promise<{
-            response: IncomingMessage,
-            body: Record<string, any>
+            response: IncomingMessage;
+            body: Record<string, any>;
         }>) => {
             try {
                 const res = await deleteFn();
@@ -353,7 +353,7 @@ export class K8s {
                 }
                 throw e;
             }
-        }
+        };
 
         try {
             if (objType === 'services') {
@@ -516,9 +516,9 @@ export class K8s {
 
 interface DeleteOptions {
     body: {
-        apiVersion: string,
-        kind: string,
-        propagationPolicy: string,
-        gracePeriodSeconds?: number
-    }
+        apiVersion: string;
+        kind: string;
+        propagationPolicy: string;
+        gracePeriodSeconds?: number;
+    };
 }

@@ -5,7 +5,7 @@ import { hideBin } from 'yargs/helpers';
 import yaml from 'js-yaml';
 import { ParsedArgs } from './interfaces.js';
 
-export function getDefaultConfigFile(): string|undefined {
+export function getDefaultConfigFile(): string | undefined {
     const cwd = process.cwd();
 
     if (process.env.TERAFOUNDATION_CONFIG) {

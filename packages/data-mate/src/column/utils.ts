@@ -19,9 +19,9 @@ export function getVectorId(vector: Vector<any>): string {
 }
 
 export function mapVectorEach<T, R = T>(
-    vector: Vector<T>|ListVector<T>,
+    vector: Vector<T> | ListVector<T>,
     builder: Builder<R>,
-    fn: (value: Maybe<T|readonly Maybe<T>[]>, index: number) => Maybe<R|readonly Maybe<R>[]>,
+    fn: (value: Maybe<T | readonly Maybe<T>[]>, index: number) => Maybe<R | readonly Maybe<R>[]>,
 ): Vector<R> {
     let i = 0;
 
@@ -34,14 +34,17 @@ export function mapVectorEach<T, R = T>(
 }
 
 export function mapVectorEachValue<T, R = T>(
-    vector: Vector<T>|ListVector<T>,
+    vector: Vector<T> | ListVector<T>,
     builder: Builder<R>,
     fn: (value: T, index: number) => Maybe<R>,
 ): Vector<R> {
     const containsArray = vector.type === VectorType.Tuple || vector.config.array
         || vector.type === VectorType.Any;
 
-    function _mapValue(value: T|readonly Maybe<T>[], index: number): Maybe<R>|readonly Maybe<R>[] {
+    function _mapValue(
+        value: T | readonly Maybe<T>[],
+        index: number
+    ): Maybe<R> | readonly Maybe<R>[] {
         if (containsArray && Array.isArray(value)) {
             return (value as readonly Maybe<T>[]).map((v): Maybe<R> => (
                 v != null ? fn(v, index) : null
@@ -55,10 +58,10 @@ export function mapVectorEachValue<T, R = T>(
 }
 
 export function dynamicMapVectorEach<T, R = T>(
-    vector: Vector<T>|ListVector<T>,
+    vector: Vector<T> | ListVector<T>,
     builder: Builder<R>,
     dynamicFn: (index: number) =>
-    (value: Maybe<T|readonly Maybe<T>[]>, index: number) => Maybe<R|readonly Maybe<R>[]>,
+    (value: Maybe<T | readonly Maybe<T>[]>, index: number) => Maybe<R | readonly Maybe<R>[]>,
 ): Vector<R> {
     let i = 0;
 
@@ -72,11 +75,14 @@ export function dynamicMapVectorEach<T, R = T>(
 }
 
 export function dynamicMapVectorEachValue<T, R = T>(
-    vector: Vector<T>|ListVector<T>,
+    vector: Vector<T> | ListVector<T>,
     builder: Builder<R>,
     dynamicFn: (index: number) => (value: T, index: number) => Maybe<R>,
 ): Vector<R> {
-    function _mapValue(value: T|readonly Maybe<T>[], index: number): Maybe<R>|readonly Maybe<R>[] {
+    function _mapValue(
+        value: T | readonly Maybe<T>[],
+        index: number
+    ): Maybe<R> | readonly Maybe<R>[] {
         const fn = dynamicFn(index);
 
         if (isArrayLike<readonly Maybe<T>[]>(value)) {
@@ -123,7 +129,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
 */
 export function getFieldTypesFromFieldConfigAndChildConfig(
     config: Readonly<DataTypeFieldConfig>,
-    childConfig: DataTypeFields|ReadonlyDataTypeFields|undefined
+    childConfig: DataTypeFields | ReadonlyDataTypeFields | undefined
 ): readonly FieldType[] {
     if (config.type !== FieldType.Tuple || !childConfig) {
         return [config.type as FieldType];

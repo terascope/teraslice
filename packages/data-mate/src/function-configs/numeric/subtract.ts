@@ -8,10 +8,10 @@ import {
 } from '../interfaces.js';
 
 export interface SubtractArgs {
-    readonly value: number
+    readonly value: number;
 }
 
-function isLargeNumberType(type: FieldType|undefined) {
+function isLargeNumberType(type: FieldType | undefined) {
     if (type == null) return false;
     return type === FieldType.Long;
 }
@@ -65,7 +65,7 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
         }
     ],
     create({ args: { value }, inputConfig }) {
-        if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
+        if (isLargeNumberType(inputConfig?.field_config.type as FieldType | undefined)) {
             return subtractFP(toBigIntOrThrow(value));
         }
 
@@ -85,7 +85,7 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
 
 function subtractFP(value: bigint): (input: unknown) => bigint;
 function subtractFP(value: number): (input: unknown) => number;
-function subtractFP(value: number|bigint): (input: unknown) => number|bigint {
+function subtractFP(value: number | bigint): (input: unknown) => number | bigint {
     const bigInt = isBigInt(value);
     return function _subtract(num) {
         if (bigInt && !isBigInt(num)) {

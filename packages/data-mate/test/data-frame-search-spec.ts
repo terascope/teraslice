@@ -10,8 +10,8 @@ describe('DataFrame->search', () => {
         name: Maybe<string>;
         age?: Maybe<number>;
         alive: Maybe<boolean>;
-        friends?: Maybe<Maybe<string>[]>
-    }
+        friends?: Maybe<Maybe<string>[]>;
+    };
     let peopleDataFrame: DataFrame<Person>;
 
     const peopleDTConfig: DataTypeConfig = {
@@ -41,10 +41,10 @@ describe('DataFrame->search', () => {
             owner?: Maybe<{
                 id?: Maybe<string>;
                 name?: Maybe<string>;
-            }>
+            }>;
         }>;
         states?: Maybe<Maybe<{ id?: Maybe<string>; name?: Maybe<string> }>[]>;
-    }
+    };
 
     const deepObjectDTConfig: DataTypeConfig = {
         version: LATEST_VERSION,
@@ -85,7 +85,7 @@ describe('DataFrame->search', () => {
 
     type Special = {
         ip?: Maybe<string>;
-        long?: Maybe<bigint|number>;
+        long?: Maybe<bigint | number>;
         date?: Maybe<string>;
         location?: Maybe<string>;
         geometry?: Maybe<GeoShape>;
@@ -155,7 +155,8 @@ describe('DataFrame->search', () => {
                 }
             },
             states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
-        }, {
+        },
+        {
             _key: 'id-2',
             config: {
                 id: 'config-2',

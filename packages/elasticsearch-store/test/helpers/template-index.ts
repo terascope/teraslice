@@ -11,12 +11,12 @@ export interface TemplateRecord {
 }
 
 export type TemplateRecordInput = Overwrite<
-TemplateRecord,
-{
-    random_number?: number;
-    _created?: Date | string;
-    _updated?: Date | string;
-}
+    TemplateRecord,
+    {
+        random_number?: number;
+        _created?: Date | string;
+        _updated?: Date | string;
+    }
 >;
 
 export const dataType = new DataType({

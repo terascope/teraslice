@@ -11,21 +11,21 @@ import { setMaxOldSpaceViaEnv } from './utils.js';
 const resourcePath = path.join(process.cwd(), './packages/teraslice/src/lib/cluster/services/cluster/backends/kubernetes/');
 
 interface K8sConfig {
-    clusterName: string,
-    clusterNameLabel: string,
-    configMapName: string,
-    dockerImage: string,
-    execution: string,
-    exId: string,
-    exName: string,
-    exUid: string,
-    jobId: string,
-    jobNameLabel: string,
-    name: string,
-    namespace: string,
-    nodeType: string,
-    replicas: number
-    shutdownTimeout: number
+    clusterName: string;
+    clusterNameLabel: string;
+    configMapName: string;
+    dockerImage: string;
+    execution: string;
+    exId: string;
+    exName: string;
+    exUid: string;
+    jobId: string;
+    jobNameLabel: string;
+    name: string;
+    namespace: string;
+    nodeType: string;
+    replicas: number;
+    shutdownTimeout: number;
 }
 
 export class K8sResource {
@@ -188,33 +188,33 @@ export class K8sResource {
                 _.set(this.resource, targetKey, []);
             }
 
-            // eslint-disable-next-line max-len
-            this.resource.spec.template.spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution.push(
-                {
-                    weight: 1,
-                    podAffinityTerm: {
-                        labelSelector: {
-                            matchExpressions: [
-                                {
-                                    key: 'app.kubernetes.io/name',
-                                    operator: 'In',
-                                    values: [
-                                        'teraslice'
-                                    ]
-                                },
-                                {
-                                    key: 'app.kubernetes.io/instance',
-                                    operator: 'In',
-                                    values: [
-                                        this.templateConfig.clusterNameLabel
-                                    ]
-                                }
-                            ]
-                        },
-                        topologyKey: 'kubernetes.io/hostname'
+            this.resource.spec.template.spec.affinity
+                .podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution.push(
+                    {
+                        weight: 1,
+                        podAffinityTerm: {
+                            labelSelector: {
+                                matchExpressions: [
+                                    {
+                                        key: 'app.kubernetes.io/name',
+                                        operator: 'In',
+                                        values: [
+                                            'teraslice'
+                                        ]
+                                    },
+                                    {
+                                        key: 'app.kubernetes.io/instance',
+                                        operator: 'In',
+                                        values: [
+                                            this.templateConfig.clusterNameLabel
+                                        ]
+                                    }
+                                ]
+                            },
+                            topologyKey: 'kubernetes.io/hostname'
+                        }
                     }
-                }
-            );
+                );
         }
     }
 
@@ -278,18 +278,16 @@ export class K8sResource {
 
     _setPriorityClassName() {
         if (this.terasliceConfig.kubernetes_priority_class_name) {
-            if (this.nodeType === 'execution_controller') {
-                // eslint-disable-next-line max-len
-                this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
-                if (this.execution.stateful) {
+            const className = this.terasliceConfig.kubernetes_priority_class_name;
 
+            if (this.nodeType === 'execution_controller') {
+                this.resource.spec.template.spec.priorityClassName = className;
+                if (this.execution.stateful) {
                     this.resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
                 }
             }
             if (this.nodeType === 'worker' && this.execution.stateful) {
-                // eslint-disable-next-line max-len
-                this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
-
+                this.resource.spec.template.spec.priorityClassName = className;
                 this.resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
             }
         }
@@ -381,9 +379,9 @@ export class K8sResource {
         if (this.nodeType === 'execution_controller') {
             // The settings on the executions override the cluster configs
             cpu = this.execution.cpu_execution_controller
-                || this.terasliceConfig.cpu_execution_controller || -1;
+            || this.terasliceConfig.cpu_execution_controller || -1;
             memory = this.execution.memory_execution_controller
-                || this.terasliceConfig.memory_execution_controller || -1;
+            || this.terasliceConfig.memory_execution_controller || -1;
             _.set(container, 'resources.requests.cpu', cpu);
             _.set(container, 'resources.limits.cpu', cpu);
             _.set(container, 'resources.requests.memory', memory);

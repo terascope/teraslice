@@ -42,8 +42,8 @@ export type Optional<T, K extends keyof T> = {
     [P in keyof T]: P extends K ? (NonNullable<T[P]> | undefined) : NonNullable<T[P]>
 };
 
-export type Nil = null|undefined;
-export type Maybe<T> = T|Nil;
+export type Nil = null | undefined;
+export type Maybe<T> = T | Nil;
 export type Unwrapped<T> = NonNullable<T>;
 
 /**
@@ -52,13 +52,13 @@ export type Unwrapped<T> = NonNullable<T>;
 export type WithoutNil<T> = { [P in keyof T]: T[P] extends Nil ? never : T[P] };
 
 /** A simple definitions of array */
- 
+
 export interface Many<T> extends Array<T> {}
- 
+
 export interface RecursiveArray<T> extends Many<T|(RecursiveArray<T>)> {}
- 
-export interface ListOfRecursiveArraysOrValues<T> extends Many<T|RecursiveArray<T>> {}
- 
+
+export interface ListOfRecursiveArraysOrValues<T> extends Many<T | RecursiveArray<T>> {}
+
 export interface EmptyObject {}
 
 /** A simple object with any values */
@@ -71,7 +71,7 @@ export interface AnyObject {
 */
 export type PartialDeep<T> = {
     [ P in keyof T ]?: PartialDeep<T[ P ]>;
-}
+};
 
 /**
  * Remove types from T that are assignable to U
@@ -102,7 +102,7 @@ export type FilteredResult<T, I extends(keyof T), E extends (keyof T)> = {
 */
 export type Unpacked<T> =
 T extends (infer U)[] ? U :
-     
+
     T extends (...args: any[]) => infer U ? U :
         T extends Promise<infer U> ? U :
             T;

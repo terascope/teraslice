@@ -165,7 +165,7 @@ export default [
         },
     ],
     [
-        "foo:'\"bar\"'",
+        'foo:\'"bar"\'',
         'query.constant_score.filter',
         {
             match: {

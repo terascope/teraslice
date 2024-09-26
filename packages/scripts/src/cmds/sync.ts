@@ -7,7 +7,7 @@ type Options = {
     verify: boolean;
     'tsconfig-only': boolean;
     quiet?: boolean;
-}
+};
 
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
     command: 'sync',

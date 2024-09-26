@@ -54,7 +54,7 @@ async function publishToNPM(options: PublishOptions) {
 
 async function npmPublish(
     pkgInfo: PackageInfo, options: PublishOptions
-): Promise<string|undefined> {
+): Promise<string | undefined> {
     const shouldPublish = await shouldNPMPublish(pkgInfo, options.type);
     if (!shouldPublish) return;
 
@@ -73,7 +73,7 @@ async function npmPublish(
     if (rootInfo.terascope.version === 2) {
         await yarnPublishV2(pkgInfo, tag);
     } else {
-        const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
+        const registry: string | undefined = get(pkgInfo, 'publishConfig.registry');
         await yarnPublish(pkgInfo, tag, registry);
     }
     return pkgInfo.name;
@@ -87,7 +87,7 @@ async function publishToDocker(options: PublishOptions) {
 
     const devImage = await buildDevDockerImage(options, undefined);
 
-    let err: any|undefined;
+    let err: any | undefined;
     for (const registry of registries) {
         let imageToBuild = '';
 

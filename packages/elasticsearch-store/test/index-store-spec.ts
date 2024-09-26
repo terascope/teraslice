@@ -25,7 +25,7 @@ function expectedStoreType(store: IndexStore<any>): undefined | string {
 
     if (store.clientMetadata.majorVersion === 6) {
         return store.config.name;
-    } if (store.clientMetadata.majorVersion === 7) {
+    } else if (store.clientMetadata.majorVersion === 7) {
         return '_doc';
     }
 
@@ -133,7 +133,10 @@ describe('IndexStore', () => {
                 }
             });
 
-            it('should be able to index the same record', () => indexStore.indexById(record.test_id, record));
+            it('should be able to index the same record', async () => {
+                const result = await indexStore.indexById(record.test_id, record);
+                expect(result).toBeDefined();
+            });
 
             it('should be able to index the record without an id', async () => {
                 const lonelyRecord: SimpleRecordInput = {
@@ -314,7 +317,7 @@ describe('IndexStore', () => {
             });
 
             it('should be able to remove the record', async () => {
-                await indexStore.deleteById(record.test_id);
+                await expect(indexStore.deleteById(record.test_id)).resolves.not.toThrow();
             });
 
             it('should throw when trying to remove a record that does not exist', async () => {
@@ -416,7 +419,7 @@ describe('IndexStore', () => {
             const records: SimpleRecordInput[] = times(100, (n) => ({
                 test_id: `bulk-${n + 1}`,
                 test_keyword: keyword,
-                test_object: { example: 'bulk', },
+                test_object: { example: 'bulk' },
                 test_number: (n + 10) * 2,
                 test_boolean: n % 2 === 0,
                 _updated: new Date().toISOString(),

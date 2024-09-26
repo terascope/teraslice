@@ -14,7 +14,7 @@ import {
 
 export interface GeoRelationArgs {
     value: GeoInput;
-    relation?: GeoShapeRelation
+    relation?: GeoShapeRelation;
 }
 
 const examples: FunctionDefinitionExample<GeoRelationArgs>[] = [

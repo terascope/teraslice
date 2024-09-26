@@ -121,7 +121,7 @@ function _extract(args: ExtractArgs) {
     throw new Error('Invalid config for extract, must provide either "regex" or "start" and "end"');
 }
 
-function extractByRegex(regex: RegExp|string, global: boolean) {
+function extractByRegex(regex: RegExp | string, global: boolean) {
     return (input: unknown) => {
         const results = matchAll(regex, input as string);
         if (global) return results;

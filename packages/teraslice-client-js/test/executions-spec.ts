@@ -252,7 +252,7 @@ describe('Teraslice Executions', () => {
             });
 
             it('should resolve json results from Teraslice', async () => {
-                const results = await executions.errors('foo', { from: 10, });
+                const results = await executions.errors('foo', { from: 10 });
                 expect(results).toEqual(errors);
             });
         });

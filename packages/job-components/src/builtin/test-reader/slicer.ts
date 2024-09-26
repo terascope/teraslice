@@ -31,7 +31,7 @@ export default class TestSlicer extends Slicer<TestReaderConfig> {
         await super.shutdown();
     }
 
-    async slice(): Promise<any|null> {
+    async slice(): Promise<any | null> {
         if (this.executionConfig.lifecycle === 'once') {
             const request = this.requests.shift();
             if (request == null) return null;

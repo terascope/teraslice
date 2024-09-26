@@ -7,7 +7,9 @@ describe('slice_analytics', () => {
     const logMessages: any[] = [];
     const logger = {
         error() {},
-        info(msg: any) { logMessages.push(msg); },
+        info(msg: any) {
+            logMessages.push(msg);
+        },
         warn() {},
         trace() {},
         debug() {}

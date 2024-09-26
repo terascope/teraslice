@@ -106,5 +106,6 @@ export async function buildDevDockerImage(
 }
 
 export function removeNodeSuffixFromTag(tag: string) {
-    return tag.split('-').filter((part) => !part.startsWith('nodev')).join('-');
+    return tag.split('-').filter((part) => !part.startsWith('nodev'))
+        .join('-');
 }

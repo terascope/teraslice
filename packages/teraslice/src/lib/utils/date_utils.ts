@@ -43,7 +43,7 @@ const formatter = {
 
 export type TimeseriesFormat = 'daily' | 'monthly' | 'yearly';
 
-export function dateOptions(value: string|undefined) {
+export function dateOptions(value: string | undefined) {
     if (value && options[value]) {
         return options[value];
     }

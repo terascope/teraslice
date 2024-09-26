@@ -20,7 +20,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly allowImplicitQueries: boolean;
     readonly defaultGeoField?: string;
     readonly defaultGeoSortOrder?: SortOrder;
-    readonly defaultGeoSortUnit?: GeoDistanceUnit|string;
+    readonly defaultGeoSortUnit?: GeoDistanceUnit | string;
     readonly allowEmpty: boolean;
     readonly typeConfig: xLuceneTypeConfig;
     readonly parsedTypeConfig: xLuceneTypeConfig;
@@ -145,8 +145,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
                     if (startsWithWildcard(value, node.type)) {
                         const errMessage = node.type === p.NodeType.Wildcard
-                            ? "Queries starting with wildcards in the form 'fieldname:*value' or 'fieldname:?value' are restricted"
-                            : "Regular expression queries starting with wildcards in the form 'fieldname:/.*value/' or 'fieldname:/.?value/' are restricted";
+                            ? 'Queries starting with wildcards in the form \'fieldname:*value\' or \'fieldname:?value\' are restricted'
+                            : 'Regular expression queries starting with wildcards in the form \'fieldname:/.*value/\' or \'fieldname:/.?value/\' are restricted';
 
                         throw new ts.TSError(errMessage, {
                             statusCode: 403,
@@ -158,7 +158,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                     }
 
                     if (isRegexpNode && hasNonGuaranteedMatch(value)) {
-                        throw new ts.TSError("Regular expression queries with non-guaranteed matches in the form 'fieldname:/v*/' or 'fieldname:/v{0,1}/' are restricted", {
+                        throw new ts.TSError('Regular expression queries with non-guaranteed matches in the form \'fieldname:/v*/\' or \'fieldname:/v{0,1}/\' are restricted', {
                             statusCode: 403,
                             context: {
                                 q,
@@ -273,7 +273,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             [includesKey]: includes,
         };
 
-        if (searchParams != null) { delete searchParams.q; }
+        if (searchParams != null) {
+            delete searchParams.q;
+        }
 
         return searchParams;
     }
@@ -284,8 +286,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      * **NOTE:** this will remove restricted fields and will not throw
      */
     restrictSourceFields(includes?: (keyof T)[], excludes?: (keyof T)[]): {
-        includes: (keyof T)[]|undefined,
-        excludes: (keyof T)[]|undefined,
+        includes: (keyof T)[] | undefined;
+        excludes: (keyof T)[] | undefined;
     } {
         const all = Object.keys(this.parsedTypeConfig)
             .map((field) => field.split('.', 1)[0]) as (keyof T)[];
@@ -305,7 +307,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     }
 
     private _getSourceFields(
-        type: 'includes'|'excludes',
+        type: 'includes' | 'excludes',
         restricted: (keyof T)[],
         all: (keyof T)[],
         override?: (keyof T)[] | boolean | (keyof T),

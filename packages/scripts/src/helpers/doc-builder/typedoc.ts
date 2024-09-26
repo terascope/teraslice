@@ -56,7 +56,7 @@ async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
     if (!overviewFilePath) {
         signale.error(
             'Error: Package documentation was not generated correctly'
-            + ", this means the package my not work with the typedoc's version of TypeScript."
+            + ', this means the package my not work with the typedoc\'s version of TypeScript.'
         );
         return;
     }

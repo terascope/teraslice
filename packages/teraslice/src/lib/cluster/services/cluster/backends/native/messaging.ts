@@ -1,4 +1,4 @@
-/*eslint-disable prefer-const*/
+/* eslint-disable prefer-const */
 import _ from 'lodash';
 import type { EventEmitter } from 'node:events';
 import { nanoid } from 'nanoid';
@@ -295,6 +295,7 @@ export class Messaging {
             return next();
         });
     }
+
     // @ts-expect-error
     listen({ server, query } = {}) {
         this.messsagingOnline = true;
@@ -428,13 +429,13 @@ export class Messaging {
         // @ts-expect-error
         const env = this.context.__testingModule ? this.context.__testingModule.env : process.env;
         const processConfig: Record<string, any> = {};
+        // @ts-expect-error
+        const testProcess = this.context.__testingModule;
         processConfig.clients = options[env.assignment];
 
         if (processConfig.clients.ipcClient) {
             // all children of node_master
-            // @ts-expect-error
-            // eslint-disable-next-line max-len
-            this.processContext = this.context.__testingModule ? this.context.__testingModule : process;
+            this.processContext = testProcess ? testProcess : process;
         } else {
             // node_master
             this.processContext = this.context.cluster;

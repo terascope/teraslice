@@ -48,7 +48,7 @@ export function isDeepEqual<T>(target: T, input: unknown): target is T {
     return isEqualWith(input, target, _isEqualCustomizer);
 }
 
-function _isEqualCustomizer(objValue: unknown, otherObject: unknown): boolean|undefined {
+function _isEqualCustomizer(objValue: unknown, otherObject: unknown): boolean | undefined {
     const aIsEntity = isDataEntity(objValue);
     const bIsEntity = isDataEntity(otherObject);
 
@@ -81,7 +81,7 @@ export const isSame = isDeepEqual;
  * This will get the same type of a which is useful for comparison
  * (but not equality since that is more strict)
  */
-function getSameType(value: unknown, other: unknown): [value: any, other: any]|undefined {
+function getSameType(value: unknown, other: unknown): [value: any, other: any] | undefined {
     const vType = typeof value;
     const oType = typeof other;
 

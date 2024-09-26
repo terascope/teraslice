@@ -9,7 +9,8 @@ export function bufferEncode(bufferEncoding: BufferEncoding) {
 
 export function cryptoEncode(hash: string, digest: BinaryToTextEncoding) {
     return function _cryptoEncode(input: unknown): string {
-        return createHash(hash).update(primitiveToString(input)).digest(digest);
+        return createHash(hash).update(primitiveToString(input))
+            .digest(digest);
     };
 }
 

@@ -5,13 +5,13 @@ import { isNil, flatten } from '@terascope/utils';
 */
 
 export function callValue<T>(
-    fn:(input: unknown, index: number) => unknown,
-    input: unknown| unknown[],
+    fn: (input: unknown, index: number) => unknown,
+    input: unknown | unknown[],
     preserveNulls: boolean,
     isValidator: boolean,
     index: number
-): (T|null)[] {
-    const results: (T|null)[] = [];
+): (T | null)[] {
+    const results: (T | null)[] = [];
 
     if (Array.isArray(input)) {
         const mappedInput = flatten(

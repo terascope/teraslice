@@ -11,8 +11,8 @@ export default [
     '.nyc_output',
     '.grunt',
     '.lock-wscript',
-    'build/Release',
-    'builds',
+    'build/**',
+    'builds/**',
     '.cache/',
     '.eslintcache/',
     '.yarn-cache/',
@@ -31,7 +31,14 @@ export default [
     'packages/teraslice-cli/generator-templates/**',
     'packages/generator-teraslice/generators/*/templates/**/*.ts',
     'packages/xlucene-parser/src/peg-engine.ts',
+    'packages/job-components/examples/**',
     'website/',
     'docs/',
     '**/*.d.ts',
-]
+    'dist/',
+    '**/dist/**',
+    '**/build/**',
+    '.pnp.**',
+    '*.min.js',
+    '*.min.css'
+];

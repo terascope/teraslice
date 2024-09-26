@@ -34,7 +34,9 @@ export const getLastIPInCIDRConfig: FieldTransformConfig = {
         }
     ],
     description: 'Returns the last address of a CIDR range, all inclusive',
-    create() { return getLastIPInCIDR; },
+    create() {
+        return getLastIPInCIDR;
+    },
     accepts: [FieldType.String, FieldType.IPRange],
     output_type({ field_config }) {
         return {

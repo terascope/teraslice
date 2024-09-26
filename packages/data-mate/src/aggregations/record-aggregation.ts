@@ -106,7 +106,7 @@ interface FilterFn {
     (input: any): any | null;
 }
 
-type Batch = Map<string, AggregationResults>
+type Batch = Map<string, AggregationResults>;
 
 function _iterateBatch(batch: Batch, fn: any) {
     const results: any[] = [];
@@ -168,7 +168,7 @@ export function unique(
 
 export function count(
     input: unknown, _parentContext: unknown, batchConfig: BatchConfig
-): any[]|null {
+): any[] | null {
     const config = validateConfig(batchConfig);
     if (isNil(input)) return null;
 
@@ -182,7 +182,11 @@ function _length(val: any[]) {
     return val.length;
 }
 
-export function sum(input: unknown, _parentContext: unknown, batchConfig: BatchConfig): any[]|null {
+export function sum(
+    input: unknown,
+    _parentContext: unknown,
+    batchConfig: BatchConfig
+): any[] | null {
     const config = validateConfig(batchConfig);
     if (isNil(input)) return null;
 
@@ -196,7 +200,7 @@ function _sum(input: number[]) {
 
 export function avg(
     input: unknown, _parentContext: unknown, batchConfig: BatchConfig
-): any[]|null {
+): any[] | null {
     const config = validateConfig(batchConfig);
     if (isNil(input)) return null;
 
@@ -211,7 +215,7 @@ function _avg(input: number[]) {
 
 export function min(
     input: unknown, _parentContext: unknown, batchConfig: BatchConfig
-): any[]|null {
+): any[] | null {
     const config = validateConfig(batchConfig);
     if (isNil(input)) return null;
 
@@ -221,7 +225,7 @@ export function min(
 
 export function max(
     input: unknown, _parentContext: unknown, batchConfig: BatchConfig
-): any[]|null {
+): any[] | null {
     const config = validateConfig(batchConfig);
     if (isNil(input)) return null;
 

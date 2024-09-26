@@ -143,10 +143,10 @@ describe('SlicerTestHarness', () => {
         });
 
         it('should not throw if given recovery data', async () => {
-            await slicerHarness.initialize([{
+            await expect(slicerHarness.initialize([{
                 lastSlice,
                 slicer_id: 0,
-            }]);
+            }])).resolves.not.toThrow();
         });
 
         it('should throw if recovery data is malformed', async () => {

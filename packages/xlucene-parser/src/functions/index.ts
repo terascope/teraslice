@@ -20,11 +20,11 @@ export const xLuceneFunctions: Record<xLuceneFunction, FunctionDefinition> = {
 };
 
 export function initFunction({ node, variables, type_config }: {
-    node: FunctionNode,
-    variables?: xLuceneVariables,
-    type_config: xLuceneTypeConfig,
+    node: FunctionNode;
+    variables?: xLuceneVariables;
+    type_config: xLuceneTypeConfig;
 }): FunctionMethods {
-    const fnType = xLuceneFunctions[node.name] as FunctionDefinition|undefined;
+    const fnType = xLuceneFunctions[node.name] as FunctionDefinition | undefined;
     if (fnType == null) {
         throw new TypeError(`Unknown xLucene function "${node.name}"`);
     }

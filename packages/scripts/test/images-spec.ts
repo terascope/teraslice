@@ -33,7 +33,7 @@ describe('images', () => {
         should either mock the http response or refactor the code
         to make it easier to mock
     */
-    xdescribe('save', () => {
+    describe.skip('save', () => {
         beforeAll(() => {
             const dockerPullMock = jest.spyOn(scripts, 'dockerPull');
             const saveAndZipMock = jest.spyOn(scripts, 'saveAndZip');

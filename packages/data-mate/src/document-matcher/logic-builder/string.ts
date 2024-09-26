@@ -4,7 +4,7 @@ import {
 } from '@terascope/utils';
 import { BooleanCB } from '../interfaces.js';
 
-export function regexp(regexStr: string|undefined) {
+export function regexp(regexStr: string | undefined) {
     if (regexStr === undefined) return () => false;
 
     return function regexpTerm(str: string): boolean {
@@ -12,7 +12,7 @@ export function regexp(regexStr: string|undefined) {
     };
 }
 
-export function wildcard(wildcardStr: string|undefined) {
+export function wildcard(wildcardStr: string | undefined) {
     if (wildcardStr === undefined) return () => false;
 
     return function wildcardTerm(str: string): boolean {

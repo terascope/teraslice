@@ -15,7 +15,7 @@ type Options = {
     suite?: string[];
     'force-suite'?: string;
     'keep-open': boolean;
-    'trace': boolean;
+    trace: boolean;
     'report-coverage': boolean;
     'encrypt-minio': boolean;
     'use-existing-services': boolean;
@@ -124,7 +124,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const encryptMinio = hoistJestArg(argv, 'encrypt-minio', 'boolean');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
-        const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native'|'kubernetes'|'kubernetesV2';
+        const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native' | 'kubernetes' | 'kubernetesV2';
         const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
 
         if (debug && watch) {
@@ -153,9 +153,9 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
 
 type Arg = keyof Options;
 // this only works with booleans for now
-function hoistJestArg(argv: any, keys: Arg|((Arg|string)[]), type: 'string'): string;
-function hoistJestArg(argv: any, keys: Arg|((Arg|string)[]), type: 'boolean'): boolean;
-function hoistJestArg(argv: any, keys: Arg|((Arg|string)[]), type: 'boolean'|'string'): boolean|string {
+function hoistJestArg(argv: any, keys: Arg|((Arg | string)[]), type: 'string'): string;
+function hoistJestArg(argv: any, keys: Arg|((Arg | string)[]), type: 'boolean'): boolean;
+function hoistJestArg(argv: any, keys: Arg|((Arg | string)[]), type: 'boolean' | 'string'): boolean | string {
     let val: any;
 
     castArray(keys).forEach((key) => {

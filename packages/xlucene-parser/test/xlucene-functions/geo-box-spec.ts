@@ -94,7 +94,7 @@ describe('geoBox', () => {
                 'location: geoBox(bottom_right:"32.813646,-111.058902" top_left:"33.906320,-112.758421")',
                 'location:geoBox (bottom_right:"32.813646,-111.058902" top_left:"33.906320,-112.758421")',
                 'location:geoBox(bottom_right:"32.813646, -111.058902", top_left:"33.906320,-112.758421")',
-                "location:geoBox(bottom_right:'32.813646,-111.058902', top_left:'33.906320,-112.758421')",
+                'location:geoBox(bottom_right:\'32.813646,-111.058902\', top_left:\'33.906320,-112.758421\')',
                 'location:geoBox( top_left:"33.906320,-112.758421", bottom_right:"32.813646,-111.058902")',
                 'location:geoBox(bottom_right: $point1 top_left: $point2)',
                 'location:geoBox(bottom_right: $point3 top_left: $point4)'

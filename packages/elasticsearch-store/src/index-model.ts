@@ -42,14 +42,16 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
         } = modelConfig;
 
         const indexConfig: i.IndexConfig<T> = {
-            index_schema: timeseries ? {
-                version,
-                template: true,
-                timeseries: true,
-                rollover_frequency: options.rollover_frequency
-            } : {
-                version,
-            },
+            index_schema: timeseries
+                ? {
+                    version,
+                    template: true,
+                    timeseries: true,
+                    rollover_frequency: options.rollover_frequency
+                }
+                : {
+                    version,
+                },
             data_schema: {
                 schema: addDefaultSchema(schema),
                 strict: strict_mode !== false,
@@ -116,17 +118,19 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
     }
 
     private _createRecord(record: i.CreateRecordInput<T>, allowOverrides?: boolean): T {
-        const docInput = allowOverrides ? {
-            _created: makeISODate(),
-            _updated: makeISODate(),
-            ...record,
-            _deleted: false,
-        } as T : {
-            ...record,
-            _created: makeISODate(),
-            _updated: makeISODate(),
-            _deleted: false,
-        } as T;
+        const docInput = allowOverrides
+            ? {
+                _created: makeISODate(),
+                _updated: makeISODate(),
+                ...record,
+                _deleted: false,
+            } as T
+            : {
+                ...record,
+                _created: makeISODate(),
+                _updated: makeISODate(),
+                _deleted: false,
+            } as T;
 
         const id = allowOverrides && docInput._key ? docInput._key : uuid();
         docInput._key = id;

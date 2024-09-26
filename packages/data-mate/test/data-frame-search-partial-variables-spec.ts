@@ -10,8 +10,8 @@ describe('DataFrame->search', () => {
         name?: Maybe<string>;
         age?: Maybe<number>;
         alive?: Maybe<boolean>;
-        friends?: Maybe<Maybe<string>[]>
-    }
+        friends?: Maybe<Maybe<string>[]>;
+    };
 
     let partialPeopleDataFrame: DataFrame<PartialPerson>;
 

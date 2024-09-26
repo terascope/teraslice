@@ -85,6 +85,8 @@ export const isCountryCodeConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     examples,
     description: 'Returns the input if it is a valid ISO 3166-1 alpha-2 country code, otherwise returns null.',
-    create() { return isCountryCode; },
+    create() {
+        return isCountryCode;
+    },
     accepts: [FieldType.String]
 };

@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import 'jest-extended';
 import { DataEntity } from '../src/entities/index.js';
 import { getTypeOf, isPlainObject, cloneDeep } from '../src/deps.js';
@@ -99,7 +98,7 @@ describe('Dependency Utils', () => {
         });
 
         it('should clone deeping a freezed object', () => {
-            const input: Readonly<{ foo: { bar: true }}> = Object.freeze({
+            const input: Readonly<{ foo: { bar: true } }> = Object.freeze({
                 foo: { bar: true }
             });
             const output = cloneDeep(input);

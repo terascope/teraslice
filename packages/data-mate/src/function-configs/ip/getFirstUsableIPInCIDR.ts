@@ -34,7 +34,9 @@ export const getFirstUsableIPInCIDRConfig: FieldTransformConfig = {
         }
     ],
     description: 'Returns the first address of a CIDR range, excluding the network address',
-    create() { return getFirstUsableIPInCIDR; },
+    create() {
+        return getFirstUsableIPInCIDR;
+    },
     accepts: [FieldType.String, FieldType.IPRange],
     output_type({ field_config }) {
         return {

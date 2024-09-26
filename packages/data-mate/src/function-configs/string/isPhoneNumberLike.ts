@@ -86,7 +86,9 @@ export const isPhoneNumberLikeConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'A simplified phone number check that returns the input if it has the basic requirements of a phone number, otherwise returns null.  Useful if the phone number\'s country is not known',
     examples,
-    create() { return isPhoneNumberLike; },
+    create() {
+        return isPhoneNumberLike;
+    },
     accepts: [
         FieldType.String,
         FieldType.Number

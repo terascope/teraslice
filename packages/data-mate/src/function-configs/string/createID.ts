@@ -113,7 +113,8 @@ export const createIDConfig: FieldTransformConfig<CreateIDArgs> = {
         return function _createID(value) {
             if (value == null) return;
             if (Array.isArray(value)) {
-                return encode(value.flat().map(toString).join(''));
+                return encode(value.flat().map(toString)
+                    .join(''));
             }
             return encode(toString(value));
         };

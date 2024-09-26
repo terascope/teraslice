@@ -7,18 +7,20 @@ export default class KeywordCaseInsensitive extends BaseType {
         this._validateESMapping();
         return {
             mapping: {
-                [this.field]: this.config.use_fields_hack ? {
-                    type: 'keyword',
-                    fields: {
-                        text: {
-                            type: 'text',
-                            analyzer: 'lowercase_keyword_analyzer',
+                [this.field]: this.config.use_fields_hack
+                    ? {
+                        type: 'keyword',
+                        fields: {
+                            text: {
+                                type: 'text',
+                                analyzer: 'lowercase_keyword_analyzer',
+                            },
                         },
+                    }
+                    : {
+                        type: 'text' as ESFieldType,
+                        analyzer: 'lowercase_keyword_analyzer',
                     },
-                } : {
-                    type: 'text' as ESFieldType,
-                    analyzer: 'lowercase_keyword_analyzer',
-                },
             },
             analyzer: {
                 lowercase_keyword_analyzer: {

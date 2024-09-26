@@ -22,7 +22,7 @@ function getSubslice(start: string, end: string) {
     };
 }
 
-type Cb = (data: any) => string|string[]|null;
+type Cb = (data: any) => string | string[] | null;
 
 function extractField(data: any, fn: Cb, isMultiValue = true) {
     if (typeof data === 'string') {

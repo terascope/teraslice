@@ -7,12 +7,14 @@ export default class Long extends BaseType {
         this._validateESMapping();
         return {
             mapping: {
-                [this.field]: this.config.indexed === false ? {
-                    type: 'long' as ESFieldType,
-                    index: false
-                } : {
-                    type: 'long' as ESFieldType
-                }
+                [this.field]: this.config.indexed === false
+                    ? {
+                        type: 'long' as ESFieldType,
+                        index: false
+                    }
+                    : {
+                        type: 'long' as ESFieldType
+                    }
             }
         };
     }

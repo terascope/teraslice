@@ -15,8 +15,8 @@ export default class GeoJSON extends BaseType {
                 [this.field]: {
                     type: 'geo_shape' as ESFieldType,
                     ...((clientMetaData.distribution === 'opensearch')
-                    || (clientMetaData.distribution === 'elasticsearch'
-                        && clientMetaData.majorVersion < 8)) && {
+                        || (clientMetaData.distribution === 'elasticsearch'
+                            && clientMetaData.majorVersion < 8)) && {
                         tree: 'quadtree',
                         strategy: 'recursive'
                     }

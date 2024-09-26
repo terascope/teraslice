@@ -47,6 +47,8 @@ export const isStringConfig: FieldValidateConfig = {
         },
     ],
     description: 'Returns the input if it is is a string, otherwise returns null.',
-    create() { return isString; },
+    create() {
+        return isString;
+    },
     accepts: [FieldType.String],
 };

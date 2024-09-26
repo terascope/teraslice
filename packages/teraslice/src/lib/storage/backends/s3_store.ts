@@ -22,7 +22,7 @@ export interface TerasliceS3StorageConfig {
     terafoundation: TerafoundationConfig;
     connection: string;
     bucket?: string;
-    logger?: Logger
+    logger?: Logger;
 }
 
 export class S3Store {
@@ -144,7 +144,9 @@ export class S3Store {
                 Body: data
             };
 
-            const timeoutID = setTimeout(() => { throw new TSError(`Timeout saving recordId ${recordId}`); }, timeout);
+            const timeoutID = setTimeout(() => {
+                throw new TSError(`Timeout saving recordId ${recordId}`);
+            }, timeout);
             try {
                 const client = this.api;
                 await s3RequestWithRetry({

@@ -7,12 +7,14 @@ export default class Byte extends BaseType {
         this._validateESMapping();
         return {
             mapping: {
-                [this.field]: this.config.indexed === false ? {
-                    type: 'byte' as ESFieldType,
-                    index: false
-                } : {
-                    type: 'byte' as ESFieldType
-                }
+                [this.field]: this.config.indexed === false
+                    ? {
+                        type: 'byte' as ESFieldType,
+                        index: false
+                    }
+                    : {
+                        type: 'byte' as ESFieldType
+                    }
             }
         };
     }

@@ -23,7 +23,7 @@ export function createMetadata<M>(metadata: M): i._DataEntityMetadata<M> {
 }
 
 export function makeMetadata<M extends i._DataEntityMetadataType>(
-    metadata?: M|undefined
+    metadata?: M | undefined
 ): i._DataEntityMetadata<M> {
     if (!metadata) return createCoreMetadata();
     return createMetadata(metadata);
@@ -38,7 +38,7 @@ export function jsonToBuffer(input: unknown): Buffer {
     return Buffer.from(JSON.stringify(input));
 }
 
-export function isValidKey(key: unknown): key is string|number {
+export function isValidKey(key: unknown): key is string | number {
     if (key == null) return false;
     if (isString(key) && key !== '') return true;
     if (isNumber(key)) return true;

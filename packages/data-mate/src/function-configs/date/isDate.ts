@@ -7,7 +7,7 @@ import {
 } from '../interfaces.js';
 
 export interface IsDateArgs {
-    format?: string|DateFormat;
+    format?: string | DateFormat;
 }
 
 export const isDateConfig: FieldValidateConfig<IsDateArgs> = {
@@ -25,7 +25,8 @@ export const isDateConfig: FieldValidateConfig<IsDateArgs> = {
         field: 'testField',
         input: '2019-10-22',
         output: '2019-10-22'
-    }, {
+    },
+    {
         args: { format: 'yyyy-MM-dd' },
         config: {
             version: 1,
@@ -34,7 +35,8 @@ export const isDateConfig: FieldValidateConfig<IsDateArgs> = {
         field: 'testField',
         input: '10-22-2019',
         output: null
-    }, {
+    },
+    {
         args: { format: DateFormat.epoch },
         config: {
             version: 1,
@@ -43,7 +45,8 @@ export const isDateConfig: FieldValidateConfig<IsDateArgs> = {
         field: 'testField',
         input: 102390933,
         output: 102390933
-    }, {
+    },
+    {
         args: {},
         config: {
             version: 1,

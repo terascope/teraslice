@@ -261,7 +261,7 @@ describe('k8s', () => {
                     code: 404
                 },
                 statusCode: 404
-            }
+            };
             nock(_url)
                 .delete('/api/v1/namespaces/default/pods/non-existent')
                 .replyWithError(notFoundResponse);
@@ -285,7 +285,6 @@ describe('k8s', () => {
 
             await expect(k8s._deleteObjByExId('no-name', 'execution_controller', 'jobs'))
                 .rejects.toThrow('Cannot delete jobs for ExId: no-name by name because it has no name');
-
         });
 
         it('can delete a single object', async () => {

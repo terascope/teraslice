@@ -9,7 +9,7 @@ import { TEST_PLATFORM } from '../../config.js';
  *  - https://github.com/terascope/elasticsearch-assets/issues/12
  */
 // eslint-disable-next-line jest/no-disabled-tests
-xdescribe('id reader', () => {
+describe.skip('id reader', () => {
     let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {

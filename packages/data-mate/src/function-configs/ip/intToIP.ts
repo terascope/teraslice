@@ -7,7 +7,7 @@ import {
 } from '../interfaces.js';
 
 export interface IntToIPArgs {
-    version: string | number
+    version: string | number;
 }
 
 export const intToIPConfig: FieldTransformConfig<IntToIPArgs> = {

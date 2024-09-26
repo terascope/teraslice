@@ -4,7 +4,8 @@ import { Sha2Encode } from '../../../src/operations';
 
 describe('Sha2Encode operator', () => {
     function encode(str: string, algo = 'sha256') {
-        return crypto.createHash(algo).update(str).digest('hex');
+        return crypto.createHash(algo).update(str)
+            .digest('hex');
     }
 
     it('can instantiate', () => {

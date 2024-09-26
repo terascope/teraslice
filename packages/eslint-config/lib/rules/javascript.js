@@ -1,17 +1,7 @@
-import { INDENT } from './constants.js';
+import js from '@eslint/js';
 
 export default {
-    // airbnb overrides
-    // indent: ['error', INDENT],
-    'max-len': ['error', {
-        code: 100,
-        tabWidth: INDENT,
-        ignoreUrls: true,
-        ignoreComments: false,
-        ignoreRegExpLiterals: true,
-        ignoreStrings: true,
-        ignoreTemplateLiterals: true,
-    }],
+    ...js.configs.recommended.rules,
     'import/named': 'off',
     'no-underscore-dangle': 'off',
     'no-param-reassign': ['error', { props: false }],
@@ -27,10 +17,11 @@ export default {
     'no-path-concat': 'error',
     'no-debugger': 'error',
     'comma-dangle': 'off',
-    camelcase: ['error', {
-        properties: 'never',
-        ignoreDestructuring: true,
-    }],
+    camelcase: ['error',
+        {
+            properties: 'never',
+            ignoreDestructuring: true,
+        }],
     'handle-callback-err': ['error', 'error'],
     'import/no-extraneous-dependencies': 'off',
     'class-methods-use-this': 'off',
@@ -65,10 +56,10 @@ export default {
         'error',
         // and variable with an underscore can be ignored
         {
-            "varsIgnorePattern": "^_",
-            "argsIgnorePattern": "^_",
-            "caughtErrorsIgnorePattern":  "^_",
-            "ignoreRestSiblings": true
+            varsIgnorePattern: '^_',
+            argsIgnorePattern: '^_',
+            caughtErrorsIgnorePattern: '^_',
+            ignoreRestSiblings: true
         }
     ]
 };

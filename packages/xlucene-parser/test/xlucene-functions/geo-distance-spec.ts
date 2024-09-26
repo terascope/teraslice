@@ -6,7 +6,7 @@ import { debugLogger } from '@terascope/utils';
 import { Parser, initFunction } from '../../src/index.js';
 import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces.js';
 
-const modes: ('normal'|'filterNil')[] = ['normal', 'filterNil'];
+const modes: ('normal' | 'filterNil')[] = ['normal', 'filterNil'];
 
 describe('geoDistance', () => {
     const typeConfig: xLuceneTypeConfig = { location: xLuceneFieldType.GeoPoint };
@@ -111,7 +111,7 @@ describe('geoDistance', () => {
                     'location: geoDistance (point:"33.435518,-111.873616" distance:"5000m")',
                     'location:geoDistance (point:"33.435518,-111.873616", distance:"5000m")',
                     'location:geoDistance (distance:"5000m", point:"33.435518,-111.873616" )',
-                    "location:geoDistance (point:'33.435518,-111.873616' distance:'5000m')",
+                    'location:geoDistance (point:\'33.435518,-111.873616\' distance:\'5000m\')',
                     'location:geoDistance(point:$point1 distance: $distance1)',
                     'location:geoDistance(point:$point2 distance: $distance1)',
                     'location:geoDistance(point:$point3 distance: $distance1)',

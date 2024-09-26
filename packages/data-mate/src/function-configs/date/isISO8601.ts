@@ -21,7 +21,8 @@ export const isISO8601Config: FieldValidateConfig = {
         field: 'testField',
         input: 102390933,
         output: null
-    }, {
+    },
+    {
         args: {},
         config: {
             version: 1,
@@ -30,7 +31,8 @@ export const isISO8601Config: FieldValidateConfig = {
         field: 'testField',
         input: '2001-01-01T01:00:00.000Z',
         output: '2001-01-01T01:00:00.000Z'
-    }, {
+    },
+    {
         args: {},
         config: {
             version: 1,

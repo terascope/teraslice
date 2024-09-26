@@ -68,7 +68,7 @@ const connector: Terafoundation.Connector = {
         const certLocationExists: boolean = (config.certLocation?.length !== 0);
         if (caCertExists && certLocationExists) {
             throw new Error('"caCertificate" and "certLocation" contradict.\n'
-            + '  Use only one or the other.');
+                + '  Use only one or the other.');
         } else if (
             (caCertExists && !config.sslEnabled)
             || (certLocationExists && !config.sslEnabled)

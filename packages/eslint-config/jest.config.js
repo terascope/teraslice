@@ -8,4 +8,6 @@ const module = await import(configModulePath);
 
 const config = module.default(dirPath);
 
+config.globals.window = {};
+
 export default config;

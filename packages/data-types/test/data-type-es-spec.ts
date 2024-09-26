@@ -19,7 +19,7 @@ describe('DataType (elasticsearch)', () => {
             try {
                 new DataType(typeConfig).toESMapping();
             } catch (err) {
-                expect(err.message).toInclude("Cannot destructure property `typeName` of 'undefined' or 'null'.");
+                expect(err.message).toInclude('Cannot destructure property `typeName` of \'undefined\' or \'null\'.');
             }
         });
 

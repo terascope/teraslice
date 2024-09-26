@@ -71,7 +71,7 @@ function makeCustomTypes(customType?: string|(string[])): string[] {
     return castArray(customType);
 }
 
-export function formatGQLType(type: string, desc?: string):string {
+export function formatGQLType(type: string, desc?: string): string {
     if (!desc) return type;
     return `${formatGQLDescription(desc)}\n${type}`;
 }

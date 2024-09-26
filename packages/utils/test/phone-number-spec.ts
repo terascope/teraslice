@@ -24,19 +24,27 @@ describe('parsePhoneNumber', () => {
     it('should throw an error when it can not determine the phone number', () => {
         try {
             parsePhoneNumber('34');
-        } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
+        } catch (e) {
+            expect(e.message).toBe('Could not determine the incoming phone number');
+        }
 
         try {
             parsePhoneNumber('notAphoneNumber');
-        } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
+        } catch (e) {
+            expect(e.message).toBe('Could not determine the incoming phone number');
+        }
 
         try {
             parsePhoneNumber('n/a');
-        } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
+        } catch (e) {
+            expect(e.message).toBe('Could not determine the incoming phone number');
+        }
 
         try {
             parsePhoneNumber('+467+070+123+4567');
-        } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
+        } catch (e) {
+            expect(e.message).toBe('Could not determine the incoming phone number');
+        }
     });
 });
 

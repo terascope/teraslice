@@ -3,7 +3,7 @@ import { toString, isString } from './strings.js';
 
 import { isNumber, inNumberRange } from './numbers.js';
 
-export function parsePhoneNumber(input: string|number): string {
+export function parsePhoneNumber(input: string | number): string {
     const preppedInput = _prepPhoneNumber(toString(input).trim());
 
     const fullNumber = new PhoneValidator(preppedInput).getNumber();
@@ -34,7 +34,8 @@ export function isISDN(input: unknown, country?: string): boolean {
 }
 
 export function isPhoneNumberLike(input: unknown): boolean {
-    const testValue = toString(input).trim().replace(/\D/g, '');
+    const testValue = toString(input).trim()
+        .replace(/\D/g, '');
 
     return inNumberRange(testValue.length, { min: 7, max: 20, inclusive: true });
 }

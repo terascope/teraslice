@@ -10,9 +10,9 @@ type ArgType<T> = T extends (...args: infer A) => any ? A : any;
 */
 export function once<T extends((...args: any[]) => any)>(fn: T): (
     ...args: ArgType<T>
-) => ReturnType<T>|undefined {
+) => ReturnType<T> | undefined {
     let called = false;
-    return function _fn(...args: ArgType<T>): ReturnType<T>|undefined {
+    return function _fn(...args: ArgType<T>): ReturnType<T> | undefined {
         if (called) {
             fn = undefined as any;
             return undefined;

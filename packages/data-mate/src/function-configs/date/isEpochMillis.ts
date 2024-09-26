@@ -24,7 +24,8 @@ export const isEpochMillisConfig: FieldValidateConfig<IsEpochMillisArgs> = {
         field: 'testField',
         input: '2019-10-22',
         output: null
-    }, {
+    },
+    {
         args: {},
         config: {
             version: 1,
@@ -33,7 +34,8 @@ export const isEpochMillisConfig: FieldValidateConfig<IsEpochMillisArgs> = {
         field: 'testField',
         input: 102390933,
         output: 102390933
-    }, {
+    },
+    {
         args: {},
         config: {
             version: 1,
@@ -42,7 +44,8 @@ export const isEpochMillisConfig: FieldValidateConfig<IsEpochMillisArgs> = {
         field: 'testField',
         input: '2001-01-01T01:00:00.000Z',
         output: null
-    }, {
+    },
+    {
         args: { allowBefore1970: false },
         config: {
             version: 1,
@@ -55,7 +58,8 @@ export const isEpochMillisConfig: FieldValidateConfig<IsEpochMillisArgs> = {
         field: 'testField',
         input: -102390933,
         output: null
-    }, {
+    },
+    {
         args: { },
         config: {
             version: 1,

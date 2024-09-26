@@ -49,6 +49,8 @@ export const isRoutableIPConfig: FieldValidateConfig = {
         },
     ],
     description: 'Returns the input if it is a routable IPv4 or IPv6 address.  See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml',
-    create() { return isRoutableIP; },
+    create() {
+        return isRoutableIP;
+    },
     accepts: [FieldType.String, FieldType.IP],
 };

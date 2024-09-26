@@ -10,7 +10,6 @@ try {
     path.join(dirname, '../package.json');
     import('../dist/src/command.js');
 } catch (err) {
-     
     console.error('error while attempting to invoke cli command', err.toString());
     process.exit(1);
 }

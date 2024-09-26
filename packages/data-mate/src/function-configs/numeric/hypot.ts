@@ -58,7 +58,7 @@ export const hypotConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return function _hypot(input): number|null {
+        return function _hypot(input): number | null {
             if (input == null) return null;
 
             const numbers = getNumericValues(input);

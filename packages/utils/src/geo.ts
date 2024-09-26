@@ -48,7 +48,7 @@ export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCa
 // allows for better access and control over tz-geo cache
 const TZ_GEO_CACHE = new Map();
 
-export function isGeoJSON(input: unknown): input is GeoShape|ESGeoShape {
+export function isGeoJSON(input: unknown): input is GeoShape | ESGeoShape {
     if (!isPlainObject(input)) return false;
     if (!isArrayLike((input as any).coordinates)) return false;
 
@@ -59,17 +59,17 @@ export function isGeoJSON(input: unknown): input is GeoShape|ESGeoShape {
 
 export function isGeoShapePoint(input: unknown): input is GeoShapePoint {
     return isGeoJSON(input)
-    && (input.type === GeoShapeType.Point || input.type === ESGeoShapeType.Point);
+        && (input.type === GeoShapeType.Point || input.type === ESGeoShapeType.Point);
 }
 
 export function isGeoShapePolygon(input: unknown): input is GeoShapePolygon {
     return isGeoJSON(input)
-    && (input.type === GeoShapeType.Polygon || input.type === ESGeoShapeType.Polygon);
+        && (input.type === GeoShapeType.Polygon || input.type === ESGeoShapeType.Polygon);
 }
 
 export function isGeoShapeMultiPolygon(input: unknown): input is GeoShapeMultiPolygon {
     return isGeoJSON(input)
-    && (input.type === GeoShapeType.MultiPolygon || input.type === ESGeoShapeType.MultiPolygon);
+        && (input.type === GeoShapeType.MultiPolygon || input.type === ESGeoShapeType.MultiPolygon);
 }
 
 export function parseGeoDistance(str: string): GeoDistanceObj {
@@ -142,10 +142,13 @@ function getLonAndLat(input: unknown, throwInvalid = true): GeoPoint | null {
 /**
  * Convert an input into a Geo Point object with lat and lon
 */
-export function parseGeoPoint(point: GeoPointInput|unknown): GeoPoint;
-export function parseGeoPoint(point: GeoPointInput|unknown, throwInvalid: true): GeoPoint;
-export function parseGeoPoint(point: GeoPointInput|unknown, throwInvalid: false): GeoPoint | null;
-export function parseGeoPoint(point: GeoPointInput|unknown, throwInvalid = true): GeoPoint | null {
+export function parseGeoPoint(point: GeoPointInput | unknown): GeoPoint;
+export function parseGeoPoint(point: GeoPointInput | unknown, throwInvalid: true): GeoPoint;
+export function parseGeoPoint(point: GeoPointInput | unknown, throwInvalid: false): GeoPoint | null;
+export function parseGeoPoint(
+    point: GeoPointInput | unknown,
+    throwInvalid = true
+): GeoPoint | null {
     let lat: number | undefined;
     let lon: number | undefined;
 
@@ -227,7 +230,7 @@ export function makeCoordinatesFromGeoPoint(point: GeoPoint): CoordinateTuple {
     return [point.lon, point.lat];
 }
 
-export function geoPolyHasPoint<G extends Polygon | MultiPolygon>(polygon: Feature<G>|G) {
+export function geoPolyHasPoint<G extends Polygon | MultiPolygon>(polygon: Feature<G> | G) {
     return (fieldData: unknown): boolean => {
         const point = parseGeoPoint(fieldData as any, false);
         if (!point) return false;
@@ -237,7 +240,7 @@ export function geoPolyHasPoint<G extends Polygon | MultiPolygon>(polygon: Featu
 
 export function makeGeoCircle(
     point: GeoPoint, distance: number, unitVal?: GeoDistanceUnit
-): Feature<Polygon>|undefined {
+): Feature<Polygon> | undefined {
     // There is a mismatch between elasticsearch and turf on "inch" naming
     const units = unitVal === 'inch' ? 'inches' : unitVal;
     return createCircle(makeCoordinatesFromGeoPoint(point), distance, { units });
@@ -296,7 +299,7 @@ export function geoRelationFP(
 }
 
 /** Converts a geoJSON object to its turf geo feature counterpart */
-export function makeGeoFeature(geoShape: unknown): Feature<any>|undefined {
+export function makeGeoFeature(geoShape: unknown): Feature<any> | undefined {
     if (isGeoShapePoint(geoShape)) {
         return tPoint(geoShape.coordinates);
     }
@@ -530,7 +533,7 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
 /** Returns true if both geo entities intersect each other, if one of the input geo entity
  * is a point, it will check if the other geo-entity contains the point
  */
-export function geoIntersects(firstGeoEntity: GeoInput, secondGeoEntity: GeoInput):boolean {
+export function geoIntersects(firstGeoEntity: GeoInput, secondGeoEntity: GeoInput): boolean {
     return geoIntersectsFP(firstGeoEntity)(secondGeoEntity);
 }
 
@@ -565,7 +568,7 @@ export function geoDisjointFP(queryGeoEntity: GeoInput): (input: unknown) => boo
 }
 
 /** Returns true if both geo entities have no overlap */
-export function geoDisjoint(firstGeoEntity: GeoInput, secondGeoEntity: GeoInput):boolean {
+export function geoDisjoint(firstGeoEntity: GeoInput, secondGeoEntity: GeoInput): boolean {
     return geoDisjointFP(firstGeoEntity)(secondGeoEntity);
 }
 
@@ -579,7 +582,7 @@ const esTypeMap = {
  * There is no current support for creating polygon with holes or multi-polygon
  * as of right now. geoJSON input is made sure to be properly formatted for its type value
  */
-export function toGeoJSON(input: unknown): GeoShape|undefined {
+export function toGeoJSON(input: unknown): GeoShape | undefined {
     if (isGeoJSON(input)) {
         const { type: inputType } = input;
         const type = esTypeMap[inputType] ? esTypeMap[inputType] : inputType;

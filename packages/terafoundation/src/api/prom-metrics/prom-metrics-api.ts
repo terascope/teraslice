@@ -147,6 +147,7 @@ export class PromMetrics {
             throw new Error(`dec not available on ${name} metric`);
         }
     }
+
     /**
      * [observe value, used by summary metric type]
      * @param  {string} name [metric name]

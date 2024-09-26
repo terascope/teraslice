@@ -1,4 +1,3 @@
-/* eslint-disable quotes */
 import subDays from 'date-fns/subDays';
 import addDays from 'date-fns/addDays';
 import { xLuceneFieldType } from '@terascope/types';
@@ -15,7 +14,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: null,
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         } as Term,
     ],
     [
@@ -31,7 +30,7 @@ export default [
                         field_type: xLuceneFieldType.String,
                         quoted: false,
                         field: null,
-                        value: { type: 'value', value: 'foo', },
+                        value: { type: 'value', value: 'foo' },
                     }]
                 },
                 {
@@ -41,7 +40,7 @@ export default [
                         field_type: xLuceneFieldType.String,
                         quoted: false,
                         field: null,
-                        value: { type: 'value', value: 'bar', },
+                        value: { type: 'value', value: 'bar' },
                     }]
                 }
             ]
@@ -55,18 +54,18 @@ export default [
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: true,
-            value: { type: 'value', value: 'foo', },
+            value: { type: 'value', value: 'foo' },
         },
     ],
     [
-        "'foo'",
+        '\'foo\'',
         'a quoted string',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: true,
-            value: { type: 'value', value: 'foo', },
+            value: { type: 'value', value: 'foo' },
         },
     ],
     [
@@ -77,7 +76,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: false,
-            value: { type: 'value', value: '\\"foo\\"', },
+            value: { type: 'value', value: '\\"foo\\"' },
         },
     ],
     [
@@ -88,7 +87,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
-            value: { type: 'value', value: '\\"bar\\"', },
+            value: { type: 'value', value: '\\"bar\\"' },
         },
     ],
     [
@@ -99,7 +98,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
-            value: { type: 'value', value: '\\"bar', },
+            value: { type: 'value', value: '\\"bar' },
         },
         {
             foo: xLuceneFieldType.String
@@ -113,7 +112,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
-            value: { type: 'value', value: '"', },
+            value: { type: 'value', value: '"' },
         },
         {
             foo: xLuceneFieldType.String
@@ -127,7 +126,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         },
         {
             foo: xLuceneFieldType.String
@@ -142,7 +141,7 @@ export default [
             field: 'phone.tokens',
             quoted: false,
             analyzed: true,
-            value: { type: 'value', value: '3848', },
+            value: { type: 'value', value: '3848' },
         },
         {
             phone: xLuceneFieldType.String
@@ -156,7 +155,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         },
     ],
     [
@@ -167,21 +166,21 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         },
         {
             foo: xLuceneFieldType.String
         }
     ],
     [
-        "foo:'bar'",
+        'foo:\'bar\'',
         'field with single quoted string value',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         },
         {
             foo: xLuceneFieldType.String
@@ -194,7 +193,7 @@ export default [
             type: NodeType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
-            value: { type: 'value', value: 123, },
+            value: { type: 'value', value: 123 },
         },
     ],
     [
@@ -205,7 +204,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'count',
             quoted: true,
-            value: { type: 'value', value: '123', },
+            value: { type: 'value', value: '123' },
         },
     ],
     [
@@ -215,7 +214,7 @@ export default [
             type: NodeType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
-            value: { type: 'value', value: 123, },
+            value: { type: 'value', value: 123 },
         },
         {
             count: xLuceneFieldType.Integer
@@ -228,7 +227,7 @@ export default [
             type: NodeType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
-            value: { type: 'value', value: 22, },
+            value: { type: 'value', value: 22 },
         },
         {
             count: xLuceneFieldType.Integer
@@ -241,7 +240,7 @@ export default [
             type: NodeType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
-            value: { type: 'value', value: 22, },
+            value: { type: 'value', value: 22 },
         },
         {
             count: xLuceneFieldType.Integer
@@ -255,7 +254,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'count_str',
             quoted: false,
-            value: { type: 'value', value: '123', },
+            value: { type: 'value', value: '123' },
         },
         {
             count_str: 'string'
@@ -269,7 +268,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'large_numeric_str',
             quoted: false,
-            value: { type: 'value', value: '4555029426647693529', },
+            value: { type: 'value', value: '4555029426647693529' },
         },
         {
             large_numeric_str: 'string'
@@ -282,7 +281,7 @@ export default [
             type: NodeType.Term,
             field_type: xLuceneFieldType.Float,
             field: 'cash',
-            value: { type: 'value', value: 50.5, },
+            value: { type: 'value', value: 50.5 },
         },
         {
             cash: xLuceneFieldType.Float
@@ -296,7 +295,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'cash',
             quoted: true,
-            value: { type: 'value', value: '50.50', },
+            value: { type: 'value', value: '50.50' },
         },
     ],
     [
@@ -306,7 +305,7 @@ export default [
             type: NodeType.Term,
             field_type: xLuceneFieldType.Float,
             field: 'cash',
-            value: { type: 'value', value: 50.50, },
+            value: { type: 'value', value: 50.50 },
         },
         {
             cash: xLuceneFieldType.Float
@@ -319,7 +318,7 @@ export default [
             type: NodeType.Term,
             field_type: xLuceneFieldType.Boolean,
             field: 'bool',
-            value: { type: 'value', value: false, },
+            value: { type: 'value', value: false },
         },
     ],
     [
@@ -329,7 +328,7 @@ export default [
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'bool',
-            value: { type: 'value', value: 'true', },
+            value: { type: 'value', value: 'true' },
         },
         {
             bool: xLuceneFieldType.String
@@ -342,7 +341,7 @@ export default [
             type: NodeType.Term,
             field_type: xLuceneFieldType.Boolean,
             field: 'bool',
-            value: { type: 'value', value: false, },
+            value: { type: 'value', value: false },
         },
         {
             bool: xLuceneFieldType.Boolean
@@ -355,7 +354,7 @@ export default [
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'bool',
-            value: { type: 'value', value: 'true', },
+            value: { type: 'value', value: 'true' },
         },
     ],
     [
@@ -365,7 +364,7 @@ export default [
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'fo?',
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         },
     ],
     [
@@ -376,7 +375,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
-            value: { type: 'value', value: 'ba?', },
+            value: { type: 'value', value: 'ba?' },
         },
     ],
     [
@@ -388,7 +387,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: false,
-            value: { type: 'value', value: '155 223', },
+            value: { type: 'value', value: '155 223' },
         },
     ],
     [
@@ -399,7 +398,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
-            value: { type: 'value', value: 'bar', },
+            value: { type: 'value', value: 'bar' },
         },
     ],
     [
@@ -410,7 +409,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'id',
-            value: { type: 'value', value: 'some"thing"else', },
+            value: { type: 'value', value: 'some"thing"else' },
         },
     ],
     [
@@ -421,7 +420,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
-            value: { type: 'value', value: "valueSomething(abcd70576983)", },
+            value: { type: 'value', value: 'valueSomething(abcd70576983)' },
         },
     ],
     [
@@ -432,40 +431,40 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: null,
-            value: { type: 'value', value: "hi(hello)howdy", },
+            value: { type: 'value', value: 'hi(hello)howdy' },
         },
     ],
     [
-        "field:' hello(123) there'",
+        'field:\' hello(123) there\'',
         'a single quoted value with unescaped parens',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
-            value: { type: 'value', value: " hello(123) there", },
+            value: { type: 'value', value: ' hello(123) there' },
         },
     ],
     [
-        "' :(hello)'",
+        '\' :(hello)\'',
         'a field-less single quoted value with unescaped parens',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: null,
-            value: { type: 'value', value: " :(hello)", },
+            value: { type: 'value', value: ' :(hello)' },
         },
     ],
     [
-        "example: '+ -  ( ) { } [ ] ^ \\' \" ? & | / ~ * OR NOT'",
+        'example: \'+ -  ( ) { } [ ] ^ \\\' " ? & | / ~ * OR NOT\'',
         'a single quoted value with all of the reserved characters',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'example',
-            value: { type: 'value', value: "+ -  ( ) { } [ ] ^ ' \" ? & | / ~ * OR NOT", },
+            value: { type: 'value', value: '+ -  ( ) { } [ ] ^ \' " ? & | / ~ * OR NOT' },
         },
     ],
     [
@@ -476,18 +475,18 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'example',
-            value: { type: 'value', value: "+ -  ( ) { } [ ] ^ ' \" ? & | / ~ * OR NOT", },
+            value: { type: 'value', value: '+ -  ( ) { } [ ] ^ \' " ? & | / ~ * OR NOT' },
         },
     ],
     [
-        "id:some'other'thing",
+        'id:some\'other\'thing',
         'an inner single quoted string string',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'id',
-            value: { type: 'value', value: "some'other'thing", },
+            value: { type: 'value', value: 'some\'other\'thing' },
         },
     ],
     [
@@ -498,7 +497,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'id',
-            value: { type: 'value', value: 'some\\\\\\"thing\\\\\\"else', },
+            value: { type: 'value', value: 'some\\\\\\"thing\\\\\\"else' },
         },
     ],
     [
@@ -509,7 +508,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'id',
-            value: { type: 'value', value: 'some thing else', },
+            value: { type: 'value', value: 'some thing else' },
         },
     ],
     [
@@ -520,7 +519,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'id',
-            value: { type: 'value', value: 'some \\"thing\\" else', },
+            value: { type: 'value', value: 'some \\"thing\\" else' },
         },
     ],
     [
@@ -531,18 +530,18 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'id',
-            value: { type: 'value', value: 'some\\ \\"thing\\" else', },
+            value: { type: 'value', value: 'some\\ \\"thing\\" else' },
         },
     ],
     [
-        "foo:'\"bar\"'",
+        'foo:\'"bar"\'',
         'double quoted escaped value at start and end',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'foo',
-            value: { type: 'value', value: '"bar"', },
+            value: { type: 'value', value: '"bar"' },
         },
     ],
     [
@@ -553,7 +552,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'foo',
-            value: { type: 'value', value: '"ba\\\'r"', },
+            value: { type: 'value', value: '"ba\\\'r"' },
         },
     ],
     [
@@ -564,7 +563,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'foo',
-            value: { type: 'value', value: '"bar"', },
+            value: { type: 'value', value: '"bar"' },
         },
     ],
     [
@@ -575,7 +574,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
-            value: { type: 'value', value: `/value\\\\`, },
+            value: { type: 'value', value: `/value\\\\` },
         },
     ],
     [
@@ -586,14 +585,14 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
-            value: { type: 'value', value: `/value\\\\`, },
+            value: { type: 'value', value: `/value\\\\` },
         },
     ],
     [
         `field:$bar_val`,
         'variable with value is a string',
         {
-            value: { type: 'variable', value: 'bar_val', },
+            value: { type: 'variable', value: 'bar_val' },
             field: 'field',
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
@@ -606,7 +605,7 @@ export default [
         `field:$bar`,
         'variable with value is a boolean',
         {
-            value: { type: 'value', value: false, },
+            value: { type: 'value', value: false },
             field: 'field',
             type: NodeType.Term,
             field_type: xLuceneFieldType.Boolean,
@@ -622,7 +621,7 @@ export default [
         `field:$bar2`,
         'variable with value is a number',
         {
-            value: { type: 'variable', value: 'bar2', },
+            value: { type: 'variable', value: 'bar2' },
             field: 'field',
             type: NodeType.Term,
             field_type: xLuceneFieldType.Integer,
@@ -708,7 +707,7 @@ export default [
             quoted: false,
             restricted: true,
             field: 'field',
-            value: { type: 'value', value: 'something.com', },
+            value: { type: 'value', value: 'something.com' },
         },
     ],
     [
@@ -720,7 +719,7 @@ export default [
             quoted: false,
             restricted: true,
             field: 'field',
-            value: { type: 'value', value: 'foo@something.com', },
+            value: { type: 'value', value: 'foo@something.com' },
         },
     ],
     [
@@ -731,7 +730,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field',
-            value: { type: 'value', value: 'false.com', },
+            value: { type: 'value', value: 'false.com' },
         },
     ],
     [
@@ -742,7 +741,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field.right',
-            value: { type: 'value', value: 'false.com', },
+            value: { type: 'value', value: 'false.com' },
         },
     ],
     [
@@ -753,7 +752,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field.right',
-            value: { type: 'value', value: '3.com', },
+            value: { type: 'value', value: '3.com' },
         },
     ],
     [
@@ -764,7 +763,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field.right',
-            value: { type: 'value', value: '3.3.com', },
+            value: { type: 'value', value: '3.3.com' },
         },
     ],
     [
@@ -779,7 +778,8 @@ export default [
         {
             field: xLuceneFieldType.Date,
         },
-        undefined, undefined,
+        undefined,
+        undefined,
         (now: Date, ast: Term) => {
             const _now = new Date(now.setUTCHours(0, 0, 0, 0));
             const astDate = new Date(ast.value.value.setUTCHours(0, 0, 0, 0));
@@ -798,7 +798,8 @@ export default [
         {
             field: xLuceneFieldType.Date,
         },
-        { foo: 'now+2d' }, undefined,
+        { foo: 'now+2d' },
+        undefined,
         (now: Date, ast: Term) => {
             const _now = new Date(now.setUTCHours(0, 0, 0, 0));
             const astDate = new Date(ast.value.value.setUTCHours(0, 0, 0, 0));
@@ -852,7 +853,7 @@ export const filterNilTerm: TestCase[] = [
             field_type: xLuceneFieldType.String,
         } as Term,
         { field: xLuceneFieldType.String },
-        { bar: "test" },
+        { bar: 'test' },
         {
             value: { type: 'value', value: 'test' },
             field: 'field',

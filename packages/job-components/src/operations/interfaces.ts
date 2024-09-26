@@ -16,7 +16,7 @@ export type APICoreConstructor<U> = {
 };
 
 export type OperationCoreConstructor<U> = {
-    new <T = OpConfig>(
+    new<T = OpConfig>(
         context: Context,
         opConfig: OpConfig & T,
         executionConfig: ExecutionConfig
@@ -24,7 +24,7 @@ export type OperationCoreConstructor<U> = {
 };
 
 export type SlicerCoreConstructor<U> = {
-    new <T = OpConfig>(
+    new<T = OpConfig>(
         context: Context,
         opConfig: OpConfig & T,
         executionConfig: ExecutionConfig

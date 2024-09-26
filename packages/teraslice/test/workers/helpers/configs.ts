@@ -14,30 +14,30 @@ const opsPath = path.join(dirname, '..', 'fixtures', 'ops');
 const chance = new Chance();
 
 export interface TestJobConfig {
-    analytics?: boolean,
-    maxRetries?: number,
-    slicerPort?: number,
-    lifecycle?: 'once',
-    assets?: string[],
-    workers?: number,
-    slicers?: number,
-    autorecover?: boolean,
-    recoveredExecution?: string,
-    recoveredSliceType?: string,
-    probationWindow?: number,
-    newOps?: boolean,
-    operations?: any[],
-    countPerSlicer?: number,
-    failOnSliceRetry?: boolean,
-    updateMetadata?: any,
-    readerErrorAt?: number[],
-    readerResults?: any[],
-    slicerResults?: any[],
-    slicerErrorAt?: string,
-    slicerQueueLength?: number,
-    opErrorAt?: number[],
-    opResults?: any[],
-    log_level?: string
+    analytics?: boolean;
+    maxRetries?: number;
+    slicerPort?: number;
+    lifecycle?: 'once';
+    assets?: string[];
+    workers?: number;
+    slicers?: number;
+    autorecover?: boolean;
+    recoveredExecution?: string;
+    recoveredSliceType?: string;
+    probationWindow?: number;
+    newOps?: boolean;
+    operations?: any[];
+    countPerSlicer?: number;
+    failOnSliceRetry?: boolean;
+    updateMetadata?: any;
+    readerErrorAt?: number[];
+    readerResults?: any[];
+    slicerResults?: any[];
+    slicerErrorAt?: string;
+    slicerQueueLength?: number;
+    opErrorAt?: number[];
+    opResults?: any[];
+    log_level?: string;
 }
 
 const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {

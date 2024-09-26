@@ -147,7 +147,7 @@ export class K8s {
                 .listNamespacedPod(namespace, undefined, undefined, undefined, undefined, selector),
             getRetryConfig());
 
-            const podList:k8s.V1Pod[] | undefined = get(result, 'body.items');
+            const podList: k8s.V1Pod[] | undefined = get(result, 'body.items');
 
             if (podList && Array.isArray(podList)) {
                 if (podList.length === number) return podList;
@@ -172,9 +172,9 @@ export class K8s {
     async list(selector: string, objType: string, ns?: string) {
         const namespace = ns || this.defaultNamespace;
         let responseObj: {
-            response: IncomingMessage,
+            response: IncomingMessage;
             body: k8s.V1PodList | k8s.V1DeploymentList
-            | k8s.V1ServiceList | k8s.V1JobList | k8s.V1ReplicaSetList
+                | k8s.V1ServiceList | k8s.V1JobList | k8s.V1ReplicaSetList;
         };
 
         const params: [
@@ -191,33 +191,33 @@ export class K8s {
             undefined,
             undefined,
             selector
-        ]
+        ];
 
         try {
             if (objType === 'pods') {
                 responseObj = await pRetry(
                     () => this.k8sCoreV1Api.listNamespacedPod(...params),
-                     getRetryConfig()
+                    getRetryConfig()
                 );
             } else if (objType === 'deployments') {
                 responseObj = await pRetry(
                     () => this.k8sAppsV1Api.listNamespacedDeployment(...params),
-                     getRetryConfig()
+                    getRetryConfig()
                 );
             } else if (objType === 'services') {
                 responseObj = await pRetry(
                     () => this.k8sCoreV1Api.listNamespacedService(...params),
-                     getRetryConfig()
+                    getRetryConfig()
                 );
             } else if (objType === 'jobs') {
                 responseObj = await pRetry(
                     () => this.k8sBatchV1Api.listNamespacedJob(...params),
-                     getRetryConfig()
+                    getRetryConfig()
                 );
             } else if (objType === 'replicasets') {
                 responseObj = await pRetry(
                     () => this.k8sAppsV1Api.listNamespacedReplicaSet(...params),
-                     getRetryConfig()
+                    getRetryConfig()
                 );
             } else {
                 const error = new Error(`Wrong objType provided to get: ${objType}`);
@@ -244,7 +244,7 @@ export class K8s {
         const jobs = await this.list(selector, objType);
         if (jobs.items.length === 1) {
             return jobs;
-        } if (jobs.items.length === 0) {
+        } else if (jobs.items.length === 0) {
             const msg = `Teraslice ${objType} matching the following selector was not found: ${selector} (retriable)`;
             this.logger.warn(msg);
             throw new TSError(msg, { retryable: true });
@@ -263,8 +263,8 @@ export class K8s {
      */
     async post(manifest: Record<string, any>, manifestType: string) {
         let responseObj: {
-            response: IncomingMessage,
-            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job
+            response: IncomingMessage;
+            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job;
         };
 
         try {
@@ -307,8 +307,8 @@ export class K8s {
     // on this to require `objType` to support patching other things
     async patch(record: Record<string, any>, name: string) {
         let responseObj: {
-            response: IncomingMessage,
-            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job
+            response: IncomingMessage;
+            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job;
         };
 
         try {
@@ -356,8 +356,8 @@ export class K8s {
         }
 
         let responseObj: {
-            response: IncomingMessage,
-            body: k8s.V1Status | k8s.V1Pod | k8s.V1Service
+            response: IncomingMessage;
+            body: k8s.V1Status | k8s.V1Pod | k8s.V1Service;
         };
 
         // To get a Job to remove the associated pods you have to
@@ -391,11 +391,11 @@ export class K8s {
             undefined,
             undefined,
             deleteOptions
-        ]
+        ];
 
         const deleteWithErrorHandling = async (deleteFn: () => Promise<{
-                response: IncomingMessage,
-                body: k8s.V1Status | k8s.V1Pod | k8s.V1Service
+            response: IncomingMessage;
+            body: k8s.V1Status | k8s.V1Pod | k8s.V1Service;
         }>) => {
             try {
                 const res = await deleteFn();
@@ -417,7 +417,7 @@ export class K8s {
                 }
                 throw e;
             }
-        }
+        };
 
         try {
             if (objType === 'services') {

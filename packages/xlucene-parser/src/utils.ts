@@ -32,7 +32,7 @@ import * as i from './interfaces.js';
 
 export const logger = debugLogger('xlucene-parser');
 
-function _getType(node: unknown): i.NodeType|undefined {
+function _getType(node: unknown): i.NodeType | undefined {
     if (!node || typeof node !== 'object') return;
     return (node as any).type || undefined;
 }
@@ -105,7 +105,7 @@ export function isBooleanDataType(node: unknown): node is i.BooleanDataType {
     return !!(node && (node as any).field_type === 'boolean');
 }
 
-export function getField(node: unknown): string|undefined {
+export function getField(node: unknown): string | undefined {
     if (!node) return;
     if (!(node as any).field || !isString((node as any).field)) return;
     return (node as any).field;
@@ -158,10 +158,10 @@ export function getFieldValue<T>(
     allowNil?: boolean
 ): T[];
 export function getFieldValue<T>(
-    value: i.FieldValue<T>|i.FieldValue<T>[],
+    value: i.FieldValue<T> | i.FieldValue<T>[],
     variables: xLuceneVariables,
     allowNil?: boolean
-): (T|Maybe<T>)|(T[]) {
+): (T | Maybe<T>)|(T[]) {
     if (Array.isArray(value)) {
         return value
             .map((val) => getFieldValue<any>(val, variables, true))
@@ -198,25 +198,25 @@ export function getFieldValue<T>(
     return undefined;
 }
 
-export function isInfiniteValue(input?: number|string): boolean {
+export function isInfiniteValue(input?: number | string): boolean {
     return input === '*' || input === Number.NEGATIVE_INFINITY || input === Number.POSITIVE_INFINITY;
 }
 
-export function isInfiniteMin(min?: number|string): boolean {
+export function isInfiniteMin(min?: number | string): boolean {
     if (min == null) return false;
     return min === '*' || min === Number.NEGATIVE_INFINITY;
 }
 
-export function isInfiniteMax(max?: number|string): boolean {
+export function isInfiniteMax(max?: number | string): boolean {
     if (max == null) return false;
     return max === '*' || max === Number.POSITIVE_INFINITY;
 }
 
 export interface ParsedRange {
-    'gte'?: number|string;
-    'gt'?: number|string;
-    'lte'?: number|string;
-    'lt'?: number|string;
+    gte?: number | string;
+    gt?: number | string;
+    lte?: number | string;
+    lt?: number | string;
 }
 
 export function parseRange(
@@ -282,7 +282,7 @@ export const coerceValueFns: CoerceValueFns = Object.freeze({
     },
 });
 
-export function makeCoerceFn(fieldType: xLuceneFieldType|undefined): (v: any) => any {
+export function makeCoerceFn(fieldType: xLuceneFieldType | undefined): (v: any) => any {
     if (!fieldType || !(fieldType in coerceValueFns)) return (v) => v;
     const coerceFn = coerceValueFns[fieldType]!;
     return coerceFn;
@@ -314,7 +314,7 @@ export function createIPRangeFromTerm(node: i.Term, value: string): i.Range {
     };
 }
 
-function parseIPRange(val: string): { start: string, end: string } {
+function parseIPRange(val: string): { start: string; end: string } {
     const cidrBlock = makeCidr(val);
 
     return {

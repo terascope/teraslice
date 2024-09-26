@@ -82,16 +82,16 @@ function _newVectorForType(
     }
 }
 
-export type ParsedNumericObject = { original?: string; parsed: number|bigint; }
+export type ParsedNumericObject = { original?: string; parsed: number | bigint };
 type NumericValuesResult = {
-    readonly values: number[],
-    readonly type: 'number'
-}|{
-    readonly values: bigint[],
-    readonly type: 'bigint'
-}|{
-    readonly values: ParsedNumericObject[],
-    readonly type: 'bigint'
+    readonly values: number[];
+    readonly type: 'number';
+} | {
+    readonly values: bigint[];
+    readonly type: 'bigint';
+} | {
+    readonly values: ParsedNumericObject[];
+    readonly type: 'bigint';
 };
 
 /**
@@ -145,10 +145,10 @@ function _getNumericValues(
 
     if (valueIsIP) {
         (curr.values as ParsedNumericObject[]).push({
-            parsed: val as bigint|number, original: v as string
+            parsed: val as bigint | number, original: v as string
         });
     } else {
-        (curr.values as (number|bigint)[]).push(val as number|bigint);
+        (curr.values as (number | bigint)[]).push(val as number | bigint);
     }
 
     return {
@@ -219,9 +219,9 @@ export function getCommonFieldType(field: string, a: FieldType, b: FieldType): F
 }
 
 export function getCommonTupleType(
-    tupleField: string, childConfig: DataTypeFields|undefined
+    tupleField: string, childConfig: DataTypeFields | undefined
 ): FieldType {
-    let fieldType: FieldType|undefined;
+    let fieldType: FieldType | undefined;
     for (const config of Object.values(childConfig ?? {})) {
         const type = config.type as FieldType;
 

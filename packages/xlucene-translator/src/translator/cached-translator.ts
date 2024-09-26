@@ -11,7 +11,7 @@ export class CachedTranslator {
         _cache.set(this, {});
     }
 
-    make(input: string|Parser, options?: TranslatorOptions): Translator {
+    make(input: string | Parser, options?: TranslatorOptions): Translator {
         const query = isString(input) ? input : input.query;
         return new Translator(query, options);
     }

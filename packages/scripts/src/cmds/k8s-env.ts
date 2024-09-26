@@ -78,7 +78,7 @@ const cmd: CommandModule = {
             .check((args) => {
                 if (args['asset-storage'] === 's3' && process.env.TEST_MINIO !== 'true') {
                     throw new Error('You chose "s3" as an asset storage but don\'t have the minio service enabled.\n'
-                    + 'Try either using "yarn k8s:minio" or setting the environment variable TEST_MINIO to true\n');
+                        + 'Try either using "yarn k8s:minio" or setting the environment variable TEST_MINIO to true\n');
                 }
                 return true;
             });

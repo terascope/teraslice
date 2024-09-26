@@ -9,7 +9,8 @@ export default class MD5Encode extends TransformOpBase {
     }
 
     encode(data: string) {
-        return crypto.createHash('md5').update(data).digest('hex');
+        return crypto.createHash('md5').update(data)
+            .digest('hex');
     }
 
     run(record: DataEntity): DataEntity | null {

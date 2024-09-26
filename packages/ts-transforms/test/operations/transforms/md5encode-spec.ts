@@ -4,7 +4,8 @@ import { Md5Encode } from '../../../src/operations';
 
 describe('Md5Encode operator', () => {
     function encode(str: string) {
-        return crypto.createHash('md5').update(str).digest('hex');
+        return crypto.createHash('md5').update(str)
+            .digest('hex');
     }
 
     it('can instantiate', () => {

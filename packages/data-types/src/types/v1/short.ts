@@ -7,12 +7,14 @@ export default class Short extends BaseType {
         this._validateESMapping();
         return {
             mapping: {
-                [this.field]: this.config.indexed === false ? {
-                    type: 'short' as ESFieldType,
-                    index: false
-                } : {
-                    type: 'short' as ESFieldType
-                }
+                [this.field]: this.config.indexed === false
+                    ? {
+                        type: 'short' as ESFieldType,
+                        index: false
+                    }
+                    : {
+                        type: 'short' as ESFieldType
+                    }
             }
         };
     }

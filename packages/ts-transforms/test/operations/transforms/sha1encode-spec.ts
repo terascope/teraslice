@@ -4,7 +4,8 @@ import { Sha1Encode } from '../../../src/operations';
 
 describe('Sha1Encode operator', () => {
     function encode(str: string) {
-        return crypto.createHash('sha1').update(str).digest('hex');
+        return crypto.createHash('sha1').update(str)
+            .digest('hex');
     }
 
     it('can instantiate', () => {

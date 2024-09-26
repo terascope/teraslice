@@ -8,10 +8,10 @@ import {
 } from '../interfaces.js';
 
 export interface ModulusArgs {
-    readonly value: number
+    readonly value: number;
 }
 
-function isLargeNumberType(type: FieldType|undefined) {
+function isLargeNumberType(type: FieldType | undefined) {
     if (type == null) return false;
     return type === FieldType.Long;
 }
@@ -66,7 +66,7 @@ export const modulusConfig: FieldTransformConfig<ModulusArgs> = {
         }
     ],
     create({ args: { value }, inputConfig }) {
-        if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
+        if (isLargeNumberType(inputConfig?.field_config.type as FieldType | undefined)) {
             return modulusFP(toBigIntOrThrow(value));
         }
 
@@ -87,7 +87,7 @@ export const modulusConfig: FieldTransformConfig<ModulusArgs> = {
 
 function modulusFP(value: bigint): (input: unknown) => bigint;
 function modulusFP(value: number): (input: unknown) => number;
-function modulusFP(value: number|bigint): (input: unknown) => number|bigint {
+function modulusFP(value: number | bigint): (input: unknown) => number | bigint {
     const bigInt = isBigInt(value);
     return function _modulus(num) {
         if (bigInt && !isBigInt(num)) {

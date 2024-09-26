@@ -48,7 +48,7 @@ function _isDataEntity(input: any): input is DataEntity {
 const _cloneTypeHandlers = Object.freeze({
     object(input: any): any {
         const descriptors = Object.getOwnPropertyDescriptors(input);
-         
+
         for (const key in descriptors) {
             descriptors[key].value = cloneDeep(descriptors[key].value);
         }
@@ -75,7 +75,7 @@ export function cloneDeep<T = any>(input: T): T {
  * Determine the type of an input
  * @return a human friendly string that describes the input
  */
- 
+
 export function getTypeOf(val: any): string {
     if (val === undefined) return 'undefined';
     if (val === null) return 'null';
@@ -104,7 +104,7 @@ export function getTypeOf(val: any): string {
 }
 
 /** Escape characters in string and avoid double escaping */
-export function escapeString(input: string|number): string {
+export function escapeString(input: string | number): string {
     return jsStringEscape(`${input}`);
 }
 

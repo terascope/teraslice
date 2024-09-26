@@ -6,7 +6,7 @@ import {
 } from '../interfaces.js';
 
 export interface EndsWithArgs {
-    value: string
+    value: string;
 }
 
 export const endsWithConfig: FieldValidateConfig<EndsWithArgs> = {

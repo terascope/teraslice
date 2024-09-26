@@ -86,7 +86,7 @@ describe('geoPolygon', () => {
                     'location: geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])',
                     'location:geoPolygon (points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])',
                     'location:geoPolygon( points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])',
-                    "location:geoPolygon(points:['70.43,140.43', '81.3,123.4', '89.3,154.4'])",
+                    'location:geoPolygon(points:[\'70.43,140.43\', \'81.3,123.4\', \'89.3,154.4\'])',
                     'location:geoPolygon(points:[    "70.43,140.43", "81.3,123.4", "89.3,154.4" ])',
                     'location:geoPolygon(points:["70.43,140.43" "81.3,123.4" "89.3,154.4"])',
                 ];
@@ -666,7 +666,7 @@ describe('geoPolygon', () => {
                     'location: geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])',
                     'location:geoPolygon (points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])',
                     'location:geoPolygon( points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])',
-                    "location:geoPolygon(points:['70.43,140.43', '81.3,123.4', '89.3,154.4'])",
+                    'location:geoPolygon(points:[\'70.43,140.43\', \'81.3,123.4\', \'89.3,154.4\'])',
                     'location:geoPolygon(points:[    "70.43,140.43", "81.3,123.4", "89.3,154.4" ])',
                     'location:geoPolygon(points:["70.43,140.43" "81.3,123.4" "89.3,154.4"])',
                 ];

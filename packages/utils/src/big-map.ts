@@ -40,7 +40,7 @@ export class BigMap<K, V> {
         return _mapForKey(this._maps, key) !== undefined;
     }
 
-    get(key: K): V|undefined {
+    get(key: K): V | undefined {
         if (this._simpleMode) {
             return this._current.get(key);
         }

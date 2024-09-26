@@ -17,7 +17,9 @@ class Validator extends OperationBase {
     }
 
     // this is overwritten with mixin
-    method(_value: any, _context: any, _args: any) { return false; }
+    method(_value: any, _context: any, _args: any) {
+        return false;
+    }
 
     run(doc: DataEntity) {
         const value = this._getSourceValue(doc);

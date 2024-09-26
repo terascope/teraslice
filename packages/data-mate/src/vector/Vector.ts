@@ -97,12 +97,12 @@ export abstract class Vector<T = unknown> {
     /**
      * The cached size of the vector
     */
-    private __size: number|undefined;
+    private __size: number | undefined;
 
     /**
      * The cached consistent size of the vector
     */
-    private __consistentSize: number|undefined;
+    private __consistentSize: number | undefined;
 
     constructor(
         /**
@@ -114,11 +114,11 @@ export abstract class Vector<T = unknown> {
     ) {
         this.type = type;
         const res = getDataBuckets(data);
-         
+
         this.data = res[0];
-         
+
         this.__size = res[1];
-         
+
         this.__consistentSize = res[2];
         this.name = options.name;
         this.config = options.config;
@@ -160,7 +160,7 @@ export abstract class Vector<T = unknown> {
 
     private _setSizeAndConsistentSize() {
         this.__size = 0;
-        let consistentSize: number|undefined;
+        let consistentSize: number | undefined;
 
         for (const bucket of this.data) {
             if (consistentSize == null) {
@@ -176,7 +176,7 @@ export abstract class Vector<T = unknown> {
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         for (const data of this.data) {
-            yield* data;
+            yield * data;
         }
     }
 
@@ -280,7 +280,7 @@ export abstract class Vector<T = unknown> {
     /**
      * Add ReadableData to a end of the data buckets
     */
-    append(data: (ReadableData<T>[])|(readonly ReadableData<T>[])|ReadableData<T>): Vector<T> {
+    append(data: (ReadableData<T>[])|(readonly ReadableData<T>[]) | ReadableData<T>): Vector<T> {
         if (Array.isArray(data)) {
             if (!data.length) return this;
             // Make sure to freeze here so freezeArray doesn't slice the data buckets
@@ -296,7 +296,7 @@ export abstract class Vector<T = unknown> {
     /**
     *  Add ReadableData to a beginning of the data buckets
     */
-    prepend(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
+    prepend(data: ReadableData<T>[] | readonly ReadableData<T>[] | ReadableData<T>): Vector<T> {
         const preData = (
             Array.isArray(data)
                 ? data
@@ -340,7 +340,7 @@ export abstract class Vector<T = unknown> {
      * bucket
      * @returns the data found and the index of the relative index of value
     */
-    findDataWithIndex(index: number): [data:ReadableData<T>, actualIndex: number]|undefined {
+    findDataWithIndex(index: number): [data: ReadableData<T>, actualIndex: number] | undefined {
         if (index < 0 || this.data.length === 0) return;
         if (this.data.length === 1) {
             if (index + 1 > this.size) return;
@@ -364,7 +364,7 @@ export abstract class Vector<T = unknown> {
     */
     private _findConsistentDataIndex(
         index: number
-    ): [data:ReadableData<T>, actualIndex: number]|undefined {
+    ): [data: ReadableData<T>, actualIndex: number] | undefined {
         const bucketIndex = Math.floor(index / this._consistentSize);
         const bucket = this.data[bucketIndex];
 
@@ -385,7 +385,7 @@ export abstract class Vector<T = unknown> {
     */
     private _forwardFindDataWithIndex(
         index: number
-    ): [data:ReadableData<T>, actualIndex: number]|undefined {
+    ): [data: ReadableData<T>, actualIndex: number] | undefined {
         // used to handle index offset between data buckets
         let offset = 0;
 
@@ -404,7 +404,7 @@ export abstract class Vector<T = unknown> {
     */
     private _reverseFindDataWithIndex(
         index: number
-    ): [data:ReadableData<T>, actualIndex: number]|undefined {
+    ): [data: ReadableData<T>, actualIndex: number] | undefined {
         // used to handle index offset between data buckets
         let offset = this.size;
 
@@ -421,10 +421,10 @@ export abstract class Vector<T = unknown> {
     /**
      * Create a new Vector with the same metadata but with different data
     */
-    fork(_data: ReadableData<T>[]|readonly ReadableData<T>[]): this {
+    fork(_data: ReadableData<T>[] | readonly ReadableData<T>[]): this {
         const Constructor = this.constructor as {
             new(
-                data: ReadableData<T>[]|readonly ReadableData<T>[],
+                data: ReadableData<T>[] | readonly ReadableData<T>[],
                 config: VectorOptions
             ): Vector<T>;
         };
@@ -488,7 +488,7 @@ export abstract class Vector<T = unknown> {
      * Compare two different values on the Vector type.
      * This can be used for equality or sorted.
     */
-    compare(a: Maybe<T>, b: Maybe<T>): -1|0|1 {
+    compare(a: Maybe<T>, b: Maybe<T>): -1 | 0 | 1 {
         // we need default undefined to null since
         // undefined has inconsistent behavior
         const aVal = this._getComparableValue(a);
@@ -552,7 +552,7 @@ export abstract class Vector<T = unknown> {
  * are either small or there are lots of data buckets
 */
 function getDataBuckets<T>(data: DataBuckets<T>): [
-    data: DataBuckets<T>, size: number|undefined, consistentSize: number|undefined
+    data: DataBuckets<T>, size: number | undefined, consistentSize: number | undefined
 ] {
     const len = data.length;
     // we the number of data buckets too big it creates too many objects for the
@@ -607,7 +607,7 @@ export interface VectorOptions {
     /**
     * The field config
     */
-    config: DataTypeFieldConfig|Readonly<DataTypeFieldConfig>;
+    config: DataTypeFieldConfig | Readonly<DataTypeFieldConfig>;
 
     /**
      * The type config for any nested fields (currently only works for objects)

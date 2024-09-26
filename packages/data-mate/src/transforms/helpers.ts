@@ -16,7 +16,7 @@ import {
 import { isGeoShapePoint } from '../validations/field-validator.js';
 
 // TODO: move these
-export type JoinBy = 'AND'|'OR';
+export type JoinBy = 'AND' | 'OR';
 
 export interface xLuceneQueryResult {
     query: string;

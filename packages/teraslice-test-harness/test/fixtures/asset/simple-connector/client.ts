@@ -1,5 +1,5 @@
 export default class SimpleClient {
-    fetchRecord(id: number): { id: number, data: number[] } {
+    fetchRecord(id: number): { id: number; data: number[] } {
         return {
             id,
             data: [

@@ -175,7 +175,7 @@ describe('cluster api', () => {
             jobId = job.id();
             const { ex_id: exId } = await job.execution();
             ex = terasliceHarness.teraslice.executions.wrap(exId);
-        })
+        });
 
         it('will not delete a running job', async () => {
             await terasliceHarness.waitForExStatus(ex, 'running', 100, 1000);
@@ -192,28 +192,27 @@ describe('cluster api', () => {
 
         it('will not list a deleted job by default', async () => {
             const list = await terasliceHarness.teraslice.jobs.list();
-            const jobIds = list.map((job) => job.job_id);
+            const jobIds = list.map((jobConfig) => jobConfig.job_id);
             expect(jobIds).toEqual(expect.arrayContaining([expect.not.stringMatching(jobId)]));
         });
 
         it('will list a deleted job when passed "{ deleted: true }"', async () => {
             const list = await terasliceHarness.teraslice.jobs.list({ deleted: true });
-            expect(list).toEqual(expect.arrayContaining([expect.objectContaining({ ...jobSpec, job_id: jobId })]));
+            expect(list).toEqual(
+                expect.arrayContaining([expect.objectContaining({ ...jobSpec, job_id: jobId })])
+            );
         });
 
         it('will not start a deleted job', async () => {
             await expect(terasliceHarness.teraslice.jobs.post(`/jobs/${jobId}/_start`)).rejects.toThrow(`Job ${jobId} has been deleted and cannot be started.`);
-
         });
 
         it('will not update a deleted job', async () => {
             await expect(terasliceHarness.teraslice.jobs.put(`/jobs/${jobId}`, { workers: 1 })).rejects.toThrow(`Job ${jobId} has been deleted and cannot be updated.`);
-
         });
 
         it('will not recover a deleted job', async () => {
             await expect(terasliceHarness.teraslice.jobs.post(`/jobs/${jobId}/_recover`)).rejects.toThrow(`Job ${jobId} has been deleted and cannot be recovered.`);
-
         });
     });
 });

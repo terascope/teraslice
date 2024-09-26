@@ -13,11 +13,11 @@ export default class CachedStateStorage<T> extends EventEmitter {
         this._cache = new BigLRUMap(config.cache_size);
     }
 
-    get(key: string|number): T | undefined {
+    get(key: string | number): T | undefined {
         return this._cache.get(`${key}`);
     }
 
-    mget(keyArray: (string|number)[]): MGetCacheResponse {
+    mget(keyArray: (string | number)[]): MGetCacheResponse {
         return keyArray.reduce((cachedState, key) => {
             const state = this.get(key);
             if (state) cachedState[key] = state;
@@ -25,7 +25,7 @@ export default class CachedStateStorage<T> extends EventEmitter {
         }, {});
     }
 
-    set(key: string|number, value: T): void {
+    set(key: string | number, value: T): void {
         const results = this._cache.setpop(`${key}`, value);
         if (results && results.evicted) {
             this.emit('eviction', { key: results.key, data: results.value } as EvictedEvent<T>);
@@ -53,7 +53,7 @@ export default class CachedStateStorage<T> extends EventEmitter {
         }
     }
 
-    has(key: string|number): boolean {
+    has(key: string | number): boolean {
         return this._cache.has(`${key}`);
     }
 

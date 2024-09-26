@@ -80,7 +80,7 @@ export function required(
     input: RecordInput,
     _parentContext: RecordInput,
     args: { fields: string[] }
-): RecordInput|null {
+): RecordInput | null {
     if (ts.isNil(input)) return null;
     if (!args?.fields || !isArray(args.fields) || !isString(args.fields)) {
         throw new Error('Parameter fields must be provided and be an array of strings');
@@ -133,7 +133,7 @@ export function select(
     input: RecordInput,
     _parentContext: RecordInput,
     args: DMOptions
-): RecordInput|null {
+): RecordInput | null {
     const matcher = _validateMatcher(input, args);
     if (!matcher) return null;
 
@@ -186,7 +186,7 @@ export function reject(
     input: RecordInput,
     _parentContext: RecordInput,
     args: DMOptions
-): RecordInput|null {
+): RecordInput | null {
     const matcher = _validateMatcher(input, args);
     if (!matcher) return null;
 

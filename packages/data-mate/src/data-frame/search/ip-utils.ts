@@ -53,10 +53,19 @@ function validateIPRange(rangeQuery: ParsedRange) {
     let { minValue, maxValue } = values;
 
     if (isInfiniteMin(minValue)) {
-        isIP.v6(maxValue) ? (minValue = MIN_IPV6_IP) : (minValue = MIN_IPV4_IP);
+        if (isIP.v6(maxValue)) {
+            minValue = MIN_IPV6_IP;
+        } else {
+            minValue = MIN_IPV4_IP;
+        }
     }
+
     if (isInfiniteMax(maxValue)) {
-        isIP.v6(minValue) ? (maxValue = MAX_IPV6_IP) : (maxValue = MAX_IPV4_IP);
+        if (isIP.v6(minValue)) {
+            maxValue = MAX_IPV6_IP;
+        } else {
+            maxValue = MAX_IPV4_IP;
+        }
     }
 
     if (!incMin) {

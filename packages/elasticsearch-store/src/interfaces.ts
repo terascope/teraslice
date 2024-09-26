@@ -72,7 +72,7 @@ export interface IndexConfig<T extends AnyObject> {
     /**
      * ID field
      */
-    id_field?: (keyof T)|string;
+    id_field?: (keyof T) | string;
 
     /**
      * Ingest Time field on the source record
@@ -232,8 +232,8 @@ export type UpdateRecordInput<T extends IndexModelRecord> =
     };
 
 export type IndexModelConfig<T extends IndexModelRecord> = Omit<
-IndexConfig<T>,
-'namespace'|'id_field'|'index_schema'|'data_schema'|'default_query_access'|'enable_index_mutations'
+    IndexConfig<T>,
+'namespace' | 'id_field' | 'index_schema' | 'data_schema' | 'default_query_access' | 'enable_index_mutations'
 > & {
     /** Schema Version */
     version: number;

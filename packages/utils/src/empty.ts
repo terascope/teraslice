@@ -1,16 +1,16 @@
 import { Nil } from '@terascope/types';
 import { isAsyncIterator, isIterator } from './iterators.js';
 
-export function isNil<T>(input: T|Nil): input is Nil {
+export function isNil<T>(input: T | Nil): input is Nil {
     return input == null;
 }
 
-export function isNotNil<T>(input: T|Nil): boolean {
+export function isNotNil<T>(input: T | Nil): boolean {
     return input != null;
 }
 
 /** Check if an input is empty, similar to lodash.isEmpty */
-export function isEmpty<T>(val?: T|null|undefined): val is undefined {
+export function isEmpty<T>(val?: T | null | undefined): val is undefined {
     const _val = val as any;
     if (!_val) return true;
     if (typeof _val.size === 'number') return !_val.size;

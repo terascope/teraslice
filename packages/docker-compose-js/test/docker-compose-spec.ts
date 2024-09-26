@@ -14,9 +14,13 @@ describe('compose', () => {
         compose = new Compose(path.join(dirname, 'fixtures', 'example.yaml'));
     });
 
-    it('should be able to call compose.pull()', () => compose.pull(undefined, { quiet: '' }));
+    it('should be able to call compose.pull()', async () => {
+        await expect(compose.pull(undefined, { quiet: '' })).resolves.not.toThrow();
+    });
 
-    it('should be able to call compose.build()', () => compose.build());
+    it('should be able to call compose.build()', async () => {
+        await expect(compose.build()).resolves.not.toThrow();
+    });
 
     it('should be able to call compose.version()', async () => {
         const result = await compose.version();
@@ -36,13 +40,19 @@ describe('compose', () => {
             '--remove-orphans': ''
         }));
 
-        it('should be able to call rm on the service', () => compose.rm('test'));
+        it('should be able to call rm on the service', () => {
+            expect(() => compose.rm('test')).not.toThrow();
+        });
 
-        it('should be able to call port', () => compose.port('test', '40230'));
+        it('should be able to call port', () => {
+            expect(() => compose.port('test', '40230')).not.toThrow();
+        });
 
         it('should be able to call pause and unpause the service', async () => {
-            await compose.pause('test');
-            await compose.unpause('test');
+            await expect(async () => {
+                await compose.pause('test');
+                await compose.unpause('test');
+            }).resolves.not.toThrow();
         });
 
         it('should be able to call start, ps and stop the service', async () => {
@@ -58,8 +68,10 @@ describe('compose', () => {
         });
 
         it('should be able to call restart and kill the service', async () => {
-            await compose.restart('test', { '--timeout': 1 });
-            await compose.kill('test');
+            await expect(async () => {
+                await compose.restart('test', { '--timeout': 1 });
+                await compose.kill('test');
+            }).resolves.not.toThrow();
         });
 
         it('should return a rejection when passing in incorrect options', async () => {

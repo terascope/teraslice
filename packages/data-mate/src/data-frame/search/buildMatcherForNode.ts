@@ -95,7 +95,7 @@ function getComparisonValue(
 
 function matchFieldValue(
     dataFrame: DataFrame<any>,
-    field: string|undefined,
+    field: string | undefined,
     cb: MatchValueFn
 ): MatchRowFn {
     const fields: string[] = [];
@@ -154,7 +154,7 @@ function makeGetValueFn(
 }
 
 function typeFunctions(
-    node: p.Term|p.Range,
+    node: p.Term | p.Range,
     typeConfig: xLuceneTypeConfig,
     variables: xLuceneVariables,
     defaultCb: MatchValueFn

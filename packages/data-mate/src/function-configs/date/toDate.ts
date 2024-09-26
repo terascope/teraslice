@@ -6,7 +6,7 @@ import {
 } from '../interfaces.js';
 
 export interface ToDateArgs {
-    format?: string|DateFormat;
+    format?: string | DateFormat;
 }
 
 export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
@@ -80,7 +80,7 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
             serialize_output: toISO8601,
         },
         {
-            args: { format: "yyyy-MM-dd'T'HH:mm:ss.SSSxxxxx" },
+            args: { format: 'yyyy-MM-dd\'T\'HH:mm:ss.SSSxxxxx' },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -91,7 +91,7 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
             serialize_output: toISO8601,
         },
         {
-            args: { format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX" },
+            args: { format: 'yyyy-MM-dd\'T\'HH:mm:ss.SSSXXXXX' },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }

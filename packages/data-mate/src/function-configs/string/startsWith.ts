@@ -6,7 +6,7 @@ import {
 } from '../interfaces.js';
 
 export interface StartsWithArgs {
-    value: string
+    value: string;
 }
 
 export const startsWithConfig: FieldValidateConfig<StartsWithArgs> = {

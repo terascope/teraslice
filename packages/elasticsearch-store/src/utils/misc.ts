@@ -22,5 +22,6 @@ export function getDataVersionStr(config: unknown): string {
 }
 
 export function formatIndexName(strs: (string | undefined)[]): string {
-    return strs.map((val) => trim(val)).filter(Boolean).join('-');
+    return strs.map((val) => trim(val)).filter(Boolean)
+        .join('-');
 }

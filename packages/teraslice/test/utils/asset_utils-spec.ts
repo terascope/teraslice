@@ -63,35 +63,40 @@ describe('Asset Utils', () => {
         platform: process.platform,
         arch: process.arch,
         node_version: currentNodeVersion,
-    }, {
+    },
+    {
         id: 'foo-2',
         name: 'foo',
         version: '2.0.0',
         platform: process.platform,
         arch: process.arch,
         node_version: currentNodeVersion,
-    }, {
+    },
+    {
         id: 'foo-3',
         name: 'foo',
         version: '2.0.1',
         platform: wrongPlatform[process.platform],
         arch: process.arch,
         node_version: currentNodeVersion,
-    }, {
+    },
+    {
         id: 'foo-4',
         name: 'foo',
         version: '2.0.2',
         platform: process.platform,
         arch: process.arch,
         node_version: currentNodeVersion + 1,
-    }, {
+    },
+    {
         id: 'foo-5',
         name: 'foo',
         version: '1.0.0',
         platform: process.platform,
         arch: process.arch,
         node_version: currentNodeVersion,
-    }, {
+    },
+    {
         id: 'foo-6',
         name: 'foo',
         version: '1.0.0',
@@ -100,18 +105,26 @@ describe('Asset Utils', () => {
 
     describe('->findMatchingAsset', () => {
         test.each([
-            ['foo', 'latest', {
-                version: '2.0.1'
-            }],
-            ['foo', '2.0.0', {
-                version: '2.0.0'
-            }],
-            ['foo', '~2.0.0', {
-                version: '2.0.1'
-            }],
-            ['foo', '1.*', {
-                version: '1.0.0'
-            }],
+            ['foo',
+                'latest',
+                {
+                    version: '2.0.1'
+                }],
+            ['foo',
+                '2.0.0',
+                {
+                    version: '2.0.0'
+                }],
+            ['foo',
+                '~2.0.0',
+                {
+                    version: '2.0.1'
+                }],
+            ['foo',
+                '1.*',
+                {
+                    version: '1.0.0'
+                }],
             ['foo', '0.1.0', null],
             ['foo', '0.1.*', null],
         ])('should return the correct result for %s:%s', (name, version, result) => {

@@ -1,4 +1,3 @@
-/* eslint-disable no-template-curly-in-string */
 import 'jest-extended';
 import { transform } from '../src/index.js';
 

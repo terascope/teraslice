@@ -15,7 +15,7 @@ type AssetInfo = {
     bundle: boolean;
     fileName: string;
     assetNodeVersion: string;
-}
+};
 
 /**
  * This will get the correct teraslice node version so
@@ -51,7 +51,6 @@ export const defaultAssetBundles = [
 ];
 
 function assetFileInfo(assetName: string): AssetInfo {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [name, version, _, assetNodeVersion] = assetName.split('-');
     return {
         name,
@@ -207,7 +206,7 @@ function getMSUntilRetry(err: HTTPError): number {
  * @param {any} err The response error
  * @returns {number|undefined} Delay in milliseconds or undefined
  */
-function calculateDelay(err: any): number|undefined {
+function calculateDelay(err: any): number | undefined {
     const MAX_WAIT_MS = 180_000;
 
     if (err instanceof HTTPError) {

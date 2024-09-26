@@ -83,7 +83,7 @@ describe('BigLRUMap', () => {
         expect(map.get('aaf')).toBe(6);
     });
     // only run this test to test with a large cache, takes 70+ seconds to run
-    // eslint-disable-next-line jest/no-disabled-tests, jest/no-focused-tests
+
     it('should not error with a cache size larger than 11.8M and when processing more than 16.7M records', async () => {
         const mapSizeBig = 12000000;
         const map = new BigLRUMap(mapSizeBig);

@@ -603,7 +603,7 @@ export class ExecutionController {
 
         const dequeueAndDispatch = () => {
             const reenqueue: Slice[] = [];
-            const dispatch: { workerId: string, slice: Slice }[] = [];
+            const dispatch: { workerId: string; slice: Slice }[] = [];
 
             const slices = this.scheduler.getSlices(this.server.workerQueueSize);
 
@@ -801,7 +801,7 @@ export class ExecutionController {
     }
 
     _formatExecutionFailure(
-        { started, errors, pending }: { started: number, errors: number, pending: number }
+        { started, errors, pending }: { started: number; errors: number; pending: number }
     ) {
         const startedMsg = started <= 1
             ? `had ${started} slice stuck in started`

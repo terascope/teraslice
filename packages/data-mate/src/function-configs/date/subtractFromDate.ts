@@ -25,7 +25,8 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         input: '2019-10-22T22:00:00.000Z',
         output: new Date('2019-10-22T12:02:00.000Z').getTime(),
         serialize_output: toISO8601
-    }, {
+    },
+    {
         args: { expr: '10h+2m' },
         config: {
             version: 1,
@@ -36,7 +37,8 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         output: new Date('2019-10-22T13:02:00.000Z').getTime(),
         serialize_output: toISO8601,
         test_only: true,
-    }, {
+    },
+    {
         args: { months: 1, minutes: 2 },
         config: {
             version: 1,
@@ -46,7 +48,8 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         input: '2019-10-22T22:00:00.000Z',
         output: new Date('2019-09-22T21:58:00.000Z').getTime(),
         serialize_output: toISO8601
-    }, {
+    },
+    {
         args: {},
         config: {
             version: 1,
@@ -56,7 +59,8 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         input: '2019-10-22T22:00:00.000Z',
         fails: true,
         output: 'Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
-    }, {
+    },
+    {
         args: { expr: '1hr', months: 10 },
         config: {
             version: 1,

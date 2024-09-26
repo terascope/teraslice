@@ -56,21 +56,21 @@ function _addReducer(acc: any, curr: any): bigint {
     if (isBigInt(curr)) return BigInt(acc) + curr;
     return acc + BigInt(curr);
 }
-function add(value: number|bigint, values: (number|bigint)[]): number|bigint {
+function add(value: number | bigint, values: (number | bigint)[]): number | bigint {
     return values.reduce(_addReducer, value);
 }
 
 function makeSumAgg(vector: Vector<any>): FieldAgg {
     const type = vector.type === VectorType.BigInt ? 'bigint' : 'number';
     let agg: {
-        value: number|bigint;
+        value: number | bigint;
     } = { value: 0 };
 
     return {
         adjustsSelectedRow: false,
         push(value) {
             const res = getNumericValues(value);
-            const sum = add(0, res.values as (number|bigint)[]);
+            const sum = add(0, res.values as (number | bigint)[]);
             agg.value = add(agg.value, [sum]);
         },
         flush() {
@@ -89,7 +89,7 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
     const type = vector.type === VectorType.BigInt ? 'bigint' : 'number';
     let agg: {
         total: number;
-        value?: number|bigint,
+        value?: number | bigint;
     } = { total: 0 };
 
     return {
@@ -97,7 +97,7 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
         push(value: unknown) {
             const res = getNumericValues(value);
             if (res.values.length) {
-                const sum = add(0, res.values as (number|bigint)[]);
+                const sum = add(0, res.values as (number | bigint)[]);
                 agg.value = agg.value != null ? add(sum, [agg.value]) : sum;
             }
             agg.total += res.values.length;
@@ -123,7 +123,7 @@ function numericValueToObject(value: number | bigint | ParsedNumericObject) {
 function makeMinAgg(): FieldAgg {
     let agg: {
         index: number;
-        value?: number|bigint;
+        value?: number | bigint;
         original?: string;
     } = { index: -1 };
 
@@ -151,7 +151,7 @@ function makeMinAgg(): FieldAgg {
 function makeMaxAgg(): FieldAgg {
     let agg: {
         index: number;
-        value?: number|bigint,
+        value?: number | bigint;
         original?: string;
     } = { index: -1 };
 
@@ -200,7 +200,7 @@ export enum KeyAggregation {
 }
 
 export type KeyAggFn = (index: number) => {
-    key: string|undefined;
+    key: string | undefined;
     value: unknown;
 };
 export type MakeKeyAggFn = (col: Vector<unknown>) => KeyAggFn;

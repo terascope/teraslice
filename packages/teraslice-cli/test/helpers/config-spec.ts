@@ -76,11 +76,11 @@ describe('config', () => {
                 'output-style': 'txt',
                 'config-dir': path.join(dirname, '../fixtures/config_dir'),
                 'cluster-alias': 'localhost',
-                'outdir': '/tmp/exportTest/test1'
+                outdir: '/tmp/exportTest/test1'
             };
             testConfig = new Config(cliArgs);
 
-            const edir = path.join('/','tmp', 'exportTest', 'test1');
+            const edir = path.join('/', 'tmp', 'exportTest', 'test1');
             expect(testConfig.outdir).toBe(edir);
         });
     });

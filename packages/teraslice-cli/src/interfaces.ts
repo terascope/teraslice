@@ -32,8 +32,8 @@ export interface JobConfigFile extends Teraslice.JobConfigParams {
             version: string;
             job_id: string;
             updated: string;
-        }
-    }
+        };
+    };
 }
 
 export enum RegisteredStatusEnum {
@@ -42,4 +42,4 @@ export enum RegisteredStatusEnum {
 
 export type RegisteredStatus = keyof typeof RegisteredStatusEnum;
 
-export type AllStatusTypes = Teraslice.ExecutionStatus | RegisteredStatus
+export type AllStatusTypes = Teraslice.ExecutionStatus | RegisteredStatus;

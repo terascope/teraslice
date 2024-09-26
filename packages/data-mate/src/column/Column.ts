@@ -10,7 +10,7 @@ import { runVectorAggregation, ValueAggregation } from './aggregations.js';
 import { getVectorId } from './utils.js';
 import { ReadableData, WritableData } from '../core/index.js';
 
-type NameType = (number|string|symbol);
+type NameType = (number | string | symbol);
 /**
  * A single column of values with the same data type.
  *
@@ -24,9 +24,9 @@ export class Column<T = unknown, N extends NameType = string> {
     static fromJSON<R, F extends NameType = string>(
         name: F,
         config: Readonly<DataTypeFieldConfig>,
-        values?: Maybe<R>[]|readonly Maybe<R>[],
+        values?: Maybe<R>[] | readonly Maybe<R>[],
         version?: number,
-        childConfig?: DataTypeFields|ReadonlyDataTypeFields
+        childConfig?: DataTypeFields | ReadonlyDataTypeFields
     ): Column<R, F> {
         const builder = Builder.make<R>(new WritableData(values?.length ?? 0), {
             childConfig,
@@ -45,7 +45,7 @@ export class Column<T = unknown, N extends NameType = string> {
      * Create a Column from the custom serialized format
     */
     static deserialize<R, F extends NameType = string>(
-        columnConfig: Buffer|string
+        columnConfig: Buffer | string
     ): Column<R, F> {
         const config = JSON.parse(columnConfig as string) as ColumnConfig<R>;
 
@@ -73,7 +73,7 @@ export class Column<T = unknown, N extends NameType = string> {
     */
     readonly config: Readonly<DataTypeFieldConfig>;
 
-    constructor(vector: Vector<T>, options: ColumnOptions<N>|Readonly<ColumnOptions<N>>) {
+    constructor(vector: Vector<T>, options: ColumnOptions<N> | Readonly<ColumnOptions<N>>) {
         this.vector = vector;
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;
@@ -85,7 +85,7 @@ export class Column<T = unknown, N extends NameType = string> {
      * And may not be compatible with the JSON spec.
     */
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
-        yield* this.vector;
+        yield * this.vector;
     }
 
     /**
@@ -168,28 +168,28 @@ export class Column<T = unknown, N extends NameType = string> {
     /**
      * Average all of the values in the Column
     */
-    avg(): number|bigint {
+    avg(): number | bigint {
         return runVectorAggregation(this.vector, ValueAggregation.avg);
     }
 
     /**
      * Sum all of the values in the Column
     */
-    sum(): number|bigint {
+    sum(): number | bigint {
         return runVectorAggregation(this.vector, ValueAggregation.sum);
     }
 
     /**
      * Find the minimum value in the Column
     */
-    min(): number|bigint {
+    min(): number | bigint {
         return runVectorAggregation(this.vector, ValueAggregation.min);
     }
 
     /**
      * Find the maximum value in the Column
     */
-    max(): number|bigint {
+    max(): number | bigint {
         return runVectorAggregation(this.vector, ValueAggregation.max);
     }
 

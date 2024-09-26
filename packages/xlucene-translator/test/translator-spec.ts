@@ -1,4 +1,3 @@
-/* eslint-disable no-self-compare */
 import 'jest-extended';
 import { debugLogger, get, times } from '@terascope/utils';
 import { ElasticsearchDistribution, xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';

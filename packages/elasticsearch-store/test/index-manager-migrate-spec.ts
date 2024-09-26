@@ -66,12 +66,14 @@ describe('IndexManager->migrateIndex()', () => {
             times(10, (n) => {
                 body.push(
                     {
-                        index: !isElasticsearch6(client) ? {
-                            _index: previousIndex,
-                        } : {
-                            _index: previousIndex,
-                            _type: previousConfig.name,
-                        },
+                        index: !isElasticsearch6(client)
+                            ? {
+                                _index: previousIndex,
+                            }
+                            : {
+                                _index: previousIndex,
+                                _type: previousConfig.name,
+                            },
                     },
                     {
                         test_id: `id-${n}`,

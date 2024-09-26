@@ -1,4 +1,3 @@
-/* eslint-disable import/first */
 import 'jest-extended';
 import got from 'got';
 import { Counter } from 'prom-client';

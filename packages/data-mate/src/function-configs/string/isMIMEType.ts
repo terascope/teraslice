@@ -71,6 +71,8 @@ export const isMIMETypeConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     examples,
     accepts: [FieldType.String],
-    create() { return isMIMEType; },
+    create() {
+        return isMIMEType;
+    },
     description: 'Returns the input if it is a valid Media or MIME (Multipurpose Internet Mail Extensions) Type, otherwise returns null.',
 };

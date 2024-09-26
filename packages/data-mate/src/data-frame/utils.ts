@@ -31,7 +31,7 @@ function _buildersAppend<T extends Record<string, any>>(
 }
 
 export function distributeRowsToColumns<T extends Record<string, any>>(
-    config: DataTypeConfig|ReadonlyDataTypeConfig, records: T[]
+    config: DataTypeConfig | ReadonlyDataTypeConfig, records: T[]
 ): Column<any, keyof T>[] {
     return buildRecords(
         getBuildersForConfig<T>(config, records.length),
@@ -93,9 +93,10 @@ export function* columnsToBuilderEntries<T extends Record<string, unknown>>(
 function _columnToBuilderEntry<T extends Record<string, unknown>>(
     column: Column<any, keyof T>, size: number
 ): [keyof T, Builder<any>] {
-    return [column.name, Builder.makeFromVector<any>(
-        column.vector, size
-    )];
+    return [column.name,
+        Builder.makeFromVector<any>(
+            column.vector, size
+        )];
 }
 
 export function processFieldFilter(
@@ -166,7 +167,7 @@ export function makeUniqueRowBuilder<T extends Record<string, any>>(
 export function makeKeyForRow<T extends Record<string, any>>(
     keyAggs: Map<keyof T, KeyAggFn>,
     index: number
-): { row: Partial<T>; key: string }|undefined {
+): { row: Partial<T>; key: string } | undefined {
     const row: Partial<T> = Object.create(null);
 
     let groupKey = '';
@@ -218,7 +219,7 @@ export function isEmptyRow(columns: readonly Column<any, any>[], row: number): b
     return true;
 }
 
-export function splitOnNewLineIterator(data: Buffer|string): Iterable<Buffer|string> {
+export function splitOnNewLineIterator(data: Buffer | string): Iterable<Buffer | string> {
     if (typeof data === 'string') {
         return splitStringOnNewLineIterator(data);
     }

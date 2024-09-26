@@ -1,3 +1,4 @@
+/* eslint-disable jest/expect-expect */
 import { pDelay, flatten } from '@terascope/utils';
 import signale from '../../signale.js';
 import { TerasliceHarness } from '../../teraslice-harness.js';
@@ -33,7 +34,7 @@ describe('cluster state', () => {
 
     function verifyClusterMaster(state: any) {
         // verify that the cluster master worker exists within the state
-        const nodes = Object.values(state).filter((node:any) => {
+        const nodes = Object.values(state).filter((node: any) => {
             const cms = findWorkers(node.active, 'cluster_master');
             return cms.length > 0;
         }) as any;
@@ -91,8 +92,7 @@ describe('cluster state', () => {
         verifyClusterState(await terasliceHarness.scaleWorkersAndWait());
     });
 
-    // eslint-disable-next-line jest/no-focused-tests
-    fit('should be correct for running job with 1 worker', async () => {
+    it('should be correct for running job with 1 worker', async () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         const specIndex = terasliceHarness.newSpecIndex('state');
         // Set resource constraints on workers within CI

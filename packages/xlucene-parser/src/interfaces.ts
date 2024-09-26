@@ -16,8 +16,8 @@ export interface ContextArg {
     variables?: t.xLuceneVariables;
 }
 
-export type GroupLike = FieldGroup|LogicalGroup;
-export type GroupLikeType = NodeType.LogicalGroup|NodeType.FieldGroup;
+export type GroupLike = FieldGroup | LogicalGroup;
+export type GroupLikeType = NodeType.LogicalGroup | NodeType.FieldGroup;
 
 export interface Node {
     type: NodeType;
@@ -29,11 +29,11 @@ export interface GroupLikeNode extends Node {
 }
 
 export type TermLikeType =
-    NodeType.Term|
-    NodeType.Regexp|
-    NodeType.Range|
-    NodeType.Wildcard|
-    NodeType.Function|
+    NodeType.Term |
+    NodeType.Regexp |
+    NodeType.Range |
+    NodeType.Wildcard |
+    NodeType.Function |
     NodeType.TermList;
 
 export interface TermLikeNode extends Node {
@@ -61,19 +61,19 @@ export interface EmptyNode extends Node {
     type: NodeType.Empty;
 }
 
-export type Field = string|null;
+export type Field = string | null;
 
 export type FieldValueValue<T> = {
     type: 'value';
     value: T;
-}
+};
 export type FieldValueVariable = {
     type: 'variable';
     scoped: boolean;
     value: string;
-}
+};
 
-export type FieldValue<T> = FieldValueValue<T>|FieldValueVariable;
+export type FieldValue<T> = FieldValueValue<T> | FieldValueVariable;
 
 export interface TermList extends TermLikeNode {
     type: NodeType.TermList;
@@ -86,7 +86,7 @@ export interface AnyDataType {
      * in the type_config
     */
     field_type: t.xLuceneFieldType;
-    value: FieldValue<string|number|boolean|any>;
+    value: FieldValue<string | number | boolean | any>;
 }
 
 export interface NumberDataType {
@@ -131,7 +131,7 @@ export interface Exists extends Node {
     field: string;
 }
 
-export type RangeOperator = 'gte'|'gt'|'lt'|'lte';
+export type RangeOperator = 'gte' | 'gt' | 'lt' | 'lte';
 export interface Range extends TermLikeNode {
     type: NodeType.Range;
     field_type: t.xLuceneFieldType;
@@ -145,12 +145,12 @@ export interface Range extends TermLikeNode {
 export interface RangeNode {
     operator: RangeOperator;
     field_type: t.xLuceneFieldType.Integer
-    | t.xLuceneFieldType.Float
-    | t.xLuceneFieldType.String
-    | t.xLuceneFieldType.AnalyzedString
-    | t.xLuceneFieldType.Date
-    | t.xLuceneFieldType.IP;
-    value: FieldValue<number|string>;
+        | t.xLuceneFieldType.Float
+        | t.xLuceneFieldType.String
+        | t.xLuceneFieldType.AnalyzedString
+        | t.xLuceneFieldType.Date
+        | t.xLuceneFieldType.IP;
+    value: FieldValue<number | string>;
 }
 
 export interface FunctionNode extends TermLikeNode {
@@ -160,7 +160,7 @@ export interface FunctionNode extends TermLikeNode {
     */
     name: string;
     description?: string;
-    params: (Term|TermList)[];
+    params: (Term | TermList)[];
 }
 
 export interface Regexp extends StringDataType, TermLikeNode {
@@ -194,7 +194,7 @@ export interface FunctionMethodsResults {
 
 export type FunctionElasticsearchOptions =
     { logger: Logger; type_config: t.xLuceneTypeConfig }
-    & Record<string, any>
+    & Record<string, any>;
 
 export interface FunctionMethods {
     match(arg: any): boolean;

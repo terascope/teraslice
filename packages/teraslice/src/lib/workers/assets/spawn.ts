@@ -12,7 +12,7 @@ const loaderPath = path.join(filePath, './loader-executable.js');
 
 interface AssetMessage {
     success: boolean;
-    assetIds: string[]
+    assetIds: string[];
 }
 
 export async function spawnAssetLoader(

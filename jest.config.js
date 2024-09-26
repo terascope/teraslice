@@ -37,7 +37,7 @@ export default {
     verbose: true,
     projects,
     globals: {
-        availableExtensions: ['.js', '.ts', '.mjs', '.cjs']
+        availableExtensions: ['.js', '.ts', '.mjs', '.cjs'],
     },
     testMatch: [
         '<rootDir>/packages/*/test/**/*-spec.{ts,js}',
@@ -73,26 +73,27 @@ export default {
     },
     extensionsToTreatAsEsm: ['.ts'],
     transform: {
-        ['^.+\\.(t|j)sx?$']: ['@swc/jest', {
-            jsc: {
-                loose: true,
-                parser: {
-                    syntax: 'typescript',
-                    tsx: false,
-                    decorators: true
+        ['^.+\\.(t|j)sx?$']: ['@swc/jest',
+            {
+                jsc: {
+                    loose: true,
+                    parser: {
+                        syntax: 'typescript',
+                        tsx: false,
+                        decorators: true
+                    },
+                    transform: {
+                        legacyDecorator: true,
+                        decoratorMetadata: true
+                    },
+                    target: 'esnext'
                 },
-                transform: {
-                    legacyDecorator: true,
-                    decoratorMetadata: true
-                },
-                target: 'esnext'
-            },
-            module: {
-                type: 'es6',
-                strictMode: false,
-                noInterop: false,
-                ignoreDynamic: true
-            }
-        }]
-    }
+                module: {
+                    type: 'es6',
+                    strictMode: false,
+                    noInterop: false,
+                    ignoreDynamic: true
+                }
+            }]
+    },
 };

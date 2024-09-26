@@ -12,7 +12,7 @@ import {
 
 export interface GeoPointWithinRangeArgs {
     point: GeoPointInput;
-    distance: string
+    distance: string;
 }
 
 export const geoPointWithinRangeConfig: FieldValidateConfig<GeoPointWithinRangeArgs> = {

@@ -235,7 +235,7 @@ async function initCommand() {
             plugins = await pMap(pluginList, async (pluginPath) => {
                 const mod = await import(path.resolve(pluginPath));
                 return mod.default || mod;
-            })
+            });
         }
         let manager: PhaseManager;
 

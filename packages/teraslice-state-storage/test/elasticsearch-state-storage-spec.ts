@@ -88,7 +88,7 @@ describe('elasticsearch-state-storage', () => {
     describe('->get', () => {
         describe('when the found in cache', () => {
             const doc = makeTestDoc();
-            let result: DataEntity|undefined;
+            let result: DataEntity | undefined;
 
             beforeAll(async () => {
                 await setup();
@@ -108,7 +108,7 @@ describe('elasticsearch-state-storage', () => {
         describe('when the NOT found in cache but in es', () => {
             const doc = makeTestDoc();
             const esDoc = copyDataEntity(doc);
-            let result: DataEntity|undefined;
+            let result: DataEntity | undefined;
 
             beforeAll(async () => {
                 await setup();
@@ -129,7 +129,7 @@ describe('elasticsearch-state-storage', () => {
         describe('when the NOT found in cache and NOT in es', () => {
             const doc = makeTestDoc();
             const esDoc = copyDataEntity(doc);
-            let result: DataEntity|undefined;
+            let result: DataEntity | undefined;
 
             beforeAll(async () => {
                 await setup();
@@ -146,7 +146,7 @@ describe('elasticsearch-state-storage', () => {
 
         describe('when using an unknown doc', () => {
             const doc = makeTestDoc();
-            let result: DataEntity|undefined;
+            let result: DataEntity | undefined;
 
             beforeAll(async () => {
                 await setup();

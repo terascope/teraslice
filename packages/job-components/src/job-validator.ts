@@ -67,7 +67,9 @@ export class JobValidator {
             );
         });
 
-        validateJobFns.forEach((fn) => { fn(jobConfig); });
+        validateJobFns.forEach((fn) => {
+            fn(jobConfig);
+        });
 
         validateJobFns = [];
 
@@ -83,7 +85,9 @@ export class JobValidator {
             return schema.validate(apiConfig);
         });
 
-        validateJobFns.forEach((fn) => { fn(jobConfig); });
+        validateJobFns.forEach((fn) => {
+            fn(jobConfig);
+        });
 
         registerApis(this.context, jobConfig);
 

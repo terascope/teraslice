@@ -7,12 +7,14 @@ export default class Double extends BaseType {
         this._validateESMapping();
         return {
             mapping: {
-                [this.field]: this.config.indexed === false ? {
-                    type: 'double' as ESFieldType,
-                    index: false
-                } : {
-                    type: 'double' as ESFieldType
-                }
+                [this.field]: this.config.indexed === false
+                    ? {
+                        type: 'double' as ESFieldType,
+                        index: false
+                    }
+                    : {
+                        type: 'double' as ESFieldType
+                    }
             }
         };
     }

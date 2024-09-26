@@ -2,23 +2,27 @@ import { Exists, NodeType } from '../../src/index.js';
 import { TestCase } from './interfaces.js';
 
 export default [
-    ['_exists_:hello', '_exists_ with a value', {
-        type: NodeType.Exists,
-        field: 'hello',
-    } as Exists]
+    ['_exists_:hello',
+        '_exists_ with a value',
+        {
+            type: NodeType.Exists,
+            field: 'hello',
+        } as Exists]
 ] as TestCase[];
 
 export const filterNilExists: TestCase[] = [
     [
         '_exists_:hello',
-        '_exists_', {
+        '_exists_',
+        {
             type: NodeType.Exists,
             field: 'hello',
         } as Exists
     ],
     [
         '_exists_:hello OR $foo',
-        '_exists_ with OR grouping', {
+        '_exists_ with OR grouping',
+        {
             type: NodeType.Exists,
             field: 'hello',
         },

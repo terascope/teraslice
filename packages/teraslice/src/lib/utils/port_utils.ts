@@ -21,9 +21,9 @@ function listPorts(start: number, end: number): number[] {
 }
 
 export interface PortOptions {
-    start?: number,
-    end?: number,
-    assetsPort?: number
+    start?: number;
+    end?: number;
+    assetsPort?: number;
 }
 
 export async function findPort(options: PortOptions = {}) {
@@ -36,7 +36,7 @@ export async function findPort(options: PortOptions = {}) {
     const ports = listPorts(start, end);
 
     const tested: number[] = [];
-    let port:number|undefined;
+    let port: number | undefined;
 
     while (ports.length) {
         port = ports.shift() as number;

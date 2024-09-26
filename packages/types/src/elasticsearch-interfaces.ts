@@ -3,7 +3,7 @@ import * as geo from './geo-interfaces.js';
 /**
  * The sort direction
 */
-export type SortOrder = 'asc'|'desc';
+export type SortOrder = 'asc' | 'desc';
 
 export interface ElasticsearchDSLOptions extends Partial<ClientMetadata> {
     /**
@@ -35,7 +35,7 @@ export type AnyQuery =
     | RegExprQuery
     | QueryStringQuery
     | RangeQuery
-    | MultiMatchQuery
+    | MultiMatchQuery;
 
 export interface ExistsQuery {
     exists: {
@@ -69,7 +69,7 @@ export interface GeoQuery {
 
 export interface RegExprQuery {
     regexp: {
-        [field: string]: string|{
+        [field: string]: string | {
             value: string;
             flags?: string;
             max_determinized_states?: number;
@@ -158,7 +158,7 @@ export type AnyQuerySort = GeoSortQuery;
 
 export type ElasticsearchDSLResult = {
     query: ConstantScoreQuery | MatchAllQuery;
-    sort?: AnyQuerySort|AnyQuerySort[];
+    sort?: AnyQuerySort | AnyQuerySort[];
 };
 
 export type ESFieldType =
@@ -192,7 +192,7 @@ type BasicESTypeMapping = {
 
 type IgnoredESTypeMapping = {
     enabled: boolean;
-}
+};
 
 type FieldsESTypeMapping = {
     type: ESFieldType | string;
@@ -260,7 +260,7 @@ export enum ElasticsearchDistribution {
 }
 
 export interface ClientMetadata {
-    distribution: ElasticsearchDistribution,
+    distribution: ElasticsearchDistribution;
     version: string;
     majorVersion: number;
     minorVersion: number;
@@ -275,7 +275,7 @@ export type ExpandWildcards = 'open' | 'closed' | 'hidden' | 'none' | 'all';
 
 export type SearchTypes = 'query_then_fetch' | 'dfs_query_then_fetch';
 
-export type SuggestMode = 'missing' |'popular' |'always';
+export type SuggestMode = 'missing' | 'popular' | 'always';
 
 export type ConflictOptions = 'abort' | 'proceed';
 
@@ -314,17 +314,17 @@ export interface BulkIndexByScrollFailure {
 }
 
 export interface SearchResult<TDocument = Record<string, any>> {
-    fields?: Record<string, any>
-    found: boolean
-    _index: string
+    fields?: Record<string, any>;
+    found: boolean;
+    _index: string;
     _type?: string;
     _score?: number;
-    _id: string
-    _primary_term?: number
-    _routing?: string
-    _seq_no?: number
-    _source?: TDocument
-    _version?: number
+    _id: string;
+    _primary_term?: number;
+    _routing?: string;
+    _seq_no?: number;
+    _source?: TDocument;
+    _version?: number;
 }
 
 export interface ShardFailure {
@@ -355,7 +355,7 @@ export interface WriteResponseBase {
     _primary_term: number;
     result: Action;
     _seq_no: number;
-    _shards: ShardStatistics,
+    _shards: ShardStatistics;
     _version: number;
     forced_refresh?: boolean;
     error?: ErrorCauseKeys;
@@ -363,7 +363,7 @@ export interface WriteResponseBase {
 
 export type WaitForActiveShardOptions = 'all';
 
-export type WaitForActiveShards = number | WaitForActiveShardOptions
+export type WaitForActiveShards = number | WaitForActiveShardOptions;
 
 export type OpType = 'index' | 'create';
 
@@ -413,14 +413,14 @@ export interface PluginStats {
     type: string;
 }
 
-export type NodeRole = 'cluster_manager' | 'master' | 'data' | 'client' | 'ingest' | 'voting_only' | 'remote_cluster_client' | 'coordinating_only'
+export type NodeRole = 'cluster_manager' | 'master' | 'data' | 'client' | 'ingest' | 'voting_only' | 'remote_cluster_client' | 'coordinating_only';
 
 export type NodeRoles = NodeRole[];
 
 export interface IndexTemplateProperties {
-    aliases?: { [alias: string]: Alias },
+    aliases?: { [alias: string]: Alias };
     mappings?: Record<string, any>;
-    settings?:Record<string, any>;
+    settings?: Record<string, any>;
     index_patterns?: string | string[];
 }
 
@@ -449,17 +449,17 @@ export interface MGetDocs {
     _stored_fields?: string | string[];
 }
 
-export type BulkCreateOperation = BulkOperation
+export type BulkCreateOperation = BulkOperation;
 
-export type BulkCreateResponseItem = BulkResponseItemBase
+export type BulkCreateResponseItem = BulkResponseItemBase;
 
-export type BulkDeleteOperation = BulkOperation
+export type BulkDeleteOperation = BulkOperation;
 
-export type BulkDeleteResponseItem = BulkResponseItemBase
+export type BulkDeleteResponseItem = BulkResponseItemBase;
 
-export type BulkIndexOperation = BulkOperation
+export type BulkIndexOperation = BulkOperation;
 
-export type BulkIndexResponseItem = BulkResponseItemBase
+export type BulkIndexResponseItem = BulkResponseItemBase;
 
 export interface BulkOperation {
     _id: string;
@@ -480,13 +480,13 @@ export interface BulkOperationContainer {
 export type SearchSourceConfig = boolean | SearchSourceFilter | string | string[];
 
 export interface BulkUpdateAction<TDocument = unknown, TPartialDocument = unknown> {
-    detect_noop?: boolean
-    doc?: TPartialDocument
-    doc_as_upsert?: boolean
-    script?: Script
-    scripted_upsert?: boolean
-    _source?: SearchSourceConfig
-    upsert?: TDocument
+    detect_noop?: boolean;
+    doc?: TPartialDocument;
+    doc_as_upsert?: boolean;
+    script?: Script;
+    scripted_upsert?: boolean;
+    _source?: SearchSourceConfig;
+    upsert?: TDocument;
 }
 
 export interface BulkResponseItemBase {
@@ -510,9 +510,9 @@ export interface BulkResponseItemContainer {
     delete?: BulkDeleteResponseItem;
 }
 
-export type BulkUpdateOperation = BulkOperation
+export type BulkUpdateOperation = BulkOperation;
 
-export type BulkUpdateResponseItem = BulkResponseItemBase
+export type BulkUpdateResponseItem = BulkResponseItemBase;
 
 export interface CatIndicesIndicesRecord {
     health?: string;
@@ -826,22 +826,22 @@ export interface ClusterHealthIndexHealthStats {
 }
 
 export interface IndicesGetFieldMappingTypeFieldMappings {
-    mappings: Partial<Record<string, MappingFieldMapping>>
+    mappings: Partial<Record<string, MappingFieldMapping>>;
 }
 
 export interface MappingFieldMapping {
-    full_name: string
-    mapping: Partial<Record<string, MappingProperty>>
+    full_name: string;
+    mapping: Partial<Record<string, MappingProperty>>;
 }
 
 export interface IndexTemplate {
-    name: string,
+    name: string;
     index_template: {
         index_patterns: string[];
         settings: { index: Record<string, any> };
-        mappings: Record<string, any>,
-        aliases: Alias
-    }
+        mappings: Record<string, any>;
+        aliases: Alias;
+    };
 }
 
 export interface IndicesGetMappingIndexMappingRecord {
@@ -862,8 +862,8 @@ export interface MappingTypeMapping {
     dynamic?: boolean | MappingDynamicMapping;
     dynamic_date_formats?: string[];
     dynamic_templates?:
-    | Record<string, MappingDynamicTemplate>
-    | Record<string, MappingDynamicTemplate>[];
+        | Record<string, MappingDynamicTemplate>
+        | Record<string, MappingDynamicTemplate>[];
     _field_names?: {
         enabled: boolean;
     };
@@ -925,15 +925,15 @@ export interface MappingPropertyBase {
 }
 
 export type MappingProperty =
-  | MappingFlattenedProperty
-  | MappingJoinProperty
-  | MappingPercolatorProperty
-  | MappingRankFeatureProperty
-  | MappingRankFeaturesProperty
-  | MappingConstantKeywordProperty
-  | MappingFieldAliasProperty
-  | MappingHistogramProperty
-  | MappingCoreProperty;
+    | MappingFlattenedProperty
+    | MappingJoinProperty
+    | MappingPercolatorProperty
+    | MappingRankFeatureProperty
+    | MappingRankFeaturesProperty
+    | MappingConstantKeywordProperty
+    | MappingFieldAliasProperty
+    | MappingHistogramProperty
+    | MappingCoreProperty;
 
 export interface MappingFlattenedProperty extends MappingPropertyBase {
     boost?: number;
@@ -949,286 +949,286 @@ export interface MappingFlattenedProperty extends MappingPropertyBase {
 }
 
 export type MappingCoreProperty =
-  | MappingObjectProperty
-  | MappingNestedProperty
-  | MappingSearchAsYouTypeProperty
-  | MappingTextProperty
-  | MappingDocValuesProperty;
+    | MappingObjectProperty
+    | MappingNestedProperty
+    | MappingSearchAsYouTypeProperty
+    | MappingTextProperty
+    | MappingDocValuesProperty;
 
 export type MappingDocValuesProperty =
-  | MappingBinaryProperty
-  | MappingBooleanProperty
-  | MappingDateProperty
-  | MappingDateNanosProperty
-  | MappingKeywordProperty
-  | MappingNumberProperty
-  | MappingRangeProperty
-  | MappingGeoPointProperty
-  | MappingGeoShapeProperty
-  | MappingCompletionProperty
-  | MappingIpProperty
-  | MappingMurmur3HashProperty
-  | MappingShapeProperty
-  | MappingTokenCountProperty
-  | MappingVersionProperty
-  | MappingWildcardProperty
-  | MappingPointProperty
+    | MappingBinaryProperty
+    | MappingBooleanProperty
+    | MappingDateProperty
+    | MappingDateNanosProperty
+    | MappingKeywordProperty
+    | MappingNumberProperty
+    | MappingRangeProperty
+    | MappingGeoPointProperty
+    | MappingGeoShapeProperty
+    | MappingCompletionProperty
+    | MappingIpProperty
+    | MappingMurmur3HashProperty
+    | MappingShapeProperty
+    | MappingTokenCountProperty
+    | MappingVersionProperty
+    | MappingWildcardProperty
+    | MappingPointProperty;
 
 export interface MappingBooleanProperty extends MappingDocValuesPropertyBase {
-    boost?: number
-    fielddata?: IndicesNumericFielddata
-    index?: boolean
-    null_value?: boolean
-    type: 'boolean'
+    boost?: number;
+    fielddata?: IndicesNumericFielddata;
+    index?: boolean;
+    null_value?: boolean;
+    type: 'boolean';
 }
 
 export interface IndicesNumericFielddata {
-    format: IndicesNumericFielddataFormat
+    format: IndicesNumericFielddataFormat;
 }
 
-export type IndicesNumericFielddataFormat = 'array' | 'disabled'
+export type IndicesNumericFielddataFormat = 'array' | 'disabled';
 
 export interface MappingPointProperty extends MappingDocValuesPropertyBase {
-    ignore_malformed?: boolean
-    ignore_z_value?: boolean
-    null_value?: string
-    type: 'point'
+    ignore_malformed?: boolean;
+    ignore_z_value?: boolean;
+    null_value?: string;
+    type: 'point';
 }
 
 export interface MappingWildcardProperty extends MappingDocValuesPropertyBase {
-    type: 'wildcard'
-    null_value?: string
+    type: 'wildcard';
+    null_value?: string;
 }
 
 export interface MappingVersionProperty extends MappingDocValuesPropertyBase {
-    type: 'version'
+    type: 'version';
 }
 
 export interface MappingTokenCountProperty extends MappingDocValuesPropertyBase {
-    analyzer?: string
-    boost?: number
-    index?: boolean
-    null_value?: number
-    enable_position_increments?: boolean
-    type: 'token_count'
+    analyzer?: string;
+    boost?: number;
+    index?: boolean;
+    null_value?: number;
+    enable_position_increments?: boolean;
+    type: 'token_count';
 }
 
 export interface MappingShapeProperty extends MappingDocValuesPropertyBase {
-    coerce?: boolean
-    ignore_malformed?: boolean
-    ignore_z_value?: boolean
-    orientation?: MappingGeoOrientation
-    type: 'shape'
+    coerce?: boolean;
+    ignore_malformed?: boolean;
+    ignore_z_value?: boolean;
+    orientation?: MappingGeoOrientation;
+    type: 'shape';
 }
 
-export type MappingGeoOrientation = 'right' | 'RIGHT' | 'counterclockwise' | 'ccw' | 'left' | 'LEFT' | 'clockwise' | 'cw'
+export type MappingGeoOrientation = 'right' | 'RIGHT' | 'counterclockwise' | 'ccw' | 'left' | 'LEFT' | 'clockwise' | 'cw';
 
 export interface MappingMurmur3HashProperty extends MappingDocValuesPropertyBase {
-    type: 'murmur3'
+    type: 'murmur3';
 }
 
 export interface MappingIpProperty extends MappingDocValuesPropertyBase {
-    boost?: number
-    index?: boolean
-    null_value?: string
-    ignore_malformed?: boolean
-    type: 'ip'
+    boost?: number;
+    index?: boolean;
+    null_value?: string;
+    ignore_malformed?: boolean;
+    type: 'ip';
 }
 
 export interface MappingCompletionProperty extends MappingDocValuesPropertyBase {
-    analyzer?: string
-    contexts?: MappingSuggestContext[]
-    max_input_length?: number
-    preserve_position_increments?: boolean
-    preserve_separators?: boolean
-    search_analyzer?: string
-    type: 'completion'
+    analyzer?: string;
+    contexts?: MappingSuggestContext[];
+    max_input_length?: number;
+    preserve_position_increments?: boolean;
+    preserve_separators?: boolean;
+    search_analyzer?: string;
+    type: 'completion';
 }
 
 export interface MappingSuggestContext {
-    name: string
-    path?: string
-    type: string
-    precision?: number | string
+    name: string;
+    path?: string;
+    type: string;
+    precision?: number | string;
 }
 
-export type MappingGeoStrategy = 'recursive' | 'term'
+export type MappingGeoStrategy = 'recursive' | 'term';
 
 export interface MappingGeoShapeProperty extends MappingDocValuesPropertyBase {
-    coerce?: boolean
-    ignore_malformed?: boolean
-    ignore_z_value?: boolean
-    orientation?: MappingGeoOrientation
-    strategy?: MappingGeoStrategy
-    type: 'geo_shape'
+    coerce?: boolean;
+    ignore_malformed?: boolean;
+    ignore_z_value?: boolean;
+    orientation?: MappingGeoOrientation;
+    strategy?: MappingGeoStrategy;
+    type: 'geo_shape';
 }
 
 export interface MappingGeoPointProperty extends MappingDocValuesPropertyBase {
-    ignore_malformed?: boolean
-    ignore_z_value?: boolean
-    null_value?: GeoLocation
-    type: 'geo_point'
+    ignore_malformed?: boolean;
+    ignore_z_value?: boolean;
+    null_value?: GeoLocation;
+    type: 'geo_point';
 }
 
-export type GeoLocation = LatLonGeoLocation | GeoHashLocation | number[] | string
+export type GeoLocation = LatLonGeoLocation | GeoHashLocation | number[] | string;
 
 export interface LatLonGeoLocation {
-    lat: number
-    lon: number
+    lat: number;
+    lon: number;
 }
 
-export type GeoHash = string
+export type GeoHash = string;
 
 export interface GeoHashLocation {
-    geohash: GeoHash
+    geohash: GeoHash;
 }
 
 export interface MappingLongRangeProperty extends MappingRangePropertyBase {
-    type: 'long_range'
+    type: 'long_range';
 }
 
 export interface MappingIpRangeProperty extends MappingRangePropertyBase {
-    type: 'ip_range'
+    type: 'ip_range';
 }
 
 export interface MappingRangePropertyBase extends MappingDocValuesPropertyBase {
-    boost?: number
-    coerce?: boolean
-    index?: boolean
+    boost?: number;
+    coerce?: boolean;
+    index?: boolean;
 }
 
 export interface MappingIntegerRangeProperty extends MappingRangePropertyBase {
-    type: 'integer_range'
+    type: 'integer_range';
 }
 
 export interface MappingDoubleRangeProperty extends MappingRangePropertyBase {
-    type: 'double_range'
+    type: 'double_range';
 }
 
 export type MappingRangeProperty =
-  | MappingLongRangeProperty
-  | MappingIpRangeProperty
-  | MappingIntegerRangeProperty
-  | MappingFloatRangeProperty
-  | MappingDoubleRangeProperty
-  | MappingDateRangeProperty
+    | MappingLongRangeProperty
+    | MappingIpRangeProperty
+    | MappingIntegerRangeProperty
+    | MappingFloatRangeProperty
+    | MappingDoubleRangeProperty
+    | MappingDateRangeProperty;
 
 export type MappingNumberProperty =
-  | MappingFloatNumberProperty
-  | MappingHalfFloatNumberProperty
-  | MappingDoubleNumberProperty
-  | MappingIntegerNumberProperty
-  | MappingLongNumberProperty
-  | MappingShortNumberProperty
-  | MappingByteNumberProperty
-  | MappingUnsignedLongNumberProperty
-  | MappingScaledFloatNumberProperty
+    | MappingFloatNumberProperty
+    | MappingHalfFloatNumberProperty
+    | MappingDoubleNumberProperty
+    | MappingIntegerNumberProperty
+    | MappingLongNumberProperty
+    | MappingShortNumberProperty
+    | MappingByteNumberProperty
+    | MappingUnsignedLongNumberProperty
+    | MappingScaledFloatNumberProperty;
 
 export interface MappingFloatNumberProperty extends MappingStandardNumberProperty {
-    type: 'float'
-    null_value?: number
+    type: 'float';
+    null_value?: number;
 }
 
 export interface MappingNumberPropertyBase extends MappingDocValuesPropertyBase {
-    index?: boolean
-    ignore_malformed?: boolean
-    time_series_metric?: MappingTimeSeriesMetricType
+    index?: boolean;
+    ignore_malformed?: boolean;
+    time_series_metric?: MappingTimeSeriesMetricType;
 }
 
-export type MappingTimeSeriesMetricType = 'gauge' | 'counter' | 'summary' | 'histogram'
+export type MappingTimeSeriesMetricType = 'gauge' | 'counter' | 'summary' | 'histogram';
 
 export interface MappingStandardNumberProperty extends MappingNumberPropertyBase {
-    coerce?: boolean
-    script?: Script
-    on_script_error?: MappingOnScriptError
+    coerce?: boolean;
+    script?: Script;
+    on_script_error?: MappingOnScriptError;
 }
 
-export type MappingOnScriptError = 'fail' | 'continue'
+export type MappingOnScriptError = 'fail' | 'continue';
 
 export interface MappingScaledFloatNumberProperty extends MappingNumberPropertyBase {
-    type: 'scaled_float'
-    coerce?: boolean
-    null_value?: number
-    scaling_factor?: number
+    type: 'scaled_float';
+    coerce?: boolean;
+    null_value?: number;
+    scaling_factor?: number;
 }
 
 export interface MappingUnsignedLongNumberProperty extends MappingNumberPropertyBase {
-    type: 'unsigned_long'
-    null_value?: number
+    type: 'unsigned_long';
+    null_value?: number;
 }
 
 export interface MappingByteNumberProperty extends MappingStandardNumberProperty {
-    type: 'byte'
-    null_value?: number
+    type: 'byte';
+    null_value?: number;
 }
 
 export interface MappingShortNumberProperty extends MappingStandardNumberProperty {
-    type: 'short'
-    null_value?: number
+    type: 'short';
+    null_value?: number;
 }
 
 export interface MappingLongNumberProperty extends MappingStandardNumberProperty {
-    type: 'long'
-    null_value?: number
+    type: 'long';
+    null_value?: number;
 }
 
 export interface MappingIntegerNumberProperty extends MappingStandardNumberProperty {
-    type: 'integer'
-    null_value?: number
+    type: 'integer';
+    null_value?: number;
 }
 
 export interface MappingDoubleNumberProperty extends MappingStandardNumberProperty {
-    type: 'double'
-    null_value?: number
+    type: 'double';
+    null_value?: number;
 }
 
 export interface MappingHalfFloatNumberProperty extends MappingStandardNumberProperty {
-    type: 'half_float'
-    null_value?: number
+    type: 'half_float';
+    null_value?: number;
 }
 
 export interface MappingKeywordProperty extends MappingDocValuesPropertyBase {
-    boost?: number
-    eager_global_ordinals?: boolean
-    index?: boolean
-    index_options?: MappingIndexOptions
-    normalizer?: string
-    norms?: boolean
-    null_value?: string
-    split_queries_on_whitespace?: boolean
-    time_series_dimension?: boolean
-    type: 'keyword'
+    boost?: number;
+    eager_global_ordinals?: boolean;
+    index?: boolean;
+    index_options?: MappingIndexOptions;
+    normalizer?: string;
+    norms?: boolean;
+    null_value?: string;
+    split_queries_on_whitespace?: boolean;
+    time_series_dimension?: boolean;
+    type: 'keyword';
 }
 
 export interface MappingDateNanosProperty extends MappingDocValuesPropertyBase {
-    boost?: number
-    format?: string
-    ignore_malformed?: boolean
-    index?: boolean
-    null_value?: string
-    precision_step?: number
-    type: 'date_nanos'
+    boost?: number;
+    format?: string;
+    ignore_malformed?: boolean;
+    index?: boolean;
+    null_value?: string;
+    precision_step?: number;
+    type: 'date_nanos';
 }
 
 export interface MappingDateProperty extends MappingDocValuesPropertyBase {
-    boost?: number
-    fielddata?: IndicesNumericFielddata
-    format?: string
-    ignore_malformed?: boolean
-    index?: boolean
-    null_value?: string
-    precision_step?: number
-    locale?: string
-    type: 'date'
+    boost?: number;
+    fielddata?: IndicesNumericFielddata;
+    format?: string;
+    ignore_malformed?: boolean;
+    index?: boolean;
+    null_value?: string;
+    precision_step?: number;
+    locale?: string;
+    type: 'date';
 }
 
 export interface MappingDateRangeProperty extends MappingRangePropertyBase {
-    format?: string
-    type: 'date_range'
+    format?: string;
+    type: 'date_range';
 }
 
 export interface MappingBinaryProperty extends MappingDocValuesPropertyBase {
-    type: 'binary'
+    type: 'binary';
 }
 
 export interface MappingObjectProperty extends MappingCorePropertyBase {
@@ -1258,17 +1258,17 @@ export interface MappingTextProperty extends MappingCorePropertyBase {
     type: 'text';
 }
 
-export type MappingTermVectorOption = 'no' | 'yes' | 'with_offsets' | 'with_positions' | 'with_positions_offsets' | 'with_positions_offsets_payloads' | 'with_positions_payloads'
+export type MappingTermVectorOption = 'no' | 'yes' | 'with_offsets' | 'with_positions' | 'with_positions_offsets' | 'with_positions_offsets_payloads' | 'with_positions_payloads';
 
 export interface MappingTextIndexPrefixes {
-    max_chars: number
-    min_chars: number
+    max_chars: number;
+    min_chars: number;
 }
 
 export interface IndicesFielddataFrequencyFilter {
-    max: number
-    min: number
-    min_segment_size: number
+    max: number;
+    min: number;
+    min_segment_size: number;
 }
 
 export interface MappingSearchAsYouTypeProperty extends MappingCorePropertyBase {
@@ -1402,7 +1402,7 @@ export interface IndicesResponseBase {
 }
 
 export interface IndicesPutMappingTypeFieldMappings {
-    mappings: Partial<Record<string, MappingFieldMapping>>
+    mappings: Partial<Record<string, MappingFieldMapping>>;
 }
 
 export interface IndicesPutSettingsIndexSettingsBody extends IndicesIndexSettings {
@@ -1522,11 +1522,11 @@ export interface IndicesIndexSettingsAnalysis {
 }
 
 export type AnalysisCharFilter =
-  | AnalysisHtmlStripCharFilter
-  | AnalysisMappingCharFilter
-  | AnalysisPatternReplaceTokenFilter;
+    | AnalysisHtmlStripCharFilter
+    | AnalysisMappingCharFilter
+    | AnalysisPatternReplaceTokenFilter;
 
-export type AnalysisHtmlStripCharFilter = AnalysisCharFilterBase
+export type AnalysisHtmlStripCharFilter = AnalysisCharFilterBase;
 
 export interface AnalysisMappingCharFilter extends AnalysisCharFilterBase {
     mappings: string[];
@@ -1585,12 +1585,12 @@ export interface IndicesRecoveryRecoveryIndexStatus {
     bytes?: IndicesRecoveryRecoveryBytes;
     files: IndicesRecoveryRecoveryFiles;
     size: IndicesRecoveryRecoveryBytes;
-    source_throttle_time?:string | number;
+    source_throttle_time?: string | number;
     source_throttle_time_in_millis: string | number;
-    target_throttle_time?:string | number;
+    target_throttle_time?: string | number;
     target_throttle_time_in_millis: string | number;
     total_time_in_millis: string | number;
-    total_time?:string | number;
+    total_time?: string | number;
 }
 
 export interface IndicesRecoveryShardRecovery {
@@ -1628,9 +1628,9 @@ export interface IndicesRecoveryRecoveryOrigin {
 }
 
 export interface IndicesRecoveryVerifyIndex {
-    check_index_time?:string | number;
+    check_index_time?: string | number;
     check_index_time_in_millis: string | number;
-    total_time?:string | number;
+    total_time?: string | number;
     total_time_in_millis: string | number;
 }
 
@@ -1684,22 +1684,22 @@ export interface SearchRecordResponse<T = Record<string, unknown>> {
     _scroll_id?: string;
     terminated_early?: boolean;
     max_score?: number;
-    fields?: Record<string, any>
+    fields?: Record<string, any>;
     aggregations?: SearchAggregations;
     _shards: {
         total: number;
         successful: number;
         skipped: number;
-        failed:number;
-    },
+        failed: number;
+    };
     hits: {
         total: number | HitsTotal;
         max_score: number;
-        hits: SearchResult<T>[]
-    }
+        hits: SearchResult<T>[];
+    };
 }
 
-export type SearchAggregations = Record<string, AggregationsAggregate>
+export type SearchAggregations = Record<string, AggregationsAggregate>;
 
 export interface NodesInfoNodeInfoHttp {
     bound_address: string[];
@@ -1792,7 +1792,7 @@ export interface NodesInfoNodeThreadPoolInfo {
     type: string;
 }
 
-export interface NodesInfoNodeInfo{
+export interface NodesInfoNodeInfo {
     attributes: Record<string, string>;
     build_hash: string;
     build_type: string;
@@ -1832,10 +1832,10 @@ export interface NodesInfoNodeInfoIngestProcessor {
 
 export interface NodesInfoNodeInfoSettingsCluster {
     name: string;
-    routing?: IndicesIndexRouting
-    election: NodesInfoNodeInfoSettingsClusterElection
-    initial_cluster_manager_nodes?: string
-    initial_master_nodes?: string
+    routing?: IndicesIndexRouting;
+    election: NodesInfoNodeInfoSettingsClusterElection;
+    initial_cluster_manager_nodes?: string;
+    initial_master_nodes?: string;
 }
 
 export interface IndicesIndexRoutingAllocation {
@@ -1972,15 +1972,15 @@ export interface NodesInfoNodeInfoRepositoriesUrl {
     allowed_urls: string;
 }
 
-export type Level = 'cluster' | 'indices' | 'shards'
+export type Level = 'cluster' | 'indices' | 'shards';
 
-export type Metrics = string | string[]
+export type Metrics = string | string[];
 
 export interface NodeStatistics {
-    failures?: ErrorCause[]
-    total: number
-    successful: number
-    failed: number
+    failures?: ErrorCause[];
+    total: number;
+    successful: number;
+    failed: number;
 }
 
 export interface NodesStats {
@@ -2006,247 +2006,247 @@ export interface NodesStats {
 }
 
 export interface NodesTransport {
-    rx_count: number
-    rx_size: string
-    rx_size_in_bytes: number
-    server_open: number
-    tx_count: number
-    tx_size: string
-    tx_size_in_bytes: number
+    rx_count: number;
+    rx_size: string;
+    rx_size_in_bytes: number;
+    server_open: number;
+    tx_count: number;
+    tx_size: string;
+    tx_size_in_bytes: number;
 }
 
 export interface NodesThreadCount {
-    active: number
-    completed: number
-    largest: number
-    queue: number
-    rejected: number
-    threads: number
+    active: number;
+    completed: number;
+    largest: number;
+    queue: number;
+    rejected: number;
+    threads: number;
 }
 
 export interface IndicesStatsIndexStats {
-    completion?: CompletionStats
-    docs: DocStats
-    fielddata?: FielddataStats
-    flush?: FlushStats
-    get?: GetStats
-    indexing?: IndexingStats
-    merges?: MergesStats
-    query_cache?: QueryCacheStats
-    recovery?: RecoveryStats
-    refresh?: RefreshStats
-    request_cache?: RequestCacheStats
-    search?: SearchStats
-    segments?: SegmentsStats
-    store?: StoreStats
-    translog?: TranslogStats
-    warmer?: WarmerStats
-    bulk?: BulkStats
+    completion?: CompletionStats;
+    docs: DocStats;
+    fielddata?: FielddataStats;
+    flush?: FlushStats;
+    get?: GetStats;
+    indexing?: IndexingStats;
+    merges?: MergesStats;
+    query_cache?: QueryCacheStats;
+    recovery?: RecoveryStats;
+    refresh?: RefreshStats;
+    request_cache?: RequestCacheStats;
+    search?: SearchStats;
+    segments?: SegmentsStats;
+    store?: StoreStats;
+    translog?: TranslogStats;
+    warmer?: WarmerStats;
+    bulk?: BulkStats;
 }
 
 export interface StoreStats {
-    size?: number | string
-    size_in_bytes: number
-    reserved?: number | string
-    reserved_in_bytes: number
-    total_data_set_size?: number | string
-    total_data_set_size_in_bytes?: number
+    size?: number | string;
+    size_in_bytes: number;
+    reserved?: number | string;
+    reserved_in_bytes: number;
+    total_data_set_size?: number | string;
+    total_data_set_size_in_bytes?: number;
 }
 
 export interface BulkStats {
-    total_operations: number
-    total_time?: string
-    total_time_in_millis: number
-    total_size?: number | string
-    total_size_in_bytes: number
-    avg_time?: string
-    avg_time_in_millis: number
-    avg_size?: number | string
-    avg_size_in_bytes: number
+    total_operations: number;
+    total_time?: string;
+    total_time_in_millis: number;
+    total_size?: number | string;
+    total_size_in_bytes: number;
+    avg_time?: string;
+    avg_time_in_millis: number;
+    avg_size?: number | string;
+    avg_size_in_bytes: number;
 }
 
 export interface WarmerStats {
-    current: number
-    total: number
-    total_time?: string
-    total_time_in_millis: number
+    current: number;
+    total: number;
+    total_time?: string;
+    total_time_in_millis: number;
 }
 
 export interface TranslogStats {
-    earliest_last_modified_age: number
-    operations: number
-    size?: string
-    size_in_bytes: number
-    uncommitted_operations: number
-    uncommitted_size?: string
-    uncommitted_size_in_bytes: number
+    earliest_last_modified_age: number;
+    operations: number;
+    size?: string;
+    size_in_bytes: number;
+    uncommitted_operations: number;
+    uncommitted_size?: string;
+    uncommitted_size_in_bytes: number;
 }
 
 export interface SegmentsStats {
-    count: number
-    doc_values_memory?: number | string
-    doc_values_memory_in_bytes: number
-    file_sizes: Record<string, IndicesStatsShardFileSizeInfo>
-    fixed_bit_set?: number | string
-    fixed_bit_set_memory_in_bytes: number
-    index_writer_memory?: number | string
-    index_writer_max_memory_in_bytes?: number
-    index_writer_memory_in_bytes: number
-    max_unsafe_auto_id_timestamp: number
-    memory?: number | string
-    memory_in_bytes: number
-    norms_memory?: number | string
-    norms_memory_in_bytes: number
-    points_memory?: number | string
-    points_memory_in_bytes: number
-    stored_memory?: number | string
-    stored_fields_memory_in_bytes: number
-    terms_memory_in_bytes: number
-    terms_memory?: number | string
-    term_vectory_memory?: number | string
-    term_vectors_memory_in_bytes: number
-    version_map_memory?: number | string
-    version_map_memory_in_bytes: number
+    count: number;
+    doc_values_memory?: number | string;
+    doc_values_memory_in_bytes: number;
+    file_sizes: Record<string, IndicesStatsShardFileSizeInfo>;
+    fixed_bit_set?: number | string;
+    fixed_bit_set_memory_in_bytes: number;
+    index_writer_memory?: number | string;
+    index_writer_max_memory_in_bytes?: number;
+    index_writer_memory_in_bytes: number;
+    max_unsafe_auto_id_timestamp: number;
+    memory?: number | string;
+    memory_in_bytes: number;
+    norms_memory?: number | string;
+    norms_memory_in_bytes: number;
+    points_memory?: number | string;
+    points_memory_in_bytes: number;
+    stored_memory?: number | string;
+    stored_fields_memory_in_bytes: number;
+    terms_memory_in_bytes: number;
+    terms_memory?: number | string;
+    term_vectory_memory?: number | string;
+    term_vectors_memory_in_bytes: number;
+    version_map_memory?: number | string;
+    version_map_memory_in_bytes: number;
 }
 
 export interface IndicesStatsShardFileSizeInfo {
-    description: string
-    size_in_bytes: number
-    min_size_in_bytes?: number
-    max_size_in_bytes?: number
-    average_size_in_bytes?: number
-    count?: number
+    description: string;
+    size_in_bytes: number;
+    min_size_in_bytes?: number;
+    max_size_in_bytes?: number;
+    average_size_in_bytes?: number;
+    count?: number;
 }
 
 export interface SearchStats {
-    fetch_current: number
-    fetch_time_in_millis: number
-    fetch_total: number
-    open_contexts?: number
-    query_current: number
-    query_time_in_millis: number
-    query_total: number
-    scroll_current: number
-    scroll_time_in_millis: number
-    scroll_total: number
-    suggest_current: number
-    suggest_time_in_millis: number
-    suggest_total: number
-    groups?: Record<string, SearchStats>
+    fetch_current: number;
+    fetch_time_in_millis: number;
+    fetch_total: number;
+    open_contexts?: number;
+    query_current: number;
+    query_time_in_millis: number;
+    query_total: number;
+    scroll_current: number;
+    scroll_time_in_millis: number;
+    scroll_total: number;
+    suggest_current: number;
+    suggest_time_in_millis: number;
+    suggest_total: number;
+    groups?: Record<string, SearchStats>;
 }
 
 export interface RequestCacheStats {
-    evictions: number
-    hit_count: number
-    memory_size?: string
-    memory_size_in_bytes: number
-    miss_count: number
+    evictions: number;
+    hit_count: number;
+    memory_size?: string;
+    memory_size_in_bytes: number;
+    miss_count: number;
 }
 
 export interface RecoveryStats {
-    current_as_source: number
-    current_as_target: number
-    throttle_time?: string
-    throttle_time_in_millis: number
+    current_as_source: number;
+    current_as_target: number;
+    throttle_time?: string;
+    throttle_time_in_millis: number;
 }
 
 export interface RefreshStats {
-    external_total: number
-    external_total_time_in_millis: number
-    listeners: number
-    total: number
-    total_time?: string
-    total_time_in_millis: number
+    external_total: number;
+    external_total_time_in_millis: number;
+    listeners: number;
+    total: number;
+    total_time?: string;
+    total_time_in_millis: number;
 }
 
 export interface QueryCacheStats {
-    cache_count: number
-    cache_size: number
-    evictions: number
-    hit_count: number
-    memory_size?: number | string
-    memory_size_in_bytes: number
-    miss_count: number
-    total_count: number
+    cache_count: number;
+    cache_size: number;
+    evictions: number;
+    hit_count: number;
+    memory_size?: number | string;
+    memory_size_in_bytes: number;
+    miss_count: number;
+    total_count: number;
 }
 
 export interface MergesStats {
-    current: number
-    current_docs: number
-    current_size?: string
-    current_size_in_bytes: number
-    total: number
-    total_auto_throttle?: string
-    total_auto_throttle_in_bytes: number
-    total_docs: number
-    total_size?: string
-    total_size_in_bytes: number
-    total_stopped_time?: string
-    total_stopped_time_in_millis: number
-    total_throttled_time?: string
-    total_throttled_time_in_millis: number
-    total_time?: string
-    total_time_in_millis: number
+    current: number;
+    current_docs: number;
+    current_size?: string;
+    current_size_in_bytes: number;
+    total: number;
+    total_auto_throttle?: string;
+    total_auto_throttle_in_bytes: number;
+    total_docs: number;
+    total_size?: string;
+    total_size_in_bytes: number;
+    total_stopped_time?: string;
+    total_stopped_time_in_millis: number;
+    total_throttled_time?: string;
+    total_throttled_time_in_millis: number;
+    total_time?: string;
+    total_time_in_millis: number;
 }
 
 export interface IndexingStats {
-    index_current: number
-    delete_current: number
-    delete_time?: string
-    delete_time_in_millis: number
-    delete_total: number
-    is_throttled: boolean
-    noop_update_total: number
-    throttle_time?: string
-    throttle_time_in_millis: number
-    index_time?: string
-    index_time_in_millis: number
-    index_total: number
-    index_failed: number
-    types?: Record<string, IndexingStats>
+    index_current: number;
+    delete_current: number;
+    delete_time?: string;
+    delete_time_in_millis: number;
+    delete_total: number;
+    is_throttled: boolean;
+    noop_update_total: number;
+    throttle_time?: string;
+    throttle_time_in_millis: number;
+    index_time?: string;
+    index_time_in_millis: number;
+    index_total: number;
+    index_failed: number;
+    types?: Record<string, IndexingStats>;
 }
 
 export interface GetStats {
-    current: number
-    exists_time?: string
-    exists_time_in_millis: number
-    exists_total: number
-    missing_time?: string
-    missing_time_in_millis: number
-    missing_total: number
-    time?: string
-    time_in_millis: number
-    total: number
+    current: number;
+    exists_time?: string;
+    exists_time_in_millis: number;
+    exists_total: number;
+    missing_time?: string;
+    missing_time_in_millis: number;
+    missing_total: number;
+    time?: string;
+    time_in_millis: number;
+    total: number;
 }
 
 export interface FlushStats {
-    periodic: number
-    total: number
-    total_time?: string
-    total_time_in_millis: number
+    periodic: number;
+    total: number;
+    total_time?: string;
+    total_time_in_millis: number;
 }
 
 export interface FielddataStats {
-    evictions?: number
-    memory_size?: number | string
-    memory_size_in_bytes: number
-    fields?: Record<string, FieldMemoryUsage>
+    evictions?: number;
+    memory_size?: number | string;
+    memory_size_in_bytes: number;
+    fields?: Record<string, FieldMemoryUsage>;
 }
 
 export interface FieldMemoryUsage {
-    memory_size?: number | string
-    memory_size_in_bytes: number
+    memory_size?: number | string;
+    memory_size_in_bytes: number;
 }
 
 export interface DocStats {
-    count: number
-    deleted: number
+    count: number;
+    deleted: number;
 }
 
 export interface CompletionStats {
-    size_in_bytes: number
-    size?: number | string
-    fields?: Record<string, FieldSizeUsage>
+    size_in_bytes: number;
+    size?: number | string;
+    fields?: Record<string, FieldSizeUsage>;
 }
 
 export interface FieldSizeUsage {
@@ -2267,29 +2267,29 @@ export interface NodesOperatingSystem {
 }
 
 export interface NodesExtendedMemoryStats extends NodesMemoryStats {
-    free_percent: number
-    used_percent: number
-    total_in_bytes: number
-    free_in_bytes: number
-    used_in_bytes: number
+    free_percent: number;
+    used_percent: number;
+    total_in_bytes: number;
+    free_in_bytes: number;
+    used_in_bytes: number;
 }
 
 export interface NodesNodeBufferPool {
-    count: number
-    total_capacity: string
-    total_capacity_in_bytes: number
-    used: string
-    used_in_bytes: number
+    count: number;
+    total_capacity: string;
+    total_capacity_in_bytes: number;
+    used: string;
+    used_in_bytes: number;
 }
 
 export interface NodesGarbageCollector {
-    collectors: Record<string, NodesGarbageCollectorTotal>
+    collectors: Record<string, NodesGarbageCollectorTotal>;
 }
 
 export interface NodesGarbageCollectorTotal {
-    collection_count: number
-    collection_time: string
-    collection_time_in_millis: number
+    collection_count: number;
+    collection_time: string;
+    collection_time_in_millis: number;
 }
 
 export interface NodesJvm {
@@ -2421,38 +2421,38 @@ export interface ReindexBody {
     source: {
         index: string;
         query?: Record<string, any>;
-        remote?: Remote,
+        remote?: Remote;
         size?: number;
         slice?: {
             id?: number;
             max?: number;
-        },
+        };
         _source?: boolean | string | string[];
-    },
+    };
     dest: {
         index: string;
         version_type?: VersionType;
         op_type?: OpType;
         type?: string;
-    },
+    };
     script?: {
         source?: string;
         lang?: ScriptLangs;
-    }
+    };
 }
 
 export type AggregationsAggregate =
-  | AggregationsSingleBucketAggregate
-  | AggregationsAutoDateHistogramAggregate
-  | AggregationsFiltersAggregate
-  | AggregationsSignificantTermsAggregate<any>
-  | AggregationsTermsAggregate<any>
-  | AggregationsBucketAggregate
-  | AggregationsCompositeBucketAggregate
-  | AggregationsMultiBucketAggregate<AggregationsBucket>
-  | AggregationsMatrixStatsAggregate
-  | AggregationsKeyedValueAggregate
-  | AggregationsMetricAggregate;
+    | AggregationsSingleBucketAggregate
+    | AggregationsAutoDateHistogramAggregate
+    | AggregationsFiltersAggregate
+    | AggregationsSignificantTermsAggregate<any>
+    | AggregationsTermsAggregate<any>
+    | AggregationsBucketAggregate
+    | AggregationsCompositeBucketAggregate
+    | AggregationsMultiBucketAggregate<AggregationsBucket>
+    | AggregationsMatrixStatsAggregate
+    | AggregationsKeyedValueAggregate
+    | AggregationsMetricAggregate;
 
 export interface AggregationsSingleBucketAggregateKeys extends AggregationsAggregateBase {
     doc_count: number;
@@ -2465,8 +2465,8 @@ export interface AggregationsKeyedValueAggregate extends AggregationsValueAggreg
 export type AggregationsValueBucket = { [property: string]: AggregationsAggregate };
 
 export type AggregationsBucket =
-  | AggregationsValueBucket
-  | AggregationsKeyedBucket<any>;
+    | AggregationsValueBucket
+    | AggregationsKeyedBucket<any>;
 
 export interface AggregationsValueAggregate extends AggregationsAggregateBase {
     value: number;
@@ -2526,20 +2526,20 @@ export interface AggregationsGeoLineProperties {
 }
 
 export type AggregationsMetricAggregate =
-  | AggregationsValueAggregate
-  | AggregationsBoxPlotAggregate
-  | AggregationsGeoBoundsAggregate
-  | AggregationsGeoCentroidAggregate
-  | AggregationsGeoLineAggregate
-  | AggregationsPercentilesAggregate
-  | AggregationsScriptedMetricAggregate
-  | AggregationsStatsAggregate
-  | AggregationsStringStatsAggregate
-  | AggregationsTopHitsAggregate
-  | AggregationsTopMetricsAggregate
-  | AggregationsExtendedStatsAggregate
-  | AggregationsTDigestPercentilesAggregate
-  | AggregationsHdrPercentilesAggregate;
+    | AggregationsValueAggregate
+    | AggregationsBoxPlotAggregate
+    | AggregationsGeoBoundsAggregate
+    | AggregationsGeoCentroidAggregate
+    | AggregationsGeoLineAggregate
+    | AggregationsPercentilesAggregate
+    | AggregationsScriptedMetricAggregate
+    | AggregationsStatsAggregate
+    | AggregationsStringStatsAggregate
+    | AggregationsTopHitsAggregate
+    | AggregationsTopMetricsAggregate
+    | AggregationsExtendedStatsAggregate
+    | AggregationsTDigestPercentilesAggregate
+    | AggregationsHdrPercentilesAggregate;
 
 export interface AggregationsTDigestPercentilesAggregate extends AggregationsAggregateBase {
     values: Record<string, number>;
@@ -2728,8 +2728,8 @@ export interface AggregationsAutoDateHistogramAggregate
 }
 
 export type AggregationsKeyedBucket<TKey = unknown> =
-  | AggregationsKeyedBucketKeys<TKey>
-  | { [property: string]: AggregationsAggregate };
+    | AggregationsKeyedBucketKeys<TKey>
+    | { [property: string]: AggregationsAggregate };
 
 export type AggregationsSingleBucketAggregate =
     | AggregationsSingleBucketAggregateKeys
@@ -2786,10 +2786,10 @@ export interface IndicesStatsShardRouting {
 }
 
 export type IndicesStatsShardRoutingState =
-  | 'UNASSIGNED'
-  | 'INITIALIZING'
-  | 'STARTED'
-  | 'RELOCATING';
+    | 'UNASSIGNED'
+    | 'INITIALIZING'
+    | 'STARTED'
+    | 'RELOCATING';
 
 export interface IndicesStatsShardRetentionLeases {
     primary_term: number;

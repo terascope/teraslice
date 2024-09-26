@@ -5,7 +5,7 @@ import { formats, addFormats } from '../src/formats.js';
 addFormats();
 
 describe('Convict Formats', () => {
-    function createSchemaValueTest(name: string, defaultVal:any = null) {
+    function createSchemaValueTest(name: string, defaultVal: any = null) {
         const myConfig = {
             [name]: {
                 default: defaultVal,

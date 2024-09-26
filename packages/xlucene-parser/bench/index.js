@@ -19,7 +19,7 @@ export default function start(name, dir) {
 
     async function run() {
         const list = await pMap(benchmarks, async (file) => {
-            return import(path.join(dir, file))
+            return import(path.join(dir, file));
         });
 
         for (const initSuite of list) {

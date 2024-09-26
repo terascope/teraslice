@@ -6,7 +6,7 @@ import validateConfigs from './validate-configs.js';
 import { CoreContext, handleStdStreams } from './core-context.js';
 import master from './master.js';
 
-const cluster: Terafoundation.Cluster = (_cluster as any);
+const cluster: Terafoundation.Cluster = _cluster as any;
 
 // this module is not really testable
 /* istanbul ignore next */
@@ -65,7 +65,6 @@ export class ClusterContext<
     }
 
     private _errorHandler(err: any) {
-         
         const logErr = this.logger
             ? this.logger.error.bind(this.logger)
             : console.error;

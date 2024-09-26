@@ -6,7 +6,7 @@ import * as utils from './utils.js';
 const inferredFieldTypes = Object.freeze({
     [xLuceneFieldType.String]: true,
 });
- 
+
 export function makeContext(arg: i.ContextArg) {
     let typeConfig: xLuceneTypeConfig;
     // eslint-disable-next-line
@@ -68,7 +68,7 @@ export function makeContext(arg: i.ContextArg) {
     // peg grammar because this is based off configuration passed
     // in and cannot be inferred by the syntax
 
-    function getFieldType(field: string): xLuceneFieldType|undefined {
+    function getFieldType(field: string): xLuceneFieldType | undefined {
         if (!field) return;
         return typeConfig[field];
     }

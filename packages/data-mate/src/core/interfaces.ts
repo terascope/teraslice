@@ -2,7 +2,7 @@ export const MAX_8BIT_INT = (2 ** 8) - 1;
 export const MAX_16BIT_INT = (2 ** 16) - 1;
 export const MAX_32BIT_INT = (2 ** 32) - 1;
 
-export type FieldArg<K extends (string|number|symbol)> = K[]|(readonly K[])|K;
+export type FieldArg<K extends (string | number | symbol)> = K[]|(readonly K[]) | K;
 
 export interface ReadonlySparseMap<V> extends Iterable<[number, V]> {
     // Members

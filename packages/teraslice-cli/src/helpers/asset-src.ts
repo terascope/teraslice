@@ -26,7 +26,7 @@ interface ZipResults {
 interface AssetRegistry {
     [dir_name: string]: {
         [property in OpType]: string
-    }
+    };
 }
 
 // These should match AssetRepositoryKey values from
@@ -208,7 +208,7 @@ export class AssetSrc {
         // included an actual platform specific binary, it use the original
         // unbundled asset type
         if (!this.devMode) {
-            const restrictions:string[] = [];
+            const restrictions: string[] = [];
             if (assetJSON.node_version === undefined) {
                 assetJSON.node_version = toInteger(this.bundleTarget?.replace('node', ''));
                 restrictions.push('node_version');
@@ -246,14 +246,14 @@ export class AssetSrc {
             spaces: 4,
         });
 
-        let packageType = { type: 'commonjs'}
+        let packageType = { type: 'commonjs' };
 
         if (isESM) {
             packageType = { type: 'module' };
         }
 
-         // write asset.json into bundleDir
-         await fs.writeJSON(path.join(bundleDir.name, 'package.json'), packageType, {
+        // write asset.json into bundleDir
+        await fs.writeJSON(path.join(bundleDir.name, 'package.json'), packageType, {
             spaces: 4,
         });
 

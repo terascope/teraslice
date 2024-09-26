@@ -18,7 +18,7 @@ export class Translator {
     readonly variables: xLuceneVariables | undefined;
     private readonly _parser: Parser;
     private _defaultGeoField?: string;
-    private _defaultGeoSortOrder: 'asc'|'desc' = 'asc';
+    private _defaultGeoSortOrder: 'asc' | 'desc' = 'asc';
     private _defaultGeoSortUnit: GeoDistanceUnit = 'meters';
 
     constructor(input: string | Parser, options: TranslatorOptions = {}) {
@@ -69,7 +69,7 @@ export class Translator {
 
         if (logger.level() === 10) {
             const resultStr = JSON.stringify(result, null, 2);
-            logger.trace(`translated ${this.query ? this.query : "''"} query to`, resultStr);
+            logger.trace(`translated ${this.query ? this.query : '\'\''} query to`, resultStr);
         }
 
         return result;

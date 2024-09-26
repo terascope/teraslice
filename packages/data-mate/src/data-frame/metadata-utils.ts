@@ -11,7 +11,7 @@ export function convertMetadataToJSON(
     return _convertValueToJSON(input).value as Record<string, unknown>;
 }
 
-function _convertValueToJSON(value: unknown): { value: unknown, transformed: boolean } {
+function _convertValueToJSON(value: unknown): { value: unknown; transformed: boolean } {
     if (typeof value === 'bigint') {
         return {
             value: bigIntToJSON(value),
@@ -73,7 +73,7 @@ function _convertValueFromJSON(value: unknown): unknown {
         const entries = Object.entries(value as Record<string, unknown>);
         for (const [field, nestedValue] of entries) {
             if (field.startsWith(BIG_INT_PREFIX)) {
-                const { field: ogField, value: transformed } = (nestedValue as any);
+                const { field: ogField, value: transformed } = nestedValue as any;
                 metadata[ogField] = Array.isArray(transformed)
                     ? transformed.map(toBigInt)
                     : toBigInt(transformed);

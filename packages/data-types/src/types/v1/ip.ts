@@ -7,12 +7,14 @@ export default class IPType extends BaseType {
         this._validateESMapping();
         return {
             mapping: {
-                [this.field]: this.config.indexed === false ? {
-                    type: 'ip' as ESFieldType,
-                    index: false
-                } : {
-                    type: 'ip' as ESFieldType
-                }
+                [this.field]: this.config.indexed === false
+                    ? {
+                        type: 'ip' as ESFieldType,
+                        index: false
+                    }
+                    : {
+                        type: 'ip' as ESFieldType
+                    }
             }
         };
     }

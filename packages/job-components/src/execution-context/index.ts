@@ -16,8 +16,8 @@ export function isSlicerExecutionContext(context: unknown): context is SlicerExe
     return context instanceof SlicerExecutionContext;
 }
 
-export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;
- 
+export type ExecutionContext = WorkerExecutionContext | SlicerExecutionContext;
+
 export async function makeExecutionContext(
     config: ExecutionContextConfig
 ): Promise<ExecutionContext> {

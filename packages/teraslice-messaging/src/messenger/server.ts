@@ -250,7 +250,7 @@ export class Server extends Core {
         eventName: string,
         payload?: i.Payload,
         options: i.SendOptions = { volatile: true, response: true }
-    ): Promise<(i.Message|null)[]> {
+    ): Promise<(i.Message | null)[]> {
         const clients = this.filterClientsByState(onlineStates);
         const promises = Object.values(clients)
             .map((client) => this.send(client.clientId, eventName, payload, options));

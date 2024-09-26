@@ -9,9 +9,9 @@ import { TestContext } from '../helpers/index.js';
 
 describe('Worker', () => {
     interface SetupTestResults {
-        server: ExecutionController.Server
-        worker: Worker
-        testContext: TestContext
+        server: ExecutionController.Server;
+        worker: Worker;
+        testContext: TestContext;
     }
 
     async function setupTest(options: any = {}): Promise<SetupTestResults> {
@@ -104,18 +104,19 @@ describe('Worker', () => {
             server.onClientAvailable(() => {
                 server.dispatchSlice(sliceConfig, worker.workerId);
             });
+
             let shutdownPromise;
 
             server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
-                setTimeout(() => {
+                setTimeout(async () => {
                     shutdownPromise = server.shutdown();
                 });
             });
 
             server.onSliceFailure((workerId, _msg) => {
                 sliceFailure = _msg;
-                setTimeout(() => {
+                setTimeout(async () => {
                     shutdownPromise = server.shutdown();
                 });
             });
@@ -372,7 +373,7 @@ describe('Worker', () => {
         it('should throw an error', () => {
             expect(() => {
                 // @ts-expect-error
-                new Worker(); // eslint-disable-line
+                new Worker();
             }).toThrow();
         });
     });

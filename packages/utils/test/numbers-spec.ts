@@ -156,7 +156,7 @@ describe('Numbers', () => {
             expect(serialize(toBigInt(input))).toEqual(serialize(expected));
         });
 
-        function serialize(input: unknown): string|number|false {
+        function serialize(input: unknown): string | number | false {
             if (!isBigInt(input)) return false;
             return bigIntToJSON(input);
         }

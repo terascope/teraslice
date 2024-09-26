@@ -97,7 +97,7 @@ export default class GithubAsset {
     static parseAssetString(assetString: string): {
         user: string;
         name: string;
-        version: string|undefined;
+        version: string | undefined;
     } {
         let userAndName;
         let version;

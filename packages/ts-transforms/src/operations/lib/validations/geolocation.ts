@@ -49,7 +49,7 @@ function formatPath(str: string) {
     return str;
 }
 
-function parentFieldPath(field: string|string[]): string|string[] {
+function parentFieldPath(field: string | string[]): string | string[] {
     if (Array.isArray(field)) {
         return field.map(formatPath)[0];
     }

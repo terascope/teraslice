@@ -67,13 +67,13 @@ export default function elasticsearchApi(client, logger, _opConfig) {
 
     function search(query) {
         const {
-            _sourceInclude, _source_includes,
-            _sourceExclude, _source_excludes,
+            _sourceInclude, _source_includes: oldSourIncludes,
+            _sourceExclude, _source_excludes: oldSourExcludes,
             ...safeQuery
         } = query;
 
-        const sourceIncludes = _sourceInclude || _source_includes;
-        const sourceExcludes = _sourceExclude || _source_excludes;
+        const sourceIncludes = _sourceInclude || oldSourIncludes;
+        const sourceExcludes = _sourceExclude || oldSourExcludes;
 
         if (sourceIncludes) {
             safeQuery._source_includes = sourceIncludes;
@@ -352,13 +352,16 @@ export default function elasticsearchApi(client, logger, _opConfig) {
                 const actionKey = getFirstKey(record.action);
                 const { _type, ...withoutTypeAction } = record.action[actionKey];
                 // if data is specified return both
-                return record.data ? [{
-                    ...record.action,
-                    [actionKey]: withoutTypeAction
-                }, record.data] : [{
-                    ...record.action,
-                    [actionKey]: withoutTypeAction
-                }];
+                return record.data
+                    ? [{
+                        ...record.action,
+                        [actionKey]: withoutTypeAction
+                    },
+                    record.data]
+                    : [{
+                        ...record.action,
+                        [actionKey]: withoutTypeAction
+                    }];
             }
 
             // if data is specified return both
@@ -1098,7 +1101,8 @@ export default function elasticsearchApi(client, logger, _opConfig) {
                 });
                 return Promise.reject(error);
             });
-        }).catch((err) => Promise.reject(err));
+        })
+            .catch((err) => Promise.reject(err));
     }
 
     function _verifyMapping(query, configMapping, recordType) {
@@ -1175,7 +1179,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         clientName,
         _time
     ) {
-         
         const giveupAfter = Date.now() + (_time || 10000);
         return new Promise((resolve, reject) => {
             const attemptToCreateIndex = () => {

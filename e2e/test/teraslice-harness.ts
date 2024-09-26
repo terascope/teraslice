@@ -78,6 +78,7 @@ export class TerasliceHarness {
         const errors = await ex.errors();
         this.warn(`waitForStatus: ${exId} errors`, errors);
     }
+
     // TODO: look at types here
     warn(msg: string, obj: any) {
         if (isEmpty(obj)) return;

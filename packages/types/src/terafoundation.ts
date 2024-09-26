@@ -32,20 +32,20 @@ export type Schema<T> = {
 };
 
 export type Initializers<S = Record<string, any>> = {
-    schema: Schema<S>
-    validatorFn?: ValidatorFn<S>
-}
+    schema: Schema<S>;
+    validatorFn?: ValidatorFn<S>;
+};
 
-export type ValidationObj<S>= {
-    config: Record<string, any>,
-    validatorFn?: ValidatorFn<S>,
-    connector?: boolean
-}
+export type ValidationObj<S> = {
+    config: Record<string, any>;
+    validatorFn?: ValidatorFn<S>;
+    connector?: boolean;
+};
 
 export type ValidatorFn<S = Record<string, any>> = (
     config: Record<string, any>,
     sysconfig: SysConfig<S>
-) => void
+) => void;
 
 export type Config<
     S = Record<string, any>,
@@ -56,19 +56,19 @@ export type Config<
     config_schema?: any;
     schema_formats?: Format[];
     default_config_file?: string;
-    cluster_name?: string|((sysconfig: SysConfig<S>) => string);
-    script?: (context: Context<S, A, D>) => void|Promise<void>;
+    cluster_name?: string | ((sysconfig: SysConfig<S>) => string);
+    script?: (context: Context<S, A, D>) => void | Promise<void>;
     descriptors?: Record<D, string>;
     master?: (
         context: Context<S, A, D>,
         config: Config<S, A, D>
-    ) => void|Promise<void>;
+    ) => void | Promise<void>;
     worker?: (
         context: Context<S, A, D>
-    ) => void|Promise<void>;
+    ) => void | Promise<void>;
     start_workers?: boolean;
     shutdownMessaging?: boolean;
-}
+};
 
 export interface ConnectionConfig {
     endpoint: string;
@@ -78,7 +78,7 @@ export interface ConnectionConfig {
 
 export interface ConnectorOutput {
     client: any;
-    logger: Logger
+    logger: Logger;
 }
 
 export type CreateClientFactoryFn = (
@@ -95,20 +95,20 @@ export interface FoundationAPIs {
     getSystemEvents(): EventEmitter;
     createClient(config: ConnectionConfig): Promise<ConnectorOutput>;
     startWorkers(num: number, envOptions: Record<string, any>): FoundationWorker[];
-    promMetrics: PromMetrics
+    promMetrics: PromMetrics;
 }
 
 export type ContextAPIs = {
     readonly foundation: FoundationAPIs;
     registerAPI(namespace: string, apis: any): void;
     [namespace: string]: any;
-}
+};
 
 export type LogType = 'console' | 'file';
 export type LogLevelType = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 export type LogLevelConfig = string|({
     [type in LogType]: LogLevelType;
-}[])
+}[]);
 
 export interface FoundationWorker extends NodeJSWorker {
     __process_restart?: boolean;
@@ -125,7 +125,7 @@ export type Cluster = Overwrite<NodeJSCluster, {
 
 export interface TerafoundationConfig {
     workers: number;
-    environment: 'production'|'development'|'test'|string;
+    environment: 'production' | 'development' | 'test' | string;
     connectors: Record<string, Record<string, any>>;
     log_path: string;
     log_level: LogLevelConfig;
@@ -155,15 +155,15 @@ export type Context<
     assignment: D;
     cluster_name?: string;
     cluster: Cluster;
-}
+};
 
 // the interface for the connector itself
 export interface Connector<S = Record<string, any>> {
     createClient: (
         moduleConfig: Record<string, any>, logger: Logger, options: Record<string, any>
-    ) => Promise<ConnectorOutput>
-    config_schema: () => Schema<S>,
-    validate_config?: ValidatorFn<S>
+    ) => Promise<ConnectorOutput>;
+    config_schema: () => Schema<S>;
+    validate_config?: ValidatorFn<S>;
 }
 
 export interface PromMetricsInitConfig {
@@ -213,9 +213,9 @@ export interface PromMetrics {
 }
 
 export type MetricList = Record<string, {
-    readonly name?: string,
-    readonly metric?: Gauge<any> | Counter<any> | Histogram<any> | Summary<any>,
-    readonly functions?: Set<string>
+    readonly name?: string;
+    readonly metric?: Gauge<any> | Counter<any> | Histogram<any> | Summary<any>;
+    readonly functions?: Set<string>;
 }>;
 
 export type {
