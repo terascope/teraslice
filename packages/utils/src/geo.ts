@@ -498,7 +498,8 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
 
         if (isGeoShapePoint(inputGeoEntity)) {
             if (hasQueryHoles) {
-                const withinQueryHole = queryHoles.some((holeFeature) => intersect(inputFeature, holeFeature));
+                const withinQueryHole = queryHoles
+                    .some((holeFeature) => intersect(inputFeature, holeFeature));
                 if (withinQueryHole) return false;
             }
 
