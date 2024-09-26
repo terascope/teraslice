@@ -110,7 +110,6 @@ describe('Worker', () => {
             server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
                 setTimeout(async () => {
-                    await pDelay(1000);
                     shutdownPromise = server.shutdown();
                 });
             });
@@ -118,7 +117,6 @@ describe('Worker', () => {
             server.onSliceFailure((workerId, _msg) => {
                 sliceFailure = _msg;
                 setTimeout(async () => {
-                    await pDelay(1000);
                     shutdownPromise = server.shutdown();
                 });
             });

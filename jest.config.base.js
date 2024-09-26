@@ -64,7 +64,6 @@ export default (projectDir) => {
         testTimeout: 60 * 1000,
         globals: {
             availableExtensions: ['.js', '.ts', '.mjs', 'cjs'],
-            window: {}
         },
         transform: {
             ['^.+\\.(t|j)sx?$']: ['@swc/jest',

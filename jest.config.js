@@ -38,7 +38,6 @@ export default {
     projects,
     globals: {
         availableExtensions: ['.js', '.ts', '.mjs', '.cjs'],
-        window: {}
     },
     testMatch: [
         '<rootDir>/packages/*/test/**/*-spec.{ts,js}',
