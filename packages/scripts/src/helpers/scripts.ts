@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import ms from 'ms';
 import path from 'node:path';
-import { Options, execa, execaCommand } from 'execa';
+import { execa, execaCommand, type Options } from 'execa';
 import fse from 'fs-extra';
 import yaml from 'js-yaml';
 import {
