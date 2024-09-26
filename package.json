@@ -32,7 +32,7 @@
         "k8s:rebuild": "ts-scripts k8s-env --rebuild",
         "k8s:restart": "ts-scripts k8s-env --rebuild --skip-build",
         "k8sV2": "TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 CLUSTERING_TYPE='kubernetesV2' ts-scripts k8s-env",
-        "lint": "DEBUG=typescript-eslint:* eslint --debug",
+        "lint": "eslint",
         "lint:fix": "yarn lint --fix && yarn sync",
         "setup": "yarn $YARN_SETUP_ARGS && yarn run build --force",
         "start": "node service.js",
