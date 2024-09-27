@@ -88,7 +88,7 @@ function checkCidr(ip: string, range: any) {
 }
 
 function pRangeTerm(range: any) {
-    return function checkIP(ip: string) {
+    return function checkIP(ip: any) {
         if (typeof ip !== 'string') return false;
         if (isNonZeroCidr(ip)) {
             return checkCidr(ip, range);
