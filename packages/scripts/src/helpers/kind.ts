@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import execa from 'execa';
+import { execaCommand } from 'execa';
 import yaml from 'js-yaml';
 import { Logger, debugLogger, isCI } from '@terascope/utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
@@ -60,7 +60,7 @@ export class Kind {
         const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
         fs.writeFileSync(path.join(tempDir, 'kindConfig.yaml'), updatedYaml);
         const updatedYamlConfigPath = `${path.join(tempDir, 'kindConfig.yaml')}`;
-        const subprocess = await execa.command(`kind create cluster --config ${updatedYamlConfigPath}`);
+        const subprocess = await execaCommand(`kind create cluster --config ${updatedYamlConfigPath}`);
         this.logger.debug(subprocess.stderr);
         if (tempDir) {
             fs.rmSync(tempDir, { recursive: true, force: true });
@@ -68,13 +68,13 @@ export class Kind {
     }
 
     async destroyCluster(): Promise<void> {
-        const subprocess = await execa.command(`kind delete cluster --name ${this.clusterName}`);
+        const subprocess = await execaCommand(`kind delete cluster --name ${this.clusterName}`);
         this.logger.debug(subprocess.stderr);
     }
 
     // TODO: check that image is loaded before we continue
     async loadTerasliceImage(terasliceImage: string): Promise<void> {
-        const subprocess = await execa.command(`kind load docker-image ${terasliceImage} --name ${this.clusterName}`);
+        const subprocess = await execaCommand(`kind load docker-image ${terasliceImage} --name ${this.clusterName}`);
         this.logger.debug(subprocess.stderr);
     }
 
@@ -92,12 +92,12 @@ export class Kind {
                 if (!fs.existsSync(filePath)) {
                     throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
                 }
-                subprocess = await execa.command(`gunzip -d ${filePath}`);
+                subprocess = await execaCommand(`gunzip -d ${filePath}`);
                 signale.info(`${subprocess.command}: successful`);
-                subprocess = await execa.command(`kind load --name ${this.clusterName} image-archive ${tarPath}`);
+                subprocess = await execaCommand(`kind load --name ${this.clusterName} image-archive ${tarPath}`);
                 fs.rmSync(tarPath);
             } else {
-                subprocess = await execa.command(`kind load --name ${this.clusterName} docker-image ${serviceImage}:${version}`);
+                subprocess = await execaCommand(`kind load --name ${this.clusterName} docker-image ${serviceImage}:${version}`);
             }
             signale.info(`${subprocess.command}: successful`);
         } catch (err) {
@@ -108,7 +108,7 @@ export class Kind {
 
     async getKindVersion(): Promise<string> {
         try {
-            const subprocess = await execa.command('kind version');
+            const subprocess = await execaCommand('kind version');
             const version = subprocess.stdout.split(' ')[1].slice(1);
             return version;
         } catch (err) {

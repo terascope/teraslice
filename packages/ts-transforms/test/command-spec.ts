@@ -1,4 +1,4 @@
-import execa from 'execa';
+import { execaCommand, type Options } from 'execa';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pWhile } from '@terascope/utils';
@@ -8,9 +8,12 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const cwd = path.join(dirname, '../');
 const cliPath = path.join(cwd, './bin/ts-transform.js');
 
-async function runCli(command: string, options: execa.Options = {}) {
-    const testProcess = await execa.command(command, options);
+async function runCli(command: string, options: Options = {}) {
+    const testProcess = await execaCommand(command, options);
     const { stdout, stderr } = await testProcess;
+    if (typeof stdout !== 'string') {
+        throw new Error('runCli() requires Options that result in a stdout string. See the execa docs for details.');
+    }
     await pWhile(async () => testProcess.exitCode !== null);
     return { stdout, stderr };
 }

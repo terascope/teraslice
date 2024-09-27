@@ -2,7 +2,7 @@ import * as k8sClient from '@kubernetes/client-node';
 import fs from 'node:fs';
 import ms from 'ms';
 import path from 'node:path';
-import execa from 'execa';
+import { execaCommand } from 'execa';
 import { cloneDeep, debugLogger, pDelay } from '@terascope/utils';
 import { Terafoundation as TF, Teraslice as TS } from '@terascope/types';
 import { getE2eK8sDir } from '../../helpers/packages.js';
@@ -188,7 +188,7 @@ export class K8s {
             let terasliceRunning = false;
             try {
                 // TODO: switch to a teraslice client
-                const kubectlResponse = await execa.command(`curl http://${config.HOST_IP}:${this.tsPort}`);
+                const kubectlResponse = await execaCommand(`curl http://${config.HOST_IP}:${this.tsPort}`);
                 response = JSON.parse(kubectlResponse.stdout);
                 if (response.clustering_type === 'kubernetes' || response.clustering_type === 'kubernetesV2') {
                     terasliceRunning = true;
