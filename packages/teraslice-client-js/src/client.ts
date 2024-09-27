@@ -5,7 +5,7 @@ import {
 } from '@terascope/utils';
 import { STATUS_CODES } from 'node:http';
 import { URL } from 'node:url';
-import got, { Got } from 'got';
+import got, { type Got, HTTPError } from 'got';
 import { ClientConfig, SearchOptions, RequestOptions } from './interfaces.js';
 
 export default class Client {
@@ -32,7 +32,9 @@ export default class Client {
                 limit: isTest ? 0 : 3,
                 maxRetryAfter: 15000 // 15 seconds
             },
-            timeout: config.timeout,
+            timeout: {
+                request: config.timeout
+            },
             responseType: 'json'
         });
     }
@@ -93,7 +95,7 @@ export default class Client {
                 ...options,
             } as any) as any as T;
         } catch (err) {
-            if (err instanceof got.HTTPError) {
+            if (err instanceof HTTPError) {
                 throw makeErrorFromResponse(err.response);
             }
 

@@ -138,7 +138,9 @@ export default class Job extends Client {
         const startTime = Date.now();
         const options = Object.assign({}, {
             responseType: 'json',
-            timeout: intervalMs < 1000 ? 1000 : intervalMs,
+            timeout: {
+                request: intervalMs < 1000 ? 1000 : intervalMs
+            },
         }, requestOptions);
         let exId: string;
 

@@ -28,8 +28,9 @@
         "paths": {
             "*": [
                 "*",
-                "./types/*"
-            ]
+                "./types/*",
+            ],
+            "got": ["./node_modules/got/dist/source/index.d.ts"]
         }
     },
     "include": [],

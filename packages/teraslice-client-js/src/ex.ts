@@ -141,7 +141,9 @@ export default class Ex extends Client {
         const startTime = Date.now();
         const options = Object.assign({}, {
             responseType: 'json',
-            timeout: intervalMs < 1000 ? 1000 : intervalMs,
+            timeout: {
+                request: intervalMs < 1000 ? 1000 : intervalMs
+            },
         }, requestOptions);
 
         const checkStatus = async (): Promise<Teraslice.ExecutionStatus> => {

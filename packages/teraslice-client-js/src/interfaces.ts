@@ -1,5 +1,4 @@
-import { Omit } from '@terascope/utils';
-import * as got from 'got';
+import { Options } from 'got';
 
 export interface ClientConfig {
     host?: string;
@@ -8,8 +7,9 @@ export interface ClientConfig {
     timeout?: number;
 }
 
-export type RequestOptions = got.Options;
+// FIXME: these are redundant now
+export type RequestOptions = Partial<Options>;
 
-export type SearchOptions = Omit<got.Options, 'searchParams'>;
+export type SearchOptions = Partial<Options>;
 
 export type PostData = string | NodeJS.ReadableStream | Buffer;
