@@ -88,12 +88,12 @@ function checkCidr(ip: string, range: any) {
 }
 
 function pRangeTerm(range: any) {
-    return function checkIP(ip: any) {
-        if (typeof ip !== 'string') return false;
-        if (isNonZeroCidr(ip)) {
-            return checkCidr(ip, range);
+    return function checkIP(ip: unknown) {
+        if (ip === null || ip === undefined) return false;
+        if (isNonZeroCidr(ip as any)) {
+            return checkCidr(ip as any, range);
         }
-        if (isIP(ip)) return range.contains(ip);
+        if (isIP(ip as any)) return range.contains(ip);
         return false;
     };
 }
