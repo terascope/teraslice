@@ -1,6 +1,6 @@
 import isCidr from 'is-cidr';
 import ip6addr from 'ip6addr';
-import isIP from 'is-ip';
+import { isIP, isIPv6 } from 'is-ip';
 import { isInfiniteMin, isInfiniteMax, ParsedRange } from 'xlucene-parser';
 import { isString, isNonZeroCidr } from '@terascope/utils';
 import { BooleanCB } from '../interfaces.js';
@@ -49,7 +49,7 @@ function validateIPRange(rangeQuery: ParsedRange) {
     let { minValue, maxValue } = values;
 
     if (isInfiniteMin(minValue)) {
-        if (isIP.v6(maxValue)) {
+        if (isIPv6(maxValue)) {
             minValue = MIN_IPV6_IP;
         } else {
             minValue = MIN_IPV4_IP;
@@ -57,7 +57,7 @@ function validateIPRange(rangeQuery: ParsedRange) {
     }
 
     if (isInfiniteMax(maxValue)) {
-        if (isIP.v6(minValue)) {
+        if (isIPv6(minValue)) {
             maxValue = MAX_IPV6_IP;
         } else {
             maxValue = MAX_IPV4_IP;
@@ -88,11 +88,12 @@ function checkCidr(ip: string, range: any) {
 }
 
 function pRangeTerm(range: any) {
-    return function checkIP(ip: string) {
-        if (isNonZeroCidr(ip)) {
-            return checkCidr(ip, range);
+    return function checkIP(ip: unknown) {
+        if (ip === null || ip === undefined) return false;
+        if (isNonZeroCidr(ip as any)) {
+            return checkCidr(ip as any, range);
         }
-        if (isIP(ip)) return range.contains(ip);
+        if (isIP(ip as any)) return range.contains(ip);
         return false;
     };
 }
