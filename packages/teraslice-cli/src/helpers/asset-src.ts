@@ -1,6 +1,6 @@
 import { execa } from 'execa';
 import prettyBytes from 'pretty-bytes';
-import glob from 'glob-promise';
+import { globby } from 'globby';
 import fs from 'fs-extra';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -130,7 +130,7 @@ export class AssetSrc {
     async operatorFiles(ext: 'js' | 'ts'): Promise<string[]> {
         const OP_TYPE_FILE_NAMES = OP_TYPES.map(toLowerCase);
         const matchString = path.join(this.srcDir, 'asset', `**/{${OP_TYPE_FILE_NAMES}}.${ext}`);
-        return glob(matchString, { ignore: ['**/node_modules/**', '**/_*/**', '**/.*/**'] });
+        return globby(matchString, { ignore: ['**/node_modules/**', '**/_*/**', '**/.*/**'] });
     }
 
     /**
