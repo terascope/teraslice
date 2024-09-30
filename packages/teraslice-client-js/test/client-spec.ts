@@ -84,9 +84,7 @@ describe('Teraslice Client', () => {
                 it('should resolve with the response from the server', async () => {
                     const results = await client.get('/hello', {
                         headers: { 'Some-Header': 'yes' },
-                        // @ts-expect-error
-
-                        query: { hello: true }
+                        searchParams: { hello: 'true' }
                     });
                     expect(results).toEqual({ example: 'hello' });
                 });
@@ -100,9 +98,7 @@ describe('Teraslice Client', () => {
                 });
 
                 it('should resolve with the response from the server', async () => {
-                    // @ts-expect-error
-
-                    const results = await client.get('/hello', { query: { hello: true } });
+                    const results = await client.get('/hello', { searchParams: { hello: 'true' } });
                     expect(results).toEqual({ example: 'hello' });
                 });
             });
@@ -411,9 +407,7 @@ describe('Teraslice Client', () => {
                 });
 
                 it('should resolve with the response from the server', async () => {
-                    // @ts-expect-error
-
-                    const results = await client.delete('/hello', { query: { hello: true } });
+                    const results = await client.delete('/hello', { searchParams: { hello: 'true' } });
                     expect(results).toEqual(response);
                 });
             });

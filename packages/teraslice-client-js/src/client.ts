@@ -5,8 +5,8 @@ import {
 } from '@terascope/utils';
 import { STATUS_CODES } from 'node:http';
 import { URL } from 'node:url';
-import got, { Got } from 'got';
-import { ClientConfig, SearchOptions, RequestOptions } from './interfaces.js';
+import got, { type Got, HTTPError } from 'got';
+import { ClientConfig, RequestOptions } from './interfaces.js';
 
 export default class Client {
     private readonly _apiVersion: string;
@@ -32,12 +32,14 @@ export default class Client {
                 limit: isTest ? 0 : 3,
                 maxRetryAfter: 15000 // 15 seconds
             },
-            timeout: config.timeout,
+            timeout: {
+                request: config.timeout
+            },
             responseType: 'json'
         });
     }
 
-    async get<T = any>(endpoint: string, options?: SearchOptions): Promise<T> {
+    async get<T = any>(endpoint: string, options?: RequestOptions): Promise<T> {
         return this._makeRequest<T>('get', endpoint, options);
     }
 
@@ -49,14 +51,14 @@ export default class Client {
         return this._makeRequest<T>('put', endpoint, options, data);
     }
 
-    async delete<T = any>(endpoint: string, options?: SearchOptions): Promise<T> {
+    async delete<T = any>(endpoint: string, options?: RequestOptions): Promise<T> {
         return this._makeRequest<T>('delete', endpoint, options);
     }
 
     private async _makeRequest<T = any>(
         method: 'get' | 'post' | 'put' | 'delete',
         endpoint: string,
-        searchOptions?: RequestOptions | SearchOptions,
+        searchOptions?: RequestOptions,
         data?: any
     ): Promise<T> {
         const errorMsg = validateRequestOptions(endpoint, searchOptions);
@@ -93,7 +95,7 @@ export default class Client {
                 ...options,
             } as any) as any as T;
         } catch (err) {
-            if (err instanceof got.HTTPError) {
+            if (err instanceof HTTPError) {
                 throw makeErrorFromResponse(err.response);
             }
 
@@ -106,7 +108,7 @@ export default class Client {
     }
 
     protected makeOptions(
-        searchParams: Record<string, any> | undefined, options: RequestOptions | SearchOptions
+        searchParams: Record<string, any> | undefined, options: RequestOptions
     ): RequestOptions {
         return { ...options, searchParams };
     }
@@ -175,7 +177,7 @@ function makeErrorFromResponse(response: any): OldErrorOutput {
 }
 
 // TODO: do more validations
-function validateRequestOptions(endpoint: string, _options?: RequestOptions | SearchOptions) {
+function validateRequestOptions(endpoint: string, _options?: RequestOptions) {
     if (!endpoint) {
         return 'endpoint must not be empty';
     }
@@ -186,7 +188,7 @@ function validateRequestOptions(endpoint: string, _options?: RequestOptions | Se
 }
 
 function getRequestOptionsWithData(
-    data: any, options: RequestOptions | SearchOptions
+    data: any, options: RequestOptions
 ): RequestOptions {
     if (isPlainObject(data) || Array.isArray(data)) {
         return { ...options, json: data };

@@ -17,20 +17,9 @@ import {
     createJobActiveQuery, addDeletedToQuery
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
+import got from 'got';
 
 const terasliceVersion = getPackageJSON().version;
-
-let gotESMModule: any;
-
-async function getGotESM() {
-    if (gotESMModule) return gotESMModule;
-    // temporary hack as typescript will compile this to a require statement
-    // until we export esm modules, revert this back when we get there
-    // @ts-expect-error
-    const module = await import('gotESM');
-    gotESMModule = module.default;
-    return module.default;
-}
 
 function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
@@ -147,8 +136,6 @@ export class ApiService {
     }
 
     private async _redirect(req: TerasliceRequest, res: TerasliceResponse) {
-        const module = await getGotESM();
-
         const options = {
             prefixUrl: this.assetsUrl,
             headers: req.headers,
@@ -165,7 +152,7 @@ export class ApiService {
         try {
             await streamPipeline(
                 req,
-                module.stream[method](uri, options),
+                got.stream[method](uri, options),
                 res,
             );
         } catch (err) {

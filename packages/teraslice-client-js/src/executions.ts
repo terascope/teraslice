@@ -6,7 +6,7 @@ import autoBind from 'auto-bind';
 import Client from './client.js';
 import Ex from './ex.js';
 
-import { ClientConfig, SearchOptions } from './interfaces';
+import { ClientConfig, RequestOptions } from './interfaces';
 
 type ListOptions = undefined | string | Teraslice.SearchQuery;
 
@@ -39,7 +39,7 @@ export default class Executions extends Client {
 
     async list(options?: ListOptions): Promise<Teraslice.ExecutionConfig[]> {
         const query = _parseListOptions(options);
-        return this.get('/ex', { searchParams: query } as SearchOptions);
+        return this.get('/ex', { searchParams: query } as RequestOptions);
     }
 
     async errors(
@@ -52,14 +52,14 @@ export default class Executions extends Client {
                 options.searchParams = opts;
             }
 
-            return this.get(`/ex/${exId}/errors`, options as SearchOptions);
+            return this.get(`/ex/${exId}/errors`, options as RequestOptions);
         }
 
         if (isPlainObject(exId)) {
             options.searchParams = exId;
         }
 
-        return this.get('/ex/errors', options as SearchOptions);
+        return this.get('/ex/errors', options as RequestOptions);
     }
 
     /**

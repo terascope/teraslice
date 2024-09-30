@@ -3,7 +3,7 @@ import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client.js';
 import Job from './job.js';
-import { SearchOptions, ClientConfig } from './interfaces.js';
+import { RequestOptions, ClientConfig } from './interfaces.js';
 
 export default class Jobs extends Client {
     constructor(config: ClientConfig) {
@@ -27,7 +27,7 @@ export default class Jobs extends Client {
 
     async list(
         query?: Teraslice.JobSearchParams,
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.JobConfig[]> {
         return this.get('/jobs', this.makeOptions(query, searchOptions));
     }

@@ -479,7 +479,9 @@ export class TerasliceHarness {
             let nodes = -1;
             try {
                 const result = await this.teraslice.cluster.get('cluster/state', {
-                    timeout: 500,
+                    timeout: {
+                        request: 500
+                    },
                     responseType: 'json',
                 });
                 nodes = Object.keys(result).length;
