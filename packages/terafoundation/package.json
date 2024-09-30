@@ -52,7 +52,7 @@
         "@types/js-yaml": "^4.0.9",
         "@types/mongoose": "^5.10.3",
         "@types/redis": "^4.0.11",
-        "got": "13.0.0"
+        "got": "^13.0.0"
     },
     "engines": {
         "node": ">=18.18.0",

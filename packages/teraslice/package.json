@@ -54,7 +54,6 @@
         "fs-extra": "^11.2.0",
         "gc-stats": "^1.4.0",
         "got": "^13.0.0",
-        "gotESM": "npm:got@^13.0.0",
         "ip": "^2.0.1",
         "kubernetes-client": "^9.0.0",
         "lodash": "^4.17.21",
