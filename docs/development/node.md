@@ -41,9 +41,9 @@ Once the changes are merged and a new release is made, the CI will create new ba
 
 #### Verify New Docker Images
 
-The new Docker images will be available on Docker Hub here:
+The new Docker images will be available on the Github container registry here:
 
-https://hub.docker.com/r/terascope/node-base/tags
+https://github.com/terascope/base-docker-image/pkgs/container/node-base
 
 ### 2. Updating node in assets
 
@@ -90,3 +90,19 @@ Add the new node version to all the spots needed inside each file in `.github/wo
 - test.yml
 
 Once the node version has been added to the arrays of all the workflow .yml files, pushing the branch and making a new PR should trigger CI to run new tests with the added node version. Once all tests are passing, then a new node version has been succesfully introduced to teraslice.
+
+## Changing the default node version
+
+Although multiple node versions are supported, there is always a "default" version.
+To set a new default version make changes to the following:
+  ### 1. In workflows repo:
+  - .github/workflows/asset-build-and-publish.yml - assets-upload job `node-version` variable
+  - .github/workflows/asset-test.yml - test-macos job `node-version` variable
+  - .github/workflows/refresh-docker-cache.yml and .github/workflows/cache-docker-images.yml - `node-version` variable
+  ### 2. In teraslice repo:
+  - Update all .github/workflows that use the workflows repo with the new commit hash from step 1
+  - Dockerfile and Dockerfile.dev - `NODE_VERSION` variable
+  - .github/workflows/publish-master.yml and .github/workflows/publish-tag.yml - `node-version` variable
+  - .github/workflows/test.yml - set `NODE_VERSION_MAIN` and `NODE_VERSION_EXT_STORAGE` variables (used by verify-build, lint-and-sync , and e2e-external-storage-tests jobs)
+  - packages/scripts/src/helpers/config.ts - `DEFAULT_NODE_VERSION` variable
+  - packages/teraslice-cli/src/helpers/asset-src.ts - `bundleTarget` default in the constructor
