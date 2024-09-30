@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import fse from 'fs-extra';
 import semver from 'semver';
-import globby from 'globby';
+import { isDynamicPattern, globbySync } from 'globby';
 import {
     uniq, fastCloneDeep, get, trim
 } from '@terascope/utils';
@@ -59,8 +59,8 @@ function _resolveWorkspaces(workspaces: string[], rootDir: string) {
         .reduce(
             (pkgDirs, pkgGlob) => [
                 ...pkgDirs,
-                ...(globby.hasMagic(pkgGlob)
-                    ? globby.sync(path.join(rootDir, pkgGlob), {
+                ...(isDynamicPattern(pkgGlob)
+                    ? globbySync(path.join(rootDir, pkgGlob), {
                         onlyDirectories: true,
                     })
                     : [path.join(rootDir, pkgGlob)]),
