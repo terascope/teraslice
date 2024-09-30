@@ -154,9 +154,7 @@ describe('Assets Service', () => {
             await service.assetsStorage.save(filePathOneStream);
 
             const resultTable = await got.get(`http://localhost:${process.env.port}/txt/assets`, {
-                searchParams: new URLSearchParams({
-                    fields: 'name,version,id,description,node_version,platform,arch'
-                })
+                searchParams: { fields: 'name,version,id,description,node_version,platform,arch' }
             }).text();
 
             expect(resultTable).toEqual(
