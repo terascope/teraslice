@@ -1,7 +1,7 @@
 {
     "name": "elasticsearch-store",
     "displayName": "Elasticsearch Store",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "description": "An API for managing an elasticsearch index, with versioning and migration support.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-store#readme",
     "bugs": {
@@ -30,22 +30,23 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-mate": "^1.1.1",
-        "@terascope/data-types": "^1.1.1",
+        "@terascope/data-mate": "^1.2.0",
+        "@terascope/data-types": "^1.2.0",
         "@terascope/types": "^1.1.0",
-        "@terascope/utils": "^1.1.0",
-        "ajv": "^6.12.6",
+        "@terascope/utils": "^1.2.0",
+        "ajv": "^8.17.1",
+        "ajv-formats": "^3.0.1",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0",
         "opensearch1": "npm:@opensearch-project/opensearch@^1.2.0",
         "opensearch2": "npm:@opensearch-project/opensearch@^2.2.1",
         "setimmediate": "^1.0.5",
-        "uuid": "^9.0.1",
-        "xlucene-translator": "^1.1.0"
+        "uuid": "^10.0.0",
+        "xlucene-translator": "^1.2.0"
     },
     "devDependencies": {
-        "@types/uuid": "^9.0.8"
+        "@types/uuid": "^10.0.0"
     },
     "engines": {
         "node": ">=18.18.0",

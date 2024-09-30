@@ -1,8 +1,8 @@
 import os from 'node:os';
 import url from 'node:url';
-import { nanoid } from 'nanoid/async';
+import { nanoid } from 'nanoid';
 
-export function newMsgId(): Promise<string> {
+export async function newMsgId(): Promise<string> {
     return nanoid(10);
 }
 

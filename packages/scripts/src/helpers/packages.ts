@@ -10,7 +10,7 @@ import toposort from 'toposort';
 // import MultiMap from 'mnemonist/multi-map'
 import mem from 'mnemonist';
 
-import packageJson from 'package-json';
+import packageJson, { PackageNotFoundError, VersionNotFoundError } from 'package-json';
 import sortPackageJson from 'sort-package-json';
 import {
     getRootDir, getRootInfo, getName,
@@ -331,7 +331,7 @@ export async function getRemotePackageVersion(
         });
         return version as string;
     } catch (err) {
-        if (err instanceof packageJson.VersionNotFoundError) {
+        if (err instanceof VersionNotFoundError) {
             if (tag === 'prerelease') {
                 // this will happen if there has never been a prerelease
                 // for this package, so lets check the latest so we
@@ -340,7 +340,7 @@ export async function getRemotePackageVersion(
             }
             return pkgInfo.version;
         }
-        if (err instanceof packageJson.PackageNotFoundError) {
+        if (err instanceof PackageNotFoundError) {
             return '0.1.0';
         }
         throw err;

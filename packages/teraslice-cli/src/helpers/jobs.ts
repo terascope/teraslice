@@ -750,7 +750,7 @@ export default class Jobs {
 
     printDiff(diffResult: Diff.Change[], showUpdateField: boolean) {
         diffResult.forEach((part) => {
-            let color: chalk.Chalk;
+            let color: typeof chalk;
             let symbol: string;
             let pointer: string;
             if (part.added) {

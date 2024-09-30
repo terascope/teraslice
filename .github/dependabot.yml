@@ -14,27 +14,9 @@ updates:
       - sotojn
       - busma13
     ignore:
-      - dependency-name: aws-sdk
-        versions:
-          - '> 2.885.0'
-      - dependency-name: convict
-        versions:
-          - '> 4.4.1'
-      - dependency-name: convict
-        versions:
-          - '>= 5.a, < 6'
-      - dependency-name: '@types/convict'
-        versions:
-          - '>= 6'
       - dependency-name: elasticsearch
         versions:
           - '> 15.5.0'
-      - dependency-name: kubernetes-client
-        versions:
-          - '>= 8.2.a, < 8.3'
-      - dependency-name: mongoose
-        versions:
-          - '> 5.11.20'
       - dependency-name: socket.io
         versions:
           - '> 1.7.4'
@@ -47,27 +29,6 @@ updates:
       - dependency-name: '@types/socket.io-client'
         versions:
           - 1.4.36
-      - dependency-name: sort-package-json
-        versions:
-          - '>= 1.42.a, < 1.43'
-      - dependency-name: tty-table
-        versions:
-          - '>= 3.a, < 4'
-      - dependency-name: redis
-        versions:
-          - '>= 3'
-      - dependency-name: mongoose
-        versions:
-          - '>= 5'
-      - dependency-name: graphql
-        versions:
-          - '>= 15'
-      - dependency-name: typedoc
-        versions:
-          - '>= 0.21.9'
-      - dependency-name: '@types/node'
-        versions:
-          - '>= 17.0.0'
   - package-ecosystem: npm
     directory: '/website'
     schedule:

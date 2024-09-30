@@ -1,5 +1,5 @@
 import path from 'node:path';
-import pkgUp from 'pkg-up';
+import { packageUpSync } from 'package-up';
 import fse from 'fs-extra';
 import lodash from 'lodash';
 import { isPlainObject, get, toTitleCase } from '@terascope/utils';
@@ -18,7 +18,7 @@ let rootDir: string | undefined;
 export function getRootDir(cwd: string = process.cwd()): string {
     if (rootDir) return rootDir;
 
-    const rootPkgJSON = pkgUp.sync({ cwd });
+    const rootPkgJSON = packageUpSync({ cwd });
 
     if (!rootPkgJSON) {
         throw new Error(`Unable to find root directory, run in the root of the repo. cwd is ${cwd}, rootPkgJSON is ${rootPkgJSON}`);
