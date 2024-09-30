@@ -228,7 +228,7 @@ export async function saveJobConfigToFile(
     addMetaData(jobConfigCopy, jobConfig.job_id, clusterUrl);
 
     if (!fs.existsSync(filePath)) {
-        fs.writeJSONSync(filePath, jobConfigCopy);
+        await fs.writeJSON(filePath, jobConfigCopy);
     } else {
         throw new Error(`File already exists at ${filePath}`);
     }
