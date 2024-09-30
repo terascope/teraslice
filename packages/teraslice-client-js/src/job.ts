@@ -5,11 +5,7 @@ import {
     TSError, toHumanTime,
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
-import {
-    ClientConfig,
-    SearchOptions,
-    RequestOptions
-} from './interfaces.js';
+import { ClientConfig, RequestOptions } from './interfaces.js';
 import Client from './client.js';
 
 /*
@@ -53,7 +49,7 @@ export default class Job extends Client {
 
     async start(
         query?: Teraslice.SearchQuery,
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiJobCreateResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_start`, null, options);
@@ -61,7 +57,7 @@ export default class Job extends Client {
 
     async stop(
         query?: Teraslice.StopQuery,
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiStoppedResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_stop`, null, options);
@@ -69,7 +65,7 @@ export default class Job extends Client {
 
     async pause(
         query?: Teraslice.SearchQuery,
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiPausedResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_pause`, null, options);
@@ -77,7 +73,7 @@ export default class Job extends Client {
 
     async resume(
         query?: Teraslice.SearchQuery,
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiResumeResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_resume`, null, options);
@@ -85,7 +81,7 @@ export default class Job extends Client {
 
     async recover(
         query: Teraslice.RecoverQuery = {},
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiJobCreateResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
@@ -196,7 +192,7 @@ export default class Job extends Client {
 
     async errors(
         query: Teraslice.SearchQuery = {},
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ErrorRecord[]> {
         return this.get(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
     }

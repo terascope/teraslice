@@ -5,7 +5,7 @@ import {
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client.js';
-import { ClientConfig, SearchOptions, RequestOptions } from './interfaces.js';
+import { ClientConfig, RequestOptions } from './interfaces.js';
 
 export default class Ex extends Client {
     private readonly _exId: string;
@@ -25,7 +25,7 @@ export default class Ex extends Client {
 
     async stop(
         query?: Teraslice.StopQuery,
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiStoppedResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/ex/${this._exId}/_stop`, null, options);
@@ -33,7 +33,7 @@ export default class Ex extends Client {
 
     async pause(
         query?: Teraslice.SearchQuery,
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiPausedResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/ex/${this._exId}/_pause`, null, options);
@@ -41,7 +41,7 @@ export default class Ex extends Client {
 
     async resume(
         query?: Teraslice.SearchQuery,
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiResumeResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/ex/${this._exId}/_resume`, null, options);
@@ -49,7 +49,7 @@ export default class Ex extends Client {
 
     async recover(
         query: Teraslice.RecoverQuery = {},
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Ex> {
         const options = this.makeOptions(query, searchOptions);
         const result: Teraslice.ApiJobCreateResponse = await this.post(`/ex/${this._exId}/_recover`, null, options);
@@ -88,7 +88,7 @@ export default class Ex extends Client {
     async errors(options?: Teraslice.SearchQuery): Promise<Teraslice.ErrorRecord[]> {
         return this.get(`/ex/${this._exId}/errors`, {
             searchParams: options,
-        } as SearchOptions);
+        });
     }
 
     async changeWorkers(

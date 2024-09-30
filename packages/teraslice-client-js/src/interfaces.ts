@@ -7,9 +7,6 @@ export interface ClientConfig {
     timeout?: number;
 }
 
-// FIXME: these are redundant now
 export type RequestOptions = Partial<Options>;
-
-export type SearchOptions = Partial<Options>;
 
 export type PostData = string | NodeJS.ReadableStream | Buffer;

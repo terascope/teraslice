@@ -3,7 +3,7 @@ import { Teraslice } from '@terascope/types';
 import path from 'node:path';
 import autoBind from 'auto-bind';
 import Client from './client.js';
-import { PostData, SearchOptions, ClientConfig } from './interfaces.js';
+import { PostData, RequestOptions, ClientConfig } from './interfaces.js';
 
 export default class Assets extends Client {
     constructor(config: ClientConfig) {
@@ -30,7 +30,7 @@ export default class Assets extends Client {
 
     async remove(
         id: string,
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.AssetIDResponse> {
         if (isEmpty(id)) {
             throw new TSError('Asset delete requires a ID', {
@@ -44,7 +44,7 @@ export default class Assets extends Client {
 
     async list(
         query: Teraslice.SearchQuery = {},
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.AssetRecord[]> {
         const options = { ...searchOptions, searchParams: query };
         return this.get('/assets', options);
@@ -53,7 +53,7 @@ export default class Assets extends Client {
     async getAsset(
         name: string,
         version = '',
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<Teraslice.AssetRecord[]> {
         if (!name || !isString(name)) {
             throw new TSError('Name is required, and must be of type string', {
@@ -75,7 +75,7 @@ export default class Assets extends Client {
         name = '',
         version = '',
         query: Teraslice.TxtSearchParams = {},
-        searchOptions: SearchOptions = {}
+        searchOptions: RequestOptions = {}
     ): Promise<string> {
         if (name && !isString(name)) {
             throw new TSError('Name must be of type string', {
