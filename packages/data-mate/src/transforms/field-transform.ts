@@ -1,7 +1,7 @@
 import * as ts from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import crypto from 'node:crypto';
-import PhoneValidator from 'awesome-phonenumber';
+import { parsePhoneNumber as _parsePhoneNumber } from 'awesome-phonenumber';
 import { format as dateFormat, parse } from 'date-fns';
 import { ReplaceLiteralConfig, ReplaceRegexConfig, ExtractFieldConfig } from './interfaces.js';
 import {
@@ -599,7 +599,7 @@ function parsePhoneNumber(str: any) {
     // needs to start with a +
     if (testNumber.charAt(0) !== '+') testNumber = `+${testNumber}`;
 
-    const fullNumber = new PhoneValidator(testNumber).getNumber();
+    const fullNumber = _parsePhoneNumber(testNumber).number?.e164;
     if (fullNumber) return String(fullNumber).slice(1);
 
     throw Error('Could not determine the incoming phone number');

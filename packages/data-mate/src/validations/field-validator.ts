@@ -2,7 +2,7 @@ import * as ts from '@terascope/utils';
 import ipaddr from 'ipaddr.js';
 import { isIP as _isIP, isIPv6 } from 'is-ip';
 import ip6addr from 'ip6addr';
-import PhoneValidator from 'awesome-phonenumber';
+import { parsePhoneNumber } from 'awesome-phonenumber';
 import validator from 'validator';
 import url from 'valid-url';
 import { FieldType, GeoShapePoint, MACDelimiter } from '@terascope/types';
@@ -675,15 +675,15 @@ export function isISDN(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
     if (isArray(input)) {
         const fn = (data: any) => {
-            const phoneNumber = new PhoneValidator(`+${data}`);
-            return phoneNumber.isValid();
+            const phoneNumber = parsePhoneNumber(`+${data}`);
+            return phoneNumber.valid;
         };
 
         return _lift(fn, input, _parentContext);
     }
 
-    const phoneNumber = new PhoneValidator(`+${input}`);
-    return phoneNumber.isValid();
+    const phoneNumber = parsePhoneNumber(`+${input}`);
+    return phoneNumber.valid;
 }
 
 interface MACAddressArgs {

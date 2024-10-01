@@ -1,4 +1,4 @@
-import PhoneValidator from 'awesome-phonenumber';
+import { parsePhoneNumber as _parsePhoneNumber } from 'awesome-phonenumber';
 import { toString, isString } from './strings.js';
 
 import { isNumber, inNumberRange } from './numbers.js';
@@ -6,8 +6,7 @@ import { isNumber, inNumberRange } from './numbers.js';
 export function parsePhoneNumber(input: string | number): string {
     const preppedInput = _prepPhoneNumber(toString(input).trim());
 
-    const fullNumber = new PhoneValidator(preppedInput).getNumber();
-
+    const fullNumber = _parsePhoneNumber(preppedInput).number?.e164;
     if (fullNumber) return String(fullNumber).slice(1);
 
     throw Error('Could not determine the incoming phone number');
@@ -25,9 +24,9 @@ function _prepPhoneNumber(input: string): string {
 
 export function isISDN(input: unknown, country?: string): boolean {
     if (isString(input) || isNumber(input)) {
-        const isdn = country ? new PhoneValidator(toString(input), country) : new PhoneValidator(`+${input}`);
+        const isdn = country ? _parsePhoneNumber(toString(input), { regionCode: country }) : _parsePhoneNumber(`+${input}`);
 
-        return isdn.isValid();
+        return isdn.valid;
     }
 
     return false;
