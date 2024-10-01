@@ -338,8 +338,14 @@ export function intToIP(input: unknown, ipVersion: string | number): string {
     const versionAsInt = toInteger(ipVersion);
 
     if (isNumberLike(input) && (versionAsInt === 4 || versionAsInt === 6)) {
+        const bigInt = BigInt(input as string | number | bigint);
+        const maxIpV4 = 2n ** 32n - 1n;
+        const maxIpV6 = 2n ** 128n - 1n;
+        if (bigInt < 0n || bigInt > (versionAsInt === 4 ? maxIpV4 : maxIpV6)) {
+            throw new Error(`Invalid IP input: ${bigInt}`);
+        }
         return stringifyIp({
-            number: BigInt(input as string | number | bigint),
+            number: bigInt,
             version: versionAsInt,
             ipv4mapped: false,
             scopeid: undefined
