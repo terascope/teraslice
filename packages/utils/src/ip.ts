@@ -5,7 +5,7 @@ import {
 import IPCIDR from 'ip-cidr';
 import isCidr from 'is-cidr';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
-import { parse, stringify } from 'ip-bigint';
+import { parseIp, stringifyIp } from 'ip-bigint';
 import ip6addr from 'ip6addr';
 import { isString } from './strings.js';
 import {
@@ -328,7 +328,7 @@ export function isNonZeroCidr(input: string): boolean {
 
 export function ipToInt(input: unknown): bigint {
     if (isIP(input)) {
-        return toBigIntOrThrow(parse(input as string).number);
+        return toBigIntOrThrow(parseIp(input as string).number);
     }
 
     throw Error('input must be a valid ip address');
@@ -338,11 +338,11 @@ export function intToIP(input: unknown, ipVersion: string | number): string {
     const versionAsInt = toInteger(ipVersion);
 
     if (isNumberLike(input) && (versionAsInt === 4 || versionAsInt === 6)) {
-        return stringify({
+        return stringifyIp({
             number: BigInt(input as string | number | bigint),
             version: versionAsInt,
             ipv4mapped: false,
-            scopeid: false
+            scopeid: undefined
         });
     }
 
