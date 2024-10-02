@@ -31,7 +31,7 @@ export class JobValidator {
         // top level job validation occurs, but not operations
         const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec));
         const assetIds = jobConfig.assets || [];
-        const apis = {};
+        const apis: Record<string, any> = {};
 
         type ValidateJobFn = (job: ValidatedJobConfig) => void;
         let validateJobFns: ValidateJobFn[] = [];
