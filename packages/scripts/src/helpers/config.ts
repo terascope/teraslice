@@ -74,7 +74,7 @@ export const MINIO_DOCKER_IMAGE = process.env.MINIO_DOCKER_IMAGE || 'minio/minio
 export const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY || 'minioadmin';
 export const MINIO_SECRET_KEY = process.env.MINIO_SECRET_KEY || 'minioadmin';
 
-export const RABBITMQ_VERSION = process.env.RABBITMQ_VERSION || '3.8.16-management-alpine';
+export const RABBITMQ_VERSION = process.env.RABBITMQ_VERSION || '3.13.7-debian-12-r4';
 export const RABBITMQ_DOCKER_IMAGE = process.env.RABBITMQ_DOCKER_IMAGE || 'rabbitmq';
 export const RABBITMQ_NAME = process.env.RABBITMQ_NAME || 'rabbitmq';
 export const RABBITMQ_PORT = process.env.RABBITMQ_PORT || 45672;
