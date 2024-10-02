@@ -1379,7 +1379,9 @@ function _parseDate(input: any, args: ParseDateConfig) {
         throw new Error(`Invalid parameter format, must be a string, received ${ts.getTypeOf(input)}`);
     }
 
-    const parsed = parse(input, format, new Date());
+    const inputStr = String(input);
+
+    const parsed = parse(inputStr, format, new Date());
 
     if (!ts.isValidDateInstance(parsed)) {
         throw new Error('Cannot parse date');

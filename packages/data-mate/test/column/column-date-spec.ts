@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { getValidDate, timezoneOffset } from '@terascope/utils';
 import { DateFormat, FieldType, Maybe } from '@terascope/types';
-import formatDate from 'date-fns/format';
+import { formatDate } from 'date-fns/format';
 import {
     Column, dataFrameAdapter, functionConfigRepository, Vector
 } from '../../src/index.js';

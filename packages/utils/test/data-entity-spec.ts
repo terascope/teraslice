@@ -1,5 +1,5 @@
 import 'jest-extended';
-import addDays from 'date-fns/addDays';
+import { addDays } from 'date-fns/addDays';
 import {
     DataEntity, DataEncoding, __IS_DATAENTITY_KEY,
     __ENTITY_METADATA_KEY, DataEntityMetadata,

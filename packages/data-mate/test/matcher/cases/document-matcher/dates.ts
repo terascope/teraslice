@@ -1,4 +1,4 @@
-import addDays from 'date-fns/addDays';
+import { addDays } from 'date-fns/addDays';
 import { xLuceneFieldType } from '@terascope/types';
 import { TestCase } from './interfaces.js';
 
