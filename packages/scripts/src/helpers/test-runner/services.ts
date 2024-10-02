@@ -202,7 +202,7 @@ export async function loadOrPullServiceImages(suite: string): Promise<void> {
         }
 
         if (launchServices.includes(Service.RabbitMQ)) {
-            const image = `${config.RABBITMQ_DOCKER_IMAGE}`;
+            const image = `${config.RABBITMQ_DOCKER_IMAGE}:${config.RABBITMQ_VERSION}`;
             images.push(image);
         }
 
