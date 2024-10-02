@@ -5,7 +5,7 @@ import { pDelay, DataEntity } from '@terascope/utils';
 import { terasliceOpPath } from '../helpers/index.js';
 import {
     WorkerExecutionContext, TestContext, newTestExecutionConfig,
-    FetcherCore, ProcessorCore, newTestSlice
+    FetcherCore, ProcessorCore, newTestSlice, sliceAnalyticsMetrics, SliceAnalyticsData
 } from '../../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -210,8 +210,8 @@ describe('WorkerExecutionContext', () => {
 
             for (const metric of ['size', 'time']) {
                 for (let i = 0; i < ops; i++) {
-                    const previous = previousAnalytics[metric][i];
-                    const current = analytics![metric][i];
+                    const previous = previousAnalytics[metric as keyof SliceAnalyticsData][i];
+                    const current = analytics![metric as keyof SliceAnalyticsData][i];
                     if (i === 0) {
                         if (current !== previous) {
                             console.warn(`Metric "${metric}" should not have changed for the fetcher. Expected ${current} === ${previous}`);
