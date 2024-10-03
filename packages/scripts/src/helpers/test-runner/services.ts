@@ -152,7 +152,8 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         mount: [`type=bind,source=${rabbitConfigPath},target=/etc/rabbitmq/rabbitmq.conf`],
         env: {
             RABBITMQ_HOSTNAME: '0.0.0.0',
-            RABBITMQ_USER: config.RABBITMQ_USER,
+            RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS: 'true',
+            RABBITMQ_USERNAME: config.RABBITMQ_USER,
             RABBITMQ_PASSWORD: config.RABBITMQ_PASSWORD,
         },
         network: config.DOCKER_NETWORK_NAME,
