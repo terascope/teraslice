@@ -40,11 +40,10 @@ jobs:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
         cache: 'yarn'
 
-    - &install-and-build-packages
-      name: Install and build packages
+    - name: Install and build packages
       run: yarn setup
       env:
-        YARN_SETUP_ARGS: "--prod=false --silent --verbose"
+        YARN_SETUP_ARGS: "--prod=false --silent"
 
   check-docker-limit-before:
    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f5e098fa861fe7744fa61842e82124f806364be9
@@ -71,7 +70,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
-      - *install-and-build-packages
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Test
         run: yarn --silent test -- --suite unit --
@@ -92,7 +94,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
-      - *install-and-build-packages
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Test
         run: yarn --silent test -- --suite unit-esm --
@@ -125,7 +130,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - *install-and-build-packages
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Create Docker Image List
         run: |
@@ -169,7 +177,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - *install-and-build-packages
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Create Docker Image List
         run: |
@@ -202,8 +213,10 @@ jobs:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
         cache: 'yarn'
 
-
-    - *install-and-build-packages
+    - name: Install and build packages
+      run: yarn setup
+      env:
+        YARN_SETUP_ARGS: "--prod=false --silent"
 
     - name: Lint codebase
       run: yarn lint
@@ -237,7 +250,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - *install-and-build-packages
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Create Docker Image List
         run: |
@@ -281,7 +297,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - *install-and-build-packages
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Create Docker Image List
         run: |
@@ -328,7 +347,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - *install-and-build-packages
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Create Docker Image List
         run: |
@@ -380,7 +402,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - *install-and-build-packages
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Create Docker Image List
         run: |
@@ -432,7 +457,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - *install-and-build-packages
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Create Docker Image List
         run: |
@@ -479,7 +507,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - *install-and-build-packages
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Create Docker Image List
         run: |
