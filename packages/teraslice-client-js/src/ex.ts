@@ -165,7 +165,7 @@ export default class Ex extends Client {
             // These are terminal states for a job so if we're not explicitly
             // watching for these then we need to stop waiting as the job
             // status won't change further.
-            if (terminal[result]) {
+            if (result in terminal) {
                 throw new TSError(
                     `Execution cannot reach the target status, "${target}", because it is in the terminal state, "${result}"`,
                     { context: { lastStatus: result } }
