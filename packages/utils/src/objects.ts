@@ -34,6 +34,15 @@ export function getFirstKey<T extends object>(input: T): (keyof T) | undefined {
 }
 
 /**
+ * Get the typed keys of an object. Same as Object.keys() but you should get
+ * proper typing if "O" is a typed object. Do not use with ano object of
+ * type "object" or with "{}" as it will return type "never[]".
+ */
+export function getKeys<O extends object>(obj: O): Array<keyof O> {
+    return Object.keys(obj) as Array<keyof O>;
+}
+
+/**
  * Verify if the input is a object like type
 */
 export function isObjectEntity(input: unknown): boolean {
