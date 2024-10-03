@@ -9,7 +9,7 @@ export function kafkaVersionMapper(kafkaVersion: string): string {
     if (!regex.test(kafkaVersion)) {
         throw new Error('Kafka version must contain major and minor semver version, but omit patch version.');
     }
-    const kafkaMapper = {
+    const kafkaMapper: Record<number, Record<number, string>> = {
         3: {
             0: '7.0.11',
             1: '7.1.9',
@@ -27,14 +27,17 @@ export function kafkaVersionMapper(kafkaVersion: string): string {
         }
     };
 
-    const cpKafkaVersion = kafkaMapper[kafkaVersion.charAt(0)][kafkaVersion.charAt(2)];
+    const major = Number(kafkaVersion.charAt(0));
+    const minor = Number(kafkaVersion.charAt(2));
+
+    const cpKafkaVersion = kafkaMapper[major][minor];
     if (!cpKafkaVersion) {
         throw new Error(`Kafka version ${kafkaVersion} could not be mapped to cp-kafka version. Supported version are ${errMsgVersionStringBuilder(kafkaMapper)}.`);
     }
     return cpKafkaVersion;
 }
 
-function errMsgVersionStringBuilder(map: object) {
+function errMsgVersionStringBuilder(map: Record<number, Record<number, string>>) {
     const msgsArr: string[] = [];
     for (const major in map) {
         if (Object.prototype.hasOwnProperty.call(map, major)) {
