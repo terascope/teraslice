@@ -51,7 +51,7 @@ export class ClusterContext<
                 Object.keys(config.descriptors).forEach((key) => {
                     if (this.assignment === key) {
                         keyFound = true;
-                        config[key](this);
+                        config[key as keyof typeof config](this);
                     }
                 });
                 // if no key was explicitly set then default to worker

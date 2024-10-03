@@ -167,7 +167,7 @@ export class TestContext<
 
         this.apis.getTestClients = () => {
             const cachedClients = _cachedClients.get(ctx) || {};
-            const clients = {};
+            const clients: TestClients = {};
 
             Object.keys(cachedClients).forEach((key) => {
                 const [type, endpoint] = key.split(':', 2) as [string, string];
