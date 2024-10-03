@@ -816,10 +816,10 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     }
     let version: string;
     if (serviceName === 'kafka') {
-        version = config[`${serviceName.toUpperCase()}_IMAGE_VERSION`] as string;
+        version = config[`${serviceName.toUpperCase()}_IMAGE_VERSION` as keyof typeof config] as string;
         signale.pending(`starting ${service}@${config.KAFKA_VERSION} service...`);
     } else {
-        version = config[`${serviceName.toUpperCase()}_VERSION`] as string;
+        version = config[`${serviceName.toUpperCase()}_VERSION` as keyof typeof config] as string;
         signale.pending(`starting ${service}@${version} service...`);
     }
     if (options.useExistingServices) {
