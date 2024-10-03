@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import {
-    has, toString, pDelay, pMap, pRetry,
+    has, toString, pDelay, pMap, pRetry, getKeys,
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import chalk from 'chalk';
@@ -17,7 +17,9 @@ import {
     JobConfigFile,
     StatusUpdate,
     RegisteredStatusEnum,
-    AllStatusTypes
+    AllStatusTypes,
+    Messages,
+    UpdateActions
 } from '../interfaces.js';
 
 const statusEnum = Teraslice.ExecutionStatusEnum;
@@ -725,25 +727,25 @@ export default class Jobs {
     }
 
     formatJobConfig(jobConfig: JobConfigFile) {
-        const finalJobConfig: Partial<Teraslice.JobConfig> = {};
-        Object.keys(jobConfig).forEach((key) => {
+        const finalJobConfig: Record<string, any> = {};
+        getKeys(jobConfig).forEach((key) => {
             if (key === '__metadata') {
                 finalJobConfig.job_id = jobConfig[key].cli.job_id;
                 finalJobConfig._updated = jobConfig[key].cli.updated;
             } else {
-                finalJobConfig[key] = jobConfig[key];
+                finalJobConfig[key as keyof typeof finalJobConfig] = jobConfig[key];
             }
         });
         return finalJobConfig;
     }
 
     getLocalJSONConfigs(srcDir: string, files: string[]) {
-        const localJobConfigs = {};
+        const localJobConfigs: Record<string, any> = {};
         for (const file of files) {
             const filePath = path.join(srcDir, file);
             const jobConfig: JobConfigFile = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
             const formattedJobConfig = this.formatJobConfig(jobConfig);
-            localJobConfigs[formattedJobConfig.job_id as string] = formattedJobConfig;
+            localJobConfigs[formattedJobConfig.job_id] = formattedJobConfig;
         }
         return localJobConfigs;
     }
@@ -860,7 +862,7 @@ export default class Jobs {
      * Logs status updates relative to the actions being performed on the job
      */
 
-    private logUpdate(args: { action?: string; msg?: string; job: JobMetadata }) {
+    private logUpdate(args: { action?: UpdateActions; msg?: string; job: JobMetadata }) {
         const {
             action,
             msg,
@@ -888,7 +890,7 @@ export default class Jobs {
     }
 
     private getUpdateMessage(
-        action: string,
+        action: keyof Messages,
         job: JobMetadata
     ): { message: string; final: boolean } {
         const {
@@ -965,6 +967,22 @@ export default class Jobs {
             deleted: {
                 message: `${name} has been deleted`,
                 final: true
+            },
+            started: {
+                message: ``,
+                final: false
+            },
+            restarted: {
+                message: ``,
+                final: false
+            },
+            restarting: {
+                message: ``,
+                final: false
+            },
+            resumed: {
+                message: ``,
+                final: false
             }
         };
 

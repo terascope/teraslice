@@ -5,6 +5,7 @@ import CliTable from 'cli-table3';
 import easyTable from 'easy-table';
 import prompts from 'prompts';
 import { toTitleCase } from '@terascope/utils';
+import { Action, Tense, UpdateActions } from '../interfaces';
 
 function pretty(headerValues: string[], rows: string[]) {
     const header = headerValues.map((item): ttyTable.Header => ({
@@ -245,7 +246,7 @@ export default class Display {
         return response.continue;
     }
 
-    setAction(action: string, tense: string): string {
+    setAction(action: Action, tense: Tense): UpdateActions {
         if (action === 'stop' && tense === 'past') {
             return 'stopped';
         }
@@ -276,7 +277,6 @@ export default class Display {
         if (action === 'resume' && tense === 'present') {
             return 'resuming';
         }
-
-        return action;
+        throw new Error('Invalid action or tense');
     }
 }

@@ -5,7 +5,8 @@ import {
     set,
     unset,
     get,
-    cloneDeep
+    cloneDeep,
+    getKeys
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import Config from './config.js';
@@ -216,10 +217,10 @@ export async function saveJobConfigToFile(
     filePath: string,
     clusterUrl: string
 ) {
-    const jobConfigCopy = {};
+    const jobConfigCopy: Record<string, any> = {};
     const keysToSkip = ['job_id', '_created', '_context', '_updated', '_deleted', '_deleted_on'];
 
-    for (const key of Object.keys(jobConfig)) {
+    for (const key of getKeys(jobConfig)) {
         if (!keysToSkip.includes(key)) {
             jobConfigCopy[key] = cloneDeep(jobConfig[key]);
         }
