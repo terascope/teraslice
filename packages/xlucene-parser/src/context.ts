@@ -76,7 +76,7 @@ export function makeContext(arg: i.ContextArg) {
     function isInferredTermType(field: string): boolean {
         const fieldType = getFieldType(field);
         if (!fieldType) return false;
-        return inferredFieldTypes[fieldType] === true;
+        return inferredFieldTypes[fieldType as keyof typeof inferredFieldTypes] === true;
     }
 
     // parse an inferred field type
