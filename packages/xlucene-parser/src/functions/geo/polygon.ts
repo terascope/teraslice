@@ -206,7 +206,9 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function esPolyToPolyQuery(field: string) {
-            const esType = compatMapping[polygonShape.type] || ESGeoShapeType.Polygon;
+            const esType = compatMapping[
+                polygonShape.type as keyof typeof compatMapping
+            ] || ESGeoShapeType.Polygon;
             const query = {
                 geo_shape: {
                     [field]: {

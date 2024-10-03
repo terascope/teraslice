@@ -222,7 +222,7 @@ export interface ParsedRange {
 export function parseRange(
     node: i.Range, variables: xLuceneVariables, excludeInfinite = false
 ): ParsedRange {
-    const results = {};
+    const results: Partial<ParsedRange> = {};
 
     const leftValue = getFieldValue(node.left.value, variables);
     if (!excludeInfinite || !isInfiniteValue(leftValue)) {
