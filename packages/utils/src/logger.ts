@@ -80,7 +80,7 @@ export function debugLogger(testName: string, param?: DebugParam, otherName?: st
             return undefined;
         }
 
-        return logLevels[logLevel] || 20;
+        return logLevels[logLevel as keyof typeof logLevels] || 20;
     };
     // @ts-expect-error
     logger.levels = () => logger.level();
@@ -89,7 +89,7 @@ export function debugLogger(testName: string, param?: DebugParam, otherName?: st
         const fLevel = `[${level.toUpperCase()}]`;
         const debug = debugFn(name);
 
-        logger[level] = (...args: any[]) => {
+        logger[level as keyof Logger] = (...args: any[]) => {
             if (code < logger.level()) return false;
             if (level === 'fatal' && !isTest) {
                 console.error(`${name} ${fLevel}`, ...args);

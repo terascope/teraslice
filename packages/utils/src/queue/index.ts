@@ -65,7 +65,7 @@ export class Queue<T> {
         }
 
         // fast forward head to right spot
-        while (this.head && this.head.value[key] === id) {
+        while (this.head && this.head.value[key as keyof T] === id) {
             this.head = this.head.next;
             this._size -= 1;
         }
@@ -87,7 +87,7 @@ export class Queue<T> {
                 const previousNode = currentNode.prev;
                 const nextNode: Node<T> | undefined = currentNode.next;
 
-                if (currentNode.value[key] === id) {
+                if (currentNode.value[key as keyof T] === id) {
                     if (nextNode) {
                         if (previousNode) {
                             previousNode.next = nextNode;
@@ -122,7 +122,7 @@ export class Queue<T> {
                 const previousNode = currentNode.prev;
                 const nextNode: Node<T> | undefined = currentNode.next;
 
-                if (currentNode.value[key] === val) {
+                if (currentNode.value[key as keyof T] === val) {
                     const data = currentNode.value;
                     isFound = true;
                     if (nextNode) {
@@ -168,14 +168,14 @@ export class Queue<T> {
             return false;
         }
 
-        if (currentNode && currentNode.value[key] === val) {
+        if (currentNode && currentNode.value[key as keyof T] === val) {
             return true;
         }
 
         while (currentNode && currentNode.next) {
             currentNode = currentNode.next;
 
-            if (currentNode.value[key] === val) {
+            if (currentNode.value[key as keyof T] === val) {
                 return true;
             }
         }

@@ -35,7 +35,7 @@ export function getFirstKey<T extends object>(input: T): (keyof T) | undefined {
 
 /**
  * Get the typed keys of an object. Same as Object.keys() but you should get
- * proper typing if "O" is a typed object. Do not use with ano object of
+ * proper typing if "O" is a typed object. Do not use with any object of
  * type "object" or with "{}" as it will return type "never[]".
  */
 export function getKeys<O extends object>(obj: O): Array<keyof O> {
@@ -63,7 +63,7 @@ export function fastAssign<T extends object, U extends object>(target: T, source
     }
 
     for (const [key, val] of Object.entries(source)) {
-        target[key] = val;
+        target[key as keyof typeof target] = val;
     }
 
     return target as T & U;
@@ -97,7 +97,7 @@ export function mapValues<T extends object, R = T>(
     const result = {} as Partial<R>;
 
     for (const [key, val] of Object.entries(input)) {
-        result[key] = fn(val, key as keyof T);
+        result[key as keyof R] = fn(val, key as keyof T);
     }
 
     return result as R;
@@ -111,7 +111,7 @@ export function mapKeys<T extends object, R = T>(
     const result = {} as Partial<R>;
 
     for (const [key, val] of Object.entries(input)) {
-        result[fn(val, key as keyof T)] = val;
+        result[fn(val, key as keyof T) as keyof R] = val;
     }
 
     return result as R;
@@ -145,7 +145,7 @@ export function filterObject<
         excludes = []
     } = by || {};
 
-    const result: Partial<FilteredResult<T, I, E>> = {};
+    const result: Record<string, any> = {};
     Object.keys(data)
         .filter((key) => {
             const included = includes.length ? includes.includes(key as I) : true;
@@ -154,7 +154,7 @@ export function filterObject<
         })
         .sort()
         .forEach((key) => {
-            result[key] = data[key];
+            result[key as keyof typeof result] = data[key as keyof T];
         });
 
     return result as FilteredResult<T, I, E>;
@@ -242,7 +242,7 @@ export function lookup(input: unknown): (key: unknown) => any {
 }
 
 function _lookupStringToObject(stringInput: string): Record<string, string> {
-    return stringInput.split('\n').reduce((asObj, line) => {
+    return stringInput.split('\n').reduce((asObj: Record<string, string>, line) => {
         const [k, v] = trim(line).split(':', 2);
 
         asObj[trim(k)] = trim(v);

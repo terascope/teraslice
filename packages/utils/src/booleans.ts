@@ -38,7 +38,7 @@ const _truthy = Object.freeze({
 export function isTruthy(input: unknown): boolean {
     if (input === true) return true;
     const val = typeof input === 'string' ? input.trim().toLowerCase() : String(input);
-    return _truthy[val] === true;
+    return _truthy[val as keyof typeof _truthy] === true;
 }
 
 /**
@@ -47,7 +47,7 @@ export function isTruthy(input: unknown): boolean {
 export function isFalsy(input: unknown): boolean {
     if (input === false || input == null || input === '') return true;
     const val = typeof input === 'string' ? input.trim().toLowerCase() : String(input);
-    return _falsy[val] === true;
+    return _falsy[val as keyof typeof _falsy] === true;
 }
 
 /**
