@@ -7,6 +7,7 @@ import {
 import {
     parseJSON, cloneDeep, fastCloneDeep,
     firstToLower,
+    getKeys,
 } from '../src/index.js';
 
 describe('DataEntity', () => {
@@ -148,13 +149,11 @@ describe('DataEntity', () => {
                 cloneDeep,
             };
 
-            test.each(Object.keys(cloneMethods))(
+            test.each(getKeys(cloneMethods))(
                 'should be able to %s and get a new metadata',
                 (cloneMethod) => {
                     const newMetadata = { _key: 'hello' };
-                    const cloned: any = cloneMethods[
-                        cloneMethod as keyof typeof cloneMethods
-                    ](dataEntity);
+                    const cloned: any = cloneMethods[cloneMethod](dataEntity);
                     if (cloneMethod === 'cloneDeep') {
                         expect(DataEntity.isDataEntity(cloned)).toBeTrue();
                         expect(Object.keys(cloned)).not.toContain(['__IS_DATAENTITY_KEY', '__ENTITY_METADATA_KEY']);
@@ -180,12 +179,10 @@ describe('DataEntity', () => {
                 }
             );
 
-            test.each(Object.keys(cloneMethods))(
+            test.each(getKeys(cloneMethods))(
                 'should be able to %s and get a new data',
                 (cloneMethod) => {
-                    const cloned = cloneMethods[
-                        cloneMethod as keyof typeof cloneMethods
-                    ](dataEntity);
+                    const cloned = cloneMethods[cloneMethod](dataEntity);
                     const newDataEntity = useClass
                         ? new DataEntity(cloned)
                         : DataEntity.make(cloned);
