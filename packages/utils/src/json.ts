@@ -24,7 +24,7 @@ export function parseJSON<T = Record<string, unknown>>(buf: Buffer | string): T 
     }
 }
 
-/** This will try to convert any BigInt values to a value that is compatible with JSON, it will
+/** This will try to convert any BigInt values to a value that is compatible with JSON,
  * it will iterate through an array, and check all the keys of an object
   */
 export function toJSONCompatibleValue(input: unknown): any {
@@ -35,11 +35,11 @@ export function toJSONCompatibleValue(input: unknown): any {
         return input.map(toJSONCompatibleValue);
     }
 
-    const obj = {};
+    const obj: Record<string, any> = {};
 
     for (const prop in input) {
         if (hasOwn(input, prop)) {
-            obj[prop] = toJSONCompatibleValue(input[prop]);
+            obj[prop] = toJSONCompatibleValue(input[prop as keyof typeof input]);
         }
     }
 

@@ -56,7 +56,7 @@ export function toString(val: unknown): string {
     }
 
     if (typeof val === 'object' && val != null) {
-        if (val[Symbol.iterator]) {
+        if (Symbol.iterator in val) {
             return [...val as any].map(toString).join(',');
         }
 
@@ -65,7 +65,7 @@ export function toString(val: unknown): string {
             return val.toString();
         }
 
-        if (val[Symbol.toPrimitive]) {
+        if (Symbol.toPrimitive in val) {
             return `${val}`;
         }
 
@@ -354,7 +354,7 @@ export function getWordParts(input: string): string[] {
         const nextChar = input.charAt(i + 1);
 
         if (!started && char === '_') {
-            if (nextChar === '_' || WORD_CHARS[nextChar]) {
+            if (nextChar === '_' || nextChar in WORD_CHARS) {
                 word += char;
                 continue;
             }
@@ -362,18 +362,18 @@ export function getWordParts(input: string): string[] {
 
         started = true;
 
-        if (char && WORD_CHARS[char]) {
+        if (char && char in WORD_CHARS) {
             word += char;
         }
 
-        if (WORD_SEPARATOR_CHARS[nextChar]) {
+        if (nextChar in WORD_SEPARATOR_CHARS) {
             parts.push(word);
             word = '';
         }
 
-        if (UPPER_CASE_CHARS[nextChar]) {
+        if (nextChar in UPPER_CASE_CHARS) {
             const nextNextChar = input.charAt(i + 2);
-            if (LOWER_CASE_CHARS[nextNextChar]) {
+            if (nextNextChar in LOWER_CASE_CHARS) {
                 parts.push(word);
                 word = '';
             }
@@ -427,7 +427,7 @@ export function toSafeString(input: string): string {
 function _replaceFirstWordChar(str: string, fn: (char: string) => string): string {
     let found = false;
     return str.split('').map((s) => {
-        if (!found && WORD_CHARS[s]) {
+        if (!found && s in WORD_CHARS) {
             found = true;
             return fn(s);
         }

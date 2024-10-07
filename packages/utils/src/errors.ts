@@ -211,7 +211,7 @@ export function parseErrorInfo(input: unknown, config: TSErrorConfig = {}): Erro
     } else if (input && (input as any).code && s.isString((input as any).code)) {
         code = toStatusErrorCode((input as any).code);
     } else {
-        const httpMsg = STATUS_CODES[statusCode] as string;
+        const httpMsg = STATUS_CODES[statusCode as keyof typeof STATUS_CODES] as string;
         code = toStatusErrorCode(httpMsg);
     }
 
@@ -422,7 +422,7 @@ export interface ElasticsearchError extends Error {
 }
 
 function coerceStatusCode(input: any): number | null {
-    return STATUS_CODES[input] != null ? input : null;
+    return STATUS_CODES[input as keyof typeof STATUS_CODES] != null ? input : null;
 }
 
 export function getErrorStatusCode(

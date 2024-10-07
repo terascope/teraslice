@@ -68,7 +68,10 @@ export function sortBy<T, V = any>(
     return sort(arr, (a, b) => {
         const aVal = _getValFnOrPath(a, fnOrPath);
         const bVal = _getValFnOrPath(b, fnOrPath);
-        if (numLike[typeof aVal] && numLike[typeof bVal]) {
+        if (
+            numLike[typeof aVal as keyof typeof numLike]
+            && numLike[typeof bVal as keyof typeof numLike]
+        ) {
             return (aVal as any) - (bVal as any);
         }
         if (aVal < bVal) {
