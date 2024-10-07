@@ -733,7 +733,7 @@ export default class Jobs {
                 finalJobConfig.job_id = jobConfig[key].cli.job_id;
                 finalJobConfig._updated = jobConfig[key].cli.updated;
             } else {
-                finalJobConfig[key as keyof typeof finalJobConfig] = jobConfig[key];
+                finalJobConfig[key] = jobConfig[key];
             }
         });
         return finalJobConfig;
@@ -969,19 +969,19 @@ export default class Jobs {
                 final: true
             },
             started: {
-                message: ``,
+                message: `${display.setAction('start', 'past')}, ${name}, ${id}`,
                 final: false
             },
             restarted: {
-                message: ``,
+                message: `${display.setAction('restart', 'past')}, ${name}, ${id}`,
                 final: false
             },
             restarting: {
-                message: ``,
+                message: `${display.setAction('restart', 'present')}, ${name}, ${id}`,
                 final: false
             },
             resumed: {
-                message: ``,
+                message: `${display.setAction('resume', 'past')}, ${name}, ${id}`,
                 final: false
             }
         };

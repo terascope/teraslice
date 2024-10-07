@@ -146,7 +146,7 @@ export function filterObject<
     } = by || {};
 
     const result: Record<string, any> = {};
-    Object.keys(data)
+    getKeys(data)
         .filter((key) => {
             const included = includes.length ? includes.includes(key as I) : true;
             const excluded = excludes.length ? excludes.includes(key as E) : false;
@@ -154,7 +154,7 @@ export function filterObject<
         })
         .sort()
         .forEach((key) => {
-            result[key as keyof typeof result] = data[key as keyof T];
+            result[key as keyof typeof result] = data[key];
         });
 
     return result as FilteredResult<T, I, E>;

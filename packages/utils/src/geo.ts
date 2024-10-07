@@ -595,9 +595,7 @@ function _isEsTypeMapKey(
 export function toGeoJSON(input: unknown): GeoShape | undefined {
     if (isGeoJSON(input)) {
         const { type: inputType } = input;
-        const type = _isEsTypeMapKey(inputType)
-            ? esTypeMap[inputType]
-            : inputType;
+        const type = _isEsTypeMapKey(inputType) ? esTypeMap[inputType] : inputType;
 
         if (type === GeoShapeType.Point) {
             return { ...input, type } as GeoShapePoint;

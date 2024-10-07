@@ -5,7 +5,7 @@ import { pDelay, DataEntity } from '@terascope/utils';
 import { terasliceOpPath } from '../helpers/index.js';
 import {
     WorkerExecutionContext, TestContext, newTestExecutionConfig,
-    FetcherCore, ProcessorCore, newTestSlice, sliceAnalyticsMetrics, SliceAnalyticsData
+    FetcherCore, ProcessorCore, newTestSlice, SliceAnalyticsData
 } from '../../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
