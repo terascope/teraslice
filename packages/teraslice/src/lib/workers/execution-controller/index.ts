@@ -8,7 +8,7 @@ import type { EventEmitter } from 'node:events';
 import {
     TSError, includes, get,
     pDelay, getFullErrorStack, logError,
-    pWhile, makeISODate, Logger
+    pWhile, makeISODate, Logger, isFunction
 } from '@terascope/utils';
 import {
     Context, SlicerExecutionContext, Slice, isPromAvailable
@@ -62,6 +62,7 @@ export class ExecutionController {
     private slicerFailed = false;
     private startTime: number | undefined;
     private isDoneDispatching!: boolean | undefined;
+    private startOnPaused: boolean;
 
     constructor(context: Context, executionContext: SlicerExecutionContext) {
         const workerId = generateWorkerId(context);
@@ -80,6 +81,7 @@ export class ExecutionController {
         const workerDisconnectTimeout = get(config, 'worker_disconnect_timeout');
         const nodeDisconnectTimeout = get(config, 'node_disconnect_timeout');
         const shutdownTimeout = get(config, 'shutdown_timeout');
+        this.startOnPaused = false;
         this.server = new ExController.Server({
             port: slicerPort,
             networkLatencyBuffer,
@@ -316,6 +318,11 @@ export class ExecutionController {
         this.isInitialized = true;
         /// This will change the  '/ready' endpoint to Ready
         this.server.executionReady = true;
+        if (this.startOnPaused) {
+            await this.pause();
+            /// We need to set the status back to paused
+            await this.executionStorage.setStatus(this.exId, 'paused');
+        }
     }
 
     async run() {
@@ -428,16 +435,33 @@ export class ExecutionController {
             this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2'
             && eventType === 'SIGTERM'
         ) {
-            await this.stateStorage.refresh();
-            const status = await this.executionStorage.getStatus(this.exId);
-            const runningStatuses = this.executionStorage.getRunningStatuses();
-            this.logger.debug(`Execution ${this.exId} is currently in a ${status} state`);
-            /// This is an indication that the cluster_master did not call for this
-            /// shutdown. We want to restart in this case.
-            if (status !== 'stopping' && includes(runningStatuses, status)) {
-                this.logger.info('Skipping shutdown to allow for relocation...');
-                return;
+            const currentSlicer = this.executionContext.slicer();
+            if (isFunction(currentSlicer.isRelocatable)) {
+                if (currentSlicer.isRelocatable()) {
+                    await this.stateStorage.refresh();
+                    const status = await this.executionStorage.getStatus(this.exId);
+                    const runningStatuses = this.executionStorage.getRunningStatuses();
+                    this.logger.debug(`Execution ${this.exId} is currently in a ${status} state`);
+                    /// This is an indication that the cluster_master did not call for this
+                    /// shutdown. We want to relocate in this case.
+                    if (
+                        !includes(['stopping', 'recovering'], status)
+                        && includes(runningStatuses, status)
+                    ) {
+                        if (status === 'running') {
+                            this.logger.info('Setting  execution status to relocating-resume');
+                            await this.executionStorage.setStatus(this.exId, 'relocating-resume');
+                        } else if (status === 'paused') {
+                            this.logger.info('Setting  execution status to relocating-paused');
+                            await this.executionStorage.setStatus(this.exId, 'relocating-paused');
+                        }
+                        this.logger.info('Skipping shutdown to allow for relocation...');
+                        return;
+                    }
+                }
             }
+            this.logger.warn('This slicer is not relocatable and will continue to shutdown.');
+
         }
 
         if (this.isShutdown) return;
@@ -941,24 +965,30 @@ export class ExecutionController {
         if (includes(terminalStatuses, status)) {
             error = new Error(invalidStateMsg('terminal'));
         } else if (includes(runningStatuses, status)) {
-            // In the case of a running status on startup we
+            // In the case of a relocating status on startup we
             // want to continue to start up. Only in V2.
-            // Right now we will depend on kubernetes `crashloopbackoff` in the case of
-            // an unexpected exit to the ex process. Ex: an OOM
-            // NOTE: If this becomes an issue we may want to add a new state. Maybe `interrupted`
-            if (this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2') {
+            console.log('@@@@@ status: ', status);
+            if (
+                this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2'
+                && (status === 'relocating-resume' || status === 'relocating-paused')
+            ) {
                 // Check to see if `isRelocatable` exists.
                 // Allows for older assets to work with k8sV2
-                if (this.executionContext.slicer().isRelocatable) {
+                const currentSlicer = this.executionContext.slicer();
+                if (isFunction(currentSlicer.isRelocatable)) {
                     this.logger.info(`Execution ${this.exId} detected to have been restarted..`);
-                    const relocatable = this.executionContext.slicer().isRelocatable();
+                    const relocatable = currentSlicer.isRelocatable();
                     if (relocatable) {
                         this.logger.info(`Execution ${this.exId} is relocatable and will continue reinitializing...`);
+                        if (status === 'relocating-paused') {
+                            this.startOnPaused = true;
+                        }
                     } else {
                         this.logger.error(`Execution ${this.exId} is not relocatable and will shutdown...`);
                     }
                     return relocatable;
                 }
+                this.logger.warn('The slicer cannot relocate because it is not relocatable. Shutting down.');
             }
             error = new Error(invalidStateMsg('running'));
             // If in a running status the execution process
