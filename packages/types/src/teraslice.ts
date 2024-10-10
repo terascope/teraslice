@@ -19,8 +19,13 @@ export interface AssetStatusResponse {
 }
 
 export type AssetIDResponse = {
-    _id: string;
+    asset_id: string;
+    /**
+        @deprecated Use asset_id instead
+    */
+    _id?: string;
 };
+
 // On asset upload
 export interface AssetUploadQuery {
     blocking?: boolean;

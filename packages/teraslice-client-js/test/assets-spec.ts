@@ -56,7 +56,7 @@ describe('Teraslice Assets', () => {
 
         describe('when called with a string', () => {
             const contents = 'example-input';
-            const idResponse: AssetIDResponse = { _id: 'some-asset-id' };
+            const idResponse: AssetIDResponse = { asset_id: 'some-asset-id' };
 
             beforeEach(async () => {
                 scope.post('/assets', contents)
@@ -76,7 +76,7 @@ describe('Teraslice Assets', () => {
         describe.skip('when called with a stream', () => {
             const testFilePath = path.join(dirname, 'fixtures', 'test.txt');
             const contents = fs.readFileSync(testFilePath, 'utf-8');
-            const idResponse: AssetIDResponse = { _id: 'some-asset-id' };
+            const idResponse: AssetIDResponse = { asset_id: 'some-asset-id' };
 
             beforeEach(() => {
                 scope.post('/assets', (body) => contents === body)
@@ -336,7 +336,7 @@ describe('Teraslice Assets', () => {
     });
 
     describe('->remove', () => {
-        const idResponse: AssetIDResponse = { _id: 'someId' };
+        const idResponse: AssetIDResponse = { asset_id: 'someId' };
 
         beforeEach(() => {
             scope.delete('/assets/some-asset-id')
