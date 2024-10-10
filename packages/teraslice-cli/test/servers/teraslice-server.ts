@@ -12,7 +12,7 @@ const rootResponse: Teraslice.ApiRootResponse = {
 };
 
 const postAssetResponse: Teraslice.AssetIDResponse = {
-    _id: 'assset_test_id'
+    asset_id: 'assset_test_id'
 };
 
 export default class TerasliceServer {
