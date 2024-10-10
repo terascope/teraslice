@@ -143,7 +143,7 @@ export default class Job extends Client {
         const checkStatus = async (): Promise<Teraslice.ExecutionStatus> => {
             let result;
             try {
-                const ex = await this.get(`/jobs/${this._jobId}/ex`, options);
+                const ex = await this.get<Teraslice.ExecutionConfig>(`/jobs/${this._jobId}/ex`, options);
                 if (exId && ex.ex_id !== exId) {
                     console.warn(`[WARNING] the execution ${ex.ex_id} has changed from ${exId}`);
                 }
@@ -164,7 +164,7 @@ export default class Job extends Client {
             // These are terminal states for a job so if we're not explicitly
             // watching for these then we need to stop waiting as the job
             // status won't change further.
-            if (terminal[result]) {
+            if (result in terminal) {
                 throw new TSError(
                     `Job cannot reach the target status, "${target}", because it is in the terminal state, "${result}"`,
                     { context: { lastStatus: result } }

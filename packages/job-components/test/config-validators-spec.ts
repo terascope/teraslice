@@ -313,7 +313,7 @@ describe('when using native clustering', () => {
                 default: 'hi',
                 doc: 'some formatted value',
                 format(val: any) {
-                    const obj = {
+                    const obj: Record<string, any> = {
                         hi: 'there',
                     };
                     if (!obj[val]) {
@@ -450,7 +450,7 @@ describe('when using native clustering', () => {
                 default: 'hi',
                 doc: 'some formatted value',
                 format(val: any) {
-                    const obj = {
+                    const obj: Record<string, any> = {
                         hi: 'there',
                     };
                     if (!obj[val]) {

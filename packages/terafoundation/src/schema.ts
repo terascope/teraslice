@@ -19,7 +19,7 @@ export function foundationSchema() {
             doc: 'Logging destinations. Expects an array of logging targets',
             default: ['console'],
             format(config: unknown): void {
-                const values = { console: true, file: true };
+                const values: Record<string, boolean> = { console: true, file: true };
                 if (!Array.isArray(config)) {
                     throw new Error('value for logging set in terafoundation must be an array');
                 }
@@ -35,7 +35,7 @@ export function foundationSchema() {
             doc: 'Default logging levels',
             default: 'info',
             format(val: unknown): void {
-                const check = {
+                const check: Record<string, boolean> = {
                     trace: true, debug: true, info: true, warn: true, error: true, fatal: true
                 };
                 if (typeof val === 'string') {
@@ -44,7 +44,7 @@ export function foundationSchema() {
                     }
                 } else if (Array.isArray(val)) {
                     // expect data formatted like this =>  [{console: 'warn'}, {file: 'info'}]
-                    const options = { console: true, file: true };
+                    const options: Record<string, boolean> = { console: true, file: true };
                     const incorrectKeys = val.reduce((prev, curr) => {
                         Object.keys(curr).forEach((key) => {
                             if (!options[key]) {

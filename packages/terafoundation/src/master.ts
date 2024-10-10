@@ -105,7 +105,9 @@ export default function masterModule<
     }
 
     function shouldProcessRestart(code: number, signal?: string) {
-        const signalOptions = { SIGKILL: true, SIGTERM: true, SIGINT: true };
+        const signalOptions: Record<string, boolean> = {
+            SIGKILL: true, SIGTERM: true, SIGINT: true
+        };
         let bool = true;
 
         // code === 0  means it was a clean exit

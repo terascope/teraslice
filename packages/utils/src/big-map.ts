@@ -153,7 +153,10 @@ function _valueForKey<K, V, M extends Map<K, V>>(maps: M[], key: K): V | undefin
     return undefined;
 }
 
-function _iterator<R>(items: Map<any, any>[], name: any): IterableIterator<R> {
+function _iterator<R>(
+    items: Map<any, any>[],
+    name: 'keys' | 'values' | 'entries' | typeof Symbol.iterator
+): IterableIterator<R> {
     let index = 0;
 
     let iterator = items[index][name]();

@@ -115,7 +115,8 @@ export default async function validateConfigs<
 
     for (const schemaKey of schemaKeys) {
         const subSchema = schema[schemaKey] || {};
-        const subConfig: Record<string, any> = sysconfig[schemaKey] || {};
+        const subConfig: Record<string, any>
+            = sysconfig[schemaKey as keyof Terafoundation.SysConfig<S>] || {};
 
         const validatedConfig = validateConfig(cluster, subSchema, subConfig);
         result[schemaKey] = validatedConfig;

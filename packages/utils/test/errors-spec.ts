@@ -235,7 +235,7 @@ describe('Error Utils', () => {
                     });
                 } else {
                     it(`should have "${key}" set to ${JSON.stringify(val)}`, () => {
-                        expect(tsError[key]).toEqual(val);
+                        expect(tsError[key as keyof TSError]).toEqual(val);
                     });
                 }
             }

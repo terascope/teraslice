@@ -1,6 +1,7 @@
 import { isNumber, cloneDeep } from '@terascope/utils';
 import * as i from './interfaces.js';
 import * as core from '../messenger/index.js';
+import { AggregatedExecutionAnalytics } from '@terascope/types';
 
 export class Server extends core.Server {
     private clusterAnalytics: i.ClusterAnalytics;
@@ -85,13 +86,14 @@ export class Server extends core.Server {
 
         this.handleResponse(socket, 'cluster:analytics', (msg: core.Message) => {
             const data = msg.payload as i.ExecutionAnalyticsMessage;
-            if (!this.clusterAnalytics[data.kind]) {
+            if (!(data.kind in this.clusterAnalytics)) {
                 return;
             }
+            const current = this.clusterAnalytics[data.kind as keyof i.ClusterAnalytics];
 
             for (const [field, value] of Object.entries(data.stats)) {
-                if (this.clusterAnalytics[data.kind][field] != null) {
-                    this.clusterAnalytics[data.kind][field] += value;
+                if (field in current) {
+                    current[field as keyof AggregatedExecutionAnalytics] += value;
                 }
             }
 
@@ -99,7 +101,7 @@ export class Server extends core.Server {
                 scope: exId,
                 payload: {
                     diff: data.stats,
-                    current: this.clusterAnalytics[data.kind],
+                    current,
                 },
             });
 

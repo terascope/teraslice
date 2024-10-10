@@ -67,7 +67,7 @@ const _cloneTypeHandlers = Object.freeze({
 });
 
 export function cloneDeep<T = any>(input: T): T {
-    const handler = _cloneTypeHandlers[kindOf(input)] || clone;
+    const handler = _cloneTypeHandlers[kindOf(input) as keyof typeof _cloneTypeHandlers] || clone;
     return handler(input);
 }
 

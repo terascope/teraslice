@@ -62,16 +62,16 @@ const NumberTypeFNDict = {
     [FieldType.Long]: toBigIntOrThrow,
 };
 
-export function coerceToNumberType(type: FieldType): (input: unknown) => number {
+export function coerceToNumberType(type: FieldType): (input: unknown) => number | bigint {
     const numberValidator = isValidateNumberType(type);
-    const coerceFn = NumberTypeFNDict[type];
+    const coerceFn = NumberTypeFNDict[type as keyof typeof NumberTypeFNDict];
     const smallSize = _shouldCheckIntSize(type);
 
     if (coerceFn == null) {
         throw new Error(`Unsupported type ${type}, please provide a valid numerical field type`);
     }
 
-    return function _coerceToNumberType(input: unknown): number {
+    return function _coerceToNumberType(input: unknown): number | bigint {
         /**
          * We should keep these irrational numbers since they
          * useful for certain operations, however they will
