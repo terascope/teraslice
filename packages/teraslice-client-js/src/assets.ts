@@ -38,7 +38,8 @@ export default class Assets extends Client {
             });
         }
 
-        const results = await this.delete(`/assets/${id}`, searchOptions);
+        const results = await this.delete<Teraslice.AssetIDResponse>(`/assets/${id}`, searchOptions);
+
         return this.parse(results);
     }
 

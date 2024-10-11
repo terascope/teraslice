@@ -3,6 +3,7 @@ import {
     TSError, parseErrorInfo, logError,
     toBoolean, Logger
 } from '@terascope/utils';
+import { Teraslice } from '@terascope/types';
 import type { Context } from '@terascope/job-components';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { AssetsStorage } from '../../storage/index.js';
@@ -57,20 +58,24 @@ export class AssetsService {
                     results.push(buff);
                 });
 
-                req.on('end', () => {
-                    const data = Buffer.concat(results);
-                    this.assetsStorage.save(data, blocking)
-                        .then(({ assetId, created }) => {
-                            const code = created ? 201 : 200;
-                            res.status(code).json({
-                                _id: assetId
-                            });
-                        })
-                        .catch((err) => {
-                            const { statusCode, message } = parseErrorInfo(err);
-                            logError(this.logger, err, 'failure saving assets via proxy request');
-                            sendError(res, statusCode, message, this.logger);
-                        });
+                req.on('end', async () => {
+                    try {
+                        const data = Buffer.concat(results);
+
+                        const { assetId, created } = await this.assetsStorage.save(data, blocking);
+
+                        const code = created ? 201 : 200;
+                        const assetResponse: Teraslice.AssetIDResponse = {
+                            asset_id: assetId,
+                            _id: assetId
+                        };
+
+                        res.status(code).json(assetResponse);
+                    } catch (err) {
+                        const { statusCode, message } = parseErrorInfo(err);
+                        logError(this.logger, err, 'failure saving assets via proxy request');
+                        sendError(res, statusCode, message, this.logger);
+                    }
                 });
 
                 req.on('error', (err) => {
@@ -90,9 +95,14 @@ export class AssetsService {
                         error: `asset ${assetId} is not formatted correctly, please provide the full asset_id`
                     });
                 } else {
+                    const assetResponse: Teraslice.AssetIDResponse = {
+                        asset_id: assetId,
+                        _id: assetId
+                    };
+
                     requestHandler(async () => {
                         await this.assetsStorage.remove(assetId);
-                        return { _id: assetId };
+                        return assetResponse;
                     });
                 }
             });
@@ -206,7 +216,9 @@ export class AssetsService {
                 record.id = asset._id;
                 return record;
             });
+
             const { assetConnectionType } = getBackendConfig(this.context, this.logger);
+
             if (assetConnectionType === 's3') {
                 const s3Assets = await this.assetsStorage.grabS3Info();
                 const updatedAssets = this.getS3AssetStatus(s3Assets, assets);
