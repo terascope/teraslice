@@ -37,11 +37,15 @@ describe('assets', () => {
 
         // save the asset ID that was submitted to terslice
         const assetId = result.asset_id;
+        // TODO: remove this in teraslice V3
+        const oldAssetId = result._id;
+
         const response = await terasliceHarness.teraslice.assets.remove(assetId);
 
         // ensure the deleted asset's ID matches that of
         // the saved asset
         expect(assetId).toEqual(response.asset_id);
+        expect(oldAssetId).toEqual(response.asset_id);
     });
 
     // Test a bad asset
@@ -82,6 +86,8 @@ describe('assets', () => {
             blocking: true
         });
         const assetId = assetResponse.asset_id;
+        // TODO: remove this in teraslice V3
+        const oldAssetId = assetResponse._id;
 
         const ex = await terasliceHarness.submitAndStart(jobSpec);
 
@@ -93,7 +99,9 @@ describe('assets', () => {
         expect(waitResponse).toEqual(workers);
 
         const execution = await ex.config();
+
         expect(execution.assets[0]).toEqual(assetId);
+        expect(execution.assets[0]).toEqual(oldAssetId);
 
         await ex.stop({ blocking: true });
     });
