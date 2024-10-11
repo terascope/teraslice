@@ -95,7 +95,6 @@ export class AssetsService {
                         error: `asset ${assetId} is not formatted correctly, please provide the full asset_id`
                     });
                 } else {
-
                     const assetResponse: Teraslice.AssetIDResponse = {
                         asset_id: assetId,
                         _id: assetId
