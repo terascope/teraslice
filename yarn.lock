@@ -5718,17 +5718,17 @@ eslint-import-resolver-node@^0.3.9:
     is-core-module "^2.13.0"
     resolve "^1.22.4"
 
-eslint-module-utils@^2.9.0:
+eslint-module-utils@^2.12.0:
   version "2.12.0"
   resolved "https://registry.yarnpkg.com/eslint-module-utils/-/eslint-module-utils-2.12.0.tgz#fe4cfb948d61f49203d7b08871982b65b9af0b0b"
   integrity sha512-wALZ0HFoytlyh/1+4wuZ9FJCD/leWHQzzrxJ8+rebyReSLk7LApMyd3WJaLVoN+D5+WIdJyDK1c6JnE65V4Zyg==
   dependencies:
     debug "^3.2.7"
 
-eslint-plugin-import@~2.30.0:
-  version "2.30.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-import/-/eslint-plugin-import-2.30.0.tgz#21ceea0fc462657195989dd780e50c92fe95f449"
-  integrity sha512-/mHNE9jINJfiD2EKkg1BKyPyUk4zdnT54YgbOgfjSakWT5oyX/qQLVNTkehyfpcMxZXMy1zyonZ2v7hZTX43Yw==
+eslint-plugin-import@~2.31.0:
+  version "2.31.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-import/-/eslint-plugin-import-2.31.0.tgz#310ce7e720ca1d9c0bb3f69adfd1c6bdd7d9e0e7"
+  integrity sha512-ixmkI62Rbc2/w8Vfxyh1jQRTdRTF52VxwRVHl/ykPAmqG+Nb7/kNn+byLP0LxPgI7zWA16Jt82SybJInmMia3A==
   dependencies:
     "@rtsao/scc" "^1.1.0"
     array-includes "^3.1.8"
@@ -5738,7 +5738,7 @@ eslint-plugin-import@~2.30.0:
     debug "^3.2.7"
     doctrine "^2.1.0"
     eslint-import-resolver-node "^0.3.9"
-    eslint-module-utils "^2.9.0"
+    eslint-module-utils "^2.12.0"
     hasown "^2.0.2"
     is-core-module "^2.15.1"
     is-glob "^4.0.3"
@@ -5747,6 +5747,7 @@ eslint-plugin-import@~2.30.0:
     object.groupby "^1.0.3"
     object.values "^1.2.0"
     semver "^6.3.1"
+    string.prototype.trimend "^1.0.8"
     tsconfig-paths "^3.15.0"
 
 eslint-plugin-jest-dom@^5.4.0:
@@ -9392,9 +9393,9 @@ mv@~2:
     rimraf "~2.4.0"
 
 nan@^2.14.0, nan@^2.18.0, nan@^2.19.0:
-  version "2.20.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.20.0.tgz#08c5ea813dd54ed16e5bd6505bf42af4f7838ca3"
-  integrity sha512-bk3gXBZDGILuuo/6sKtr0DQmSThYHLtNCdSdXk9YkxD/jK6X2vmCyyXBBxyqZ4XcnzTyYEAThfX3DCEnLf6igw==
+  version "2.22.0"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.22.0.tgz#31bc433fc33213c97bad36404bb68063de604de3"
+  integrity sha512-nbajikzWTMwsW+eSsNm3QwlOs7het9gGJU5dDZzRTQGk03vyBOauxgI4VakDzE0PtsGTmXPsXTbbjVhRwR5mpw==
 
 nanoid@^5.0.7:
   version "5.0.7"
