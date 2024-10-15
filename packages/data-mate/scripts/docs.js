@@ -2,7 +2,7 @@
 import {
     toTitleCase, isEmpty, flatten,
     flattenDeep, firstToUpper, uniq,
-    isPlainObject, trimEnd,
+    isPlainObject, trim, trimEnd,
 } from '@terascope/utils';
 import { inspect } from 'node:util';
 import { functionConfigRepository } from '../dist/src/index.js';
@@ -126,14 +126,18 @@ function generateAliases(fnDef) {
  * @param fnDef {import('..').FunctionDefinitionConfig}
 */
 function generateFunctionDoc(fnDef) {
+    const trimmedDesc = trimEnd(trim(fnDef.description), '.');
+    const fnDescription = firstToUpper(trimmedDesc)
+        .split('\n')
+        .join('\n>');
+
     return [
         `
 ### \`${fnDef.name}\`
 
 **Type:** \`${fnDef.type}\`
 ${generateAliases(fnDef)}
-> ${firstToUpper(trimEnd(fnDef.description.trim(), '.')).split('\n')
-        .join('\n>')}`.trim(),
+> ${fnDescription}`.trim(),
         ...generateArgDocs(fnDef),
         ...generateAccepts(fnDef),
         ...generateExamples(fnDef, fnDef.examples)
