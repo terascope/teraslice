@@ -126,14 +126,17 @@ function generateAliases(fnDef) {
  * @param fnDef {import('..').FunctionDefinitionConfig}
 */
 function generateFunctionDoc(fnDef) {
+    const fnDescription = firstToUpper(trimEnd(fnDef.description.trim(), '.'))
+        .split('\n')
+        .join('\n>');
+
     return [
         `
 ### \`${fnDef.name}\`
 
 **Type:** \`${fnDef.type}\`
 ${generateAliases(fnDef)}
-> ${firstToUpper(trimEnd(fnDef.description.trim(), '.')).split('\n')
-    .join('\n>')}`.trim(),
+> ${fnDescription}`.trim(),
         ...generateArgDocs(fnDef),
         ...generateAccepts(fnDef),
         ...generateExamples(fnDef, fnDef.examples)
