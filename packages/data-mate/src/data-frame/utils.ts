@@ -50,7 +50,7 @@ export function concatColumnsToColumns<T extends Record<string, any>>(
     offset: number
 ): [keyof T, Builder<any>][] {
     for (const [field, builder] of builders) {
-        const col = columns.find(((c) => c.name === field));
+        const col = columns.find((c) => c.name === field);
         if (col) {
             for (const [i, v] of col.vector.values()) {
                 builder.data.set(i + offset, v);

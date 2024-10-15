@@ -561,7 +561,7 @@ export class NativeClustering {
     }
 
     private _notifyNodesWithExecution(exId: string, messageData: any, excludeNode?: string) {
-        return new Promise(((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             let nodes = this._findNodesForExecution(exId);
             if (excludeNode) {
                 nodes = nodes.filter((node) => node.hostname !== excludeNode);
@@ -597,7 +597,7 @@ export class NativeClustering {
                     this.logger.error(error);
                     reject(error);
                 });
-        }));
+        });
     }
 
     readyForAllocation() {
