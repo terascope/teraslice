@@ -286,12 +286,12 @@ export class ApiService {
         });
 
         v1routes.get('/jobs/:jobId', (req, res) => {
-            const include = (typeof req.query.include === 'string') ? req.query.include : '';
+            const includeEx = req.query.ex;
             const { jobId } = req.params;
             // @ts-expect-error
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve job');
-            include.includes('ex_status')
-                ? requestHandler(async () => this.jobsService.getJobWithExInfo(jobId))
+            typeof includeEx === 'string'
+                ? requestHandler(async () => this.jobsService.getJobWithExInfo(jobId, includeEx.split(',')))
                 : requestHandler(async () => this.jobsStorage.get(jobId));
         });
 
