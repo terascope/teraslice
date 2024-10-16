@@ -35,6 +35,7 @@
             "development/e2e",
             "development/k8s",
             "development/node",
+            "development/typescript",
             "development/contributing"
         ]
     },

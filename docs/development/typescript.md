@@ -1,4 +1,8 @@
-# Tips for working with typescript
+---
+title: Typescript
+---
+
+# Typescript tips
 
 ## Accessing objects
 It is a common javascript pattern to check if an object property exists by trying to access it:
@@ -17,11 +21,11 @@ if (obj[key as keyof typeof obj]) {
 }
 ```
 
-`as` lets you set the type of `key` to whatever type we assign instead of typescript inferring the type.<br>
-`keyof` makes a union type out of all the keys of an object type.<br>
+`as` lets you set the type of `key` to whatever type we assign instead of typescript inferring the type.<br/>
+`keyof` makes a union type out of all the keys of an object type.<br/>
 `typeof` refers to the type of a variable or property, in this case `obj`.
 
-### There are cleaner ways to check if a key exists on an object.
+**There are cleaner ways to check if a key exists on an object.**<br/>
 We can use the `in` operator. `in` checks if an object or its prototype chain has a property with a name. Many times this check can narrow the type of `key`.
 
 ```typescript
