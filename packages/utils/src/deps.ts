@@ -13,6 +13,7 @@ import geoHash from 'latlon-geohash';
 import pMap from 'p-map';
 import { AnyObject } from './interfaces.js';
 import { DataEntity } from './entities/index.js';
+import { isKey } from './objects.js';
 
 /**
  * Detect if an object created by Object.create(null)
@@ -67,7 +68,8 @@ const _cloneTypeHandlers = Object.freeze({
 });
 
 export function cloneDeep<T = any>(input: T): T {
-    const handler = _cloneTypeHandlers[kindOf(input) as keyof typeof _cloneTypeHandlers] || clone;
+    const kind = kindOf(input);
+    const handler = isKey(_cloneTypeHandlers, kind) ? _cloneTypeHandlers[kind] : clone;
     return handler(input);
 }
 

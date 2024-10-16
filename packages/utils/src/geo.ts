@@ -44,6 +44,7 @@ import { isArrayLike } from './arrays.js';
 import { isPlainObject, geoHash, getTypeOf } from './deps.js';
 import { trim, toString } from './strings.js';
 import { parseNumberList, toNumber, isNumber } from './numbers.js';
+import { isKey } from './objects.js';
 
 export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCase());
 
@@ -582,12 +583,6 @@ const esTypeMap = {
     [ESGeoShapeType.Polygon]: GeoShapeType.Polygon,
 } as const;
 
-function _isEsTypeMapKey(
-    inputType: ESGeoShapeType | GeoShapeType
-): inputType is keyof typeof esTypeMap {
-    return inputType in esTypeMap;
-}
-
 /** Only able to convert geo-points to either a geo-json point or a simple polygon.
  * There is no current support for creating polygon with holes or multi-polygon
  * as of right now. geoJSON input is made sure to be properly formatted for its type value
@@ -595,15 +590,9 @@ function _isEsTypeMapKey(
 export function toGeoJSON(input: unknown): GeoShape | undefined {
     if (isGeoJSON(input)) {
         const { type: inputType } = input;
-        const type = _isEsTypeMapKey(inputType) ? esTypeMap[inputType] : inputType;
+        const type = isKey(esTypeMap, inputType) ? esTypeMap[inputType] : inputType;
 
-        if (type === GeoShapeType.Point) {
-            return { ...input, type } as GeoShapePoint;
-        }
-        if (type === GeoShapeType.Polygon) {
-            return { ...input, type } as GeoShapePolygon;
-        }
-        return { ...input, type } as GeoShapeMultiPolygon;
+        return { ...input, type } as GeoShape;
     }
 
     if (isGeoPoint(input)) {

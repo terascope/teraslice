@@ -28,7 +28,7 @@ export interface ClusterAnalytics {
 }
 
 export interface ExecutionAnalyticsMessage extends Message {
-    kind: string;
+    kind: keyof ClusterAnalytics;
     stats: ExecutionAnalytics;
 }
 

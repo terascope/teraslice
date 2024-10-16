@@ -34,12 +34,10 @@ export function getFirstKey<T extends object>(input: T): (keyof T) | undefined {
 }
 
 /**
- * Get the typed keys of an object. Same as Object.keys() but you should get
- * proper typing if "O" is a typed object. Do not use with any object of
- * type "object" or with "{}" as it will return type "never[]".
- */
-export function getKeys<O extends object>(obj: O): Array<keyof O> {
-    return Object.keys(obj) as Array<keyof O>;
+ * Verify that k is a key of object O
+*/
+export function isKey<T extends object>(O: T, k: PropertyKey): k is keyof T {
+    return k in O;
 }
 
 /**
@@ -146,7 +144,7 @@ export function filterObject<
     } = by || {};
 
     const result: Record<string, any> = {};
-    getKeys(data)
+    Object.keys(data)
         .filter((key) => {
             const included = includes.length ? includes.includes(key as I) : true;
             const excluded = excludes.length ? excludes.includes(key as E) : false;
@@ -154,7 +152,9 @@ export function filterObject<
         })
         .sort()
         .forEach((key) => {
-            result[key as keyof typeof result] = data[key];
+            if (isKey(data, key)) {
+                result[key] = data[key];
+            }
         });
 
     return result as FilteredResult<T, I, E>;

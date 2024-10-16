@@ -6,6 +6,7 @@ import { isFunction } from './functions.js';
 import { getTypeOf, isPlainObject } from './deps.js';
 import { tryParseJSON } from './json.js';
 import * as s from './strings.js';
+import { isKey } from './objects.js';
 
 /**
  * A custom Error class with additional properties,
@@ -210,9 +211,10 @@ export function parseErrorInfo(input: unknown, config: TSErrorConfig = {}): Erro
         code = toStatusErrorCode(config.code);
     } else if (input && (input as any).code && s.isString((input as any).code)) {
         code = toStatusErrorCode((input as any).code);
+    } else if (isKey(STATUS_CODES, statusCode)) {
+        code = toStatusErrorCode(STATUS_CODES[statusCode]);
     } else {
-        const httpMsg = STATUS_CODES[statusCode as keyof typeof STATUS_CODES] as string;
-        code = toStatusErrorCode(httpMsg);
+        code = toStatusErrorCode(undefined);
     }
 
     return {
@@ -422,7 +424,7 @@ export interface ElasticsearchError extends Error {
 }
 
 function coerceStatusCode(input: any): number | null {
-    return STATUS_CODES[input as keyof typeof STATUS_CODES] != null ? input : null;
+    return isKey(STATUS_CODES, input) ? input : null;
 }
 
 export function getErrorStatusCode(

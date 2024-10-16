@@ -5,6 +5,7 @@ import { isPlainObject } from './deps.js';
 import { toString, isString, trimAndToLower } from './strings.js';
 import { uniq } from './arrays.js';
 import { isTest } from './env.js';
+import { isKey } from './objects.js';
 
 interface DebugParamObj {
     module: string;
@@ -13,7 +14,6 @@ interface DebugParamObj {
 }
 
 type DebugParam = DebugParamObj | string;
-let logLevel = process.env.DEBUG_LOG_LEVEL || 'debug';
 export const logLevels = {
     trace: 10,
     debug: 20,
@@ -22,6 +22,10 @@ export const logLevels = {
     error: 50,
     fatal: 60,
 };
+
+let logLevel = (process.env.DEBUG_LOG_LEVEL && isKey(logLevels, process.env.DEBUG_LOG_LEVEL))
+    ? process.env.DEBUG_LOG_LEVEL
+    : 'debug';
 
 export function debugLogger(testName: string, param?: DebugParam, otherName?: string): Logger {
     const logger: Logger = new EventEmitter() as Logger;
@@ -72,7 +76,7 @@ export function debugLogger(testName: string, param?: DebugParam, otherName?: st
     logger.level = (value: Logger.LogLevel): number | undefined => {
         if (value) {
             for (const [level, code] of Object.entries(logLevels)) {
-                if (value === level || value === code) {
+                if ((value === level || value === code) && isKey(logLevels, level)) {
                     logLevel = level;
                     return undefined;
                 }
@@ -80,7 +84,7 @@ export function debugLogger(testName: string, param?: DebugParam, otherName?: st
             return undefined;
         }
 
-        return logLevels[logLevel as keyof typeof logLevels] || 20;
+        return logLevels[logLevel] || 20;
     };
     // @ts-expect-error
     logger.levels = () => logger.level();

@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import {
-    has, toString, pDelay, pMap, pRetry, getKeys,
+    has, toString, pDelay, pMap,
+    pRetry, isKey
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import chalk from 'chalk';
@@ -728,24 +729,28 @@ export default class Jobs {
 
     formatJobConfig(jobConfig: JobConfigFile) {
         const finalJobConfig: Record<string, any> = {};
-        getKeys(jobConfig).forEach((key) => {
-            if (key === '__metadata') {
-                finalJobConfig.job_id = jobConfig[key].cli.job_id;
-                finalJobConfig._updated = jobConfig[key].cli.updated;
-            } else {
-                finalJobConfig[key] = jobConfig[key];
+        Object.keys(jobConfig).forEach((key) => {
+            if (isKey(jobConfig, key)) {
+                if (key === '__metadata') {
+                    finalJobConfig.job_id = jobConfig[key].cli.job_id;
+                    finalJobConfig._updated = jobConfig[key].cli.updated;
+                } else {
+                    finalJobConfig[key] = jobConfig[key];
+                }
             }
         });
-        return finalJobConfig;
+        return finalJobConfig as Partial<Teraslice.JobConfig>;
     }
 
     getLocalJSONConfigs(srcDir: string, files: string[]) {
-        const localJobConfigs: Record<string, any> = {};
+        const localJobConfigs: Record<string, Partial<Teraslice.JobConfig>> = {};
         for (const file of files) {
             const filePath = path.join(srcDir, file);
             const jobConfig: JobConfigFile = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
             const formattedJobConfig = this.formatJobConfig(jobConfig);
-            localJobConfigs[formattedJobConfig.job_id] = formattedJobConfig;
+            if (formattedJobConfig.job_id) {
+                localJobConfigs[formattedJobConfig.job_id] = formattedJobConfig;
+            }
         }
         return localJobConfigs;
     }
@@ -799,7 +804,11 @@ export default class Jobs {
         /// We only want to display a diff of this field if it's greater than a minute
         let showUpdateField = false;
         const jobConfigUpdateTime = new Date(job.config._updated).getTime();
-        const localConfigUpdateTime = new Date(localJobConfigs[job.id]._updated).getTime();
+        const updated = localJobConfigs[job.id]._updated;
+        if (updated === undefined) {
+            throw new Error(`Could not retrieve last update time of job ${job.id}`);
+        }
+        const localConfigUpdateTime = new Date(updated).getTime();
         const timeDiff = Math.abs(localConfigUpdateTime - jobConfigUpdateTime);
         if (timeDiff > (1000 * 60)) {
             showUpdateField = true;

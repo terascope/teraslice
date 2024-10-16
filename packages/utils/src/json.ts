@@ -1,7 +1,7 @@
 import { toString } from './strings.js';
 import { getTypeOf } from './deps.js';
 import { isBigInt, bigIntToJSON } from './numbers.js';
-import { hasOwn } from './objects.js';
+import { hasOwn, isKey } from './objects.js';
 
 export function tryParseJSON<T = any>(input: unknown): T {
     try {
@@ -38,8 +38,8 @@ export function toJSONCompatibleValue(input: unknown): any {
     const obj: Record<string, any> = {};
 
     for (const prop in input) {
-        if (hasOwn(input, prop)) {
-            obj[prop] = toJSONCompatibleValue(input[prop as keyof typeof input]);
+        if (hasOwn(input, prop) && isKey(input, prop)) {
+            obj[prop] = toJSONCompatibleValue(input[prop]);
         }
     }
 

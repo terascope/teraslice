@@ -8,7 +8,7 @@ import { validateJobConfig } from './config-validators.js';
 import { jobSchema } from './job-schemas.js';
 import { OperationLoader } from './operation-loader/index.js';
 import { registerApis } from './register-apis.js';
-import { OperationModule } from './operations/index.js';
+import { OperationAPIConstructor, OperationModule } from './operations/index.js';
 
 export class JobValidator {
     public schema: convict.Schema<any>;
@@ -31,7 +31,7 @@ export class JobValidator {
         // top level job validation occurs, but not operations
         const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec));
         const assetIds = jobConfig.assets || [];
-        const apis: Record<string, any> = {};
+        const apis: Record<string, OperationAPIConstructor> = {};
 
         type ValidateJobFn = (job: ValidatedJobConfig) => void;
         let validateJobFns: ValidateJobFn[] = [];

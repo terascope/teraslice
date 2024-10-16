@@ -1,12 +1,11 @@
-import { isNumber, cloneDeep } from '@terascope/utils';
-import * as i from './interfaces.js';
-import * as core from '../messenger/index.js';
-import { AggregatedExecutionAnalytics } from '@terascope/types';
+import { cloneDeep, isKey, isNumber } from '@terascope/utils';
+import { Message, ResponseError, Server as _Server } from '../messenger/index.js';
+import { ClusterAnalytics, ExecutionAnalyticsMessage, ServerOptions } from './interfaces.js';
 
-export class Server extends core.Server {
-    private clusterAnalytics: i.ClusterAnalytics;
+export class Server extends _Server {
+    private clusterAnalytics: ClusterAnalytics;
 
-    constructor(opts: i.ServerOptions) {
+    constructor(opts: ServerOptions) {
         const {
             port,
             actionTimeout,
@@ -53,30 +52,30 @@ export class Server extends core.Server {
         await this.listen();
     }
 
-    sendExecutionPause(exId: string): Promise<core.Message | null> {
+    sendExecutionPause(exId: string): Promise<Message | null> {
         return this.send(exId, 'execution:pause');
     }
 
-    sendExecutionResume(exId: string): Promise<core.Message | null> {
+    sendExecutionResume(exId: string): Promise<Message | null> {
         return this.send(exId, 'execution:resume');
     }
 
-    sendExecutionAnalyticsRequest(exId: string): Promise<core.Message | null> {
+    sendExecutionAnalyticsRequest(exId: string): Promise<Message | null> {
         return this.send(exId, 'execution:analytics');
     }
 
-    getClusterAnalytics(): i.ClusterAnalytics {
+    getClusterAnalytics(): ClusterAnalytics {
         return cloneDeep(this.clusterAnalytics);
     }
 
-    onExecutionFinished(fn: (clientId: string, error?: core.ResponseError) => void): void {
+    onExecutionFinished(fn: (clientId: string, error?: ResponseError) => void): void {
         this.on('execution:finished', (msg) => {
             fn(msg.scope, msg.error);
         });
     }
 
     private onConnection(exId: string, socket: SocketIO.Socket) {
-        this.handleResponse(socket, 'execution:finished', (msg: core.Message) => {
+        this.handleResponse(socket, 'execution:finished', (msg: Message) => {
             this.emit('execution:finished', {
                 scope: exId,
                 payload: {},
@@ -84,16 +83,16 @@ export class Server extends core.Server {
             });
         });
 
-        this.handleResponse(socket, 'cluster:analytics', (msg: core.Message) => {
-            const data = msg.payload as i.ExecutionAnalyticsMessage;
+        this.handleResponse(socket, 'cluster:analytics', (msg: Message) => {
+            const data = msg.payload as ExecutionAnalyticsMessage;
             if (!(data.kind in this.clusterAnalytics)) {
                 return;
             }
-            const current = this.clusterAnalytics[data.kind as keyof i.ClusterAnalytics];
+            const current = this.clusterAnalytics[data.kind];
 
             for (const [field, value] of Object.entries(data.stats)) {
-                if (field in current) {
-                    current[field as keyof AggregatedExecutionAnalytics] += value;
+                if (isKey(current, field)) {
+                    current[field] += value;
                 }
             }
 

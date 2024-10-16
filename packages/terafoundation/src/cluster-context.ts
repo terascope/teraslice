@@ -1,5 +1,5 @@
 import _cluster from 'node:cluster';
-import { get, isFunction, getFullErrorStack } from '@terascope/utils';
+import { get, isFunction, getFullErrorStack, isKey } from '@terascope/utils';
 import type { Terafoundation } from '@terascope/types';
 import { getArgs } from './sysconfig.js';
 import validateConfigs from './validate-configs.js';
@@ -49,9 +49,9 @@ export class ClusterContext<
             let keyFound = false;
             if (config.descriptors) {
                 Object.keys(config.descriptors).forEach((key) => {
-                    if (this.assignment === key) {
+                    if (this.assignment === key && isKey(config, key)) {
                         keyFound = true;
-                        config[key as keyof typeof config](this);
+                        config[key](this);
                     }
                 });
                 // if no key was explicitly set then default to worker

@@ -1,11 +1,11 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { pDelay, DataEntity } from '@terascope/utils';
+import { pDelay, DataEntity, isKey } from '@terascope/utils';
 import { terasliceOpPath } from '../helpers/index.js';
 import {
     WorkerExecutionContext, TestContext, newTestExecutionConfig,
-    FetcherCore, ProcessorCore, newTestSlice, SliceAnalyticsData
+    FetcherCore, ProcessorCore, newTestSlice
 } from '../../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -210,14 +210,16 @@ describe('WorkerExecutionContext', () => {
 
             for (const metric of ['size', 'time']) {
                 for (let i = 0; i < ops; i++) {
-                    const previous = previousAnalytics[metric as keyof SliceAnalyticsData][i];
-                    const current = analytics![metric as keyof SliceAnalyticsData][i];
-                    if (i === 0) {
-                        if (current !== previous) {
-                            console.warn(`Metric "${metric}" should not have changed for the fetcher. Expected ${current} === ${previous}`);
+                    if (isKey(previousAnalytics, metric)) {
+                        const previous = previousAnalytics[metric][i];
+                        const current = analytics![metric][i];
+                        if (i === 0) {
+                            if (current !== previous) {
+                                console.warn(`Metric "${metric}" should not have changed for the fetcher. Expected ${current} === ${previous}`);
+                            }
+                        } else if (current < previous) {
+                            console.warn(`Metric "${metric}" should be greater than the last run. Expected ${current} >= ${previous}.`);
                         }
-                    } else if (current < previous) {
-                        console.warn(`Metric "${metric}" should be greater than the last run. Expected ${current} >= ${previous}.`);
                     }
                 }
             }

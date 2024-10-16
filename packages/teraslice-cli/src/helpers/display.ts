@@ -5,7 +5,7 @@ import CliTable from 'cli-table3';
 import easyTable from 'easy-table';
 import prompts from 'prompts';
 import { toTitleCase } from '@terascope/utils';
-import { Action, Tense, UpdateActions } from '../interfaces';
+import { Action, Tense, UpdateActions } from '../interfaces.js';
 
 function pretty(headerValues: string[], rows: string[]) {
     const header = headerValues.map((item): ttyTable.Header => ({
