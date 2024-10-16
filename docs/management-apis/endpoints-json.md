@@ -290,6 +290,15 @@ $ curl 'localhost:5678/v1/jobs'
 
 Returns the job that matches given job id.
 
+**Query Options:**
+
+- `ex: string = [execution controller field options]`
+
+You can pass in a query using `ex` which takes field options for what you want returned in the `ex` object. This gives information on the current execution accociated with the specified job. If no execution is present, it will return the `ex` field with an empty object. If no fields are passed in, it will return all fields. Fields MUST be separated with commas. Example: `localhost:5678/v1/jobs/<job_id>?ex=_status,assets`
+
+Look at the returned object in [GET v1/ex](#get-v1ex) for valid field names.
+
+
 **Usage:**
 
 ```sh
@@ -307,6 +316,30 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd'
     "_created": "2018-09-21T17:49:05.029Z",
     "_updated": "2018-11-01T13:15:22.743Z",
     "_context": "job"
+}
+```
+When getting a job with current execution info:
+```sh
+$ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd?ex=assets,_status'
+{
+    "name": "Example",
+    "lifecycle": "persistent",
+    "workers": 1,
+    "operations": [
+        {
+            "_op": "noop"
+        }
+    ]
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
+    "_created": "2018-09-21T17:49:05.029Z",
+    "_updated": "2018-11-01T13:15:22.743Z",
+    "_context": "job",
+    "ex": {
+        "assets": [
+            "74dcba12408fc02868d8c88b15be8a386092091b"
+        ],
+        "_status": "running"
+    }
 }
 ```
 
@@ -952,3 +985,5 @@ $ curl 'localhost:5678/v1/ex/1cb20d4c-520a-44fe-a802-313f41dd5b05/controller'
     }
 ]
 ```
+
+## test /stuff
