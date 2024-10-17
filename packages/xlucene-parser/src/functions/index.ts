@@ -1,4 +1,5 @@
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
+import { isKey } from '@terascope/utils';
 import geoBoxFn from './geo/box.js';
 import geoDistanceFn from './geo/distance.js';
 import geoPolygonFn from './geo/polygon.js';
@@ -24,9 +25,10 @@ export function initFunction({ node, variables, type_config }: {
     variables?: xLuceneVariables;
     type_config: xLuceneTypeConfig;
 }): FunctionMethods {
-    const fnType = xLuceneFunctions[
-        node.name as keyof typeof xLuceneFunctions
-    ] as FunctionDefinition | undefined;
+    const fnType = isKey(xLuceneFunctions, node.name)
+        ? xLuceneFunctions[node.name]
+        : undefined;
+
     if (fnType == null) {
         throw new TypeError(`Unknown xLucene function "${node.name}"`);
     }

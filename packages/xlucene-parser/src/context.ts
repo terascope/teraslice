@@ -1,4 +1,4 @@
-import { parseGeoDistance, parseGeoPoint } from '@terascope/utils';
+import { isKey, parseGeoDistance, parseGeoPoint } from '@terascope/utils';
 import { GeoPoint, xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import * as i from './interfaces.js';
 import * as utils from './utils.js';
@@ -76,7 +76,7 @@ export function makeContext(arg: i.ContextArg) {
     function isInferredTermType(field: string): boolean {
         const fieldType = getFieldType(field);
         if (!fieldType) return false;
-        return inferredFieldTypes[fieldType as keyof typeof inferredFieldTypes] === true;
+        return isKey(inferredFieldTypes, fieldType);
     }
 
     // parse an inferred field type

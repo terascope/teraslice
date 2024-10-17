@@ -1,6 +1,7 @@
 import { FieldType } from '@terascope/types';
 import { isArrayLike } from './arrays.js';
 import { getTypeOf } from './deps.js';
+import { isKey } from './objects.js';
 
 let supportsBigInt = true;
 try {
@@ -364,8 +365,8 @@ const INT_SIZES = {
 function _validateNumberFieldType(input: unknown, type: FieldType): number {
     const int = toIntegerOrThrow(input);
 
-    if (type in INT_SIZES) {
-        const { max, min } = INT_SIZES[type as keyof typeof INT_SIZES];
+    if (isKey(INT_SIZES, type)) {
+        const { max, min } = INT_SIZES[type];
         if (int >= max) {
             throw new TypeError(`Invalid byte, value of ${int} is greater than maximum size of ${max}`);
         }
