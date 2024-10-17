@@ -260,11 +260,10 @@ export class TestContext implements i.Context {
 
                         const defaultLabels = {
                             name: 'mockPromMetrics',
-                            assignment,
                             ...labels
                         };
 
-                        const finalPrefix = prefix || `teraslice_${config.assignment}_`;
+                        const finalPrefix = prefix || `teraslice_${assignment}_`;
 
                         if (useDefaultMetrics) {
                             const defaultMetricsConfig = {
