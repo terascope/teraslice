@@ -72,6 +72,7 @@ export interface JobConfig extends ValidatedJobConfig {
     _updated: string | Date;
     _deleted?: boolean;
     _deleted_on?: string | Date;
+    ex?: any;
 }
 
 export enum RecoveryCleanupType {

@@ -358,6 +358,37 @@ export class JobsService {
     }
 
     /**
+     * Get the job with the latest ex status
+     *
+     * @param {string} jobId
+     * @param {string} [fields]
+     * @returns {Promise<JobConfig>}
+    */
+    async getJobWithExInfo(
+        jobId: string,
+        fields?: string[],
+    ): Promise<JobConfig> {
+        if (!jobId || !isString(jobId)) {
+            throw new TSError(`Invalid job id, got ${getTypeOf(jobId)}`);
+        }
+
+        const job = await this.jobsStorage.get(jobId);
+
+        const ex = await this.executionStorage.search(
+            `job_id: "${jobId}"`, undefined, 1, '_created:desc', fields || undefined
+        ) as ExecutionConfig[];
+
+        if (!ex.length || ex[0]._deleted === true) {
+            job.ex = {};
+            return job;
+        }
+
+        job.ex = ex[0];
+
+        return job;
+    }
+
+    /**
      * Get the active execution
      *
      * @param {string} jobId

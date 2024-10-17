@@ -286,10 +286,13 @@ export class ApiService {
         });
 
         v1routes.get('/jobs/:jobId', (req, res) => {
+            const { ex } = req.query;
             const { jobId } = req.params;
             // @ts-expect-error
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve job');
-            requestHandler(async () => this.jobsStorage.get(jobId));
+            typeof ex === 'string'
+                ? requestHandler(async () => this.jobsService.getJobWithExInfo(jobId, ex.split(',')))
+                : requestHandler(async () => this.jobsStorage.get(jobId));
         });
 
         v1routes.put('/jobs/:jobId', (req, res) => {
