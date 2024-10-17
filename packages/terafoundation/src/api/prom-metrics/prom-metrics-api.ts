@@ -66,7 +66,6 @@ export class PromMetrics {
 
             this.default_labels = {
                 name: terasliceName,
-                assignment: apiConfig.assignment,
                 url: prom_metrics_display_url,
                 ...apiConfig.labels
             };
