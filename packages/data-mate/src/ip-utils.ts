@@ -35,7 +35,7 @@ export function ipTermOrThrow(value: unknown) {
         return pRangeTerm(range, true);
     }
 
-     return isIPTerm(value, true)
+    return isIPTerm(value, true);
 }
 
 export function ipTerm(value: unknown): MatchValueFn {
@@ -46,11 +46,11 @@ export function ipTerm(value: unknown): MatchValueFn {
         return pRangeTerm(range, false);
     }
 
-    return isIPTerm(value, false)
+    return isIPTerm(value, false);
 }
 
-function isIPTerm(value:unknown, shouldThrow:boolean) {
-    return function (ip: unknown) {
+function isIPTerm(value: unknown, shouldThrow: boolean) {
+    return function _isIPTerm(ip: unknown) {
         if (ip == null) {
             return false;
         }
@@ -65,8 +65,8 @@ function isIPTerm(value:unknown, shouldThrow:boolean) {
         }
 
         return ip === value;
-    }
-};
+    };
+}
 
 function validateIPRange(rangeQuery: ParsedRange) {
     const values = getRangeValues(rangeQuery);
@@ -136,17 +136,17 @@ function pRangeTerm(range: ip6addr.AddrRange, shouldThrow: boolean): MatchValueF
     };
 }
 
-function createRange(rangeQuery: ParsedRange){
+function createRange(rangeQuery: ParsedRange) {
     const { minValue, maxValue } = validateIPRange(rangeQuery);
     return ip6addr.createAddrRange(minValue, maxValue);
 }
 
 export function ipRange(rangeQuery: ParsedRange): MatchValueFn {
-    const range = createRange(rangeQuery)
+    const range = createRange(rangeQuery);
     return pRangeTerm(range, false);
 }
 
 export function ipRangeOrThrow(rangeQuery: ParsedRange) {
-    const range = createRange(rangeQuery)
+    const range = createRange(rangeQuery);
     return pRangeTerm(range, true);
 }
