@@ -8,7 +8,7 @@ import {
 import { compareTermDates, dateRange } from './dates.js';
 import { regexp, wildcard, findWildcardField } from './string.js';
 import { BooleanCB } from '../interfaces.js';
-import { ipTerm, ipRange } from './ip.js';
+import { ipTerm, ipRange } from '../../ip-utils.js';
 
 export default function buildLogicFn(
     parser: p.Parser,

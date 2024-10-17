@@ -35,3 +35,7 @@ export interface ExtractFieldConfig {
     start?: any;
     end?: any;
 }
+
+export interface MatchValueFn {
+    (value: unknown): boolean;
+}

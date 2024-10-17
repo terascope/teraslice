@@ -4,7 +4,7 @@ import {
 } from 'date-fns';
 import { getTypeOf, getValidDate } from '@terascope/utils';
 import { isInfiniteMax, isInfiniteMin, ParsedRange } from 'xlucene-parser';
-import { MatchValueFn } from './interfaces.js';
+import { MatchValueFn } from '../../interfaces.js';
 
 // TODO: handle datemath
 
