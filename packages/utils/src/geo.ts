@@ -44,6 +44,7 @@ import { isArrayLike } from './arrays.js';
 import { isPlainObject, geoHash, getTypeOf } from './deps.js';
 import { trim, toString } from './strings.js';
 import { parseNumberList, toNumber, isNumber } from './numbers.js';
+import { isKey } from './objects.js';
 
 export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCase());
 
@@ -589,8 +590,9 @@ const esTypeMap = {
 export function toGeoJSON(input: unknown): GeoShape | undefined {
     if (isGeoJSON(input)) {
         const { type: inputType } = input;
-        const type = esTypeMap[inputType] ? esTypeMap[inputType] : inputType;
-        return { ...input, type };
+        const type = isKey(esTypeMap, inputType) ? esTypeMap[inputType] : inputType;
+
+        return { ...input, type } as GeoShape;
     }
 
     if (isGeoPoint(input)) {

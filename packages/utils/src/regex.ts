@@ -110,7 +110,7 @@ export function wildCardToRegex(term: string): RegExp {
             baseRegex += '[^\\n\\r\\s]';
         } else if (char === ' ') {
             baseRegex += '\\s';
-        } else if (WORD_CHARS[char] || char === '\\') {
+        } else if (char in WORD_CHARS || char === '\\') {
             baseRegex += `${char}`;
         } else {
             baseRegex += `\\${char}`;

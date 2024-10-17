@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import {
-    has, toString, pDelay, pMap, pRetry,
+    has, toString, pDelay, pMap,
+    pRetry, isKey
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import chalk from 'chalk';
@@ -17,7 +18,9 @@ import {
     JobConfigFile,
     StatusUpdate,
     RegisteredStatusEnum,
-    AllStatusTypes
+    AllStatusTypes,
+    Messages,
+    UpdateActions
 } from '../interfaces.js';
 
 const statusEnum = Teraslice.ExecutionStatusEnum;
@@ -725,25 +728,29 @@ export default class Jobs {
     }
 
     formatJobConfig(jobConfig: JobConfigFile) {
-        const finalJobConfig: Partial<Teraslice.JobConfig> = {};
+        const finalJobConfig: Record<string, any> = {};
         Object.keys(jobConfig).forEach((key) => {
-            if (key === '__metadata') {
-                finalJobConfig.job_id = jobConfig[key].cli.job_id;
-                finalJobConfig._updated = jobConfig[key].cli.updated;
-            } else {
-                finalJobConfig[key] = jobConfig[key];
+            if (isKey(jobConfig, key)) {
+                if (key === '__metadata') {
+                    finalJobConfig.job_id = jobConfig[key].cli.job_id;
+                    finalJobConfig._updated = jobConfig[key].cli.updated;
+                } else {
+                    finalJobConfig[key] = jobConfig[key];
+                }
             }
         });
-        return finalJobConfig;
+        return finalJobConfig as Partial<Teraslice.JobConfig>;
     }
 
     getLocalJSONConfigs(srcDir: string, files: string[]) {
-        const localJobConfigs = {};
+        const localJobConfigs: Record<string, Partial<Teraslice.JobConfig>> = {};
         for (const file of files) {
             const filePath = path.join(srcDir, file);
             const jobConfig: JobConfigFile = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
             const formattedJobConfig = this.formatJobConfig(jobConfig);
-            localJobConfigs[formattedJobConfig.job_id as string] = formattedJobConfig;
+            if (formattedJobConfig.job_id) {
+                localJobConfigs[formattedJobConfig.job_id] = formattedJobConfig;
+            }
         }
         return localJobConfigs;
     }
@@ -797,7 +804,11 @@ export default class Jobs {
         /// We only want to display a diff of this field if it's greater than a minute
         let showUpdateField = false;
         const jobConfigUpdateTime = new Date(job.config._updated).getTime();
-        const localConfigUpdateTime = new Date(localJobConfigs[job.id]._updated).getTime();
+        const updated = localJobConfigs[job.id]._updated;
+        if (updated === undefined) {
+            throw new Error(`Could not retrieve last update time of job ${job.id}`);
+        }
+        const localConfigUpdateTime = new Date(updated).getTime();
         const timeDiff = Math.abs(localConfigUpdateTime - jobConfigUpdateTime);
         if (timeDiff > (1000 * 60)) {
             showUpdateField = true;
@@ -860,7 +871,7 @@ export default class Jobs {
      * Logs status updates relative to the actions being performed on the job
      */
 
-    private logUpdate(args: { action?: string; msg?: string; job: JobMetadata }) {
+    private logUpdate(args: { action?: UpdateActions; msg?: string; job: JobMetadata }) {
         const {
             action,
             msg,
@@ -888,7 +899,7 @@ export default class Jobs {
     }
 
     private getUpdateMessage(
-        action: string,
+        action: keyof Messages,
         job: JobMetadata
     ): { message: string; final: boolean } {
         const {
@@ -965,6 +976,22 @@ export default class Jobs {
             deleted: {
                 message: `${name} has been deleted`,
                 final: true
+            },
+            started: {
+                message: `${display.setAction('start', 'past')}, ${name}, ${id}`,
+                final: false
+            },
+            restarted: {
+                message: `${display.setAction('restart', 'past')}, ${name}, ${id}`,
+                final: false
+            },
+            restarting: {
+                message: `${display.setAction('restart', 'present')}, ${name}, ${id}`,
+                final: false
+            },
+            resumed: {
+                message: `${display.setAction('resume', 'past')}, ${name}, ${id}`,
+                final: false
             }
         };
 

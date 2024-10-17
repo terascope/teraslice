@@ -2,6 +2,7 @@ import { TypedArray } from '@terascope/types';
 import { Many, ListOfRecursiveArraysOrValues } from './interfaces.js';
 import { get } from './deps.js';
 import { isBuffer } from './buffers.js';
+import { isKey } from './objects.js';
 
 /** A native implementation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {
@@ -66,9 +67,9 @@ export function sortBy<T, V = any>(
     fnOrPath: ((value: T) => V) | string,
 ): T[] {
     return sort(arr, (a, b) => {
-        const aVal = _getValFnOrPath(a, fnOrPath);
-        const bVal = _getValFnOrPath(b, fnOrPath);
-        if (numLike[typeof aVal] && numLike[typeof bVal]) {
+        const aVal = _getValFnOrPath<T, V>(a, fnOrPath);
+        const bVal = _getValFnOrPath<T, V>(b, fnOrPath);
+        if (isKey(numLike, typeof aVal) && isKey(numLike, typeof bVal)) {
             return (aVal as any) - (bVal as any);
         }
         if (aVal < bVal) {

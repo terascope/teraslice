@@ -43,3 +43,21 @@ export enum RegisteredStatusEnum {
 export type RegisteredStatus = keyof typeof RegisteredStatusEnum;
 
 export type AllStatusTypes = Teraslice.ExecutionStatus | RegisteredStatus;
+
+export type MessageObject = {
+    message: string;
+    final: boolean;
+};
+
+export type Messages = {
+    [key in UpdateActions]: MessageObject;
+};
+
+export type UpdateActions = 'running' | 'stopping' | 'status' | 'adjust_workers_terminal'
+    | 'recover_not_failed' | 'check_for_errors' | 'quick_completed' | 'resuming'
+    | 'starting' | 'start_watching' | 'pausing' | 'paused' | 'stopped'
+    | 'view' | 'cannot_pause' | 'cannot_stop' | 'deleted' | 'started' | 'restarted' | 'restarting' | 'resumed';
+
+export type Action = 'start' | 'stop' | 'pause' | 'restart' | 'resume';
+
+export type Tense = 'past' | 'present';

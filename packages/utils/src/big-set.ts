@@ -109,7 +109,7 @@ function _getSetWithValue<V, M extends Set<V>>(sets: M[], value: V): M | undefin
     return undefined;
 }
 
-function _iterator<R>(items: Set<any>[], name: any): IterableIterator<R> {
+function _iterator<R>(items: Set<any>[], name: typeof Symbol.iterator): IterableIterator<R> {
     let index = 0;
 
     let iterator = items[index][name]();

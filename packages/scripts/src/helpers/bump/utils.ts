@@ -157,11 +157,18 @@ export function bumpPackagesList(
     }
 }
 
-function getDepKeyFromType(type: BumpType): string {
-    if (type === BumpType.Prod) return 'dependencies';
-    if (type === BumpType.Dev) return 'devDependencies';
-    if (type === BumpType.Peer) return 'peerDependencies';
-    if (type === BumpType.Resolution) return 'resolutions';
+enum DepKeys {
+    dependencies = 'dependencies',
+    devDependencies = 'devDependencies',
+    peerDependencies = 'peerDependencies',
+    resolutions = 'resolutions'
+}
+
+function getDepKeyFromType(type: BumpType): DepKeys {
+    if (type === BumpType.Prod) return DepKeys.dependencies;
+    if (type === BumpType.Dev) return DepKeys.devDependencies;
+    if (type === BumpType.Peer) return DepKeys.peerDependencies;
+    if (type === BumpType.Resolution) return DepKeys.resolutions;
     throw new Error(`Unknown BumpType ${type} given`);
 }
 

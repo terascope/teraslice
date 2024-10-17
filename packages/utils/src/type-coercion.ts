@@ -13,7 +13,7 @@ import {
     toIntegerOrThrow, toFloatOrThrow,
 } from './numbers.js';
 import { toGeoJSONOrThrow, parseGeoPoint } from './geo.js';
-import { hasOwn } from './objects.js';
+import { hasOwn, isKey } from './objects.js';
 import { isArrayLike, castArray } from './arrays.js';
 import { getTypeOf, isPlainObject } from './deps.js';
 import { noop } from './functions.js';
@@ -62,16 +62,18 @@ const NumberTypeFNDict = {
     [FieldType.Long]: toBigIntOrThrow,
 };
 
-export function coerceToNumberType(type: FieldType): (input: unknown) => number {
+export function coerceToNumberType(type: FieldType): (input: unknown) => number | bigint {
     const numberValidator = isValidateNumberType(type);
-    const coerceFn = NumberTypeFNDict[type];
+    const coerceFn = isKey(NumberTypeFNDict, type)
+        ? NumberTypeFNDict[type]
+        : null;
     const smallSize = _shouldCheckIntSize(type);
 
     if (coerceFn == null) {
         throw new Error(`Unsupported type ${type}, please provide a valid numerical field type`);
     }
 
-    return function _coerceToNumberType(input: unknown): number {
+    return function _coerceToNumberType(input: unknown): number | bigint {
         /**
          * We should keep these irrational numbers since they
          * useful for certain operations, however they will

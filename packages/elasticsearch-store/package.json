@@ -31,9 +31,9 @@
     },
     "dependencies": {
         "@terascope/data-mate": "^1.3.1",
-        "@terascope/data-types": "^1.3.0",
+        "@terascope/data-types": "^1.3.1",
         "@terascope/types": "^1.2.0",
-        "@terascope/utils": "^1.3.0",
+        "@terascope/utils": "^1.3.1",
         "ajv": "^8.17.1",
         "ajv-formats": "^3.0.1",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
@@ -43,7 +43,7 @@
         "opensearch2": "npm:@opensearch-project/opensearch@^2.2.1",
         "setimmediate": "^1.0.5",
         "uuid": "^10.0.0",
-        "xlucene-translator": "^1.3.0"
+        "xlucene-translator": "^1.3.1"
     },
     "devDependencies": {
         "@types/uuid": "^10.0.0"

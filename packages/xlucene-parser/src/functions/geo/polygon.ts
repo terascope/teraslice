@@ -206,7 +206,10 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function esPolyToPolyQuery(field: string) {
-            const esType = compatMapping[polygonShape.type] || ESGeoShapeType.Polygon;
+            const esType = utils.isKey(compatMapping, polygonShape.type)
+                ? compatMapping[polygonShape.type]
+                : ESGeoShapeType.Polygon;
+
             const query = {
                 geo_shape: {
                     [field]: {
@@ -218,6 +221,7 @@ const geoPolygon: i.FunctionDefinition = {
                     }
                 }
             } as AnyQuery;
+
             if (logger.level() === 10) logger.trace('built geo polygon to polygon query', { query });
 
             return { query };

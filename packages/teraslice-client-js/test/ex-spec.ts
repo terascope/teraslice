@@ -142,12 +142,12 @@ describe('Teraslice Ex', () => {
         });
     });
 
-    const methodTestCases: string[] = [
+    const methodTestCases = [
         'stop',
         'pause',
         'resume'
-    ];
-    describe.each(methodTestCases)('->%s', (method: string) => {
+    ] as const;
+    describe.each(methodTestCases)('->%s', (method) => {
         describe('when called with nothing', () => {
             beforeEach(() => {
                 scope.post(`/ex/some-ex-id/_${method}`)

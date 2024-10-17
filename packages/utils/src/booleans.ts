@@ -1,4 +1,5 @@
 import { getTypeOf } from './deps.js';
+import { isKey } from './objects.js';
 /**
  * Convert any input into a boolean, this will work with stringified boolean
  *
@@ -38,7 +39,7 @@ const _truthy = Object.freeze({
 export function isTruthy(input: unknown): boolean {
     if (input === true) return true;
     const val = typeof input === 'string' ? input.trim().toLowerCase() : String(input);
-    return _truthy[val] === true;
+    return isKey(_truthy, val);
 }
 
 /**
@@ -47,7 +48,7 @@ export function isTruthy(input: unknown): boolean {
 export function isFalsy(input: unknown): boolean {
     if (input === false || input == null || input === '') return true;
     const val = typeof input === 'string' ? input.trim().toLowerCase() : String(input);
-    return _falsy[val] === true;
+    return isKey(_falsy, val);
 }
 
 /**

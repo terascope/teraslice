@@ -6,7 +6,7 @@ import {
 } from '../src/entities/index.js';
 import {
     parseJSON, cloneDeep, fastCloneDeep,
-    firstToLower,
+    firstToLower, isKey,
 } from '../src/index.js';
 
 describe('DataEntity', () => {
@@ -152,7 +152,10 @@ describe('DataEntity', () => {
                 'should be able to %s and get a new metadata',
                 (cloneMethod) => {
                     const newMetadata = { _key: 'hello' };
-                    const cloned = cloneMethods[cloneMethod](dataEntity);
+                    if (!isKey(cloneMethods, cloneMethod)) {
+                        throw new Error(`${cloneMethod} key does not exist on object ${cloneMethods}`);
+                    }
+                    const cloned: any = cloneMethods[cloneMethod](dataEntity);
                     if (cloneMethod === 'cloneDeep') {
                         expect(DataEntity.isDataEntity(cloned)).toBeTrue();
                         expect(Object.keys(cloned)).not.toContain(['__IS_DATAENTITY_KEY', '__ENTITY_METADATA_KEY']);
@@ -181,6 +184,9 @@ describe('DataEntity', () => {
             test.each(Object.keys(cloneMethods))(
                 'should be able to %s and get a new data',
                 (cloneMethod) => {
+                    if (!isKey(cloneMethods, cloneMethod)) {
+                        throw new Error(`${cloneMethod} key does not exist on object ${cloneMethods}`);
+                    }
                     const cloned = cloneMethods[cloneMethod](dataEntity);
                     const newDataEntity = useClass
                         ? new DataEntity(cloned)

@@ -174,13 +174,13 @@ describe('Teraslice Job', () => {
         });
     });
 
-    const methodTestCases: string[] = [
+    const methodTestCases = [
         'start',
         'stop',
         'pause',
         'resume'
-    ];
-    describe.each(methodTestCases)('->%s', (method: string) => {
+    ] as const;
+    describe.each(methodTestCases)('->%s', (method) => {
         describe('when called with nothing', () => {
             beforeEach(() => {
                 scope.post(`/jobs/some-job-id/_${method}`)

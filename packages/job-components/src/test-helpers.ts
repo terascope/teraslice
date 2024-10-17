@@ -541,7 +541,7 @@ export class TestContext implements i.Context {
             },
             getTestClients(): i.TestClients {
                 const cachedClients = _cachedClients.get(ctx) || {};
-                const clients = {};
+                const clients: Record<string, any> = {};
 
                 Object.keys(cachedClients).forEach((key) => {
                     const [type, endpoint] = key.split(':', 2) as [string, string];
