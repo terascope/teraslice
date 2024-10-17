@@ -8,8 +8,9 @@ import { inspect } from 'node:util';
 import * as p from 'xlucene-parser';
 import type { DataFrame } from '../DataFrame.js';
 import { compareTermDates, dateRange } from './date-utils.js';
-import { MatchRowFn, MatchValueFn } from './interfaces.js';
-import { ipRange, ipTerm } from './ip-utils.js';
+import { MatchRowFn } from './interfaces.js';
+import { MatchValueFn } from '../../interfaces.js';
+import { ipRangeOrThrow, ipTermOrThrow } from '../../ip-utils.js';
 import { findWildcardFields, regexp, wildcard } from './wildcards-and-regex-utils.js';
 
 /**
@@ -180,7 +181,7 @@ function typeFunctions(
     if (type === xLuceneFieldType.IP) {
         if (p.isRange(node)) {
             const rangeQuery = p.parseRange(node, variables);
-            return ipRange(rangeQuery);
+            return ipRangeOrThrow(rangeQuery);
         }
 
         const value = p.getFieldValue(node.value, variables);
@@ -189,7 +190,7 @@ function typeFunctions(
             return () => false;
         }
 
-        return ipTerm(value);
+        return ipTermOrThrow(value);
     }
 
     if (type === xLuceneFieldType.Boolean) {

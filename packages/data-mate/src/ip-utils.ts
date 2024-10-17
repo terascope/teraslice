@@ -2,8 +2,8 @@ import isCidr from 'is-cidr';
 import ip6addr from 'ip6addr';
 import { isIP, isIPv6 } from 'is-ip';
 import { isInfiniteMin, isInfiniteMax, ParsedRange } from 'xlucene-parser';
-import { isString, isNonZeroCidr } from '@terascope/utils';
-import { BooleanCB } from '../interfaces.js';
+import { getTypeOf, isString, isNonZeroCidr } from '@terascope/utils';
+import { MatchValueFn } from './interfaces.js';
 
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';
@@ -27,21 +27,46 @@ function getRangeValues(rangeQuery: ParsedRange): {
     };
 }
 
-export function ipTerm(value: unknown): BooleanCB {
+export function ipTermOrThrow(value: unknown) {
     const argCidr = isString(value) ? isCidr(value) : false;
+
     if (argCidr) {
         const range = ip6addr.createCIDR(`${value}`);
-        return pRangeTerm(range);
+        return pRangeTerm(range, true);
     }
 
-    return function isIPTerm(ip: string) {
-        if (isNonZeroCidr(ip)) {
-            const argRange = ip6addr.createCIDR(ip);
+     return isIPTerm(value, true)
+}
+
+export function ipTerm(value: unknown): MatchValueFn {
+    const argCidr = isString(value) ? isCidr(value) : false;
+
+    if (argCidr) {
+        const range = ip6addr.createCIDR(`${value}`);
+        return pRangeTerm(range, false);
+    }
+
+    return isIPTerm(value, false)
+}
+
+function isIPTerm(value:unknown, shouldThrow:boolean) {
+    return function (ip: unknown) {
+        if (ip == null) {
+            return false;
+        }
+
+        if (shouldThrow && !isString(ip)) {
+            throw new TypeError(`Expected string for IP term match, got ${ip} (${getTypeOf(ip)})`);
+        }
+
+        if (isNonZeroCidr(ip as any)) {
+            const argRange = ip6addr.createCIDR(ip as any);
             return argRange.contains(`${value}`);
         }
+
         return ip === value;
-    };
-}
+    }
+};
 
 function validateIPRange(rangeQuery: ParsedRange) {
     const values = getRangeValues(rangeQuery);
@@ -69,15 +94,17 @@ function validateIPRange(rangeQuery: ParsedRange) {
         if (!parsed) throw new Error(`Invalid min IP value ${minValue}`);
         minValue = parsed.toString();
     }
+
     if (!incMax) {
         const parsed = ip6addr.parse(maxValue).offset(-1);
         if (!parsed) throw new Error(`Invalid max IP value ${maxValue}`);
         maxValue = parsed.toString();
     }
+
     return { minValue, maxValue };
 }
 
-function checkCidr(ip: string, range: any) {
+function checkCidr(ip: string, range: ip6addr.AddrRange) {
     const argRange = ip6addr.createCIDR(ip);
     return (
         range.contains(argRange.first().toString())
@@ -87,19 +114,39 @@ function checkCidr(ip: string, range: any) {
     );
 }
 
-function pRangeTerm(range: any) {
-    return function checkIP(ip: unknown) {
-        if (ip === null || ip === undefined) return false;
+function pRangeTerm(range: ip6addr.AddrRange, shouldThrow: boolean): MatchValueFn {
+    return function checkIP(ip) {
+        if (ip == null) {
+            return false;
+        }
+
+        if (shouldThrow && !isString(ip)) {
+            throw new TypeError(`Expected string for IP Range match, got ${ip} (${getTypeOf(ip)})`);
+        }
+
         if (isNonZeroCidr(ip as any)) {
             return checkCidr(ip as any, range);
         }
-        if (isIP(ip as any)) return range.contains(ip);
+
+        if (isIP(ip as any)) {
+            return range.contains(ip as any);
+        }
+
         return false;
     };
 }
 
-export function ipRange(rangeQuery: ParsedRange): BooleanCB {
+function createRange(rangeQuery: ParsedRange){
     const { minValue, maxValue } = validateIPRange(rangeQuery);
-    const range = ip6addr.createAddrRange(minValue, maxValue);
-    return pRangeTerm(range);
+    return ip6addr.createAddrRange(minValue, maxValue);
+}
+
+export function ipRange(rangeQuery: ParsedRange): MatchValueFn {
+    const range = createRange(rangeQuery)
+    return pRangeTerm(range, false);
+}
+
+export function ipRangeOrThrow(rangeQuery: ParsedRange) {
+    const range = createRange(rangeQuery)
+    return pRangeTerm(range, true);
 }
