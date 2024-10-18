@@ -155,7 +155,7 @@ describe('Test Helpers', () => {
         });
 
         it('should add, inc and delete counter', async () => {
-            await context.apis.foundation.promMetrics.addCounter('test_counter', 'test_counter help string', ['uuid', 'name', 'assignment'], function collect() {
+            await context.apis.foundation.promMetrics.addCounter('test_counter', 'test_counter help string', ['uuid', 'name'], function collect() {
                 this.inc({ uuid: 'e&vgv%56' }, 1);
             });
             context.apis.foundation.promMetrics.inc('test_counter', { uuid: 'e&vgv%56' }, 1);
@@ -164,7 +164,7 @@ describe('Test Helpers', () => {
         });
 
         it('should inc, dec, and set gauge', async () => {
-            await context.apis.foundation.promMetrics.addGauge('test_gauge', 'help string', ['uuid', 'name', 'assignment']);
+            await context.apis.foundation.promMetrics.addGauge('test_gauge', 'help string', ['uuid', 'name']);
             context.apis.foundation.promMetrics.set('test_gauge', { uuid: '437Ev89h' }, 10);
             context.apis.foundation.promMetrics.inc('test_gauge', { uuid: '437Ev89h' }, 1);
             context.apis.foundation.promMetrics.dec('test_gauge', { uuid: '437Ev89h' }, 2);
@@ -188,7 +188,7 @@ describe('Test Helpers', () => {
                 .toThrow('Metric missing_test_gauge is not setup');
         });
         it('should add and observe summary', async () => {
-            await context.apis.foundation.promMetrics.addSummary('test_summary', 'test_summary help string', ['uuid', 'name', 'assignment']);
+            await context.apis.foundation.promMetrics.addSummary('test_summary', 'test_summary help string', ['uuid', 'name']);
             context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 12);
             context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 5);
             context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 18);
@@ -200,7 +200,7 @@ describe('Test Helpers', () => {
         });
 
         it('should add and observe histogram', async () => {
-            await context.apis.foundation.promMetrics.addHistogram('test_histogram', 'test_histogram help string', ['uuid', 'name', 'assignment']);
+            await context.apis.foundation.promMetrics.addHistogram('test_histogram', 'test_histogram help string', ['uuid', 'name']);
             context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 10);
             context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 30);
             context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 2);

@@ -873,7 +873,7 @@ export class ApiService {
                         for (const node in clusterState) {
                             if (clusterState[node].active) {
                                 for (const worker of clusterState[node].active) {
-                                    if (!filteredExecutions[worker.ex_id]) {
+                                    if (worker.ex_id && !filteredExecutions[worker.ex_id]) {
                                         filteredExecutions[worker.ex_id] = worker.ex_id;
                                         const exLabel = {
                                             ex_id: worker.ex_id,

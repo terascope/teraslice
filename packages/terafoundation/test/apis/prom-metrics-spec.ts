@@ -59,7 +59,7 @@ describe('promMetrics foundation API', () => {
 
                 it('should have correct default labels', async () => {
                     const labels = await context.apis.foundation.promMetrics.getDefaultLabels();
-                    expect(labels).toEqual({ assignment: 'worker', name: 'tera-test', url: 'http://localhost' });
+                    expect(labels).toEqual({ name: 'tera-test', url: 'http://localhost' });
                 });
 
                 it('should throw an error if promMetricsAPI is already initialized', async () => {
@@ -659,7 +659,6 @@ describe('promMetrics foundation API', () => {
         it('should get all the default labels', () => {
             expect(context.apis.foundation.promMetrics.getDefaultLabels()).toEqual({
                 name: 'tera-test-labels',
-                assignment: 'master',
                 default1: 'value1'
             });
         });
