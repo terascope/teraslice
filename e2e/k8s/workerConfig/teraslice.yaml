@@ -1,6 +1,10 @@
 terafoundation:
   environment: "development"
   log_level: debug
+  prom_metrics_enabled: false
+  prom_metrics_port: 3333
+  prom_metrics_add_default: true
+  prom_metrics_display_url: 'localhost'
   connectors:
     elasticsearch-next:
       default:
