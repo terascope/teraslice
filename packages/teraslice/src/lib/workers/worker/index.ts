@@ -107,7 +107,9 @@ export class Worker {
                     ex_id: exId,
                     job_id: jobId,
                     job_name: config.name,
+                    assignment: 'worker'
                 },
+                prefix: 'teraslice_job_',
                 prom_metrics_display_url: terafoundation.prom_metrics_display_url
             });
             await this.setupPromMetrics();
@@ -423,7 +425,7 @@ export class Worker {
             const self = this;
             await Promise.all([
                 this.context.apis.foundation.promMetrics.addGauge(
-                    'info',
+                    'worker_info',
                     'Information about Teraslice worker',
                     ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
                 ),
@@ -442,7 +444,7 @@ export class Worker {
             ]);
 
             this.context.apis.foundation.promMetrics.set(
-                'info',
+                'worker_info',
                 {
                     arch: this.context.arch,
                     clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,

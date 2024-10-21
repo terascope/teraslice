@@ -66,7 +66,6 @@ export class PromMetrics {
 
             this.default_labels = {
                 name: terasliceName,
-                assignment: apiConfig.assignment,
                 url: prom_metrics_display_url,
                 ...apiConfig.labels
             };
@@ -374,7 +373,7 @@ export class PromMetrics {
     private _setPodName(): void {
         // in a pod the hostname is the pod name
         const host = os.hostname();
-        if (host.startsWith('ts-wkr-')) {
+        if (host.startsWith('ts-wkr-') || host.startsWith('ts-exc-')) {
             this.default_labels.pod_name = host;
         }
     }
