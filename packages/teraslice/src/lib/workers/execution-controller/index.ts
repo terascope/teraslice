@@ -159,7 +159,9 @@ export class ExecutionController {
                     ex_id: exId,
                     job_id: jobId,
                     job_name: config.name,
+                    assignment: 'execution_controller'
                 },
+                prefix: 'teraslice_job_',
                 prom_metrics_display_url: terafoundation.prom_metrics_display_url
 
             });
@@ -1186,7 +1188,7 @@ export class ExecutionController {
             const { context, executionAnalytics } = this;
             await Promise.all([
                 this.context.apis.foundation.promMetrics.addGauge(
-                    'info',
+                    'execution_controller_info',
                     'Information about Teraslice execution controller',
                     ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
                 ),
@@ -1205,7 +1207,7 @@ export class ExecutionController {
             ]);
 
             this.context.apis.foundation.promMetrics.set(
-                'info',
+                'execution_controller_info',
                 {
                     arch: this.context.arch,
                     clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,

@@ -388,6 +388,7 @@ await config.context.apis.foundation.promMetrics.init({
         ex_id: this.exId,
         job_id: this.jobId,
         job_name: this.config.name,
+        assignment: 'execution_controller',
     }
 });
 ```
