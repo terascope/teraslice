@@ -1,4 +1,4 @@
-import { isIP } from 'is-ip';
+import { isIP } from '@terascope/utils';
 import ValidationOpBase from './base.js';
 import { PostProcessConfig } from '../../../interfaces.js';
 

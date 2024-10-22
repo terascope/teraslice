@@ -1,7 +1,7 @@
 import {
     isIP as _isIP, isIPv4 as _isIPv4,
     isIPv6 as _isIPv6, ipVersion as _ipVersion
-} from 'is-ip';
+} from '@chainsafe/is-ip';
 import IPCIDR from 'ip-cidr';
 import isCidr from 'is-cidr';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';

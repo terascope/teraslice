@@ -29,6 +29,7 @@
         "debug": "^4.3.7"
     },
     "dependencies": {
+        "@chainsafe/is-ip": "^2.0.2",
         "@terascope/types": "^1.2.0",
         "@turf/bbox": "^7.1.0",
         "@turf/bbox-polygon": "^7.1.0",
@@ -55,7 +56,6 @@
         "ip6addr": "^0.2.5",
         "ipaddr.js": "^2.2.0",
         "is-cidr": "^5.1.0",
-        "is-ip": "^5.0.1",
         "is-plain-object": "^5.0.0",
         "js-string-escape": "^1.0.1",
         "kind-of": "^6.0.3",
