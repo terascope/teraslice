@@ -1,5 +1,5 @@
 import { parseIp } from 'ip-bigint';
-import { isIP } from 'is-ip';
+import { isIP } from '@terascope/utils';
 import { Vector, VectorOptions } from '../Vector.js';
 import { VectorType, DataBuckets } from '../interfaces.js';
 

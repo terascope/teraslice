@@ -1,6 +1,5 @@
 import * as ts from '@terascope/utils';
 import ipaddr from 'ipaddr.js';
-import { isIP as _isIP, isIPv6 } from 'is-ip';
 import ip6addr from 'ip6addr';
 import { parsePhoneNumber } from 'awesome-phonenumber';
 import validator from 'validator';
@@ -444,7 +443,7 @@ export function isIP(input: unknown, _parentContext?: unknown): input is string 
 
 function isValidIP(input: unknown, _parentContext?: unknown) {
     if (!ts.isString(input)) return false;
-    if (!_isIP(input)) return false;
+    if (!ts.isIP(input)) return false;
 
     return true;
 }
@@ -645,11 +644,11 @@ function _inIPRange(input: unknown, args: { min?: string; max?: string; cidr?: s
 
     // assign upper/lower bound even if min or max is missing
     let { min, max } = args;
-    if (!min) min = isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
-    if (!max) max = isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
+    if (!min) min = ts.isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
+    if (!max) max = ts.isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
 
     // min and max must be valid ips, same IP type, and min < max
-    if (!isIP(min) || !isIP(max) || isIPv6(min) !== isIPv6(max)
+    if (!isIP(min) || !isIP(max) || ts.isIPv6(min) !== ts.isIPv6(max)
         || ip6addr.compare(max, min) === -1) {
         return false;
     }
