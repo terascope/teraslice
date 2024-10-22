@@ -16,7 +16,7 @@ prompt_tag() {
     read -p "Enter the tag: " tag
 
     case $tag in
-        18|20|22)
+        18|22)
             echo "You have chosen major version: $tag"
             ;;
         *)
