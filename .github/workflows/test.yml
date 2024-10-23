@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ master ]
 env:
-  NODE_VERSIONS: '[18, 20, 22]'
+  NODE_VERSIONS: '[18, 22]'
   NODE_VERSION_MAIN: '22'
   NODE_VERSIONS_K8S: '[18, 22]'
   NODE_VERSIONS_EXT_STORAGE: '[22]'
