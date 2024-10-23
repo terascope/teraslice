@@ -271,7 +271,7 @@ export class ApiService {
         });
 
         v1routes.get('/jobs', (req, res) => {
-            const { active = '', deleted = 'false' } = req.query;
+            const { active = '', deleted = 'false', ex } = req.query;
             const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of jobs');
@@ -280,8 +280,9 @@ export class ApiService {
 
                 const partialQuery = createJobActiveQuery(active as string);
                 const query = addDeletedToQuery(deleted as string, partialQuery);
-
-                return this.jobsStorage.search(query, from, size, sort as string);
+                return typeof ex === 'string'
+                    ? this.jobsService.getJobsWithExInfo(query, from, size, sort as string, ex.split(','))
+                    : this.jobsStorage.search(query, from, size, sort as string);
             });
         });
 
