@@ -250,6 +250,7 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
+- `ex: string = [execution controller field options]`
 
 Setting `active` to `true` will return only the jobs considered active, which
 includes the jobs that have `active` set to `true` as well as those that do not
@@ -263,6 +264,8 @@ Setting `deleted` to `true` will return all `_deleted: true` jobs.
 
 The parameter `size` is the number of documents returned, `from` is how many
 documents in and `sort` is a lucene query.
+
+Refer to the returned object in [GET v1/ex](#get-v1ex) for valid `ex` parameter fields. This option is also used [here](#get-v1jobsjobid) and described in more detail.
 
 **Usage:**
 

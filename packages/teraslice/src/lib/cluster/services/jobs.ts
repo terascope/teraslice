@@ -389,6 +389,31 @@ export class JobsService {
     }
 
     /**
+     * Get a list of jobs with the latest ex status for each one
+     *
+     * @param {string} query
+     * @param {number} from
+     * @param {number} size
+     * @param {string} sort
+     * @param {string} [ex_fields]
+     * @returns {Promise<JobConfig>}
+    */
+    async getJobsWithExInfo(
+        query: string | Record<string, any>,
+        from?: number,
+        size?: number,
+        sort?: string,
+        ex_fields?: string[]
+    ): Promise<JobConfig[]> {
+        const jobList = await this.jobsStorage.search(query, from, size, sort);
+        const finalList: JobConfig[] = [];
+        for (const job of jobList) {
+            finalList.push(await this.getJobWithExInfo(job.job_id, ex_fields));
+        }
+        return finalList;
+    }
+
+    /**
      * Get the active execution
      *
      * @param {string} jobId
