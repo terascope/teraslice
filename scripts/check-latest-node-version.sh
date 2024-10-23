@@ -12,7 +12,7 @@ check_docker() {
 # Function to prompt the user for a node tag. Over time we will need to update
 # this as we discontinue and add major node versions.
 prompt_tag() {
-    echo "Please choose a node version to check what the latest version the base image is using: [18, 20, 22]"
+    echo "Please choose a node version to check what the latest version the base image is using: [18, 22]"
     read -p "Enter the tag: " tag
 
     case $tag in
@@ -20,7 +20,7 @@ prompt_tag() {
             echo "You have chosen major version: $tag"
             ;;
         *)
-            echo "Invalid option. Please choose from [18, 20, 22]."
+            echo "Invalid option. Please choose from [18, 22]."
             prompt_tag
             ;;
     esac
