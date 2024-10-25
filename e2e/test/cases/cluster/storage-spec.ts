@@ -1,7 +1,7 @@
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { TEST_OPENSEARCH } from '../../config.js';
 
-describe('job state', () => {
+describe('mappings', () => {
     let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
@@ -10,7 +10,7 @@ describe('job state', () => {
         await terasliceHarness.resetState();
     });
 
-    it('should have an index with dynamic mapping false', async () => {
+    it('should have a jobs index with dynamic mapping false', async () => {
         const mapping = await terasliceHarness.client.indices.getMapping({ index: '*__jobs' });
         const indexName = Object.keys(mapping)[0];
         const searchVersion = (await terasliceHarness.client.info()).version.number;
@@ -36,28 +36,27 @@ describe('job state', () => {
                     'index.number_of_replicas': 1
                 },
                 mappings: {
-                    dynamic: false,
-                    properties: {
-                        active: {
-                            type: 'boolean'
+                    testType: {
+                        _all: {
+                            enabled: false
                         },
-                        job_id: {
-                            type: 'keyword'
-                        },
-                        _context: {
-                            type: 'keyword'
-                        },
-                        _created: {
-                            type: 'date'
-                        },
-                        _updated: {
-                            type: 'date'
-                        },
-                        _deleted: {
-                            type: 'boolean'
-                        },
-                        _deleted_on: {
-                            type: 'date'
+                        dynamic: false,
+                        properties: {
+                            _context: {
+                                type: 'keyword'
+                            },
+                            _created: {
+                                type: 'date'
+                            },
+                            _updated: {
+                                type: 'date'
+                            },
+                            _deleted: {
+                                type: 'boolean'
+                            },
+                            _deleted_on: {
+                                type: 'date'
+                            }
                         }
                     }
                 }
@@ -70,7 +69,7 @@ describe('job state', () => {
         if (!TEST_OPENSEARCH && searchVersion.charAt(0) === '6') {
             expect(mapping[indexName]).toMatchObject({
                 mappings: {
-                    job: expect.objectContaining({ dynamic: 'false' })
+                    testType: expect.objectContaining({ dynamic: 'false' })
                 }
             });
         } else {
