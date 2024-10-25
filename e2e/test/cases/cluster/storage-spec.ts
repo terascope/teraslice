@@ -13,7 +13,7 @@ describe('mappings', () => {
     it('should have a jobs index with dynamic mapping false', async () => {
         const mapping = await terasliceHarness.client.indices.getMapping({ index: '*__jobs' });
         const indexName = Object.keys(mapping)[0];
-        const searchVersion = (await terasliceHarness.client.info()).version.number;
+        const searchVersion = terasliceHarness.client.__meta.version;
         if (!TEST_OPENSEARCH && searchVersion.charAt(0) === '6') {
             expect(mapping[indexName]).toMatchObject({
                 mappings: {
