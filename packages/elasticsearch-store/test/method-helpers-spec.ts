@@ -32,18 +32,17 @@ describe('test method helpers', () => {
                 }
             };
 
+            const newMappings = ensureNoTypeInMapping(mappingsWithType);
+
             it('should remove myType wrapper object from mappingsWithType', () => {
-                const newMappings = ensureNoTypeInMapping(mappingsWithType);
                 expect(newMappings.myType).toBe(undefined);
             });
 
             it('should remove _all from mappingsWithType', () => {
-                const newMappings = ensureNoTypeInMapping(mappingsWithType);
                 expect(newMappings._all).toBe(undefined);
             });
 
             it('should include properties, _meta, and dynamic from mappingsWithType', () => {
-                const newMappings = ensureNoTypeInMapping(mappingsWithType);
                 expect(newMappings).toMatchObject({
                     _meta: {
                         foo: 'foo'
@@ -98,13 +97,13 @@ describe('test method helpers', () => {
                 }
             };
 
+            const newMappings = ensureNoTypeInMapping(mappingsWithoutType);
+
             it('should remove _all from mappingsWithoutType', () => {
-                const newMappings = ensureNoTypeInMapping(mappingsWithoutType);
                 expect(newMappings._all).toBe(undefined);
             });
 
             it('should include properties, _meta, and dynamic from mappingsWithoutType', () => {
-                const newMappings = ensureNoTypeInMapping(mappingsWithoutType);
                 expect(newMappings).toMatchObject({
                     _meta: {
                         foo: 'foo'
