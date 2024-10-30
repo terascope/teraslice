@@ -62,28 +62,3 @@ export type DeleteParams = [
 export type NodeType = 'worker' | 'execution_controller';
 
 export type ScaleOp = `set` | `add` | `remove`;
-
-// export type PostDeploymentArgs = {
-//     manifest: k8s.V1Deployment;
-//     manifestType: 'deployment';
-// };
-
-// export type PostJobArgs = {
-//     manifest: k8s.V1Job;
-//     manifestType: 'job';
-// };
-// export type PostPodArgs = {
-//     manifest: k8s.V1Pod;
-//     manifestType: 'pod';
-// };
-// export type PostReplicaSetArgs = {
-//     manifest: k8s.V1ReplicaSet;
-//     manifestType: 'replicaset';
-// };
-// export type PostServiceArgs = {
-//     manifest: k8s.V1Service;
-//     manifestType: 'service';
-// };
-
-// export type PostArgs = PostDeploymentArgs | PostJobArgs
-//     | PostPodArgs | PostReplicaSetArgs | PostServiceArgs;

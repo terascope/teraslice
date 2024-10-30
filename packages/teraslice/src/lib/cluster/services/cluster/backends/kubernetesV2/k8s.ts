@@ -3,7 +3,10 @@ import {
     pDelay, pRetry, Logger
 } from '@terascope/utils';
 import * as k8s from '@kubernetes/client-node';
-import { getRetryConfig, isDeployment, isJob, isPod, isReplicaSet, isService } from './utils.js';
+import {
+    getRetryConfig, isDeployment, isJob,
+    isPod, isReplicaSet, isService
+} from './utils.js';
 import {
     DeleteApiResponse, DeleteParams, ResourceListApiResponse,
     ResourceType, PatchApiResponse, Resource,
