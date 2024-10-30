@@ -5,7 +5,6 @@
 import nock from 'nock';
 import { debugLogger } from '@terascope/job-components';
 import { K8s } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8s.js';
-import { V1Service } from '@kubernetes/client-node';
 
 const logger = debugLogger('k8s-v2-spec');
 
@@ -155,7 +154,7 @@ describe('k8s', () => {
                 .post('/apis/apps/v1/namespaces/default/deployments')
                 .reply(201, { kind: 'Deployment' });
 
-            const response = await k8s.post({ kind: 'Deployment' }, 'deployment');
+            const response = await k8s.post({ kind: 'Deployment' });
             expect(response.kind).toEqual('Deployment');
         });
 
@@ -164,7 +163,7 @@ describe('k8s', () => {
                 .post('/apis/batch/v1/namespaces/default/jobs')
                 .reply(201, { kind: 'Job' });
 
-            const response = await k8s.post({ kind: 'Job' }, 'job');
+            const response = await k8s.post({ kind: 'Job' });
             expect(response.kind).toEqual('Job');
         });
 
@@ -173,7 +172,7 @@ describe('k8s', () => {
                 .post('/api/v1/namespaces/default/pods')
                 .reply(201, { kind: 'Pod' });
 
-            const response = await k8s.post({ kind: 'Pod' }, 'pod');
+            const response = await k8s.post({ kind: 'Pod' });
             expect(response.kind).toEqual('Pod');
         });
 
@@ -182,7 +181,7 @@ describe('k8s', () => {
                 .post('/apis/apps/v1/namespaces/default/replicasets')
                 .reply(201, { kind: 'ReplicaSet' });
 
-            const response = await k8s.post({ kind: 'ReplicaSet' }, 'replicaset');
+            const response = await k8s.post({ kind: 'ReplicaSet' });
             expect(response.kind).toEqual('ReplicaSet');
         });
 
@@ -191,9 +190,7 @@ describe('k8s', () => {
                 .post('/api/v1/namespaces/default/services')
                 .reply(201, { kind: 'Service' });
 
-            const manifest: V1Service = { kind: 'Service' };
-
-            const response = await k8s.post(manifest, 'service');
+            const response = await k8s.post({ kind: 'Service' });
             expect(response.kind).toEqual('Service');
         });
     });

@@ -8,22 +8,12 @@ import {
     isPod, isReplicaSet, isService
 } from './utils.js';
 import {
-    DeleteApiResponse, DeleteParams, ResourceListApiResponse,
-    ResourceType, PatchApiResponse, Resource,
-    ResourceList, ResourceApiResponse, DeleteResponseBody,
-    NodeType, ScaleOp
+    DeleteApiResponse, DeleteParams, DeleteResponseBody,
+    K8sObjectList, KubeConfigOptions, ListParams,
+    NodeType, PatchApiResponse, Resource,
+    ResourceApiResponse, ResourceList, ResourceListApiResponse,
+    ResourceType, ScaleOp
 } from './interfaces.js';
-
-interface KubeConfigOptions {
-    clusters: k8s.Cluster[];
-    contexts: k8s.Context[];
-    currentContext: k8s.Context['name'];
-    users: k8s.User[];
-}
-
-type K8sObjectList =
-    k8s.V1DeploymentList | k8s.V1ServiceList
-    | k8s.V1JobList | k8s.V1PodList | k8s.V1ReplicaSetList;
 
 export class K8s {
     logger: Logger;
@@ -190,14 +180,7 @@ export class K8s {
         const namespace = ns || this.defaultNamespace;
         let responseObj: ResourceListApiResponse;
 
-        const params: [
-            string,
-            string | undefined,
-            boolean | undefined,
-            string | undefined,
-            string | undefined,
-            string
-        ] = [
+        const params: ListParams = [
             namespace,
             undefined,
             undefined,
@@ -206,19 +189,38 @@ export class K8s {
             selector
         ];
 
-        const listFunctions: { [resource: string]: () => Promise<ResourceListApiResponse> } = {
-            deployment: () => this.k8sAppsV1Api.listNamespacedDeployment(...params),
-            job: () => this.k8sBatchV1Api.listNamespacedJob(...params),
-            pod: () => this.k8sCoreV1Api.listNamespacedPod(...params),
-            replicaset: () => this.k8sAppsV1Api.listNamespacedReplicaSet(...params),
-            service: () => this.k8sCoreV1Api.listNamespacedService(...params)
-        };
-
         try {
-            responseObj = await pRetry(
-                listFunctions[objType],
-                getRetryConfig()
-            );
+            if (objType === 'deployment') {
+                responseObj = await pRetry(
+                    () => this.k8sAppsV1Api.listNamespacedDeployment(...params),
+                    getRetryConfig()
+                );
+            } else if (objType === 'job') {
+                responseObj = await pRetry(
+                    () => this.k8sBatchV1Api.listNamespacedJob(...params),
+                    getRetryConfig()
+                );
+            } else if (objType === 'pod') {
+                responseObj = await pRetry(
+                    () => this.k8sCoreV1Api.listNamespacedPod(...params),
+                    getRetryConfig()
+                );
+            } else if (objType === 'replicaset') {
+                responseObj = await pRetry(
+                    () => this.k8sAppsV1Api.listNamespacedReplicaSet(...params),
+                    getRetryConfig()
+                );
+            } else if (objType === 'service') {
+                responseObj = await pRetry(
+                    () => this.k8sCoreV1Api.listNamespacedService(...params),
+                    getRetryConfig()
+                );
+            } else {
+                const error = new Error(`Invalid objType provided to get: ${objType}`);
+                this.logger.error(error);
+                return Promise.reject(error);
+            }
+
             return responseObj.body;
         } catch (e) {
             const err = new Error(`Request k8s.list of ${objType} with selector ${selector} failed: ${e}`);
@@ -246,32 +248,15 @@ export class K8s {
      * posts manifest to k8s
      * @param  {Resource} manifest        resource manifest
      * @param  {ResourceType} manifestType    'deployment', 'job', 'pod', 'replicaset', 'service'
-     * @return {k8s.V1Deployment
-     *        | k8s.V1Job
-     *        | k8s.V1Pod
-     *        | k8s.V1ReplicaSet
-     *        | k8s.V1Service}                    body of k8s API response object
+     * @return {Resource}                    body of k8s API response object
      */
-    async post(manifest: k8s.V1Deployment, manifestType: 'deployment'): Promise<k8s.V1Deployment>;
-    async post(manifest: k8s.V1Job, manifestType: 'job'): Promise<k8s.V1Job>;
-    async post(manifest: k8s.V1Pod, manifestType: 'pod'): Promise<k8s.V1Pod>;
-    async post(manifest: k8s.V1ReplicaSet, manifestType: 'replicaset'): Promise<k8s.V1ReplicaSet>;
-    async post(manifest: k8s.V1Service, manifestType: 'service'): Promise<k8s.V1Service>;
-    async post(manifest: Resource, manifestType: ResourceType): Promise<Resource> {
+    async post(manifest: k8s.V1Deployment): Promise<k8s.V1Deployment>;
+    async post(manifest: k8s.V1Job): Promise<k8s.V1Job>;
+    async post(manifest: k8s.V1Pod): Promise<k8s.V1Pod>;
+    async post(manifest: k8s.V1ReplicaSet): Promise<k8s.V1ReplicaSet>;
+    async post(manifest: k8s.V1Service): Promise<k8s.V1Service>;
+    async post(manifest: Resource): Promise<Resource> {
         let responseObj: ResourceApiResponse;
-
-        // const postFunctions = {
-        //     deployment: async (man: k8s.V1Deployment) => await this.k8sAppsV1Api
-        //         .createNamespacedDeployment(this.defaultNamespace, man),
-        //     job: async (man: k8s.V1Job) => await this.k8sBatchV1Api
-        //         .createNamespacedJob(this.defaultNamespace, man),
-        //     pod: async (man: k8s.V1Pod) => await this.k8sCoreV1Api
-        //         .createNamespacedPod(this.defaultNamespace, man),
-        //     replicaset: async (man: k8s.V1ReplicaSet) => await this.k8sAppsV1Api
-        //         .createNamespacedReplicaSet(this.defaultNamespace, man),
-        //     service: async (man: k8s.V1Service) => await this.k8sCoreV1Api
-        //         .createNamespacedService(this.defaultNamespace, man)
-        // };
 
         try {
             if (isDeployment(manifest)) {
@@ -290,13 +275,13 @@ export class K8s {
                 responseObj = await this.k8sCoreV1Api
                     .createNamespacedService(this.defaultNamespace, manifest);
             } else {
-                const error = new Error(`Invalid manifestType: ${manifestType}`);
+                const error = new Error('Invalid manifest type');
                 return Promise.reject(error);
             }
-            // responseObj = await postFunctions[manifestType](manifest);
+
             return responseObj.body;
         } catch (e) {
-            const err = new Error(`Request k8s.post of ${manifestType} with body ${JSON.stringify(manifest)} failed: ${e}`);
+            const err = new Error(`Request k8s.post of ${manifest.kind} with body ${JSON.stringify(manifest)} failed: ${e}`);
             return Promise.reject(err);
         }
     }

@@ -1,6 +1,17 @@
 import { IncomingMessage } from 'node:http';
 import * as k8s from '@kubernetes/client-node';
 
+export interface KubeConfigOptions {
+    clusters: k8s.Cluster[];
+    contexts: k8s.Context[];
+    currentContext: k8s.Context['name'];
+    users: k8s.User[];
+}
+
+export type K8sObjectList =
+    k8s.V1DeploymentList | k8s.V1ServiceList
+    | k8s.V1JobList | k8s.V1PodList | k8s.V1ReplicaSetList;
+
 export interface K8sConfig {
     clusterName: string;
     clusterNameLabel: string;
@@ -47,6 +58,15 @@ export interface DeleteApiResponse {
     response: IncomingMessage;
     body: DeleteResponseBody;
 }
+
+export type ListParams = [
+    string,
+    string | undefined,
+    boolean | undefined,
+    string | undefined,
+    string | undefined,
+    string
+];
 
 export type DeleteParams = [
     string,

@@ -121,7 +121,7 @@ export class KubernetesClusterBackendV2 {
 
         this.logger.debug(exJob, 'execution allocating slicer');
 
-        const jobResult = await this.k8s.post(exJob, 'job');
+        const jobResult = await this.k8s.post(exJob);
 
         const exServiceResource = new K8sResource(
             'service',
@@ -140,7 +140,7 @@ export class KubernetesClusterBackendV2 {
 
         const exService = exServiceResource.resource;
 
-        const serviceResult = await this.k8s.post(exService, 'service');
+        const serviceResult = await this.k8s.post(exService);
 
         this.logger.debug(jobResult, 'k8s slicer job submitted');
 
@@ -216,7 +216,7 @@ export class KubernetesClusterBackendV2 {
 
         this.logger.debug(`workerDeployment:\n\n${JSON.stringify(workerDeployment, null, 2)}`);
 
-        return this.k8s.post(workerDeployment, 'deployment')
+        return this.k8s.post(workerDeployment)
             .then((result) => this.logger.debug(`k8s worker deployment submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
                 const error = new TSError(err, {
