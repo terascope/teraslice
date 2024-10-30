@@ -1,13 +1,17 @@
 import _ from 'lodash';
+import { debugLogger } from '@terascope/utils';
+import * as k8s from '@kubernetes/client-node';
 import _podsJobRunning from '../files/job-running-v1-k8s-pods.json';
 import { gen } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8sState.js';
 
 describe('k8sState', () => {
+    const logger = debugLogger('k8sResource');
+
     it('should generate cluster state correctly on first call', () => {
-        const podsJobRunning = _.cloneDeep(_podsJobRunning);
+        const podsJobRunning: k8s.V1PodList = _.cloneDeep(_podsJobRunning as any);
         const clusterState = {};
 
-        gen(podsJobRunning, clusterState);
+        gen(podsJobRunning, clusterState, logger);
         // console.log(`clusterState\n\n${JSON.stringify(clusterState, null, 2)}`);
 
         expect(clusterState['192.168.99.100'].state).toEqual('connected');
@@ -37,11 +41,11 @@ describe('k8sState', () => {
     });
 
     it('should generate cluster state correctly on second call', () => {
-        const podsJobRunning = _.cloneDeep(_podsJobRunning);
+        const podsJobRunning = _.cloneDeep<k8s.V1PodList>(_podsJobRunning as any);
         const clusterState = {};
 
-        gen(podsJobRunning, clusterState);
-        gen(podsJobRunning, clusterState);
+        gen(podsJobRunning, clusterState, logger);
+        gen(podsJobRunning, clusterState, logger);
 
         expect(clusterState['192.168.99.100'].state).toEqual('connected');
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);
@@ -70,14 +74,14 @@ describe('k8sState', () => {
     });
 
     it('should remove old host ips', () => {
-        const podsJobRunning = _.cloneDeep(_podsJobRunning);
+        const podsJobRunning = _.cloneDeep(_podsJobRunning as any);
         const clusterState = {};
         clusterState['2.2.2.2'] = {
             state: 'idk',
             active: []
         };
 
-        gen(podsJobRunning, clusterState);
+        gen(podsJobRunning, clusterState, logger);
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);
         expect(clusterState['2.2.2.2']).toBeUndefined();
     });

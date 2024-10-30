@@ -5,6 +5,7 @@
 import nock from 'nock';
 import { debugLogger } from '@terascope/job-components';
 import { K8s } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8s.js';
+import { V1Service } from '@kubernetes/client-node';
 
 const logger = debugLogger('k8s-v2-spec');
 
@@ -70,7 +71,7 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'PodList' });
 
-            const pods = await k8s.list('app=teraslice', 'pods');
+            const pods = await k8s.list('app=teraslice', 'pod');
             expect(pods.kind).toEqual('PodList');
         });
 
@@ -80,7 +81,7 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'ServiceList' });
 
-            const pods = await k8s.list('app=teraslice', 'services');
+            const pods = await k8s.list('app=teraslice', 'service');
             expect(pods.kind).toEqual('ServiceList');
         });
 
@@ -90,7 +91,7 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'DeploymentList' });
 
-            const deployments = await k8s.list('app=teraslice', 'deployments');
+            const deployments = await k8s.list('app=teraslice', 'deployment');
             expect(deployments.kind).toEqual('DeploymentList');
         });
 
@@ -100,7 +101,7 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'JobList' });
 
-            const jobs = await k8s.list('app=teraslice', 'jobs');
+            const jobs = await k8s.list('app=teraslice', 'job');
             expect(jobs.kind).toEqual('JobList');
         });
 
@@ -110,7 +111,7 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'ReplicaSetList' });
 
-            const jobs = await k8s.list('app=teraslice', 'replicasets');
+            const jobs = await k8s.list('app=teraslice', 'replicaset');
             expect(jobs.kind).toEqual('ReplicaSetList');
         });
     });
@@ -127,7 +128,7 @@ describe('k8s', () => {
                     }]
                 });
 
-            const jobs = await k8s.nonEmptyList('app=teraslice', 'jobs');
+            const jobs = await k8s.nonEmptyJobList('app=teraslice');
             expect(jobs.items[0]).toEqual({
                 apiVersion: '1.0.0',
                 kind: 'job',
@@ -143,21 +144,12 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { items: [] });
 
-            await expect(k8s.nonEmptyList('app=teraslice', 'jobs'))
-                .rejects.toThrow('Teraslice jobs matching the following selector was not found: app=teraslice (retriable)');
+            await expect(k8s.nonEmptyJobList('app=teraslice'))
+                .rejects.toThrow('Teraslice job matching the following selector was not found: app=teraslice (retriable)');
         });
     });
 
     describe('->post', () => {
-        it('can post a service', async () => {
-            nock(_url, { encodedQueryParams: true })
-                .post('/api/v1/namespaces/default/services')
-                .reply(201, { kind: 'Service' });
-
-            const response = await k8s.post({ kind: 'Service' }, 'service');
-            expect(response.kind).toEqual('Service');
-        });
-
         it('can post a deployment', async () => {
             nock(_url, { encodedQueryParams: true })
                 .post('/apis/apps/v1/namespaces/default/deployments')
@@ -175,29 +167,69 @@ describe('k8s', () => {
             const response = await k8s.post({ kind: 'Job' }, 'job');
             expect(response.kind).toEqual('Job');
         });
+
+        it('can post a pod', async () => {
+            nock(_url, { encodedQueryParams: true })
+                .post('/api/v1/namespaces/default/pods')
+                .reply(201, { kind: 'Pod' });
+
+            const response = await k8s.post({ kind: 'Pod' }, 'pod');
+            expect(response.kind).toEqual('Pod');
+        });
+
+        it('can post a replicaSet', async () => {
+            nock(_url, { encodedQueryParams: true })
+                .post('/apis/apps/v1/namespaces/default/replicasets')
+                .reply(201, { kind: 'ReplicaSet' });
+
+            const response = await k8s.post({ kind: 'ReplicaSet' }, 'replicaset');
+            expect(response.kind).toEqual('ReplicaSet');
+        });
+
+        it('can post a service', async () => {
+            nock(_url, { encodedQueryParams: true })
+                .post('/api/v1/namespaces/default/services')
+                .reply(201, { kind: 'Service' });
+
+            const manifest: V1Service = { kind: 'Service' };
+
+            const response = await k8s.post(manifest, 'service');
+            expect(response.kind).toEqual('Service');
+        });
     });
 
     describe('->patch', () => {
-        beforeEach(() => {
+        it('can patch a deployment by name', async () => {
             nock(_url, { encodedQueryParams: true })
                 .patch('/apis/apps/v1/namespaces/default/deployments/test1')
                 .reply(204, { });
-        });
 
-        it('can patch a deployment by name', async () => {
             const response = await k8s.patch({ name: 'testName' }, 'test1');
             expect(response).toEqual({});
+        });
+
+        it('will throw on a reponse code >= 400', async () => {
+            nock(_url)
+                .patch('/apis/apps/v1/namespaces/default/deployments/bad-response')
+                .replyWithError({ statusCode: 400 })
+                .patch('/apis/apps/v1/namespaces/default/deployments/bad-response')
+                .replyWithError({ statusCode: 400 })
+                .patch('/apis/apps/v1/namespaces/default/deployments/bad-response')
+                .replyWithError({ statusCode: 400 });
+
+            await expect(k8s.patch({ name: 'bad-response' }, 'bad-response'))
+                .rejects.toThrow('Request k8s.patch with name: bad-response failed with: TSError: {"statusCode":400}');
         });
     });
 
     describe('->delete', () => {
         it('will throw if name is undefined', async () => {
-            await expect(k8s.delete(undefined as unknown as string, 'deployments'))
+            await expect(k8s.delete(undefined as unknown as string, 'deployment'))
                 .rejects.toThrow('Name of resource to delete must be specified. Received: "undefined".');
         });
 
         it('will throw if name is an empty string', async () => {
-            await expect(k8s.delete('', 'deployments'))
+            await expect(k8s.delete('', 'deployment'))
                 .rejects.toThrow('Name of resource to delete must be specified. Received: "".');
         });
 
@@ -206,7 +238,7 @@ describe('k8s', () => {
                 .delete('/apis/apps/v1/namespaces/default/deployments/test1')
                 .reply(200, {});
 
-            const response = await k8s.delete('test1', 'deployments');
+            const response = await k8s.delete('test1', 'deployment');
             expect(response).toEqual({});
         });
 
@@ -215,7 +247,7 @@ describe('k8s', () => {
                 .delete('/api/v1/namespaces/default/services/test1')
                 .reply(200, {});
 
-            const response = await k8s.delete('test1', 'services');
+            const response = await k8s.delete('test1', 'service');
             expect(response).toEqual({});
         });
 
@@ -224,7 +256,7 @@ describe('k8s', () => {
                 .delete('/apis/batch/v1/namespaces/default/jobs/test1')
                 .reply(200, {});
 
-            const response = await k8s.delete('test1', 'jobs');
+            const response = await k8s.delete('test1', 'job');
             expect(response).toEqual({});
         });
 
@@ -233,7 +265,7 @@ describe('k8s', () => {
                 .delete('/api/v1/namespaces/default/pods/test1')
                 .reply(200, {});
 
-            const response = await k8s.delete('test1', 'pods');
+            const response = await k8s.delete('test1', 'pod');
             expect(response).toEqual({});
         });
 
@@ -242,7 +274,7 @@ describe('k8s', () => {
                 .delete('/apis/apps/v1/namespaces/default/replicasets/test1')
                 .reply(200, {});
 
-            const response = await k8s.delete('test1', 'replicasets');
+            const response = await k8s.delete('test1', 'replicaset');
             expect(response).toEqual({});
         });
 
@@ -255,8 +287,8 @@ describe('k8s', () => {
                 .delete('/api/v1/namespaces/default/pods/bad-response')
                 .replyWithError({ statusCode: 400 });
 
-            await expect(k8s.delete('bad-response', 'pods'))
-                .rejects.toThrow('Request k8s.delete with name: bad-response failed with: TSError: Unexpected response code (400), when deleting name: bad-response');
+            await expect(k8s.delete('bad-response', 'pod'))
+                .rejects.toThrow('Request k8s.delete with name: bad-response failed with: TSError: {"statusCode":400}');
         });
 
         it('will succeed on a 404 response code', async () => {
@@ -277,7 +309,7 @@ describe('k8s', () => {
                 .delete('/api/v1/namespaces/default/pods/non-existent')
                 .replyWithError(notFoundResponse);
 
-            const response = await k8s.delete('non-existent', 'pods');
+            const response = await k8s.delete('non-existent', 'pod');
             expect(response).toEqual(notFoundResponse.body);
         });
     });
@@ -328,8 +360,8 @@ describe('k8s', () => {
                     items: [jobNoName]
                 });
 
-            await expect(k8s._deleteObjByExId('no-name', 'execution_controller', 'jobs'))
-                .rejects.toThrow('Cannot delete jobs for ExId: no-name by name because it has no name');
+            await expect(k8s._deleteObjByExId('no-name', 'execution_controller', 'job'))
+                .rejects.toThrow('Cannot delete job for ExId: no-name by name because it has no name');
         });
 
         it('can delete a single object', async () => {
@@ -345,7 +377,7 @@ describe('k8s', () => {
                 .delete('/apis/batch/v1/namespaces/default/jobs/testJob1')
                 .reply(200, status);
 
-            const response = await k8s._deleteObjByExId('testJob1', 'execution_controller', 'jobs');
+            const response = await k8s._deleteObjByExId('testJob1', 'execution_controller', 'job');
             expect(response).toEqual([expect.objectContaining(status)]);
         });
 
@@ -365,7 +397,7 @@ describe('k8s', () => {
                 .delete('/api/v1/namespaces/default/pods/testPod2')
                 .reply(200, testPod2);
 
-            const response = await k8s._deleteObjByExId('testPods', 'worker', 'pods');
+            const response = await k8s._deleteObjByExId('testPods', 'worker', 'pod');
             expect(response).toEqual([
                 expect.objectContaining(testPod1),
                 expect.objectContaining(testPod2)

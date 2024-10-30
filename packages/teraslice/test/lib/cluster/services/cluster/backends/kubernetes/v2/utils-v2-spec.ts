@@ -1,3 +1,4 @@
+import { K8sConfig } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/interfaces.js';
 import {
     makeTemplate, getMaxOldSpace
 } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/utils.js';
@@ -6,8 +7,13 @@ import { safeEncode } from '../../../../../../../../src/lib/utils/encoding_utils
 describe('K8s Utils', () => {
     describe('->makeTemplate', () => {
         it('should be able to support the execution_controller job', () => {
-            const exJobTemplate = makeTemplate('jobs', 'execution_controller');
-            const config = {
+            const exJobTemplate = makeTemplate('job', 'execution_controller');
+            const config: K8sConfig = {
+                clusterName: 'teracluster',
+                configMapName: 'teracluster-worker',
+                exName: 'ts-exc-example-job-74ab9324-9f67',
+                exUid: '0512dae5-8ca2-437d-b744-fdc50695fd91',
+                replicas: 1,
                 name: 'example',
                 jobNameLabel: 'example-job',
                 clusterNameLabel: 'example-cluster',
@@ -35,13 +41,13 @@ describe('K8s Utils', () => {
                 namespace: config.namespace
             });
 
-            expect(exJob.spec.template.metadata.labels).toEqual(exJob.metadata.labels);
+            expect(exJob.spec?.template.metadata?.labels).toEqual(exJob.metadata?.labels);
 
-            const templateSpec = exJob.spec.template.spec;
+            const templateSpec = exJob.spec?.template.spec;
 
-            expect(templateSpec.containers[0].image).toEqual(config.dockerImage);
-            expect(templateSpec.containers[0].name).toEqual(config.name);
-            expect(templateSpec.containers[0].env).toEqual([
+            expect(templateSpec?.containers[0].image).toEqual(config.dockerImage);
+            expect(templateSpec?.containers[0].name).toEqual(config.name);
+            expect(templateSpec?.containers[0].env).toEqual([
                 {
                     name: 'NODE_TYPE',
                     value: config.nodeType
@@ -59,12 +65,14 @@ describe('K8s Utils', () => {
                     }
                 }
             ]);
-            expect(templateSpec.terminationGracePeriodSeconds).toEqual(config.shutdownTimeout);
+            expect(templateSpec?.terminationGracePeriodSeconds).toEqual(config.shutdownTimeout);
         });
 
         it('should be able to support the worker deployment', () => {
-            const workerDeploymentTemplate = makeTemplate('deployments', 'worker');
-            const config = {
+            const workerDeploymentTemplate = makeTemplate('deployment', 'worker');
+            const config: K8sConfig = {
+                clusterName: 'teracluster',
+                configMapName: 'teracluster-worker',
                 name: 'example',
                 jobNameLabel: 'example-job',
                 clusterNameLabel: 'example-cluster',
@@ -105,16 +113,16 @@ describe('K8s Utils', () => {
                 ],
             });
 
-            expect(workerDeployment.spec.replicas).toEqual(config.replicas);
+            expect(workerDeployment.spec?.replicas).toEqual(config.replicas);
 
-            const { labels } = workerDeployment.spec.template.metadata;
-            expect(labels).toEqual(workerDeployment.metadata.labels);
+            const labels = workerDeployment.spec?.template.metadata?.labels;
+            expect(labels).toEqual(workerDeployment.metadata?.labels);
 
-            const templateSpec = workerDeployment.spec.template.spec;
+            const templateSpec = workerDeployment.spec?.template.spec;
 
-            expect(templateSpec.containers[0].image).toEqual(config.dockerImage);
-            expect(templateSpec.containers[0].name).toEqual(config.name);
-            expect(templateSpec.containers[0].env).toEqual([
+            expect(templateSpec?.containers[0].image).toEqual(config.dockerImage);
+            expect(templateSpec?.containers[0].name).toEqual(config.name);
+            expect(templateSpec?.containers[0].env).toEqual([
                 {
                     name: 'NODE_TYPE',
                     value: config.nodeType
@@ -132,7 +140,7 @@ describe('K8s Utils', () => {
                     }
                 }
             ]);
-            expect(templateSpec.terminationGracePeriodSeconds).toEqual(config.shutdownTimeout);
+            expect(templateSpec?.terminationGracePeriodSeconds).toEqual(config.shutdownTimeout);
         });
     });
 
