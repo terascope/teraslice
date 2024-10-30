@@ -10,6 +10,7 @@ import { gen } from './k8sState.js';
 import { K8s } from './k8s.js';
 import { getRetryConfig } from './utils.js';
 import { StopExecutionOptions } from '../../../interfaces.js';
+import { ResourceType } from './interfaces.js';
 
 /*
  Execution Life Cycle for _status
@@ -42,8 +43,7 @@ export class KubernetesClusterBackendV2 {
             this.logger,
             null,
             kubernetesNamespace,
-            // @ts-expect-error
-            context.sysconfig.teraslice.kubernetes_api_poll_delay,
+            context.sysconfig.teraslice.kubernetes_api_poll_delay || 1000,
             context.sysconfig.teraslice.shutdown_timeout
         );
 
@@ -65,18 +65,19 @@ export class KubernetesClusterBackendV2 {
      *   app.kubernetes.io/name=teraslice
      *   app.kubernetes.io/instance=${clusterNameLabel}
      * @constructor
-     * @return      {Promise} [description]
+     * @return      {Promise} void
      */
     private async _getClusterState() {
-        return this.k8s.list(`app.kubernetes.io/name=teraslice,app.kubernetes.io/instance=${this.clusterNameLabel}`, 'pods')
-            .then((k8sPods) => gen(k8sPods, this.clusterState))
-            .catch((err) => {
-                // TODO: We might need to do more here.  I think it's OK to just
-                // log though.  This only gets used to show slicer info through
-                // the API.  We wouldn't want to disrupt the cluster master
-                // for rare failures to reach the k8s API.
-                logError(this.logger, err, 'Error listing teraslice pods in k8s');
-            });
+        try {
+            const k8sPods: K8sClient.V1PodList = await this.k8s.list(`app.kubernetes.io/name=teraslice,app.kubernetes.io/instance=${this.clusterNameLabel}`, 'pod');
+            gen(k8sPods, this.clusterState, this.logger);
+        } catch (err) {
+            // TODO: We might need to do more here.  I think it's OK to just
+            // log though.  This only gets used to show slicer info through
+            // the API.  We wouldn't want to disrupt the cluster master
+            // for rare failures to reach the k8s API.
+            logError(this.logger, err, 'Error listing teraslice pods in k8s');
+        }
     }
 
     /**
@@ -107,35 +108,41 @@ export class KubernetesClusterBackendV2 {
         execution.slicer_port = 45680;
 
         const exJobResource = new K8sResource(
-            'jobs',
+            'job',
             'execution_controller',
             this.context.sysconfig.teraslice,
             execution,
             this.logger
         );
+
+        if (!(exJobResource.resource instanceof K8sClient.V1Job)) {
+            throw new Error(`exJobResource.resource must be of type k8s.V1Job`);
+        }
+
         const exJob = exJobResource.resource;
 
         this.logger.debug(exJob, 'execution allocating slicer');
 
-        const jobResult = await this.k8s.post(exJob, 'job') as K8sClient.V1Job;
-
-        // I need to add these here to create the ex service resource
-        // @ts-expect-error
-        execution.k8sName = jobResult.metadata.name;
-        // @ts-expect-error
-        execution.k8sUid = jobResult.metadata.uid;
+        const jobResult = await this.k8s.post(exJob, 'job');
 
         const exServiceResource = new K8sResource(
-            'services',
+            'service',
             'execution_controller',
             this.context.sysconfig.teraslice,
             execution,
-            this.logger
+            this.logger,
+            // Needed to create the deployment and service resource ownerReferences
+            jobResult.metadata?.name,
+            jobResult.metadata?.uid
         );
+
+        if (!(exServiceResource.resource instanceof K8sClient.V1Service)) {
+            throw new Error(`exJobResource.resource must be of type k8s.V1Service`);
+        }
 
         const exService = exServiceResource.resource;
 
-        const serviceResult = await this.k8s.post(exService, 'service') as K8sClient.V1Service;
+        const serviceResult = await this.k8s.post(exService, 'service');
 
         this.logger.debug(jobResult, 'k8s slicer job submitted');
 
@@ -183,12 +190,8 @@ export class KubernetesClusterBackendV2 {
         // instead.
         const selector = `app.kubernetes.io/component=execution_controller,teraslice.terascope.io/jobId=${execution.job_id}`;
         const jobs = await pRetry(
-            () => this.k8s.nonEmptyList(selector, 'jobs'), getRetryConfig()
+            () => this.k8s.nonEmptyJobList(selector), getRetryConfig()
         );
-        // @ts-expect-error
-        execution.k8sName = jobs.items[0].metadata.name;
-        // @ts-expect-error
-        execution.k8sUid = jobs.items[0].metadata.uid;
 
         /// Wait for ex readiness probe to return 'Ready'
         await this.k8s.waitForSelectedPod(
@@ -199,13 +202,18 @@ export class KubernetesClusterBackendV2 {
         );
 
         const kr = new K8sResource(
-            'deployments',
+            'deployment',
             'worker',
             this.context.sysconfig.teraslice,
             execution,
-            this.logger
+            this.logger,
+            jobs.items[0].metadata?.name,
+            jobs.items[0].metadata?.uid
         );
 
+        if (!(kr.resource instanceof K8sClient.V1Deployment)) {
+            throw new Error(`exJobResource.resource must be of type k8s.V1Deployment`);
+        }
         const workerDeployment = kr.resource;
 
         this.logger.debug(`workerDeployment:\n\n${JSON.stringify(workerDeployment, null, 2)}`);
@@ -265,7 +273,8 @@ export class KubernetesClusterBackendV2 {
      */
     async listResourcesForJobId(jobId: string) {
         const resources = [];
-        const resourceTypes = ['pods', 'deployments', 'services', 'jobs', 'replicasets'];
+        const resourceTypes: ResourceType[] = ['pod', 'deployment', 'service', 'job', 'replicaset'];
+
         for (const type of resourceTypes) {
             const list = await this.k8s.list(`teraslice.terascope.io/jobId=${jobId}`, type);
             if (list.items.length > 0) {
