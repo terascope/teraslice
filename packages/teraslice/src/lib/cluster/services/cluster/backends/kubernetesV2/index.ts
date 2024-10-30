@@ -3,12 +3,11 @@ import {
     cloneDeep, pRetry, Logger
 } from '@terascope/utils';
 import type { Context, ExecutionConfig } from '@terascope/job-components';
-import * as K8sClient from '@kubernetes/client-node';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
 import { K8sResource } from './k8sResource.js';
 import { gen } from './k8sState.js';
 import { K8s } from './k8s.js';
-import { getRetryConfig } from './utils.js';
+import { getRetryConfig, isDeployment, isJob, isService } from './utils.js';
 import { StopExecutionOptions } from '../../../interfaces.js';
 import { ResourceType } from './interfaces.js';
 
@@ -114,7 +113,7 @@ export class KubernetesClusterBackendV2 {
             this.logger
         );
 
-        if (!(exJobResource.resource instanceof K8sClient.V1Job)) {
+        if (!(isJob(exJobResource.resource))) {
             throw new Error(`exJobResource.resource must be of type k8s.V1Job`);
         }
 
@@ -135,7 +134,7 @@ export class KubernetesClusterBackendV2 {
             jobResult.metadata?.uid
         );
 
-        if (!(exServiceResource.resource instanceof K8sClient.V1Service)) {
+        if (!(isService(exServiceResource.resource))) {
             throw new Error(`exJobResource.resource must be of type k8s.V1Service`);
         }
 
@@ -210,7 +209,7 @@ export class KubernetesClusterBackendV2 {
             jobs.items[0].metadata?.uid
         );
 
-        if (!(kr.resource instanceof K8sClient.V1Deployment)) {
+        if (!(isDeployment(kr.resource))) {
             throw new Error(`exJobResource.resource must be of type k8s.V1Deployment`);
         }
         const workerDeployment = kr.resource;

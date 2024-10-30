@@ -3,7 +3,7 @@ import * as k8s from '@kubernetes/client-node';
 import { isNumber, Logger } from '@terascope/utils';
 import type { TerasliceConfig, ExecutionConfig } from '@terascope/job-components';
 import { safeEncode } from '../../../../../utils/encoding_utils.js';
-import { makeTemplate, setMaxOldSpaceViaEnv } from './utils.js';
+import { isService, makeTemplate, setMaxOldSpaceViaEnv } from './utils.js';
 import { K8sConfig, NodeType } from './interfaces.js';
 
 export class K8sResource {
@@ -63,7 +63,7 @@ export class K8sResource {
         this.templateConfig = this._makeConfig();
         this.resource = this.templateGenerator(this.templateConfig);
 
-        if (!(this.resource instanceof k8s.V1Service)) {
+        if (!(isService(this.resource))) {
             this._setJobLabels(this.resource);
 
             // Apply job `targets` setting as k8s nodeAffinity
