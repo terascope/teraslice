@@ -68,16 +68,15 @@ export class KubernetesClusterBackendV2 {
      * @return      {Promise} void
      */
     private async _getClusterState() {
-        try {
-            const k8sPods: K8sClient.V1PodList = await this.k8s.list(`app.kubernetes.io/name=teraslice,app.kubernetes.io/instance=${this.clusterNameLabel}`, 'pod');
-            gen(k8sPods, this.clusterState, this.logger);
-        } catch (err) {
-            // TODO: We might need to do more here.  I think it's OK to just
-            // log though.  This only gets used to show slicer info through
-            // the API.  We wouldn't want to disrupt the cluster master
-            // for rare failures to reach the k8s API.
-            logError(this.logger, err, 'Error listing teraslice pods in k8s');
-        }
+        return this.k8s.list(`app.kubernetes.io/name=teraslice,app.kubernetes.io/instance=${this.clusterNameLabel}`, 'pod')
+            .then((k8sPods) => gen(k8sPods, this.clusterState, this.logger))
+            .catch((err) => {
+                // TODO: We might need to do more here.  I think it's OK to just
+                // log though.  This only gets used to show slicer info through
+                // the API.  We wouldn't want to disrupt the cluster master
+                // for rare failures to reach the k8s API.
+                logError(this.logger, err, 'Error listing teraslice pods in k8s');
+            });
     }
 
     /**
