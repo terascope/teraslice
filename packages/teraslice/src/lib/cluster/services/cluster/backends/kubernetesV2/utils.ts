@@ -30,10 +30,6 @@ export function makeTemplate(
     folder: 'deployment' | 'job' | 'service',
     fileName: NodeType
 ): (config: K8sConfig) => k8s.V1Deployment | k8s.V1Job | k8s.V1Service {
-    const availableTemplates = ['deployment', 'job', 'service'];
-    if (!availableTemplates.includes(folder)) {
-        throw new Error(`Unsupported template folder: ${folder}. Available template folders are: deployment, job, service.`);
-    }
     const filePath = path.join(resourcePath, folder, `${fileName}.hbs`);
     const templateData = fs.readFileSync(filePath, 'utf-8');
     const templateKeys = ['{{', '}}'];
