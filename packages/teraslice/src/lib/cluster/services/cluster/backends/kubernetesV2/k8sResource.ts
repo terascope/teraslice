@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import * as k8s from '@kubernetes/client-node';
 import { isNumber, Logger } from '@terascope/utils';
-import type { TerasliceConfig, ExecutionConfig } from '@terascope/job-components';
+import type { Config, ExecutionConfig } from '@terascope/types';
 import { safeEncode } from '../../../../../utils/encoding_utils.js';
 import { isService, makeTemplate, setMaxOldSpaceViaEnv } from './utils.js';
 import { K8sConfig, NodeType } from './interfaces.js';
@@ -13,7 +13,7 @@ export class K8sResource {
     logger: Logger;
     nodeType: NodeType;
     nameInfix: string;
-    terasliceConfig: TerasliceConfig;
+    terasliceConfig: Config;
     templateGenerator: (config: K8sConfig) => k8s.V1Deployment | k8s.V1Job | k8s.V1Service;
     templateConfig: K8sConfig;
     resource: k8s.V1Deployment | k8s.V1Job | k8s.V1Service;
@@ -35,7 +35,7 @@ export class K8sResource {
     constructor(
         resourceType: 'deployment' | 'job' | 'service',
         resourceName: NodeType,
-        terasliceConfig: TerasliceConfig,
+        terasliceConfig: Config,
         execution: ExecutionConfig,
         logger: Logger,
         exName?: string,

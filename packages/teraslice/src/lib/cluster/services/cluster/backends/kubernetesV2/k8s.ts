@@ -162,7 +162,7 @@ export class K8s {
     * returns list of k8s objects matching provided selector
     * @param  {String} selector        kubernetes selector, like 'app=teraslice'
     * @param  {ResourceType} objType       Type of k8s object to get, valid options:
-    *                                  'deployments', 'jobs', 'pods', 'replicasets', 'services'
+    *                                  'deployment', 'job', 'pod', 'replicaset', 'service'
     * @param  {String} ns              namespace to search, this will override the default
     * @return {k8s.V1PodList
     *        | k8s.V1DeploymentList
