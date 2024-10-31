@@ -141,7 +141,7 @@ export class K8sResource {
         const shutdownTimeoutMs = _.get(this.terasliceConfig, 'shutdown_timeout', 60000);
         const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 
-        const config = {
+        const config: K8sConfig = {
             // assetsDirectory: _.get(this.terasliceConfig, 'assets_directory', ''),
             // assetsVolume: _.get(this.terasliceConfig, 'assets_volume', ''),
             clusterName,
@@ -159,7 +159,7 @@ export class K8sResource {
             nodeType: this.nodeType,
             replicas: this.execution.workers,
             shutdownTimeout: shutdownTimeoutSeconds
-        } as K8sConfig;
+        };
 
         return config;
     }

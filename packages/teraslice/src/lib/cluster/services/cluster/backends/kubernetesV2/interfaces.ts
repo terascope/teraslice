@@ -16,11 +16,11 @@ export interface K8sConfig {
     clusterName: string;
     clusterNameLabel: string;
     configMapName: string;
-    dockerImage: string;
+    dockerImage: string | undefined;
     execution: string;
     exId: string;
-    exName: string;
-    exUid: string;
+    exName: string | undefined;
+    exUid: string | undefined;
     jobId: string;
     jobNameLabel: string;
     name: string;

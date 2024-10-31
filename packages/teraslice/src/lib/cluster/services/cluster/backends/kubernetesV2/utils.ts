@@ -35,6 +35,14 @@ export function makeTemplate(
     const templateKeys = ['{{', '}}'];
 
     return (config: K8sConfig) => {
+        if (folder !== 'job' && (config.exName === undefined || config.exUid === undefined)) {
+            throw new Error(`K8s config requires ${config.exName === undefined ? 'exName' : 'exUid'} to create a ${folder} template`);
+        }
+
+        if (folder !== 'service' && config.dockerImage === undefined) {
+            throw new Error(`K8s config requires a dockerImage to create a ${folder} template`);
+        }
+
         const templated = barbe(templateData, templateKeys, config);
         return JSON.parse(templated);
     };
