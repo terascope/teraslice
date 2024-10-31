@@ -59,6 +59,13 @@ describe('AssetsStorage using S3 backend', () => {
         await storage.initialize();
     }, 30000);
 
+    it('will reject an asset that isn\'t in zip format', async () => {
+        const filePath = 'e2e/test/fixtures/assets/fake_zip.zip';
+        const buffer = fs.readFileSync(filePath);
+        const result = await storage.save(buffer);
+        expect(result.assetId).toBe('caf0e5ce7cf1edc864f306b1d9edbad0f7060545');
+    });
+
     it('can save an asset to S3', async () => {
         const filePath = 'e2e/test/fixtures/assets/example_asset_1.zip';
         const buffer = fs.readFileSync(filePath);

@@ -168,3 +168,13 @@ export async function saveAsset(
         logger, assetsPath, id, binaryData, metaCheck
     ));
 }
+
+/**
+ * Check if a buffer contains a zip file
+ * @param {Buffer} buffer A buffer containing a file file
+ * @returns {boolean}
+ */
+export function isZipFile(buffer: Buffer) {
+    const zipSignature = [0x50, 0x4B, 0x03, 0x04];
+    return zipSignature.every((byte, index) => buffer[index] === byte);
+}

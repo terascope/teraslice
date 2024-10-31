@@ -10,7 +10,7 @@ import { ClientResponse, AssetRecord } from '@terascope/types';
 import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 import { S3Store, TerasliceS3StorageConfig } from './backends/s3_store.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
-import { saveAsset, AssetMetadata } from '../utils/file_utils.js';
+import { saveAsset, AssetMetadata, isZipFile } from '../utils/file_utils.js';
 import {
     findMatchingAsset, findSimilarAssets, toVersionQuery,
     getInCompatibilityReason
@@ -224,16 +224,6 @@ export class AssetsStorage {
     }
 
     /**
-     * Check if a buffer contains a zip file
-     * @param {Buffer} buffer A buffer containing a file file
-     * @returns {boolean}
-     */
-    isZipFile(buffer: Buffer) {
-        const zipSignature = [0x50, 0x4B, 0x03, 0x04];
-        return zipSignature.every((byte, index) => buffer[index] === byte);
-    }
-
-    /**
      * Save an asset to disk and upload to elasticsearch or s3
      *
      * @param {Buffer}         data A buffer of the asset file (zipped)
@@ -241,7 +231,7 @@ export class AssetsStorage {
      * @returns {Promise<{ assetId: string; created: boolean }>}
     */
     async save(data: Buffer, blocking = true) {
-        if (!this.isZipFile(data)) {
+        if (!isZipFile(data)) {
             throw new Error('Failed to save asset. File type not recognized as zip.');
         }
         const esData = data.toString('base64');
