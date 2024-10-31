@@ -532,13 +532,11 @@ export class K8s {
         // the selector provided to list above should always result in a single
         // deployment in the response.
         if (listResponse.items.length === 0) {
-            const msg = `Teraslice deployment matching the following selector was not found: ${selector} (retriable)`;
+            const msg = `Teraslice deployment matching the following selector was not found: ${selector}`;
             this.logger.warn(msg);
-            throw new TSError(msg, { retryable: true });
+            throw new TSError(msg);
         } else if (listResponse.items.length > 1) {
-            throw new TSError(`Unexpected number of Teraslice deployments matching the following selector: ${selector}`, {
-                retryable: true
-            });
+            throw new TSError(`Unexpected number of Teraslice deployments matching the following selector: ${selector}`);
         }
         const workerDeployment = listResponse.items[0];
         if (workerDeployment.spec?.replicas === undefined) {
