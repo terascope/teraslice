@@ -323,7 +323,7 @@ export class K8s {
      * Deletes k8s object of specified objType
      * @param  {String}    name        Name of the resource to delete
      * @param  {ResourceType}  objType     Type of k8s object to get, valid options:
-     *                                 'deployments', 'services', 'jobs', 'pods', 'replicasets'
+     *                                 'deployment', 'service', 'job', 'pod', 'replicaset'
      * @param  {Boolean}   force       Forcefully delete resource by setting gracePeriodSeconds to 1
      *                                 to be forcefully stopped.
      * @return {Object}                k8s delete response body.
@@ -373,14 +373,6 @@ export class K8s {
             deleteOptions
         ];
 
-        const deleteFunctions: { [resource: string]: () => Promise<DeleteApiResponse> } = {
-            deployment: () => this.k8sAppsV1Api.deleteNamespacedDeployment(...params),
-            job: () => this.k8sBatchV1Api.deleteNamespacedJob(...params),
-            pod: () => this.k8sCoreV1Api.deleteNamespacedPod(...params),
-            replicaset: () => this.k8sAppsV1Api.deleteNamespacedReplicaSet(...params),
-            service: () => this.k8sCoreV1Api.deleteNamespacedService(...params)
-        };
-
         const deleteWithErrorHandling = async (deleteFn: () => Promise<DeleteApiResponse>) => {
             try {
                 const res = await deleteFn();
@@ -398,10 +390,25 @@ export class K8s {
         };
 
         try {
-            responseObj = await pRetry(
-                () => deleteWithErrorHandling(deleteFunctions[objType]),
-                getRetryConfig()
-            );
+            if (objType === 'service') {
+                responseObj = await pRetry(() => deleteWithErrorHandling(() => this.k8sCoreV1Api
+                    .deleteNamespacedService(...params)), getRetryConfig());
+            } else if (objType === 'deployment') {
+                responseObj = await pRetry(() => deleteWithErrorHandling(() => this.k8sAppsV1Api
+                    .deleteNamespacedDeployment(...params)), getRetryConfig());
+            } else if (objType === 'job') {
+                responseObj = await pRetry(() => deleteWithErrorHandling(() => this.k8sBatchV1Api
+                    .deleteNamespacedJob(...params)), getRetryConfig());
+            } else if (objType === 'pod') {
+                responseObj = await pRetry(() => deleteWithErrorHandling(() => this.k8sCoreV1Api
+                    .deleteNamespacedPod(...params)), getRetryConfig());
+            } else if (objType === 'replicaset') {
+                responseObj = await pRetry(() => deleteWithErrorHandling(() => this.k8sAppsV1Api
+                    .deleteNamespacedReplicaSet(...params)), getRetryConfig());
+            } else {
+                throw new Error(`Invalid objType: ${objType}`);
+            }
+
             return responseObj.body;
         } catch (e) {
             const err = new Error(`Request k8s.delete with name: ${name} failed with: ${e}`);
