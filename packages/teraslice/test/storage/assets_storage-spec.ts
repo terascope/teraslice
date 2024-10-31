@@ -62,8 +62,7 @@ describe('AssetsStorage using S3 backend', () => {
     it('will reject an asset that isn\'t in zip format', async () => {
         const filePath = 'e2e/test/fixtures/assets/fake_zip.zip';
         const buffer = fs.readFileSync(filePath);
-        const result = await storage.save(buffer);
-        expect(result.assetId).toBe('caf0e5ce7cf1edc864f306b1d9edbad0f7060545');
+        await expect(() => storage.save(buffer)).rejects.toThrow('Failed to save asset. File type not recognized as zip.');
     });
 
     it('can save an asset to S3', async () => {
