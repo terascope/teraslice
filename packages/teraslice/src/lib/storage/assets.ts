@@ -224,13 +224,26 @@ export class AssetsStorage {
     }
 
     /**
+     * Check if a buffer contains a zip file
+     * @param {Buffer} buffer A buffer containing a file file
+     * @returns {boolean}
+     */
+    isZipFile(buffer: Buffer) {
+        const zipSignature = [0x50, 0x4B, 0x03, 0x04];
+        return zipSignature.every((byte, index) => buffer[index] === byte);
+    }
+
+    /**
      * Save an asset to disk and upload to elasticsearch or s3
      *
-     * @param data {Buffer} A buffer of the asset file (zipped)
-     * @param blocking {boolean=true} If false, save the asset in the background
+     * @param {Buffer}         data A buffer of the asset file (zipped)
+     * @param {boolean=true}   blocking If false, save the asset in the background
      * @returns {Promise<{ assetId: string; created: boolean }>}
     */
     async save(data: Buffer, blocking = true) {
+        if (!this.isZipFile(data)) {
+            throw new Error('Failed to save asset. File type not recognized as zip.');
+        }
         const esData = data.toString('base64');
         const id = crypto.createHash('sha1').update(esData)
             .digest('hex');
