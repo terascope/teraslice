@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import * as k8s from '@kubernetes/client-node';
 import { Logger } from '@terascope/utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
