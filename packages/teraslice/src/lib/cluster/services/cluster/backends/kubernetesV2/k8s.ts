@@ -162,7 +162,7 @@ export class K8s {
     * returns list of k8s objects matching provided selector
     * @param  {String} selector        kubernetes selector, like 'app=teraslice'
     * @param  {ResourceType} objType       Type of k8s object to get, valid options:
-    *                                  'deployment', 'job', 'pod', 'replicaset', 'service'
+    *                                  'deployments', 'jobs', 'pods', 'replicasets', 'services'
     * @param  {String} ns              namespace to search, this will override the default
     * @return {k8s.V1PodList
     *        | k8s.V1DeploymentList
@@ -247,7 +247,6 @@ export class K8s {
     /**
      * posts manifest to k8s
      * @param  {Resource} manifest        resource manifest
-     * @param  {ResourceType} manifestType    'deployment', 'job', 'pod', 'replicaset', 'service'
      * @return {Resource}                    body of k8s API response object
      */
     async post(manifest: k8s.V1Deployment): Promise<k8s.V1Deployment>;
@@ -323,7 +322,7 @@ export class K8s {
      * Deletes k8s object of specified objType
      * @param  {String}    name        Name of the resource to delete
      * @param  {ResourceType}  objType     Type of k8s object to get, valid options:
-     *                                 'deployment', 'service', 'job', 'pod', 'replicaset'
+     *                                 'deployments', 'services', 'jobs', 'pods', 'replicasetss'
      * @param  {Boolean}   force       Forcefully delete resource by setting gracePeriodSeconds to 1
      *                                 to be forcefully stopped.
      * @return {Object}                k8s delete response body.
@@ -447,8 +446,8 @@ export class K8s {
      * @param  {String}  exId     Execution ID
      * @param  {NodeType}  nodeType valid Teraslice k8s node type:
      *                            'worker', 'execution_controller'
-     * @param  {ResourceType}  objType  valid object type: `service`, `deployment`,
-     *                            `job`, `pod`, `replicaset`
+     * @param  {ResourceType}  objType  valid object type: `services`, `deployments`,
+     *                            `jobs`, `pods`, `replicasets`
      * @param  {Boolean}  force    Forcefully stop all resources
      * @return {Promise}
      */
