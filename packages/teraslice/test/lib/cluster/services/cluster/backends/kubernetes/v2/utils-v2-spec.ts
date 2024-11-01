@@ -1,3 +1,4 @@
+import * as k8s from '@kubernetes/client-node';
 import { K8sConfig } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/interfaces.js';
 import {
     makeTemplate, getMaxOldSpace
@@ -8,7 +9,7 @@ describe('K8s Utils', () => {
     describe('->makeTemplate', () => {
         describe('execution_controller job', () => {
             it('should be able to support the execution_controller job', () => {
-                const exJobTemplate = makeTemplate('jobs', 'execution_controller');
+                const exJobTemplate = makeTemplate<k8s.V1Job>('jobs', 'execution_controller');
                 const config: K8sConfig = {
                     clusterName: 'teracluster',
                     configMapName: 'teracluster-worker',
@@ -93,7 +94,7 @@ describe('K8s Utils', () => {
         });
 
         describe('worker deployment', () => {
-            const workerDeploymentTemplate = makeTemplate('deployments', 'worker');
+            const workerDeploymentTemplate = makeTemplate<k8s.V1Deployment>('deployments', 'worker');
             it('should be able to support the worker deployment', () => {
                 const config: K8sConfig = {
                     clusterName: 'teracluster',
@@ -234,7 +235,7 @@ describe('K8s Utils', () => {
         });
 
         describe('execution_controller service', () => {
-            const exServiceTemplate = makeTemplate('services', 'execution_controller');
+            const exServiceTemplate = makeTemplate<k8s.V1Service>('services', 'execution_controller');
             it('should be able to support the execution_controller service', () => {
                 const config: K8sConfig = {
                     clusterName: 'teracluster',

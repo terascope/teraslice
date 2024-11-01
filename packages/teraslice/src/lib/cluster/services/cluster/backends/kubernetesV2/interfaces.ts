@@ -19,8 +19,8 @@ export interface K8sConfig {
     dockerImage: string | undefined;
     execution: string;
     exId: string;
-    exName: string | undefined;
-    exUid: string | undefined;
+    exName?: string;
+    exUid?: string;
     jobId: string;
     jobNameLabel: string;
     name: string;

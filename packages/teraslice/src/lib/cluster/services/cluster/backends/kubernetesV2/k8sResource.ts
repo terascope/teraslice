@@ -3,103 +3,40 @@ import * as k8s from '@kubernetes/client-node';
 import { isNumber, Logger } from '@terascope/utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
 import { safeEncode } from '../../../../../utils/encoding_utils.js';
-import { isService, makeTemplate, setMaxOldSpaceViaEnv } from './utils.js';
+import { setMaxOldSpaceViaEnv } from './utils.js';
 import { K8sConfig, NodeType } from './interfaces.js';
 
-export class K8sResource {
+export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k8s.V1Job> {
     execution: ExecutionConfig;
     jobLabelPrefix: string;
     jobPropertyLabelPrefix: string;
     logger: Logger;
-    nodeType: NodeType;
-    nameInfix: string;
     terasliceConfig: Config;
-    templateGenerator: (config: K8sConfig) => k8s.V1Deployment | k8s.V1Job | k8s.V1Service;
-    templateConfig: K8sConfig;
-    resource: k8s.V1Deployment | k8s.V1Job | k8s.V1Service;
-    exName?: string;
-    exUid?: string;
+    abstract nodeType: NodeType;
+    abstract nameInfix: string;
+    abstract templateGenerator: (config: K8sConfig) => T;
+    abstract templateConfig: K8sConfig;
+    abstract resource: T;
+
     /**
      * K8sResource allows the generation of k8s resources based on templates.
      * After creating the object, the k8s resource is accessible on the objects
      * .resource property.
      *
-     * @param {'deployment' | 'job' | 'service'} resourceType - job/service/deployment
-     * @param {NodeType} resourceName - worker/execution_controller
      * @param {Object} terasliceConfig - teraslice cluster config from context
      * @param {Object} execution - teraslice execution
      * @param {Logger} logger - teraslice logger
-     * @param {String} exName(optional) - name from execution resource (deployment and service only)
-     * @param {String} exUid(optional) - uid from execution resource (deployment and service only)
      */
     constructor(
-        resourceType: 'deployments' | 'jobs' | 'services',
-        resourceName: NodeType,
         terasliceConfig: Config,
         execution: ExecutionConfig,
-        logger: Logger,
-        exName?: string,
-        exUid?: string
-
+        logger: Logger
     ) {
         this.execution = execution;
         this.jobLabelPrefix = 'job.teraslice.terascope.io';
         this.jobPropertyLabelPrefix = 'job-property.teraslice.terascope.io';
         this.logger = logger;
-        this.nodeType = resourceName;
         this.terasliceConfig = terasliceConfig;
-        this.exName = exName || undefined;
-        this.exUid = exUid || undefined;
-
-        if (resourceName === 'worker') {
-            this.nameInfix = 'wkr';
-        } else if (resourceName === 'execution_controller') {
-            this.nameInfix = 'exc';
-        } else {
-            throw new Error(`Unsupported resourceName: ${resourceName}`);
-        }
-
-        this.templateGenerator = makeTemplate(resourceType, resourceName);
-        this.templateConfig = this._makeConfig();
-        this.resource = this.templateGenerator(this.templateConfig);
-
-        if (!(isService(this.resource))) {
-            this._setJobLabels(this.resource);
-
-            // Apply job `targets` setting as k8s nodeAffinity
-            // We assume that multiple targets require both to match ...
-            // NOTE: If you specify multiple `matchExpressions` associated with
-            // `nodeSelectorTerms`, then the pod can be scheduled onto a node
-            // only if *all* `matchExpressions` can be satisfied.
-            this._setTargets(this.resource);
-            this._setResources(this.resource);
-            this._setVolumes(this.resource);
-            if (process.env.MOUNT_LOCAL_TERASLICE !== undefined) {
-                this._mountLocalTeraslice(this.resource);
-            }
-            this._setEnvVariables();
-            this._setAssetsVolume(this.resource);
-            this._setImagePullSecret(this.resource);
-            this._setEphemeralStorage(this.resource);
-            this._setExternalPorts(this.resource);
-            this._setPriorityClassName(this.resource);
-
-            if (resourceName === 'worker') {
-                this._setWorkerAntiAffinity(this.resource);
-            }
-
-            // Execution controller targets are required nodeAffinities, if
-            // required job targets are also supplied, then *all* of the matches
-            // will have to be satisfied for the job to be scheduled.  This also
-            // adds tolerations for any specified targets
-            if (resourceName === 'execution_controller') {
-                this._setExecutionControllerTargets(this.resource);
-            }
-
-            if (this.terasliceConfig.kubernetes_overrides_enabled) {
-                this._mergePodSpecOverlay(this.resource);
-            }
-        }
     }
 
     _setEnvVariables() {
@@ -118,7 +55,7 @@ export class K8sResource {
         }
     }
 
-    _makeConfig(): K8sConfig {
+    _makeConfig(nameInfix: string, exName?: string, exUid?: string): K8sConfig {
         const clusterName = _.get(this.terasliceConfig, 'name');
         const clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
         const configMapName = _.get(
@@ -137,7 +74,7 @@ export class K8sResource {
             .replace(/^[^a-z]/, 'a')
             .replace(/[^a-z0-9]$/, '0')
             .substring(0, 63);
-        const name = `ts-${this.nameInfix}-${jobNameLabel.substring(0, 35)}-${this.execution.job_id.substring(0, 13)}`;
+        const name = `ts-${nameInfix}-${jobNameLabel.substring(0, 35)}-${this.execution.job_id.substring(0, 13)}`;
         const shutdownTimeoutMs = _.get(this.terasliceConfig, 'shutdown_timeout', 60000);
         const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 
@@ -150,8 +87,8 @@ export class K8sResource {
             dockerImage,
             execution: safeEncode(this.execution),
             exId: this.execution.ex_id,
-            exName: this.exName,
-            exUid: this.exUid,
+            exName: exName,
+            exUid: exUid,
             jobId: this.execution.job_id,
             jobNameLabel,
             name,

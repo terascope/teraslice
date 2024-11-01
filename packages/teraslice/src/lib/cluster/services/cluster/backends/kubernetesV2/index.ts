@@ -4,12 +4,14 @@ import {
 } from '@terascope/utils';
 import type { Context, ExecutionConfig } from '@terascope/job-components';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
-import { K8sResource } from './k8sResource.js';
 import { gen } from './k8sState.js';
 import { K8s } from './k8s.js';
-import { getRetryConfig, isDeployment, isJob, isService } from './utils.js';
+import { getRetryConfig } from './utils.js';
 import { StopExecutionOptions } from '../../../interfaces.js';
 import { ResourceType } from './interfaces.js';
+import { K8sJobResource } from './k8sJobResource.js';
+import { K8sServiceResource } from './k8sServiceResource.js';
+import { K8sDeploymentResource } from './k8sDeploymentResource.js';
 
 /*
  Execution Life Cycle for _status
@@ -29,6 +31,10 @@ export class KubernetesClusterBackendV2 {
     readonly clusterNameLabel: string;
 
     constructor(context: Context, clusterMasterServer: any) {
+        if (!context.sysconfig.teraslice.kubernetes_api_poll_delay) {
+            throw new Error('Kubernetes clustering requires kubernetes_api_poll_delay to be defined.');
+        }
+
         const kubernetesNamespace = get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
         const clusterName = get(context, 'sysconfig.teraslice.name');
 
@@ -42,7 +48,7 @@ export class KubernetesClusterBackendV2 {
             this.logger,
             null,
             kubernetesNamespace,
-            context.sysconfig.teraslice.kubernetes_api_poll_delay || 1000,
+            context.sysconfig.teraslice.kubernetes_api_poll_delay,
             context.sysconfig.teraslice.shutdown_timeout
         );
 
@@ -105,17 +111,11 @@ export class KubernetesClusterBackendV2 {
 
         execution.slicer_port = 45680;
 
-        const exJobResource = new K8sResource(
-            'jobs',
-            'execution_controller',
+        const exJobResource = new K8sJobResource(
             this.context.sysconfig.teraslice,
             execution,
             this.logger
         );
-
-        if (!(isJob(exJobResource.resource))) {
-            throw new Error(`exJobResource.resource must be of type k8s.V1Job`);
-        }
 
         const exJob = exJobResource.resource;
 
@@ -123,20 +123,25 @@ export class KubernetesClusterBackendV2 {
 
         const jobResult = await this.k8s.post(exJob);
 
-        const exServiceResource = new K8sResource(
-            'services',
-            'execution_controller',
+        // fixme
+        if (!jobResult.metadata) {
+            throw new Error('Required field metadata missing from jobResult');
+        }
+        if (!jobResult.metadata.name) {
+            throw new Error('Required field name missing from jobResult.metadata');
+        }
+        if (!jobResult.metadata.uid) {
+            throw new Error('Required field uid missing from jobResult.metadata');
+        }
+
+        const exServiceResource = new K8sServiceResource(
             this.context.sysconfig.teraslice,
             execution,
             this.logger,
             // Needed to create the deployment and service resource ownerReferences
-            jobResult.metadata?.name,
-            jobResult.metadata?.uid
+            jobResult.metadata.name,
+            jobResult.metadata.uid
         );
-
-        if (!(isService(exServiceResource.resource))) {
-            throw new Error(`exJobResource.resource must be of type k8s.V1Service`);
-        }
 
         const exService = exServiceResource.resource;
 
@@ -199,9 +204,18 @@ export class KubernetesClusterBackendV2 {
             this.context.sysconfig.teraslice.slicer_timeout
         );
 
-        const kr = new K8sResource(
-            'deployments',
-            'worker',
+        // fixme
+        if (!jobs.items[0].metadata) {
+            throw new Error('Required field metadata missing from jobResult');
+        }
+        if (!jobs.items[0].metadata.name) {
+            throw new Error('Required field name missing from jobResult.metadata');
+        }
+        if (!jobs.items[0].metadata.uid) {
+            throw new Error('Required field uid missing from jobResult.metadata');
+        }
+
+        const kr = new K8sDeploymentResource(
             this.context.sysconfig.teraslice,
             execution,
             this.logger,
@@ -209,9 +223,6 @@ export class KubernetesClusterBackendV2 {
             jobs.items[0].metadata?.uid
         );
 
-        if (!(isDeployment(kr.resource))) {
-            throw new Error(`exJobResource.resource must be of type k8s.V1Deployment`);
-        }
         const workerDeployment = kr.resource;
 
         this.logger.debug(`workerDeployment:\n\n${JSON.stringify(workerDeployment, null, 2)}`);
