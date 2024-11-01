@@ -11,23 +11,23 @@ const RETRY_DELAY = isTest ? 50 : 1000; // time in ms
 const resourcePath = path.join(process.cwd(), './packages/teraslice/src/lib/cluster/services/cluster/backends/kubernetesV2/');
 
 export function makeTemplate(
-    folder: 'deployment',
+    folder: 'deployments',
     fileName: NodeType
 ): (config: K8sConfig) => k8s.V1Deployment;
 export function makeTemplate(
-    folder: 'job',
+    folder: 'jobs',
     fileName: NodeType
 ): (config: K8sConfig) => k8s.V1Job;
 export function makeTemplate(
-    folder: 'service',
+    folder: 'services',
     fileName: NodeType
 ): (config: K8sConfig) => k8s.V1Service;
 export function makeTemplate(
-    folder: 'deployment' | 'job' | 'service',
+    folder: 'deployments' | 'jobs' | 'services',
     fileName: NodeType
 ): (config: K8sConfig) => k8s.V1Deployment | k8s.V1Job | k8s.V1Service;
 export function makeTemplate(
-    folder: 'deployment' | 'job' | 'service',
+    folder: 'deployments' | 'jobs' | 'services',
     fileName: NodeType
 ): (config: K8sConfig) => k8s.V1Deployment | k8s.V1Job | k8s.V1Service {
     const filePath = path.join(resourcePath, folder, `${fileName}.hbs`);
@@ -35,11 +35,11 @@ export function makeTemplate(
     const templateKeys = ['{{', '}}'];
 
     return (config: K8sConfig) => {
-        if (folder !== 'job' && (config.exName === undefined || config.exUid === undefined)) {
+        if (folder !== 'jobs' && (config.exName === undefined || config.exUid === undefined)) {
             throw new Error(`K8s config requires ${config.exName === undefined ? 'exName' : 'exUid'} to create a ${folder} template`);
         }
 
-        if (folder !== 'service' && config.dockerImage === undefined) {
+        if (folder !== 'services' && config.dockerImage === undefined) {
             throw new Error(`K8s config requires a dockerImage to create a ${folder} template`);
         }
 

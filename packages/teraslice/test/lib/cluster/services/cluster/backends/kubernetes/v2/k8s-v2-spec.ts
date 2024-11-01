@@ -70,7 +70,7 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'PodList' });
 
-            const pods = await k8s.list('app=teraslice', 'pod');
+            const pods = await k8s.list('app=teraslice', 'pods');
             expect(pods.kind).toEqual('PodList');
         });
 
@@ -80,7 +80,7 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'ServiceList' });
 
-            const pods = await k8s.list('app=teraslice', 'service');
+            const pods = await k8s.list('app=teraslice', 'services');
             expect(pods.kind).toEqual('ServiceList');
         });
 
@@ -90,7 +90,7 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'DeploymentList' });
 
-            const deployments = await k8s.list('app=teraslice', 'deployment');
+            const deployments = await k8s.list('app=teraslice', 'deployments');
             expect(deployments.kind).toEqual('DeploymentList');
         });
 
@@ -100,7 +100,7 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'JobList' });
 
-            const jobs = await k8s.list('app=teraslice', 'job');
+            const jobs = await k8s.list('app=teraslice', 'jobs');
             expect(jobs.kind).toEqual('JobList');
         });
 
@@ -110,7 +110,7 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'ReplicaSetList' });
 
-            const jobs = await k8s.list('app=teraslice', 'replicaset');
+            const jobs = await k8s.list('app=teraslice', 'replicasets');
             expect(jobs.kind).toEqual('ReplicaSetList');
         });
     });
@@ -221,12 +221,12 @@ describe('k8s', () => {
 
     describe('->delete', () => {
         it('will throw if name is undefined', async () => {
-            await expect(k8s.delete(undefined as unknown as string, 'deployment'))
+            await expect(k8s.delete(undefined as unknown as string, 'deployments'))
                 .rejects.toThrow('Name of resource to delete must be specified. Received: "undefined".');
         });
 
         it('will throw if name is an empty string', async () => {
-            await expect(k8s.delete('', 'deployment'))
+            await expect(k8s.delete('', 'deployments'))
                 .rejects.toThrow('Name of resource to delete must be specified. Received: "".');
         });
 
@@ -235,7 +235,7 @@ describe('k8s', () => {
                 .delete('/apis/apps/v1/namespaces/default/deployments/test1')
                 .reply(200, {});
 
-            const response = await k8s.delete('test1', 'deployment');
+            const response = await k8s.delete('test1', 'deployments');
             expect(response).toEqual({});
         });
 
@@ -244,7 +244,7 @@ describe('k8s', () => {
                 .delete('/api/v1/namespaces/default/services/test1')
                 .reply(200, {});
 
-            const response = await k8s.delete('test1', 'service');
+            const response = await k8s.delete('test1', 'services');
             expect(response).toEqual({});
         });
 
@@ -253,7 +253,7 @@ describe('k8s', () => {
                 .delete('/apis/batch/v1/namespaces/default/jobs/test1')
                 .reply(200, {});
 
-            const response = await k8s.delete('test1', 'job');
+            const response = await k8s.delete('test1', 'jobs');
             expect(response).toEqual({});
         });
 
@@ -262,7 +262,7 @@ describe('k8s', () => {
                 .delete('/api/v1/namespaces/default/pods/test1')
                 .reply(200, {});
 
-            const response = await k8s.delete('test1', 'pod');
+            const response = await k8s.delete('test1', 'pods');
             expect(response).toEqual({});
         });
 
@@ -271,7 +271,7 @@ describe('k8s', () => {
                 .delete('/apis/apps/v1/namespaces/default/replicasets/test1')
                 .reply(200, {});
 
-            const response = await k8s.delete('test1', 'replicaset');
+            const response = await k8s.delete('test1', 'replicasets');
             expect(response).toEqual({});
         });
 
@@ -284,7 +284,7 @@ describe('k8s', () => {
                 .delete('/api/v1/namespaces/default/pods/bad-response')
                 .replyWithError({ statusCode: 400 });
 
-            await expect(k8s.delete('bad-response', 'pod'))
+            await expect(k8s.delete('bad-response', 'pods'))
                 .rejects.toThrow('Request k8s.delete with name: bad-response failed with: TSError: {"statusCode":400}');
         });
 
@@ -306,7 +306,7 @@ describe('k8s', () => {
                 .delete('/api/v1/namespaces/default/pods/non-existent')
                 .replyWithError(notFoundResponse);
 
-            const response = await k8s.delete('non-existent', 'pod');
+            const response = await k8s.delete('non-existent', 'pods');
             expect(response).toEqual(notFoundResponse.body);
         });
     });
@@ -357,7 +357,7 @@ describe('k8s', () => {
                     items: [jobNoName]
                 });
 
-            await expect(k8s._deleteObjByExId('no-name', 'execution_controller', 'job'))
+            await expect(k8s._deleteObjByExId('no-name', 'execution_controller', 'jobs'))
                 .rejects.toThrow('Cannot delete job for ExId: no-name by name because it has no name');
         });
 
@@ -374,7 +374,7 @@ describe('k8s', () => {
                 .delete('/apis/batch/v1/namespaces/default/jobs/testJob1')
                 .reply(200, status);
 
-            const response = await k8s._deleteObjByExId('testJob1', 'execution_controller', 'job');
+            const response = await k8s._deleteObjByExId('testJob1', 'execution_controller', 'jobs');
             expect(response).toEqual([expect.objectContaining(status)]);
         });
 
@@ -394,7 +394,7 @@ describe('k8s', () => {
                 .delete('/api/v1/namespaces/default/pods/testPod2')
                 .reply(200, testPod2);
 
-            const response = await k8s._deleteObjByExId('testPods', 'worker', 'pod');
+            const response = await k8s._deleteObjByExId('testPods', 'worker', 'pods');
             expect(response).toEqual([
                 expect.objectContaining(testPod1),
                 expect.objectContaining(testPod2)

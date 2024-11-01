@@ -170,11 +170,11 @@ export class K8s {
     *        | k8s.V1ReplicaSetList
     *        | k8s.V1JobList}          list of k8s objects.
     */
-    async list(selector: string, objType: 'deployment', ns?: string): Promise<k8s.V1DeploymentList>;
-    async list(selector: string, objType: 'job', ns?: string): Promise<k8s.V1JobList>;
-    async list(selector: string, objType: 'pod', ns?: string): Promise<k8s.V1PodList>;
-    async list(selector: string, objType: 'replicaset', ns?: string): Promise<k8s.V1ReplicaSetList>;
-    async list(selector: string, objType: 'service', ns?: string): Promise<k8s.V1ServiceList>;
+    async list(selector: string, objType: 'deployments', ns?: string): Promise<k8s.V1DeploymentList>;
+    async list(selector: string, objType: 'jobs', ns?: string): Promise<k8s.V1JobList>;
+    async list(selector: string, objType: 'pods', ns?: string): Promise<k8s.V1PodList>;
+    async list(selector: string, objType: 'replicasets', ns?: string): Promise<k8s.V1ReplicaSetList>;
+    async list(selector: string, objType: 'services', ns?: string): Promise<k8s.V1ServiceList>;
     async list(selector: string, objType: ResourceType, ns?: string): Promise<ResourceList>;
     async list(selector: string, objType: ResourceType, ns?: string): Promise<ResourceList> {
         const namespace = ns || this.defaultNamespace;
@@ -190,27 +190,27 @@ export class K8s {
         ];
 
         try {
-            if (objType === 'deployment') {
+            if (objType === 'deployments') {
                 responseObj = await pRetry(
                     () => this.k8sAppsV1Api.listNamespacedDeployment(...params),
                     getRetryConfig()
                 );
-            } else if (objType === 'job') {
+            } else if (objType === 'jobs') {
                 responseObj = await pRetry(
                     () => this.k8sBatchV1Api.listNamespacedJob(...params),
                     getRetryConfig()
                 );
-            } else if (objType === 'pod') {
+            } else if (objType === 'pods') {
                 responseObj = await pRetry(
                     () => this.k8sCoreV1Api.listNamespacedPod(...params),
                     getRetryConfig()
                 );
-            } else if (objType === 'replicaset') {
+            } else if (objType === 'replicasets') {
                 responseObj = await pRetry(
                     () => this.k8sAppsV1Api.listNamespacedReplicaSet(...params),
                     getRetryConfig()
                 );
-            } else if (objType === 'service') {
+            } else if (objType === 'services') {
                 responseObj = await pRetry(
                     () => this.k8sCoreV1Api.listNamespacedService(...params),
                     getRetryConfig()
@@ -230,7 +230,7 @@ export class K8s {
     }
 
     async nonEmptyJobList(selector: string) {
-        const jobs = await this.list(selector, 'job');
+        const jobs = await this.list(selector, 'jobs');
         if (jobs.items.length === 1) {
             return jobs;
         } else if (jobs.items.length === 0) {
@@ -329,13 +329,13 @@ export class K8s {
      * @return {Object}                k8s delete response body.
      */
     async delete(
-        name: string, objType: 'pod', force?: boolean
+        name: string, objType: 'pods', force?: boolean
     ): Promise<k8s.V1Pod>;
     async delete(
-        name: string, objType: 'deployment' | 'job' | 'replicaset', force?: boolean
+        name: string, objType: 'deployments' | 'jobs' | 'replicasets', force?: boolean
     ): Promise<k8s.V1Status>;
     async delete(
-        name: string, objType: 'service', force?: boolean
+        name: string, objType: 'services', force?: boolean
     ): Promise<k8s.V1Service>;
     async delete(
         name: string, objType: ResourceType, force?: boolean
@@ -390,19 +390,19 @@ export class K8s {
         };
 
         try {
-            if (objType === 'service') {
+            if (objType === 'services') {
                 responseObj = await pRetry(() => deleteWithErrorHandling(() => this.k8sCoreV1Api
                     .deleteNamespacedService(...params)), getRetryConfig());
-            } else if (objType === 'deployment') {
+            } else if (objType === 'deployments') {
                 responseObj = await pRetry(() => deleteWithErrorHandling(() => this.k8sAppsV1Api
                     .deleteNamespacedDeployment(...params)), getRetryConfig());
-            } else if (objType === 'job') {
+            } else if (objType === 'jobs') {
                 responseObj = await pRetry(() => deleteWithErrorHandling(() => this.k8sBatchV1Api
                     .deleteNamespacedJob(...params)), getRetryConfig());
-            } else if (objType === 'pod') {
+            } else if (objType === 'pods') {
                 responseObj = await pRetry(() => deleteWithErrorHandling(() => this.k8sCoreV1Api
                     .deleteNamespacedPod(...params)), getRetryConfig());
-            } else if (objType === 'replicaset') {
+            } else if (objType === 'replicasets') {
                 responseObj = await pRetry(() => deleteWithErrorHandling(() => this.k8sAppsV1Api
                     .deleteNamespacedReplicaSet(...params)), getRetryConfig());
             } else {
@@ -432,14 +432,14 @@ export class K8s {
         if (force) {
             // Order matters. If we delete a parent resource before its children it
             // will be marked for background deletion and then can't be force deleted.
-            await this._deleteObjByExId(exId, 'worker', 'pod', force);
-            await this._deleteObjByExId(exId, 'worker', 'replicaset', force);
-            await this._deleteObjByExId(exId, 'worker', 'deployment', force);
-            await this._deleteObjByExId(exId, 'execution_controller', 'pod', force);
-            await this._deleteObjByExId(exId, 'execution_controller', 'service', force);
+            await this._deleteObjByExId(exId, 'worker', 'pods', force);
+            await this._deleteObjByExId(exId, 'worker', 'replicasets', force);
+            await this._deleteObjByExId(exId, 'worker', 'deployments', force);
+            await this._deleteObjByExId(exId, 'execution_controller', 'pods', force);
+            await this._deleteObjByExId(exId, 'execution_controller', 'services', force);
         }
 
-        await this._deleteObjByExId(exId, 'execution_controller', 'job', force);
+        await this._deleteObjByExId(exId, 'execution_controller', 'jobs', force);
     }
 
     /**
@@ -453,15 +453,15 @@ export class K8s {
      * @return {Promise}
      */
     async _deleteObjByExId(
-        exId: string, nodeType: NodeType, objType: 'pod', force?: boolean
+        exId: string, nodeType: NodeType, objType: 'pods', force?: boolean
     ): Promise<k8s.V1Pod[]>;
 
     async _deleteObjByExId(
-        exId: string, nodeType: NodeType, objType: 'job' | 'replicaset' | 'deployment', force?: boolean
+        exId: string, nodeType: NodeType, objType: 'jobs' | 'replicasets' | 'deployments', force?: boolean
     ): Promise<k8s.V1Status[]>;
 
     async _deleteObjByExId(
-        exId: string, nodeType: NodeType, objType: 'service', force?: boolean
+        exId: string, nodeType: NodeType, objType: 'services', force?: boolean
     ): Promise<k8s.V1Service[]>;
 
     async _deleteObjByExId(
@@ -526,7 +526,7 @@ export class K8s {
         const selector = `app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`;
 
         this.logger.info(`Scaling exId: ${exId}, op: ${op}, numWorkers: ${numWorkers}`);
-        const listResponse = await this.list(selector, 'deployment');
+        const listResponse = await this.list(selector, 'deployments');
         this.logger.debug(`k8s worker query listResponse: ${JSON.stringify(listResponse)}`);
 
         // the selector provided to list above should always result in a single

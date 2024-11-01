@@ -67,7 +67,7 @@ export class KubernetesClusterBackendV2 {
      * @return      {Promise} void
      */
     private async _getClusterState() {
-        return this.k8s.list(`app.kubernetes.io/name=teraslice,app.kubernetes.io/instance=${this.clusterNameLabel}`, 'pod')
+        return this.k8s.list(`app.kubernetes.io/name=teraslice,app.kubernetes.io/instance=${this.clusterNameLabel}`, 'pods')
             .then((k8sPods) => gen(k8sPods, this.clusterState, this.logger))
             .catch((err) => {
                 // TODO: We might need to do more here.  I think it's OK to just
@@ -106,7 +106,7 @@ export class KubernetesClusterBackendV2 {
         execution.slicer_port = 45680;
 
         const exJobResource = new K8sResource(
-            'job',
+            'jobs',
             'execution_controller',
             this.context.sysconfig.teraslice,
             execution,
@@ -124,7 +124,7 @@ export class KubernetesClusterBackendV2 {
         const jobResult = await this.k8s.post(exJob);
 
         const exServiceResource = new K8sResource(
-            'service',
+            'services',
             'execution_controller',
             this.context.sysconfig.teraslice,
             execution,
@@ -200,7 +200,7 @@ export class KubernetesClusterBackendV2 {
         );
 
         const kr = new K8sResource(
-            'deployment',
+            'deployments',
             'worker',
             this.context.sysconfig.teraslice,
             execution,
@@ -271,7 +271,7 @@ export class KubernetesClusterBackendV2 {
      */
     async listResourcesForJobId(jobId: string) {
         const resources = [];
-        const resourceTypes: ResourceType[] = ['pod', 'deployment', 'service', 'job', 'replicaset'];
+        const resourceTypes: ResourceType[] = ['pods', 'deployments', 'services', 'jobs', 'replicasets'];
 
         for (const type of resourceTypes) {
             const list = await this.k8s.list(`teraslice.terascope.io/jobId=${jobId}`, type);

@@ -30,7 +30,7 @@ export interface K8sConfig {
     shutdownTimeout: number;
 }
 
-export type ResourceType = 'deployment' | 'job' | 'pod' | 'replicaset' | 'service';
+export type ResourceType = 'deployments' | 'jobs' | 'pods' | 'replicasets' | 'services';
 
 export type ResourceList = k8s.V1DeploymentList | k8s.V1JobList
     | k8s.V1PodList | k8s.V1ReplicaSetList | k8s.V1ServiceList;

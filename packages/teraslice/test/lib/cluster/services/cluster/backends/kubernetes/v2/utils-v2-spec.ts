@@ -8,7 +8,7 @@ describe('K8s Utils', () => {
     describe('->makeTemplate', () => {
         describe('execution_controller job', () => {
             it('should be able to support the execution_controller job', () => {
-                const exJobTemplate = makeTemplate('job', 'execution_controller');
+                const exJobTemplate = makeTemplate('jobs', 'execution_controller');
                 const config: K8sConfig = {
                     clusterName: 'teracluster',
                     configMapName: 'teracluster-worker',
@@ -69,7 +69,7 @@ describe('K8s Utils', () => {
             });
 
             it('should throw error if docker image undefined on config for job', () => {
-                const exJobTemplate = makeTemplate('job', 'execution_controller');
+                const exJobTemplate = makeTemplate('jobs', 'execution_controller');
                 const config: K8sConfig = {
                     clusterName: 'teracluster',
                     configMapName: 'teracluster-worker',
@@ -93,7 +93,7 @@ describe('K8s Utils', () => {
         });
 
         describe('worker deployment', () => {
-            const workerDeploymentTemplate = makeTemplate('deployment', 'worker');
+            const workerDeploymentTemplate = makeTemplate('deployments', 'worker');
             it('should be able to support the worker deployment', () => {
                 const config: K8sConfig = {
                     clusterName: 'teracluster',
@@ -234,7 +234,7 @@ describe('K8s Utils', () => {
         });
 
         describe('execution_controller service', () => {
-            const exServiceTemplate = makeTemplate('service', 'execution_controller');
+            const exServiceTemplate = makeTemplate('services', 'execution_controller');
             it('should be able to support the execution_controller service', () => {
                 const config: K8sConfig = {
                     clusterName: 'teracluster',

@@ -33,7 +33,7 @@ export class K8sResource {
      * @param {String} exUid(optional) - uid from execution resource (deployment and service only)
      */
     constructor(
-        resourceType: 'deployment' | 'job' | 'service',
+        resourceType: 'deployments' | 'jobs' | 'services',
         resourceName: NodeType,
         terasliceConfig: Config,
         execution: ExecutionConfig,
