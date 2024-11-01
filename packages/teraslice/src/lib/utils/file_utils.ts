@@ -170,7 +170,10 @@ export async function saveAsset(
 }
 
 /**
- * Check if a buffer contains a zip file
+ * Check if a buffer contains a zip file.
+ * Note that file extension and mime type are not checked.
+ * Any file type that is actually a zip (.xlsx, .jar, .apk,
+ * .epub) will return true.
  * @param {Buffer} buffer A buffer containing a file file
  * @returns {boolean}
  */
