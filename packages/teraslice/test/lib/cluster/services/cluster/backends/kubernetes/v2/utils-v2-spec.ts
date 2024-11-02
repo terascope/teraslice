@@ -89,7 +89,7 @@ describe('K8s Utils', () => {
                     shutdownTimeout: 12345
                 };
                 expect(() => exJobTemplate(config))
-                    .toThrow('K8s config requires a dockerImage to create a job template');
+                    .toThrow('K8s config requires a dockerImage to create a jobs template');
             });
         });
 
@@ -188,7 +188,7 @@ describe('K8s Utils', () => {
                     shutdownTimeout: 12345
                 };
                 expect(() => workerDeploymentTemplate(config))
-                    .toThrow('K8s config requires a dockerImage to create a deployment template');
+                    .toThrow('K8s config requires a dockerImage to create a deployments template');
             });
 
             it('should throw error if exName undefined on config for deployment', () => {
@@ -209,7 +209,7 @@ describe('K8s Utils', () => {
                     replicas: 1,
                     shutdownTimeout: 12345
                 };
-                expect(() => workerDeploymentTemplate(config)).toThrow('K8s config requires exName to create a deployment template');
+                expect(() => workerDeploymentTemplate(config)).toThrow('K8s config requires exName to create a deployments template');
             });
 
             it('should throw error if exUid undefined on config for deployment', () => {
@@ -230,7 +230,7 @@ describe('K8s Utils', () => {
                     replicas: 1,
                     shutdownTimeout: 12345
                 };
-                expect(() => workerDeploymentTemplate(config)).toThrow('K8s config requires exUid to create a deployment template');
+                expect(() => workerDeploymentTemplate(config)).toThrow('K8s config requires exUid to create a deployments template');
             });
         });
 
@@ -309,7 +309,7 @@ describe('K8s Utils', () => {
                     replicas: 1,
                     shutdownTimeout: 12345
                 };
-                expect(() => exServiceTemplate(config)).toThrow('K8s config requires exName to create a service template');
+                expect(() => exServiceTemplate(config)).toThrow('K8s config requires exName to create a services template');
             });
 
             it('should throw error if exUid undefined on config for service', () => {
@@ -330,7 +330,7 @@ describe('K8s Utils', () => {
                     replicas: 1,
                     shutdownTimeout: 12345
                 };
-                expect(() => exServiceTemplate(config)).toThrow('K8s config requires exUid to create a service template');
+                expect(() => exServiceTemplate(config)).toThrow('K8s config requires exUid to create a services template');
             });
         });
     });
