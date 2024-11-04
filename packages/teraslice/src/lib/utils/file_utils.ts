@@ -168,3 +168,16 @@ export async function saveAsset(
         logger, assetsPath, id, binaryData, metaCheck
     ));
 }
+
+/**
+ * Check if a buffer contains a zip file.
+ * Note that file extension and mime type are not checked.
+ * Any file type that is actually a zip (.xlsx, .jar, .apk,
+ * .epub) will return true.
+ * @param {Buffer} buffer A buffer containing a file file
+ * @returns {boolean}
+ */
+export function isZipFile(buffer: Buffer) {
+    const zipSignature = [0x50, 0x4B, 0x03, 0x04];
+    return zipSignature.every((byte, index) => buffer[index] === byte);
+}
