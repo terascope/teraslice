@@ -119,6 +119,10 @@ export class KubernetesClusterBackendV2 {
 
         const jobResult = await this.k8s.post(exJob);
 
+        if (!jobResult.metadata.uid) {
+            throw new Error('Required field uid missing from jobResult.metadata');
+        }
+
         const exServiceResource = new K8sServiceResource(
             this.context.sysconfig.teraslice,
             execution,
@@ -133,6 +137,10 @@ export class KubernetesClusterBackendV2 {
         const serviceResult = await this.k8s.post(exService);
 
         this.logger.debug(jobResult, 'k8s slicer job submitted');
+
+        if (!jobResult.spec.selector?.matchLabels) {
+            throw new Error('Required field matchLabels missing from jobResult.spec.selector');
+        }
 
         let controllerLabel: string;
         if (jobResult.spec.selector.matchLabels['controller-uid'] !== undefined) {
@@ -188,6 +196,10 @@ export class KubernetesClusterBackendV2 {
             undefined,
             this.context.sysconfig.teraslice.slicer_timeout
         );
+
+        if (!jobs.items[0].metadata.uid) {
+            throw new Error('Required field uid missing from kubernetes job metadata');
+        }
 
         const kr = new K8sDeploymentResource(
             this.context.sysconfig.teraslice,

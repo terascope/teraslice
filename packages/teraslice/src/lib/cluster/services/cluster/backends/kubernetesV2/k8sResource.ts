@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { V1Deployment, V1Job, V1Service } from '@kubernetes/client-node';
 import { isNumber, Logger } from '@terascope/utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
 import { safeEncode } from '../../../../../utils/encoding_utils.js';
@@ -16,7 +17,7 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
     terasliceConfig: Config;
     abstract nodeType: NodeType;
     abstract nameInfix: string;
-    abstract templateGenerator: (config: K8sConfig) => T;
+    abstract templateGenerator: (config: K8sConfig) => V1Deployment | V1Job | V1Service;
     abstract templateConfig: K8sConfig;
     abstract resource: T;
 

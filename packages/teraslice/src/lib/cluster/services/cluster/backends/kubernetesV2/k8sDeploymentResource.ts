@@ -1,13 +1,14 @@
 import { Logger } from '@terascope/utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
-import { makeTemplate } from './utils.js';
+import { convertToTSResource, makeTemplate } from './utils.js';
 import { K8sConfig, NodeType, TSDeployment } from './interfaces.js';
 import { K8sResource } from './k8sResource.js';
+import { V1Deployment } from '@kubernetes/client-node';
 
 export class K8sDeploymentResource extends K8sResource<TSDeployment> {
     nodeType: NodeType = 'worker';
     nameInfix = 'wkr';
-    templateGenerator: (config: K8sConfig) => TSDeployment;
+    templateGenerator: (config: K8sConfig) => V1Deployment;
     templateConfig;
     resource;
     exName: string;
@@ -39,7 +40,9 @@ export class K8sDeploymentResource extends K8sResource<TSDeployment> {
         this.exUid = exUid;
         this.templateGenerator = makeTemplate('deployments', this.nodeType);
         this.templateConfig = this._makeConfig(this.nameInfix, exName, exUid);
-        this.resource = this.templateGenerator(this.templateConfig);
+        const k8sDeployment = new V1Deployment();
+        Object.assign(k8sDeployment, this.templateGenerator(this.templateConfig));
+        this.resource = convertToTSResource(k8sDeployment);
 
         this._setJobLabels(this.resource);
 

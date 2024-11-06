@@ -1,13 +1,14 @@
+import { V1Job } from '@kubernetes/client-node';
 import { Logger } from '@terascope/utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
-import { makeTemplate } from './utils.js';
+import { convertToTSResource, makeTemplate } from './utils.js';
 import { K8sConfig, NodeType, TSJob } from './interfaces.js';
 import { K8sResource } from './k8sResource.js';
 
 export class K8sJobResource extends K8sResource<TSJob> {
     nodeType: NodeType = 'execution_controller';
     nameInfix = 'exc';
-    templateGenerator: (config: K8sConfig) => TSJob;
+    templateGenerator: (config: K8sConfig) => V1Job;
     templateConfig;
     resource;
 
@@ -28,7 +29,9 @@ export class K8sJobResource extends K8sResource<TSJob> {
         super(terasliceConfig, execution, logger);
         this.templateGenerator = makeTemplate('jobs', this.nodeType);
         this.templateConfig = this._makeConfig(this.nameInfix);
-        this.resource = this.templateGenerator(this.templateConfig);
+        const k8sJob = new V1Job();
+        Object.assign(k8sJob, this.templateGenerator(this.templateConfig));
+        this.resource = convertToTSResource(k8sJob);
 
         this._setJobLabels(this.resource);
 

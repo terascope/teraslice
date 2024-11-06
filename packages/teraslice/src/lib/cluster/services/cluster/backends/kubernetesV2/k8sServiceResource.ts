@@ -1,8 +1,9 @@
 import { Logger } from '@terascope/utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
-import { makeTemplate } from './utils.js';
+import { convertToTSResource, makeTemplate } from './utils.js';
 import { K8sConfig, NodeType, TSService } from './interfaces.js';
 import { K8sResource } from './k8sResource.js';
+import { V1Service } from '@kubernetes/client-node';
 
 export class K8sServiceResource extends K8sResource<TSService> {
     nodeType: NodeType = 'execution_controller';
@@ -40,6 +41,9 @@ export class K8sServiceResource extends K8sResource<TSService> {
         this.exUid = exUid;
         this.templateGenerator = makeTemplate('services', this.nodeType);
         this.templateConfig = this._makeConfig(this.nameInfix, exName, exUid);
-        this.resource = this.templateGenerator(this.templateConfig);
+
+        const k8sService = new V1Service();
+        Object.assign(k8sService, this.templateGenerator(this.templateConfig));
+        this.resource = convertToTSResource(k8sService);
     }
 }

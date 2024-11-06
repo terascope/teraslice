@@ -67,7 +67,6 @@ export interface TSJob extends k8s.V1Job {
             [key: string]: string;
         };
         name: string;
-        uid: string;
     };
     spec: NonNullable<k8s.V1JobSpec> & {
         template: k8s.V1PodTemplateSpec & {
@@ -82,11 +81,6 @@ export interface TSJob extends k8s.V1Job {
                     volumeMounts: [k8s.V1VolumeMount, ...k8s.V1VolumeMount[]];
                 }[];
                 volumes: NonNullable<k8s.V1Volume>;
-            };
-        };
-        selector: NonNullable<k8s.V1LabelSelector> & {
-            matchLabels: {
-                [key: string]: string;
             };
         };
     };
