@@ -43,13 +43,13 @@ describe('K8s Utils', () => {
                     namespace: config.namespace
                 });
 
-                expect(exJob.spec?.template.metadata?.labels).toEqual(exJob.metadata?.labels);
+                expect(exJob.spec.template.metadata.labels).toEqual(exJob.metadata.labels);
 
-                const templateSpec = exJob.spec?.template.spec;
+                const templateSpec = exJob.spec.template.spec;
 
-                expect(templateSpec?.containers[0].image).toEqual(config.dockerImage);
-                expect(templateSpec?.containers[0].name).toEqual(config.name);
-                expect(templateSpec?.containers[0].env).toEqual([
+                expect(templateSpec.containers[0].image).toEqual(config.dockerImage);
+                expect(templateSpec.containers[0].name).toEqual(config.name);
+                expect(templateSpec.containers[0].env).toEqual([
                     {
                         name: 'NODE_TYPE',
                         value: config.nodeType
@@ -67,7 +67,7 @@ describe('K8s Utils', () => {
                         }
                     }
                 ]);
-                expect(templateSpec?.terminationGracePeriodSeconds).toEqual(config.shutdownTimeout);
+                expect(templateSpec.terminationGracePeriodSeconds).toEqual(config.shutdownTimeout);
             });
 
             it('should throw error if docker image undefined on config for job', () => {
@@ -140,16 +140,16 @@ describe('K8s Utils', () => {
                     ],
                 });
 
-                expect(workerDeployment.spec?.replicas).toEqual(config.replicas);
+                expect(workerDeployment.spec.replicas).toEqual(config.replicas);
 
-                const labels = workerDeployment.spec?.template.metadata?.labels;
-                expect(labels).toEqual(workerDeployment.metadata?.labels);
+                const labels = workerDeployment.spec.template.metadata.labels;
+                expect(labels).toEqual(workerDeployment.metadata.labels);
 
-                const templateSpec = workerDeployment.spec?.template.spec;
+                const templateSpec = workerDeployment.spec.template.spec;
 
-                expect(templateSpec?.containers[0].image).toEqual(config.dockerImage);
-                expect(templateSpec?.containers[0].name).toEqual(config.name);
-                expect(templateSpec?.containers[0].env).toEqual([
+                expect(templateSpec.containers[0].image).toEqual(config.dockerImage);
+                expect(templateSpec.containers[0].name).toEqual(config.name);
+                expect(templateSpec.containers[0].env).toEqual([
                     {
                         name: 'NODE_TYPE',
                         value: config.nodeType
@@ -167,7 +167,7 @@ describe('K8s Utils', () => {
                         }
                     }
                 ]);
-                expect(templateSpec?.terminationGracePeriodSeconds).toEqual(config.shutdownTimeout);
+                expect(templateSpec.terminationGracePeriodSeconds).toEqual(config.shutdownTimeout);
             });
 
             it('should throw error if docker image undefined on config for deployment', () => {
@@ -279,12 +279,12 @@ describe('K8s Utils', () => {
                     ],
                 });
 
-                expect(exService.spec?.selector).toEqual({
+                expect(exService.spec.selector).toEqual({
                     'app.kubernetes.io/component': 'execution_controller',
                     'teraslice.terascope.io/exId': config.exId
                 });
 
-                expect(exService.spec?.ports).toEqual([
+                expect(exService.spec.ports).toEqual([
                     {
                         port: 45680,
                         targetPort: 45680

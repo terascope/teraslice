@@ -191,7 +191,7 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
     }
 
     _setImagePullSecret(resource: TSJob | TSDeployment) {
-        if (this.terasliceConfig.kubernetes_image_pull_secret && resource.spec.template.spec) {
+        if (this.terasliceConfig.kubernetes_image_pull_secret) {
             if (resource.spec.template.spec.imagePullSecrets) {
                 resource.spec.template.spec.imagePullSecrets.push(
                     { name: this.terasliceConfig.kubernetes_image_pull_secret }
@@ -209,20 +209,14 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
             const className = this.terasliceConfig.kubernetes_priority_class_name;
 
             if (this.nodeType === 'execution_controller') {
-                if (resource.spec.template.spec) {
-                    resource.spec.template.spec.priorityClassName = className;
-                }
-                if (this.execution.stateful && resource.spec.template.metadata.labels) {
+                resource.spec.template.spec.priorityClassName = className;
+                if (this.execution.stateful) {
                     resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
                 }
             }
             if (this.nodeType === 'worker' && this.execution.stateful) {
-                if (resource.spec.template.spec) {
-                    resource.spec.template.spec.priorityClassName = className;
-                }
-                if (resource.spec.template.metadata.labels) {
-                    resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
-                }
+                resource.spec.template.spec.priorityClassName = className;
+                resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
             }
         }
     }
@@ -249,10 +243,8 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
                 const key = `${this.jobLabelPrefix}/${_.replace(k, /[^a-zA-Z0-9\-._]/g, '-').substring(0, 63)}`;
                 const value = _.replace(v, /[^a-zA-Z0-9\-._]/g, '-').substring(0, 63);
 
-                if (resource.metadata.labels && resource.spec.template.metadata.labels) {
-                    resource.metadata.labels[key] = value;
-                    resource.spec.template.metadata.labels[key] = value;
-                }
+                resource.metadata.labels[key] = value;
+                resource.spec.template.metadata.labels[key] = value;
             });
         }
     }

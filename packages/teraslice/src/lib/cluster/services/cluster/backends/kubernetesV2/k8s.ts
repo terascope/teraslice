@@ -321,7 +321,7 @@ export class K8s {
      * Deletes k8s object of specified objType
      * @param  {String}    name        Name of the resource to delete
      * @param  {ResourceType}  objType     Type of k8s object to get, valid options:
-     *                                 'deployments', 'services', 'jobs', 'pods', 'replicasetss'
+     *                                 'deployments', 'services', 'jobs', 'pods', 'replicasets'
      * @param  {Boolean}   force       Forcefully delete resource by setting gracePeriodSeconds to 1
      *                                 to be forcefully stopped.
      * @return {Object}                k8s delete response body.
