@@ -4,13 +4,19 @@ import path from 'node:path';
 import barbe from 'barbe';
 import { isTest } from '@terascope/utils';
 import * as k8s from '@kubernetes/client-node';
-import { K8sConfig, NodeType, Resource } from './interfaces.js';
+import {
+    K8sConfig, NodeType, K8sResource,
+    TSDeployment, TSJob, TSPod, TSService,
+    TSReplicaSet, TSResource, K8sResourceList,
+    TSDeploymentList, TSJobList, TSPodList,
+    TSReplicaSetList, TSResourceList, TSServiceList
+} from './interfaces.js';
 
 const MAX_RETRIES = isTest ? 2 : 3;
 const RETRY_DELAY = isTest ? 50 : 1000; // time in ms
 const resourcePath = path.join(process.cwd(), './packages/teraslice/src/lib/cluster/services/cluster/backends/kubernetesV2/');
 
-export function makeTemplate<T extends k8s.V1Deployment | k8s.V1Job | k8s.V1Service>(
+export function makeTemplate<T extends TSDeployment | TSJob | TSService>(
     folder: 'deployments' | 'jobs' | 'services',
     fileName: NodeType
 ): (config: K8sConfig) => T {
@@ -66,21 +72,161 @@ export function getRetryConfig() {
     };
 }
 
-export function isDeployment(manifest: Resource): manifest is k8s.V1Deployment {
-    return manifest.kind === 'Deployment';
+export function isDeployment(resource: K8sResource): resource is k8s.V1Deployment {
+    return resource instanceof k8s.V1Deployment || resource.kind === 'Deployment';
 }
 
-export function isJob(manifest: Resource): manifest is k8s.V1Job {
-    return manifest.kind === 'Job';
+export function isJob(resource: K8sResource): resource is k8s.V1Job {
+    return resource instanceof k8s.V1Job || resource.kind === 'Job';
 }
 
-export function isPod(manifest: Resource): manifest is k8s.V1Pod {
-    return manifest.kind === 'Pod';
-}
-export function isReplicaSet(manifest: Resource): manifest is k8s.V1ReplicaSet {
-    return manifest.kind === 'ReplicaSet';
+export function isPod(resource: K8sResource): resource is k8s.V1Pod {
+    return resource instanceof k8s.V1Pod || resource.kind === 'Pod';
 }
 
-export function isService(manifest: Resource): manifest is k8s.V1Service {
-    return manifest.kind === 'Service';
+export function isReplicaSet(resource: K8sResource): resource is k8s.V1ReplicaSet {
+    return resource instanceof k8s.V1ReplicaSet || resource.kind === 'ReplicaSet';
+}
+
+export function isService(resource: K8sResource): resource is k8s.V1Service {
+    return resource instanceof k8s.V1Service || resource.kind === 'Service';
+}
+
+export function isTSDeployment(manifest: k8s.V1Deployment): manifest is TSDeployment {
+    return manifest instanceof k8s.V1Deployment
+        && manifest.metadata?.labels !== undefined
+        && manifest.metadata.name !== undefined
+        && manifest.spec?.replicas !== undefined
+        && manifest.spec.template.metadata?.labels !== undefined
+        && manifest.spec.template.spec?.containers[0].volumeMounts !== undefined
+        && manifest.spec.template.spec.volumes !== undefined;
+}
+
+export function isTSJob(manifest: k8s.V1Job): manifest is TSJob {
+    return manifest instanceof k8s.V1Job
+        && manifest.metadata?.labels !== undefined
+        && manifest.metadata.name !== undefined
+        && manifest.metadata.uid !== undefined
+        && manifest.spec?.template.metadata?.labels !== undefined
+        && manifest.spec.template.spec?.containers[0].volumeMounts !== undefined
+        && manifest.spec.template.spec.volumes !== undefined
+        && manifest.spec.selector?.matchLabels !== undefined;
+}
+
+export function isTSPod(manifest: K8sResource): manifest is TSPod {
+    return manifest instanceof k8s.V1Pod
+        && manifest.metadata?.name !== undefined
+        && manifest.status !== undefined;
+}
+
+export function isTSReplicaSet(manifest: k8s.V1ReplicaSet): manifest is TSReplicaSet {
+    return manifest instanceof k8s.V1ReplicaSet
+        && manifest.metadata?.name !== undefined
+        && manifest.status !== undefined;
+}
+
+export function isTSService(manifest: k8s.V1Service): manifest is TSService {
+    return manifest instanceof k8s.V1Service
+        && manifest.metadata?.name !== undefined
+        && manifest.spec?.selector !== undefined
+        && manifest.spec.ports !== undefined;
+}
+
+export function convertToTSResource(resource: k8s.V1Deployment): TSDeployment;
+export function convertToTSResource(resource: k8s.V1Job): TSJob;
+export function convertToTSResource(resource: k8s.V1Pod): TSPod;
+export function convertToTSResource(resource: k8s.V1ReplicaSet): TSReplicaSet;
+export function convertToTSResource(resource: k8s.V1Service): TSService;
+export function convertToTSResource(resource: K8sResource): TSResource;
+export function convertToTSResource(resource: K8sResource): TSResource {
+    if (isDeployment(resource) && isTSDeployment(resource)) {
+        return resource;
+    }
+    if (isJob(resource) && isTSJob(resource)) {
+        return resource;
+    }
+    if (isPod(resource) && isTSPod(resource)) {
+        return resource;
+    }
+    if (isReplicaSet(resource) && isTSReplicaSet(resource)) {
+        return resource;
+    }
+    if (isService(resource) && isTSService(resource)) {
+        return resource;
+    }
+
+    throw new Error('K8sResource missing required field(s) to be converted to TSResource.');
+}
+
+export function isDeploymentList(manifest: K8sResourceList): manifest is k8s.V1DeploymentList {
+    return manifest.kind === 'DeploymentList';
+}
+
+export function isJobList(manifest: K8sResourceList): manifest is k8s.V1JobList {
+    return manifest.kind === 'JobList';
+}
+
+export function isPodList(manifest: K8sResourceList): manifest is k8s.V1PodList {
+    return manifest.kind === 'PodList';
+}
+
+export function isReplicaSetList(manifest: K8sResourceList): manifest is k8s.V1ReplicaSetList {
+    return manifest.kind === 'ReplicaSetList';
+}
+
+export function isServiceList(manifest: K8sResourceList): manifest is k8s.V1ServiceList {
+    return manifest.kind === 'ServiceList';
+}
+
+export function isTSDeploymentList(manifest: k8s.V1DeploymentList): manifest is TSDeploymentList {
+    return manifest.kind === 'DeploymentList'
+        && (manifest.items[0] ? isTSDeployment(manifest.items[0]) : true);
+}
+
+export function isTSJobList(manifest: k8s.V1JobList): manifest is TSJobList {
+    return manifest.kind === 'JobList'
+        && (manifest.items[0] ? isTSJob(manifest.items[0]) : true);
+}
+
+export function isTSPodList(manifest: k8s.V1PodList): manifest is TSPodList {
+    return manifest.kind === 'PodList'
+        && (manifest.items[0] ? isTSPod(manifest.items[0]) : true);
+}
+
+export function isTSReplicaSetList(manifest: k8s.V1ReplicaSetList): manifest is TSReplicaSetList {
+    return manifest.kind === 'ReplicaSetList'
+        && (manifest.items[0] ? isTSReplicaSet(manifest.items[0]) : true);
+}
+
+export function isTSServiceList(manifest: k8s.V1ServiceList): manifest is TSServiceList {
+    return manifest.kind === 'ServiceList'
+        && (manifest.items[0] ? isTSService(manifest.items[0]) : true);
+}
+
+export function convertToTSResourceList(resourceList: k8s.V1DeploymentList): TSDeploymentList;
+export function convertToTSResourceList(resourceList: k8s.V1JobList): TSJobList;
+export function convertToTSResourceList(resourceList: k8s.V1PodList): TSPodList;
+export function convertToTSResourceList(resourceList: k8s.V1ReplicaSetList): TSReplicaSetList;
+export function convertToTSResourceList(resourceList: k8s.V1ServiceList): TSServiceList;
+export function convertToTSResourceList(resourceList: K8sResourceList): TSResourceList;
+export function convertToTSResourceList(resourceList: K8sResourceList): TSResourceList {
+    resourceList.items.map((resource) => convertToTSResource(resource));
+
+    if (isDeploymentList(resourceList) && isTSDeploymentList(resourceList)) {
+        return resourceList;
+    }
+    if (isJobList(resourceList) && isTSJobList(resourceList)) {
+        return resourceList;
+    }
+    if (isPodList(resourceList) && isTSPodList(resourceList)) {
+        return resourceList;
+    }
+    if (isReplicaSetList(resourceList) && isTSReplicaSetList(resourceList)) {
+        return resourceList;
+    }
+    if (isServiceList(resourceList) && isTSServiceList(resourceList)) {
+        return resourceList;
+    }
+
+    throw new Error('K8sResource missing required field(s) to be converted to TSResourceList.');
 }

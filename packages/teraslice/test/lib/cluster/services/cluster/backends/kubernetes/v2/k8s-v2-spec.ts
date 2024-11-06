@@ -14,6 +14,117 @@ const _url = 'http://mock.kube.api';
 describe('k8s', () => {
     let k8s: K8s;
 
+    const job = {
+        apiVersion: '1.0.0',
+        kind: 'Job',
+        metadata: {
+            labels: {
+                'app.kubernetes.io/name': 'teraslice'
+            },
+            name: 'testJob1',
+            uid: 'uid1'
+        },
+        spec: {
+            template: {
+                metadata: {
+                    labels: {
+                        'app.kubernetes.io/name': 'teraslice'
+                    },
+                },
+                spec: {
+                    containers: [{
+                        volumeMounts: []
+                    }],
+                    volumes: []
+                }
+            },
+            selector: {
+                matchLabels: {
+                    'app.kubernetes.io/component': 'execution_controller'
+                }
+            }
+        }
+    };
+
+    const testPod1 = {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        metadata: { name: 'testPod1' },
+        status: {}
+    };
+
+    const testPod2 = {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        metadata: { name: 'testPod2' },
+        status: {}
+    };
+
+    const service = {
+        kind: 'Service',
+        metadata: {
+            name: 'service1'
+        },
+        spec: {
+            selector: {
+                'app.kubernetes.io/component': 'execution_controller'
+            },
+            ports: [
+                { port: 45680 }
+            ]
+        }
+    };
+
+    const deployment = {
+        apiVersion: 'v1',
+        kind: 'Deployment',
+        metadata: {
+            labels: {
+                'app.kubernetes.io/name': 'teraslice'
+            },
+            name: 'dname'
+        },
+        spec: {
+            replicas: 5,
+            template: {
+                metadata: {
+                    labels: {
+                        'app.kubernetes.io/name': 'teraslice'
+                    },
+                },
+                spec: {
+                    volumes: [{ name: 'volume1' }],
+                    containers: [{
+                        volumeMounts: [],
+                    }]
+                }
+            },
+            selector: {}
+        },
+        status: {}
+    };
+
+    const replicaSet = {
+        kind: 'ReplicaSet',
+        metadata: {
+            name: 'replicaset1'
+        },
+        status: {}
+
+    };
+
+    const status = {
+        apiVersion: 'v1',
+        details: {
+            group: 'batch',
+            kind: 'jobs',
+            name: 'testJob1',
+            uid: 'f29935a1-9f36-4104-a840-f6534d7f2ef8'
+        },
+        kind: 'Status',
+        status: 'Success'
+    };
+
     beforeEach(async () => {
         nock(_url)
             .get('/api/v1/namespaces')
@@ -68,7 +179,10 @@ describe('k8s', () => {
             nock(_url)
                 .get('/api/v1/namespaces/default/pods')
                 .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'PodList' });
+                .reply(200, {
+                    kind: 'PodList',
+                    items: [testPod1]
+                });
 
             const pods = await k8s.list('app=teraslice', 'pods');
             expect(pods.kind).toEqual('PodList');
@@ -78,7 +192,10 @@ describe('k8s', () => {
             nock(_url)
                 .get('/api/v1/namespaces/default/services')
                 .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'ServiceList' });
+                .reply(200, {
+                    kind: 'ServiceList',
+                    items: [service]
+                });
 
             const pods = await k8s.list('app=teraslice', 'services');
             expect(pods.kind).toEqual('ServiceList');
@@ -88,7 +205,10 @@ describe('k8s', () => {
             nock(_url)
                 .get('/apis/apps/v1/namespaces/default/deployments')
                 .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'DeploymentList' });
+                .reply(200, {
+                    kind: 'DeploymentList',
+                    items: [deployment]
+                });
 
             const deployments = await k8s.list('app=teraslice', 'deployments');
             expect(deployments.kind).toEqual('DeploymentList');
@@ -98,7 +218,10 @@ describe('k8s', () => {
             nock(_url)
                 .get('/apis/batch/v1/namespaces/default/jobs')
                 .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'JobList' });
+                .reply(200, {
+                    kind: 'JobList',
+                    items: [job]
+                });
 
             const jobs = await k8s.list('app=teraslice', 'jobs');
             expect(jobs.kind).toEqual('JobList');
@@ -108,7 +231,10 @@ describe('k8s', () => {
             nock(_url)
                 .get('/apis/apps/v1/namespaces/default/replicasets')
                 .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'ReplicaSetList' });
+                .reply(200, {
+                    kind: 'ReplicaSetList',
+                    items: [replicaSet]
+                });
 
             const jobs = await k8s.list('app=teraslice', 'replicasets');
             expect(jobs.kind).toEqual('ReplicaSetList');
@@ -121,27 +247,22 @@ describe('k8s', () => {
                 .get('/apis/batch/v1/namespaces/default/jobs')
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, {
-                    items: [{
-                        apiVersion: '1.0.0',
-                        kind: 'job'
-                    }]
+                    kind: 'JobList',
+                    items: [job]
                 });
 
             const jobs = await k8s.nonEmptyJobList('app=teraslice');
-            expect(jobs.items[0]).toEqual({
-                apiVersion: '1.0.0',
-                kind: 'job',
-                metadata: undefined,
-                spec: undefined,
-                status: undefined
-            });
+            expect(jobs.items[0]).toEqual(job);
         });
 
         it('throws with an empty list', async () => {
             nock(_url)
                 .get('/apis/batch/v1/namespaces/default/jobs')
                 .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { items: [] });
+                .reply(200, {
+                    kind: 'JobList',
+                    items: []
+                });
 
             await expect(k8s.nonEmptyJobList('app=teraslice'))
                 .rejects.toThrow('Teraslice job matching the following selector was not found: app=teraslice (retriable)');
@@ -152,7 +273,7 @@ describe('k8s', () => {
         it('can post a deployment', async () => {
             nock(_url, { encodedQueryParams: true })
                 .post('/apis/apps/v1/namespaces/default/deployments')
-                .reply(201, { kind: 'Deployment' });
+                .reply(201, deployment);
 
             const response = await k8s.post({ kind: 'Deployment' });
             expect(response.kind).toEqual('Deployment');
@@ -161,7 +282,7 @@ describe('k8s', () => {
         it('can post a job', async () => {
             nock(_url, { encodedQueryParams: true })
                 .post('/apis/batch/v1/namespaces/default/jobs')
-                .reply(201, { kind: 'Job' });
+                .reply(201, job);
 
             const response = await k8s.post({ kind: 'Job' });
             expect(response.kind).toEqual('Job');
@@ -170,7 +291,7 @@ describe('k8s', () => {
         it('can post a pod', async () => {
             nock(_url, { encodedQueryParams: true })
                 .post('/api/v1/namespaces/default/pods')
-                .reply(201, { kind: 'Pod' });
+                .reply(201, testPod1);
 
             const response = await k8s.post({ kind: 'Pod' });
             expect(response.kind).toEqual('Pod');
@@ -179,7 +300,7 @@ describe('k8s', () => {
         it('can post a replicaSet', async () => {
             nock(_url, { encodedQueryParams: true })
                 .post('/apis/apps/v1/namespaces/default/replicasets')
-                .reply(201, { kind: 'ReplicaSet' });
+                .reply(201, replicaSet);
 
             const response = await k8s.post({ kind: 'ReplicaSet' });
             expect(response.kind).toEqual('ReplicaSet');
@@ -188,7 +309,7 @@ describe('k8s', () => {
         it('can post a service', async () => {
             nock(_url, { encodedQueryParams: true })
                 .post('/api/v1/namespaces/default/services')
-                .reply(201, { kind: 'Service' });
+                .reply(201, service);
 
             const response = await k8s.post({ kind: 'Service' });
             expect(response.kind).toEqual('Service');
@@ -312,55 +433,6 @@ describe('k8s', () => {
     });
 
     describe('->_deletObjByExId', () => {
-        const job = {
-            apiVersion: '1.0.0',
-            kind: 'Job',
-            metadata: { name: 'testJob1' }
-        };
-
-        const jobNoName = {
-            apiVersion: '1.0.0',
-            kind: 'Job',
-            metadata: { name: undefined }
-        };
-
-        const testPod1 = {
-            apiVersion: 'v1',
-            kind: 'Pod',
-            metadata: { name: 'testPod1' }
-        };
-
-        const testPod2 = {
-            apiVersion: 'v1',
-            kind: 'Pod',
-            metadata: { name: 'testPod2' }
-        };
-
-        const status = {
-            apiVersion: 'v1',
-            details: {
-                group: 'batch',
-                kind: 'jobs',
-                name: 'testJob1',
-                uid: 'f29935a1-9f36-4104-a840-f6534d7f2ef8'
-            },
-            kind: 'Status',
-            status: 'Success'
-        };
-
-        it('will throw if name is undefined', async () => {
-            nock(_url)
-                .get('/apis/batch/v1/namespaces/default/jobs')
-                .query({ labelSelector: /app\.kubernetes\.io\/component=execution_controller,teraslice\.terascope\.io\/exId=.*/ })
-                .reply(200, {
-                    kind: 'JobList',
-                    items: [jobNoName]
-                });
-
-            await expect(k8s._deleteObjByExId('no-name', 'execution_controller', 'jobs'))
-                .rejects.toThrow('Cannot delete jobs for ExId: no-name by name because it has no name');
-        });
-
         it('can delete a single object', async () => {
             nock(_url)
                 .get('/apis/batch/v1/namespaces/default/jobs')
@@ -384,10 +456,7 @@ describe('k8s', () => {
                 .query({ labelSelector: /app\.kubernetes\.io\/component=worker,teraslice\.terascope\.io\/exId=.*/ })
                 .reply(200, {
                     kind: 'PodList',
-                    items: [
-                        { metadata: { name: 'testPod1' } },
-                        { metadata: { name: 'testPod2' } }
-                    ]
+                    items: [testPod1, testPod2]
                 })
                 .delete('/api/v1/namespaces/default/pods/testPod1')
                 .reply(200, testPod1)
@@ -404,22 +473,8 @@ describe('k8s', () => {
 
     describe('->scaleExecution', () => {
         let scope: nock.Scope;
-        let deployment: {
-            apiVersion: string;
-            kind: string;
-            metadata: { name: string };
-            spec: { replicas: number };
-            status: string;
-        };
         beforeEach(() => {
-            deployment = {
-                apiVersion: 'v1',
-                kind: 'Deployment',
-                metadata: { name: 'dname' },
-                spec: { replicas: 5 },
-                status: 'Success'
-            };
-
+            deployment.spec.replicas = 5;
             scope = nock(_url)
                 .get('/apis/apps/v1/namespaces/default/deployments')
                 .query({ labelSelector: /app\.kubernetes\.io\/component=worker,teraslice\.terascope\.io\/exId=.*/ })

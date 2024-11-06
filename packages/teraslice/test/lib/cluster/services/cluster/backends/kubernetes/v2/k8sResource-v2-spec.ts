@@ -43,22 +43,22 @@ describe('k8sResource', () => {
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             expect(kr.resource.kind).toBe('Deployment');
-            expect(kr.resource.spec?.replicas).toBe(2);
-            expect(kr.resource.metadata?.name).toBe('ts-wkr-example-data-generator-job-7ba9afb0-417a');
+            expect(kr.resource.spec.replicas).toBe(2);
+            expect(kr.resource.metadata.name).toBe('ts-wkr-example-data-generator-job-7ba9afb0-417a');
 
             // The following properties should be absent in the default case
             // Note: This tests that both affinity and podAntiAffinity are absent
-            expect(kr.resource.spec?.template.spec).not.toHaveProperty('affinity');
-            expect(kr.resource.spec?.template.spec).not.toHaveProperty('imagePullSecrets');
-            expect(kr.resource.spec?.template.spec).not.toHaveProperty('priorityClassName');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('priorityClassName');
 
             let configVolume: k8s.V1Volume | undefined = undefined;
-            if (kr.resource.spec?.template.spec?.volumes) {
+            if (kr.resource.spec.template.spec.volumes) {
                 configVolume = kr.resource.spec.template.spec.volumes[0];
             }
 
             let configVolumeMount: k8s.V1VolumeMount | undefined = undefined;
-            if (kr.resource.spec?.template.spec?.containers[0].volumeMounts) {
+            if (kr.resource.spec.template.spec.containers[0].volumeMounts) {
                 configVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts[0];
             }
             // Configmaps should be mounted on all workers
@@ -80,7 +80,7 @@ describe('k8sResource', () => {
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             let firstSecret: k8s.V1LocalObjectReference | undefined = undefined;
-            if (kr.resource.spec?.template.spec?.imagePullSecrets) {
+            if (kr.resource.spec.template.spec.imagePullSecrets) {
                 firstSecret = kr.resource.spec.template.spec.imagePullSecrets[0];
             }
 
@@ -95,7 +95,7 @@ describe('k8sResource', () => {
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             // console.log(yaml.dump(kr.resource.spec.template.spec.affinity));
-            expect(kr.resource.spec?.template.spec?.affinity).toEqual(
+            expect(kr.resource.spec.template.spec.affinity).toEqual(
                 yaml.load(`
                   podAntiAffinity:
                     preferredDuringSchedulingIgnoredDuringExecution:
@@ -121,33 +121,23 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            let configVolume: k8s.V1Volume | undefined = undefined;
-            if (kr.resource.spec?.template.spec?.volumes) {
-                configVolume = kr.resource.spec.template.spec.volumes[0];
-            }
-
-            let assetVolume: k8s.V1Volume | undefined = undefined;
-            if (kr.resource.spec?.template.spec?.volumes) {
-                assetVolume = kr.resource.spec.template.spec.volumes[1];
-            }
-
             let configVolumeMount: k8s.V1VolumeMount | undefined = undefined;
-            if (kr.resource.spec?.template.spec?.containers[0].volumeMounts) {
+            if (kr.resource.spec.template.spec.containers[0].volumeMounts) {
                 configVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts[0];
             }
 
             let assetVolumeMount: k8s.V1VolumeMount | undefined = undefined;
-            if (kr.resource.spec?.template.spec?.containers[0].volumeMounts) {
+            if (kr.resource.spec.template.spec.containers[0].volumeMounts) {
                 assetVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts[1];
             }
 
-            expect(kr.resource.spec?.replicas).toBe(2);
-            expect(kr.resource.metadata?.name).toBe('ts-wkr-example-data-generator-job-7ba9afb0-417a');
+            expect(kr.resource.spec.replicas).toBe(2);
+            expect(kr.resource.metadata.name).toBe('ts-wkr-example-data-generator-job-7ba9afb0-417a');
 
             // The following properties should be absent in the default case
-            expect(kr.resource.spec?.template.spec).not.toHaveProperty('affinity');
-            expect(kr.resource.spec?.template.spec).not.toHaveProperty('imagePullSecrets');
-            expect(configVolume).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+            expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
                 name: config
                 configMap:
                   name: ts-dev1-worker
@@ -160,7 +150,7 @@ describe('k8sResource', () => {
                     name: config`));
 
             // Now check for the assets volume
-            expect(assetVolume).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.volumes[1]).toEqual(yaml.load(`
                     name: asset-volume
                     persistentVolumeClaim:
                       claimName: asset-volume`));
@@ -177,42 +167,34 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            const configVolume1 = kr.resource.spec?.template.spec?.volumes
-                ? kr.resource.spec.template.spec.volumes[0]
-                : undefined;
-
-            const configVolume2 = kr.resource.spec?.template.spec?.volumes
-                ? kr.resource.spec.template.spec.volumes[1]
-                : undefined;
-
-            const configVolumeMount1 = kr.resource.spec?.template.spec?.containers[0].volumeMounts
+            const configVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts
                 ? kr.resource.spec.template.spec.containers[0].volumeMounts[0]
                 : undefined;
 
-            const configVolumeMount2 = kr.resource.spec?.template.spec?.containers[0].volumeMounts
+            const dataVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts
                 ? kr.resource.spec.template.spec.containers[0].volumeMounts[1]
                 : undefined;
 
             // First check the configMap volumes, which should be present on all
             // deployments
-            expect(configVolume1).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
                     name: config
                     configMap:
                       name: ts-dev1-worker
                       items:
                           - key: teraslice.yaml
                             path: teraslice.yaml`));
-            expect(configVolumeMount1)
+            expect(configVolumeMount)
                 .toEqual(yaml.load(`
                     mountPath: /app/config
                     name: config`));
 
             // Now check for the volume added via config
-            expect(configVolume2).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.volumes[1]).toEqual(yaml.load(`
                     name: teraslice-data1
                     persistentVolumeClaim:
                       claimName: teraslice-data1`));
-            expect(configVolumeMount2)
+            expect(dataVolumeMount)
                 .toEqual(yaml.load(`
                     name: teraslice-data1
                     mountPath: /data`));
@@ -226,37 +208,29 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            const configVolume2 = kr.resource.spec?.template.spec?.volumes
-                ? kr.resource.spec.template.spec.volumes[1]
-                : undefined;
-
-            const configVolume3 = kr.resource.spec?.template.spec?.volumes
-                ? kr.resource.spec.template.spec.volumes[2]
-                : undefined;
-
-            const configVolumeMount2 = kr.resource.spec?.template.spec?.containers[0].volumeMounts
+            const dataVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts
                 ? kr.resource.spec.template.spec.containers[0].volumeMounts[1]
                 : undefined;
 
-            const configVolumeMount3 = kr.resource.spec?.template.spec?.containers[0].volumeMounts
+            const tmpVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts
                 ? kr.resource.spec.template.spec.containers[0].volumeMounts[2]
                 : undefined;
 
             // Now check for the volumes added via job
-            expect(configVolume2).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.volumes[1]).toEqual(yaml.load(`
                     name: teraslice-data1
                     persistentVolumeClaim:
                       claimName: teraslice-data1`));
-            expect(configVolumeMount2)
+            expect(dataVolumeMount)
                 .toEqual(yaml.load(`
                     name: teraslice-data1
                     mountPath: /data`));
 
-            expect(configVolume3).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.volumes[2]).toEqual(yaml.load(`
                     name: tmp
                     persistentVolumeClaim:
                       claimName: tmp`));
-            expect(configVolumeMount3)
+            expect(tmpVolumeMount)
                 .toEqual(yaml.load(`
                     name: tmp
                     mountPath: /tmp`));
@@ -265,15 +239,10 @@ describe('k8sResource', () => {
         it('does not have memory/cpu limits/requests when not set in config or execution', () => {
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            const exId = kr.resource.metadata?.labels ? kr.resource.metadata.labels['teraslice.terascope.io/exId'] : undefined;
-            expect(exId)
+            expect(kr.resource.metadata.labels['teraslice.terascope.io/exId'])
                 .toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
-
-            const resources = kr.resource.spec?.template.spec?.containers[0].resources;
-            expect(resources).not.toBeDefined();
-
-            const envArray = kr.resource.spec?.template.spec?.containers[0].env;
-            expect(envArray).not.toContain('NODE_OPTIONS');
+            expect(kr.resource.spec.template.spec.containers[0].resources).not.toBeDefined();
+            expect(kr.resource.spec.template.spec.containers[0].env).not.toContain('NODE_OPTIONS');
         });
 
         it('has memory and cpu limits and requests when set on terasliceConfig', () => {
@@ -282,12 +251,9 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            const exId = kr.resource.metadata?.labels ? kr.resource.metadata.labels['teraslice.terascope.io/exId'] : undefined;
-            expect(exId)
+            expect(kr.resource.metadata.labels['teraslice.terascope.io/exId'])
                 .toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
-
-            const resources = kr.resource.spec?.template.spec?.containers[0].resources;
-            expect(resources).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 2147483648
                     cpu: 1
@@ -295,9 +261,8 @@ describe('k8sResource', () => {
                     memory: 2147483648
                     cpu: 1`));
 
-            const envArray = kr.resource.spec?.template.spec?.containers[0].env;
-            const nodeOptionsEnv = _.find(envArray, { name: 'NODE_OPTIONS' });
-            expect(nodeOptionsEnv?.value)
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' })?.value)
                 .toEqual('--max-old-space-size=1843');
         });
 
@@ -306,15 +271,9 @@ describe('k8sResource', () => {
 
             // NOTE: the env var merge happens in _setResources(), which is
             // somewhat out of place.
-            const envArray = kr.resource.spec?.template.spec?.containers[0].env;
-
-            const fooEnv = _.find(envArray, { name: 'FOO' });
-            expect(fooEnv?.value)
-                .toEqual('baz');
-
-            const exampleEnv = _.find(envArray, { name: 'EXAMPLE' });
-            expect(exampleEnv?.value)
-                .toEqual('test');
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'FOO' })?.value).toEqual('baz');
+            expect(_.find(envArray, { name: 'EXAMPLE' })?.value).toEqual('test');
         });
 
         it('execution resources override terasliceConfig resources', () => {
@@ -325,10 +284,9 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            const exId = kr.resource.metadata?.labels ? kr.resource.metadata.labels['teraslice.terascope.io/exId'] : undefined;
-            expect(exId)
+            expect(kr.resource.metadata.labels['teraslice.terascope.io/exId'])
                 .toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
-            expect(kr.resource.spec?.template.spec?.containers[0].resources).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 1073741824
                     cpu: 2
@@ -336,9 +294,8 @@ describe('k8sResource', () => {
                     memory: 1073741824
                     cpu: 2`));
 
-            const envArray = kr.resource.spec?.template.spec?.containers[0].env;
-            const nodeOptionsEnv = _.find(envArray, { name: 'NODE_OPTIONS' });
-            expect(nodeOptionsEnv?.value)
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' })?.value)
                 .toEqual('--max-old-space-size=922');
         });
 
@@ -349,10 +306,9 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            const exId = kr.resource.metadata?.labels ? kr.resource.metadata.labels['teraslice.terascope.io/exId'] : undefined;
-            expect(exId)
+            expect(kr.resource.metadata.labels['teraslice.terascope.io/exId'])
                 .toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
-            expect(kr.resource.spec?.template.spec?.containers[0].resources).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 2147483648
                     cpu: 2
@@ -360,9 +316,8 @@ describe('k8sResource', () => {
                     memory: 2147483648
                     cpu: 2`));
 
-            const envArray = kr.resource.spec?.template.spec?.containers[0].env;
-            const nodeOptionsEnv = _.find(envArray, { name: 'NODE_OPTIONS' });
-            expect(nodeOptionsEnv?.value)
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' })?.value)
                 .toEqual('--max-old-space-size=1843');
         });
 
@@ -372,10 +327,9 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            const exId = kr.resource.metadata?.labels ? kr.resource.metadata.labels['teraslice.terascope.io/exId'] : undefined;
-            expect(exId)
+            expect(kr.resource.metadata.labels['teraslice.terascope.io/exId'])
                 .toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
-            expect(kr.resource.spec?.template.spec?.containers[0].resources).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 2147483648
                     cpu: 1
@@ -383,9 +337,8 @@ describe('k8sResource', () => {
                     memory: 2147483648
                     cpu: 1`));
 
-            const envArray = kr.resource.spec?.template.spec?.containers[0].env;
-            const nodeOptionsEnv = _.find(envArray, { name: 'NODE_OPTIONS' });
-            expect(nodeOptionsEnv?.value)
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' })?.value)
                 .toEqual('--max-old-space-size=1843');
         });
 
@@ -397,10 +350,9 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            const exId = kr.resource.metadata?.labels ? kr.resource.metadata.labels['teraslice.terascope.io/exId'] : undefined;
-            expect(exId)
+            expect(kr.resource.metadata.labels['teraslice.terascope.io/exId'])
                 .toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
-            expect(kr.resource.spec?.template.spec?.containers[0].resources).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 2147483648
                     cpu: 1
@@ -408,9 +360,8 @@ describe('k8sResource', () => {
                     memory: 3147483648
                     cpu: 2`));
 
-            const envArray = kr.resource.spec?.template.spec?.containers[0].env;
-            const nodeOptionsEnv = _.find(envArray, { name: 'NODE_OPTIONS' });
-            expect(nodeOptionsEnv?.value)
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' })?.value)
                 .toEqual('--max-old-space-size=2702');
         });
 
@@ -419,15 +370,14 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec?.containers[0].resources).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 2147483648
                   limits:
                     memory: 2147483648`));
 
-            const envArray = kr.resource.spec?.template.spec?.containers[0].env;
-            const nodeOptionsEnv = _.find(envArray, { name: 'NODE_OPTIONS' });
-            expect(nodeOptionsEnv?.value)
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' })?.value)
                 .toEqual('--max-old-space-size=1843');
         });
 
@@ -436,7 +386,7 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec?.containers[0].resources).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     cpu: 1
                   limits:
@@ -448,7 +398,7 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec?.containers[0].volumeMounts)
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts)
                 .toEqual(
                     [
                         { mountPath: '/app/config', name: 'config' },
@@ -462,7 +412,7 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec?.containers[0].volumeMounts)
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts)
                 .toEqual([{ mountPath: '/app/config', name: 'config' }]);
         });
     });
@@ -472,8 +422,8 @@ describe('k8sResource', () => {
             execution.targets = [];
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec).not.toHaveProperty('affinity');
-            expect(kr.resource.spec?.template.spec).not.toHaveProperty('toleration');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('toleration');
         });
 
         it('has valid resource object with affinity when execution has one target without constraint', () => {
@@ -482,7 +432,7 @@ describe('k8sResource', () => {
             ];
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec?.affinity).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
                 nodeAffinity:
                   requiredDuringSchedulingIgnoredDuringExecution:
                     nodeSelectorTerms:
@@ -500,7 +450,7 @@ describe('k8sResource', () => {
             terasliceConfig.kubernetes_worker_antiaffinity = true;
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec?.affinity).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
               nodeAffinity:
                 requiredDuringSchedulingIgnoredDuringExecution:
                   nodeSelectorTerms:
@@ -532,7 +482,7 @@ describe('k8sResource', () => {
             ];
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec?.affinity).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
                 nodeAffinity:
                   requiredDuringSchedulingIgnoredDuringExecution:
                     nodeSelectorTerms:
@@ -550,7 +500,7 @@ describe('k8sResource', () => {
             ];
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec?.affinity).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
                 nodeAffinity:
                   requiredDuringSchedulingIgnoredDuringExecution:
                     nodeSelectorTerms:
@@ -571,7 +521,7 @@ describe('k8sResource', () => {
             ];
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec?.affinity).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
                 nodeAffinity:
                   preferredDuringSchedulingIgnoredDuringExecution:
                   - weight: 1
@@ -590,7 +540,7 @@ describe('k8sResource', () => {
             ];
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec?.affinity).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
                 nodeAffinity:
                   preferredDuringSchedulingIgnoredDuringExecution:
                   - weight: 1
@@ -616,7 +566,7 @@ describe('k8sResource', () => {
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             // console.log(yaml.dump(kr.resource.spec.template.spec.tolerations));
-            expect(kr.resource.spec?.template.spec?.tolerations).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.tolerations).toEqual(yaml.load(`
               - key: zone
                 operator: Equal
                 value: west
@@ -631,7 +581,7 @@ describe('k8sResource', () => {
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             // console.log(yaml.dump(kr.resource.spec.template.spec.tolerations));
-            expect(kr.resource.spec?.template.spec?.tolerations).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.tolerations).toEqual(yaml.load(`
               - key: zone
                 operator: Equal
                 value: west
@@ -650,7 +600,7 @@ describe('k8sResource', () => {
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             // console.log(yaml.dump(kr.resource.spec.template.spec.tolerations));
-            expect(kr.resource.spec?.template.spec?.affinity).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
               nodeAffinity:
                 requiredDuringSchedulingIgnoredDuringExecution:
                   nodeSelectorTerms:
@@ -680,7 +630,7 @@ describe('k8sResource', () => {
             ];
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec?.template.spec?.affinity).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
               nodeAffinity:
                 requiredDuringSchedulingIgnoredDuringExecution:
                   nodeSelectorTerms:
@@ -708,7 +658,7 @@ describe('k8sResource', () => {
                       operator: In
                       values:
                       - texas`));
-            expect(kr.resource.spec?.template.spec?.tolerations).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.tolerations).toEqual(yaml.load(`
               - key: zone
                 operator: Equal
                 value: west
@@ -730,10 +680,8 @@ describe('k8sResource', () => {
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             // console.log(yaml.dump(kr.resource));
-            const key1Value = kr.resource.metadata?.labels ? kr.resource.metadata.labels['job.teraslice.terascope.io/key1'] : undefined;
-            const key2Value = kr.resource.metadata?.labels ? kr.resource.metadata.labels['job.teraslice.terascope.io/key2'] : undefined;
-            expect(key1Value).toEqual('value1');
-            expect(key2Value).toEqual('value2');
+            expect(kr.resource.metadata.labels['job.teraslice.terascope.io/key1']).toEqual('value1');
+            expect(kr.resource.metadata.labels['job.teraslice.terascope.io/key2']).toEqual('value2');
         });
 
         it('generates valid k8s resources with keys containing forbidden characters', () => {
@@ -746,18 +694,10 @@ describe('k8sResource', () => {
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             // console.log(yaml.dump(kr.resource));
-            const forbidden1Value = kr.resource.metadata?.labels
-                ? kr.resource.metadata.labels['job.teraslice.terascope.io/key-1']
-                : undefined;
-            const forbidden2Value = kr.resource.metadata?.labels
-                ? kr.resource.metadata.labels['job.teraslice.terascope.io/key2-']
-                : undefined;
-            const forbidden3Value = kr.resource.metadata?.labels
-                ? kr.resource.metadata.labels['job.teraslice.terascope.io/abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij123']
-                : undefined;
-            expect(forbidden1Value).toEqual('value1');
-            expect(forbidden2Value).toEqual('value2');
-            expect(forbidden3Value).toEqual('value3');
+            expect(kr.resource.metadata.labels['job.teraslice.terascope.io/key-1']).toEqual('value1');
+            expect(kr.resource.metadata.labels['job.teraslice.terascope.io/key2-']).toEqual('value2');
+            expect(kr.resource.metadata.labels['job.teraslice.terascope.io/abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij123'])
+                .toEqual('value3');
         });
     });
 
@@ -767,7 +707,7 @@ describe('k8sResource', () => {
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
-            expect(kr.resource.spec?.template.spec?.containers[0].ports)
+            expect(kr.resource.spec.template.spec.containers[0].ports)
                 .toEqual([
                     { containerPort: 45680 },
                     { containerPort: 9090 }
@@ -779,7 +719,7 @@ describe('k8sResource', () => {
             const kr = new K8sJobResource(terasliceConfig, execution, logger);
 
             // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
-            expect(kr.resource.spec?.template.spec?.containers[0].ports)
+            expect(kr.resource.spec.template.spec.containers[0].ports)
                 .toEqual([
                     { containerPort: 45680 },
                     { containerPort: 9090 }
@@ -796,7 +736,7 @@ describe('k8sResource', () => {
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
-            expect(kr.resource.spec?.template.spec?.containers[0].ports)
+            expect(kr.resource.spec.template.spec.containers[0].ports)
                 .toEqual([
                     { containerPort: 45680 },
                     { containerPort: 9090 },
@@ -809,7 +749,7 @@ describe('k8sResource', () => {
             const kr = new K8sJobResource(terasliceConfig, execution, logger);
 
             // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
-            expect(kr.resource.spec?.template.spec?.containers[0].ports)
+            expect(kr.resource.spec.template.spec.containers[0].ports)
                 .toEqual([
                     { containerPort: 45680 },
                     { containerPort: 9090 },
@@ -823,33 +763,22 @@ describe('k8sResource', () => {
             const kr = new K8sJobResource(terasliceConfig, execution, logger);
 
             expect(kr.resource.kind).toBe('Job');
-            expect(kr.resource.metadata?.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
+            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
 
             // The following properties should be absent in the default case
-            expect(kr.resource.spec?.template.spec).not.toHaveProperty('affinity');
-            expect(kr.resource.spec?.template.spec).not.toHaveProperty('imagePullSecrets');
-            expect(kr.resource.spec?.template.spec).not.toHaveProperty('priorityClassName');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('priorityClassName');
 
             // Configmaps should be mounted on all workers
-
-            let configVolume: k8s.V1Volume | undefined = undefined;
-            if (kr.resource.spec?.template.spec?.volumes) {
-                configVolume = kr.resource.spec.template.spec.volumes[0];
-            }
-
-            let configVolumeMount: k8s.V1VolumeMount | undefined = undefined;
-            if (kr.resource.spec?.template.spec?.containers[0].volumeMounts) {
-                configVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts[0];
-            }
-
-            expect(configVolume).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
                 name: config
                 configMap:
                   name: ts-dev1-worker
                   items:
                       - key: teraslice.yaml
                         path: teraslice.yaml`));
-            expect(configVolumeMount)
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts[0])
                 .toEqual(yaml.load(`
                     mountPath: /app/config
                     name: config`));
@@ -861,7 +790,7 @@ describe('k8sResource', () => {
 
             const kr = new K8sJobResource(terasliceConfig, execution, logger);
 
-            expect(kr.resource.spec?.template.spec?.containers[0].resources).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 2147483648
                     cpu: 1
@@ -869,9 +798,8 @@ describe('k8sResource', () => {
                     memory: 2147483648
                     cpu: 1`));
 
-            const envArray = kr.resource.spec?.template.spec?.containers[0].env;
-            const nodeOptionsEnv = _.find(envArray, { name: 'NODE_OPTIONS' });
-            expect(nodeOptionsEnv?.value)
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' })?.value)
                 .toEqual('--max-old-space-size=1843');
         });
 
@@ -883,7 +811,7 @@ describe('k8sResource', () => {
 
             const kr = new K8sJobResource(terasliceConfig, execution, logger);
 
-            expect(kr.resource.spec?.template.spec?.containers[0].resources).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 1073741824
                     cpu: 2
@@ -891,9 +819,8 @@ describe('k8sResource', () => {
                     memory: 1073741824
                     cpu: 2`));
 
-            const envArray = kr.resource.spec?.template.spec?.containers[0].env;
-            const nodeOptionsEnv = _.find(envArray, { name: 'NODE_OPTIONS' });
-            expect(nodeOptionsEnv?.value)
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' })?.value)
                 .toEqual('--max-old-space-size=922');
         });
     });
@@ -911,7 +838,7 @@ describe('k8sResource', () => {
             execution.name = jobName;
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.metadata?.name).toBe(k8sName);
+            expect(kr.resource.metadata.name).toBe(k8sName);
         });
     });
 
@@ -925,11 +852,10 @@ describe('k8sResource', () => {
             const kr = new K8sJobResource(terasliceConfig, execution, logger);
 
             expect(kr.resource.kind).toBe('Job');
-            expect(kr.resource.metadata?.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
-
-            expect(kr.resource.spec?.template.spec).toHaveProperty('affinity');
-            expect(kr.resource.spec?.template.spec).toHaveProperty('tolerations');
-            expect(kr.resource.spec?.template.spec?.affinity).toEqual(yaml.load(`
+            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
+            expect(kr.resource.spec.template.spec).toHaveProperty('affinity');
+            expect(kr.resource.spec.template.spec).toHaveProperty('tolerations');
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
                 nodeSelectorTerms:
@@ -942,7 +868,7 @@ describe('k8sResource', () => {
                         operator: In
                         values:
                           - value2`));
-            expect(kr.resource.spec?.template.spec?.tolerations).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.tolerations).toEqual(yaml.load(`
             - key: key1
               operator: Equal
               value: value1
@@ -968,13 +894,12 @@ describe('k8sResource', () => {
             const kr = new K8sJobResource(terasliceConfig, execution, logger);
 
             expect(kr.resource.kind).toBe('Job');
-            expect(kr.resource.metadata?.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
-
-            expect(kr.resource.spec?.template.spec).toHaveProperty('affinity');
-            expect(kr.resource.spec?.template.spec).toHaveProperty('tolerations');
+            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
+            expect(kr.resource.spec.template.spec).toHaveProperty('affinity');
+            expect(kr.resource.spec.template.spec).toHaveProperty('tolerations');
 
             // console.log(yaml.dump(kr.resource.spec.template.spec.affinity));
-            expect(kr.resource.spec?.template.spec?.affinity).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
                 nodeSelectorTerms:
@@ -989,7 +914,7 @@ describe('k8sResource', () => {
                           - value1`));
 
             // console.log(yaml.dump(kr.resource.spec.template.spec.tolerations));
-            expect(kr.resource.spec?.template.spec?.tolerations).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.tolerations).toEqual(yaml.load(`
             - key: region
               operator: Equal
               value: texas
@@ -1009,26 +934,19 @@ describe('k8sResource', () => {
             const krWorker = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             expect(krWorker.resource.kind).toBe('Deployment');
-            expect(krWorker.resource.spec?.template.spec).toHaveProperty('priorityClassName');
-            expect(krWorker.resource.spec?.template.spec?.priorityClassName).toEqual('testPriorityClass');
-
-            const wkrStatefulLabel = krWorker.resource.spec?.template.metadata?.labels
-                ? krWorker.resource.spec.template.metadata.labels['job-property.teraslice.terascope.io/stateful']
-                : undefined;
-            expect(wkrStatefulLabel).toEqual('true');
+            expect(krWorker.resource.spec.template.spec).toHaveProperty('priorityClassName');
+            expect(krWorker.resource.spec.template.spec.priorityClassName).toEqual('testPriorityClass');
+            expect(krWorker.resource.spec.template.metadata.labels['job-property.teraslice.terascope.io/stateful'])
+                .toEqual('true');
 
             const krExporter = new K8sJobResource(terasliceConfig, execution, logger);
 
             expect(krExporter.resource.kind).toBe('Job');
-            expect(krExporter.resource.metadata?.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
-
-            expect(krExporter.resource.spec?.template.spec).toHaveProperty('priorityClassName');
-            expect(krExporter.resource.spec?.template.spec?.priorityClassName).toEqual('testPriorityClass');
-
-            const exporterStatefulLabel = krExporter.resource.spec?.template.metadata?.labels
-                ? krExporter.resource.spec.template.metadata.labels['job-property.teraslice.terascope.io/stateful']
-                : undefined;
-            expect(exporterStatefulLabel).toEqual('true');
+            expect(krExporter.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
+            expect(krExporter.resource.spec.template.spec).toHaveProperty('priorityClassName');
+            expect(krExporter.resource.spec.template.spec.priorityClassName).toEqual('testPriorityClass');
+            expect(krExporter.resource.spec.template.metadata.labels['job-property.teraslice.terascope.io/stateful'])
+                .toEqual('true');
         });
     });
 
@@ -1039,7 +957,7 @@ describe('k8sResource', () => {
 
             const krWorker = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(krWorker.resource.spec?.template.spec).not.toHaveProperty('initContainers');
+            expect(krWorker.resource.spec.template.spec).not.toHaveProperty('initContainers');
         });
     });
 
@@ -1050,7 +968,7 @@ describe('k8sResource', () => {
 
             const krWorker = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(krWorker.resource.spec?.template.spec).toHaveProperty('initContainers');
+            expect(krWorker.resource.spec.template.spec).toHaveProperty('initContainers');
         });
     });
 
@@ -1059,14 +977,8 @@ describe('k8sResource', () => {
             const kr = new K8sServiceResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             expect(kr.resource.kind).toBe('Service');
-            expect(kr.resource.metadata?.name).toBe('svc-ts-exc-example-data-generator-job-7ba9afb0-417a');
-
-            let serviceSpec: k8s.V1ServiceSpec | undefined = undefined;
-            if (kr.resource.spec) {
-                serviceSpec = kr.resource.spec;
-            }
-
-            expect(serviceSpec).toEqual(yaml.load(`
+            expect(kr.resource.metadata.name).toBe('svc-ts-exc-example-data-generator-job-7ba9afb0-417a');
+            expect(kr.resource.spec).toEqual(yaml.load(`
                 selector:
                     app.kubernetes.io/component: "execution_controller"
                     teraslice.terascope.io/exId: "e76a0278-d9bc-4d78-bf14-431bcd97528c"

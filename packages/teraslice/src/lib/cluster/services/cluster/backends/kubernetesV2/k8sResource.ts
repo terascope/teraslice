@@ -1,12 +1,14 @@
 import _ from 'lodash';
-import * as k8s from '@kubernetes/client-node';
 import { isNumber, Logger } from '@terascope/utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
 import { safeEncode } from '../../../../../utils/encoding_utils.js';
 import { setMaxOldSpaceViaEnv } from './utils.js';
-import { K8sConfig, NodeType } from './interfaces.js';
+import {
+    K8sConfig, NodeType, TSDeployment,
+    TSJob, TSService
+} from './interfaces.js';
 
-export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k8s.V1Job> {
+export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
     execution: ExecutionConfig;
     jobLabelPrefix: string;
     jobPropertyLabelPrefix: string;
@@ -42,12 +44,12 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
     _setEnvVariables() {
     }
 
-    _mountLocalTeraslice(resource: k8s.V1Job | k8s.V1Deployment): void {
+    _mountLocalTeraslice(resource: TSJob | TSDeployment): void {
         const devMounts = JSON.parse(process.env.MOUNT_LOCAL_TERASLICE as string);
-        resource.spec?.template?.spec?.containers[0]?.volumeMounts?.push(...devMounts.volumeMounts);
-        resource.spec?.template?.spec?.volumes?.push(...devMounts.volumes);
+        resource.spec.template.spec.containers[0].volumeMounts.push(...devMounts.volumeMounts);
+        resource.spec.template.spec.volumes.push(...devMounts.volumes);
 
-        if (resource.spec?.template?.spec?.containers[0]) {
+        if (resource.spec.template.spec.containers[0]) {
             resource.spec.template.spec.containers[0].args = [
                 'node',
                 'service.js'
@@ -101,14 +103,14 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
         return config;
     }
 
-    _setWorkerAntiAffinity(resource: k8s.V1Job | k8s.V1Deployment) {
+    _setWorkerAntiAffinity(resource: TSJob | TSDeployment) {
         if (this.terasliceConfig.kubernetes_worker_antiaffinity) {
             const targetKey = 'spec.template.spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution';
             if (!_.has(this.resource, targetKey)) {
                 _.set(this.resource, targetKey, []);
             }
 
-            resource?.spec?.template?.spec?.affinity?.podAntiAffinity
+            resource.spec.template.spec.affinity?.podAntiAffinity
                 ?.preferredDuringSchedulingIgnoredDuringExecution?.push(
                     {
                         weight: 1,
@@ -147,7 +149,7 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
      * test for an example.  If the syntax for this were to change, we should
      * also consider changing `execution.targets`, which is a change on the job.
      */
-    _setExecutionControllerTargets(resource: k8s.V1Job | k8s.V1Deployment) {
+    _setExecutionControllerTargets(resource: TSJob | TSDeployment) {
         if (this.terasliceConfig.execution_controller_targets) {
             _.forEach(this.terasliceConfig.execution_controller_targets, (target) => {
                 this._setTargetRequired(target, resource);
@@ -156,28 +158,28 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
         }
     }
 
-    _setEphemeralStorage(resource: k8s.V1Job | k8s.V1Deployment) {
+    _setEphemeralStorage(resource: TSJob | TSDeployment) {
         if (this.execution.ephemeral_storage) {
-            resource.spec?.template.spec?.containers[0]?.volumeMounts?.push({
+            resource.spec.template.spec.containers[0].volumeMounts.push({
                 name: 'ephemeral-volume',
                 mountPath: '/ephemeral0'
             });
-            resource.spec?.template.spec?.volumes?.push({
+            resource.spec.template.spec.volumes.push({
                 name: 'ephemeral-volume',
                 emptyDir: {}
             });
         }
     }
 
-    _setExternalPorts(resource: k8s.V1Job | k8s.V1Deployment) {
+    _setExternalPorts(resource: TSJob | TSDeployment) {
         if (this.execution.external_ports) {
             _.forEach(this.execution.external_ports, (portValue) => {
                 if (isNumber(portValue)) {
-                    resource.spec?.template.spec?.containers[0].ports
-                        ?.push({ containerPort: portValue });
+                    resource.spec.template.spec.containers[0].ports
+                        .push({ containerPort: portValue });
                 } else {
-                    resource.spec?.template.spec?.containers[0].ports
-                        ?.push(
+                    resource.spec.template.spec.containers[0].ports
+                        .push(
                             {
                                 name: portValue.name,
                                 containerPort: portValue.port
@@ -188,8 +190,8 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
         }
     }
 
-    _setImagePullSecret(resource: k8s.V1Job | k8s.V1Deployment) {
-        if (this.terasliceConfig.kubernetes_image_pull_secret && resource.spec?.template.spec) {
+    _setImagePullSecret(resource: TSJob | TSDeployment) {
+        if (this.terasliceConfig.kubernetes_image_pull_secret && resource.spec.template.spec) {
             if (resource.spec.template.spec.imagePullSecrets) {
                 resource.spec.template.spec.imagePullSecrets.push(
                     { name: this.terasliceConfig.kubernetes_image_pull_secret }
@@ -202,52 +204,52 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
         }
     }
 
-    _setPriorityClassName(resource: k8s.V1Job | k8s.V1Deployment) {
+    _setPriorityClassName(resource: TSJob | TSDeployment) {
         if (this.terasliceConfig.kubernetes_priority_class_name) {
             const className = this.terasliceConfig.kubernetes_priority_class_name;
 
             if (this.nodeType === 'execution_controller') {
-                if (resource.spec?.template.spec) {
+                if (resource.spec.template.spec) {
                     resource.spec.template.spec.priorityClassName = className;
                 }
-                if (this.execution.stateful && resource.spec?.template.metadata?.labels) {
+                if (this.execution.stateful && resource.spec.template.metadata.labels) {
                     resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
                 }
             }
             if (this.nodeType === 'worker' && this.execution.stateful) {
-                if (resource.spec?.template.spec) {
+                if (resource.spec.template.spec) {
                     resource.spec.template.spec.priorityClassName = className;
                 }
-                if (resource.spec?.template.metadata?.labels) {
+                if (resource.spec.template.metadata.labels) {
                     resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
                 }
             }
         }
     }
 
-    _setAssetsVolume(resource: k8s.V1Job | k8s.V1Deployment) {
+    _setAssetsVolume(resource: TSJob | TSDeployment) {
         if (this.terasliceConfig.assets_volume
             && this.terasliceConfig.assets_directory
             && typeof this.terasliceConfig.assets_directory === 'string'
         ) {
-            resource.spec?.template.spec?.volumes?.push({
+            resource.spec.template.spec.volumes.push({
                 name: this.terasliceConfig.assets_volume,
                 persistentVolumeClaim: { claimName: this.terasliceConfig.assets_volume }
             });
-            resource.spec?.template.spec?.containers[0].volumeMounts?.push({
+            resource.spec.template.spec.containers[0].volumeMounts.push({
                 name: this.terasliceConfig.assets_volume,
                 mountPath: this.terasliceConfig.assets_directory
             });
         }
     }
 
-    _setJobLabels(resource: k8s.V1Job | k8s.V1Deployment) {
+    _setJobLabels(resource: TSJob | TSDeployment) {
         if (this.execution.labels != null) {
             Object.entries(this.execution.labels).forEach(([k, v]) => {
                 const key = `${this.jobLabelPrefix}/${_.replace(k, /[^a-zA-Z0-9\-._]/g, '-').substring(0, 63)}`;
                 const value = _.replace(v, /[^a-zA-Z0-9\-._]/g, '-').substring(0, 63);
 
-                if (resource.metadata?.labels && resource.spec?.template.metadata?.labels) {
+                if (resource.metadata.labels && resource.spec.template.metadata.labels) {
                     resource.metadata.labels[key] = value;
                     resource.spec.template.metadata.labels[key] = value;
                 }
@@ -255,14 +257,14 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
         }
     }
 
-    _setVolumes(resource: k8s.V1Job | k8s.V1Deployment) {
+    _setVolumes(resource: TSJob | TSDeployment) {
         if (this.execution.volumes != null) {
             _.forEach(this.execution.volumes, (volume) => {
-                resource.spec?.template.spec?.volumes?.push({
+                resource.spec.template.spec.volumes.push({
                     name: volume.name,
                     persistentVolumeClaim: { claimName: volume.name }
                 });
-                resource.spec?.template.spec?.containers[0].volumeMounts?.push({
+                resource.spec.template.spec.containers[0].volumeMounts.push({
                     name: volume.name,
                     mountPath: volume.path
                 });
@@ -270,12 +272,12 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
         }
     }
 
-    _setResources(resource: k8s.V1Job | k8s.V1Deployment) {
+    _setResources(resource: TSJob | TSDeployment) {
         let cpu;
         let memory;
         let maxMemory;
 
-        const container = resource.spec?.template.spec?.containers[0];
+        const container = resource.spec.template.spec.containers[0];
         if (container === undefined) {
             throw new Error('Resource container undefined while setting resources.');
         }
@@ -334,7 +336,7 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
         setMaxOldSpaceViaEnv(container.env, envVars, maxMemory as number);
     }
 
-    _setTargets(resource: k8s.V1Job | k8s.V1Deployment) {
+    _setTargets(resource: TSJob | TSDeployment) {
         if (_.has(this.execution, 'targets') && (!_.isEmpty(this.execution.targets))) {
             _.forEach(this.execution.targets, (target: any) => {
                 // `required` is the default if no `constraint` is provided for
@@ -354,7 +356,7 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
         }
     }
 
-    _setTargetRequired(target: any, resource: k8s.V1Job | k8s.V1Deployment) {
+    _setTargetRequired(target: any, resource: TSJob | TSDeployment) {
         const targetKey = 'spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution';
         if (!_.has(this.resource, targetKey)) {
             const nodeSelectorObj = {
@@ -363,7 +365,7 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
             _.set(this.resource, targetKey, nodeSelectorObj);
         }
 
-        resource.spec?.template.spec?.affinity?.nodeAffinity
+        resource.spec.template.spec.affinity?.nodeAffinity
             ?.requiredDuringSchedulingIgnoredDuringExecution
             ?.nodeSelectorTerms[0].matchExpressions?.push({
                 key: target.key,
@@ -372,13 +374,13 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
             });
     }
 
-    _setTargetPreferred(target: any, resource: k8s.V1Job | k8s.V1Deployment) {
+    _setTargetPreferred(target: any, resource: TSJob | TSDeployment) {
         const targetKey = 'spec.template.spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution';
         if (!_.has(this.resource, targetKey)) {
             _.set(this.resource, targetKey, []);
         }
 
-        resource.spec?.template.spec?.affinity?.nodeAffinity
+        resource.spec.template.spec.affinity?.nodeAffinity
             ?.preferredDuringSchedulingIgnoredDuringExecution?.push({
                 weight: 1,
                 preference: {
@@ -391,13 +393,13 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
             });
     }
 
-    _setTargetAccepted(target: any, resource: k8s.V1Job | k8s.V1Deployment) {
+    _setTargetAccepted(target: any, resource: TSJob | TSDeployment) {
         const targetKey = 'spec.template.spec.tolerations';
         if (!_.has(this.resource, targetKey)) {
             _.set(this.resource, targetKey, []);
         }
 
-        resource.spec?.template.spec?.tolerations?.push({
+        resource.spec.template.spec.tolerations?.push({
             key: target.key,
             operator: 'Equal',
             value: target.value,
@@ -419,10 +421,10 @@ export abstract class K8sResource<T extends k8s.V1Service | k8s.V1Deployment | k
      *
      * Job setting: `pod_spec_override`
      */
-    _mergePodSpecOverlay(resource: k8s.V1Job | k8s.V1Deployment) {
-        if (resource.spec?.template.spec) {
+    _mergePodSpecOverlay(resource: TSJob | TSDeployment) {
+        if (resource.spec.template.spec) {
             resource.spec.template.spec = _.merge(
-                resource.spec?.template.spec,
+                resource.spec.template.spec,
                 this.execution.pod_spec_override
             );
         }

@@ -1,17 +1,14 @@
 import _ from 'lodash';
-import { debugLogger } from '@terascope/utils';
-import * as k8s from '@kubernetes/client-node';
 import _podsJobRunning from '../files/job-running-v1-k8s-pods-multicluster.json';
 import { gen } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8sState.js';
+import { TSPodList } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/interfaces';
 
 describe('k8sState with pods from multiple clusters', () => {
-    const logger = debugLogger('k8sResource');
-
     it('should generate cluster state correctly on first call', () => {
-        const podsJobRunning: k8s.V1PodList = _.cloneDeep(_podsJobRunning as any);
+        const podsJobRunning = _.cloneDeep<TSPodList>(_podsJobRunning as any);
         const clusterState = {};
 
-        gen(podsJobRunning, clusterState, logger);
+        gen(podsJobRunning, clusterState);
         // console.log(`clusterState\n\n${JSON.stringify(clusterState, null, 2)}`);
         // console.log(JSON.stringify(podsJobRunning, null, 2));
 
@@ -42,11 +39,11 @@ describe('k8sState with pods from multiple clusters', () => {
     });
 
     it('should generate cluster state correctly on second call', () => {
-        const podsJobRunning = _.cloneDeep(_podsJobRunning as any);
+        const podsJobRunning = _.cloneDeep<TSPodList>(_podsJobRunning as any);
         const clusterState = {};
 
-        gen(podsJobRunning, clusterState, logger);
-        gen(podsJobRunning, clusterState, logger);
+        gen(podsJobRunning, clusterState);
+        gen(podsJobRunning, clusterState);
 
         expect(clusterState['192.168.99.100'].state).toEqual('connected');
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);

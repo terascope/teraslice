@@ -8,10 +8,6 @@ export interface KubeConfigOptions {
     users: k8s.User[];
 }
 
-export type K8sObjectList =
-    k8s.V1DeploymentList | k8s.V1ServiceList
-    | k8s.V1JobList | k8s.V1PodList | k8s.V1ReplicaSetList;
-
 export interface K8sConfig {
     clusterName: string;
     clusterNameLabel: string;
@@ -32,19 +28,135 @@ export interface K8sConfig {
 
 export type ResourceType = 'deployments' | 'jobs' | 'pods' | 'replicasets' | 'services';
 
-export type ResourceList = k8s.V1DeploymentList | k8s.V1JobList
+export type K8sResource = k8s.V1Deployment | k8s.V1Job
+    | k8s.V1Pod | k8s.V1ReplicaSet | k8s.V1Service;
+
+export type TSResource = TSDeployment | TSJob | TSPod | TSReplicaSet | TSService;
+
+export interface TSDeployment extends k8s.V1Deployment {
+    kind: NonNullable<string>;
+    metadata: NonNullable<k8s.V1ObjectMeta> & {
+        labels: {
+            [key: string]: string;
+        };
+        name: string;
+    };
+    spec: NonNullable<k8s.V1DeploymentSpec> & {
+        replicas: NonNullable<number>;
+        template: NonNullable<k8s.V1PodTemplateSpec> & {
+            metadata: NonNullable<k8s.V1ObjectMeta> & {
+                labels: {
+                    [key: string]: string;
+                };
+            };
+            spec: NonNullable<k8s.V1PodSpec> & {
+                containers: k8s.V1Container[] & {
+                    ports: NonNullable<k8s.V1ContainerPort[]>;
+                    volumeMounts: [k8s.V1VolumeMount, ...k8s.V1VolumeMount[]];
+                }[];
+                volumes: NonNullable<k8s.V1Volume[]>;
+            };
+        };
+    };
+}
+
+export interface TSJob extends k8s.V1Job {
+    kind: NonNullable<string>;
+    metadata: NonNullable<k8s.V1ObjectMeta> & {
+        labels: {
+            [key: string]: string;
+        };
+        name: string;
+        uid: string;
+    };
+    spec: NonNullable<k8s.V1JobSpec> & {
+        template: k8s.V1PodTemplateSpec & {
+            metadata: NonNullable<k8s.V1ObjectMeta> & {
+                labels: {
+                    [key: string]: string;
+                };
+            };
+            spec: NonNullable<k8s.V1PodSpec> & {
+                containers: k8s.V1Container[] & {
+                    ports: NonNullable<k8s.V1ContainerPort[]>;
+                    volumeMounts: [k8s.V1VolumeMount, ...k8s.V1VolumeMount[]];
+                }[];
+                volumes: NonNullable<k8s.V1Volume>;
+            };
+        };
+        selector: NonNullable<k8s.V1LabelSelector> & {
+            matchLabels: {
+                [key: string]: string;
+            };
+        };
+    };
+}
+
+export interface TSPod extends k8s.V1Pod {
+    kind: NonNullable<string>;
+    metadata: NonNullable<k8s.V1ObjectMeta> & {
+        labels: {
+            [key: string]: string;
+        };
+        name: string;
+    };
+    spec: NonNullable<k8s.V1PodSpec>;
+    status: NonNullable<k8s.V1PodStatus> & {
+        hostIP: 'string';
+    };
+}
+
+export interface TSReplicaSet extends k8s.V1ReplicaSet {
+    kind: NonNullable<string>;
+    metadata: NonNullable<k8s.V1ObjectMeta> & {
+        name: string;
+    };
+    status: NonNullable<k8s.V1ReplicaSetStatus>;
+}
+
+export interface TSService extends k8s.V1Service {
+    kind: NonNullable<string>;
+    metadata: NonNullable<k8s.V1ObjectMeta> & {
+        name: string;
+    };
+    spec: NonNullable<k8s.V1ServiceSpec> & {
+        selector: {
+            [key: string]: string;
+        };
+        ports: NonNullable<k8s.V1ServicePort[]>;
+    };
+}
+
+export type K8sResourceList = k8s.V1DeploymentList | k8s.V1JobList
     | k8s.V1PodList | k8s.V1ReplicaSetList | k8s.V1ServiceList;
 
-export type Resource = k8s.V1Deployment | k8s.V1Job | k8s.V1Pod | k8s.V1ReplicaSet | k8s.V1Service;
+export type TSResourceList = TSDeploymentList | TSJobList
+    | TSPodList | TSReplicaSetList | TSServiceList;
+
+export interface TSDeploymentList extends k8s.V1DeploymentList {
+    items: TSDeployment[];
+}
+export interface TSJobList extends k8s.V1JobList {
+    items: TSJob[];
+}
+export interface TSPodList extends k8s.V1PodList {
+    items: TSPod[];
+}
+export interface TSReplicaSetList extends k8s.V1ReplicaSetList {
+    items: TSReplicaSet[];
+}
+export interface TSServiceList extends k8s.V1ServiceList {
+    items: TSService[];
+}
 
 export interface ResourceListApiResponse {
     response: IncomingMessage;
-    body: ResourceList;
+    body: K8sResourceList;
 }
 
 export interface ResourceApiResponse {
     response: IncomingMessage;
-    body: Resource;
+    body: K8sResource;
 }
 
 export interface PatchApiResponse {

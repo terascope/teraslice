@@ -1,14 +1,13 @@
-import * as k8s from '@kubernetes/client-node';
 import { Logger } from '@terascope/utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
 import { makeTemplate } from './utils.js';
-import { K8sConfig, NodeType } from './interfaces.js';
+import { K8sConfig, NodeType, TSService } from './interfaces.js';
 import { K8sResource } from './k8sResource.js';
 
-export class K8sServiceResource extends K8sResource<k8s.V1Service> {
+export class K8sServiceResource extends K8sResource<TSService> {
     nodeType: NodeType = 'execution_controller';
     nameInfix = 'exc';
-    templateGenerator: (config: K8sConfig) => k8s.V1Service;
+    templateGenerator: (config: K8sConfig) => TSService;
     templateConfig;
     resource;
     exName: string;

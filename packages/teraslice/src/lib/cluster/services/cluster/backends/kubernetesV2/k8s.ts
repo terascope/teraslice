@@ -4,15 +4,18 @@ import {
 } from '@terascope/utils';
 import * as k8s from '@kubernetes/client-node';
 import {
-    getRetryConfig, isDeployment, isJob,
-    isPod, isReplicaSet, isService
+    convertToTSResource, convertToTSResourceList, getRetryConfig, isDeployment,
+    isJob, isPod, isReplicaSet, isService, isTSPod
 } from './utils.js';
 import {
     DeleteApiResponse, DeleteParams, DeleteResponseBody,
-    K8sObjectList, KubeConfigOptions, ListParams,
-    NodeType, PatchApiResponse, Resource,
-    ResourceApiResponse, ResourceList, ResourceListApiResponse,
-    ResourceType, ScaleOp
+    KubeConfigOptions, K8sResource, ListParams,
+    NodeType, PatchApiResponse, ResourceApiResponse,
+    ResourceListApiResponse, ResourceType, ScaleOp,
+    TSDeployment, TSDeploymentList, TSJob,
+    TSJobList, TSPod, TSPodList,
+    TSReplicaSet, TSReplicaSetList, TSResource,
+    TSResourceList, TSService, TSServiceList
 } from './interfaces.js';
 
 export class K8s {
@@ -94,15 +97,12 @@ export class K8s {
             const result = await pRetry(() => this.k8sCoreV1Api
                 .listNamespacedPod(namespace, undefined, undefined, undefined, undefined, selector),
             getRetryConfig());
-            let pod: k8s.V1Pod | undefined;
-            if (typeof result !== 'undefined' && result) {
-                // NOTE: This assumes the first pod returned.
-                pod = get(result, 'body.items[0]');
-            }
+            // NOTE: This assumes the first pod returned.
+            const pod = get(result, 'body.items[0]');
 
-            if (pod) {
+            if (pod && isTSPod(pod)) {
                 if (statusType === 'readiness-probe') {
-                    if (pod.status?.conditions) {
+                    if (pod.status.conditions) {
                         for (const condition of pod.status.conditions) {
                             if (
                                 condition.type === 'ContainersReady'
@@ -170,13 +170,13 @@ export class K8s {
     *        | k8s.V1ReplicaSetList
     *        | k8s.V1JobList}          list of k8s objects.
     */
-    async list(selector: string, objType: 'deployments', ns?: string): Promise<k8s.V1DeploymentList>;
-    async list(selector: string, objType: 'jobs', ns?: string): Promise<k8s.V1JobList>;
-    async list(selector: string, objType: 'pods', ns?: string): Promise<k8s.V1PodList>;
-    async list(selector: string, objType: 'replicasets', ns?: string): Promise<k8s.V1ReplicaSetList>;
-    async list(selector: string, objType: 'services', ns?: string): Promise<k8s.V1ServiceList>;
-    async list(selector: string, objType: ResourceType, ns?: string): Promise<ResourceList>;
-    async list(selector: string, objType: ResourceType, ns?: string): Promise<ResourceList> {
+    async list(selector: string, objType: 'deployments', ns?: string): Promise<TSDeploymentList>;
+    async list(selector: string, objType: 'jobs', ns?: string): Promise<TSJobList>;
+    async list(selector: string, objType: 'pods', ns?: string): Promise<TSPodList>;
+    async list(selector: string, objType: 'replicasets', ns?: string): Promise<TSReplicaSetList>;
+    async list(selector: string, objType: 'services', ns?: string): Promise<TSServiceList>;
+    async list(selector: string, objType: ResourceType, ns?: string): Promise<TSResourceList>;
+    async list(selector: string, objType: ResourceType, ns?: string): Promise<TSResourceList> {
         const namespace = ns || this.defaultNamespace;
         let responseObj: ResourceListApiResponse;
 
@@ -220,8 +220,7 @@ export class K8s {
                 this.logger.error(error);
                 return Promise.reject(error);
             }
-
-            return responseObj.body;
+            return convertToTSResourceList(responseObj.body);
         } catch (e) {
             const err = new Error(`Request k8s.list of ${objType} with selector ${selector} failed: ${e}`);
             this.logger.error(err);
@@ -229,7 +228,7 @@ export class K8s {
         }
     }
 
-    async nonEmptyJobList(selector: string) {
+    async nonEmptyJobList(selector: string): Promise<TSJobList> {
         const jobs = await this.list(selector, 'jobs');
         if (jobs.items.length === 1) {
             return jobs;
@@ -246,15 +245,15 @@ export class K8s {
 
     /**
      * posts manifest to k8s
-     * @param  {Resource} manifest        resource manifest
-     * @return {Resource}                    body of k8s API response object
+     * @param  {K8sResource} manifest        resource manifest
+     * @return {K8sResource}                 body of k8s API response object
      */
-    async post(manifest: k8s.V1Deployment): Promise<k8s.V1Deployment>;
-    async post(manifest: k8s.V1Job): Promise<k8s.V1Job>;
-    async post(manifest: k8s.V1Pod): Promise<k8s.V1Pod>;
-    async post(manifest: k8s.V1ReplicaSet): Promise<k8s.V1ReplicaSet>;
-    async post(manifest: k8s.V1Service): Promise<k8s.V1Service>;
-    async post(manifest: Resource): Promise<Resource> {
+    async post(manifest: k8s.V1Deployment): Promise<TSDeployment>;
+    async post(manifest: k8s.V1Job): Promise<TSJob>;
+    async post(manifest: k8s.V1Pod): Promise<TSPod>;
+    async post(manifest: k8s.V1ReplicaSet): Promise<TSReplicaSet>;
+    async post(manifest: k8s.V1Service): Promise<TSService>;
+    async post(manifest: K8sResource): Promise<TSResource> {
         let responseObj: ResourceApiResponse;
 
         try {
@@ -278,7 +277,7 @@ export class K8s {
                 return Promise.reject(error);
             }
 
-            return responseObj.body;
+            return convertToTSResource(responseObj.body);
         } catch (e) {
             const err = new Error(`Request k8s.post of ${manifest.kind} with body ${JSON.stringify(manifest)} failed: ${e}`);
             return Promise.reject(err);
@@ -372,7 +371,9 @@ export class K8s {
             deleteOptions
         ];
 
-        const deleteWithErrorHandling = async (deleteFn: () => Promise<DeleteApiResponse>) => {
+        const deleteWithErrorHandling = async (
+            deleteFn: () => Promise<DeleteApiResponse>
+        ): Promise<DeleteApiResponse> => {
             try {
                 const res = await deleteFn();
                 return res;
@@ -449,7 +450,7 @@ export class K8s {
      * @param  {ResourceType}  objType  valid object type: `services`, `deployments`,
      *                            `jobs`, `pods`, `replicasets`
      * @param  {Boolean}  force    Forcefully stop all resources
-     * @return {Promise}
+     * @return {Promise<(k8s.V1Pod | k8s.V1Status | k8s.V1Service)[]>}
      */
     async _deleteObjByExId(
         exId: string, nodeType: NodeType, objType: 'pods', force?: boolean
@@ -466,7 +467,7 @@ export class K8s {
     async _deleteObjByExId(
         exId: string, nodeType: NodeType, objType: ResourceType, force?: boolean
     ): Promise<DeleteResponseBody[] | void> {
-        let objList: K8sObjectList;
+        let objList: TSResourceList;
         const deleteResponses: Array<k8s.V1Pod | k8s.V1Service | k8s.V1Status> = [];
 
         try {
@@ -483,14 +484,8 @@ export class K8s {
         }
 
         for (const obj of objList.items) {
-            const name = obj.metadata?.name;
-            const deletionTimestamp = obj.metadata?.deletionTimestamp;
-
-            if (!name) {
-                const err = new Error(`Cannot delete ${objType} for ExId: ${exId} by name because it has no name`);
-                this.logger.error(err);
-                return Promise.reject(err);
-            }
+            const name = obj.metadata.name;
+            const deletionTimestamp = obj.metadata.deletionTimestamp;
 
             // If deletionTimestamp is present then the resource is already terminating.
             // K8s will not change the grace period in this case, so force deletion is not possible
@@ -515,10 +510,10 @@ export class K8s {
     /**
      * Scales the k8s deployment for the specified exId to the desired number
      * of workers.
-     * @param  {String} exId       exId of execution to scale
-     * @param  {number} numWorkers number of workers to scale by
-     * @param  {ScaleOp} op         Scale operation: `set`, `add`, `remove`
-     * @return {Object}            Body of patch response.
+     * @param  {String} exId                 exId of execution to scale
+     * @param  {number} numWorkers           number of workers to scale by
+     * @param  {ScaleOp} op                  Scale operation: `set`, `add`, `remove`
+     * @return {Promise<k8s.V1Deployment>}   Body of patch response.
      */
     async scaleExecution(exId: string, numWorkers: number, op: ScaleOp): Promise<k8s.V1Deployment> {
         let newScale: number;
@@ -537,11 +532,9 @@ export class K8s {
         } else if (listResponse.items.length > 1) {
             throw new TSError(`Unexpected number of Teraslice deployments matching the following selector: ${selector}`);
         }
+
         const workerDeployment = listResponse.items[0];
-        if (workerDeployment.spec?.replicas === undefined) {
-            throw new Error('replicas is undefined in worker deployment spec');
-        }
-        this.logger.info(`Current Scale for exId=${exId}: ${workerDeployment.spec?.replicas}`);
+        this.logger.info(`Current Scale for exId=${exId}: ${workerDeployment.spec.replicas}`);
 
         if (op === 'set') {
             newScale = numWorkers;
@@ -563,9 +556,6 @@ export class K8s {
             }
         ];
 
-        if (!workerDeployment.metadata?.name) {
-            throw new Error('name is undefined in worker deployment metadata');
-        }
         const patchResponseBody = await this
             .patch(scalePatch, workerDeployment.metadata.name);
         this.logger.debug(`k8s.scaleExecution patchResponseBody: ${JSON.stringify(patchResponseBody)}`);

@@ -74,7 +74,7 @@ export class KubernetesClusterBackendV2 {
      */
     private async _getClusterState() {
         return this.k8s.list(`app.kubernetes.io/name=teraslice,app.kubernetes.io/instance=${this.clusterNameLabel}`, 'pods')
-            .then((k8sPods) => gen(k8sPods, this.clusterState, this.logger))
+            .then((tsPodList) => gen(tsPodList, this.clusterState))
             .catch((err) => {
                 // TODO: We might need to do more here.  I think it's OK to just
                 // log though.  This only gets used to show slicer info through
@@ -123,17 +123,6 @@ export class KubernetesClusterBackendV2 {
 
         const jobResult = await this.k8s.post(exJob);
 
-        // fixme
-        if (!jobResult.metadata) {
-            throw new Error('Required field metadata missing from jobResult');
-        }
-        if (!jobResult.metadata.name) {
-            throw new Error('Required field name missing from jobResult.metadata');
-        }
-        if (!jobResult.metadata.uid) {
-            throw new Error('Required field uid missing from jobResult.metadata');
-        }
-
         const exServiceResource = new K8sServiceResource(
             this.context.sysconfig.teraslice,
             execution,
@@ -150,7 +139,7 @@ export class KubernetesClusterBackendV2 {
         this.logger.debug(jobResult, 'k8s slicer job submitted');
 
         let controllerLabel: string;
-        if (jobResult.spec?.selector?.matchLabels?.['controller-uid'] !== undefined) {
+        if (jobResult.spec.selector.matchLabels['controller-uid'] !== undefined) {
             /// If running on kubernetes < v1.27.0
             controllerLabel = 'controller-uid';
         } else {
@@ -158,7 +147,7 @@ export class KubernetesClusterBackendV2 {
             controllerLabel = 'batch.kubernetes.io/controller-uid';
         }
 
-        const controllerUid = jobResult.spec?.selector?.matchLabels?.[controllerLabel];
+        const controllerUid = jobResult.spec.selector.matchLabels[controllerLabel];
 
         const pod = await this.k8s.waitForSelectedPod(
             `${controllerLabel}=${controllerUid}`,
@@ -171,7 +160,7 @@ export class KubernetesClusterBackendV2 {
             const error = new Error('pod.status.podIP must be defined');
             return Promise.reject(error);
         }
-        const exServiceName = serviceResult.metadata?.name;
+        const exServiceName = serviceResult.metadata.name;
         const exServiceHostName = `${exServiceName}.${this.k8s.defaultNamespace}`;
         this.logger.debug(`Slicer is using host name: ${exServiceHostName}`);
 
@@ -204,23 +193,12 @@ export class KubernetesClusterBackendV2 {
             this.context.sysconfig.teraslice.slicer_timeout
         );
 
-        // fixme
-        if (!jobs.items[0].metadata) {
-            throw new Error('Required field metadata missing from jobResult');
-        }
-        if (!jobs.items[0].metadata.name) {
-            throw new Error('Required field name missing from jobResult.metadata');
-        }
-        if (!jobs.items[0].metadata.uid) {
-            throw new Error('Required field uid missing from jobResult.metadata');
-        }
-
         const kr = new K8sDeploymentResource(
             this.context.sysconfig.teraslice,
             execution,
             this.logger,
-            jobs.items[0].metadata?.name,
-            jobs.items[0].metadata?.uid
+            jobs.items[0].metadata.name,
+            jobs.items[0].metadata.uid
         );
 
         const workerDeployment = kr.resource;
@@ -277,8 +255,8 @@ export class KubernetesClusterBackendV2 {
     /**
      * Returns a list of all k8s resources associated with a job ID
      * @param {string}         jobId   The job ID of the job to list associated resources
-     * @returns {Array<K8sClient.V1PodList | K8sClient.V1DeploymentList | K8sClient.V1ServiceList
-     *  | K8sClient.V1JobList | K8sClient.V1ReplicaSetList>}
+     * @returns {Array<TSPod[] | TSDeployment[] | TSService[]
+     *  | TSJob[] | TSReplicaSet[]>}
      */
     async listResourcesForJobId(jobId: string) {
         const resources = [];

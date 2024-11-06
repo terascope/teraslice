@@ -1,14 +1,13 @@
-import * as k8s from '@kubernetes/client-node';
 import { Logger } from '@terascope/utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
 import { makeTemplate } from './utils.js';
-import { K8sConfig, NodeType } from './interfaces.js';
+import { K8sConfig, NodeType, TSJob } from './interfaces.js';
 import { K8sResource } from './k8sResource.js';
 
-export class K8sJobResource extends K8sResource<k8s.V1Job> {
+export class K8sJobResource extends K8sResource<TSJob> {
     nodeType: NodeType = 'execution_controller';
     nameInfix = 'exc';
-    templateGenerator: (config: K8sConfig) => k8s.V1Job;
+    templateGenerator: (config: K8sConfig) => TSJob;
     templateConfig;
     resource;
 
