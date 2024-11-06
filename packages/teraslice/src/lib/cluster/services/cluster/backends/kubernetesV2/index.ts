@@ -31,10 +31,6 @@ export class KubernetesClusterBackendV2 {
     readonly clusterNameLabel: string;
 
     constructor(context: Context, clusterMasterServer: any) {
-        if (!context.sysconfig.teraslice.kubernetes_api_poll_delay) {
-            throw new Error('Kubernetes clustering requires kubernetes_api_poll_delay to be defined.');
-        }
-
         const kubernetesNamespace = get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
         const clusterName = get(context, 'sysconfig.teraslice.name');
 

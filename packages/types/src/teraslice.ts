@@ -480,7 +480,7 @@ export interface Config {
     execution_controller_targets?: ExecutionControllerTargets[];
     hostname: string;
     index_rollover_frequency: IndexRolloverFrequency;
-    kubernetes_api_poll_delay?: number | 1000;
+    kubernetes_api_poll_delay: number | 1000;
     kubernetes_config_map_name?: string | 'teraslice-worker';
     kubernetes_image_pull_secret?: string | '';
     kubernetes_image?: string | 'terascope/teraslice';

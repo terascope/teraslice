@@ -174,6 +174,7 @@ export class TestContext implements i.Context {
                     analytics: 'yearly',
                     state: 'montly',
                 },
+                kubernetes_api_poll_delay: 1000,
                 master_hostname: 'localhost',
                 master: false,
                 name: testName,
