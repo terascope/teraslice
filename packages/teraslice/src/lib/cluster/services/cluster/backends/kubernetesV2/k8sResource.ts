@@ -414,11 +414,9 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
      * Job setting: `pod_spec_override`
      */
     _mergePodSpecOverlay(resource: TSJob | TSDeployment) {
-        if (resource.spec.template.spec) {
-            resource.spec.template.spec = _.merge(
-                resource.spec.template.spec,
-                this.execution.pod_spec_override
-            );
-        }
+        resource.spec.template.spec = _.merge(
+            resource.spec.template.spec,
+            this.execution.pod_spec_override
+        );
     }
 }
