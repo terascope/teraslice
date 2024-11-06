@@ -4,8 +4,9 @@ import {
 } from '@terascope/utils';
 import * as k8s from '@kubernetes/client-node';
 import {
-    convertToTSResource, convertToTSResourceList, getRetryConfig, isDeployment,
-    isJob, isPod, isReplicaSet, isService, isTSPod
+    convertToTSResource, convertToTSResourceList, getRetryConfig,
+    isDeployment, isJob, isPod,
+    isReplicaSet, isService, isTSPod
 } from './utils.js';
 import * as i from './interfaces.js';
 

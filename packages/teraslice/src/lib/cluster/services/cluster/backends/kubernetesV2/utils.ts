@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 // @ts-expect-error
 import barbe from 'barbe';
-import { isTest } from '@terascope/utils';
 import * as k8s from '@kubernetes/client-node';
+import { isTest } from '@terascope/utils';
 import * as i from './interfaces.js';
 
 const MAX_RETRIES = isTest ? 2 : 3;
@@ -93,6 +93,7 @@ export function isTSDeployment(manifest: k8s.V1Deployment): manifest is i.TSDepl
         && manifest.spec?.replicas !== undefined
         && manifest.spec.template.metadata?.labels !== undefined
         && manifest.spec.template.spec?.containers[0].volumeMounts !== undefined
+        && manifest.spec.template.spec?.containers[0].env !== undefined
         && manifest.spec.template.spec.volumes !== undefined;
 }
 
@@ -102,6 +103,7 @@ export function isTSJob(manifest: k8s.V1Job): manifest is i.TSJob {
         && manifest.metadata.name !== undefined
         && manifest.spec?.template.metadata?.labels !== undefined
         && manifest.spec.template.spec?.containers[0].volumeMounts !== undefined
+        && manifest.spec.template.spec?.containers[0].env !== undefined
         && manifest.spec.template.spec.volumes !== undefined;
 }
 

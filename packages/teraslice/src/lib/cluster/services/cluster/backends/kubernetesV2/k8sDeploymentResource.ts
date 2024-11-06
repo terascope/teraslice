@@ -1,9 +1,9 @@
+import { V1Deployment } from '@kubernetes/client-node';
 import { Logger } from '@terascope/utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
 import { convertToTSResource, makeTemplate } from './utils.js';
 import { K8sConfig, NodeType, TSDeployment } from './interfaces.js';
 import { K8sResource } from './k8sResource.js';
-import { V1Deployment } from '@kubernetes/client-node';
 
 export class K8sDeploymentResource extends K8sResource<TSDeployment> {
     nodeType: NodeType = 'worker';

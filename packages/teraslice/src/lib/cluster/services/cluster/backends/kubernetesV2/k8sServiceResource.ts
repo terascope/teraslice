@@ -1,9 +1,9 @@
+import { V1Service } from '@kubernetes/client-node';
 import { Logger } from '@terascope/utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
 import { convertToTSResource, makeTemplate } from './utils.js';
 import { K8sConfig, NodeType, TSService } from './interfaces.js';
 import { K8sResource } from './k8sResource.js';
-import { V1Service } from '@kubernetes/client-node';
 
 export class K8sServiceResource extends K8sResource<TSService> {
     nodeType: NodeType = 'execution_controller';

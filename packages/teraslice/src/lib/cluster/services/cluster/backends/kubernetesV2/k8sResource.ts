@@ -271,9 +271,6 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
         let maxMemory;
 
         const container = resource.spec.template.spec.containers[0];
-        if (container === undefined) {
-            throw new Error('Resource container undefined while setting resources.');
-        }
 
         // use teraslice config as defaults and execution config will override it
         const envVars = Object.assign({}, this.terasliceConfig.env_vars, this.execution.env_vars);
@@ -323,9 +320,6 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
         // NOTE: This sucks, this manages the memory env var but it ALSO is
         // responsible for doing the config and execution env var merge, which
         // should NOT be in this function
-        if (container.env === undefined) {
-            throw new Error('Resource container undefined while setting resources.');
-        }
         setMaxOldSpaceViaEnv(container.env, envVars, maxMemory as number);
     }
 
