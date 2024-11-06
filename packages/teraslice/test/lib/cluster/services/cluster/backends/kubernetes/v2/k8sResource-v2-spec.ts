@@ -52,24 +52,15 @@ describe('k8sResource', () => {
             expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
             expect(kr.resource.spec.template.spec).not.toHaveProperty('priorityClassName');
 
-            let configVolume: k8s.V1Volume | undefined = undefined;
-            if (kr.resource.spec.template.spec.volumes) {
-                configVolume = kr.resource.spec.template.spec.volumes[0];
-            }
-
-            let configVolumeMount: k8s.V1VolumeMount | undefined = undefined;
-            if (kr.resource.spec.template.spec.containers[0].volumeMounts) {
-                configVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts[0];
-            }
             // Configmaps should be mounted on all workers
-            expect(configVolume).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
                 name: config
                 configMap:
                   name: ts-dev1-worker
                   items:
                       - key: teraslice.yaml
                         path: teraslice.yaml`));
-            expect(configVolumeMount)
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts[0])
                 .toEqual(yaml.load(`
                     mountPath: /app/config
                     name: config`));
@@ -121,16 +112,6 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            let configVolumeMount: k8s.V1VolumeMount | undefined = undefined;
-            if (kr.resource.spec.template.spec.containers[0].volumeMounts) {
-                configVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts[0];
-            }
-
-            let assetVolumeMount: k8s.V1VolumeMount | undefined = undefined;
-            if (kr.resource.spec.template.spec.containers[0].volumeMounts) {
-                assetVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts[1];
-            }
-
             expect(kr.resource.spec.replicas).toBe(2);
             expect(kr.resource.metadata.name).toBe('ts-wkr-example-data-generator-job-7ba9afb0-417a');
 
@@ -144,7 +125,7 @@ describe('k8sResource', () => {
                   items:
                     - key: teraslice.yaml
                       path: teraslice.yaml`));
-            expect(configVolumeMount)
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts[0])
                 .toEqual(yaml.load(`
                     mountPath: /app/config
                     name: config`));
@@ -154,7 +135,7 @@ describe('k8sResource', () => {
                     name: asset-volume
                     persistentVolumeClaim:
                       claimName: asset-volume`));
-            expect(assetVolumeMount)
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts[1])
                 .toEqual(yaml.load(`
                     name: asset-volume
                     mountPath: /assets`));
@@ -167,14 +148,6 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            const configVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts
-                ? kr.resource.spec.template.spec.containers[0].volumeMounts[0]
-                : undefined;
-
-            const dataVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts
-                ? kr.resource.spec.template.spec.containers[0].volumeMounts[1]
-                : undefined;
-
             // First check the configMap volumes, which should be present on all
             // deployments
             expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
@@ -184,7 +157,7 @@ describe('k8sResource', () => {
                       items:
                           - key: teraslice.yaml
                             path: teraslice.yaml`));
-            expect(configVolumeMount)
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts[0])
                 .toEqual(yaml.load(`
                     mountPath: /app/config
                     name: config`));
@@ -194,7 +167,7 @@ describe('k8sResource', () => {
                     name: teraslice-data1
                     persistentVolumeClaim:
                       claimName: teraslice-data1`));
-            expect(dataVolumeMount)
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts[1])
                 .toEqual(yaml.load(`
                     name: teraslice-data1
                     mountPath: /data`));
@@ -208,20 +181,12 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            const dataVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts
-                ? kr.resource.spec.template.spec.containers[0].volumeMounts[1]
-                : undefined;
-
-            const tmpVolumeMount = kr.resource.spec.template.spec.containers[0].volumeMounts
-                ? kr.resource.spec.template.spec.containers[0].volumeMounts[2]
-                : undefined;
-
             // Now check for the volumes added via job
             expect(kr.resource.spec.template.spec.volumes[1]).toEqual(yaml.load(`
                     name: teraslice-data1
                     persistentVolumeClaim:
                       claimName: teraslice-data1`));
-            expect(dataVolumeMount)
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts[1])
                 .toEqual(yaml.load(`
                     name: teraslice-data1
                     mountPath: /data`));
@@ -230,7 +195,7 @@ describe('k8sResource', () => {
                     name: tmp
                     persistentVolumeClaim:
                       claimName: tmp`));
-            expect(tmpVolumeMount)
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts[2])
                 .toEqual(yaml.load(`
                     name: tmp
                     mountPath: /tmp`));
@@ -272,8 +237,10 @@ describe('k8sResource', () => {
             // NOTE: the env var merge happens in _setResources(), which is
             // somewhat out of place.
             const envArray = kr.resource.spec.template.spec.containers[0].env;
-            expect(_.find(envArray, { name: 'FOO' })?.value).toEqual('baz');
-            expect(_.find(envArray, { name: 'EXAMPLE' })?.value).toEqual('test');
+            expect(_.find(envArray, { name: 'FOO' })?.value)
+                .toEqual('baz');
+            expect(_.find(envArray, { name: 'EXAMPLE' })?.value)
+                .toEqual('test');
         });
 
         it('execution resources override terasliceConfig resources', () => {

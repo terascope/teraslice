@@ -2,6 +2,10 @@
 // output for nock
 //   env DEBUG='nock*' make test
 
+import {
+    V1Deployment, V1Job, V1Pod,
+    V1ReplicaSet, V1Service
+} from '@kubernetes/client-node';
 import nock from 'nock';
 import { debugLogger } from '@terascope/job-components';
 import { K8s } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8s.js';
@@ -14,7 +18,7 @@ const _url = 'http://mock.kube.api';
 describe('k8s', () => {
     let k8s: K8s;
 
-    const job = {
+    const job = Object.assign(new V1Job(), {
         apiVersion: '1.0.0',
         kind: 'Job',
         metadata: {
@@ -44,23 +48,23 @@ describe('k8s', () => {
                 }
             }
         }
-    };
+    });
 
-    const testPod1 = {
+    const testPod1 = Object.assign(new V1Pod(), {
         apiVersion: 'v1',
         kind: 'Pod',
         metadata: { name: 'testPod1' },
         status: {}
-    };
+    });
 
-    const testPod2 = {
+    const testPod2 = Object.assign(new V1Pod(), {
         apiVersion: 'v1',
         kind: 'Pod',
         metadata: { name: 'testPod2' },
         status: {}
-    };
+    });
 
-    const service = {
+    const service = Object.assign(new V1Service(), {
         kind: 'Service',
         metadata: {
             name: 'service1'
@@ -73,9 +77,9 @@ describe('k8s', () => {
                 { port: 45680 }
             ]
         }
-    };
+    });
 
-    const deployment = {
+    const deployment = Object.assign(new V1Deployment(), {
         apiVersion: 'v1',
         kind: 'Deployment',
         metadata: {
@@ -102,16 +106,16 @@ describe('k8s', () => {
             selector: {}
         },
         status: {}
-    };
+    });
 
-    const replicaSet = {
+    const replicaSet = Object.assign(new V1ReplicaSet(), {
         kind: 'ReplicaSet',
         metadata: {
             name: 'replicaset1'
         },
         status: {}
 
-    };
+    });
 
     const status = {
         apiVersion: 'v1',
@@ -275,7 +279,7 @@ describe('k8s', () => {
                 .post('/apis/apps/v1/namespaces/default/deployments')
                 .reply(201, deployment);
 
-            const response = await k8s.post({ kind: 'Deployment' });
+            const response = await k8s.post(deployment);
             expect(response.kind).toEqual('Deployment');
         });
 
@@ -284,7 +288,7 @@ describe('k8s', () => {
                 .post('/apis/batch/v1/namespaces/default/jobs')
                 .reply(201, job);
 
-            const response = await k8s.post({ kind: 'Job' });
+            const response = await k8s.post(job);
             expect(response.kind).toEqual('Job');
         });
 
@@ -293,7 +297,7 @@ describe('k8s', () => {
                 .post('/api/v1/namespaces/default/pods')
                 .reply(201, testPod1);
 
-            const response = await k8s.post({ kind: 'Pod' });
+            const response = await k8s.post(testPod1);
             expect(response.kind).toEqual('Pod');
         });
 
@@ -302,7 +306,7 @@ describe('k8s', () => {
                 .post('/apis/apps/v1/namespaces/default/replicasets')
                 .reply(201, replicaSet);
 
-            const response = await k8s.post({ kind: 'ReplicaSet' });
+            const response = await k8s.post(replicaSet);
             expect(response.kind).toEqual('ReplicaSet');
         });
 
@@ -311,7 +315,7 @@ describe('k8s', () => {
                 .post('/api/v1/namespaces/default/services')
                 .reply(201, service);
 
-            const response = await k8s.post({ kind: 'Service' });
+            const response = await k8s.post(service);
             expect(response.kind).toEqual('Service');
         });
     });

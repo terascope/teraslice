@@ -51,7 +51,6 @@ export interface TSDeployment extends k8s.V1Deployment {
             };
             spec: NonNullable<k8s.V1PodSpec> & {
                 containers: k8s.V1Container[] & {
-                    env: NonNullable<k8s.V1EnvVar>[];
                     ports: NonNullable<k8s.V1ContainerPort[]>;
                     volumeMounts: [k8s.V1VolumeMount, ...k8s.V1VolumeMount[]];
                 }[];
@@ -78,7 +77,6 @@ export interface TSJob extends k8s.V1Job {
             };
             spec: NonNullable<k8s.V1PodSpec> & {
                 containers: k8s.V1Container[] & {
-                    env: NonNullable<k8s.V1EnvVar>[];
                     ports: NonNullable<k8s.V1ContainerPort[]>;
                     volumeMounts: [k8s.V1VolumeMount, ...k8s.V1VolumeMount[]];
                 }[];

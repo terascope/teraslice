@@ -93,7 +93,6 @@ export function isTSDeployment(manifest: k8s.V1Deployment): manifest is i.TSDepl
         && manifest.spec?.replicas !== undefined
         && manifest.spec.template.metadata?.labels !== undefined
         && manifest.spec.template.spec?.containers[0].volumeMounts !== undefined
-        && manifest.spec.template.spec?.containers[0].env !== undefined
         && manifest.spec.template.spec.volumes !== undefined;
 }
 
@@ -103,7 +102,6 @@ export function isTSJob(manifest: k8s.V1Job): manifest is i.TSJob {
         && manifest.metadata.name !== undefined
         && manifest.spec?.template.metadata?.labels !== undefined
         && manifest.spec.template.spec?.containers[0].volumeMounts !== undefined
-        && manifest.spec.template.spec?.containers[0].env !== undefined
         && manifest.spec.template.spec.volumes !== undefined;
 }
 

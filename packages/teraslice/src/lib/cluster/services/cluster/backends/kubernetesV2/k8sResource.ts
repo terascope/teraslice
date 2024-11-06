@@ -320,6 +320,9 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
         // NOTE: This sucks, this manages the memory env var but it ALSO is
         // responsible for doing the config and execution env var merge, which
         // should NOT be in this function
+        if (container.env === undefined) {
+            throw new Error('Resource container V1EnvVar[] undefined while setting resources.');
+        }
         setMaxOldSpaceViaEnv(container.env, envVars, maxMemory as number);
     }
 
