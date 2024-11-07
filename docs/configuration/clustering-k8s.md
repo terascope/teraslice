@@ -50,6 +50,7 @@ metadata:
   name: master-service-account
   namespace: ts-dev1
 ```
+
 Make sure to reference this `ServiceAccount` in your master pod configuration by setting `spec.containers.serviceAccountName` to `master-service-account`.
 
 ```yaml
