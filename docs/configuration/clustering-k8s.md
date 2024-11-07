@@ -33,7 +33,7 @@ terafoundation.connectors.elasticsearch_next.default.node
 
 in both the `teraslice-master` and `teraslice-worker` ConfigMaps.
 
-## `default` ServiceAccount Binding
+## ServiceAccount Binding
 
 In order to run Teraslice Jobs in your Kubernetes cluster the Teraslice master
 node will need the ability create, list and delete Kubernetes Jobs, Deployments,
@@ -41,18 +41,33 @@ Services and Pods.  Teraslice has the ability to run in an isolated Kubernetes
 namespace so users don't have to grant broad permissions to the Teraslice
 master.  Users can configure the Teraslice master to use a specific namespace
 with the `kubernetes_namespace` configuration option.  Users would then have
-to create a Kubernetes `Role` and `RoleBinding` as shown below:
+to create a Kubernetes `ServiceAccount`, `Role` and `RoleBinding` as shown below:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: master-service-account
+  namespace: ts-dev1
+```
+Make sure to reference this `ServiceAccount` in your master pod configuration by setting `spec.containers.serviceAccountName` to `master-service-account`.
 
 ```yaml
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: teraslice-all-<NAMESPACE>
+  name: teraslice-master-role-<NAMESPACE>
   namespace: <NAMESPACE>
 rules:
-  - apiGroups: ["*"]
-    resources: ["*"]
-    verbs: ["*"]
+  - apiGroups: [""]  # Core API group for resources like pods, configmaps
+    resources: ["pods", "configmaps", "services"]
+    verbs: ["get", "create", "delete", "list", "update"]
+  - apiGroups: ["apps"]  # Apps API group for deployments and replica sets
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "create", "delete", "list", "update"]
+  - apiGroups: ["batch"]  # batch API group for jobs
+    resources: ["jobs"]
+    verbs: ["get", "create", "delete", "list", "update"]
 ```
 
 ```yaml
@@ -63,16 +78,13 @@ metadata:
   namespace: <NAMESPACE>
 subjects:
   - kind: ServiceAccount
-    name: default
+    name: master-service-account
     namespace: <NAMESPACE>
 roleRef:
   kind: Role
-  name: teraslice-all-<NAMESPACE>
+  name: teraslice-master-role-<NAMESPACE>
   apiGroup: "rbac.authorization.k8s.io"
 ```
-
-Currently, Teraslice interacts with Kubernetes using the
-`default ServiceAccount` in the configured namespace.
 
 ## Master Deployment
 
