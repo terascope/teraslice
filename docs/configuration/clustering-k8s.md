@@ -99,6 +99,7 @@ support k8s based Teraslice deployments.
 |         assets_volume          |                               Name of kubernetes volume to be shared across all pods, where Teraslice assets will be stored                                | String  | optional |
 |    cpu_execution_controller    |                                           CPU resources to use for Execution Controller request and limit values                                           | Number  | optional |
 |  execution_controller_targets  |                                       array of `{"key": "rack", "value": "alpha"}` targets for execution controllers                                       | String  | optional |
+|   kubernetes_api_poll_delay    |                               Specify the delay between attempts to poll the kubernetes API, `1000` by default                                            | Number  |  optional  |
 |        kubernetes_image        |                                                     Name of docker image, default: `teraslice:k8sdev`                                                      | String  | optional |
 |  kubernetes_image_pull_secret  |                                                    Secret used to pull docker images from private repo                                                     | String  | optional |
 |   kubernetes_config_map_name   | Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String  | optional |
