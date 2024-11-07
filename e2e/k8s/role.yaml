@@ -6,10 +6,10 @@ metadata:
 rules:
   - apiGroups: [""]  # Core API group for resources like pods, configmaps
     resources: ["pods", "configmaps", "services"]
-    verbs: ["get", "create", "delete", "list", "update"]
+    verbs: ["get", "create", "delete", "list", "update", "patch"]
   - apiGroups: ["apps"]  # Apps API group for deployments and replica sets
     resources: ["deployments", "replicasets"]
-    verbs: ["get", "create", "delete", "list", "update"]
+    verbs: ["get", "create", "delete", "list", "update", "patch"]
   - apiGroups: ["batch"]  # batch API group for jobs
     resources: ["jobs"]
-    verbs: ["get", "create", "delete", "list", "update"]
+    verbs: ["get", "create", "delete", "list", "update", "patch"]

@@ -56,18 +56,19 @@ Make sure to reference this `ServiceAccount` in your master pod configuration by
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: teraslice-master-role-<NAMESPACE>
-  namespace: <NAMESPACE>
+  name: teraslice-master-role-ts-dev1
+  namespace: ts-dev1
 rules:
   - apiGroups: [""]  # Core API group for resources like pods, configmaps
     resources: ["pods", "configmaps", "services"]
-    verbs: ["get", "create", "delete", "list", "update"]
+    verbs: ["get", "create", "delete", "list", "update", "patch"]
   - apiGroups: ["apps"]  # Apps API group for deployments and replica sets
     resources: ["deployments", "replicasets"]
-    verbs: ["get", "create", "delete", "list", "update"]
+    verbs: ["get", "create", "delete", "list", "update", "patch"]
   - apiGroups: ["batch"]  # batch API group for jobs
     resources: ["jobs"]
-    verbs: ["get", "create", "delete", "list", "update"]
+    verbs: ["get", "create", "delete", "list", "update", "patch"]
+
 ```
 
 ```yaml
