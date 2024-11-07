@@ -106,7 +106,7 @@ async function runTestSuite(
 
     if (isCI) {
         // load the services from cache in CI
-        await loadOrPullServiceImages(suite);
+        await loadOrPullServiceImages(suite, options.skipImageDeletion);
     }
 
     const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
@@ -219,7 +219,7 @@ async function runE2ETest(
             kind = new Kind(K8S_VERSION, options.kindClusterName);
             try {
                 if (isCI) {
-                    await loadThenDeleteImageFromCache('kindest/node:v1.30.0');
+                    await loadThenDeleteImageFromCache('kindest/node:v1.30.0', options.skipImageDeletion);
                 }
                 await kind.createCluster();
             } catch (err) {
@@ -240,12 +240,11 @@ async function runE2ETest(
     if (isCI) {
         // load service if in native. In k8s services will be loaded directly to kind
         if (options.testPlatform === 'native') {
-            await loadOrPullServiceImages(suite);
-            await deleteDockerImageCache();
+            await loadOrPullServiceImages(suite, options.skipImageDeletion);
         }
 
         // load the base docker image
-        await loadThenDeleteImageFromCache(`${BASE_DOCKER_IMAGE}:${NODE_VERSION}`);
+        await loadThenDeleteImageFromCache(`${BASE_DOCKER_IMAGE}:${NODE_VERSION}`, options.skipImageDeletion);
     }
 
     try {
@@ -283,7 +282,9 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
-    await deleteDockerImageCache();
+    if (!options.skipImageDeletion) {
+        await deleteDockerImageCache();
+    }
 
     if (!tracker.hasErrors()) {
         const timeLabel = `test suite "${suite}"`;

@@ -16,6 +16,7 @@ export type TestOptions = {
     ignoreMount: boolean;
     testPlatform: 'native' | 'kubernetes' | 'kubernetesV2';
     kindClusterName: string;
+    skipImageDeletion: boolean;
 };
 
 export type GroupedPackages = {
