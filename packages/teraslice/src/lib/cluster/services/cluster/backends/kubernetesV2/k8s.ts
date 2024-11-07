@@ -65,7 +65,7 @@ export class K8s {
     }
 
     /**
-     * Rerturns the first pod matching the provided selector after it has
+     * Returns the first pod matching the provided selector after it has
      * entered the `Running` state.
      *
      * TODO: Make more generic to search for different statuses
