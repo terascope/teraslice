@@ -215,6 +215,15 @@ export class K8s {
         }
 
         try {
+            const yamlServiceAccount = this.loadYamlFile('masterServiceAccount.yaml') as k8sClient.V1ServiceAccount;
+            const response = await this.k8sCoreV1Api
+                .createNamespacedServiceAccount(this.terasliceNamespace, yamlServiceAccount);
+            logger.debug('deployK8sTeraslice yamlmasterServiceAccount: ', response.body);
+        } catch (err) {
+            throw new Error(`Error creating ServiceAccount: ${err}`);
+        }
+
+        try {
             const yamlRole = this.loadYamlFile('role.yaml') as k8sClient.V1Role;
             const response = await this.k8sRbacAuthorizationV1Api
                 .createNamespacedRole(this.terasliceNamespace, yamlRole);
