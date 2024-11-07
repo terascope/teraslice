@@ -1,7 +1,3 @@
-// You can set the following environment variable to generate more verbose debug
-// output for nock
-//   env DEBUG='nock*' make test
-
 import {
     V1Deployment, V1Job, V1Pod,
     V1ReplicaSet, V1Service
