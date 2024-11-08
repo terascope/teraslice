@@ -110,7 +110,8 @@ describe('services', () => {
         encryptMinio: false,
         ignoreMount: false,
         testPlatform: 'native',
-        kindClusterName: 'default'
+        kindClusterName: 'default',
+        skipImageDeletion: false
     };
     let services: any;
 

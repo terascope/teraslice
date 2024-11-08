@@ -21,7 +21,8 @@ describe('Test Runner Helpers', () => {
         encryptMinio: false,
         ignoreMount: true,
         testPlatform: 'native',
-        kindClusterName: 'default'
+        kindClusterName: 'default',
+        skipImageDeletion: false
     };
 
     function makeTestOptions(input: Partial<TestOptions>): TestOptions {

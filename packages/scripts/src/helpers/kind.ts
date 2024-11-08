@@ -80,7 +80,7 @@ export class Kind {
 
     // TODO: check that image is loaded before we continue
     async loadServiceImage(
-        serviceName: string, serviceImage: string, version: string
+        serviceName: string, serviceImage: string, version: string, skipDelete: boolean
     ): Promise<void> {
         let subprocess;
         try {
@@ -95,7 +95,9 @@ export class Kind {
                 subprocess = await execaCommand(`gunzip -d ${filePath}`);
                 signale.info(`${subprocess.command}: successful`);
                 subprocess = await execaCommand(`kind load --name ${this.clusterName} image-archive ${tarPath}`);
-                fs.rmSync(tarPath);
+                if (!skipDelete) {
+                    fs.rmSync(tarPath);
+                }
             } else {
                 subprocess = await execaCommand(`kind load --name ${this.clusterName} docker-image ${serviceImage}:${version}`);
             }

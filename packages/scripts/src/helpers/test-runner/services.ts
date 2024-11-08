@@ -160,7 +160,10 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     }
 };
 
-export async function loadOrPullServiceImages(suite: string): Promise<void> {
+export async function loadOrPullServiceImages(
+    suite: string,
+    skipImageDeletion: boolean
+): Promise<void> {
     const launchServices = getServicesForSuite(suite);
 
     try {
@@ -209,7 +212,7 @@ export async function loadOrPullServiceImages(suite: string): Promise<void> {
 
         if (fs.existsSync(config.DOCKER_CACHE_PATH)) {
             await Promise.all(images.map(async (imageName) => {
-                const success = await loadThenDeleteImageFromCache(imageName);
+                const success = await loadThenDeleteImageFromCache(imageName, skipImageDeletion);
                 if (!success) {
                     loadFailedList.push(imageName);
                 }
@@ -834,7 +837,12 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
         const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
-        await kind.loadServiceImage(service, services[service].image, version);
+        await kind.loadServiceImage(
+            service,
+            services[service].image,
+            version,
+            options.skipImageDeletion
+        );
         await k8sStopService(service);
         await k8sStartService(service, services[service].image, version, kind);
         return () => { };

@@ -456,11 +456,15 @@ async function dockerImageRm(image: string): Promise<void> {
 
 /**
  * Unzips and loads a Docker image from a Docker cache
- * If successful the image will be deleted from the cache
+ * If successful and skipDelete is false the image will be deleted from the cache
  * @param {string} imageName Name of the image to load
+ * @param {boolean} skipDelete Skip removal of docker image from cache
  * @returns {Promise<boolean>} Whether or not the image loaded successfully
  */
-export async function loadThenDeleteImageFromCache(imageName: string): Promise<boolean> {
+export async function loadThenDeleteImageFromCache(
+    imageName: string,
+    skipDelete = false
+): Promise<boolean> {
     signale.time(`unzip and load ${imageName}`);
     const fileName = imageName.trim().replace(/[/:]/g, '_');
     const filePath = path.join(config.DOCKER_CACHE_PATH, `${fileName}.tar.gz`);
@@ -478,7 +482,11 @@ export async function loadThenDeleteImageFromCache(imageName: string): Promise<b
         return false;
     }
 
-    fs.rmSync(filePath);
+    if (!skipDelete) {
+        signale.info(`Deleting ${imageName} from docker image cache.`);
+        fs.rmSync(filePath);
+    }
+
     signale.timeEnd(`unzip and load ${imageName}`);
 
     return true;

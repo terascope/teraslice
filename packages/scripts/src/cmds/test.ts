@@ -22,6 +22,7 @@ type Options = {
     packages?: PackageInfo[];
     'ignore-mount': boolean;
     'test-platform': string;
+    'skip-image-deletion': boolean;
 };
 
 const jestArgs = getExtraArgs();
@@ -101,6 +102,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 default: config.TEST_PLATFORM,
                 choices: ['native', 'kubernetes', 'kubernetesV2']
             })
+            .option('skip-image-deletion', {
+                description: 'Skip the deletion of docker images from cache after loading into docker.\n This is useful if a CI job calls `ts-scripts test` more than once.',
+                type: 'boolean',
+                default: config.SKIP_IMAGE_DELETION,
+            })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
                 coerce(arg) {
@@ -126,6 +132,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
         const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native' | 'kubernetes' | 'kubernetesV2';
         const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
+        const skipImageDeletion = hoistJestArg(argv, 'skip-image-deletion', 'boolean');
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -147,6 +154,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             ignoreMount,
             testPlatform,
             kindClusterName,
+            skipImageDeletion
         });
     },
 };
