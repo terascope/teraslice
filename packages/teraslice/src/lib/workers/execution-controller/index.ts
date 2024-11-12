@@ -1214,7 +1214,8 @@ export class ExecutionController {
                     name: this.context.sysconfig.teraslice.name,
                     node_version: process.version,
                     platform: this.context.platform,
-                    teraslice_version: getPackageJSON().version
+                    teraslice_version: `v${getPackageJSON().version}`
+
                 },
                 1
             );
