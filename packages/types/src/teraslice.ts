@@ -453,7 +453,7 @@ export interface ExecutionControllerTargets {
     value: string;
 }
 
-export type RolloverFrequency = 'daily' | 'montly' | 'yearly';
+export type RolloverFrequency = 'daily' | 'monthly' | 'yearly';
 
 // TODO: is this really double?
 export interface IndexRolloverFrequency {
@@ -462,51 +462,51 @@ export interface IndexRolloverFrequency {
 }
 
 export interface Config {
-    action_timeout: number | 300000;
-    analytics_rate: number | 60000;
-    api_response_timeout?: number | 300000;
-    assets_directory?: string[] | string;
+    action_timeout: number;
+    analytics_rate: number;
+    api_response_timeout: number;
+    assets_directory: string[] | string;
     asset_storage_connection_type: string;
     asset_storage_connection: string;
     asset_storage_bucket: string;
-    assets_volume?: string;
+    assets_volume: string;
     cluster_manager_type: ClusterManagerType;
     /** This will only be available in the context of k8s */
     cpu?: number;
     /** This will only be available in the context of k8s */
-    cpu_execution_controller?: number | 0.5;
+    cpu_execution_controller: number;
     /** This will only be available in the context of k8s */
-    ephemeral_storage?: boolean | false;
+    ephemeral_storage: boolean;
     execution_controller_targets?: ExecutionControllerTargets[];
     hostname: string;
     index_rollover_frequency: IndexRolloverFrequency;
-    kubernetes_api_poll_delay?: number | 1000;
-    kubernetes_config_map_name?: string | 'teraslice-worker';
-    kubernetes_image_pull_secret?: string | '';
-    kubernetes_image?: string | 'terascope/teraslice';
-    kubernetes_namespace?: string | 'default';
-    kubernetes_overrides_enabled?: boolean | false;
-    kubernetes_priority_class_name?: string | '';
-    kubernetes_worker_antiaffinity?: boolean | false;
-    master_hostname: string | 'localhost';
-    master: boolean | false;
+    kubernetes_api_poll_delay: number;
+    kubernetes_config_map_name: string;
+    kubernetes_image_pull_secret: string;
+    kubernetes_image: string;
+    kubernetes_namespace: string;
+    kubernetes_overrides_enabled: boolean;
+    kubernetes_priority_class_name?: string;
+    kubernetes_worker_antiaffinity: boolean;
+    master_hostname: string;
+    master: boolean;
     /** This will only be available in the context of k8s */
     memory?: number;
     /** This will only be available in the context of k8s */
-    memory_execution_controller?: number | 512000000; // 512 MB
-    name: string | 'teracluster';
-    network_latency_buffer: number | 15000;
-    node_disconnect_timeout: number | 300000;
-    node_state_interval: number | 5000;
-    port: number | 5678;
-    shutdown_timeout: number | number;
-    slicer_allocation_attempts: number | 3;
-    slicer_port_range: string | '45679:46678';
-    slicer_timeout: number | 180000;
+    memory_execution_controller: number;
+    name: string;
+    network_latency_buffer: number;
+    node_disconnect_timeout: number;
+    node_state_interval: number;
+    port: number;
+    shutdown_timeout: number;
+    slicer_allocation_attempts: number;
+    slicer_port_range: string;
+    slicer_timeout: number;
     state: { connection: string };
     env_vars: { [key: string]: string };
-    worker_disconnect_timeout: number | 300000;
-    workers: number | 4;
+    worker_disconnect_timeout: number;
+    workers: number;
 }
 
 export interface TerasliceConfig {

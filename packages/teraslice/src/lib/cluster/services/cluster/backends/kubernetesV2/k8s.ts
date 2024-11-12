@@ -3,19 +3,12 @@ import {
     pDelay, pRetry, Logger
 } from '@terascope/utils';
 import * as k8s from '@kubernetes/client-node';
-import { IncomingMessage } from 'node:http';
-import { getRetryConfig } from './utils.js';
-
-interface KubeConfigOptions {
-    clusters: k8s.Cluster[];
-    contexts: k8s.Context[];
-    currentContext: k8s.Context['name'];
-    users: k8s.User[];
-}
-
-type K8sObjectList =
-    k8s.V1DeploymentList | k8s.V1ServiceList
-    | k8s.V1JobList | k8s.V1PodList | k8s.V1ReplicaSetList;
+import {
+    convertToTSResource, convertToTSResourceList, getRetryConfig,
+    isDeployment, isJob, isPod,
+    isReplicaSet, isService, isTSPod
+} from './utils.js';
+import * as i from './interfaces.js';
 
 export class K8s {
     logger: Logger;
@@ -29,7 +22,7 @@ export class K8s {
 
     constructor(
         logger: Logger,
-        clientConfig: KubeConfigOptions | null,
+        clientConfig: i.KubeConfigOptions | null,
         defaultNamespace: string | null,
         apiPollDelay: number,
         shutdownTimeout: number
@@ -82,7 +75,7 @@ export class K8s {
      * @param {String} selector kubernetes selector, like 'controller-uid=XXX'
      * @param {String} ns       namespace to search, this will override the default
      * @param {Number} timeout  time, in ms, to wait for pod to start
-     * @return {Object}         pod
+     * @return {k8s.V1Pod}      pod object
      *
      * TODO: Should this use the cluster state that gets polled periodically,
      * rather than making it's own k8s API calls
@@ -96,15 +89,12 @@ export class K8s {
             const result = await pRetry(() => this.k8sCoreV1Api
                 .listNamespacedPod(namespace, undefined, undefined, undefined, undefined, selector),
             getRetryConfig());
-            let pod: k8s.V1Pod | undefined;
-            if (typeof result !== 'undefined' && result) {
-                // NOTE: This assumes the first pod returned.
-                pod = get(result, 'body.items[0]');
-            }
+            // NOTE: This assumes the first pod returned.
+            const pod = get(result, 'body.items[0]');
 
-            if (pod) {
+            if (pod && isTSPod(pod)) {
                 if (statusType === 'readiness-probe') {
-                    if (pod.status?.conditions) {
+                    if (pod.status.conditions) {
                         for (const condition of pod.status.conditions) {
                             if (
                                 condition.type === 'ContainersReady'
@@ -132,7 +122,7 @@ export class K8s {
      * @param {String} selector kubernetes selector, like 'controller-uid=XXX'
      * @param {String} ns       namespace to search, this will override the default
      * @param {Number} timeout  time, in ms, to wait for pod to start
-     * @return {Array}          Array of pod objects
+     * @return {k8s.V1Pod[]}    Array of pod objects
      *
      * TODO: Should this use the cluster state that gets polled periodically,
      * rather than making it's own k8s API calls?
@@ -147,12 +137,11 @@ export class K8s {
                 .listNamespacedPod(namespace, undefined, undefined, undefined, undefined, selector),
             getRetryConfig());
 
-            const podList: k8s.V1Pod[] | undefined = get(result, 'body.items');
+            const podList: k8s.V1Pod[] = get(result, 'body.items');
 
-            if (podList && Array.isArray(podList)) {
-                if (podList.length === number) return podList;
-            }
-            const msg = `Waiting: pods matching ${selector} is ${podList.length}/${number}`; // FIXME: this could be undefined -> typeError
+            if (podList.length === number) return podList;
+
+            const msg = `Waiting: pods matching ${selector} is ${podList.length}/${number}`;
             if (now > end) throw new Error(`Timeout ${msg}`);
             this.logger.debug(msg);
 
@@ -163,28 +152,27 @@ export class K8s {
 
     /**
     * returns list of k8s objects matching provided selector
-    * @param  {String} selector kubernetes selector, like 'app=teraslice'
-    * @param  {String} objType  Type of k8s object to get, valid options:
-    *                           'pods', 'deployment', 'services', 'jobs', 'replicasets'
-    * @param  {String} ns       namespace to search, this will override the default
-    * @return {Object}          body of k8s get response.
+    * @param  {String} selector        kubernetes selector, like 'app=teraslice'
+    * @param  {ResourceType} objType       Type of k8s object to get, valid options:
+    *                                  'deployments', 'jobs', 'pods', 'replicasets', 'services'
+    * @param  {String} ns              namespace to search, this will override the default
+    * @return {k8s.V1PodList
+    *        | k8s.V1DeploymentList
+    *        | k8s.V1ServiceList
+    *        | k8s.V1ReplicaSetList
+    *        | k8s.V1JobList}          list of k8s objects.
     */
-    async list(selector: string, objType: string, ns?: string) {
+    async list(selector: string, objType: 'deployments', ns?: string): Promise<i.TSDeploymentList>;
+    async list(selector: string, objType: 'jobs', ns?: string): Promise<i.TSJobList>;
+    async list(selector: string, objType: 'pods', ns?: string): Promise<i.TSPodList>;
+    async list(selector: string, objType: 'replicasets', ns?: string): Promise<i.TSReplicaSetList>;
+    async list(selector: string, objType: 'services', ns?: string): Promise<i.TSServiceList>;
+    async list(selector: string, objType: i.ResourceType, ns?: string): Promise<i.TSResourceList>;
+    async list(selector: string, objType: i.ResourceType, ns?: string): Promise<i.TSResourceList> {
         const namespace = ns || this.defaultNamespace;
-        let responseObj: {
-            response: IncomingMessage;
-            body: k8s.V1PodList | k8s.V1DeploymentList
-                | k8s.V1ServiceList | k8s.V1JobList | k8s.V1ReplicaSetList;
-        };
+        let responseObj: i.ResourceListApiResponse;
 
-        const params: [
-            string,
-            string | undefined,
-            boolean | undefined,
-            string | undefined,
-            string | undefined,
-            string
-        ] = [
+        const params: i.ListParams = [
             namespace,
             undefined,
             undefined,
@@ -194,19 +182,9 @@ export class K8s {
         ];
 
         try {
-            if (objType === 'pods') {
-                responseObj = await pRetry(
-                    () => this.k8sCoreV1Api.listNamespacedPod(...params),
-                    getRetryConfig()
-                );
-            } else if (objType === 'deployments') {
+            if (objType === 'deployments') {
                 responseObj = await pRetry(
                     () => this.k8sAppsV1Api.listNamespacedDeployment(...params),
-                    getRetryConfig()
-                );
-            } else if (objType === 'services') {
-                responseObj = await pRetry(
-                    () => this.k8sCoreV1Api.listNamespacedService(...params),
                     getRetryConfig()
                 );
             } else if (objType === 'jobs') {
@@ -214,42 +192,44 @@ export class K8s {
                     () => this.k8sBatchV1Api.listNamespacedJob(...params),
                     getRetryConfig()
                 );
+            } else if (objType === 'pods') {
+                responseObj = await pRetry(
+                    () => this.k8sCoreV1Api.listNamespacedPod(...params),
+                    getRetryConfig()
+                );
             } else if (objType === 'replicasets') {
                 responseObj = await pRetry(
                     () => this.k8sAppsV1Api.listNamespacedReplicaSet(...params),
                     getRetryConfig()
                 );
+            } else if (objType === 'services') {
+                responseObj = await pRetry(
+                    () => this.k8sCoreV1Api.listNamespacedService(...params),
+                    getRetryConfig()
+                );
             } else {
-                const error = new Error(`Wrong objType provided to get: ${objType}`);
+                const error = new Error(`Invalid objType provided to get: ${objType}`);
                 this.logger.error(error);
                 return Promise.reject(error);
             }
+            return convertToTSResourceList(responseObj.body);
         } catch (e) {
             const err = new Error(`Request k8s.list of ${objType} with selector ${selector} failed: ${e}`);
             this.logger.error(err);
             return Promise.reject(err);
         }
-
-        if (responseObj.response.statusCode && responseObj.response.statusCode >= 400) {
-            const err = new TSError(`Problem when trying to k8s.list ${objType}`);
-            this.logger.error(err);
-            err.code = responseObj.response.statusCode.toString();
-            return Promise.reject(err);
-        }
-
-        return responseObj.body;
     }
 
-    async nonEmptyList(selector: string, objType: string) {
-        const jobs = await this.list(selector, objType);
+    async nonEmptyJobList(selector: string): Promise<i.TSJobList> {
+        const jobs = await this.list(selector, 'jobs');
         if (jobs.items.length === 1) {
             return jobs;
         } else if (jobs.items.length === 0) {
-            const msg = `Teraslice ${objType} matching the following selector was not found: ${selector} (retriable)`;
+            const msg = `Teraslice job matching the following selector was not found: ${selector} (retriable)`;
             this.logger.warn(msg);
             throw new TSError(msg, { retryable: true });
         } else {
-            throw new TSError(`Unexpected number of Teraslice ${objType}s matching the following selector: ${selector}`, {
+            throw new TSError(`Unexpected number of Teraslice jobs matching the following selector: ${selector}`, {
                 retryable: true
             });
         }
@@ -257,43 +237,43 @@ export class K8s {
 
     /**
      * posts manifest to k8s
-     * @param  {Object} manifest     service manifest
-     * @param  {String} manifestType 'service', 'deployment', 'job'
-     * @return {Object}              body of k8s API response object
+     * @param  {K8sResource} manifest        resource manifest
+     * @return {K8sResource}                 body of k8s API response object
      */
-    async post(manifest: Record<string, any>, manifestType: string) {
-        let responseObj: {
-            response: IncomingMessage;
-            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job;
-        };
+    async post(manifest: k8s.V1Deployment): Promise<i.TSDeployment>;
+    async post(manifest: k8s.V1Job): Promise<i.TSJob>;
+    async post(manifest: k8s.V1Pod): Promise<i.TSPod>;
+    async post(manifest: k8s.V1ReplicaSet): Promise<i.TSReplicaSet>;
+    async post(manifest: k8s.V1Service): Promise<i.TSService>;
+    async post(manifest: i.K8sResource): Promise<i.TSResource> {
+        let responseObj: i.ResourceApiResponse;
 
         try {
-            if (manifestType === 'service') {
-                responseObj = await this.k8sCoreV1Api
-                    .createNamespacedService(this.defaultNamespace, manifest);
-            } else if (manifestType === 'deployment') {
+            if (isDeployment(manifest)) {
                 responseObj = await this.k8sAppsV1Api
                     .createNamespacedDeployment(this.defaultNamespace, manifest);
-            } else if (manifestType === 'job') {
+            } else if (isJob(manifest)) {
                 responseObj = await this.k8sBatchV1Api
                     .createNamespacedJob(this.defaultNamespace, manifest);
+            } else if (isPod(manifest)) {
+                responseObj = await this.k8sCoreV1Api
+                    .createNamespacedPod(this.defaultNamespace, manifest);
+            } else if (isReplicaSet(manifest)) {
+                responseObj = await this.k8sAppsV1Api
+                    .createNamespacedReplicaSet(this.defaultNamespace, manifest);
+            } else if (isService(manifest)) {
+                responseObj = await this.k8sCoreV1Api
+                    .createNamespacedService(this.defaultNamespace, manifest);
             } else {
-                const error = new Error(`Invalid manifestType: ${manifestType}`);
+                const error = new Error('Invalid manifest type');
                 return Promise.reject(error);
             }
+
+            return convertToTSResource(responseObj.body);
         } catch (e) {
-            const err = new Error(`Request k8s.post of ${manifestType} with body ${JSON.stringify(manifest)} failed: ${e}`);
+            const err = new Error(`Request k8s.post of ${manifest.kind} with body ${JSON.stringify(manifest)} failed: ${e}`);
             return Promise.reject(err);
         }
-
-        if (responseObj.response.statusCode && responseObj.response.statusCode >= 400) {
-            const err = new TSError(`Problem when trying to k8s.post ${manifestType} with body ${JSON.stringify(manifest)}`);
-            this.logger.error(err);
-            err.code = responseObj.response.statusCode.toString();
-            return Promise.reject(err);
-        }
-
-        return responseObj.body;
     }
 
     /**
@@ -306,11 +286,7 @@ export class K8s {
     // the low level k8s api method, I expect to eventually change the interface
     // on this to require `objType` to support patching other things
     async patch(record: Record<string, any>, name: string) {
-        let responseObj: {
-            response: IncomingMessage;
-            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job;
-        };
-
+        let responseObj: i.PatchApiResponse;
         try {
             const options = { headers: { 'Content-type': k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH } };
             responseObj = await pRetry(() => this.k8sAppsV1Api
@@ -325,40 +301,43 @@ export class K8s {
                     undefined,
                     options,
                 ), getRetryConfig());
+            return responseObj.body;
         } catch (e) {
-            const err = new Error(`Request k8s.patch with ${name} failed with: ${e}`);
+            const err = new Error(`Request k8s.patch with name: ${name} failed with: ${e}`);
             this.logger.error(err);
             return Promise.reject(err);
         }
-
-        if (responseObj.response.statusCode && responseObj.response.statusCode >= 400) {
-            const err = new TSError(`Unexpected response code (${responseObj.response.statusCode}), when patching ${name} with body ${JSON.stringify(record)}`);
-            this.logger.error(err);
-            err.code = responseObj.response.statusCode.toString();
-            return Promise.reject(err);
-        }
-
-        return responseObj.body;
     }
 
     /**
      * Deletes k8s object of specified objType
-     * @param  {String}  name          Name of the resource to delete
-     * @param  {String}  objType       Type of k8s object to get, valid options:
-     *                                 'deployments', 'services', 'jobs', 'pods'
-     * @param  {Boolean} force         Forcefully delete resource by setting gracePeriodSeconds to 1
+     * @param  {String}    name        Name of the resource to delete
+     * @param  {ResourceType}  objType     Type of k8s object to get, valid options:
+     *                                 'deployments', 'services', 'jobs', 'pods', 'replicasets'
+     * @param  {Boolean}   force       Forcefully delete resource by setting gracePeriodSeconds to 1
      *                                 to be forcefully stopped.
      * @return {Object}                k8s delete response body.
      */
-    async delete(name: string, objType: string, force?: boolean) {
+    async delete(
+        name: string, objType: 'pods', force?: boolean
+    ): Promise<k8s.V1Pod>;
+    async delete(
+        name: string, objType: 'deployments' | 'jobs' | 'replicasets', force?: boolean
+    ): Promise<k8s.V1Status>;
+    async delete(
+        name: string, objType: 'services', force?: boolean
+    ): Promise<k8s.V1Service>;
+    async delete(
+        name: string, objType: i.ResourceType, force?: boolean
+    ): Promise<i.DeleteResponseBody>;
+    async delete(
+        name: string, objType: i.ResourceType, force?: boolean
+    ): Promise<i.DeleteResponseBody> {
         if (name === undefined || name.trim() === '') {
             throw new Error(`Name of resource to delete must be specified. Received: "${name}".`);
         }
 
-        let responseObj: {
-            response: IncomingMessage;
-            body: k8s.V1Status | k8s.V1Pod | k8s.V1Service;
-        };
+        let responseObj: i.DeleteApiResponse;
 
         // To get a Job to remove the associated pods you have to
         // include a body like the one below with the delete request.
@@ -373,16 +352,7 @@ export class K8s {
             deleteOptions.gracePeriodSeconds = 1;
         }
 
-        const params: [
-            string,
-            string,
-            string | undefined,
-            string | undefined,
-            number | undefined,
-            boolean | undefined,
-            string | undefined,
-            k8s.V1DeleteOptions | undefined
-        ] = [
+        const params: i.DeleteParams = [
             name,
             this.defaultNamespace,
             undefined,
@@ -393,10 +363,9 @@ export class K8s {
             deleteOptions
         ];
 
-        const deleteWithErrorHandling = async (deleteFn: () => Promise<{
-            response: IncomingMessage;
-            body: k8s.V1Status | k8s.V1Pod | k8s.V1Service;
-        }>) => {
+        const deleteWithErrorHandling = async (
+            deleteFn: () => Promise<i.DeleteApiResponse>
+        ): Promise<i.DeleteApiResponse> => {
             try {
                 const res = await deleteFn();
                 return res;
@@ -406,13 +375,6 @@ export class K8s {
                     if (e.statusCode === 404) {
                         this.logger.info(`No ${objType} with name ${name} found while attempting to delete.`);
                         return e;
-                    }
-
-                    if (e.statusCode >= 400) {
-                        const err = new TSError(`Unexpected response code (${e.statusCode}), when deleting name: ${name}`);
-                        this.logger.error(err);
-                        err.code = e.statusCode.toString();
-                        return Promise.reject(err);
                     }
                 }
                 throw e;
@@ -438,13 +400,13 @@ export class K8s {
             } else {
                 throw new Error(`Invalid objType: ${objType}`);
             }
+
+            return responseObj.body;
         } catch (e) {
             const err = new Error(`Request k8s.delete with name: ${name} failed with: ${e}`);
             this.logger.error(err);
             return Promise.reject(err);
         }
-
-        return responseObj.body;
     }
 
     /**
@@ -475,18 +437,30 @@ export class K8s {
     /**
      * Finds the k8s objects by nodeType and exId and then deletes them
      * @param  {String}  exId     Execution ID
-     * @param  {String}  nodeType valid Teraslice k8s node type:
+     * @param  {NodeType}  nodeType valid Teraslice k8s node type:
      *                            'worker', 'execution_controller'
-     * @param  {String}  objType  valid object type: `services`, `deployments`,
+     * @param  {ResourceType}  objType  valid object type: `services`, `deployments`,
      *                            `jobs`, `pods`, `replicasets`
      * @param  {Boolean}  force    Forcefully stop all resources
-     * @return {Promise}
+     * @return {Promise<(k8s.V1Pod | k8s.V1Status | k8s.V1Service)[]>}
      */
-    async _deleteObjByExId(exId: string, nodeType: string, objType: string, force?: boolean) {
-        let objList: K8sObjectList;
-        const deleteResponses: Array<
-            k8s.V1Pod[] | k8s.V1Pod | k8s.V1Service | k8s.V1Status | k8s.V1ReplicaSet
-        > = [];
+    async _deleteObjByExId(
+        exId: string, nodeType: i.NodeType, objType: 'pods', force?: boolean
+    ): Promise<k8s.V1Pod[]>;
+
+    async _deleteObjByExId(
+        exId: string, nodeType: i.NodeType, objType: 'jobs' | 'replicasets' | 'deployments', force?: boolean
+    ): Promise<k8s.V1Status[]>;
+
+    async _deleteObjByExId(
+        exId: string, nodeType: i.NodeType, objType: 'services', force?: boolean
+    ): Promise<k8s.V1Service[]>;
+
+    async _deleteObjByExId(
+        exId: string, nodeType: i.NodeType, objType: i.ResourceType, force?: boolean
+    ): Promise<i.DeleteResponseBody[] | void> {
+        let objList: i.TSResourceList;
+        const deleteResponses: Array<k8s.V1Pod | k8s.V1Service | k8s.V1Status> = [];
 
         try {
             objList = await this.list(`app.kubernetes.io/component=${nodeType},teraslice.terascope.io/exId=${exId}`, objType);
@@ -502,14 +476,8 @@ export class K8s {
         }
 
         for (const obj of objList.items) {
-            const name = obj.metadata?.name;
-            const deletionTimestamp = obj.metadata?.deletionTimestamp;
-
-            if (!name) {
-                const err = new Error(`Cannot delete ${objType} for ExId: ${exId} by name because it has no name`);
-                this.logger.error(err);
-                return Promise.reject(err);
-            }
+            const name = obj.metadata.name;
+            const deletionTimestamp = obj.metadata.deletionTimestamp;
 
             // If deletionTimestamp is present then the resource is already terminating.
             // K8s will not change the grace period in this case, so force deletion is not possible
@@ -534,26 +502,35 @@ export class K8s {
     /**
      * Scales the k8s deployment for the specified exId to the desired number
      * of workers.
-     * @param  {String} exId       exId of execution to scale
-     * @param  {number} numWorkers number of workers to scale by
-     * @param  {String} op         Scale operation: `set`, `add`, `remove`
-     * @return {Object}            Body of patch response.
+     * @param  {String} exId                 exId of execution to scale
+     * @param  {number} numWorkers           number of workers to scale by
+     * @param  {ScaleOp} op                  Scale operation: `set`, `add`, `remove`
+     * @return {Promise<k8s.V1Deployment>}   Body of patch response.
      */
-    async scaleExecution(exId: string, numWorkers: number, op: string) {
-        let newScale;
+    async scaleExecution(
+        exId: string,
+        numWorkers: number,
+        op: i.ScaleOp
+    ): Promise<k8s.V1Deployment> {
+        let newScale: number;
+        const selector = `app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`;
 
         this.logger.info(`Scaling exId: ${exId}, op: ${op}, numWorkers: ${numWorkers}`);
-        const listResponse = await this.list(`app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`, 'deployments') as k8s.V1DeploymentList;
+        const listResponse = await this.list(selector, 'deployments');
         this.logger.debug(`k8s worker query listResponse: ${JSON.stringify(listResponse)}`);
 
         // the selector provided to list above should always result in a single
         // deployment in the response.
-        // TODO: test for more than 1 and error
-        const workerDeployment = listResponse.items[0];
-        if (workerDeployment.spec?.replicas === undefined) {
-            throw new Error('replicas is undefined in worker deployment spec');
+        if (listResponse.items.length === 0) {
+            const msg = `Teraslice deployment matching the following selector was not found: ${selector}`;
+            this.logger.warn(msg);
+            throw new TSError(msg);
+        } else if (listResponse.items.length > 1) {
+            throw new TSError(`Unexpected number of Teraslice deployments matching the following selector: ${selector}`);
         }
-        this.logger.info(`Current Scale for exId=${exId}: ${workerDeployment.spec?.replicas}`);
+
+        const workerDeployment = listResponse.items[0];
+        this.logger.info(`Current Scale for exId=${exId}: ${workerDeployment.spec.replicas}`);
 
         if (op === 'set') {
             newScale = numWorkers;
@@ -575,11 +552,8 @@ export class K8s {
             }
         ];
 
-        if (!workerDeployment.metadata?.name) {
-            throw new Error('name is undefined in worker deployment metadata');
-        }
         const patchResponseBody = await this
-            .patch(scalePatch, workerDeployment.metadata.name) as k8s.V1Deployment;
+            .patch(scalePatch, workerDeployment.metadata.name);
         this.logger.debug(`k8s.scaleExecution patchResponseBody: ${JSON.stringify(patchResponseBody)}`);
         return patchResponseBody;
     }

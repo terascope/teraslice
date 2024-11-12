@@ -41,7 +41,6 @@ export class KubernetesClusterBackend {
             this.logger,
             null,
             kubernetesNamespace,
-            // @ts-expect-error
             context.sysconfig.teraslice.kubernetes_api_poll_delay,
             context.sysconfig.teraslice.shutdown_timeout
         );
