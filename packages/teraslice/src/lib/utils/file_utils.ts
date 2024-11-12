@@ -62,6 +62,9 @@ export interface AssetJSON {
     arch?: string;
     platform?: string;
     node_version?: number;
+    minimum_versions?: {
+        teraslice: string;
+    };
 }
 
 export type MetaCheckFN = (data: AssetMetadata) => Promise<AssetMetadata>;
@@ -80,39 +83,9 @@ export async function verifyAssetJSON(id: string, newPath: string): Promise<Asse
         throw err;
     }
 
+    let packageData;
     try {
-        const packageData = await fse.readJson(path.join(newPath, 'asset.json'));
-        const metadata: AssetMetadata = Object.assign({ id }, packageData);
-
-        if (!metadata.name) {
-            throw new Error('Missing name');
-        }
-
-        metadata.version = semver.clean(metadata.version) as string;
-
-        if (!semver.valid(metadata.version)) {
-            throw new Error(`Invalid version "${metadata.version}"`);
-        }
-
-        /**
-         * If node_version, platform, or arch is set to a falsey
-         * value we should delete it so it is considered a wildcard.
-         *
-         * This is useful for making an asset bundle that isn't
-         * locked down.
-        */
-        if (metadata.node_version) {
-            metadata.node_version = getMajorVersion(metadata.node_version);
-        } else {
-            delete metadata.node_version;
-        }
-        if (!metadata.platform) {
-            delete metadata.platform;
-        }
-        if (!metadata.arch) {
-            delete metadata.arch;
-        }
-        return metadata;
+        packageData = await fse.readJson(path.join(newPath, 'asset.json'));
     } catch (_err) {
         const err = new TSError(_err, {
             message: 'Failure parsing asset.json, please ensure that\'s it formatted correctly',
@@ -120,6 +93,44 @@ export async function verifyAssetJSON(id: string, newPath: string): Promise<Asse
         });
         throw err;
     }
+
+    const metadata: AssetMetadata = Object.assign({ id }, packageData);
+
+    if (!metadata.name) {
+        throw new Error('Missing name');
+    }
+
+    metadata.version = semver.clean(metadata.version) as string;
+
+    if (!semver.valid(metadata.version)) {
+        throw new Error(`Invalid version "${metadata.version}"`);
+    }
+
+    /**
+         * If node_version, platform, or arch is set to a falsey
+         * value we should delete it so it is considered a wildcard.
+         *
+         * This is useful for making an asset bundle that isn't
+         * locked down.
+        */
+    if (metadata.node_version) {
+        metadata.node_version = getMajorVersion(metadata.node_version);
+    } else {
+        delete metadata.node_version;
+    }
+    if (!metadata.platform) {
+        delete metadata.platform;
+    }
+    if (!metadata.arch) {
+        delete metadata.arch;
+    }
+    if (metadata.minimum_versions) {
+        const terasliceVersion = getPackageJSON().version;
+        if (semver.gt(metadata.minimum_versions.teraslice, terasliceVersion)) {
+            throw new Error(`Asset requires teraslice version ${metadata.minimum_versions.teraslice} or greater.`);
+        }
+    }
+    return metadata;
 }
 
 async function _saveAsset(
