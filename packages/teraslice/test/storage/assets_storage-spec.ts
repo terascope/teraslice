@@ -65,6 +65,13 @@ describe('AssetsStorage using S3 backend', () => {
         await expect(() => storage.save(buffer)).rejects.toThrow('Failed to save asset. File type not recognized as zip.');
     });
 
+    it('will reject an asset if the minimum teraslice version is not met', async () => {
+        const filePath = 'e2e/test/fixtures/assets/example_asset_min_teraslice_version.zip';
+        const buffer = fs.readFileSync(filePath);
+        await expect(() => storage.save(buffer)).rejects.toThrow('Asset requires teraslice version 999.9.9 or greater.');
+        expect(await storage.grabS3Info()).toEqual([]);
+    });
+
     it('can save an asset to S3', async () => {
         const filePath = 'e2e/test/fixtures/assets/example_asset_1.zip';
         const buffer = fs.readFileSync(filePath);
