@@ -658,11 +658,14 @@ export class ApiService {
      * @return {Promise<void>}
      */
     private async _updatePromMetrics() {
-        function extractVersionFromImageTag(imageTag: string): string {
-            // Define the version number regex pattern
-            const versionRegex = /(\d+\.\d+\.\d+)/;
-            const match = imageTag.match(versionRegex);
-            return match ? match[0] : 'Version number not available';
+        function extractVersionFromImage(image: string): string {
+            let version = '';
+
+            if (image.includes(':')) {
+                version = image.split(':')[1].split('_')[0];
+            }
+
+            return version;
         }
 
         const { terafoundation, teraslice } = this.context.sysconfig;
@@ -695,7 +698,7 @@ export class ApiService {
                                 name,
                                 node_version: process.version,
                                 platform: this.context.platform,
-                                teraslice_version: getPackageJSON().version
+                                teraslice_version: `v${getPackageJSON().version}`
                             },
                             1
                         );
@@ -880,7 +883,7 @@ export class ApiService {
                                             ex_id: worker.ex_id,
                                             job_id: worker.job_id,
                                             image: worker.image,
-                                            version: extractVersionFromImageTag(worker.image)
+                                            version: extractVersionFromImage(worker.image)
 
                                         };
                                         this.context.apis.foundation.promMetrics.set(
