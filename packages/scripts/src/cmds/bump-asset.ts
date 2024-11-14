@@ -47,11 +47,9 @@ const cmd: CommandModule = {
             return;
         }
 
-        await syncAll({
-            verify: true,
-            tsconfigOnly: rootInfo.terascope.version === 2,
-            isAsset: true
-        });
+        if (rootInfo.terascope.version !== 2) {
+            await syncAll({ verify: true, isAsset: true });
+        }
 
         return bumpAssetOnly({
             preId: argv['prerelease-id'] as string | undefined,
