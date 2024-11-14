@@ -20,6 +20,7 @@ import { TestOptions } from './interfaces.js';
 import { Service } from '../interfaces.js';
 import * as config from '../config.js';
 import signale from '../signale.js';
+import os from 'node:os';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -625,8 +626,13 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
 
             const actual: string = body.version.number;
             const expected = config.ELASTICSEARCH_VERSION;
-
-            if (semver.satisfies(actual, `^${expected}`)) {
+            if (
+                semver.satisfies(actual, `^${expected}`)
+                // Or we may override semver match in this scenario
+                || (os.arch().includes('arm')
+                    && expected.startsWith('6') && actual === '7.9.3'
+                    && options.testPlatform.includes('kubernetes'))
+            ) {
                 const took = toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
                 return true;
@@ -837,6 +843,15 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
         const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
+        // Check for arm architecture and es6 combo, if so switch to es7
+        if (
+            service === 'elasticsearch'
+            && os.arch().includes('arm')
+            && version.startsWith('6')
+        ) {
+            signale.warn('Detected arm architecture with unsupported es6, switching to es7.9.3..');
+            version = '7.9.3';
+        }
         await kind.loadServiceImage(
             service,
             services[service].image,
