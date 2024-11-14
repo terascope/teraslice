@@ -62,9 +62,7 @@ export interface AssetJSON {
     arch?: string;
     platform?: string;
     node_version?: number;
-    minimum_versions?: {
-        teraslice: string;
-    };
+    minimum_teraslice_version?: string;
 }
 
 export type MetaCheckFN = (data: AssetMetadata) => Promise<AssetMetadata>;
@@ -124,10 +122,10 @@ export async function verifyAssetJSON(id: string, newPath: string): Promise<Asse
     if (!metadata.arch) {
         delete metadata.arch;
     }
-    if (metadata.minimum_versions) {
+    if (metadata.minimum_teraslice_version) {
         const terasliceVersion = getPackageJSON().version;
-        if (semver.gt(metadata.minimum_versions.teraslice, terasliceVersion)) {
-            throw new Error(`Asset requires teraslice version ${metadata.minimum_versions.teraslice} or greater.`);
+        if (semver.gt(metadata.minimum_teraslice_version, terasliceVersion)) {
+            throw new Error(`Asset requires teraslice version ${metadata.minimum_teraslice_version} or greater.`);
         }
     }
     return metadata;
