@@ -51,7 +51,7 @@ metadata:
   namespace: ts-dev1
 ```
 
-Make sure to reference this `ServiceAccount` in your master pod configuration by setting `spec.containers.serviceAccountName` to `master-service-account`.
+Make sure to reference this `ServiceAccount` in the master deployment configuration by setting `spec.template.spec.serviceAccountName` to `master-service-account` inside of [/e2e/k8s/masterDeployment.yaml](../../e2e/k8s/masterDeployment.yaml).
 
 ```yaml
 kind: Role
