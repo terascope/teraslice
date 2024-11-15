@@ -2,8 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 // @ts-expect-error no types found
 import barbe from 'barbe';
-import _ from 'lodash';
-import { isNumber, Logger } from '@terascope/utils';
+import {
+    isNumber, Logger, has,
+    get, set, merge, isEmpty
+} from '@terascope/utils';
 import type { TerasliceConfig, ExecutionConfig } from '@terascope/job-components';
 import { safeEncode } from '../../../../../utils/encoding_utils.js';
 import { setMaxOldSpaceViaEnv } from './utils.js';
@@ -123,9 +125,9 @@ export class K8sResource {
     }
 
     _makeConfig(): K8sConfig {
-        const clusterName = _.get(this.terasliceConfig, 'name');
+        const clusterName = get(this.terasliceConfig, 'name');
         const clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-        const configMapName = _.get(
+        const configMapName = get(
             this.terasliceConfig,
             'kubernetes_config_map_name',
             `${this.terasliceConfig.name}-worker`
@@ -142,12 +144,12 @@ export class K8sResource {
             .replace(/[^a-z0-9]$/, '0')
             .substring(0, 63);
         const name = `ts-${this.nameInfix}-${jobNameLabel.substring(0, 35)}-${this.execution.job_id.substring(0, 13)}`;
-        const shutdownTimeoutMs = _.get(this.terasliceConfig, 'shutdown_timeout', 60000);
+        const shutdownTimeoutMs = get(this.terasliceConfig, 'shutdown_timeout', 60000);
         const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 
         const config = {
-            // assetsDirectory: _.get(this.terasliceConfig, 'assets_directory', ''),
-            // assetsVolume: _.get(this.terasliceConfig, 'assets_volume', ''),
+            // assetsDirectory: get(this.terasliceConfig, 'assets_directory', ''),
+            // assetsVolume: get(this.terasliceConfig, 'assets_volume', ''),
             clusterName,
             clusterNameLabel,
             configMapName,
@@ -161,7 +163,7 @@ export class K8sResource {
             jobId: this.execution.job_id,
             jobNameLabel,
             name,
-            namespace: _.get(this.terasliceConfig, 'kubernetes_namespace', 'default'),
+            namespace: get(this.terasliceConfig, 'kubernetes_namespace', 'default'),
             nodeType: this.nodeType,
             replicas: this.execution.workers,
             shutdownTimeout: shutdownTimeoutSeconds
@@ -184,8 +186,8 @@ export class K8sResource {
     _setWorkerAntiAffinity() {
         if (this.terasliceConfig.kubernetes_worker_antiaffinity) {
             const targetKey = 'spec.template.spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution';
-            if (!_.has(this.resource, targetKey)) {
-                _.set(this.resource, targetKey, []);
+            if (!has(this.resource, targetKey)) {
+                set(this.resource, targetKey, []);
             }
 
             this.resource.spec.template.spec.affinity
@@ -229,7 +231,7 @@ export class K8sResource {
      */
     _setExecutionControllerTargets() {
         if (this.terasliceConfig.execution_controller_targets) {
-            _.forEach(this.terasliceConfig.execution_controller_targets, (target) => {
+            this.terasliceConfig.execution_controller_targets.forEach((target) => {
                 this._setTargetRequired(target);
                 this._setTargetAccepted(target);
             });
@@ -251,7 +253,7 @@ export class K8sResource {
 
     _setExternalPorts() {
         if (this.execution.external_ports) {
-            _.forEach(this.execution.external_ports, (portValue) => {
+            this.execution.external_ports.forEach((portValue) => {
                 if (isNumber(portValue)) {
                     this.resource.spec.template.spec.containers[0].ports
                         .push({ containerPort: portValue });
@@ -309,8 +311,8 @@ export class K8sResource {
     _setJobLabels() {
         if (this.execution.labels != null) {
             Object.entries(this.execution.labels).forEach(([k, v]) => {
-                const key = `${this.jobLabelPrefix}/${_.replace(k, /[^a-zA-Z0-9\-._]/g, '-').substring(0, 63)}`;
-                const value = _.replace(v, /[^a-zA-Z0-9\-._]/g, '-').substring(0, 63);
+                const key = `${this.jobLabelPrefix}/${k.replace(/[^a-zA-Z0-9\-._]/g, '-').substring(0, 63)}`;
+                const value = v.replace(/[^a-zA-Z0-9\-._]/g, '-').substring(0, 63);
                 this.resource.metadata.labels[key] = value;
 
                 if (this.resource.kind !== 'Service') {
@@ -324,7 +326,7 @@ export class K8sResource {
 
     _setVolumes() {
         if (this.execution.volumes != null) {
-            _.forEach(this.execution.volumes, (volume) => {
+            this.execution.volumes.forEach((volume) => {
                 this.resource.spec.template.spec.volumes.push({
                     name: volume.name,
                     persistentVolumeClaim: { claimName: volume.name }
@@ -351,27 +353,27 @@ export class K8sResource {
             if (this.execution.resources_requests_cpu
                 || this.execution.resources_limits_cpu) {
                 if (this.execution.resources_requests_cpu) {
-                    _.set(container, 'resources.requests.cpu', this.execution.resources_requests_cpu);
+                    set(container, 'resources.requests.cpu', this.execution.resources_requests_cpu);
                 }
                 if (this.execution.resources_limits_cpu) {
-                    _.set(container, 'resources.limits.cpu', this.execution.resources_limits_cpu);
+                    set(container, 'resources.limits.cpu', this.execution.resources_limits_cpu);
                 }
             } else if (this.execution.cpu || this.terasliceConfig.cpu) {
                 // The settings on the executions override the cluster configs
                 cpu = this.execution.cpu || this.terasliceConfig.cpu || -1;
-                _.set(container, 'resources.requests.cpu', cpu);
-                _.set(container, 'resources.limits.cpu', cpu);
+                set(container, 'resources.requests.cpu', cpu);
+                set(container, 'resources.limits.cpu', cpu);
             }
             if (this.execution.resources_requests_memory
                 || this.execution.resources_limits_memory) {
-                _.set(container, 'resources.requests.memory', this.execution.resources_requests_memory);
-                _.set(container, 'resources.limits.memory', this.execution.resources_limits_memory);
+                set(container, 'resources.requests.memory', this.execution.resources_requests_memory);
+                set(container, 'resources.limits.memory', this.execution.resources_limits_memory);
                 maxMemory = this.execution.resources_limits_memory;
             } else if (this.execution.memory || this.terasliceConfig.memory) {
                 // The settings on the executions override the cluster configs
                 memory = this.execution.memory || this.terasliceConfig.memory || -1;
-                _.set(container, 'resources.requests.memory', memory);
-                _.set(container, 'resources.limits.memory', memory);
+                set(container, 'resources.requests.memory', memory);
+                set(container, 'resources.limits.memory', memory);
                 maxMemory = memory;
             }
         }
@@ -382,10 +384,10 @@ export class K8sResource {
             || this.terasliceConfig.cpu_execution_controller || -1;
             memory = this.execution.memory_execution_controller
             || this.terasliceConfig.memory_execution_controller || -1;
-            _.set(container, 'resources.requests.cpu', cpu);
-            _.set(container, 'resources.limits.cpu', cpu);
-            _.set(container, 'resources.requests.memory', memory);
-            _.set(container, 'resources.limits.memory', memory);
+            set(container, 'resources.requests.cpu', cpu);
+            set(container, 'resources.limits.cpu', cpu);
+            set(container, 'resources.requests.memory', memory);
+            set(container, 'resources.limits.memory', memory);
             maxMemory = memory;
         }
 
@@ -396,11 +398,11 @@ export class K8sResource {
     }
 
     _setTargets() {
-        if (_.has(this.execution, 'targets') && (!_.isEmpty(this.execution.targets))) {
-            _.forEach(this.execution.targets, (target: any) => {
+        if (this.execution.targets && !isEmpty(this.execution.targets)) {
+            this.execution.targets.forEach((target: any) => {
                 // `required` is the default if no `constraint` is provided for
                 // backwards compatibility and as the most likely case
-                if (target.constraint === 'required' || !_.has(target, 'constraint')) {
+                if (target.constraint === 'required' || !has(target, 'constraint')) {
                     this._setTargetRequired(target);
                 }
 
@@ -417,11 +419,11 @@ export class K8sResource {
 
     _setTargetRequired(target: any) {
         const targetKey = 'spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution';
-        if (!_.has(this.resource, targetKey)) {
+        if (!has(this.resource, targetKey)) {
             const nodeSelectorObj = {
                 nodeSelectorTerms: [{ matchExpressions: [] }]
             };
-            _.set(this.resource, targetKey, nodeSelectorObj);
+            set(this.resource, targetKey, nodeSelectorObj);
         }
 
         this.resource.spec.template.spec.affinity.nodeAffinity
@@ -435,8 +437,8 @@ export class K8sResource {
 
     _setTargetPreferred(target: any) {
         const targetKey = 'spec.template.spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution';
-        if (!_.has(this.resource, targetKey)) {
-            _.set(this.resource, targetKey, []);
+        if (!has(this.resource, targetKey)) {
+            set(this.resource, targetKey, []);
         }
 
         this.resource.spec.template.spec.affinity.nodeAffinity
@@ -454,8 +456,8 @@ export class K8sResource {
 
     _setTargetAccepted(target: any) {
         const targetKey = 'spec.template.spec.tolerations';
-        if (!_.has(this.resource, targetKey)) {
-            _.set(this.resource, targetKey, []);
+        if (!has(this.resource, targetKey)) {
+            set(this.resource, targetKey, []);
         }
 
         this.resource.spec.template.spec.tolerations.push({
@@ -481,7 +483,7 @@ export class K8sResource {
      * Job setting: `pod_spec_override`
      */
     _mergePodSpecOverlay() {
-        this.resource.spec.template.spec = _.merge(
+        this.resource.spec.template.spec = merge(
             this.resource.spec.template.spec,
             this.execution.pod_spec_override
         );

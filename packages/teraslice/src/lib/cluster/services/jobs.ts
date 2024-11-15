@@ -1,8 +1,7 @@
-import defaultsDeep from 'lodash/defaultsDeep.js';
 import {
     TSError, uniq, cloneDeep,
     isEmpty, getTypeOf, isString,
-    Logger, makeISODate
+    Logger, makeISODate, defaultsDeep
 } from '@terascope/utils';
 import {
     JobConfigParams, JobValidator, RecoveryCleanupType,

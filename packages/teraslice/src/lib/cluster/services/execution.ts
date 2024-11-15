@@ -1,8 +1,7 @@
-import sortBy from 'lodash/sortBy.js';
 import {
     Queue, TSError, getFullErrorStack,
-    logError, get, withoutNil,
-    isEmpty, isString, flatten,
+    logError, get, withoutNil, isEmpty,
+    multiFieldSort, isString, flatten,
     includes, cloneDeep, Logger
 } from '@terascope/utils';
 import type { RecoveryCleanupType } from '@terascope/job-components';
@@ -368,7 +367,7 @@ export class ExecutionService {
         });
 
         const results = await Promise.all(promises);
-        return sortBy(results, ['name', 'started']).reverse() as ControllerStats[];
+        return multiFieldSort(results, ['name', 'started']).reverse() as ControllerStats[];
     }
 
     /**

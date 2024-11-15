@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { EventEmitter } from 'node:events';
 import { debugLogger } from '@terascope/utils';
 import Socket from 'socket.io';
@@ -94,11 +93,12 @@ describe('Node master', () => {
         connected = true;
         process: Record<string, any>;
         id!: string;
-        constructor(obj: Record<string, any>) {
+        constructor(envConfig: Record<string, any>) {
             processCounter += 1;
-            _.forOwn(obj, (value, key) => {
+
+            for (const [key, value] of Object.entries(envConfig)) {
                 this[key] = value;
-            });
+            }
 
             this.process = {
                 connected: this.connected,

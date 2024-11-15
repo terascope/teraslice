@@ -1,7 +1,8 @@
 import ms from 'ms';
-import _ from 'lodash';
 import { Mutex } from 'async-mutex';
-import { getFullErrorStack } from '@terascope/utils';
+import {
+    getFullErrorStack, debounce, isEmpty, has
+} from '@terascope/utils';
 import { Terafoundation } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { Messaging } from './services/cluster/backends/native/messaging.js';
@@ -39,7 +40,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
         });
     }
 
-    const sendNodeState = _.debounce(sendNodeStateNow, 500, { leading: false, trailing: true });
+    const sendNodeState = debounce(sendNodeStateNow, 500, { leading: false, trailing: true });
 
     let pendingAllocations = 0;
 
@@ -207,7 +208,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
     events.once('terafoundation:shutdown', () => {
         logger.debug('received shutdown notice from terafoundation');
         const filterFn = () => context.cluster.workers;
-        const isActionCompleteFn = () => _.isEmpty(getNodeState().active);
+        const isActionCompleteFn = () => isEmpty(getNodeState().active);
         shutdownProcesses({}, filterFn, isActionCompleteFn, true);
     });
 
@@ -217,15 +218,16 @@ export async function nodeMaster(context: ClusterMasterContext) {
             const exId = networkMsg.ex_id;
             logger.debug(`received cluster execution stop for execution ${exId}`);
 
-            const filterFn = () => _.filter(
-                context.cluster.workers,
-                (worker: Record<string, any>) => worker.ex_id === exId
-            );
+            const filterFn = () => {
+                return Object.values(context.cluster.workers)
+                    .filter((worker: Record<string, any>) => {
+                        return worker.ex_id === exId;
+                    });
+            };
 
             function actionCompleteFn() {
                 const children = getNodeState().active;
-                const workers = _.filter(
-                    children,
+                const workers = children.filter(
                     (worker: Record<string, any>) => worker.ex_id === exId
                 );
 
@@ -242,16 +244,20 @@ export async function nodeMaster(context: ClusterMasterContext) {
         callback: (networkMsg: Record<string, any>) => {
             const numberToRemove = networkMsg.payload.workers;
             const children = getNodeState().active;
-            const startingWorkerCount = _.filter(children, (worker: Record<string, any>) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
 
-            const filterFn = () => _.filter(
-                children,
+            const startingWorkerCount = children.filter(
+                (worker: Record<string, any>) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker'
+            ).length;
+
+            const filterFn = () => children.filter(
                 (worker: Record<string, any>) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker'
             ).slice(0, numberToRemove);
 
             function actionCompleteFn() {
                 const childWorkers = getNodeState().active;
-                const currentWorkersForJob = _.filter(childWorkers, (worker: Record<string, any>) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
+                const currentWorkersForJob = childWorkers.filter(
+                    (worker: Record<string, any>) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker'
+                ).length;
 
                 return currentWorkersForJob + numberToRemove <= startingWorkerCount;
             }
@@ -299,9 +305,10 @@ export async function nodeMaster(context: ClusterMasterContext) {
 
     function shutdownWorkers(signal: string, filterFn: any) {
         const allWorkersForJob = filterFn();
-        _.each(allWorkersForJob, (worker: Record<string, any>) => {
+
+        allWorkersForJob.forEach((worker: Record<string, any>) => {
             const workerID = worker.worker_id || worker.id;
-            if (_.has(context.cluster.workers, workerID)) {
+            if (has(context.cluster.workers, workerID)) {
                 const clusterWorker = context.cluster.workers[workerID];
                 const processId = clusterWorker.process.pid;
 
@@ -359,7 +366,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
         const clusterWorkers = context.cluster.workers;
         const active: WorkerNode[] = [];
 
-        _.forOwn(clusterWorkers, (worker: Record<string, any>) => {
+        Object.values(clusterWorkers).forEach((worker: Record<string, any>) => {
             const child = {
                 worker_id: worker.id,
                 assignment: worker.assignment,
