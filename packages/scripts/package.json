@@ -35,7 +35,7 @@
         "@kubernetes/client-node": "~0.22.0",
         "@terascope/utils": "~1.4.0",
         "codecov": "~3.8.3",
-        "execa": "9.4.0",
+        "execa": "~9.4.0",
         "fs-extra": "~11.2.0",
         "globby": "~14.0.2",
         "got": "~13.0.0",
