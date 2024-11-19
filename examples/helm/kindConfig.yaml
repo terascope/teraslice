@@ -1,0 +1,20 @@
+kind: Cluster
+name: k8s-env
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30678 # Map internal teraslice api service to host port
+    hostPort: 5678
+  - containerPort: 30921 # Map internal opensearch1 service to host port
+    hostPort: 9201
+  - containerPort: 30922 # Map internal opensearch2 service to host port
+    hostPort: 9202
+  - containerPort: 30926 # Map internal elasticsearch6 service to host port
+    hostPort: 9206
+  - containerPort: 30927 # Map internal elasticsearch7 service to host port
+    hostPort: 9207
+  - containerPort: 30900 # Map internal minio api service to host port
+    hostPort: 9000
+  - containerPort: 30901 # Map internal minio UI service to host port
+    hostPort: 9001

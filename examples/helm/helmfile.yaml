@@ -1,0 +1,79 @@
+environments:
+  default:
+    values:
+      - default-values.yaml
+---
+
+repositories:
+  - name: opensearch
+    url: https://opensearch-project.github.io/helm-charts/
+  - name: minio
+    url: https://charts.min.io/
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+
+helmDefaults:
+  wait: true
+
+releases:
+  - name: opensearch1
+    installed: {{ .Values | get "opensearch1.enabled" true }}
+    namespace: ts-dev1
+    version: 2.17.1
+    chart: opensearch/opensearch
+    values:
+      - ./templates/os1.yaml.gotmpl
+
+  - name: opensearch2
+    installed: {{ .Values | get "opensearch2.enabled" false }}
+    namespace: ts-dev1
+    version: 2.17.1
+    chart: opensearch/opensearch
+    values:
+      - ./templates/os2.yaml.gotmpl
+
+  # - name: elasticsearch6
+  #   installed: {{ .Values | get "elasticsearch6.enabled" false }}
+  #   namespace: ts-dev1
+  #   version: 6.8.9
+  #   chart: ./elasticsearch/elasticsearch-6.8.9.tgz
+  #   values:
+  #     - ./templates/es6.yaml.gotmpl
+
+  # - name: elasticsearch7
+  #   installed: {{ .Values | get "elasticsearch7.enabled" false }}
+  #   namespace: ts-dev1
+  #   version: 7.9.3
+  #   chart: ./elasticsearch/elasticsearch-7.9.3.tgz
+  #   values:
+  #     - ./templates/es7.yaml.gotmpl
+
+  - name: minio
+    chart: minio/minio
+    namespace: ts-dev1
+    installed: {{ .Values | get "minio.enabled" false }}
+    version: 5.3.0
+    # Minio hostname for teraslice configs
+    # minio.ts-dev1:9000
+    values:
+      - ./templates/minio.yaml.gotmpl
+
+  - name: kafka
+    chart: bitnami/kafka
+    namespace: ts-dev1
+    installed: {{ .Values | get "kafka.enabled" false }}
+    version: 30.1.6
+    # Kafka resolvable hostnames for configs
+    # kafka-controller-0.kafka-controller-headless.ts-dev1.svc.cluster.local:9092
+    # kafka-controller-0.kafka-controller-headless.ts-dev1.svc.cluster.local:9094
+    values:
+      - ./templates/kafka.yaml.gotmpl
+
+  - name: teraslice
+    namespace: ts-dev1
+    version: 0.8.12
+    chart: ../../helm/teraslice/
+    needs:
+      - ts-dev1/{{ .Values | get "ts-dev1.stateCluster" "opensearch1" }}
+    values:
+      - ./templates/teraslice.yaml.gotmpl
