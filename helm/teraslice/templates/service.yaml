@@ -38,6 +38,9 @@ spec:
       targetPort: api
       protocol: TCP
       name: api
+      {{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
     {{- if .Values.terafoundation.prom_metrics_enabled }}
     - port: {{ .Values.terafoundation.prom_metrics_port }}
       targetPort: metrics
