@@ -24,8 +24,8 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^4.4.0",
-        "@terascope/utils": "^1.4.0"
+        "@terascope/elasticsearch-api": "~4.4.0",
+        "@terascope/utils": "~1.4.0"
     },
     "engines": {
         "node": ">=18.18.0",

@@ -76,11 +76,9 @@ const cmd: CommandModule = {
         const release = getRelease(argv);
         const rootInfo = getRootInfo();
 
-        await syncAll({
-            verify: true,
-            tsconfigOnly: rootInfo.terascope.version === 2,
-            isAsset: rootInfo.terascope.asset
-        });
+        if (rootInfo.terascope.version !== 2) {
+            await syncAll({ verify: true, isAsset: rootInfo.terascope.asset });
+        }
 
         if (rootInfo.terascope.asset) {
             signale.info('bump has detected the root directory is an Asset. bump is now in Asset mode.');
