@@ -138,7 +138,10 @@ export class OperationLoader {
     }
 
     async loadProcessor(name: string, assetIds?: string[]): Promise<ProcessorModule> {
-        const { path, bundle_type } = await this.findOrThrow(name, assetIds);
+        const [processorName, assetHash] = name.split('@', 2);
+        const assetPaths = assetHash ? [assetHash] : assetIds;
+
+        const { path, bundle_type } = await this.findOrThrow(processorName, assetPaths);
 
         let Processor: ProcessorConstructor | undefined;
         let Schema: SchemaConstructor | undefined;
@@ -148,20 +151,28 @@ export class OperationLoader {
             Processor = await this.require(
                 path,
                 OperationTypeName.processor,
-                { name, bundle_type }
+                { name: processorName, bundle_type }
             );
         } catch (err) {
-            throw new Error(`Failure loading processor from module: ${name}, error: ${parseError(err, true)}`);
+            throw new Error(`Failure loading processor from module: ${processorName}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Schema = await this.require(path, OperationTypeName.schema, { name, bundle_type });
+            Schema = await this.require(
+                path,
+                OperationTypeName.schema,
+                { name: processorName, bundle_type }
+            );
         } catch (err) {
-            throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
+            throw new Error(`Failure loading schema from module: ${processorName}, error: ${parseError(err, true)}`);
         }
 
         try {
-            API = await this.require(path, OperationTypeName.api, { name, bundle_type });
+            API = await this.require(
+                path,
+                OperationTypeName.api,
+                { name: processorName, bundle_type }
+            );
         } catch (err) {
             // do nothing
         }
@@ -176,7 +187,10 @@ export class OperationLoader {
     }
 
     async loadReader(name: string, assetIds?: string[]): Promise<ReaderModule> {
-        const { path, bundle_type } = await this.findOrThrow(name, assetIds);
+        const [readerName, assetHash] = name.split('@', 2);
+        const assetPaths = assetHash ? [assetHash] : assetIds;
+
+        const { path, bundle_type } = await this.findOrThrow(readerName, assetPaths);
 
         let Fetcher: FetcherConstructor | undefined;
         let Slicer: SlicerConstructor | undefined;
@@ -184,25 +198,41 @@ export class OperationLoader {
         let API: OperationAPIConstructor | undefined;
 
         try {
-            Slicer = await this.require(path, OperationTypeName.slicer, { name, bundle_type });
+            Slicer = await this.require(
+                path,
+                OperationTypeName.slicer,
+                { name: readerName, bundle_type }
+            );
         } catch (err) {
-            throw new Error(`Failure loading slicer from module: ${name}, error: ${parseError(err, true)}`);
+            throw new Error(`Failure loading slicer from module: ${readerName}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Fetcher = await this.require(path, OperationTypeName.fetcher, { name, bundle_type });
+            Fetcher = await this.require(
+                path,
+                OperationTypeName.fetcher,
+                { name: readerName, bundle_type }
+            );
         } catch (err) {
-            throw new Error(`Failure loading fetcher from module: ${name}, error: ${parseError(err, true)}`);
+            throw new Error(`Failure loading fetcher from module: ${readerName}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Schema = await this.require(path, OperationTypeName.schema, { name, bundle_type });
+            Schema = await this.require(
+                path,
+                OperationTypeName.schema,
+                { name: readerName, bundle_type }
+            );
         } catch (err) {
-            throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
+            throw new Error(`Failure loading schema from module: ${readerName}, error: ${parseError(err, true)}`);
         }
 
         try {
-            API = await this.require(path, OperationTypeName.api, { name, bundle_type });
+            API = await this.require(
+                path,
+                OperationTypeName.api,
+                { name: readerName, bundle_type }
+            );
         } catch (err) {
             // do nothing
         }
@@ -219,13 +249,35 @@ export class OperationLoader {
     }
 
     async loadAPI(name: string, assetIds?: string[]): Promise<APIModule> {
-        const [apiName] = name.split(':', 1);
-        const { path, bundle_type } = await this.findOrThrow(apiName, assetIds);
+        let apiName: string;
+        let assetPaths = assetIds;
+
+        // check for versioned name tags
+        if (name.includes('@')) {
+            const results = name.split('@', 2);
+
+            apiName = results[0];
+            const postTag = results[1];
+
+            if (postTag.includes(':')) {
+                assetPaths = postTag.split(':', 1);
+            } else {
+                assetPaths = [postTag];
+            }
+        } else {
+            [apiName] = name.split(':', 1);
+        }
+
+        const { path, bundle_type } = await this.findOrThrow(apiName, assetPaths);
 
         let API: OperationAPIConstructor | undefined;
 
         try {
-            API = await this.require(path, OperationTypeName.api, { name: apiName, bundle_type });
+            API = await this.require(
+                path,
+                OperationTypeName.api,
+                { name: apiName, bundle_type }
+            );
         } catch (err) {
             // do nothing
         }
@@ -234,7 +286,9 @@ export class OperationLoader {
 
         try {
             Observer = await this.require(
-                path, OperationTypeName.observer, { name: apiName, bundle_type }
+                path,
+                OperationTypeName.observer,
+                { name: apiName, bundle_type }
             );
         } catch (err) {
             // do nothing

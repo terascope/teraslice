@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
     OperationLoader, newTestExecutionConfig, TestContext,
-    Context
+    Context, DataEntity
 } from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -348,6 +348,216 @@ describe('OperationLoader', () => {
 
             expect(results.API).not.toBeNil();
             expect(results.Schema).not.toBeNil();
+        });
+    });
+
+    describe('namespaced versioned ops', () => {
+        const assetHash1 = 'op_asset_v1.0.0';
+        const assetHash2 = 'op_asset_v1.4.0';
+        const assetHash3 = 'op_asset_v2.0.0';
+
+        const assetPaths = [assetHash1, assetHash2, assetHash3];
+
+        describe('processors', () => {
+            let data: DataEntity[];
+
+            const exConfig = newTestExecutionConfig();
+            const opConfig = {
+                _op: 'op-asset'
+            };
+
+            exConfig.operations.push({
+                _op: 'test-reader',
+            });
+
+            exConfig.operations.push(opConfig);
+
+            beforeEach(() => {
+                data = [
+                    DataEntity.make({ foo: 'bar' })
+                ];
+            });
+            it('should find processors and using the correct assetHash v2', async () => {
+                const opLoader = new OperationLoader({
+                    terasliceOpPath,
+                    assetPath: fixturePath,
+                });
+
+                const op = await opLoader.loadProcessor(`op-asset@${assetHash3}`, assetPaths);
+
+                const processor = new op.Processor(context as Context, opConfig, exConfig);
+                const [record] = await processor.handle(data);
+
+                expect(record.version).toEqual('2.0.0');
+            });
+
+            it('should find processors and using the correct assetHash v1.4', async () => {
+                const opLoader = new OperationLoader({
+                    terasliceOpPath,
+                    assetPath: fixturePath,
+                });
+
+                const op = await opLoader.loadProcessor(`op-asset@${assetHash2}`, assetPaths);
+
+                const processor = new op.Processor(context as Context, opConfig, exConfig);
+                const [record] = await processor.handle(data);
+
+                expect(record.version).toEqual('1.4.0');
+            });
+
+            it('should find processors and using the correct assetHash', async () => {
+                const opLoader = new OperationLoader({
+                    terasliceOpPath,
+                    assetPath: fixturePath,
+                });
+
+                const op = await opLoader.loadProcessor(`op-asset@${assetHash1}`, assetPaths);
+
+                const processor = new op.Processor(context as Context, opConfig, exConfig);
+                const [record] = await processor.handle(data);
+
+                expect(record.version).toEqual('1.0.0');
+            });
+        });
+
+        describe('reader', () => {
+            const exConfig = newTestExecutionConfig();
+
+            const opConfig = {
+                _op: 'reader-asset'
+            };
+            exConfig.operations.push(opConfig, { _op: 'noop' });
+
+            it('should find readers and slicers and using the correct assetHash v2', async () => {
+                const opLoader = new OperationLoader({
+                    terasliceOpPath,
+                    assetPath: fixturePath,
+                });
+
+                const op = await opLoader.loadReader(`reader-asset@${assetHash3}`, assetPaths);
+
+                const fetcher = new op.Fetcher(context as Context, opConfig, exConfig);
+                const slicer = new op.Slicer(context as Context, opConfig, exConfig);
+
+                const [record] = await fetcher.handle();
+                // @ts-expect-error
+                const slice = await slicer.slice();
+
+                expect(record.version).toEqual('2.0.0');
+                expect(slice.version).toEqual('2.0.0');
+            });
+
+            it('should find readers and slicers and using the correct assetHash v1.4', async () => {
+                const opLoader = new OperationLoader({
+                    terasliceOpPath,
+                    assetPath: fixturePath,
+                });
+
+                const op = await opLoader.loadReader(`reader-asset@${assetHash2}`, assetPaths);
+
+                const fetcher = new op.Fetcher(context as Context, opConfig, exConfig);
+                const slicer = new op.Slicer(context as Context, opConfig, exConfig);
+
+                const [record] = await fetcher.handle();
+                // @ts-expect-error
+                const slice = await slicer.slice();
+
+                expect(record.version).toEqual('1.4.0');
+                expect(slice.version).toEqual('1.4.0');
+            });
+
+            it('should find readers and slicers and using the correct assetHash', async () => {
+                const opLoader = new OperationLoader({
+                    terasliceOpPath,
+                    assetPath: fixturePath,
+                });
+
+                const op = await opLoader.loadReader(`reader-asset@${assetHash1}`, assetPaths);
+
+                const fetcher = new op.Fetcher(context as Context, opConfig, exConfig);
+                const slicer = new op.Slicer(context as Context, opConfig, exConfig);
+
+                const [record] = await fetcher.handle();
+                // @ts-expect-error
+                const slice = await slicer.slice();
+
+                expect(record.version).toEqual('1.0.0');
+                expect(slice.version).toEqual('1.0.0');
+            });
+        });
+
+        describe('api', () => {
+            const exConfig = newTestExecutionConfig();
+
+            const apiConfig = {
+                _name: 'api-asset'
+            };
+            exConfig.apis.push(apiConfig);
+            exConfig.operations.push({ _op: 'test-reader' }, { _op: 'noop' });
+
+            it('should find apis and using the correct assetHash v2', async () => {
+                const opLoader = new OperationLoader({
+                    terasliceOpPath,
+                    assetPath: fixturePath,
+                });
+
+                const op = await opLoader.loadAPI(`api-asset@${assetHash3}`, assetPaths);
+
+                const api = new op.API(context as Context, apiConfig, exConfig);
+
+                // @ts-expect-error
+                const { version } = await api.createAPI();
+
+                expect(version).toEqual('2.0.0');
+            });
+
+            it('should find apis and using the correct assetHash v1.4', async () => {
+                const opLoader = new OperationLoader({
+                    terasliceOpPath,
+                    assetPath: fixturePath,
+                });
+
+                const op = await opLoader.loadAPI(`api-asset@${assetHash2}`, assetPaths);
+
+                const api = new op.API(context as Context, apiConfig, exConfig);
+
+                // @ts-expect-error
+                const { version } = await api.createAPI();
+
+                expect(version).toEqual('1.4.0');
+            });
+
+            it('should find apis and using the correct assetHash', async () => {
+                const opLoader = new OperationLoader({
+                    terasliceOpPath,
+                    assetPath: fixturePath,
+                });
+
+                const op = await opLoader.loadAPI(`api-asset@${assetHash1}`, assetPaths);
+
+                const api = new op.API(context as Context, apiConfig, exConfig);
+
+                // @ts-expect-error
+                const { version } = await api.createAPI();
+
+                expect(version).toEqual('1.0.0');
+            });
+
+            it('should be able to handle versioning and namespacing', async () => {
+                const opLoader = new OperationLoader({
+                    terasliceOpPath,
+                    assetPath: fixturePath,
+                });
+
+                const op = await opLoader.loadAPI(`api-asset@${assetHash3}:foo1`, assetPaths);
+
+                const api = new op.API(context as Context, apiConfig, exConfig);
+
+                // @ts-expect-error
+                const { version } = await api.createAPI();
+
+                expect(version).toEqual('2.0.0');
+            })
         });
     });
 });
