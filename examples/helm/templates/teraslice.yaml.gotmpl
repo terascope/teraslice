@@ -28,7 +28,11 @@ terafoundation:
   # log_path: /app/logs
   # logging:
   #   - file
-  connectors: {}
+  connectors:
+    elasticsearch-next:
+      default:
+        node:
+          - "http://opensearch1.ts-dev1:9200"
 
   stats: {}
   #  statsd:

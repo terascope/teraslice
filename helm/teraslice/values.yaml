@@ -79,9 +79,6 @@ terafoundation:
   #            example2.local:9092,
   #            example3.local:9092
   stats: {}
-  #  statsd:
-  #    connection: default
-  #    enabled: false
   #  elasticsearch:
   #    connection: default
   #    enabled: true

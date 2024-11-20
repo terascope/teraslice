@@ -148,6 +148,7 @@ teraslice:
   {{- if .Values.persistence.enabled }}
   assets_volume: {{ template "teraslice.fullname" . }}-assets
   {{- end }}
+{{- end -}}
 
 
 {{/*
@@ -183,6 +184,7 @@ teraslice:
   name: {{ .Release.Name }}
   kubernetes_namespace: {{ .Release.Namespace }}
   kubernetes_image: {{ include "teraslice.image" . }}
+{{- end -}}
 
 {{/*
 Create teraslice worker config user overrides
