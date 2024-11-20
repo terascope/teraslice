@@ -40,11 +40,19 @@ export class Core extends EventEmitter {
         this.removeAllListeners();
     }
 
-    protected async handleSendResponse(sent: i.Message): Promise<i.Message | null> {
+    protected async handleSendResponse(
+        sent: i.Message,
+        signal?: AbortSignal
+    ): Promise<i.Message | null> {
         if (!sent.response) return null;
 
         const remaining = sent.respondBy - Date.now();
-        const response = await this.onceWithTimeout(sent.id, remaining);
+        const response = await this.onceWithTimeout(sent.id, remaining, signal);
+
+        // server shutdown
+        if (signal?.aborted) {
+            throw new Error(`Messaging server shutdown before responding to message "${sent.eventName}"`);
+        }
 
         // it is a timeout
         if (response == null) {
@@ -136,12 +144,17 @@ export class Core extends EventEmitter {
         }
     }
 
-    async onceWithTimeout(eventName: string, timeout?: number): Promise<any> {
+    async onceWithTimeout(
+        eventName: string,
+        timeout?: number,
+        abortSignal?: AbortSignal
+    ): Promise<any> {
         const timeoutMs: number = this.getTimeout(timeout);
         try {
             const { payload } = (await pEvent(this, eventName, {
                 rejectionEvents: [],
                 timeout: timeoutMs,
+                signal: abortSignal
             })) as i.EventMessage;
             return payload;
         } catch (err) {
