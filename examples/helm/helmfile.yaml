@@ -35,3 +35,13 @@ releases:
         service:
           nodePort: 30678
           type: NodePort
+        master:
+          teraslice:
+            kubernetes_namespace: ts-dev1
+            cluster_manager_type: kubernetesV2
+            asset_storage_connection_type: elasticsearch-next
+        worker:
+          teraslice:
+            kubernetes_namespace: ts-dev1
+            cluster_manager_type: kubernetesV2
+            asset_storage_connection_type: elasticsearch-next
