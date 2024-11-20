@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-The following dependencies are required to successfully deploy a basic instance of Teraslice using Helm and Helmfile. The examples provided use Homebrew (brew) for installation.
+The following dependencies are required to successfully deploy a basic instance of Teraslice and interact with its API. The examples provided use Homebrew (brew) and Node.js's (npm) for installation.
 
 - Docker
 - [Helm](https://helm.sh/docs/intro/install/)
@@ -13,6 +13,10 @@ The following dependencies are required to successfully deploy a basic instance 
     - `brew install kubectl`
 - [Kind](https://kind.sigs.k8s.io/) - Kubernetes in Docker
     - `brew install kind`
+- [curl](https://formulae.brew.sh/formula/curl) - Command-line tool for making HTTP requests
+    - `brew install curl`
+- [teraslice-cli](https://www.npmjs.com/package/teraslice-cli) - A CLI tool for managing Teraslice
+    - `npm install -g teraslice-cli`
 
 ### Initial Setup
 
@@ -70,7 +74,9 @@ Lastly if there were no erros with the `diff` command, deploy teraslice and open
 helmfile sync
 ```
 
-### Step 7: Loading In Assets
+### Step 7: Deploying Assets
+
+The example job requires the `standard-assets` and `elasticsearch-assets` to be available in the cluster for successful execution. Use the `teraslice-cli` tool to deploy these assets:
 
 ```bash
 teraslice-cli assets deploy localhost terascope/standard-assets
@@ -80,7 +86,9 @@ teraslice-cli assets deploy localhost terascope/standard-assets
 teraslice-cli assets deploy localhost terascope/elasticsearch-assets
 ```
 
-### Step 8: Posting And Starting a Test Job
+### Step 8: Submitting and Starting a Test Job
+
+This example job generates `10,000` records and writes them to an Opensearch index named `random-data-1`. Submit the job to the Teraslice API using the following command:
 
 ```bash
 curl -XPOST 'localhost:5678/v1/jobs' -H "Content-Type: application/json" -d '{
@@ -108,8 +116,10 @@ curl -XPOST 'localhost:5678/v1/jobs' -H "Content-Type: application/json" -d '{
 
 ### Step 9: Viewing results in opensearch
 
+Once the job completes, query Opensearch to verify that the documents have been written successfully. Use the following command to view the index information:
+
 ```bash
-curl 'localhost:9201/_cat/indices?v&h=index,status,docs.count,docs.deleted,store.size,pri.store.size'
+curl 'localhost:9200/_cat/indices?v&h=index,status,docs.count,docs.deleted,store.size,pri.store.size'
 ```
 
 Results:
