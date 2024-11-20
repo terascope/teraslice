@@ -14,7 +14,7 @@ The following dependencies are required to successfully deploy a basic instance 
 - [Kind](https://kind.sigs.k8s.io/) - Kubernetes in Docker
     - `brew install kind`
 
-## Initial Setup
+### Initial Setup
 
 First you're going to want to be in the correct directory. Starting in the top level of the teraslice directory:
 
@@ -68,4 +68,58 @@ Lastly if there were no erros with the `diff` command, deploy teraslice and open
 
 ```bash
 helmfile sync
+```
+
+### Step 7: Loading In Assets
+
+```bash
+teraslice-cli assets deploy localhost terascope/standard-assets
+```
+
+```bash
+teraslice-cli assets deploy localhost terascope/elasticsearch-assets
+```
+
+### Step 8: Posting And Starting a Test Job
+
+```bash
+curl -XPOST 'localhost:5678/v1/jobs' -H "Content-Type: application/json" -d '{
+    "name": "data-to-es",
+    "lifecycle": "once",
+    "workers": 1,
+    "assets": [
+        "standard",
+        "elasticsearch"
+    ],
+    "operations": [
+        {
+            "_op": "data_generator",
+            "size": 10000
+        },
+        {
+            "_op": "elasticsearch_bulk",
+            "size": 10000,
+            "index": "random-data-1"
+        }
+    ]
+}'
+
+```
+
+### Step 9: Viewing results in opensearch
+
+```bash
+curl 'localhost:9201/_cat/indices?v&h=index,status,docs.count,docs.deleted,store.size,pri.store.size'
+```
+
+Results:
+
+```bash
+index                        status docs.count docs.deleted store.size pri.store.size
+teraslice__assets            open            2            0      2.8mb          2.8mb
+teraslice__state-2024.11     open            1            0     28.8kb         28.8kb
+teraslice__ex                open            1            0     49.1kb         49.1kb
+teraslice__jobs              open            1            0      5.6kb          5.6kb
+random-data-1                open        10000            0        7mb            7mb
+teraslice__analytics-2024.11 open            4            0     23.9kb         23.9kb
 ```
