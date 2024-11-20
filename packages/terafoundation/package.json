@@ -40,7 +40,7 @@
         "elasticsearch-store": "~1.4.0",
         "express": "~4.21.1",
         "js-yaml": "~4.1.0",
-        "nanoid": "~5.0.7",
+        "nanoid": "~5.0.8",
         "node-webhdfs": "~1.0.2",
         "prom-client": "~15.1.3",
         "yargs": "~17.7.2"
