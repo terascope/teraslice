@@ -45,9 +45,6 @@ worker:
   teraslice:
     assets_directory: /app/assets
 
-# Teraslice spaces configuration
-spaces: {}
-
 # Terafoundation
 # Everything under terafoundation key will used as the master and worker config
 terafoundation:
