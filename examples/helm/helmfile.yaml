@@ -45,3 +45,5 @@ releases:
             kubernetes_namespace: ts-dev1
             cluster_manager_type: kubernetesV2
             asset_storage_connection_type: elasticsearch-next
+        image:
+          tag: dev-nodev22.9.0
