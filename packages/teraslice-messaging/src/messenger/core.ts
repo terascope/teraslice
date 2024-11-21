@@ -2,7 +2,8 @@ import ms from 'ms';
 import { pEvent } from 'p-event';
 import { EventEmitter } from 'node:events';
 import {
-    toString, isInteger, debugLogger, Logger, TSError
+    toString, isInteger, debugLogger,
+    Logger, TSError
 } from '@terascope/utils';
 import * as i from './interfaces.js';
 
