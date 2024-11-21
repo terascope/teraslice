@@ -2,7 +2,7 @@ import ms from 'ms';
 import { pEvent } from 'p-event';
 import { EventEmitter } from 'node:events';
 import {
-    toString, isInteger, debugLogger, Logger
+    toString, isInteger, debugLogger, Logger, TSError
 } from '@terascope/utils';
 import * as i from './interfaces.js';
 
@@ -51,7 +51,10 @@ export class Core extends EventEmitter {
 
         // server shutdown
         if (signal?.aborted) {
-            throw new Error(`Messaging server shutdown before responding to message "${sent.eventName}"`);
+            const msg = sent.eventName === 'worker:slice:complete'
+                ? `Execution controller shutdown before receiving worker slice analytics. Event: "${sent.eventName}"`
+                : `Execution controller shutdown before receiving "${sent.eventName}" event`;
+            throw new TSError(msg, { retryable: false });
         }
 
         // it is a timeout

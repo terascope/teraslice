@@ -349,6 +349,9 @@ export class Worker {
             } catch (err) {
                 if (this.isShuttingDown) {
                     throw err;
+                } else if (err.retryable === false) {
+                    this.logger.warn(`${err}, will not retry.`);
+                    return true;
                 } else {
                     this.logger.warn(err);
                 }
