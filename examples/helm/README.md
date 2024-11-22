@@ -34,7 +34,7 @@ Create a single node Kubernetes cluster by running the following command:
 kind create cluster --config kindConfig.yaml
 ```
 
-### Step 2: Building the Docker Image
+### Step 2: Building the Teraslice Docker Image
 
 Build the teraslice docker image using the following command. Ensure the image is tagged correctly to match the intended version `dev-nodev22.9.0` in this example:
 
@@ -42,9 +42,9 @@ Build the teraslice docker image using the following command. Ensure the image i
 docker build -t ghcr.io/terascope/teraslice:dev-nodev22.9.0 ../../.
 ```
 
-### Step 3: Loading the Docker Image into the Cluster
+### Step 3: Loading the Teraslice Docker Image into the Kind Cluster
 
-Load the built Docker image into the Kind cluster's control plane:
+Load the Teraslice Docker image, built above, into the Kind cluster's control plane:
 
 ```bash
 kind load docker-image --name k8s-env ghcr.io/terascope/teraslice:dev-nodev22.9.0
@@ -68,7 +68,7 @@ helmfile diff
 
 ### Step 6: Deploying Resources
 
-Lastly if there were no erros with the `diff` command, deploy teraslice and opensearch into the cluster by running:
+Lastly if there were no errors with the `diff` command, deploy teraslice and opensearch into the cluster by running:
 
 ```bash
 helmfile sync
