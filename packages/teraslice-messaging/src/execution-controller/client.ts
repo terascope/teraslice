@@ -7,6 +7,7 @@ const ONE_MIN = 60 * 1000;
 
 export class Client extends core.Client {
     public workerId: string;
+    private abortController: AbortController;
 
     constructor(opts: i.ClientOptions) {
         const {
@@ -47,6 +48,7 @@ export class Client extends core.Client {
 
         this.workerId = workerId;
         this.available = false;
+        this.abortController = new AbortController();
     }
 
     async start() {
@@ -75,6 +77,13 @@ export class Client extends core.Client {
                 payload: msg.payload,
             });
         });
+
+        this.on('server:shutdown', () => {
+            // this will send an abort signal to the Core.onceWithTimeout pEvent
+            // allowing the worker to shutdown without receiving a response to
+            // a sendSliceComplete() message
+            this.abortController.abort();
+        });
     }
 
     onExecutionFinished(fn: () => void) {
@@ -85,6 +94,7 @@ export class Client extends core.Client {
         return this.send('worker:slice:complete', withoutNil(payload), {
             response: true,
             volatile: false,
+            signal: this.abortController.signal
         });
     }
 

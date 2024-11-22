@@ -278,7 +278,7 @@ export class Client extends Core {
             respondBy,
         };
 
-        const responseMsg = this.handleSendResponse(message);
+        const responseMsg = this.handleSendResponse(message, options.signal);
         this.socket.emit(eventName, message);
         return responseMsg;
     }
