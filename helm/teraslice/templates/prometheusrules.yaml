@@ -1,0 +1,13 @@
+{{- if .Values.prometheusRule.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "teraslice.fullname" . }}
+  labels:
+    {{- include "teraslice.master.labels" . | nindent 4 }}
+spec:
+  groups:
+    - name: {{ include "teraslice.fullname" . }}
+      rules:
+        {{- toYaml .Values.prometheusRules.rules | nindent 8 }} 
+{{- end }} 

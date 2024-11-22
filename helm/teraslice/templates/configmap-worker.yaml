@@ -1,0 +1,13 @@
+{{- $baseConfig := include "teraslice.workerConfig" . | fromYaml -}}
+{{- $userConfig := include "teraslice.workerConfigUser" . | fromYaml -}}
+{{- $mergedConfig := mustMergeOverwrite (dict) $baseConfig $userConfig -}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "teraslice.fullname" . }}-worker
+  labels:
+    {{- include "teraslice.worker.labels" . | nindent 4 }}
+data:
+  teraslice.yaml: |
+    {{- toYaml $mergedConfig | nindent 4 }}

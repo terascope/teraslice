@@ -1,0 +1,49 @@
+environments:
+  default:
+    values:
+      - default-values.yaml
+---
+
+repositories:
+  - name: opensearch
+    url: https://opensearch-project.github.io/helm-charts/
+
+helmDefaults:
+  wait: true
+
+releases:
+  - name: opensearch1
+    namespace: ts-dev1
+    version: 2.17.1
+    chart: opensearch/opensearch
+    values:
+      - ./templates/os1.yaml.gotmpl
+
+  - name: teraslice
+    namespace: ts-dev1
+    version: 0.8.12
+    chart: ../../helm/teraslice/
+    needs:
+      - ts-dev1/{{ .Values | get "ts-dev1.stateCluster" "opensearch1" }}
+    values:
+      - terafoundation:
+          connectors:
+            elasticsearch-next:
+              default:
+                node:
+                  - "http://opensearch1.ts-dev1:9200"
+        service:
+          nodePort: 30678
+          type: NodePort
+        master:
+          teraslice:
+            kubernetes_namespace: ts-dev1
+            cluster_manager_type: kubernetesV2
+            asset_storage_connection_type: elasticsearch-next
+        worker:
+          teraslice:
+            kubernetes_namespace: ts-dev1
+            cluster_manager_type: kubernetesV2
+            asset_storage_connection_type: elasticsearch-next
+        image:
+          tag: dev-nodev22.9.0
