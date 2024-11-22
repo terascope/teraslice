@@ -9,10 +9,7 @@ describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');
     context.sysconfig.teraslice.assets_directory = dirname;
 
-    const terasliceOpPath = path.join(dirname, '../../teraslice/lib');
-    const api = new JobValidator(context, {
-        terasliceOpPath,
-    });
+    const api = new JobValidator(context);
 
     describe('->validateConfig', () => {
         it('returns a completed and valid jobConfig', async () => {
@@ -148,9 +145,7 @@ describe('JobValidator', () => {
             const testContext = new TestContext('teraslice-operations');
             testContext.sysconfig.teraslice.assets_directory = [dirname];
 
-            const testApi = new JobValidator(context, {
-                terasliceOpPath,
-            });
+            const testApi = new JobValidator(context);
 
             const jobSpec: JobConfigParams = Object.freeze({
                 name: 'noop',

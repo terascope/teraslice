@@ -23,12 +23,14 @@ export class OperationLoader {
     private readonly options: ValidLoaderOptions;
     private readonly availableExtensions: string[];
     private readonly invalidPaths: string[];
+    private readonly checkCollisions: boolean;
     allowedFile: (name: string) => boolean;
 
     constructor(options: LoaderOptions = {}) {
         this.options = this.validateOptions(options);
         this.availableExtensions = availableExtensions();
         this.invalidPaths = ['node_modules', ...ignoreDirectories()];
+        this.checkCollisions = options.validate_name_collisions ?? false;
 
         this.allowedFile = (fileName: string) => {
             const char = fileName.charAt(0);
@@ -87,13 +89,24 @@ export class OperationLoader {
         return AssetBundleType.STANDARD;
     }
 
-    async find(name: string, assetIds?: string[]): Promise<FindOperationResults> {
-        let filePath: string | null = null;
-        let location: OperationLocationType | null = null;
+    async find(
+        name: string,
+        assetIds: string[] = [],
+    ): Promise<FindOperationResults[]> {
+        const results: FindOperationResults[] = [];
+        let shouldBreak = true;
+
+        if (this.checkCollisions) {
+            shouldBreak = false;
+        }
 
         const findCodeFn = this.findCode(name);
 
-        const findCodeByConvention = async (basePath?: string, subfolders?: string[]) => {
+        const findCodeByConvention = async (
+            basePath: string,
+            subfolders: string[],
+            location: OperationLocationType
+        ) => {
             if (!basePath) return;
             if (!fs.existsSync(basePath)) return;
             if (!subfolders || !subfolders.length) return;
@@ -102,46 +115,67 @@ export class OperationLoader {
                 const folderPath = pathModule.join(basePath, folder);
                 // we check for v3 version of asset
                 if (await this.isBundledOperation(folderPath, name)) {
-                    filePath = folderPath;
-                }
+                    const bundle_type = await this.getBundleType({ codePath: folderPath, name });
+                    results.push({ path: folderPath, bundle_type, location });
+                    if (shouldBreak) break;
+                } else if (fs.existsSync(folderPath)) {
+                    const filePath = findCodeFn(folderPath);
 
-                if (!filePath && fs.existsSync(folderPath)) {
-                    filePath = findCodeFn(folderPath);
+                    if (filePath) {
+                        const bundle_type = await this.getBundleType({ codePath: filePath, name });
+                        results.push({ path: folderPath, bundle_type, location });
+                        if (shouldBreak) break;
+                    }
                 }
             }
         };
 
         for (const assetPath of this.options.assetPath) {
-            location = OperationLocationType.asset;
-            await findCodeByConvention(assetPath, assetIds);
-            if (filePath) break;
+            await findCodeByConvention(assetPath, assetIds, OperationLocationType.asset);
+            if (results.length && shouldBreak) break;
         }
 
-        if (!filePath) {
-            location = OperationLocationType.builtin;
-            await findCodeByConvention(this.getBuiltinDir(), ['.']);
+        if (results.length === 0 || !shouldBreak) {
+            await findCodeByConvention(this.getBuiltinDir(), ['.'], OperationLocationType.builtin);
         }
 
-        if (!filePath) {
-            location = OperationLocationType.teraslice;
-            await findCodeByConvention(this.options.terasliceOpPath, ['readers', 'processors']);
+        if (results.length === 0 || !shouldBreak) {
+            const location = OperationLocationType.module;
+            const filePath = this.resolvePath(name);
+
+            if (filePath) {
+                const bundle_type = await this.getBundleType({ codePath: filePath, name });
+                results.push({ path: filePath, bundle_type, location });
+            }
         }
 
-        if (!filePath) {
-            location = OperationLocationType.module;
-            filePath = this.resolvePath(name);
-        }
-
-        const bundle_type = await this.getBundleType({ codePath: filePath, name });
-
-        return { path: filePath, location, bundle_type };
+        return results;
     }
 
     async loadProcessor(name: string, assetIds?: string[]): Promise<ProcessorModule> {
         const [processorName, assetHash] = name.split('@', 2);
         const assetPaths = assetHash ? [assetHash] : assetIds;
 
-        const { path, bundle_type } = await this.findOrThrow(processorName, assetPaths);
+        const metadataList = await this.findOrThrow(processorName, assetPaths);
+
+        if (metadataList.length > 1 && this.checkCollisions && !assetHash) {
+            throw new Error(`Multiple assets containing the same processor name _op: "${name}", please specify which specific asset to use on its name`);
+        }
+
+        let path: string;
+        let bundle_type: AssetBundleType;
+
+        if (assetHash) {
+            const record = metadataList.find(
+                (meta) => meta.path.includes(assetHash)
+            ) as OperationResults;
+
+            path = record.path;
+            bundle_type = record.bundle_type;
+        } else {
+            path = metadataList[0].path;
+            bundle_type = metadataList[0].bundle_type;
+        }
 
         let Processor: ProcessorConstructor | undefined;
         let Schema: SchemaConstructor | undefined;
@@ -190,7 +224,26 @@ export class OperationLoader {
         const [readerName, assetHash] = name.split('@', 2);
         const assetPaths = assetHash ? [assetHash] : assetIds;
 
-        const { path, bundle_type } = await this.findOrThrow(readerName, assetPaths);
+        const metadataList = await this.findOrThrow(readerName, assetPaths);
+
+        if (metadataList.length > 1 && this.checkCollisions && !assetHash) {
+            throw new Error(`Multiple assets containing the same processor name _op: "${name}", please specify which specific asset to use on its name`);
+        }
+
+        let path: string;
+        let bundle_type: AssetBundleType;
+
+        if (assetHash) {
+            const record = metadataList.find(
+                (meta) => meta.path.includes(assetHash)
+            ) as OperationResults;
+
+            path = record.path;
+            bundle_type = record.bundle_type;
+        } else {
+            path = metadataList[0].path;
+            bundle_type = metadataList[0].bundle_type;
+        }
 
         let Fetcher: FetcherConstructor | undefined;
         let Slicer: SlicerConstructor | undefined;
@@ -249,6 +302,7 @@ export class OperationLoader {
     }
 
     async loadAPI(name: string, assetIds?: string[]): Promise<APIModule> {
+        let assetHash: string | undefined = undefined;
         let apiName: string;
         let assetPaths = assetIds;
 
@@ -264,11 +318,32 @@ export class OperationLoader {
             } else {
                 assetPaths = [postTag];
             }
+
+            assetHash = assetPaths[0];
         } else {
             [apiName] = name.split(':', 1);
         }
 
-        const { path, bundle_type } = await this.findOrThrow(apiName, assetPaths);
+        const metadataList = await this.findOrThrow(apiName, assetPaths);
+
+        if (metadataList.length > 1 && this.checkCollisions && !assetHash) {
+            throw new Error(`Multiple assets containing the same processor name _op: "${name}", please specify which specific asset to use on its name`);
+        }
+
+        let path: string;
+        let bundle_type: AssetBundleType;
+
+        if (assetHash) {
+            const record = metadataList.find(
+                (meta) => meta.path.includes(assetHash as string)
+            ) as OperationResults;
+
+            path = record.path;
+            bundle_type = record.bundle_type;
+        } else {
+            path = metadataList[0].path;
+            bundle_type = metadataList[0].bundle_type;
+        }
 
         let API: OperationAPIConstructor | undefined;
 
@@ -323,23 +398,32 @@ export class OperationLoader {
         };
     }
 
-    private async findOrThrow(name: string, assetIds?: string[]): Promise<OperationResults> {
+    private async findOrThrow(
+        name: string,
+        assetIds: string[] = [],
+    ): Promise<OperationResults[]> {
         this.verifyOpName(name);
         const results = await this.find(name, assetIds);
 
-        if (!results.path) {
+        if (results.length === 0) {
             throw new Error(`Unable to find module for operation: ${name}`);
         }
 
-        if (!results.location) {
-            throw new Error(`Unable to gather location for operation: ${name}`);
-        }
+        results.forEach((metadata) => {
+            if (!metadata.path) {
+                throw new Error(`Unable to find module for operation: ${name}`);
+            }
 
-        if (!results.bundle_type) {
-            throw new Error(`Unable to determine the bundle_type for operation: ${name}`);
-        }
+            if (!metadata.location) {
+                throw new Error(`Unable to gather location for operation: ${name}`);
+            }
 
-        return results as OperationResults;
+            if (!metadata.bundle_type) {
+                throw new Error(`Unable to determine the bundle_type for operation: ${name}`);
+            }
+        });
+
+        return results as OperationResults[];
     }
 
     private _adjustFilePath(filePath: string): string {

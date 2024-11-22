@@ -43,8 +43,8 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
         this.events.on('execution:add-to-lifecycle', this._handlers['execution:add-to-lifecycle']);
 
         const executionConfig = cloneDeep(config.executionConfig);
+
         this._loader = new OperationLoader({
-            terasliceOpPath: config.terasliceOpPath,
             assetPath: config.context.sysconfig.teraslice.assets_directory,
         });
 

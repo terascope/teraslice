@@ -15,11 +15,11 @@ export class JobValidator {
     private readonly context: Context;
     private readonly opLoader: OperationLoader;
 
-    constructor(context: Context, options: { terasliceOpPath?: string } = {}) {
+    constructor(context: Context) {
         this.context = context;
         this.opLoader = new OperationLoader({
-            terasliceOpPath: options.terasliceOpPath,
             assetPath: context.sysconfig.teraslice.assets_directory,
+            validate_name_collisions: true
         });
         this.schema = jobSchema(context);
     }

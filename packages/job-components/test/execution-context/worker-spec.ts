@@ -2,7 +2,6 @@ import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pDelay, DataEntity, isKey } from '@terascope/utils';
-import { terasliceOpPath } from '../helpers/index.js';
 import {
     WorkerExecutionContext, TestContext, newTestExecutionConfig,
     FetcherCore, ProcessorCore, newTestSlice
@@ -53,7 +52,6 @@ describe('WorkerExecutionContext', () => {
                 context,
                 executionConfig,
                 assetIds,
-                terasliceOpPath,
             });
 
             await executionContext.initialize();
@@ -279,7 +277,6 @@ describe('WorkerExecutionContext', () => {
                 context,
                 executionConfig,
                 assetIds,
-                terasliceOpPath,
             });
             await executionContext.initialize();
         });

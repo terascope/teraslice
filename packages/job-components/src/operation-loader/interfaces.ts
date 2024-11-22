@@ -5,15 +5,13 @@ import {
 
 export const ASSET_KEYWORD = 'ASSETS';
 export interface LoaderOptions {
-    /** Path to teraslice lib directory */
-    terasliceOpPath?: string;
     /** Path to where the assets are stored */
     assetPath?: string[] | string;
+    // set to true if you want the find functions to check all assets for naming collisions
+    validate_name_collisions?: boolean;
 }
 
 export interface ValidLoaderOptions {
-    /** Path to teraslice lib directory */
-    terasliceOpPath?: string;
     /** Path to where the assets are stored */
     assetPath: string[];
 }
@@ -65,8 +63,6 @@ export enum OperationLocationType {
     module = 'module',
     /** is located in builtin dir */
     builtin = 'builtin',
-    /** is located natively in teraslice */
-    teraslice = 'teraslice'
 }
 
 export enum OperationTypeName {

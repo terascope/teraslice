@@ -9,16 +9,13 @@ import {
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('OperationLoader', () => {
-    const terasliceOpPath = path.join(dirname, '../../teraslice/lib');
     const context = new TestContext('teraslice-op-loader');
     const asset = 'asset';
     const fixturePath = path.join(dirname, '../dist/test/fixtures');
     const assetTestPath = path.join(fixturePath, asset);
 
     it('should instantiate', () => {
-        const opLoader = new OperationLoader({
-            terasliceOpPath,
-        });
+        const opLoader = new OperationLoader({});
 
         expect(opLoader).toBeObject();
         expect(opLoader.loadProcessor).toBeDefined();
@@ -30,9 +27,7 @@ describe('OperationLoader', () => {
     });
 
     it('should load a builtin operation', async () => {
-        const opLoader = new OperationLoader({
-            terasliceOpPath,
-        });
+        const opLoader = new OperationLoader({});
         const results = await opLoader.loadProcessor('noop');
 
         expect(results).toBeDefined();
@@ -43,9 +38,7 @@ describe('OperationLoader', () => {
     });
 
     it('should load by file path', async () => {
-        const opLoader = new OperationLoader({
-            terasliceOpPath,
-        });
+        const opLoader = new OperationLoader({});
         const op = await opLoader.loadProcessor(path.join(assetTestPath, 'example-op'));
 
         expect(op).toBeDefined();
@@ -63,19 +56,14 @@ describe('OperationLoader', () => {
     });
 
     it('should throw proper errors if op code does not exits', async () => {
-        const opLoader = new OperationLoader({
-            terasliceOpPath,
-        });
+        const opLoader = new OperationLoader({});
 
         await expect(() => opLoader.loadProcessor('someOp')
         ).rejects.toThrow();
     });
 
     it('should load asset ops', async () => {
-        const opLoader = new OperationLoader({
-            terasliceOpPath,
-            assetPath: fixturePath,
-        });
+        const opLoader = new OperationLoader({ assetPath: fixturePath });
 
         const results = await opLoader.loadProcessor('example-op', [asset]);
 
@@ -96,10 +84,7 @@ describe('OperationLoader', () => {
         });
         exConfig.operations.push(opConfig);
 
-        const opLoader = new OperationLoader({
-            terasliceOpPath,
-            assetPath: fixturePath,
-        });
+        const opLoader = new OperationLoader({ assetPath: fixturePath });
 
         await expect(() => opLoader.loadProcessor('fail')).rejects.toThrowError('Unable to find module for operation: fail');
 
@@ -130,7 +115,6 @@ describe('OperationLoader', () => {
         exConfig.operations.push(opConfig);
 
         const opLoader = new OperationLoader({
-            terasliceOpPath,
             assetPath: [fixturePath],
         });
 
@@ -160,7 +144,6 @@ describe('OperationLoader', () => {
         exConfig.operations.push(opConfig);
 
         const opLoader = new OperationLoader({
-            terasliceOpPath,
             assetPath: fixturePath
         });
 
@@ -193,10 +176,7 @@ describe('OperationLoader', () => {
     it('should load an api', async () => {
         const exConfig = newTestExecutionConfig();
 
-        const opLoader = new OperationLoader({
-            terasliceOpPath,
-            assetPath: fixturePath,
-        });
+        const opLoader = new OperationLoader({ assetPath: fixturePath });
 
         const op = await opLoader.loadAPI('example-api', [asset]);
 
@@ -210,7 +190,6 @@ describe('OperationLoader', () => {
         const exConfig = newTestExecutionConfig();
 
         const opLoader = new OperationLoader({
-            terasliceOpPath,
             assetPath: [fixturePath],
         });
 
@@ -226,7 +205,6 @@ describe('OperationLoader', () => {
         const exConfig = newTestExecutionConfig();
 
         const opLoader = new OperationLoader({
-            terasliceOpPath,
             assetPath: fixturePath,
         });
 
@@ -240,10 +218,7 @@ describe('OperationLoader', () => {
 
     it('should load an observer', async () => {
         const exConfig = newTestExecutionConfig();
-        const opLoader = new OperationLoader({
-            terasliceOpPath,
-            assetPath: fixturePath,
-        });
+        const opLoader = new OperationLoader({ assetPath: fixturePath });
 
         const op = await opLoader.loadAPI('example-observer', [asset]);
 
@@ -255,7 +230,6 @@ describe('OperationLoader', () => {
 
     it('should fail if given an api without the required files', async () => {
         const opLoader = new OperationLoader({
-            terasliceOpPath,
             assetPath: fixturePath,
         });
 
@@ -264,7 +238,6 @@ describe('OperationLoader', () => {
 
     it('should fail if given an api with both an observer and api', async () => {
         const opLoader = new OperationLoader({
-            terasliceOpPath,
             assetPath: fixturePath,
         });
 
@@ -273,7 +246,6 @@ describe('OperationLoader', () => {
 
     it('should fail if fetching a file with a . or _', async () => {
         const opLoader = new OperationLoader({
-            terasliceOpPath,
             assetPath: fixturePath,
         });
 
@@ -290,7 +262,6 @@ describe('OperationLoader', () => {
 
         it('should find processors using new format', async () => {
             const opLoader = new OperationLoader({
-                terasliceOpPath,
                 assetPath: fixturePath,
             });
 
@@ -305,7 +276,6 @@ describe('OperationLoader', () => {
 
         it('should find readers using new format', async () => {
             const opLoader = new OperationLoader({
-                terasliceOpPath,
                 assetPath: fixturePath,
             });
 
@@ -322,7 +292,6 @@ describe('OperationLoader', () => {
 
         it('should find apis using new format', async () => {
             const opLoader = new OperationLoader({
-                terasliceOpPath,
                 assetPath: fixturePath,
             });
 
@@ -337,7 +306,6 @@ describe('OperationLoader', () => {
 
         it('should find namespaced apis using new format', async () => {
             const opLoader = new OperationLoader({
-                terasliceOpPath,
                 assetPath: fixturePath,
             });
 
@@ -379,7 +347,6 @@ describe('OperationLoader', () => {
             });
             it('should find processors and using the correct assetHash v2', async () => {
                 const opLoader = new OperationLoader({
-                    terasliceOpPath,
                     assetPath: fixturePath,
                 });
 
@@ -393,7 +360,6 @@ describe('OperationLoader', () => {
 
             it('should find processors and using the correct assetHash v1.4', async () => {
                 const opLoader = new OperationLoader({
-                    terasliceOpPath,
                     assetPath: fixturePath,
                 });
 
@@ -407,7 +373,6 @@ describe('OperationLoader', () => {
 
             it('should find processors and using the correct assetHash', async () => {
                 const opLoader = new OperationLoader({
-                    terasliceOpPath,
                     assetPath: fixturePath,
                 });
 
@@ -430,7 +395,6 @@ describe('OperationLoader', () => {
 
             it('should find readers and slicers and using the correct assetHash v2', async () => {
                 const opLoader = new OperationLoader({
-                    terasliceOpPath,
                     assetPath: fixturePath,
                 });
 
@@ -449,7 +413,6 @@ describe('OperationLoader', () => {
 
             it('should find readers and slicers and using the correct assetHash v1.4', async () => {
                 const opLoader = new OperationLoader({
-                    terasliceOpPath,
                     assetPath: fixturePath,
                 });
 
@@ -468,7 +431,6 @@ describe('OperationLoader', () => {
 
             it('should find readers and slicers and using the correct assetHash', async () => {
                 const opLoader = new OperationLoader({
-                    terasliceOpPath,
                     assetPath: fixturePath,
                 });
 
@@ -497,7 +459,6 @@ describe('OperationLoader', () => {
 
             it('should find apis and using the correct assetHash v2', async () => {
                 const opLoader = new OperationLoader({
-                    terasliceOpPath,
                     assetPath: fixturePath,
                 });
 
@@ -513,7 +474,6 @@ describe('OperationLoader', () => {
 
             it('should find apis and using the correct assetHash v1.4', async () => {
                 const opLoader = new OperationLoader({
-                    terasliceOpPath,
                     assetPath: fixturePath,
                 });
 
@@ -529,7 +489,6 @@ describe('OperationLoader', () => {
 
             it('should find apis and using the correct assetHash', async () => {
                 const opLoader = new OperationLoader({
-                    terasliceOpPath,
                     assetPath: fixturePath,
                 });
 
@@ -545,7 +504,6 @@ describe('OperationLoader', () => {
 
             it('should be able to handle versioning and namespacing', async () => {
                 const opLoader = new OperationLoader({
-                    terasliceOpPath,
                     assetPath: fixturePath,
                 });
 
@@ -557,7 +515,51 @@ describe('OperationLoader', () => {
                 const { version } = await api.createAPI();
 
                 expect(version).toEqual('2.0.0');
-            })
+            });
+        });
+
+        describe('name collisions', () => {
+            let data: DataEntity[];
+
+            const exConfig = newTestExecutionConfig();
+            const opConfig = {
+                _op: 'op-asset'
+            };
+
+            exConfig.operations.push({
+                _op: 'test-reader',
+            });
+
+            exConfig.operations.push(opConfig);
+
+            beforeEach(() => {
+                data = [
+                    DataEntity.make({ foo: 'bar' })
+                ];
+            });
+
+            it('should throw if there are multiple ops with same name and no assetIdentifier', async () => {
+                const opLoader = new OperationLoader({
+                    assetPath: fixturePath,
+                    validate_name_collisions: true
+                });
+
+                await expect(opLoader.loadProcessor(`op-asset`, assetPaths)).rejects.toThrow();
+            });
+
+            fit('should not throw if there are multiple ops with same name and a assetIdentifier', async () => {
+                const opLoader = new OperationLoader({
+                    assetPath: fixturePath,
+                    validate_name_collisions: true
+                });
+
+                const op = await opLoader.loadProcessor(`op-asset@${assetHash3}`, assetPaths);
+
+                const processor = new op.Processor(context as Context, opConfig, exConfig);
+                const [record] = await processor.handle(data);
+
+                expect(record.version).toEqual('2.0.0');
+            });
         });
     });
 });
