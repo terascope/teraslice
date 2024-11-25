@@ -12,7 +12,6 @@ import { JobConfig, ExecutionConfig } from '@terascope/types';
 import { ClusterMasterContext } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { spawnAssetLoader } from '../../workers/assets/spawn.js';
-import { terasliceOpPath } from '../../config/index.js';
 import { JobsStorage, ExecutionStorage } from '../../storage/index.js';
 import type { ExecutionService } from './execution.js';
 
@@ -34,9 +33,7 @@ export class JobsService {
     constructor(context: ClusterMasterContext) {
         this.context = context;
         this.logger = makeLogger(context, 'jobs_service');
-        this.jobValidator = new JobValidator(context, {
-            terasliceOpPath,
-        });
+        this.jobValidator = new JobValidator(context);
     }
 
     async initialize() {
@@ -487,7 +484,64 @@ export class JobsService {
         const parsedAssetJob = cloneDeep(jobConfig);
         parsedAssetJob.assets = assetIds;
 
+        const assetMapping = new Map<string, string>();
+
+        for (let i = 0; i < jobAssets.length; i++) {
+            assetMapping.set(jobAssets[i], assetIds[i]);
+        }
+
+        this.adjustOpNames(parsedAssetJob as any, assetMapping);
+
         return parsedAssetJob;
+    }
+
+    private adjustOpNames(
+        jobConfig: ValidatedJobConfig,
+        dict: Map<string, string>
+    ) {
+        jobConfig.operations = jobConfig.operations.map((op) => {
+            if (op._op.includes('@')) {
+                const [opName, assetIdentifier] = op._op.split('@');
+                const hashId = dict.get(assetIdentifier);
+
+                if (!hashId) {
+                    throw new Error(`Invalid operation name for _op: ${opName}, could not find the hashID for asset identifier ${assetIdentifier}`);
+                }
+
+                op._op = `${opName}@${hashId}`;
+                return op;
+            } else {
+                return op;
+            }
+        });
+
+        jobConfig.apis = jobConfig.apis.map((api) => {
+            if (api._name.includes('@')) {
+                const [apiName, postFix] = api._name.split('@');
+                let assetIdentifier = postFix;
+                let namespace: string;
+
+                if (assetIdentifier.includes(':')) {
+                    [assetIdentifier, namespace] = assetIdentifier.split(':');
+                }
+
+                const hashId = dict.get(assetIdentifier);
+
+                if (!hashId) {
+                    throw new Error(`Invalid api name for _name: ${apiName}, could not find the hashID for asset identifier ${assetIdentifier}`);
+                }
+
+                let hashedName = `${apiName}@${hashId}`;
+                // @ts-expect-error
+                if (namespace) {
+                    hashedName = `${hashedName}:${namespace}`;
+                }
+                api._name = hashedName;
+                return api;
+            } else {
+                return api;
+            }
+        });
     }
 
     /**

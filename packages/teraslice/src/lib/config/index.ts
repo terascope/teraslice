@@ -6,7 +6,6 @@ import { TerasliceConfig, Terafoundation } from '@terascope/types';
 import { configSchema } from './schemas/system.js';
 
 const filePath = fileURLToPath(new URL('.', import.meta.url));
-export const terasliceOpPath = path.join(filePath, '..');
 
 export function clusterName(configFile: TerasliceConfig) {
     return get(configFile, 'teraslice.name', null);

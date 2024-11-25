@@ -123,7 +123,7 @@ export class OperationLoader {
 
                     if (filePath) {
                         const bundle_type = await this.getBundleType({ codePath: filePath, name });
-                        results.push({ path: folderPath, bundle_type, location });
+                        results.push({ path: filePath, bundle_type, location });
                         if (shouldBreak) break;
                     }
                 }

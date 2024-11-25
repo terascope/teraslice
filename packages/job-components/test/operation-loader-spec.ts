@@ -519,46 +519,136 @@ describe('OperationLoader', () => {
         });
 
         describe('name collisions', () => {
-            let data: DataEntity[];
+            describe('processors', () => {
+                let data: DataEntity[];
 
-            const exConfig = newTestExecutionConfig();
-            const opConfig = {
-                _op: 'op-asset'
-            };
+                const exConfig = newTestExecutionConfig();
+                const opConfig = {
+                    _op: 'op-asset'
+                };
 
-            exConfig.operations.push({
-                _op: 'test-reader',
-            });
-
-            exConfig.operations.push(opConfig);
-
-            beforeEach(() => {
-                data = [
-                    DataEntity.make({ foo: 'bar' })
-                ];
-            });
-
-            it('should throw if there are multiple ops with same name and no assetIdentifier', async () => {
-                const opLoader = new OperationLoader({
-                    assetPath: fixturePath,
-                    validate_name_collisions: true
+                exConfig.operations.push({
+                    _op: 'test-reader',
                 });
 
-                await expect(opLoader.loadProcessor(`op-asset`, assetPaths)).rejects.toThrow();
-            });
+                exConfig.operations.push(opConfig);
 
-            fit('should not throw if there are multiple ops with same name and a assetIdentifier', async () => {
-                const opLoader = new OperationLoader({
-                    assetPath: fixturePath,
-                    validate_name_collisions: true
+                beforeEach(() => {
+                    data = [
+                        DataEntity.make({ foo: 'bar' })
+                    ];
                 });
 
-                const op = await opLoader.loadProcessor(`op-asset@${assetHash3}`, assetPaths);
+                it('should throw if there are multiple ops with same name and no assetIdentifier', async () => {
+                    const opLoader = new OperationLoader({
+                        assetPath: fixturePath,
+                        validate_name_collisions: true
+                    });
 
-                const processor = new op.Processor(context as Context, opConfig, exConfig);
-                const [record] = await processor.handle(data);
+                    await expect(opLoader.loadProcessor(`op-asset`, assetPaths)).rejects.toThrow();
+                });
 
-                expect(record.version).toEqual('2.0.0');
+                it('should not throw if there are multiple ops with same name and a assetIdentifier', async () => {
+                    const opLoader = new OperationLoader({
+                        assetPath: fixturePath,
+                        validate_name_collisions: true
+                    });
+
+                    const op = await opLoader.loadProcessor(`op-asset@${assetHash3}`, assetPaths);
+
+                    const processor = new op.Processor(context as Context, opConfig, exConfig);
+                    const [record] = await processor.handle(data);
+
+                    expect(record.version).toEqual('2.0.0');
+                });
+            });
+
+            describe('readers', () => {
+                const exConfig = newTestExecutionConfig();
+
+                const opConfig = {
+                    _op: 'reader-asset'
+                };
+                exConfig.operations.push(opConfig, { _op: 'noop' });
+
+                it('should throw if there are multiple readers with same name and no assetIdentifier', async () => {
+                    const opLoader = new OperationLoader({
+                        assetPath: fixturePath,
+                        validate_name_collisions: true
+                    });
+
+                    await expect(opLoader.loadReader('reader-asset', assetPaths)).rejects.toThrow();
+                });
+
+                it('should not throw if there are multiple readers with same name and a assetIdentifier', async () => {
+                    const opLoader = new OperationLoader({
+                        assetPath: fixturePath,
+                        validate_name_collisions: true
+                    });
+
+                    const op = await opLoader.loadReader(`reader-asset@${assetHash3}`, assetPaths);
+
+                    const fetcher = new op.Fetcher(context as Context, opConfig, exConfig);
+                    const slicer = new op.Slicer(context as Context, opConfig, exConfig);
+
+                    const [record] = await fetcher.handle();
+                    // @ts-expect-error
+                    const slice = await slicer.slice();
+
+                    expect(record.version).toEqual('2.0.0');
+                    expect(slice.version).toEqual('2.0.0');
+                });
+            });
+
+            describe('apis', () => {
+                const exConfig = newTestExecutionConfig();
+
+                const apiConfig = {
+                    _name: 'api-asset'
+                };
+                exConfig.apis.push(apiConfig);
+                exConfig.operations.push({ _op: 'test-reader' }, { _op: 'noop' });
+
+                it('should throw if there are multiple apis with same name and no assetIdentifier', async () => {
+                    const opLoader = new OperationLoader({
+                        assetPath: fixturePath,
+                        validate_name_collisions: true
+                    });
+
+                    await expect(opLoader.loadAPI('api-asset', assetPaths)).rejects.toThrow();
+                });
+
+                it('should not throw if there are multiple apis with same name and a assetIdentifier', async () => {
+                    const opLoader = new OperationLoader({
+                        assetPath: fixturePath,
+                        validate_name_collisions: true
+                    });
+
+                    const op = await opLoader.loadAPI(`api-asset@${assetHash3}`, assetPaths);
+
+                    const api = new op.API(context as Context, apiConfig, exConfig);
+
+                    // @ts-expect-error
+                    const { version } = await api.createAPI();
+
+                    expect(version).toEqual('2.0.0');
+                });
+
+                it('should not throw if there are multiple readers with same name and a assetIdentifier with namespacing', async () => {
+                    const opLoader = new OperationLoader({
+                        assetPath: fixturePath,
+                        validate_name_collisions: true
+                    });
+
+                    const op = await opLoader.loadAPI(`api-asset@${assetHash3}:foo1`, assetPaths);
+
+                    const api = new op.API(context as Context, apiConfig, exConfig);
+
+                    // @ts-expect-error
+                    const { version } = await api.createAPI();
+
+                    expect(version).toEqual('2.0.0');
+                });
             });
         });
     });
