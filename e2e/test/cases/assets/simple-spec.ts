@@ -1,7 +1,7 @@
 import 'jest-extended';
 import fs from 'node:fs';
-import os from 'os';
-import path from 'path';
+import os from 'node:os';
+import path from 'node:path';
 import decompress from 'decompress';
 import archiver from 'archiver';
 import {
@@ -72,6 +72,24 @@ describe('assets', () => {
             { blocking: true }
         );
 
+        /*
+            {
+                "name": "ex1",
+                "version": "0.0.1",
+                "node_version": 18,
+                "platform": false,
+                "arch": false
+            }
+
+            {
+                "name": "ex1",
+                "version": "0.1.1",
+                "node_version": 18,
+                "platform": false,
+                "arch": false
+            }
+
+        */
         const newerAssetPath = 'test/fixtures/assets/example_asset_1updated.zip';
         const fileStream = fs.createReadStream(newerAssetPath);
         // the asset on this job already points to 'ex1' so it should use the latest available asset
@@ -115,6 +133,57 @@ describe('assets', () => {
         // the previous test confirms the newer version will be used by default
         // now we test to see if we can select the older version
         jobSpec.assets = ['ex1:0.0.1', 'standard', 'elasticsearch'];
+        const { workers } = jobSpec;
+
+        const assetResponse = await terasliceHarness.teraslice.assets.getAsset('ex1', '0.0.1');
+        const assetId = assetResponse[0].id;
+
+        const ex = await terasliceHarness.submitAndStart(jobSpec);
+
+        const waitResponse = await terasliceHarness.forWorkersJoined(
+            ex.id(),
+            workers as number,
+            25
+        );
+        expect(waitResponse).toEqual(workers);
+
+        const execution = await ex.config();
+        expect(execution.assets[0]).toEqual(assetId);
+
+        await ex.stop({ blocking: true });
+    });
+
+    it('will throw if there are naming conflicts', async () => {
+        const jobSpec = terasliceHarness.newJob('generator-asset');
+        // Set resource constraints on workers within CI
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+            jobSpec.resources_requests_cpu = 0.1;
+        }
+        // the previous test confirms the newer version will be used by default
+        // now we test to see if we can select the older version
+        jobSpec.assets = ['ex1:0.0.1', 'ex1:0.1.1', 'standard', 'elasticsearch'];
+
+        await expect(await terasliceHarness.submitAndStart(jobSpec)).rejects.toThrow();
+    });
+
+    it('will not throw if there are naming conflicts but you use asset identifiers', async () => {
+        const jobSpec = terasliceHarness.newJob('generator-asset');
+        // Set resource constraints on workers within CI
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+            jobSpec.resources_requests_cpu = 0.1;
+        }
+        // the previous test confirms the newer version will be used by default
+        // now we test to see if we can select the older version
+        jobSpec.assets = ['ex1:0.0.1', 'ex1:0.1.1', 'standard', 'elasticsearch'];
+        jobSpec.operations = jobSpec.operations.map((op) => {
+            if (op._op === 'drop_property') {
+                return {
+                    ...op,
+                    _op: 'drop_property@ex1:0.1.1'
+                };
+            }
+            return op;
+        });
         const { workers } = jobSpec;
 
         const assetResponse = await terasliceHarness.teraslice.assets.getAsset('ex1', '0.0.1');
