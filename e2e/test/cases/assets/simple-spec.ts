@@ -163,7 +163,7 @@ describe('assets', () => {
         // now we test to see if we can select the older version
         jobSpec.assets = ['ex1:0.0.1', 'ex1:0.1.1', 'standard', 'elasticsearch'];
 
-        await expect(await terasliceHarness.submitAndStart(jobSpec)).rejects.toThrow();
+        await expect(terasliceHarness.submitAndStart(jobSpec)).rejects.toThrow();
     });
 
     it('will not throw if there are naming conflicts but you use asset identifiers', async () => {
