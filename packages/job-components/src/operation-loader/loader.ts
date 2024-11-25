@@ -227,7 +227,7 @@ export class OperationLoader {
         const metadataList = await this.findOrThrow(readerName, assetPaths);
 
         if (metadataList.length > 1 && this.checkCollisions && !assetHash) {
-            throw new Error(`Multiple assets containing the same processor name _op: "${name}", please specify which specific asset to use on its name`);
+            throw new Error(`Multiple assets containing the same reader name _op: "${name}", please specify which specific asset to use on its name`);
         }
 
         let path: string;
@@ -327,7 +327,7 @@ export class OperationLoader {
         const metadataList = await this.findOrThrow(apiName, assetPaths);
 
         if (metadataList.length > 1 && this.checkCollisions && !assetHash) {
-            throw new Error(`Multiple assets containing the same processor name _op: "${name}", please specify which specific asset to use on its name`);
+            throw new Error(`Multiple assets containing the same api name _name: "${name}", please specify which specific asset to use on its name`);
         }
 
         let path: string;
@@ -525,8 +525,6 @@ export class OperationLoader {
     }
 
     private findCode(name: string) {
-        let filePath: string | null = null;
-
         const codeNames = this.availableExtensions.map((ext) => pathModule.format({
             name,
             ext,
@@ -535,6 +533,8 @@ export class OperationLoader {
         const allowedNames = uniq([name, ...codeNames]);
 
         const findCode = (rootDir: string): string | null => {
+            let filePath: string | null = null;
+
             const fileNames = fs.readdirSync(rootDir)
                 .filter(this.allowedFile);
 

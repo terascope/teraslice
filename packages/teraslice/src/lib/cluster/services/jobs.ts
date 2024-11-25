@@ -515,33 +515,35 @@ export class JobsService {
             }
         });
 
-        jobConfig.apis = jobConfig.apis.map((api) => {
-            if (api._name.includes('@')) {
-                const [apiName, postFix] = api._name.split('@');
-                let assetIdentifier = postFix;
-                let namespace: string;
+        if (jobConfig.apis) {
+            jobConfig.apis = jobConfig.apis.map((api) => {
+                if (api._name.includes('@')) {
+                    const [apiName, postFix] = api._name.split('@');
+                    let assetIdentifier = postFix;
+                    let namespace: string;
 
-                if (assetIdentifier.includes(':')) {
-                    [assetIdentifier, namespace] = assetIdentifier.split(':');
+                    if (assetIdentifier.includes(':')) {
+                        [assetIdentifier, namespace] = assetIdentifier.split(':');
+                    }
+
+                    const hashId = dict.get(assetIdentifier);
+
+                    if (!hashId) {
+                        throw new Error(`Invalid api name for _name: ${apiName}, could not find the hashID for asset identifier ${assetIdentifier}`);
+                    }
+
+                    let hashedName = `${apiName}@${hashId}`;
+                    // @ts-expect-error
+                    if (namespace) {
+                        hashedName = `${hashedName}:${namespace}`;
+                    }
+                    api._name = hashedName;
+                    return api;
+                } else {
+                    return api;
                 }
-
-                const hashId = dict.get(assetIdentifier);
-
-                if (!hashId) {
-                    throw new Error(`Invalid api name for _name: ${apiName}, could not find the hashID for asset identifier ${assetIdentifier}`);
-                }
-
-                let hashedName = `${apiName}@${hashId}`;
-                // @ts-expect-error
-                if (namespace) {
-                    hashedName = `${hashedName}:${namespace}`;
-                }
-                api._name = hashedName;
-                return api;
-            } else {
-                return api;
-            }
-        });
+            });
+        }
     }
 
     /**
