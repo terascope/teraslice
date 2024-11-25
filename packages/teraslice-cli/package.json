@@ -46,7 +46,7 @@
         "easy-table": "~1.2.0",
         "ejs": "~3.1.10",
         "esbuild": "~0.24.0",
-        "execa": "~9.4.0",
+        "execa": "~9.5.1",
         "fs-extra": "~11.2.0",
         "globby": "~14.0.2",
         "js-yaml": "~4.1.0",
@@ -60,7 +60,7 @@
     },
     "devDependencies": {
         "@types/decompress": "~4.2.7",
-        "@types/diff": "~5.2.2",
+        "@types/diff": "~6.0.0",
         "@types/ejs": "~3.1.5",
         "@types/js-yaml": "~4.0.9",
         "@types/prompts": "~2.4.9",
