@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import {
     newTestJobConfig, Slicer, uniq,
     AnyObject, LifeCycle, TestClientConfig,
-    debugLogger
+    debugLogger, ValidatedJobConfig
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src/index.js';
 import ParallelSlicer from './fixtures/asset/parallel-reader/slicer.js';
@@ -30,26 +30,30 @@ describe('SlicerTestHarness', () => {
     ];
 
     describe('when given a valid job config', () => {
-        const job = newTestJobConfig();
-        job.analytics = true;
-        job.operations = [
-            {
-                _op: 'test-reader',
-            },
-            {
-                _op: 'noop',
-            }
-        ];
-
+        let job: ValidatedJobConfig;
         let slicerHarness: SlicerTestHarness;
 
-        beforeAll(async () => {
+        beforeEach(async () => {
+            job = newTestJobConfig();
+            job.analytics = true;
+            job.operations = [
+                {
+                    _op: 'test-reader',
+                },
+                {
+                    _op: 'noop',
+                }
+            ];
             slicerHarness = new SlicerTestHarness(job, {
                 assetDir: path.join(dirname, 'fixtures'),
                 clients,
             });
 
             await slicerHarness.initialize();
+        });
+
+        afterEach(async () => {
+            await slicerHarness.shutdown();
         });
 
         it('should be able to call initialize', () => expect(slicerHarness.initialize).toBeFunction());
@@ -116,23 +120,24 @@ describe('SlicerTestHarness', () => {
 
     describe('when given a slicer that is recoverable', () => {
         let slicerHarness: SlicerTestHarness;
-
-        const job = newTestJobConfig();
-        job.analytics = true;
-        job.operations = [
-            {
-                _op: 'recoverable-reader',
-            },
-            {
-                _op: 'noop',
-            }
-        ];
+        let job: ValidatedJobConfig;
 
         const lastSlice = {
             count: 25
         };
 
         beforeEach(() => {
+            job = newTestJobConfig();
+            job.analytics = true;
+            job.operations = [
+                {
+                    _op: 'recoverable-reader',
+                },
+                {
+                    _op: 'noop',
+                }
+            ];
+
             slicerHarness = new SlicerTestHarness(job, {
                 assetDir
             });
@@ -151,9 +156,6 @@ describe('SlicerTestHarness', () => {
 
         it('should throw if recovery data is malformed', async () => {
             expect.assertions(1);
-            const badRecoveryData = { some: 'stuff' };
-            // @ts-expect-error this one does not throw
-            await slicerHarness.initialize([badRecoveryData]);
 
             try {
                 // @ts-expect-error

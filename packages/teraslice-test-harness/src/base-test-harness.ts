@@ -55,13 +55,20 @@ export default class BaseTestHarness<U extends ExecutionContext> {
         assets: string[] = [process.cwd()],
         cluster_manager_type: ClusterManagerType = 'native'
     ): Promise<ExecutionContextConfig> {
-        const assetIds = job.assets ? [...job.assets, '.'] : ['.'];
+        const assetIds = job.assets ?? [];
+
+        if (!assetIds.includes('.')) {
+            assetIds.push('.');
+        }
+
         this.context.sysconfig.teraslice.assets_directory = assets;
         this.context.sysconfig.teraslice.cluster_manager_type = cluster_manager_type;
+
         job.assets = assetIds;
 
         const jobValidator = new JobValidator(this.context);
         const executionConfig = await jobValidator.validateConfig(job) as ExecutionConfig;
+
         return {
             context: this.context,
             executionConfig,

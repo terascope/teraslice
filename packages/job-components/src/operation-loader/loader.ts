@@ -117,13 +117,15 @@ export class OperationLoader {
                 if (await this.isBundledOperation(folderPath, name)) {
                     const bundle_type = await this.getBundleType({ codePath: folderPath, name });
                     results.push({ path: folderPath, bundle_type, location });
+
                     if (shouldBreak) break;
                 } else if (fs.existsSync(folderPath)) {
-                    const filePath = findCodeFn(folderPath);
+                    const filePath = findCodeFn(folderPath, true);
 
                     if (filePath) {
                         const bundle_type = await this.getBundleType({ codePath: filePath, name });
                         results.push({ path: filePath, bundle_type, location });
+
                         if (shouldBreak) break;
                     }
                 }
@@ -525,6 +527,8 @@ export class OperationLoader {
     }
 
     private findCode(name: string) {
+        let filePath: string | null = null;
+
         const codeNames = this.availableExtensions.map((ext) => pathModule.format({
             name,
             ext,
@@ -532,8 +536,8 @@ export class OperationLoader {
 
         const allowedNames = uniq([name, ...codeNames]);
 
-        const findCode = (rootDir: string): string | null => {
-            let filePath: string | null = null;
+        const findCode = (rootDir: string, resetFilePath = false): string | null => {
+            if (resetFilePath) filePath = null;
 
             const fileNames = fs.readdirSync(rootDir)
                 .filter(this.allowedFile);
