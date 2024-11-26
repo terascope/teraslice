@@ -42,3 +42,4 @@ spec:
             type: Directory
       imagePullSecrets:
         - name: docker-tera1-secret
+      serviceAccountName: master-service-account

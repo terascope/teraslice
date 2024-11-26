@@ -1,0 +1,25 @@
+{{- if .Values.persistence.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "teraslice.fullname" . }}-assets
+  labels:
+    {{- include "teraslice.labels" . | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.persistence.class }}
+  {{- with .Values.persistence.accessModes }}
+  accessModes:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size }}
+  #selector: {}
+  # This selector be needed if we wanted to re-use a Volume. The question remains
+  # on how to get the Volume automatically labeled. We're hoping to never need
+  # to do that (ie `helm delete`) unless we really want to delete the cluster &
+  # its backing volumes.
+  #
+  # selector:
+  #   release: {{ .Release.Name }}
+{{- end }}

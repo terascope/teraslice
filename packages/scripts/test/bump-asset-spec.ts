@@ -24,7 +24,7 @@ describe('Bump-asset-only', () => {
             name: 'package-2',
             version: '1.0.0',
             dependencies: {
-                'package-1': '^2.1.0'
+                'package-1': '~2.1.0'
             },
             devDependencies: {
             },
@@ -66,11 +66,9 @@ describe('Bump-asset-only', () => {
             const options: BumpAssetOnlyOptions = {
                 release: 'patch',
             };
-            // let result: Record<string, BumpPkgInfo>;
             let bumpAssetInfo: Record<string, BumpPkgInfo>;
 
             beforeAll(async () => {
-                // result = await getPackagesToBump(testPackages, options);
                 /// Create an asset folder with asset.json
                 const assetPath = `${tempRootDir}/asset`;
                 fs.mkdirSync(assetPath);
@@ -119,11 +117,9 @@ describe('Bump-asset-only', () => {
             const options: BumpAssetOnlyOptions = {
                 release: 'minor',
             };
-            // let result: Record<string, BumpPkgInfo>;
             let bumpAssetInfo: Record<string, BumpPkgInfo>;
 
             beforeAll(async () => {
-                // result = await getPackagesToBump(testPackages, options);
                 /// Create an asset folder with asset.json
                 const assetPath = `${tempRootDir}/asset`;
                 fs.mkdirSync(assetPath);
@@ -172,11 +168,9 @@ describe('Bump-asset-only', () => {
             const options: BumpAssetOnlyOptions = {
                 release: 'major',
             };
-            // let result: Record<string, BumpPkgInfo>;
             let bumpAssetInfo: Record<string, BumpPkgInfo>;
 
             beforeAll(async () => {
-                // result = await getPackagesToBump(testPackages, options);
                 /// Create an asset folder with asset.json
                 const assetPath = `${tempRootDir}/asset`;
                 fs.mkdirSync(assetPath);

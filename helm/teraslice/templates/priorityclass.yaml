@@ -1,0 +1,16 @@
+{{- if and .Values.priorityClass.create .Values.master.teraslice.kubernetes_priority_class_name }}
+{{ fail "Cannot specify master.teraslice.kubernetes_priority_class_name when priorityClass.create is true." }}
+{{- end }}
+
+{{- if and .Values.priorityClass.create (not .Values.master.teraslice.kubernetes_priority_class_name) }}
+apiVersion: scheduling.k8s.io/{{ template "PriorityClass.apiVersion" . }}
+kind: PriorityClass
+metadata:
+  name: {{ template "teraslice.fullname" . }}
+  labels:
+    {{- include "teraslice.master.labels" . | nindent 4 }}
+value: {{ .Values.priorityClass.value }}
+preemptionPolicy: {{ .Values.priorityClass.preemptionPolicy }}
+globalDefault: false
+description: "Priority class that the Teraslice master, execution controller, and stateful workers should run with"
+{{- end }}

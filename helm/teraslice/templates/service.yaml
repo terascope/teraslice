@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "teraslice.fullname" . }}
+  labels:
+    {{- include "teraslice.master.labels" . | nindent 4 }}
+    {{- with .Values.service.labels }}
+    {{ toYaml . | indent 4 }}
+    {{- end }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if (or (eq .Values.service.type "ClusterIP") (empty .Values.service.type)) }}
+  type: ClusterIP
+  {{- if .Values.service.clusterIP }}
+  clusterIP: {{ .Values.service.clusterIP }}
+  {{- end}}
+  {{- else if eq .Values.service.type "LoadBalancer" }}
+  type: {{ .Values.service.type }}
+  {{- if .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
+  {{- end }}
+  {{- with .Values.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml . | nindent 4 }}
+  {{- end -}}
+  {{- else }}
+  type: {{ .Values.service.type }}
+  {{- end }}
+  {{- with .Values.service.externalIPs }}
+  externalIPs:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: api
+      protocol: TCP
+      name: api
+      {{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+    {{- if .Values.terafoundation.prom_metrics_enabled }}
+    - port: {{ .Values.terafoundation.prom_metrics_port }}
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+    {{- end }}
+    {{- if .Values.exporter.enabled }}
+    - port: {{ .Values.exporter.env.PORT }}
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+    {{- end }}
+  selector:
+    {{- include "teraslice.master.selectorLabels" . | nindent 4 }}

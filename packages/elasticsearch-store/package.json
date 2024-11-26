@@ -1,7 +1,7 @@
 {
     "name": "elasticsearch-store",
     "displayName": "Elasticsearch Store",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "description": "An API for managing an elasticsearch index, with versioning and migration support.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-store#readme",
     "bugs": {
@@ -22,7 +22,7 @@
         "build:watch": "yarn build --watch",
         "test": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
         "test:debug": "TEST_ELASTICSEARCH='true' ts-scripts test --debug . --",
-        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
+        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' ts-scripts test . --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' ts-scripts test . --",
         "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' ts-scripts test . --",
         "test:opensearch1": "TEST_OPENSEARCH='true' ts-scripts test . --",
@@ -30,23 +30,23 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-mate": "^1.4.0",
-        "@terascope/data-types": "^1.4.0",
-        "@terascope/types": "^1.3.0",
-        "@terascope/utils": "^1.4.0",
-        "ajv": "^8.17.1",
-        "ajv-formats": "^3.0.1",
-        "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
-        "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
-        "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0",
-        "opensearch1": "npm:@opensearch-project/opensearch@^1.2.0",
-        "opensearch2": "npm:@opensearch-project/opensearch@^2.2.1",
-        "setimmediate": "^1.0.5",
-        "uuid": "^10.0.0",
-        "xlucene-translator": "^1.4.0"
+        "@terascope/data-mate": "~1.4.1",
+        "@terascope/data-types": "~1.4.1",
+        "@terascope/types": "~1.3.1",
+        "@terascope/utils": "~1.4.1",
+        "ajv": "~8.17.1",
+        "ajv-formats": "~3.0.1",
+        "elasticsearch6": "npm:@elastic/elasticsearch@~6.8.0",
+        "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
+        "elasticsearch8": "npm:@elastic/elasticsearch@~8.15.0",
+        "opensearch1": "npm:@opensearch-project/opensearch@~1.2.0",
+        "opensearch2": "npm:@opensearch-project/opensearch@~2.12.0",
+        "setimmediate": "~1.0.5",
+        "uuid": "~10.0.0",
+        "xlucene-translator": "~1.4.1"
     },
     "devDependencies": {
-        "@types/uuid": "^10.0.0"
+        "@types/uuid": "~10.0.0"
     },
     "engines": {
         "node": ">=18.18.0",

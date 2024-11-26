@@ -47,11 +47,9 @@ const cmd: CommandModule = {
             return;
         }
 
-        await syncAll({
-            verify: true,
-            tsconfigOnly: rootInfo.terascope.version === 2,
-            isAsset: true
-        });
+        if (rootInfo.terascope.version !== 2) {
+            await syncAll({ verify: true, isAsset: true });
+        }
 
         return bumpAssetOnly({
             preId: argv['prerelease-id'] as string | undefined,
@@ -66,17 +64,11 @@ function getRelease(argv: any): ReleaseType {
 
     if (!found.length) {
         const choices = releaseChoices.map((choice) => `--${choice}`).join(', ');
-        // signale.error(`Bump requires at least one of ${choices} to be specified`);
-        // process.exit(1);
         throw new Error(`Bump requires at least one of ${choices} to be specified`);
     } else if (release && found[0] && release !== found[0]) {
-        // signale.error(`Cannot specify --release (DEPRECATED), use --${release} instead`);
-        // process.exit(1);
         throw new Error(`Cannot specify --release (DEPRECATED), use --${release} instead`);
     } else if (found.length > 1) {
         const choices = found.map((choice) => `--${choice}`).join(' and ');
-        // signale.error(`Cannot specify ${choices}, pick one`);
-        // process.exit(1);
         throw new Error(`Cannot specify ${choices}, pick one`);
     }
 

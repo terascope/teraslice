@@ -5,7 +5,6 @@ import { GlobalCMDOptions } from '../helpers/interfaces.js';
 
 type Options = {
     verify: boolean;
-    'tsconfig-only': boolean;
     quiet?: boolean;
 };
 
@@ -19,11 +18,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: isCI,
             })
-            .option('tsconfig-only', {
-                description: 'Sync the tsconfig only',
-                type: 'boolean',
-                default: false,
-            })
             .option('quiet', {
                 alias: 'q',
                 description: 'This will disable out-of-sync warnings',
@@ -34,8 +28,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     handler(args) {
         return syncAll({
             verify: args.verify,
-            quiet: args.quiet,
-            tsconfigOnly: args['tsconfig-only']
+            quiet: args.quiet
         });
     },
 };

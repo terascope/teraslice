@@ -1,0 +1,11 @@
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: teraslice-all-{{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "teraslice.master.labels" . | nindent 4 }}
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]

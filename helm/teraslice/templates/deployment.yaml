@@ -1,0 +1,144 @@
+{{- if and .Values.terafoundation.prom_metrics_enabled .Values.exporter.enabled }}
+{{- fail "Do not enable both internal and external metrics (terafoundation.prom_metrics_enabled and exporter.enabled)" }}
+{{- end}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "teraslice.fullname" . }}-master
+  labels:
+    {{- include "teraslice.master.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: {{ .Values.strategyType }}
+    {{- if (eq "Recreate" .Values.strategyType) }}
+    rollingUpdate: null
+    {{- end }}
+  selector:
+    matchLabels:
+      {{- include "teraslice.master.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "teraslice.master.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-master.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "teraslice.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.priorityClass.create }}
+      priorityClassName: {{ template "teraslice.fullname" . }}
+      {{- else if .Values.master.teraslice.kubernetes_priority_class_name }}
+      priorityClassName: {{ .Values.master.teraslice.kubernetes_priority_class_name }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "teraslice.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          {{- range $key, $value := .Values.env }}
+          - name: "{{ $key }}"
+            value: "{{ $value }}"
+          {{- end }}
+          ports:
+            - name: api
+              containerPort: 5678
+              protocol: TCP
+            - name: master
+              containerPort: 45678
+              protocol: TCP
+            - name: assets
+              containerPort: 45679
+              protocol: TCP
+            {{- if .Values.terafoundation.prom_metrics_enabled}}
+            - name: metrics
+              containerPort: {{ .Values.terafoundation.prom_metrics_port }}
+              protocol: TCP
+            {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+            - name: teraslice-assets
+              mountPath: /app/assets
+            {{- range .Values.dataVolumes }}
+            - name: {{ .name }}
+              mountPath: {{ .path }}
+            {{- end }}
+            {{- if .Values.extraVolumeMounts }}
+            {{- tpl .Values.extraVolumeMounts . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        {{- if .Values.extraContainers }}
+        {{- tpl .Values.extraContainers . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.exporter.enabled }}
+        - name: {{ .Chart.Name }}-exporter
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag }}
+          imagePullPolicy: {{ .Values.exporter.image.pullPolicy }}
+          env:
+          {{- range $key, $value := .Values.exporter.env }}
+          - name: "{{ $key }}"
+            value: "{{ $value }}"
+          {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.exporter.env.PORT }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.exporter.resources | nindent 12 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "teraslice.fullname" . }}-master
+            items:
+              - key: teraslice.yaml
+                path: teraslice.yaml
+        - name: teraslice-assets
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ template "teraslice.fullname" . }}-assets
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- range .Values.dataVolumes }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ .name }}
+        {{- end }}
+        {{- if .Values.extraVolumes }}
+        {{- tpl .Values.extraVolumes . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

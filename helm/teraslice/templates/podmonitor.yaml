@@ -1,0 +1,46 @@
+{{- if .Values.podMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "teraslice.fullname" . }}-job-metrics
+  labels:
+    {{- include "teraslice.labels" . | nindent 4 }}
+    {{- with .Values.podMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.podMonitor.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  jobLabel: {{ .Values.podMonitor.jobLabel | quote }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      {{- with .Values.podMonitor.matchLabels }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+
+  {{- with .Values.podMonitor.podTargetLabels }}
+  podTargetLabels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  podMetricsEndpoints:
+  - honorLabels: false
+    honorTimestamps: true
+    path: /metrics
+    port: metrics
+    {{- if .Values.podMonitor.interval }}
+    interval: {{ .Values.podMonitor.interval }}
+    {{- end }}
+    {{- if .Values.podMonitor.metricRelabelings }}
+    metricRelabelings:
+    {{- toYaml .Values.podMonitor.metricRelabelings | nindent 4 }}
+    {{- end }}
+    {{- if .Values.podMonitor.relabelings }}
+    relabelings:
+    {{- toYaml .Values.podMonitor.relabelings | nindent 4 }}
+    {{- end }}
+{{- end }}

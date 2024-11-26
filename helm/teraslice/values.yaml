@@ -1,0 +1,239 @@
+# Default values for teraslice.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/terascope/teraslice
+  # image tag defaults to chart appVersion
+  # tag: v2.6.2-nodev22.9.0
+  pullPolicy: IfNotPresent
+  # node version will be inserted into the image tag (which defaults the chart version)
+  # setting the image tag will ignore this value
+  nodeVersion: v22.9.0
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+extraContainers: []
+
+# Terasclice master env
+env: {}
+
+# Teraslice State Connection / es util service
+stateConnection: default
+
+# Create Pod Priority Class for this cluster
+# assigns kubernetes_priority_class_name
+# https://terascope.github.io/teraslice/docs/configuration/clustering-k8s#kubernetes-specific-configuration-settings
+# if you want to use an existing priortyClass, set create to false and assign kubernetes_priority_class_name yourself
+priorityClass:
+  create: false
+  preemptionPolicy: Never
+  value: 9999
+
+# Teraslice Master Config Options
+master:
+  teraslice:
+    assets_directory: /app/assets
+    workers: 0
+
+# Teraslice Worker Config Options
+worker:
+  teraslice:
+    assets_directory: /app/assets
+
+# Terafoundation
+# Everything under terafoundation key will used as the master and worker config
+terafoundation:
+  environment: production
+  log_level: info
+  # internal metrics exporter.  Do not combine with the external metrics server
+  # exporter.enabled: false
+  prom_metrics_enabled: false
+  prom_metrics_port: 3333
+  prom_metrics_add_default: true
+  # log_path: /app/logs
+  # logging:
+  #   - file
+  connectors: {}
+  #  elasticsearch:
+  #    default:
+  #      host:
+  #        - example.local:9200
+  #      suggestCompression: true
+  #      sniffOnStart: true
+  #      sniffOnConnectionFault: false
+  #      # 1m in milliseconds
+  #      sniffInterval: 60000
+  #  elasticsearch-next:
+  #     default:
+  #       node:
+  #         - "http://example.ns:9200"
+  #    kafka:
+  #      kafka_gen1:
+  #          brokers: >
+  #            example1.local:9092,
+  #            example2.local:9092,
+  #            example3.local:9092
+  stats: {}
+  #  elasticsearch:
+  #    connection: default
+  #    enabled: true
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+strategyType: Recreate
+
+# livenessProbe:
+#   httpGet:
+#     path: /cluster/stats
+#     port: 5678
+#   initialDelaySeconds: 120
+
+# readinessProbe:
+#   httpGet:
+#     path: /cluster/stats
+#     port: 5678
+#   initialDelaySeconds: 60
+
+service:
+  type: ClusterIP
+  port: 5678
+  annotations: {}
+  labels: {}
+  nodePort: null
+  # loadBalancerIP
+  # loadBalancerSourceRanges
+  # externalIPs
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: teraslice.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: teraslice-tls
+  #    hosts:
+  #      - teraslice.local
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Type & size of persistent storage volume.
+persistence:
+  enabled: false
+  #class: glusterfs
+  size: 20Gi
+  accessModes:
+    - ReadWriteMany
+
+extraVolumes: []
+  # - name: extras
+  #   emptyDir: {}
+
+extraVolumeMounts: []
+  # - name: extras
+  #   mountPath: /usr/share/extras
+  #   readOnly: true
+
+# external exporter.  Do not combine with the internal metrics server
+# terafoundation.prom_metrics_enabled: false
+exporter:
+  enabled: false
+  image:
+    repository: terascope/teraslice-exporter
+    tag: v0.4.0
+    pullPolicy: IfNotPresent
+  env:
+    TERASLICE_URL: http://localhost:5678
+    PORT: 8080
+
+serviceMonitor:
+  enabled: false
+  interval: 60s
+  metricRelabelings: []
+  #  - action: replace
+  #    regex: teraslice-(.*)
+  #    replacement: $1
+  #    sourceLabels: [cluster]
+  #    targetLabel: ts_cluster
+  #  - action: labeldrop
+  #    regex: (endpoint|cluster)
+  relabelings: []
+  #  - sourceLabels: [__meta_kubernetes_pod_node_name]
+  #    targetLabel: instance
+  rules: null
+
+# Pod Monitor used by teraslice job metric api
+podMonitor:
+  enabled: false
+  labels: {}
+    #scrape.prometheus.io/instance: prometheus-instance
+  annotations: {}
+  jobLabel: app.kubernetes.io/instance
+  interval: 60s
+  podTargetLabels:
+    - app.kubernetes.io/instance
+    - app.kubernetes.io/name
+    - app.kubernetes.io/component
+    - teraslice.terascope.io/jobId
+    - teraslice.terascope.io/jobName
+  matchLabels: {}
+    #job.teraslice.terascope.io/scrape-target: "true"
+    #job.teraslice.terascope.io/scrape-prometheus-instance: "prometheus-instance"
+  metricRelabelings: []
+  relabelings: []
+
+# Prometheus Operator alertmanager alerts
+prometheusRule:
+  enabled: false
+  rules: []
+  #  - alert: Example
+  #    expr: metric == 1
+  #    for: 1m
+  #    labels:
+  #      severity: warning
+
+# Test images
+busybox:
+  repository: busybox
+  tag: latest
+  pullPolicy: IfNotPresent

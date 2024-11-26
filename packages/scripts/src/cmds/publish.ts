@@ -71,7 +71,9 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     },
     async handler(argv) {
         const rootInfo = getRootInfo();
-        await syncAll({ verify: true, tsconfigOnly: rootInfo.terascope.version === 2 });
+        if (rootInfo.terascope.version !== 2) {
+            await syncAll({ verify: true });
+        }
         return publish(argv.action!, {
             type: argv.type,
             dryRun: argv['dry-run'],
