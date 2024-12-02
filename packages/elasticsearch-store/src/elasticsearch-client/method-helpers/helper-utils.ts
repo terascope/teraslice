@@ -23,9 +23,8 @@ function validDistributionAndVersion(
 
     return (distribution === ElasticsearchDistribution.elasticsearch
         && supportedEsVersions.includes(majorVersion))
-        || (distribution === ElasticsearchDistribution.opensearch
-            && supportedOpenVersions.includes(majorVersion)
-        );
+    || (distribution === ElasticsearchDistribution.opensearch
+        && supportedOpenVersions.includes(majorVersion));
 }
 
 export function ensureNoTypeInMapping(mappings: Record<string, any> | undefined) {
