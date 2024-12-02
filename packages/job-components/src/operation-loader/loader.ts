@@ -16,6 +16,7 @@ import {
     AssetBundleType, OperationLocationType, OpTypeToRepositoryKey,
     OperationResults, FindOperationResults, OperationTypeName
 } from './interfaces.js';
+import { parseName } from './utlis.js';
 
 const dirname = pathModule.dirname(fileURLToPath(import.meta.url));
 
@@ -155,7 +156,7 @@ export class OperationLoader {
     }
 
     async loadProcessor(name: string, assetIds?: string[]): Promise<ProcessorModule> {
-        const [processorName, assetHash] = name.split('@', 2);
+        const { name: processorName, assetHash } = parseName(name);
         const assetPaths = assetHash ? [assetHash] : assetIds;
 
         const metadataList = await this.findOrThrow(processorName, assetPaths);
@@ -223,7 +224,7 @@ export class OperationLoader {
     }
 
     async loadReader(name: string, assetIds?: string[]): Promise<ReaderModule> {
-        const [readerName, assetHash] = name.split('@', 2);
+        const { name: readerName, assetHash } = parseName(name);
         const assetPaths = assetHash ? [assetHash] : assetIds;
 
         const metadataList = await this.findOrThrow(readerName, assetPaths);
@@ -304,27 +305,8 @@ export class OperationLoader {
     }
 
     async loadAPI(name: string, assetIds?: string[]): Promise<APIModule> {
-        let assetHash: string | undefined = undefined;
-        let apiName: string;
-        let assetPaths = assetIds;
-
-        // check for versioned name tags
-        if (name.includes('@')) {
-            const results = name.split('@', 2);
-
-            apiName = results[0];
-            const postTag = results[1];
-
-            if (postTag.includes(':')) {
-                assetPaths = postTag.split(':', 1);
-            } else {
-                assetPaths = [postTag];
-            }
-
-            assetHash = assetPaths[0];
-        } else {
-            [apiName] = name.split(':', 1);
-        }
+        const { name: apiName, assetHash } = parseName(name);
+        const assetPaths = assetHash ? [assetHash] : assetIds;
 
         const metadataList = await this.findOrThrow(apiName, assetPaths);
 

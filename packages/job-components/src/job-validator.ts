@@ -9,6 +9,33 @@ import { jobSchema } from './job-schemas.js';
 import { OperationLoader } from './operation-loader/index.js';
 import { registerApis } from './register-apis.js';
 import { OperationAPIConstructor, OperationModule } from './operations/index.js';
+import { parseName } from './operation-loader/utlis.js';
+
+function backwardsCompatibleOpNames(
+    jobConfig: Teraslice.ValidatedJobConfig
+): Teraslice.ValidatedJobConfig{
+    const config = cloneDeep(jobConfig);
+
+    config.operations = config.operations.map((op) => {
+        const { name } = parseName(op._op);
+        op._op = name;
+        return op;
+    });
+
+    config.apis = config.apis.map((api) => {
+        const { name, tag } = parseName(api._name);
+
+        if (tag) {
+            api._name = `${name}:${tag}`;
+        } else {
+            api._name = name;
+        }
+
+        return api;
+    });
+
+    return config;
+}
 
 export class JobValidator {
     public schema: convict.Schema<any>;
@@ -85,8 +112,10 @@ export class JobValidator {
             return schema.validate(apiConfig);
         });
 
+        const backwardsCompatibleJob = backwardsCompatibleOpNames(jobConfig);
+
         validateJobFns.forEach((fn) => {
-            fn(jobConfig);
+            fn(backwardsCompatibleJob);
         });
 
         registerApis(this.context, jobConfig);

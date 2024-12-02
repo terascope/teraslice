@@ -10,7 +10,7 @@ import { ExecutionContextAPI } from './execution-context/index.js';
 
 /** Get the first opConfig from an operation name */
 export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig | undefined {
-    return job.operations.find((op: OpConfig) => op._op === name);
+    return job.operations.find((op: OpConfig) => op._op.includes(name));
 }
 
 /* Get the asset path from a asset name or ID */
