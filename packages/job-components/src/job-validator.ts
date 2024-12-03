@@ -11,7 +11,7 @@ import { parseName } from './operation-loader/utlis.js';
 
 function backwardsCompatibleOpNames(
     jobConfig: Teraslice.ValidatedJobConfig
-): Teraslice.ValidatedJobConfig{
+): Teraslice.ValidatedJobConfig {
     const config = cloneDeep(jobConfig);
 
     config.operations = config.operations.map((op) => {
@@ -59,7 +59,7 @@ export class JobValidator {
         const apis: Record<string, OperationAPIConstructor> = {};
 
         type ValidateJobFn = (job: ValidatedJobConfig) => void;
-        let validateJobFns: ValidateJobFn[] = [];
+        const validateJobFns: ValidateJobFn[] = [];
 
         const handleModule = (opConfig: OpConfig, op: OperationModule) => {
             const { Schema, API } = op;
