@@ -13,7 +13,7 @@ import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo,
     dockerStop, k8sStartService, k8sStopService,
-    loadThenDeleteImageFromCache, dockerPull, logTimeWaitPorts
+    loadThenDeleteImageFromCache, dockerPull, logTCPPorts
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import { TestOptions } from './interfaces.js';
@@ -850,7 +850,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     await stopService(service);
 
-    await logTimeWaitPorts();
+    await logTCPPorts();
 
     const fn = await dockerRun(
         services[service],

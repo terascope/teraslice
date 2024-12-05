@@ -768,12 +768,12 @@ async function showAssets(tsPort: string) {
     }
 }
 
-export async function logTimeWaitPorts() {
+export async function logTCPPorts() {
     try {
         const netstat = await execa('netstat', ['-an', '-f', 'inet', '-p', 'tcp'], { shell: true, reject: false });
-        signale.info('Ports in TIME_WAIT:\n', netstat.stdout);
+        signale.info('TCP Ports:\n', netstat.stdout);
     } catch (err) {
-        signale.error('Netstat command failed trying to log ports in TIME_WAIT: ', err);
+        signale.error('Netstat command failed trying to log ports: ', err);
         signale.error('stderr: ', err.stderr);
         signale.error('stdout: ', err.stdout);
         signale.error('message: ', err.message);
