@@ -767,3 +767,15 @@ async function showAssets(tsPort: string) {
         return err;
     }
 }
+
+export async function logTimeWaitPorts() {
+    try {
+        const netstat = await execa('netstat', ['-an', '|', 'grep', 'TIME_WAIT'], { shell: true, reject: false });
+        signale.info('Ports in TIME_WAIT:\n', netstat.stdout);
+    } catch (err) {
+        signale.error('Netstat command failed trying to log ports in TIME_WAIT: ', err);
+        signale.error('stderr: ', err.stderr);
+        signale.error('stdout: ', err.stdout);
+        signale.error('message: ', err.message);
+    }
+}
