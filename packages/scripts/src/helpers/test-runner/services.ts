@@ -844,6 +844,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
             options.skipImageDeletion
         );
         await k8sStopService(service);
+        await logTCPPorts();
         await k8sStartService(service, services[service].image, version, kind);
         return () => { };
     }
