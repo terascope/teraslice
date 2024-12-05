@@ -770,7 +770,7 @@ async function showAssets(tsPort: string) {
 
 export async function logTCPPorts() {
     try {
-        const netstat = await execa('netstat', ['-an', '|', 'grep', 'tcp4'], { shell: true, reject: false });
+        const netstat = await execa('netstat', ['-an', '-t', 'tcp'], { shell: true, reject: false });
         signale.info('TCP Ports:\n', netstat.stdout);
     } catch (err) {
         signale.error('Netstat command failed trying to log ports: ', err);
