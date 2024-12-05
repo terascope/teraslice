@@ -30,9 +30,9 @@ export function camelCase(str: string): string {
 }
 
 export function getPackage(filePath?: string): any {
-    let dataPath = filePath || path.join(dirname, '../..', 'package.json');
+    let dataPath = filePath || path.join(dirname, '../', 'package.json');
     if (!fs.existsSync(dataPath)) {
-        dataPath = path.join(dirname, '../../../', 'package.json');
+        dataPath = path.join(dirname, '../../', 'package.json');
     }
     const file = fs.readFileSync(dataPath, 'utf8');
     return JSON.parse(file);
