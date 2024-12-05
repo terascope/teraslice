@@ -152,7 +152,7 @@ export class TestContext {
     async addClusterMaster() {
         if (this.clusterMaster) return this.clusterMaster;
 
-        const port = await findPort();
+        const port = await findPort({ assetsPort: 20000, start: 20001, end: 22000 });
         const networkLatencyBuffer = get(
             this.context,
             'sysconfig.teraslice.network_latency_buffer'

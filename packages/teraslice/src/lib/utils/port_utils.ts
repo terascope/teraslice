@@ -26,6 +26,8 @@ export interface PortOptions {
 }
 
 export async function findPort(options: PortOptions = {}) {
+    // If using this function within a test file, avoid port collisions by
+    // setting PortOptions start and end to a range not used by other tests.
     const {
         start = 8002,
         end = 40000,
