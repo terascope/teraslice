@@ -278,7 +278,7 @@ export class AssetSrc {
             reply.fatal(`Unable to resolve entry point due to error: ${err}`);
         }
 
-        const injectPath = path.join(dirname, './esm-shims.js');
+        const injectPath = path.join(dirname, './helpers/esm-shims.js');
 
         const result = await build({
             bundle: true,
