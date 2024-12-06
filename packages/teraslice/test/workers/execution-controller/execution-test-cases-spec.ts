@@ -158,7 +158,7 @@ describe('ExecutionController Test Cases', () => {
 
         beforeAll(async () => {
             slices = [];
-            const port = await findPort({ assetsPort: 18000, start: 18001, end: 20000 });
+            const port = await findPort({ assetsPort: 20000, start: 20001, end: 22000 });
 
             testContext = new TestContext({
                 assignment: 'execution_controller',
