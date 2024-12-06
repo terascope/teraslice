@@ -4,7 +4,7 @@ export interface ParseNameResponse {
     tag?: string;
 }
 
-export function parseName(identifier: string): ParseNameResponse {
+export function parseName(identifier: string, isApi = false): ParseNameResponse {
     let name = identifier;
     let assetIdentifier: string | undefined;
     let tag: string | undefined;
@@ -22,7 +22,7 @@ export function parseName(identifier: string): ParseNameResponse {
             } else if (identifiers.length === 2) {
                 const [firstID, secondID] = identifiers;
 
-                if (isAssetHash(firstID)) {
+                if (isApi || isAssetHash(firstID)) {
                     assetIdentifier = firstID;
                     tag = secondID;
                 } else {
