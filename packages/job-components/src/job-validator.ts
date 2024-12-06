@@ -97,18 +97,18 @@ export class JobValidator {
                 const originalName = apiConfig._name;
                 const { name } = parseName(originalName);
 
-                  // for backwards compatible checks, alter name so it can be found
-                  job.apis[index]._name = name;
-                  schema.validateJob(job);
-                  // revert name back to original
-                  job.apis[index]._name = originalName;
+                // for backwards compatible checks, alter name so it can be found
+                job.apis[index]._name = name;
+                schema.validateJob(job);
+                // revert name back to original
+                job.apis[index]._name = originalName;
             });
 
             return schema.validate(apiConfig);
         });
 
         // this can mutate the job
-          validateApisFns.forEach((fn) => {
+        validateApisFns.forEach((fn) => {
             fn(jobConfig);
         });
 

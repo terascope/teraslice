@@ -96,10 +96,7 @@ describe('JobValidator', () => {
             };
 
             try {
-                console.dir({ before: jobSpec }, { depth: 40 })
                 const results = await api.validateConfig(jobSpec);
-                console.dir({ after: results }, { depth: 40 })
-
                 expect(results).toBeDefined();
             } catch (_err) {
                 throw new Error('should not have thrown');
@@ -179,66 +176,11 @@ describe('JobValidator', () => {
             expect(validJob).toMatchObject(jobSpec);
         });
 
-        xit('can parse versioned operation names recursively', async () => {
-            const testContext = new TestContext('teraslice-operations');
-            testContext.sysconfig.teraslice.assets_directory = [dirname];
-
-            const testApi = new JobValidator(context);
-
-            // should be able to find from base fixtures
-            const jobSpec: JobConfigParams = Object.freeze({
-                name: 'noop',
-                assets: ['fixtures'],
-                autorecover: true,
-                apis: [],
-                operations: [
-                    {
-                        _op: `reader-asset@${assetHash2}`,
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            });
-
-            const validJob = await testApi.validateConfig(jobSpec);
-            expect(validJob).toMatchObject(jobSpec);
-        });
-
-        it('can parse versioned operation names', async () => {
+        it('can parse versioned operation names with apis', async () => {
             const testContext = new TestContext('teraslice-operations');
 
             // TODO: figure out why we have fixtures, and no other test uses testContext
-            const newPath = `${dirname}/fixtures`
-            testContext.sysconfig.teraslice.assets_directory = [newPath];
-
-            const testApi = new JobValidator(testContext);
-
-            const jobSpec: JobConfigParams = Object.freeze({
-                name: 'myJob',
-                assets: [assetHash1, assetHash2, assetHash3],
-                autorecover: true,
-                apis: [],
-                operations: [
-                    {
-                        _op: `reader-asset@${assetHash2}`,
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            });
-
-            const validJob = await testApi.validateConfig(jobSpec);
-            console.dir({ testFinal: validJob }, { depth: 40 })
-            expect(validJob).toMatchObject(jobSpec);
-        });
-
-        fit('can parse versioned operation names', async () => {
-            const testContext = new TestContext('teraslice-operations');
-
-            // TODO: figure out why we have fixtures, and no other test uses testContext
-            const newPath = `${dirname}/fixtures`
+            const newPath = `${dirname}/fixtures`;
             testContext.sysconfig.teraslice.assets_directory = [newPath];
 
             const testApi = new JobValidator(testContext);

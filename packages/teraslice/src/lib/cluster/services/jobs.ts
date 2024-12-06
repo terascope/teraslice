@@ -511,7 +511,7 @@ export class JobsService {
                 let hashedName = `${name}@${hashId}`;
 
                 if (tag) {
-                    hashedName = `${hashedName}:${tag}`
+                    hashedName = `${hashedName}:${tag}`;
                 }
 
                 op.api_name = hashedName;

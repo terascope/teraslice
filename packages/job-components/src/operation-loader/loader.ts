@@ -40,7 +40,6 @@ export class OperationLoader {
         };
     }
 
-
     async loadProcessor(name: string, assetIds?: string[]): Promise<ProcessorModule> {
         const { name: processorName, assetIdentifier: assetHash } = parseName(name);
         const assetPaths = assetHash ? [assetHash] : assetIds;

@@ -658,37 +658,37 @@ describe('OperationLoader', () => {
             [
                 'parse base names',
                 'op_reader',
-                { name: 'op_reader', assetIdentifier: undefined, tag: undefined}
+                { name: 'op_reader', assetIdentifier: undefined, tag: undefined }
             ],
             [
                 'parse base names with an assetHash',
                 'op_reader@bd74534373c5077c50b54d4f1ff2a736b0e8819e',
-                { name: 'op_reader', assetIdentifier: 'bd74534373c5077c50b54d4f1ff2a736b0e8819e', tag: undefined}
+                { name: 'op_reader', assetIdentifier: 'bd74534373c5077c50b54d4f1ff2a736b0e8819e', tag: undefined }
             ],
             [
                 'parse base names with an assetHash and tag',
                 'op_reader@bd74534373c5077c50b54d4f1ff2a736b0e8819e:foobar',
-                { name: 'op_reader', assetIdentifier: 'bd74534373c5077c50b54d4f1ff2a736b0e8819e', tag: 'foobar'}
+                { name: 'op_reader', assetIdentifier: 'bd74534373c5077c50b54d4f1ff2a736b0e8819e', tag: 'foobar' }
             ],
             [
                 'parse a pre-hashed asset name',
                 'op_reader@some_asset',
-                { name: 'op_reader', assetIdentifier: 'some_asset', tag: undefined}
+                { name: 'op_reader', assetIdentifier: 'some_asset', tag: undefined }
             ],
             [
                 'parse a pre-hashed asset name and version',
                 'op_reader@some_asset:2.1.0',
-                { name: 'op_reader', assetIdentifier: 'some_asset:2.1.0', tag: undefined}
+                { name: 'op_reader', assetIdentifier: 'some_asset:2.1.0', tag: undefined }
             ],
             [
                 'parse a pre-hashed asset name and version and tag',
                 'op_reader@some_asset:2.1.0:barFoo',
-                { name: 'op_reader', assetIdentifier: 'some_asset:2.1.0', tag: 'barFoo'}
+                { name: 'op_reader', assetIdentifier: 'some_asset:2.1.0', tag: 'barFoo' }
             ],
         ];
 
         test.each(cases)('should %s', (_msg, name, expectedOutput) => {
-            expect(parseName(name)).toMatchObject(expectedOutput)
-        })
-    })
+            expect(parseName(name)).toMatchObject(expectedOutput);
+        });
+    });
 });

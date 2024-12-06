@@ -1,7 +1,7 @@
 export interface ParseNameResponse {
     name: string;
     assetIdentifier?: string;
-    tag?: string
+    tag?: string;
 }
 
 export function parseName(identifier: string): ParseNameResponse {
@@ -23,15 +23,14 @@ export function parseName(identifier: string): ParseNameResponse {
                 const [firstID, secondID] = identifiers;
 
                 if (isAssetHash(firstID)) {
-
                     assetIdentifier = firstID;
                     tag = secondID;
                 } else {
                     // its a pre-hash name and version, which should be combined
-                    assetIdentifier = `${firstID}:${secondID}`
+                    assetIdentifier = `${firstID}:${secondID}`;
                 }
             } else {
-                throw new Error(`Invalid name for "${identifier}", it has to many ":" characters`)
+                throw new Error(`Invalid name for "${identifier}", it has to many ":" characters`);
             }
         } else {
             assetIdentifier = results[1];
