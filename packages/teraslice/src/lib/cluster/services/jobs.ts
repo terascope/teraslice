@@ -6,7 +6,7 @@ import {
 } from '@terascope/utils';
 import {
     JobConfigParams, JobValidator, RecoveryCleanupType,
-    ValidatedJobConfig
+    ValidatedJobConfig, parseName
 } from '@terascope/job-components';
 import { JobConfig, ExecutionConfig } from '@terascope/types';
 import { ClusterMasterContext } from '../../../interfaces.js';
@@ -490,25 +490,42 @@ export class JobsService {
             assetMapping.set(jobAssets[i], assetIds[i]);
         }
 
-        this.adjustOpNames(parsedAssetJob as any, assetMapping);
+        this.adjustNamesByAsset(parsedAssetJob as any, assetMapping);
 
         return parsedAssetJob;
     }
 
-    private adjustOpNames(
+    private adjustNamesByAsset(
         jobConfig: ValidatedJobConfig,
         dict: Map<string, string>
     ) {
         jobConfig.operations = jobConfig.operations.map((op) => {
-            if (op._op.includes('@')) {
-                const [opName, assetIdentifier] = op._op.split('@');
-                const hashId = dict.get(assetIdentifier);
+            if (op.api_name) {
+                const { name, assetIdentifier, tag } = parseName(op.api_name);
+                const hashId = dict.get(assetIdentifier as string);
 
                 if (!hashId) {
-                    throw new Error(`Invalid operation name for _op: ${opName}, could not find the hashID for asset identifier ${assetIdentifier}`);
+                    throw new Error(`Invalid operation api_name for _op: ${name}, could not find the hashID for asset identifier ${assetIdentifier}`);
                 }
 
-                op._op = `${opName}@${hashId}`;
+                let hashedName = `${name}@${hashId}`;
+
+                if (tag) {
+                    hashedName = `${hashedName}:${tag}`
+                }
+
+                op.api_name = hashedName;
+            }
+
+            if (op._op.includes('@')) {
+                const { name, assetIdentifier } = parseName(op._op);
+                const hashId = dict.get(assetIdentifier as string);
+
+                if (!hashId) {
+                    throw new Error(`Invalid operation name for _op: ${name}, could not find the hashID for asset identifier ${assetIdentifier}`);
+                }
+
+                op._op = `${name}@${hashId}`;
                 return op;
             } else {
                 return op;
@@ -518,24 +535,17 @@ export class JobsService {
         if (jobConfig.apis) {
             jobConfig.apis = jobConfig.apis.map((api) => {
                 if (api._name.includes('@')) {
-                    const [apiName, postFix] = api._name.split('@');
-                    let assetIdentifier = postFix;
-                    let namespace: string;
-
-                    if (assetIdentifier.includes(':')) {
-                        [assetIdentifier, namespace] = assetIdentifier.split(':');
-                    }
-
-                    const hashId = dict.get(assetIdentifier);
+                    const { name, assetIdentifier, tag } = parseName(api._name);
+                    const hashId = dict.get(assetIdentifier as string);
 
                     if (!hashId) {
-                        throw new Error(`Invalid api name for _name: ${apiName}, could not find the hashID for asset identifier ${assetIdentifier}`);
+                        throw new Error(`Invalid api name for _name: ${name}, could not find the hashID for asset identifier ${assetIdentifier}`);
                     }
 
-                    let hashedName = `${apiName}@${hashId}`;
-                    // @ts-expect-error
-                    if (namespace) {
-                        hashedName = `${hashedName}:${namespace}`;
+                    let hashedName = `${name}@${hashId}`;
+
+                    if (tag) {
+                        hashedName = `${hashedName}:${tag}`;
                     }
                     api._name = hashedName;
                     return api;

@@ -6,6 +6,10 @@ import { JobValidator, TestContext, JobConfigParams } from '../src/index.js';
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('JobValidator', () => {
+    const assetHash1 = 'op_asset_v1.0.0';
+    const assetHash2 = 'op_asset_v1.4.0';
+    const assetHash3 = 'op_asset_v2.0.0';
+
     const context = new TestContext('teraslice-operations');
     context.sysconfig.teraslice.assets_directory = dirname;
 
@@ -92,14 +96,17 @@ describe('JobValidator', () => {
             };
 
             try {
+                console.dir({ before: jobSpec }, { depth: 40 })
                 const results = await api.validateConfig(jobSpec);
+                console.dir({ after: results }, { depth: 40 })
+
                 expect(results).toBeDefined();
             } catch (_err) {
                 throw new Error('should not have thrown');
             }
         });
 
-        it('will throw based off opValition errors', async () => {
+        it('will throw based off opValidation errors', async () => {
             // if subslice_by_key, then it needs type specified or it will error
             const jobSpec: JobConfigParams = {
                 name: 'test',
@@ -169,6 +176,94 @@ describe('JobValidator', () => {
             });
 
             const validJob = await testApi.validateConfig(jobSpec);
+            expect(validJob).toMatchObject(jobSpec);
+        });
+
+        xit('can parse versioned operation names recursively', async () => {
+            const testContext = new TestContext('teraslice-operations');
+            testContext.sysconfig.teraslice.assets_directory = [dirname];
+
+            const testApi = new JobValidator(context);
+
+            // should be able to find from base fixtures
+            const jobSpec: JobConfigParams = Object.freeze({
+                name: 'noop',
+                assets: ['fixtures'],
+                autorecover: true,
+                apis: [],
+                operations: [
+                    {
+                        _op: `reader-asset@${assetHash2}`,
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            });
+
+            const validJob = await testApi.validateConfig(jobSpec);
+            expect(validJob).toMatchObject(jobSpec);
+        });
+
+        it('can parse versioned operation names', async () => {
+            const testContext = new TestContext('teraslice-operations');
+
+            // TODO: figure out why we have fixtures, and no other test uses testContext
+            const newPath = `${dirname}/fixtures`
+            testContext.sysconfig.teraslice.assets_directory = [newPath];
+
+            const testApi = new JobValidator(testContext);
+
+            const jobSpec: JobConfigParams = Object.freeze({
+                name: 'myJob',
+                assets: [assetHash1, assetHash2, assetHash3],
+                autorecover: true,
+                apis: [],
+                operations: [
+                    {
+                        _op: `reader-asset@${assetHash2}`,
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            });
+
+            const validJob = await testApi.validateConfig(jobSpec);
+            console.dir({ testFinal: validJob }, { depth: 40 })
+            expect(validJob).toMatchObject(jobSpec);
+        });
+
+        fit('can parse versioned operation names', async () => {
+            const testContext = new TestContext('teraslice-operations');
+
+            // TODO: figure out why we have fixtures, and no other test uses testContext
+            const newPath = `${dirname}/fixtures`
+            testContext.sysconfig.teraslice.assets_directory = [newPath];
+
+            const testApi = new JobValidator(testContext);
+
+            const jobSpec: JobConfigParams = Object.freeze({
+                name: 'myJob',
+                assets: [assetHash1, assetHash2, assetHash3],
+                autorecover: true,
+                apis: [
+                    { _name: `api-asset@${assetHash2}`, version: '1.4.0' }
+                ],
+                operations: [
+                    {
+                        _op: `reader-asset@${assetHash2}`,
+                        api_name: `api-asset@${assetHash2}`,
+                        version: '1.4.0'
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            });
+
+            const validJob = await testApi.validateConfig(jobSpec);
+
             expect(validJob).toMatchObject(jobSpec);
         });
     });

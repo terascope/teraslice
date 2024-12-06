@@ -4,36 +4,9 @@ import { Teraslice } from '@terascope/types';
 import { Context, OpConfig, ValidatedJobConfig } from './interfaces';
 import { validateJobConfig } from './config-validators.js';
 import { jobSchema } from './job-schemas.js';
-import { OperationLoader } from './operation-loader/index.js';
+import { OperationLoader, parseName } from './operation-loader/index.js';
 import { registerApis } from './register-apis.js';
 import { OperationAPIConstructor, OperationModule } from './operations/index.js';
-import { parseName } from './operation-loader/utlis.js';
-
-function backwardsCompatibleOpNames(
-    jobConfig: Teraslice.ValidatedJobConfig
-): Teraslice.ValidatedJobConfig {
-    const config = cloneDeep(jobConfig);
-
-    config.operations = config.operations.map((op) => {
-        const { name } = parseName(op._op);
-        op._op = name;
-        return op;
-    });
-
-    config.apis = config.apis.map((api) => {
-        const { name, tag } = parseName(api._name);
-
-        if (tag) {
-            api._name = `${name}:${tag}`;
-        } else {
-            api._name = name;
-        }
-
-        return api;
-    });
-
-    return config;
-}
 
 export class JobValidator {
     public schema: convict.Schema<any>;
@@ -60,8 +33,13 @@ export class JobValidator {
 
         type ValidateJobFn = (job: ValidatedJobConfig) => void;
         const validateJobFns: ValidateJobFn[] = [];
+        const validateApisFns: ValidateJobFn[] = [];
 
-        const handleModule = (opConfig: OpConfig, op: OperationModule) => {
+        const handleModule = (
+            opConfig: OpConfig,
+            op: OperationModule,
+            index: number
+        ) => {
             const { Schema, API } = op;
 
             if (API != null) {
@@ -72,7 +50,15 @@ export class JobValidator {
 
             validateJobFns.push((job) => {
                 if (!schema.validateJob) return;
+
+                const originalName = opConfig._op;
+                const { name } = parseName(originalName);
+
+                // for backwards compatible checks, alter name so it can be found
+                job.operations[index]._op = name;
                 schema.validateJob(job);
+                // revert name back to original
+                job.operations[index]._op = originalName;
             });
 
             return schema.validate(opConfig);
@@ -82,32 +68,48 @@ export class JobValidator {
             if (index === 0) {
                 return handleModule(
                     opConfig,
-                    await this.opLoader.loadReader(opConfig._op, assetIds)
+                    await this.opLoader.loadReader(opConfig._op, assetIds),
+                    index
                 );
             }
 
             return handleModule(
                 opConfig,
-                await this.opLoader.loadProcessor(opConfig._op, assetIds)
+                await this.opLoader.loadProcessor(opConfig._op, assetIds),
+                index
             );
         });
 
-        jobConfig.apis = await pMap(jobConfig.apis, async (apiConfig) => {
+        // this needs to happen first because it can add apis to the job
+        // though usage of the ensureAPIFromConfig api that called inside
+        // many validateJob schema methods
+        validateJobFns.forEach((fn) => {
+            fn(jobConfig);
+        });
+
+        jobConfig.apis = await pMap(jobConfig.apis, async (apiConfig, index) => {
             const { Schema } = await this.opLoader.loadAPI(apiConfig._name, assetIds);
             const schema = new Schema(this.context, 'api');
 
-            validateJobFns.push((job) => {
+            validateApisFns.push((job) => {
                 if (!schema.validateJob) return;
-                schema.validateJob(job);
+
+                const originalName = apiConfig._name;
+                const { name } = parseName(originalName);
+
+                  // for backwards compatible checks, alter name so it can be found
+                  job.apis[index]._name = name;
+                  schema.validateJob(job);
+                  // revert name back to original
+                  job.apis[index]._name = originalName;
             });
 
             return schema.validate(apiConfig);
         });
 
-        const backwardsCompatibleJob = backwardsCompatibleOpNames(jobConfig);
-
-        validateJobFns.forEach((fn) => {
-            fn(backwardsCompatibleJob);
+        // this can mutate the job
+          validateApisFns.forEach((fn) => {
+            fn(jobConfig);
         });
 
         registerApis(this.context, jobConfig);
