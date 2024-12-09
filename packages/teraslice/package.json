@@ -34,7 +34,7 @@
         "test:watch": "TEST_ELASTICSEARCH='true' ts-scripts test --watch . --"
     },
     "resolutions": {
-        "debug": "~4.3.7",
+        "debug": "~4.4.0",
         "ms": "~2.1.3"
     },
     "dependencies": {
