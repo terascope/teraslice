@@ -2,7 +2,8 @@ import ms from 'ms';
 import { pEvent } from 'p-event';
 import { EventEmitter } from 'node:events';
 import {
-    toString, isInteger, debugLogger, Logger
+    toString, isInteger, debugLogger,
+    Logger, TSError
 } from '@terascope/utils';
 import * as i from './interfaces.js';
 
@@ -40,11 +41,22 @@ export class Core extends EventEmitter {
         this.removeAllListeners();
     }
 
-    protected async handleSendResponse(sent: i.Message): Promise<i.Message | null> {
+    protected async handleSendResponse(
+        sent: i.Message,
+        signal?: AbortSignal
+    ): Promise<i.Message | null> {
         if (!sent.response) return null;
 
         const remaining = sent.respondBy - Date.now();
-        const response = await this.onceWithTimeout(sent.id, remaining);
+        const response = await this.onceWithTimeout(sent.id, remaining, signal);
+
+        // server shutdown
+        if (signal?.aborted) {
+            const msg = sent.eventName === 'worker:slice:complete'
+                ? `Execution controller shutdown before receiving worker slice analytics. Event: "${sent.eventName}"`
+                : `Execution controller shutdown before receiving "${sent.eventName}" event`;
+            throw new TSError(msg, { retryable: false });
+        }
 
         // it is a timeout
         if (response == null) {
@@ -136,12 +148,17 @@ export class Core extends EventEmitter {
         }
     }
 
-    async onceWithTimeout(eventName: string, timeout?: number): Promise<any> {
+    async onceWithTimeout(
+        eventName: string,
+        timeout?: number,
+        abortSignal?: AbortSignal
+    ): Promise<any> {
         const timeoutMs: number = this.getTimeout(timeout);
         try {
             const { payload } = (await pEvent(this, eventName, {
                 rejectionEvents: [],
                 timeout: timeoutMs,
+                signal: abortSignal
             })) as i.EventMessage;
             return payload;
         } catch (err) {

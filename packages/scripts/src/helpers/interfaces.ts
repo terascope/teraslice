@@ -58,11 +58,6 @@ export type PackageConfig = {
     tests?: Record<string, Record<string, string[]>>;
 };
 
-export enum Hook {
-    AFTER_RELEASE_BUMP = 'AFTER_RELEASE_BUMP',
-    AFTER_SYNC = 'AFTER_SYNC',
-}
-
 export type RootPackageInfo = {
     version: string;
     dir: string;
@@ -94,11 +89,6 @@ export type RootPackageInfo = {
         npm: {
             registry: string;
         };
-        /**
-         * The path to the javascript file to be called after
-         * the hook is registered
-        */
-        hook_file?: string;
     };
     engines: {
         node: string;

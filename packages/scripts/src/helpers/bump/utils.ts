@@ -151,7 +151,7 @@ export function bumpPackagesList(
             if (depBumpInfo.type === BumpType.Peer) {
                 depPkgInfo[key][name] = `>=${bumpInfo.to}`;
             } else {
-                depPkgInfo[key][name] = `^${bumpInfo.to}`;
+                depPkgInfo[key][name] = `~${bumpInfo.to}`;
             }
         }
     }

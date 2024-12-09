@@ -5,7 +5,7 @@ import {
     BumpPackageOptions
 } from './interfaces.js';
 import { listPackages, isMainPackage, updatePkgJSON } from '../packages.js';
-import { Hook, PackageInfo } from '../interfaces.js';
+import { PackageInfo } from '../interfaces.js';
 import { getRootInfo, writeIfChanged } from '../misc.js';
 import {
     bumpPackagesList, getPackagesToBump, getBumpCommitMessages,
@@ -13,7 +13,6 @@ import {
 } from './utils.js';
 import signale from '../signale.js';
 import { syncVersions } from '../sync/utils.js';
-import { executeHook } from '../hooks.js';
 
 export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean): Promise<void> {
     const rootInfo = getRootInfo();
@@ -31,7 +30,6 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
     const bumpedMain = mainInfo ? packagesToBump[mainInfo.name] : false;
 
     if (bumpedMain) {
-        await executeHook(Hook.AFTER_RELEASE_BUMP, false, mainInfo!.version);
         signale.note(`IMPORTANT: make sure create release of v${mainInfo!.version} after merging`);
     }
 

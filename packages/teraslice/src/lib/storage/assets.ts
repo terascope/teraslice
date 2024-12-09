@@ -10,7 +10,7 @@ import { ClientResponse, AssetRecord } from '@terascope/types';
 import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 import { S3Store, TerasliceS3StorageConfig } from './backends/s3_store.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
-import { saveAsset, AssetMetadata, isZipFile } from '../utils/file_utils.js';
+import { saveAsset, AssetMetadata, isZipFile, deleteDir } from '../utils/file_utils.js';
 import {
     findMatchingAsset, findSimilarAssets, toVersionQuery,
     getInCompatibilityReason
@@ -195,32 +195,39 @@ export class AssetsStorage {
         const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
         const startTime = Date.now();
 
-        if (this.s3Backend) {
-            if (blocking) {
-                const elapsed = Date.now() - startTime;
-                const remaining = responseTimeout - elapsed;
-                await this.s3Backend.save(id, data, remaining);
-            } else {
-                await this.s3Backend.save(id, data, responseTimeout);
+        try {
+            if (this.s3Backend) {
+                if (blocking) {
+                    const elapsed = Date.now() - startTime;
+                    const remaining = responseTimeout - elapsed;
+                    await this.s3Backend.save(id, data, remaining);
+                } else {
+                    await this.s3Backend.save(id, data, responseTimeout);
+                }
+
+                this.logger.info(`asset id: ${id} has been saved to s3 store`);
             }
 
-            this.logger.info(`asset id: ${id} has been saved to s3 store`);
+            const metaData = await saveAsset(
+                this.logger,
+                this.assetsPath,
+                id,
+                data,
+                _metaIsUnique(this.esBackend)
+            );
+
+            const assetRecord = Object.assign({
+                _created: new Date().toISOString()
+            }, metaData);
+
+            await this._saveToEs(id, assetRecord, blocking, responseTimeout, startTime);
+            this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
+        } catch (err) {
+            // clean up s3 object or saved asset if a later step fails
+            await this.s3Backend?.remove(id);
+            await deleteDir(path.join(this.assetsPath, id));
+            throw err;
         }
-
-        const metaData = await saveAsset(
-            this.logger,
-            this.assetsPath,
-            id,
-            data,
-            _metaIsUnique(this.esBackend)
-        );
-
-        const assetRecord = Object.assign({
-            _created: new Date().toISOString()
-        }, metaData);
-
-        await this._saveToEs(id, assetRecord, blocking, responseTimeout, startTime);
-        this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
     }
 
     /**

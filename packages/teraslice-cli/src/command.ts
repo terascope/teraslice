@@ -1,4 +1,7 @@
 import yargs from 'yargs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { hideBin } from 'yargs/helpers';
 import aliases from './cmds/aliases/index.js';
 import assets from './cmds/assets/index.js';
@@ -9,8 +12,18 @@ import workers from './cmds/workers/index.js';
 import controllers from './cmds/controllers/index.js';
 import tjm from './cmds/tjm/index.js';
 
-const yargsInstance = yargs(hideBin(process.argv));
+/// Grab package.json version for yargs
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
+const packageJsonPath = path.join(dirPath, '../../package.json');
+let version: string;
+try {
+    version = JSON.parse(readFileSync(packageJsonPath, { encoding: 'utf-8' })).version;
+} catch {
+    version = 'unknown';
+}
 
+const yargsInstance = yargs(hideBin(process.argv));
+yargsInstance.version(version);
 // eslint-disable-next-line
 yargsInstance.command(aliases)
     .command(assets)

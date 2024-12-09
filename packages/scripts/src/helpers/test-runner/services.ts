@@ -427,7 +427,7 @@ async function checkRestrainedOpensearch(
             const actual: string = body.version.number;
             const expected = config.OPENSEARCH_VERSION;
 
-            if (semver.satisfies(actual, `^${expected}`)) {
+            if (semver.satisfies(actual, `~${expected}`)) {
                 const took = toHumanTime(Date.now() - startTime);
                 signale.success(`restrained opensearch@${actual} is running at ${host}, took ${took}`);
                 return true;
@@ -496,7 +496,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             const actual: string = body.version.number;
             const expected = config.OPENSEARCH_VERSION;
 
-            if (semver.satisfies(actual, `^${expected}`)) {
+            if (semver.satisfies(actual, `~${expected}`)) {
                 const took = toHumanTime(Date.now() - startTime);
                 signale.success(`opensearch@${actual} is running at ${host}, took ${took}`);
                 return true;
@@ -562,7 +562,7 @@ async function checkRestrainedElasticsearch(
             const actual: string = body.version.number;
             const expected = config.ELASTICSEARCH_VERSION;
 
-            if (semver.satisfies(actual, `^${expected}`)) {
+            if (semver.satisfies(actual, `~${expected}`)) {
                 const took = toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
                 return true;
@@ -626,7 +626,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
             const actual: string = body.version.number;
             const expected = config.ELASTICSEARCH_VERSION;
 
-            if (semver.satisfies(actual, `^${expected}`)) {
+            if (semver.satisfies(actual, `~${expected}`)) {
                 const took = toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
                 return true;

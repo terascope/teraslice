@@ -165,7 +165,7 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
                 updateTo = latest;
             } else if (!latest.valid) {
                 if (key !== DepKey.Peer && latest.version.startsWith('>=')) {
-                    updateTo = `^${latest.version.replace('>=', '')}`;
+                    updateTo = `~${latest.version.replace('>=', '')}`;
                 } else {
                     updateTo = latest.version;
                 }
@@ -267,7 +267,7 @@ function getVersion(input: string, strict: boolean): VersionVal | undefined {
         };
     }
 
-    const defaultRange = strict ? '^' : '';
+    const defaultRange = strict ? '~' : '';
 
     return {
         version,

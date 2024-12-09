@@ -1,6 +1,5 @@
 export type SyncOptions = {
     verify: boolean;
-    tsconfigOnly: boolean;
     quiet?: boolean;
     isAsset?: boolean;
 };
