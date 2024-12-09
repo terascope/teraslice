@@ -8,5 +8,6 @@ esbuild.build({
     format: 'esm', // Ensure compatibility with `import`
     sourcemap: false,
     inject: ['cjs-to-esm.js'],
-    external: ['esbuild']
+    external: ['esbuild'],
+    logLevel: 'debug'
 }).catch(() => process.exit(1));
