@@ -53,6 +53,7 @@
         "express": "~4.21.2",
         "fs-extra": "~11.2.0",
         "gc-stats": "~1.4.0",
+        "get-port": "~7.1.0",
         "got": "~13.0.0",
         "ip": "~2.0.1",
         "kubernetes-client": "~9.0.0",
