@@ -1,5 +1,4 @@
 import http from 'node:http';
-import porty from 'porty';
 import SocketIOServer from 'socket.io';
 import {
     get,
@@ -94,8 +93,31 @@ export class Server extends Core {
     }
 
     async listen(): Promise<void> {
+        // Check if port is available before using it
+        const testPort = async function (port: number) {
+            return new Promise((resolve) => {
+                const portTestServer = http.createServer();
+
+                portTestServer.unref();
+
+                portTestServer.once('error', () => {
+                    portTestServer.close(() => {
+                        return resolve(false);
+                    });
+                });
+
+                portTestServer.once('listening', () => {
+                    portTestServer.close(() => {
+                        return resolve(true);
+                    });
+                });
+
+                portTestServer.listen(port);
+            });
+        };
+
         await pRetry(async () => {
-            const portAvailable = await porty.test(this.port);
+            const portAvailable = await testPort(this.port);
             if (!portAvailable) {
                 throw new Error(`Port ${this.port} is already in-use`);
             }

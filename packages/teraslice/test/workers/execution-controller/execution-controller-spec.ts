@@ -12,7 +12,7 @@ describe('ExecutionController', () => {
         let executionStorage!: ExecutionStorage;
 
         beforeEach(async () => {
-            const port = await findPort({ assetsPort: 14000, start: 14001, end: 16000 });
+            const port = await findPort();
 
             testContext = new TestContext({
                 assignment: 'execution_controller',
@@ -92,7 +92,7 @@ describe('ExecutionController', () => {
         const probationWindow = 500;
 
         beforeEach(async () => {
-            const port = await findPort({ assetsPort: 16000, start: 16001, end: 18000 });
+            const port = await findPort();
 
             testContext = new TestContext({
                 assignment: 'execution_controller',

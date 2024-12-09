@@ -31,7 +31,7 @@ describe('HTTP API', () => {
     let server: http.Server;
 
     beforeAll(async () => {
-        port = await findPort({ assetsPort: 10000, start: 10001, end: 12000 });
+        port = await findPort();
 
         baseUrl = `http://localhost:${port}`;
 

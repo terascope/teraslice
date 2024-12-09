@@ -5594,6 +5594,11 @@ get-package-type@^0.1.0:
   resolved "https://registry.yarnpkg.com/get-package-type/-/get-package-type-0.1.0.tgz#8de2d803cff44df3bc6c456e6668b36c3926e11a"
   integrity sha512-pjzuKtY64GYfWizNAJ0fr9VqttZkNiK2iS430LtIHzjBEr6bX8Am2zm4sW4Ro5wjWW5cAlRL1qAMTcXbjNAO2Q==
 
+get-port@~7.1.0:
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/get-port/-/get-port-7.1.0.tgz#d5a500ebfc7aa705294ec2b83cc38c5d0e364fec"
+  integrity sha512-QB9NKEeDg3xxVwCCwJQ9+xycaz6pBB6iQ76wiWMl1927n0Kir6alPiP+yuiICLLU4jpMe08dXfpebuQppFA2zw==
+
 get-stdin@^9.0.0:
   version "9.0.0"
   resolved "https://registry.yarnpkg.com/get-stdin/-/get-stdin-9.0.0.tgz#3983ff82e03d56f1b2ea0d3e60325f39d703a575"
@@ -8287,11 +8292,6 @@ point-in-polygon-hao@^1.1.0, point-in-polygon-hao@~1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/point-in-polygon-hao/-/point-in-polygon-hao-1.1.0.tgz#37f5f4fbe14e89fa8a3bb7f67c9158079d2ede7c"
   integrity sha512-3hTIM2j/v9Lio+wOyur3kckD4NxruZhpowUbEgmyikW+a2Kppjtu1eN+AhnMQtoHW46zld88JiYWv6fxpsDrTQ==
-
-porty@~3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/porty/-/porty-3.1.1.tgz#3477f31c6b15bcda6a27c4292057181798e5c3c1"
-  integrity sha512-aNg4WE90L7vE/AFYeSOghnbcDMIfIYEDI4LvWeAP4iwSHB6sljSQGeGw5h04RQPN+ArhhE+NY+75WOndwMNFIA==
 
 possible-typed-array-names@^1.0.0:
   version "1.0.0"

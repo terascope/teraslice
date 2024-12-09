@@ -352,7 +352,7 @@ describe('ExecutionController Special Tests', () => {
         beforeAll(async () => {
             slices = [];
 
-            const port = await findPort({ assetsPort: 18000, start: 18001, end: 20000 });
+            const port = await findPort();
 
             testContext = new TestContext({
                 assignment: 'execution_controller',

@@ -15,7 +15,7 @@ describe('Worker', () => {
     }
 
     async function setupTest(options: any = {}): Promise<SetupTestResults> {
-        const slicerPort = await findPort({ assetsPort: 24000, start: 24001, end: 26000 });
+        const slicerPort = await findPort();
         options.slicerPort = slicerPort;
 
         const testContext = new TestContext(options);

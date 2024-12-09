@@ -772,7 +772,7 @@ export async function logTCPPorts() {
     try {
         // These netstat flags were chosen because they work in
         // both the mac and linux versions of the command
-        const netstat = await execa('netstat', ['-an', '-t', 'tcp'], { shell: true, reject: false });
+        const netstat = await execa('netstat', ['-an', '-p', 'tcp'], { shell: true, reject: false });
         signale.info('TCP Ports:\n', netstat.stdout);
     } catch (err) {
         signale.error('Netstat command failed trying to log ports: ', err);

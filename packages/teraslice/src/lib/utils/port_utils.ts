@@ -1,23 +1,11 @@
 import {
     get, times, pDelay,
-    toIntegerOrThrow, shuffle
+    toIntegerOrThrow, shuffle, range
 } from '@terascope/utils';
-import porty from 'porty';
+
+import getPort from 'get-port';
 import { Context } from '@terascope/job-components';
-
-const _portLists = new Map();
-
-function listPorts(start: number, end: number): number[] {
-    const key = `${start}:${end}`;
-    if (_portLists.has(key)) {
-        return _portLists.get(key);
-    }
-
-    // this should only be done once
-    const ports = shuffle(times((end - start) + 1, (n) => n + start));
-    _portLists.set(key, ports);
-    return ports;
-}
+import range from 'lodash/range.js';
 
 export interface PortOptions {
     start?: number;
@@ -25,36 +13,30 @@ export interface PortOptions {
     assetsPort?: number;
 }
 
+const usedPorts: number[] = [];
+
+/**
+ * Return a random open port between start and end, excluding usedPorts.
+ * If all ports in that range are being used a random port between 1024 and 65535
+ * will be returned instead.
+ * @param {PortOptions} options Start, end, and assetsPort to exclude can be specified
+ * @returns {number}
+ */
 export async function findPort(options: PortOptions = {}) {
-    // If using this function within a test file, avoid port collisions by
-    // setting PortOptions start and end to a range not used by other tests.
     const {
-        start = 8002,
-        end = 40000,
+        start = 1024,
+        end = 65536, // exclusive
         assetsPort = 8003
     } = options;
 
-    const ports = listPorts(start, end);
+    usedPorts.push(assetsPort);
 
-    const tested: number[] = [];
-    let port: number | undefined;
+    const port = await getPort({
+        port: shuffle(range(start, end)),
+        exclude: usedPorts
+    });
 
-    while (ports.length) {
-        port = ports.shift() as number;
-        if (port === assetsPort) continue;
-        // these will be enqueue
-        tested.push(port);
-
-        const available = await porty.test(port);
-        if (available) {
-            break;
-        } else {
-            await pDelay(100);
-            port = undefined;
-        }
-    }
-
-    _portLists[`${start}:${end}`] = ports.concat(tested);
+    usedPorts.push(port);
 
     if (port) return port;
     throw new Error(`No available port between ${start}-${end}`);

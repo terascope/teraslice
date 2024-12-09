@@ -65,11 +65,7 @@ describe('Assets Service', () => {
 
     beforeAll(async () => {
         /// Setting port for the asset service
-        process.env.port = (await findPort({
-            assetsPort: 12000,
-            start: 12001,
-            end: 14000
-        })).toString();
+        process.env.port = (await findPort()).toString();
         service = new AssetsService(context);
         await service.initialize();
     });
