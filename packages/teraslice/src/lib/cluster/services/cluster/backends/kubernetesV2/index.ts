@@ -189,14 +189,6 @@ export class KubernetesClusterBackendV2 {
             () => this.k8s.nonEmptyJobList(selector), getRetryConfig()
         );
 
-        /// Wait for ex readiness probe to return 'Ready'
-        await this.k8s.waitForSelectedPod(
-            selector,
-            'readiness-probe',
-            undefined,
-            this.context.sysconfig.teraslice.slicer_timeout
-        );
-
         if (!jobs.items[0].metadata.uid) {
             throw new Error('Required field uid missing from kubernetes job metadata');
         }
