@@ -770,11 +770,15 @@ async function showAssets(tsPort: string) {
 
 export async function logTCPPorts() {
     try {
-        // These netstat flags were chosen because they work in
-        // both the mac and linux versions of the command
-        const netstat = await execa('lsof', ['-iTCP', '-n'], { shell: true, reject: false });
-        signale.info('TCP Ports:\n', netstat.stdout);
+        // Determine the appropriate command based on the OS
+        const command = process.platform === 'darwin' ? 'netstat' : 'ss';
+        const args = process.platform === 'darwin'
+            ? ['-an', '-f', 'inet', '-p', 'tcp']
+            : ['-tan4'];
+
+        const { stdout } = await execa(command, args, { shell: true, reject: false });
+        signale.info('TCP Ports:\n', stdout);
     } catch (err) {
-        signale.error('Netstat command failed trying to log ports: ', err);
+        signale.error('Execa command failed trying to log ports: ', err);
     }
 }
