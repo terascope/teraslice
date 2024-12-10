@@ -85,14 +85,8 @@ describe('Test Runner Helpers', () => {
                     suite: ['unit']
                 }));
 
-                const unitEsmTests = filterBySuite(packages, makeTestOptions({
-                    all: true,
-                    suite: ['unit-esm']
-                }));
-
                 const unitAndESPackages = [
                     ...unitTests,
-                    ...unitEsmTests,
                     ...restrainedTests,
                     ...opensearchTests,
                     ...elasticsearchTests
