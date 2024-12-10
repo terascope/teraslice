@@ -62,6 +62,6 @@
     },
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit-esm"
+        "testSuite": "unit"
     }
 }

@@ -90,7 +90,6 @@
                 "search": [],
                 "restrained": [],
                 "unit": [],
-                "unit-esm": [],
                 "_for_testing_": [
                     "elasticsearch"
                 ],
