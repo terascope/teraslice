@@ -2,7 +2,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 // @ts-expect-error
 import Chance from 'chance';
-import pickBy from 'lodash/pickBy';
 import { ValidatedJobConfig } from '@terascope/types';
 import { newId } from '../../../src/lib/utils/id_utils.js';
 
@@ -46,21 +45,21 @@ const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {
     if (operations == null) {
         if (newOps) {
             operations = [
-                pickBy({
+                {
                     _op: path.join(opsPath, 'new-reader'),
                     countPerSlicer: options.countPerSlicer
-                }),
-                pickBy({
+                },
+                {
                     _op: path.join(opsPath, 'new-op'),
                     failOnSliceRetry: options.failOnSliceRetry || false
-                }),
+                },
                 {
                     _op: 'noop'
                 }
             ];
         } else {
             operations = [
-                pickBy({
+                {
                     _op: path.join(opsPath, 'example-reader'),
                     exampleProp: 321,
                     updateMetadata: options.updateMetadata,
@@ -69,13 +68,13 @@ const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {
                     slicerResults: options.slicerResults,
                     slicerErrorAt: options.slicerErrorAt,
                     slicerQueueLength: options.slicerQueueLength
-                }),
-                pickBy({
+                },
+                {
                     _op: path.join(opsPath, 'example-op'),
                     exampleProp: 123,
                     errorAt: options.opErrorAt,
                     results: options.opResults
-                })
+                }
             ];
         }
     }

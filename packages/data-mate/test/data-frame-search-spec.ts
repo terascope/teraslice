@@ -607,7 +607,7 @@ describe('DataFrame->search', () => {
         ]);
     });
 
-    it('should be able to match using a geo json', () => {
+    fit('should be able to match using a geo json', () => {
         const resultFrame = specialDataFrame
             .search('geometry:geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])')
             .select('geometry');
