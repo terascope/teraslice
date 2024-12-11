@@ -31,14 +31,9 @@ export default (projectDir) => {
         rootDir = '../../';
     }
 
-    const coverageReporters = ['lcov', 'html'];
-    if (!isCI) {
-        coverageReporters.push('text-summary');
-    }
     const config = {
         rootDir,
         displayName: name,
-        verbose: true,
         testEnvironment: 'node',
         setupFilesAfterEnv: ['jest-extended/all'],
         testMatch: [`${packageRoot}/test/**/*-spec.{ts,js}`, `${packageRoot}/test/*-spec.{ts,js}`],
@@ -57,14 +52,10 @@ export default (projectDir) => {
         },
         moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs', 'mjs'],
         extensionsToTreatAsEsm: ['.ts'],
-        collectCoverage: true,
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
-        coverageReporters,
         coverageDirectory: `${packageRoot}/coverage`,
-        watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
         workerIdleMemoryLimit: '200MB',
-        testTimeout: 60 * 1000,
         globals: {
             availableExtensions: ['.js', '.ts', '.mjs', 'cjs'],
         },
