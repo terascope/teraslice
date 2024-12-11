@@ -770,11 +770,16 @@ async function showAssets(tsPort: string) {
 
 export async function logTCPPorts() {
     try {
-        // Determine the appropriate command based on the OS
-        const command = process.platform === 'darwin' ? 'netstat' : 'ss';
-        const args = process.platform === 'darwin'
-            ? ['-an', '-f', 'inet', '-p', 'tcp']
-            : ['-tan4'];
+        let command: string;
+        let args: string[];
+
+        if (process.platform === 'darwin') {
+            command = 'netstat';
+            args = ['-an', '-f', 'inet', '-p', 'tcp'];
+        } else {
+            command = 'ss';
+            args = ['-tan4'];
+        }
 
         const { stdout } = await execa(command, args, { shell: true, reject: false });
         signale.info('TCP Ports:\n', stdout);
