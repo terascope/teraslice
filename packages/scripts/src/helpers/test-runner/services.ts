@@ -84,7 +84,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
         ports: [`${config.OPENSEARCH_PORT}:${config.OPENSEARCH_PORT}`],
         tmpfs: config.SERVICES_USE_TMPFS
-            ? ['/usr/share/elasticsearch/data']
+            ? ['/usr/share/opensearch/data']
             : undefined,
         env: {
             ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
