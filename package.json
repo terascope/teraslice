@@ -34,6 +34,7 @@
         "k8sV2": "TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 CLUSTERING_TYPE='kubernetesV2' ts-scripts k8s-env",
         "lint": "eslint",
         "lint:fix": "yarn lint --fix && yarn sync",
+        "postinstall": "patch-package",
         "setup": "yarn $YARN_SETUP_ARGS && yarn run build --force",
         "start": "node service.js",
         "start:dev": "yarn build && env NODE_ENV=development node service.js",
@@ -64,6 +65,8 @@
         "jest-extended": "~4.0.2",
         "jest-watch-typeahead": "~2.2.2",
         "node-notifier": "~10.0.1",
+        "patch-package": "^8.0.0",
+        "postinstall-postinstall": "^2.1.0",
         "ts-jest": "~29.2.5",
         "typescript": "~5.2.2"
     },
