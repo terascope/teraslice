@@ -83,6 +83,9 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         image: config.OPENSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
         ports: [`${config.OPENSEARCH_PORT}:${config.OPENSEARCH_PORT}`],
+        tmpfs: config.SERVICES_USE_TMPFS
+            ? ['/usr/share/elasticsearch/data']
+            : undefined,
         env: {
             ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
             'network.host': '0.0.0.0',
