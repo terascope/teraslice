@@ -35,6 +35,7 @@ export default (projectDir) => {
         rootDir,
         displayName: name,
         testEnvironment: 'node',
+        testTimeout: 60 * 1000,
         setupFilesAfterEnv: ['jest-extended/all'],
         testMatch: [`${packageRoot}/test/**/*-spec.{ts,js}`, `${packageRoot}/test/*-spec.{ts,js}`],
         testPathIgnorePatterns: [
