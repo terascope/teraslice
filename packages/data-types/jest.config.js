@@ -1,11 +1,8 @@
 import { fileURLToPath } from 'node:url';
-import path from 'node:path';
+import baseConfig from '../../jest.config.base.js';
 
 const dirPath = fileURLToPath(new URL('.', import.meta.url));
-const configModulePath = path.join(dirPath, '../../jest.config.base.js');
 
-const module = await import(configModulePath);
-
-const config = module.default(dirPath);
+const config = baseConfig(dirPath);
 
 export default config;

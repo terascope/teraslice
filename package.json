@@ -25,6 +25,7 @@
         "docker:listImages": "ts-scripts images list",
         "docker:saveImages": "ts-scripts images save",
         "docs": "ts-scripts docs",
+        "postinstall": "patch-package",
         "k8s": "TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 ts-scripts k8s-env",
         "k8s:kafka": "TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 TEST_KAFKA=true KAFKA_PORT=9092 ts-scripts k8s-env",
         "k8s:minio": "TEST_MINIO=true MINIO_PORT=9000 TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 ts-scripts k8s-env",
@@ -64,6 +65,8 @@
         "jest-extended": "~4.0.2",
         "jest-watch-typeahead": "~2.2.2",
         "node-notifier": "~10.0.1",
+        "patch-package": "^8.0.0",
+        "postinstall-postinstall": "^2.1.0",
         "ts-jest": "~29.2.5",
         "typescript": "~5.2.2"
     },
