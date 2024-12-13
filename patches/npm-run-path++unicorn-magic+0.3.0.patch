@@ -1,0 +1,14 @@
+diff --git a/node_modules/npm-run-path/node_modules/unicorn-magic/package.json b/node_modules/npm-run-path/node_modules/unicorn-magic/package.json
+index ac4246d..6688b2c 100644
+--- a/node_modules/npm-run-path/node_modules/unicorn-magic/package.json
++++ b/node_modules/npm-run-path/node_modules/unicorn-magic/package.json
+@@ -14,7 +14,8 @@
+ 	"exports": {
+ 		"node": {
+ 			"types": "./node.d.ts",
+-			"import": "./node.js"
++			"import": "./node.js",
++			"default": "./node.js"
+ 		},
+ 		"default": {
+ 			"types": "./default.d.ts",

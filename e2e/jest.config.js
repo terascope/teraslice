@@ -1,13 +1,10 @@
 import { fileURLToPath } from 'node:url';
-import path from 'node:path';
+import baseConfig from '../jest.config.base.js';
 import { URL } from 'node:url';
 
 const dirPath = fileURLToPath(new URL('.', import.meta.url));
-const configModulePath = path.join(dirPath, '../jest.config.base.js');
 
-const module = await import(configModulePath);
-
-const config = module.default(dirPath);
+const config = baseConfig(dirPath);
 
 // TODO: update arrays to run tests specific to platform.
 // First array is for tests skipped in kubernetes.
