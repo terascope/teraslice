@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { withoutNil } from '@terascope/utils';
 // @ts-expect-error
 import Chance from 'chance';
 import { ValidatedJobConfig } from '@terascope/types';
@@ -45,21 +46,21 @@ const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {
     if (operations == null) {
         if (newOps) {
             operations = [
-                {
+                withoutNil({
                     _op: path.join(opsPath, 'new-reader'),
                     countPerSlicer: options.countPerSlicer
-                },
-                {
+                }),
+                withoutNil({
                     _op: path.join(opsPath, 'new-op'),
                     failOnSliceRetry: options.failOnSliceRetry || false
-                },
+                }),
                 {
                     _op: 'noop'
                 }
             ];
         } else {
             operations = [
-                {
+                withoutNil({
                     _op: path.join(opsPath, 'example-reader'),
                     exampleProp: 321,
                     updateMetadata: options.updateMetadata,
@@ -68,13 +69,13 @@ const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {
                     slicerResults: options.slicerResults,
                     slicerErrorAt: options.slicerErrorAt,
                     slicerQueueLength: options.slicerQueueLength
-                },
-                {
+                }),
+                withoutNil({
                     _op: path.join(opsPath, 'example-op'),
                     exampleProp: 123,
                     errorAt: options.opErrorAt,
                     results: options.opResults
-                }
+                })
             ];
         }
     }
