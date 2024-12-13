@@ -1,6 +1,6 @@
 import esbuild from 'esbuild';
 
-esbuild.build({
+const ctx = await esbuild.context({
     entryPoints: ['src/command.ts'],
     outfile: 'dist/src/ts-cli.js', // Output file path
     bundle: true,
@@ -9,4 +9,11 @@ esbuild.build({
     sourcemap: false,
     inject: ['cjs-to-esm.js'],
     external: ['esbuild']
-}).catch(() => process.exit(1));
+});
+
+if (process.argv.includes('--watch')) {
+    await ctx.watch();
+} else {
+    await ctx.rebuild();
+    ctx.dispose();
+}
