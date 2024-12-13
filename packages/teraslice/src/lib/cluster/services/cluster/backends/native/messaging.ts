@@ -220,8 +220,14 @@ export class Messaging {
             // while others are sync registration
             let trueEventName = this.selfMessages.network[eventName];
 
-            if (!trueEventName) trueEventName = this.selfMessages.intraProcess[eventName];
-            if (identifier) callback.__socketIdentifier = identifier;
+            if (!trueEventName) {
+                trueEventName = this.selfMessages.intraProcess[eventName];
+            }
+
+            if (identifier) {
+                callback.__socketIdentifier = identifier;
+            }
+
             this.functionMapping[trueEventName] = callback;
         }
     }
@@ -257,11 +263,10 @@ export class Messaging {
                 };
 
                 socket.on(key, wrappedFunc);
+            } else {
+                this.logger.trace(`setting listener key ${key}`);
+                socket.on(key, func);
             }
-
-            this.logger.trace(`setting listener key ${key}`);
-
-            socket.on(key, func);
         }
     }
 
