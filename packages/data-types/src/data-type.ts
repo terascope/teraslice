@@ -12,7 +12,6 @@ import BaseType from './types/base-type.js';
 import * as utils from './utils.js';
 import { getTypes, LATEST_VERSION, getGroupedFields } from './types/index.js';
 
-
 /**
  * A DataType is used to define the structure of data with version support
  * and can be converted to the following formats:
