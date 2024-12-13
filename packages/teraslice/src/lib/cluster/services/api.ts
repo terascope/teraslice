@@ -348,9 +348,11 @@ export class ApiService {
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not stop execution');
             requestHandler(async () => {
                 const exId = await this._getExIdFromRequest(req as TerasliceRequest);
-                await executionService
-                    .stopExecution(exId, { timeout, force });
+
+                await executionService.stopExecution(exId, { timeout, force });
+
                 const statusPromise = this._waitForStop(exId, blocking);
+
                 if (force) {
                     const status = await statusPromise;
                     return {

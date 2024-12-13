@@ -561,6 +561,7 @@ export class NativeClustering {
     private _notifyNodesWithExecution(exId: string, messageData: any, excludeNode?: string) {
         return new Promise((resolve, reject) => {
             let nodes = this._findNodesForExecution(exId);
+
             if (excludeNode) {
                 nodes = nodes.filter((node) => node.hostname !== excludeNode);
             } else if (messageData.message !== 'cluster:execution:stop' && nodes.length === 0) {

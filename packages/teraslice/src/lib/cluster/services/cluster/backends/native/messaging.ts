@@ -257,7 +257,6 @@ export class Messaging {
                 };
 
                 socket.on(key, wrappedFunc);
-                return;
             }
 
             this.logger.trace(`setting listener key ${key}`);
