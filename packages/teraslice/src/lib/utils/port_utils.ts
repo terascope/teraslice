@@ -6,6 +6,9 @@ import {
 import getPort from 'get-port';
 import { Context } from '@terascope/job-components';
 import range from 'lodash/range.js';
+import getPort from 'get-port';
+import { get, toIntegerOrThrow } from '@terascope/utils';
+import { Context } from '@terascope/job-components';
 
 export interface PortOptions {
     start?: number;
@@ -16,16 +19,16 @@ export interface PortOptions {
 const usedPorts: number[] = [];
 
 /**
- * Return a random open port between start and end, excluding usedPorts.
+ * Return a random open port between start(inclusive) and end(exclusive), excluding usedPorts.
  * If all ports in that range are being used a random port between 1024 and 65535
  * will be returned instead.
- * @param {PortOptions} options Start, end, and assetsPort to exclude can be specified
+ * @param {PortOptions} options Start, end, and assetsPort to exclude
  * @returns {number}
  */
 export async function findPort(options: PortOptions = {}) {
     const {
         start = 1024,
-        end = 65536, // exclusive
+        end = 65536,
         assetsPort = 8003
     } = options;
 

@@ -19,7 +19,7 @@
         "build:doctor": "./scripts/build-doctor.sh",
         "build:fix": "echo '[DEPRECATED], use yarn run build:doctor instead'",
         "build:pkg": "./scripts/build-pkg.sh",
-        "build:watch": "tsc --build --watch",
+        "build:watch": "yarn run build --watch",
         "bump": "ts-scripts bump",
         "docker:limit": "./scripts/docker-limit-check.sh",
         "docker:listImages": "ts-scripts images list",
