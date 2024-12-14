@@ -1,8 +1,10 @@
 /* eslint-disable prefer-const */
-import _ from 'lodash';
 import type { EventEmitter } from 'node:events';
 import { nanoid } from 'nanoid';
-import { pDelay, Queue, Logger } from '@terascope/utils';
+import {
+    pDelay, Queue, Logger, isFunction,
+    isEmpty, get, toNumber
+} from '@terascope/utils';
 import { Context } from '@terascope/job-components';
 import socketIOClient from 'socket.io-client';
 import socketIOServer from 'socket.io';
@@ -160,18 +162,19 @@ export class Messaging {
     }
 
     private _findAndSend(filterFn: any, msg: any, msgHookFn?: any) {
-        const childProcesses = this.context.cluster.workers as any;
-        const children = _.filter(childProcesses, filterFn);
+        const childProcesses = this.context.cluster.workers;
+        const children = Object.values(childProcesses).filter(filterFn);
+
         if (children.length === 0 && msg.response) {
             // if there are no child processes found and it needs a response, answer back so
             // that it does not hold for a long time
             this.respond(msg);
         }
+
         children.forEach((childProcess) => {
             if (msgHookFn) msgHookFn(childProcess);
             // @ts-expect-error
             if (childProcess.connected) {
-                // @ts-expect-error
                 childProcess.send(msg);
             } else {
                 this.logger.warn('cannot send message to process', msg);
@@ -180,7 +183,7 @@ export class Messaging {
     }
 
     private _sendToProcesses(msg: any) {
-        const msgExId = msg.ex_id || _.get(msg, 'payload.ex_id');
+        const msgExId = msg.ex_id || get(msg, 'payload.ex_id');
         if (msgExId) {
             // all processes that have the same assignment and exId
             const filterFn = (process: any) => {
@@ -200,7 +203,8 @@ export class Messaging {
         const eventName = eventConfig.event;
         const { callback, identifier } = eventConfig;
 
-        const selfHasEvent = _.some(this.selfMessages, (type) => type[eventName] != null);
+        const selfHasEvent = Object.values(this.selfMessages)
+            .some((type) => type[eventName] != null);
 
         if (!selfHasEvent) {
             throw new Error(`"${self}" cannot register for event, "${eventName}", in messaging module`);
@@ -216,14 +220,20 @@ export class Messaging {
             // while others are sync registration
             let trueEventName = this.selfMessages.network[eventName];
 
-            if (!trueEventName) trueEventName = this.selfMessages.intraProcess[eventName];
-            if (identifier) callback.__socketIdentifier = identifier;
+            if (!trueEventName) {
+                trueEventName = this.selfMessages.intraProcess[eventName];
+            }
+
+            if (identifier) {
+                callback.__socketIdentifier = identifier;
+            }
+
             this.functionMapping[trueEventName] = callback;
         }
     }
 
     private _registerFns(socket: any) {
-        _.forOwn(this.functionMapping, (func, key) => {
+        for (const [key, func] of Object.entries(this.functionMapping)) {
             if (func.__socketIdentifier) {
                 const wrappedFunc = (msg = {}) => {
                     const identifier = func.__socketIdentifier;
@@ -238,7 +248,7 @@ export class Messaging {
                     // or retry event, join room
                     if (key === 'node:online') {
                         const rooms = Object.keys(socket.rooms);
-                        const hasRoom = _.some(rooms, (r) => r === id);
+                        const hasRoom = rooms.some((r) => r === id);
                         if (!hasRoom) {
                             this.logger.info(`joining room ${id}`);
                             socket.join(id);
@@ -253,13 +263,11 @@ export class Messaging {
                 };
 
                 socket.on(key, wrappedFunc);
-                return;
+            } else {
+                this.logger.trace(`setting listener key ${key}`);
+                socket.on(key, func);
             }
-
-            this.logger.trace(`setting listener key ${key}`);
-
-            socket.on(key, func);
-        });
+        }
     }
 
     private _determinePathForMessage(messageSent: any) {
@@ -394,7 +402,7 @@ export class Messaging {
             let timer: NodeJS.Timeout | undefined;
             const msgID = nanoid(8);
             const actionTimeout = messageSent.timeout || this.configTimeout;
-            const messageTimeout = _.toNumber(actionTimeout) + this.networkLatencyBuffer;
+            const messageTimeout = toNumber(actionTimeout) + this.networkLatencyBuffer;
             messageSent.__msgId = msgID;
 
             this.events.once(msgID, (nodeMasterData) => {
@@ -500,14 +508,14 @@ export class Messaging {
         return 0;
     }
 
-    listRooms() {
-        const connected = _.get(this.io, 'sockets.connected', {});
+    listRooms(): string[] {
+        const connected: Record<string, any> = get(this.io, 'sockets.connected', {});
 
-        if (_.isEmpty(connected)) return [];
+        if (isEmpty(connected)) return [];
 
-        const allRooms = _.map(connected, ({ rooms }) => _.keys(rooms));
-
-        return _.flatten(allRooms);
+        return Object.values(connected).flatMap(
+            (meta: Record<string, any>) => Object.keys(meta.rooms)
+        );
     }
 
     registerChildOnlineHook(fn: () => void) {
@@ -527,7 +535,7 @@ export class Messaging {
     private _emitIpcMessage(fn: any) {
         return (ipcMessage: any) => {
             const msg = ipcMessage.message;
-            const realMsg = _.get(this.selfMessages, `ipc.${msg}`, null);
+            const realMsg = get(this.selfMessages, `ipc.${msg}`, null);
             if (realMsg) {
                 fn(realMsg, ipcMessage);
             } else {
@@ -568,7 +576,7 @@ export class Messaging {
     }
 
     async shutdown() {
-        if (this.io && _.isFunction(this.io.close)) {
+        if (this.io && isFunction(this.io.close)) {
             this.io.close();
             await pDelay(100);
         }

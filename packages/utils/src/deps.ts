@@ -3,7 +3,10 @@
  * The behavior of a dependency can be overridden here
 */
 import {
-    has, set, get, unset
+    has, set, get, unset,
+    merge, debounce, padEnd,
+    difference, throttle, chain,
+    orderBy, shuffle, defaultsDeep, sortBy
 } from 'lodash-es';
 import { isPlainObject as _isPlainObject } from 'is-plain-object';
 import _clone from 'shallow-clone';
@@ -14,6 +17,8 @@ import pMap from 'p-map';
 import { AnyObject } from './interfaces.js';
 import { DataEntity } from './entities/index.js';
 import { isKey } from './objects.js';
+
+const multiFieldSort = sortBy;
 
 /**
  * Detect if an object created by Object.create(null)
@@ -117,4 +122,14 @@ export {
     has,
     geoHash,
     pMap,
+    merge,
+    padEnd,
+    debounce,
+    difference,
+    throttle,
+    chain,
+    orderBy,
+    shuffle,
+    defaultsDeep,
+    multiFieldSort
 };

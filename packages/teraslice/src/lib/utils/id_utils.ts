@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { trim, padEnd } from '@terascope/utils';
 import { customAlphabet } from 'nanoid';
 
 export function newId(prefix?: string, lowerCase = false, length = 15): string {
@@ -8,8 +8,8 @@ export function newId(prefix?: string, lowerCase = false, length = 15): string {
         characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     }
 
-    let id = _.trim(customAlphabet(characters, length)(), '-');
-    id = _.padEnd(id, length, 'abcdefghijklmnopqrstuvwxyz');
+    let id = trim(customAlphabet(characters, length)(), '-');
+    id = padEnd(id, length, 'abcdefghijklmnopqrstuvwxyz');
 
     if (prefix) {
         return `${prefix}-${id}`;

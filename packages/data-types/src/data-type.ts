@@ -1,16 +1,16 @@
-import { isString, set, startsWith } from '@terascope/utils';
+import {
+    isString, set, startsWith,
+    defaultsDeep
+} from '@terascope/utils';
 import {
     DataTypeConfig, ElasticsearchDistribution, ESMapping,
     ESTypeMappings, ReadonlyDataTypeFields, xLuceneTypeConfig
 } from '@terascope/types';
-import lodash from 'lodash';
 import { formatSchema, formatGQLDescription } from './graphql-helper.js';
 import * as i from './interfaces.js';
 import BaseType from './types/base-type.js';
 import * as utils from './utils.js';
 import { getTypes, LATEST_VERSION, getGroupedFields } from './types/index.js';
-
-const { defaultsDeep } = lodash;
 
 /**
  * A DataType is used to define the structure of data with version support

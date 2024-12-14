@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { pDelay, pDefer } from '@terascope/utils';
 
 export interface MakeShutdownEarlyFnArgs {
@@ -57,7 +56,7 @@ export function makeShutdownEarlyFn(
 }
 
 export function getTestCases(testCases: any[]) {
-    const onlyCases = _.filter(testCases, (ts) => ts[1].only);
+    const onlyCases = testCases.filter((ts) => ts[1].only);
     if (onlyCases.length > 0) {
         console.warn(
             '[WARNING]: test cases includes a "only" property, make sure to remove this before committing'
@@ -65,7 +64,7 @@ export function getTestCases(testCases: any[]) {
         return onlyCases;
     }
 
-    const cases = _.reject(testCases, (ts) => ts[1].skip);
+    const cases = testCases.filter((ts) => !ts[1].only);
     if (cases.length !== testCases.length) {
         console.warn(
             '[WARNING]: test cases includes a "skip" property, make sure to remove this before committing'

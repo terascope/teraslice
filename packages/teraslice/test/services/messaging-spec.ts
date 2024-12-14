@@ -1,11 +1,11 @@
 import { jest } from '@jest/globals';
-import _ from 'lodash';
 import events from 'node:events';
 import { debugLogger } from '@terascope/utils';
 import { Messaging, routing } from '../../src/lib/cluster/services/cluster/backends/native/messaging.js';
 
 describe('messaging module', () => {
     const logger = debugLogger('messaging');
+    let connected = {};
 
     const testExId = '7890';
 
@@ -64,7 +64,6 @@ describe('messaging module', () => {
     }
 
     let emitMsg: Record<string, any>;
-    const connected = {};
 
     const io = {
         emit: (msg: string, msgObj: Record<string, any>) => {
@@ -123,7 +122,8 @@ describe('messaging module', () => {
     beforeEach(() => {
         firstWorkerMsg = null;
         secondWorkerMsg = null;
-        _.omitBy(connected);
+        connected = {};
+        io.sockets.connected = connected;
     });
 
     afterEach(() => {

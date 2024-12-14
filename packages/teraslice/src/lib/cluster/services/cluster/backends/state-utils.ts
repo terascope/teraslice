@@ -1,13 +1,17 @@
-import _ from 'lodash';
-import type { ClusterState } from '../../../../../interfaces.js';
+import { cloneDeep } from '@terascope/utils';
+import type { ClusterState, WorkProcessNode } from '../../../../../interfaces.js';
 
-export function iterateState(clusterState: ClusterState, cb: (input: any) => boolean) {
+export function iterateState(
+    clusterState: ClusterState,
+    cb: (input: any) => boolean
+): WorkProcessNode[] {
     // I clone here, because the code below accidentally modifies clusterState.
     // Not sure if this is the best choice.
+    const state = cloneDeep(clusterState);
 
-    return _.chain(_.cloneDeep(clusterState))
+    return Object.values(state)
         .filter((node) => node.state === 'connected')
-        .map((node) => {
+        .flatMap((node) => {
             const workers = node.active.filter(cb);
 
             return workers.map((worker: any) => {
@@ -15,9 +19,7 @@ export function iterateState(clusterState: ClusterState, cb: (input: any) => boo
                 worker.hostname = node.hostname;
                 return worker;
             });
-        })
-        .flatten()
-        .value();
+        });
 }
 
 export function findAllSlicers(clusterState: ClusterState) {

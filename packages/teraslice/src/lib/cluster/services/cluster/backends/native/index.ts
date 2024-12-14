@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/prefer-for-of */
-import _ from 'lodash';
 import {
     Queue, TSError, getFullErrorStack,
-    pDelay, cloneDeep, Logger
+    pDelay, cloneDeep, Logger, debounce,
+    pMap, orderBy, isInteger, get
 } from '@terascope/utils';
 import type { EventEmitter } from 'node:events';
 import { ExecutionConfig } from '@terascope/types';
+import { Dispatch } from './dispatch.js';
 import type { ClusterMasterContext, NodeState } from '../../../../../../interfaces.js';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
 import { findWorkersByExecutionID } from '../state-utils.js';
@@ -29,8 +30,16 @@ interface StateMessage {
     payload: Record<string, any>;
     __source: string;
 }
+interface CheckNodeState {
+    hasSlicer: boolean;
+    numOfSlicers: number;
+    slicerExecutions: Record<string, string>;
+    workerExecutions: Record<string, number>;
+    numOfWorkers: number;
+    available: number;
+}
 
- type Message = StateMessage;
+type Message = StateMessage;
 
 export class NativeClustering {
     context: ClusterMasterContext;
@@ -103,8 +112,8 @@ export class NativeClustering {
                     delete this.clusterState[nodeId];
                 } else {
                     this.clusterState[nodeId].state = 'disconnected';
-                    const timer = setTimeout(() => {
-                        this._cleanUpNode(nodeId);
+                    const timer = setTimeout(async () => {
+                        await this._cleanUpNode(nodeId);
                     }, nodeDisconnectTimeout);
 
                     this.droppedNodes[nodeId] = timer;
@@ -112,7 +121,7 @@ export class NativeClustering {
             }
         });
         // TODO: should this be in initialize?
-        const schedulePendingRequests = _.debounce(() => {
+        const schedulePendingRequests = debounce(() => {
             if (this.pendingWorkerRequests.size() && this._availableWorkers(false, true) >= 1) {
                 const requestedWorker = this.pendingWorkerRequests.dequeue();
                 const job = JSON.parse(requestedWorker.job);
@@ -130,13 +139,13 @@ export class NativeClustering {
         this.events.on('cluster:available_workers', schedulePendingRequests);
     }
 
-    private _cleanUpNode(nodeId: string) {
+    private async _cleanUpNode(nodeId: string) {
         // check workers and slicers
         const node = this._checkNode(this.clusterState[nodeId]);
         // if disconnected node had a slicer, we stop the execution of each slicer on it
         // and mark it as failed
         if (node.hasSlicer) {
-            _.forIn(node.slicerExecutions, async (exId) => {
+            await pMap(Object.values(node.slicerExecutions), async (exId) => {
                 const errMsg = `node ${nodeId} has been disconnected from cluster_master past the allowed timeout, it has an active slicer for execution: ${exId} which will be marked as terminated and shut down`;
                 this.logger.error(errMsg);
                 const metaData = this.executionStore.executionMetaData(null, errMsg);
@@ -152,7 +161,7 @@ export class NativeClustering {
             });
         }
         // for any other worker not part of what is being shutdown, we attempt to reallocate
-        _.forIn(node.workerExecutions, async (__, exId) => {
+        await pMap(Object.keys(node.workerExecutions), async (exId) => {
             // looking for unique ex_id's not in slicerJobID
             if (!node.slicerExecutions[exId]) {
                 const activeWorkers = this.clusterState[nodeId].active;
@@ -197,7 +206,7 @@ export class NativeClustering {
     }
 
     private _checkNode(node: NodeState) {
-        const obj = {
+        const obj: CheckNodeState = {
             hasSlicer: false,
             numOfSlicers: 0,
             slicerExecutions: {},
@@ -252,7 +261,8 @@ export class NativeClustering {
 
     private _findNodesForExecution(exId: string, slicerOnly?: boolean) {
         const nodes: any[] = [];
-        _.forOwn(this.clusterState, (node) => {
+
+        for (const [, node] of Object.entries(this.clusterState)) {
             if (node.state !== 'disconnected') {
                 const hasJob = node.active.filter((worker: any) => {
                     if (slicerOnly) {
@@ -271,7 +281,7 @@ export class NativeClustering {
                     });
                 }
             }
-        });
+        }
 
         return nodes;
     }
@@ -282,11 +292,11 @@ export class NativeClustering {
         if (this.pendingWorkerRequests.size() === 0 || forceCheck) {
             const key = all ? 'total' : 'available';
 
-            _.forOwn(this.clusterState, (node) => {
+            for (const [,node] of Object.entries(this.clusterState)) {
                 if (node.state === 'connected') {
                     num += node[key];
                 }
-            });
+            }
         }
 
         return num;
@@ -301,32 +311,16 @@ export class NativeClustering {
         });
     }
 
-    private _makeDispatch() {
-        const methods: Record<string, any> = {};
-        const dispatch: Record<string, any> = {};
-
-        methods.set = (nodeId: string, numOfWorkers: number) => {
-            if (dispatch[nodeId]) {
-                dispatch[nodeId] += numOfWorkers;
-            } else {
-                dispatch[nodeId] = numOfWorkers;
-            }
-        };
-        methods.getDispatch = () => dispatch;
-
-        return methods;
-    }
-
     // designed to allocate additional workers, not any future slicers
     async allocateWorkers(execution: ExecutionConfig, numOfWorkersRequested: number) {
         const exId = execution.ex_id;
         const jobId = execution.job_id;
         const jobStr = JSON.stringify(execution);
-        const sortedNodes = _.orderBy(this.clusterState, 'available', 'desc');
+        const sortedNodes = orderBy(this.clusterState, 'available', 'desc');
         let workersRequested = numOfWorkersRequested;
         let availWorkers = this._availableWorkers(false, true);
 
-        const dispatch = this._makeDispatch();
+        const dispatch = new Dispatch();
 
         while (workersRequested > 0 && availWorkers > 0) {
             for (let i = 0; i < sortedNodes.length; i += 1) {
@@ -361,7 +355,7 @@ export class NativeClustering {
         }
         const results: any[] = [];
 
-        _.forOwn(dispatch.getDispatch(), (workerCount, nodeId) => {
+        for (const [nodeId, workerCount] of Object.entries(dispatch.getDispatch())) {
             const requestedWorkersData = {
                 job: jobStr,
                 id: exId,
@@ -378,14 +372,14 @@ export class NativeClustering {
                 payload: requestedWorkersData,
                 response: true
             }).then((msg) => {
-                const createdWorkers = _.get(msg, 'payload.createdWorkers') as unknown as number;
-                if (!_.isInteger(createdWorkers)) {
+                const createdWorkers = get(msg, 'payload.createdWorkers') as unknown as number;
+                if (!isInteger(createdWorkers)) {
                     this.logger.error(`malformed response from create workers request to node ${nodeId}`, msg);
                     return;
                 }
                 if (createdWorkers < workerCount) {
                     this.logger.warn(`node ${nodeId} was only able to allocate ${createdWorkers} the request worker count of ${workerCount}, enqueing the remainder`);
-                    const newWorkersRequest = _.cloneDeep(requestedWorkersData);
+                    const newWorkersRequest = cloneDeep(requestedWorkersData);
                     newWorkersRequest.workers = workerCount - createdWorkers;
                     this.pendingWorkerRequests.enqueue(newWorkersRequest);
                 } else {
@@ -398,7 +392,7 @@ export class NativeClustering {
                 });
 
             results.push(createRequest);
-        });
+        }
 
         // this will resolve successfully if one worker was actually allocated
         return Promise.all(results);
@@ -406,7 +400,7 @@ export class NativeClustering {
 
     private async _createSlicer(ex: ExecutionConfig, errorNodes: Record<string, any>) {
         const execution = cloneDeep(ex);
-        const sortedNodes = _.orderBy(this.clusterState, 'available', 'desc');
+        const sortedNodes = orderBy(this.clusterState, 'available', 'desc');
         const slicerNodeID = this._findNodeForSlicer(sortedNodes, errorNodes);
 
         // need to mutate job so that workers will know the specific port and
@@ -501,7 +495,7 @@ export class NativeClustering {
     }
 
     removeWorkers(exId: string, workerNum: number) {
-        const dispatch = this._makeDispatch();
+        const dispatch = new Dispatch();
         const workers = findWorkersByExecutionID(this.clusterState, exId);
         let workerCount = workerNum;
 
@@ -524,32 +518,36 @@ export class NativeClustering {
             this.logger.error(error);
             return Promise.reject(error);
         }
-        // @ts-expect-error
-        function stateForDispatch(__, key) {
-            if (key !== '_total') {
-                if (workersData[key] >= 1 && workerCount > 0) {
-                    dispatch.set(key, 1);
-                    workersData[key] -= 1;
-                    workerCount -= 1;
+
+        while (workerCount) {
+            for (const [key] of Object.entries(workersData)) {
+                if (key !== '_total') {
+                    if (workersData[key] >= 1 && workerCount > 0) {
+                        dispatch.set(key, 1);
+                        workersData[key] -= 1;
+                        workerCount -= 1;
+                    }
                 }
             }
         }
 
-        while (workerCount) {
-            _.forOwn(workersData, stateForDispatch);
+        const nodes = dispatch.getDispatch();
+        const messagesSent = [];
+
+        for (const [key, val] of Object.entries(nodes)) {
+            messagesSent.push(
+                this.messaging.send({
+                    to: 'node_master',
+                    address: key,
+                    message: 'cluster:workers:remove',
+                    ex_id: exId,
+                    payload: { workers: val },
+                    response: true
+                })
+            );
         }
 
-        const nodes = dispatch.getDispatch();
-        const results = _.map(nodes, (val, key) => this.messaging.send({
-            to: 'node_master',
-            address: key,
-            message: 'cluster:workers:remove',
-            ex_id: exId,
-            payload: { workers: val },
-            response: true
-        }));
-
-        return Promise.all(results)
+        return Promise.all(messagesSent)
             .then(() => ({ action: 'remove', ex_id: exId, workerNum }))
             .catch((err) => {
                 const error = new TSError(err, {
@@ -563,6 +561,7 @@ export class NativeClustering {
     private _notifyNodesWithExecution(exId: string, messageData: any, excludeNode?: string) {
         return new Promise((resolve, reject) => {
             let nodes = this._findNodesForExecution(exId);
+
             if (excludeNode) {
                 nodes = nodes.filter((node) => node.hostname !== excludeNode);
             } else if (messageData.message !== 'cluster:execution:stop' && nodes.length === 0) {

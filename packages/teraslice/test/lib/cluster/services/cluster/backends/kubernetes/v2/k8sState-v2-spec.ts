@@ -1,11 +1,11 @@
-import _ from 'lodash';
+import { cloneDeep } from '@terascope/utils';
 import _podsJobRunning from '../files/job-running-v1-k8s-pods.json';
 import { gen } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8sState.js';
 import { TSPodList } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/interfaces.js';
 
 describe('k8sState', () => {
     it('should generate cluster state correctly on first call', () => {
-        const podsJobRunning = _.cloneDeep<TSPodList>(_podsJobRunning as any);
+        const podsJobRunning = cloneDeep<TSPodList>(_podsJobRunning as any);
         const clusterState = {};
 
         gen(podsJobRunning, clusterState);
@@ -38,7 +38,7 @@ describe('k8sState', () => {
     });
 
     it('should generate cluster state correctly on second call', () => {
-        const podsJobRunning = _.cloneDeep<TSPodList>(_podsJobRunning as any);
+        const podsJobRunning = cloneDeep<TSPodList>(_podsJobRunning as any);
         const clusterState = {};
 
         gen(podsJobRunning, clusterState);
@@ -71,7 +71,7 @@ describe('k8sState', () => {
     });
 
     it('should remove old host ips', () => {
-        const podsJobRunning = _.cloneDeep<TSPodList>(_podsJobRunning as any);
+        const podsJobRunning = cloneDeep<TSPodList>(_podsJobRunning as any);
         const clusterState = {};
         clusterState['2.2.2.2'] = {
             state: 'idk',

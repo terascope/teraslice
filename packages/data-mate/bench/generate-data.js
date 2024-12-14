@@ -1,9 +1,8 @@
 /* eslint-disable no-console */
-import { times, random } from '@terascope/utils';
+import { times, random, shuffle } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import fs from 'node:fs';
 import path from 'node:path';
-import shuffle from 'lodash/shuffle';
 import Chance from 'chance';
 import util from 'node:util';
 import stream from 'node:stream';

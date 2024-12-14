@@ -1,7 +1,6 @@
 import { jest } from '@jest/globals';
-import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { pDelay } from '@terascope/utils';
+import { pDelay, once, times } from '@terascope/utils';
 import { TestContext } from '../helpers/test-context.js';
 import { Scheduler } from '../../../src/lib/workers/execution-controller/scheduler.js';
 
@@ -139,9 +138,9 @@ describe('Scheduler', () => {
         it('should handle pause and resume correctly', async () => {
             let slices: any[] = [];
 
-            const pause = _.once(() => {
+            const pause = once(() => {
                 scheduler.pause();
-                _.delay(() => scheduler.start(), 10);
+                setTimeout(() => scheduler.start(), 10);
             });
 
             scheduler.events.on('slicer:done', pause);
@@ -187,7 +186,7 @@ describe('Scheduler', () => {
         let exitAfterComplete = false;
 
         beforeEach(() => {
-            emitDone = _.once(() => {
+            emitDone = once(() => {
                 scheduler.events.emit('execution:recovery:complete', []);
             });
             // @ts-expect-error
@@ -231,12 +230,12 @@ describe('Scheduler', () => {
         });
 
         it('should handle recovery correctly and exit', async () => {
-            recoveryRecords = _.times(countPerSlicer * slicers, () => ({
+            recoveryRecords = times(countPerSlicer * slicers, () => ({
                 slice_id: uuidv4(),
                 slicer_id: 1,
                 slicer_order: 0,
                 request: {
-                    id: _.uniqueId('recover-')
+                    id: `recover-${Math.random()}`
                 },
                 _created: new Date().toISOString()
             }));
@@ -263,12 +262,12 @@ describe('Scheduler', () => {
         it('should handle recovery with cleanup type correctly and not exit', async () => {
             exitAfterComplete = true;
 
-            recoveryRecords = _.times(countPerSlicer, () => ({
+            recoveryRecords = times(countPerSlicer, () => ({
                 slice_id: uuidv4(),
                 slicer_id: 1,
                 slicer_order: 0,
                 request: {
-                    id: _.uniqueId('recover-')
+                    id: `recover-${Math.random()}`
                 },
                 _created: new Date().toISOString()
             }));

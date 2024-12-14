@@ -1,7 +1,6 @@
-import shuffle from 'lodash/shuffle.js';
 import {
     get, times, pDelay,
-    toIntegerOrThrow,
+    toIntegerOrThrow, shuffle
 } from '@terascope/utils';
 import porty from 'porty';
 import { Context } from '@terascope/job-components';

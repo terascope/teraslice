@@ -77,6 +77,14 @@ export interface NodeState {
     active: ProcessNode[];
 }
 
+export interface WorkProcessNode extends BaseWorkerNode {
+    assignment: ProcessAssignment.execution_controller | ProcessAssignment.worker;
+    ex_id: string;
+    job_id: string;
+    node_id: string;
+    hostname: string;
+}
+
 export interface ClusterState {
     [nodeId: string]: NodeState;
 }
