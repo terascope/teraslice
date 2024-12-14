@@ -123,6 +123,7 @@ describe('messaging module', () => {
         firstWorkerMsg = null;
         secondWorkerMsg = null;
         connected = {};
+        io.sockets.connected = connected;
     });
 
     afterEach(() => {
