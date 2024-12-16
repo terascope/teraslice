@@ -48,6 +48,7 @@ export default (projectDir) => {
             `<rootDir>/${parentFolder}/*/dist`,
             `<rootDir>/${parentFolder}/teraslice-cli/test/fixtures/`
         ],
+        // do not run transforms on node_modules or pnp files
         transformIgnorePatterns: [
             '/node_modules/',
             '\\.pnp\\.[^\\/]+$'],
