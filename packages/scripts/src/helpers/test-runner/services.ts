@@ -83,8 +83,8 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         image: config.OPENSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
         tmpfs: config.SERVICES_USE_TMPFS
-        ? ['/usr/share/opensearch/data:uid=1000,gid=1000']
-        : undefined,
+            ? ['/usr/share/opensearch/data:uid=1000,gid=1000']
+            : undefined,
         ports: [`${config.OPENSEARCH_PORT}:${config.OPENSEARCH_PORT}`],
         env: {
             OPENSEARCH_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
