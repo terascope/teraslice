@@ -14,7 +14,7 @@
     ],
     "scripts": {
         "prebuild": "./packages/xlucene-parser/scripts/generate-engine.js",
-        "build": "tsc --build && yarn workspace teraslice-cli build",
+        "build": "tsc --build --verbose && yarn workspace teraslice-cli build --verbose",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:doctor": "./scripts/build-doctor.sh",
         "build:fix": "echo '[DEPRECATED], use yarn run build:doctor instead'",
