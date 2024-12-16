@@ -6,7 +6,8 @@ import {
     has, set, get, unset,
     merge, debounce, padEnd,
     difference, throttle, chain,
-    orderBy, shuffle, defaultsDeep, sortBy
+    orderBy, shuffle, defaultsDeep,
+    sortBy, range
 } from 'lodash-es';
 import { isPlainObject as _isPlainObject } from 'is-plain-object';
 import _clone from 'shallow-clone';
@@ -131,5 +132,6 @@ export {
     orderBy,
     shuffle,
     defaultsDeep,
-    multiFieldSort
+    multiFieldSort,
+    range
 };

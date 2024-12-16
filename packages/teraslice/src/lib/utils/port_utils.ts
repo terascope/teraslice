@@ -1,13 +1,8 @@
 import {
-    get, times, pDelay,
-    toIntegerOrThrow, shuffle, range
+    get, toIntegerOrThrow, shuffle, range
 } from '@terascope/utils';
 
 import getPort from 'get-port';
-import { Context } from '@terascope/job-components';
-import range from 'lodash/range.js';
-import getPort from 'get-port';
-import { get, toIntegerOrThrow } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
 
 export interface PortOptions {
