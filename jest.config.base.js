@@ -48,7 +48,9 @@ export default (projectDir) => {
             `<rootDir>/${parentFolder}/*/dist`,
             `<rootDir>/${parentFolder}/teraslice-cli/test/fixtures/`
         ],
-        transformIgnorePatterns: [],
+        transformIgnorePatterns: [
+            '/node_modules/',
+            '\\.pnp\\.[^\\/]+$'],
         moduleNameMapper: {
             '^(\\.{1,2}/.*)\\.js$': '$1',
         },
