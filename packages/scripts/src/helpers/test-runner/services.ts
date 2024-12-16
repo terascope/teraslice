@@ -87,7 +87,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             ? ['/usr/share/opensearch/data:uid=1000,gid=1000']
             : undefined,
         env: {
-            ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
+            OPENSEARCH_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
             'network.host': '0.0.0.0',
             'http.port': config.OPENSEARCH_PORT,
             'discovery.type': 'single-node',
