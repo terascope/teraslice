@@ -70,7 +70,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
         ports: [`${config.RESTRAINED_OPENSEARCH_PORT}:${config.RESTRAINED_OPENSEARCH_PORT}`],
         env: {
-            ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
+            OPENSEARCH_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
             'network.host': '0.0.0.0',
             'http.port': config.RESTRAINED_OPENSEARCH_PORT,
             'discovery.type': 'single-node',
