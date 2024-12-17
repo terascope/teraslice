@@ -70,7 +70,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
         ports: [`${config.RESTRAINED_OPENSEARCH_PORT}:${config.RESTRAINED_OPENSEARCH_PORT}`],
         env: {
-            ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
+            OPENSEARCH_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
             'network.host': '0.0.0.0',
             'http.port': config.RESTRAINED_OPENSEARCH_PORT,
             'discovery.type': 'single-node',
@@ -82,9 +82,12 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.Opensearch]: {
         image: config.OPENSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
+        tmpfs: config.SERVICES_USE_TMPFS
+            ? ['/usr/share/opensearch/data:uid=1000,gid=1000']
+            : undefined,
         ports: [`${config.OPENSEARCH_PORT}:${config.OPENSEARCH_PORT}`],
         env: {
-            ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
+            OPENSEARCH_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
             'network.host': '0.0.0.0',
             'http.port': config.OPENSEARCH_PORT,
             'discovery.type': 'single-node',
