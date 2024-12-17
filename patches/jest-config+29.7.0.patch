@@ -1,0 +1,12 @@
+diff --git a/node_modules/jest-config/build/ValidConfig.js b/node_modules/jest-config/build/ValidConfig.js
+index 0c1250c..67e586e 100644
+--- a/node_modules/jest-config/build/ValidConfig.js
++++ b/node_modules/jest-config/build/ValidConfig.js
+@@ -331,6 +331,7 @@ const initialProjectOptions = {
+     ['/__tests__/\\.test\\.[jt]sx?$', '/__tests__/\\.spec\\.[jt]sx?$']
+   ),
+   testRunner: 'circus',
++  testTimeout: 5000,
+   transform: {
+     '\\.js$': '<rootDir>/preprocessor.js'
+   },

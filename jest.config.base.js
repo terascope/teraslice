@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isCI } from '@terascope/utils';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -31,15 +30,11 @@ export default (projectDir) => {
         rootDir = '../../';
     }
 
-    const coverageReporters = ['lcov', 'html'];
-    if (!isCI) {
-        coverageReporters.push('text-summary');
-    }
     const config = {
         rootDir,
         displayName: name,
-        verbose: true,
         testEnvironment: 'node',
+        testTimeout: 60 * 1000,
         setupFilesAfterEnv: ['jest-extended/all'],
         testMatch: [`${packageRoot}/test/**/*-spec.{ts,js}`, `${packageRoot}/test/*-spec.{ts,js}`],
         testPathIgnorePatterns: [
@@ -57,14 +52,10 @@ export default (projectDir) => {
         },
         moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs', 'mjs'],
         extensionsToTreatAsEsm: ['.ts'],
-        collectCoverage: true,
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
-        coverageReporters,
         coverageDirectory: `${packageRoot}/coverage`,
-        watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
         workerIdleMemoryLimit: '200MB',
-        testTimeout: 60 * 1000,
         globals: {
             availableExtensions: ['.js', '.ts', '.mjs', 'cjs'],
         },
