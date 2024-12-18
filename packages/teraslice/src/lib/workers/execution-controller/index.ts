@@ -561,9 +561,9 @@ export class ExecutionController {
 
         // start creating / dispatching slices, this will block until done
         await Promise.all([
-            this.client.sendAvailable(),
-            this._runDispatch(),
-            this.scheduler.run()
+            this.client.sendAvailable().then(() => this.logger.debug('client.sendAvailable() promise resolved')),
+            this._runDispatch().then(() => this.logger.debug('_runDispatch() promise resolved')),
+            this.scheduler.run().then(() => this.logger.debug('scheduler.run() promise resolved'))
         ]);
 
         const schedulerSuccessful = this.scheduler.isFinished && this.scheduler.slicersDone;
