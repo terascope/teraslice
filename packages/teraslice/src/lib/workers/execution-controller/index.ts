@@ -917,7 +917,7 @@ export class ExecutionController {
                         this.exId
                     } to finish...`
                 );
-                this.logger.debug(`Vars at timeout:\nisExecutionDone: ${this.isExecutionDone}\nclient.ready: ${this.client.ready}\n`
+                this.logger.debug(`Execution controller state vars at timeout:\nisExecutionDone: ${this.isExecutionDone}\nclient.ready: ${this.client.ready}\n`
                     + `onlineClientCount: ${this.server.onlineClientCount}\nserver.isShuttingDown: ${this.server.isShuttingDown}`
                     + `isShuttingDown: ${this.isShuttingDown}\nisShutdown: ${this.isShutdown}\n`
                     + `isDoneDispatching: ${this.isDoneDispatching}\npendingDispatches: ${this.pendingDispatches}\n`
