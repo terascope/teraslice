@@ -130,7 +130,11 @@ export class Scheduler {
         );
 
         await pWhile(async () => {
-            if (!this._creating) return true;
+            if (!this._creating) {
+                this.logger.debug('done creating remaining slices');
+                return true;
+            }
+            this.logger.debug(`waiting for ${this._creating} remaining slices to be created...`);
             await pDelay(100);
             return false;
         });
