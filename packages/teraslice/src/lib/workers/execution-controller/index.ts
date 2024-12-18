@@ -917,11 +917,11 @@ export class ExecutionController {
                         this.exId
                     } to finish...`
                 );
-                this.logger.debug(`Vars at timeout: isExecutionDone: ${this.isExecutionDone}, client.ready: ${this.client.ready},
-                    isShuttingDown: ${this.isShuttingDown}, isShutdown: ${this.isShutdown},
-                    isDoneDispatching: ${this.isDoneDispatching}, pendingDispatches: ${this.pendingDispatches},
-                    scheduler.isFinished: ${this.scheduler.isFinished}, pendingSlices: ${this.pendingSlices},
-                    onlineClientCount: ${this.server.onlineClientCount}, server.isShuttingDown: ${this.server.isShuttingDown}`);
+                this.logger.debug(`Vars at timeout:\nisExecutionDone: ${this.isExecutionDone}\nclient.ready: ${this.client.ready}\n`
+                    + `onlineClientCount: ${this.server.onlineClientCount}\nserver.isShuttingDown: ${this.server.isShuttingDown}`
+                    + `isShuttingDown: ${this.isShuttingDown}\nisShutdown: ${this.isShutdown}\n`
+                    + `isDoneDispatching: ${this.isDoneDispatching}\npendingDispatches: ${this.pendingDispatches}\n`
+                    + `scheduler.isFinished: ${this.scheduler.isFinished}\npendingSlices: ${this.pendingSlices}\n`);
                 return null;
             }
 
