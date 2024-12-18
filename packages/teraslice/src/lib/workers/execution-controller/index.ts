@@ -665,6 +665,7 @@ export class ExecutionController {
         clearInterval(dispatchInterval);
 
         this.isDoneDispatching = true;
+        this.logger.debug('done dispatching slices');
     }
 
     _dispatchSlice(slice: Slice, workerId: string) {
@@ -916,6 +917,11 @@ export class ExecutionController {
                         this.exId
                     } to finish...`
                 );
+                this.logger.debug(`Vars at timeout: isExecutionDone: ${this.isExecutionDone}, client.ready: ${this.client.ready},
+                    isShuttingDown: ${this.isShuttingDown}, isShutdown: ${this.isShutdown},
+                    isDoneDispatching: ${this.isDoneDispatching}, pendingDispatches: ${this.pendingDispatches},
+                    scheduler.isFinished: ${this.scheduler.isFinished}, pendingSlices: ${this.pendingSlices},
+                    onlineClientCount: ${this.server.onlineClientCount}, server.isShuttingDown: ${this.server.isShuttingDown}`);
                 return null;
             }
 
