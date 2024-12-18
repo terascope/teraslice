@@ -11,7 +11,7 @@ env:
 
 jobs:
   compute-node-version-vars:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       NODE_VERSIONS: ${{ steps.step1.outputs.NODE_VERSIONS }}
       NODE_VERSION_MAIN: ${{ steps.step2.outputs.NODE_VERSION_MAIN }}
@@ -28,7 +28,7 @@ jobs:
         run: echo "NODE_VERSIONS_EXT_STORAGE=${{ env.NODE_VERSIONS_EXT_STORAGE }}" >> $GITHUB_OUTPUT
 
   verify-build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: compute-node-version-vars
     steps:
     - name: Check out code
@@ -55,7 +55,7 @@ jobs:
     secrets: inherit
 
   linux-unit-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: compute-node-version-vars
     strategy:
       matrix:
@@ -79,7 +79,7 @@ jobs:
         run: yarn --silent test -- --suite unit --
 
   teraslice-elasticsearch-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [compute-node-version-vars, verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
@@ -126,7 +126,7 @@ jobs:
         working-directory: ./packages/teraslice
 
   elasticsearch-store-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [compute-node-version-vars, verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
@@ -173,7 +173,7 @@ jobs:
         working-directory: ./packages/elasticsearch-store
 
   lint-and-sync:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [compute-node-version-vars, verify-build, cache-docker-images]
     # will remove the checkout, build and setup when the artifact is made to just
     # test the linting and syncing of the codebase
@@ -199,7 +199,7 @@ jobs:
       run: yarn sync --verify
 
   elasticsearch-api-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [compute-node-version-vars, verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
@@ -246,7 +246,7 @@ jobs:
         working-directory: ./packages/elasticsearch-api
 
   e2e-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [compute-node-version-vars, verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
@@ -297,7 +297,7 @@ jobs:
         working-directory: ./e2e
 
   e2e-k8s-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [compute-node-version-vars, verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
@@ -352,7 +352,7 @@ jobs:
         working-directory: ./e2e
 
   e2e-k8s-v2-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [compute-node-version-vars, verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
@@ -407,7 +407,7 @@ jobs:
         working-directory: ./e2e
 
   e2e-external-storage-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [compute-node-version-vars, verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
@@ -457,7 +457,7 @@ jobs:
         working-directory: ./e2e
 
   e2e-external-storage-tests-encrypted:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [compute-node-version-vars, verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
