@@ -1,7 +1,7 @@
 import {
     isTest, debugLogger, concat,
     Logger, makeISODate, toSafeString,
-    trim, trimAndToLower, TSError
+    trim, trimAndToLower, TSError, isKey
 } from '@terascope/utils';
 import { JoinBy } from '@terascope/data-mate';
 import { QueryAccess, RestrictOptions } from 'xlucene-translator';
@@ -23,7 +23,7 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
     readonly logger: Logger;
 
     private _uniqueFields: readonly (keyof T)[];
-    private _sanitizeFields: i.SanitizeFields;
+    private _sanitizeFields: i.SanitizeFields<T> | undefined;
 
     constructor(
         client: Client,
@@ -85,7 +85,9 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
         this.logger = options.logger || debugLogger(debugLoggerName);
 
         this._uniqueFields = concat('_key', uniqueFields);
-        this._sanitizeFields = sanitizeFields || {};
+        if (sanitizeFields) {
+            this._sanitizeFields = sanitizeFields;
+        }
 
         this.readHooks.add((doc) => {
             if (doc._deleted) return false;
@@ -212,24 +214,46 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
         return count === ids.length;
     }
 
+    private _setStringValueOrThrow<K extends keyof T>(obj: T, key: K, value: string) {
+        if (typeof obj[key] === 'string') {
+            obj[key] = value as T[K];
+        } else {
+            throw new Error(`Cannot assign a string to a property of type ${typeof obj[key]}`);
+        }
+    }
+
     protected _sanitizeRecord(record: T): T {
-        const entries = Object.entries(this._sanitizeFields);
+        if (this._sanitizeFields) {
+            const entries = Object.entries(this._sanitizeFields);
 
-        for (const [field, method] of entries) {
-            if (!record[field]) continue;
-
-            switch (method) {
-                case 'trim':
-                    record[field] = trim(record[field]);
-                    break;
-                case 'trimAndToLower':
-                    record[field] = trimAndToLower(record[field]);
-                    break;
-                case 'toSafeString':
-                    record[field] = toSafeString(record[field]);
-                    break;
-                default:
-                    continue;
+            for (const [field, method] of entries) {
+                if (isKey(record, field)) {
+                    switch (method) {
+                        case 'trim':
+                            this._setStringValueOrThrow(
+                                record,
+                                field,
+                                trim(record[field])
+                            );
+                            break;
+                        case 'trimAndToLower':
+                            this._setStringValueOrThrow(
+                                record,
+                                field,
+                                trimAndToLower(record[field] as string)
+                            );
+                            break;
+                        case 'toSafeString':
+                            this._setStringValueOrThrow(
+                                record,
+                                field,
+                                toSafeString(record[field] as string)
+                            );
+                            break;
+                        default:
+                            continue;
+                    }
+                }
             }
         }
 

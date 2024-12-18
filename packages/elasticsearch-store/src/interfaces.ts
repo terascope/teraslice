@@ -245,7 +245,7 @@ export type IndexModelConfig<T extends IndexModelRecord> = Omit<
     unique_fields?: (keyof T)[];
 
     /** Sanitize / cleanup fields mapping, like trim or trimAndToLower */
-    sanitize_fields?: SanitizeFields;
+    sanitize_fields?: SanitizeFields<T>;
 
     /** Specify whether the data should be strictly validated, defaults to true */
     strict_mode?: boolean;
@@ -256,8 +256,8 @@ export type IndexModelConfig<T extends IndexModelRecord> = Omit<
     timeseries?: boolean;
 };
 
-export type SanitizeFields = {
-    [field: string]: 'trimAndToLower' | 'trim' | 'toSafeString';
+export type SanitizeFields<T> = {
+    [field in string & keyof T]: 'trimAndToLower' | 'trim' | 'toSafeString';
 };
 
 /**

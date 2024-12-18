@@ -192,6 +192,7 @@ type BasicESTypeMapping = {
 
 type IgnoredESTypeMapping = {
     enabled: boolean;
+    [prop: string]: any;
 };
 
 type FieldsESTypeMapping = {
@@ -203,6 +204,7 @@ type FieldsESTypeMapping = {
             analyzer?: string;
         };
     };
+    [prop: string]: any;
 };
 
 export type PropertyESTypes = FieldsESTypeMapping | BasicESTypeMapping;

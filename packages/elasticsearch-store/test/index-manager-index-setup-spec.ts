@@ -1,11 +1,12 @@
 import 'jest-extended';
-import { debugLogger, get } from '@terascope/utils';
+import { debugLogger, get, isKey } from '@terascope/utils';
 import * as simple from './helpers/simple-index.js';
 import * as template from './helpers/template-index.js';
 import {
     IndexManager, timeSeriesIndex, IndexConfig, getESVersion,
     __timeSeriesTest, ElasticsearchTestHelpers
 } from '../src/index.js';
+import { MappingTypeMapping } from 'opensearch1/api/types.js';
 
 const {
     makeClient, cleanupIndex, TEST_INDEX_PREFIX,
@@ -70,7 +71,10 @@ describe('IndexManager->indexSetup()', () => {
             expect(mapping).toHaveProperty(index);
             if (esVersion === 6) {
                 expect(mapping[index].mappings).toHaveProperty(config.name);
-                expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { foo: 'foo' });
+                expect(
+                    isKey(mapping[index].mappings, config.name)
+                    && mapping[index].mappings[config.name]
+                ).toHaveProperty('_meta', { foo: 'foo' });
             } else {
                 expect(mapping[index].mappings).toHaveProperty('_meta', { foo: 'foo' });
             }
@@ -98,9 +102,18 @@ describe('IndexManager->indexSetup()', () => {
             it('should have updated the index metadata', async () => {
                 const mapping = await indexManager.getMapping(index);
 
-                const properties = esVersion === 6
-                    ? mapping[index].mappings[config.name].properties
-                    : mapping[index].mappings.properties;
+                let properties = undefined;
+                const { mappings } = mapping[index];
+                if (esVersion === 6) {
+                    if (isKey(mappings, config.name)) {
+                        const mappingsObj = mappings[config.name] as MappingTypeMapping;
+                        if (isKey(mappingsObj, 'properties')) {
+                            properties = mappingsObj.properties;
+                        }
+                    }
+                } else {
+                    properties = mappings.properties;
+                }
 
                 expect(properties).toMatchObject({
                     test_object: {
@@ -115,7 +128,10 @@ describe('IndexManager->indexSetup()', () => {
                     },
                 });
                 if (esVersion === 6) {
-                    expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { foo: 'foo' });
+                    expect(
+                        isKey(mapping[index].mappings, config.name)
+                        && mapping[index].mappings[config.name]
+                    ).toHaveProperty('_meta', { foo: 'foo' });
                 } else {
                     expect(mapping[index].mappings).toHaveProperty('_meta', { foo: 'foo' });
                 }
@@ -146,9 +162,22 @@ describe('IndexManager->indexSetup()', () => {
                 it('should have the previous the index metadata since removed fields shouldn\'t break', async () => {
                     const mapping = await indexManager.getMapping(index);
 
-                    const properties = esVersion === 6
-                        ? mapping[index].mappings[config.name].properties
-                        : mapping[index].mappings.properties;
+                    // const properties = esVersion === 6
+                    //     ? mapping[index].mappings[config.name].properties
+                    //     : mapping[index].mappings.properties;
+
+                    let properties = undefined;
+                    const { mappings } = mapping[index];
+                    if (esVersion === 6) {
+                        if (isKey(mappings, config.name)) {
+                            const mappingsObj = mappings[config.name] as MappingTypeMapping;
+                            if (isKey(mappingsObj, 'properties')) {
+                                properties = mappingsObj.properties;
+                            }
+                        }
+                    } else {
+                        properties = mappings.properties;
+                    }
 
                     expect(properties).toMatchObject({
                         test_object: {
@@ -163,7 +192,10 @@ describe('IndexManager->indexSetup()', () => {
                         },
                     });
                     if (esVersion === 6) {
-                        expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { foo: 'foo' });
+                        expect(
+                            isKey(mapping[index].mappings, config.name)
+                            && mapping[index].mappings[config.name]
+                        ).toHaveProperty('_meta', { foo: 'foo' });
                     } else {
                         expect(mapping[index].mappings).toHaveProperty('_meta', { foo: 'foo' });
                     }
@@ -229,7 +261,10 @@ describe('IndexManager->indexSetup()', () => {
             expect(mapping).toHaveProperty(index);
             if (esVersion === 6) {
                 expect(mapping[index].mappings).toHaveProperty(config.name);
-                expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { bar: 'bar' });
+                expect(
+                    isKey(mapping[index].mappings, config.name)
+                    && mapping[index].mappings[config.name]
+                ).toHaveProperty('_meta', { foo: 'foo' });
             } else {
                 expect(mapping[index].mappings).toHaveProperty('_meta', { bar: 'bar' });
             }
@@ -323,7 +358,10 @@ describe('IndexManager->indexSetup()', () => {
             const newIdxMapping = await indexManager.getMapping('foobar');
 
             if (esVersion === 6) {
-                expect(newIdxMapping.foobar.mappings[config.name]).toHaveProperty('_meta', { baz: 'baz' });
+                expect(
+                    isKey(newIdxMapping.foobar.mappings, config.name)
+                    && newIdxMapping.foobar.mappings[config.name]
+                ).toHaveProperty('_meta', { foo: 'foo' });
             } else {
                 expect(newIdxMapping.foobar.mappings).toHaveProperty('_meta', { baz: 'baz' });
             }

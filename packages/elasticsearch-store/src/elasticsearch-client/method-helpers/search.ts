@@ -41,7 +41,7 @@ export function convertSearchParams(
 }
 
 function qDependentFieldsCheck(params: ClientParams.SearchParams) {
-    const requiresQ = [
+    const requiresQ: Array<keyof ClientParams.SearchParams> = [
         'analyzer',
         'analyze_wildcard',
         'default_operator',

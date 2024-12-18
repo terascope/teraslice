@@ -29,6 +29,7 @@ declare module './aggregation-frame/AggregationFrame.d.ts' {
          * @returns the new columns
         */
         run(): Promise<DataFrame<T>>;
+        [key: string]: any; // fixMe: make sure this is okay
     }
 }
 
@@ -57,7 +58,7 @@ AggregationFrame.prototype.run = async function run() {
 const aggregationFrameMethods = Reflect.ownKeys(AggregationFrame.prototype);
 for (const dataFrameMethod of Reflect.ownKeys(DataFrame.prototype)) {
     if (!aggregationFrameMethods.includes(dataFrameMethod)) {
-        AggregationFrame.prototype[dataFrameMethod] = () => {
+        AggregationFrame.prototype[dataFrameMethod as keyof AggregationFrame<any>] = () => {
             throw new Error(
                 `Unsupported method on ${String(dataFrameMethod)} AggregationFrame.
 Use it before DataFrame.aggregate or after AggregationFrame.run()`
