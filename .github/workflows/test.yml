@@ -51,12 +51,12 @@ jobs:
         YARN_SETUP_ARGS: "--prod=false"
 
   check-docker-limit-before:
-   uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f5e098fa861fe7744fa61842e82124f806364be9
+   uses: terascope/workflows/.github/workflows/check-docker-limit.yml@9801f8d83d5efd52a1bb3816633b038b09fb75f4
    secrets: inherit
 
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@f5e098fa861fe7744fa61842e82124f806364be9
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@9801f8d83d5efd52a1bb3816633b038b09fb75f4
     secrets: inherit
 
   linux-unit-tests:
@@ -584,5 +584,5 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f5e098fa861fe7744fa61842e82124f806364be9
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@9801f8d83d5efd52a1bb3816633b038b09fb75f4
     secrets: inherit
