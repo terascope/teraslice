@@ -26,6 +26,11 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: 'yarn'
 
+      - name: Install Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.5.3 --activate
+
       - name: Install and build packages
         run: yarn setup
         env:
@@ -56,6 +61,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
+
+      - name: Install Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.5.3 --activate
 
       - name: Install and build packages
         run: yarn setup
