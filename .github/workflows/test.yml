@@ -40,6 +40,11 @@ jobs:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
         cache: 'yarn'
 
+    - name: Install Yarn 4
+      run: |
+        corepack enable
+        corepack prepare yarn@4.5.3 --activate
+
     - name: Install and build packages
       run: yarn setup
       env:
@@ -70,6 +75,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
+      - name: Install Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.5.3 --activate
+
       - name: Install and build packages
         run: yarn setup
         env:
@@ -96,6 +106,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
+
+      - name: Install Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.5.3 --activate
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -144,6 +159,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
+      - name: Install Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.5.3 --activate
+
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -187,6 +207,11 @@ jobs:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
         cache: 'yarn'
 
+    - name: Install Yarn 4
+      run: |
+        corepack enable
+        corepack prepare yarn@4.5.3 --activate
+
     - name: Install and build packages
       run: yarn setup
       env:
@@ -216,6 +241,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
+
+      - name: Install Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.5.3 --activate
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -263,6 +293,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
+
+      - name: Install Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.5.3 --activate
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -313,6 +348,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
+
+      - name: Install Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.5.3 --activate
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -369,6 +409,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
+      - name: Install Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.5.3 --activate
+
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -424,6 +469,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
+      - name: Install Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.5.3 --activate
+
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -473,6 +523,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
+
+      - name: Install Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.5.3 --activate
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
