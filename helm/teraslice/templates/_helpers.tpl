@@ -128,13 +128,15 @@ terafoundation:
   {{- $filtered := omit . "prom_metrics_display_url" }}
   {{- toYaml $filtered | nindent 2 }}
   {{- if hasKey . "prom_metrics_display_url" }}
-  prom_metrics_display_url: {{ .prom_metrics_display_url }}
+  {{- $url := .prom_metrics_display_url }}
+  prom_metrics_display_url: {{ printf "%s/" (trimSuffix "/" $url) }}
   {{- else if and (hasKey $.Values "ingress") ($.Values.ingress.enabled | default false) (not (empty $.Values.ingress.hosts)) }}
   {{- $protocol := "http://" }}
   {{- if and (hasKey $.Values.ingress "tls") (not (empty $.Values.ingress.tls)) }}
     {{- $protocol = "https://" }}
   {{- end }}
-  prom_metrics_display_url: {{ printf "%s%s" $protocol (index $.Values.ingress.hosts 0).host }}
+  {{- $baseUrl := printf "%s%s" $protocol (index $.Values.ingress.hosts 0).host }}
+  prom_metrics_display_url: {{ printf "%s/" (trimSuffix "/" $baseUrl) }}
   {{- end }}
 {{- end }}
 
@@ -182,13 +184,15 @@ terafoundation:
   {{- $filtered := omit . "prom_metrics_display_url" }}
   {{- toYaml $filtered | nindent 2 }}
   {{- if hasKey . "prom_metrics_display_url" }}
-  prom_metrics_display_url: {{ .prom_metrics_display_url }}
+  {{- $url := .prom_metrics_display_url }}
+  prom_metrics_display_url: {{ printf "%s/" (trimSuffix "/" $url) }}
   {{- else if and (hasKey $.Values "ingress") ($.Values.ingress.enabled | default false) (not (empty $.Values.ingress.hosts)) }}
   {{- $protocol := "http://" }}
   {{- if and (hasKey $.Values.ingress "tls") (not (empty $.Values.ingress.tls)) }}
     {{- $protocol = "https://" }}
   {{- end }}
-  prom_metrics_display_url: {{ printf "%s%s" $protocol (index $.Values.ingress.hosts 0).host }}
+  {{- $baseUrl := printf "%s%s" $protocol (index $.Values.ingress.hosts 0).host }}
+  prom_metrics_display_url: {{ printf "%s/" (trimSuffix "/" $baseUrl) }}
   {{- end }}
 {{- end }}
 
