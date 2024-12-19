@@ -175,7 +175,13 @@ Create teraslice worker base config
 {{- define "teraslice.workerConfig" -}}
 {{- with .Values.terafoundation }}
 terafoundation:
-  {{- toYaml . | nindent 2 }}
+  {{- $filtered := omit . "prom_metrics_display_url" }}
+  {{- toYaml $filtered | nindent 2 }}
+  {{- if hasKey . "prom_metrics_display_url" }}
+  prom_metrics_display_url: {{ .prom_metrics_display_url }}
+  {{- else if and ($.Values.ingress.enabled) (not (empty $.Values.ingress.hosts)) }}
+  prom_metrics_display_url: {{ (index $.Values.ingress.hosts 0).host }}
+  {{- end }}
 {{- end }}
 
 {{- with .Values.stats }}
