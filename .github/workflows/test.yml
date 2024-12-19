@@ -44,6 +44,7 @@ jobs:
       run: |
         corepack enable
         corepack prepare yarn@4.5.3 --activate
+        yarn install
 
     - name: Install and build packages
       run: yarn setup
@@ -79,6 +80,7 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.5.3 --activate
+          yarn install
 
       - name: Install and build packages
         run: yarn setup
@@ -111,6 +113,7 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.5.3 --activate
+          yarn install
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -163,6 +166,7 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.5.3 --activate
+          yarn install
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -211,6 +215,7 @@ jobs:
       run: |
         corepack enable
         corepack prepare yarn@4.5.3 --activate
+        yarn install
 
     - name: Install and build packages
       run: yarn setup
@@ -246,6 +251,7 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.5.3 --activate
+          yarn install
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -298,6 +304,7 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.5.3 --activate
+          yarn install
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -353,6 +360,7 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.5.3 --activate
+          yarn install
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -413,6 +421,7 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.5.3 --activate
+          yarn install
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -473,6 +482,7 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.5.3 --activate
+          yarn install
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -528,6 +538,7 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.5.3 --activate
+          yarn install
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
