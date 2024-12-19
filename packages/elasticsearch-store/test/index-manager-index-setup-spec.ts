@@ -162,10 +162,6 @@ describe('IndexManager->indexSetup()', () => {
                 it('should have the previous the index metadata since removed fields shouldn\'t break', async () => {
                     const mapping = await indexManager.getMapping(index);
 
-                    // const properties = esVersion === 6
-                    //     ? mapping[index].mappings[config.name].properties
-                    //     : mapping[index].mappings.properties;
-
                     let properties = undefined;
                     const { mappings } = mapping[index];
                     if (esVersion === 6) {
@@ -264,7 +260,7 @@ describe('IndexManager->indexSetup()', () => {
                 expect(
                     isKey(mapping[index].mappings, config.name)
                     && mapping[index].mappings[config.name]
-                ).toHaveProperty('_meta', { foo: 'foo' });
+                ).toHaveProperty('_meta', { bar: 'bar' });
             } else {
                 expect(mapping[index].mappings).toHaveProperty('_meta', { bar: 'bar' });
             }
@@ -361,7 +357,7 @@ describe('IndexManager->indexSetup()', () => {
                 expect(
                     isKey(newIdxMapping.foobar.mappings, config.name)
                     && newIdxMapping.foobar.mappings[config.name]
-                ).toHaveProperty('_meta', { foo: 'foo' });
+                ).toHaveProperty('_meta', { baz: 'baz' });
             } else {
                 expect(newIdxMapping.foobar.mappings).toHaveProperty('_meta', { baz: 'baz' });
             }
