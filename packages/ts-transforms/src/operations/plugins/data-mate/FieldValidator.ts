@@ -75,7 +75,7 @@ class Validator extends OperationBase {
     }
 }
 
-function setup(method: string) {
+function setup(method: keyof typeof FieldValidator) {
     return InjectMethod(Validator, FieldValidator[method], FieldValidator.repository[method]);
 }
 

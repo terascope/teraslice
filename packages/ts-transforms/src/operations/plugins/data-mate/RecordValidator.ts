@@ -37,7 +37,7 @@ class Validator extends OperationBase {
     }
 }
 
-function setup(method: string) {
+function setup(method: keyof typeof RecordValidator) {
     return InjectMethod(Validator, RecordValidator[method], RecordValidator.repository[method]);
 }
 

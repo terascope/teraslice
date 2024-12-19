@@ -1,13 +1,13 @@
 import { deprecate } from 'util';
 import validator from 'validator';
 import ValidationOpBase from '../../lib/validations/base.js';
-import { PostProcessConfig, PluginClassType, InputOutputCardinality } from '../../../interfaces.js';
+import { PostProcessConfig, PluginClassType, InputOutputCardinality, OperationsDict } from '../../../interfaces.js';
 
 export class Validator extends ValidationOpBase<any> {
-    private method: string;
+    private method: keyof typeof validator;
     private value: any;
 
-    constructor(config: PostProcessConfig, method: string) {
+    constructor(config: PostProcessConfig, method: keyof typeof validator) {
         super(config);
         this.method = method;
         this.value = config.value;
@@ -15,11 +15,23 @@ export class Validator extends ValidationOpBase<any> {
 
     validate(value: any) {
         const args = this.value || this.config;
-        return validator[this.method](value, args);
+        const method = validator[this.method];
+        if (typeof method === 'function') {
+            return (method as (value: any, ...args: any[]) => any)(value, args);
+        }
+
+        throw new Error(`Validator method ${this.method} is not callable`);
     }
 }
 
-function setup(method: string) {
+interface ValidatorInterfaceType {
+    new (config: PostProcessConfig): Validator;
+    cardinality: InputOutputCardinality;
+
+}
+
+function setup(method: keyof typeof validator): ValidatorInterfaceType {
+    // @ts-expect-error fixMe: properly type a class returning a different class
     return class ValidatorInterface {
         static cardinality: InputOutputCardinality = 'one-to-one';
 
@@ -30,8 +42,7 @@ function setup(method: string) {
 }
 
 export class ValidatorPlugins implements PluginClassType {
-    // @ts-expect-error
-    init() {
+    init(): OperationsDict {
         return {
             after: deprecate(setup('isAfter'), 'after is being deprecated., please use isAfter instead', 'after'),
             alpha: deprecate(setup('isAlpha'), 'alpha is being deprecated, please use isAlpha instead', 'alpha'),

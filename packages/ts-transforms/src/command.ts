@@ -10,6 +10,7 @@ import {
 } from '@terascope/utils';
 import { PhaseManager } from './index.js';
 import { PhaseConfig } from './interfaces.js';
+import { xLuceneFieldType } from 'packages/types/dist/src/xlucene-interfaces.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -49,7 +50,7 @@ const filePath = command.rules as string;
 const dataPath = command.data as string;
 const streamData = command.f && command.f === 'ldjson' ? command.f : false;
 const ignoreErrors = command.i || false;
-let typesConfig = {};
+let typesConfig: Record<string, xLuceneFieldType> = {}; // fixme: confirm it's always one of these
 const type = command.m ? 'matcher' : 'transform';
 
 interface ESData {
@@ -64,7 +65,7 @@ try {
             if (pieces.length !== 2) {
                 throw new Error(`Expected -t option line #${index} to have key:value pair format, got ${segment}`);
             }
-            typesConfig[pieces[0].trim()] = pieces[1].trim();
+            typesConfig[pieces[0].trim()] = pieces[1].trim() as xLuceneFieldType;
         });
     }
     if (command.T) {
@@ -136,10 +137,10 @@ function toJSON(obj: AnyObject) {
 }
 
 function handleParsedData(
-    data: Record<string, unknown>[] | Record<string, unknown>
+    data: Record<string, unknown>[]
 ): DataEntity<Record<string, unknown>>[] {
     // input from elasticsearch
-    const elasticSearchResults = get(data[0], 'hits.hits', null);
+    const elasticSearchResults = get(data[0], 'hits.hits', null) as ESData[] | null;
     if (elasticSearchResults) {
         return elasticSearchResults.map((doc: ESData) => DataEntity.make(doc._source));
     }

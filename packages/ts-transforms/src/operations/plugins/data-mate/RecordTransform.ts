@@ -28,7 +28,7 @@ class Transforms extends TransformsOpBase {
     }
 }
 
-function setup(method: string) {
+function setup(method: keyof typeof RecordTransform) {
     return InjectMethod(Transforms, RecordTransform[method], RecordTransform.repository[method]);
 }
 

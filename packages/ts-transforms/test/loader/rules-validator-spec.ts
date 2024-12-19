@@ -377,7 +377,7 @@ describe('rules-validator', () => {
         it('can return an basic extractions formatted correctly', () => {
             const validator = constructValidator(basicExtractionConfig);
             const { extractions } = validator.validate();
-            const results = {};
+            const results: Record<string, OperationConfig[]> = {};
             results['hello:world'] = basicExtractionConfig;
 
             expect(extractions).toEqual(results);
@@ -386,7 +386,7 @@ describe('rules-validator', () => {
         it('can return an expression extractions formatted correctly', () => {
             const validator = constructValidator(basicExpressionConfig);
             const { extractions } = validator.validate();
-            const results = {};
+            const results: Record<string, OperationConfig[]> = {};
             results['hello:world'] = basicExpressionConfig;
 
             expect(extractions).toEqual(results);
@@ -395,7 +395,7 @@ describe('rules-validator', () => {
         it('can multiple extractions', () => {
             const validator = constructValidator(multiSelectorConfig);
             const { extractions } = validator.validate();
-            const results = {};
+            const results: Record<string, OperationConfig[]> = {};
 
             results['hello:world'] = [multiSelectorConfig[0]];
             results['other:things'] = [multiSelectorConfig[1]];
@@ -407,7 +407,7 @@ describe('rules-validator', () => {
         it('can work with newJoinRules', () => {
             const validator = constructValidator(newJoinRules);
             const { extractions } = validator.validate();
-            const results = {};
+            const results: Record<string, OperationConfig[]> = {};
 
             results['hello:world'] = newJoinRules.slice(0, 2);
 

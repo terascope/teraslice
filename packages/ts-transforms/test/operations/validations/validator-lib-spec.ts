@@ -7,9 +7,9 @@ describe('validator lib', () => {
     const operationsClass = new ValidatorPlugins();
     const operations = operationsClass.init();
 
-    function getValidator(opConfig: PostProcessConfig, method: string): Validator {
+    function getValidator(opConfig: PostProcessConfig, method: keyof typeof operations): Validator {
         const Class = operations[method];
-        return new Class(opConfig);
+        return new Class(opConfig) as Validator;
     }
 
     function encode(str: string, type: string) {

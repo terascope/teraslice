@@ -34,7 +34,7 @@ import MacAddress from './lib/validations/mac-address.js';
 import Uuid from './lib/validations/uuid.js';
 import ISDN from './lib/validations/isdn.js';
 import { Validator, ValidatorPlugins } from './plugins/validator/index.js';
-import dataMapePlugin from './plugins/data-mate/index.js';
+import dataMatePlugin from './plugins/data-mate/index.js';
 
 import {
     OperationsDict, PluginClassType, BaseOperationClass, PluginList
@@ -80,9 +80,8 @@ class OperationsManager {
 
     constructor(pluginList: PluginList = []) {
         pluginList.push(CorePlugins);
-        // @ts-expect-error FIXME: try to remove this ignore
         pluginList.push(ValidatorPlugins);
-        pluginList.push(dataMapePlugin);
+        pluginList.push(dataMatePlugin);
 
         const operations = pluginList.reduce((plugins, PluginClass) => {
             const plugin = new PluginClass();
