@@ -36,7 +36,7 @@
         "k8sV2": "TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 CLUSTERING_TYPE='kubernetesV2' ts-scripts k8s-env",
         "lint": "eslint",
         "lint:fix": "yarn lint --fix && yarn sync",
-        "setup": "yarn $YARN_SETUP_ARGS && yarn run build --force",
+        "setup": "yarn ${YARN_SETUP_ARGS:-''} && yarn run build --force",
         "start": "node service.js",
         "start:dev": "yarn build && env NODE_ENV=development node service.js",
         "start:nodemon": "nodemon --exitcrash service.js",
@@ -114,5 +114,6 @@
             "yarn": ">=1.22.19"
         },
         "version": 1
-    }
+    },
+    "packageManager": "yarn@4.5.3"
 }
