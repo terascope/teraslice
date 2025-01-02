@@ -2648,7 +2648,7 @@
     "@types/jsonfile" "*"
     "@types/node" "*"
 
-"@types/gc-stats@^1.4.3":
+"@types/gc-stats@~1.4.3":
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/@types/gc-stats/-/gc-stats-1.4.3.tgz#2dc35998fdb6032870816b92b704ee12899f1523"
   integrity sha512-Aek/WiRt7EHDKFNI3hDjYVvPNEeSjWGxN/8jxyaFoAawAq/bd8geI04XPMLQlLBO7LneLoWAAAvFv7hedgdi3w==
