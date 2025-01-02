@@ -52,7 +52,7 @@
         "event-loop-stats": "~1.4.1",
         "express": "~4.21.2",
         "fs-extra": "~11.2.0",
-        "gc-stats": "~1.4.0",
+        "gc-stats": "1.4.1",
         "get-port": "~7.1.0",
         "got": "~13.0.0",
         "ip": "~2.0.1",
@@ -68,6 +68,7 @@
     "devDependencies": {
         "@types/archiver": "~6.0.2",
         "@types/express": "~4.17.21",
+        "@types/gc-stats": "~1.4.3",
         "archiver": "~7.0.1",
         "bufferstreams": "~3.0.0",
         "chance": "~1.1.12",
