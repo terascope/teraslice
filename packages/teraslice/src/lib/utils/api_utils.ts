@@ -117,12 +117,15 @@ export function makePrometheus(stats: ClusterMaster.ClusterAnalytics, defaultLab
     };
 
     let returnString = '';
+
     Object.entries(stats.controllers).forEach(([key, value]) => {
         if (isKey(metricMapping, key)) {
             const name = metricMapping[key];
-            returnString += `# TYPE ${name} counter\n`;
-            const labels = makePrometheusLabels(defaultLabels);
-            returnString += `${name}${labels} ${value}\n`;
+            if (name !== '') {
+                returnString += `# TYPE ${name} counter\n`;
+                const labels = makePrometheusLabels(defaultLabels);
+                returnString += `${name}${labels} ${value}\n`;
+            }
         }
     });
     return returnString;
