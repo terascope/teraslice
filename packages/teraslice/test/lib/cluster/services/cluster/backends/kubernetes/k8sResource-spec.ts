@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import yaml from 'js-yaml';
 import { debugLogger } from '@terascope/utils';
 import { K8sResource } from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetes/k8sResource.js';
@@ -221,8 +220,9 @@ describe('k8sResource', () => {
                     cpu: 1`));
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
-            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1843');
+            const nodeOptions = envArray.find((i: any) => i.name === 'NODE_OPTIONS');
+
+            expect(nodeOptions.value).toEqual('--max-old-space-size=1843');
         });
 
         it('has the ability to set custom env', () => {
@@ -231,11 +231,11 @@ describe('k8sResource', () => {
             // NOTE: the env var merge happens in _setResources(), which is
             // somewhat out of place.
             const envArray = kr.resource.spec.template.spec.containers[0].env;
-            expect(_.find(envArray, { name: 'FOO' }).value)
-                .toEqual('baz');
+            const foo = envArray.find((i: any) => i.name === 'FOO');
+            const example = envArray.find((i: any) => i.name === 'EXAMPLE');
 
-            expect(_.find(envArray, { name: 'EXAMPLE' }).value)
-                .toEqual('test');
+            expect(foo.value).toEqual('baz');
+            expect(example.value).toEqual('test');
         });
 
         it('execution resources override terasliceConfig resources', () => {
@@ -257,8 +257,9 @@ describe('k8sResource', () => {
                     cpu: 2`));
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
-            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=922');
+            const nodeOptions = envArray.find((i: any) => i.name === 'NODE_OPTIONS');
+
+            expect(nodeOptions?.value).toEqual('--max-old-space-size=922');
         });
 
         it('execution cpu overrides terasliceConfig cpu while terasliceConfig memory gets applied', () => {
@@ -279,8 +280,9 @@ describe('k8sResource', () => {
                     cpu: 2`));
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
-            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1843');
+            const nodeOptions = envArray.find((i: any) => i.name === 'NODE_OPTIONS');
+
+            expect(nodeOptions?.value).toEqual('--max-old-space-size=1843');
         });
 
         it('has memory and cpu limits and requests when set on execution', () => {
@@ -300,8 +302,9 @@ describe('k8sResource', () => {
                     cpu: 1`));
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
-            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1843');
+            const nodeOptions = envArray.find((i: any) => i.name === 'NODE_OPTIONS');
+
+            expect(nodeOptions?.value).toEqual('--max-old-space-size=1843');
         });
 
         it('has separate memory and cpu limits and requests when set on execution', () => {
@@ -323,8 +326,9 @@ describe('k8sResource', () => {
                     cpu: 2`));
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
-            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=2702');
+            const nodeOptions = envArray.find((i: any) => i.name === 'NODE_OPTIONS');
+
+            expect(nodeOptions?.value).toEqual('--max-old-space-size=2702');
         });
 
         it('has memory limits and requests when set on execution', () => {
@@ -339,8 +343,9 @@ describe('k8sResource', () => {
                     memory: 2147483648`));
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
-            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1843');
+            const nodeOptions = envArray.find((i: any) => i.name === 'NODE_OPTIONS');
+
+            expect(nodeOptions?.value).toEqual('--max-old-space-size=1843');
         });
 
         it('has cpu limits and requests when set on execution', () => {
@@ -759,8 +764,9 @@ describe('k8sResource', () => {
                     cpu: 1`));
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
-            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1843');
+            const nodeOptions = envArray.find((i: any) => i.name === 'NODE_OPTIONS');
+
+            expect(nodeOptions?.value).toEqual('--max-old-space-size=1843');
         });
 
         it('execution resources override terasliceConfig resources', () => {
@@ -780,8 +786,9 @@ describe('k8sResource', () => {
                     cpu: 2`));
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
-            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=922');
+            const nodeOptions = envArray.find((i: any) => i.name === 'NODE_OPTIONS');
+
+            expect(nodeOptions?.value).toEqual('--max-old-space-size=922');
         });
     });
 

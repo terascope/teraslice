@@ -43,7 +43,7 @@ jobs:
     - name: Install and build packages
       run: yarn setup
       env:
-        YARN_SETUP_ARGS: "--prod=false --silent"
+        YARN_SETUP_ARGS: "--prod=false"
 
   check-docker-limit-before:
    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f5e098fa861fe7744fa61842e82124f806364be9
@@ -73,36 +73,10 @@ jobs:
       - name: Install and build packages
         run: yarn setup
         env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+          YARN_SETUP_ARGS: "--prod=false"
 
       - name: Test
         run: yarn --silent test -- --suite unit --
-
-  linux-unit-esm-tests:
-    runs-on: ubuntu-latest
-    needs: compute-node-version-vars
-    strategy:
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-
-      - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
-
-      - name: Test
-        run: yarn --silent test -- --suite unit-esm --
-        env:
-          NODE_OPTIONS: '--experimental-vm-modules'
 
   teraslice-elasticsearch-tests:
     runs-on: ubuntu-latest
@@ -133,7 +107,7 @@ jobs:
       - name: Install and build packages
         run: yarn setup
         env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+          YARN_SETUP_ARGS: "--prod=false"
 
       - name: Create Docker Image List
         run: |
@@ -180,7 +154,7 @@ jobs:
       - name: Install and build packages
         run: yarn setup
         env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+          YARN_SETUP_ARGS: "--prod=false"
 
       - name: Create Docker Image List
         run: |
@@ -216,7 +190,7 @@ jobs:
     - name: Install and build packages
       run: yarn setup
       env:
-        YARN_SETUP_ARGS: "--prod=false --silent"
+        YARN_SETUP_ARGS: "--prod=false"
 
     - name: Lint codebase
       run: yarn lint
@@ -253,7 +227,7 @@ jobs:
       - name: Install and build packages
         run: yarn setup
         env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+          YARN_SETUP_ARGS: "--prod=false"
 
       - name: Create Docker Image List
         run: |
@@ -300,7 +274,7 @@ jobs:
       - name: Install and build packages
         run: yarn setup
         env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+          YARN_SETUP_ARGS: "--prod=false"
 
       - name: Create Docker Image List
         run: |
@@ -350,7 +324,7 @@ jobs:
       - name: Install and build packages
         run: yarn setup
         env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+          YARN_SETUP_ARGS: "--prod=false"
 
       - name: Create Docker Image List
         run: |
@@ -405,7 +379,7 @@ jobs:
       - name: Install and build packages
         run: yarn setup
         env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+          YARN_SETUP_ARGS: "--prod=false"
 
       - name: Create Docker Image List
         run: |
@@ -460,7 +434,7 @@ jobs:
       - name: Install and build packages
         run: yarn setup
         env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+          YARN_SETUP_ARGS: "--prod=false"
 
       - name: Create Docker Image List
         run: |
@@ -510,7 +484,7 @@ jobs:
       - name: Install and build packages
         run: yarn setup
         env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+          YARN_SETUP_ARGS: "--prod=false"
 
       - name: Create Docker Image List
         run: |

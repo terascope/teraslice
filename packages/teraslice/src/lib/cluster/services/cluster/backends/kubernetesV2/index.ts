@@ -138,32 +138,6 @@ export class KubernetesClusterBackendV2 {
 
         this.logger.debug(jobResult, 'k8s slicer job submitted');
 
-        if (!jobResult.spec.selector?.matchLabels) {
-            throw new Error('Required field matchLabels missing from jobResult.spec.selector');
-        }
-
-        let controllerLabel: string;
-        if (jobResult.spec.selector.matchLabels['controller-uid'] !== undefined) {
-            /// If running on kubernetes < v1.27.0
-            controllerLabel = 'controller-uid';
-        } else {
-            /// If running on kubernetes v1.27.0 or later
-            controllerLabel = 'batch.kubernetes.io/controller-uid';
-        }
-
-        const controllerUid = jobResult.spec.selector.matchLabels[controllerLabel];
-
-        const pod = await this.k8s.waitForSelectedPod(
-            `${controllerLabel}=${controllerUid}`,
-            'pod-status',
-            undefined,
-            this.context.sysconfig.teraslice.slicer_timeout
-        );
-
-        if (!pod.status?.podIP) {
-            const error = new Error('pod.status.podIP must be defined');
-            return Promise.reject(error);
-        }
         const exServiceName = serviceResult.metadata.name;
         const exServiceHostName = `${exServiceName}.${this.k8s.defaultNamespace}`;
         this.logger.debug(`Slicer is using host name: ${exServiceHostName}`);
@@ -187,14 +161,6 @@ export class KubernetesClusterBackendV2 {
         const selector = `app.kubernetes.io/component=execution_controller,teraslice.terascope.io/jobId=${execution.job_id}`;
         const jobs = await pRetry(
             () => this.k8s.nonEmptyJobList(selector), getRetryConfig()
-        );
-
-        /// Wait for ex readiness probe to return 'Ready'
-        await this.k8s.waitForSelectedPod(
-            selector,
-            'readiness-probe',
-            undefined,
-            this.context.sysconfig.teraslice.slicer_timeout
         );
 
         if (!jobs.items[0].metadata.uid) {

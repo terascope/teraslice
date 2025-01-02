@@ -1,8 +1,10 @@
 import path from 'node:path';
 import { packageUpSync } from 'package-up';
 import fse from 'fs-extra';
-import lodash from 'lodash';
-import { isPlainObject, get, toTitleCase } from '@terascope/utils';
+import {
+    isPlainObject, get, toTitleCase,
+    defaultsDeep
+} from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo, Service } from './interfaces.js';
 import {
@@ -10,8 +12,6 @@ import {
     ENV_SERVICES
 } from './config.js';
 import signale from './signale.js';
-
-const { defaultsDeep } = lodash;
 
 let rootDir: string | undefined;
 

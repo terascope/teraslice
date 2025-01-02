@@ -35,6 +35,8 @@ if (!isCI) {
 export default {
     rootDir: '.',
     verbose: true,
+    testTimeout: 60 * 1000,
+    watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
     projects,
     globals: {
         availableExtensions: ['.js', '.ts', '.mjs', '.cjs'],

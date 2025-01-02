@@ -1,4 +1,7 @@
-import _ from 'lodash';
+import {
+    get, has, uniq, difference
+} from '@terascope/utils';
+import { TSPodList } from '../kubernetesV2/interfaces.js';
 
 /**
  * Given the k8s Pods API output generates the appropriate Teraslice cluster
@@ -8,12 +11,12 @@ import _ from 'lodash';
  * @param  {Object} clusterState     Teraslice Cluster State
  * @param  {String} clusterNameLabel k8s label containing clusterName
  */
-export function gen(k8sPods: any, clusterState: Record<string, any>) {
+export function gen(k8sPods: TSPodList, clusterState: Record<string, any>) {
     // Make sure we clean up the old
-    const hostIPs = _.uniq(_.map(k8sPods.items, 'status.hostIP'));
-    const oldHostIps = _.difference(_.keys(clusterState), hostIPs);
+    const hostIPs = uniq(k8sPods.items.map((item) => get(item, 'status.hostIP')));
+    const oldHostIps = difference(Object.keys(clusterState), hostIPs);
 
-    _.forEach(oldHostIps, (ip) => {
+    oldHostIps.forEach((ip: string) => {
         delete clusterState[ip];
     });
 
@@ -25,7 +28,7 @@ export function gen(k8sPods: any, clusterState: Record<string, any>) {
 
     // add a worker for each pod
     k8sPods.items.forEach((pod: any) => {
-        if (!_.has(clusterState, pod.status.hostIP)) {
+        if (!has(clusterState, pod.status.hostIP)) {
             // If the node isn't in clusterState, add it
             clusterState[pod.status.hostIP] = {
                 node_id: pod.status.hostIP,

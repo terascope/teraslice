@@ -1,19 +1,11 @@
-import porty from 'porty';
-import { random } from '@terascope/utils';
+import getPort from 'get-port';
 
 const usedPorts: number[] = [];
 
 export default async function findPort(): Promise<number> {
-    const min = random(8000, 40000);
-    const max = min + 100;
-
-    const port = await porty.find({
-        min,
-        max,
-        avoids: usedPorts,
-    });
+    // getPort will return an open port between 1024 and 65535, excluding usedPorts
+    const port = await getPort({ exclude: usedPorts });
 
     usedPorts.push(port);
-
     return port;
 }

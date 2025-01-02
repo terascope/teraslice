@@ -1,10 +1,10 @@
-import _ from 'lodash';
+import { cloneDeep } from '@terascope/utils';
 import _podsJobRunning from './files/job-running-v1-k8s-pods-multicluster.json';
 import { gen } from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetes/k8sState.js';
 
 describe('k8sState with pods from multiple clusters', () => {
     it('should generate cluster state correctly on first call', () => {
-        const podsJobRunning = _.cloneDeep(_podsJobRunning);
+        const podsJobRunning = cloneDeep(_podsJobRunning) as any;
         const clusterState = {};
 
         gen(podsJobRunning, clusterState);
@@ -38,7 +38,7 @@ describe('k8sState with pods from multiple clusters', () => {
     });
 
     it('should generate cluster state correctly on second call', () => {
-        const podsJobRunning = _.cloneDeep(_podsJobRunning);
+        const podsJobRunning = cloneDeep(_podsJobRunning) as any;
         const clusterState = {};
 
         gen(podsJobRunning, clusterState);

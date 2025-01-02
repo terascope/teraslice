@@ -1,5 +1,4 @@
 import ms from 'ms';
-import _ from 'lodash';
 import http from 'node:http';
 import {
     formatURL, ExecutionController as ExController, ClusterMaster
@@ -8,7 +7,8 @@ import type { EventEmitter } from 'node:events';
 import {
     TSError, includes, get,
     pDelay, getFullErrorStack, logError,
-    pWhile, makeISODate, Logger
+    pWhile, makeISODate, type Logger,
+    debounce, throttle
 } from '@terascope/utils';
 import {
     Context, SlicerExecutionContext, Slice, isPromAvailable
@@ -124,7 +124,7 @@ export class ExecutionController {
         this.executionStorage = new ExecutionStorage(context);
         this.stateStorage = new StateStorage(context);
         // TODO: see if I can remove this debounce
-        this._updateExecutionStats = _.debounce(
+        this._updateExecutionStats = debounce(
             () => {
                 this._updateExecutionStatsNow();
             },
@@ -561,9 +561,9 @@ export class ExecutionController {
 
         // start creating / dispatching slices, this will block until done
         await Promise.all([
-            this.client.sendAvailable(),
-            this._runDispatch(),
-            this.scheduler.run()
+            this.client.sendAvailable().then(() => this.logger.debug('client.sendAvailable() promise resolved')),
+            this._runDispatch().then(() => this.logger.debug('_runDispatch() promise resolved')),
+            this.scheduler.run().then(() => this.logger.debug('scheduler.run() promise resolved'))
         ]);
 
         const schedulerSuccessful = this.scheduler.isFinished && this.scheduler.slicersDone;
@@ -665,6 +665,7 @@ export class ExecutionController {
         clearInterval(dispatchInterval);
 
         this.isDoneDispatching = true;
+        this.logger.debug('done dispatching slices');
     }
 
     _dispatchSlice(slice: Slice, workerId: string) {
@@ -832,7 +833,7 @@ export class ExecutionController {
 
         const timeoutOutAt = this.workerDisconnectTimeout + Date.now();
 
-        const logWaitingForWorkers = _.throttle(() => {
+        const logWaitingForWorkers = throttle(() => {
             this.logger.debug(`waiting for ${this.server.onlineClientCount} to go offline`);
         }, 1000);
 
@@ -864,7 +865,7 @@ export class ExecutionController {
     }
 
     async _waitForPendingSlices() {
-        const logPendingSlices = _.throttle(() => {
+        const logPendingSlices = throttle(() => {
             this.logger.debug(`waiting for ${this.pendingSlices} slices to finish`);
         }, 1000);
 
@@ -897,7 +898,7 @@ export class ExecutionController {
         const timeout = Math.round(this.shutdownTimeout * 0.8);
         const shutdownAt = timeout + Date.now();
 
-        const logShuttingDown = _.throttle(() => {
+        const logShuttingDown = throttle(() => {
             this.logger.debug('shutdown is waiting for execution to finish...');
         }, 1000);
 
@@ -916,6 +917,11 @@ export class ExecutionController {
                         this.exId
                     } to finish...`
                 );
+                this.logger.debug(`Execution controller state vars at timeout:\nisExecutionDone: ${this.isExecutionDone}\nclient.ready: ${this.client.ready}\n`
+                    + `onlineClientCount: ${this.server.onlineClientCount}\nserver.isShuttingDown: ${this.server.isShuttingDown}`
+                    + `isShuttingDown: ${this.isShuttingDown}\nisShutdown: ${this.isShutdown}\n`
+                    + `isDoneDispatching: ${this.isDoneDispatching}\npendingDispatches: ${this.pendingDispatches}\n`
+                    + `scheduler.isFinished: ${this.scheduler.isFinished}\npendingSlices: ${this.pendingSlices}\n`);
                 return null;
             }
 
@@ -988,7 +994,7 @@ export class ExecutionController {
     _verifyStores() {
         let paused = false;
 
-        const logPaused = _.throttle((storesStr) => {
+        const logPaused = throttle((storesStr) => {
             this.logger.warn(`${storesStr} are in a invalid state, scheduler is paused`);
         }, 10 * 1000);
 

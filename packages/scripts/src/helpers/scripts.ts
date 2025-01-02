@@ -767,3 +767,23 @@ async function showAssets(tsPort: string) {
         return err;
     }
 }
+
+export async function logTCPPorts() {
+    try {
+        let command: string;
+        let args: string[];
+
+        if (process.platform === 'darwin') {
+            command = 'netstat';
+            args = ['-an', '-f', 'inet', '-p', 'tcp'];
+        } else {
+            command = 'ss';
+            args = ['-tan4'];
+        }
+
+        const { stdout } = await execa(command, args, { shell: true, reject: false });
+        signale.info('TCP Ports:\n', stdout);
+    } catch (err) {
+        signale.error('Execa command failed trying to log ports: ', err);
+    }
+}

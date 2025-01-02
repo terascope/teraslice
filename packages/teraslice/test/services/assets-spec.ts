@@ -6,6 +6,7 @@ import { createClient } from 'elasticsearch-store';
 import { createS3Client } from '@terascope/file-asset-apis';
 import { AssetsService } from '../../src/lib/cluster/services/assets';
 import { TEST_INDEX_PREFIX } from '../test.config';
+import { findPort } from '../../src/lib/utils/port_utils.js';
 
 describe('Assets Service', () => {
     const contextOptions: TestContextOptions = {
@@ -59,11 +60,13 @@ describe('Assets Service', () => {
     context.sysconfig.teraslice.asset_storage_connection = 'default';
     context.sysconfig.teraslice.asset_storage_bucket = 'assets-spec-test-bucket';
     context.sysconfig.teraslice.api_response_timeout = 30000;
-    /// Setting port for the asset service
-    process.env.port = '55678';
-    const service = new AssetsService(context);
+
+    let service: AssetsService;
 
     beforeAll(async () => {
+        /// Setting port for the asset service
+        process.env.port = (await findPort()).toString();
+        service = new AssetsService(context);
         await service.initialize();
     });
 
