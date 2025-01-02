@@ -24,7 +24,7 @@ jobs:
         with:
           node-version:  22
           registry-url: 'https://registry.npmjs.org'
-          cache: 'yarn'
+          # cache: 'yarn'
 
       - name: Install Yarn 4
         run: |
@@ -61,7 +61,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          # cache: 'yarn'
 
       - name: Install Yarn 4
         run: |

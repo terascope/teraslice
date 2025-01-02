@@ -38,7 +38,7 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
-        cache: 'yarn'
+        # cache: 'yarn'
 
     - name: Install Yarn 4
       run: |
@@ -74,7 +74,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          # cache: 'yarn'
 
       - name: Install Yarn 4
         run: |
@@ -107,7 +107,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          # cache: 'yarn'
 
       - name: Install Yarn 4
         run: |
@@ -160,7 +160,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          # cache: 'yarn'
 
       - name: Install Yarn 4
         run: |
@@ -209,7 +209,7 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
-        cache: 'yarn'
+        # cache: 'yarn'
 
     - name: Install Yarn 4
       run: |
@@ -245,7 +245,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          # cache: 'yarn'
 
       - name: Install Yarn 4
         run: |
@@ -298,7 +298,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          # cache: 'yarn'
 
       - name: Install Yarn 4
         run: |
@@ -354,7 +354,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          # cache: 'yarn'
 
       - name: Install Yarn 4
         run: |
@@ -415,7 +415,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          # cache: 'yarn'
 
       - name: Install Yarn 4
         run: |
@@ -476,7 +476,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          # cache: 'yarn'
 
       - name: Install Yarn 4
         run: |
@@ -532,7 +532,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          # cache: 'yarn'
 
       - name: Install Yarn 4
         run: |
