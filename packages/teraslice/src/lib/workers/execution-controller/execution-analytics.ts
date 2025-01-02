@@ -1,6 +1,6 @@
 import {
     makeISODate, get, has,
-    Logger, isKey
+    Logger
 } from '@terascope/utils';
 import type { EventEmitter } from 'node:events';
 import type { Context, ExecutionContext } from '@terascope/job-components';
@@ -171,15 +171,12 @@ export class ExecutionAnalytics {
         const analytics = this.getAnalytics();
 
         // save a copy of what we push so we can emit diffs
-        const diffs: Partial<AggregatedExecutionAnalytics> = {};
-        const copy: Partial<AggregatedExecutionAnalytics> = {};
+        const diffs: Record<string, any> = {};
+        const copy: Record<string, any> = {};
 
         Object.entries(this.pushedAnalytics).forEach(([field, value]) => {
-            // if field is a key of copy, it is also a key of diffs and analytics
-            if (isKey(copy, field)) {
-                diffs[field] = analytics[field] - value;
-                copy[field] = analytics[field];
-            }
+            diffs[field] = analytics[field as keyof Omit<EStats, 'started' | 'queuing_complete'>] - value;
+            copy[field] = analytics[field as keyof EStats];
         });
 
         const response = await this.client.sendClusterAnalytics(
