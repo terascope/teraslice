@@ -2,7 +2,7 @@ import { Context, RecoveryCleanupType, Slice } from '@terascope/job-components';
 import {
     TSError, pRetry, toString,
     isRetryableError, parseErrorInfo, isTest,
-    times, getFullErrorStack, Logger
+    times, getFullErrorStack, Logger, isKey
 } from '@terascope/utils';
 import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
@@ -82,7 +82,7 @@ export class StateStorage {
     }
 
     private _createSliceRecord(exId: string, slice: any, state: any, error?: Error) {
-        if (!SliceState[state]) {
+        if (!isKey(SliceState, state)) {
             throw new Error(`Unknown slice state "${state}" on create`);
         }
         const { index } = timeseriesIndex(
@@ -109,7 +109,7 @@ export class StateStorage {
 
     // TODO: type this better
     async updateState(slice: Slice, state: string, error?: Error) {
-        if (!SliceState[state]) {
+        if (!isKey(SliceState, state)) {
             throw new Error(`Unknown slice state "${state}" on update`);
         }
 
@@ -283,7 +283,7 @@ export class StateStorage {
     }
 
     async countByState(exId: string, state: string) {
-        if (!SliceState[state]) {
+        if (!isKey(SliceState, state)) {
             throw new Error(`Unknown slice state "${state}" on update`);
         }
         const query = `ex_id:"${exId}" AND state:${state}`;

@@ -1,10 +1,12 @@
 import { Router, Express } from 'express';
+import type { ParsedQs } from 'qs';
 import bodyParser from 'body-parser';
 import { pipeline as streamPipeline } from 'node:stream/promises';
 import { RecoveryCleanupType, TerasliceConfig } from '@terascope/job-components';
 import {
     parseErrorInfo, parseList, logError,
-    TSError, startsWith, Logger, pWhile
+    TSError, startsWith, Logger, pWhile,
+    isKey
 } from '@terascope/utils';
 import { ExecutionStatusEnum } from '@terascope/types';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
@@ -17,7 +19,7 @@ import {
     createJobActiveQuery, addDeletedToQuery
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
-import got from 'got';
+import got, { OptionsInit } from 'got';
 
 const terasliceVersion = getPackageJSON().version;
 
@@ -78,7 +80,7 @@ export class ApiService {
         }
 
         queryKeys.forEach((key) => {
-            if (keyOptions[key]) {
+            if (key in keyOptions) {
                 msg = key;
                 workerNum = Number(query[key]);
             }
@@ -135,24 +137,51 @@ export class ApiService {
         throw error;
     }
 
+    private _parsedQsToSearchParams(parsedQs: ParsedQs) {
+        const searchParams: Record<string, string | number | boolean> = {};
+
+        for (const [key, value] of Object.entries(parsedQs)) {
+            if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+                searchParams[key] = value;
+            } else if (Array.isArray(value)) {
+                searchParams[key] = value.join(',');
+            } else if (value === null || value === undefined) {
+                // Skip undefined or null values
+            } else {
+                // stringify objects
+                searchParams[key] = JSON.stringify(value);
+            }
+        }
+
+        return searchParams;
+    }
+
     private async _redirect(req: TerasliceRequest, res: TerasliceResponse) {
-        const options = {
+        const searchParams = this._parsedQsToSearchParams(req.query);
+
+        const options: OptionsInit & { isStream: true } = {
             prefixUrl: this.assetsUrl,
             headers: req.headers,
-            searchParams: req.query,
+            searchParams,
             throwHttpErrors: false,
             timeout: { request: this.terasliceConfig.api_response_timeout },
             decompress: false,
-            retry: { limit: 0 }
+            retry: { limit: 0 },
+            isStream: true
         };
 
         const uri = req.url.replace(/^\//, '');
         const method = req.method.toLowerCase();
 
         try {
+            if (!isKey(got.stream, method)) {
+                throw new Error(`${method} is not a valid gotStream method`);
+            }
+            const stream = got.stream[method](uri, options);
+
             await streamPipeline(
                 req,
-                got.stream[method](uri, options),
+                stream,
                 res,
             );
         } catch (err) {
@@ -852,7 +881,9 @@ export class ApiService {
                                 ex.workers
                             );
                             for (const status in ExecutionStatusEnum) {
-                                if (ExecutionStatusEnum[status]) {
+                                if (
+                                    isKey(ExecutionStatusEnum, status)
+                                ) {
                                     const statusLabels = {
                                         ...controllerLabels,
                                         status: ExecutionStatusEnum[status]
@@ -875,7 +906,7 @@ export class ApiService {
                         const clusterState = this.clusterService.getClusterState();
 
                         /// Filter out information about kubernetes ex pods
-                        const filteredExecutions = {};
+                        const filteredExecutions: Record<string, string> = {};
                         for (const node in clusterState) {
                             if (clusterState[node].active) {
                                 for (const worker of clusterState[node].active) {

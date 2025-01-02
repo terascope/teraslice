@@ -97,7 +97,7 @@ describe('Node master', () => {
             processCounter += 1;
 
             for (const [key, value] of Object.entries(envConfig)) {
-                this[key] = value;
+                this[key as keyof this] = value;
             }
 
             this.process = {

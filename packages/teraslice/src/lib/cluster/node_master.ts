@@ -399,7 +399,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
         query: {
             node_id: context.sysconfig._nodeName
         }
-    } as any);
+    });
 
     if (context.sysconfig.teraslice.master) {
         logger.debug(`node ${context.sysconfig._nodeName} is creating the cluster_master`);

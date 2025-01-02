@@ -298,7 +298,7 @@ export function isSimplePostProcessConfig(config: Config) {
     return !has(config, 'follow') && hasPostProcess(config);
 }
 
-export function hasExtractions(config: Config) {
+export function hasExtractions(config: Config): boolean {
     return has(config, 'source') || has(config, 'exp');
 }
 

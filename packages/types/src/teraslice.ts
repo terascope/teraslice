@@ -523,8 +523,8 @@ export interface SysConfig extends BaseSysconfig<TerasliceConfig> {}
 export type Assignment = 'assets_service' | 'cluster_master' | 'node_master' | 'execution_controller' | 'worker';
 
 interface BaseWorkerNode {
-    worker_id: number;
-    pid: number;
+    worker_id: string | number;
+    pid?: number;
 }
 
 export enum ProcessAssignment {
@@ -572,12 +572,12 @@ export type ProcessNode = ClusterNode
 export interface NodeState {
     node_id: string;
     hostname: string;
-    pid: number;
+    pid: number | 'N/A';
     node_version: string;
     teraslice_version: string;
-    total: number;
+    total: number | 'N/A';
     state: string;
-    available: number;
+    available: number | 'N/A';
     active: ProcessNode[];
 }
 

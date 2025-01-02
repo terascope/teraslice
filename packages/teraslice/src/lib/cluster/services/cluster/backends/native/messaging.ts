@@ -1,9 +1,12 @@
 /* eslint-disable prefer-const */
 import type { EventEmitter } from 'node:events';
+import type { Server as HttpServer } from 'node:http';
+import type { Server as HttpsServer } from 'node:https';
+
 import { nanoid } from 'nanoid';
 import {
     pDelay, Queue, Logger, isFunction,
-    isEmpty, get, toNumber
+    isEmpty, get, toNumber, isKey
 } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
 import socketIOClient from 'socket.io-client';
@@ -74,6 +77,11 @@ export const routing = Object.freeze({
 });
 
 type HookFN = () => void | null;
+
+type ListenOptions = {
+    server?: string | number | HttpServer | HttpsServer;
+    query?: { node_id: string };
+};
 
 export class Messaging {
     context: Context;
@@ -235,7 +243,7 @@ export class Messaging {
     private _registerFns(socket: any) {
         for (const [key, func] of Object.entries(this.functionMapping)) {
             if (func.__socketIdentifier) {
-                const wrappedFunc = (msg = {}) => {
+                const wrappedFunc = (msg: Record<string, any> = {}) => {
                     const identifier = func.__socketIdentifier;
                     let id = msg[identifier];
                     // if already set, extract value else set it on socket
@@ -272,11 +280,15 @@ export class Messaging {
 
     private _determinePathForMessage(messageSent: any) {
         const { to } = messageSent;
-        let destinationType = routing[this.self][to];
+        let destinationType: string | undefined = undefined;
+
+        if (isKey(routing, this.self) && isKey(routing[this.self], to)) {
+            destinationType = routing[this.self][to];
+        }
         // cluster_master has two types of connections to node_master, if it does not have a
         // address then its talking to its own node_master through ipc
         // TODO: reference self message, remove cluster_master specific code
-        if (this.self === 'cluster_master' && !messageSent.address && clusterMasterMessages.ipc[messageSent.message]) {
+        if (this.self === 'cluster_master' && !messageSent.address && (messageSent.message in clusterMasterMessages.ipc)) {
             destinationType = 'ipc';
         }
         if (destinationType === undefined) {
@@ -304,8 +316,8 @@ export class Messaging {
         });
     }
 
-    // @ts-expect-error
-    listen({ server, query } = {}) {
+    listen(options: ListenOptions = {}) {
+        const { query, server } = options;
         this.messsagingOnline = true;
 
         if (this.config.clients.networkClient) {
@@ -313,9 +325,8 @@ export class Messaging {
             this.io = socketIOClient(this.hostURL, {
                 forceNew: true,
                 path: '/native-clustering',
-                perMessageDeflate: false,
-                query,
-            } as any);
+                query
+            });
 
             this._registerFns(this.io);
 
@@ -334,14 +345,25 @@ export class Messaging {
 
             this.logger.debug('client network connection is online');
         } else if (server) {
-            // cluster_master
-            this.io = socketIOServer(server, {
-                path: '/native-clustering',
-                pingTimeout: this.configTimeout,
-                pingInterval: this.configTimeout + this.networkLatencyBuffer,
-                perMessageDeflate: false,
-                serveClient: false,
-            });
+            if (typeof server === 'string' || typeof server === 'number') {
+                // test
+                this.io = socketIOServer(server, {
+                    path: '/native-clustering',
+                    pingTimeout: this.configTimeout,
+                    pingInterval: this.configTimeout + this.networkLatencyBuffer,
+                    perMessageDeflate: false,
+                    serveClient: false,
+                });
+            } else {
+                // cluster_master
+                this.io = socketIOServer(server, {
+                    path: '/native-clustering',
+                    pingTimeout: this.configTimeout,
+                    pingInterval: this.configTimeout + this.networkLatencyBuffer,
+                    perMessageDeflate: false,
+                    serveClient: false,
+                });
+            }
             this._attachRoomsSocketIO();
 
             this.io.on('connection', (socket: any) => {
@@ -439,7 +461,7 @@ export class Messaging {
         const processConfig: Record<string, any> = {};
         // @ts-expect-error
         const testProcess = this.context.__testingModule;
-        processConfig.clients = options[env.assignment];
+        processConfig.clients = options[env.assignment as keyof typeof options];
 
         if (processConfig.clients.ipcClient) {
             // all children of node_master
@@ -529,7 +551,7 @@ export class Messaging {
             'cluster:slicer:analytics': 'cluster:slicer:analytics',
         };
 
-        return stateQuery[msg] !== undefined;
+        return msg in stateQuery;
     }
 
     private _emitIpcMessage(fn: any) {

@@ -49,7 +49,7 @@ describe('Asset Utils', () => {
         });
     });
 
-    const wrongPlatform = {
+    const wrongPlatform: Record<string, NodeJS.Platform> = {
         darwin: 'linux',
         linux: 'darwin',
     };

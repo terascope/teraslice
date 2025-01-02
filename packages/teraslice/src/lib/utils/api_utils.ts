@@ -1,9 +1,11 @@
 import Table from 'easy-table';
 import {
     parseErrorInfo, parseList, logError,
-    isString, get, toInteger, Logger, TSError,
+    isString, get, toInteger, Logger,
+    TSError, isKey,
 } from '@terascope/utils';
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
+import type { ClusterMaster } from '@terascope/teraslice-messaging';
 
 export function makeTable(
     req: TerasliceRequest,
@@ -103,7 +105,7 @@ export function sendError(
 
 // NOTE: This only works for counters, if you're trying to extend this, you
 // should probably switch to using prom-client.
-export function makePrometheus(stats: any, defaultLabels = {}) {
+export function makePrometheus(stats: ClusterMaster.ClusterAnalytics, defaultLabels = {}) {
     const metricMapping = {
         processed: 'teraslice_slices_processed',
         failed: 'teraslice_slices_failed',
@@ -116,8 +118,8 @@ export function makePrometheus(stats: any, defaultLabels = {}) {
 
     let returnString = '';
     Object.entries(stats.controllers).forEach(([key, value]) => {
-        const name = metricMapping[key];
-        if (name !== '') {
+        if (isKey(metricMapping, key)) {
+            const name = metricMapping[key];
             returnString += `# TYPE ${name} counter\n`;
             const labels = makePrometheusLabels(defaultLabels);
             returnString += `${name}${labels} ${value}\n`;
@@ -132,7 +134,7 @@ function makePrometheusLabels(defaults = {}) {
     if (!keys.length) return '';
 
     const labelsStr = keys.map((key) => {
-        const val = labels[key];
+        const val = labels[key as keyof typeof labels];
         return `${key}="${val}"`;
     }).join(',');
 

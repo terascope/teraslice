@@ -1,4 +1,4 @@
-import { makeISODate } from '@terascope/utils';
+import { isKey, makeISODate } from '@terascope/utils';
 
 const options = {
     year: 'y',
@@ -44,7 +44,7 @@ const formatter = {
 export type TimeseriesFormat = 'daily' | 'monthly' | 'yearly';
 
 export function dateOptions(value: string | undefined) {
-    if (value && options[value]) {
+    if (value && isKey(options, value)) {
         return options[value];
     }
 
