@@ -347,7 +347,7 @@ export class Messaging {
             this.logger.debug('client network connection is online');
         } else if (server) {
             if (typeof server === 'string' || typeof server === 'number') {
-                // test
+                // test server
                 this.io = socketIOServer(server, {
                     path: '/native-clustering',
                     pingTimeout: this.configTimeout,
