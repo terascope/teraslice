@@ -1,3 +1,5 @@
+import { valid } from 'semver';
+
 export interface ParseNameResponse {
     name: string;
     assetIdentifier?: string;
@@ -22,7 +24,7 @@ export function parseName(identifier: string, isApi = false): ParseNameResponse 
             } else if (identifiers.length === 2) {
                 const [firstID, secondID] = identifiers;
 
-                if (isApi || isAssetHash(firstID)) {
+                if ((isApi && !valid(secondID)) || isAssetHash(firstID)) {
                     assetIdentifier = firstID;
                     tag = secondID;
                 } else {

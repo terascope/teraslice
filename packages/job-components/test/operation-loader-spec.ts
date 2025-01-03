@@ -654,41 +654,89 @@ describe('OperationLoader', () => {
     });
 
     describe('parse op and api names', () => {
-        const cases: [string, string, ParseNameResponse][] = [
+        const cases: [string, string, boolean, ParseNameResponse][] = [
             [
                 'parse base names',
                 'op_reader',
+                false,
                 { name: 'op_reader', assetIdentifier: undefined, tag: undefined }
             ],
             [
                 'parse base names with an assetHash',
                 'op_reader@bd74534373c5077c50b54d4f1ff2a736b0e8819e',
+                false,
                 { name: 'op_reader', assetIdentifier: 'bd74534373c5077c50b54d4f1ff2a736b0e8819e', tag: undefined }
             ],
             [
                 'parse base names with an assetHash and tag',
                 'op_reader@bd74534373c5077c50b54d4f1ff2a736b0e8819e:foobar',
+                false,
                 { name: 'op_reader', assetIdentifier: 'bd74534373c5077c50b54d4f1ff2a736b0e8819e', tag: 'foobar' }
             ],
             [
                 'parse a pre-hashed asset name',
                 'op_reader@some_asset',
+                false,
                 { name: 'op_reader', assetIdentifier: 'some_asset', tag: undefined }
             ],
             [
                 'parse a pre-hashed asset name and version',
                 'op_reader@some_asset:2.1.0',
+                false,
                 { name: 'op_reader', assetIdentifier: 'some_asset:2.1.0', tag: undefined }
             ],
             [
                 'parse a pre-hashed asset name and version and tag',
                 'op_reader@some_asset:2.1.0:barFoo',
+                false,
                 { name: 'op_reader', assetIdentifier: 'some_asset:2.1.0', tag: 'barFoo' }
+            ],
+            [
+                'parse an api',
+                'op_api',
+                true,
+                { name: 'op_api', assetIdentifier: undefined, tag: undefined }
+            ],
+            [
+                'parse a tagged api',
+                'op_api:someTag',
+                true,
+                { name: 'op_api', assetIdentifier: undefined, tag: 'someTag' }
+            ],
+            [
+                'parse api base names with an assetHash and tag',
+                'op_api@bd74534373c5077c50b54d4f1ff2a736b0e8819e:foobar',
+                true,
+                { name: 'op_api', assetIdentifier: 'bd74534373c5077c50b54d4f1ff2a736b0e8819e', tag: 'foobar' }
+            ],
+            [
+                'parse a pre-hashed asset name of an api',
+                'op_api@some_asset',
+                true,
+                { name: 'op_api', assetIdentifier: 'some_asset', tag: undefined }
+            ],
+            [
+                'parse a pre-hashed asset name and version of an api',
+                'op_api@some_asset:2.1.0',
+                true,
+                { name: 'op_api', assetIdentifier: 'some_asset:2.1.0', tag: undefined }
+            ],
+            [
+                'parse a pre-hashed asset name and tag of an api',
+                'op_api@some_asset:myTag',
+                true,
+                { name: 'op_api', assetIdentifier: 'some_asset', tag: 'myTag' }
+            ],
+            [
+                'parse a pre-hashed asset name, version and tag of an api',
+                'op_api@some_asset:2.1.0:someTag',
+                true,
+                { name: 'op_api', assetIdentifier: 'some_asset:2.1.0', tag: 'someTag' }
             ],
         ];
 
-        test.each(cases)('should %s', (_msg, name, expectedOutput) => {
-            expect(parseName(name)).toMatchObject(expectedOutput);
+        test.each(cases)('should %s', (_msg, name, isApi, expectedOutput) => {
+            expect(parseName(name, isApi)).toMatchObject(expectedOutput);
         });
     });
 });
