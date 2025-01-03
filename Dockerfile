@@ -10,7 +10,6 @@ ARG GITHUB_SHA
 ENV NODE_ENV production
 
 COPY package.json yarn.lock tsconfig.json .yarnrc.yml /app/source/
-COPY ./patches app/src/patches
 COPY .yarnclean.ci /app/source/.yarnclean
 COPY .yarn /app/source/.yarn
 COPY packages /app/source/packages
