@@ -500,7 +500,7 @@ export class NativeClustering {
         let workerCount = workerNum;
 
         const workersData = workers.reduce((prev: Record<string, any>, curr) => {
-            if (prev[curr.node_id]) {
+            if (!prev[curr.node_id]) {
                 prev[curr.node_id] = 1;
             } else {
                 prev[curr.node_id] += 1;
