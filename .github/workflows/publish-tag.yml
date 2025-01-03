@@ -34,8 +34,6 @@ jobs:
 
       - name: Install and build packages
         run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Publish to npm
         run: yarn ts-scripts publish -t tag npm
@@ -71,8 +69,6 @@ jobs:
 
       - name: Install and build packages
         run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Publish to docker
         run: yarn ts-scripts publish -t tag -n ${{ matrix.node-version }} docker
