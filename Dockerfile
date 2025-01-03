@@ -9,9 +9,7 @@ ARG GITHUB_SHA
 
 ENV NODE_ENV production
 
-ENV YARN_SETUP_ARGS "--prod=false --silent --frozen-lockfile"
-
-COPY package.json yarn.lock tsconfig.json .yarnrc /app/source/
+COPY package.json yarn.lock tsconfig.json .yarnrc.yml /app/source/
 COPY ./patches app/src/patches
 COPY .yarnclean.ci /app/source/.yarnclean
 COPY .yarn /app/source/.yarn
@@ -22,14 +20,16 @@ COPY types /app/source/types
 # Check to see if distutils is installed because python 3.12 removed it
 RUN python3 -c "import distutils" || (apk update && apk add py3-setuptools)
 
-RUN yarn --prod=false --frozen-lockfile \
+# Enable Corepack
+RUN corepack enable
+
+# Update Yarn to version 4
+RUN corepack prepare yarn@4.5.3 --activate
+
+RUN yarn workspaces focus --all \
     && yarn build \
-    && yarn \
-      --prod=true \
-      --silent \
-      --frozen-lockfile \
-      --skip-integrity-check \
-      --ignore-scripts \
+    && rm -rf /app/source/packages/*/src \
+    && yarn workspaces focus --production --all \
     && yarn cache clean
 
 
