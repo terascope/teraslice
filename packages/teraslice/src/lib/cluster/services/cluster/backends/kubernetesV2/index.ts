@@ -12,6 +12,7 @@ import { ResourceType } from './interfaces.js';
 import { K8sJobResource } from './k8sJobResource.js';
 import { K8sServiceResource } from './k8sServiceResource.js';
 import { K8sDeploymentResource } from './k8sDeploymentResource.js';
+import { ClusterState } from '@terascope/types';
 
 /*
  Execution Life Cycle for _status
@@ -27,7 +28,7 @@ export class KubernetesClusterBackendV2 {
     k8s: K8s;
     logger: Logger;
     private clusterStateInterval: NodeJS.Timeout | undefined;
-    clusterState: Record<string, any> = {};
+    clusterState: ClusterState = {};
     readonly clusterNameLabel: string;
 
     constructor(context: Context, clusterMasterServer: any) {

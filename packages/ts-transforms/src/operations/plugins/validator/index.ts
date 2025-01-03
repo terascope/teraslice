@@ -1,7 +1,7 @@
 import { deprecate } from 'util';
 import validator from 'validator';
 import ValidationOpBase from '../../lib/validations/base.js';
-import { PostProcessConfig, PluginClassType, InputOutputCardinality, OperationsDict } from '../../../interfaces.js';
+import { PostProcessConfig, PluginClassType, InputOutputCardinality } from '../../../interfaces.js';
 
 export class Validator extends ValidationOpBase<any> {
     private method: keyof typeof validator;
@@ -24,14 +24,7 @@ export class Validator extends ValidationOpBase<any> {
     }
 }
 
-interface ValidatorInterfaceType {
-    new (config: PostProcessConfig): Validator;
-    cardinality: InputOutputCardinality;
-
-}
-
-function setup(method: keyof typeof validator): ValidatorInterfaceType {
-    // @ts-expect-error fixMe: properly type a class returning a different class
+function setup(method: keyof typeof validator) {
     return class ValidatorInterface {
         static cardinality: InputOutputCardinality = 'one-to-one';
 
@@ -42,7 +35,8 @@ function setup(method: keyof typeof validator): ValidatorInterfaceType {
 }
 
 export class ValidatorPlugins implements PluginClassType {
-    init(): OperationsDict {
+    // @ts-expect-error
+    init() {
         return {
             after: deprecate(setup('isAfter'), 'after is being deprecated., please use isAfter instead', 'after'),
             alpha: deprecate(setup('isAlpha'), 'alpha is being deprecated, please use isAlpha instead', 'alpha'),

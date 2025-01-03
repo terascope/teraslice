@@ -1,5 +1,4 @@
 import { Router, Express } from 'express';
-import type { ParsedQs } from 'qs';
 import bodyParser from 'body-parser';
 import { pipeline as streamPipeline } from 'node:stream/promises';
 import { RecoveryCleanupType, TerasliceConfig } from '@terascope/job-components';
@@ -137,10 +136,10 @@ export class ApiService {
         throw error;
     }
 
-    private _parsedQsToSearchParams(parsedQs: ParsedQs) {
+    private queryToSearchParams(query: any) {
         const searchParams: Record<string, string | number | boolean> = {};
 
-        for (const [key, value] of Object.entries(parsedQs)) {
+        for (const [key, value] of Object.entries(query)) {
             if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
                 searchParams[key] = value;
             } else if (Array.isArray(value)) {
@@ -157,7 +156,7 @@ export class ApiService {
     }
 
     private async _redirect(req: TerasliceRequest, res: TerasliceResponse) {
-        const searchParams = this._parsedQsToSearchParams(req.query);
+        const searchParams = this.queryToSearchParams(req.query);
 
         const options: OptionsInit & { isStream: true } = {
             prefixUrl: this.assetsUrl,

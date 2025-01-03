@@ -227,7 +227,7 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
             const entries = Object.entries(this._sanitizeFields);
 
             for (const [field, method] of entries) {
-                if (isKey(record, field)) {
+                if (isKey(record, field) && record[field]) {
                     switch (method) {
                         case 'trim':
                             this._setStringValueOrThrow(

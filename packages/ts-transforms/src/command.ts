@@ -8,9 +8,9 @@ import {
     DataEntity, debugLogger, parseList,
     AnyObject, get, pMap
 } from '@terascope/utils';
+import { isXLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import { PhaseManager } from './index.js';
 import { PhaseConfig } from './interfaces.js';
-import { xLuceneFieldType } from 'packages/types/dist/src/xlucene-interfaces.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -50,7 +50,7 @@ const filePath = command.rules as string;
 const dataPath = command.data as string;
 const streamData = command.f && command.f === 'ldjson' ? command.f : false;
 const ignoreErrors = command.i || false;
-let typesConfig: Record<string, xLuceneFieldType> = {}; // fixme: confirm it's always one of these
+let typesConfig: xLuceneTypeConfig = {};
 const type = command.m ? 'matcher' : 'transform';
 
 interface ESData {
@@ -65,7 +65,11 @@ try {
             if (pieces.length !== 2) {
                 throw new Error(`Expected -t option line #${index} to have key:value pair format, got ${segment}`);
             }
-            typesConfig[pieces[0].trim()] = pieces[1].trim() as xLuceneFieldType;
+            const fieldType = pieces[1].trim();
+            if (!isXLuceneFieldType(fieldType)) {
+                throw new Error(`Expected -t option line #${index} value of ${fieldType} to be of type xLuceneFieldType`);
+            }
+            typesConfig[pieces[0].trim()] = fieldType;
         });
     }
     if (command.T) {

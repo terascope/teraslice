@@ -2,7 +2,7 @@ import { EventEmitter } from 'node:events';
 import {
     debugLogger, isTest, Logger
 } from '@terascope/utils';
-import GCStats from 'gc-stats';
+import type GCStats from 'gc-stats';
 
 const defaultLogger = debugLogger('metrics');
 

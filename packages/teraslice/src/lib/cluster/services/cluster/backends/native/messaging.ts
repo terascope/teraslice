@@ -11,6 +11,7 @@ import {
 import { Context } from '@terascope/job-components';
 import socketIOClient from 'socket.io-client';
 import socketIOServer from 'socket.io';
+import { isProcessAssignment, MessagingConfigOptions, ProcessAssignment } from '../../../../../../interfaces.js';
 
 // messages send to cluster_master
 const clusterMasterMessages = {
@@ -449,7 +450,7 @@ export class Messaging {
     private _makeConfigurations() {
         let host;
         let port;
-        const options = {
+        const options: MessagingConfigOptions = {
             node_master: { networkClient: true, ipcClient: false },
             cluster_master: { networkClient: false, ipcClient: true },
             execution_controller: { networkClient: false, ipcClient: true },
@@ -461,7 +462,11 @@ export class Messaging {
         const processConfig: Record<string, any> = {};
         // @ts-expect-error
         const testProcess = this.context.__testingModule;
-        processConfig.clients = options[env.assignment as keyof typeof options];
+        const { assignment } = env;
+        if (!isProcessAssignment(assignment)) {
+            throw new Error(`assignment must be on of: ${Object.values(ProcessAssignment).toString()}. Received ${assignment}`);
+        }
+        processConfig.clients = options[assignment];
 
         if (processConfig.clients.ipcClient) {
             // all children of node_master
@@ -472,14 +477,14 @@ export class Messaging {
         }
 
         if (processConfig.clients.networkClient) {
-            if (env.assignment === 'node_master' || env.assignment === 'assets_service') {
+            if (assignment === 'node_master' || assignment === 'assets_service') {
                 host = this.context.sysconfig.teraslice.master_hostname;
                 ({ port } = this.context.sysconfig.teraslice);
             }
             processConfig.hostURL = this._makeHostName(host as string, port as unknown as string);
         }
 
-        processConfig.assignment = env.assignment;
+        processConfig.assignment = assignment;
 
         return processConfig;
     }
@@ -551,7 +556,7 @@ export class Messaging {
             'cluster:slicer:analytics': 'cluster:slicer:analytics',
         };
 
-        return msg in stateQuery;
+        return (isKey(stateQuery, msg) && stateQuery[msg] !== undefined);
     }
 
     private _emitIpcMessage(fn: any) {

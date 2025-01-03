@@ -63,9 +63,9 @@ export function mergeDefaults<T extends object>(source: T, from: Partial<T>): T 
     const _mapping = from ? cloneDeep(from) : {};
 
     for (const [key, val] of Object.entries(_mapping)) {
-        if (isKey(output, key)) {
+        if (isKey(output, key) && output[key] != null) {
             if (isPlainObject(val)) {
-                output[key] = Object.assign(output[key] as object, val) as T[string & keyof T];
+                output[key] = Object.assign(output[key], val);
             } else if (Array.isArray(val)) {
                 output[key] = concat(output[key], val) as T[string & keyof T];
             } else {

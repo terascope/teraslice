@@ -80,6 +80,7 @@ class OperationsManager {
 
     constructor(pluginList: PluginList = []) {
         pluginList.push(CorePlugins);
+        // @ts-expect-error FIXME: try to remove this ignore
         pluginList.push(ValidatorPlugins);
         pluginList.push(dataMatePlugin);
 

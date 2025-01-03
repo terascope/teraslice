@@ -14,6 +14,10 @@ export enum xLuceneFieldType {
     Number = 'number',
 }
 
+export function isXLuceneFieldType(value: string): value is xLuceneFieldType {
+    return Object.values(xLuceneFieldType).includes(value as xLuceneFieldType);
+}
+
 export interface xLuceneTypeConfig {
     [field: string]: xLuceneFieldType;
 }

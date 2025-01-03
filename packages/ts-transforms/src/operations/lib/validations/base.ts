@@ -2,11 +2,11 @@ import {
     DataEntity, get, isFunction, isNil
 } from '@terascope/utils';
 import OperationBase from '../base.js';
+import { OperationConfig } from '../../../interfaces.js';
 
 export default abstract class ValidationOpBase<T> extends OperationBase {
     private invert: boolean;
-    // @ts-expect-error
-    constructor(config) {
+    constructor(config: OperationConfig) {
         super(config);
         this.invert = this.config.output === false;
     }

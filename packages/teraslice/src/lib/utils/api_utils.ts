@@ -117,7 +117,6 @@ export function makePrometheus(stats: ClusterMaster.ClusterAnalytics, defaultLab
     };
 
     let returnString = '';
-
     Object.entries(stats.controllers).forEach(([key, value]) => {
         if (isKey(metricMapping, key)) {
             const name = metricMapping[key];

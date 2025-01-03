@@ -6,7 +6,7 @@ import {
     IndexManager, timeSeriesIndex, IndexConfig, getESVersion,
     __timeSeriesTest, ElasticsearchTestHelpers
 } from '../src/index.js';
-import { MappingTypeMapping } from 'opensearch1/api/types.js';
+import { MappingTypeMapping } from '@terascope/types';
 
 const {
     makeClient, cleanupIndex, TEST_INDEX_PREFIX,

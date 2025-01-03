@@ -29,12 +29,18 @@ export interface ClusterMasterContext extends Context {
 }
 
 export enum ProcessAssignment {
+    node_master = 'node_master',
     cluster_master = 'cluster_master',
     assets_service = 'assets_service',
     execution_controller = 'execution_controller',
     worker = 'worker'
 
 }
+
+export function isProcessAssignment(value: string): value is ProcessAssignment {
+    return Object.values(ProcessAssignment).includes(value as ProcessAssignment);
+}
+
 interface BaseWorkerNode {
     worker_id: number;
     pid: number;
@@ -99,3 +105,10 @@ export interface ControllerStats extends ExecutionAnalytics {
     job_id: string;
     name: string;
 }
+
+export type MessagingConfigOptions = {
+    [assignment in ProcessAssignment]: {
+        networkClient: boolean;
+        ipcClient: boolean;
+    };
+};
