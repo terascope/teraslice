@@ -16,6 +16,7 @@ import {
     AssetBundleType, OperationLocationType, OpTypeToRepositoryKey,
     OperationResults, FindOperationResults, OperationTypeName
 } from './interfaces.js';
+import { parseName } from './utils.js';
 
 const dirname = pathModule.dirname(fileURLToPath(import.meta.url));
 
@@ -23,17 +24,246 @@ export class OperationLoader {
     private readonly options: ValidLoaderOptions;
     private readonly availableExtensions: string[];
     private readonly invalidPaths: string[];
+    private readonly checkCollisions: boolean;
     allowedFile: (name: string) => boolean;
 
     constructor(options: LoaderOptions = {}) {
         this.options = this.validateOptions(options);
         this.availableExtensions = availableExtensions();
         this.invalidPaths = ['node_modules', ...ignoreDirectories()];
+        this.checkCollisions = options.validate_name_collisions ?? false;
 
         this.allowedFile = (fileName: string) => {
             const char = fileName.charAt(0);
             const isPrivate = char === '.' || char === '_';
             return !isPrivate && !this.invalidPaths.includes(fileName);
+        };
+    }
+
+    async loadProcessor(name: string, assetIds?: string[]): Promise<ProcessorModule> {
+        const { name: processorName, assetIdentifier: assetHash } = parseName(name);
+        const assetPaths = assetHash ? [assetHash] : assetIds;
+
+        const metadataList = await this.findOrThrow(processorName, assetPaths);
+
+        if (metadataList.length > 1 && this.checkCollisions && !assetHash) {
+            throw new Error(`Multiple assets containing the same processor name _op: "${name}", please specify which specific asset to use on its name`);
+        }
+
+        let path: string;
+        let bundle_type: AssetBundleType;
+
+        if (assetHash) {
+            const record = metadataList.find(
+                (meta) => meta.path.includes(assetHash)
+            ) as OperationResults;
+
+            path = record.path;
+            bundle_type = record.bundle_type;
+        } else {
+            path = metadataList[0].path;
+            bundle_type = metadataList[0].bundle_type;
+        }
+
+        let Processor: ProcessorConstructor | undefined;
+        let Schema: SchemaConstructor | undefined;
+        let API: OperationAPIConstructor | undefined;
+
+        try {
+            Processor = await this.require(
+                path,
+                OperationTypeName.processor,
+                { name: processorName, bundle_type }
+            );
+        } catch (err) {
+            throw new Error(`Failure loading processor from module: ${processorName}, error: ${parseError(err, true)}`);
+        }
+
+        try {
+            Schema = await this.require(
+                path,
+                OperationTypeName.schema,
+                { name: processorName, bundle_type }
+            );
+        } catch (err) {
+            throw new Error(`Failure loading schema from module: ${processorName}, error: ${parseError(err, true)}`);
+        }
+
+        try {
+            API = await this.require(
+                path,
+                OperationTypeName.api,
+                { name: processorName, bundle_type }
+            );
+        } catch (err) {
+            // do nothing
+        }
+
+        return {
+            // @ts-expect-error
+            Processor,
+            // @ts-expect-error
+            Schema,
+            API,
+        };
+    }
+
+    async loadReader(name: string, assetIds?: string[]): Promise<ReaderModule> {
+        const { name: readerName, assetIdentifier: assetHash } = parseName(name);
+        const assetPaths = assetHash ? [assetHash] : assetIds;
+
+        const metadataList = await this.findOrThrow(readerName, assetPaths);
+
+        if (metadataList.length > 1 && this.checkCollisions && !assetHash) {
+            throw new Error(`Multiple assets containing the same reader name _op: "${name}", please specify which specific asset to use on its name`);
+        }
+
+        let path: string;
+        let bundle_type: AssetBundleType;
+
+        if (assetHash) {
+            const record = metadataList.find(
+                (meta) => meta.path.includes(assetHash)
+            ) as OperationResults;
+
+            path = record.path;
+            bundle_type = record.bundle_type;
+        } else {
+            path = metadataList[0].path;
+            bundle_type = metadataList[0].bundle_type;
+        }
+
+        let Fetcher: FetcherConstructor | undefined;
+        let Slicer: SlicerConstructor | undefined;
+        let Schema: SchemaConstructor | undefined;
+        let API: OperationAPIConstructor | undefined;
+
+        try {
+            Slicer = await this.require(
+                path,
+                OperationTypeName.slicer,
+                { name: readerName, bundle_type }
+            );
+        } catch (err) {
+            throw new Error(`Failure loading slicer from module: ${readerName}, error: ${parseError(err, true)}`);
+        }
+
+        try {
+            Fetcher = await this.require(
+                path,
+                OperationTypeName.fetcher,
+                { name: readerName, bundle_type }
+            );
+        } catch (err) {
+            throw new Error(`Failure loading fetcher from module: ${readerName}, error: ${parseError(err, true)}`);
+        }
+
+        try {
+            Schema = await this.require(
+                path,
+                OperationTypeName.schema,
+                { name: readerName, bundle_type }
+            );
+        } catch (err) {
+            throw new Error(`Failure loading schema from module: ${readerName}, error: ${parseError(err, true)}`);
+        }
+
+        try {
+            API = await this.require(
+                path,
+                OperationTypeName.api,
+                { name: readerName, bundle_type }
+            );
+        } catch (err) {
+            // do nothing
+        }
+
+        return {
+            // @ts-expect-error
+            Slicer,
+            // @ts-expect-error
+            Fetcher,
+            // @ts-expect-error
+            Schema,
+            API,
+        };
+    }
+
+    async loadAPI(name: string, assetIds?: string[]): Promise<APIModule> {
+        const { name: apiName, assetIdentifier: assetHash } = parseName(name, true);
+        const assetPaths = assetHash ? [assetHash] : assetIds;
+
+        const metadataList = await this.findOrThrow(apiName, assetPaths);
+
+        if (metadataList.length > 1 && this.checkCollisions && !assetHash) {
+            throw new Error(`Multiple assets containing the same api name _name: "${name}", please specify which specific asset to use on its name`);
+        }
+
+        let path: string;
+        let bundle_type: AssetBundleType;
+
+        if (assetHash) {
+            const record = metadataList.find(
+                (meta) => meta.path.includes(assetHash as string)
+            ) as OperationResults;
+
+            path = record.path;
+            bundle_type = record.bundle_type;
+        } else {
+            path = metadataList[0].path;
+            bundle_type = metadataList[0].bundle_type;
+        }
+
+        let API: OperationAPIConstructor | undefined;
+
+        try {
+            API = await this.require(
+                path,
+                OperationTypeName.api,
+                { name: apiName, bundle_type }
+            );
+        } catch (err) {
+            // do nothing
+        }
+
+        let Observer: ObserverConstructor | undefined;
+
+        try {
+            Observer = await this.require(
+                path,
+                OperationTypeName.observer,
+                { name: apiName, bundle_type }
+            );
+        } catch (err) {
+            // do nothing
+        }
+
+        let Schema: SchemaConstructor | undefined;
+
+        try {
+            Schema = await this.require(
+                path,
+                OperationTypeName.schema,
+                { name: apiName, bundle_type }
+            );
+        } catch (err) {
+            throw new Error(`Failure loading schema from module: ${apiName}, error: ${parseError(err, true)}`);
+        }
+
+        if (Observer == null && API == null) {
+            throw new Error(`Failure to load api module: ${apiName}, requires at least an api.js or observer.js`);
+        } else if (Observer != null && API != null) {
+            throw new Error(`Failure to load api module: ${apiName}, required only one api.js or observer.js`);
+        }
+
+        const type = API != null ? 'api' : 'observer';
+
+        return {
+            // @ts-expect-error
+            API: API || Observer,
+            // @ts-expect-error
+            Schema,
+            type,
         };
     }
 
@@ -87,13 +317,52 @@ export class OperationLoader {
         return AssetBundleType.STANDARD;
     }
 
-    async find(name: string, assetIds?: string[]): Promise<FindOperationResults> {
-        let filePath: string | null = null;
-        let location: OperationLocationType | null = null;
+    private async findOrThrow(
+        name: string,
+        assetIds: string[] = [],
+    ): Promise<OperationResults[]> {
+        this.verifyOpName(name);
+        const results = await this.find(name, assetIds);
+
+        if (results.length === 0) {
+            throw new Error(`Unable to find module for operation: ${name}`);
+        }
+
+        results.forEach((metadata) => {
+            if (!metadata.path) {
+                throw new Error(`Unable to find module for operation: ${name}`);
+            }
+
+            if (!metadata.location) {
+                throw new Error(`Unable to gather location for operation: ${name}`);
+            }
+
+            if (!metadata.bundle_type) {
+                throw new Error(`Unable to determine the bundle_type for operation: ${name}`);
+            }
+        });
+
+        return results as OperationResults[];
+    }
+
+    async find(
+        name: string,
+        assetIds: string[] = [],
+    ): Promise<FindOperationResults[]> {
+        const results: FindOperationResults[] = [];
+        let shouldBreak = true;
+
+        if (this.checkCollisions) {
+            shouldBreak = false;
+        }
 
         const findCodeFn = this.findCode(name);
 
-        const findCodeByConvention = async (basePath?: string, subfolders?: string[]) => {
+        const findCodeByConvention = async (
+            basePath: string,
+            subfolders: string[],
+            location: OperationLocationType
+        ) => {
             if (!basePath) return;
             if (!fs.existsSync(basePath)) return;
             if (!subfolders || !subfolders.length) return;
@@ -102,190 +371,107 @@ export class OperationLoader {
                 const folderPath = pathModule.join(basePath, folder);
                 // we check for v3 version of asset
                 if (await this.isBundledOperation(folderPath, name)) {
-                    filePath = folderPath;
-                }
+                    const bundle_type = await this.getBundleType({ codePath: folderPath, name });
+                    results.push({ path: folderPath, bundle_type, location });
 
-                if (!filePath && fs.existsSync(folderPath)) {
-                    filePath = findCodeFn(folderPath);
+                    if (shouldBreak) break;
+                } else if (fs.existsSync(folderPath)) {
+                    const filePath = findCodeFn(folderPath, true);
+
+                    if (filePath) {
+                        const bundle_type = await this.getBundleType({ codePath: filePath, name });
+                        results.push({ path: filePath, bundle_type, location });
+
+                        if (shouldBreak) break;
+                    }
                 }
             }
         };
 
         for (const assetPath of this.options.assetPath) {
-            location = OperationLocationType.asset;
-            await findCodeByConvention(assetPath, assetIds);
-            if (filePath) break;
+            await findCodeByConvention(assetPath, assetIds, OperationLocationType.asset);
+            if (results.length && shouldBreak) break;
         }
 
-        if (!filePath) {
-            location = OperationLocationType.builtin;
-            await findCodeByConvention(this.getBuiltinDir(), ['.']);
+        if (results.length === 0 || !shouldBreak) {
+            await findCodeByConvention(this.getBuiltinDir(), ['.'], OperationLocationType.builtin);
         }
 
-        if (!filePath) {
-            location = OperationLocationType.teraslice;
-            await findCodeByConvention(this.options.terasliceOpPath, ['readers', 'processors']);
+        if (results.length === 0 || !shouldBreak) {
+            const location = OperationLocationType.module;
+            const filePath = this.resolvePath(name);
+
+            if (filePath) {
+                const bundle_type = await this.getBundleType({ codePath: filePath, name });
+                results.push({ path: filePath, bundle_type, location });
+            }
         }
 
-        if (!filePath) {
-            location = OperationLocationType.module;
-            filePath = this.resolvePath(name);
-        }
-
-        const bundle_type = await this.getBundleType({ codePath: filePath, name });
-
-        return { path: filePath, location, bundle_type };
+        return results;
     }
 
-    async loadProcessor(name: string, assetIds?: string[]): Promise<ProcessorModule> {
-        const { path, bundle_type } = await this.findOrThrow(name, assetIds);
+    private findCode(name: string) {
+        let filePath: string | null = null;
 
-        let Processor: ProcessorConstructor | undefined;
-        let Schema: SchemaConstructor | undefined;
-        let API: OperationAPIConstructor | undefined;
+        const codeNames = this.availableExtensions.map((ext) => pathModule.format({
+            name,
+            ext,
+        }));
 
-        try {
-            Processor = await this.require(
-                path,
-                OperationTypeName.processor,
-                { name, bundle_type }
-            );
-        } catch (err) {
-            throw new Error(`Failure loading processor from module: ${name}, error: ${parseError(err, true)}`);
-        }
+        const allowedNames = uniq([name, ...codeNames]);
 
-        try {
-            Schema = await this.require(path, OperationTypeName.schema, { name, bundle_type });
-        } catch (err) {
-            throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
-        }
+        const findCode = (rootDir: string, resetFilePath = false): string | null => {
+            if (resetFilePath) filePath = null;
 
-        try {
-            API = await this.require(path, OperationTypeName.api, { name, bundle_type });
-        } catch (err) {
-            // do nothing
-        }
+            const fileNames = fs.readdirSync(rootDir)
+                .filter(this.allowedFile);
 
-        return {
-            // @ts-expect-error
-            Processor,
-            // @ts-expect-error
-            Schema,
-            API,
+            for (const fileName of fileNames) {
+                if (filePath) break;
+
+                const nextPath = pathModule.join(rootDir, fileName);
+
+                // if name is same as fileName/dir then we found it
+                if (allowedNames.includes(fileName)) {
+                    filePath = this.resolvePath(nextPath);
+                }
+
+                if (!filePath && this.isDir(nextPath)) {
+                    filePath = findCode(nextPath);
+                }
+            }
+
+            return filePath;
         };
+
+        return findCode;
     }
 
-    async loadReader(name: string, assetIds?: string[]): Promise<ReaderModule> {
-        const { path, bundle_type } = await this.findOrThrow(name, assetIds);
-
-        let Fetcher: FetcherConstructor | undefined;
-        let Slicer: SlicerConstructor | undefined;
-        let Schema: SchemaConstructor | undefined;
-        let API: OperationAPIConstructor | undefined;
+    private resolvePath(filePath: string): string | null {
+        if (!filePath) return null;
+        if (fs.existsSync(filePath)) return filePath;
 
         try {
-            Slicer = await this.require(path, OperationTypeName.slicer, { name, bundle_type });
+            return resolve(filePath, import.meta.url);
         } catch (err) {
-            throw new Error(`Failure loading slicer from module: ${name}, error: ${parseError(err, true)}`);
+            for (const ext of this.availableExtensions) {
+                try {
+                    return pathModule.dirname(
+                        resolve(
+                            pathModule.format({
+                                dir: filePath,
+                                name: 'schema',
+                                ext,
+                            }),
+                            import.meta.url
+                        )
+                    );
+                } catch (_err) {
+                    // do nothing
+                }
+            }
+            return null;
         }
-
-        try {
-            Fetcher = await this.require(path, OperationTypeName.fetcher, { name, bundle_type });
-        } catch (err) {
-            throw new Error(`Failure loading fetcher from module: ${name}, error: ${parseError(err, true)}`);
-        }
-
-        try {
-            Schema = await this.require(path, OperationTypeName.schema, { name, bundle_type });
-        } catch (err) {
-            throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
-        }
-
-        try {
-            API = await this.require(path, OperationTypeName.api, { name, bundle_type });
-        } catch (err) {
-            // do nothing
-        }
-
-        return {
-            // @ts-expect-error
-            Slicer,
-            // @ts-expect-error
-            Fetcher,
-            // @ts-expect-error
-            Schema,
-            API,
-        };
-    }
-
-    async loadAPI(name: string, assetIds?: string[]): Promise<APIModule> {
-        const [apiName] = name.split(':', 1);
-        const { path, bundle_type } = await this.findOrThrow(apiName, assetIds);
-
-        let API: OperationAPIConstructor | undefined;
-
-        try {
-            API = await this.require(path, OperationTypeName.api, { name: apiName, bundle_type });
-        } catch (err) {
-            // do nothing
-        }
-
-        let Observer: ObserverConstructor | undefined;
-
-        try {
-            Observer = await this.require(
-                path, OperationTypeName.observer, { name: apiName, bundle_type }
-            );
-        } catch (err) {
-            // do nothing
-        }
-
-        let Schema: SchemaConstructor | undefined;
-
-        try {
-            Schema = await this.require(
-                path,
-                OperationTypeName.schema,
-                { name: apiName, bundle_type }
-            );
-        } catch (err) {
-            throw new Error(`Failure loading schema from module: ${apiName}, error: ${parseError(err, true)}`);
-        }
-
-        if (Observer == null && API == null) {
-            throw new Error(`Failure to load api module: ${apiName}, requires at least an api.js or observer.js`);
-        } else if (Observer != null && API != null) {
-            throw new Error(`Failure to load api module: ${apiName}, required only one api.js or observer.js`);
-        }
-
-        const type = API != null ? 'api' : 'observer';
-
-        return {
-            // @ts-expect-error
-            API: API || Observer,
-            // @ts-expect-error
-            Schema,
-            type,
-        };
-    }
-
-    private async findOrThrow(name: string, assetIds?: string[]): Promise<OperationResults> {
-        this.verifyOpName(name);
-        const results = await this.find(name, assetIds);
-
-        if (!results.path) {
-            throw new Error(`Unable to find module for operation: ${name}`);
-        }
-
-        if (!results.location) {
-            throw new Error(`Unable to gather location for operation: ${name}`);
-        }
-
-        if (!results.bundle_type) {
-            throw new Error(`Unable to determine the bundle_type for operation: ${name}`);
-        }
-
-        return results as OperationResults;
     }
 
     private _adjustFilePath(filePath: string): string {
@@ -351,74 +537,12 @@ export class OperationLoader {
         }
     }
 
-    private resolvePath(filePath: string): string | null {
-        if (!filePath) return null;
-        if (fs.existsSync(filePath)) return filePath;
-
-        try {
-            return resolve(filePath, import.meta.url);
-        } catch (err) {
-            for (const ext of this.availableExtensions) {
-                try {
-                    return pathModule.dirname(
-                        resolve(
-                            pathModule.format({
-                                dir: filePath,
-                                name: 'schema',
-                                ext,
-                            }),
-                            import.meta.url
-                        )
-                    );
-                } catch (_err) {
-                    // do nothing
-                }
-            }
-            return null;
-        }
-    }
-
     private verifyOpName(name: string): void {
         if (!isString(name)) {
             throw new TypeError('Please verify that the "_op" name exists for each operation');
         }
 
         if (!this.allowedFile(name)) throw new Error(`Invalid name: ${name}, it is private or otherwise restricted`);
-    }
-
-    private findCode(name: string) {
-        let filePath: string | null = null;
-
-        const codeNames = this.availableExtensions.map((ext) => pathModule.format({
-            name,
-            ext,
-        }));
-
-        const allowedNames = uniq([name, ...codeNames]);
-
-        const findCode = (rootDir: string): string | null => {
-            const fileNames = fs.readdirSync(rootDir)
-                .filter(this.allowedFile);
-
-            for (const fileName of fileNames) {
-                if (filePath) break;
-
-                const nextPath = pathModule.join(rootDir, fileName);
-
-                // if name is same as fileName/dir then we found it
-                if (allowedNames.includes(fileName)) {
-                    filePath = this.resolvePath(nextPath);
-                }
-
-                if (!filePath && this.isDir(nextPath)) {
-                    filePath = findCode(nextPath);
-                }
-            }
-
-            return filePath;
-        };
-
-        return findCode;
     }
 
     private isDir(filePath: string) {

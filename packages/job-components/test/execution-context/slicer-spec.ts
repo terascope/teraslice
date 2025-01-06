@@ -1,7 +1,6 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { terasliceOpPath } from '../helpers/index.js';
 import {
     SlicerExecutionContext, TestContext, newTestExecutionConfig
 } from '../../src/index.js';
@@ -31,7 +30,6 @@ describe('SlicerExecutionContext', () => {
                 context,
                 executionConfig,
                 assetIds,
-                terasliceOpPath,
             });
             await executionContext.initialize();
         });

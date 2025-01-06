@@ -1,12 +1,10 @@
 import convict from 'convict';
 import { cloneDeep, pMap } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
-import {
-    Context, OpConfig, ValidatedJobConfig
-} from './interfaces';
+import { Context, OpConfig, ValidatedJobConfig } from './interfaces';
 import { validateJobConfig } from './config-validators.js';
 import { jobSchema } from './job-schemas.js';
-import { OperationLoader } from './operation-loader/index.js';
+import { OperationLoader, parseName } from './operation-loader/index.js';
 import { registerApis } from './register-apis.js';
 import { OperationAPIConstructor, OperationModule } from './operations/index.js';
 
@@ -15,11 +13,11 @@ export class JobValidator {
     private readonly context: Context;
     private readonly opLoader: OperationLoader;
 
-    constructor(context: Context, options: { terasliceOpPath?: string } = {}) {
+    constructor(context: Context) {
         this.context = context;
         this.opLoader = new OperationLoader({
-            terasliceOpPath: options.terasliceOpPath,
             assetPath: context.sysconfig.teraslice.assets_directory,
+            validate_name_collisions: true
         });
         this.schema = jobSchema(context);
     }
@@ -34,9 +32,14 @@ export class JobValidator {
         const apis: Record<string, OperationAPIConstructor> = {};
 
         type ValidateJobFn = (job: ValidatedJobConfig) => void;
-        let validateJobFns: ValidateJobFn[] = [];
+        const validateJobFns: ValidateJobFn[] = [];
+        const validateApisFns: ValidateJobFn[] = [];
 
-        const handleModule = (opConfig: OpConfig, op: OperationModule) => {
+        const handleModule = (
+            opConfig: OpConfig,
+            op: OperationModule,
+            index: number
+        ) => {
             const { Schema, API } = op;
 
             if (API != null) {
@@ -47,7 +50,15 @@ export class JobValidator {
 
             validateJobFns.push((job) => {
                 if (!schema.validateJob) return;
+
+                const originalName = opConfig._op;
+                const { name } = parseName(originalName);
+
+                // for backwards compatible checks, alter name so it can be found
+                job.operations[index]._op = name;
                 schema.validateJob(job);
+                // revert name back to original
+                job.operations[index]._op = originalName;
             });
 
             return schema.validate(opConfig);
@@ -57,35 +68,47 @@ export class JobValidator {
             if (index === 0) {
                 return handleModule(
                     opConfig,
-                    await this.opLoader.loadReader(opConfig._op, assetIds)
+                    await this.opLoader.loadReader(opConfig._op, assetIds),
+                    index
                 );
             }
 
             return handleModule(
                 opConfig,
-                await this.opLoader.loadProcessor(opConfig._op, assetIds)
+                await this.opLoader.loadProcessor(opConfig._op, assetIds),
+                index
             );
         });
 
+        // this needs to happen first because it can add apis to the job
+        // through usage of the ensureAPIFromConfig api that called inside
+        // many validateJob schema methods
         validateJobFns.forEach((fn) => {
             fn(jobConfig);
         });
 
-        validateJobFns = [];
-
-        jobConfig.apis = await pMap(jobConfig.apis, async (apiConfig) => {
+        jobConfig.apis = await pMap(jobConfig.apis, async (apiConfig, index) => {
             const { Schema } = await this.opLoader.loadAPI(apiConfig._name, assetIds);
             const schema = new Schema(this.context, 'api');
 
-            validateJobFns.push((job) => {
+            validateApisFns.push((job) => {
                 if (!schema.validateJob) return;
+
+                const originalName = apiConfig._name;
+                const { name } = parseName(originalName);
+
+                // for backwards compatible checks, alter name so it can be found
+                job.apis[index]._name = name;
                 schema.validateJob(job);
+                // revert name back to original
+                job.apis[index]._name = originalName;
             });
 
             return schema.validate(apiConfig);
         });
 
-        validateJobFns.forEach((fn) => {
+        // this can mutate the job
+        validateApisFns.forEach((fn) => {
             fn(jobConfig);
         });
 

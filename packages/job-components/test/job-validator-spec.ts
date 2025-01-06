@@ -6,13 +6,14 @@ import { JobValidator, TestContext, JobConfigParams } from '../src/index.js';
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('JobValidator', () => {
+    const assetHash1 = 'op_asset_v1.0.0';
+    const assetHash2 = 'op_asset_v1.4.0';
+    const assetHash3 = 'op_asset_v2.0.0';
+
     const context = new TestContext('teraslice-operations');
     context.sysconfig.teraslice.assets_directory = dirname;
 
-    const terasliceOpPath = path.join(dirname, '../../teraslice/lib');
-    const api = new JobValidator(context, {
-        terasliceOpPath,
-    });
+    const api = new JobValidator(context);
 
     describe('->validateConfig', () => {
         it('returns a completed and valid jobConfig', async () => {
@@ -102,7 +103,7 @@ describe('JobValidator', () => {
             }
         });
 
-        it('will throw based off opValition errors', async () => {
+        it('will throw based off opValidation errors', async () => {
             // if subslice_by_key, then it needs type specified or it will error
             const jobSpec: JobConfigParams = {
                 name: 'test',
@@ -148,9 +149,7 @@ describe('JobValidator', () => {
             const testContext = new TestContext('teraslice-operations');
             testContext.sysconfig.teraslice.assets_directory = [dirname];
 
-            const testApi = new JobValidator(context, {
-                terasliceOpPath,
-            });
+            const testApi = new JobValidator(context);
 
             const jobSpec: JobConfigParams = Object.freeze({
                 name: 'noop',
@@ -174,6 +173,39 @@ describe('JobValidator', () => {
             });
 
             const validJob = await testApi.validateConfig(jobSpec);
+            expect(validJob).toMatchObject(jobSpec);
+        });
+
+        it('can parse versioned operation names with apis', async () => {
+            const testContext = new TestContext('teraslice-operations');
+
+            // TODO: figure out why we have fixtures, and no other test uses testContext
+            const newPath = `${dirname}/fixtures`;
+            testContext.sysconfig.teraslice.assets_directory = [newPath];
+
+            const testApi = new JobValidator(testContext);
+
+            const jobSpec: JobConfigParams = Object.freeze({
+                name: 'myJob',
+                assets: [assetHash1, assetHash2, assetHash3],
+                autorecover: true,
+                apis: [
+                    { _name: `api-asset@${assetHash2}`, version: '1.4.0' }
+                ],
+                operations: [
+                    {
+                        _op: `reader-asset@${assetHash2}`,
+                        api_name: `api-asset@${assetHash2}`,
+                        version: '1.4.0'
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            });
+
+            const validJob = await testApi.validateConfig(jobSpec);
+
             expect(validJob).toMatchObject(jobSpec);
         });
     });

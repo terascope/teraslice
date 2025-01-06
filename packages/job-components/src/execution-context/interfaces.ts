@@ -9,7 +9,6 @@ import { APICore, OperationAPIType } from '../operations/index.js';
 export interface ExecutionContextConfig {
     context: Context;
     executionConfig: ExecutionConfig;
-    terasliceOpPath?: string;
     assetIds?: string[];
 }
 

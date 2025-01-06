@@ -5,13 +5,12 @@ import {
 } from '@terascope/utils';
 import {
     JobConfigParams, JobValidator, RecoveryCleanupType,
-    ValidatedJobConfig
+    ValidatedJobConfig, parseName
 } from '@terascope/job-components';
 import { JobConfig, ExecutionConfig } from '@terascope/types';
 import { ClusterMasterContext } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { spawnAssetLoader } from '../../workers/assets/spawn.js';
-import { terasliceOpPath } from '../../config/index.js';
 import { JobsStorage, ExecutionStorage } from '../../storage/index.js';
 import type { ExecutionService } from './execution.js';
 
@@ -33,9 +32,7 @@ export class JobsService {
     constructor(context: ClusterMasterContext) {
         this.context = context;
         this.logger = makeLogger(context, 'jobs_service');
-        this.jobValidator = new JobValidator(context, {
-            terasliceOpPath,
-        });
+        this.jobValidator = new JobValidator(context);
     }
 
     async initialize() {
@@ -486,7 +483,76 @@ export class JobsService {
         const parsedAssetJob = cloneDeep(jobConfig);
         parsedAssetJob.assets = assetIds;
 
+        const assetMapping = new Map<string, string>();
+
+        for (let i = 0; i < jobAssets.length; i++) {
+            assetMapping.set(jobAssets[i], assetIds[i]);
+        }
+
+        this.adjustNamesByAsset(parsedAssetJob as any, assetMapping);
+
         return parsedAssetJob;
+    }
+
+    private adjustNamesByAsset(
+        jobConfig: ValidatedJobConfig,
+        dict: Map<string, string>
+    ) {
+        jobConfig.operations = jobConfig.operations.map((op) => {
+            if (op.api_name?.includes('@')) {
+                const { name, assetIdentifier, tag } = parseName(op.api_name);
+                const hashId = dict.get(assetIdentifier as string);
+
+                if (!hashId) {
+                    throw new Error(`Invalid operation api_name for _op: ${name}, could not find the hashID for asset identifier ${assetIdentifier}`);
+                }
+
+                let hashedName = `${name}@${hashId}`;
+
+                if (tag) {
+                    hashedName = `${hashedName}:${tag}`;
+                }
+
+                op.api_name = hashedName;
+            }
+
+            if (op._op.includes('@')) {
+                const { name, assetIdentifier } = parseName(op._op);
+                const hashId = dict.get(assetIdentifier as string);
+
+                if (!hashId) {
+                    throw new Error(`Invalid operation name for _op: ${name}, could not find the hashID for asset identifier ${assetIdentifier}`);
+                }
+
+                op._op = `${name}@${hashId}`;
+                return op;
+            } else {
+                return op;
+            }
+        });
+
+        if (jobConfig.apis) {
+            jobConfig.apis = jobConfig.apis.map((api) => {
+                if (api._name.includes('@')) {
+                    const { name, assetIdentifier, tag } = parseName(api._name);
+                    const hashId = dict.get(assetIdentifier as string);
+
+                    if (!hashId) {
+                        throw new Error(`Invalid api name for _name: ${name}, could not find the hashID for asset identifier ${assetIdentifier}`);
+                    }
+
+                    let hashedName = `${name}@${hashId}`;
+
+                    if (tag) {
+                        hashedName = `${hashedName}:${tag}`;
+                    }
+                    api._name = hashedName;
+                    return api;
+                } else {
+                    return api;
+                }
+            });
+        }
     }
 
     /**
