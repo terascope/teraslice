@@ -78,3 +78,6 @@ docs/packages/*/api
 
 # CI test files
 images/*
+
+# .yarn
+.yarn/install-state.gz
