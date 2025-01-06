@@ -45,6 +45,7 @@
     "devDependencies": {
         "@terascope/types": "~1.4.0",
         "@terascope/scripts": "~1.7.1",
+        "@terascope/types": "~1.3.2",
         "bunyan": "~1.8.15",
         "elasticsearch-store": "~1.7.0",
         "fs-extra": "~11.2.0",
