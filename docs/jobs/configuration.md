@@ -146,29 +146,34 @@ The first operation in the [operations](#operations) list, reads from a particul
 ### Operation and api name collisions
 When creating a job that uses multiple assets, we check to see if any of the apis or operations specified on the job are found in multiple assets. If they are found across multiple assets then we will throw an error on job submission as we cannot tell which asset to use.
 
-To determine which asset to use you must use the `@` symbol along with a valid asset identifier on the job to determine which asset to use when loading the operation or api
+To determine which asset to use you must use the `@` symbol along with a valid asset identifier on the job to determine which asset to use when loading the operation or api. The asset identifier must match your name in the asset configuration on the job
 
 ## Examples
 
 ### Naming conventions
 
-If for example you have asset listed as `standard` inside a job, it internally uses the latest version of that asset name and for this example its `v3.2.0` and maps to the asset hash `2ab55a02723c304b2b74a7819942b4920e4ee6a9`. So for this asset and operation named `filter`, below are examples of valid names:
+If for example you have an asset listed as `standard` inside a job, the operation must be annotated with it. So for this asset and operation named `filter`, below are examples of valid names:
+
+- `filter@standard`
+
+If you list the asset as `standard:3.2.0`
 
 - `filter@standard:3.2.0`
-- `filter@standard`
+
+If you list the asset as its asset hash `2ab55a02723c304b2b74a7819942b4920e4ee6a9`
+
 - `filter@2ab55a02723c304b2b74a7819942b4920e4ee6a9`
 
-These both are now annotated with the specific asset to use.
 
-If you use multiple of the same asset name in the job, the operation and api names must include versions or hash specific to those assets that you want to use. An example of this can be found in the example jobs below with two elasticsearch asset example.
+You can use multiple of the same asset name in a job as long as the operation and api names match which asset version you are trying to use. An example of this can be found in the example jobs below with two elasticsearch asset example.
 
-Asset names follow the same convention as operations with the only difference that apis allow for additional tags as mentioned [here](#apis).
+api names follow the same convention as operations with the only difference that apis allow for additional tags as mentioned [here](#apis).
 
 - `some_api:someAsset:1.1.0:foo`
 
 
 ### Jobs
-In this example job, we are using two assets that both have an operation with the same `_op` named `filter` to be exact. This is an example job that show how to determine which asset to use.
+In this example job, we are using two assets that both have an operation with the same `_op` named `filter` to be exact. This is an example job that shows how to use the correct naming conventions to determine which asset to use.
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!-- job with an operation name that is shared between the two assets -->

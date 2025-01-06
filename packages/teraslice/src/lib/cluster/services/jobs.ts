@@ -499,7 +499,7 @@ export class JobsService {
         dict: Map<string, string>
     ) {
         jobConfig.operations = jobConfig.operations.map((op) => {
-            if (op.api_name) {
+            if (op.api_name?.includes('@')) {
                 const { name, assetIdentifier, tag } = parseName(op.api_name);
                 const hashId = dict.get(assetIdentifier as string);
 
