@@ -130,8 +130,7 @@ describe('assets', () => {
         if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
-        // the previous test confirms the newer version will be used by default
-        // now we test to see if we can select the older version
+
         jobSpec.assets = ['ex1:0.0.1', 'standard', 'elasticsearch'];
         const { workers } = jobSpec;
 
@@ -159,8 +158,7 @@ describe('assets', () => {
         if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
-        // the previous test confirms the newer version will be used by default
-        // now we test to see if we can select the older version
+
         jobSpec.assets = ['ex1:0.0.1', 'ex1:0.1.1', 'standard', 'elasticsearch'];
 
         await expect(terasliceHarness.submitAndStart(jobSpec)).rejects.toThrow();
@@ -172,8 +170,7 @@ describe('assets', () => {
         if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
-        // the previous test confirms the newer version will be used by default
-        // now we test to see if we can select the older version
+
         jobSpec.assets = ['ex1:0.0.1', 'ex1:0.1.1', 'standard', 'elasticsearch'];
         jobSpec.operations = jobSpec.operations.map((op) => {
             if (op._op === 'drop_property') {

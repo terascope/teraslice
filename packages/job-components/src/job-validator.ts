@@ -81,7 +81,7 @@ export class JobValidator {
         });
 
         // this needs to happen first because it can add apis to the job
-        // though usage of the ensureAPIFromConfig api that called inside
+        // through usage of the ensureAPIFromConfig api that called inside
         // many validateJob schema methods
         validateJobFns.forEach((fn) => {
             fn(jobConfig);
