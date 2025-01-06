@@ -31,7 +31,7 @@
         "dist/src/helpers/esm-shims.js"
     ],
     "scripts": {
-        "build": "tsc --build",
+        "build": "tsc --build && yarn postbuild",
         "postbuild": "node build.js",
         "build:watch": "tsc --build --watch & node build.js --watch",
         "test": "ts-scripts test . --",
