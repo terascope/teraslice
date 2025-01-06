@@ -47,7 +47,7 @@ jobs:
         yarn install
 
     - name: Install and build packages
-      run: yarn && yarn setup
+      run: yarn setup
 
   check-docker-limit-before:
    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@ecddc7fa5fc22826bdf921edd3a97e2e230f1fab
@@ -356,7 +356,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: yarn setup
 
       - name: Create Docker Image List
         run: |
