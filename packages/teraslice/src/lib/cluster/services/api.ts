@@ -137,7 +137,7 @@ export class ApiService {
     }
 
     private async _assetRedirect(req: TerasliceRequest, res: TerasliceResponse) {
-          const options: OptionsInit & { isStream: true } = {
+        const options: OptionsInit & { isStream: true } = {
             prefixUrl: this.assetsUrl,
             headers: req.headers,
             searchParams: req.query as Record<string, any>,

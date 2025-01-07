@@ -318,31 +318,33 @@ export class Messaging {
         });
     }
 
-    private _createIOServer(server?: HttpServer | HttpsServer, port?: string | number) {
+    private _createIOServer(options: ListenOptions) {
+        const { server, port } = options;
+
         const opts = {
             path: '/native-clustering',
             pingTimeout: this.configTimeout,
             pingInterval: this.configTimeout + this.networkLatencyBuffer,
             perMessageDeflate: false,
             serveClient: false,
-        }
+        };
         if (server) {
             this.io = socketIOServer(server, opts);
         } else if (port) {
             this.io = socketIOServer(port, opts);
         }
         this._attachRoomsSocketIO();
-        
+
         this.io.on('connection', (socket: any) => {
             this.logger.debug('a connection to cluster_master has been made');
             this._registerFns(socket);
         });
     }
-    
+
     listen(options: ListenOptions = {}) {
-        const { query, server, port } = options;
+        const { query } = options;
         this.messsagingOnline = true;
-        
+
         if (this.config.clients.networkClient) {
             // node_master, worker
             this.io = socketIOClient(this.hostURL, {
@@ -350,9 +352,9 @@ export class Messaging {
                 path: '/native-clustering',
                 query
             });
-            
+
             this._registerFns(this.io);
-            
+
             if (this.self === 'node_master') {
                 this.io.on('networkMessage', (networkMsg: any) => {
                     const { message } = networkMsg;
@@ -365,14 +367,11 @@ export class Messaging {
                     }
                 });
             }
-            
+
             this.logger.debug('client network connection is online');
-        } else if (server) {
-            // cluster_master
-            this._createIOServer(server);
-        } else if (port) {
-            // test server
-            this._createIOServer(undefined, port);
+        } else {
+            // cluster_master and test processes
+            this._createIOServer(options);
         }
 
         // TODO: message queuing will be used until formal process lifecycles are implemented
