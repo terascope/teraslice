@@ -28,9 +28,9 @@
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
         "postinstall": "./scripts/fix-deps.js",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "yarn workspace @terascope/scripts ts-scripts test ../xlucene-parser --",
+        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../xlucene-parser --",
+        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../xlucene-parser --"
     },
     "dependencies": {
         "@terascope/types": "~1.4.0",

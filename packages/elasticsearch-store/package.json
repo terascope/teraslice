@@ -20,14 +20,14 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
-        "test:debug": "TEST_ELASTICSEARCH='true' ts-scripts test --debug . --",
-        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' ts-scripts test . --",
-        "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' ts-scripts test . --",
-        "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' ts-scripts test . --",
-        "test:opensearch1": "TEST_OPENSEARCH='true' ts-scripts test . --",
-        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' ts-scripts test . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "TEST_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
+        "test:debug": "TEST_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test --debug ../elasticsearch-store --",
+        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
+        "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
+        "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
+        "test:opensearch1": "TEST_OPENSEARCH='true' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
+        "test:watch": "ts-scripts yarn workspace @terascope/scripts test --watch ../elasticsearch-store --"
     },
     "dependencies": {
         "@terascope/data-mate": "~1.7.0",

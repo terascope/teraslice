@@ -34,9 +34,9 @@
         "build": "tsc --build && yarn postbuild",
         "postbuild": "node build.js",
         "build:watch": "tsc --build --watch & node build.js --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "yarn workspace @terascope/scripts ts-scripts test ../teraslice-cli --",
+        "test:debug": "yarn workspace @terascope/scripts test --debug ../teraslice-cli --",
+        "test:watch": "yarn workspace @terascope/scripts test --watch ../teraslice-cli --"
     },
     "dependencies": {
         "esbuild": "~0.24.0"

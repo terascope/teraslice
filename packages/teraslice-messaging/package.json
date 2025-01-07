@@ -26,9 +26,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "yarn workspace @terascope/scripts ts-scripts test ../teraslice-messaging --",
+        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../teraslice-messaging --",
+        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../teraslice-messaging --"
     },
     "resolutions": {
         "debug": "~4.4.0",

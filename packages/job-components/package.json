@@ -27,9 +27,9 @@
         "benchmark": " yarn build && node bench/index.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "yarn workspace @terascope/scripts ts-scripts test ../job-components --",
+        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../job-components --",
+        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../job-components --"
     },
     "dependencies": {
         "@terascope/types": "~1.4.0",

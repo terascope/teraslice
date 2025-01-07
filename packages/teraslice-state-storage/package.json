@@ -19,9 +19,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "yarn workspace @terascope/scripts ts-scripts test ../teraslice-state-storage --",
+        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../teraslice-state-storage --",
+        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../teraslice-state-storage --"
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "~4.7.0",

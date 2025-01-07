@@ -23,9 +23,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "yarn workspace @terascope/scripts ts-scripts test ../terafoundation --",
+        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../terafoundation --",
+        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../terafoundation --"
     },
     "dependencies": {
         "@terascope/file-asset-apis": "~1.0.3",

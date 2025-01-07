@@ -20,9 +20,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "yarn workspace @terascope/scripts ts-scripts test ../types --",
+        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../types --",
+        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../types --"
     },
     "dependencies": {
         "prom-client": "~15.1.3"

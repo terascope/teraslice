@@ -31,9 +31,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "yarn workspace @terascope/scripts ts-scripts test ../ts-transforms --",
+        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../ts-transforms --",
+        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../ts-transforms --"
     },
     "dependencies": {
         "@terascope/data-mate": "~1.7.0",
