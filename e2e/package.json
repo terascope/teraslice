@@ -43,9 +43,8 @@
         "ms": "~2.1.3"
     },
     "devDependencies": {
+        "@terascope/scripts": "~1.8.0",
         "@terascope/types": "~1.4.0",
-        "@terascope/scripts": "~1.7.1",
-        "@terascope/types": "~1.3.2",
         "bunyan": "~1.8.15",
         "elasticsearch-store": "~1.7.0",
         "fs-extra": "~11.2.0",
@@ -57,7 +56,7 @@
         "semver": "~7.6.3",
         "signale": "~1.4.0",
         "ts-jest": "^29.2.5",
-        "typescript": "5.2.2",
+        "typescript": "~5.7.2",
         "uuid": "~11.0.3"
     },
     "engines": {
