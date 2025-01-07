@@ -259,7 +259,7 @@ export class AssetSrc {
 
         // run npm --cwd srcDir/asset
         reply.info('* running yarn install');
-        await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['']);
+        await this._yarnCmd(path.join(tmpDir.name, 'asset'), []);
 
         // Since we now require bundled assets to implement a registry, we
         // require that Javascript assets place it at `asset/index.js` and
