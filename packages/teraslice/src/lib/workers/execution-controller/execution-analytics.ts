@@ -133,11 +133,17 @@ export class ExecutionAnalytics {
         this.executionAnalytics[key] += 1;
     }
 
-    get(key: string) {
-        if (key) {
+    get(key: 'started' | 'queuing_complete'): Date | string | number | undefined;
+    get(key: undefined): EStats;
+    get(key: keyof Omit<EStats, 'started' | 'queuing_complete'>): number;
+    get(key: keyof EStats | undefined): EStats | Date | string | number | undefined {
+        if (key === 'started' || key === 'queuing_complete') {
             return this.executionAnalytics[key];
         }
-        return this.executionAnalytics;
+        if (key === undefined) {
+            return this.executionAnalytics;
+        }
+        return this.executionAnalytics[key];
     }
 
     getAnalytics() {
@@ -165,12 +171,12 @@ export class ExecutionAnalytics {
         const analytics = this.getAnalytics();
 
         // save a copy of what we push so we can emit diffs
-        const diffs: Partial<AggregatedExecutionAnalytics> = {};
-        const copy: Partial<AggregatedExecutionAnalytics> = {};
+        const diffs: Record<string, any> = {};
+        const copy: Record<string, any> = {};
 
         Object.entries(this.pushedAnalytics).forEach(([field, value]) => {
-            diffs[field] = analytics[field] - value;
-            copy[field] = analytics[field];
+            diffs[field] = analytics[field as keyof Omit<EStats, 'started' | 'queuing_complete'>] - value;
+            copy[field] = analytics[field as keyof EStats];
         });
 
         const response = await this.client.sendClusterAnalytics(

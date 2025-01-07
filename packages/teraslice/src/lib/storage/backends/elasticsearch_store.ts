@@ -144,7 +144,7 @@ export class TerasliceElasticsearchStorage {
 
         if (isMultiIndex) {
             // @ts-expect-error TODO: fix this
-            const storeType = this.defaultIndexName.match(/__(.*)\*/)[1];
+            const storeType: 'analytics' | 'state' = this.defaultIndexName.match(/__(.*)\*/)[1];
             const timeseriesFormat = config.index_rollover_frequency[storeType];
             const nameSize = this.defaultIndexName.length - 1;
             newIndex = timeseriesIndex(

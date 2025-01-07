@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events';
 import {
     debugLogger, isTest, Logger
 } from '@terascope/utils';
+import type GCStats from 'gc-stats';
 
 const defaultLogger = debugLogger('metrics');
 
@@ -11,7 +12,7 @@ export class Metrics extends EventEmitter {
     private eventLoopInterval: number;
     // TODO: fix types here
     private _typesCollectedAt: Record<string, any>;
-    private gcStats: any;
+    private gcStats: GCStats.GCStatsEventEmitter | null;
     private eventLoopStats: any;
 
     constructor(config?: { logger: Logger }) {
@@ -26,12 +27,12 @@ export class Metrics extends EventEmitter {
         this.eventLoopInterval = isTest ? 100 : 5000;
         this._intervals = [];
         this._typesCollectedAt = {};
+        this.gcStats = null;
     }
 
     async initialize() {
         // never cause an unwanted error
         try {
-            // @ts-expect-error
             const module = await import('gc-stats');
             this.gcStats = module.default();
         } catch (err) {
@@ -52,7 +53,7 @@ export class Metrics extends EventEmitter {
             loopEnabled
         });
 
-        if (gcEnabled) {
+        if (this.gcStats !== null) {
             // https://github.com/dainis/node-gcstats#property-insights
             const typesToName = {
                 1: 'Scavenge',
@@ -62,7 +63,7 @@ export class Metrics extends EventEmitter {
                 15: 'All'
             };
 
-            this.gcStats.on('stats', (metrics: any) => {
+            this.gcStats.on('stats', (metrics: GCStats.GCStatistics) => {
                 // never cause an unwanted error
                 if (!metrics) {
                     this.logger.warn('invalid metrics received for gc stats', metrics);

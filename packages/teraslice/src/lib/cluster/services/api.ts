@@ -1,10 +1,12 @@
 import { Router, Express } from 'express';
 import bodyParser from 'body-parser';
 import { pipeline as streamPipeline } from 'node:stream/promises';
+import got, { OptionsInit } from 'got';
 import { RecoveryCleanupType, TerasliceConfig } from '@terascope/job-components';
 import {
     parseErrorInfo, parseList, logError,
-    TSError, startsWith, Logger, pWhile
+    TSError, startsWith, Logger, pWhile,
+    isKey
 } from '@terascope/utils';
 import { ExecutionStatusEnum } from '@terascope/types';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
@@ -17,7 +19,6 @@ import {
     createJobActiveQuery, addDeletedToQuery
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
-import got from 'got';
 
 const terasliceVersion = getPackageJSON().version;
 
@@ -78,7 +79,7 @@ export class ApiService {
         }
 
         queryKeys.forEach((key) => {
-            if (keyOptions[key]) {
+            if (key in keyOptions) {
                 msg = key;
                 workerNum = Number(query[key]);
             }
@@ -135,24 +136,30 @@ export class ApiService {
         throw error;
     }
 
-    private async _redirect(req: TerasliceRequest, res: TerasliceResponse) {
-        const options = {
+    private async _assetRedirect(req: TerasliceRequest, res: TerasliceResponse) {
+        const options: OptionsInit & { isStream: true } = {
             prefixUrl: this.assetsUrl,
             headers: req.headers,
-            searchParams: req.query,
+            searchParams: req.query as Record<string, any>,
             throwHttpErrors: false,
             timeout: { request: this.terasliceConfig.api_response_timeout },
             decompress: false,
-            retry: { limit: 0 }
+            retry: { limit: 0 },
+            isStream: true
         };
 
         const uri = req.url.replace(/^\//, '');
         const method = req.method.toLowerCase();
 
         try {
+            if (!isKey(got.stream, method)) {
+                throw new Error(`${method} is not a valid gotStream method`);
+            }
+            const stream = got.stream[method](uri, options);
+
             await streamPipeline(
                 req,
-                got.stream[method](uri, options),
+                stream,
                 res,
             );
         } catch (err) {
@@ -195,7 +202,7 @@ export class ApiService {
         this.jobsStorage = jobsStorage;
 
         const v1routes = Router();
-        const redirect = this._redirect.bind(this);
+        const assetRedirect = this._assetRedirect.bind(this);
 
         this.app.use(bodyParser.json({
             type(req) {
@@ -243,17 +250,17 @@ export class ApiService {
 
         v1routes.route('/assets*')
             .delete((req, res) => {
-                redirect(req as TerasliceRequest, res);
+                assetRedirect(req as TerasliceRequest, res);
             })
             .post((req, res) => {
                 if (req.headers['content-type'] === 'application/json' || req.headers['content-type'] === 'application/x-www-form-urlencoded') {
                     sendError(res, 400, '/asset endpoints do not accept json');
                     return;
                 }
-                redirect(req as TerasliceRequest, res);
+                assetRedirect(req as TerasliceRequest, res);
             })
             // @ts-expect-error
-            .get(redirect);
+            .get(assetRedirect);
 
         v1routes.post('/jobs', (req, res) => {
             // if no job was posted an empty object is returned, so we check if it has values
@@ -506,7 +513,7 @@ export class ApiService {
 
         this.app.route('/txt/assets*')
         // @ts-expect-error
-            .get(redirect);
+            .get(assetRedirect);
 
         this.app.get('/txt/workers', (req, res) => {
             const { size, from } = getSearchOptions(req as TerasliceRequest);
@@ -852,7 +859,9 @@ export class ApiService {
                                 ex.workers
                             );
                             for (const status in ExecutionStatusEnum) {
-                                if (ExecutionStatusEnum[status]) {
+                                if (
+                                    isKey(ExecutionStatusEnum, status)
+                                ) {
                                     const statusLabels = {
                                         ...controllerLabels,
                                         status: ExecutionStatusEnum[status]
@@ -875,7 +884,7 @@ export class ApiService {
                         const clusterState = this.clusterService.getClusterState();
 
                         /// Filter out information about kubernetes ex pods
-                        const filteredExecutions = {};
+                        const filteredExecutions: Record<string, string> = {};
                         for (const node in clusterState) {
                             if (clusterState[node].active) {
                                 for (const worker of clusterState[node].active) {

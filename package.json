@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "2.10.0",
+    "version": "2.11.0",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -67,10 +67,10 @@
         "jest-extended": "~4.0.2",
         "jest-watch-typeahead": "~2.2.2",
         "node-notifier": "~10.0.1",
-        "patch-package": "^8.0.0",
-        "postinstall-postinstall": "^2.1.0",
+        "patch-package": "~8.0.0",
+        "postinstall-postinstall": "~2.1.0",
         "ts-jest": "~29.2.5",
-        "typescript": "~5.2.2"
+        "typescript": "~5.7.2"
     },
     "engines": {
         "node": ">=18.18.0",

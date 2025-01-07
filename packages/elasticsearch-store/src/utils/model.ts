@@ -2,7 +2,8 @@ import { FieldType, DataTypeFields } from '@terascope/types';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
 import {
     cloneDeep, isPlainObject, concat,
-    getWordParts, firstToUpper, isNumberLike
+    getWordParts, firstToUpper, isNumberLike,
+    isKey
 } from '@terascope/utils';
 
 /** JSON Schema */
@@ -57,18 +58,18 @@ export function addDefaultSchema(input: Record<string, any>): Record<string, any
 /**
  * Deep copy two levels deep (useful for mapping and schema)
  */
-export function mergeDefaults<T>(source: T, from: Partial<T>): T {
+export function mergeDefaults<T extends object>(source: T, from: Partial<T>): T {
     const output = cloneDeep(source);
     const _mapping = from ? cloneDeep(from) : {};
 
     for (const [key, val] of Object.entries(_mapping)) {
-        if (output[key] != null) {
+        if (isKey(output, key) && output[key] != null) {
             if (isPlainObject(val)) {
                 output[key] = Object.assign(output[key], val);
             } else if (Array.isArray(val)) {
-                output[key] = concat(output[key], val);
+                output[key] = concat(output[key], val) as T[string & keyof T];
             } else {
-                output[key] = val;
+                output[key] = val as T[string & keyof T];
             }
         }
     }

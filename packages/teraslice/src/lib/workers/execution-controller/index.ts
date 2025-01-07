@@ -43,7 +43,7 @@ export class ExecutionController {
     isExecutionDone = false;
     private workersHaveConnected = false;
 
-    private _handlers = new Map<string, (arg: any) => void>();
+    private _handlers = new Map<string, ((arg: any) => void) | null>();
     executionAnalytics: ExecutionAnalytics;
     readonly scheduler: Scheduler;
     private metrics: Metrics | null;
@@ -297,7 +297,9 @@ export class ExecutionController {
         });
 
         for (const [event, handler] of this._handlers.entries()) {
-            this.events.on(event, handler);
+            if (handler !== null) {
+                this.events.on(event, handler);
+            }
         }
 
         if (this.collectAnalytics) {
@@ -474,8 +476,10 @@ export class ExecutionController {
 
         // remove any listeners
         for (const [event, handler] of this._handlers.entries()) {
-            this.events.removeListener(event, handler);
-            this._handlers[event] = null;
+            if (handler !== null) {
+                this.events.removeListener(event, handler);
+                this._handlers.set(event, null);
+            }
         }
 
         this.isShuttingDown = true;

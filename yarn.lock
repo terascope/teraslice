@@ -2206,6 +2206,13 @@
     lz4-asm "~0.4.2"
     node-gzip "~1.1.2"
 
+"@terascope/types@~1.3.1":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@terascope/types/-/types-1.3.2.tgz#444006f6e9fbf45fab0e1b45b1894fb06dc48a35"
+  integrity sha512-pt0793isrLAK0D6A5qJJDrj0mgE1wa1c12xCjIb1c5zacgtJFxdK6VArTEvieqjyDn+DAUY5h9fAAnUsVPnpSg==
+  dependencies:
+    prom-client "~15.1.3"
+
 "@terascope/utils@~1.4.0":
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-1.4.2.tgz#de4134651094c4028db16dc670335a5ed0cb5ac2"
@@ -2646,6 +2653,13 @@
   integrity sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==
   dependencies:
     "@types/jsonfile" "*"
+    "@types/node" "*"
+
+"@types/gc-stats@~1.4.3":
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/@types/gc-stats/-/gc-stats-1.4.3.tgz#2dc35998fdb6032870816b92b704ee12899f1523"
+  integrity sha512-Aek/WiRt7EHDKFNI3hDjYVvPNEeSjWGxN/8jxyaFoAawAq/bd8geI04XPMLQlLBO7LneLoWAAAvFv7hedgdi3w==
+  dependencies:
     "@types/node" "*"
 
 "@types/geojson@^7946.0.10", "@types/geojson@^7946.0.14", "@types/geojson@~7946.0.15":
@@ -5529,7 +5543,7 @@ functions-have-names@^1.2.3:
   resolved "https://registry.yarnpkg.com/functions-have-names/-/functions-have-names-1.2.3.tgz#0404fe4ee2ba2f607f0e0ec3c80bae994133b834"
   integrity sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==
 
-gc-stats@~1.4.0:
+gc-stats@1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/gc-stats/-/gc-stats-1.4.1.tgz#c9142dc54d02af9e93472b0bd972e6bacecc7be5"
   integrity sha512-eAvDBpI6UjVIYwLxshPCJJIkPyfamIrJzBtW/103+ooJWkISS+chVnHNnsZ+ubaw2607rFeiRDNWHkNUA+ioqg==
@@ -8117,7 +8131,7 @@ parseurl@~1.3.3:
   resolved "https://registry.yarnpkg.com/parseurl/-/parseurl-1.3.3.tgz#9da19e7bee8d12dff0513ed5b76957793bc2e8d4"
   integrity sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==
 
-patch-package@^8.0.0:
+patch-package@~8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/patch-package/-/patch-package-8.0.0.tgz#d191e2f1b6e06a4624a0116bcb88edd6714ede61"
   integrity sha512-da8BVIhzjtgScwDJ2TtKsfT5JFWz1hYoBl9rUQ1f38MC2HwnEIkK8VN3dKMKcP7P7bvvgzNDbfNHtx3MsQb5vA==
@@ -8298,7 +8312,7 @@ possible-typed-array-names@^1.0.0:
   resolved "https://registry.yarnpkg.com/possible-typed-array-names/-/possible-typed-array-names-1.0.0.tgz#89bb63c6fada2c3e90adc4a647beeeb39cc7bf8f"
   integrity sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==
 
-postinstall-postinstall@^2.1.0:
+postinstall-postinstall@~2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/postinstall-postinstall/-/postinstall-postinstall-2.1.0.tgz#4f7f77441ef539d1512c40bd04c71b06a4704ca3"
   integrity sha512-7hQX6ZlZXIoRiWNrbMQaLzUUfH+sSx39u8EJ9HYuDc1kLo9IXKWjM5RSquZN1ad5GnH8CGFM78fsAAQi3OKEEQ==
@@ -9784,10 +9798,10 @@ typescript-eslint@~8.18.0:
     "@typescript-eslint/parser" "8.18.0"
     "@typescript-eslint/utils" "8.18.0"
 
-typescript@~5.2.2:
-  version "5.2.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.2.2.tgz#5ebb5e5a5b75f085f22bc3f8460fba308310fa78"
-  integrity sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==
+typescript@~5.7.2:
+  version "5.7.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.7.2.tgz#3169cf8c4c8a828cde53ba9ecb3d2b1d5dd67be6"
+  integrity sha512-i5t66RHxDvVN40HfDd1PsEThGNnlMCMT3jMUuoh9/0TaqWevNontacunWyN02LA9/fIbEWlcHZcgTKb9QoaLfg==
 
 typpy@^2.3.1:
   version "2.3.13"

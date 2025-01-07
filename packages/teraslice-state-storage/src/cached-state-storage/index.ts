@@ -18,7 +18,7 @@ export default class CachedStateStorage<T> extends EventEmitter {
     }
 
     mget(keyArray: (string | number)[]): MGetCacheResponse {
-        return keyArray.reduce((cachedState, key) => {
+        return keyArray.reduce((cachedState: Record<string, any>, key) => {
             const state = this.get(key);
             if (state) cachedState[key] = state;
             return cachedState;

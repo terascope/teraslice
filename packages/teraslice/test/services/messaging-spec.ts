@@ -5,7 +5,7 @@ import { Messaging, routing } from '../../src/lib/cluster/services/cluster/backe
 
 describe('messaging module', () => {
     const logger = debugLogger('messaging');
-    let connected = {};
+    let connected: Record<string, { rooms: Record<string, string> }> = {};
 
     const testExId = '7890';
 
@@ -15,7 +15,7 @@ describe('messaging module', () => {
     let clusterFn: any = () => {};
 
     function testMessaging(messaging: Messaging, fn: string) {
-        return (...args: any[]) => messaging[fn](...args);
+        return (...args: any[]) => messaging[fn as keyof Messaging](...args);
     }
 
     class MyCluster extends events.EventEmitter {
@@ -494,7 +494,7 @@ describe('messaging module', () => {
         const messaging2 = new Messaging(testContext2, logger);
 
         expect(() => messaging1.listen()).not.toThrow();
-        expect(() => messaging2.listen({ server: 45645 } as any)).not.toThrow();
+        expect(() => messaging2.listen({ port: 45645 })).not.toThrow();
 
         await messaging1.shutdown();
         await messaging2.shutdown();

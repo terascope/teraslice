@@ -192,7 +192,7 @@ export class NativeClustering {
             throw new Error('Missing required stores');
         }
         const server = this.clusterMasterServer.httpServer;
-        // @ts-expect-error
+
         await this.messaging.listen({ server });
 
         this.clusterStateInterval = setInterval(() => {
@@ -447,7 +447,7 @@ export class NativeClustering {
     async allocateSlicer(ex: ExecutionConfig): Promise<ExecutionConfig> {
         let retryCount = 0;
         const errorNodes = {};
-        // @ts-expect-error
+
         const _allocateSlicer = async () => {
             try {
                 return await this._createSlicer(ex, errorNodes);
@@ -499,7 +499,7 @@ export class NativeClustering {
         const workers = findWorkersByExecutionID(this.clusterState, exId);
         let workerCount = workerNum;
 
-        const workersData = workers.reduce((prev, curr) => {
+        const workersData = workers.reduce((prev: Record<string, any>, curr) => {
             if (!prev[curr.node_id]) {
                 prev[curr.node_id] = 1;
             } else {

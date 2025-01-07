@@ -29,6 +29,7 @@ declare module './aggregation-frame/AggregationFrame.d.ts' {
          * @returns the new columns
         */
         run(): Promise<DataFrame<T>>;
+        [key: string | symbol]: unknown;
     }
 }
 

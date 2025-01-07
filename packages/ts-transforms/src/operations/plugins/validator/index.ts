@@ -4,10 +4,10 @@ import ValidationOpBase from '../../lib/validations/base.js';
 import { PostProcessConfig, PluginClassType, InputOutputCardinality } from '../../../interfaces.js';
 
 export class Validator extends ValidationOpBase<any> {
-    private method: string;
+    private method: keyof typeof validator;
     private value: any;
 
-    constructor(config: PostProcessConfig, method: string) {
+    constructor(config: PostProcessConfig, method: keyof typeof validator) {
         super(config);
         this.method = method;
         this.value = config.value;
@@ -15,11 +15,16 @@ export class Validator extends ValidationOpBase<any> {
 
     validate(value: any) {
         const args = this.value || this.config;
-        return validator[this.method](value, args);
+        const method = validator[this.method];
+        if (typeof method === 'function') {
+            return (method as (value: any, ...args: any[]) => any)(value, args);
+        }
+
+        throw new Error(`Validator method ${this.method} is not callable`);
     }
 }
 
-function setup(method: string) {
+function setup(method: keyof typeof validator) {
     return class ValidatorInterface {
         static cardinality: InputOutputCardinality = 'one-to-one';
 

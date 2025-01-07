@@ -4,7 +4,10 @@ import { SliceExecution } from '../../../src/lib/workers/worker/slice.js';
 import { TestContext } from '../helpers/index.js';
 
 describe('Slice', () => {
-    async function setupSlice(testContext: any, eventMocks = {}): Promise<SliceExecution> {
+    async function setupSlice(
+        testContext: any,
+        eventMocks: Record<string, jest.Mock> = {}
+    ): Promise<SliceExecution> {
         await testContext.initialize();
         await testContext.executionContext.initialize();
 
@@ -44,7 +47,7 @@ describe('Slice', () => {
             let slice: SliceExecution;
             let results: any;
             let testContext: any;
-            const eventMocks = {};
+            const eventMocks: Record<string, jest.Mock> = {};
 
             beforeEach(async () => {
                 testContext = new TestContext({ analytics: true });
@@ -93,7 +96,7 @@ describe('Slice', () => {
             let slice: SliceExecution;
             let results: any;
             let testContext: any;
-            const eventMocks = {};
+            const eventMocks: Record<string, jest.Mock> = {};
 
             beforeEach(async () => {
                 testContext = new TestContext({ analytics: false });
@@ -136,7 +139,7 @@ describe('Slice', () => {
             let slice: SliceExecution;
             let results: any;
             let testContext: any;
-            const eventMocks = {};
+            const eventMocks: Record<string, jest.Mock> = {};
 
             beforeEach(async () => {
                 testContext = new TestContext({
@@ -184,7 +187,7 @@ describe('Slice', () => {
             let slice: SliceExecution;
             let err: Error;
             let testContext: any;
-            const eventMocks = {};
+            const eventMocks: Record<string, jest.Mock> = {};
 
             beforeEach(async () => {
                 testContext = new TestContext({
@@ -238,7 +241,7 @@ describe('Slice', () => {
         describe('when the slice fails', () => {
             let slice: SliceExecution;
             let testContext: any;
-            const eventMocks = {};
+            const eventMocks: Record<string, jest.Mock> = {};
             let err: Error;
 
             beforeEach(async () => {
@@ -290,7 +293,7 @@ describe('Slice', () => {
         describe('when the slice fails with zero retries', () => {
             let slice: SliceExecution;
             let testContext: any;
-            const eventMocks = {};
+            const eventMocks: Record<string, jest.Mock> = {};
             let err: Error;
 
             beforeEach(async () => {

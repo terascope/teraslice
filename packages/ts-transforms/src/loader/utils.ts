@@ -154,7 +154,7 @@ function findConfigs(
 ): FieldSourceConfigs[] {
     const identifier = config.follow || config.__id;
     const nodeIds: string[] = tagMapping[identifier];
-    const mapping = {};
+    const mapping: Record<string, boolean> = {};
     const results: FieldSourceConfigs[] = [];
 
     configList
@@ -298,7 +298,7 @@ export function isSimplePostProcessConfig(config: Config) {
     return !has(config, 'follow') && hasPostProcess(config);
 }
 
-export function hasExtractions(config: Config) {
+export function hasExtractions(config: Config): boolean {
     return has(config, 'source') || has(config, 'exp');
 }
 
@@ -326,7 +326,7 @@ function createResults(list: OperationConfig[]): ValidationResults {
     };
     const { output } = results;
     let currentSelector: undefined | string;
-    const duplicateListing = {};
+    const duplicateListing: Record<string, boolean> = {};
 
     list.forEach((config) => {
         if (duplicateListing[config.__id]) {

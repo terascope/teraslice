@@ -1,13 +1,17 @@
 /* eslint-disable prefer-const */
 import type { EventEmitter } from 'node:events';
+import type { Server as HttpServer } from 'node:http';
+import type { Server as HttpsServer } from 'node:https';
+
 import { nanoid } from 'nanoid';
 import {
     pDelay, Queue, Logger, isFunction,
-    isEmpty, get, toNumber
+    isEmpty, get, toNumber, isKey
 } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
 import socketIOClient from 'socket.io-client';
 import socketIOServer from 'socket.io';
+import { isProcessAssignment, MessagingConfigOptions, ProcessAssignment } from '../../../../../../interfaces.js';
 
 // messages send to cluster_master
 const clusterMasterMessages = {
@@ -74,6 +78,12 @@ export const routing = Object.freeze({
 });
 
 type HookFN = () => void | null;
+
+type ListenOptions = {
+    server?: HttpServer | HttpsServer;
+    port?: string | number;
+    query?: { node_id: string };
+};
 
 export class Messaging {
     context: Context;
@@ -235,7 +245,7 @@ export class Messaging {
     private _registerFns(socket: any) {
         for (const [key, func] of Object.entries(this.functionMapping)) {
             if (func.__socketIdentifier) {
-                const wrappedFunc = (msg = {}) => {
+                const wrappedFunc = (msg: Record<string, any> = {}) => {
                     const identifier = func.__socketIdentifier;
                     let id = msg[identifier];
                     // if already set, extract value else set it on socket
@@ -272,11 +282,15 @@ export class Messaging {
 
     private _determinePathForMessage(messageSent: any) {
         const { to } = messageSent;
-        let destinationType = routing[this.self][to];
+        let destinationType: string | undefined = undefined;
+
+        if (isKey(routing, this.self) && isKey(routing[this.self], to)) {
+            destinationType = routing[this.self][to];
+        }
         // cluster_master has two types of connections to node_master, if it does not have a
         // address then its talking to its own node_master through ipc
         // TODO: reference self message, remove cluster_master specific code
-        if (this.self === 'cluster_master' && !messageSent.address && clusterMasterMessages.ipc[messageSent.message]) {
+        if (this.self === 'cluster_master' && !messageSent.address && (messageSent.message in clusterMasterMessages.ipc)) {
             destinationType = 'ipc';
         }
         if (destinationType === undefined) {
@@ -304,8 +318,31 @@ export class Messaging {
         });
     }
 
-    // @ts-expect-error
-    listen({ server, query } = {}) {
+    private _createIOServer(options: ListenOptions) {
+        const { server, port } = options;
+
+        const opts = {
+            path: '/native-clustering',
+            pingTimeout: this.configTimeout,
+            pingInterval: this.configTimeout + this.networkLatencyBuffer,
+            perMessageDeflate: false,
+            serveClient: false,
+        };
+        if (server) {
+            this.io = socketIOServer(server, opts);
+        } else if (port) {
+            this.io = socketIOServer(port, opts);
+        }
+        this._attachRoomsSocketIO();
+
+        this.io.on('connection', (socket: any) => {
+            this.logger.debug('a connection to cluster_master has been made');
+            this._registerFns(socket);
+        });
+    }
+
+    listen(options: ListenOptions = {}) {
+        const { query } = options;
         this.messsagingOnline = true;
 
         if (this.config.clients.networkClient) {
@@ -313,9 +350,8 @@ export class Messaging {
             this.io = socketIOClient(this.hostURL, {
                 forceNew: true,
                 path: '/native-clustering',
-                perMessageDeflate: false,
-                query,
-            } as any);
+                query
+            });
 
             this._registerFns(this.io);
 
@@ -333,21 +369,9 @@ export class Messaging {
             }
 
             this.logger.debug('client network connection is online');
-        } else if (server) {
-            // cluster_master
-            this.io = socketIOServer(server, {
-                path: '/native-clustering',
-                pingTimeout: this.configTimeout,
-                pingInterval: this.configTimeout + this.networkLatencyBuffer,
-                perMessageDeflate: false,
-                serveClient: false,
-            });
-            this._attachRoomsSocketIO();
-
-            this.io.on('connection', (socket: any) => {
-                this.logger.debug('a connection to cluster_master has been made');
-                this._registerFns(socket);
-            });
+        } else {
+            // cluster_master and test processes
+            this._createIOServer(options);
         }
 
         // TODO: message queuing will be used until formal process lifecycles are implemented
@@ -427,7 +451,7 @@ export class Messaging {
     private _makeConfigurations() {
         let host;
         let port;
-        const options = {
+        const options: MessagingConfigOptions = {
             node_master: { networkClient: true, ipcClient: false },
             cluster_master: { networkClient: false, ipcClient: true },
             execution_controller: { networkClient: false, ipcClient: true },
@@ -439,7 +463,11 @@ export class Messaging {
         const processConfig: Record<string, any> = {};
         // @ts-expect-error
         const testProcess = this.context.__testingModule;
-        processConfig.clients = options[env.assignment];
+        const { assignment } = env;
+        if (!isProcessAssignment(assignment)) {
+            throw new Error(`assignment must be on of: ${Object.values(ProcessAssignment).toString()}. Received ${assignment}`);
+        }
+        processConfig.clients = options[assignment];
 
         if (processConfig.clients.ipcClient) {
             // all children of node_master
@@ -450,14 +478,14 @@ export class Messaging {
         }
 
         if (processConfig.clients.networkClient) {
-            if (env.assignment === 'node_master' || env.assignment === 'assets_service') {
+            if (assignment === 'node_master' || assignment === 'assets_service') {
                 host = this.context.sysconfig.teraslice.master_hostname;
                 ({ port } = this.context.sysconfig.teraslice);
             }
             processConfig.hostURL = this._makeHostName(host as string, port as unknown as string);
         }
 
-        processConfig.assignment = env.assignment;
+        processConfig.assignment = assignment;
 
         return processConfig;
     }
@@ -529,7 +557,7 @@ export class Messaging {
             'cluster:slicer:analytics': 'cluster:slicer:analytics',
         };
 
-        return stateQuery[msg] !== undefined;
+        return (isKey(stateQuery, msg) && stateQuery[msg] !== undefined);
     }
 
     private _emitIpcMessage(fn: any) {

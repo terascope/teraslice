@@ -1,11 +1,12 @@
 import { cloneDeep } from '@terascope/utils';
+import { ClusterState } from '@terascope/types';
 import _podsJobRunning from './files/job-running-v1-k8s-pods.json';
 import { gen } from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetes/k8sState.js';
 
 describe('k8sState', () => {
     it('should generate cluster state correctly on first call', () => {
         const podsJobRunning = cloneDeep(_podsJobRunning) as any;
-        const clusterState = {};
+        const clusterState: ClusterState = {};
 
         gen(podsJobRunning, clusterState);
         // console.log(`clusterState\n\n${JSON.stringify(clusterState, null, 2)}`);
@@ -38,7 +39,7 @@ describe('k8sState', () => {
 
     it('should generate cluster state correctly on second call', () => {
         const podsJobRunning = cloneDeep(_podsJobRunning) as any;
-        const clusterState = {};
+        const clusterState: ClusterState = {};
 
         gen(podsJobRunning, clusterState);
         gen(podsJobRunning, clusterState);
@@ -71,9 +72,16 @@ describe('k8sState', () => {
 
     it('should remove old host ips', () => {
         const podsJobRunning = cloneDeep(_podsJobRunning) as any;
-        const clusterState = {};
+        const clusterState: ClusterState = {};
         clusterState['2.2.2.2'] = {
+            node_id: '2.2.2.2',
+            hostname: '2.2.2.2',
+            pid: 'N/A',
+            node_version: 'N/A',
+            teraslice_version: 'N/A',
+            total: 'N/A',
             state: 'idk',
+            available: 'N/A',
             active: []
         };
 

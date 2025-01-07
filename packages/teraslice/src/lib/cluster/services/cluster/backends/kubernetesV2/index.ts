@@ -3,6 +3,7 @@ import {
     cloneDeep, pRetry, Logger
 } from '@terascope/utils';
 import type { Context, ExecutionConfig } from '@terascope/job-components';
+import { ClusterState } from '@terascope/types';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
 import { gen } from './k8sState.js';
 import { K8s } from './k8s.js';
@@ -27,7 +28,7 @@ export class KubernetesClusterBackendV2 {
     k8s: K8s;
     logger: Logger;
     private clusterStateInterval: NodeJS.Timeout | undefined;
-    clusterState: Record<string, any> = {};
+    clusterState: ClusterState = {};
     readonly clusterNameLabel: string;
 
     constructor(context: Context, clusterMasterServer: any) {

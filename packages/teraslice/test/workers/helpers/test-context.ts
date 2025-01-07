@@ -55,7 +55,7 @@ export class TestContext {
     assignment: string;
     clusterMaster!: ClusterMaster.Server;
     _stores: TestStoreContainer = {};
-    cleanups = {};
+    cleanups: Record<string, () => Promise<void>> = {};
 
     constructor(options: TestContextArgs = {}) {
         const {

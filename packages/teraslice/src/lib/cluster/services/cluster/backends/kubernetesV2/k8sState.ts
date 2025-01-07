@@ -1,6 +1,7 @@
 import {
     get, has, uniq, difference
 } from '@terascope/utils';
+import { ClusterState, ProcessAssignment } from '@terascope/types';
 import { TSPodList } from './interfaces';
 
 /**
@@ -12,7 +13,7 @@ import { TSPodList } from './interfaces';
  * @param  {String} clusterNameLabel k8s label containing clusterName
  * @param  {Logger} logger           Teraslice logger
  */
-export function gen(k8sPods: TSPodList, clusterState: Record<string, any>) {
+export function gen(k8sPods: TSPodList, clusterState: ClusterState) {
     // Make sure we clean up the old
     const hostIPs = uniq(k8sPods.items.map((item) => get(item, 'status.hostIP')));
     const oldHostIps = difference(Object.keys(clusterState), hostIPs);
@@ -46,7 +47,7 @@ export function gen(k8sPods: TSPodList, clusterState: Record<string, any>) {
 
         const worker = {
             assets: [],
-            assignment: pod.metadata.labels['app.kubernetes.io/component'],
+            assignment: pod.metadata.labels['app.kubernetes.io/component'] as ProcessAssignment,
             ex_id: pod.metadata.labels['teraslice.terascope.io/exId'],
             // WARNING: This makes the assumption that the first container
             // in the pod is the teraslice container.  Currently it is the

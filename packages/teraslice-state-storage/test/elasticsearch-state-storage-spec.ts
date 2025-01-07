@@ -1,7 +1,12 @@
 import 'jest-extended';
 import { DataEntity, debugLogger, times } from '@terascope/utils';
-import { ClientParams, ClientResponse } from '@terascope/types';
+import {
+    BulkIndexOperation, BulkOperationContainer,
+    BulkUpdateAction, ClientParams, ClientResponse
+} from '@terascope/types';
 import { ESCachedStateStorage, ESStateStorageConfig } from '../src/index.js';
+
+type BulkOperationContainerWithIndex = BulkOperationContainer & { index: BulkIndexOperation };
 
 // TODO: this should search against elasticsearch
 describe('elasticsearch-state-storage', () => {
@@ -300,11 +305,20 @@ describe('elasticsearch-state-storage', () => {
                 await stateStorage.mset(docArray);
 
                 expect(client._bulkRequest).toBeArrayOfSize(6);
-                expect(client._bulkRequest[0].index._id).toBe('key-0');
+                expect(
+                    isBulkOperationContainerWithIndex(client._bulkRequest[0])
+                    && client._bulkRequest[0].index._id
+                ).toBe('key-0');
                 expect(client._bulkRequest[1]).toEqual(docArray[0]);
-                expect(client._bulkRequest[2].index._id).toBe('key-1');
+                expect(
+                    isBulkOperationContainerWithIndex(client._bulkRequest[2])
+                    && client._bulkRequest[2].index._id
+                ).toBe('key-1');
                 expect(client._bulkRequest[3]).toEqual(docArray[1]);
-                expect(client._bulkRequest[4].index._id).toBe('key-2');
+                expect(
+                    isBulkOperationContainerWithIndex(client._bulkRequest[4])
+                    && client._bulkRequest[4].index._id
+                ).toBe('key-2');
                 expect(client._bulkRequest[5]).toEqual(docArray[2]);
             });
         });
@@ -352,11 +366,20 @@ describe('elasticsearch-state-storage', () => {
                 await stateStorage.mset(otherDocArray);
 
                 expect(client._bulkRequest).toBeArrayOfSize(20);
-                expect(client._bulkRequest[0].index._id).toBe('other-0');
+                expect(
+                    isBulkOperationContainerWithIndex(client._bulkRequest[0])
+                    && client._bulkRequest[0].index._id
+                ).toBe('other-0');
                 expect(client._bulkRequest[1]).toEqual(otherDocArray[0]);
-                expect(client._bulkRequest[2].index._id).toBe('other-1');
+                expect(
+                    isBulkOperationContainerWithIndex(client._bulkRequest[2])
+                    && client._bulkRequest[2].index._id
+                ).toBe('other-1');
                 expect(client._bulkRequest[3]).toEqual(otherDocArray[1]);
-                expect(client._bulkRequest[4].index._id).toBe('other-2');
+                expect(
+                    isBulkOperationContainerWithIndex(client._bulkRequest[4])
+                    && client._bulkRequest[4].index._id
+                ).toBe('other-2');
                 expect(client._bulkRequest[5]).toEqual(otherDocArray[2]);
             });
         });
@@ -499,10 +522,26 @@ function copyDataEntity(doc: DataEntity): DataEntity {
     return DataEntity.make(updated, doc.getMetadata());
 }
 
+function isBulkOperationContainerWithIndex(obj: any): obj is BulkOperationContainerWithIndex {
+    return (
+        typeof obj === 'object'
+        && obj !== null
+        && 'index' in obj
+        && typeof obj.index._index === 'string'
+        && typeof obj.index._type === 'string'
+        && typeof obj.index._id === 'string'
+    );
+}
+
 class TestClient {
     private _getResponse!: ClientResponse.GetResponse;
     private _mgetResponse!: ClientResponse.MGetResponse;
-    _bulkRequest!: ClientParams.BulkParams<Record<string, any>>;
+    _bulkRequest!: (
+        Record<string, any>
+        | BulkOperationContainer
+        | BulkUpdateAction<Record<string, any>, unknown>
+    )[];
+
     private _config: ESStateStorageConfig;
 
     constructor(config: ESStateStorageConfig) {
@@ -599,7 +638,9 @@ class TestClient {
     }
 
     async bulk(request: ClientParams.BulkParams<Record<string, any>>) {
-        this._bulkRequest = request.body as any;
+        if (request.body) {
+            this._bulkRequest = request.body;
+        }
         let i = -1;
         return {
             errors: false,
