@@ -494,7 +494,7 @@ describe('messaging module', () => {
         const messaging2 = new Messaging(testContext2, logger);
 
         expect(() => messaging1.listen()).not.toThrow();
-        expect(() => messaging2.listen({ server: 45645 })).not.toThrow();
+        expect(() => messaging2.listen({ port: 45645 })).not.toThrow();
 
         await messaging1.shutdown();
         await messaging2.shutdown();

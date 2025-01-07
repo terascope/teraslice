@@ -1,6 +1,7 @@
 import { Router, Express } from 'express';
 import bodyParser from 'body-parser';
 import { pipeline as streamPipeline } from 'node:stream/promises';
+import got, { OptionsInit } from 'got';
 import { RecoveryCleanupType, TerasliceConfig } from '@terascope/job-components';
 import {
     parseErrorInfo, parseList, logError,
@@ -18,7 +19,6 @@ import {
     createJobActiveQuery, addDeletedToQuery
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
-import got, { OptionsInit } from 'got';
 
 const terasliceVersion = getPackageJSON().version;
 
@@ -136,32 +136,11 @@ export class ApiService {
         throw error;
     }
 
-    private queryToSearchParams(query: any) {
-        const searchParams: Record<string, string | number | boolean> = {};
-
-        for (const [key, value] of Object.entries(query)) {
-            if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-                searchParams[key] = value;
-            } else if (Array.isArray(value)) {
-                searchParams[key] = value.join(',');
-            } else if (value === null || value === undefined) {
-                // Skip undefined or null values
-            } else {
-                // stringify objects
-                searchParams[key] = JSON.stringify(value);
-            }
-        }
-
-        return searchParams;
-    }
-
-    private async _redirect(req: TerasliceRequest, res: TerasliceResponse) {
-        const searchParams = this.queryToSearchParams(req.query);
-
-        const options: OptionsInit & { isStream: true } = {
+    private async _assetRedirect(req: TerasliceRequest, res: TerasliceResponse) {
+          const options: OptionsInit & { isStream: true } = {
             prefixUrl: this.assetsUrl,
             headers: req.headers,
-            searchParams,
+            searchParams: req.query as Record<string, any>,
             throwHttpErrors: false,
             timeout: { request: this.terasliceConfig.api_response_timeout },
             decompress: false,
@@ -223,7 +202,7 @@ export class ApiService {
         this.jobsStorage = jobsStorage;
 
         const v1routes = Router();
-        const redirect = this._redirect.bind(this);
+        const assetRedirect = this._assetRedirect.bind(this);
 
         this.app.use(bodyParser.json({
             type(req) {
@@ -271,17 +250,17 @@ export class ApiService {
 
         v1routes.route('/assets*')
             .delete((req, res) => {
-                redirect(req as TerasliceRequest, res);
+                assetRedirect(req as TerasliceRequest, res);
             })
             .post((req, res) => {
                 if (req.headers['content-type'] === 'application/json' || req.headers['content-type'] === 'application/x-www-form-urlencoded') {
                     sendError(res, 400, '/asset endpoints do not accept json');
                     return;
                 }
-                redirect(req as TerasliceRequest, res);
+                assetRedirect(req as TerasliceRequest, res);
             })
             // @ts-expect-error
-            .get(redirect);
+            .get(assetRedirect);
 
         v1routes.post('/jobs', (req, res) => {
             // if no job was posted an empty object is returned, so we check if it has values
@@ -534,7 +513,7 @@ export class ApiService {
 
         this.app.route('/txt/assets*')
         // @ts-expect-error
-            .get(redirect);
+            .get(assetRedirect);
 
         this.app.get('/txt/workers', (req, res) => {
             const { size, from } = getSearchOptions(req as TerasliceRequest);
