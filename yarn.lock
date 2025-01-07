@@ -2206,6 +2206,13 @@
     lz4-asm "~0.4.2"
     node-gzip "~1.1.2"
 
+"@terascope/types@~1.3.1":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@terascope/types/-/types-1.3.2.tgz#444006f6e9fbf45fab0e1b45b1894fb06dc48a35"
+  integrity sha512-pt0793isrLAK0D6A5qJJDrj0mgE1wa1c12xCjIb1c5zacgtJFxdK6VArTEvieqjyDn+DAUY5h9fAAnUsVPnpSg==
+  dependencies:
+    prom-client "~15.1.3"
+
 "@terascope/utils@~1.4.0":
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-1.4.2.tgz#de4134651094c4028db16dc670335a5ed0cb5ac2"
