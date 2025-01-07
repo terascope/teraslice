@@ -3,6 +3,7 @@ import {
     cloneDeep, pRetry, Logger
 } from '@terascope/utils';
 import type { Context, ExecutionConfig } from '@terascope/job-components';
+import { ClusterState } from '@terascope/types';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
 import { gen } from './k8sState.js';
 import { K8s } from './k8s.js';
@@ -12,7 +13,6 @@ import { ResourceType } from './interfaces.js';
 import { K8sJobResource } from './k8sJobResource.js';
 import { K8sServiceResource } from './k8sServiceResource.js';
 import { K8sDeploymentResource } from './k8sDeploymentResource.js';
-import { ClusterState } from '@terascope/types';
 
 /*
  Execution Life Cycle for _status

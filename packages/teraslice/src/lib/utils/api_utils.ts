@@ -4,8 +4,8 @@ import {
     isString, get, toInteger, Logger,
     TSError, isKey,
 } from '@terascope/utils';
-import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
 import type { ClusterMaster } from '@terascope/teraslice-messaging';
+import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
 
 export function makeTable(
     req: TerasliceRequest,

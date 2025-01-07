@@ -1,12 +1,12 @@
 import 'jest-extended';
 import { debugLogger, get, isKey } from '@terascope/utils';
+import { MappingTypeMapping } from '@terascope/types';
 import * as simple from './helpers/simple-index.js';
 import * as template from './helpers/template-index.js';
 import {
     IndexManager, timeSeriesIndex, IndexConfig, getESVersion,
     __timeSeriesTest, ElasticsearchTestHelpers
 } from '../src/index.js';
-import { MappingTypeMapping } from '@terascope/types';
 
 const {
     makeClient, cleanupIndex, TEST_INDEX_PREFIX,
