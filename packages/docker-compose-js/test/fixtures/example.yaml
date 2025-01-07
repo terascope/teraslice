@@ -1,4 +1,3 @@
-version: '2'
 services:
   test:
     image: 'bash:3.2.57'

@@ -86,16 +86,24 @@ export class Compose {
                 });
                 cmd.on('close', (code) => {
                     debug('close with code', code);
-                    /// Do not throw an error if 'docker compose' fails
-                    if (code !== 0 && sCommand !== 'docker') {
+                    // In the scenario that the 'docker' command exists but the 'compose' arg is
+                    // invalid try 'docker-compose' command instead
+                    if (code === 125 && a[0] === 'compose') {
+                        runCommand('docker-compose', args);
+                    } else if (code !== 0) {
                         const error = new Error(`Command exited: ${code}\n${stderr}`);
                         // @ts-expect-error
                         error.stdout = stdout;
                         reject(error);
-                    /// In the senario that the docker command exists but the compose arg is invalid
-                    } else if (code === 125 && a[0] === 'compose') {
-                        runCommand('docker-compose', args);
                     } else {
+                        // sometimes a command is successful (no error), but prints a failure
+                        // of some kind to stderr. It may also print to stdout, so return both.
+                        if (stderr && stdout) {
+                            resolve(`stdout: ${stdout}, stderr: ${stderr}`);
+                        }
+                        if (stderr) {
+                            resolve(stderr);
+                        }
                         resolve(stdout);
                     }
                 });

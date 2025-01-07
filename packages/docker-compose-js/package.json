@@ -48,7 +48,7 @@
     },
     "srcMain": "src/index.ts",
     "terascope": {
-        "testSuite": "disabled",
+        "testSuite": "unit",
         "enableTypedoc": true
     }
 }
