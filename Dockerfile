@@ -27,7 +27,6 @@ RUN corepack prepare yarn@4.5.3 --activate
 
 RUN yarn workspaces focus --all \
     && yarn build \
-    && rm -rf /app/source/packages/*/src \
     && yarn workspaces focus --production --all \
     && yarn cache clean
 
