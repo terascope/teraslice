@@ -14,8 +14,9 @@ export enum xLuceneFieldType {
     Number = 'number',
 }
 
-export function isXLuceneFieldType(value: string): value is xLuceneFieldType {
-    return Object.values(xLuceneFieldType).includes(value as xLuceneFieldType);
+export function isXLuceneFieldType(value: any): value is xLuceneFieldType {
+    const possibleValues = Object.values(xLuceneFieldType);
+    return possibleValues.includes(value);
 }
 
 export interface xLuceneTypeConfig {

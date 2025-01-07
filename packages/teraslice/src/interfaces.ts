@@ -38,7 +38,7 @@ export enum ProcessAssignment {
 }
 
 export function isProcessAssignment(value: string): value is ProcessAssignment {
-    return Object.values(ProcessAssignment).includes(value as ProcessAssignment);
+    return value in ProcessAssignment;
 }
 
 interface BaseWorkerNode {
