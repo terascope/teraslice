@@ -30,3 +30,9 @@ To update the Yarn version, follow these steps:
     **_Note:_** The `teraslice-cli` tests may fail in CI if the `yarn.lock` file is modified during CI runs due to Yarn's hardened mode.
 
 5. Update the `packageManager` field in the `package.json` file located in the `teraslice/website` directory to reflect the updated Yarn version.
+
+6. Go into the `workflows` repo [here](https://github.com/terascope/workflows) and update all the workflow yamls to to install the new desired verison of yarn.
+
+    **_Note:_** The workflow repo will affect all the asset repos as well once the assets change the workflow hash. It's best to also update yarn in all the assets too.
+
+7. Update all workflow yaml files located in `teraslice/workflows` to install the new desired verison of yarn.
