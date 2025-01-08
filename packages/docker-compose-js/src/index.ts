@@ -96,15 +96,10 @@ export class Compose {
                         error.stdout = stdout;
                         reject(error);
                     } else {
-                        // sometimes a command is successful (no error), but prints a failure
-                        // of some kind to stderr. It may also print to stdout, so return both.
-                        if (stderr && stdout) {
-                            resolve(`stdout: ${stdout}, stderr: ${stderr}`);
-                        }
-                        if (stderr) {
-                            resolve(stderr);
-                        }
-                        resolve(stdout);
+                        // sometimes a command is successful (no error), but prints a failure of
+                        // some kind to stderr. If no stdout, return stderr instead.
+                        const msg = stdout !== '' ? stdout : stderr;
+                        resolve(msg);
                     }
                 });
             }
