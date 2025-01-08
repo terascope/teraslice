@@ -23,7 +23,7 @@ RUN python3 -c "import distutils" || (apk update && apk add py3-setuptools)
 RUN corepack enable
 
 # Update Yarn to version 4
-RUN corepack prepare yarn@4.5.3 --activate
+RUN corepack prepare yarn@4.6.0 --activate
 
 RUN yarn workspaces focus --all \
     && yarn build \
