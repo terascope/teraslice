@@ -6,6 +6,5 @@
     "author": "",
     "scripts": {
         "asset:build": "echo foo"
-    },
-    "packageManager": "yarn@4.5.3"
+    }
 }
