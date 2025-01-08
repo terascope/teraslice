@@ -36,3 +36,5 @@ To update the Yarn version, follow these steps:
     **_Note:_** The workflow repo will affect all the asset repos as well once the assets change the workflow hash. It's best to also update yarn in all the assets too.
 
 7. Update all workflow yaml files located in `teraslice/workflows` to install the new desired verison of yarn.
+
+8. Update the top-level Dockerfile to activate the speicifed new version of yarn.
