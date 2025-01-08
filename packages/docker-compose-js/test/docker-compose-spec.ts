@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { jest } from '@jest/globals';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Compose } from '../src/index.js';
@@ -25,14 +26,16 @@ describe('compose', () => {
     it('should be able to call compose.version()', async () => {
         const result = await compose.version();
         expect(result).not.toBeNil();
-        expect(result).toContain('docker-compose version');
+        expect(result).toContain('Docker Compose version');
     });
 
     describe('when the cluster is up', () => {
-        beforeAll(() => compose.up({
-            timeout: 1,
-            'force-recreate': ''
-        }));
+        beforeAll(async () => {
+            await compose.up({
+                timeout: 1,
+                'force-recreate': ''
+            });
+        });
 
         afterAll(() => compose.down({
             timeout: 1,
@@ -40,22 +43,25 @@ describe('compose', () => {
             '--remove-orphans': ''
         }));
 
-        it('should be able to call rm on the service', () => {
-            expect(() => compose.rm('test')).not.toThrow();
+        it('should be able to call rm on the service', async () => {
+            const result = await compose.rm('test');
+            expect(result).toContain('No stopped containers');
         });
 
-        it('should be able to call port', () => {
+        it('should be able to call port on the service', () => {
             expect(() => compose.port('test', '40230')).not.toThrow();
         });
 
-        it('should be able to call pause and unpause the service', async () => {
-            await expect(async () => {
-                await compose.pause('test');
-                await compose.unpause('test');
-            }).resolves.not.toThrow();
+        it('should be able to call pause and unpause on the service', async () => {
+            await expect(
+                (async () => {
+                    await compose.pause('test');
+                    await compose.unpause('test');
+                })()
+            ).resolves.not.toThrow();
         });
 
-        it('should be able to call start, ps and stop the service', async () => {
+        it('should be able to call start, ps and stop on the service', async () => {
             await compose.start('test');
 
             const result = await compose.ps();
@@ -67,11 +73,13 @@ describe('compose', () => {
             });
         });
 
-        it('should be able to call restart and kill the service', async () => {
-            await expect(async () => {
-                await compose.restart('test', { '--timeout': 1 });
-                await compose.kill('test');
-            }).resolves.not.toThrow();
+        it('should be able to call restart and kill on the service', async () => {
+            await expect(
+                (async () => {
+                    await compose.restart('test', { '--timeout': 1 });
+                    await compose.kill('test');
+                })()
+            ).resolves.not.toThrow();
         });
 
         it('should return a rejection when passing in incorrect options', async () => {
@@ -80,7 +88,7 @@ describe('compose', () => {
                 await compose.start('something wrong');
             } catch (err) {
                 expect(err.message).toContain('Command exited: 1');
-                expect(err.message).toContain('No such service: something wrong');
+                expect(err.message).toContain('no such service: something wrong');
                 expect(err.stdout).toBeDefined();
             }
         });
