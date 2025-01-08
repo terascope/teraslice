@@ -40,14 +40,8 @@ jobs:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
         # cache: 'yarn'
 
-    - name: Install Yarn 4
-      run: |
-        corepack enable
-        corepack prepare yarn@4.6.0 --activate
-        yarn install --inline-builds
-
     - name: Install and build packages
-      run: yarn setup
+      run: yarn && yarn setup
 
   check-docker-limit-before:
    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@031a4b1777313a5f97820e4131ea6ac2396e5cfb
@@ -74,14 +68,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
 
-      - name: Install Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.6.0 --activate
-          yarn install --inline-builds
-
       - name: Install and build packages
-        run: yarn setup
+        run: yarn && yarn setup
 
       - name: Test
         run: yarn test --suite unit --
@@ -105,12 +93,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
 
-      - name: Install Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.6.0 --activate
-          yarn install --inline-builds
-
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -119,7 +101,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -156,11 +138,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
 
-      - name: Install Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.6.0 --activate
-          yarn install --inline-builds
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -169,7 +146,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -202,14 +179,8 @@ jobs:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
         # cache: 'yarn'
 
-    - name: Install Yarn 4
-      run: |
-        corepack enable
-        corepack prepare yarn@4.6.0 --activate
-        yarn install --inline-builds
-
     - name: Install and build packages
-      run: yarn setup
+      run: yarn && yarn setup
 
     - name: Lint codebase
       run: yarn lint
@@ -236,12 +207,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
 
-      - name: Install Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.6.0 --activate
-          yarn install --inline-builds
-
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -250,7 +215,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -287,12 +252,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
 
-      - name: Install Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.6.0 --activate
-          yarn install --inline-builds
-
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -301,7 +260,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -341,12 +300,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
 
-      - name: Install Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.6.0 --activate
-          yarn install --inline-builds
-
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -355,7 +308,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -400,12 +353,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
 
-      - name: Install Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.6.0 --activate
-          yarn install --inline-builds
-
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -414,7 +361,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -459,12 +406,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
 
-      - name: Install Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.6.0 --activate
-          yarn install --inline-builds
-
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -473,7 +414,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -513,12 +454,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
 
-      - name: Install Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.6.0 --activate
-          yarn install --inline-builds
-
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -527,7 +462,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |

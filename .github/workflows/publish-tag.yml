@@ -26,14 +26,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           # cache: 'yarn'
 
-      - name: Install Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.6.0 --activate
-          yarn install --inline-builds
-
       - name: Install and build packages
-        run: yarn setup
+        run: yarn && yarn setup
 
       - name: Publish to npm
         run: yarn ts-scripts publish -t tag npm
@@ -61,14 +55,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # cache: 'yarn'
 
-      - name: Install Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.6.0 --activate
-          yarn install --inline-builds
-
       - name: Install and build packages
-        run: yarn setup
+        run: yarn && yarn setup
 
       - name: Publish to docker
         run: yarn ts-scripts publish -t tag -n ${{ matrix.node-version }} docker
