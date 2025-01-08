@@ -43,7 +43,7 @@ jobs:
     - name: Install Yarn 4
       run: |
         corepack enable
-        corepack prepare yarn@4.5.3 --activate
+        corepack prepare yarn@4.6.0 --activate
         yarn install
 
     - name: Install and build packages
@@ -77,7 +77,7 @@ jobs:
       - name: Install Yarn 4
         run: |
           corepack enable
-          corepack prepare yarn@4.5.3 --activate
+          corepack prepare yarn@4.6.0 --activate
           yarn install
 
       - name: Install and build packages
@@ -108,7 +108,7 @@ jobs:
       - name: Install Yarn 4
         run: |
           corepack enable
-          corepack prepare yarn@4.5.3 --activate
+          corepack prepare yarn@4.6.0 --activate
           yarn install
 
       # we login to docker to avoid docker pull limit rates
@@ -159,7 +159,7 @@ jobs:
       - name: Install Yarn 4
         run: |
           corepack enable
-          corepack prepare yarn@4.5.3 --activate
+          corepack prepare yarn@4.6.0 --activate
           yarn install
 
       # we login to docker to avoid docker pull limit rates
@@ -206,7 +206,7 @@ jobs:
     - name: Install Yarn 4
       run: |
         corepack enable
-        corepack prepare yarn@4.5.3 --activate
+        corepack prepare yarn@4.6.0 --activate
         yarn install
 
     - name: Install and build packages
@@ -240,7 +240,7 @@ jobs:
       - name: Install Yarn 4
         run: |
           corepack enable
-          corepack prepare yarn@4.5.3 --activate
+          corepack prepare yarn@4.6.0 --activate
           yarn install
 
       # we login to docker to avoid docker pull limit rates
@@ -291,7 +291,7 @@ jobs:
       - name: Install Yarn 4
         run: |
           corepack enable
-          corepack prepare yarn@4.5.3 --activate
+          corepack prepare yarn@4.6.0 --activate
           yarn install
 
       # we login to docker to avoid docker pull limit rates
@@ -345,7 +345,7 @@ jobs:
       - name: Install Yarn 4
         run: |
           corepack enable
-          corepack prepare yarn@4.5.3 --activate
+          corepack prepare yarn@4.6.0 --activate
           yarn install
 
       # we login to docker to avoid docker pull limit rates
@@ -404,7 +404,7 @@ jobs:
       - name: Install Yarn 4
         run: |
           corepack enable
-          corepack prepare yarn@4.5.3 --activate
+          corepack prepare yarn@4.6.0 --activate
           yarn install
 
       # we login to docker to avoid docker pull limit rates
@@ -463,7 +463,7 @@ jobs:
       - name: Install Yarn 4
         run: |
           corepack enable
-          corepack prepare yarn@4.5.3 --activate
+          corepack prepare yarn@4.6.0 --activate
           yarn install
 
       # we login to docker to avoid docker pull limit rates
@@ -517,7 +517,7 @@ jobs:
       - name: Install Yarn 4
         run: |
           corepack enable
-          corepack prepare yarn@4.5.3 --activate
+          corepack prepare yarn@4.6.0 --activate
           yarn install
 
       # we login to docker to avoid docker pull limit rates
