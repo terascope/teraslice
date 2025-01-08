@@ -42,7 +42,7 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.6.0 --activate
-          yarn install
+          yarn install --inline-builds
 
       - name: Install and build packages
         run: yarn setup
@@ -72,7 +72,7 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.6.0 --activate
-          yarn install
+          yarn install --inline-builds
 
       - name: Build documentation
         run: ./scripts/build-documentation.sh  # output in website/build
