@@ -19,12 +19,6 @@ COPY types /app/source/types
 # Check to see if distutils is installed because python 3.12 removed it
 RUN python3 -c "import distutils" || (apk update && apk add py3-setuptools)
 
-# Enable Corepack
-RUN corepack enable
-
-# Update Yarn to version 4
-RUN corepack prepare yarn@4.6.0 --activate
-
 RUN yarn workspaces focus --all \
     && yarn build \
     && yarn workspaces focus --production --all \
