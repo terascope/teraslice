@@ -825,7 +825,7 @@ export default class Jobs {
         await pMap(
             this.jobs,
             (job) => this.exportOne(job.config),
-            { concurrency: this.concurrency }
+            { concurrency: 1 }
         );
 
         reply.green(`Saved jobFile(s) to ${this.config.outdir}`);

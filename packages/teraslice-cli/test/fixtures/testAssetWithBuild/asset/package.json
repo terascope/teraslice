@@ -4,6 +4,7 @@
     "description": "testAsset",
     "main": "index.js",
     "author": "",
-    "scripts": { "asset:build": "echo foo"},
-    "dependencies": {}
+    "scripts": {
+        "asset:build": "echo foo"
+    }
 }

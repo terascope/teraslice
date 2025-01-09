@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
     "displayName": "Teraslice",
-    "version": "2.11.0",
+    "version": "2.12.0",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -25,13 +25,13 @@
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
         "start": "node service.js",
-        "test": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
-        "test:debug": "TEST_ELASTICSEARCH='true' ts-scripts test --debug . --",
-        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' ts-scripts test . --",
-        "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' ts-scripts test . --",
-        "test:opensearch1": "TEST_OPENSEARCH='true' ts-scripts test . --",
-        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' ts-scripts test . --",
-        "test:watch": "TEST_ELASTICSEARCH='true' ts-scripts test --watch . --"
+        "test": "TEST_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test ../teraslice --",
+        "test:debug": "TEST_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test --debug ../teraslice --",
+        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' yarn workspace @terascope/scripts ts-scripts test ../teraslice --",
+        "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' yarn workspace @terascope/scripts ts-scripts test ../teraslice --",
+        "test:opensearch1": "TEST_OPENSEARCH='true' yarn workspace @terascope/scripts ts-scripts test ../teraslice --",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' yarn workspace @terascope/scripts ts-scripts test ../teraslice --",
+        "test:watch": "TEST_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test --watch ../teraslice --"
     },
     "resolutions": {
         "debug": "~4.4.0",
@@ -39,11 +39,11 @@
     },
     "dependencies": {
         "@kubernetes/client-node": "~0.22.3",
-        "@terascope/elasticsearch-api": "~4.7.0",
-        "@terascope/job-components": "~1.9.0",
-        "@terascope/teraslice-messaging": "~1.10.0",
-        "@terascope/types": "~1.4.0",
-        "@terascope/utils": "~1.7.0",
+        "@terascope/elasticsearch-api": "~4.7.1",
+        "@terascope/job-components": "~1.9.1",
+        "@terascope/teraslice-messaging": "~1.10.1",
+        "@terascope/types": "~1.4.1",
+        "@terascope/utils": "~1.7.1",
         "async-mutex": "~0.5.0",
         "barbe": "~3.0.16",
         "body-parser": "~1.20.2",
@@ -62,7 +62,7 @@
         "semver": "~7.6.3",
         "socket.io": "~1.7.4",
         "socket.io-client": "~1.7.4",
-        "terafoundation": "~1.9.0",
+        "terafoundation": "~1.9.1",
         "uuid": "~11.0.3"
     },
     "devDependencies": {

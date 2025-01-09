@@ -72,9 +72,13 @@ webiste/.cache-loader
 website/build/
 website/node_modules
 website/i18n/*
+website/.yarn/install-state.gz
 docs/packages/*/api
 
 .ts-test-config
 
 # CI test files
 images/*
+
+# .yarn
+.yarn/install-state.gz

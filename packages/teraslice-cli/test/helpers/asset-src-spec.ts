@@ -94,11 +94,15 @@ describe('AssetSrc', () => {
     it('can call the assets build script call', async () => {
         const buildTestAsset = new AssetSrc(buildAssetDir);
         // @ts-expect-error
+        await buildTestAsset._yarnCmd(
+            path.join(buildTestAsset.srcDir, 'asset'), ['install']
+        );
+        // @ts-expect-error
         const yarn = await buildTestAsset._yarnCmd(
             path.join(buildTestAsset.srcDir, 'asset'), ['run', 'asset:build']
         );
         expect(yarn.exitCode).toEqual(0);
-        expect(yarn.stdout.toString()).toInclude('$ echo');
+        expect(yarn.stdout.toString()).toInclude('foo');
     });
 
     it('bundle must be set to true', async () => {

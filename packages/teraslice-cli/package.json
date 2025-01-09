@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "2.9.0",
+    "version": "2.10.0",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -31,20 +31,20 @@
         "dist/src/helpers/esm-shims.js"
     ],
     "scripts": {
-        "build": "tsc --build",
+        "build": "tsc --build && yarn postbuild",
         "postbuild": "node build.js",
         "build:watch": "tsc --build --watch & node build.js --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "yarn workspace @terascope/scripts ts-scripts test ../teraslice-cli --",
+        "test:debug": "yarn workspace @terascope/scripts test --debug ../teraslice-cli --",
+        "test:watch": "yarn workspace @terascope/scripts test --watch ../teraslice-cli --"
     },
     "dependencies": {
         "esbuild": "~0.24.0"
     },
     "devDependencies": {
         "@terascope/fetch-github-release": "~1.0.0",
-        "@terascope/types": "~1.4.0",
-        "@terascope/utils": "~1.7.0",
+        "@terascope/types": "~1.4.1",
+        "@terascope/utils": "~1.7.1",
         "@types/decompress": "~4.2.7",
         "@types/diff": "~6.0.0",
         "@types/ejs": "~3.1.5",
@@ -68,7 +68,7 @@
         "pretty-bytes": "~6.1.1",
         "prompts": "~2.4.2",
         "signale": "~1.4.0",
-        "teraslice-client-js": "~1.7.0",
+        "teraslice-client-js": "~1.7.1",
         "tmp": "~0.2.0",
         "tty-table": "~4.2.3",
         "yargs": "~17.7.2"

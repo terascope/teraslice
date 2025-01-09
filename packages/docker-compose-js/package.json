@@ -1,7 +1,7 @@
 {
     "name": "@terascope/docker-compose-js",
     "displayName": "Docker Compose Js",
-    "version": "1.4.3",
+    "version": "1.4.4",
     "description": "Node.js driver for controlling docker-compose testing environments.",
     "keywords": [
         "docker",
@@ -28,9 +28,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "yarn workspace @terascope/scripts ts-scripts test ../docker-compose-js --",
+        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../docker-compose-js --",
+        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../docker-compose-js --"
     },
     "resolutions": {
         "debug": "~4.4.0"

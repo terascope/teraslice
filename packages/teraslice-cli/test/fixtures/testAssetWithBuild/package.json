@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "author": "",
-    "scripts": { },
-    "devDependencies": { },
-    "dependencies": {}
+    "workspaces": [
+        "asset"
+    ],
+    "packageManager": "yarn@4.6.0"
 }

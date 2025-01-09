@@ -1,7 +1,7 @@
 {
     "name": "teraslice-test-harness",
     "displayName": "Teraslice Test Harness",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "description": "A helpful library for testing teraslice jobs, operations, and other components.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-test-harness#readme",
     "bugs": {
@@ -26,9 +26,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "yarn workspace @terascope/scripts ts-scripts test ../teraslice-test-harness --",
+        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../teraslice-test-harness --",
+        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../teraslice-test-harness --"
     },
     "dependencies": {
         "@terascope/fetch-github-release": "~1.0.0",
@@ -36,10 +36,10 @@
         "fs-extra": "~11.2.0"
     },
     "devDependencies": {
-        "@terascope/job-components": "~1.9.0"
+        "@terascope/job-components": "~1.9.1"
     },
     "peerDependencies": {
-        "@terascope/job-components": ">=1.9.0"
+        "@terascope/job-components": ">=1.9.1"
     },
     "engines": {
         "node": ">=18.18.0",

@@ -41,17 +41,15 @@ jobs:
         cache: 'yarn'
 
     - name: Install and build packages
-      run: yarn setup
-      env:
-        YARN_SETUP_ARGS: "--prod=false"
+      run: YARN_ENABLE_HARDENED_MODE=1 yarn && yarn setup
 
   check-docker-limit-before:
-   uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f5e098fa861fe7744fa61842e82124f806364be9
+   uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f86f716e47d989b939d978befa7721c1f5b10134
    secrets: inherit
 
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@f5e098fa861fe7744fa61842e82124f806364be9
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@f86f716e47d989b939d978befa7721c1f5b10134
     secrets: inherit
 
   linux-unit-tests:
@@ -71,12 +69,10 @@ jobs:
           cache: 'yarn'
 
       - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false"
+        run: yarn && yarn setup
 
       - name: Test
-        run: yarn --silent test -- --suite unit --
+        run: yarn test --suite unit --
 
   teraslice-elasticsearch-tests:
     runs-on: ubuntu-latest
@@ -105,9 +101,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false"
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -122,7 +116,7 @@ jobs:
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }}
+        run: yarn test:${{ matrix.search-version }}
         working-directory: ./packages/teraslice
 
   elasticsearch-store-tests:
@@ -152,9 +146,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false"
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -169,7 +161,7 @@ jobs:
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }}
+        run: yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
 
   lint-and-sync:
@@ -188,9 +180,7 @@ jobs:
         cache: 'yarn'
 
     - name: Install and build packages
-      run: yarn setup
-      env:
-        YARN_SETUP_ARGS: "--prod=false"
+      run: yarn && yarn setup
 
     - name: Lint codebase
       run: yarn lint
@@ -225,9 +215,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false"
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -242,7 +230,7 @@ jobs:
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }}
+        run: yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-api
 
   e2e-tests:
@@ -272,9 +260,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false"
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -293,7 +279,7 @@ jobs:
         working-directory: ./e2e
 
       - name: Test ${{ matrix.search-version }}
-        run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:${{ matrix.search-version }}
+        run: NODE_VERSION=${{ matrix.node-version }} yarn test:${{ matrix.search-version }}
         working-directory: ./e2e
 
   e2e-k8s-tests:
@@ -322,9 +308,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false"
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -348,7 +332,7 @@ jobs:
           install_only: "true"
 
       - name: Test k8s elasticsearch7
-        run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:k8s
+        run: NODE_VERSION=${{ matrix.node-version }} yarn test:k8s
         working-directory: ./e2e
 
   e2e-k8s-v2-tests:
@@ -377,9 +361,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false"
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -403,7 +385,7 @@ jobs:
           install_only: "true"
 
       - name: Test k8s V2 elasticsearch7
-        run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:k8sV2
+        run: NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2
         working-directory: ./e2e
 
   e2e-external-storage-tests:
@@ -432,9 +414,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false"
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -453,7 +433,7 @@ jobs:
         working-directory: ./e2e
 
       - name: Test external Asset Storage opensearch1
-        run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:s3AssetStorage
+        run: NODE_VERSION=${{ matrix.node-version }} yarn test:s3AssetStorage
         working-directory: ./e2e
 
   e2e-external-storage-tests-encrypted:
@@ -482,9 +462,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false"
+        run: yarn && yarn setup
 
       - name: Create Docker Image List
         run: |
@@ -515,7 +493,7 @@ jobs:
         working-directory: ./e2e
 
       - name: Test external Asset Storage opensearch1
-        run: ENCRYPT_MINIO=true NODE_VERSION=${{ matrix.node-version }} yarn --silent test:s3AssetStorage
+        run: ENCRYPT_MINIO=true NODE_VERSION=${{ matrix.node-version }} yarn test:s3AssetStorage
         working-directory: ./e2e
 
   check-docker-limit-after:
@@ -529,5 +507,5 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f5e098fa861fe7744fa61842e82124f806364be9
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f86f716e47d989b939d978befa7721c1f5b10134
     secrets: inherit
