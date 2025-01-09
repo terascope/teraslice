@@ -1,5 +1,5 @@
 import {
-    get, concat, pMap,
+    concat, pMap,
     isString, toHumanTime
 } from '@terascope/utils';
 import { PackageInfo } from '../interfaces.js';
@@ -11,7 +11,7 @@ import {
 } from './utils.js';
 import {
     yarnPublish, yarnRun, remoteDockerImageExists,
-    dockerBuild, dockerPush, yarnPublishV2,
+    dockerBuild, dockerPush,
     getNodeVersionFromImage
 } from '../scripts.js';
 import { getRootInfo, getDevDockerImage, formatList } from '../misc.js';
@@ -69,13 +69,7 @@ async function npmPublish(
         return pkgInfo.name;
     }
 
-    const rootInfo = getRootInfo();
-    if (rootInfo.terascope.version === 2) {
-        await yarnPublishV2(pkgInfo, tag);
-    } else {
-        const registry: string | undefined = get(pkgInfo, 'publishConfig.registry');
-        await yarnPublish(pkgInfo, tag, registry);
-    }
+    await yarnPublish(pkgInfo, tag);
     return pkgInfo.name;
 }
 

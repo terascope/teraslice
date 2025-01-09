@@ -28,7 +28,7 @@ main() {
     yarn setup &&
         yarn docs &&
         cd website &&
-        yarn install --prod --no-default-rc &&
+        yarn install  &&
         yarn run build
 }
 
