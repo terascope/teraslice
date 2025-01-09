@@ -41,7 +41,7 @@ jobs:
         cache: 'yarn'
 
     - name: Install and build packages
-      run: yarn && yarn setup
+      run: YARN_ENABLE_HARDENED_MODE=1 yarn && yarn setup
 
   check-docker-limit-before:
    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f86f716e47d989b939d978befa7721c1f5b10134
