@@ -63,7 +63,7 @@ jobs:
           cache: 'yarn'
 
       - name: Build documentation
-        run: ./scripts/build-documentation.sh  # output in website/build
+        run: yarn && ./scripts/build-documentation.sh  # output in website/build
       - name: Check Output
         run: find ./website/build
       - name: Upload artifact

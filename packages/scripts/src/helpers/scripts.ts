@@ -586,9 +586,9 @@ export function mapToArgs(input: ArgsMap): string[] {
 }
 
 /**
- * Yarn publish for version 2
+ * Yarn publish for yarn versions 2, 3, and 4
 */
-export async function yarnPublishV2(
+export async function yarnPublish(
     pkgInfo: PackageInfo,
     tag = 'latest',
 ): Promise<void> {
@@ -597,31 +597,6 @@ export async function yarnPublishV2(
         args: [
             'npm',
             'publish',
-            '--tag',
-            tag
-        ],
-        cwd: pkgInfo.dir,
-        env: {
-            NODE_ENV: 'production'
-        }
-    });
-}
-
-export async function yarnPublish(
-    pkgInfo: PackageInfo,
-    tag = 'latest',
-    registry = config.NPM_DEFAULT_REGISTRY
-): Promise<void> {
-    await fork({
-        cmd: 'yarn',
-        args: [
-            'publish',
-            '--non-interactive',
-            '--new-version',
-            pkgInfo.version,
-            '--no-git-tag-version',
-            '--registry',
-            registry,
             '--tag',
             tag
         ],
