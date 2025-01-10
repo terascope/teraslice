@@ -62,15 +62,8 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version:  22
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'yarn'
-
       - name: Install semver-compare-cli
-        run: yarn add semver-compare-cli
+        run: yarn && yarn add semver-compare-cli
 
       - name: Check for teraslice version update
         id: version_check
