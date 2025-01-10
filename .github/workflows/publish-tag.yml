@@ -29,6 +29,9 @@ jobs:
       - name: Install and build packages
         run: yarn && yarn setup
 
+      - name: Verify npm authentication within yarn
+        run: CI_NPM_AUTH_TOKEN=${{ secrets.NPM_TOKEN }} yarn npm whoami
+
       - name: Publish to npm
         run: CI_NPM_AUTH_TOKEN=${{ secrets.NPM_TOKEN }} yarn ts-scripts publish -t tag npm
 
