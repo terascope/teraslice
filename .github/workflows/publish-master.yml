@@ -41,7 +41,14 @@ jobs:
       - name: Install and build packages
         run: yarn && yarn setup
 
+      - name: Verify npm authentication within yarn
+        env:
+          CI_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: yarn npm whoami
+
       - name: Publish to npm
+        env:
+          CI_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: yarn ts-scripts publish -t latest npm
 
       - name: Publish to docker
