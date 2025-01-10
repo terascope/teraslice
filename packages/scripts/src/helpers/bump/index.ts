@@ -30,7 +30,7 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
     const bumpedMain = mainInfo ? packagesToBump[mainInfo.name] : false;
 
     if (bumpedMain) {
-        signale.note(`IMPORTANT: make sure create release of v${mainInfo!.version} after merging`);
+        signale.note(`IMPORTANT: make sure to update release notes for automated release of v${mainInfo!.version} after merging`);
     }
 
     if (rootInfo.terascope.version !== 2) {
