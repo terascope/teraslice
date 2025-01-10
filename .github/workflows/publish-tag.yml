@@ -30,7 +30,7 @@ jobs:
         run: yarn && yarn setup
 
       - name: Publish to npm
-        run: yarn ts-scripts publish -t tag npm
+        run: CI_NPM_AUTH_TOKEN=${{ secrets.NPM_TOKEN }} yarn ts-scripts publish -t tag npm
 
   docker-build-publish:
     runs-on: ubuntu-latest
