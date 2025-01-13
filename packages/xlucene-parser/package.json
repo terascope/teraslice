@@ -1,7 +1,7 @@
 {
     "name": "xlucene-parser",
     "displayName": "xLucene Parser",
-    "version": "1.7.1",
+    "version": "1.7.2",
     "description": "Flexible Lucene-like evaluator and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser#readme",
     "repository": {
@@ -48,10 +48,10 @@
     },
     "publishConfig": {
         "access": "public",
-        "registry": "https://registry.npmjs.org/",
         "executableFiles": [
             "./scripts/fix-deps.js"
-        ]
+        ],
+        "registry": "https://registry.npmjs.org/"
     },
     "srcMain": "src/index.ts",
     "terascope": {
