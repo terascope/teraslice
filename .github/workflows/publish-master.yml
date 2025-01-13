@@ -94,6 +94,19 @@ jobs:
           name: ${{ steps.version_check.outputs.tag }}
           generate_release_notes: true
 
+      - name: Post text to a Slack channel
+        if: steps.version_check.outputs.version_updated == 'true'
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ vars.SLACK_RELEASES_CHANNEL_ID }}
+            text: |
+              "Teraslice version ${{ steps.version_check.outputs.tag }} has been released.
+              Please review and revise the automated release notes:
+              https://github.com/terascope/teraslice/releases/tag/${{ steps.version_check.outputs.tag }}"
+
   build-docs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
