@@ -3081,7 +3081,7 @@ __metadata:
     "@turf/bbox-polygon": "npm:~7.1.0"
     "@turf/boolean-contains": "npm:~7.1.0"
     "@turf/boolean-disjoint": "npm:~7.1.0"
-    "@turf/boolean-equal": "npm:~7.1.0"
+    "@turf/boolean-equal": "npm:~7.2.0"
     "@turf/boolean-intersects": "npm:~7.1.0"
     "@turf/boolean-point-in-polygon": "npm:~7.1.0"
     "@turf/boolean-within": "npm:~7.1.0"
@@ -3232,6 +3232,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/boolean-equal@npm:~7.2.0":
+  version: 7.2.0
+  resolution: "@turf/boolean-equal@npm:7.2.0"
+  dependencies:
+    "@turf/clean-coords": "npm:^7.2.0"
+    "@turf/helpers": "npm:^7.2.0"
+    "@turf/invariant": "npm:^7.2.0"
+    "@types/geojson": "npm:^7946.0.10"
+    geojson-equality-ts: "npm:^1.0.2"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/f0f8623620ad329535bbc610309c1f09348d73355fce39c22c72fa57d026ae2c1b65b5e443744156256055edd43d19611c4ad1f497af2e39ab7ade72ef074af7
+  languageName: node
+  linkType: hard
+
 "@turf/boolean-intersects@npm:~7.1.0":
   version: 7.1.0
   resolution: "@turf/boolean-intersects@npm:7.1.0"
@@ -3310,7 +3324,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/clean-coords@npm:^7.1.0":
+"@turf/clean-coords@npm:^7.1.0, @turf/clean-coords@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/clean-coords@npm:7.2.0"
   dependencies:
