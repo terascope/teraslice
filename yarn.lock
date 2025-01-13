@@ -2974,7 +2974,7 @@ __metadata:
     typedoc-plugin-markdown: "npm:~4.0.3"
     yargs: "npm:~17.7.2"
   peerDependencies:
-    typescript: ~5.7.2
+    typescript: ~5.7.3
   peerDependenciesMeta:
     typescript:
       optional: true
