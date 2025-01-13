@@ -94,7 +94,7 @@ jobs:
           name: ${{ steps.version_check.outputs.tag }}
           generate_release_notes: true
 
-      - name: Post text to a Slack channel
+      - name: Announce release in Slack releases channel
         if: steps.version_check.outputs.version_updated == 'true'
         uses: slackapi/slack-github-action@v2.0.0
         with:
