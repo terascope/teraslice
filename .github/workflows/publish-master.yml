@@ -77,7 +77,7 @@ jobs:
           if ./node_modules/.bin/semver-compare $CURRENT_VERSION gt $NPM_VERSION; then
             echo "Teraslice version updated from $NPM_VERSION to $CURRENT_VERSION, creating release"
             echo "version_updated=true" >> $GITHUB_OUTPUT
-            echo "tag=v$CURRENT_VERSION"
+            echo "tag: v$CURRENT_VERSION"
             echo "tag=v$CURRENT_VERSION" >> $GITHUB_OUTPUT
           else
             echo "Teraslice version not updated, will not release"
