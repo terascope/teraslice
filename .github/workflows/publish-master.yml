@@ -84,11 +84,19 @@ jobs:
             echo "version_updated=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Generate a token
+        if: steps.version_check.outputs.version_updated == 'true'
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.RELEASES_APP_ID }}
+          private-key: ${{ secrets.RELEASES_PRIVATE_KEY }}
+
       - name: Create Release
         if: steps.version_check.outputs.version_updated == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.GITHUB_RELEASE_PAT }}
+          token: ${{ steps.generate-token.outputs.token }}
           prerelease: true
           tag_name: ${{ steps.version_check.outputs.tag }}
           name: ${{ steps.version_check.outputs.tag }}
