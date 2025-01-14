@@ -84,11 +84,19 @@ jobs:
             echo "version_updated=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Generate a token
+        if: steps.version_check.outputs.version_updated == 'true'
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.RELEASES_APP_ID }}
+          private-key: ${{ secrets.RELEASES_PRIVATE_KEY }}
+
       - name: Create Release
         if: steps.version_check.outputs.version_updated == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
           prerelease: true
           tag_name: ${{ steps.version_check.outputs.tag }}
           name: ${{ steps.version_check.outputs.tag }}
@@ -96,6 +104,7 @@ jobs:
 
       - name: Announce release in Slack releases channel
         if: steps.version_check.outputs.version_updated == 'true'
+        id: announce-release
         uses: slackapi/slack-github-action@v2.0.0
         with:
           method: chat.postMessage
@@ -103,9 +112,13 @@ jobs:
           payload: |
             channel: ${{ vars.SLACK_RELEASES_CHANNEL_ID }}
             text: |
-              "Teraslice version ${{ steps.version_check.outputs.tag }} has been released.
+              Teraslice version ${{ steps.version_check.outputs.tag }} has been released.
               Please review and revise the automated release notes:
-              https://github.com/terascope/teraslice/releases/tag/${{ steps.version_check.outputs.tag }}"
+              https://github.com/terascope/teraslice/releases/tag/${{ steps.version_check.outputs.tag }}
+
+      - name: Failed Announcement Response
+        if: ${{ steps.announce-release.outputs.ok == 'false' }}
+        run: echo "Slackbot API failure response - ${{ steps.announce-release.outputs.response }}"
 
   build-docs:
     if: github.event.pull_request.merged == true
