@@ -7,6 +7,8 @@ on:
 jobs:
   build-release:
     runs-on: ubuntu-latest
+    outputs:
+      teraslice_version: ${{ steps.teraslice-version.outputs.teraslice_version }}
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
@@ -18,6 +20,12 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@v4
+
+      - name: Retrieve Teraslice version
+        id: teraslice-version
+        run: |
+          TERASLICE_VERSION=$(jq -r .version package.json)
+          echo "teraslice_version=$TERASLICE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -67,3 +75,26 @@ jobs:
 
       - name: Publish to docker
         run: yarn ts-scripts publish -t tag -n ${{ matrix.node-version }} docker
+
+  slack-announcement:
+    needs: [build-release, docker-build-publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Announce release in Slack releases channel
+        id: announce-release
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ vars.SLACK_RELEASES_CHANNEL_ID }}
+            text: |
+              Teraslice version `v${{ needs.build-release.outputs.teraslice_version }}` has been released.
+              Please review and revise the automated release notes:
+              https://github.com/terascope/teraslice/releases/tag/v${{ needs.build-release.outputs.teraslice_version }}
+              NPM release: https://www.npmjs.com/package/teraslice/v/${{ needs.build-release.outputs.teraslice_version }}
+              Docker images: https://github.com/terascope/teraslice/pkgs/container/teraslice
+
+      - name: Failed Announcement Response
+        if: ${{ steps.announce-release.outputs.ok == 'false' }}
+        run: echo "Slackbot API failure response - ${{ steps.announce-release.outputs.response }}"

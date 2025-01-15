@@ -102,24 +102,6 @@ jobs:
           name: ${{ steps.version_check.outputs.tag }}
           generate_release_notes: true
 
-      - name: Announce release in Slack releases channel
-        if: steps.version_check.outputs.version_updated == 'true'
-        id: announce-release
-        uses: slackapi/slack-github-action@v2.0.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: |
-            channel: ${{ vars.SLACK_RELEASES_CHANNEL_ID }}
-            text: |
-              Teraslice version ${{ steps.version_check.outputs.tag }} has been released.
-              Please review and revise the automated release notes:
-              https://github.com/terascope/teraslice/releases/tag/${{ steps.version_check.outputs.tag }}
-
-      - name: Failed Announcement Response
-        if: ${{ steps.announce-release.outputs.ok == 'false' }}
-        run: echo "Slackbot API failure response - ${{ steps.announce-release.outputs.response }}"
-
   build-docs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
