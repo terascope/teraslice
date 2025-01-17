@@ -1367,10 +1367,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.16.0, @eslint/js@npm:~9.16.0":
+"@eslint/js@npm:9.16.0":
   version: 9.16.0
   resolution: "@eslint/js@npm:9.16.0"
   checksum: 10c0/a55846a4ddade720662d36682f3eaaf38eac06eeee12c83bb837bba2b7d550dadcb3445b104219f0bc1da2e09b4fe5fb5ba123b8338c8c787bcfbd540878df75
+  languageName: node
+  linkType: hard
+
+"@eslint/js@npm:~9.18.0":
+  version: 9.18.0
+  resolution: "@eslint/js@npm:9.18.0"
+  checksum: 10c0/3938344c5ac7feef4b73fcb30f3c3e753570cea74c24904bb5d07e9c42fcd34fcbc40f545b081356a299e11f360c9c274b348c05fb0113fc3d492e5175eee140
   languageName: node
   linkType: hard
 
@@ -2871,7 +2878,7 @@ __metadata:
   resolution: "@terascope/eslint-config@workspace:packages/eslint-config"
   dependencies:
     "@eslint/compat": "npm:~1.2.4"
-    "@eslint/js": "npm:~9.16.0"
+    "@eslint/js": "npm:~9.18.0"
     "@stylistic/eslint-plugin": "npm:~2.12.0"
     "@types/eslint__js": "npm:~8.42.3"
     "@typescript-eslint/eslint-plugin": "npm:~8.18.0"
@@ -13223,7 +13230,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "teraslice-workspace@workspace:."
   dependencies:
-    "@eslint/js": "npm:~9.16.0"
+    "@eslint/js": "npm:~9.18.0"
     "@swc/core": "npm:1.4.0"
     "@swc/jest": "npm:~0.2.36"
     "@terascope/scripts": "npm:~1.9.0"
