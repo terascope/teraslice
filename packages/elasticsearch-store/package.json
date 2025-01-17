@@ -42,7 +42,7 @@
         "opensearch1": "npm:@opensearch-project/opensearch@~1.2.0",
         "opensearch2": "npm:@opensearch-project/opensearch@~2.12.0",
         "setimmediate": "~1.0.5",
-        "uuid": "~11.0.3",
+        "uuid": "~11.0.5",
         "xlucene-translator": "~1.7.2"
     },
     "devDependencies": {

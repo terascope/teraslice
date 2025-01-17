@@ -47,7 +47,7 @@
         "@terascope/types": "~1.4.1",
         "bunyan": "~1.8.15",
         "elasticsearch-store": "~1.7.2",
-        "fs-extra": "~11.2.0",
+        "fs-extra": "~11.3.0",
         "jest": "^29.7.0",
         "jest-extended": "^4.0.2",
         "jest-watch-typeahead": "^2.2.2",
@@ -57,7 +57,7 @@
         "signale": "~1.4.0",
         "ts-jest": "^29.2.5",
         "typescript": "~5.7.3",
-        "uuid": "~11.0.3"
+        "uuid": "~11.0.5"
     },
     "engines": {
         "node": ">=18.18.0",
