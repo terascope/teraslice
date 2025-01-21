@@ -51,8 +51,8 @@
         "signale": "~1.4.0",
         "sort-package-json": "~2.14.0",
         "toposort": "~2.0.2",
-        "typedoc": "~0.25.13",
-        "typedoc-plugin-markdown": "~4.0.3",
+        "typedoc": "~0.27.6",
+        "typedoc-plugin-markdown": "~4.4.1",
         "yargs": "~17.7.2"
     },
     "devDependencies": {
@@ -61,7 +61,8 @@
         "@types/ms": "~0.7.34",
         "@types/semver": "~7.5.8",
         "@types/signale": "~1.4.7",
-        "@types/toposort": "~2.0.7"
+        "@types/toposort": "~2.0.7",
+        "typescript": "~5.7.3"
     },
     "peerDependencies": {
         "typescript": "~5.7.3"
