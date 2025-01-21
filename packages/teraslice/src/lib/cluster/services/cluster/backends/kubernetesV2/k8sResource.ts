@@ -309,9 +309,9 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
         if (this.nodeType === 'execution_controller') {
             // The settings on the executions override the cluster configs
             cpu = this.execution.cpu_execution_controller
-            || this.terasliceConfig.cpu_execution_controller || -1;
+                || this.terasliceConfig.cpu_execution_controller || -1;
             memory = this.execution.memory_execution_controller
-            || this.terasliceConfig.memory_execution_controller || -1;
+                || this.terasliceConfig.memory_execution_controller || -1;
             set(container, 'resources.requests.cpu', cpu);
             set(container, 'resources.limits.cpu', cpu);
             set(container, 'resources.requests.memory', memory);
