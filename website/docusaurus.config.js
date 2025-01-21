@@ -113,15 +113,15 @@ module.exports = {
                     items: [
                         {
                             label: 'Getting Started',
-                            to: 'docs/getting-started.html',
+                            to: 'docs/getting-started',
                         },
                         {
                             label: 'Packages',
-                            to: 'docs/packages.html',
+                            to: 'docs/packages',
                         },
                         {
                             label: 'Asset Bundles',
-                            to: 'docs/asset-bundles.html',
+                            to: 'docs/asset-bundles',
                         },
                     ],
                 },
