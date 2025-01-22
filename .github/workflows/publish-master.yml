@@ -128,17 +128,16 @@ jobs:
 
 
       - name: Extract Helm Chart Version
-        id: extract-version
+        id: extract-helm-version
         run: |
           CHART_VERSION=$(yq eval '.version' ./helm/teraslice/Chart.yaml)
-          echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_ENV
-        env:
-          CHART_VERSION: ""
+          echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_OUTPUT
 
       - name: Check if Helm Chart Version Exists in GHCR
         id: check-version
         env:
-          CHART_VERSION: ${{ env.CHART_VERSION }}
+          CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
+
         run: |
           if curl -L -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -147,14 +146,16 @@ jobs:
               jq -r --arg version "$CHART_VERSION" '.[] | select(.metadata.container.tags[] == $version)' | \
               grep -q "$CHART_VERSION"; then
               echo "Helm chart version $CHART_VERSION already exists in GHCR."
-              echo "version_exists=true" >> $GITHUB_ENV
+              echo "version_exists=true" >> $GITHUB_OUTPUT
             else
               echo "Helm chart version $CHART_VERSION does not exist in GHCR."
-              echo "version_exists=false" >> $GITHUB_ENV
+              echo "version_exists=false" >> $GITHUB_OUTPUT
             fi
 
       - name: Package and Update index.yaml
-        if: env.version_exists == 'false'
+        if: steps.check-version.outputs.version_exists == 'false'
+        env:
+          CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
         run: |
           cd ./helm/helm-repo-site
           echo $(helm package ../teraslice)
@@ -167,7 +168,7 @@ jobs:
           echo $(cat index.yaml)
 
       - name: Commit Updated index.yaml
-        if: env.version_exists == 'false'
+        if: steps.check-version.outputs.version_exists == 'false'
         run: |
           echo $(ls)
           echo $(find ./helm/helm-repo-site/index.yaml)
@@ -179,7 +180,9 @@ jobs:
           git push origin master
 
       - name: Publish Helm Chart to GHCR
-        if: env.version_exists == 'false'
+        if: steps.check-version.outputs.version_exists == 'false'
+        env:
+          CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
         run: |
           cd ./helm/helm-repo-site
           echo $(ls)
