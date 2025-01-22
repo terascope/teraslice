@@ -82,3 +82,7 @@ images/*
 
 # .yarn
 .yarn/install-state.gz
+
+# helm generated files
+helm/helm-repo-site/index.html
+helm/helm-repo-site/*.tgz
