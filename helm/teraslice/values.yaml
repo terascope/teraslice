@@ -9,7 +9,7 @@ image:
   # image tag defaults to chart appVersion
   # tag: v2.6.2-nodev22.9.0
   pullPolicy: IfNotPresent
-  # node version will be inserted into the image tag (which defaults the chart version)
+  # node version will be inserted into the image tag (which defaults to the chart version)
   # setting the image tag will ignore this value
   nodeVersion: v22.13.0
 

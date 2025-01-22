@@ -168,7 +168,7 @@
         </ul>
       </p>
 
-      <p>Create a new file called <code>kindConfig.yaml</code> and paste the following code snippig in it and save. Then run:</p>
+      <p>Create a new file called <code>kindConfig.yaml</code> and paste the following code snippet in it and save. Then run:</p>
       <pre class="snippet" lang="no-highlight" style="padding: 0">
         <button class="btn" onclick="copyToClipboard(this)">
           <img class="clippy" src="/teraslice/charts/_images/clippy.svg" alt="Copy to clipboard" width="13">
