@@ -1,0 +1,19 @@
+apiVersion: v1
+entries:
+  teraslice:
+  - apiVersion: v2
+    appVersion: v2.7.0
+    created: "2025-01-22T10:31:05.021809-07:00"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: 1d603958d59c6d55b4ce50f0315fb58dfa3e244aec830a44f0fcd5fcb2c70e55
+    keywords:
+    - teraslice
+    - elasticsearch
+    name: teraslice
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:2.0.0
+    version: 2.0.0
+generated: "2025-01-22T10:31:05.0212-07:00"

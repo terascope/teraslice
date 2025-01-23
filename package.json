@@ -19,7 +19,7 @@
         "build:doctor": "./scripts/build-doctor.sh",
         "build:fix": "echo '[DEPRECATED], use yarn run build:doctor instead'",
         "build:pkg": "./scripts/build-pkg.sh",
-        "build:watch": "yarn run build --watch & yarn workspace teraslice-cli node build.js --watch",
+        "build:watch": "yarn prebuild && tsc --build --watch & yarn workspace teraslice-cli node build.js --watch",
         "postbuild": "yarn workspace teraslice-cli postbuild",
         "bump": "ts-scripts bump",
         "docker:limit": "./scripts/docker-limit-check.sh",
