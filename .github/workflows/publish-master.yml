@@ -108,10 +108,7 @@ jobs:
     needs: build-release
     permissions:
       contents: write
-      pages: write
-      id-token: write
       packages: write
-      attestations: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
