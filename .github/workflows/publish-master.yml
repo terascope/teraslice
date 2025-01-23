@@ -103,96 +103,97 @@ jobs:
           generate_release_notes: true
 
 
-  build-and-publish-helm-charts:
-    runs-on: ubuntu-latest
-    needs: build-release
-    permissions:
-      contents: write
-      packages: write
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+  # build-and-publish-helm-charts:
+  #   runs-on: ubuntu-latest
+  #   needs: build-release
+  #   permissions:
+  #     contents: write
+  #     packages: write
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set Up Helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  #     - name: Set Up Helm
+  #       run: |
+  #         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-      - name: Authenticate Helm to GHCR
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username $GITHUB_ACTOR --password-stdin
+  #     - name: Authenticate Helm to GHCR
+  #       run: |
+  #         echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username $GITHUB_ACTOR --password-stdin
 
 
-      - name: Extract Helm Chart Version
-        id: extract-helm-version
-        run: |
-          CHART_VERSION=$(yq eval '.version' ./helm/teraslice/Chart.yaml)
-          echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_OUTPUT
+  #     - name: Extract Helm Chart Version
+  #       id: extract-helm-version
+  #       run: |
+  #         CHART_VERSION=$(yq eval '.version' ./helm/teraslice/Chart.yaml)
+  #         echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Check if Helm Chart Version Exists in GHCR
-        id: check-version
-        env:
-          CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
+  #     - name: Check if Helm Chart Version Exists in GHCR
+  #       id: check-version
+  #       env:
+  #         CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
 
-        run: |
-          if curl -L -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          "https://api.github.com/orgs/terascope/packages/container/teraslice-chart/versions" | \
-              jq -r --arg version "$CHART_VERSION" '.[] | select(.metadata.container.tags[] == $version)' | \
-              grep -q "$CHART_VERSION"; then
-              echo "Helm chart version $CHART_VERSION already exists in GHCR."
-              echo "version_exists=true" >> $GITHUB_OUTPUT
-            else
-              echo "Helm chart version $CHART_VERSION does not exist in GHCR."
-              echo "version_exists=false" >> $GITHUB_OUTPUT
-            fi
+  #       run: |
+  #         if curl -L -H "Accept: application/vnd.github+json" \
+  #         -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+  #         -H "X-GitHub-Api-Version: 2022-11-28" \
+  #         "https://api.github.com/orgs/terascope/packages/container/teraslice-chart/versions" | \
+  #             jq -r --arg version "$CHART_VERSION" '.[] | select(.metadata.container.tags[] == $version)' | \
+  #             grep -q "$CHART_VERSION"; then
+  #             echo "Helm chart version $CHART_VERSION already exists in GHCR."
+  #             echo "version_exists=true" >> $GITHUB_OUTPUT
+  #           else
+  #             echo "Helm chart version $CHART_VERSION does not exist in GHCR."
+  #             echo "version_exists=false" >> $GITHUB_OUTPUT
+  #           fi
 
-      - name: Package and Update index.yaml
-        if: steps.check-version.outputs.version_exists == 'false'
-        env:
-          CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
-        run: |
-          cd ./helm/helm-repo-site
-          echo $(helm package ../teraslice)
-          echo "Packaged Helm chart."
-          echo $(ls)
-          helm repo index . --merge=index.yaml --url oci://ghcr.io/terascope/teraslice-chart:${{ env.CHART_VERSION }}
-          echo $(cat index.yaml)
-          echo $(ls)
-          sed -i 's|/teraslice-${{ env.CHART_VERSION }}.tgz||' index.yaml
-          echo $(cat index.yaml)
+  #     - name: Package and Update index.yaml
+  #       if: steps.check-version.outputs.version_exists == 'false'
+  #       env:
+  #         CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
+  #       run: |
+  #         cd ./helm/helm-repo-site
+  #         echo $(helm package ../teraslice)
+  #         echo "Packaged Helm chart."
+  #         echo $(ls)
+  #         helm repo index . --merge=index.yaml --url oci://ghcr.io/terascope/teraslice-chart:${{ env.CHART_VERSION }}
+  #         echo $(cat index.yaml)
+  #         echo $(ls)
+  #         sed -i 's|/teraslice-${{ env.CHART_VERSION }}.tgz||' index.yaml
+  #         echo $(cat index.yaml)
 
-      - name: Commit Updated index.yaml
-        if: steps.check-version.outputs.version_exists == 'false'
-        run: |
-          echo $(ls)
-          echo $(find ./helm/helm-repo-site/index.yaml)
-          echo $(cat ./helm/helm-repo-site/index.yaml)
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add ./helm/helm-repo-site/index.yaml
-          git commit -m "Update Helm chart index.yaml for version $CHART_VERSION"
-          git push origin master
+  #     - name: Commit Updated index.yaml
+  #       if: steps.check-version.outputs.version_exists == 'false'
+  #       run: |
+  #         echo $(ls)
+  #         echo $(find ./helm/helm-repo-site/index.yaml)
+  #         echo $(cat ./helm/helm-repo-site/index.yaml)
+  #         git config user.name "github-actions[bot]"
+  #         git config user.email "github-actions[bot]@users.noreply.github.com"
+  #         git add ./helm/helm-repo-site/index.yaml
+  #         git commit -m "Update Helm chart index.yaml for version $CHART_VERSION"
+  #         git push origin master
 
-      - name: Publish Helm Chart to GHCR
-        if: steps.check-version.outputs.version_exists == 'false'
-        env:
-          CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
-        run: |
-          cd ./helm/helm-repo-site
-          echo $(ls)
-          mv ./teraslice-${{ env.CHART_VERSION }}.tgz teraslice-chart-${{ env.CHART_VERSION }}.tgz
-          echo $(ls)
-          CHART_FILE=$(ls teraslice-chart-${{ env.CHART_VERSION }}.tgz)
-          echo "Publishing $CHART_FILE to GHCR..."
-          helm push $CHART_FILE oci://ghcr.io/terascope --debug
+  #     - name: Publish Helm Chart to GHCR
+  #       if: steps.check-version.outputs.version_exists == 'false'
+  #       env:
+  #         CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
+  #       run: |
+  #         cd ./helm/helm-repo-site
+  #         echo $(ls)
+  #         mv ./teraslice-${{ env.CHART_VERSION }}.tgz teraslice-chart-${{ env.CHART_VERSION }}.tgz
+  #         echo $(ls)
+  #         CHART_FILE=$(ls teraslice-chart-${{ env.CHART_VERSION }}.tgz)
+  #         echo "Publishing $CHART_FILE to GHCR..."
+  #         helm push $CHART_FILE oci://ghcr.io/terascope --debug
 
   build-docs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    needs: build-and-publish-helm-charts
+    # needs: build-and-publish-helm-charts
+    needs: build-release
     steps:
       - name: Check out code
         uses: actions/checkout@v4
