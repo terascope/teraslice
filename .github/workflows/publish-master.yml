@@ -195,7 +195,7 @@ jobs:
           echo $(ls)
           CHART_FILE=$(ls teraslice-chart-${{ env.CHART_VERSION }}.tgz)
           echo "Publishing $CHART_FILE to GHCR..."
-          helm push $CHART_FILE oci://ghcr.io/terascope --debug
+          helm push $CHART_FILE oci://ghcr.io/terascope/teraslice-chart --debug
 
   build-docs:
     if: github.event.pull_request.merged == true
