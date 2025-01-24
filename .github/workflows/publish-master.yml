@@ -6,6 +6,8 @@ on:
       - master
     types:
       - closed
+    paths-ignore:
+      - 'helm/helm-repo-site/index.yaml'
 
 jobs:
   build-release:
