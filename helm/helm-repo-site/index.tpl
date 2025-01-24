@@ -222,7 +222,7 @@ releases:
   - name: teraslice
     namespace: ts-dev1
     version: {{ (index (index .Entries "teraslice") 0).Version }}
-    chart: terascope/teraslice
+    chart: terascope/teraslice-chart
     needs:
       - ts-dev1/opensearch1
     values:
