@@ -116,8 +116,8 @@ jobs:
         id: token-generation
         uses: actions/create-github-app-token@v1
         with:
-          app-id: ${{ vars.GH_INDEX_APP_ID }}
-          private-key: ${{ secrets.GH_INDEX_APP_KEY }}
+          app-id: ${{ vars.RELEASES_APP_ID }}
+          private-key: ${{ secrets.RELEASES_PRIVATE_KEY }}
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
