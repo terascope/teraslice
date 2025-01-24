@@ -169,7 +169,7 @@ jobs:
           helm repo index . --merge=index.yaml --url oci://ghcr.io/terascope/teraslice-chart:${{ env.CHART_VERSION }}
           echo $(cat index.yaml)
           echo $(ls)
-          sed -i 's|/teraslice-${{ env.CHART_VERSION }}.tgz||' index.yaml
+          sed -i 's|/teraslice-chart-${{ env.CHART_VERSION }}.tgz||' index.yaml
           echo $(cat index.yaml)
 
       - name: Commit Updated index.yaml
@@ -191,11 +191,9 @@ jobs:
         run: |
           cd ./helm/helm-repo-site
           echo $(ls)
-          mv ./teraslice-${{ env.CHART_VERSION }}.tgz teraslice-chart-${{ env.CHART_VERSION }}.tgz
-          echo $(ls)
           CHART_FILE=$(ls teraslice-chart-${{ env.CHART_VERSION }}.tgz)
           echo "Publishing $CHART_FILE to GHCR..."
-          helm push $CHART_FILE oci://ghcr.io/terascope/teraslice-chart --debug
+          helm push $CHART_FILE oci://ghcr.io/terascope --debug
 
   build-docs:
     if: github.event.pull_request.merged == true
