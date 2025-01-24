@@ -6,6 +6,8 @@ on:
       - master
     types:
       - closed
+    paths-ignore:
+      - 'helm/helm-repo-site/index.yaml'
 
 jobs:
   build-release:
@@ -110,10 +112,16 @@ jobs:
       contents: write
       packages: write
     steps:
+      - name: Generate a token
+        id: token-generation
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.RELEASES_APP_ID }}
+          private-key: ${{ secrets.RELEASES_PRIVATE_KEY }}
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.token-generation.outputs.token }}
 
       - name: Set Up Helm
         run: |
@@ -174,7 +182,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add ./helm/helm-repo-site/index.yaml
           git commit -m "Update Helm chart index.yaml for version $CHART_VERSION"
-          git push origin master
+          git push -v https://x-access-token:${{ steps.token-generation.outputs.token }}@github.com/terascope/teraslice.git HEAD:master
 
       - name: Publish Helm Chart to GHCR
         if: steps.check-version.outputs.version_exists == 'false'
@@ -196,6 +204,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          ref: master
 
       - name: Setup Node
         uses: actions/setup-node@v4
