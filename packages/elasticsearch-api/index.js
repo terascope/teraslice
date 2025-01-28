@@ -642,8 +642,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
             const retry = _retryFn(_performSearch, query, reject);
 
             function _performSearch(queryParam) {
-                _esV7adjustments(queryParam);
-
                 client
                     .search(queryParam)
                     .then((data) => {
@@ -683,12 +681,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
 
             waitForClient(() => _performSearch(query), reject);
         });
-    }
-
-    function _esV7adjustments(queryParam) {
-        if (!isElasticsearch6()) {
-            queryParam.trackTotalHits = true;
-        }
     }
 
     function _adjustTypeForEs7(query) {
