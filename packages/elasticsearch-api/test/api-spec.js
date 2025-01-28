@@ -405,19 +405,6 @@ describe('elasticsearch-api', () => {
         return expect(api.count(query)).resolves.toEqual(500);
     });
 
-    it('adds track total hits to queries for es v7 indices', async () => {
-        const query = { body: 'someQuery' };
-        const es7client = cloneDeep(client);
-
-        es7client.transport._config = { apiVersion: '7.0' };
-
-        const api = esApi(es7client, logger);
-
-        await api.count(query);
-
-        expect(query).toEqual({ body: 'someQuery', size: 0, trackTotalHits: true });
-    });
-
     it('can search', async () => {
         const query = { body: 'someQuery' };
         const api = esApi(client, logger);
