@@ -18,8 +18,9 @@ export function parseJSON<T = Record<string, unknown>>(buf: Buffer | string): T 
     }
 
     try {
-        return JSON.parse(buf as string);
-    } catch (err) {
+        // remove null unicode/hex code characters before parsing
+        return JSON.parse((buf as string).toString().replace(/\0/g, ''));
+    } catch (err: unknown) {
         throw new Error(`Failure to parse buffer, ${toString(err)}`);
     }
 }
