@@ -18,8 +18,11 @@ export function parseJSON<T = Record<string, unknown>>(buf: Buffer | string): T 
     }
 
     try {
-        return JSON.parse(buf as string);
-    } catch (err) {
+        // remove null unicode/hex code characters before parsing
+        const removedNull = (buf as string).toString().replace(/\0/g, '');
+
+        return JSON.parse(removedNull);
+    } catch (err: unknown) {
         throw new Error(`Failure to parse buffer, ${toString(err)}`);
     }
 }
