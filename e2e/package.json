@@ -32,8 +32,10 @@
         "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:k8s": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' TEST_PLATFORM='kubernetes' ts-scripts test --suite e2e --",
+        "test:k8sHelmfile": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' TEST_PLATFORM='kubernetes' USE_HELMFILE='true' ts-scripts test --suite e2e --",
         "test:k8sNoBuild": "SKIP_DOCKER_BUILD_IN_E2E='true' TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' TEST_PLATFORM='kubernetes' ts-scripts test --suite e2e --",
         "test:k8sV2": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' TEST_PLATFORM='kubernetesV2' ts-scripts test --suite e2e --",
+        "test:k8sV2Helmfile": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' TEST_KAFKA='true' TEST_PLATFORM='kubernetesV2' USE_HELMFILE='true' ts-scripts test --suite e2e --",
         "test:opensearch1": "TEST_OPENSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:s3AssetStorage": "TEST_OPENSEARCH='true' TEST_KAFKA='true' TEST_MINIO='true' ASSET_STORAGE_CONNECTION_TYPE='s3' ASSET_STORAGE_CONNECTION='default' ts-scripts test --suite e2e --",
@@ -45,6 +47,7 @@
     "devDependencies": {
         "@terascope/scripts": "~1.9.3",
         "@terascope/types": "~1.4.1",
+        "@terascope/utils": "~1.7.2",
         "bunyan": "~1.8.15",
         "elasticsearch-store": "~1.8.1",
         "fs-extra": "~11.3.0",
