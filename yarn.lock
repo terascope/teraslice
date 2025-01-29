@@ -6417,6 +6417,7 @@ __metadata:
   dependencies:
     "@terascope/scripts": "npm:~1.9.3"
     "@terascope/types": "npm:~1.4.1"
+    "@terascope/utils": "npm:~1.7.3"
     bunyan: "npm:~1.8.15"
     elasticsearch-store: "npm:~1.8.1"
     fs-extra: "npm:~11.3.0"
