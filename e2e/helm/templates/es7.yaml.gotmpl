@@ -1,0 +1,29 @@
+imageTag: {{ .Values | get "elasticsearch7.version" "7.9.3" }}
+
+esMajorVersion: "7"
+
+replicas: {{ .Values | get "elasticsearch7.instances" 1 }}
+
+minimumMasterNodes: 1
+
+clusterName: "elasticsearch7"
+
+esJavaOpts: {{ .Values | get "elasticsearch7.esJavaOpts" "-Xms1g -Xmx1g" }}
+
+resources:
+    requests:
+        cpu: "1000m"
+        memory: {{ .Values | get "elasticsearch7.memoryLimit" "2Gi" }}
+    limits:
+        cpu: "1000m"
+        memory: {{ .Values | get "elasticsearch7.memoryLimit" "2Gi" }}
+
+volumeClaimTemplate:
+    accessModes: ["ReadWriteOnce"]
+    resources:
+        requests:
+            storage: {{ .Values | get "elasticsearch7.persistentVolumeSize" "30Gi" }}
+
+service:
+  type: NodePort
+  nodePort: {{ .Values | get "elasticsearch7.nodePort" "30200" }}

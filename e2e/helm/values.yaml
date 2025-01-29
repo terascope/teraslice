@@ -1,0 +1,81 @@
+opensearch1:
+  # If false, opensearch1 will be excluded on helmfile sync
+  enabled: false
+  version: 1.3.14
+  esJavaOpts: -Xmx512M -Xms512M
+  memoryLimit: 100Mi
+  persistentVolumeSize: 8Gi
+  # The number of replicas
+  instances: 1
+
+opensearch2:
+  # If false, opensearch2 will be excluded on helmfile sync
+  enabled: true
+  version: 2.8.0
+  esJavaOpts: -Xmx512M -Xms512M
+  memoryLimit: 100Mi
+  persistentVolumeSize: 8Gi
+  # The number of replicas
+  instances: 1
+
+elasticsearch6:
+  # If false, elasticsearch6 will be excluded on helmfile sync
+  enabled: false
+  version: 6.8.6
+  # Overrides default image. Useful when loading in arm image that es doesn't support
+  # image: elasticsearch
+  # The number of replicas
+  instances: 1
+  esJavaOpts: -Xms512m -Xmx512m
+  memoryLimit: 1Gi
+  persistentVolumeSize: 8Gi
+
+elasticsearch7:
+  # If false, elasticsearch7 will be excluded on helmfile sync
+  enabled: false
+  # It's not recommended to deviate from es versions 7.9. The chart is tied to this specific version.
+  version: 7.9.3
+  # The number of replicas
+  instances: 1
+  esJavaOpts: -Xms512m -Xmx512m
+  # Es7 recommends at least a gig of memory.
+  memoryLimit: 1Gi
+  persistentVolumeSize: 8Gi
+
+minio:
+  # If false, minio will be excluded on helmfile sync
+  enabled: false
+  version: RELEASE.2024-08-29T01-40-52Z
+  instances: 1
+  rootUser: minioadmin
+  rootPassword: minioadmin
+  memoryLimit: 256Mi
+  persistentVolumeSize: 50Gi
+  # tls:   <-- Not implemented yet
+  #   enabled: false
+  #   certSecret: ""
+  #   publicCrt: public.crt
+  #   privateKey: private.key
+
+kafka:
+  # If false, kafka will be excluded on helmfile sync
+  enabled: true
+  version: 7.7.1
+  brokers: 1
+  offsets:
+    topic:
+      replication:
+        factor: 1
+
+zookeeper:
+  # If false, zookeeper will be excluded on helmfile sync
+  enabled: true
+  version: 7.7.1
+  instances: 1
+
+teraslice:
+  image:
+    repository: teraslice-workspace
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: e2e-nodev22
+  stateCluster: opensearch2

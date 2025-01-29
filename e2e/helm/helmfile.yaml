@@ -1,0 +1,70 @@
+environments:
+  default:
+    values:
+      - values.yaml
+---
+
+repositories:
+  - name: opensearch
+    url: https://opensearch-project.github.io/helm-charts/
+  - name: minio
+    url: https://charts.min.io/
+
+helmDefaults:
+  wait: true
+
+releases:
+  - name: opensearch1
+    namespace: services-dev1
+    chart: opensearch/opensearch
+    version: 2.17.1
+    installed: {{ .Values | get "opensearch1.enabled" false }}
+    values:
+      - ./templates/os1.yaml.gotmpl
+
+  - name: opensearch2
+    namespace: services-dev1
+    chart: opensearch/opensearch
+    version: 2.17.1
+    installed: {{ .Values | get "opensearch2.enabled" true }}
+    values:
+      - ./templates/os2.yaml.gotmpl
+
+  - name: elasticsearch6
+    namespace: services-dev1
+    chart: ./elasticsearch/elasticsearch-6.8.9.tgz
+    installed: {{ .Values | get "elasticsearch6.enabled" false }}
+    values:
+      - ./templates/es6.yaml.gotmpl
+
+  - name: elasticsearch7
+    namespace: services-dev1
+    chart: ./elasticsearch/elasticsearch-7.9.3.tgz
+    installed: {{ .Values | get "elasticsearch7.enabled" false }}
+    values:
+      - ./templates/es7.yaml.gotmpl
+
+  - name: minio
+    namespace: services-dev1
+    chart: minio/minio
+    version: 5.3.0
+    installed: {{ .Values | get "minio.enabled" false }}
+    values:
+      - ./templates/minio.yaml.gotmpl
+
+  - name: kafka
+    namespace: services-dev1
+    chart: ./kafka/cp-helm-charts-0.6.1.tgz
+    installed: {{ .Values | get "kafka.enabled" true }}
+    values:
+      - ./templates/kafka.yaml.gotmpl
+
+  - name: teraslice
+    namespace: ts-dev1
+    chart: ../../helm/teraslice
+    needs:
+      - services-dev1/{{ .Values | get "teraslice.stateCluster" "opensearch2" }}
+    values:
+      - ./templates/teraslice.yaml.gotmpl
+    labels:
+      app: teraslice

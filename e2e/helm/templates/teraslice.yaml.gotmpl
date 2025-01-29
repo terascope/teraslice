@@ -1,0 +1,79 @@
+replicaCount: 1
+
+image:
+    repository: {{ .Values | get "teraslice.image.repository" }}
+    tag: {{ .Values | get "teraslice.image.tag" }}
+
+service:
+    type: NodePort
+    nodePort: 30678
+    targetPort: 5678
+
+terafoundation:
+    environment: development
+    log_level: info
+    workers: 1
+    connectors:
+        elasticsearch-next:
+            # Set the first OS/ES that is enabled as our default
+            default:
+                node:
+                    {{- if eq (.Values | get "teraslice.stateCluster" "none") "opensearch2" }}
+                    - "http://opensearch2.services-dev1:9200"
+                    {{- else if eq (.Values | get "teraslice.stateCluster" "none") "opensearch1" }}
+                    - "http://opensearch1.services-dev1:9200"
+                    {{- else if eq (.Values | get "teraslice.stateCluster" "none") "elasticsearch6" }}
+                    - "http://elasticsearch6-master.services-dev1:9200"
+                    {{- else if eq (.Values | get "teraslice.stateCluster" "none") "elasticsearch7" }}
+                    - "http://elasticsearch7-master.services-dev1:9200"
+                    {{- end }}
+            {{- if eq (.Values | get "opensearch1.enabled" false) true }}
+            os1:
+                node:
+                     - "http://opensearch1.services-dev1:9200"
+            {{- end }}
+            {{- if eq (.Values | get "opensearch2.enabled" false) true }}
+            os2:
+                node:
+                    - "http://opensearch2.services-dev1:9200"
+            {{- end }}
+            {{- if eq (.Values | get "elasticsearch6.enabled" false) true }}
+            es6:
+                node:
+                    - "http://elasticsearch6-master.services-dev1:9200"
+            {{- end }}
+            {{- if eq (.Values | get "elasticsearch7.enabled" false) true }}
+            es7:
+                node:
+                    - "http://elasticsearch7-master.services-dev1:9200"
+            {{- end }}
+        {{- if eq (.Values | get "kafka.enabled" false) true }}
+        kafka:
+            default:
+                brokers:
+                - "kafka-cp-kafka.services-dev1:9092"
+        {{- end }}
+        {{- if eq (.Values | get "minio.enabled" false) true }}
+        s3:
+            default:
+                endpoint: "http://minio.services-dev1:9000"
+                accessKeyId: "minioadmin"
+                secretAccessKey: "minioadmin"
+                forcePathStyle: true
+                sslEnabled: false
+                region: "us-east-1"
+        {{- end }}
+
+master:
+    teraslice:
+        kubernetes_namespace: ts-dev1
+        cluster_manager_type: kubernetesV2
+        asset_storage_connection_type: elasticsearch-next
+        name: "ts-dev1"
+
+worker:
+    teraslice:
+        kubernetes_namespace: ts-dev1
+        cluster_manager_type: kubernetesV2
+        asset_storage_connection_type: elasticsearch-next
+        name: "ts-dev1"
