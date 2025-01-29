@@ -19,7 +19,9 @@ export function parseJSON<T = Record<string, unknown>>(buf: Buffer | string): T 
 
     try {
         // remove null unicode/hex code characters before parsing
-        return JSON.parse((buf as string).toString().replace(/\0/g, ''));
+        const removedNull = (buf as string).toString().replace(/\0/g, '');
+
+        return JSON.parse(removedNull);
     } catch (err: unknown) {
         throw new Error(`Failure to parse buffer, ${toString(err)}`);
     }
