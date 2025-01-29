@@ -71,7 +71,8 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
         KIND_CLUSTER: options.kindClusterName,
         TERASLICE_PORT: config.TERASLICE_PORT,
         TJM_TEST_MODE: suite !== 'e2e' ? 'true' : 'false',
-        NODE_OPTIONS: '--experimental-vm-modules'
+        NODE_OPTIONS: '--experimental-vm-modules',
+        USE_HELMFILE: options.useHelmfile ? 'true' : 'false'
     };
 
     if (config.DOCKER_NETWORK_NAME) {
@@ -138,7 +139,6 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
             DISABLE_SECURITY_PLUGIN: true,
             DISABLE_INSTALL_DEMO_CONFIG: true,
             SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
-
         });
     }
 

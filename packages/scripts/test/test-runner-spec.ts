@@ -22,7 +22,8 @@ describe('Test Runner Helpers', () => {
         ignoreMount: true,
         testPlatform: 'native',
         kindClusterName: 'default',
-        skipImageDeletion: false
+        skipImageDeletion: false,
+        useHelmfile: false
     };
 
     function makeTestOptions(input: Partial<TestOptions>): TestOptions {
