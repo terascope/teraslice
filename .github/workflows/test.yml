@@ -386,14 +386,14 @@ jobs:
 
       - name: Test CLI Commands
         run: |
-          kind version
-          kubectl version
-          helm version
-          helmfile version
           command -v kind
           command -v kubectl
           command -v helm
           command -v helmfile
+          kind version
+          kubectl version
+          helm version
+          helmfile version
 
       - name: Test k8s V2 elasticsearch7
         run: NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2Helmfile
