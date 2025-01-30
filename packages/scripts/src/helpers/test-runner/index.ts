@@ -205,25 +205,25 @@ async function runE2ETest(
     if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
         try {
             const kindInstalled = await isKindInstalled();
-            if (!kindInstalled && !isCI) {
+            if (!kindInstalled) {
                 signale.error('Please install Kind before running k8s tests. https://kind.sigs.k8s.io/docs/user/quick-start');
                 process.exit(1);
             }
 
             const kubectlInstalled = await isKubectlInstalled();
-            if (!kubectlInstalled && !isCI) {
+            if (!kubectlInstalled) {
                 signale.error('Please install kubectl before running k8s tests. https://kubernetes.io/docs/tasks/tools');
                 process.exit(1);
             }
 
             const helmInstalled = await isHelmInstalled();
-            if (!helmInstalled && !isCI) {
+            if (!helmInstalled) {
                 signale.error('Please install Helm before running k8s tests.https://helm.sh/docs/intro/install');
                 process.exit(1);
             }
 
             const helmfileInstalled = await isHelmfileInstalled();
-            if (!helmfileInstalled && !isCI) {
+            if (!helmfileInstalled) {
                 signale.error('Please install helmfile before running k8s tests. https://helmfile.readthedocs.io/en/latest/#installation');
                 process.exit(1);
             }
@@ -283,7 +283,10 @@ async function runE2ETest(
         try {
             await kind.loadTerasliceImage(e2eImage);
             if (options.useHelmfile) {
+                const timeLabel = 'helmfile deployment';
+                signale.time(timeLabel);
                 await launchE2EWithHelmfile();
+                signale.timeEnd(timeLabel);
             }
         } catch (err) {
             tracker.addError(err);
