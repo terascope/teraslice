@@ -384,6 +384,11 @@ jobs:
         with:
           install_only: "true"
 
+      - name: Install Helmfile
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          helmfile --version
+
       - name: Test CLI Commands
         run: |
           command -v kind
