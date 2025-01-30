@@ -205,25 +205,25 @@ async function runE2ETest(
     if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
         try {
             const kindInstalled = await isKindInstalled();
-            if (!kindInstalled) {
+            if (!kindInstalled && !isCI) {
                 signale.error('Please install Kind before running k8s tests. https://kind.sigs.k8s.io/docs/user/quick-start');
                 process.exit(1);
             }
 
             const kubectlInstalled = await isKubectlInstalled();
-            if (!kubectlInstalled) {
+            if (!kubectlInstalled && !isCI) {
                 signale.error('Please install kubectl before running k8s tests. https://kubernetes.io/docs/tasks/tools');
                 process.exit(1);
             }
 
             const helmInstalled = await isHelmInstalled();
-            if (!helmInstalled) {
+            if (!helmInstalled && !isCI) {
                 signale.error('Please install Helm before running k8s tests.https://helm.sh/docs/intro/install');
                 process.exit(1);
             }
 
             const helmfileInstalled = await isHelmfileInstalled();
-            if (!helmfileInstalled) {
+            if (!helmfileInstalled && !isCI) {
                 signale.error('Please install helmfile before running k8s tests. https://helmfile.readthedocs.io/en/latest/#installation');
                 process.exit(1);
             }
