@@ -393,8 +393,8 @@ jobs:
           chmod +x helmfile
           mv helmfile /usr/local/bin/helmfile
           helm plugin install https://github.com/databus23/helm-diff
-          helmfile --version
-          helm --version
+          helmfile version
+          helm version
 
       - name: Test CLI Commands
         run: |
