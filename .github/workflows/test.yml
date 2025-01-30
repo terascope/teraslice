@@ -386,7 +386,7 @@ jobs:
 
       - name: Install Helmfile
         run: |
-          uname -u
+          uname -m
           VERSION=$(curl -s https://api.github.com/repos/helmfile/helmfile/releases/latest | jq -r '.tag_name')
           VERSION_NO_V=${VERSION#v}
           curl -L "https://github.com/helmfile/helmfile/releases/download/${VERSION}/helmfile_${VERSION_NO_V}_linux_amd64.tar.gz" -o /usr/local/bin/helmfile
