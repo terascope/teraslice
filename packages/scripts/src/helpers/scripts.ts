@@ -805,12 +805,8 @@ export async function helmfileDiff() {
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
     const values = createValuesStringFromServicesArray();
 
-    try {
-        const subprocess = await execaCommand(`helmfile ${values} diff -f ${helmfilePath} --suppress-secrets`);
-        logger.debug('helmfile diff: ', subprocess.stdout);
-    } catch (err) {
-        logger.error(err);
-    }
+    const subprocess = await execaCommand(`helmfile ${values} diff -f ${helmfilePath} --suppress-secrets`);
+    logger.debug('helmfile diff: ', subprocess.stdout);
 }
 
 export async function helmfileSync() {
@@ -821,12 +817,8 @@ export async function helmfileSync() {
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
     const values = createValuesStringFromServicesArray();
 
-    try {
-        const subprocess = await execaCommand(`helmfile ${values} sync -f ${helmfilePath}`);
-        logger.debug('helmfile sync: ', subprocess.stdout);
-    } catch (err) {
-        logger.error(err);
-    }
+    const subprocess = await execaCommand(`helmfile ${values} sync -f ${helmfilePath}`);
+    logger.debug('helmfile sync: ', subprocess.stdout);
 }
 
 export async function launchE2EWithHelmfile() {
