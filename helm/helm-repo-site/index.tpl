@@ -169,7 +169,27 @@
         </ul>
       </p>
 
-      <p>Create a new file called <code>kindConfig.yaml</code> and paste the following code snippet in it and save. Then run:</p>
+      <p>Create a new file called <code>kindConfig.yaml</code> and paste the following code snippet in it and save.</p>
+
+      <pre class="snippet" lang="no-highlight" style="padding: 0;padding-left: 15px;">
+        <button class="btn" onclick="copyToClipboard(this)">
+          <img class="clippy" src="/teraslice/charts/_images/clippy.svg" alt="Copy to clipboard" width="13">
+        </button>
+<code id="helm-search-command">kind: Cluster
+name: k8s-env
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30678 # Map internal teraslice api service to host port
+    hostPort: 5678
+  - containerPort: 30921 # Map internal opensearch1 service to host port
+    hostPort: 9200
+</code>
+      </pre>
+
+    <p>Next run the kind command below to luanch a kind cluster.</p>
+
       <pre class="snippet" lang="no-highlight" style="padding: 0">
         <button class="btn" onclick="copyToClipboard(this)">
           <img class="clippy" src="/teraslice/charts/_images/clippy.svg" alt="Copy to clipboard" width="13">
