@@ -264,7 +264,7 @@ releases:
           <div class="chart">
             <a href="{{ (index (index $chartEntry 0).Urls 0) }}" title="{{ (index (index $chartEntry 0).Urls 0) }}">
               <div class="icon">
-                <img class="chart-item-logo" alt="{{ $key }}'s logo" src="{{ if eq (index $chartEntry 0).Name "teraslice" }}/teraslice/img/logo.png{{ else }}/teraslice/charts/_images/{{ (index $chartEntry 0).Name }}.png{{ end }}">
+                <img class="chart-item-logo" alt="{{ $key }}'s logo" src="{{ if eq (index $chartEntry 0).Name "teraslice-chart" }}/teraslice/img/logo.png{{ else }}/teraslice/charts/_images/{{ (index $chartEntry 0).Name }}.png{{ end }}">
               </div>
               <div class="body">
                 <p class="info">
