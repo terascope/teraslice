@@ -386,7 +386,9 @@ jobs:
 
       - name: Install Helmfile
         run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          VERSION=$(curl -s https://api.github.com/repos/helmfile/helmfile/releases/latest | jq -r '.tag_name')
+          curl -L "https://github.com/helmfile/helmfile/releases/download/${VERSION}/helmfile_${VERSION}_linux_amd64" -o /usr/local/bin/helmfile
+          chmod +x /usr/local/bin/helmfile
           helmfile --version
 
       - name: Test CLI Commands
