@@ -26,7 +26,7 @@
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
         "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
         "test:opensearch1": "TEST_OPENSEARCH='true' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
-        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
         "test:watch": "ts-scripts yarn workspace @terascope/scripts test --watch ../elasticsearch-store --"
     },
     "dependencies": {

@@ -7,7 +7,7 @@ singleNode: false
 {{- end }}
 
 image:
-    tag: {{ .Values | get "opensearch1.version" "1.3.14" }}
+    tag: {{ .Values | get "opensearch1.version" "1.3.11" }}
 
 service:
     type: NodePort
