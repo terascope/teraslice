@@ -99,6 +99,11 @@ module.exports = {
                     position: 'left'
                 },
                 {
+                    href: 'https://terascope.github.io/teraslice/charts',
+                    label: 'Chart',
+                    position: 'left'
+                },
+                {
                     to: '/help',
                     label: 'Help',
                     position: 'left'
