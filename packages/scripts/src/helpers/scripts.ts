@@ -827,7 +827,7 @@ export async function launchE2EWithHelmfile() {
 }
 
 function createValuesStringFromServicesArray() {
-    const values = ENV_SERVICES.reduce((valuesString, service) => {
+    let values = ENV_SERVICES.reduce((valuesString, service) => {
         let serviceString = service.toString();
         let version;
         let stateCluster;
@@ -864,6 +864,7 @@ function createValuesStringFromServicesArray() {
         return newValuesString;
     }, '');
 
+    values += ` --state-values-set teraslice.image.tag=e2e-nodev${config.NODE_VERSION}`;
     logger.debug('helmfile command values: ', values);
     return values;
 }
