@@ -10,9 +10,9 @@ import { ensureServices, loadOrPullServiceImages } from './services.js';
 import { PackageInfo } from '../interfaces.js';
 import { TestOptions } from './interfaces.js';
 import {
-    runJest, dockerTag, isKindInstalled,
-    isKubectlInstalled, loadThenDeleteImageFromCache,
-    deleteDockerImageCache
+    runJest, dockerTag, isKindInstalled, isKubectlInstalled,
+    loadThenDeleteImageFromCache, deleteDockerImageCache,
+    isHelmInstalled, isHelmfileInstalled, launchE2EWithHelmfile
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
@@ -212,7 +212,19 @@ async function runE2ETest(
 
             const kubectlInstalled = await isKubectlInstalled();
             if (!kubectlInstalled && !isCI) {
-                signale.error('Please install kubectl before running k8s tests. https://kubernetes.io/docs/tasks/tools/');
+                signale.error('Please install kubectl before running k8s tests. https://kubernetes.io/docs/tasks/tools');
+                process.exit(1);
+            }
+
+            const helmInstalled = await isHelmInstalled();
+            if (!helmInstalled && !isCI) {
+                signale.error('Please install Helm before running k8s tests.https://helm.sh/docs/intro/install');
+                process.exit(1);
+            }
+
+            const helmfileInstalled = await isHelmfileInstalled();
+            if (!helmfileInstalled && !isCI) {
+                signale.error('Please install helmfile before running k8s tests. https://helmfile.readthedocs.io/en/latest/#installation');
                 process.exit(1);
             }
 
@@ -227,8 +239,10 @@ async function runE2ETest(
                 await kind.destroyCluster();
                 process.exit(1);
             }
-            const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
-            await k8s.createNamespace('services-ns.yaml', 'services');
+            if (!options.useHelmfile) {
+                const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
+                await k8s.createNamespace('services-ns.yaml', 'services');
+            }
         } catch (err) {
             tracker.addError(err);
         }
@@ -268,18 +282,26 @@ async function runE2ETest(
     if (kind && (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2')) {
         try {
             await kind.loadTerasliceImage(e2eImage);
+            if (options.useHelmfile) {
+                const timeLabel = 'helmfile deployment';
+                signale.time(timeLabel);
+                await launchE2EWithHelmfile();
+                signale.timeEnd(timeLabel);
+            }
         } catch (err) {
             tracker.addError(err);
         }
     }
 
-    try {
-        tracker.addCleanup(
-            'e2e:services',
-            await ensureServices(suite, options)
-        );
-    } catch (err) {
-        tracker.addError(err);
+    if (!options.useHelmfile) {
+        try {
+            tracker.addCleanup(
+                'e2e:services',
+                await ensureServices(suite, options)
+            );
+        } catch (err) {
+            tracker.addError(err);
+        }
     }
 
     if (!options.skipImageDeletion) {

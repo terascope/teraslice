@@ -107,7 +107,8 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         useExistingServices: false,
         ignoreMount: false,
         testPlatform: options.clusteringType,
-        skipImageDeletion: false
+        skipImageDeletion: false,
+        useHelmfile: false
     });
 
     try {

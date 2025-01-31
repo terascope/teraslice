@@ -1,0 +1,39 @@
+replicas: {{ .Values | get "opensearch2.instances" 1 }}
+
+{{- if eq (.Values | get "opensearch2.instances" 1) 1 }}
+singleNode: true
+{{- else }}
+singleNode: false
+{{- end }}
+
+image:
+    tag: {{ .Values | get "opensearch2.version" "2.15.0" }}
+
+service:
+    type: NodePort
+    port: 9200
+    nodePort: 30210
+
+config:
+    opensearch.yml:
+        {{- if eq (.Values | get "opensearch2.instances" 1) 1 }}
+        discovery.type: single-node
+        {{- end }}
+
+extraEnvs:
+    - name: DISABLE_SECURITY_PLUGIN
+      value: "true"
+
+clusterName: opensearch2-cluster
+
+masterService: "opensearch2"
+
+opensearchJavaOpts: {{ .Values | get "opensearch2.esJavaOpts" "-Xmx512M -Xms512M" }}
+
+resources:
+    requests:
+        cpu: "1000m"
+        memory: {{ .Values | get "opensearch2.memoryLimit" "100Mi" }}
+
+persistence:
+    size: {{ .Values | get "opensearch2.persistentVolumeSize" "8Gi" }}

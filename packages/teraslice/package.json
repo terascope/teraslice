@@ -30,7 +30,7 @@
         "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' yarn workspace @terascope/scripts ts-scripts test ../teraslice --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' yarn workspace @terascope/scripts ts-scripts test ../teraslice --",
         "test:opensearch1": "TEST_OPENSEARCH='true' yarn workspace @terascope/scripts ts-scripts test ../teraslice --",
-        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' yarn workspace @terascope/scripts ts-scripts test ../teraslice --",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' yarn workspace @terascope/scripts ts-scripts test ../teraslice --",
         "test:watch": "TEST_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test --watch ../teraslice --"
     },
     "resolutions": {

@@ -70,6 +70,9 @@ spec:
               mountPath: /app/config
             - name: teraslice-assets
               mountPath: /app/assets
+            - name: autoload
+              mountPath: /app/autoload
+              readOnly: true
             {{- range .Values.dataVolumes }}
             - name: {{ .name }}
               mountPath: {{ .path }}
@@ -122,6 +125,10 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        - name: autoload
+          hostPath:
+            path: /autoload
+            type: Directory
         {{- range .Values.dataVolumes }}
         - name: {{ .name }}
           persistentVolumeClaim:

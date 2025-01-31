@@ -17,6 +17,7 @@ export type TestOptions = {
     testPlatform: 'native' | 'kubernetes' | 'kubernetesV2';
     kindClusterName: string;
     skipImageDeletion: boolean;
+    useHelmfile: boolean;
 };
 
 export type GroupedPackages = {

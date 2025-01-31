@@ -13,9 +13,10 @@ import { TSCommands, PackageInfo } from './interfaces.js';
 import { getRootDir } from './misc.js';
 import signale from './signale.js';
 import * as config from './config.js';
-import { getE2eK8sDir } from '../helpers/packages.js';
+import { getE2EDir, getE2eK8sDir } from '../helpers/packages.js';
 import { YamlDeploymentResource, YamlServiceResource } from './k8s-env/interfaces.js';
 import { Kind } from './kind.js';
+import { ENV_SERVICES } from './config.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -625,6 +626,24 @@ export async function isKubectlInstalled(): Promise<boolean> {
     }
 }
 
+export async function isHelmInstalled(): Promise<boolean> {
+    try {
+        const subprocess = await execaCommand('command -v helm');
+        return !!subprocess.stdout;
+    } catch (err) {
+        return false;
+    }
+}
+
+export async function isHelmfileInstalled(): Promise<boolean> {
+    try {
+        const subprocess = await execaCommand('command -v helmfile');
+        return !!subprocess.stdout;
+    } catch (err) {
+        return false;
+    }
+}
+
 export async function k8sStopService(serviceName: string): Promise<void> {
     const e2eK8sDir = getE2eK8sDir();
     if (!e2eK8sDir) {
@@ -730,7 +749,7 @@ export async function showState(tsPort: string) {
 }
 
 async function showESIndices() {
-    const subprocess = await execaCommand(`curl ${config.HOST_IP}:${config.ELASTICSEARCH_PORT}/_cat/indices?v`);
+    const subprocess = await execaCommand(`curl ${config.SEARCH_TEST_HOST}/_cat/indices?v`);
     return subprocess.stdout;
 }
 
@@ -761,4 +780,91 @@ export async function logTCPPorts() {
     } catch (err) {
         signale.error('Execa command failed trying to log ports: ', err);
     }
+}
+
+export async function helmfileDelete(selector: string) {
+    const e2eDir = getE2EDir();
+    if (!e2eDir) {
+        throw new Error('Missing e2e test directory');
+    }
+    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
+
+    try {
+        const subprocess = await execaCommand(`helmfile delete -f ${helmfilePath} --selector app=${selector}`);
+        logger.debug('helmfile delete: ', subprocess.stdout);
+    } catch (err) {
+        logger.info(err);
+    }
+}
+
+export async function helmfileDiff() {
+    const e2eDir = getE2EDir();
+    if (!e2eDir) {
+        throw new Error('Missing e2e test directory');
+    }
+    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
+    const values = createValuesStringFromServicesArray();
+
+    const subprocess = await execaCommand(`helmfile ${values} diff -f ${helmfilePath} --suppress-secrets`);
+    logger.debug('helmfile diff: ', subprocess.stdout);
+}
+
+export async function helmfileSync() {
+    const e2eDir = getE2EDir();
+    if (!e2eDir) {
+        throw new Error('Missing e2e test directory');
+    }
+    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
+    const values = createValuesStringFromServicesArray();
+
+    const subprocess = await execaCommand(`helmfile ${values} sync -f ${helmfilePath}`);
+    logger.debug('helmfile sync: ', subprocess.stdout);
+}
+
+export async function launchE2EWithHelmfile() {
+    await helmfileDiff();
+    await helmfileSync();
+}
+
+function createValuesStringFromServicesArray() {
+    let values = ENV_SERVICES.reduce((valuesString, service) => {
+        let serviceString = service.toString();
+        let version;
+        let stateCluster;
+        let newValuesString;
+
+        // Setting the stateCluster will only work properly if there is a single ES/OS service
+        // If we need multiple in the future we need to modify this.
+        if (service === 'opensearch') {
+            serviceString += config.OPENSEARCH_VERSION.charAt(0);
+            version = config.OPENSEARCH_VERSION;
+            stateCluster = serviceString;
+        }
+        if (service === 'elasticsearch') {
+            serviceString += config.ELASTICSEARCH_VERSION.charAt(0);
+            version = config.ELASTICSEARCH_VERSION;
+            stateCluster = serviceString;
+        }
+        if (service === 'kafka') {
+            version = config.KAFKA_IMAGE_VERSION;
+        }
+        if (service === 'zookeeper') {
+            version = config.ZOOKEEPER_VERSION;
+        }
+        if (service === 'minio') {
+            version = config.MINIO_VERSION;
+        }
+
+        newValuesString = `${valuesString} --state-values-set ${serviceString}.enabled=true --state-values-set ${serviceString}.version=${version}`;
+
+        if (stateCluster) {
+            newValuesString += ` --state-values-set teraslice.stateCluster=${stateCluster}`;
+        }
+
+        return newValuesString;
+    }, '');
+
+    values += ` --state-values-set teraslice.image.tag=e2e-nodev${config.NODE_VERSION}`;
+    logger.debug('helmfile command values: ', values);
+    return values;
 }

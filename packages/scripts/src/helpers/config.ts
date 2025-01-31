@@ -19,9 +19,9 @@ export const __DEFAULT_ELASTICSEARCH6_VERSION = '6.8.6';
 /** Default elasticsearch7 version used to populate the CI cache */
 export const __DEFAULT_ELASTICSEARCH7_VERSION = '7.9.3';
 /** Default opensearch1 version used to populate the CI cache */
-export const __DEFAULT_OPENSEARCH1_VERSION = '1.3.10';
+export const __DEFAULT_OPENSEARCH1_VERSION = '1.3.11';
 /** Default opensearch2 version used to populate the CI cache */
-export const __DEFAULT_OPENSEARCH2_VERSION = '2.8.0';
+export const __DEFAULT_OPENSEARCH2_VERSION = '2.15.0';
 
 export const TERASLICE_PORT = '45678';
 export const HOST_IP = process.env.HOST_IP || address();
@@ -46,7 +46,7 @@ export const KAFKA_NAME = process.env.KAFKA_NAME || 'kafka';
 export const KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || HOST_IP;
 export const KAFKA_PORT = process.env.KAFKA_PORT || '49092';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
-export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.5';
+export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.7';
 // Use kafkaVersionMapper to determine confluentinc/cp-kafka image version from KAFKA_VERSION
 export const KAFKA_IMAGE_VERSION = kafkaVersionMapper(KAFKA_VERSION);
 export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'confluentinc/cp-kafka';
@@ -207,3 +207,4 @@ export const DOCKER_IMAGES_PATH = './images';
 export const DOCKER_IMAGE_LIST_PATH = `${DOCKER_IMAGES_PATH}/image-list.txt`;
 export const DOCKER_CACHE_PATH = '/tmp/docker_cache';
 export const SKIP_IMAGE_DELETION = toBoolean(process.env.SKIP_IMAGE_DELETION) || false;
+export const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;

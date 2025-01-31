@@ -54,7 +54,7 @@ export class Kind {
                 configFile.nodes[0].extraMounts.push(...dockerFileMounts);
             }
         }
-        configFile.nodes[0].extraPortMappings[1].hostPort = Number.parseInt(teraslicePort, 10);
+        configFile.nodes[0].extraPortMappings[0].hostPort = Number.parseInt(teraslicePort, 10);
         const updatedYaml = yaml.dump(configFile);
 
         const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));

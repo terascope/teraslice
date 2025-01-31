@@ -111,7 +111,8 @@ describe('services', () => {
         ignoreMount: false,
         testPlatform: 'native',
         kindClusterName: 'default',
-        skipImageDeletion: false
+        skipImageDeletion: false,
+        useHelmfile: false
     };
     let services: any;
 

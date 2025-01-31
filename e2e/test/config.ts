@@ -2,6 +2,7 @@ import { ElasticsearchTestHelpers } from 'elasticsearch-store';
 import { customAlphabet } from 'nanoid';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { toBoolean } from '@terascope/utils';
 
 const {
     TEST_INDEX_PREFIX,
@@ -60,6 +61,7 @@ const {
 } = process.env;
 
 const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
+const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
 
 function newId(prefix?: string, lowerCase = false, length = 15) {
     let characters = '0123456789abcdefghijklmnopqrstuvwxyz';
@@ -112,5 +114,6 @@ export {
     MINIO_SECRET_KEY,
     ENCRYPT_MINIO,
     ROOT_CERT_PATH,
-    TEST_OPENSEARCH
+    TEST_OPENSEARCH,
+    USE_HELMFILE
 };
