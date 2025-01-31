@@ -188,7 +188,7 @@ nodes:
 </code>
       </pre>
 
-    <p>Next run the kind command below to luanch a kind cluster.</p>
+    <p>Next run the kind command below to launch a kind cluster.</p>
 
       <pre class="snippet" lang="no-highlight" style="padding: 0">
         <button class="btn" onclick="copyToClipboard(this)">
