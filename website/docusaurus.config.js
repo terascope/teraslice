@@ -137,6 +137,10 @@ module.exports = {
                             label: 'Github',
                             to: 'https://github.com/terascope/teraslice',
                         },
+                        {
+                            to: 'https://terascope.github.io/teraslice/charts',
+                            label: 'Chart'
+                        },
                     ],
                 },
             ],
