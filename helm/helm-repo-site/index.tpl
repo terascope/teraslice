@@ -4,6 +4,7 @@
     <title>Helm Charts</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="/teraslice/img/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css" />
     <style>
       .markdown-body {
@@ -168,7 +169,27 @@
         </ul>
       </p>
 
-      <p>Create a new file called <code>kindConfig.yaml</code> and paste the following code snippet in it and save. Then run:</p>
+      <p>Create a new file called <code>kindConfig.yaml</code> and paste the following code snippet in it and save.</p>
+
+      <pre class="snippet" lang="no-highlight" style="padding: 0;padding-left: 15px;">
+        <button class="btn" onclick="copyToClipboard(this)">
+          <img class="clippy" src="/teraslice/charts/_images/clippy.svg" alt="Copy to clipboard" width="13">
+        </button>
+<code id="helm-search-command">kind: Cluster
+name: k8s-env
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30678 # Map internal teraslice api service to host port
+    hostPort: 5678
+  - containerPort: 30921 # Map internal opensearch1 service to host port
+    hostPort: 9200
+</code>
+      </pre>
+
+    <p>Next run the kind command below to launch a kind cluster.</p>
+
       <pre class="snippet" lang="no-highlight" style="padding: 0">
         <button class="btn" onclick="copyToClipboard(this)">
           <img class="clippy" src="/teraslice/charts/_images/clippy.svg" alt="Copy to clipboard" width="13">
@@ -221,7 +242,7 @@ releases:
 
   - name: teraslice
     namespace: ts-dev1
-    version: {{ (index (index .Entries "teraslice") 0).Version }}
+    version: {{ (index (index .Entries "teraslice-chart") 0).Version }}
     chart: terascope/teraslice-chart
     needs:
       - ts-dev1/opensearch1
@@ -261,9 +282,9 @@ releases:
 			{{range $key, $chartEntry := .Entries }}
         {{ if not (index $chartEntry 0).Deprecated }}
           <div class="chart">
-            <a href="{{ (index (index $chartEntry 0).Urls 0) }}" title="{{ (index (index $chartEntry 0).Urls 0) }}">
+            <a href="https://github.com/terascope/teraslice/pkgs/container/{{ $key }}" title="{{ (index (index $chartEntry 0).Urls 0) }}">
               <div class="icon">
-                <img class="chart-item-logo" alt="{{ $key }}'s logo" src="{{ if eq (index $chartEntry 0).Name "teraslice" }}/teraslice/img/logo.png{{ else }}/teraslice/charts/_images/{{ (index $chartEntry 0).Name }}.png{{ end }}">
+                <img class="chart-item-logo" alt="{{ $key }}'s logo" src="{{ if eq (index $chartEntry 0).Name "teraslice-chart" }}/teraslice/img/logo.png{{ else }}/teraslice/charts/_images/{{ (index $chartEntry 0).Name }}.png{{ end }}">
               </div>
               <div class="body">
                 <p class="info">
