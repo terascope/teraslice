@@ -13,6 +13,7 @@ import {
 } from './utils.js';
 import signale from '../signale.js';
 import { syncVersions } from '../sync/utils.js';
+import { setup } from '../scripts.js';
 
 export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean): Promise<void> {
     const rootInfo = getRootInfo();
@@ -43,6 +44,8 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
 
     await updatePkgJSON(rootInfo);
 
+    await setup();
+
     signale.success(`
 
 Please commit these changes:
@@ -62,6 +65,8 @@ export async function bumpAssetOnly(
     const packages: PackageInfo[] = [..._packages, rootInfo as any];
     const bumpAssetInfo = await bumpAssetVersion(packages, options, isAsset);
     const commitMsgs = getBumpCommitMessages(bumpAssetInfo, options.release);
+
+    await setup();
 
     for (const pkgInfo of packages) {
         await updatePkgJSON(pkgInfo);
