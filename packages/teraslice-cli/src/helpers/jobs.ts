@@ -822,11 +822,9 @@ export default class Jobs {
 
         reply.yellow(`Saving jobFile(s) for ${jobIds.join(', ')} on ${this.config.args.clusterAlias}`);
 
-        await pMap(
-            this.jobs,
-            (job) => this.exportOne(job.config),
-            { concurrency: 1 }
-        );
+        for (const job of this.jobs) {
+            await this.exportOne(job.config);
+        }
 
         reply.green(`Saved jobFile(s) to ${this.config.outdir}`);
     }
