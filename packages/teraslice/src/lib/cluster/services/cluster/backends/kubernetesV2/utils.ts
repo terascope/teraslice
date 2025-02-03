@@ -10,7 +10,7 @@ const MAX_RETRIES = isTest ? 2 : 3;
 const RETRY_DELAY = isTest ? 50 : 1000; // time in ms
 const resourcePath = path.join(process.cwd(), './packages/teraslice/src/lib/cluster/services/cluster/backends/kubernetesV2/');
 
-export function makeTemplate<T = k8s.V1Deployment | k8s.V1Job | k8s.V1Service >(
+export function makeTemplate<T = k8s.V1Deployment | k8s.V1Job | k8s.V1Service>(
     folder: 'deployments' | 'jobs' | 'services',
     fileName: i.NodeType
 ): (config: i.K8sConfig) => T {
