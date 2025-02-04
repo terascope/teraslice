@@ -66,8 +66,6 @@ export async function bumpAssetOnly(
     const bumpAssetInfo = await bumpAssetVersion(packages, options, isAsset);
     const commitMsgs = getBumpCommitMessages(bumpAssetInfo, options.release);
 
-    await setup();
-
     for (const pkgInfo of packages) {
         await updatePkgJSON(pkgInfo);
     }
