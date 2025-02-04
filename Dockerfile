@@ -2,10 +2,7 @@
 # be used if you build images by default with docker build
 ARG NODE_VERSION=22
 
-# Pinning node-base image for testing purposes
-# Revert this change when testing is complete
-FROM ghcr.io/terascope/node-base:22.9.0
-# FROM ghcr.io/terascope/node-base:${NODE_VERSION}
+FROM ghcr.io/terascope/node-base:${NODE_VERSION}
 
 ARG TERASLICE_VERSION
 ARG BUILD_TIMESTAMP
