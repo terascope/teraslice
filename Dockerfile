@@ -1,7 +1,11 @@
 # NODE_VERSION is set by default in the config.ts, the following value will only
 # be used if you build images by default with docker build
 ARG NODE_VERSION=22
-FROM ghcr.io/terascope/node-base:${NODE_VERSION}
+
+# Pinning node-base image for testing purposes
+# Revert this change when testing is complete
+FROM ghcr.io/terascope/node-base:22.9.0
+# FROM ghcr.io/terascope/node-base:${NODE_VERSION}
 
 ARG TERASLICE_VERSION
 ARG BUILD_TIMESTAMP
