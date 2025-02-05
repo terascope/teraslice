@@ -3014,7 +3014,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/teraslice-messaging@npm:~1.10.3, @terascope/teraslice-messaging@workspace:packages/teraslice-messaging":
+"@terascope/teraslice-messaging@npm:~1.10.4, @terascope/teraslice-messaging@workspace:packages/teraslice-messaging":
   version: 0.0.0-use.local
   resolution: "@terascope/teraslice-messaging@workspace:packages/teraslice-messaging"
   dependencies:
@@ -13397,7 +13397,7 @@ __metadata:
     "@kubernetes/client-node": "npm:~0.22.3"
     "@terascope/elasticsearch-api": "npm:~4.8.1"
     "@terascope/job-components": "npm:~1.9.3"
-    "@terascope/teraslice-messaging": "npm:~1.10.3"
+    "@terascope/teraslice-messaging": "npm:~1.10.4"
     "@terascope/types": "npm:~1.4.1"
     "@terascope/utils": "npm:~1.7.3"
     "@types/archiver": "npm:~6.0.3"

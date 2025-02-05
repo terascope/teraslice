@@ -41,7 +41,7 @@
         "@kubernetes/client-node": "~0.22.3",
         "@terascope/elasticsearch-api": "~4.8.1",
         "@terascope/job-components": "~1.9.3",
-        "@terascope/teraslice-messaging": "~1.10.3",
+        "@terascope/teraslice-messaging": "~1.10.4",
         "@terascope/types": "~1.4.1",
         "@terascope/utils": "~1.7.3",
         "async-mutex": "~0.5.0",
