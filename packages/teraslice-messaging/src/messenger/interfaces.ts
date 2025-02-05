@@ -57,7 +57,7 @@ export interface SendOptions {
     volatile?: boolean;
     response?: boolean;
     timeout?: number;
-    signal?: AbortSignal;
+    sendAbortSignal?: boolean;
 }
 
 export interface ConnectedClient {

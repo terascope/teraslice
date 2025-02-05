@@ -43,19 +43,36 @@ export class Core extends EventEmitter {
 
     protected async handleSendResponse(
         sent: i.Message,
-        signal?: AbortSignal
+        sendAbortSignal = false
     ): Promise<i.Message | null> {
         if (!sent.response) return null;
 
         const remaining = sent.respondBy - Date.now();
-        const response = await this.onceWithTimeout(sent.id, remaining, signal);
+        let response;
+        if (sendAbortSignal) {
+            const abortController = new AbortController();
+            const abortFn = () => {
+                // this will send an abort signal to the onceWithTimeout pEvent
+                // allowing the worker to shutdown without receiving a response to
+                // the message
+                this.logger.info(`Aborting the awaiting of a response to ${sent.eventName}`);
+                abortController.abort();
+            };
+            this.addListener('server:shutdown', abortFn);
 
-        // server shutdown
-        if (signal?.aborted) {
-            const msg = sent.eventName === 'worker:slice:complete'
-                ? `Execution controller shutdown before receiving worker slice analytics. Event: "${sent.eventName}"`
-                : `Execution controller shutdown before receiving "${sent.eventName}" event`;
-            throw new TSError(msg, { retryable: false });
+            response = await this.onceWithTimeout(sent.id, remaining, abortController.signal);
+
+            // server shutdown
+            if (abortController.signal.aborted) {
+                const msg = sent.eventName === 'worker:slice:complete'
+                    ? `Execution controller shutdown before receiving worker slice analytics. Event: "${sent.eventName}"`
+                    : `Execution controller shutdown before receiving "${sent.eventName}" event`;
+                throw new TSError(msg, { retryable: false });
+            }
+
+            this.removeListener('server:shutdown', abortFn);
+        } else {
+            response = await this.onceWithTimeout(sent.id, remaining);
         }
 
         // it is a timeout
