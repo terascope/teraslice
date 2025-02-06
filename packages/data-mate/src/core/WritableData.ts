@@ -39,7 +39,7 @@ export class WritableData<T> {
         }
 
         this._values = Values
-            ? new (SparseMap as any)(
+            ? new SparseMap(
                 Values, size
             )
             : new SparseMap(size);
