@@ -13,6 +13,7 @@ import {
 } from './utils.js';
 import signale from '../signale.js';
 import { syncVersions } from '../sync/utils.js';
+import { setup } from '../scripts.js';
 
 export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean): Promise<void> {
     const rootInfo = getRootInfo();
@@ -42,6 +43,8 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
     }
 
     await updatePkgJSON(rootInfo);
+
+    await setup();
 
     signale.success(`
 
