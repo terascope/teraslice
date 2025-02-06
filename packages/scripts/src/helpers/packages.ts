@@ -7,8 +7,7 @@ import {
     uniq, fastCloneDeep, get, trim
 } from '@terascope/utils';
 import toposort from 'toposort';
-// import MultiMap from 'mnemonist/multi-map'
-import mem from 'mnemonist';
+import { MultiMap } from 'mnemonist';
 
 import packageJson, { PackageNotFoundError, VersionNotFoundError } from 'package-json';
 import sortPackageJson from 'sort-package-json';
@@ -17,8 +16,6 @@ import {
     writeIfChanged
 } from './misc.js';
 import * as i from './interfaces.js';
-
-const { MultiMap } = mem;
 
 let _packages: i.PackageInfo[] = [];
 let _e2eDir: string | undefined;
