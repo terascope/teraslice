@@ -232,7 +232,7 @@ export class IndexStore<T extends Record<string, any>> {
     async countRequest(params: ClientParams.CountParams): Promise<number> {
         return pRetry(async () => {
             const { count } = await this.client.count(
-                this.getDefaultParams< ClientParams.CountParams>(
+                this.getDefaultParams<ClientParams.CountParams>(
                     this.searchIndex,
                     params
                 )
@@ -371,7 +371,7 @@ export class IndexStore<T extends Record<string, any>> {
         body: ESTypes.MGetBody,
         params?: PartialParam<ClientParams.MGetParams>
     ): Promise<T[]> {
-        const p = this.getDefaultParams < ClientParams.MGetParams>(
+        const p = this.getDefaultParams <ClientParams.MGetParams>(
             this.writeIndex, params, { body }
         );
 

@@ -545,7 +545,7 @@ export class Client {
             */
             async putMapping(
                 params: ClientParams.IndicesPutMappingParams
-            ): Promise< ClientResponse.IndicesPutMappingResponse> {
+            ): Promise<ClientResponse.IndicesPutMappingResponse> {
                 const parsedParams = methods.convertIndicesPutMappingParams(
                     params as ClientParams.IndicesPutMappingParams,
                     distributionMeta
