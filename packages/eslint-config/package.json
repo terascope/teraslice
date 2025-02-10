@@ -1,7 +1,7 @@
 {
     "name": "@terascope/eslint-config",
     "displayName": "Terascope ESLint Config",
-    "version": "1.1.5",
+    "version": "1.1.6",
     "description": "A shared eslint config based on eslint-config-airbnb",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/eslint-config#readme",
     "bugs": {
@@ -19,12 +19,12 @@
     },
     "dependencies": {
         "@eslint/compat": "~1.2.6",
-        "@eslint/js": "~9.19.0",
-        "@stylistic/eslint-plugin": "~3.0.1",
+        "@eslint/js": "~9.20.0",
+        "@stylistic/eslint-plugin": "~3.1.0",
         "@types/eslint__js": "~8.42.3",
-        "@typescript-eslint/eslint-plugin": "~8.22.0",
-        "@typescript-eslint/parser": "~8.22.0",
-        "eslint": "~9.19.0",
+        "@typescript-eslint/eslint-plugin": "~8.23.0",
+        "@typescript-eslint/parser": "~8.23.0",
+        "eslint": "~9.20.0",
         "eslint-plugin-import": "~2.31.0",
         "eslint-plugin-jest": "~28.11.0",
         "eslint-plugin-jest-dom": "~5.5.0",
@@ -34,7 +34,7 @@
         "eslint-plugin-testing-library": "~7.1.1",
         "globals": "~15.14.0",
         "typescript": "~5.7.3",
-        "typescript-eslint": "~8.22.0"
+        "typescript-eslint": "~8.23.0"
     },
     "engines": {
         "node": ">=18.18.0",
