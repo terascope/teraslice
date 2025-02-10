@@ -1,5 +1,5 @@
 import { TypedArray } from '@terascope/types';
-import dataStructurePkg from 'mnemonist';
+import { LRUMap } from 'mnemonist';
 import { BigMap } from './big-map.js';
 
 /**
@@ -13,7 +13,7 @@ export class FlexibleArray {
     }
 }
 
-export class BigLRUMap<V> extends dataStructurePkg.LRUMap<string | number, V> {
+export class BigLRUMap<V> extends LRUMap<string | number, V> {
     constructor(
         mapSize: number,
         keyArray: FlexibleArray | TypedArray = FlexibleArray,
