@@ -2960,7 +2960,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/job-components@npm:~1.9.3, @terascope/job-components@workspace:packages/job-components":
+"@terascope/job-components@npm:~1.9.4, @terascope/job-components@workspace:packages/job-components":
   version: 0.0.0-use.local
   resolution: "@terascope/job-components@workspace:packages/job-components"
   dependencies:
@@ -2980,7 +2980,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/scripts@npm:~1.10.1, @terascope/scripts@workspace:packages/scripts":
+"@terascope/scripts@npm:~1.10.2, @terascope/scripts@workspace:packages/scripts":
   version: 0.0.0-use.local
   resolution: "@terascope/scripts@workspace:packages/scripts"
   dependencies:
@@ -6386,7 +6386,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "e2e@workspace:e2e"
   dependencies:
-    "@terascope/scripts": "npm:~1.10.1"
+    "@terascope/scripts": "npm:~1.10.2"
     "@terascope/types": "npm:~1.4.1"
     "@terascope/utils": "npm:~1.7.3"
     bunyan: "npm:~1.8.15"
@@ -13372,11 +13372,11 @@ __metadata:
   resolution: "teraslice-test-harness@workspace:packages/teraslice-test-harness"
   dependencies:
     "@terascope/fetch-github-release": "npm:~2.0.0"
-    "@terascope/job-components": "npm:~1.9.3"
+    "@terascope/job-components": "npm:~1.9.4"
     decompress: "npm:~4.2.1"
     fs-extra: "npm:~11.3.0"
   peerDependencies:
-    "@terascope/job-components": ">=1.9.3"
+    "@terascope/job-components": ">=1.9.4"
   languageName: unknown
   linkType: soft
 
@@ -13387,7 +13387,7 @@ __metadata:
     "@eslint/js": "npm:~9.20.0"
     "@swc/core": "npm:1.10.15"
     "@swc/jest": "npm:~0.2.37"
-    "@terascope/scripts": "npm:~1.10.1"
+    "@terascope/scripts": "npm:~1.10.2"
     "@types/bluebird": "npm:~3.5.42"
     "@types/convict": "npm:~6.1.6"
     "@types/elasticsearch": "npm:~5.0.43"
@@ -13412,7 +13412,7 @@ __metadata:
   dependencies:
     "@kubernetes/client-node": "npm:~0.22.3"
     "@terascope/elasticsearch-api": "npm:~4.8.1"
-    "@terascope/job-components": "npm:~1.9.3"
+    "@terascope/job-components": "npm:~1.9.4"
     "@terascope/teraslice-messaging": "npm:~1.10.4"
     "@terascope/types": "npm:~1.4.1"
     "@terascope/utils": "npm:~1.7.3"
