@@ -4,6 +4,13 @@ on:
   schedule:
     - cron: '0 12 * * 1-5' # Monday - Friday at 5am Arizona Time
   workflow_dispatch:
+    inputs:
+      reason:
+        required: false
+        default: "Manually triggered"
+
+run-name: Daily Docker Cache - ${{ inputs.reason || 'Scheduled Weekly Run' }}
+  
 
 jobs:
   call-refresh-docker-cache-workflow:
