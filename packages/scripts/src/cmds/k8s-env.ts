@@ -18,6 +18,11 @@ const cmd: CommandModule = {
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --rebuild --reset-store', 'Rebuild and also clear the elasticsearch store.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --rebuild --skip-build', 'Restart teraslice without rebuilding docker image.')
             .example('$0 k8s-env --rebuild', 'Rebuild teraslice and redeploy to k8s cluster. ES store data is retained.')
+            .option('encrypt-kafka', {
+                description: 'Add TLS encryption to kafka service',
+                type: 'boolean',
+                default: config.ENCRYPT_KAFKA,
+            })
             .option('encrypt-minio', {
                 description: 'Add TLS encryption to minio service',
                 type: 'boolean',
@@ -85,6 +90,7 @@ const cmd: CommandModule = {
     },
     handler(argv) {
         const k8sOptions: K8sEnvOptions = {
+            encryptKafka: argv['encrypt-kafka'] as boolean,
             encryptMinio: argv['encrypt-minio'] as boolean,
             skipBuild: Boolean(argv['skip-build']),
             tsPort: argv['ts-port'] as string,

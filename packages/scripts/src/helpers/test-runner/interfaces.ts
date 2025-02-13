@@ -11,6 +11,7 @@ export type TestOptions = {
     forceSuite?: string;
     suite?: string[];
     useExistingServices: boolean;
+    encryptKafka: boolean;
     encryptMinio: boolean;
     jestArgs?: string[];
     ignoreMount: boolean;

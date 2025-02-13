@@ -3,7 +3,7 @@ import got from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'node:path';
-import { Kafka } from 'kafkajs';
+import { Kafka, KafkaConfig } from 'kafkajs';
 import { execa } from 'execa';
 import {
     pWhile, TSError, debugLogger,
@@ -104,17 +104,34 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             ? ['/tmp/kafka-logs']
             : undefined,
         ports: [`${config.KAFKA_PORT}:${config.KAFKA_PORT}`],
+        mount: config.ENCRYPT_KAFKA
+            ? [`type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=${config.KAFKA_SECRETS_DIR}`]
+            : [],
         env: {
             KAFKA_BROKER_ID: config.KAFKA_BROKER_ID,
             KAFKA_ADVERTISED_HOST_NAME: config.HOST_IP,
             KAFKA_ZOOKEEPER_CONNECT: config.KAFKA_ZOOKEEPER_CONNECT,
             KAFKA_LISTENERS: config.KAFKA_LISTENERS,
             KAFKA_ADVERTISED_LISTENERS: config.KAFKA_ADVERTISED_LISTENERS,
+            KAFKA_SECURITY_PROTOCOL: config.KAFKA_SECURITY_PROTOCOL,
+            KAFKA_SSL_CLIENT_AUTH: 'none',
+            KAFKA_SSL_KEYSTORE_LOCATION: config.KAFKA_SSL_KEYSTORE_LOCATION,
+            KAFKA_SSL_KEYSTORE_PASSWORD: config.KAFKA_SSL_KEYSTORE_PASSWORD,
+            KAFKA_SSL_TRUSTSTORE_LOCATION: config.KAFKA_SSL_TRUSTSTORE_LOCATION,
+            KAFKA_SSL_TRUSTSTORE_PASSWORD: config.KAFKA_SSL_TRUSTSTORE_PASSWORD,
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP,
             KAFKA_INTER_BROKER_LISTENER_NAME: config.KAFKA_INTER_BROKER_LISTENER_NAME,
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: config.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
         },
-        network: config.DOCKER_NETWORK_NAME
+        network: config.DOCKER_NETWORK_NAME,
+        args: config.ENCRYPT_KAFKA
+            ? ['bash',
+                '-c',
+                'openssl pkcs12 -export -in /etc/kafka/secrets/public.crt -inkey /etc/kafka/secrets/private.key -certfile /etc/kafka/secrets/CAs/rootCA.pem -name kafka-broker -out /etc/kafka/secrets/broker.p12 -password pass:test123 && \
+                    keytool -importkeystore -destkeystore /etc/kafka/secrets/kafka.keystore.jks -srckeystore /etc/kafka/secrets/broker.p12 -srcstoretype PKCS12 -alias kafka-broker -storepass test123 -srcstorepass test123 && \
+                    keytool -keystore /etc/kafka/secrets/kafka.truststore.jks -alias CARoot -import -file /etc/kafka/secrets/CAs/rootCA.pem -storepass test123 -noprompt && \
+                    /etc/confluent/docker/run']
+            : []
     },
     [Service.Zookeeper]: {
         image: config.ZOOKEEPER_DOCKER_IMAGE,
@@ -243,6 +260,19 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
     const launchServices = getServicesForSuite(suite);
     const promises: Promise<(() => void)>[] = [];
 
+    // Create fresh certs before starting encrypted services
+    if (options.encryptKafka || options.encryptMinio) {
+        const hosts = ['localhost', 'kafka', config.KAFKA_HOSTNAME, 'minio', config.MINIO_HOSTNAME];
+        try {
+            signale.pending(`Generating new ca-certificate for ${hosts}`);
+            const scriptLocation = path.join(getRootDir(), '/scripts/generate-cert.sh');
+            await execa(scriptLocation, hosts);
+        } catch (err) {
+            throw new TSError(`Error generating ca-certificate for ${hosts}: ${err.message}`);
+        }
+        signale.success(`Successfully created new certificate for ${hosts}`);
+    }
+
     if (launchServices.includes(Service.Elasticsearch)) {
         promises.push(ensureElasticsearch(options));
     }
@@ -313,17 +343,6 @@ export async function ensureZookeeper(options: TestOptions): Promise<() => void>
 
 export async function ensureMinio(options: TestOptions): Promise<() => void> {
     let fn = () => { };
-    // Create fresh certs before loading minio if encryption enabled
-    if (options.encryptMinio) {
-        try {
-            signale.pending('Generating new ca-certificates for minio...');
-            const scriptLocation = path.join(getRootDir(), '/scripts/generate-cert.sh');
-            await execa(scriptLocation, ['localhost', 'minio', config.MINIO_HOSTNAME]);
-        } catch (err) {
-            throw new TSError(`Error generating ca-certificates for minio: ${err.message}`);
-        }
-        signale.success('Successfully created new certificates for minio');
-    }
     const startTime = Date.now();
     fn = await startService(options, Service.Minio);
     await checkMinio(options, startTime);
@@ -779,7 +798,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
         logger.debug(`checking kafka at ${host}`);
     }
 
-    const kafka = new Kafka({
+    const kafkaConfig: KafkaConfig = {
         clientId: 'tera-test',
         brokers: [kafkaBroker],
         logLevel: 0,
@@ -789,7 +808,15 @@ async function checkKafka(options: TestOptions, startTime: number) {
             factor: 0,
             retries: retryCount
         }
-    });
+    };
+
+    if (config.ENCRYPT_KAFKA) {
+        const rootCaPath = path.join(getRootDir(), 'e2e/test/certs/CAs/rootCA.pem');
+        const rootCAString = fs.readFileSync(rootCaPath, 'utf-8');
+        kafkaConfig.ssl = { ca: rootCAString };
+    }
+
+    const kafka = new Kafka(kafkaConfig);
     const producer = kafka.producer();
     const took = toHumanTime(Date.now() - startTime);
     try {

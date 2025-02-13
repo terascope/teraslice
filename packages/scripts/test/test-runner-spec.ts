@@ -18,6 +18,7 @@ describe('Test Runner Helpers', () => {
         keepOpen: false,
         reportCoverage: false,
         useExistingServices: false,
+        encryptKafka: false,
         encryptMinio: false,
         ignoreMount: true,
         testPlatform: 'native',

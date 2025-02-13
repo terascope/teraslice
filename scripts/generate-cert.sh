@@ -11,7 +11,7 @@ usage() {
 Usage:
     $cmdname
 
-    Generate a certifcate in the e2e/test/certs directory
+    Generate a certificate in the e2e/test/certs directory
     Example: generate-cert.sh 127.0.0.1 localhost service.com
 USAGE
     exit 1
@@ -72,8 +72,8 @@ generate() {
 
 
 main() {
-    # Add args later for other serice encryption formats.
-    # Only works for minio for now
+    # Add args later for other service encryption formats.
+    # Currently this is used to create one cert with both minio and kafka host names
 
     case "$arg" in
     -h | --help | help)
@@ -81,13 +81,13 @@ main() {
         ;;
     esac
 
-    # verfiy mkcert is installed
+    # verify mkcert is installed
     if ! [ -x "$(command -v mkcert)" ]; then
         echo 'Error: mkcert is not installed. please install mkcert and try again.' >&2
         exit 1
     fi
 
-    # verfiy grep is installed
+    # verify grep is installed
     if ! [ -x "$(command -v grep)" ]; then
         echo 'Error: grep is not installed. please install grep and try again.' >&2
         exit 1

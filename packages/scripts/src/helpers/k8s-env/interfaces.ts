@@ -1,4 +1,5 @@
 export interface K8sEnvOptions {
+    encryptKafka: boolean;
     encryptMinio: boolean;
     skipBuild: boolean;
     tsPort: string;
