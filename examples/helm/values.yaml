@@ -86,4 +86,8 @@ teraslice:
   stateCluster: opensearch2
 
 chaos-mesh:
+  # When enabled, the choas-mesh dashboard will be available in browser
+  # at http://localhost:2333
+  # Documentation on how to create "experiments":
+  # https://chaos-mesh.org/docs/run-a-chaos-experiment/
   enabled: false
