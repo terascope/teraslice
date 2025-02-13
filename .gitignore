@@ -86,3 +86,6 @@ images/*
 # helm generated files
 helm/helm-repo-site/index.html
 helm/helm-repo-site/*.tgz
+
+# examples directory
+examples/helm/custom.yaml

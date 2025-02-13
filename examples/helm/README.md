@@ -36,10 +36,10 @@ kind create cluster --config kindConfig.yaml
 
 ### Step 2: Building the Teraslice Docker Image
 
-Build the teraslice docker image using the following command. Ensure the image is tagged correctly to match the intended version `dev-nodev22.9.0` in this example:
+Build the teraslice docker image using the following command:
 
 ```bash
-docker build -t ghcr.io/terascope/teraslice:dev-nodev22.9.0 ../../.
+docker build -t terascope/teraslice:dev ../../.
 ```
 
 ### Step 3: Loading the Teraslice Docker Image into the Kind Cluster
@@ -47,7 +47,7 @@ docker build -t ghcr.io/terascope/teraslice:dev-nodev22.9.0 ../../.
 Load the Teraslice Docker image, built above, into the Kind cluster's control plane:
 
 ```bash
-kind load docker-image --name k8s-env ghcr.io/terascope/teraslice:dev-nodev22.9.0
+kind load docker-image --name k8s-env terascope/teraslice:dev
 ```
 
 ### Step 4: Verifying the Image Load
@@ -132,4 +132,20 @@ teraslice__ex                open            1            0     49.1kb         4
 teraslice__jobs              open            1            0      5.6kb          5.6kb
 random-data-1                open        10000            0        7mb            7mb
 teraslice__analytics-2024.11 open            4            0     23.9kb         23.9kb
+```
+
+## Advanced Setup
+
+In the cases where a specific scenario is required, you can use a custom configuration file to deploy teraslice in a variety of ways. We can create a custom yaml file template based on the default config by running this command:
+
+_**IMPORTANT:** in order to run the custom scenario correctly, the file MUST be named `custom.yaml` and be in the `teraslice/examples/helm` directory._
+
+```sh
+cp values.yaml custom.yaml
+```
+
+Once copied, modify the `custom.yaml` file to specific needs. All available options are already provided in the file. Afterwards you can launch it with the following command:
+
+```sh
+helmfile -e custom sync
 ```
