@@ -144,7 +144,7 @@ _**IMPORTANT:** in order to run the custom scenario correctly, the file MUST be 
 cp values.yaml custom.yaml
 ```
 
-Once copied, modify the `custom.yaml` file to specific needs. All availble options are already provided in the file. Afterwards you can launch it with the following command:
+Once copied, modify the `custom.yaml` file to specific needs. All available options are already provided in the file. Afterwards you can launch it with the following command:
 
 ```sh
 helmfile -e custom sync
