@@ -12,7 +12,7 @@ image:
 service:
     type: NodePort
     port: 9200
-    nodePort: 30210
+    nodePort: {{ .Values | get "opensearch1.nodePort" "30210" }}
 
 config:
     opensearch.yml:

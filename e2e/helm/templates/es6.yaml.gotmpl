@@ -28,4 +28,4 @@ volumeClaimTemplate:
 
 service:
   type: NodePort
-  nodePort: "30200"
+  nodePort: {{ .Values | get "elasticsearch6.nodePort" "30200" }}
