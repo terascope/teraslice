@@ -29,6 +29,7 @@ format() {
     # Rename files to proper names
     local PRIVATE_KEY_NAME=$(ls | grep -i "key.pem")
     mv $PRIVATE_KEY_NAME private.key
+    chmod -R 644 private.key
     local PUBLIC_CERT_NAME=$(ls | grep -i ".pem")
     mv $PUBLIC_CERT_NAME public.crt
 }
