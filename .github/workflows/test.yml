@@ -202,11 +202,6 @@ jobs:
   e2e-k8s-v2-encrypted-kafka-tests:
     runs-on: ubuntu-latest
     needs: [compute-node-version-vars, verify-build, cache-docker-images]
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -256,8 +251,8 @@ jobs:
         working-directory: ./e2e
 
       - name: Test Encrypted Kafka
-        run: ENCRYPT_KAFKA=true NODE_VERSION=${{ matrix.node-version }} yarn test --test=path=pattern kafka-spec
-        # run: ENCRYPT_KAFKA=true NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2Helmfile --test=path=pattern kafka-spec
+        run: ENCRYPT_KAFKA=true NODE_VERSION=${{ needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN }} yarn test --test=path=pattern kafka-spec
+        # run: ENCRYPT_KAFKA=true NODE_VERSION=${{ needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN }} yarn test:k8sV2Helmfile --test=path=pattern kafka-spec
         working-directory: ./e2e
 
   e2e-external-storage-tests:
