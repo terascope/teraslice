@@ -31,7 +31,6 @@ format() {
     mv $PRIVATE_KEY_NAME private.key
     local PUBLIC_CERT_NAME=$(ls | grep -i ".pem")
     mv $PUBLIC_CERT_NAME public.crt
-    chmod -R 644 *
 }
 
 grab_rootCA() {

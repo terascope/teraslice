@@ -127,7 +127,9 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         args: config.ENCRYPT_KAFKA
             ? ['bash',
                 '-c',
-                'openssl pkcs12 -export -in /etc/kafka/secrets/public.crt -inkey /etc/kafka/secrets/private.key -certfile /etc/kafka/secrets/CAs/rootCA.pem -name kafka-broker -out /etc/kafka/secrets/broker.p12 -password pass:test123 && \
+                'chown -R root:root /etc/kafka/secrets && chmod -R u+rwX,go+rX /etc/kafka/secrets/* && \
+                    openssl pkcs12 -export -in /etc/kafka/secrets/public.crt -inkey /etc/kafka/secrets/private.key -certfile /etc/kafka/secrets/CAs/rootCA.pem -name kafka-broker -out /etc/kafka/secrets/broker.p12 -password pass:test123 && \
+                    chmod -R 644 /etc/kafka/secrets/broker.p12 && \
                     keytool -importkeystore -destkeystore /etc/kafka/secrets/kafka.keystore.jks -srckeystore /etc/kafka/secrets/broker.p12 -srcstoretype PKCS12 -alias kafka-broker -storepass test123 -srcstorepass test123 && \
                     keytool -keystore /etc/kafka/secrets/kafka.truststore.jks -alias CARoot -import -file /etc/kafka/secrets/CAs/rootCA.pem -storepass test123 -noprompt && \
                     /etc/confluent/docker/run']
