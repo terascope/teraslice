@@ -69,6 +69,9 @@ export async function exec(opts: ExecOpts, log = true): Promise<string> {
         _opts.env = env;
         const subprocess = _exec(_opts);
         const { stdout } = await subprocess;
+        // const returnObj = await subprocess;
+        // const { stdout } = returnObj;
+        // console.log('@@@@ exec returnObj: ', returnObj);
 
         if (typeof stdout !== 'string') {
             throw new Error('exec() requires ExecOpts that result in a stdout string. See the execa docs for details.');
@@ -261,6 +264,7 @@ export type DockerRunOptions = {
     network?: string;
     args?: string[];
     mount?: string[];
+    user?: string;
 };
 
 export async function dockerRun(
@@ -273,6 +277,10 @@ export async function dockerRun(
 
     if (!opt.name) {
         throw new Error('Missing required name option');
+    }
+
+    if (opt.user) {
+        args.push('--user', opt.user);
     }
 
     if (opt.mount && !ignoreMount) {
@@ -335,6 +343,8 @@ export async function dockerRun(
         try {
             const result = await subprocess;
 
+            // console.log(`@@@@ docker run result for ${opt.name}: `, result);
+
             if (result.exitCode && result.exitCode > 0) {
                 stderr = result.all;
                 error = new Error(`${result.command} failed`);
@@ -396,6 +406,7 @@ export async function dockerContainerReady(
                 'ps', '--format', '"{{json .Status}}"', '--filter', `name=${name}`
             ]
         });
+        // console.log(`@@@@ docker ps for ${name}: `, result);
 
         const timeup = ms(result.replace(/[(Up)\s"]+|/ig, ''));
 

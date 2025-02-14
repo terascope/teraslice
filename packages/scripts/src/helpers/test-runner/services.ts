@@ -124,6 +124,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: config.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
         },
         network: config.DOCKER_NETWORK_NAME,
+        user: config.ENCRYPT_KAFKA ? 'root' : '',
         args: config.ENCRYPT_KAFKA
             ? ['bash',
                 '-c',
