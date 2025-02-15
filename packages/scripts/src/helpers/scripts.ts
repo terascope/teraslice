@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import ms from 'ms';
 import path from 'node:path';
-import { execa, execaCommand, type Options } from 'execa';
+import { execa, execaCommand, execaCommandSync, type Options } from 'execa';
 import fse from 'fs-extra';
 import yaml from 'js-yaml';
 import {
@@ -10,7 +10,7 @@ import {
     pWhile, pDelay, TSError
 } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces.js';
-import { getRootDir } from './misc.js';
+import { getRootDir, getRootInfo } from './misc.js';
 import signale from './signale.js';
 import * as config from './config.js';
 import { getE2EDir, getE2eK8sDir } from '../helpers/packages.js';
@@ -867,4 +867,99 @@ function createValuesStringFromServicesArray() {
     values += ` --state-values-set teraslice.image.tag=e2e-nodev${config.NODE_VERSION}`;
     logger.debug('helmfile command values: ', values);
     return values;
+}
+
+export async function getCurrentChartVersion(): Promise<string> {
+    const chartYamlPath = path.join(getRootDir(), '/helm/teraslice/Chart.yaml');
+    const chartYAML = await yaml.load(fs.readFileSync(chartYamlPath, 'utf8')) as any;
+    return chartYAML.version as string;
+}
+
+function getTerasliceVersion() {
+    const rootPackageInfo = getRootInfo();
+    return rootPackageInfo.version;
+}
+export function getBaseImage() {
+    try {
+        const dockerFilePath = path.join(getRootDir(), 'Dockerfile');
+        const dockerfileContent = fs.readFileSync(dockerFilePath, 'utf8');
+        // Grab the "ARG NODE_VERSION" line in the Dockerfile
+        const nodeVersionDefault = dockerfileContent.match(/^ARG NODE_VERSION=(\d+)/m);
+        // Search "FROM" line that includes "NODE_VERSION" in it
+        const dockerImageName = dockerfileContent.match(/^FROM (.+):\$\{NODE_VERSION\}/m);
+
+        if (nodeVersionDefault && dockerImageName) {
+            const nodeVersion = nodeVersionDefault[1];
+            const baseImage = dockerImageName[1];
+            // Regex to extract registry (if present) and keep the rest as `repo`
+            const imagePattern = /^(?:(.+?)\/)?([^\/]+\/[^\/]+)$/;
+            const match = baseImage.match(imagePattern);
+
+            if (!match) {
+                throw new TSError(`Unexpected image format: ${baseImage}`);
+            }
+            // Default to Docker Hub if no registry
+            const registry = match[1] || 'docker.io';
+            // Keep org and repo together
+            const repo = match[2];
+            signale.warn(`Base Image: ${baseImage}:${nodeVersion}`);
+            return {
+                name: baseImage,
+                tag: nodeVersion,
+                registry,
+                repo
+            };
+        } else {
+            throw new TSError('Failed to parse Dockerfile for base image.');
+        }
+    } catch (err) {
+        throw new TSError('Failed to read top-level Dockerfile to get base image.', err);
+    }
+}
+
+export function grabCurrentTSNodeVersion() {
+    const baseImage = getBaseImage();
+    const baseImageURL = `${path.join(baseImage.registry, baseImage.repo)}:${baseImage.tag}`;
+    // Pull base image
+    try {
+        signale.info(`Pulling docker image ${baseImageURL}`);
+        execaCommandSync(`docker pull ${baseImageURL}`);
+    } catch(err) {
+        throw new TSError('Unable to pull the base image', err);
+    }
+    // inspect the image
+    try {
+        const output = execaCommandSync(`docker inspect ${baseImageURL}`);
+        const imageConfig = JSON.parse(output.stdout);
+        // return the label
+        return imageConfig[0].Config?.Labels['io.terascope.image.node_version'];
+    } catch(err) {
+        throw new TSError('Unable to inspect the base image', err);
+    }
+}
+
+export async function updateHelmChart(newChartVersion: string) {
+    const curentNodeVersion = grabCurrentTSNodeVersion();
+    const chartYamlPath = path.join(getRootDir(), '/helm/teraslice/Chart.yaml');
+    const valuesYamlPath = path.join(getRootDir(), '/helm/teraslice/values.yaml');
+    // Read yaml files and convert to objects
+    const chartYAML = await yaml.load(fs.readFileSync(chartYamlPath, 'utf8')) as any;
+    const valuesYAML = await yaml.load(fs.readFileSync(valuesYamlPath, 'utf8')) as any;
+    // Updates specific values for the chart
+    chartYAML.version = newChartVersion;
+    // We can get the version from the package.json because it should be updated
+    chartYAML.appVersion = `v${getTerasliceVersion()}`;
+    valuesYAML.image.nodeVersion = curentNodeVersion;
+
+    // Convert objects back to YAML format
+    const updatedChartYaml = yaml.dump(chartYAML);
+    const updatedValuesYaml = yaml.dump(valuesYAML);
+
+    // Write the updated YAML back to the files
+    try {
+        fs.writeFileSync(chartYamlPath, updatedChartYaml, 'utf8');
+        fs.writeFileSync(valuesYamlPath, updatedValuesYaml, 'utf8');
+    } catch (err) {
+        throw new TSError('Unable to write to helm chart yamls', err);
+    }
 }
