@@ -73,7 +73,7 @@ function _resolveWorkspaces(workspaces: string[], rootDir: string) {
         );
 }
 // As of right now this doesn't work
-async function grabCurrentTSNodeVersionV2(): Promise<string> {
+export async function grabCurrentTSNodeVersionV2(): Promise<string> {
     // Grab current base image from Dockerfile
     const baseImage = getBaseImage();
     let token;
