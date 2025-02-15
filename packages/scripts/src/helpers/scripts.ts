@@ -917,14 +917,14 @@ export function getBaseImage() {
     }
 }
 
-export function grabCurrentTSNodeVersion() {
+function grabCurrentTSNodeVersion() {
     const baseImage = getBaseImage();
     const baseImageURL = `${path.join(baseImage.registry, baseImage.repo)}:${baseImage.tag}`;
     // Pull base image
     try {
         signale.info(`Pulling docker image ${baseImageURL}`);
         execaCommandSync(`docker pull ${baseImageURL}`);
-    } catch(err) {
+    } catch (err) {
         throw new TSError('Unable to pull the base image', err);
     }
     // inspect the image
@@ -933,7 +933,7 @@ export function grabCurrentTSNodeVersion() {
         const imageConfig = JSON.parse(output.stdout);
         // return the label
         return imageConfig[0].Config?.Labels['io.terascope.image.node_version'];
-    } catch(err) {
+    } catch (err) {
         throw new TSError('Unable to inspect the base image', err);
     }
 }

@@ -4,7 +4,7 @@ import {
     AssetJsonInfo, BumpAssetOnlyOptions, BumpPkgInfo,
     BumpPackageOptions
 } from './interfaces.js';
-import { listPackages, isMainPackage, updatePkgJSON, bumpChart} from '../packages.js';
+import { listPackages, isMainPackage, updatePkgJSON, bumpChart } from '../packages.js';
 import { PackageInfo } from '../interfaces.js';
 import { getRootInfo, writeIfChanged } from '../misc.js';
 import {

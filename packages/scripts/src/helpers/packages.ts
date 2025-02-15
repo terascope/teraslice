@@ -19,8 +19,9 @@ import {
 import * as i from './interfaces.js';
 import { ReleaseType } from 'semver';
 import signale from './signale.js';
-import { updateHelmChart, getCurrentChartVersion, getBaseImage,
-    grabCurrentTSNodeVersion } from '../helpers/scripts.js';
+import {
+    updateHelmChart, getCurrentChartVersion, getBaseImage
+} from '../helpers/scripts.js';
 import got from 'got';
 
 let _packages: i.PackageInfo[] = [];
@@ -80,9 +81,9 @@ async function grabCurrentTSNodeVersionV2(): Promise<string> {
     let configBlobSha;
     // Get a temp token to ghcr for manifest request
     try {
-        const url = `https://${baseImage.registry}/token\?scope\="repository:${baseImage.repo}:pull"`;
+        const url = `https://${baseImage.registry}/token?scope="repository:${baseImage.repo}:pull"`;
         token = JSON.parse((await got(url)).body);
-    } catch(err) {
+    } catch (err) {
         throw new TSError('Unable to retrive token from ghcr.io: ', err);
     }
     // Grab manifests for tag
@@ -90,17 +91,16 @@ async function grabCurrentTSNodeVersionV2(): Promise<string> {
         const url = `https://ghcr.io/v2/terascope/node-base/manifests/22`;
         const response = await got(url, {
             headers: {
-                'Authorization': token,
-                'Accept': 'application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.v2+json'
+                Authorization: token,
+                Accept: 'application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.v2+json'
             },
             responseType: 'json'
         });
         const manifestList = JSON.parse(response.body as string);
         // Grab only the amd64 manifest digest
-        manifestDigest = manifestList.manifest.find((manifest: any) =>
-            manifest.platform.architecture === 'amd64'
+        manifestDigest = manifestList.manifest.find((manifest: any) => manifest.platform.architecture === 'amd64'
         )?.digest;
-    } catch(err) {
+    } catch (err) {
         throw new TSError('Unable to retrive image manifests list from ghcr.io: ', err);
     }
     // Use sha from arch manifest to get specific manifest
@@ -108,14 +108,14 @@ async function grabCurrentTSNodeVersionV2(): Promise<string> {
         const url = `https://${baseImage.registry}/v2/${baseImage.repo}/manifests/${manifestDigest}`;
         const response = await got(url, {
             headers: {
-                'Authorization': token,
-                'Accept': 'application/vnd.oci.image.manifest.v1+json'
+                Authorization: token,
+                Accept: 'application/vnd.oci.image.manifest.v1+json'
             },
             responseType: 'json'
         });
         const amd64Manifest = JSON.parse(response.body as any);
         configBlobSha = amd64Manifest.config?.digest;
-    } catch(err) {
+    } catch (err) {
         throw new TSError('Unable to get manifest from ghcr.io: ', err);
     }
     // Grab config.digest sha to pull config which should have labels
@@ -123,8 +123,8 @@ async function grabCurrentTSNodeVersionV2(): Promise<string> {
         const url = ` https://${baseImage.registry}/v2/${baseImage.repo}/blobs/${configBlobSha}`;
         const response = await got(url, {
             headers: {
-                'Authorization': token,
-                'Accept': 'application/vnd.oci.image.config.v1+json'
+                Authorization: token,
+                Accept: 'application/vnd.oci.image.config.v1+json'
             },
             responseType: 'json'
         });
@@ -132,7 +132,7 @@ async function grabCurrentTSNodeVersionV2(): Promise<string> {
         const imageConfig = JSON.parse(response.body as any);
         const nodeVersion = imageConfig.Config?.Labels['io.terascope.image.node_version'];
         return nodeVersion;
-    } catch(err) {
+    } catch (err) {
         throw new TSError('Unable to retrive image config from ghcr.io: ', err);
     }
 }
@@ -426,7 +426,7 @@ export function getPublishTag(version: string): 'prerelease' | 'latest' {
 
 export async function bumpChart(releaseType: ReleaseType): Promise<void> {
     const currentChartVersion = await getCurrentChartVersion();
-    let newVersion:string;
+    let newVersion: string;
     // Bump the chart a major version if teraslice bumps a major
     if (releaseType === 'major') {
         newVersion = JSON.stringify(semver.major(currentChartVersion));
