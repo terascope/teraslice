@@ -4,7 +4,7 @@ import {
     AssetJsonInfo, BumpAssetOnlyOptions, BumpPkgInfo,
     BumpPackageOptions
 } from './interfaces.js';
-import { listPackages, isMainPackage, updatePkgJSON } from '../packages.js';
+import { listPackages, isMainPackage, updatePkgJSON, bumpChart} from '../packages.js';
 import { PackageInfo } from '../interfaces.js';
 import { getRootInfo, writeIfChanged } from '../misc.js';
 import {
@@ -32,6 +32,9 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
 
     if (bumpedMain) {
         signale.note(`IMPORTANT: make sure to update release notes for automated release of v${mainInfo!.version} after merging`);
+        // If main package is bumped we need to bump the chart
+        signale.info(`Bump teraslice chart`);
+        await bumpChart(options.release);
     }
 
     if (rootInfo.terascope.version !== 2) {
