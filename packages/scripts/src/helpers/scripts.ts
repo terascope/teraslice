@@ -892,7 +892,7 @@ export function getBaseImage() {
             const nodeVersion = nodeVersionDefault[1];
             const baseImage = dockerImageName[1];
             // Regex to extract registry (if present) and keep the rest as `repo`
-            const imagePattern = /^(?:(.+?)\/)?([^\/]+\/[^\/]+)$/;
+            const imagePattern = /^(?:(.+?)\/)?([^/]+\/[^/]+)$/;
             const match = baseImage.match(imagePattern);
 
             if (!match) {
