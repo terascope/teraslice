@@ -426,14 +426,14 @@ export function getPublishTag(version: string): 'prerelease' | 'latest' {
 
 export async function bumpChart(releaseType: ReleaseType): Promise<void> {
     const currentChartVersion = await getCurrentChartVersion();
-    let newVersion: string;
+    let newVersion: string | null;;
     // Bump the chart a major version if teraslice bumps a major
     if (releaseType === 'major') {
-        newVersion = JSON.stringify(semver.major(currentChartVersion));
+        newVersion = semver.inc(currentChartVersion, 'major');
         signale.info(`Bumping teraslice-chart from ${currentChartVersion} to ${newVersion}`);
     // Bump the chart a minor version if teraslice bumps a minior OR patch
     } else if (releaseType === 'minor' || releaseType === 'patch') {
-        newVersion = JSON.stringify(semver.minor(currentChartVersion));
+        newVersion = semver.inc(currentChartVersion, 'minor');
         signale.info(`Bumping teraslice-chart from ${currentChartVersion} to ${newVersion}`);
     } else {
         signale.warn('Teraslice helm chart won\'t be updated');

@@ -938,7 +938,7 @@ function grabCurrentTSNodeVersion() {
     }
 }
 
-export async function updateHelmChart(newChartVersion: string) {
+export async function updateHelmChart(newChartVersion: string | null) {
     const curentNodeVersion = grabCurrentTSNodeVersion();
     const chartYamlPath = path.join(getRootDir(), '/helm/teraslice/Chart.yaml');
     const valuesYamlPath = path.join(getRootDir(), '/helm/teraslice/values.yaml');
