@@ -949,7 +949,7 @@ export async function updateHelmChart(newChartVersion: string | null) {
     chartYAML.version = newChartVersion;
     // We can get the version from the package.json because it should be updated
     chartYAML.appVersion = `v${getTerasliceVersion()}`;
-    valuesYAML.image.nodeVersion = curentNodeVersion;
+    valuesYAML.image.nodeVersion = `v${curentNodeVersion}`;
 
     // Convert objects back to YAML format
     const updatedChartYaml = yaml.dump(chartYAML);
