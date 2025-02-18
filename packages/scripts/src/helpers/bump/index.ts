@@ -32,9 +32,6 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
 
     if (bumpedMain) {
         signale.note(`IMPORTANT: make sure to update release notes for automated release of v${mainInfo!.version} after merging`);
-        // If main package is bumped we need to bump the chart
-        signale.info(`Bump teraslice chart`);
-        await bumpChart(options.release);
     }
 
     if (rootInfo.terascope.version !== 2) {
@@ -48,6 +45,13 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
     await updatePkgJSON(rootInfo);
 
     await setup();
+
+    if (bumpedMain) {
+        // If main package is bumped we need to bump the chart
+        // We want to do this AFTER all packages have been updated.
+        signale.info(`Bumping teraslice chart...`);
+        await bumpChart(options.release);
+    }
 
     signale.success(`
 
