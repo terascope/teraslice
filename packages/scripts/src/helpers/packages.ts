@@ -426,7 +426,7 @@ export function getPublishTag(version: string): 'prerelease' | 'latest' {
 
 export async function bumpChart(releaseType: ReleaseType): Promise<void> {
     const currentChartVersion = await getCurrentChartVersion();
-    let newVersion: string | null;;
+    let newVersion: string | null;
     // Bump the chart a major version if teraslice bumps a major
     if (releaseType === 'major') {
         newVersion = semver.inc(currentChartVersion, 'major');
