@@ -5,6 +5,7 @@ import path from 'node:path';
 import { execa, execaCommand, execaCommandSync, type Options } from 'execa';
 import fse from 'fs-extra';
 import yaml from 'js-yaml';
+import { parseDocument } from 'yaml';
 import {
     debugLogger, isString, get,
     pWhile, pDelay, TSError
@@ -943,22 +944,21 @@ export async function updateHelmChart(newChartVersion: string | null) {
     const chartYamlPath = path.join(getRootDir(), '/helm/teraslice/Chart.yaml');
     const valuesYamlPath = path.join(getRootDir(), '/helm/teraslice/values.yaml');
     // Read yaml files and convert to objects
-    const chartYAML = await yaml.load(fs.readFileSync(chartYamlPath, 'utf8')) as any;
-    const valuesYAML = await yaml.load(fs.readFileSync(valuesYamlPath, 'utf8')) as any;
-    // Updates specific values for the chart
-    chartYAML.version = newChartVersion;
-    // We can get the version from the package.json because it should be updated
-    chartYAML.appVersion = `v${getTerasliceVersion()}`;
-    valuesYAML.image.nodeVersion = `v${curentNodeVersion}`;
+    const chartFileContent = fs.readFileSync(chartYamlPath, 'utf8');
+    const valuesFileContent = fs.readFileSync(valuesYamlPath, 'utf8');
 
-    // Convert objects back to YAML format
-    const updatedChartYaml = yaml.dump(chartYAML);
-    const updatedValuesYaml = yaml.dump(valuesYAML);
+    const chartDoc = parseDocument(chartFileContent);
+    const valuesDoc = parseDocument(valuesFileContent);
+    // Updates specific values for the chart
+    chartDoc.set('version', newChartVersion);
+    // We can get the version from the package.json because it should be updated
+    chartDoc.set('appVersion', `v${getTerasliceVersion()}`);
+    valuesDoc.setIn(['image', 'nodeVersion'], `v${curentNodeVersion}`);
 
     // Write the updated YAML back to the files
     try {
-        fs.writeFileSync(chartYamlPath, updatedChartYaml, 'utf8');
-        fs.writeFileSync(valuesYamlPath, updatedValuesYaml, 'utf8');
+        fs.writeFileSync(chartYamlPath, chartDoc.toString(), 'utf8');
+        fs.writeFileSync(valuesYamlPath, valuesDoc.toString(), 'utf8');
     } catch (err) {
         throw new TSError('Unable to write to helm chart yamls', err);
     }
