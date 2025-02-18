@@ -903,7 +903,7 @@ export function getBaseImage() {
             const registry = match[1] || 'docker.io';
             // Keep org and repo together
             const repo = match[2];
-            signale.warn(`Base Image: ${baseImage}:${nodeVersion}`);
+            signale.debug(`Base Image: ${baseImage}:${nodeVersion}`);
             return {
                 name: baseImage,
                 tag: nodeVersion,
