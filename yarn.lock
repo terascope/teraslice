@@ -2899,6 +2899,7 @@ __metadata:
   linkType: soft
 
 "@terascope/scripts@npm:~1.10.5, @terascope/scripts@workspace:packages/scripts":
+"@terascope/scripts@npm:~1.11.0, @terascope/scripts@workspace:packages/scripts":
   version: 0.0.0-use.local
   resolution: "@terascope/scripts@workspace:packages/scripts"
   dependencies:
