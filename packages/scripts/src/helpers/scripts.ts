@@ -11,7 +11,10 @@ import {
     debugLogger, isString, get,
     pWhile, pDelay, TSError
 } from '@terascope/utils';
-import { TSCommands, PackageInfo } from './interfaces.js';
+import {
+    TSCommands, PackageInfo,
+    OCIImageManifest, OCIimageConfig, OCIindexManifest
+} from './interfaces.js';
 import { getRootDir, getRootInfo } from './misc.js';
 import signale from './signale.js';
 import * as config from './config.js';
@@ -928,9 +931,7 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
     // Get a temp token to ghcr for manifest request
     try {
         const url = `https://${baseImage.registry}/token?scope=repository:${baseImage.repo}:pull`;
-        console.log('@@ url: ', url);
         token = JSON.parse((await got(url)).body).token;
-        console.log('@@@Token: ', token);
     } catch (err) {
         throw new TSError('Unable to retrive token from ghcr.io: ', err);
     }
@@ -944,12 +945,10 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
             },
             responseType: 'json'
         });
-        const manifestList = response.body as any;
-        console.log('@@@ Manifest list: ', manifestList);
+        const manifestList = response.body as OCIindexManifest;
         // Grab only the amd64 manifest digest
-        manifestDigest = manifestList.manifests.find((manifest: any) => manifest.platform.architecture === 'amd64'
+        manifestDigest = manifestList.manifests.find((manifest: OCIImageManifest) => manifest.platform.architecture === 'amd64'
         )?.digest;
-        console.log('@@@ manifestDigest', manifestDigest);
     } catch (err) {
         throw new TSError('Unable to retrive image manifests list from ghcr.io: ', err);
     }
@@ -963,14 +962,13 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
             },
             responseType: 'json'
         });
-        const amd64Manifest = response.body as any;
-        console.log('@@@ amd64Manifest: ', amd64Manifest);
+        const amd64Manifest = response.body as OCIindexManifest;
         configBlobSha = amd64Manifest.config?.digest;
-        console.log('@@@@ configBlobSha: ', configBlobSha);
     } catch (err) {
         throw new TSError('Unable to get manifest from ghcr.io: ', err);
     }
     // Grab config.digest sha to pull config which should have labels
+    // NOTE: when using curl with this command be sure to use -L because of a redirect
     try {
         const url = ` https://${baseImage.registry}/v2/${baseImage.repo}/blobs/${configBlobSha}`;
         const response = await got(url, {
@@ -981,10 +979,8 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
             responseType: 'json'
         });
         // Pull the node_version label and return.
-        const imageConfig = response.body as any;
-        console.log('@@@ imageConfig: ', imageConfig);
+        const imageConfig = response.body as OCIimageConfig;
         const nodeVersion = imageConfig.config?.Labels['io.terascope.image.node_version'];
-        console.log('@@@ nodeVersion: ', nodeVersion);
         return nodeVersion as string;
     } catch (err) {
         throw new TSError('Unable to retrive image config from ghcr.io: ', err);
