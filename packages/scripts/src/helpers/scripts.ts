@@ -2,9 +2,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import ms from 'ms';
 import path from 'node:path';
-import { execa, execaCommand, execaCommandSync, type Options } from 'execa';
+import { execa, execaCommand, type Options } from 'execa';
 import fse from 'fs-extra';
 import yaml from 'js-yaml';
+import got from 'got';
 import { parseDocument } from 'yaml';
 import {
     debugLogger, isString, get,
@@ -918,29 +919,80 @@ export function getBaseImage() {
     }
 }
 
-function grabCurrentTSNodeVersion() {
+export async function grabCurrentTSNodeVersion(): Promise<string> {
+    // Grab current base image from Dockerfile
     const baseImage = getBaseImage();
-    const baseImageURL = `${path.join(baseImage.registry, baseImage.repo)}:${baseImage.tag}`;
-    // Pull base image
+    let token;
+    let manifestDigest;
+    let configBlobSha;
+    // Get a temp token to ghcr for manifest request
     try {
-        signale.info(`Pulling docker image ${baseImageURL}`);
-        execaCommandSync(`docker pull ${baseImageURL}`);
+        const url = `https://${baseImage.registry}/token?scope=repository:${baseImage.repo}:pull`;
+        console.log('@@ url: ', url);
+        token = JSON.parse((await got(url)).body).token;
+        console.log('@@@Token: ', token);
     } catch (err) {
-        throw new TSError('Unable to pull the base image', err);
+        throw new TSError('Unable to retrive token from ghcr.io: ', err);
     }
-    // inspect the image
+    // Grab manifests for tag
     try {
-        const output = execaCommandSync(`docker inspect ${baseImageURL}`);
-        const imageConfig = JSON.parse(output.stdout);
-        // return the label
-        return imageConfig[0].Config?.Labels['io.terascope.image.node_version'];
+        const url = `https://ghcr.io/v2/terascope/node-base/manifests/22`;
+        const response = await got(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.v2+json'
+            },
+            responseType: 'json'
+        });
+        const manifestList = response.body as any;
+        console.log('@@@ Manifest list: ', manifestList);
+        // Grab only the amd64 manifest digest
+        manifestDigest = manifestList.manifests.find((manifest: any) => manifest.platform.architecture === 'amd64'
+        )?.digest;
+        console.log('@@@ manifestDigest', manifestDigest);
     } catch (err) {
-        throw new TSError('Unable to inspect the base image', err);
+        throw new TSError('Unable to retrive image manifests list from ghcr.io: ', err);
+    }
+    // Use sha from arch manifest to get specific manifest
+    try {
+        const url = `https://${baseImage.registry}/v2/${baseImage.repo}/manifests/${manifestDigest}`;
+        const response = await got(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/vnd.oci.image.manifest.v1+json'
+            },
+            responseType: 'json'
+        });
+        const amd64Manifest = response.body as any;
+        console.log('@@@ amd64Manifest: ', amd64Manifest);
+        configBlobSha = amd64Manifest.config?.digest;
+        console.log('@@@@ configBlobSha: ', configBlobSha);
+    } catch (err) {
+        throw new TSError('Unable to get manifest from ghcr.io: ', err);
+    }
+    // Grab config.digest sha to pull config which should have labels
+    try {
+        const url = ` https://${baseImage.registry}/v2/${baseImage.repo}/blobs/${configBlobSha}`;
+        const response = await got(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/vnd.oci.image.config.v1+json'
+            },
+            responseType: 'json'
+        });
+        // Pull the node_version label and return.
+        const imageConfig = response.body as any;
+        console.log('@@@ imageConfig: ', imageConfig);
+        const nodeVersion = imageConfig.config?.Labels['io.terascope.image.node_version'];
+        console.log('@@@ nodeVersion: ', nodeVersion);
+        return nodeVersion as string;
+    } catch (err) {
+        throw new TSError('Unable to retrive image config from ghcr.io: ', err);
     }
 }
 
 export async function updateHelmChart(newChartVersion: string | null) {
-    const curentNodeVersion = grabCurrentTSNodeVersion();
+    const curentNodeVersion = await grabCurrentTSNodeVersion();
     const chartYamlPath = path.join(getRootDir(), '/helm/teraslice/Chart.yaml');
     const valuesYamlPath = path.join(getRootDir(), '/helm/teraslice/values.yaml');
     // Read yaml files and convert to objects
