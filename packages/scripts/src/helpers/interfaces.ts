@@ -167,20 +167,20 @@ export interface OCIImageManifest {
     size: number;
     platform: {
         architecture: string;
-    }
+    };
 }
 
 export interface OCIindexManifest {
     schemaVersion: number;
     mediaType: string;
-    manifests: OCIImageManifest[]
+    manifests: OCIImageManifest[];
     config: {
         digest: string;
-    }
+    };
 }
 
 export interface OCIimageConfig {
     config: {
         Labels: Record<string, string>;
-    }
+    };
 }

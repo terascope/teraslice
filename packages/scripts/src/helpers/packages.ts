@@ -5,7 +5,6 @@ import semver from 'semver';
 import { isDynamicPattern, globbySync } from 'globby';
 import {
     uniq, fastCloneDeep, get, trim,
-    TSError
 } from '@terascope/utils';
 import toposort from 'toposort';
 import { MultiMap } from 'mnemonist';
@@ -20,9 +19,8 @@ import * as i from './interfaces.js';
 import { ReleaseType } from 'semver';
 import signale from './signale.js';
 import {
-    updateHelmChart, getCurrentChartVersion, getBaseImage
+    updateHelmChart, getCurrentChartVersion
 } from '../helpers/scripts.js';
-import got from 'got';
 
 let _packages: i.PackageInfo[] = [];
 let _e2eDir: string | undefined;
