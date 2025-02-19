@@ -160,3 +160,27 @@ export interface TsVolumeSet {
     volumes: V1Volume[];
     volumeMounts: V1VolumeMount[];
 }
+
+export interface OCIImageManifest {
+    mediaType: string;
+    digest: string;
+    size: number;
+    platform: {
+        architecture: string;
+    }
+}
+
+export interface OCIindexManifest {
+    schemaVersion: number;
+    mediaType: string;
+    manifests: OCIImageManifest[]
+    config: {
+        digest: string;
+    }
+}
+
+export interface OCIimageConfig {
+    config: {
+        Labels: Record<string, string>;
+    }
+}
