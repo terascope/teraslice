@@ -996,27 +996,31 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
  * @throws {TSError} If the function fails to read or write YAML files.
  * @returns {Promise<void>} Resolves when the Helm chart files have been successfully updated
  */
-export async function updateHelmChart(newChartVersion: string | null) {
-    const curentNodeVersion = await grabCurrentTSNodeVersion();
-    const chartYamlPath = path.join(getRootDir(), '/helm/teraslice/Chart.yaml');
-    const valuesYamlPath = path.join(getRootDir(), '/helm/teraslice/values.yaml');
-    // Read yaml files and convert to objects
-    const chartFileContent = fs.readFileSync(chartYamlPath, 'utf8');
-    const valuesFileContent = fs.readFileSync(valuesYamlPath, 'utf8');
+export async function updateHelmChart(newChartVersion: string | null): Promise<void> {
+    const currentNodeVersion = await grabCurrentTSNodeVersion();
+    const rootDir = getRootDir();
+    const chartYamlPath = path.join(rootDir, 'helm/teraslice/Chart.yaml');
+    const valuesYamlPath = path.join(rootDir, 'helm/teraslice/values.yaml');
 
-    const chartDoc = parseDocument(chartFileContent);
-    const valuesDoc = parseDocument(valuesFileContent);
-    // Updates specific values for the chart
-    chartDoc.set('version', newChartVersion);
-    // We can get the version from the package.json because it should be updated
-    chartDoc.set('appVersion', `v${getTerasliceVersion()}`);
-    valuesDoc.setIn(['image', 'nodeVersion'], `v${curentNodeVersion}`);
-
-    // Write the updated YAML back to the files
     try {
+        // Read YAML files and parse them into objects
+        const chartFileContent = fs.readFileSync(chartYamlPath, 'utf8');
+        const valuesFileContent = fs.readFileSync(valuesYamlPath, 'utf8');
+
+        const chartDoc = parseDocument(chartFileContent);
+        const valuesDoc = parseDocument(valuesFileContent);
+
+        // Update specific values for the chart
+        if (newChartVersion) {
+            chartDoc.set('version', newChartVersion);
+        }
+        chartDoc.set('appVersion', `v${getTerasliceVersion()}`);
+        valuesDoc.setIn(['image', 'nodeVersion'], `v${currentNodeVersion}`);
+
+        // Write the updated YAML back to the files
         fs.writeFileSync(chartYamlPath, chartDoc.toString(), 'utf8');
         fs.writeFileSync(valuesYamlPath, valuesDoc.toString(), 'utf8');
     } catch (err) {
-        throw new TSError('Unable to write to helm chart yamls', err);
+        throw new TSError('Unable to read or write Helm chart YAML files', err);
     }
 }
