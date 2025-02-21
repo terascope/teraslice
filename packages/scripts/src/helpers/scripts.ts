@@ -890,6 +890,25 @@ function getTerasliceVersion() {
     const rootPackageInfo = getRootInfo();
     return rootPackageInfo.version;
 }
+
+/**
+ * Extracts the base Docker image information from the top-level Dockerfile
+ *
+ * This function parses the Dockerfile to determine the base image name,
+ * node version, registry, and repository.
+ *
+ * @throws {TSError} If the Dockerfile cannot be read or the base image format is unexpected.
+ * @returns {{
+*   name: string;
+*   tag: string;
+*   registry: string;
+*   repo: string;
+* }} An object containing:
+*    - `name: Full base image name
+*    - `tag`: Node version used in the image
+*    - `registry`: Docker registry (defaults to `docker.io` if not specified)
+*    - `repo`: Repository name including organization
+*/
 export function getDockerBaseImageInfo() {
     try {
         const dockerFilePath = path.join(getRootDir(), 'Dockerfile');
