@@ -987,6 +987,15 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
     }
 }
 
+/**
+ * Updates the Teraslice Helm chart YAML files (`Chart.yaml` and `values.yaml`)
+ * with the new chart version
+ *
+ * @param {string | null} newChartVersion - The new version to set in `Chart.yaml`.
+ *    - If `null`, the function does not update the chart version.
+ * @throws {TSError} If the function fails to read or write YAML files.
+ * @returns {Promise<void>} Resolves when the Helm chart files have been successfully updated
+ */
 export async function updateHelmChart(newChartVersion: string | null) {
     const curentNodeVersion = await grabCurrentTSNodeVersion();
     const chartYamlPath = path.join(getRootDir(), '/helm/teraslice/Chart.yaml');
