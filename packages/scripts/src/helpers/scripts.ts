@@ -874,6 +874,12 @@ function createValuesStringFromServicesArray() {
     return values;
 }
 
+/**
+ * Gets the current version of the Teraslice Helm chart from `Chart.yaml`.
+ *
+ * @throws {Error} If the `Chart.yaml` file cannot be read
+ * @returns {Promise<string>} Resolves with the Helm chart version as a string
+ */
 export async function getCurrentHelmChartVersion(): Promise<string> {
     const chartYamlPath = path.join(getRootDir(), '/helm/teraslice/Chart.yaml');
     const chartYAML = await yaml.load(fs.readFileSync(chartYamlPath, 'utf8')) as any;
@@ -937,7 +943,7 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
     }
     // Grab manifests for tag
     try {
-        const url = `https://ghcr.io/v2/terascope/node-base/manifests/22`;
+        const url = `https://${baseImage.registry}/v2/${baseImage.repo}/manifests/${baseImage.tag}`;
         const response = await got(url, {
             headers: {
                 Authorization: `Bearer ${token}`,
