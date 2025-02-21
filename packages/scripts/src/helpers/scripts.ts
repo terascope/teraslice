@@ -874,7 +874,7 @@ function createValuesStringFromServicesArray() {
     return values;
 }
 
-export async function getCurrentChartVersion(): Promise<string> {
+export async function getCurrentHelmChartVersion(): Promise<string> {
     const chartYamlPath = path.join(getRootDir(), '/helm/teraslice/Chart.yaml');
     const chartYAML = await yaml.load(fs.readFileSync(chartYamlPath, 'utf8')) as any;
     return chartYAML.version as string;

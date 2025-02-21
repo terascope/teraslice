@@ -19,7 +19,7 @@ import * as i from './interfaces.js';
 import { ReleaseType } from 'semver';
 import signale from './signale.js';
 import {
-    updateHelmChart, getCurrentChartVersion
+    updateHelmChart, getCurrentHelmChartVersion
 } from '../helpers/scripts.js';
 
 let _packages: i.PackageInfo[] = [];
@@ -368,7 +368,7 @@ export function getPublishTag(version: string): 'prerelease' | 'latest' {
  * @returns {Promise<void>} Resolves when the Helm chart version is updated.
  */
 export async function bumpHelmChart(releaseType: ReleaseType): Promise<void> {
-    const currentChartVersion = await getCurrentChartVersion();
+    const currentChartVersion = await getCurrentHelmChartVersion();
 
     if (!['major', 'minor', 'patch'].includes(releaseType)) {
         signale.warn("Teraslice Helm chart won't be updated");
