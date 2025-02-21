@@ -884,7 +884,7 @@ function getTerasliceVersion() {
     const rootPackageInfo = getRootInfo();
     return rootPackageInfo.version;
 }
-export function getBaseImage() {
+export function getDockerBaseImageInfo() {
     try {
         const dockerFilePath = path.join(getRootDir(), 'Dockerfile');
         const dockerfileContent = fs.readFileSync(dockerFilePath, 'utf8');
@@ -924,7 +924,7 @@ export function getBaseImage() {
 
 export async function grabCurrentTSNodeVersion(): Promise<string> {
     // Grab current base image from Dockerfile
-    const baseImage = getBaseImage();
+    const baseImage = getDockerBaseImageInfo();
     let token;
     let manifestDigest;
     let configBlobSha;
