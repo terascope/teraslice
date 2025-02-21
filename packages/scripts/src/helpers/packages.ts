@@ -358,21 +358,33 @@ export function getPublishTag(version: string): 'prerelease' | 'latest' {
     return 'latest';
 }
 
-export async function bumpChart(releaseType: ReleaseType): Promise<void> {
+/**
+ * Updates the Teraslice Helm chart version based on the specified release type
+ *
+ * @param {'major' | 'minor' | 'patch'} releaseType - The type of version bump for Teraslice.
+ *    - `major`: Bumps the Helm chart by a major version.
+ *    - `minor` or `patch`: Bumps the Helm chart by a minor version.
+ *    - Other values will result in no update.
+ * @returns {Promise<void>} Resolves when the Helm chart version is updated.
+ */
+export async function bumpHelmChart(releaseType: ReleaseType): Promise<void> {
     const currentChartVersion = await getCurrentChartVersion();
-    let newVersion: string | null;
-    // Bump the chart a major version if teraslice bumps a major
-    if (releaseType === 'major') {
-        newVersion = semver.inc(currentChartVersion, 'major');
-        signale.info(`Bumping teraslice-chart from ${currentChartVersion} to ${newVersion}`);
-    // Bump the chart a minor version if teraslice bumps a minior OR patch
-    } else if (releaseType === 'minor' || releaseType === 'patch') {
-        newVersion = semver.inc(currentChartVersion, 'minor');
-        signale.info(`Bumping teraslice-chart from ${currentChartVersion} to ${newVersion}`);
-    } else {
-        signale.warn('Teraslice helm chart won\'t be updated');
+
+    if (!['major', 'minor', 'patch'].includes(releaseType)) {
+        signale.warn("Teraslice Helm chart won't be updated");
         return;
     }
+
+    const bumpType = releaseType === 'major' ? 'major' : 'minor';
+    const newVersion = semver.inc(currentChartVersion, bumpType);
+
+    if (!newVersion) {
+        signale.error('Failed to determine new chart version');
+        return;
+    }
+
+    signale.info(`Bumping teraslice-chart from ${currentChartVersion} to ${newVersion}`);
     await updateHelmChart(newVersion);
     signale.success(`Successfully bumped teraslice-chart to v${newVersion}`);
 }
+

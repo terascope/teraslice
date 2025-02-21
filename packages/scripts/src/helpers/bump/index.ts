@@ -4,7 +4,7 @@ import {
     AssetJsonInfo, BumpAssetOnlyOptions, BumpPkgInfo,
     BumpPackageOptions
 } from './interfaces.js';
-import { listPackages, isMainPackage, updatePkgJSON, bumpChart } from '../packages.js';
+import { listPackages, isMainPackage, updatePkgJSON, bumpHelmChart } from '../packages.js';
 import { PackageInfo } from '../interfaces.js';
 import { getRootInfo, writeIfChanged } from '../misc.js';
 import {
@@ -50,7 +50,7 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
         // If main package is bumped we need to bump the chart
         // We want to do this AFTER all packages have been updated.
         signale.info(`Bumping teraslice chart...`);
-        await bumpChart(options.release);
+        await bumpHelmChart(options.release);
     }
 
     signale.success(`
