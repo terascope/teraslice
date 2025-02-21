@@ -947,68 +947,101 @@ export function getDockerBaseImageInfo() {
     }
 }
 
+/**
+ * Retrieves the Node.js version from the base Docker image specified in the Teraslice `Dockerfile`.
+ *
+ * This function:
+ * - Extracts the base image details from the `Dockerfile`
+ * - Authenticates with the container registry to retrieve a token
+ * - Fetches the image manifest and configuration
+ * - Extracts the `node_version` label from the image config
+ *
+ * @throws {TSError} If any request to the registry fails or expected data is missing.
+ * @returns {Promise<string>} Resolves with the Node.js version string.
+ */
 export async function grabCurrentTSNodeVersion(): Promise<string> {
-    // Grab current base image from Dockerfile
+    // Extract base image details from the Dockerfile
     const baseImage = getDockerBaseImageInfo();
-    let token;
-    let manifestDigest;
-    let configBlobSha;
-    // Get a temp token to ghcr for manifest request
+    let token: string;
+
+    // Request authentication token for accessing image manifests
     try {
-        const url = `https://${baseImage.registry}/token?scope=repository:${baseImage.repo}:pull`;
-        token = JSON.parse((await got(url)).body).token;
+        const authUrl = `https://${baseImage.registry}/token?scope=repository:${baseImage.repo}:pull`;
+        const authResponse = await got(authUrl);
+        token = JSON.parse(authResponse.body).token;
     } catch (err) {
-        throw new TSError('Unable to retrive token from ghcr.io: ', err);
+        throw new TSError(`Unable to retrieve token from ${baseImage.registry} for repo ${baseImage.repo}: `, err);
     }
-    // Grab manifests for tag
+
+    // Grab the manifest list to find the right architecture digest
+    let manifestDigest: string;
     try {
-        const url = `https://${baseImage.registry}/v2/${baseImage.repo}/manifests/${baseImage.tag}`;
-        const response = await got(url, {
+        const manifestUrl = `https://${baseImage.registry}/v2/${baseImage.repo}/manifests/${baseImage.tag}`;
+        const response = await got(manifestUrl, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: 'application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.v2+json'
             },
             responseType: 'json'
         });
+
         const manifestList = response.body as OCIindexManifest;
-        // Grab only the amd64 manifest digest
-        manifestDigest = manifestList.manifests.find((manifest: OCIImageManifest) => manifest.platform.architecture === 'amd64'
-        )?.digest;
+        const amd64Manifest = manifestList.manifests.find(
+            (manifest: OCIImageManifest) => manifest.platform.architecture === 'amd64'
+        );
+
+        if (!amd64Manifest) {
+            throw new TSError(`No amd64 manifest found for ${baseImage.repo}:${baseImage.tag}`);
+        }
+
+        manifestDigest = amd64Manifest.digest;
     } catch (err) {
-        throw new TSError('Unable to retrive image manifests list from ghcr.io: ', err);
+        throw new TSError(`Unable to retrieve image manifest list from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}: `, err);
     }
-    // Use sha from arch manifest to get specific manifest
+
+    // Get the specific manifest using the digest
+    let configBlobSha: string;
     try {
-        const url = `https://${baseImage.registry}/v2/${baseImage.repo}/manifests/${manifestDigest}`;
-        const response = await got(url, {
+        const manifestDetailUrl = `https://${baseImage.registry}/v2/${baseImage.repo}/manifests/${manifestDigest}`;
+        const response = await got(manifestDetailUrl, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: 'application/vnd.oci.image.manifest.v1+json'
             },
             responseType: 'json'
         });
+
         const amd64Manifest = response.body as OCIindexManifest;
-        configBlobSha = amd64Manifest.config?.digest;
+        if (!amd64Manifest.config?.digest) {
+            throw new TSError(`Manifest does not contain a config digest for ${baseImage.repo}:${baseImage.tag}`);
+        }
+
+        configBlobSha = amd64Manifest.config.digest;
     } catch (err) {
-        throw new TSError('Unable to get manifest from ghcr.io: ', err);
+        throw new TSError(`Unable to get manifest details from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}: `, err);
     }
-    // Grab config.digest sha to pull config which should have labels
-    // NOTE: when using curl with this command be sure to use -L because of a redirect
+
+    // Retrieve the image configuration and extract the Node.js version label
     try {
-        const url = ` https://${baseImage.registry}/v2/${baseImage.repo}/blobs/${configBlobSha}`;
-        const response = await got(url, {
+        const configUrl = `https://${baseImage.registry}/v2/${baseImage.repo}/blobs/${configBlobSha}`;
+        const response = await got(configUrl, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: 'application/vnd.oci.image.config.v1+json'
             },
             responseType: 'json'
         });
-        // Pull the node_version label and return.
+
         const imageConfig = response.body as OCIimageConfig;
         const nodeVersion = imageConfig.config?.Labels['io.terascope.image.node_version'];
-        return nodeVersion as string;
+
+        if (!nodeVersion) {
+            throw new TSError(`Node version label missing in config for ${baseImage.repo}:${baseImage.tag}`);
+        }
+
+        return nodeVersion;
     } catch (err) {
-        throw new TSError('Unable to retrive image config from ghcr.io: ', err);
+        throw new TSError(`Unable to grab image config from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}: `, err);
     }
 }
 

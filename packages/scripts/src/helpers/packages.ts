@@ -371,7 +371,7 @@ export async function bumpHelmChart(releaseType: ReleaseType): Promise<void> {
     const currentChartVersion = await getCurrentHelmChartVersion();
 
     if (!['major', 'minor', 'patch'].includes(releaseType)) {
-        signale.warn("Teraslice Helm chart won't be updated");
+        signale.warn('Teraslice Helm chart won\'t be updated');
         return;
     }
 
@@ -387,4 +387,3 @@ export async function bumpHelmChart(releaseType: ReleaseType): Promise<void> {
     await updateHelmChart(newVersion);
     signale.success(`Successfully bumped teraslice-chart to v${newVersion}`);
 }
-
