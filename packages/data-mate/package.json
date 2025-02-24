@@ -41,8 +41,8 @@
         "ipaddr.js": "~2.2.0",
         "is-cidr": "~5.1.1",
         "jexl": "~2.3.0",
-        "mnemonist": "~0.40.2",
-        "uuid": "~11.0.5",
+        "mnemonist": "~0.40.3",
+        "uuid": "~11.1.0",
         "valid-url": "~1.0.9",
         "validator": "~13.12.0",
         "xlucene-parser": "~1.7.6"
