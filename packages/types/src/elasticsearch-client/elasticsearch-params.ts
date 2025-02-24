@@ -265,7 +265,7 @@ export interface IndicesRecoveryParams {
 }
 
 export interface IndicesRefreshParams {
-    index?: string ;
+    index?: string;
     allow_no_indices?: boolean;
     expand_wildcards?: i.ExpandWildcards;
     ignore_unavailable?: boolean;
