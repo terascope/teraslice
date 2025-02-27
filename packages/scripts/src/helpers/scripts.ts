@@ -754,7 +754,7 @@ export async function showState(tsPort: string) {
 }
 
 async function showESIndices() {
-    const subprocess = await execaCommand(`curl ${config.SEARCH_TEST_HOST}/_cat/indices?v`);
+    const subprocess = await execaCommand(`curl -k ${config.SEARCH_TEST_HOST}/_cat/indices?v`);
     return subprocess.stdout;
 }
 
@@ -808,9 +808,10 @@ export async function helmfileDiff() {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const values = createValuesStringFromServicesArray();
+    const { valuesPath, valuesDir } = createValuesYaml();
 
-    const subprocess = await execaCommand(`helmfile ${values} diff -f ${helmfilePath} --suppress-secrets`);
+    const subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
+    fs.rmSync(valuesDir, { recursive: true, force: true });
     logger.debug('helmfile diff: ', subprocess.stdout);
 }
 
@@ -820,9 +821,10 @@ export async function helmfileSync() {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const values = createValuesStringFromServicesArray();
+    const { valuesPath, valuesDir } = createValuesYaml();
 
-    const subprocess = await execaCommand(`helmfile ${values} sync -f ${helmfilePath}`);
+    const subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath}`);
+    fs.rmSync(valuesDir, { recursive: true, force: true });
     logger.debug('helmfile sync: ', subprocess.stdout);
 }
 
@@ -830,13 +832,15 @@ export async function launchE2EWithHelmfile() {
     await helmfileDiff();
     await helmfileSync();
 }
-
-function createValuesStringFromServicesArray() {
-    let values = ENV_SERVICES.reduce((valuesString, service) => {
+// Will change name when I go to add typedocs to functions
+function createValuesYaml() {
+    const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
+    const values = parseDocument(fs.readFileSync(e2eHelmfileValuesPath, 'utf8'));
+    ENV_SERVICES.map((service) => {
         let serviceString = service.toString();
         let version;
         let stateCluster;
-        let newValuesString;
+        let newValuesString = '';
 
         // Setting the stateCluster will only work properly if there is a single ES/OS service
         // If we need multiple in the future we need to modify this.
@@ -844,6 +848,21 @@ function createValuesStringFromServicesArray() {
             serviceString += config.OPENSEARCH_VERSION.charAt(0);
             version = config.OPENSEARCH_VERSION;
             stateCluster = serviceString;
+            // I may need to move this into a more global spot
+            if (config.ENCRYPT_OPENSEARCH) {
+                const certsDir = path.join(getE2EDir() as string, 'test/certs');
+                const opensearchCertPath = path.join(certsDir, 'CAs/rootCA.pem');
+                let caCert: string;
+                if (fs.existsSync(opensearchCertPath)) {
+                    // Need to use replace to get the cert correctly formatted for helm
+                    caCert = fs.readFileSync(opensearchCertPath, 'utf8').replace(/\n/g, '\\n');
+                    // caCert = `"${caCert}"`;
+                } else {
+                    throw new TSError(`Unable to find opensearch cert at: ${opensearchCertPath}`);
+                }
+                values.setIn(['opensearch2', 'ssl', 'enabled'], true);
+                values.setIn(['opensearch2', 'ssl', 'caCert'], caCert);
+            }
         }
         if (service === 'elasticsearch') {
             serviceString += config.ELASTICSEARCH_VERSION.charAt(0);
@@ -859,20 +878,82 @@ function createValuesStringFromServicesArray() {
         if (service === 'minio') {
             version = config.MINIO_VERSION;
         }
-
-        newValuesString = `${valuesString} --state-values-set ${serviceString}.enabled=true --state-values-set ${serviceString}.version=${version}`;
+        values.setIn([serviceString, 'enabled'], true);
+        values.setIn([serviceString, 'version'], version);
 
         if (stateCluster) {
-            newValuesString += ` --state-values-set teraslice.stateCluster=${stateCluster}`;
+            values.setIn(['teraslice', 'stateCluster'], stateCluster);
         }
 
         return newValuesString;
     }, '');
-
-    values += ` --state-values-set teraslice.image.tag=e2e-nodev${config.NODE_VERSION}`;
+    values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
     logger.debug('helmfile command values: ', values);
-    return values;
+    // Return path to temp file
+    const valuesDir = fs.mkdtempSync(path.join(os.tmpdir(), 'generated-yaml'));
+    fs.writeFileSync(path.join(valuesDir, 'values.yaml'), values.toString(), 'utf8');
+    const valuesPath = path.join(valuesDir, 'values.yaml');
+    return { valuesPath, valuesDir };
 }
+
+// Pending removal!
+// function createValuesStringFromServicesArray() {
+//     let values = ENV_SERVICES.reduce((valuesString, service) => {
+//         let serviceString = service.toString();
+//         let version;
+//         let stateCluster;
+//         let newValuesString = '';
+
+//         // Setting the stateCluster will only work properly if there is a single ES/OS service
+//         // If we need multiple in the future we need to modify this.
+//         if (service === 'opensearch') {
+//             serviceString += config.OPENSEARCH_VERSION.charAt(0);
+//             version = config.OPENSEARCH_VERSION;
+//             stateCluster = serviceString;
+//             console.log('@@@@ ENCRYPT_OPENSEARCH: ', config.ENCRYPT_OPENSEARCH);
+//             if (config.ENCRYPT_OPENSEARCH) {
+//                 const certsDir = path.join(getE2EDir() as string, 'test/certs');
+//                 const opensearchCertPath = path.join(certsDir, 'opensearch-cert.pem');
+//                 let caCertBase64: string;
+//                 if (fs.existsSync(opensearchCertPath)) {
+//                     caCertBase64 = fs.readFileSync(opensearchCertPath, 'base64');
+//                     console.log('@@@ caCertBase64: ', caCertBase64);
+//                 } else {
+//                     throw new TSError(`Unable to find opensearch cert at: ${opensearchCertPath}`);
+//                 }
+//                 newValuesString += `--state-values-set opensearch2.ssl.enabled=true `;
+//                 newValuesString += `--state-values-set opensearch2.ssl.caCertBase64=${caCertBase64} `;
+//                 console.log('@@@ newValuesString: ', newValuesString);
+//             }
+//         }
+//         if (service === 'elasticsearch') {
+//             serviceString += config.ELASTICSEARCH_VERSION.charAt(0);
+//             version = config.ELASTICSEARCH_VERSION;
+//             stateCluster = serviceString;
+//         }
+//         if (service === 'kafka') {
+//             version = config.KAFKA_IMAGE_VERSION;
+//         }
+//         if (service === 'zookeeper') {
+//             version = config.ZOOKEEPER_VERSION;
+//         }
+//         if (service === 'minio') {
+//             version = config.MINIO_VERSION;
+//         }
+
+//         newValuesString += `${valuesString} --state-values-set ${serviceString}.enabled=true --state-values-set ${serviceString}.version=${version} `;
+
+//         if (stateCluster) {
+//             newValuesString += `--state-values-set teraslice.stateCluster=${stateCluster} `;
+//         }
+
+//         return newValuesString;
+//     }, '');
+
+//     values += ` --state-values-set teraslice.image.tag=e2e-nodev${config.NODE_VERSION}`;
+//     logger.debug('helmfile command values: ', values);
+//     return values;
+// }
 
 /**
  * Gets the current version of the Teraslice Helm chart from `Chart.yaml`.
