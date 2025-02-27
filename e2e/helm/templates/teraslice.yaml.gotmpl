@@ -19,7 +19,11 @@ terafoundation:
             default:
                 node:
                     {{- if eq (.Values | get "teraslice.stateCluster" "none") "opensearch2" }}
+                    {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+                    - "https://opensearch2.services-dev1:9200"
+                    {{- else}}
                     - "http://opensearch2.services-dev1:9200"
+                    {{- end }}
                     {{- else if eq (.Values | get "teraslice.stateCluster" "none") "opensearch1" }}
                     - "http://opensearch1.services-dev1:9200"
                     {{- else if eq (.Values | get "teraslice.stateCluster" "none") "elasticsearch6" }}
@@ -27,6 +31,23 @@ terafoundation:
                     {{- else if eq (.Values | get "teraslice.stateCluster" "none") "elasticsearch7" }}
                     - "http://elasticsearch7-master.services-dev1:9200"
                     {{- end }}
+                {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+                username: admin
+                password: "passwordsufhbivbU123%$"
+
+                {{- if and .Values.opensearch2.ssl.caCert .Values.opensearch2.ssl.caCertBase64 }}
+                {{ fail "Both opensearch2.ssl.caCert and opensearch2.ssl.caCertBase64 are set. Please set only one." }}
+                {{- end }}
+
+                caCertificate: "{{- if .Values.opensearch2.ssl.caCert -}}
+                {{ .Values.opensearch2.ssl.caCert }}
+                {{- else if .Values.opensearch2.ssl.caCertBase64 -}}
+                {{ .Values.opensearch2.ssl.caCertBase64 | b64dec }}
+                {{- else -}}
+                {{ fail "Neither opensearch2.ssl.caCert nor opensearch2.ssl.caCertBase64 is set." }}
+                {{- end }}"
+
+                {{- end }}
             {{- if eq (.Values | get "opensearch1.enabled" false) true }}
             os1:
                 node:
@@ -35,7 +56,29 @@ terafoundation:
             {{- if eq (.Values | get "opensearch2.enabled" false) true }}
             os2:
                 node:
+                    {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+                    - "https://opensearch2.services-dev1:9200"
+                    {{- else }}
                     - "http://opensearch2.services-dev1:9200"
+                    {{- end }}
+
+                {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+                username: admin
+                password: "passwordsufhbivbU123%$"
+
+                {{- if and .Values.opensearch2.ssl.caCert .Values.opensearch2.ssl.caCertBase64 }}
+                {{ fail "Both opensearch2.ssl.caCert and opensearch2.ssl.caCertBase64 are set. Please set only one." }}
+                {{- end }}
+
+                caCertificate: "{{- if .Values.opensearch2.ssl.caCert -}}
+                {{ .Values.opensearch2.ssl.caCert }}
+                {{- else if .Values.opensearch2.ssl.caCertBase64 -}}
+                {{ .Values.opensearch2.ssl.caCertBase64 | b64dec }}
+                {{- else -}}
+                {{ fail "Neither opensearch2.ssl.caCert nor opensearch2.ssl.caCertBase64 is set." }}
+                {{- end }}"
+
+                {{- end }}
             {{- end }}
             {{- if eq (.Values | get "elasticsearch6.enabled" false) true }}
             es6:
