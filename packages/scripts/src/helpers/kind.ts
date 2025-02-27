@@ -1,14 +1,14 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execaCommand } from 'execa';
+import { execaCommand, execa } from 'execa';
 import yaml from 'js-yaml';
 import { Logger, debugLogger, isCI } from '@terascope/utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale.js';
 import { getE2eK8sDir } from '../helpers/packages.js';
 import { KindCluster, TsVolumeSet } from './interfaces.js';
-import { DOCKER_CACHE_PATH, TERASLICE_PORT } from './config.js';
+import { DOCKER_CACHE_PATH, TERASLICE_PORT, OPENSEARCH_HOSTNAME, ENCRYPT_OPENSEARCH } from './config.js';
 
 export class Kind {
     clusterName: string;
@@ -29,6 +29,16 @@ export class Kind {
         const e2eK8sDir = getE2eK8sDir();
         if (!e2eK8sDir) {
             throw new Error('Missing k8s e2e test directory');
+        }
+
+        if (ENCRYPT_OPENSEARCH) {
+            try {
+                signale.pending('Generating new ca-certificates for opensearch...');
+                const scriptLocation = path.join(getE2eK8sDir() as string, '../../scripts/generate-cert.sh');
+                await execa(scriptLocation, ['localhost', 'minio', OPENSEARCH_HOSTNAME, 'opensearch2.services-dev1']);
+            } catch (err) {
+                throw new Error(`Error generating ca-certificates for opensearch2: ${err.message}`);
+            }
         }
 
         let configPath: string;
@@ -54,6 +64,12 @@ export class Kind {
                 configFile.nodes[0].extraMounts.push(...dockerFileMounts);
             }
         }
+        if (configFile.nodes[0].extraMounts) {
+            configFile.nodes[0].extraMounts.push({
+                hostPath: path.join(e2eK8sDir, '../test/certs'),
+                containerPath: '/certs'
+            });
+        }
         configFile.nodes[0].extraPortMappings[0].hostPort = Number.parseInt(teraslicePort, 10);
         const updatedYaml = yaml.dump(configFile);
 
@@ -73,6 +89,8 @@ export class Kind {
     }
 
     // TODO: check that image is loaded before we continue
+    // FIXME: We need to load services into kind or else we can hit a docker pull limit:
+    // ex: busybox:latest confluentinc/cp-zookeeper:7.7.2  confluentinc/cp-enterprise-kafka:7.7.2 opensearchproject/opensearch:2.15.0
     async loadTerasliceImage(terasliceImage: string): Promise<void> {
         const subprocess = await execaCommand(`kind load docker-image ${terasliceImage} --name ${this.clusterName}`);
         this.logger.debug(subprocess.stderr);
