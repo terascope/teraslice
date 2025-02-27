@@ -25,7 +25,7 @@ releases:
   - name: opensearch2
     namespace: services-dev1
     chart: opensearch/opensearch
-    version: 2.17.1
+    version: 2.31.0
     installed: {{ .Values | get "opensearch2.enabled" true }}
     values:
       - ./templates/os2.yaml.gotmpl
