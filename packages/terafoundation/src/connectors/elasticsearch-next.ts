@@ -17,6 +17,21 @@ const connector: Terafoundation.Connector = {
                 doc: 'Sniff hosts on start up',
                 default: false
             },
+            caCertificate: {
+                doc: 'A string containing a single or multiple ca certificates',
+                default: undefined,
+                format: String
+            },
+            username: {
+                doc: 'Username for authenticating with cluster. Required if authentication is enabled.',
+                default: undefined,
+                format: String
+            },
+            password: {
+                doc: 'Password for authenticating with cluster. Must be used in conjunction with the username.',
+                default: undefined,
+                format: String
+            },
             sniffOnConnectionFault: {
                 doc: 'Sniff hosts on connection failure',
                 default: false
