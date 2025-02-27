@@ -11,6 +11,26 @@ opensearch1:
 opensearch2:
   # If false, opensearch2 will be excluded on helmfile sync
   enabled: true
+
+  ssl:
+    enabled: false
+
+    # CA certificate in a single-line string format with "\\n" as line breaks
+    # Use the following command to convert a PEM file to the correct format:
+    # awk '{printf "%s\\\\n", $0}' <path-to-pem-file> | pbcopy
+    caCert: null
+    # Alternative CA certificate format (Base64-encoded)
+    # This is primarily used for CI/CD environments where Base64 is required
+    # NOTE: When setting this, `caCert` above **must** be set to `null`
+    caCertBase64: null
+    # caCertBase64: null
+    # The distinguished name (DN) of the OpenSearch admin user
+    # Required when SSL is enabled
+    # Retrieve this using the following command:
+    # openssl x509 -in <path-to-cert> -noout -subject | awk '{print substr($0,9)}'
+    # Example output: 'O=mkcert development certificate, OU=local'
+    # FIXME: This needs to be auto generated in e2e
+    admin_dn: ""
   version: 2.15.0
   esJavaOpts: -Xmx512M -Xms512M
   memoryLimit: 100Mi
@@ -59,7 +79,7 @@ minio:
 
 kafka:
   # If false, kafka will be excluded on helmfile sync
-  enabled: true
+  enabled: false
   version: 7.7.1
   brokers: 1
   offsets:
@@ -69,7 +89,7 @@ kafka:
 
 zookeeper:
   # If false, zookeeper will be excluded on helmfile sync
-  enabled: true
+  enabled: false
   version: 7.7.1
   instances: 1
 
