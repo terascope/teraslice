@@ -26,7 +26,9 @@ export async function makeClient(): Promise<Client> {
     if (process.env.TEST_RESTRAINED_OPENSEARCH) {
         host = RESTRAINED_OPENSEARCH_HOST;
     }
-
+    // I need to fix this when creating an ssl client
+    // There seems to be something wrong with parsing the url
+    // for the username and password.
     const { client } = await createClient({
         node: host,
     });
