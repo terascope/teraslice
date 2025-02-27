@@ -17,6 +17,17 @@ export async function createClient(
     config: ClientConfig,
     logger = debugLogger('elasticsearch-client')
 ): Promise<{ log: () => Logger; client: Client }> {
+    if (config.caCertificate) {
+        config.ssl = {
+            ca: config.caCertificate
+        }
+        if (config.username && config.password) {
+            config.auth = {
+                username: config.username,
+                password: config.password
+            }
+        }
+    }
     const distributionMetadata = await getDBMetadata(config, logger);
 
     const baseClient = await getBaseClient(
