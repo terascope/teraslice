@@ -61,6 +61,7 @@ interface ClientOptions {
 export interface ClientConfig extends ClientOptions {
     password?: string;
     username?: string;
+    caCertificate?: string;
 }
 
 export interface ClientOnlyParams {
