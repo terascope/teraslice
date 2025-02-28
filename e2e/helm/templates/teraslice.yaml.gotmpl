@@ -35,16 +35,10 @@ terafoundation:
                 username: admin
                 password: "passwordsufhbivbU123%$"
 
-                {{- if and .Values.opensearch2.ssl.caCert .Values.opensearch2.ssl.caCertBase64 }}
-                {{ fail "Both opensearch2.ssl.caCert and opensearch2.ssl.caCertBase64 are set. Please set only one." }}
-                {{- end }}
-
                 caCertificate: "{{- if .Values.opensearch2.ssl.caCert -}}
                 {{ .Values.opensearch2.ssl.caCert }}
-                {{- else if .Values.opensearch2.ssl.caCertBase64 -}}
-                {{ .Values.opensearch2.ssl.caCertBase64 | b64dec }}
                 {{- else -}}
-                {{ fail "Neither opensearch2.ssl.caCert nor opensearch2.ssl.caCertBase64 is set." }}
+                {{ fail "opensearch2.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
                 {{- end }}"
 
                 {{- end }}
@@ -66,16 +60,10 @@ terafoundation:
                 username: admin
                 password: "passwordsufhbivbU123%$"
 
-                {{- if and .Values.opensearch2.ssl.caCert .Values.opensearch2.ssl.caCertBase64 }}
-                {{ fail "Both opensearch2.ssl.caCert and opensearch2.ssl.caCertBase64 are set. Please set only one." }}
-                {{- end }}
-
                 caCertificate: "{{- if .Values.opensearch2.ssl.caCert -}}
                 {{ .Values.opensearch2.ssl.caCert }}
-                {{- else if .Values.opensearch2.ssl.caCertBase64 -}}
-                {{ .Values.opensearch2.ssl.caCertBase64 | b64dec }}
                 {{- else -}}
-                {{ fail "Neither opensearch2.ssl.caCert nor opensearch2.ssl.caCertBase64 is set." }}
+                {{ fail "opensearch2.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
                 {{- end }}"
 
                 {{- end }}

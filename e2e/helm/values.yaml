@@ -13,17 +13,15 @@ opensearch2:
   enabled: true
 
   ssl:
+    # If true, "caCert" and "admin_dn" need to be set
     enabled: false
 
     # CA certificate in a single-line string format with "\\n" as line breaks
-    # Use the following command to convert a PEM file to the correct format:
+    # Use the following command to convert a rootCA PEM file to the correct format:
     # awk '{printf "%s\\\\n", $0}' <path-to-pem-file> | pbcopy
+    # This is so teraslice can get the rootCA for it's client validation
     caCert: null
-    # Alternative CA certificate format (Base64-encoded)
-    # This is primarily used for CI/CD environments where Base64 is required
-    # NOTE: When setting this, `caCert` above **must** be set to `null`
-    caCertBase64: null
-    # caCertBase64: null
+
     # The distinguished name (DN) of the OpenSearch admin user
     # Required when SSL is enabled
     # Retrieve this using the following command:
