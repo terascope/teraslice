@@ -4,7 +4,7 @@ import fse from 'fs-extra';
 import semver from 'semver';
 import { isDynamicPattern, globbySync } from 'globby';
 import {
-    uniq, fastCloneDeep, get, trim
+    uniq, fastCloneDeep, get, trim,
 } from '@terascope/utils';
 import toposort from 'toposort';
 import { MultiMap } from 'mnemonist';
@@ -16,6 +16,11 @@ import {
     writeIfChanged
 } from './misc.js';
 import * as i from './interfaces.js';
+import { ReleaseType } from 'semver';
+import signale from './signale.js';
+import {
+    updateHelmChart, getCurrentHelmChartVersion
+} from '../helpers/scripts.js';
 
 let _packages: i.PackageInfo[] = [];
 let _e2eDir: string | undefined;
@@ -351,4 +356,34 @@ export function getPublishTag(version: string): 'prerelease' | 'latest' {
     }
     if (parsed.prerelease.length) return 'prerelease';
     return 'latest';
+}
+
+/**
+ * Updates the Teraslice Helm chart version based on the specified release type
+ *
+ * @param {'major' | 'minor' | 'patch'} releaseType - The type of version bump for Teraslice.
+ *    - `major`: Bumps the Helm chart by a major version.
+ *    - `minor` or `patch`: Bumps the Helm chart by a minor version.
+ *    - Other values will result in no update.
+ * @returns {Promise<void>} Resolves when the Helm chart version is updated.
+ */
+export async function bumpHelmChart(releaseType: ReleaseType): Promise<void> {
+    const currentChartVersion = await getCurrentHelmChartVersion();
+
+    if (!['major', 'minor', 'patch'].includes(releaseType)) {
+        signale.warn('Teraslice Helm chart won\'t be updated');
+        return;
+    }
+
+    const bumpType = releaseType === 'major' ? 'major' : 'minor';
+    const newVersion = semver.inc(currentChartVersion, bumpType);
+
+    if (!newVersion) {
+        signale.error('Failed to determine new chart version');
+        return;
+    }
+
+    signale.info(`Bumping teraslice-chart from ${currentChartVersion} to ${newVersion}`);
+    await updateHelmChart(newVersion);
+    signale.success(`Successfully bumped teraslice-chart to v${newVersion}`);
 }

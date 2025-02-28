@@ -5,12 +5,17 @@ import path from 'node:path';
 import { execa, execaCommand, type Options } from 'execa';
 import fse from 'fs-extra';
 import yaml from 'js-yaml';
+import got from 'got';
+import { parseDocument } from 'yaml';
 import {
     debugLogger, isString, get,
     pWhile, pDelay, TSError
 } from '@terascope/utils';
-import { TSCommands, PackageInfo } from './interfaces.js';
-import { getRootDir } from './misc.js';
+import {
+    TSCommands, PackageInfo,
+    OCIImageManifest, OCIimageConfig, OCIindexManifest
+} from './interfaces.js';
+import { getRootDir, getRootInfo } from './misc.js';
 import signale from './signale.js';
 import * as config from './config.js';
 import { getE2EDir, getE2eK8sDir } from '../helpers/packages.js';
@@ -867,4 +872,213 @@ function createValuesStringFromServicesArray() {
     values += ` --state-values-set teraslice.image.tag=e2e-nodev${config.NODE_VERSION}`;
     logger.debug('helmfile command values: ', values);
     return values;
+}
+
+/**
+ * Gets the current version of the Teraslice Helm chart from `Chart.yaml`.
+ *
+ * @throws {Error} If the `Chart.yaml` file cannot be read
+ * @returns {Promise<string>} Resolves with the Helm chart version as a string
+ */
+export async function getCurrentHelmChartVersion(): Promise<string> {
+    const chartYamlPath = path.join(getRootDir(), '/helm/teraslice/Chart.yaml');
+    const chartYAML = await yaml.load(fs.readFileSync(chartYamlPath, 'utf8')) as any;
+    return chartYAML.version as string;
+}
+
+function getTerasliceVersion() {
+    const rootPackageInfo = getRootInfo();
+    return rootPackageInfo.version;
+}
+
+/**
+ * Extracts the base Docker image information from the top-level Dockerfile
+ *
+ * This function parses the Dockerfile to determine the base image name,
+ * node version, registry, and repository.
+ *
+ * @throws {TSError} If the Dockerfile cannot be read or the base image format is unexpected.
+ * @returns {{
+*   name: string;
+*   tag: string;
+*   registry: string;
+*   repo: string;
+* }} An object containing:
+*    - `name: Full base image name
+*    - `tag`: Node version used in the image
+*    - `registry`: Docker registry (defaults to `docker.io` if not specified)
+*    - `repo`: Repository name including organization
+*/
+export function getDockerBaseImageInfo() {
+    try {
+        const dockerFilePath = path.join(getRootDir(), 'Dockerfile');
+        const dockerfileContent = fs.readFileSync(dockerFilePath, 'utf8');
+        // Grab the "ARG NODE_VERSION" line in the Dockerfile
+        const nodeVersionDefault = dockerfileContent.match(/^ARG NODE_VERSION=(\d+)/m);
+        // Search "FROM" line that includes "NODE_VERSION" in it
+        const dockerImageName = dockerfileContent.match(/^FROM (.+):\$\{NODE_VERSION\}/m);
+
+        if (nodeVersionDefault && dockerImageName) {
+            const nodeVersion = nodeVersionDefault[1];
+            const baseImage = dockerImageName[1];
+            // Regex to extract registry (if present) and keep the rest as `repo`
+            const imagePattern = /^(?:(.+?)\/)?([^/]+\/[^/]+)$/;
+            const match = baseImage.match(imagePattern);
+
+            if (!match) {
+                throw new TSError(`Unexpected image format: ${baseImage}`);
+            }
+            // Default to Docker Hub if no registry
+            const registry = match[1] || 'docker.io';
+            // Keep org and repo together
+            const repo = match[2];
+            signale.debug(`Base Image: ${baseImage}:${nodeVersion}`);
+            return {
+                name: baseImage,
+                tag: nodeVersion,
+                registry,
+                repo
+            };
+        } else {
+            throw new TSError('Failed to parse Dockerfile for base image.');
+        }
+    } catch (err) {
+        throw new TSError('Failed to read top-level Dockerfile to get base image.', err);
+    }
+}
+
+/**
+ * Retrieves the Node.js version from the base Docker image specified in the Teraslice `Dockerfile`.
+ *
+ * This function:
+ * - Extracts the base image details from the `Dockerfile`
+ * - Authenticates with the container registry to retrieve a token
+ * - Fetches the image manifest and configuration
+ * - Extracts the `node_version` label from the image config
+ *
+ * @throws {TSError} If any request to the registry fails or expected data is missing.
+ * @returns {Promise<string>} Resolves with the Node.js version string.
+ */
+export async function grabCurrentTSNodeVersion(): Promise<string> {
+    // Extract base image details from the Dockerfile
+    const baseImage = getDockerBaseImageInfo();
+    let token: string;
+
+    // Request authentication token for accessing image manifests
+    try {
+        const authUrl = `https://${baseImage.registry}/token?scope=repository:${baseImage.repo}:pull`;
+        const authResponse = await got(authUrl);
+        token = JSON.parse(authResponse.body).token;
+    } catch (err) {
+        throw new TSError(`Unable to retrieve token from ${baseImage.registry} for repo ${baseImage.repo}: `, err);
+    }
+
+    // Grab the manifest list to find the right architecture digest
+    let manifestDigest: string;
+    try {
+        const manifestUrl = `https://${baseImage.registry}/v2/${baseImage.repo}/manifests/${baseImage.tag}`;
+        const response = await got(manifestUrl, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.v2+json'
+            },
+            responseType: 'json'
+        });
+
+        const manifestList = response.body as OCIindexManifest;
+        const amd64Manifest = manifestList.manifests.find(
+            (manifest: OCIImageManifest) => manifest.platform.architecture === 'amd64'
+        );
+
+        if (!amd64Manifest) {
+            throw new TSError(`No amd64 manifest found for ${baseImage.repo}:${baseImage.tag}`);
+        }
+
+        manifestDigest = amd64Manifest.digest;
+    } catch (err) {
+        throw new TSError(`Unable to retrieve image manifest list from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}: `, err);
+    }
+
+    // Get the specific manifest using the digest
+    let configBlobSha: string;
+    try {
+        const manifestDetailUrl = `https://${baseImage.registry}/v2/${baseImage.repo}/manifests/${manifestDigest}`;
+        const response = await got(manifestDetailUrl, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/vnd.oci.image.manifest.v1+json'
+            },
+            responseType: 'json'
+        });
+
+        const amd64Manifest = response.body as OCIindexManifest;
+        if (!amd64Manifest.config?.digest) {
+            throw new TSError(`Manifest does not contain a config digest for ${baseImage.repo}:${baseImage.tag}`);
+        }
+
+        configBlobSha = amd64Manifest.config.digest;
+    } catch (err) {
+        throw new TSError(`Unable to get manifest details from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}: `, err);
+    }
+
+    // Retrieve the image configuration and extract the Node.js version label
+    try {
+        const configUrl = `https://${baseImage.registry}/v2/${baseImage.repo}/blobs/${configBlobSha}`;
+        const response = await got(configUrl, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/vnd.oci.image.config.v1+json'
+            },
+            responseType: 'json'
+        });
+
+        const imageConfig = response.body as OCIimageConfig;
+        const nodeVersion = imageConfig.config?.Labels['io.terascope.image.node_version'];
+
+        if (!nodeVersion) {
+            throw new TSError(`Node version label missing in config for ${baseImage.repo}:${baseImage.tag}`);
+        }
+
+        return nodeVersion;
+    } catch (err) {
+        throw new TSError(`Unable to grab image config from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}: `, err);
+    }
+}
+
+/**
+ * Updates the Teraslice Helm chart YAML files (`Chart.yaml` and `values.yaml`)
+ * with the new chart version
+ *
+ * @param {string | null} newChartVersion - The new version to set in `Chart.yaml`.
+ *    - If `null`, the function does not update the chart version.
+ * @throws {TSError} If the function fails to read or write YAML files.
+ * @returns {Promise<void>} Resolves when the Helm chart files have been successfully updated
+ */
+export async function updateHelmChart(newChartVersion: string | null): Promise<void> {
+    const currentNodeVersion = await grabCurrentTSNodeVersion();
+    const rootDir = getRootDir();
+    const chartYamlPath = path.join(rootDir, 'helm/teraslice/Chart.yaml');
+    const valuesYamlPath = path.join(rootDir, 'helm/teraslice/values.yaml');
+
+    try {
+        // Read YAML files and parse them into objects
+        const chartFileContent = fs.readFileSync(chartYamlPath, 'utf8');
+        const valuesFileContent = fs.readFileSync(valuesYamlPath, 'utf8');
+
+        const chartDoc = parseDocument(chartFileContent);
+        const valuesDoc = parseDocument(valuesFileContent);
+
+        // Update specific values for the chart
+        if (newChartVersion) {
+            chartDoc.set('version', newChartVersion);
+        }
+        chartDoc.set('appVersion', `v${getTerasliceVersion()}`);
+        valuesDoc.setIn(['image', 'nodeVersion'], `v${currentNodeVersion}`);
+
+        // Write the updated YAML back to the files
+        fs.writeFileSync(chartYamlPath, chartDoc.toString(), 'utf8');
+        fs.writeFileSync(valuesYamlPath, valuesDoc.toString(), 'utf8');
+    } catch (err) {
+        throw new TSError('Unable to read or write Helm chart YAML files', err);
+    }
 }
