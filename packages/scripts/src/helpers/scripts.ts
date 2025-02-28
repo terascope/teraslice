@@ -872,7 +872,7 @@ function getAdminDnFromCert(): string {
     let organizationalUnit: string | undefined;
     try {
         ca = readCertFromTestDir('opensearch-cert.pem');
-    } catch(err) {
+    } catch (err) {
         throw new TSError(`Failed to read certificate file (opensearch-cert.pem).`, err);
     }
     try {
@@ -889,7 +889,7 @@ function getAdminDnFromCert(): string {
                 organization = part;
             }
         }
-    } catch(err) {
+    } catch (err) {
         throw new TSError(`Failed to parse openSearch certificate. Make sure it's a valid X.509 certificate.`, err);
     }
 
