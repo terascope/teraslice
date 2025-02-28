@@ -12,7 +12,7 @@ import {
     pWhile, pDelay, TSError
 } from '@terascope/utils';
 import {
-    TSCommands, PackageInfo,
+    TSCommands, PackageInfo, Service,
     OCIImageManifest, OCIimageConfig, OCIindexManifest
 } from './interfaces.js';
 import { getRootDir, getRootInfo } from './misc.js';
@@ -832,129 +832,79 @@ export async function launchE2EWithHelmfile() {
     await helmfileDiff();
     await helmfileSync();
 }
-// Will change name when I go to add typedocs to functions
+
+// Helper function for getting the generated rootCa cert
+function getTestCaCert(): string {
+    const certsDir = path.join(getE2EDir() as string, 'test/certs');
+    const testCertPath = path.join(certsDir, 'CAs/rootCA.pem');
+
+    if (!fs.existsSync(testCertPath)) {
+        throw new TSError(`Unable to find rootCA.pem cert at: ${testCertPath}`);
+    }
+
+    return fs.readFileSync(testCertPath, 'utf8').replace(/\n/g, '\\n');
+}
+
 function createValuesFileFromServicesArray() {
+    // Grab default values from the e2e/helm/values.yaml
     const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
     const values = parseDocument(fs.readFileSync(e2eHelmfileValuesPath, 'utf8'));
-    ENV_SERVICES.map((service) => {
-        let serviceString = service.toString();
-        let version;
-        let stateCluster;
-        const newValuesString = '';
 
-        // Setting the stateCluster will only work properly if there is a single ES/OS service
-        // If we need multiple in the future we need to modify this.
-        if (service === 'opensearch') {
+    // Map services to versions used for the image tag
+    const versionMap: Record<Service, string | undefined> = {
+        [Service.Opensearch]: config.OPENSEARCH_VERSION,
+        [Service.Elasticsearch]: config.ELASTICSEARCH_VERSION,
+        [Service.Kafka]: config.KAFKA_IMAGE_VERSION,
+        [Service.Zookeeper]: config.ZOOKEEPER_VERSION,
+        [Service.Minio]: config.MINIO_VERSION,
+        // these are needed because typescript complains
+        [Service.RabbitMQ]: undefined,
+        [Service.RestrainedElasticsearch]: undefined,
+        [Service.RestrainedOpensearch]: undefined,
+    };
+
+    let stateCluster: string | undefined;
+
+    // Iterate over each service we want to start and enable them in the
+    // helmfile.
+    ENV_SERVICES.forEach((service: Service) => {
+        // "serviceString" represents the literal service name string
+        // in the "values.yaml"
+        let serviceString: string = service;
+        const version = versionMap[service];
+
+        if (service === Service.Opensearch) {
             serviceString += config.OPENSEARCH_VERSION.charAt(0);
-            version = config.OPENSEARCH_VERSION;
             stateCluster = serviceString;
-            // I may need to move this into a more global spot
+
             if (config.ENCRYPT_OPENSEARCH) {
-                const certsDir = path.join(getE2EDir() as string, 'test/certs');
-                const opensearchCertPath = path.join(certsDir, 'CAs/rootCA.pem');
-                let caCert: string;
-                if (fs.existsSync(opensearchCertPath)) {
-                    // Need to use replace to get the cert correctly formatted for helm
-                    caCert = fs.readFileSync(opensearchCertPath, 'utf8').replace(/\n/g, '\\n');
-                    // caCert = `"${caCert}"`;
-                } else {
-                    throw new TSError(`Unable to find opensearch cert at: ${opensearchCertPath}`);
-                }
+                const caCert = getTestCaCert();
                 values.setIn(['opensearch2', 'ssl', 'enabled'], true);
                 values.setIn(['opensearch2', 'ssl', 'caCert'], caCert);
             }
-        }
-        if (service === 'elasticsearch') {
+        } else if (service === Service.Elasticsearch) {
             serviceString += config.ELASTICSEARCH_VERSION.charAt(0);
-            version = config.ELASTICSEARCH_VERSION;
             stateCluster = serviceString;
         }
-        if (service === 'kafka') {
-            version = config.KAFKA_IMAGE_VERSION;
-        }
-        if (service === 'zookeeper') {
-            version = config.ZOOKEEPER_VERSION;
-        }
-        if (service === 'minio') {
-            version = config.MINIO_VERSION;
-        }
+
         values.setIn([serviceString, 'enabled'], true);
-        values.setIn([serviceString, 'version'], version);
+        if (version) values.setIn([serviceString, 'version'], version);
+    });
 
-        if (stateCluster) {
-            values.setIn(['teraslice', 'stateCluster'], stateCluster);
-        }
+    if (stateCluster) {
+        values.setIn(['teraslice', 'stateCluster'], stateCluster);
+    }
 
-        return newValuesString;
-    }, '');
     values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
     logger.debug('helmfile command values: ', values);
-    // Return path to temp file
+
+    // Write the values to a temporary file
     const valuesDir = fs.mkdtempSync(path.join(os.tmpdir(), 'generated-yaml'));
-    fs.writeFileSync(path.join(valuesDir, 'values.yaml'), values.toString(), 'utf8');
     const valuesPath = path.join(valuesDir, 'values.yaml');
+    fs.writeFileSync(valuesPath, values.toString(), 'utf8');
+
     return { valuesPath, valuesDir };
 }
-
-// Pending removal!
-// function createValuesStringFromServicesArray() {
-//     let values = ENV_SERVICES.reduce((valuesString, service) => {
-//         let serviceString = service.toString();
-//         let version;
-//         let stateCluster;
-//         let newValuesString = '';
-
-//         // Setting the stateCluster will only work properly if there is a single ES/OS service
-//         // If we need multiple in the future we need to modify this.
-//         if (service === 'opensearch') {
-//             serviceString += config.OPENSEARCH_VERSION.charAt(0);
-//             version = config.OPENSEARCH_VERSION;
-//             stateCluster = serviceString;
-//             console.log('@@@@ ENCRYPT_OPENSEARCH: ', config.ENCRYPT_OPENSEARCH);
-//             if (config.ENCRYPT_OPENSEARCH) {
-//                 const certsDir = path.join(getE2EDir() as string, 'test/certs');
-//                 const opensearchCertPath = path.join(certsDir, 'opensearch-cert.pem');
-//                 let caCertBase64: string;
-//                 if (fs.existsSync(opensearchCertPath)) {
-//                     caCertBase64 = fs.readFileSync(opensearchCertPath, 'base64');
-//                     console.log('@@@ caCertBase64: ', caCertBase64);
-//                 } else {
-//            throw new TSError(`Unable to find opensearch cert at: ${opensearchCertPath}`);
-//                 }
-//                 newValuesString += `--state-values-set opensearch2.ssl.enabled=true `;
-//            newValuesString += `--state-values-set opensearch2.ssl.caCertBase64=${caCertBase64} `;
-//                 console.log('@@@ newValuesString: ', newValuesString);
-//             }
-//         }
-//         if (service === 'elasticsearch') {
-//             serviceString += config.ELASTICSEARCH_VERSION.charAt(0);
-//             version = config.ELASTICSEARCH_VERSION;
-//             stateCluster = serviceString;
-//         }
-//         if (service === 'kafka') {
-//             version = config.KAFKA_IMAGE_VERSION;
-//         }
-//         if (service === 'zookeeper') {
-//             version = config.ZOOKEEPER_VERSION;
-//         }
-//         if (service === 'minio') {
-//             version = config.MINIO_VERSION;
-//         }
-
-// newValuesString += `${valuesString} --state-values-set
-// ${serviceString}.enabled=true --state-values-set ${serviceString}.version=${version} `;
-
-//         if (stateCluster) {
-//             newValuesString += `--state-values-set teraslice.stateCluster=${stateCluster} `;
-//         }
-
-//         return newValuesString;
-//     }, '');
-
-//     values += ` --state-values-set teraslice.image.tag=e2e-nodev${config.NODE_VERSION}`;
-//     logger.debug('helmfile command values: ', values);
-//     return values;
-// }
 
 /**
  * Gets the current version of the Teraslice Helm chart from `Chart.yaml`.
