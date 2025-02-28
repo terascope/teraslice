@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import ms from 'ms';
 import path from 'node:path';
+import { X509Certificate } from 'node:crypto';
 import { execa, execaCommand, type Options } from 'execa';
 import fse from 'fs-extra';
 import yaml from 'js-yaml';
@@ -833,16 +834,70 @@ export async function launchE2EWithHelmfile() {
     await helmfileSync();
 }
 
-// Helper function for getting the generated rootCa cert
-function getTestCaCert(): string {
+// Helper function for reading the contents of a file in the e2e/test/certs
+// directory
+function readCertFromTestDir(fileName: string): string {
     const certsDir = path.join(getE2EDir() as string, 'test/certs');
-    const testCertPath = path.join(certsDir, 'CAs/rootCA.pem');
+    const testCertPath = path.join(certsDir, fileName);
 
     if (!fs.existsSync(testCertPath)) {
-        throw new TSError(`Unable to find rootCA.pem cert at: ${testCertPath}`);
+        throw new TSError(`Unable to find cert at: ${testCertPath}`);
     }
 
-    return fs.readFileSync(testCertPath, 'utf8').replace(/\n/g, '\\n');
+    return fs.readFileSync(testCertPath, 'utf8');
+}
+
+/**
+ * Extracts the admin distinguished name (DN) from a certificate.
+ *
+ * This function is designed specifically for mkcert generated certificates.
+ * It reads the certificate file (`opensearch-cert.pem`), extracts the `O`
+ * and `OU` fields from the subject, and formats them
+ * in the required order (`OU` first, `O` second) for OpenSearch authentication.
+ *
+ * @returns {string} The formatted (DN) string in the format:
+ * `"OU=example, O=example"`
+ * @throws {Error} If the certificate file is missing or invalid.
+ *
+ * @example
+ * ```ts
+ * const adminDn = getAdminDnFromCert();
+ * console.log(adminDn);
+ * // Output: "OU=anon@anon-MBP (Anon User),O=mkcert development certificate"
+ * ```
+ */
+function getAdminDnFromCert(): string {
+    let ca: string;
+    let organization: string | undefined;
+    let organizationalUnit: string | undefined;
+    try {
+        ca = readCertFromTestDir('opensearch-cert.pem');
+    } catch(err) {
+        throw new TSError(`Failed to read certificate file (opensearch-cert.pem).`, err);
+    }
+    try {
+        const rootCA = new X509Certificate(ca);
+        // This splits the OU and O in two separate parts
+        const subjectParts = rootCA.subject.split('\n');
+
+        // Loop through the parts and assign based on prefix
+        // We don't want to assume the order that these are returned
+        for (const part of subjectParts) {
+            if (part.startsWith('OU=')) {
+                organizationalUnit = part;
+            } else if (part.startsWith('O=')) {
+                organization = part;
+            }
+        }
+    } catch(err) {
+        throw new TSError(`Failed to parse openSearch certificate. Make sure it's a valid X.509 certificate.`, err);
+    }
+
+    if (!organizationalUnit || !organization) {
+        throw new TSError(`Certificate is missing required fields. Expected both 'OU' and 'O' fields.`);
+    }
+    // Return with specific format that opensearch expects
+    return `${organizationalUnit},${organization}`;
 }
 
 function createValuesFileFromServicesArray() {
@@ -878,9 +933,11 @@ function createValuesFileFromServicesArray() {
             stateCluster = serviceString;
 
             if (config.ENCRYPT_OPENSEARCH) {
-                const caCert = getTestCaCert();
+                const caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                const admin_dn = getAdminDnFromCert();
                 values.setIn(['opensearch2', 'ssl', 'enabled'], true);
                 values.setIn(['opensearch2', 'ssl', 'caCert'], caCert);
+                values.setIn(['opensearch2', 'ssl', 'admin_dn'], admin_dn);
             }
         } else if (service === Service.Elasticsearch) {
             serviceString += config.ELASTICSEARCH_VERSION.charAt(0);
