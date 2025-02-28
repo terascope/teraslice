@@ -808,7 +808,7 @@ export async function helmfileDiff() {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const { valuesPath, valuesDir } = createValuesYaml();
+    const { valuesPath, valuesDir } = createValuesFileFromServicesArray();
 
     const subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
     fs.rmSync(valuesDir, { recursive: true, force: true });
@@ -821,7 +821,7 @@ export async function helmfileSync() {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const { valuesPath, valuesDir } = createValuesYaml();
+    const { valuesPath, valuesDir } = createValuesFileFromServicesArray();
 
     const subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath}`);
     fs.rmSync(valuesDir, { recursive: true, force: true });
@@ -833,7 +833,7 @@ export async function launchE2EWithHelmfile() {
     await helmfileSync();
 }
 // Will change name when I go to add typedocs to functions
-function createValuesYaml() {
+function createValuesFileFromServicesArray() {
     const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
     const values = parseDocument(fs.readFileSync(e2eHelmfileValuesPath, 'utf8'));
     ENV_SERVICES.map((service) => {
