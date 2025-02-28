@@ -90,7 +90,8 @@ export class Kind {
 
     // TODO: check that image is loaded before we continue
     // FIXME: We need to load services into kind or else we can hit a docker pull limit:
-    // ex: busybox:latest confluentinc/cp-zookeeper:7.7.2  confluentinc/cp-enterprise-kafka:7.7.2 opensearchproject/opensearch:2.15.0
+    // ex: busybox:latest confluentinc/cp-zookeeper:7.7.2
+    // confluentinc/cp-enterprise-kafka:7.7.2 opensearchproject/opensearch:2.15.0
     async loadTerasliceImage(terasliceImage: string): Promise<void> {
         const subprocess = await execaCommand(`kind load docker-image ${terasliceImage} --name ${this.clusterName}`);
         this.logger.debug(subprocess.stderr);

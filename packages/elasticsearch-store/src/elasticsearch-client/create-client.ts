@@ -20,12 +20,12 @@ export async function createClient(
     if (config.caCertificate) {
         config.ssl = {
             ca: config.caCertificate
-        }
+        };
         if (config.username && config.password) {
             config.auth = {
                 username: config.username,
                 password: config.password
-            }
+            };
         }
     }
     const distributionMetadata = await getDBMetadata(config, logger);

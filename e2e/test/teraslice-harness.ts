@@ -65,17 +65,16 @@ export class TerasliceHarness {
     teraslice!: TerasliceClient;
 
     async init() {
-        let esConfig:ClientConfig = { node: TEST_HOST };
+        const esConfig: ClientConfig = { node: TEST_HOST };
         if (ENCRYPT_OPENSEARCH) {
             esConfig.username = OPENSEARCH_USER;
             esConfig.password = OPENSEARCH_PASSWORD;
             esConfig.caCertificate = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         }
         // I should be able to not do this if I add a probe to os2
-        const client = await pRetry(async () => {
-           const { client } = await createClient(esConfig);
-           return client;
-        })
+        const { client } = await pRetry(async () => {
+            return await createClient(esConfig);
+        });
         this.client = client;
         this.teraslice = new TerasliceClient({
             host: `http://${HOST_IP}:${TERASLICE_PORT}`,

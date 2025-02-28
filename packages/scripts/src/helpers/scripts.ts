@@ -840,7 +840,7 @@ function createValuesYaml() {
         let serviceString = service.toString();
         let version;
         let stateCluster;
-        let newValuesString = '';
+        const newValuesString = '';
 
         // Setting the stateCluster will only work properly if there is a single ES/OS service
         // If we need multiple in the future we need to modify this.
@@ -919,10 +919,10 @@ function createValuesYaml() {
 //                     caCertBase64 = fs.readFileSync(opensearchCertPath, 'base64');
 //                     console.log('@@@ caCertBase64: ', caCertBase64);
 //                 } else {
-//                     throw new TSError(`Unable to find opensearch cert at: ${opensearchCertPath}`);
+//            throw new TSError(`Unable to find opensearch cert at: ${opensearchCertPath}`);
 //                 }
 //                 newValuesString += `--state-values-set opensearch2.ssl.enabled=true `;
-//                 newValuesString += `--state-values-set opensearch2.ssl.caCertBase64=${caCertBase64} `;
+//            newValuesString += `--state-values-set opensearch2.ssl.caCertBase64=${caCertBase64} `;
 //                 console.log('@@@ newValuesString: ', newValuesString);
 //             }
 //         }
@@ -941,7 +941,8 @@ function createValuesYaml() {
 //             version = config.MINIO_VERSION;
 //         }
 
-//         newValuesString += `${valuesString} --state-values-set ${serviceString}.enabled=true --state-values-set ${serviceString}.version=${version} `;
+// newValuesString += `${valuesString} --state-values-set
+// ${serviceString}.enabled=true --state-values-set ${serviceString}.version=${version} `;
 
 //         if (stateCluster) {
 //             newValuesString += `--state-values-set teraslice.stateCluster=${stateCluster} `;
