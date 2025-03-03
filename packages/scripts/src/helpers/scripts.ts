@@ -813,6 +813,7 @@ export async function helmfileDiff() {
     console.log('@@@ values file: ', fs.readFileSync(valuesPath, 'utf8'));
 
     const subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
+    console.log('@@@ full diff: ', subprocess.stdout);
     fs.rmSync(valuesDir, { recursive: true, force: true });
     logger.debug('helmfile diff: ', subprocess.stdout);
 }
