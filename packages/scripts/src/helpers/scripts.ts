@@ -826,7 +826,14 @@ export async function helmfileSync() {
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
     const { valuesPath, valuesDir } = createValuesFileFromServicesArray();
 
-    const subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath}`);
+    let subprocess;
+    try {
+        subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath}`);
+    } catch(err) {
+        console.log('@@@@ stdout: ', subprocess?.stdout);
+        console.log('@@@@ stderr', subprocess?.stderr);
+        throw new TSError(`Helmfile sync command failed: `, err);
+    }
     fs.rmSync(valuesDir, { recursive: true, force: true });
     logger.debug('helmfile sync: ', subprocess.stdout);
 }
