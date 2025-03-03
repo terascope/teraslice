@@ -825,10 +825,24 @@ export async function helmfileSync() {
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
     const { valuesPath, valuesDir } = createValuesFileFromServicesArray();
-
+    let count = 0;
     let subprocess;
     try {
-        subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath}`);
+        subprocess = execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath} --debug`);
+        await pWhile(async () => {
+            const log1 = await execaCommand(`kubectl -n services-dev1 logs opensearch2-cluster-master-0 -c security-admin-init`);
+            const log2 = await execaCommand(`kubectl -n services-dev1 logs opensearch2-cluster-master-0`);
+            const log3 = await execaCommand(`kubectl -n services-dev1 get all`);
+            console.log('@@@ log1', log1.stdout, log1.stderr);
+            console.log('@@@ log2', log2.stdout, log2.stderr);
+            console.log('@@@ log3', log3.stdout, log3.stderr);
+            await pDelay(10000);
+            count++;
+            if (count > 10) {
+                return true;
+            }
+            return false;
+        })
     } catch(err) {
         console.log('@@@@ stdout: ', subprocess?.stdout);
         console.log('@@@@ stderr', subprocess?.stderr);
