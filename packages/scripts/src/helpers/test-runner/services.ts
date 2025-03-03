@@ -875,3 +875,41 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         }
     };
 }
+
+export async function loadImagesForHelm(options:TestOptions) {
+    const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
+    const promiseArray: Promise<void>[] = [];
+    config.ENV_SERVICES.forEach(async (service: Service) => {
+        if (service === Service.Opensearch) {
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.OPENSEARCH_DOCKER_IMAGE,
+                config.OPENSEARCH_VERSION,
+                options.skipImageDeletion
+            ));
+        } else if (service === Service.Elasticsearch) {
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.ELASTICSEARCH_DOCKER_IMAGE,
+                config.ELASTICSEARCH_VERSION,
+                options.skipImageDeletion
+            ));
+        } else if (service === Service.Minio) {
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.MINIO_DOCKER_IMAGE,
+                config.MINIO_VERSION,
+                options.skipImageDeletion
+            ));
+        } else if (service === Service.Kafka) {
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.KAFKA_DOCKER_IMAGE,
+                config.KAFKA_IMAGE_VERSION,
+                options.skipImageDeletion
+            ));
+        }
+    });
+    await Promise.all(promiseArray);
+
+}

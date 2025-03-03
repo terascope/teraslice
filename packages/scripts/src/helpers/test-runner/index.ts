@@ -6,7 +6,8 @@ import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
 } from '../misc.js';
-import { ensureServices, loadOrPullServiceImages } from './services.js';
+import { ensureServices, loadOrPullServiceImages,
+    loadImagesForHelm } from './services.js';
 import { PackageInfo } from '../interfaces.js';
 import { TestOptions } from './interfaces.js';
 import {
@@ -284,6 +285,7 @@ async function runE2ETest(
             await kind.loadTerasliceImage(e2eImage);
             if (options.useHelmfile) {
                 const timeLabel = 'helmfile deployment';
+                await loadImagesForHelm(options);
                 signale.time(timeLabel);
                 await launchE2EWithHelmfile();
                 signale.timeEnd(timeLabel);
