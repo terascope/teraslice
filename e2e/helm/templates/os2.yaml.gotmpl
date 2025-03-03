@@ -99,9 +99,4 @@ extraContainers:
     volumeMounts:
       - name: certs
         mountPath: /usr/share/opensearch/config/certs
-    volumes:
-      - name: certs
-        hostPath:
-          path: /certs
-          type: Directory
 {{- end }}
