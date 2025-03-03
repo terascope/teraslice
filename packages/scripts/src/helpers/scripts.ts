@@ -810,6 +810,7 @@ export async function helmfileDiff() {
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
     const { valuesPath, valuesDir } = createValuesFileFromServicesArray();
+    console.log('@@@ values file: ', fs.readFileSync(valuesPath, 'utf8'));
 
     const subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
     fs.rmSync(valuesDir, { recursive: true, force: true });
