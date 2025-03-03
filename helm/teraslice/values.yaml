@@ -11,7 +11,7 @@ image:
   pullPolicy: IfNotPresent
   # node version will be inserted into the image tag (which defaults to the chart version)
   # setting the image tag will ignore this value
-  nodeVersion: v22.13.0
+  nodeVersion: v22.14.0
 
 imagePullSecrets: []
 nameOverride: ""
@@ -94,8 +94,8 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name:
 
-podSecurityContext: {}
-  # fsGroup: 2000
+
+podSecurityContext: {} # fsGroup: 2000
 
 securityContext: {}
   # capabilities:
@@ -207,8 +207,7 @@ serviceMonitor:
 # Pod Monitor used by teraslice job metric api
 podMonitor:
   enabled: false
-  labels: {}
-    #scrape.prometheus.io/instance: prometheus-instance
+  labels: {} #scrape.prometheus.io/instance: prometheus-instance
   annotations: {}
   jobLabel: app.kubernetes.io/instance
   interval: 60s
@@ -234,7 +233,7 @@ prometheusRule:
   #    labels:
   #      severity: warning
 
-# Test images
+  # Test images
 busybox:
   repository: busybox
   tag: latest
