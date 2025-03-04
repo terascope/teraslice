@@ -833,11 +833,13 @@ export async function helmfileSync() {
                 const log1 = await execaCommand(`kubectl -n services-dev1 logs opensearch2-cluster-master-0 -c security-admin-init`);
                 const log2 = await execaCommand(`kubectl -n services-dev1 logs opensearch2-cluster-master-0`);
                 const log3 = await execaCommand(`kubectl -n services-dev1 get all`);
+                const log5 = await execaCommand(`kubectl -n services-dev1 exec -it opensearch2-cluster-master-0 -- ls -la /usr/share/opensearch/config/certs`);
+                console.log(`@@@@@ certs dir permissions: `, log5.stdout);
                 console.log('@@@ log1', log1.stdout, log1.stderr);
                 console.log('@@@ log2', log2.stdout, log2.stderr);
                 console.log('@@@ log3', log3.stdout, log3.stderr);
                 count++;
-                if (count > 10) {
+                if (count > 6) {
                     return true;
                 }
                 return false;
@@ -856,9 +858,6 @@ export async function helmfileSync() {
 
 export async function launchE2EWithHelmfile() {
     await helmfileDiff();
-    const certsDir = path.join(getE2EDir() as string, 'test/certs');
-    const log5 = await execaCommand(`kubectl -n services-dev1 exec -it opensearch2-cluster-master-0 -- ls -la /usr/share/opensearch/config/certs`);
-    console.log(`@@@@@ certs dir permissions: `, log5.stdout);
     await helmfileSync();
 }
 
