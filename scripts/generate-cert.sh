@@ -48,10 +48,16 @@ format() {
     for format in "${FORMATS[@]}"; do
         case "$format" in
             minio)
+            # Minio requires these files to be a specific name:
+            # https://min.io/docs/minio/linux/operations/network-encryption.html
                 cp "$PRIVATE_KEY_NAME" private.key
                 cp "$PUBLIC_CERT_NAME" public.crt
                 ;;
             opensearch)
+            # Opensearch expects these files to be in pem format
+            # The naming of these files are because these are how we name them in the os2 template file
+            # at teraslice/e2e/helm/templates/os2.yaml.gotmpl
+            # https://opensearch.org/docs/latest/security/configuration/tls/#x509-pem-certificates-and-pkcs-8-keys
                 cp "$PRIVATE_KEY_NAME" opensearch-key.pem
                 cp "$PUBLIC_CERT_NAME" opensearch-cert.pem
                 create_internal_users_file "$CERT_DIR"

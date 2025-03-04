@@ -67,6 +67,8 @@ extraVolumeMounts:
       mountPath: /usr/share/opensearch/config/certs
       readOnly: false
 
+##@ This extra container is used launch the security admin script
+##@ https://opensearch.org/docs/latest/security/configuration/security-admin/
 extraContainers:
   - name: security-admin-init
     image: opensearchproject/opensearch:{{ .Values | get "opensearch2.version" "2.15.0" }}
