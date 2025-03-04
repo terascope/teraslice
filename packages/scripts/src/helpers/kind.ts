@@ -1,14 +1,14 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execaCommand, execa } from 'execa';
+import { execaCommand } from 'execa';
 import yaml from 'js-yaml';
 import { Logger, debugLogger, isCI } from '@terascope/utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale.js';
 import { getE2eK8sDir } from '../helpers/packages.js';
 import { KindCluster, TsVolumeSet } from './interfaces.js';
-import { DOCKER_CACHE_PATH, TERASLICE_PORT, OPENSEARCH_HOSTNAME, ENCRYPT_OPENSEARCH } from './config.js';
+import { DOCKER_CACHE_PATH, TERASLICE_PORT } from './config.js';
 
 export class Kind {
     clusterName: string;

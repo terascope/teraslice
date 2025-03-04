@@ -404,9 +404,11 @@ async function generateTestCaCerts(): Promise<void> {
     }
     if (encryptedServices.length > 0) {
         // Formats the encrypted service list to print with the user feedback
-        const serviceList = encryptedServices.length === 1 ? encryptedServices[0]
-        : encryptedServices.length === 2 ? encryptedServices.join(' and ')
-        : `${encryptedServices.slice(0, -1).join(', ')} and ${encryptedServices[encryptedServices.length - 1]}`;
+        const serviceList = encryptedServices.length === 1
+            ? encryptedServices[0]
+            : encryptedServices.length === 2
+                ? encryptedServices.join(' and ')
+                : `${encryptedServices.slice(0, -1).join(', ')} and ${encryptedServices[encryptedServices.length - 1]}`;
 
         try {
             signale.pending(`Generating new ca-certificates for ${serviceList}...`);

@@ -4,7 +4,6 @@ import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'node:path';
 import { Kafka } from 'kafkajs';
-import { execa } from 'execa';
 import {
     pWhile, TSError, debugLogger,
     toHumanTime, getErrorStatusCode, isKey
