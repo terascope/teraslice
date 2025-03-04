@@ -857,7 +857,7 @@ export async function helmfileSync() {
 export async function launchE2EWithHelmfile() {
     await helmfileDiff();
     const certsDir = path.join(getE2EDir() as string, 'test/certs');
-    const log5 = await execaCommand(`ls -la ${certsDir}`);
+    const log5 = await execaCommand(`kubectl -n services-dev1 exec -it opensearch2-cluster-master-0 -- ls -la /usr/share/opensearch/config/certs`);
     console.log(`@@@@@ certs dir permissions: `, log5.stdout);
     await helmfileSync();
 }
