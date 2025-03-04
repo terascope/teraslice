@@ -17,6 +17,7 @@ type Options = {
     'keep-open': boolean;
     trace: boolean;
     'report-coverage': boolean;
+    'encrypt-kafka': boolean;
     'encrypt-minio': boolean;
     'use-existing-services': boolean;
     packages?: PackageInfo[];
@@ -87,6 +88,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: config.USE_EXISTING_SERVICES,
             })
+            .option('encrypt-kafka', {
+                description: 'Add TLS encryption to kafka service',
+                type: 'boolean',
+                default: config.ENCRYPT_KAFKA,
+            })
             .option('encrypt-minio', {
                 description: 'Add TLS encryption to minio service',
                 type: 'boolean',
@@ -133,6 +139,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const keepOpen = hoistJestArg(argv, 'keep-open', 'boolean');
         const reportCoverage = hoistJestArg(argv, 'report-coverage', 'boolean');
         const useExistingServices = hoistJestArg(argv, 'use-existing-services', 'boolean');
+        const encryptKafka = hoistJestArg(argv, 'encrypt-kafka', 'boolean');
         const encryptMinio = hoistJestArg(argv, 'encrypt-minio', 'boolean');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
@@ -154,6 +161,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             keepOpen,
             forceSuite,
             useExistingServices,
+            encryptKafka,
             encryptMinio,
             all: !argv.packages || !argv.packages.length,
             reportCoverage,

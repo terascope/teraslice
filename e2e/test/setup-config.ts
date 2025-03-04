@@ -6,7 +6,7 @@ import {
     TEST_HOST, TERASLICE_PORT, CLUSTER_NAME,
     HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST,
-    ENCRYPT_MINIO, ROOT_CERT_PATH
+    ENCRYPT_MINIO, ROOT_CERT_PATH, ENCRYPT_KAFKA
 } from './config.js';
 
 const baseConfig = {
@@ -32,7 +32,9 @@ const baseConfig = {
             },
             kafka: {
                 default: {
-                    brokers: [KAFKA_BROKER]
+                    brokers: [KAFKA_BROKER],
+                    security_protocol: 'plaintext',
+                    ssl_ca_location: '/app/certs/CAs/rootCA.pem'
                 }
             },
             s3: {
@@ -107,6 +109,12 @@ async function writeMasterConfig() {
         masterConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
     }
 
+    if (ENCRYPT_KAFKA === 'true') {
+        // const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
+        // masterConfig.terafoundation.connectors.kafka.default.ssl_ca_pem = rootCA;
+        masterConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
+    }
+
     const masterConfigPath = path.join(CONFIG_PATH, 'teraslice-master.json');
     await fse.writeJSON(masterConfigPath, masterConfig, {
         spaces: 4
@@ -120,6 +128,12 @@ async function writeWorkerConfig() {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         workerConfig.terafoundation.connectors.s3.default.sslEnabled = true;
         workerConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
+    }
+
+    if (ENCRYPT_KAFKA === 'true') {
+        // const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
+        // workerConfig.terafoundation.connectors.kafka.default.ssl_ca_pem = rootCA;
+        workerConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
     }
 
     const workerConfigPath = path.join(CONFIG_PATH, 'teraslice-worker.json');

@@ -107,6 +107,7 @@ describe('services', () => {
         keepOpen: false,
         reportCoverage: false,
         useExistingServices: false,
+        encryptKafka: false,
         encryptMinio: false,
         ignoreMount: false,
         testPlatform: 'native',
