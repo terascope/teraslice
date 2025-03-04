@@ -33,6 +33,8 @@ format() {
     mv $PUBLIC_CERT_NAME public.crt
     cp private.key opensearch-key.pem
     cp public.crt opensearch-cert.pem
+    # Add read permissions to all users for ci
+    chmod -R a+rX "$CERT_DIR"
 }
 
 grab_rootCA() {
