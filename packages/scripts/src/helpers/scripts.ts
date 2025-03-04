@@ -856,6 +856,9 @@ export async function helmfileSync() {
 
 export async function launchE2EWithHelmfile() {
     await helmfileDiff();
+    const certsDir = path.join(getE2EDir() as string, 'test/certs');
+    const log5 = await execaCommand(`ls -la ${certsDir}`);
+    console.log(`@@@@@ certs dir permissions: `, log5.stdout);
     await helmfileSync();
 }
 
@@ -863,8 +866,6 @@ export async function launchE2EWithHelmfile() {
 // directory
 function readCertFromTestDir(fileName: string): string {
     const certsDir = path.join(getE2EDir() as string, 'test/certs');
-    const log5 = execaCommand(`ls -la ${certsDir}`);
-    console.log(`@@@@@ certs dir permissions: `, log5.stdout);
     const testCertPath = path.join(certsDir, fileName);
 
     if (!fs.existsSync(testCertPath)) {
