@@ -813,7 +813,7 @@ export async function helmfileDiff() {
     let subprocess;
     try {
         subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
-    } catch(err) {
+    } catch (err) {
         fs.rmSync(valuesDir, { recursive: true, force: true });
         throw new TSError(`Helmfile diff command failed: `, err);
     }
@@ -831,7 +831,7 @@ export async function helmfileSync() {
     let subprocess;
     try {
         subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath}`);
-    } catch(err) {
+    } catch (err) {
         fs.rmSync(valuesDir, { recursive: true, force: true });
         throw new TSError(`Helmfile sync command failed: `, err);
     }

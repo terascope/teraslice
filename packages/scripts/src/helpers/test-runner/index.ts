@@ -6,8 +6,10 @@ import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
 } from '../misc.js';
-import { ensureServices, loadOrPullServiceImages,
-    loadImagesForHelm } from './services.js';
+import {
+    ensureServices, loadOrPullServiceImages,
+    loadImagesForHelm
+} from './services.js';
 import { PackageInfo } from '../interfaces.js';
 import { TestOptions } from './interfaces.js';
 import {

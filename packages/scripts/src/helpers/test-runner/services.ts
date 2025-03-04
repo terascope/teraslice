@@ -876,7 +876,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     };
 }
 
-export async function loadImagesForHelm(options:TestOptions) {
+export async function loadImagesForHelm(options: TestOptions) {
     const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
     const promiseArray: Promise<void>[] = [];
     config.ENV_SERVICES.forEach(async (service: Service) => {
@@ -911,5 +911,4 @@ export async function loadImagesForHelm(options:TestOptions) {
         }
     });
     await Promise.all(promiseArray);
-
 }

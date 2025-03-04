@@ -17,7 +17,6 @@ export async function createClient(
     config: ClientConfig,
     logger = debugLogger('elasticsearch-client')
 ): Promise<{ log: () => Logger; client: Client }> {
-
     const finalConfig = formatClientConfig(config);
 
     const distributionMetadata = await getDBMetadata(finalConfig, logger);
@@ -74,8 +73,7 @@ function formatClientConfig(config: ClientConfig): ClientConfig {
                     );
                 }
             } else if (Array.isArray(updatedConfig.node)) {
-                const invalidNode = updatedConfig.node.find(node =>
-                    typeof node === 'string' && !node.startsWith('https://')
+                const invalidNode = updatedConfig.node.find((node) => typeof node === 'string' && !node.startsWith('https://')
                 );
                 if (invalidNode) {
                     throw new Error(
