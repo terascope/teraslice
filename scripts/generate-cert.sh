@@ -9,10 +9,16 @@ echoerr() { if [[ $QUIET -ne 1 ]]; then echo "$@" 1>&2; fi; }
 usage() {
     cat <<USAGE >&2
 Usage:
-    $cmdname
+    $cmdname --format [minio|opensearch] <dns_names...>
 
-    Generate a certifcate in the e2e/test/certs directory
-    Example: generate-cert.sh 127.0.0.1 localhost service.com
+    Generate a certificate in the e2e/test/certs directory.
+
+    Example:
+        generate-cert.sh --format minio 127.0.0.1 localhost service.com
+        generate-cert.sh --format opensearch --format minio 127.0.0.1 localhost service.com
+        generate-cert.sh 127.0.0.1 localhost service.com  (keeps original file names)
+
+    If no --format is specified, the original files are kept without renaming.
 USAGE
     exit 1
 }
@@ -20,20 +26,48 @@ USAGE
 
 format() {
     local CERT_DIR="$1"
+    shift
+    local FORMATS=("$@")  # List of formats passed to the script
 
-    # Grab rootCA from mkcert folder and move to correct location
+    # Move root CA to the correct location
     cd "$CERT_DIR"
-    mkdir CAs
+    mkdir -p CAs
     mv rootCA.pem ./CAs
 
-    # Rename files to proper names
+    # Detect the generated key and certificate files
     local PRIVATE_KEY_NAME=$(ls | grep -i "key.pem")
-    mv $PRIVATE_KEY_NAME private.key
-    local PUBLIC_CERT_NAME=$(ls | grep -i ".pem")
-    mv $PUBLIC_CERT_NAME public.crt
-    cp private.key opensearch-key.pem
-    cp public.crt opensearch-cert.pem
-    # Add read permissions to all users for ci
+    local PUBLIC_CERT_NAME=$(ls | grep -i ".pem" | grep -v "key.pem")
+
+    # Ensure both files exist before proceeding
+    if [[ -z "$PRIVATE_KEY_NAME" || -z "$PUBLIC_CERT_NAME" ]]; then
+        echo "Error: Could not locate key.pem or public cert in $CERT_DIR" >&2
+        exit 1
+    fi
+
+    # Rename the files based on requested formats
+    for format in "${FORMATS[@]}"; do
+        case "$format" in
+            minio)
+                cp "$PRIVATE_KEY_NAME" private.key
+                cp "$PUBLIC_CERT_NAME" public.crt
+                ;;
+            opensearch)
+                cp "$PRIVATE_KEY_NAME" opensearch-key.pem
+                cp "$PUBLIC_CERT_NAME" opensearch-cert.pem
+                create_internal_users_file "$CERT_DIR"
+                ;;
+            *)
+                echo "Warning: Unknown format '$format' ignored."
+                ;;
+        esac
+    done
+
+    # Remove original files if any format was applied
+    if [[ ${#FORMATS[@]} -gt 0 ]]; then
+        rm -f "$PRIVATE_KEY_NAME" "$PUBLIC_CERT_NAME"
+    fi
+
+    # Add read permissions for CI
     chmod -R a+rX "$CERT_DIR"
 }
 
@@ -41,38 +75,44 @@ grab_rootCA() {
     local CERT_DIR="$1"
     local CA_ROOT_PATH=$(mkcert -CAROOT)
 
-    cd "$CA_ROOT_PATH"
-    cp rootCA.pem "$CERT_DIR"
+    cp "$CA_ROOT_PATH/rootCA.pem" "$CERT_DIR"
 }
 
-
 generate() {
-
-    local CERT_DIR="$1"/certs
+    local CERT_DIR="$1/certs"
     local DNS_NAMES=""
-
-    # remove first arg in arg array
     shift
 
-    for arg in "$@"; do
-        DNS_NAMES+="$arg "
+    # Parse format flags
+    local FORMATS=()
+    while [[ "$1" == --format ]]; do
+        shift
+        FORMATS+=("$1")
+        shift
     done
-    echo "$DNS_NAMES"
+
+    # Collect DNS names
+    while [[ $# -gt 0 ]]; do
+        DNS_NAMES+="$1 "
+        shift
+    done
+
+    echo "Generating certificates for: $DNS_NAMES"
+
+    # Remove existing cert directory if it exists
     if [ -d "$CERT_DIR" ]; then
-        rm -rf $CERT_DIR
+        rm -rf "$CERT_DIR"
     fi
 
-    mkdir "$CERT_DIR"
+    mkdir -p "$CERT_DIR"
     cd "$CERT_DIR"
     mkcert --client $DNS_NAMES
 
     grab_rootCA "$CERT_DIR"
-    format "$CERT_DIR"
-    create_internal_users_file "$CERT_DIR"
+    format "$CERT_DIR" "${FORMATS[@]}"
 
     echo "Successfully created certificates at $CERT_DIR"
     exit 0
-
 }
 
 create_internal_users_file() {
@@ -138,36 +178,28 @@ snapshotrestore:
 EOF
 }
 
-
 main() {
-    # Add args later for other serice encryption formats.
-    # Only works for minio for now
-
-    case "$arg" in
-    -h | --help | help)
+    # Handle help flag
+    if [[ "$1" == "-h" || "$1" == "--help" || "$1" == "help" ]]; then
         usage
-        ;;
-    esac
+    fi
 
-    # verfiy mkcert is installed
-    if ! [ -x "$(command -v mkcert)" ]; then
-        echo 'Error: mkcert is not installed. please install mkcert and try again.' >&2
+    # Verify required dependencies
+    if ! command -v mkcert &>/dev/null; then
+        echo 'Error: mkcert is not installed. Please install mkcert and try again.' >&2
         exit 1
     fi
 
-    # verfiy grep is installed
-    if ! [ -x "$(command -v grep)" ]; then
-        echo 'Error: grep is not installed. please install grep and try again.' >&2
+    if ! command -v grep &>/dev/null; then
+        echo 'Error: grep is not installed. Please install grep and try again.' >&2
         exit 1
     fi
 
-    # find cert directory in e2e
+    # Find cert directory in e2e
     local SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
     local TEST_DIR=$(builtin cd "$SCRIPT_DIR/../e2e/test"; pwd)
 
     generate "$TEST_DIR" "$@"
-
-
 }
 
 main "$@"
