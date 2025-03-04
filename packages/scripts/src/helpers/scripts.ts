@@ -810,10 +810,8 @@ export async function helmfileDiff() {
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
     const { valuesPath, valuesDir } = createValuesFileFromServicesArray();
-    console.log('@@@ values file: ', fs.readFileSync(valuesPath, 'utf8'));
 
     const subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
-    console.log('@@@ full diff: ', subprocess.stdout);
     fs.rmSync(valuesDir, { recursive: true, force: true });
     logger.debug('helmfile diff: ', subprocess.stdout);
 }
@@ -865,6 +863,8 @@ export async function launchE2EWithHelmfile() {
 // directory
 function readCertFromTestDir(fileName: string): string {
     const certsDir = path.join(getE2EDir() as string, 'test/certs');
+    const log5 = execaCommand(`ls -la ${certsDir}`);
+    console.log(`@@@@@ certs dir permissions: `, log5.stdout);
     const testCertPath = path.join(certsDir, fileName);
 
     if (!fs.existsSync(testCertPath)) {
