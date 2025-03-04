@@ -313,17 +313,6 @@ export async function ensureZookeeper(options: TestOptions): Promise<() => void>
 
 export async function ensureMinio(options: TestOptions): Promise<() => void> {
     let fn = () => { };
-    // Create fresh certs before loading minio if encryption enabled
-    if (options.encryptMinio) {
-        try {
-            signale.pending('Generating new ca-certificates for minio...');
-            const scriptLocation = path.join(getRootDir(), '/scripts/generate-cert.sh');
-            await execa(scriptLocation, ['localhost', 'minio', config.MINIO_HOSTNAME]);
-        } catch (err) {
-            throw new TSError(`Error generating ca-certificates for minio: ${err.message}`);
-        }
-        signale.success('Successfully created new certificates for minio');
-    }
     const startTime = Date.now();
     fn = await startService(options, Service.Minio);
     await checkMinio(options, startTime);

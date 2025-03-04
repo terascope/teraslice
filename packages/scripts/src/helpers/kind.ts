@@ -31,16 +31,6 @@ export class Kind {
             throw new Error('Missing k8s e2e test directory');
         }
 
-        if (ENCRYPT_OPENSEARCH) {
-            try {
-                signale.pending('Generating new ca-certificates for opensearch...');
-                const scriptLocation = path.join(getE2eK8sDir() as string, '../../scripts/generate-cert.sh');
-                await execa(scriptLocation, ['localhost', 'minio', OPENSEARCH_HOSTNAME, 'opensearch2.services-dev1']);
-            } catch (err) {
-                throw new Error(`Error generating ca-certificates for opensearch2: ${err.message}`);
-            }
-        }
-
         let configPath: string;
 
         // clusterName must match 'name' in kind config yaml file
