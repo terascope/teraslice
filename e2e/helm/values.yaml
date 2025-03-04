@@ -27,7 +27,6 @@ opensearch2:
     # Retrieve this using the following command:
     # openssl x509 -in <path-to-cert> -noout -subject | awk '{print substr($0,9)}'
     # Example output: 'O=mkcert development certificate, OU=local'
-    # FIXME: This needs to be auto generated in e2e
     admin_dn: ""
   version: 2.15.0
   esJavaOpts: -Xmx512M -Xms512M

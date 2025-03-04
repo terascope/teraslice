@@ -17,22 +17,14 @@ export async function createClient(
     config: ClientConfig,
     logger = debugLogger('elasticsearch-client')
 ): Promise<{ log: () => Logger; client: Client }> {
-    if (config.caCertificate) {
-        config.ssl = {
-            ca: config.caCertificate
-        };
-        if (config.username && config.password) {
-            config.auth = {
-                username: config.username,
-                password: config.password
-            };
-        }
-    }
-    const distributionMetadata = await getDBMetadata(config, logger);
+
+    const finalConfig = formatClientConfig(config);
+
+    const distributionMetadata = await getDBMetadata(finalConfig, logger);
 
     const baseClient = await getBaseClient(
         distributionMetadata,
-        config,
+        finalConfig,
         logger
     );
 
@@ -40,6 +32,61 @@ export async function createClient(
         client: new Client(baseClient, distributionMetadata),
         log: logWrapper(logger)
     };
+}
+
+/**
+ * Validates and formats the Elasticsearch client configuration.
+ *
+ * Ensures that:
+ * - Both `username` and `password` are set if defined
+ * - If `caCertificate` is set, `config.node` must use `https`.
+ *
+ * @param config - The original client configuration.
+ * @returns A normalized and validated `ClientConfig`.
+ * @throws An error if configuration validation fails.
+ */
+function formatClientConfig(config: ClientConfig): ClientConfig {
+    const updatedConfig = { ...config };
+
+    // Ensure authentication credentials are both set or neither is set
+    if (updatedConfig.username || updatedConfig.password) {
+        if (!updatedConfig.username || !updatedConfig.password) {
+            throw new Error(
+                'Both "username" and "password" must be provided when one is set'
+            );
+        }
+        updatedConfig.auth = {
+            username: updatedConfig.username,
+            password: updatedConfig.password
+        };
+    }
+
+    // Ensure ssl settings if `caCertificate` is provided
+    if (updatedConfig.caCertificate) {
+        updatedConfig.ssl = { ca: updatedConfig.caCertificate };
+
+        // Validate that the node urls use `https` if ssl is enabled
+        if (updatedConfig.node) {
+            if (typeof updatedConfig.node === 'string') {
+                if (!updatedConfig.node.startsWith('https://')) {
+                    throw new Error(
+                        'Invalid configuration: "node" must use "https" when "caCertificate" is provided.'
+                    );
+                }
+            } else if (Array.isArray(updatedConfig.node)) {
+                const invalidNode = updatedConfig.node.find(node =>
+                    typeof node === 'string' && !node.startsWith('https://')
+                );
+                if (invalidNode) {
+                    throw new Error(
+                        `Invalid configuration: node "${invalidNode}" must use "https" when "caCertificate" is provided.`
+                    );
+                }
+            }
+        }
+    }
+
+    return updatedConfig;
 }
 
 async function getDBMetadata(

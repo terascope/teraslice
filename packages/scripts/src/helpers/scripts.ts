@@ -809,9 +809,14 @@ export async function helmfileDiff() {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const { valuesPath, valuesDir } = createValuesFileFromServicesArray();
-
-    const subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
+    const { valuesPath, valuesDir } = generateHelmValuesFromServices();
+    let subprocess;
+    try {
+        subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
+    } catch(err) {
+        fs.rmSync(valuesDir, { recursive: true, force: true });
+        throw new TSError(`Helmfile diff command failed: `, err);
+    }
     fs.rmSync(valuesDir, { recursive: true, force: true });
     logger.debug('helmfile diff: ', subprocess.stdout);
 }
@@ -822,34 +827,12 @@ export async function helmfileSync() {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const { valuesPath, valuesDir } = createValuesFileFromServicesArray();
-    let count = 0;
+    const { valuesPath, valuesDir } = generateHelmValuesFromServices();
     let subprocess;
     try {
-        subprocess = execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath} --debug`);
-        await pWhile(async () => {
-            try {
-                await pDelay(10000);
-                const log1 = await execaCommand(`kubectl -n services-dev1 logs opensearch2-cluster-master-0 -c security-admin-init`);
-                const log2 = await execaCommand(`kubectl -n services-dev1 logs opensearch2-cluster-master-0`);
-                const log3 = await execaCommand(`kubectl -n services-dev1 get all`);
-                const log5 = await execaCommand(`kubectl -n services-dev1 exec -it opensearch2-cluster-master-0 -- ls -la /usr/share/opensearch/config/certs`);
-                console.log(`@@@@@ certs dir permissions: `, log5.stdout);
-                console.log('@@@ log1', log1.stdout, log1.stderr);
-                console.log('@@@ log2', log2.stdout, log2.stderr);
-                console.log('@@@ log3', log3.stdout, log3.stderr);
-                count++;
-                if (count > 6) {
-                    return true;
-                }
-                return false;
-            } catch(err) {
-                return false;
-            }
-        })
+        subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath}`);
     } catch(err) {
-        console.log('@@@@ stdout: ', subprocess?.stdout);
-        console.log('@@@@ stderr', subprocess?.stderr);
+        fs.rmSync(valuesDir, { recursive: true, force: true });
         throw new TSError(`Helmfile sync command failed: `, err);
     }
     fs.rmSync(valuesDir, { recursive: true, force: true });
@@ -927,7 +910,22 @@ function getAdminDnFromCert(): string {
     return `${organizationalUnit},${organization}`;
 }
 
-function createValuesFileFromServicesArray() {
+/**
+ * Generates a temporary `values.yaml` file based on the test suite configuration.
+ * This file is used to configure Helmfile when launching the test environment.
+ *
+ * The function:
+ * - Loads a base `values.yaml` template from `e2e/helm/values.yaml`.
+ * - Enables services specified in `ENV_SERVICES`, setting their versions when needed
+ * - Configures OpenSearch and Elasticsearch to align with versioning conventions.
+ * - Handles OpenSearch SSL settings if encryption is enabled.
+ * - Generates a temporary directory to store the modified `values.yaml`.
+ *
+ * @returns An object containing:
+ * - `valuesPath` - Path to the generated `values.yaml` file.
+ * - `valuesDir` - Path to the temporary directory containing the file.
+ */
+function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: string } {
     // Grab default values from the e2e/helm/values.yaml
     const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
     const values = parseDocument(fs.readFileSync(e2eHelmfileValuesPath, 'utf8'));
