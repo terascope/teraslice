@@ -74,7 +74,7 @@ export class TerasliceHarness {
         // I should be able to not do this if I add a probe to os2
         const { client } = await pRetry(async () => {
             return await createClient(esConfig);
-        });
+        }, { delay: 500, retries: 3 });
         this.client = client;
         this.teraslice = new TerasliceClient({
             host: `http://${HOST_IP}:${TERASLICE_PORT}`,
