@@ -17,9 +17,15 @@ service:
 config:
     opensearch.yml:
         {{- if eq (.Values | get "opensearch2.instances" 1) 1 }}
+
         discovery.type: single-node
+
         {{- end }}
+
+        ##@ Set all the security plugins when ssl is enabled
+        ##@ The path to the pem files are hard-coded and rely on the "/cert" volume below
         {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+
         plugins.security.ssl.transport.pemcert_filepath: certs/opensearch-cert.pem
         plugins.security.ssl.transport.pemkey_filepath: certs/opensearch-key.pem
         plugins.security.ssl.transport.pemtrustedcas_filepath: certs/CAs/rootCA.pem  # Root CA
@@ -31,15 +37,23 @@ config:
 
         plugins.security.authcz.admin_dn:
             - "{{ .Values | get "opensearch2.ssl.admin_dn" "" }}"
+
         {{- end }}
 
 extraEnvs:
+    ##@ Setting this password only works when the demo security script runs.
+    ##@ Unforunatly the demo does not fit our needs so this password does not get set here
+    ##@ Leaving it here for reference
     {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+
     - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
       value: "passwordsufhbivbU123%$"
+
     {{- else }}
+
     - name: DISABLE_SECURITY_PLUGIN
       value: "true"
+
     {{- end }}
 
 clusterName: opensearch2-cluster
@@ -56,19 +70,27 @@ resources:
 persistence:
     size: {{ .Values | get "opensearch2.persistentVolumeSize" "8Gi" }}
 
+##@ Add all the lines below when ssl is enabled
+
 {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true }}
+
 extraVolumes:
     - name: certs
       hostPath:
         path: /certs
         type: Directory
+
 extraVolumeMounts:
     - name: certs
       mountPath: /usr/share/opensearch/config/certs
       readOnly: false
 
-##@ This extra container is used launch the security admin script
+##@ This extra container is used to launch the security admin script
+##@ This adds our custom "internal_users.yaml" file to the correct place before running the script
+##@ We need this file for several reasons, the main one is setting the admin password
 ##@ https://opensearch.org/docs/latest/security/configuration/security-admin/
+##@ There is room for improvement. As of right now we have sleep set to a large number so the pod doesn't close
+##@ This is because it's policy is always set to restart and I wasn't able to figure out a way to change it.
 extraContainers:
   - name: security-admin-init
     image: opensearchproject/opensearch:{{ .Values | get "opensearch2.version" "2.15.0" }}
@@ -86,7 +108,7 @@ extraContainers:
         /usr/share/opensearch/plugins/opensearch-security/securityconfig/
         cp /usr/share/opensearch/config/certs/internal_users.yml \
         /usr/share/opensearch/plugins/opensearch-security/securityconfig/internal_users.yml
-        echo "Successfully build security config!"
+        echo "Successfully built security config!"
         echo "Running securityadmin.sh..."
         /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh \
           -cd /usr/share/opensearch/plugins/opensearch-security/securityconfig/ \
@@ -101,4 +123,5 @@ extraContainers:
     volumeMounts:
       - name: certs
         mountPath: /usr/share/opensearch/config/certs
+
 {{- end }}

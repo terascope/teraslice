@@ -31,9 +31,8 @@ import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
 import {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
-    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ENCRYPT_MINIO, ENCRYPT_OPENSEARCH,
-    MINIO_HOSTNAME,
-    OPENSEARCH_HOSTNAME
+    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ENCRYPT_MINIO,
+    ENCRYPT_OPENSEARCH, MINIO_HOSTNAME, OPENSEARCH_HOSTNAME
 } from '../config.js';
 import { K8s } from '../k8s-env/k8s.js';
 
@@ -386,6 +385,7 @@ function printAndGetEnv(suite: string, options: TestOptions) {
 async function generateTestCaCerts(): Promise<void> {
     const encryptedServices: string[] = [];
     const hostNames: string[] = ['localhost'];
+
     if (ENCRYPT_OPENSEARCH) {
         encryptedServices.push('opensearch');
         hostNames.push(
@@ -394,6 +394,7 @@ async function generateTestCaCerts(): Promise<void> {
             OPENSEARCH_HOSTNAME
         );
     }
+
     if (ENCRYPT_MINIO) {
         encryptedServices.push('minio');
         hostNames.push(
@@ -402,6 +403,7 @@ async function generateTestCaCerts(): Promise<void> {
             MINIO_HOSTNAME
         );
     }
+
     if (encryptedServices.length > 0) {
         // Formats the encrypted service list to print with the user feedback
         const serviceList = encryptedServices.length === 1
@@ -414,7 +416,7 @@ async function generateTestCaCerts(): Promise<void> {
             signale.pending(`Generating new ca-certificates for ${serviceList}...`);
             const scriptLocation = path.join(getE2EDir() as string, '../scripts/generate-cert.sh');
 
-            // create a format array for each servie
+            // create a format array for each service
             const formatCommands: string[] = [];
             encryptedServices.forEach((service) => {
                 formatCommands.push('--format');
