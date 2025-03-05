@@ -28,7 +28,7 @@ The Elasticsearch-next connector configuration, in your Teraslice configuration 
 | sniffOnStart | Sniff hosts on start up | Boolean | optional, defaults to `false` |
 | caCertificate | A string containing a single or multiple ca certificates | String | optional, defaults to `undefined` |
 | username | Username for authenticating with cluster | String | optional, required if authentication is enabled, defaults to `undefined` |
-| password | Password for authenticating with cluster. | Strong | optional, required if used in conjunction with the username, defaults to `undefined` |
+| password | Password for authenticating with cluster. | String | optional, required if used in conjunction with the username, defaults to `undefined` |
 | sniffOnConnectionFault | Sniff hosts on connection failure | Boolean | optional, defaults to `false` |
 | requestTimeout | Request timeout | duration | optional, defaults to `120000` |
 | maxRetries | Maximum retries for a failed request | number | optional, defaults to `3` |

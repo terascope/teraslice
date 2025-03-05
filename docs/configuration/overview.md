@@ -127,6 +127,11 @@ The `elasticsearch-next` connector dynamically queries the cluster to verify the
 
 View all available configuration settings for `elasticsearch-next` [here](../packages/elasticsearch-store/overview.md#connectors)
 
+Provided here is a list of connectors Terascope actively maintains with references on how to configure them:
+
+- [S3 Connector:](https://github.com/terascope/file-assets/blob/master/README.md#connectors) Supports connecting to various S3 Object stores like AWS and Minio
+- [Kafka Connector:](https://github.com/terascope/kafka-assets/blob/master/README.md#connectors) Supports connecting to Kafka
+
 ## Configuration Single Node / Native Clustering - Cluster Master
 
 If you're running a single Teraslice node or using the simple native clustering you'll need a master node configuration.
