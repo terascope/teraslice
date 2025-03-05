@@ -9,12 +9,12 @@ describe('encrypted opensearch', () => {
         it('should have an encrypted connection', async () => {
             // Format string to be without protocol
             // The openssl s_client will throw if provided
-            const opensearchURL =
-                OPENSEARCH_SSL_HOST.startsWith('https://')
-                ? OPENSEARCH_SSL_HOST.slice(8)
-                : OPENSEARCH_SSL_HOST;
+            const opensearchURL
+                = OPENSEARCH_SSL_HOST.startsWith('https://')
+                    ? OPENSEARCH_SSL_HOST.slice(8)
+                    : OPENSEARCH_SSL_HOST;
 
-            const result = await execa({shell: true})`printf '\\n' | openssl s_client -connect ${opensearchURL} -CAfile ${ROOT_CERT_PATH}`;
+            const result = await execa({ shell: true })`printf '\\n' | openssl s_client -connect ${opensearchURL} -CAfile ${ROOT_CERT_PATH}`;
             expect(result.stdout).toContain('Verification: OK');
         });
     } else {
