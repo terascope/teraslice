@@ -125,6 +125,8 @@ These different endpoints can be retrieved through terafoundations's connector A
 
 The `elasticsearch-next` connector dynamically queries the cluster to verify the version and distribution and returns the appropriate client. It can work with versions 6, 7, 8 and with opensearch.
 
+View all available configuration settings for `elasticsearch-next` [here](../packages/elasticsearch-store/overview.md#connectors)
+
 ## Configuration Single Node / Native Clustering - Cluster Master
 
 If you're running a single Teraslice node or using the simple native clustering you'll need a master node configuration.
