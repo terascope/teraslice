@@ -810,14 +810,16 @@ export async function helmfileDiff() {
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
     const { valuesPath, valuesDir } = generateHelmValuesFromServices();
+
     let subprocess;
     try {
         subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
     } catch (err) {
-        fs.rmSync(valuesDir, { recursive: true, force: true });
         throw new TSError(`Helmfile diff command failed: `, err);
+    } finally {
+        fs.rmSync(valuesDir, { recursive: true, force: true });
     }
-    fs.rmSync(valuesDir, { recursive: true, force: true });
+
     logger.debug('helmfile diff: ', subprocess.stdout);
 }
 
@@ -828,14 +830,16 @@ export async function helmfileSync() {
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
     const { valuesPath, valuesDir } = generateHelmValuesFromServices();
+
     let subprocess;
     try {
         subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath}`);
     } catch (err) {
-        fs.rmSync(valuesDir, { recursive: true, force: true });
         throw new TSError(`Helmfile sync command failed: `, err);
+    } finally {
+        fs.rmSync(valuesDir, { recursive: true, force: true });
     }
-    fs.rmSync(valuesDir, { recursive: true, force: true });
+
     logger.debug('helmfile sync: ', subprocess.stdout);
 }
 
