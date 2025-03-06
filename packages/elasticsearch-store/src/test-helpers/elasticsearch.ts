@@ -1,35 +1,58 @@
 import {
     DataEntity, pDelay, get, toNumber,
-    uniq
+    uniq,
+    TSError
 } from '@terascope/utils';
+import { readFileSync } from 'node:fs';
 import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
-import { createClient, Client, Semver } from '../elasticsearch-client/index.js';
+import { createClient, Client, Semver, ClientConfig } from '../elasticsearch-client/index.js';
 import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
 import type { IndexStore } from '../index-store.js';
 import {
     ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
-    OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST
+    OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST, OPENSEARCH_SSL_HOST,
+    OPENSEARCH_PASSWORD, OPENSEARCH_USER
 } from './config.js';
 
 const semver = ELASTICSEARCH_VERSION.split('.').map(toNumber);
 const isOpensearchTest = process.env.TEST_OPENSEARCH != null;
 export const removeTypeTest = isOpensearchTest || (semver[0] === 8);
 
-export async function makeClient(): Promise<Client> {
-    let host = ELASTICSEARCH_HOST;
+export async function makeClient(rootCaPath?: string): Promise<Client> {
+    let host: string;
+    let esConfig: ClientConfig = {};
 
-    if (process.env.TEST_OPENSEARCH) {
-        host = OPENSEARCH_HOST;
-    }
-
+    // Figure out the right host
     if (process.env.TEST_RESTRAINED_OPENSEARCH) {
         host = RESTRAINED_OPENSEARCH_HOST;
+    } else if (process.env.TEST_OPENSEARCH) {
+        host = process.env.ENCRYPT_OPENSEARCH ? OPENSEARCH_SSL_HOST : OPENSEARCH_HOST;
+    } else {
+        host = ELASTICSEARCH_HOST;
     }
 
-    const { client } = await createClient({
-        node: host,
-    });
+    // Add SSL settings if encryption is enabled
+    if (process.env.TEST_OPENSEARCH && process.env.ENCRYPT_OPENSEARCH) {
+        if (!rootCaPath || typeof rootCaPath !== 'string') {
+            throw new TSError(`No rootCA path provided, but ENCRYPT_OPENSEARCH is enabled`);
+        }
+
+        try {
+            esConfig = {
+                node: host,
+                username: OPENSEARCH_USER,
+                password: OPENSEARCH_PASSWORD,
+                caCertificate: readFileSync(rootCaPath, 'utf8')
+            };
+        } catch (err) {
+            throw new TSError(`Unable to read root CA file when creating ES/OS client`, err);
+        }
+    } else {
+        esConfig = { node: host };
+    }
+
+    const { client } = await createClient(esConfig);
 
     return client as unknown as Client;
 }

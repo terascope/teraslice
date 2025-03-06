@@ -4,7 +4,6 @@ import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'node:path';
 import { Kafka } from 'kafkajs';
-import { execa } from 'execa';
 import {
     pWhile, TSError, debugLogger,
     toHumanTime, getErrorStatusCode, isKey
@@ -313,17 +312,6 @@ export async function ensureZookeeper(options: TestOptions): Promise<() => void>
 
 export async function ensureMinio(options: TestOptions): Promise<() => void> {
     let fn = () => { };
-    // Create fresh certs before loading minio if encryption enabled
-    if (options.encryptMinio) {
-        try {
-            signale.pending('Generating new ca-certificates for minio...');
-            const scriptLocation = path.join(getRootDir(), '/scripts/generate-cert.sh');
-            await execa(scriptLocation, ['localhost', 'minio', config.MINIO_HOSTNAME]);
-        } catch (err) {
-            throw new TSError(`Error generating ca-certificates for minio: ${err.message}`);
-        }
-        signale.success('Successfully created new certificates for minio');
-    }
     const startTime = Date.now();
     fn = await startService(options, Service.Minio);
     await checkMinio(options, startTime);
@@ -874,4 +862,41 @@ async function startService(options: TestOptions, service: Service): Promise<() 
             );
         }
     };
+}
+
+export async function loadImagesForHelm(options: TestOptions) {
+    const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
+    const promiseArray: Promise<void>[] = [];
+    config.ENV_SERVICES.forEach(async (service: Service) => {
+        if (service === Service.Opensearch) {
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.OPENSEARCH_DOCKER_IMAGE,
+                config.OPENSEARCH_VERSION,
+                options.skipImageDeletion
+            ));
+        } else if (service === Service.Elasticsearch) {
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.ELASTICSEARCH_DOCKER_IMAGE,
+                config.ELASTICSEARCH_VERSION,
+                options.skipImageDeletion
+            ));
+        } else if (service === Service.Minio) {
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.MINIO_DOCKER_IMAGE,
+                config.MINIO_VERSION,
+                options.skipImageDeletion
+            ));
+        } else if (service === Service.Kafka) {
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.KAFKA_DOCKER_IMAGE,
+                config.KAFKA_IMAGE_VERSION,
+                options.skipImageDeletion
+            ));
+        }
+    });
+    await Promise.all(promiseArray);
 }

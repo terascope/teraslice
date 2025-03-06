@@ -3,7 +3,8 @@ import { helmfileDelete, K8s } from '@terascope/scripts';
 import fse from 'fs-extra';
 import {
     KEEP_OPEN, CONFIG_PATH, ASSETS_PATH, TEST_INDEX_PREFIX,
-    TEST_PLATFORM, TERASLICE_PORT, KIND_CLUSTER, USE_HELMFILE
+    TEST_PLATFORM, TERASLICE_PORT, KIND_CLUSTER, USE_HELMFILE,
+    ROOT_CERT_PATH
 } from './config.js';
 import { tearDown } from './docker-helpers.js';
 import signale from './signale.js';
@@ -12,7 +13,7 @@ const { cleanupIndex, makeClient } = ElasticsearchTestHelpers;
 
 async function getClient(client?: Client) {
     if (client) return client;
-    return makeClient();
+    return makeClient(ROOT_CERT_PATH);
 }
 
 export async function teardown(testClient?: Client) {

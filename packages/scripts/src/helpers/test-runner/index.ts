@@ -2,11 +2,16 @@ import {
     debugLogger, chunk, TSError,
     isCI, pMap
 } from '@terascope/utils';
+import path from 'node:path';
+import { execa } from 'execa';
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
 } from '../misc.js';
-import { ensureServices, loadOrPullServiceImages } from './services.js';
+import {
+    ensureServices, loadOrPullServiceImages,
+    loadImagesForHelm
+} from './services.js';
 import { PackageInfo } from '../interfaces.js';
 import { TestOptions } from './interfaces.js';
 import {
@@ -26,7 +31,8 @@ import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
 import {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
-    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION
+    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ENCRYPT_MINIO,
+    ENCRYPT_OPENSEARCH, MINIO_HOSTNAME, OPENSEARCH_HOSTNAME
 } from '../config.js';
 import { K8s } from '../k8s-env/k8s.js';
 
@@ -202,6 +208,9 @@ async function runE2ETest(
         throw new Error('Missing e2e test directory');
     }
 
+    // Dynamically generate any needed certs before any tests run
+    await generateTestCaCerts();
+
     if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
         try {
             const kindInstalled = await isKindInstalled();
@@ -284,6 +293,7 @@ async function runE2ETest(
             await kind.loadTerasliceImage(e2eImage);
             if (options.useHelmfile) {
                 const timeLabel = 'helmfile deployment';
+                await loadImagesForHelm(options);
                 signale.time(timeLabel);
                 await launchE2EWithHelmfile();
                 signale.timeEnd(timeLabel);
@@ -365,4 +375,58 @@ function printAndGetEnv(suite: string, options: TestOptions) {
         signale.debug(`Setting ${suite} test suite env to ${envStr}`);
     }
     return env;
+}
+
+/**
+ * Generates CA certificates for encrypted services in the test environment if needed
+ *
+ * @throws {Error} If certificate generation fails.
+ */
+async function generateTestCaCerts(): Promise<void> {
+    const encryptedServices: string[] = [];
+    const hostNames: string[] = ['localhost'];
+
+    if (ENCRYPT_OPENSEARCH) {
+        encryptedServices.push('opensearch');
+        hostNames.push(
+            'opensearch2.services-dev1',
+            'opensearch',
+            OPENSEARCH_HOSTNAME
+        );
+    }
+
+    if (ENCRYPT_MINIO) {
+        encryptedServices.push('minio');
+        hostNames.push(
+            'minio.services-dev1',
+            'minio',
+            MINIO_HOSTNAME
+        );
+    }
+
+    if (encryptedServices.length > 0) {
+        // Formats the encrypted service list to print with the user feedback
+        const serviceList = encryptedServices.length === 1
+            ? encryptedServices[0]
+            : encryptedServices.length === 2
+                ? encryptedServices.join(' and ')
+                : `${encryptedServices.slice(0, -1).join(', ')} and ${encryptedServices[encryptedServices.length - 1]}`;
+
+        try {
+            signale.pending(`Generating new ca-certificates for ${serviceList}...`);
+            const scriptLocation = path.join(getE2EDir() as string, '../scripts/generate-cert.sh');
+
+            // create a format array for each service
+            const formatCommands: string[] = [];
+            encryptedServices.forEach((service) => {
+                formatCommands.push('--format');
+                formatCommands.push(service);
+            });
+
+            signale.debug('Generate certs command: ', `${scriptLocation} ${formatCommands.concat(hostNames)}`);
+            await execa(scriptLocation, formatCommands.concat(hostNames));
+        } catch (err) {
+            throw new Error(`Error generating ca-certificates for ${serviceList}: ${err.message}`);
+        }
+    }
 }

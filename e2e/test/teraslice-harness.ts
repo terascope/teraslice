@@ -5,14 +5,14 @@ import {
 } from '@terascope/utils';
 import { showState } from '@terascope/scripts';
 import { JobConfig, Teraslice } from '@terascope/types';
-import { createClient, ElasticsearchTestHelpers, Client } from 'elasticsearch-store';
+import { createClient, ElasticsearchTestHelpers, Client, ClientConfig } from 'elasticsearch-store';
 import { TerasliceClient } from 'teraslice-client-js';
 import fse from 'fs-extra';
 import {
     TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
     DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
     EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT,
-    LOG_PATH
+    LOG_PATH, ENCRYPT_OPENSEARCH, OPENSEARCH_USER, OPENSEARCH_PASSWORD, ROOT_CERT_PATH
 } from './config.js';
 import { scaleWorkers, getElapsed } from './docker-helpers.js';
 import signale from './signale.js';
@@ -65,7 +65,16 @@ export class TerasliceHarness {
     teraslice!: TerasliceClient;
 
     async init() {
-        const { client } = await createClient({ node: TEST_HOST });
+        const esConfig: ClientConfig = { node: TEST_HOST };
+        if (ENCRYPT_OPENSEARCH) {
+            esConfig.username = OPENSEARCH_USER;
+            esConfig.password = OPENSEARCH_PASSWORD;
+            esConfig.caCertificate = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
+        }
+        // I should be able to not do this if I add a probe to os2
+        const { client } = await pRetry(async () => {
+            return await createClient(esConfig);
+        }, { delay: 500, retries: 3 });
         this.client = client;
         this.teraslice = new TerasliceClient({
             host: `http://${HOST_IP}:${TERASLICE_PORT}`,

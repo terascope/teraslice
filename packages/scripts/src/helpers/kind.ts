@@ -54,6 +54,12 @@ export class Kind {
                 configFile.nodes[0].extraMounts.push(...dockerFileMounts);
             }
         }
+        if (configFile.nodes[0].extraMounts) {
+            configFile.nodes[0].extraMounts.push({
+                hostPath: path.join(e2eK8sDir, '../test/certs'),
+                containerPath: '/certs'
+            });
+        }
         configFile.nodes[0].extraPortMappings[0].hostPort = Number.parseInt(teraslicePort, 10);
         const updatedYaml = yaml.dump(configFile);
 

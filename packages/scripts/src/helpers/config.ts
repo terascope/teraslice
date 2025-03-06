@@ -87,12 +87,14 @@ export const RABBITMQ_USER = process.env.RABBITMQ_USER || 'guest';
 export const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD || 'guest';
 
 export const OPENSEARCH_NAME = process.env.OPENSEARCH_NAME || 'opensearch';
+export const ENCRYPT_OPENSEARCH = toBoolean(process.env.ENCRYPT_OPENSEARCH ?? false);
+export const OPENSEARCH_PROTOCOL = ENCRYPT_OPENSEARCH ? 'https' : 'http';
 export const OPENSEARCH_HOSTNAME = process.env.OPENSEARCH_HOSTNAME || HOST_IP;
 export const OPENSEARCH_PORT = process.env.OPENSEARCH_PORT || '49210';
 export const OPENSEARCH_USER = process.env.OPENSEARCH_USER || 'admin';
 export const OPENSEARCH_PASSWORD = process.env.OPENSEARCH_PASSWORD || 'admin';
 export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || __DEFAULT_OPENSEARCH1_VERSION;
-export const OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}:${OPENSEARCH_PORT}`;
+export const OPENSEARCH_HOST = `${OPENSEARCH_PROTOCOL}://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}:${OPENSEARCH_PORT}`;
 export const OPENSEARCH_DOCKER_IMAGE = process.env.OPENSEARCH_DOCKER_IMAGE || 'opensearchproject/opensearch';
 
 export const RESTRAINED_OPENSEARCH_PORT = process.env.RESTRAINED_OPENSEARCH_PORT || '49206';

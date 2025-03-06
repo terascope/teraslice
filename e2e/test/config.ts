@@ -9,7 +9,10 @@ const {
     ELASTICSEARCH_HOST,
     ELASTICSEARCH_VERSION,
     OPENSEARCH_HOST,
+    OPENSEARCH_SSL_HOST,
     OPENSEARCH_VERSION,
+    OPENSEARCH_USER,
+    OPENSEARCH_PASSWORD
 } = ElasticsearchTestHelpers;
 
 const filePath = fileURLToPath(new URL(import.meta.url));
@@ -55,12 +58,16 @@ const {
     ASSET_STORAGE_CONNECTION_TYPE = 'elasticsearch-next',
     ASSET_STORAGE_CONNECTION = 'default',
     ENCRYPT_MINIO = false,
+    ENCRYPT_OPENSEARCH = false,
     MINIO_HOST = 'http://127.0.0.1:49000',
     MINIO_ACCESS_KEY = 'minioadmin',
     MINIO_SECRET_KEY = 'minioadmin'
 } = process.env;
 
-const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
+const TEST_HOST = TEST_OPENSEARCH
+    ? ENCRYPT_OPENSEARCH ? OPENSEARCH_SSL_HOST : OPENSEARCH_HOST
+    : ELASTICSEARCH_HOST;
+
 const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
 
 function newId(prefix?: string, lowerCase = false, length = 15) {
@@ -98,6 +105,7 @@ export {
     LOG_PATH,
     AUTOLOAD_PATH,
     OPENSEARCH_HOST,
+    OPENSEARCH_SSL_HOST,
     OPENSEARCH_VERSION,
     GENERATE_ONLY,
     newId,
@@ -113,7 +121,10 @@ export {
     MINIO_ACCESS_KEY,
     MINIO_SECRET_KEY,
     ENCRYPT_MINIO,
+    ENCRYPT_OPENSEARCH,
     ROOT_CERT_PATH,
     TEST_OPENSEARCH,
-    USE_HELMFILE
+    USE_HELMFILE,
+    OPENSEARCH_USER,
+    OPENSEARCH_PASSWORD
 };

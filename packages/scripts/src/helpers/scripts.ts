@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import ms from 'ms';
 import path from 'node:path';
+import { X509Certificate } from 'node:crypto';
 import { execa, execaCommand, type Options } from 'execa';
 import fse from 'fs-extra';
 import yaml from 'js-yaml';
@@ -12,7 +13,7 @@ import {
     pWhile, pDelay, TSError
 } from '@terascope/utils';
 import {
-    TSCommands, PackageInfo,
+    TSCommands, PackageInfo, Service,
     OCIImageManifest, OCIimageConfig, OCIindexManifest
 } from './interfaces.js';
 import { getRootDir, getRootInfo } from './misc.js';
@@ -754,7 +755,7 @@ export async function showState(tsPort: string) {
 }
 
 async function showESIndices() {
-    const subprocess = await execaCommand(`curl ${config.SEARCH_TEST_HOST}/_cat/indices?v`);
+    const subprocess = await execaCommand(`curl -k ${config.SEARCH_TEST_HOST}/_cat/indices?v`);
     return subprocess.stdout;
 }
 
@@ -808,9 +809,17 @@ export async function helmfileDiff() {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const values = createValuesStringFromServicesArray();
+    const { valuesPath, valuesDir } = generateHelmValuesFromServices();
 
-    const subprocess = await execaCommand(`helmfile ${values} diff -f ${helmfilePath} --suppress-secrets`);
+    let subprocess;
+    try {
+        subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
+    } catch (err) {
+        throw new TSError(`Helmfile diff command failed: `, err);
+    } finally {
+        fs.rmSync(valuesDir, { recursive: true, force: true });
+    }
+
     logger.debug('helmfile diff: ', subprocess.stdout);
 }
 
@@ -820,9 +829,17 @@ export async function helmfileSync() {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const values = createValuesStringFromServicesArray();
+    const { valuesPath, valuesDir } = generateHelmValuesFromServices();
 
-    const subprocess = await execaCommand(`helmfile ${values} sync -f ${helmfilePath}`);
+    let subprocess;
+    try {
+        subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath}`);
+    } catch (err) {
+        throw new TSError(`Helmfile sync command failed: `, err);
+    } finally {
+        fs.rmSync(valuesDir, { recursive: true, force: true });
+    }
+
     logger.debug('helmfile sync: ', subprocess.stdout);
 }
 
@@ -831,47 +848,148 @@ export async function launchE2EWithHelmfile() {
     await helmfileSync();
 }
 
-function createValuesStringFromServicesArray() {
-    let values = ENV_SERVICES.reduce((valuesString, service) => {
-        let serviceString = service.toString();
-        let version;
-        let stateCluster;
-        let newValuesString;
+// Helper function for reading the contents of a file in the e2e/test/certs
+// directory
+function readCertFromTestDir(fileName: string): string {
+    const certsDir = path.join(getE2EDir() as string, 'test/certs');
+    const testCertPath = path.join(certsDir, fileName);
 
-        // Setting the stateCluster will only work properly if there is a single ES/OS service
-        // If we need multiple in the future we need to modify this.
-        if (service === 'opensearch') {
+    if (!fs.existsSync(testCertPath)) {
+        throw new TSError(`Unable to find cert at: ${testCertPath}`);
+    }
+
+    return fs.readFileSync(testCertPath, 'utf8');
+}
+
+/**
+ * Extracts the admin distinguished name (DN) from a certificate.
+ *
+ * This function is designed specifically for mkcert generated certificates.
+ * It reads the certificate file (`opensearch-cert.pem`), extracts the `O`
+ * and `OU` fields from the subject, and formats them
+ * in the required order (`OU` first, `O` second) for OpenSearch authentication.
+ *
+ * @returns {string} The formatted (DN) string in the format:
+ * `"OU=example, O=example"`
+ * @throws {Error} If the certificate file is missing or invalid.
+ *
+ * @example
+ * ```ts
+ * const adminDn = getAdminDnFromCert();
+ * console.log(adminDn);
+ * // Output: "OU=anon@anon-MBP (Anon User),O=mkcert development certificate"
+ * ```
+ */
+function getAdminDnFromCert(): string {
+    let ca: string;
+    let organization: string | undefined;
+    let organizationalUnit: string | undefined;
+    try {
+        ca = readCertFromTestDir('opensearch-cert.pem');
+    } catch (err) {
+        throw new TSError(`Failed to read certificate file (opensearch-cert.pem).`, err);
+    }
+    try {
+        const rootCA = new X509Certificate(ca);
+        // This splits the OU and O in two separate parts
+        const subjectParts = rootCA.subject.split('\n');
+
+        // Loop through the parts and assign based on prefix
+        // We don't want to assume the order that these are returned
+        for (const part of subjectParts) {
+            if (part.startsWith('OU=')) {
+                organizationalUnit = part;
+            } else if (part.startsWith('O=')) {
+                organization = part;
+            }
+        }
+    } catch (err) {
+        throw new TSError(`Failed to parse openSearch certificate. Make sure it's a valid X.509 certificate.`, err);
+    }
+
+    if (!organizationalUnit || !organization) {
+        throw new TSError(`Certificate is missing required fields. Expected both 'OU' and 'O' fields.`);
+    }
+    // Return with specific format that opensearch expects
+    return `${organizationalUnit},${organization}`;
+}
+
+/**
+ * Generates a temporary `values.yaml` file based on the test suite configuration.
+ * This file is used to configure Helmfile when launching the test environment.
+ *
+ * The function:
+ * - Loads a base `values.yaml` template from `e2e/helm/values.yaml`.
+ * - Enables services specified in `ENV_SERVICES`, setting their versions when needed
+ * - Configures OpenSearch and Elasticsearch to align with versioning conventions.
+ * - Handles OpenSearch SSL settings if encryption is enabled.
+ * - Generates a temporary directory to store the modified `values.yaml`.
+ *
+ * @returns An object containing:
+ * - `valuesPath` - Path to the generated `values.yaml` file.
+ * - `valuesDir` - Path to the temporary directory containing the file.
+ */
+function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: string } {
+    // Grab default values from the e2e/helm/values.yaml
+    const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
+    const values = parseDocument(fs.readFileSync(e2eHelmfileValuesPath, 'utf8'));
+
+    // Map services to versions used for the image tag
+    const versionMap: Record<Service, string | undefined> = {
+        [Service.Opensearch]: config.OPENSEARCH_VERSION,
+        [Service.Elasticsearch]: config.ELASTICSEARCH_VERSION,
+        [Service.Kafka]: config.KAFKA_IMAGE_VERSION,
+        [Service.Zookeeper]: config.ZOOKEEPER_VERSION,
+        [Service.Minio]: config.MINIO_VERSION,
+        // these are needed because typescript complains
+        [Service.RabbitMQ]: undefined,
+        [Service.RestrainedElasticsearch]: undefined,
+        [Service.RestrainedOpensearch]: undefined,
+    };
+
+    let stateCluster: string | undefined;
+
+    // Iterate over each service we want to start and enable them in the
+    // helmfile.
+    ENV_SERVICES.forEach((service: Service) => {
+        // "serviceString" represents the literal service name string
+        // in the "values.yaml"
+        let serviceString: string = service;
+        const version = versionMap[service];
+
+        if (service === Service.Opensearch) {
             serviceString += config.OPENSEARCH_VERSION.charAt(0);
-            version = config.OPENSEARCH_VERSION;
             stateCluster = serviceString;
-        }
-        if (service === 'elasticsearch') {
+
+            if (config.ENCRYPT_OPENSEARCH) {
+                const caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                const admin_dn = getAdminDnFromCert();
+                values.setIn(['opensearch2', 'ssl', 'enabled'], true);
+                values.setIn(['opensearch2', 'ssl', 'caCert'], caCert);
+                values.setIn(['opensearch2', 'ssl', 'admin_dn'], admin_dn);
+            }
+        } else if (service === Service.Elasticsearch) {
             serviceString += config.ELASTICSEARCH_VERSION.charAt(0);
-            version = config.ELASTICSEARCH_VERSION;
             stateCluster = serviceString;
         }
-        if (service === 'kafka') {
-            version = config.KAFKA_IMAGE_VERSION;
-        }
-        if (service === 'zookeeper') {
-            version = config.ZOOKEEPER_VERSION;
-        }
-        if (service === 'minio') {
-            version = config.MINIO_VERSION;
-        }
 
-        newValuesString = `${valuesString} --state-values-set ${serviceString}.enabled=true --state-values-set ${serviceString}.version=${version}`;
+        values.setIn([serviceString, 'enabled'], true);
+        if (version) values.setIn([serviceString, 'version'], version);
+    });
 
-        if (stateCluster) {
-            newValuesString += ` --state-values-set teraslice.stateCluster=${stateCluster}`;
-        }
+    if (stateCluster) {
+        values.setIn(['teraslice', 'stateCluster'], stateCluster);
+    }
 
-        return newValuesString;
-    }, '');
-
-    values += ` --state-values-set teraslice.image.tag=e2e-nodev${config.NODE_VERSION}`;
+    values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
     logger.debug('helmfile command values: ', values);
-    return values;
+
+    // Write the values to a temporary file
+    const valuesDir = fs.mkdtempSync(path.join(os.tmpdir(), 'generated-yaml'));
+    const valuesPath = path.join(valuesDir, 'values.yaml');
+    fs.writeFileSync(valuesPath, values.toString(), 'utf8');
+
+    return { valuesPath, valuesDir };
 }
 
 /**

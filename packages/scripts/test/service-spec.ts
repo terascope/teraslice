@@ -76,6 +76,7 @@ jest.unstable_mockModule('../src/helpers/config.js', () => ({
     OPENSEARCH_USER: '',
     OPENSEARCH_PASSWORD: '',
     OPENSEARCH_HOST: '',
+    ENCRYPT_OPENSEARCH: '',
     OPENSEARCH_DOCKER_IMAGE: '',
     RESTRAINED_OPENSEARCH_PORT: '',
     RESTRAINED_OPENSEARCH_HOST: '',

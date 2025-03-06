@@ -18,41 +18,122 @@ terafoundation:
             # Set the first OS/ES that is enabled as our default
             default:
                 node:
+                    ##@ In the case the "stateCluster" is opensearch2
                     {{- if eq (.Values | get "teraslice.stateCluster" "none") "opensearch2" }}
+
+                    ##@ In the case the "stateCluster" is opensearch2 and ssl is enabled
+                    {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+                    - "https://opensearch2.services-dev1:9200"
+                    {{- else}}
                     - "http://opensearch2.services-dev1:9200"
+                    {{- end }}
+
+                    ##@ In the case the "stateCluster" is opensearch1
                     {{- else if eq (.Values | get "teraslice.stateCluster" "none") "opensearch1" }}
                     - "http://opensearch1.services-dev1:9200"
+
+                    ##@ In the case the "stateCluster" is elasticsearch6
                     {{- else if eq (.Values | get "teraslice.stateCluster" "none") "elasticsearch6" }}
                     - "http://elasticsearch6-master.services-dev1:9200"
+
+                    ##@ In the case the "stateCluster" is elasticsearch7
                     {{- else if eq (.Values | get "teraslice.stateCluster" "none") "elasticsearch7" }}
                     - "http://elasticsearch7-master.services-dev1:9200"
+
                     {{- end }}
+
+
+                {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+
+                username: admin
+                password: "passwordsufhbivbU123%$"
+                caCertificate: "{{- if .Values.opensearch2.ssl.caCert -}}
+
+                {{ .Values.opensearch2.ssl.caCert }}
+
+                {{- else -}}
+
+                {{ fail "opensearch2.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
+
+                {{- end }}"
+
+                {{- end }}
+
+            ##@ /////////
+            ##@ elasticsearch-next Opensearch1 connector
+            ##@ /////////
+
             {{- if eq (.Values | get "opensearch1.enabled" false) true }}
             os1:
                 node:
                      - "http://opensearch1.services-dev1:9200"
             {{- end }}
+
+            ##@ /////////
+            ##@ elasticsearch-next Opensearch2 connector
+            ##@ /////////
+
             {{- if eq (.Values | get "opensearch2.enabled" false) true }}
             os2:
                 node:
+                    {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+                    - "https://opensearch2.services-dev1:9200"
+                    {{- else }}
                     - "http://opensearch2.services-dev1:9200"
+                    {{- end }}
+
+                ##@ Set the username and password when ssl is enabled
+                ##@ Required when using tls according to opensearch:
+                ##@ The opensearch logs state this:
+                ##@ "OpenSearch 2.12.0 onwards, the OpenSearch Security Plugin a change that requires an initial password for 'admin' user."
+                {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+
+                username: admin
+                password: "passwordsufhbivbU123%$"
+                caCertificate: "{{- if .Values.opensearch2.ssl.caCert -}}
+
+                {{ .Values.opensearch2.ssl.caCert }}
+
+                {{- else -}}
+
+                {{ fail "opensearch2.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
+
+                {{- end }}"
+
+                {{- end }}
             {{- end }}
+
+            ##@ /////////
+            ##@ elasticsearch-next Elasticsearch6 connector
+            ##@ /////////
+
             {{- if eq (.Values | get "elasticsearch6.enabled" false) true }}
             es6:
                 node:
                     - "http://elasticsearch6-master.services-dev1:9200"
             {{- end }}
+
+            ##@ /////////
+            ##@ elasticsearch-next Elasticsearch7 connector
+            ##@ /////////
+
             {{- if eq (.Values | get "elasticsearch7.enabled" false) true }}
             es7:
                 node:
                     - "http://elasticsearch7-master.services-dev1:9200"
             {{- end }}
+
+
+        ##@ Kafka connector
         {{- if eq (.Values | get "kafka.enabled" false) true }}
         kafka:
             default:
                 brokers:
                 - "kafka-cp-kafka.services-dev1:9092"
         {{- end }}
+
+
+        ##@ s3 connector
         {{- if eq (.Values | get "minio.enabled" false) true }}
         s3:
             default:
