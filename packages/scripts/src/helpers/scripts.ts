@@ -938,7 +938,7 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
     const versionMap: Record<Service, string | undefined> = {
         [Service.Opensearch]: config.OPENSEARCH_VERSION,
         [Service.Elasticsearch]: config.ELASTICSEARCH_VERSION,
-        [Service.Kafka]: config.KAFKA_IMAGE_VERSION,
+        [Service.Kafka]: config.KAFKA_VERSION,
         [Service.Zookeeper]: config.ZOOKEEPER_VERSION,
         [Service.Minio]: config.MINIO_VERSION,
         // these are needed because typescript complains

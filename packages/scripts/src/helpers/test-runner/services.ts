@@ -893,7 +893,7 @@ export async function loadImagesForHelm(options: TestOptions) {
             promiseArray.push(kind.loadServiceImage(
                 service,
                 config.KAFKA_DOCKER_IMAGE,
-                config.KAFKA_IMAGE_VERSION,
+                config.KAFKA_VERSION,
                 options.skipImageDeletion
             ));
         }
