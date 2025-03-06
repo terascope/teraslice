@@ -77,8 +77,11 @@ minio:
 kafka:
   # If false, kafka will be excluded on helmfile sync
   enabled: false
-  version: 7.7.1
+  image: apache/kafka
+  version: 3.7.2
   brokers: 1
+  security:
+    protocol: plaintext
   offsets:
     topic:
       replication:
@@ -87,7 +90,7 @@ kafka:
 zookeeper:
   # If false, zookeeper will be excluded on helmfile sync
   enabled: false
-  version: 7.7.1
+  version: 3.7.2
   instances: 1
 
 teraslice:
