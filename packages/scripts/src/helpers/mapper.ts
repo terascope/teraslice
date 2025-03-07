@@ -1,13 +1,17 @@
 /**
  * This function maps a kafka version to the equivalent version of confluent/cp-kafka,
  * which is the kafka docker image currently used in teraslice.
- * The kafka version should include the major and minor versions, but not the patch version.
+ * The kafka version should include the major and minor versions.
+ * NOTE: Patch version is ignored, and the latest patch version is used instead.
  * Ref: https://docs.confluent.io/platform/current/installation/versions-interoperability.html#cp-and-apache-ak-compatibility
 */
 export function kafkaVersionMapper(kafkaVersion: string): string {
+    const match = kafkaVersion.match(/^(\d+\.\d+)/);
+    const majorMinor = match ? match[1] : kafkaVersion;
+
     const regex = /(0|[1-9]\d*)\.(0|[1-9]\d*)/;
-    if (!regex.test(kafkaVersion)) {
-        throw new Error('Kafka version must contain major and minor semver version, but omit patch version.');
+    if (!regex.test(majorMinor)) {
+        throw new Error('Kafka version must contain major and minor semver version.');
     }
     const kafkaMapper: Record<number, Record<number, string>> = {
         3: {

@@ -1,3 +1,3 @@
-The compressed archive in this directory is a modified copy of the confluentinc/cp-helm-charts from <https://github.com/confluentinc/cp-helm-charts>
+# Kafka chart
 
-Since these charts are no longer maintained, they have incompatible kubernetes api resources that needed to be updated.
+The compressed archive in this directory is a packaged copy of the terascope/helm-charts/kafka chart from <https://github.com/terascope/helm-charts>

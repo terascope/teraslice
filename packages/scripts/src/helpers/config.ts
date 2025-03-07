@@ -46,10 +46,13 @@ export const KAFKA_NAME = process.env.KAFKA_NAME || 'kafka';
 export const KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || HOST_IP;
 export const KAFKA_PORT = process.env.KAFKA_PORT || '49092';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
-export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.7';
-// Use kafkaVersionMapper to determine confluentinc/cp-kafka image version from KAFKA_VERSION
-export const KAFKA_IMAGE_VERSION = kafkaVersionMapper(KAFKA_VERSION);
+export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.7.2';
 export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'confluentinc/cp-kafka';
+// If using confluentinc/cp-kafka image, use kafkaVersionMapper
+// to determine image version, else use KAFKA_VERSION
+export const KAFKA_IMAGE_VERSION = KAFKA_DOCKER_IMAGE === 'confluentinc/cp-kafka' ? kafkaVersionMapper(KAFKA_VERSION) : KAFKA_VERSION;
+// If using confluentinc/cp-kafka image, use zookeeper, else use kraft
+export const KAFKA_METADATA_MANAGER = KAFKA_DOCKER_IMAGE === 'confluentinc/cp-kafka' ? 'zookeeper' : 'kraft';
 // Zookeeper version needs to match KAFKA_IMAGE_VERSION which is determined by kafkaVersionMapper
 export const ZOOKEEPER_VERSION = KAFKA_IMAGE_VERSION;
 export const ZOOKEEPER_CLIENT_PORT = process.env.ZOOKEEPER_CLIENT_PORT || '42181';
@@ -166,12 +169,14 @@ const testElasticsearch = toBoolean(TEST_ELASTICSEARCH);
 const testRestrainedOpensearch = toBoolean(TEST_RESTRAINED_OPENSEARCH);
 const testRestrainedElasticsearch = toBoolean(TEST_RESTRAINED_ELASTICSEARCH);
 
+/// couple kafka with zookeeper if using cp-kafka image
+const testZookeeper = toBoolean(TEST_KAFKA) && KAFKA_METADATA_MANAGER === 'zookeeper';
+
 export const ENV_SERVICES = [
     testOpensearch ? Service.Opensearch : undefined,
     testElasticsearch ? Service.Elasticsearch : undefined,
     toBoolean(TEST_KAFKA) ? Service.Kafka : undefined,
-    /// couple kafka with zookeeper
-    toBoolean(TEST_KAFKA) ? Service.Zookeeper : undefined,
+    testZookeeper ? Service.Zookeeper : undefined,
     toBoolean(TEST_MINIO) ? Service.Minio : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
     testRestrainedElasticsearch ? Service.RestrainedElasticsearch : undefined,
