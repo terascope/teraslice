@@ -62,6 +62,10 @@ format() {
                 cp "$PUBLIC_CERT_NAME" opensearch-cert.pem
                 create_internal_users_file "$CERT_DIR"
                 ;;
+            kafka)
+            # Minio requires these files to be a specific name:
+            # https://min.io/docs/minio/linux/operations/network-encryption.html
+                cat "$PRIVATE_KEY_NAME" "$PUBLIC_CERT_NAME" > kafka-keypair.pem;;
             *)
                 echo "Warning: Unknown format '$format' ignored."
                 ;;
