@@ -129,7 +129,28 @@ terafoundation:
         kafka:
             default:
                 brokers:
-                - "kafka.services-dev1:9092"
+                    {{- if eq (.Values | get "kafka.ssl.enabled" false) true}}
+                    - "kafka-headless.services-dev1:9094"
+                    {{- else }}
+                    - "kafka-headless.services-dev1:9092"
+                    {{- end }}
+
+                {{- if eq (.Values | get "kafka.ssl.enabled" false) true}}
+
+                security_protocol: "ssl"
+
+                caCertificate: "{{- if .Values.kafka.ssl.caCert -}}
+
+                {{ .Values.kafka.ssl.caCert }}
+
+                {{- else -}}
+
+                {{ fail "kafka.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
+
+                {{- end }}"
+
+                {{- end }}
+
         {{- end }}
 
 

@@ -4,5 +4,46 @@ imageTag: {{ .Values | get "kafka.version" "3.7.2" }}
 
 replicas: {{ .Values | get "kafka.brokers" "1" }}
 
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 10
+  successThreshold: 1
+  failureThreshold: 60
+
+external:
+  enabled: false
+  servicePort: 9094
+  firstListenerPort: 30094
+
 configurationOverrides:
   offsets.topic.replication.factor: {{ .Values | get "kafka.offsets.topic.replication.factor" "1" }}
+
+  {{- if eq (.Values | get "kafka.ssl.enabled" false) true}}
+  
+  advertised.listeners: "TLS://kafka-headless.services-dev1.svc.cluster.local:9094"
+  inter.broker.listener.name: "PLAINTEXT"
+  listener.security.protocol.map: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,TLS:SSL"
+  listeners: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,TLS://0.0.0.0:9094"
+  security.protocol: "plaintext"
+  ssl.client.auth: "none"
+  ssl.keystore.location: "/etc/kafka/secrets/kafka-keypair.pem"
+  ssl.keystore.type: "PEM"
+  ssl.truststore.location: "/etc/kafka/secrets/CAs/rootCA.pem"
+  ssl.truststore.type: "PEM"
+  
+  {{- end}}
+
+{{- if eq (.Values | get "kafka.ssl.enabled" false) true }}
+
+extraVolumes:
+  - name: certs
+    hostPath:
+      path: /certs
+      type: Directory
+
+extraVolumeMounts:
+  - name: certs
+    mountPath: /etc/kafka/secrets
+
+{{- end}}
