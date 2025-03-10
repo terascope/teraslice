@@ -27,6 +27,7 @@
         "logs": "./scripts/logs.sh",
         "logs-follow": "./scripts/logs.sh -f",
         "setup": "yarn --silent",
+        "download-assets": "node ./scripts/downloadAssets.js",
         "test": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:debug": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --debug --",
         "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' TEST_KAFKA='true' ts-scripts test --suite e2e --",
