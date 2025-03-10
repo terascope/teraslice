@@ -176,7 +176,7 @@ export abstract class Vector<T = unknown> {
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         for (const data of this.data) {
-            yield * data;
+            yield* data;
         }
     }
 

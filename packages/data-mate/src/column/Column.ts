@@ -85,7 +85,7 @@ export class Column<T = unknown, N extends NameType = string> {
      * And may not be compatible with the JSON spec.
     */
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
-        yield * this.vector;
+        yield* this.vector;
     }
 
     /**
