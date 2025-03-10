@@ -137,7 +137,7 @@ export function* chunkIter<T>(dataArray: Iterable<T>, size: number): Iterable<T[
         throw new RangeError(`Expected chunk size to be >0, got ${size}`);
     }
     if (isArrayLike(dataArray)) {
-        yield * _chunkArrayIterator(dataArray, size);
+        yield* _chunkArrayIterator(dataArray, size);
         return;
     }
 

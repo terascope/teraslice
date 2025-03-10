@@ -187,7 +187,7 @@ export class DataFrame<
      * Iterate over each row, this returns the JSON compatible values.
     */
     * [Symbol.iterator](): IterableIterator<DataEntity<T>> {
-        yield * this.rows(true);
+        yield* this.rows(true);
     }
 
     /**
@@ -219,7 +219,7 @@ export class DataFrame<
         if (options?.skipDuplicateObjects) {
             // cast the type of json to true since typescript
             // can't detect what the return type should be here
-            yield * this.rowsWithoutDuplicates(json as true, options);
+            yield* this.rowsWithoutDuplicates(json as true, options);
             return;
         }
 
