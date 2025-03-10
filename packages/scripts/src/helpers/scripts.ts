@@ -922,7 +922,7 @@ function getAdminDnFromCert(): string {
  * - Loads a base `values.yaml` template from `e2e/helm/values.yaml`.
  * - Enables services specified in `ENV_SERVICES`, setting their versions when needed
  * - Configures OpenSearch and Elasticsearch to align with versioning conventions.
- * - Handles OpenSearch SSL settings if encryption is enabled.
+ * - Handles OpenSearch and Kafka SSL settings if encryption is enabled.
  * - Generates a temporary directory to store the modified `values.yaml`.
  *
  * @returns An object containing:
@@ -935,16 +935,15 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
     const values = parseDocument(fs.readFileSync(e2eHelmfileValuesPath, 'utf8'));
 
     // Map services to versions used for the image tag
-    const versionMap: Record<Service, string | undefined> = {
+    const versionMap: Record<Service, string> = {
         [Service.Opensearch]: config.OPENSEARCH_VERSION,
         [Service.Elasticsearch]: config.ELASTICSEARCH_VERSION,
         [Service.Kafka]: config.KAFKA_VERSION,
         [Service.Zookeeper]: config.ZOOKEEPER_VERSION,
         [Service.Minio]: config.MINIO_VERSION,
-        // these are needed because typescript complains
-        [Service.RabbitMQ]: undefined,
-        [Service.RestrainedElasticsearch]: undefined,
-        [Service.RestrainedOpensearch]: undefined,
+        [Service.RabbitMQ]: config.RABBITMQ_VERSION,
+        [Service.RestrainedElasticsearch]: config.ELASTICSEARCH_VERSION,
+        [Service.RestrainedOpensearch]: config.OPENSEARCH_VERSION,
     };
 
     let stateCluster: string | undefined;
@@ -973,8 +972,16 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
             stateCluster = serviceString;
         }
 
+        if (service === Service.Kafka) {
+            if (config.ENCRYPT_KAFKA) {
+                const caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                values.setIn(['kafka', 'ssl', 'enabled'], true);
+                values.setIn(['kafka', 'ssl', 'caCert'], caCert);
+            }
+        }
+
         values.setIn([serviceString, 'enabled'], true);
-        if (version) values.setIn([serviceString, 'version'], version);
+        values.setIn([serviceString, 'version'], version);
     });
 
     if (stateCluster) {
@@ -982,7 +989,7 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
     }
 
     values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
-    logger.debug('helmfile command values: ', values);
+    logger.debug('helmfile command values: ', JSON.stringify(values));
 
     // Write the values to a temporary file
     const valuesDir = fs.mkdtempSync(path.join(os.tmpdir(), 'generated-yaml'));

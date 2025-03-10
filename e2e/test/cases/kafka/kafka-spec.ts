@@ -1,7 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
+import { exec } from '@terascope/scripts';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import signale from '../../signale.js';
-import { TEST_PLATFORM } from '../../config.js';
+import {
+    CERT_PATH, ENCRYPT_KAFKA, ROOT_CERT_PATH, TEST_PLATFORM
+} from '../../config.js';
 
 describe('kafka', () => {
     let terasliceHarness: TerasliceHarness;
@@ -64,5 +67,18 @@ describe('kafka', () => {
         }
 
         expect(count).toBe(total);
+    });
+
+    describe.only('encrypted kafka', () => {
+        if (ENCRYPT_KAFKA === 'true') {
+            it('should have an encrypted connection', async () => {
+                const result = await exec({
+                    cmd: 'sh',
+                    args: ['-c', `printf '\\n' | openssl s_client -connect localhost:49094 -cert ${CERT_PATH}/kafka-keypair.pem -key ${CERT_PATH}/kafka-keypair.pem -CAfile ${ROOT_CERT_PATH}`] // fixme port
+                });
+                // console.log('s_client output: ', result);
+                expect(result).toContain('Verification: OK');
+            });
+        }
     });
 });

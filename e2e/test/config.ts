@@ -30,6 +30,7 @@ const CONFIG_PATH = path.join(BASE_PATH, '.config');
 const ASSETS_PATH = path.join(BASE_PATH, '../assets');
 const AUTOLOAD_PATH = path.join(BASE_PATH, 'autoload');
 const ROOT_CERT_PATH = path.join(BASE_PATH, 'test/certs/CAs/rootCA.pem');
+const CERT_PATH = path.join(BASE_PATH, 'test/certs');
 const LOG_PATH = path.join(BASE_PATH, 'logs/teraslice.log');
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
 const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
@@ -57,6 +58,7 @@ const {
     TERASLICE_PORT = '45678',
     ASSET_STORAGE_CONNECTION_TYPE = 'elasticsearch-next',
     ASSET_STORAGE_CONNECTION = 'default',
+    ENCRYPT_KAFKA = false,
     ENCRYPT_MINIO = false,
     ENCRYPT_OPENSEARCH = false,
     MINIO_HOST = 'http://127.0.0.1:49000',
@@ -120,9 +122,11 @@ export {
     MINIO_HOST,
     MINIO_ACCESS_KEY,
     MINIO_SECRET_KEY,
+    ENCRYPT_KAFKA,
     ENCRYPT_MINIO,
     ENCRYPT_OPENSEARCH,
     ROOT_CERT_PATH,
+    CERT_PATH,
     TEST_OPENSEARCH,
     USE_HELMFILE,
     OPENSEARCH_USER,
