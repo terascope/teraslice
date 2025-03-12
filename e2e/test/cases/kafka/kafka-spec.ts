@@ -69,7 +69,7 @@ describe('kafka', () => {
         expect(count).toBe(total);
     });
 
-    describe.only('encrypted kafka', () => {
+    describe('encrypted kafka', () => {
         if (ENCRYPT_KAFKA === 'true') {
             it('should have an encrypted connection', async () => {
                 const result = await exec({

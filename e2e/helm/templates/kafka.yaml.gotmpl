@@ -12,8 +12,7 @@ readinessProbe:
   failureThreshold: 60
 
 external:
-  enabled: false
-  servicePort: 9094
+  enabled: true
   firstListenerPort: 30094
 
 configurationOverrides:
@@ -21,11 +20,11 @@ configurationOverrides:
 
   {{- if eq (.Values | get "kafka.ssl.enabled" false) true}}
   
-  advertised.listeners: "TLS://kafka-headless.services-dev1.svc.cluster.local:9094"
+  advertised.listeners: "TLS://kafka-headless.services-dev1.svc.cluster.local:9094,EXTERNAL://localhost:49094"
   inter.broker.listener.name: "PLAINTEXT"
-  listener.security.protocol.map: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,TLS:SSL"
-  listeners: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,TLS://0.0.0.0:9094"
-  security.protocol: "plaintext"
+  listener.security.protocol.map: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,TLS:SSL,EXTERNAL:SSL"
+  listeners: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,TLS://0.0.0.0:9094,EXTERNAL://0.0.0.0:30094"
+  security.protocol: "ssl"
   ssl.client.auth: "none"
   ssl.keystore.location: "/etc/kafka/secrets/kafka-keypair.pem"
   ssl.keystore.type: "PEM"
