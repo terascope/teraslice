@@ -715,14 +715,16 @@ function waitForKafkaRunning(name: string, timeoutMs = 12000): Promise<void> {
 
     const _waitForKafkaRunning = async (): Promise<void> => {
         if (Date.now() > endAt) {
-            try {
-                const errorSearchCommand = await execaCommand(`kubectl -n services-dev1 logs ${name}-0 | grep ERROR`);
-                logger.debug(errorSearchCommand.stdout);
-            } catch (err) {
-                logger.error(err, 'Failure to retrieve kafka pod error logs');
-                const describePodCommand = await execaCommand(`kubectl -n services-dev1 describe pods -l app.kubernetes.io/name=${name}`);
-                logger.debug('Describe kafka pod:');
-                logger.debug(describePodCommand.stdout);
+            if (logger.level() <= 20) {
+                try {
+                    const errorSearchCommand = await execaCommand(`kubectl -n services-dev1 logs -l app.kubernetes.io/name=${name}`);
+                    logger.debug(errorSearchCommand.stdout);
+                } catch (err) {
+                    logger.error(err, 'Failure to retrieve kafka pod logs');
+                    const describePodCommand = await execaCommand(`kubectl -n services-dev1 describe pods -l app.kubernetes.io/name=${name}`);
+                    logger.debug('Describe kafka pod:');
+                    logger.debug(describePodCommand.stdout);
+                }
             }
             throw new Error(`Failure to communicate with kafka after ${timeoutMs}ms`);
         }
