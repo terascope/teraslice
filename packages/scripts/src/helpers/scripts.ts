@@ -947,8 +947,7 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
     };
 
     let stateCluster: string | undefined;
-    const caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
-
+    let caCert: string | undefined;
     // Iterate over each service we want to start and enable them in the
     // helmfile.
     ENV_SERVICES.forEach((service: Service) => {
@@ -962,6 +961,9 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
             stateCluster = serviceString;
 
             if (config.ENCRYPT_OPENSEARCH) {
+                if (!caCert) {
+                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                }
                 const admin_dn = getAdminDnFromCert();
                 values.setIn(['opensearch2', 'ssl', 'enabled'], true);
                 values.setIn(['opensearch2', 'ssl', 'caCert'], caCert);
@@ -974,6 +976,9 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
 
         if (service === Service.Kafka) {
             if (config.ENCRYPT_KAFKA) {
+                if (!caCert) {
+                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                }
                 values.setIn(['kafka', 'ssl', 'enabled'], true);
                 values.setIn(['kafka', 'ssl', 'caCert'], caCert);
             }
