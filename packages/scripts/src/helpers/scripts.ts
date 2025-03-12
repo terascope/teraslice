@@ -718,6 +718,7 @@ function waitForKafkaRunning(name: string, timeoutMs = 12000): Promise<void> {
             if (logger.level() <= 20) {
                 try {
                     const errorSearchCommand = await execaCommand(`kubectl -n services-dev1 logs -l app.kubernetes.io/name=${name}`);
+                    logger.debug('Kafka pod logs:');
                     logger.debug(errorSearchCommand.stdout);
                 } catch (err) {
                     logger.error(err, 'Failure to retrieve kafka pod logs');
@@ -858,7 +859,6 @@ export async function helmfileSync() {
 export async function launchE2EWithHelmfile() {
     await helmfileDiff();
     await helmfileSync();
-
     await waitForKafkaRunning('kafka');
 }
 
