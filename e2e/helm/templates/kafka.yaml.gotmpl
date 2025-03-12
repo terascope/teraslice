@@ -11,10 +11,6 @@ readinessProbe:
   successThreshold: 1
   failureThreshold: 60
 
-external:
-  enabled: true
-  firstListenerPort: 30094
-
 configurationOverrides:
   offsets.topic.replication.factor: {{ .Values | get "kafka.offsets.topic.replication.factor" "1" }}
 
@@ -44,5 +40,9 @@ extraVolumes:
 extraVolumeMounts:
   - name: certs
     mountPath: /etc/kafka/secrets
+
+external:
+  enabled: true
+  firstListenerPort: 30094
 
 {{- end}}
