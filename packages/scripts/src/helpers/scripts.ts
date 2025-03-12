@@ -706,22 +706,29 @@ export async function k8sStartService(
     }
 
     if (serviceName === 'kafka') {
-        await waitForKafkaRunning();
+        await waitForKafkaRunning('cpkafka');
     }
 }
 
-function waitForKafkaRunning(timeoutMs = 120000): Promise<void> {
+function waitForKafkaRunning(name: string, timeoutMs = 120000): Promise<void> {
     const endAt = Date.now() + timeoutMs;
 
     const _waitForKafkaRunning = async (): Promise<void> => {
         if (Date.now() > endAt) {
+            try {
+                const errorSearchCommand = await execaCommand(`kubectl -n services-dev1 logs pods -l app.kubernetes.io/name=${name} | grep ERROR`);
+                logger.debug(errorSearchCommand.stdout);
+            } catch (err) {
+                logger.error(err, 'Failure to retrieve kafka pod error logs');
+            }
             throw new Error(`Failure to communicate with kafka after ${timeoutMs}ms`);
         }
 
         let kafkaRunning = false;
         try {
-            const kubectlResponse = await execaCommand('kubectl -n services-dev1 get pods -l app.kubernetes.io/name=cpkafka -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"');
+            const kubectlResponse = await execaCommand(`kubectl -n services-dev1 get pods -l app.kubernetes.io/name=${name} -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"`);
             const kafkaReady = kubectlResponse.stdout;
+            logger.debug('Kafka ready: ', kafkaReady);
             if (kafkaReady === '"true"') {
                 kafkaRunning = true;
             }
@@ -846,6 +853,8 @@ export async function helmfileSync() {
 export async function launchE2EWithHelmfile() {
     await helmfileDiff();
     await helmfileSync();
+
+    await waitForKafkaRunning('kafka');
 }
 
 // Helper function for reading the contents of a file in the e2e/test/certs
