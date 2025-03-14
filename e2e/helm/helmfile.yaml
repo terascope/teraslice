@@ -54,7 +54,7 @@ releases:
 
   - name: kafka
     namespace: services-dev1
-    chart: ./kafka/kafka-1.0.0.tgz
+    chart: ./kafka/kafka-1.1.0.tgz
     installed: {{ .Values | get "kafka.enabled" true }}
     values:
       - ./templates/kafka.yaml.gotmpl

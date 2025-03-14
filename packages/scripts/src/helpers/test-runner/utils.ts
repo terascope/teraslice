@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { execa } from 'execa';
 import fse from 'fs-extra';
 import {
     debugLogger, get, flatten,
@@ -13,6 +14,7 @@ import { PackageInfo, Service } from '../interfaces.js';
 import { getServicesForSuite } from '../misc.js';
 import * as config from '../config.js';
 import signale from '../signale.js';
+import { getE2EDir } from '../packages.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -142,7 +144,7 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
         });
     }
 
-    if (launchServices.includes(Service.RestrainedElasticsearch)) {
+    if (launchServices.includes(Service.RestrainedOpensearch)) {
         Object.assign(env, {
             OPENSEARCH_HOSTNAME: config.OPENSEARCH_HOSTNAME,
             OPENSEARCH_USER: config.OPENSEARCH_USER,
@@ -287,5 +289,70 @@ export async function reportCoverage(suite: string, chunkIndex: number): Promise
         });
     } catch (err) {
         signale.error(err);
+    }
+}
+
+/**
+ * Generates CA certificates for encrypted services in the test environment if needed
+ *
+ * @throws {Error} If certificate generation fails.
+ */
+export async function generateTestCaCerts(): Promise<void> {
+    const encryptedServices: string[] = [];
+    const hostNames: string[] = ['localhost'];
+
+    if (config.ENCRYPT_OPENSEARCH) {
+        encryptedServices.push('opensearch');
+        hostNames.push(
+            'opensearch2.services-dev1',
+            'opensearch',
+            config.OPENSEARCH_HOSTNAME
+        );
+    }
+
+    if (config.ENCRYPT_MINIO) {
+        encryptedServices.push('minio');
+        hostNames.push(
+            'minio.services-dev1',
+            'minio',
+            config.MINIO_HOSTNAME
+        );
+    }
+
+    if (config.ENCRYPT_KAFKA) {
+        encryptedServices.push('kafka');
+        hostNames.push(
+            'kafka-headless.services-dev1.svc.cluster.local',
+            'kafka-headless.services-dev1',
+            'kafka-headless',
+            'kafka',
+            config.KAFKA_HOSTNAME
+        );
+    }
+
+    if (encryptedServices.length > 0) {
+        // Formats the encrypted service list to print with the user feedback
+        const serviceList = encryptedServices.length === 1
+            ? encryptedServices[0]
+            : encryptedServices.length === 2
+                ? encryptedServices.join(' and ')
+                : `${encryptedServices.slice(0, -1).join(', ')} and ${encryptedServices[encryptedServices.length - 1]}`;
+
+        try {
+            signale.pending(`Generating new ca-certificates for ${serviceList}...`);
+            const scriptLocation = path.join(getE2EDir() as string, '../scripts/generate-cert.sh');
+
+            // create a format array for each service
+            const formatCommands: string[] = [];
+            encryptedServices.forEach((service) => {
+                formatCommands.push('--format');
+                formatCommands.push(service);
+            });
+
+            signale.debug('Generate certs command: ', `${scriptLocation} ${formatCommands.concat(hostNames)}`);
+            await execa(scriptLocation, formatCommands.concat(hostNames));
+        } catch (err) {
+            throw new Error(`Error generating ca-certificates for ${serviceList}: ${err.message}`);
+        }
     }
 }

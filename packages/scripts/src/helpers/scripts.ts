@@ -706,22 +706,35 @@ export async function k8sStartService(
     }
 
     if (serviceName === 'kafka') {
-        await waitForKafkaRunning();
+        await waitForKafkaRunning('cpkafka');
     }
 }
 
-function waitForKafkaRunning(timeoutMs = 120000): Promise<void> {
+function waitForKafkaRunning(name: string, timeoutMs = 12000): Promise<void> {
     const endAt = Date.now() + timeoutMs;
 
     const _waitForKafkaRunning = async (): Promise<void> => {
         if (Date.now() > endAt) {
+            if (logger.level() <= 20) {
+                try {
+                    const errorSearchCommand = await execaCommand(`kubectl -n services-dev1 logs -l app.kubernetes.io/name=${name}`);
+                    logger.debug('Kafka pod logs:');
+                    logger.debug(errorSearchCommand.stdout);
+                } catch (err) {
+                    logger.error(err, 'Failure to retrieve kafka pod logs');
+                    const describePodCommand = await execaCommand(`kubectl -n services-dev1 describe pods -l app.kubernetes.io/name=${name}`);
+                    logger.debug('Describe kafka pod:');
+                    logger.debug(describePodCommand.stdout);
+                }
+            }
             throw new Error(`Failure to communicate with kafka after ${timeoutMs}ms`);
         }
 
         let kafkaRunning = false;
         try {
-            const kubectlResponse = await execaCommand('kubectl -n services-dev1 get pods -l app.kubernetes.io/name=cpkafka -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"');
+            const kubectlResponse = await execaCommand(`kubectl -n services-dev1 get pods -l app.kubernetes.io/name=${name} -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"`);
             const kafkaReady = kubectlResponse.stdout;
+            logger.debug('Kafka ready: ', kafkaReady);
             if (kafkaReady === '"true"') {
                 kafkaRunning = true;
             }
@@ -846,6 +859,7 @@ export async function helmfileSync() {
 export async function launchE2EWithHelmfile() {
     await helmfileDiff();
     await helmfileSync();
+    await waitForKafkaRunning('kafka');
 }
 
 // Helper function for reading the contents of a file in the e2e/test/certs
@@ -922,7 +936,7 @@ function getAdminDnFromCert(): string {
  * - Loads a base `values.yaml` template from `e2e/helm/values.yaml`.
  * - Enables services specified in `ENV_SERVICES`, setting their versions when needed
  * - Configures OpenSearch and Elasticsearch to align with versioning conventions.
- * - Handles OpenSearch SSL settings if encryption is enabled.
+ * - Handles OpenSearch and Kafka SSL settings if encryption is enabled.
  * - Generates a temporary directory to store the modified `values.yaml`.
  *
  * @returns An object containing:
@@ -935,20 +949,19 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
     const values = parseDocument(fs.readFileSync(e2eHelmfileValuesPath, 'utf8'));
 
     // Map services to versions used for the image tag
-    const versionMap: Record<Service, string | undefined> = {
+    const versionMap: Record<Service, string> = {
         [Service.Opensearch]: config.OPENSEARCH_VERSION,
         [Service.Elasticsearch]: config.ELASTICSEARCH_VERSION,
         [Service.Kafka]: config.KAFKA_VERSION,
         [Service.Zookeeper]: config.ZOOKEEPER_VERSION,
         [Service.Minio]: config.MINIO_VERSION,
-        // these are needed because typescript complains
-        [Service.RabbitMQ]: undefined,
-        [Service.RestrainedElasticsearch]: undefined,
-        [Service.RestrainedOpensearch]: undefined,
+        [Service.RabbitMQ]: config.RABBITMQ_VERSION,
+        [Service.RestrainedElasticsearch]: config.ELASTICSEARCH_VERSION,
+        [Service.RestrainedOpensearch]: config.OPENSEARCH_VERSION,
     };
 
     let stateCluster: string | undefined;
-
+    let caCert: string | undefined;
     // Iterate over each service we want to start and enable them in the
     // helmfile.
     ENV_SERVICES.forEach((service: Service) => {
@@ -962,7 +975,9 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
             stateCluster = serviceString;
 
             if (config.ENCRYPT_OPENSEARCH) {
-                const caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                if (!caCert) {
+                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                }
                 const admin_dn = getAdminDnFromCert();
                 values.setIn(['opensearch2', 'ssl', 'enabled'], true);
                 values.setIn(['opensearch2', 'ssl', 'caCert'], caCert);
@@ -973,8 +988,18 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
             stateCluster = serviceString;
         }
 
+        if (service === Service.Kafka) {
+            if (config.ENCRYPT_KAFKA) {
+                if (!caCert) {
+                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                }
+                values.setIn(['kafka', 'ssl', 'enabled'], true);
+                values.setIn(['kafka', 'ssl', 'caCert'], caCert);
+            }
+        }
+
         values.setIn([serviceString, 'enabled'], true);
-        if (version) values.setIn([serviceString, 'version'], version);
+        values.setIn([serviceString, 'version'], version);
     });
 
     if (stateCluster) {
@@ -982,7 +1007,7 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
     }
 
     values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
-    logger.debug('helmfile command values: ', values);
+    logger.debug('helmfile command values: ', JSON.stringify(values));
 
     // Write the values to a temporary file
     const valuesDir = fs.mkdtempSync(path.join(os.tmpdir(), 'generated-yaml'));

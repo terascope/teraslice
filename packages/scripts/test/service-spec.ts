@@ -42,6 +42,7 @@ jest.unstable_mockModule('../src/helpers/config.js', () => ({
     KAFKA_PORT: '',
     KAFKA_BROKER: '',
     KAFKA_DOCKER_IMAGE: '',
+    ENCRYPT_KAFKA: '',
     ZOOKEEPER_CLIENT_PORT: '',
     ZOOKEEPER_TICK_TIME: '',
     ZOOKEEPER_DOCKER_IMAGE: '',

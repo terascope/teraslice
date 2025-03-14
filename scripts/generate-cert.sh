@@ -62,6 +62,10 @@ format() {
                 cp "$PUBLIC_CERT_NAME" opensearch-cert.pem
                 create_internal_users_file "$CERT_DIR"
                 ;;
+            kafka)
+            # Kafka requires key/cert pairs in PEM format to be in a certificate chain:
+            # https://kafka.apache.org/documentation/#security_ssl_signing
+                cat "$PRIVATE_KEY_NAME" "$PUBLIC_CERT_NAME" > kafka-keypair.pem;;
             *)
                 echo "Warning: Unknown format '$format' ignored."
                 ;;
