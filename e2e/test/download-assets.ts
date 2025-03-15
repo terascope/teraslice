@@ -80,7 +80,7 @@ function getOlderAssets(assets: AssetInfo[], assetName: string): AssetInfo[] {
     });
 }
 
-function filterRelease(release: any) {
+export function filterRelease(release: any) {
     return !release.draft;
 }
 
@@ -230,7 +230,7 @@ function calculateDelay(err: any): number | undefined {
  * @param {function} downloadFunc A function that returns a promise
  * @returns {Promise<T>}
  */
-const downloadWithDelayedRetry = async <T>(
+export const downloadWithDelayedRetry = async <T>(
     downloadFunc: () => Promise<T>,
 ): Promise<T> => {
     try {
@@ -269,7 +269,7 @@ export async function downloadAssets() {
     logAssets();
 }
 
-// TODO: review this, see if we can seperate it out
+// TODO: review this, see if we can separate it out
 if (import.meta.url.startsWith('file:')) {
     const modulePath = fileURLToPath(import.meta.url);
     const executePath = process.argv[1];
@@ -277,4 +277,13 @@ if (import.meta.url.startsWith('file:')) {
     if (executePath === modulePath) {
         downloadAssets();
     }
+}
+
+function isCachedInAutoload() {
+    // Checks to see what the latest tag is on github
+    // Search for that tag in the autoload directory
+    // If already present:
+        // Return true
+    // Else:
+        // return false
 }
