@@ -5017,12 +5017,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bufferstreams@npm:~3.0.0":
-  version: 3.0.0
-  resolution: "bufferstreams@npm:3.0.0"
+"bufferstreams@npm:~4.0.0":
+  version: 4.0.0
+  resolution: "bufferstreams@npm:4.0.0"
   dependencies:
     readable-stream: "npm:^3.4.0"
-  checksum: 10c0/9110ed5e0cf0801d5462fdbb48ee3b655b4a3fd01ceace57ecb92cc3c5574b516ec336f69a489296af8b3e9e229b07f929e649c9a3078a5a7f7f072865482feb
+    yerror: "npm:^8.0.0"
+  checksum: 10c0/a7a80d090de648f01974fe1b90ad001ed85aed9ba4f60a0e7bf7b255c8f3f23649682c703894c3928dfa7916653aa37eaab7c11fe4dcee37968592eda3b28a52
   languageName: node
   linkType: hard
 
@@ -13083,7 +13084,7 @@ __metadata:
     async-mutex: "npm:~0.5.0"
     barbe: "npm:~3.0.17"
     body-parser: "npm:~1.20.3"
-    bufferstreams: "npm:~3.0.0"
+    bufferstreams: "npm:~4.0.0"
     chance: "npm:~1.1.12"
     convict: "npm:~6.2.4"
     convict-format-with-moment: "npm:~6.2.0"
@@ -14249,6 +14250,13 @@ __metadata:
   version: 0.1.2
   resolution: "yeast@npm:0.1.2"
   checksum: 10c0/74530f4ac042e6ff768cb4a35deb1330a092ad239e13f97989aa82496dfb73fcae689eec2f785af1ef904b92ca33cbbffe3d3a7ee937bf29aa033b970af728bb
+  languageName: node
+  linkType: hard
+
+"yerror@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "yerror@npm:8.0.0"
+  checksum: 10c0/bb2ea224c267294eb5087a9f1c247a7acd5820b4abb480e604f7fcaf5db452900092fc5e0b895a604c062b233336cb9bd68ee1c0704856f58c041d07371e5cfa
   languageName: node
   linkType: hard
 

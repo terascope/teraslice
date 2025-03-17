@@ -70,7 +70,7 @@
         "@types/express": "~4.17.21",
         "@types/gc-stats": "~1.4.3",
         "archiver": "~7.0.1",
-        "bufferstreams": "~3.0.0",
+        "bufferstreams": "~4.0.0",
         "chance": "~1.1.12",
         "convict": "~6.2.4",
         "convict-format-with-moment": "~6.2.0",
