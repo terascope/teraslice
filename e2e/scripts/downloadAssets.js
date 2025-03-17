@@ -17,6 +17,26 @@ import { fileURLToPath } from 'url';
 import path from 'node:path';
 import semver from 'semver'
 
+const validCommands = ['download', 'generate-list'];
+// First argument after script
+const userCommand = process.argv[2];
+
+// Validate if we are using the correct command
+if (!validCommands.includes(userCommand)) {
+    console.error(`
+Invalid command: "${userCommand}"
+Usage:
+  node downloadAssets.js download       # Download assets into /tmp/teraslice_assets
+  node downloadAssets.js generate-list  # Generate a txt file list of assets
+
+Options:
+  - download       Download assets into the /tmp/teraslice_assets directory
+  - generate-list  Generate a txt file list of all assets to be downloaded
+`);
+
+    process.exit(1);
+}
+
 // Grab the path to the downloadAssets.js file
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -85,6 +105,7 @@ function generateList(list) {
     return listString;
 }
 
+const dryRun = userCommand === 'download' ? false : true;
 const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
     () => downloadRelease(
         'terascope',
@@ -94,13 +115,13 @@ const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
         filterAsset,
         true, // Keep assets zipped
         false, // Don't disable logging
-        true // dry run is true
+        dryRun // dry run is true
     ))
 );
-const res = await Promise.all(promises);
+const jsonAssetList = await Promise.all(promises);
 
-if (true) {
-    const assetBundleList = generateList(res);
+if (dryRun) {
+    const assetBundleList = generateList(jsonAssetList);
     const generatedFilePath = path.join(__dirname, 'ci_asset_bundle_list.txt');
     if (fs.existsSync(generatedFilePath)) {
         fs.rmSync(generatedFilePath);
