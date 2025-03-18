@@ -52,6 +52,11 @@ jobs:
     uses: terascope/workflows/.github/workflows/cache-docker-images.yml@f86f716e47d989b939d978befa7721c1f5b10134
     secrets: inherit
 
+  cache-asset-bundles:
+    needs: check-docker-limit-before
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@253f29eadc294aff4a2a98b142da12384c708bb0
+    secrets: inherit
+
   linux-unit-tests:
     runs-on: ubuntu-latest
     needs: compute-node-version-vars
@@ -76,7 +81,7 @@ jobs:
 
   e2e-k8s-tests:
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -117,6 +122,19 @@ jobs:
       - name: Compile e2e code
         run: yarn build
         working-directory: ./e2e
+
+      - name: Create Asset Bundle List
+        run: |
+          yarn download-assets generate-list
+          cat ./scripts/ci_asset_bundle_list.txt
+        working-directory: ./e2e
+
+      - name: Restore asset bundle cache
+        id: asset-bundle-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/teraslice_assets
+          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Install Kind and Kubectl
         uses: helm/kind-action@v1.10.0
@@ -129,7 +147,7 @@ jobs:
 
   e2e-k8s-v2-tests:
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -170,6 +188,19 @@ jobs:
       - name: Compile e2e code
         run: yarn build
         working-directory: ./e2e
+
+      - name: Create Asset Bundle List
+        run: |
+          yarn download-assets generate-list
+          cat ./scripts/ci_asset_bundle_list.txt
+        working-directory: ./e2e
+
+      - name: Restore asset bundle cache
+        id: asset-bundle-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/teraslice_assets
+          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Install Kind and Kubectl
         uses: helm/kind-action@v1.10.0
@@ -201,7 +232,7 @@ jobs:
 
   e2e-k8s-v2-encrypted-tests:
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -254,6 +285,19 @@ jobs:
       - name: Compile e2e code
         run: yarn build
         working-directory: ./e2e
+
+      - name: Create Asset Bundle List
+        run: |
+          yarn download-assets generate-list
+          cat ./scripts/ci_asset_bundle_list.txt
+        working-directory: ./e2e
+
+      - name: Restore asset bundle cache
+        id: asset-bundle-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/teraslice_assets
+          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Install Kind and Kubectl
         uses: helm/kind-action@v1.10.0
@@ -285,7 +329,7 @@ jobs:
 
   e2e-external-storage-tests:
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -327,13 +371,26 @@ jobs:
         run: yarn build
         working-directory: ./e2e
 
+      - name: Create Asset Bundle List
+        run: |
+          yarn download-assets generate-list
+          cat ./scripts/ci_asset_bundle_list.txt
+        working-directory: ./e2e
+
+      - name: Restore asset bundle cache
+        id: asset-bundle-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/teraslice_assets
+          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
+
       - name: Test external Asset Storage opensearch1
         run: NODE_VERSION=${{ matrix.node-version }} yarn test:s3AssetStorage
         working-directory: ./e2e
 
   e2e-external-storage-tests-encrypted:
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -386,6 +443,19 @@ jobs:
       - name: Compile e2e code
         run: yarn build
         working-directory: ./e2e
+
+      - name: Create Asset Bundle List
+        run: |
+          yarn download-assets generate-list
+          cat ./scripts/ci_asset_bundle_list.txt
+        working-directory: ./e2e
+
+      - name: Restore asset bundle cache
+        id: asset-bundle-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/teraslice_assets
+          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Test external Asset Storage opensearch1
         run: ENCRYPT_MINIO=true NODE_VERSION=${{ matrix.node-version }} yarn test:s3AssetStorage
@@ -552,7 +622,7 @@ jobs:
 
   e2e-tests:
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -594,6 +664,19 @@ jobs:
       - name: Compile e2e code
         run: yarn build
         working-directory: ./e2e
+
+      - name: Create Asset Bundle List
+        run: |
+          yarn download-assets generate-list
+          cat ./scripts/ci_asset_bundle_list.txt
+        working-directory: ./e2e
+
+      - name: Restore asset bundle cache
+        id: asset-bundle-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/teraslice_assets
+          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
         run: NODE_VERSION=${{ matrix.node-version }} yarn test:${{ matrix.search-version }}

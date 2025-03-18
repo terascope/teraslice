@@ -1,0 +1,20 @@
+name: Daily Asset Bundle Cache
+
+on:
+  schedule:
+    - cron: '0 12 * * 1-5' # Monday - Friday at 5am Arizona Time
+  workflow_dispatch:
+    inputs:
+      # Represents the reason that this workflow is running. If triggering this
+      # workflow with an api call the reason should be included in the request body.
+      reason:
+        required: false
+        default: "Manually triggered"
+
+run-name: Daily Asset Cache - ${{ inputs.reason || 'Scheduled Weekly Run' }}
+
+
+jobs:
+  call-refresh-asset-bundles-workflow:
+    uses: terascope/workflows/.github/workflows/refresh-asset-bundles.yml@253f29eadc294aff4a2a98b142da12384c708bb0
+    secrets: inherit
