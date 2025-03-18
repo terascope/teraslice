@@ -54,7 +54,7 @@ jobs:
 
   cache-asset-bundles:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@253f29eadc294aff4a2a98b142da12384c708bb0
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@e168de7e5e76d9a8105025d42f9f19b559131e26
     secrets: inherit
 
   linux-unit-tests:
