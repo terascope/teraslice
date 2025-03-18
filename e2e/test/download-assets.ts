@@ -5,7 +5,7 @@ import semver from 'semver';
 import { downloadRelease, HTTPError } from '@terascope/fetch-github-release';
 import { pRetry } from '@terascope/utils';
 import signale from './signale.js';
-import { AUTOLOAD_PATH } from './config.js';
+import { AUTOLOAD_PATH, ASSET_BUNDLES_PATH } from './config.js';
 
 type AssetInfo = {
     name: string;
@@ -285,3 +285,23 @@ if (import.meta.url.startsWith('file:')) {
     }
 }
 
+// Loads assets from the cache into autoload
+export function loadAssetCache() {
+    signale.info('Loading asset cache..');
+
+    if (fs.existsSync(ASSET_BUNDLES_PATH) && fs.existsSync(AUTOLOAD_PATH)) {
+        const assetZipFiles = fs.readdirSync(ASSET_BUNDLES_PATH);
+
+        for (const file of assetZipFiles) {
+            const sourceFilePath = path.join(ASSET_BUNDLES_PATH, file);
+            const targetFilePath = path.join(AUTOLOAD_PATH, file);
+
+            // Copy the file and overwrite if it exists
+            fs.copyFileSync(sourceFilePath, targetFilePath);
+            signale.debug(`Loaded asset file ${file} from cache..`);
+        }
+        signale.success('Finished loading asset cache!');
+    } else {
+        signale.info('No asset cache found.');
+    }
+}
