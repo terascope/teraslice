@@ -13031,7 +13031,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "teraslice-test-harness@workspace:packages/teraslice-test-harness"
   dependencies:
-    "@terascope/fetch-github-release": "npm:~2.0.0"
+    "@terascope/fetch-github-release": "npm:~2.1.0"
     "@terascope/job-components": "npm:~1.9.8"
     decompress: "npm:~4.2.1"
     fs-extra: "npm:~11.3.0"
