@@ -9,13 +9,13 @@ import {
     defaultAssetBundles,
     downloadWithDelayedRetry,
     filterRelease
-} from "../dist/test/download-assets.js";
+} from '../dist/test/download-assets.js';
 import { downloadRelease } from '@terascope/fetch-github-release';
 import { parse } from 'yaml';
 import fs from 'node:fs';
 import { fileURLToPath } from 'url';
 import path from 'node:path';
-import semver from 'semver'
+import semver from 'semver';
 
 const validCommands = ['download', 'generate-list'];
 // First argument after script
@@ -58,12 +58,9 @@ function grabCINodeVersions() {
             }
 
             return mapMajorVersions(nodeVersions);
-
-
         } catch (err) {
             throw new Error('Unable to grab e2e node versions from ci file: ', err);
         }
-
     } else {
         throw new Error(`The test workflow at ${githubTestCIPath} does not exist.`);
     }
@@ -76,19 +73,18 @@ function mapMajorVersions(nodeVersionArray) {
             const majorVersion = semver.major(validatedVersion);
 
             return majorVersion;
-
-        } catch(err) {
+        } catch (err) {
             throw new Error(`Unable to map major versions`, err);
         }
     });
-    return result
+    return result;
 }
 
 function filterAsset(asset) {
     const nodeVersions = grabCINodeVersions();
 
-     // Check if asset name contains any of the node versions
-     return nodeVersions.some(version => asset.name.includes(`node-${version}-bundle.zip`));
+    // Check if asset name contains any of the node versions
+    return nodeVersions.some((version) => asset.name.includes(`node-${version}-bundle.zip`));
 }
 
 function generateList(list) {
@@ -128,4 +124,3 @@ if (dryRun) {
     }
     fs.writeFileSync(generatedFilePath, assetBundleList, 'utf-8');
 }
-

@@ -85,8 +85,14 @@ export function filterRelease(release: any) {
 }
 
 function filterAsset(asset: any) {
-    // if it includes the bundle choose that
-    return asset.name.includes(`node-${nodeVersion}-bundle.zip`);
+    // Don't download asset in the event the file already exists
+    const filePath = path.join(AUTOLOAD_PATH, asset.name);
+    if (fs.existsSync(filePath)) {
+        return false;
+    } else {
+        // if it includes the bundle choose that
+        return asset.name.includes(`node-${nodeVersion}-bundle.zip`);
+    }
 }
 
 function listAssets() {
@@ -279,11 +285,3 @@ if (import.meta.url.startsWith('file:')) {
     }
 }
 
-function isCachedInAutoload() {
-    // Checks to see what the latest tag is on github
-    // Search for that tag in the autoload directory
-    // If already present:
-        // Return true
-    // Else:
-        // return false
-}
