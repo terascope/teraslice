@@ -1,7 +1,7 @@
 /**
  * Used for caching Terascope assets in e2e tests
  * Options:
- * - `download`: will download the assets into the `/tmp/teraslice_assets` directory
+ * - `download`: will download the assets into the 'ASSET_BUNDLES_PATH' directory
  * - `generate-list`: will generate a txt file list of all assets to be downloaded
  */
 
@@ -10,6 +10,7 @@ import {
     downloadWithDelayedRetry,
     filterRelease
 } from '../dist/test/download-assets.js';
+import { ASSET_BUNDLES_PATH } from '../dist/test/config.js';
 import { downloadRelease } from '@terascope/fetch-github-release';
 import { parse } from 'yaml';
 import fs from 'node:fs';
@@ -106,7 +107,7 @@ const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
     () => downloadRelease(
         'terascope',
         repo,
-        '/tmp/teraslice_assets',
+        ASSET_BUNDLES_PATH,
         filterRelease,
         filterAsset,
         true, // Keep assets zipped
