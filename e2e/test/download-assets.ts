@@ -85,14 +85,8 @@ export function filterRelease(release: any) {
 }
 
 function filterAsset(asset: any) {
-    // Don't download asset in the event the file already exists
-    const filePath = path.join(AUTOLOAD_PATH, asset.name);
-    if (fs.existsSync(filePath)) {
-        return false;
-    } else {
-        // if it includes the bundle choose that
-        return asset.name.includes(`node-${nodeVersion}-bundle.zip`);
-    }
+    // if it includes the bundle choose that
+    return asset.name.includes(`node-${nodeVersion}-bundle.zip`);
 }
 
 function listAssets() {
@@ -257,18 +251,25 @@ export const downloadWithDelayedRetry = async <T>(
  * defaultAssetBundles array to the autoload directory
 */
 export async function downloadAssets() {
-    const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
-        () => downloadRelease(
-            'terascope',
-            repo,
-            AUTOLOAD_PATH,
-            filterRelease,
-            filterAsset,
-            leaveZipped,
-            disableLogging
-        ))
-    );
-    await Promise.all(promises);
+    const assetBundles = await getNeededAssetBundles();
+    // We already have all required asset bundles if the length is zero
+    if (assetBundles.length) {
+        signale.debug('Downloading asset bundles from Github..');
+        const promises = assetBundles.map(({ repo }) => downloadWithDelayedRetry(
+            () => downloadRelease(
+                'terascope',
+                repo,
+                AUTOLOAD_PATH,
+                filterRelease,
+                filterAsset,
+                leaveZipped,
+                disableLogging
+            ))
+        );
+        await Promise.all(promises);
+    } else {
+        signale.debug('Skipping downloading assets in favor of cache..');
+    }
 
     deleteAssetsWithWrongNodeVersions();
     deleteOlderAssets();
@@ -285,7 +286,9 @@ if (import.meta.url.startsWith('file:')) {
     }
 }
 
-// Loads assets from the cache into autoload
+/**
+ * Loads zippped assets from the cache into autoload directory
+ */
 export function loadAssetCache() {
     signale.info('Loading asset cache..');
 
@@ -304,4 +307,55 @@ export function loadAssetCache() {
     } else {
         signale.info('No asset cache found.');
     }
+}
+
+/**
+ * Grabs the latest asset releases and checks to see if said assets already exist in the autoload directory.
+ * @returns An array of asset bundles missing from the autoload directory
+ */
+async function getNeededAssetBundles() {
+    // Run a dry run with the defaultAssetBundles to grab all the files names we need in the autoload directory
+    const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
+        () => downloadRelease(
+            'terascope',
+            repo,
+            AUTOLOAD_PATH,
+            filterRelease,
+            filterAsset,
+            leaveZipped,
+            disableLogging,
+            true // dryrun
+        ))
+    );
+    const latestAssetBundles = await Promise.all(promises);
+    const neededAssetBundles = [];
+
+    // Iterate over the latest asset bundles
+    for (const assetRelease of latestAssetBundles) {
+        // Check if assetRelease is an object and has assetFileNames
+        if (!Array.isArray(assetRelease) && 'assetFileNames' in assetRelease) {
+
+            // Iterate over each assets list of zip file names and see if it
+            // exist in autoload
+            for (const zipFileName of assetRelease.assetFileNames) {
+                const filePath = path.join(AUTOLOAD_PATH, zipFileName);
+
+                if (!fs.existsSync(filePath)) {
+                    // Iterate over the defaultAssetBundles to find out which asset repo needs to
+                    // be downloaded
+                    for (const bundle of defaultAssetBundles) {
+
+                        if  (zipFileName.includes(bundle.name)) {
+                            neededAssetBundles.push(bundle);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+        }
+    }
+    return neededAssetBundles;
+
 }
