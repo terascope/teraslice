@@ -42,6 +42,10 @@ Options:
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+/**
+ * Grabs the NODE_VERSIONS value from the test.yml ci file and formats it into an array
+ * @returns An array of node versions
+ */
 function grabCINodeVersions() {
     const githubTestCIPath = path.join(__dirname, '../../.github/workflows/test.yml');
     if (fs.existsSync(githubTestCIPath)) {
@@ -50,6 +54,7 @@ function grabCINodeVersions() {
             const ciYaml = parse(ciFile);
             let nodeVersions = parse(ciYaml.env.NODE_VERSIONS);
 
+            // If it's just a number or string and not an array we need to put it in an array
             if (typeof nodeVersions === 'number' || typeof nodeVersions === 'string') {
                 nodeVersions = [nodeVersions];
             }
@@ -67,6 +72,11 @@ function grabCINodeVersions() {
     }
 }
 
+/**
+ * Reformats an array of node versions to only include the major version in each index
+ * @param nodeVersionArray An array of node versions
+ * @returns A reformatted version of the param array but with only the major version
+ */
 function mapMajorVersions(nodeVersionArray) {
     const result = nodeVersionArray.map((value) => {
         try {
@@ -81,6 +91,11 @@ function mapMajorVersions(nodeVersionArray) {
     return result;
 }
 
+/**
+ * Filter function for downloadRelease() that will filter assets to only grab specified node versions
+ * @param asset Github asset object https://docs.github.com/en/rest/releases/releases?ap#get-a-single-release-asset
+ * @returns Boolean
+ */
 function filterAsset(asset) {
     const nodeVersions = grabCINodeVersions();
 
@@ -88,6 +103,11 @@ function filterAsset(asset) {
     return nodeVersions.some((version) => asset.name.includes(`node-${version}-bundle.zip`));
 }
 
+/**
+ * Given an array of asset release objects, will return a stringified list of all file names.
+ * @param list An array of asset release objects
+ * @returns A string of all zip file names separated by '/n'
+ */
 function generateList(list) {
     const formatedList = [];
     list.forEach((release) => {
@@ -117,6 +137,7 @@ const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
 );
 const jsonAssetList = await Promise.all(promises);
 
+// If we are dry-running we will generate a list
 if (dryRun) {
     const assetBundleList = generateList(jsonAssetList);
     const generatedFilePath = path.join(__dirname, 'ci_asset_bundle_list.txt');
