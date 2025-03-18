@@ -678,6 +678,9 @@ jobs:
           path: /tmp/teraslice_assets
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
+      - name: temp check cache
+        run: ls /tmp/teraslice_assets
+
       - name: Test ${{ matrix.search-version }}
         run: NODE_VERSION=${{ matrix.node-version }} yarn test:${{ matrix.search-version }}
         working-directory: ./e2e
