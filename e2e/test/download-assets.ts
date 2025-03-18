@@ -310,11 +310,13 @@ export function loadAssetCache() {
 }
 
 /**
- * Grabs the latest asset releases and checks to see if said assets already exist in the autoload directory.
+ * Grabs the latest asset releases and checks to see if said assets already exist
+ * in the autoload directory.
  * @returns An array of asset bundles missing from the autoload directory
  */
 async function getNeededAssetBundles() {
-    // Run a dry run with the defaultAssetBundles to grab all the files names we need in the autoload directory
+    // Run a dry run with the defaultAssetBundles to grab all the file
+    // names we need in the autoload directory
     const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
         () => downloadRelease(
             'terascope',
@@ -334,7 +336,6 @@ async function getNeededAssetBundles() {
     for (const assetRelease of latestAssetBundles) {
         // Check if assetRelease is an object and has assetFileNames
         if (!Array.isArray(assetRelease) && 'assetFileNames' in assetRelease) {
-
             // Iterate over each assets list of zip file names and see if it
             // exist in autoload
             for (const zipFileName of assetRelease.assetFileNames) {
@@ -344,8 +345,7 @@ async function getNeededAssetBundles() {
                     // Iterate over the defaultAssetBundles to find out which asset repo needs to
                     // be downloaded
                     for (const bundle of defaultAssetBundles) {
-
-                        if  (zipFileName.includes(bundle.name)) {
+                        if (zipFileName.includes(bundle.name)) {
                             neededAssetBundles.push(bundle);
                             break;
                         }
@@ -353,9 +353,7 @@ async function getNeededAssetBundles() {
                     break;
                 }
             }
-
         }
     }
     return neededAssetBundles;
-
 }
