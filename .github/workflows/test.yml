@@ -44,17 +44,17 @@ jobs:
       run: YARN_ENABLE_HARDENED_MODE=1 yarn && yarn setup
 
   check-docker-limit-before:
-   uses: terascope/workflows/.github/workflows/check-docker-limit.yml@696bd4cb7178aca4e17cda402fb2b00d06a64582
+   uses: terascope/workflows/.github/workflows/check-docker-limit.yml@a59843c33fcf029a5992ce66fb88b234cfd2da14
    secrets: inherit
 
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@696bd4cb7178aca4e17cda402fb2b00d06a64582
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@a59843c33fcf029a5992ce66fb88b234cfd2da14
     secrets: inherit
 
   cache-asset-bundles:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@696bd4cb7178aca4e17cda402fb2b00d06a64582
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@a59843c33fcf029a5992ce66fb88b234cfd2da14
     secrets: inherit
 
   linux-unit-tests:
@@ -123,11 +123,13 @@ jobs:
         run: yarn build
         working-directory: ./e2e
 
-      - name: Create Asset Bundle List
-        run: |
-          yarn download-assets generate-list
-          cat ./scripts/ci_asset_bundle_list.txt
-        working-directory: ./e2e
+      - name: Get Asset Bundle List From Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asset-bundle-txt-file-list
+          path: ${{ github.workspace }}/e2e/scripts
+      - run: ls -R ${{ github.workspace }}/e2e/scripts
+      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -189,11 +191,13 @@ jobs:
         run: yarn build
         working-directory: ./e2e
 
-      - name: Create Asset Bundle List
-        run: |
-          yarn download-assets generate-list
-          cat ./scripts/ci_asset_bundle_list.txt
-        working-directory: ./e2e
+      - name: Get Asset Bundle List From Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asset-bundle-txt-file-list
+          path: ${{ github.workspace }}/e2e/scripts
+      - run: ls -R ${{ github.workspace }}/e2e/scripts
+      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -286,11 +290,13 @@ jobs:
         run: yarn build
         working-directory: ./e2e
 
-      - name: Create Asset Bundle List
-        run: |
-          yarn download-assets generate-list
-          cat ./scripts/ci_asset_bundle_list.txt
-        working-directory: ./e2e
+      - name: Get Asset Bundle List From Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asset-bundle-txt-file-list
+          path: ${{ github.workspace }}/e2e/scripts
+      - run: ls -R ${{ github.workspace }}/e2e/scripts
+      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -371,11 +377,13 @@ jobs:
         run: yarn build
         working-directory: ./e2e
 
-      - name: Create Asset Bundle List
-        run: |
-          yarn download-assets generate-list
-          cat ./scripts/ci_asset_bundle_list.txt
-        working-directory: ./e2e
+      - name: Get Asset Bundle List From Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asset-bundle-txt-file-list
+          path: ${{ github.workspace }}/e2e/scripts
+      - run: ls -R ${{ github.workspace }}/e2e/scripts
+      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -444,11 +452,13 @@ jobs:
         run: yarn build
         working-directory: ./e2e
 
-      - name: Create Asset Bundle List
-        run: |
-          yarn download-assets generate-list
-          cat ./scripts/ci_asset_bundle_list.txt
-        working-directory: ./e2e
+      - name: Get Asset Bundle List From Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asset-bundle-txt-file-list
+          path: ${{ github.workspace }}/e2e/scripts
+      - run: ls -R ${{ github.workspace }}/e2e/scripts
+      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -665,11 +675,13 @@ jobs:
         run: yarn build
         working-directory: ./e2e
 
-      - name: Create Asset Bundle List
-        run: |
-          yarn download-assets generate-list
-          cat ./scripts/ci_asset_bundle_list.txt
-        working-directory: ./e2e
+      - name: Get Asset Bundle List From Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asset-bundle-txt-file-list
+          path: ${{ github.workspace }}/e2e/scripts
+      - run: ls -R ${{ github.workspace }}/e2e/scripts
+      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -694,5 +706,5 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@696bd4cb7178aca4e17cda402fb2b00d06a64582
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@a59843c33fcf029a5992ce66fb88b234cfd2da14
     secrets: inherit
