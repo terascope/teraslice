@@ -92,7 +92,8 @@ function mapMajorVersions(nodeVersionArray) {
 }
 
 /**
- * Filter function for downloadRelease() that will filter assets to only grab specified node versions
+ * Filter function for downloadRelease() that will filter assets to only grab specified
+ * node versions
  * @param asset Github asset object
  *  https://docs.github.com/en/rest/releases/releases?ap#get-a-single-release-asset
  * @returns Boolean
