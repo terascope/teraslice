@@ -16,5 +16,5 @@ run-name: Daily Asset Cache - ${{ inputs.reason || 'Scheduled Weekly Run' }}
 
 jobs:
   call-refresh-asset-bundles-workflow:
-    uses: terascope/workflows/.github/workflows/refresh-asset-bundles.yml@e168de7e5e76d9a8105025d42f9f19b559131e26
+    uses: terascope/workflows/.github/workflows/refresh-asset-bundles.yml@696bd4cb7178aca4e17cda402fb2b00d06a64582
     secrets: inherit
