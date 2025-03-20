@@ -44,21 +44,21 @@ jobs:
       run: YARN_ENABLE_HARDENED_MODE=1 yarn && yarn setup
 
   check-docker-limit-before:
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@afae7f908a6037704d005370fcc5ec67644aa737
     secrets: inherit
 
   check-github-api-limit-before:
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@afae7f908a6037704d005370fcc5ec67644aa737
     secrets: inherit
 
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@afae7f908a6037704d005370fcc5ec67644aa737
     secrets: inherit
 
   cache-asset-bundles:
     needs: check-github-api-limit-before
-    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@afae7f908a6037704d005370fcc5ec67644aa737
     secrets: inherit
 
   linux-unit-tests:
@@ -134,8 +134,6 @@ jobs:
         with:
           name: asset-bundle-txt-file-list
           path: ${{ github.workspace }}/e2e/scripts
-      - run: ls -R ${{ github.workspace }}/e2e/scripts
-      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -204,8 +202,6 @@ jobs:
         with:
           name: asset-bundle-txt-file-list
           path: ${{ github.workspace }}/e2e/scripts
-      - run: ls -R ${{ github.workspace }}/e2e/scripts
-      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -303,8 +299,6 @@ jobs:
         with:
           name: asset-bundle-txt-file-list
           path: ${{ github.workspace }}/e2e/scripts
-      - run: ls -R ${{ github.workspace }}/e2e/scripts
-      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -392,8 +386,6 @@ jobs:
         with:
           name: asset-bundle-txt-file-list
           path: ${{ github.workspace }}/e2e/scripts
-      - run: ls -R ${{ github.workspace }}/e2e/scripts
-      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -469,8 +461,6 @@ jobs:
         with:
           name: asset-bundle-txt-file-list
           path: ${{ github.workspace }}/e2e/scripts
-      - run: ls -R ${{ github.workspace }}/e2e/scripts
-      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -694,8 +684,6 @@ jobs:
         with:
           name: asset-bundle-txt-file-list
           path: ${{ github.workspace }}/e2e/scripts
-      - run: ls -R ${{ github.workspace }}/e2e/scripts
-      - run: cat ${{ github.workspace }}/e2e/scripts/ci_asset_bundle_list.txt
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
@@ -720,7 +708,7 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@afae7f908a6037704d005370fcc5ec67644aa737
     secrets: inherit
 
   check-github-api-limit-after:
@@ -735,5 +723,5 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@afae7f908a6037704d005370fcc5ec67644aa737
     secrets: inherit
