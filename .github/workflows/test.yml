@@ -44,21 +44,21 @@ jobs:
       run: YARN_ENABLE_HARDENED_MODE=1 yarn && yarn setup
 
   check-docker-limit-before:
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@cfe16f020a6ade41ea7555e42324acfd95685af2
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
     secrets: inherit
 
   check-github-api-limit-before:
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@cfe16f020a6ade41ea7555e42324acfd95685af2
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
     secrets: inherit
 
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@cfe16f020a6ade41ea7555e42324acfd95685af2
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
     secrets: inherit
 
   cache-asset-bundles:
     needs: check-github-api-limit-before
-    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@cfe16f020a6ade41ea7555e42324acfd95685af2
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
     secrets: inherit
 
   linux-unit-tests:
@@ -720,7 +720,7 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@cfe16f020a6ade41ea7555e42324acfd95685af2
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
     secrets: inherit
 
   check-github-api-limit-after:
@@ -735,5 +735,5 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@cfe16f020a6ade41ea7555e42324acfd95685af2
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@8571b3c90b44903d07e9d30b464bd77bf890df81
     secrets: inherit
