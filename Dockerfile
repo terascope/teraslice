@@ -8,7 +8,7 @@ ARG TERASLICE_VERSION
 ARG BUILD_TIMESTAMP
 ARG GITHUB_SHA
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 COPY package.json yarn.lock tsconfig.json .yarnrc.yml /app/source/
 COPY .yarnclean.ci /app/source/.yarnclean
@@ -38,7 +38,7 @@ EXPOSE 5678
 
 # set up the volumes
 VOLUME /app/config /app/logs /app/assets
-ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
+ENV TERAFOUNDATION_CONFIG=/app/config/teraslice.yaml
 
 LABEL org.opencontainers.image.version="$TERASLICE_VERSION" \
   org.opencontainers.image.created="$BUILD_TIMESTAMP" \
