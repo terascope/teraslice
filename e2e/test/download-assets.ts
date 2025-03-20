@@ -322,9 +322,13 @@ async function getNeededAssetBundles() {
     const currentAutoloadFiles = fs.readdirSync(AUTOLOAD_PATH, 'utf-8');
     const neededAssetBundles = [];
 
+    // Loop over each default asset bundle
     for (const bundle of defaultAssetBundles) {
         let missingBundle = true;
+        // Compare all autoload file names with each bundle
         for (const fileName of currentAutoloadFiles) {
+            // If a file in the autoload has a .zip, the right node version, and the bundle name
+            // it's present and not missing
             if (
                 fileName.includes(bundle.name)
                 && fileName.includes('.zip')
