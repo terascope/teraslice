@@ -3,7 +3,7 @@
 ARG NODE_VERSION=22
 FROM ghcr.io/terascope/node-base:${NODE_VERSION}
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 # Check to see if distutils is installed because python 3.12 removed it
 RUN python3 -c "import distutils" || (apk update && apk add py3-setuptools)
@@ -15,6 +15,6 @@ EXPOSE 5678
 
 # set up the volumes
 VOLUME /app/config /app/logs /app/assets
-ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
+ENV TERAFOUNDATION_CONFIG=/app/config/teraslice.yaml
 
 CMD ["nodemon", "--exitcrash", "service.js"]
