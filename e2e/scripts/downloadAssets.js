@@ -124,7 +124,6 @@ function generateList(list) {
     return listString;
 }
 
-const dryRun = userCommand === 'download' ? false : true;
 const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
     () => downloadRelease(
         'terascope',
@@ -134,13 +133,12 @@ const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
         filterAsset,
         true, // Keep assets zipped
         false, // Don't disable logging
-        dryRun // dry run is true
+        userCommand === 'download' ? false : true
     ))
 );
 const jsonAssetList = await Promise.all(promises);
 
-// If we are dry-running we will generate a list
-if (dryRun) {
+if (userCommand === 'generate-list') {
     const assetBundleList = generateList(jsonAssetList);
     const generatedFilePath = path.join(__dirname, 'ci_asset_bundle_list.txt');
     if (fs.existsSync(generatedFilePath)) {
