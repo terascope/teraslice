@@ -244,7 +244,7 @@ export async function getContainerInfo(name: string): Promise<any> {
 export async function dockerNetworkExists(name: string): Promise<boolean> {
     const subprocess = await execaCommand(
         `docker network ls --format='{{json .Name}}' | grep '"${name}"'`,
-        { reject: false }
+        { reject: false, shell: true }
     );
     return subprocess.exitCode ? subprocess.exitCode > 0 : false;
 }
