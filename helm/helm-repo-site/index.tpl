@@ -305,8 +305,5 @@ releases:
       </div>
     </section>
 		<time datetime="{{ .Generated.Format "2006-01-02T15:04:05" }}" pubdate id="generated">{{ .Generated.Format "Mon Jan 2 2006 03:04:05PM MST-07:00" }}</time>
-
-    <script src="https://unpkg.com/clipboard@2/dist/clipboard.min.js"></script>
-    <script>new ClipboardJS('.btn');</script>
   </body>
 </html>
