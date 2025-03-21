@@ -5,7 +5,7 @@ import { TerasliceHarness } from './teraslice-harness.js';
 import { dockerUp } from './docker-helpers.js';
 import signale from './signale.js';
 import setupTerasliceConfig from './setup-config.js';
-import { downloadAssets } from './download-assets.js';
+import { downloadAssets, loadAssetCache } from './download-assets.js';
 import {
     CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM,
     TERASLICE_PORT, KIND_CLUSTER, USE_HELMFILE
@@ -33,6 +33,9 @@ export default async () => {
         fse.ensureDir(ASSETS_PATH),
         fse.ensureDir(CONFIG_PATH),
     ]);
+
+    // Try to load in the cache before trying to download
+    loadAssetCache();
 
     if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
         await downloadAssets();

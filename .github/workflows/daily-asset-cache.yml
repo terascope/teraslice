@@ -1,4 +1,4 @@
-name: Daily Docker Cache
+name: Daily Asset Bundle Cache
 
 on:
   schedule:
@@ -11,10 +11,10 @@ on:
         required: false
         default: "Manually triggered"
 
-run-name: Daily Docker Cache - ${{ inputs.reason || 'Scheduled Weekly Run' }}
+run-name: Daily Asset Cache - ${{ inputs.reason || 'Scheduled Weekly Run' }}
 
 
 jobs:
-  call-refresh-docker-cache-workflow:
-    uses: terascope/workflows/.github/workflows/refresh-docker-cache.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+  call-refresh-asset-bundles-workflow:
+    uses: terascope/workflows/.github/workflows/refresh-asset-bundles.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
     secrets: inherit

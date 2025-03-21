@@ -89,3 +89,6 @@ helm/helm-repo-site/*.tgz
 
 # examples directory
 examples/helm/custom.yaml
+
+# Asset cache txt file
+e2e/scripts/ci_asset_bundle_list.txt

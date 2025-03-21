@@ -3,9 +3,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import semver from 'semver';
 import { downloadRelease, HTTPError } from '@terascope/fetch-github-release';
-import { pRetry } from '@terascope/utils';
+import { pRetry, isCI } from '@terascope/utils';
 import signale from './signale.js';
-import { AUTOLOAD_PATH } from './config.js';
+import { AUTOLOAD_PATH, ASSET_BUNDLES_PATH } from './config.js';
 
 type AssetInfo = {
     name: string;
@@ -80,7 +80,7 @@ function getOlderAssets(assets: AssetInfo[], assetName: string): AssetInfo[] {
     });
 }
 
-function filterRelease(release: any) {
+export function filterRelease(release: any) {
     return !release.draft;
 }
 
@@ -230,7 +230,7 @@ function calculateDelay(err: any): number | undefined {
  * @param {function} downloadFunc A function that returns a promise
  * @returns {Promise<T>}
  */
-const downloadWithDelayedRetry = async <T>(
+export const downloadWithDelayedRetry = async <T>(
     downloadFunc: () => Promise<T>,
 ): Promise<T> => {
     try {
@@ -251,25 +251,37 @@ const downloadWithDelayedRetry = async <T>(
  * defaultAssetBundles array to the autoload directory
 */
 export async function downloadAssets() {
-    const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
-        () => downloadRelease(
-            'terascope',
-            repo,
-            AUTOLOAD_PATH,
-            filterRelease,
-            filterAsset,
-            leaveZipped,
-            disableLogging
-        ))
-    );
-    await Promise.all(promises);
+    const assetBundles = await getNeededAssetBundles();
+    // We already have all required asset bundles if the length is zero
+    if (assetBundles.length) {
+        signale.debug('Downloading asset bundles from Github..');
+        const promises = assetBundles.map(({ repo }) => downloadWithDelayedRetry(
+            () => downloadRelease(
+                'terascope',
+                repo,
+                AUTOLOAD_PATH,
+                filterRelease,
+                filterAsset,
+                leaveZipped,
+                disableLogging
+            ))
+        );
+        await Promise.all(promises);
+    } else {
+        signale.debug('Skipping downloading assets in favor of cache..');
+        if (!isCI) {
+            signale.warn(`The ${AUTOLOAD_PATH} directory acts as a cache for assets in local development.
+             Clear this directory frequently to ensure testing is done with the latest assets from Github.
+             Also ensure ${ASSET_BUNDLES_PATH} is cleared as well as e2e will pull assets from there.`);
+        }
+    }
 
     deleteAssetsWithWrongNodeVersions();
     deleteOlderAssets();
     logAssets();
 }
 
-// TODO: review this, see if we can seperate it out
+// TODO: review this, see if we can separate it out
 if (import.meta.url.startsWith('file:')) {
     const modulePath = fileURLToPath(import.meta.url);
     const executePath = process.argv[1];
@@ -277,4 +289,60 @@ if (import.meta.url.startsWith('file:')) {
     if (executePath === modulePath) {
         downloadAssets();
     }
+}
+
+/**
+ * Loads zipped assets from the cache into autoload directory
+ */
+export function loadAssetCache() {
+    signale.info('Loading asset cache..');
+
+    if (fs.existsSync(ASSET_BUNDLES_PATH) && fs.existsSync(AUTOLOAD_PATH)) {
+        const assetZipFiles = fs.readdirSync(ASSET_BUNDLES_PATH);
+
+        for (const file of assetZipFiles) {
+            const sourceFilePath = path.join(ASSET_BUNDLES_PATH, file);
+            const targetFilePath = path.join(AUTOLOAD_PATH, file);
+
+            // Copy the file and overwrite if it exists
+            fs.copyFileSync(sourceFilePath, targetFilePath);
+            signale.debug(`Loaded asset file ${file} from cache..`);
+        }
+        signale.success('Finished loading asset cache!');
+    } else {
+        signale.info('No asset cache found.');
+    }
+}
+
+/**
+ * Checks the autoload directory for the default bundles to ensure they exist
+ * @returns An array of needed asset bundles missing from the autoload directory
+ */
+async function getNeededAssetBundles() {
+    const currentAutoloadFiles = fs.readdirSync(AUTOLOAD_PATH, 'utf-8');
+    const neededAssetBundles = [];
+
+    // Loop over each default asset bundle
+    for (const bundle of defaultAssetBundles) {
+        let missingBundle = true;
+        // Compare all autoload file names with each bundle
+        for (const fileName of currentAutoloadFiles) {
+            // If a file in the autoload has a .zip, the right node version, and the bundle name
+            // it's present and not missing
+            if (
+                fileName.includes(bundle.name)
+                && fileName.includes('.zip')
+                && fileName.includes(nodeVersion)
+            ) {
+                missingBundle = false;
+                break;
+            }
+        }
+        if (missingBundle) {
+            signale.debug(`Required asset ${bundle.repo} missing from autoload and will be downloaded..`);
+            neededAssetBundles.push(bundle);
+        }
+    }
+
+    return neededAssetBundles;
 }

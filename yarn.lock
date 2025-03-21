@@ -2844,9 +2844,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/fetch-github-release@npm:~2.0.0":
-  version: 2.0.0
-  resolution: "@terascope/fetch-github-release@npm:2.0.0"
+"@terascope/fetch-github-release@npm:~2.1.0":
+  version: 2.1.0
+  resolution: "@terascope/fetch-github-release@npm:2.1.0"
   dependencies:
     extract-zip: "npm:^2.0.1"
     got: "npm:13.0.0"
@@ -2855,7 +2855,7 @@ __metadata:
     yargs: "npm:^17.2.1"
   bin:
     fetch-github-release: bin/fetch-github-release
-  checksum: 10c0/d3532d2aa98e5d55c76dd11a061bb3571ccc3c2c333cbc68d8803a9b4f9c1a95046bf8188ef830374634b0e9f2081c43b1b27585dd889a007940318146730408
+  checksum: 10c0/b15959486a2d3356cd8c5e390c917eb36ff16c2b60ce42d289bb8b89a1a07931f8ee70c311d16395a4703dc850639a21790ab38f40422c11449357fb2a7ae484
   languageName: node
   linkType: hard
 
@@ -12978,7 +12978,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "teraslice-cli@workspace:packages/teraslice-cli"
   dependencies:
-    "@terascope/fetch-github-release": "npm:~2.0.0"
+    "@terascope/fetch-github-release": "npm:~2.1.0"
     "@terascope/types": "npm:~1.4.1"
     "@terascope/utils": "npm:~1.7.7"
     "@types/decompress": "npm:~4.2.7"
@@ -13031,7 +13031,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "teraslice-test-harness@workspace:packages/teraslice-test-harness"
   dependencies:
-    "@terascope/fetch-github-release": "npm:~2.0.0"
+    "@terascope/fetch-github-release": "npm:~2.1.0"
     "@terascope/job-components": "npm:~1.9.8"
     decompress: "npm:~4.2.1"
     fs-extra: "npm:~11.3.0"
