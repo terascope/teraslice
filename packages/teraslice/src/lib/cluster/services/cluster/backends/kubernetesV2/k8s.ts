@@ -9,6 +9,7 @@ import {
     isReplicaSet, isService, isTSPod
 } from './utils.js';
 import * as i from './interfaces.js';
+import { of } from '@kubernetes/client-node/dist/gen/rxjsStub.js';
 
 export class K8s {
     logger: Logger;
@@ -174,7 +175,7 @@ export class K8s {
 
         const params = {
             namespace,
-            selector
+            labelSelector: selector
         };
 
         try {
@@ -284,13 +285,35 @@ export class K8s {
     // on this to require `objType` to support patching other things
     async patch(record: Record<string, any>, name: string) {
         let responseObj: k8s.V1Deployment;
+
         try {
-            const options = k8s.setHeaderOptions('Content-Type', k8s.PatchStrategy.JsonPatch);
-            responseObj = await pRetry(() => this.k8sAppsV1Api.patchNamespacedDeployment({
-                name,
-                namespace: this.defaultNamespace,
-                body: record
-            }, options as k8s.ConfigurationOptions), getRetryConfig());
+            // recreate the setHeaderMiddleware to use ObservableMiddleware
+            // this workaround should be fixed by https://github.com/kubernetes-client/javascript/pull/2316
+            function setHeaderMiddleware(key: string, value: string): k8s.ObservableMiddleware {
+                return {
+                    pre: (request: k8s.RequestContext) => {
+                        request.setHeaderParam(key, value);
+                        return of(request);
+                    },
+                    post: (response: k8s.ResponseContext) => {
+                        return of(response);
+                    },
+                };
+            }
+
+            responseObj = await this.k8sAppsV1Api.patchNamespacedDeployment(
+                {
+                    name,
+                    namespace: this.defaultNamespace,
+                    body: record
+                },
+                {
+                    middleware: [
+                        setHeaderMiddleware('Content-Type', 'MyValue'),
+                    ],
+                    middlewareMergeStrategy: 'append',
+                }
+            );
             return responseObj;
         } catch (e) {
             const err = new Error(`Request k8s.patch with name: ${name} failed with: ${e}`);
@@ -345,7 +368,7 @@ export class K8s {
         const params = {
             name,
             namespace: this.defaultNamespace,
-            deleteOptions
+            body: deleteOptions
         };
 
         const deleteWithErrorHandling = async (
@@ -355,11 +378,12 @@ export class K8s {
                 const res = await deleteFn();
                 return res;
             } catch (e) {
-                if (e.statusCode) {
+                if (e.body) {
+                    const bodyObj = JSON.parse(e.body);
                     // 404 should be an acceptable response to a delete request, not an error
-                    if (e.statusCode === 404) {
+                    if (bodyObj.code === 404) {
                         this.logger.info(`No ${objType} with name ${name} found while attempting to delete.`);
-                        return e;
+                        return bodyObj;
                     }
                 }
                 throw e;
