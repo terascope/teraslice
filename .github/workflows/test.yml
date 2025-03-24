@@ -441,7 +441,7 @@ jobs:
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Install mkcert
-        run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4.-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
+        run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
 
       - name: Install grep
         run: sudo apt update && sudo apt install grep
