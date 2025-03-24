@@ -1005,7 +1005,7 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
                 }
                 values.setIn(['minio', 'tls', 'enabled'], true);
                 values.setIn(['minio', 'tls', 'caCert'], caCert);
-                values.setIn(['minio', 'tls', 'certSecret'], 'tls-ssl-minio')
+                values.setIn(['minio', 'tls', 'certSecret'], 'tls-ssl-minio');
             }
         }
 

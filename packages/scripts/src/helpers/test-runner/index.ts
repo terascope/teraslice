@@ -385,7 +385,7 @@ async function createMinioSecret(options: TestOptions) {
     const certsDir = path.join(e2eDir, './test/certs/');
     const privateKeypath = path.join(certsDir, 'private.key');
     const publicCertPath = path.join(certsDir, 'public.crt');
-    const rootCaPath = path.join(certsDir, '/CAs/rootCA.pem')
+    const rootCaPath = path.join(certsDir, '/CAs/rootCA.pem');
     if (fs.existsSync(privateKeypath)
         && fs.existsSync(publicCertPath)
         && fs.existsSync(rootCaPath)
@@ -408,8 +408,7 @@ async function createMinioSecret(options: TestOptions) {
 
             const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
             await k8s.createKubernetesSecret(minioSecret);
-
-        } catch(err) {
+        } catch (err) {
             throw new Error('Unable to create minio secret for certificates.', err);
         }
     }

@@ -309,13 +309,12 @@ export class K8s {
 
     // Create a kubernetes secret with specified namespace
     async createKubernetesSecret(secret: k8sClient.V1Secret): Promise<void> {
-
         try {
             await this.k8sCoreV1Api.createNamespacedSecret(
                 'services-dev1',
                 secret
             );
-        } catch(err) {
+        } catch (err) {
             throw new Error('Unable to make kubernetes secret.', err);
         }
     }
