@@ -309,7 +309,7 @@ export class K8s {
                 },
                 {
                     middleware: [
-                        setHeaderMiddleware('Content-Type', 'MyValue'),
+                        setHeaderMiddleware('Content-Type', k8s.PatchStrategy.MergePatch),
                     ],
                     middlewareMergeStrategy: 'append',
                 }
@@ -553,13 +553,11 @@ export class K8s {
 
         this.logger.info(`New Scale for exId=${exId}: ${newScale}`);
 
-        const scalePatch = [
-            {
-                op: 'replace',
-                path: '/spec/replicas',
-                value: newScale
+        const scalePatch = {
+            spec: {
+                replicas: newScale
             }
-        ];
+        };
 
         const patchResponseBody = await this
             .patch(scalePatch, workerDeployment.metadata.name);
