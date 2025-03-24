@@ -405,9 +405,8 @@ async function createMinioSecret(options: TestOptions) {
                 },
                 type: 'Opaque'
             };
-            console.log('MinioSecret: ', minioSecret);
+
             const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
-            console.log('I made it!');
             await k8s.createKubernetesSecret(minioSecret);
 
         } catch(err) {
