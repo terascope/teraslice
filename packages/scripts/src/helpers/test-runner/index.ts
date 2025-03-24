@@ -30,8 +30,11 @@ import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
 import {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
-    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION
+    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION,
+    ENCRYPT_MINIO
 } from '../config.js';
+import path from 'node:path';
+import fs from 'node:fs';
 import { K8s } from '../k8s-env/k8s.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -246,10 +249,9 @@ async function runE2ETest(
                 await kind.destroyCluster();
                 process.exit(1);
             }
-            if (!options.useHelmfile) {
-                const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
-                await k8s.createNamespace('services-ns.yaml', 'services');
-            }
+
+            const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
+            await k8s.createNamespace('services-ns.yaml', 'services');
         } catch (err) {
             tracker.addError(err);
         }
@@ -293,6 +295,9 @@ async function runE2ETest(
                 const timeLabel = 'helmfile deployment';
                 await loadImagesForHelm(options);
                 signale.time(timeLabel);
+                if (ENCRYPT_MINIO) {
+                    await createMinioSecret(options);
+                }
                 await launchE2EWithHelmfile();
                 signale.timeEnd(timeLabel);
             }
@@ -373,4 +378,40 @@ function printAndGetEnv(suite: string, options: TestOptions) {
         signale.debug(`Setting ${suite} test suite env to ${envStr}`);
     }
     return env;
+}
+
+async function createMinioSecret(options: TestOptions) {
+    const e2eDir = getE2EDir() as string;
+    const certsDir = path.join(e2eDir, './test/certs/');
+    const privateKeypath = path.join(certsDir, 'private.key');
+    const publicCertPath = path.join(certsDir, 'public.crt');
+    const rootCaPath = path.join(certsDir, '/CAs/rootCA.pem')
+    if (fs.existsSync(privateKeypath)
+        && fs.existsSync(publicCertPath)
+        && fs.existsSync(rootCaPath)
+    ) {
+        try {
+            const privateKey = fs.readFileSync(privateKeypath, 'utf-8');
+            const publicCert = fs.readFileSync(publicCertPath, 'utf-8');
+            const rootCA = fs.readFileSync(rootCaPath, 'utf-8');
+            const minioSecret = {
+                metadata: {
+                    name: 'tls-ssl-minio'
+                },
+                stringData: {
+                    'private.key': privateKey,
+                    'public.crt': publicCert,
+                    'rootCA.pem': rootCA
+                },
+                type: 'Opaque'
+            };
+            console.log('MinioSecret: ', minioSecret);
+            const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
+            console.log('I made it!');
+            await k8s.createKubernetesSecret(minioSecret);
+
+        } catch(err) {
+            throw new Error('Unable to create minio secret for certificates.', err);
+        }
+    }
 }
