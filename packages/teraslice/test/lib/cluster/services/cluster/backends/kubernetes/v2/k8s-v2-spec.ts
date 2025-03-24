@@ -489,13 +489,11 @@ describe('k8s', () => {
 
         it('can set nodes to a deployment to 2', async () => {
             deployment.spec.replicas = 2;
-            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', [
-                {
-                    op: 'replace',
-                    path: '/spec/replicas',
-                    value: 2
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
+                spec: {
+                    replicas: 2
                 }
-            ]).reply(200, deployment);
+            }).reply(200, deployment);
 
             const response = await k8s.scaleExecution('abcde1234', 2, 'set');
             expect(response.spec?.replicas).toEqual(2);
@@ -503,13 +501,11 @@ describe('k8s', () => {
 
         it('can add 2 nodes to a deployment with 5 to get 7', async () => {
             deployment.spec.replicas = 7;
-            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', [
-                {
-                    op: 'replace',
-                    path: '/spec/replicas',
-                    value: 7
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
+                spec: {
+                    replicas: 7
                 }
-            ]).reply(200, deployment);
+            }).reply(200, deployment);
 
             const response = await k8s.scaleExecution('abcde1234', 2, 'add');
             expect(response.spec?.replicas).toEqual(7);
@@ -517,13 +513,11 @@ describe('k8s', () => {
 
         it('can remove 2 nodes from a deployment with 5 to get 3', async () => {
             deployment.spec.replicas = 3;
-            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', [
-                {
-                    op: 'replace',
-                    path: '/spec/replicas',
-                    value: 3
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
+                spec: {
+                    replicas: 3
                 }
-            ]).reply(200, deployment);
+            }).reply(200, deployment);
 
             const response = await k8s.scaleExecution('abcde1234', 2, 'remove');
             expect(response.spec?.replicas).toEqual(3);
