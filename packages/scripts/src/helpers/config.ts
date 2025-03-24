@@ -30,6 +30,8 @@ export const SERVICES_USE_TMPFS = toBoolean(process.env.SERVICES_USE_TMPFS || 't
 export const SERVICE_HEAP_OPTS = process.env.SERVICE_HEAP_OPTS || '-Xms512m -Xmx512m';
 export const DOCKER_NETWORK_NAME = process.env.DOCKER_NETWORK_NAME || undefined;
 export const TEST_NAMESPACE = process.env.TEST_NAMESPACE || 'ts_test';
+export const ASSET_STORAGE_CONNECTION_TYPE = process.env.ASSET_STORAGE_CONNECTION_TYPE || 'elasticsearch-next';
+export const ASSET_STORAGE_CONNECTION = process.env.ASSET_STORAGE_CONNECTION || 'default';
 
 export const ELASTICSEARCH_NAME = process.env.ELASTICSEARCH_NAME || 'elasticsearch';
 export const ELASTICSEARCH_HOSTNAME = process.env.ELASTICSEARCH_HOSTNAME || HOST_IP;
