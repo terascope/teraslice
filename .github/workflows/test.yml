@@ -646,5 +646,5 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
     secrets: inherit
