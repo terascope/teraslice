@@ -69,8 +69,8 @@ describe('kafka', () => {
         expect(count).toBe(total);
     });
 
-    describe('encrypted kafka', () => {
-        if (ENCRYPT_KAFKA === 'true') {
+    if (ENCRYPT_KAFKA === 'true') {
+        describe('encrypted kafka', () => {
             it('should have an encrypted connection', async () => {
                 const result = await exec({
                     cmd: 'sh',
@@ -79,6 +79,6 @@ describe('kafka', () => {
                 // console.log('s_client output: ', result);
                 expect(result).toContain('Verification: OK');
             });
-        }
-    });
+        });
+    }
 });
