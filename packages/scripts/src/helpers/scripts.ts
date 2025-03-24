@@ -998,6 +998,17 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
             }
         }
 
+        if (service === Service.Minio) {
+            if (config.ENCRYPT_MINIO) {
+                if (!caCert) {
+                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                }
+                values.setIn(['minio', 'tls', 'enabled'], true);
+                values.setIn(['minio', 'tls', 'caCert'], caCert);
+                values.setIn(['minio', 'tls', 'certSecret'], 'tls-ssl-minio')
+            }
+        }
+
         values.setIn([serviceString, 'enabled'], true);
         values.setIn([serviceString, 'version'], version);
     });
@@ -1007,6 +1018,8 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
     }
 
     values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
+    values.setIn(['teraslice', 'asset_storage_connection_type'], config.ASSET_STORAGE_CONNECTION_TYPE);
+    values.setIn(['teraslice', 'asset_storage_connection'], config.ASSET_STORAGE_CONNECTION);
     logger.debug('helmfile command values: ', JSON.stringify(values));
 
     // Write the values to a temporary file
