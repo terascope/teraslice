@@ -73,8 +73,10 @@ minio:
     # Name of the k8s secret. Minio requires certs to be stored in secrets
     # https://github.com/minio/minio/tree/master/docs/tls/kubernetes
     certSecret: null
-    publicCrt: public.crt
-    privateKey: private.key
+    # The file names of the certificate and key used in the secret
+    publicCrtName: public.crt
+    privateKeyName: private.key
+    # The ca-certificate used by teraslice for minio service
     caCert: null
 
 kafka:

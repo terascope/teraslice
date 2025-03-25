@@ -7,8 +7,8 @@ tls:
   enabled: {{ .Values | get "minio.tls.enabled" false }}
   ## Create a secret with private.key and public.crt files and pass that here. Ref: https://github.com/minio/minio/tree/master/docs/tls/kubernetes#2-create-kubernetes-secret
   certSecret: {{ .Values | get "minio.tls.certSecret" "tls-ssl-minio" }}
-  publicCrt: {{ .Values | get "minio.tls.publicCrt" "public.crt" }}
-  privateKey: {{ .Values | get "minio.tls.privateKey" "private.key" }}
+  publicCrt: {{ .Values | get "minio.tls.publicCrtName" "public.crt" }}
+  privateKey: {{ .Values | get "minio.tls.privateKeyName" "private.key" }}
 
 replicas: {{ .Values | get "minio.instances" 1 }}
 
