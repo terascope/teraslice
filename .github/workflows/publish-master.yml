@@ -113,7 +113,7 @@ jobs:
       contents: write
       packages: write
     outputs:
-       version_exists: ${{ steps.check-version.outputs.version_exists }}
+       helm_chart_updated: ${{ !steps.check-version.outputs.version_exists }}
     steps:
       - name: Generate a token
         id: token-generation
@@ -249,7 +249,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
   trigger-terascope-helm-charts-update-gh-pages-workflow:
-    if: github.event.pull_request.merged == true && needs.build-and-publish-helm-charts.outputs.version_exists == 'false'
+    if: github.event.pull_request.merged == true && needs.build-and-publish-helm-charts.outputs.helm_chart_updated == 'true'
     needs: [build-and-publish-helm-charts]
     runs-on: ubuntu-latest
     steps:
