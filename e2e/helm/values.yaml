@@ -68,11 +68,16 @@ minio:
   rootPassword: minioadmin
   memoryLimit: 256Mi
   persistentVolumeSize: 50Gi
-  # tls:   <-- Not implemented yet
-  #   enabled: false
-  #   certSecret: ""
-  #   publicCrt: public.crt
-  #   privateKey: private.key
+  tls:
+    enabled: false
+    # Name of the k8s secret. Minio requires certs to be stored in secrets
+    # https://github.com/minio/minio/tree/master/docs/tls/kubernetes
+    certSecret: null
+    # The file names of the certificate and key used in the secret
+    publicCrtName: public.crt
+    privateKeyName: private.key
+    # The ca-certificate used by teraslice for minio service
+    caCert: null
 
 kafka:
   # If false, kafka will be excluded on helmfile sync
@@ -107,3 +112,5 @@ teraslice:
     # Overrides the image tag whose default is the chart appVersion.
     tag: e2e-nodev22
   stateCluster: opensearch2
+  asset_storage_connection_type: elasticsearch-next
+  asset_storage_connection: default

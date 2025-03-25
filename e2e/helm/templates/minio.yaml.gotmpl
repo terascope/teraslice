@@ -3,12 +3,12 @@ image:
   tag: {{ .Values | get "minio.version" "RELEASE.2024-08-29T01-40-52Z" }}
   pullPolicy: IfNotPresent
 
-# tls:
-#   enabled: false
-#   ## Create a secret with private.key and public.crt files and pass that here. Ref: https://github.com/minio/minio/tree/master/docs/tls/kubernetes#2-create-kubernetes-secret
-#   certSecret: ""
-#   publicCrt: public.crt
-#   privateKey: private.key
+tls:
+  enabled: {{ .Values | get "minio.tls.enabled" false }}
+  ## Create a secret with private.key and public.crt files and pass that here. Ref: https://github.com/minio/minio/tree/master/docs/tls/kubernetes#2-create-kubernetes-secret
+  certSecret: {{ .Values | get "minio.tls.certSecret" "tls-ssl-minio" }}
+  publicCrt: {{ .Values | get "minio.tls.publicCrtName" "public.crt" }}
+  privateKey: {{ .Values | get "minio.tls.privateKeyName" "private.key" }}
 
 replicas: {{ .Values | get "minio.instances" 1 }}
 
@@ -39,3 +39,23 @@ resources:
 
 persistence:
   size: {{ .Values | get "minio.persistentVolumeSize" "50Gi" }}
+
+{{- if eq (.Values | get "minio.tls.enabled" false) true }}
+
+volumes:
+  - name: secret-volume
+    secret:
+      secretName: tls-ssl-minio
+      items:
+      - key: public.crt
+        path: public.crt
+      - key: private.key
+        path: private.key
+      - key: rootCA.pem
+        path: CAs/rootCA.pem
+
+volumeMounts:
+    - name: secret-volume
+      mountPath: /root/.minio/certs
+
+{{- end }}

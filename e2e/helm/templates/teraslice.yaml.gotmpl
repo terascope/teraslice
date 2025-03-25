@@ -158,11 +158,30 @@ terafoundation:
         {{- if eq (.Values | get "minio.enabled" false) true }}
         s3:
             default:
+                {{- if eq (.Values | get "minio.tls.enabled" false) true }}
+
+                endpoint: "https://minio.services-dev1:9000"
+                sslEnabled: true
+                caCertificate: "{{- if .Values.minio.tls.caCert -}}
+
+                {{ .Values.minio.tls.caCert }}
+
+                {{- else -}}
+
+                {{ fail "minio.tls.caCert MUST be provided so teraslice can get the rootCA" }}
+
+                {{- end }}"
+
+                {{- else}}
+
                 endpoint: "http://minio.services-dev1:9000"
-                accessKeyId: "minioadmin"
-                secretAccessKey: "minioadmin"
-                forcePathStyle: true
                 sslEnabled: false
+
+                {{- end }}
+
+                accessKeyId: {{ .Values | get "minio.rootUser" "minioadmin" }}
+                secretAccessKey: {{ .Values | get "minio.rootPassword" "minioadmin" }}
+                forcePathStyle: true
                 region: "us-east-1"
         {{- end }}
 
@@ -170,12 +189,14 @@ master:
     teraslice:
         kubernetes_namespace: ts-dev1
         cluster_manager_type: kubernetesV2
-        asset_storage_connection_type: elasticsearch-next
+        asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
+        asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
         name: "ts-dev1"
 
 worker:
     teraslice:
         kubernetes_namespace: ts-dev1
         cluster_manager_type: kubernetesV2
-        asset_storage_connection_type: elasticsearch-next
+        asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
+        asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
         name: "ts-dev1"

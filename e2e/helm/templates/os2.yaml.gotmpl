@@ -42,7 +42,7 @@ config:
 
 extraEnvs:
     ##@ Setting this password only works when the demo security script runs.
-    ##@ Unforunatly the demo does not fit our needs so this password does not get set here
+    ##@ Unfortunately the demo does not fit our needs so this password does not get set here
     ##@ Leaving it here for reference
     {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
 

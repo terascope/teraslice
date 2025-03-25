@@ -828,7 +828,7 @@ export async function helmfileDiff() {
     try {
         subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
     } catch (err) {
-        throw new TSError(`Helmfile diff command failed: `, err);
+        throw new TSError(`Helmfile diff command failed:\n${err}`);
     } finally {
         fs.rmSync(valuesDir, { recursive: true, force: true });
     }
@@ -848,7 +848,7 @@ export async function helmfileSync() {
     try {
         subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath}`);
     } catch (err) {
-        throw new TSError(`Helmfile sync command failed: `, err);
+        throw new TSError(`Helmfile sync command failed:\n${err}`);
     } finally {
         fs.rmSync(valuesDir, { recursive: true, force: true });
     }
@@ -901,7 +901,7 @@ function getAdminDnFromCert(): string {
     try {
         ca = readCertFromTestDir('opensearch-cert.pem');
     } catch (err) {
-        throw new TSError(`Failed to read certificate file (opensearch-cert.pem).`, err);
+        throw new TSError(`Failed to read certificate file (opensearch-cert.pem).\n${err}`);
     }
     try {
         const rootCA = new X509Certificate(ca);
@@ -918,7 +918,7 @@ function getAdminDnFromCert(): string {
             }
         }
     } catch (err) {
-        throw new TSError(`Failed to parse openSearch certificate. Make sure it's a valid X.509 certificate.`, err);
+        throw new TSError(`Failed to parse openSearch certificate. Make sure it's a valid X.509 certificate.\n${err}`);
     }
 
     if (!organizationalUnit || !organization) {
@@ -998,6 +998,17 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
             }
         }
 
+        if (service === Service.Minio) {
+            if (config.ENCRYPT_MINIO) {
+                if (!caCert) {
+                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                }
+                values.setIn(['minio', 'tls', 'enabled'], true);
+                values.setIn(['minio', 'tls', 'caCert'], caCert);
+                values.setIn(['minio', 'tls', 'certSecret'], 'tls-ssl-minio');
+            }
+        }
+
         values.setIn([serviceString, 'enabled'], true);
         values.setIn([serviceString, 'version'], version);
     });
@@ -1007,6 +1018,8 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
     }
 
     values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
+    values.setIn(['teraslice', 'asset_storage_connection_type'], config.ASSET_STORAGE_CONNECTION_TYPE);
+    values.setIn(['teraslice', 'asset_storage_connection'], config.ASSET_STORAGE_CONNECTION);
     logger.debug('helmfile command values: ', JSON.stringify(values));
 
     // Write the values to a temporary file
@@ -1086,7 +1099,7 @@ export function getDockerBaseImageInfo() {
             throw new TSError('Failed to parse Dockerfile for base image.');
         }
     } catch (err) {
-        throw new TSError('Failed to read top-level Dockerfile to get base image.', err);
+        throw new TSError('Failed to read top-level Dockerfile to get base image.\n${err}');
     }
 }
 
@@ -1113,7 +1126,7 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
         const authResponse = await got(authUrl);
         token = JSON.parse(authResponse.body).token;
     } catch (err) {
-        throw new TSError(`Unable to retrieve token from ${baseImage.registry} for repo ${baseImage.repo}: `, err);
+        throw new TSError(`Unable to retrieve token from ${baseImage.registry} for repo ${baseImage.repo}:\n${err}`);
     }
 
     // Grab the manifest list to find the right architecture digest
@@ -1139,7 +1152,7 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
 
         manifestDigest = amd64Manifest.digest;
     } catch (err) {
-        throw new TSError(`Unable to retrieve image manifest list from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}: `, err);
+        throw new TSError(`Unable to retrieve image manifest list from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}:\n${err}`);
     }
 
     // Get the specific manifest using the digest
@@ -1161,7 +1174,7 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
 
         configBlobSha = amd64Manifest.config.digest;
     } catch (err) {
-        throw new TSError(`Unable to get manifest details from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}: `, err);
+        throw new TSError(`Unable to get manifest details from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}:\n${err}`);
     }
 
     // Retrieve the image configuration and extract the Node.js version label
@@ -1184,7 +1197,7 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
 
         return nodeVersion;
     } catch (err) {
-        throw new TSError(`Unable to grab image config from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}: `, err);
+        throw new TSError(`Unable to grab image config from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}:\n${err}`);
     }
 }
 
@@ -1222,6 +1235,6 @@ export async function updateHelmChart(newChartVersion: string | null): Promise<v
         fs.writeFileSync(chartYamlPath, chartDoc.toString(), 'utf8');
         fs.writeFileSync(valuesYamlPath, valuesDoc.toString(), 'utf8');
     } catch (err) {
-        throw new TSError('Unable to read or write Helm chart YAML files', err);
+        throw new TSError(`Unable to read or write Helm chart YAML files:\n${err}`);
     }
 }

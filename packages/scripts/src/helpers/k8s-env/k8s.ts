@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import ms from 'ms';
 import path from 'node:path';
 import { execaCommand } from 'execa';
-import { cloneDeep, debugLogger, pDelay } from '@terascope/utils';
+import { cloneDeep, debugLogger, pDelay, TSError } from '@terascope/utils';
 import { Terafoundation as TF, Teraslice as TS } from '@terascope/types';
 import { getE2eK8sDir } from '../../helpers/packages.js';
 import signale from '../signale.js';
@@ -306,4 +306,20 @@ export class K8s {
         }
     }
     // TODO: add functions to create services
+
+    /**
+     * Create a kubernetes secret within a specified namespace.
+     * The namespace MUST already exist or it will throw
+     * @param secret
+     */
+    async createKubernetesSecret(namespace: string, secret: k8sClient.V1Secret): Promise<void> {
+        try {
+            await this.k8sCoreV1Api.createNamespacedSecret(
+                namespace,
+                secret
+            );
+        } catch (err) {
+            throw new TSError(`Unable to make kubernetes secret. \n ${err}`);
+        }
+    }
 }

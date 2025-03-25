@@ -21,7 +21,7 @@ import { Kind } from '../kind.js';
 import {
     getArgs, filterBySuite, reportCoverage,
     logE2E, getEnv, groupBySuite,
-    generateTestCaCerts
+    generateTestCaCerts, createMinioSecret
 } from './utils.js';
 import signale from '../signale.js';
 import { getE2EDir, readPackageInfo, listPackages } from '../packages.js';
@@ -30,7 +30,7 @@ import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
 import {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
-    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION
+    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ENCRYPT_MINIO
 } from '../config.js';
 import { K8s } from '../k8s-env/k8s.js';
 
@@ -246,10 +246,9 @@ async function runE2ETest(
                 await kind.destroyCluster();
                 process.exit(1);
             }
-            if (!options.useHelmfile) {
-                const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
-                await k8s.createNamespace('services-ns.yaml', 'services');
-            }
+
+            const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
+            await k8s.createNamespace('services-ns.yaml', 'services');
         } catch (err) {
             tracker.addError(err);
         }
@@ -293,6 +292,14 @@ async function runE2ETest(
                 const timeLabel = 'helmfile deployment';
                 await loadImagesForHelm(options);
                 signale.time(timeLabel);
+
+                // Created a minio secret if needed before helm sync
+                // but after the namespaces have been made
+                if (ENCRYPT_MINIO) {
+                    const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
+                    await createMinioSecret(k8s);
+                }
+
                 await launchE2EWithHelmfile();
                 signale.timeEnd(timeLabel);
             }
