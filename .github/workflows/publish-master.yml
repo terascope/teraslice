@@ -249,7 +249,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
   trigger-terascope-helm-charts-update-gh-pages-workflow:
-    if: github.event.pull_request.merged == true && needs.build-and-publish-helm-charts.outputs.version_exists == false
+    if: github.event.pull_request.merged == true && needs.build-and-publish-helm-charts.outputs.version_exists == 'false'
     needs: [build-and-publish-helm-charts]
     runs-on: ubuntu-latest
     steps:
