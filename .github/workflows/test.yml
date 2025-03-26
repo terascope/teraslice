@@ -81,6 +81,8 @@ jobs:
         run: yarn && yarn setup
 
       - name: Test
+        env:
+          REPORT_COVERAGE: true
         run: yarn test --suite unit --
 
       - name: Upload Node ${{ matrix.node-version }} unit test coverage
