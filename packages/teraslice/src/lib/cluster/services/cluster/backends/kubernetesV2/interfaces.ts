@@ -1,4 +1,3 @@
-import { IncomingMessage } from 'node:http';
 import * as k8s from '@kubernetes/client-node';
 
 export interface KubeConfigOptions {
@@ -141,28 +140,6 @@ export interface TSReplicaSetList extends k8s.V1ReplicaSetList {
 }
 export interface TSServiceList extends k8s.V1ServiceList {
     items: TSService[];
-}
-
-export interface ResourceListApiResponse {
-    response: IncomingMessage;
-    body: K8sResourceList;
-}
-
-export interface ResourceApiResponse {
-    response: IncomingMessage;
-    body: K8sResource;
-}
-
-export interface PatchApiResponse {
-    response: IncomingMessage;
-    body: k8s.V1Deployment;
-}
-
-export type DeleteResponseBody = k8s.V1Pod | k8s.V1Status | k8s.V1Service;
-
-export interface DeleteApiResponse {
-    response: IncomingMessage;
-    body: DeleteResponseBody;
 }
 
 export type ListParams = [

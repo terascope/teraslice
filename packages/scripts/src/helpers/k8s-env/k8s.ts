@@ -42,16 +42,18 @@ export class K8s {
         const namespaceSpec = this.loadYamlFile(yamlFile) as k8sClient.V1Namespace;
 
         try {
-            const createNamespaceRes = await this.k8sCoreV1Api.createNamespace(namespaceSpec);
-            if (createNamespaceRes?.body?.metadata?.name) {
+            const createNamespaceRes = await this.k8sCoreV1Api.createNamespace({
+                body: namespaceSpec
+            });
+            if (createNamespaceRes?.metadata?.name) {
                 if (namespaceCategory === 'teraslice') {
-                    this.terasliceNamespace = createNamespaceRes.body.metadata.name;
-                    signale.success(`Teraslice namespace set to ${createNamespaceRes.body.metadata.name}`);
+                    this.terasliceNamespace = createNamespaceRes.metadata.name;
+                    signale.success(`Teraslice namespace set to ${createNamespaceRes.metadata.name}`);
                 } else if (namespaceCategory === 'services') {
-                    this.servicesNamespace = createNamespaceRes.body.metadata.name;
-                    signale.success(`Services namespace set to ${createNamespaceRes.body.metadata.name}`);
+                    this.servicesNamespace = createNamespaceRes.metadata.name;
+                    signale.success(`Services namespace set to ${createNamespaceRes.metadata.name}`);
                 } else {
-                    signale.success(`Namespace ${createNamespaceRes.body.metadata.name} created`);
+                    signale.success(`Namespace ${createNamespaceRes.metadata.name} created`);
                 }
             }
         } catch (err) {
@@ -109,9 +111,11 @@ export class K8s {
             const masterConfigMap = cloneDeep(baseConfigMap);
             masterConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(masterTerafoundation) };
             masterConfigMap.metadata = { name: 'teraslice-master' };
-            const response = await this.k8sCoreV1Api
-                .createNamespacedConfigMap(this.terasliceNamespace, masterConfigMap);
-            logger.debug('deployK8sTeraslice masterConfigMap:', response.body);
+            const response = await this.k8sCoreV1Api.createNamespacedConfigMap({
+                namespace: this.terasliceNamespace,
+                body: masterConfigMap
+            });
+            logger.debug('deployK8sTeraslice masterConfigMap:', response);
         } catch (err) {
             throw new Error(`Error creating Teraslice Master Configmap: ${err}`);
         }
@@ -126,9 +130,11 @@ export class K8s {
             const workerConfigMap = cloneDeep(baseConfigMap);
             workerConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(workerTerafoundation) };
             workerConfigMap.metadata = { name: 'teraslice-worker' };
-            const response = await this.k8sCoreV1Api
-                .createNamespacedConfigMap(this.terasliceNamespace, workerConfigMap);
-            logger.debug('deployK8sTeraslice workerConfigMap:', response.body);
+            const response = await this.k8sCoreV1Api.createNamespacedConfigMap({
+                namespace: this.terasliceNamespace,
+                body: workerConfigMap
+            });
+            logger.debug('deployK8sTeraslice workerConfigMap:', response);
         } catch (err) {
             throw new Error(`Error creating Teraslice Worker Configmap: ${err}`);
         }
@@ -145,8 +151,11 @@ export class K8s {
             if (dev) {
                 this.mountLocalTeraslice(yamlTSMasterDeployment);
             }
-            const response = await this.k8sAppsV1Api.createNamespacedDeployment('ts-dev1', yamlTSMasterDeployment);
-            logger.debug('deployK8sTeraslice yamlTSMasterDeployment: ', response.body);
+            const response = await this.k8sAppsV1Api.createNamespacedDeployment({
+                namespace: this.terasliceNamespace,
+                body: yamlTSMasterDeployment
+            });
+            logger.debug('deployK8sTeraslice yamlTSMasterDeployment: ', response);
         } catch (err) {
             throw new Error(`Error creating Teraslice Master Deployment: ${err}`);
         }
@@ -154,8 +163,11 @@ export class K8s {
         try {
             /// Creates master service for teraslice
             const yamlTSMasterService = this.loadYamlFile('masterService.yaml') as k8sClient.V1Service;
-            const response = await this.k8sCoreV1Api.createNamespacedService('ts-dev1', yamlTSMasterService);
-            logger.debug('deployK8sTeraslice yamlTSMasterService: ', response.body);
+            const response = await this.k8sCoreV1Api.createNamespacedService({
+                namespace: this.terasliceNamespace,
+                body: yamlTSMasterService
+            });
+            logger.debug('deployK8sTeraslice yamlTSMasterService: ', response);
             if (wait) {
                 await this.waitForTerasliceRunning();
             }
@@ -216,36 +228,44 @@ export class K8s {
 
         try {
             const yamlServiceAccount = this.loadYamlFile('masterServiceAccount.yaml') as k8sClient.V1ServiceAccount;
-            const response = await this.k8sCoreV1Api
-                .createNamespacedServiceAccount(this.terasliceNamespace, yamlServiceAccount);
-            logger.debug('deployK8sTeraslice yamlmasterServiceAccount: ', response.body);
+            const response = await this.k8sCoreV1Api.createNamespacedServiceAccount({
+                namespace: this.terasliceNamespace,
+                body: yamlServiceAccount
+            });
+            logger.debug('deployK8sTeraslice yamlmasterServiceAccount: ', response);
         } catch (err) {
             throw new Error(`Error creating ServiceAccount: ${err}`);
         }
 
         try {
             const yamlRole = this.loadYamlFile('role.yaml') as k8sClient.V1Role;
-            const response = await this.k8sRbacAuthorizationV1Api
-                .createNamespacedRole(this.terasliceNamespace, yamlRole);
-            logger.debug('deployK8sTeraslice yamlRole: ', response.body);
+            const response = await this.k8sRbacAuthorizationV1Api.createNamespacedRole({
+                namespace: this.terasliceNamespace,
+                body: yamlRole
+            });
+            logger.debug('deployK8sTeraslice yamlRole: ', response);
         } catch (err) {
             throw new Error(`Error creating role: ${err}`);
         }
 
         try {
             const yamlRoleBinding = this.loadYamlFile('roleBinding.yaml') as k8sClient.V1RoleBinding;
-            const response = await this.k8sRbacAuthorizationV1Api
-                .createNamespacedRoleBinding(this.terasliceNamespace, yamlRoleBinding);
-            logger.debug('deployK8sTeraslice yamlRoleBinding: ', response.body);
+            const response = await this.k8sRbacAuthorizationV1Api.createNamespacedRoleBinding({
+                namespace: this.terasliceNamespace,
+                body: yamlRoleBinding
+            });
+            logger.debug('deployK8sTeraslice yamlRoleBinding: ', response);
         } catch (err) {
             throw new Error(`Error creating roleBinding: ${err}`);
         }
         try {
             const yamlPriorityClass = this.loadYamlFile('priorityClass.yaml', 'utf8') as k8sClient.V1PriorityClass;
-            const response = await this.k8sSchedulingV1Api.createPriorityClass(yamlPriorityClass);
-            logger.debug('deployK8sTeraslice yamlPriorityClass: ', response.body);
+            const response = await this.k8sSchedulingV1Api.createPriorityClass({
+                body: yamlPriorityClass
+            });
+            logger.debug('deployK8sTeraslice yamlPriorityClass: ', response);
         } catch (err) {
-            if (err.body.code !== 409) { // don't throw if priorityClass already exists
+            if (err.code !== 409) { // don't throw if priorityClass already exists
                 throw new Error(`Error creating priorityClass: ${err}`);
             }
         }
@@ -261,10 +281,10 @@ export class K8s {
         const terasliceNamespace = namespaceSpec.metadata.name;
 
         try {
-            const response = await this.k8sCoreV1Api.deleteNamespace(terasliceNamespace);
-            logger.debug('Teraslice namespace delete response: ', response.body);
+            const response = await this.k8sCoreV1Api.deleteNamespace({ name: terasliceNamespace });
+            logger.debug('Teraslice namespace delete response: ', response);
         } catch (err) {
-            logger.debug('Teraslice namespace cannot be deleted. It might not yet exist: ', err.response.body);
+            logger.debug('Teraslice namespace cannot be deleted. It might not yet exist: ', err.response);
         }
 
         await this.confirmNamespaceDeletion(terasliceNamespace, this.k8sCoreV1Api);
@@ -282,9 +302,8 @@ export class K8s {
                 }
 
                 await pDelay(1000);
-                const response = await coreV1Api
-                    .listNamespace();
-                const namespaceList = response.body.items;
+                const response = await coreV1Api.listNamespace();
+                const namespaceList = response.items;
                 existingNamespace = namespaceList
                     .filter((namespace) => namespace.metadata?.name === terasliceNamespace);
             } while (existingNamespace.length > 0);
