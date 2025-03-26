@@ -83,7 +83,7 @@ jobs:
       - name: Test
         env:
           REPORT_COVERAGE: true
-        run: yarn test --suite unit --
+        run: yarn test --suite unit -d --
 
       - name: Upload Node ${{ matrix.node-version }} unit test coverage
         uses: codecov/codecov-action@v5
