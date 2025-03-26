@@ -180,7 +180,7 @@ async function runTestSuite(
             }
         } finally {
             if (options.reportCoverage) {
-                await reportCoverage(suite, chunkIndex);
+                // await reportCoverage(suite, chunkIndex);
             }
         }
     }
