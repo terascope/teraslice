@@ -19,7 +19,7 @@ import {
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
-    getArgs, filterBySuite, reportCoverage,
+    getArgs, filterBySuite,
     logE2E, getEnv, groupBySuite,
     generateTestCaCerts, createMinioSecret
 } from './utils.js';
@@ -141,10 +141,7 @@ async function runTestSuite(
 
     const env = printAndGetEnv(suite, options);
 
-    let chunkIndex = -1;
     for (const pkgs of chunked) {
-        chunkIndex++;
-
         if (!pkgs.length) continue;
         if (pkgs.length === 1) {
             writePkgHeader('Running test', pkgs, false);
