@@ -83,6 +83,17 @@ jobs:
       - name: Test
         run: yarn test --suite unit --
 
+      - name: Upload Node ${{ matrix.node-version }} unit test coverage
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: false
+          # files: ./coverage1.xml,./coverage2.xml # optional
+          flags: unit
+          name: node-${{ matrix.node-version }}-unit-tests
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true # optional (default = false)
+
+
   e2e-k8s-tests:
     runs-on: ubuntu-latest
     env:
