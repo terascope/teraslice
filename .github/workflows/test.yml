@@ -466,8 +466,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: false
-          # files: ./coverage1.xml,./coverage2.xml # optional
-          flags: teraslice-integration
+          flags: teraslice-integration,integration
           name: teraslice-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true # optional (default = false)
@@ -524,7 +523,7 @@ jobs:
         with:
           fail_ci_if_error: false
           # files: ./coverage1.xml,./coverage2.xml # optional
-          flags: es-store-integration
+          flags: es-store-integration,integration
           name: es-store-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true # optional (default = false)
@@ -553,50 +552,61 @@ jobs:
     - name: Sync codebase
       run: yarn sync --verify
 
-  # elasticsearch-api-tests:
-  #   runs-on: ubuntu-latest
-  #   needs: [compute-node-version-vars, verify-build, cache-docker-images]
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-  #       search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
+  elasticsearch-api-tests:
+    runs-on: ubuntu-latest
+    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Install and build packages
-  #       run: yarn && yarn setup
+      - name: Install and build packages
+        run: yarn && yarn setup
 
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
 
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
-  #     - name: Test ${{ matrix.search-version }}
-  #       run: yarn test:${{ matrix.search-version }}
-  #       working-directory: ./packages/elasticsearch-api
+      - name: Test ${{ matrix.search-version }}
+        env:
+          REPORT_COVERAGE: true
+        run: yarn test:${{ matrix.search-version }}
+        working-directory: ./packages/elasticsearch-api
+
+      - name: Upload es-api node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: false
+          flags: es-api-integration,integration
+          name: es-api-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true # optional (default = false)
 
   # e2e-tests:
   #   runs-on: ubuntu-latest
@@ -669,7 +679,7 @@ jobs:
       # e2e-k8s-v2-tests,
       # e2e-k8s-tests,
       # e2e-tests,
-      # elasticsearch-api-tests,
+      elasticsearch-api-tests,
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
@@ -683,7 +693,7 @@ jobs:
       # e2e-k8s-v2-tests,
       # e2e-k8s-tests,
       # e2e-tests,
-      # elasticsearch-api-tests,
+      elasticsearch-api-tests,
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
