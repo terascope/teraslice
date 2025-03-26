@@ -31,6 +31,7 @@ teraslice:
 ```
 
 ## Terafoundation Configuration Reference
+
 NOTE: All `asset_storage` related fields are deprecated. Please use the fields in the teraslice config instead. Also the `asset_storage` fields in the teraslice config will take precedence over the ones that are in terafoundation.
 
 |      Field      |    Type    |     Default     |                                      Description                                      |
@@ -85,7 +86,7 @@ NOTE: All `asset_storage` related fields are deprecated. Please use the fields i
 |                   **memory**                    |              `Number`              |             -              |                                       memory, in bytes, to reserve per teraslice worker in kubernetes                                       |
 |                    **name**                     |        `elasticsearch_Name`        |      `"teracluster"`       |                                     Name for the cluster itself, its used for naming log files/indices                                      |
 |           **network_latency_buffer**            |             `duration`             |          `15000`           | time in milliseconds buffer which is combined with action_timeout to determine how long a network message will wait till it throws an error |
-|           **node_disconnect_timeout**           |             `duration`             |          `300000`          |      time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers       |
+|           **node_disconnect_timeout**           |             `duration`             |          `300000`          |      time in milliseconds that the cluster  will wait until it drops that node from state and attempts to provision the lost workers       |
 |             **node_state_interval**             |             `duration`             |           `5000`           |                         time in milliseconds that indicates when the cluster master will ping nodes for their state                         |
 |                    **port**                     |               `port`               |           `5678`           |                                                  port for the cluster_master to listen on                                                   |
 |              **shutdown_timeout**               |             `duration`             |          `60000`           |                   time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down                   |
@@ -96,7 +97,6 @@ NOTE: All `asset_storage` related fields are deprecated. Please use the fields i
 |                  **env_vars**                   |              `Object`              |    `{"EXAMPLE":"test"}`    |                                      default environment variables to set on each the teraslice worker                                      |
 |          **worker_disconnect_timeout**          |             `duration`             |          `300000`          |                time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job                |
 |                   **workers**                   |              `Number`              |            `4`             |                                                        Number of workers per server                                                         |
-
 
 ### Terafoundation Connectors
 
@@ -121,7 +121,7 @@ terafoundation:
 
 In this example we specify two different connector types: `elasticsearch-next` and `kafka`. Under each connector type you may then create custom endpoint configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. Each endpoint has independent configuration options.
 
-These different endpoints can be retrieved through terafoundations's connector API. As it's name implies, the `default` connector is what will be provided if a connection is requested without providing a specific name. In general we don't recommend doing that if you have multiple clusters, but it's convenient if you only have one.
+These different endpoints can be retrieved through terafoundation's connector API. As it's name implies, the `default` connector is what will be provided if a connection is requested without providing a specific name. In general we don't recommend doing that if you have multiple clusters, but it's convenient if you only have one.
 
 The `elasticsearch-next` connector dynamically queries the cluster to verify the version and distribution and returns the appropriate client. It can work with versions 6, 7, 8 and with opensearch.
 
@@ -183,7 +183,6 @@ By default asset bundles are stored in Elasticsearch when uploaded. Defining the
 Currently S3 is the only external asset storage type enabled. Use the `asset_storage_bucket` field to specify the S3 bucket where assets will be stored. Assets will be stored in S3 as `<AssetID>.zip` where AssetID is a hash of the zipped asset.
 
 **Note**: All asset metadata will always be stored in Elasticsearch.
-
 
 ```yaml
 terafoundation:

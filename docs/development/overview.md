@@ -12,10 +12,46 @@ git clone https://github.com/terascope/teraslice.git && cd teraslice
 yarn setup
 ```
 
-### Running Teraslice
+### Running Teraslice Natively
+
+Teraslice with built-in (native) clustering can be run either using [Docker Compose](#using-docker-compose) or [standalone](#standalone) on a PC, provided that the required elasticsearch or opensearch service is started separately.
+
+### Standalone
+
+Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
+
+#### Dependencies
+
+- Node.js (18.20 or above)
+- Yarn (4.6 or above)
+- At least one elasticsearch 6.x or 7.x or opensearch 1.x or 2.x
+
+#### Running
+
+Create a configuration file called `config.yaml`:
+
+```yaml
+terafoundation:
+    connectors:
+        elasticsearch-next:
+            default:
+                node:
+                    - "http://localhost:9200" # ensure port matches that of your ES/OS instance
+
+teraslice:
+    workers: 8
+    master: true
+    master_hostname: 127.0.0.1
+    name: teraslice
+    hostname: 127.0.0.1
+```
+
+Starting a single-node teraslice instance:
+
+NOTE: Elasticsearch/Opensearch must be running first.
 
 ```sh
-yarn start -c path/to/config.yaml
+teraslice -c config.yaml
 ```
 
 ### Running Teraslice in Docker
@@ -30,6 +66,19 @@ docker build -t teraslice .
 
 ```sh
 docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml teraslice
+```
+
+### Using docker compose
+
+If you want to get a simple cluster going, use the example docker-compose file. This will provide a teraslice cluster master, one teraslice worker and the following services:
+
+- elasticsearch7
+- kafka
+- zookeeper
+- minio.
+
+```sh
+docker-compose up --build
 ```
 
 ## VSCode Configuration
