@@ -83,7 +83,11 @@ jobs:
       - name: Test
         env:
           REPORT_COVERAGE: true
-        run: yarn test --suite unit -d --
+          # Only run one test per batch for now because jest will only create code
+          # coverage for the first package in the batch
+          # https://github.com/jestjs/jest/issues/4255
+          MAX_PROJECTS_PER_BATCH: 1
+        run: yarn test --suite unit --
 
       - name: Upload Node ${{ matrix.node-version }} unit test coverage
         uses: codecov/codecov-action@v5
@@ -456,74 +460,96 @@ jobs:
   #       run: yarn test:${{ matrix.search-version }}
   #       working-directory: ./packages/teraslice
 
-  # elasticsearch-store-tests:
-  #   runs-on: ubuntu-latest
-  #   needs: [compute-node-version-vars, verify-build, cache-docker-images]
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-  #       search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
+        # - name: Upload teraslice node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+        #   uses: codecov/codecov-action@v5
+        #   with:
+        #     fail_ci_if_error: false
+        #     # files: ./coverage1.xml,./coverage2.xml # optional
+        #     flags: teraslice-integration
+        #     name: teraslice-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+        #     token: ${{ secrets.CODECOV_TOKEN }}
+        #     verbose: true # optional (default = false)
 
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+  elasticsearch-store-tests:
+    runs-on: ubuntu-latest
+    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     - name: Install and build packages
-  #       run: yarn && yarn setup
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
+      - name: Install and build packages
+        run: yarn && yarn setup
 
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
 
-  #     - name: Test ${{ matrix.search-version }}
-  #       run: yarn test:${{ matrix.search-version }}
-  #       working-directory: ./packages/elasticsearch-store
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
-  # lint-and-sync:
-  #   runs-on: ubuntu-latest
-  #   needs: [compute-node-version-vars, verify-build, cache-docker-images]
-  #   # will remove the checkout, build and setup when the artifact is made to just
-  #   # test the linting and syncing of the codebase
-  #   steps:
-  #   - name: Check out code
-  #     uses: actions/checkout@v4
+      - name: Test ${{ matrix.search-version }}
+        env:
+          REPORT_COVERAGE: true
+        run: yarn test:${{ matrix.search-version }}
+        working-directory: ./packages/elasticsearch-store
 
-  #   - name: Setup Node
-  #     uses: actions/setup-node@v4
-  #     with:
-  #       node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
-  #       cache: 'yarn'
+      - name: Upload elasticsearch-store node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: false
+          # files: ./coverage1.xml,./coverage2.xml # optional
+          flags: es-store-integration
+          name: es-store-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true # optional (default = false)
 
-  #   - name: Install and build packages
-  #     run: yarn && yarn setup
+  lint-and-sync:
+    runs-on: ubuntu-latest
+    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    # will remove the checkout, build and setup when the artifact is made to just
+    # test the linting and syncing of the codebase
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
 
-  #   - name: Lint codebase
-  #     run: yarn lint
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
+        cache: 'yarn'
 
-  #   - name: Sync codebase
-  #     run: yarn sync --verify
+    - name: Install and build packages
+      run: yarn && yarn setup
+
+    - name: Lint codebase
+      run: yarn lint
+
+    - name: Sync codebase
+      run: yarn sync --verify
 
   # elasticsearch-api-tests:
   #   runs-on: ubuntu-latest
@@ -634,30 +660,30 @@ jobs:
   #       run: NODE_VERSION=${{ matrix.node-version }} yarn test:${{ matrix.search-version }}
   #       working-directory: ./e2e
 
-  # check-docker-limit-after:
-  #   needs: [
-  #     e2e-k8s-v2-encrypted-tests,
-  #     e2e-external-storage-tests,
-  #     e2e-k8s-v2-tests,
-  #     e2e-k8s-tests,
-  #     e2e-tests,
-  #     elasticsearch-api-tests,
-  #     elasticsearch-store-tests,
-  #     teraslice-elasticsearch-tests
-  #   ]
-  #   uses: terascope/workflows/.github/workflows/check-docker-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
-  #   secrets: inherit
+  check-docker-limit-after:
+    needs: [
+      # e2e-k8s-v2-encrypted-tests,
+      # e2e-external-storage-tests,
+      # e2e-k8s-v2-tests,
+      # e2e-k8s-tests,
+      # e2e-tests,
+      # elasticsearch-api-tests,
+      elasticsearch-store-tests,
+      # teraslice-elasticsearch-tests
+    ]
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    secrets: inherit
 
-  # check-github-api-limit-after:
-  #   needs: [
-  #     e2e-k8s-v2-encrypted-tests,
-  #     e2e-external-storage-tests,
-  #     e2e-k8s-v2-tests,
-  #     e2e-k8s-tests,
-  #     e2e-tests,
-  #     elasticsearch-api-tests,
-  #     elasticsearch-store-tests,
-  #     teraslice-elasticsearch-tests
-  #   ]
-  #   uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
-  #   secrets: inherit
+  check-github-api-limit-after:
+    needs: [
+      # e2e-k8s-v2-encrypted-tests,
+      # e2e-external-storage-tests,
+      # e2e-k8s-v2-tests,
+      # e2e-k8s-tests,
+      # e2e-tests,
+      # elasticsearch-api-tests,
+      elasticsearch-store-tests,
+      # teraslice-elasticsearch-tests
+    ]
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    secrets: inherit
