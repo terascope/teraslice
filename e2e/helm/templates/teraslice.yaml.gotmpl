@@ -192,6 +192,8 @@ master:
         asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
         asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
         name: "ts-dev1"
+        autoload_directory: /app/autoload
+
 
 worker:
     teraslice:
@@ -200,3 +202,4 @@ worker:
         asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
         asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
         name: "ts-dev1"
+        autoload_directory: /app/autoload
