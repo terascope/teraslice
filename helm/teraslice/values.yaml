@@ -38,14 +38,12 @@ priorityClass:
 master:
   teraslice:
     assets_directory: /app/assets
-    autoload_directory: /app/autoload
     workers: 0
 
 # Teraslice Worker Config Options
 worker:
   teraslice:
     assets_directory: /app/assets
-    autoload_directory: /app/autoload
 
 # Terafoundation
 # Everything under terafoundation key will used as the master and worker config
