@@ -6,8 +6,7 @@ import {
     isCI, toString, TSError
 } from '@terascope/utils';
 import {
-    ArgsMap, ExecEnv, exec,
-    fork,
+    ArgsMap, ExecEnv, exec
 } from '../scripts.js';
 import { TestOptions, GroupedPackages } from './interfaces.js';
 import { PackageInfo, Service } from '../interfaces.js';
@@ -274,22 +273,6 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
         FORCE_COLOR: isCI ? '0' : '1',
     });
     process.stderr.write(`${errLogs}\n`);
-}
-
-const abc = 'abcdefghijklmnopqrstuvwxyz';
-
-export async function reportCoverage(suite: string, chunkIndex: number): Promise<void> {
-    const id = abc[chunkIndex] || 'any';
-
-    signale.info('* reporting coverage');
-    try {
-        await fork({
-            cmd: 'codecov',
-            args: ['--clear', '--flags', `${suite}-${id}`],
-        });
-    } catch (err) {
-        signale.error(err);
-    }
 }
 
 /**

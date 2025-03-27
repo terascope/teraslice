@@ -175,10 +175,6 @@ async function runTestSuite(
                 signale.error('Bailing out of tests due to error');
                 break;
             }
-        } finally {
-            if (options.reportCoverage) {
-                // await reportCoverage(suite, chunkIndex);
-            }
         }
     }
 
