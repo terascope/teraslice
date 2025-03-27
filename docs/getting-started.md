@@ -10,11 +10,11 @@ Teraslice requires a connection to an elasticsearch or opensearch cluster in ord
 
 ### Required dependencies
 
-- [Docker](https://www.docker.com/get-started/)
-- [Helm](https://helm.sh/docs/intro/install/)
-- [helmfile](https://formulae.brew.sh/formula/helmfile)
+- [Docker](https://www.docker.com/get-started/) - Application Containerization Platform
+- [Helm](https://helm.sh/docs/intro/install/) - The package manager for Kubernetes
+- [helmfile](https://helmfile.readthedocs.io/en/latest/#installation) - Deploy Kubernetes Helm Charts
 - [Kind](https://kind.sigs.k8s.io/) - Kubernetes in Docker
-- [curl](https://formulae.brew.sh/formula/curl) - Command-line tool for making HTTP requests
+- [curl](https://curl.se/download.html) - Command-line tool for making HTTP requests
 - [teraslice-cli](https://www.npmjs.com/package/teraslice-cli) - A CLI tool for managing Teraslice
 
 Create a new file called `kindConfig.yaml` and paste the following code snippet in it and save.
