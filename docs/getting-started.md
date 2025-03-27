@@ -4,7 +4,7 @@ title: Getting Started
 
 Teraslice is a distributed data processing platform designed to run in kubernetes. There is also a [native clustering mode](./development/overview.md) used for development. You can interact with Teraslice using [curl](./management-apis/overview.md) or the [teraslice CLI client](./packages/teraslice-cli/overview.md). Once running, see the [Using Teraslice](#using-teraslice) section for details on how to run your first [job](./jobs/overview.md).
 
-## Setup up Teraslice
+## Setup Teraslice
 
 Teraslice requires a connection to an elasticsearch or opensearch cluster in order to run correctly. Below is a quick guide to launch a functional local teraslice instance with opensearch2 using helmfile. See the [helm examples directory](https://github.com/terascope/teraslice/tree/master/examples/helm) or the [e2e helm directory](https://github.com/terascope/teraslice/tree/master/e2e/helm) for more comprehensive helmfile examples.
 
