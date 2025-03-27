@@ -147,7 +147,7 @@ jobs:
           CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
 
         run: |
-          if curl -L -H "Accept: application/vnd.github+json" \
+          if curl -Ss -L -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
           "https://api.github.com/orgs/terascope/packages/container/teraslice-chart/versions" | \
