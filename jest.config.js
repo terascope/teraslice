@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-// import { isCI } from '@terascope/utils';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -26,12 +25,6 @@ const projects = fs
     })
     .map((pkgName) => `<rootDir>/packages/${pkgName}`);
 
-// const coverageReporters = ['lcov', 'html'];
-
-// if (!isCI) {
-//     coverageReporters.push('text-summary');
-// }
-
 export default {
     rootDir: '.',
     verbose: true,
@@ -54,22 +47,6 @@ export default {
         '<rootDir>/packages/*/dist',
         '<rootDir>/packages/teraslice-cli/test/fixtures/'
     ],
-    // collectCoverage: true,
-    // collectCoverageFrom: [
-    //     '<rootDir>/packages/*/index.js',
-    //     '<rootDir>/packages/*/lib/*.js',
-    //     '<rootDir>/packages/*/lib/**/*.js',
-    //     '<rootDir>/packages/*/cmds/*.js',
-    //     '<rootDir>/packages/*/cmds/**/*.js',
-    //     '<rootDir>/packages/*/src/**/*.ts',
-    //     '<rootDir>/packages/*/src/*.ts',
-    //     '!<rootDir>/packages/**/*.json',
-    //     '!<rootDir>/packages/**/*.d.ts',
-    //     '!<rootDir>/packages/**/dist/**',
-    //     '!<rootDir>/packages/**/coverage/**'
-    // ],
-    // coverageReporters,
-    // coverageDirectory: '<rootDir>/coverage',
     moduleNameMapper: {
         '^(\\.{1,2}/.*)\\.js$': '$1',
     },

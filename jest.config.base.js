@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isCI } from '@terascope/utils';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,6 +29,12 @@ export default (projectDir) => {
         workspaceName = `packages/${name}`;
         packageRoot = `<rootDir>/${workspaceName}`;
         rootDir = '../../';
+    }
+
+    const coverageReporters = ['lcov'];
+
+    if (!isCI) {
+        coverageReporters.push('text-summary');
     }
 
     const config = {
@@ -85,7 +92,7 @@ export default (projectDir) => {
         },
         roots: [`${packageRoot}/test`],
         collectCoverage: true,
-        coverageReporters: ['lcov', 'text-summary']
+        coverageReporters: ['lcov', coverageReporters]
     };
 
     if (fs.existsSync(path.join(projectDir, 'test/global.setup.js'))) {
