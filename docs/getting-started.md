@@ -45,7 +45,7 @@ repositories:
   - name: opensearch
     url: https://opensearch-project.github.io/helm-charts/
   - name: terascope
-    url: https://terascope.github.io/teraslice/charts/
+    url: https://terascope.github.io/helm-charts/
 
 helmDefaults:
   wait: true
