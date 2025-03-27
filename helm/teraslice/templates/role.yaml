@@ -15,3 +15,4 @@ rules:
   - apiGroups: ["batch"]  # batch API group for jobs
     resources: ["jobs"]
     verbs: ["get", "create", "delete", "list", "update", "patch"]
+    
