@@ -219,11 +219,6 @@ jobs:
         run: yarn && ./scripts/build-documentation.sh  # output in website/build
       - name: Check Output
         run: find ./website/build
-      - name: Run repo-html to build chart index.html
-        run: |
-          cd ./helm/helm-repo-site
-          helm plugin install https://github.com/halkeye/helm-repo-html
-          helm repo-html
       - name: Prepare chart directory for Website Build
         run: |
           mkdir -p ./website/build/charts/
