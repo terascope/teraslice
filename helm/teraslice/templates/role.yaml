@@ -1,11 +1,18 @@
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: teraslice-all-{{ .Release.Name }}
+  name: teraslice-master-role-{{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "teraslice.master.labels" . | nindent 4 }}
 rules:
-  - apiGroups: ["*"]
-    resources: ["*"]
-    verbs: ["*"]
+  - apiGroups: [""]  # Core API group for resources like pods, configmaps
+    resources: ["pods", "configmaps", "services"]
+    verbs: ["get", "create", "delete", "list", "update", "patch"]
+  - apiGroups: ["apps"]  # Apps API group for deployments and replica sets
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "create", "delete", "list", "update", "patch"]
+  - apiGroups: ["batch"]  # batch API group for jobs
+    resources: ["jobs"]
+    verbs: ["get", "create", "delete", "list", "update", "patch"]
+    

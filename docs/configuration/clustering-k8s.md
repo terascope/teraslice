@@ -76,7 +76,7 @@ rules:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: teraslice-all-<NAMESPACE>
+  name: teraslice-master-<NAMESPACE>
   namespace: <NAMESPACE>
 subjects:
   - kind: ServiceAccount
