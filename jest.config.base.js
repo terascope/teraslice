@@ -92,7 +92,7 @@ export default (projectDir) => {
         },
         roots: [`${packageRoot}/test`],
         collectCoverage: true,
-        coverageReporters: ['lcov', coverageReporters]
+        coverageReporters: coverageReporters
     };
 
     if (fs.existsSync(path.join(projectDir, 'test/global.setup.js'))) {
