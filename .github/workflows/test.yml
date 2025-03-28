@@ -81,7 +81,25 @@ jobs:
         run: yarn && yarn setup
 
       - name: Test
+        env:
+          REPORT_COVERAGE: true
+          # Only run one test per batch for now because jest will only create code
+          # coverage for the first package in the batch
+          # https://github.com/jestjs/jest/issues/4255
+          MAX_PROJECTS_PER_BATCH: 1
         run: yarn test --suite unit --
+
+      - name: Upload Node ${{ matrix.node-version }} unit test coverage
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: false
+          codecov_yml_path: ./.github/codecov.yaml
+          # files: ./coverage1.xml,./coverage2.xml # optional
+          flags: unit
+          name: node-${{ matrix.node-version }}-unit-tests
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true # optional (default = false)
+
 
   e2e-k8s-tests:
     runs-on: ubuntu-latest
@@ -440,8 +458,20 @@ jobs:
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
+        env:
+          REPORT_COVERAGE: true
         run: yarn test:${{ matrix.search-version }}
         working-directory: ./packages/teraslice
+
+      - name: Upload teraslice node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: false
+          codecov_yml_path: ./.github/codecov.yaml
+          flags: teraslice-integration,integration
+          name: teraslice-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true # optional (default = false)
 
   elasticsearch-store-tests:
     runs-on: ubuntu-latest
@@ -485,8 +515,20 @@ jobs:
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
+        env:
+          REPORT_COVERAGE: true
         run: yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
+
+      - name: Upload elasticsearch-store node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: false
+          codecov_yml_path: ./.github/codecov.yaml
+          flags: es-store-integration,integration
+          name: es-store-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true # optional (default = false)
 
   lint-and-sync:
     runs-on: ubuntu-latest
@@ -554,8 +596,20 @@ jobs:
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
+        env:
+          REPORT_COVERAGE: true
         run: yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-api
+
+      - name: Upload es-api node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: false
+          codecov_yml_path: ./.github/codecov.yaml
+          flags: es-api-integration,integration
+          name: es-api-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true # optional (default = false)
 
   e2e-tests:
     runs-on: ubuntu-latest
