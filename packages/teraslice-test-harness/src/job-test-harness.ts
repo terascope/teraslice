@@ -11,9 +11,9 @@ import {
     pDelay,
     flatten,
 } from '@terascope/job-components';
-import SlicerTestHarness from './slicer-test-harness';
-import WorkerTestHarness from './worker-test-harness';
-import { JobHarnessOptions, SliceResults } from './interfaces';
+import SlicerTestHarness from './slicer-test-harness.js';
+import WorkerTestHarness from './worker-test-harness.js';
+import { JobHarnessOptions, SliceResults } from './interfaces.js';
 
 /**
  * A test harness for both the Slicer and Fetcher,

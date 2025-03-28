@@ -1,8 +1,9 @@
 import { isExecutedFile } from '@terascope/utils';
 import { Suite } from './helpers.js';
-import { config, data } from './fixtures/data.json';
+import json from './fixtures/data.json' with { type: 'json' };
 import { DataFrame } from '../dist/src/index.js';
 
+const { config, data } = json;
 const emptyDataFrame = DataFrame.fromJSON(config, []);
 
 const run = async () => Suite('DataFrame Insert')

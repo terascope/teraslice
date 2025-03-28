@@ -1,11 +1,14 @@
 import { isEmpty, isExecutedFile } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import { Suite } from './helpers.js';
-import { config, data } from './fixtures/data.json';
+import json from './fixtures/data.json' with { type: 'json' };
+
 import {
     DataFrame, functionConfigRepository,
     FunctionDefinitionType, dataFrameAdapter
 } from '../dist/src/index.js';
+
+const { config, data } = json;
 
 /**
  * @todo add tuple support
