@@ -93,6 +93,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: false
+          codecov_yml_path: ./.github/codecov.yaml
           # files: ./coverage1.xml,./coverage2.xml # optional
           flags: unit
           name: node-${{ matrix.node-version }}-unit-tests
@@ -466,6 +467,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: false
+          codecov_yml_path: ./.github/codecov.yaml
           flags: teraslice-integration,integration
           name: teraslice-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -522,7 +524,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: false
-          # files: ./coverage1.xml,./coverage2.xml # optional
+          codecov_yml_path: ./.github/codecov.yaml
           flags: es-store-integration,integration
           name: es-store-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -603,6 +605,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: false
+          codecov_yml_path: ./.github/codecov.yaml
           flags: es-api-integration,integration
           name: es-api-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
           token: ${{ secrets.CODECOV_TOKEN }}
