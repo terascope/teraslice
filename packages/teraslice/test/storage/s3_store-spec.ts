@@ -36,18 +36,18 @@ describe('S3 backend test', () => {
             }
         }
     };
-    // describe('->S3Store', () => {
-    //     it('should throw when given an invalid bucket name', async () => {
-    //         s3Backend = new S3Store({
-    //             context,
-    //             terafoundation: context.sysconfig.terafoundation,
-    //             connection: 'default',
-    //             bucket: 'Invalid-Bucket-Name@'
-    //         });
+    describe('->S3Store', () => {
+        it('should throw when given an invalid bucket name', async () => {
+            s3Backend = new S3Store({
+                context,
+                terafoundation: context.sysconfig.terafoundation,
+                connection: 'default',
+                bucket: 'Invalid-Bucket-Name@'
+            });
 
-    //         await expect(s3Backend.initialize()).rejects.toThrow('Bucket name does not follow S3 naming rules: The specified bucket is not valid.');
-    //     });
-    // });
+            await expect(s3Backend.initialize()).rejects.toThrow('Bucket name does not follow S3 naming rules: The specified bucket is not valid.');
+        });
+    });
 
     describe('->verifyClient', () => {
         beforeEach(async () => {
