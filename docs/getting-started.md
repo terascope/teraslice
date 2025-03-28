@@ -6,7 +6,7 @@ Teraslice is a distributed data processing platform designed to run in kubernete
 
 ## Setup Teraslice
 
-Teraslice requires a connection to an elasticsearch or opensearch cluster in order to run correctly. Below is a quick guide to launch a functional local teraslice instance with opensearch2 using helmfile. See the [helm examples directory](https://github.com/terascope/teraslice/tree/master/examples/helm) or the [e2e helm directory](https://github.com/terascope/teraslice/tree/master/e2e/helm) for more comprehensive helmfile examples.
+Teraslice requires a connection to an elasticsearch or opensearch cluster in order to run correctly. Below is a quick guide to launch a functional local teraslice instance with opensearch1 using helmfile. See the [helm examples directory](https://github.com/terascope/teraslice/tree/master/examples/helm) or the [e2e helm directory](https://github.com/terascope/teraslice/tree/master/e2e/helm) for more comprehensive helmfile examples.
 
 ### Required dependencies
 
@@ -28,7 +28,7 @@ nodes:
   extraPortMappings:
   - containerPort: 30678 # Map internal teraslice api service to host port
     hostPort: 5678
-  - containerPort: 30921 # Map internal opensearch2 service to host port
+  - containerPort: 30921 # Map internal opensearch1 service to host port
     hostPort: 9200
 ```
 
@@ -51,7 +51,7 @@ helmDefaults:
   wait: true
 
 releases:
-  - name: opensearch2
+  - name: opensearch1
     namespace: ts-dev1
     version: 2.17.1
     chart: opensearch/opensearch
@@ -62,36 +62,27 @@ releases:
           tag: 1.3.14
         service:
           type: NodePort
-          port: 9200
           nodePort: 30921
         config:
           opensearch.yml:
             plugins:
               security:
                 disabled: true
-            discovery.type: single-node
-        clusterName: opensearch2-cluster
-        masterService: opensearch2
-        resources:
-          requests:
-            cpu: "1000m"
-            memory: 100Mi
-        persistence:
-          size: 8Gi
+        masterService: opensearch1
 
   - name: teraslice
     namespace: ts-dev1
     version: 2.3.0
     chart: terascope/teraslice-chart
     needs:
-      - ts-dev1/opensearch2
+      - ts-dev1/opensearch1
     values:
       - terafoundation:
           connectors:
             elasticsearch-next:
               default:
                 node:
-                  - "http://opensearch2.ts-dev1:9200"
+                  - "http://opensearch1.ts-dev1:9200"
         service:
           nodePort: 30678
           type: NodePort
