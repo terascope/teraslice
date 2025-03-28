@@ -2925,7 +2925,7 @@ __metadata:
     sort-package-json: "npm:~2.15.1"
     toposort: "npm:~2.0.2"
     typedoc: "npm:~0.27.9"
-    typedoc-plugin-markdown: "npm:~4.4.2"
+    typedoc-plugin-markdown: "npm:~4.6.0"
     typescript: "npm:~5.8.2"
     yargs: "npm:~17.7.2"
   peerDependencies:
@@ -13494,12 +13494,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc-plugin-markdown@npm:~4.4.2":
-  version: 4.4.2
-  resolution: "typedoc-plugin-markdown@npm:4.4.2"
+"typedoc-plugin-markdown@npm:~4.6.0":
+  version: 4.6.0
+  resolution: "typedoc-plugin-markdown@npm:4.6.0"
   peerDependencies:
-    typedoc: 0.27.x
-  checksum: 10c0/93112f0f06f1c0bc7eec1ba7f9034b88a6817a92ec41e491e8ac73c23a5fbda84df537d136395295737499fc1d5afa94d1500a1921b1a967248dc5d3054fc9d6
+    typedoc: 0.28.x
+  checksum: 10c0/f0312f2e93221ed8115c28c5ce1db541c4ada0fa512aa2e41c813ef151569e03ec30ab2a2d36ccc463b0d6a8a723f5b3086fc735886031f8ef2186ab37f32de7
   languageName: node
   linkType: hard
 
