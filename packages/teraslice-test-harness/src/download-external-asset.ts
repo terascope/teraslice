@@ -1,10 +1,10 @@
 import fs from 'fs-extra';
-import path from 'path';
-import os from 'os';
+import path from 'node:path';
+import os from 'node:os';
 import decompress from 'decompress';
 import { TSError } from '@terascope/utils';
 import { downloadRelease } from '@terascope/fetch-github-release';
-import * as I from './interfaces';
+import * as I from './interfaces.js';
 
 export class DownloadExternalAsset {
     zipped_path: string;

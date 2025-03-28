@@ -1,8 +1,10 @@
 import { getGroupedFields } from '@terascope/data-types';
 import { isExecutedFile } from '@terascope/utils';
 import { Suite } from './helpers.js';
-import { config, data } from './fixtures/data.json';
+import json from './fixtures/data.json' with { type: 'json' };
 import { Column } from '../dist/src/index.js';
+
+const { config, data } = json;
 
 const run = async () => {
     const suite = Suite('Build Column');
