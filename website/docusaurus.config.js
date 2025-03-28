@@ -99,7 +99,7 @@ module.exports = {
                     position: 'left'
                 },
                 {
-                    href: 'https://terascope.github.io/teraslice/charts',
+                    href: 'https://terascope.github.io/helm-charts',
                     label: 'Chart',
                     position: 'left'
                 },
@@ -138,7 +138,7 @@ module.exports = {
                             to: 'https://github.com/terascope/teraslice',
                         },
                         {
-                            to: 'https://terascope.github.io/teraslice/charts',
+                            to: 'https://terascope.github.io/helm-charts',
                             label: 'Chart'
                         },
                     ],
