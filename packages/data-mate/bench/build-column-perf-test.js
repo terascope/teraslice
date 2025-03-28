@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
-import { config, data } from './fixtures/data.json';
+import json from './fixtures/data.json' with { type: 'json' };
 import { Column } from '../dist/src/index.js';
+
+const { config, data } = json;
 
 const name = 'results';
 const fieldConfig = config.fields[name];

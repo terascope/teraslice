@@ -4,12 +4,12 @@ import {
     makeExecutionContext, TestClientConfig,
     ClusterManagerType,
 } from '@terascope/job-components';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import {
     JobHarnessOptions,
     ExecutionContext,
-} from './interfaces';
-import { resolveAssetDir } from './utils';
+} from './interfaces.js';
+import { resolveAssetDir } from './utils.js';
 
 /**
  * A base class for the Slicer and Worker TestHarnesses

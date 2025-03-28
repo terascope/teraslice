@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import fs from 'fs-extra';
 
 export function resolveAssetDir(configAssetDirs: string | string[]): string[] {

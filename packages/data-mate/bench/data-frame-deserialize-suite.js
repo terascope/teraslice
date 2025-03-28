@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Suite } from './helpers.js';
 import { DataFrame } from '../dist/src/index.js';
+import { setInterval } from 'node:timers';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const _dfJSON = fs.readFileSync(path.join(dirname, './fixtures/data.dfjson'));
@@ -17,9 +18,13 @@ const run = async () => {
     suite.add('with string', {
         defer: true,
         fn(deferred) {
+            const timer = setInterval(() => process.stdout.write(` \nopen\n \n`), 1);
             DataFrame.deserialize(dfJSONStr)
                 .then(
-                    () => deferred.resolve(),
+                    () => {
+                        clearInterval(timer);
+                        return deferred.resolve();
+                    },
                     deferred.reject
                 );
         }
@@ -29,9 +34,14 @@ const run = async () => {
     suite.add('with Buffer', {
         defer: true,
         fn(deferred) {
+            const timer = setInterval(() => process.stdout.write(` \nopen\n \n`), 1);
+
             DataFrame.deserialize(dfJSONBuffer)
                 .then(
-                    () => deferred.resolve(),
+                    () => {
+                        clearInterval(timer);
+                        return deferred.resolve();
+                    },
                     deferred.reject
                 );
         }
