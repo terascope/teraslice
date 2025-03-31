@@ -39,7 +39,6 @@ describe('HTTP API', () => {
         await api.initialize();
 
         await new Promise((resolve, reject) => {
-            // @ts-expect-error
             server = app.listen(port, (err) => {
                 if (err) reject(err);
                 else resolve(true);
