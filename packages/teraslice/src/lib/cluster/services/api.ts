@@ -248,7 +248,7 @@ export class ApiService {
             requestHandler(() => this.clusterService.getClusterState());
         });
 
-        v1routes.route('/assets*')
+        v1routes.route('/assets{*splat}')
             .delete((req, res) => {
                 assetRedirect(req as TerasliceRequest, res);
             })
@@ -511,7 +511,7 @@ export class ApiService {
         this.app.use(v1routes);
         this.app.use('/v1', v1routes);
 
-        this.app.route('/txt/assets*')
+        this.app.route('/txt/assets{*splat}')
         // @ts-expect-error
             .get(assetRedirect);
 
@@ -625,7 +625,7 @@ export class ApiService {
         });
 
         // This is a catch all, any none supported api endpoints will return an error
-        this.app.route('*')
+        this.app.route('*splat')
             .all((req, res) => {
                 sendError(res, 405, `cannot ${req.method} endpoint ${req.originalUrl}`);
             });
