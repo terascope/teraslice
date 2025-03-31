@@ -42,7 +42,7 @@
         "awesome-phonenumber": "~7.4.0",
         "graphlib": "~2.1.8",
         "jexl": "~2.3.0",
-        "nanoid": "~5.1.3",
+        "nanoid": "~5.1.5",
         "valid-url": "~1.0.9",
         "validator": "~13.12.0",
         "yargs": "~17.7.2"
