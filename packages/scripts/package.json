@@ -34,7 +34,6 @@
     "dependencies": {
         "@kubernetes/client-node": "~0.22.3",
         "@terascope/utils": "~1.7.7",
-        "codecov": "~3.8.3",
         "execa": "~9.5.2",
         "fs-extra": "~11.3.0",
         "globby": "~14.1.0",
