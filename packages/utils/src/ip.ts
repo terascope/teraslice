@@ -7,6 +7,7 @@ import isCidr from 'is-cidr';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
 import { parseIp, stringifyIp } from 'ip-bigint';
 import ip6addr from 'ip6addr';
+import net from 'node:net';
 import { isString } from './strings.js';
 import {
     toInteger, isNumberLike, toBigIntOrThrow,
@@ -388,4 +389,48 @@ function _expandIPv6Part(part: string) {
     }
 
     return expandedPart;
+}
+
+/**
+ * Given a port, will attempt to create a Server on said port to verify it's not in use.
+ * If successful, will close the server and return false.
+ * @param port The port that will be checked
+ * @param host The host that the port will check against. Defaults to localhost
+ * @returns A boolean of true if the address is in use or false if not
+ */
+export function isPortInUse(port: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      const testServer = net.createServer()
+        .once('error', (err: any) => {
+          if (err.code === 'EADDRINUSE') {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        })
+        .once('listening', () => {
+          testServer.close(() => {
+            resolve(false);
+          });
+        })
+        .listen(port);
+    });
+}
+
+/**
+ * Grabs a random port and checks if it's in use. Will recurse until a random unused
+ * port is found and return it.
+ * @param min The minimum port number to use
+ * @param max The maximum port number to use
+ * @returns A port that is available for use
+ */
+export async function getAvailablePort(min = 10000, max = 60000): Promise<number> {
+    const maxAttempts = 50;
+    for (let i = 0; i < maxAttempts; i++) {
+      const port = Math.floor(Math.random() * (max - min + 1)) + min;
+      if (!(await isPortInUse(port))) {
+        return port;
+      }
+    }
+    throw new Error(`No available ports found in range ${min}-${max}`);
 }
