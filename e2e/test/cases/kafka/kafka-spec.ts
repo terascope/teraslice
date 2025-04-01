@@ -3,7 +3,8 @@ import { exec } from '@terascope/scripts';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import signale from '../../signale.js';
 import {
-    CERT_PATH, ENCRYPT_KAFKA, ROOT_CERT_PATH, TEST_PLATFORM
+    CERT_PATH, ENCRYPT_KAFKA, ROOT_CERT_PATH,
+    TEST_PLATFORM, KAFKA_PORT
 } from '../../config.js';
 
 describe('kafka', () => {
@@ -74,7 +75,7 @@ describe('kafka', () => {
             it('should have an encrypted connection', async () => {
                 const result = await exec({
                     cmd: 'sh',
-                    args: ['-c', `printf '\\n' | openssl s_client -connect localhost:49094 -cert ${CERT_PATH}/kafka-keypair.pem -key ${CERT_PATH}/kafka-keypair.pem -CAfile ${ROOT_CERT_PATH}`]
+                    args: ['-c', `printf '\\n' | openssl s_client -connect localhost:${KAFKA_PORT} -cert ${CERT_PATH}/kafka-keypair.pem -key ${CERT_PATH}/kafka-keypair.pem -CAfile ${ROOT_CERT_PATH}`]
                 });
                 // console.log('s_client output: ', result);
                 expect(result).toContain('Verification: OK');
