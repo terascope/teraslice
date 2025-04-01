@@ -71,8 +71,9 @@ export class Kind {
                     hostPort: Number.parseInt(MINIO_UI_PORT)
                 });
             } else if (service === 'kafka') {
+                // This will map only the external port so it can resolve with the host machine
                 configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30092,
+                    containerPort: 30094,
                     hostPort: Number.parseInt(KAFKA_PORT)
                 });
             }
