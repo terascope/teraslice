@@ -12,7 +12,7 @@ import {
     DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
     ELASTICSEARCH_PORT, OPENSEARCH_PORT, MINIO_PORT,
     MINIO_UI_PORT, KAFKA_PORT
- } from './config.js';
+} from './config.js';
 
 export class Kind {
     clusterName: string;

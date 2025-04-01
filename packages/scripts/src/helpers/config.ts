@@ -35,26 +35,26 @@ const allPorts = {
     TEST_RESTRAINED_OPENSEARCH: {
         RESTRAINED_OPENSEARCH_PORT: process.env.RESTRAINED_OPENSEARCH_PORT || '49206'
     }
-}
+};
 
 for (const [testKey, portsObj] of Object.entries(allPorts)) {
     const serviceEnabled = toBoolean(process.env[testKey]);
 
     if (serviceEnabled) {
-      for (const [envVarName, port] of Object.entries(portsObj)) {
-        signale.debug(`Checking availability of port ${port}`);
+        for (const [envVarName, port] of Object.entries(portsObj)) {
+            signale.debug(`Checking availability of port ${port}`);
 
-        if (await isPortInUse(Number.parseInt(port))) {
-          signale.warn(`port ${port} is in use. Switching port..`);
-          const newPort = await getAvailablePort();
-          process.env[envVarName] = newPort.toString();
-          signale.warn(`${envVarName} env variable now uses port ${newPort}`);
-        } else {
-          signale.debug(`port ${port} is valid for env variable ${envVarName}`);
+            if (await isPortInUse(Number.parseInt(port))) {
+                signale.warn(`port ${port} is in use. Switching port..`);
+                const newPort = await getAvailablePort();
+                process.env[envVarName] = newPort.toString();
+                signale.warn(`${envVarName} env variable now uses port ${newPort}`);
+            } else {
+                signale.debug(`port ${port} is valid for env variable ${envVarName}`);
+            }
         }
-      }
     }
-  }
+}
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)
@@ -269,4 +269,3 @@ export const DOCKER_IMAGE_LIST_PATH = `${DOCKER_IMAGES_PATH}/image-list.txt`;
 export const DOCKER_CACHE_PATH = '/tmp/docker_cache';
 export const SKIP_IMAGE_DELETION = toBoolean(process.env.SKIP_IMAGE_DELETION) || false;
 export const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
-

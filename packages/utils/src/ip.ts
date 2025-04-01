@@ -400,20 +400,20 @@ function _expandIPv6Part(part: string) {
  */
 export function isPortInUse(port: number): Promise<boolean> {
     return new Promise((resolve) => {
-      const testServer = net.createServer()
-        .once('error', (err: any) => {
-          if (err.code === 'EADDRINUSE') {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        })
-        .once('listening', () => {
-          testServer.close(() => {
-            resolve(false);
-          });
-        })
-        .listen(port);
+        const testServer = net.createServer()
+            .once('error', (err: any) => {
+                if (err.code === 'EADDRINUSE') {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            })
+            .once('listening', () => {
+                testServer.close(() => {
+                    resolve(false);
+                });
+            })
+            .listen(port);
     });
 }
 
@@ -427,10 +427,10 @@ export function isPortInUse(port: number): Promise<boolean> {
 export async function getAvailablePort(min = 10000, max = 60000): Promise<number> {
     const maxAttempts = 50;
     for (let i = 0; i < maxAttempts; i++) {
-      const port = Math.floor(Math.random() * (max - min + 1)) + min;
-      if (!(await isPortInUse(port))) {
-        return port;
-      }
+        const port = Math.floor(Math.random() * (max - min + 1)) + min;
+        if (!(await isPortInUse(port))) {
+            return port;
+        }
     }
     throw new Error(`No available ports found in range ${min}-${max}`);
 }
