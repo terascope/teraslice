@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 import { isPortInUse, getAvailablePort, toBoolean } from '@terascope/utils';
 import signale from '../dist/src/helpers/signale.js';
 
-
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // this path.join is only used for pkg asset injection
