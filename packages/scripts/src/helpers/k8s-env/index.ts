@@ -108,7 +108,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             process.exit(1);
         }
     }
-    // console.log('@@@@ env: ', process.env);
 
     signale.pending('Loading service images into kind cluster');
     await loadImagesForHelm(options.kindClusterName, false);

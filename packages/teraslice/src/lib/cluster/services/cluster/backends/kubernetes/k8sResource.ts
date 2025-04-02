@@ -114,7 +114,7 @@ export class K8sResource {
     }
 
     _mountLocalTeraslice() {
-        const devMounts = JSON.parse(process.env.MOUNT_LOCAL_TERASLICE as string);
+        const devMounts = JSON.parse(Buffer.from(process.env.MOUNT_LOCAL_TERASLICE as string, 'base64').toString('utf-8'));
         this.resource.spec.template.spec.containers[0].volumeMounts.push(...devMounts.volumeMounts);
         this.resource.spec.template.spec.volumes.push(...devMounts.volumes);
 

@@ -4,6 +4,11 @@ image:
     repository: {{ .Values | get "teraslice.image.repository" }}
     tag: {{ .Values | get "teraslice.image.tag" }}
 
+env: 
+{{- range $key, $value := .Values.teraslice.env }}
+    {{ $key }}: {{ $value | quote }}
+{{- end }}
+
 service:
     type: NodePort
     nodePort: 30678
@@ -205,12 +210,25 @@ worker:
         autoload_directory: /app/autoload
 
 extraVolumes: |
-    - name: autoload
-      hostPath:
-        path: /autoload
-        type: Directory
+    {{- $customVolumes := .Values.teraslice.extraVolumes | default list }}
+    {{- $autoloadVolume := list (dict 
+          "name" "autoload" 
+          "hostPath" (dict 
+            "path" "/autoload" 
+            "type" "Directory"
+          )
+        ) 
+    }}
+    {{- $mergedVolumes := concat $autoloadVolume $customVolumes }}
+    {{- toYaml $mergedVolumes | nindent 4 }}
 
 extraVolumeMounts: |
-    - name: autoload
-      mountPath: /app/autoload
-      readOnly: true
+    {{- $customVolumeMounts := .Values.teraslice.extraVolumeMounts | default list }}
+    {{- $autoloadVolumeMount := list (dict
+          "name" "autoload"
+          "mountPath" "/app/autoload"
+          "readOnly" true
+        )
+    }}
+    {{- $mergedVolumeMounts := concat $autoloadVolumeMount $customVolumeMounts }}
+    {{- toYaml $mergedVolumeMounts | nindent 4 }}

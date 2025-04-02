@@ -998,11 +998,7 @@ function generateHelmValuesFromServices(
             // are present the state cluster will be set to elasticsearch below.
             stateCluster = serviceString;
 
-            // console.log('@@@@ config.ENCRYPT_OPENSEARCH: ', config.ENCRYPT_OPENSEARCH);
-
             if (config.ENCRYPT_OPENSEARCH) {
-                // console.log('@@@@ encrypted opensearch');
-
                 if (!caCert) {
                     caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
                 }
@@ -1019,10 +1015,7 @@ function generateHelmValuesFromServices(
         }
 
         if (service === Service.Kafka) {
-            // console.log('@@@@ config.ENCRYPT_KAFKA: ', config.ENCRYPT_KAFKA);
             if (config.ENCRYPT_KAFKA) {
-                // console.log('@@@@ encrypted kafka');
-
                 if (!caCert) {
                     caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
                 }
@@ -1064,25 +1057,9 @@ function generateHelmValuesFromServices(
         values.setIn(['teraslice', 'extraVolumes'], dockerfileMounts.volumes);
 
         /// Pass in env so master passes volumes to ex's and workers
-        values.setIn(['teraslice', 'env'], [{
-            name: 'MOUNT_LOCAL_TERASLICE',
-            value: JSON.stringify(dockerfileMounts)
-        }]);
-        // if (masterDeployment.spec?.template.spec?.containers[0].env) {
-        //     masterDeployment.spec.template.spec.containers[0].env.push(
-        //         {
-        //             name: 'MOUNT_LOCAL_TERASLICE',
-        //             value: JSON.stringify(dockerfileMounts)
-        //         }
-        //     );
-        // } else if (masterDeployment.spec?.template.spec?.containers[0]) {
-        //     masterDeployment.spec.template.spec.containers[0].env = [
-        //         {
-        //             name: 'MOUNT_LOCAL_TERASLICE',
-        //             value: JSON.stringify(dockerfileMounts)
-        //         }
-        //     ];
-        // }
+        values.setIn(['teraslice', 'env'], {
+            MOUNT_LOCAL_TERASLICE: Buffer.from(JSON.stringify(dockerfileMounts)).toString('base64')
+        });
     }
     logger.debug('helmfile command values: ', JSON.stringify(values));
 
@@ -1090,7 +1067,6 @@ function generateHelmValuesFromServices(
     const valuesDir = fs.mkdtempSync(path.join(os.tmpdir(), 'generated-yaml'));
     const valuesPath = path.join(valuesDir, 'values.yaml');
     fs.writeFileSync(valuesPath, values.toString(), 'utf8');
-    // logger.debug('@@@@ valuesDir: ', valuesDir);
     return { valuesPath, valuesDir };
 }
 
