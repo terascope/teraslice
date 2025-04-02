@@ -205,7 +205,7 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
 
     async recordExists(id: string[] | string, clientId?: number): Promise<boolean> {
         const ids = validateIds(id, 'recordExists');
-        if (!ids.length) return true;
+        if (!ids.length) return false;
 
         const count = await this.countRecords({
             [this.config.id_field!]: ids,

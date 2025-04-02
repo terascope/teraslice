@@ -606,4 +606,15 @@ describe('IndexModel', () => {
             expect(result).toBeUndefined();
         });
     });
+
+    it('should return false on recordExists if invalid id', async () => {
+        const result = await Promise.all([
+            indexModel.recordExists('', 1),
+            indexModel.recordExists([], 1),
+            indexModel.recordExists('foo', 1)
+        ]);
+
+        expect(result).toBeArrayOfSize(3);
+        expect(result).toMatchObject([false, false, false]);
+    });
 });
