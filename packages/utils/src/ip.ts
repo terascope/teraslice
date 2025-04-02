@@ -402,6 +402,8 @@ export function isPortInUse(port: number): Promise<boolean> {
     return new Promise((resolve) => {
         const testServer = net.createServer()
             .once('error', (err: any) => {
+                // Close the server in all error cases
+                testServer.close();
                 if (err.code === 'EADDRINUSE') {
                     resolve(true);
                 } else {
