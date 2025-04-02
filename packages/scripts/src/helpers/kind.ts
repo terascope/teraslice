@@ -49,7 +49,7 @@ export class Kind {
 
         const configFile = yaml.load(fs.readFileSync(configPath, 'utf8')) as KindCluster;
 
-        // Map ports with the config
+        // Map external ports from kind to the host machine based off of config variables
         for (const service of ENV_SERVICES) {
             if (service === 'elasticsearch') {
                 configFile.nodes[0].extraPortMappings.push({
@@ -71,7 +71,7 @@ export class Kind {
                     hostPort: Number.parseInt(MINIO_UI_PORT)
                 });
             } else if (service === 'kafka') {
-                // This will map only the external port so it can resolve with the host machine
+                // map only the external kafka port so it can resolve with the host machine
                 configFile.nodes[0].extraPortMappings.push({
                     containerPort: 30094,
                     hostPort: Number.parseInt(KAFKA_PORT)

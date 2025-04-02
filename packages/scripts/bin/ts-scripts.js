@@ -10,7 +10,8 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 // this path.join is only used for pkg asset injection
 path.join(dirname, '../package.json');
 
-// Validate that all ports aren't in use
+// An object that contains all possible port environment variables used in scripts
+// NOTE: The defaults set here override the defaults in the scripts/src/helpers/config.ts file
 const allPorts = {
     TEST_ELASTICSEARCH: {
         ELASTICSEARCH_PORT: process.env.ELASTICSEARCH_PORT || '49200'
@@ -38,7 +39,9 @@ const allPorts = {
     }
 };
 
+// Iterates over the `allports` object to see if any TEST_{SERVICE_NAME} variable is set
 for (const [testKey, portsObj] of Object.entries(allPorts)) {
+    // We only want to check ports for services that are set to 'true'
     const serviceEnabled = toBoolean(process.env[testKey]);
 
     if (serviceEnabled) {
@@ -46,7 +49,7 @@ for (const [testKey, portsObj] of Object.entries(allPorts)) {
             signale.debug(`Checking availability of port ${port}`);
 
             if (await isPortInUse(Number.parseInt(port))) {
-                signale.warn(`port ${port} is in use. Switching port..`);
+                signale.warn(`port ${port} is in use. Switching ${envVarName} to different port..`);
                 const newPort = await getAvailablePort();
                 process.env[envVarName] = newPort.toString();
                 signale.warn(`${envVarName} env variable now uses port ${newPort}`);
