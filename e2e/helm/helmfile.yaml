@@ -23,6 +23,8 @@ releases:
     installed: {{ .Values | get "opensearch1.enabled" false }}
     values:
       - ./templates/os1.yaml.gotmpl
+    labels:
+      app: opensearch1
 
   - name: opensearch2
     namespace: services-dev1
@@ -31,6 +33,8 @@ releases:
     installed: {{ .Values | get "opensearch2.enabled" true }}
     values:
       - ./templates/os2.yaml.gotmpl
+    labels:
+      app: opensearch2
 
   - name: elasticsearch6
     namespace: services-dev1
@@ -38,6 +42,8 @@ releases:
     installed: {{ .Values | get "elasticsearch6.enabled" false }}
     values:
       - ./templates/es6.yaml.gotmpl
+    labels:
+      app: elasticsearch6
 
   - name: elasticsearch7
     namespace: services-dev1
@@ -45,6 +51,8 @@ releases:
     installed: {{ .Values | get "elasticsearch7.enabled" false }}
     values:
       - ./templates/es7.yaml.gotmpl
+    labels:
+      app: elasticsearch7
 
   - name: minio
     namespace: services-dev1

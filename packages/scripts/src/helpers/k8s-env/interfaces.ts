@@ -1,9 +1,7 @@
 export interface K8sEnvOptions {
-    encryptMinio: boolean;
     skipBuild: boolean;
     tsPort: string;
     kindClusterName: string;
-    assetStorage: string;
     terasliceImage?: string;
     resetStore?: boolean;
     clusteringType: 'kubernetes' | 'kubernetesV2';

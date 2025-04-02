@@ -1,6 +1,6 @@
 import { pDelay } from '@terascope/utils';
 import fse from 'fs-extra';
-import { helmfileSync, K8s, setAlias } from '@terascope/scripts';
+import { helmfileCommand, K8s, setAlias } from '@terascope/scripts';
 import { TerasliceHarness } from './teraslice-harness.js';
 import { dockerUp } from './docker-helpers.js';
 import signale from './signale.js';
@@ -40,7 +40,7 @@ export default async () => {
     if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
         await downloadAssets();
         if (USE_HELMFILE) {
-            await helmfileSync();
+            await helmfileCommand('sync');
         } else {
             const k8s = new K8s(TERASLICE_PORT, KIND_CLUSTER);
             await k8s.deployK8sTeraslice(TEST_PLATFORM, true, false);

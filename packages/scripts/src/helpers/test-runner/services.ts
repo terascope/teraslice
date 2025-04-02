@@ -826,7 +826,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         return () => { };
     }
 
-    if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
+    if (options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2') {
         const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
         await kind.loadServiceImage(
             service,
@@ -864,8 +864,8 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     };
 }
 
-export async function loadImagesForHelm(options: TestOptions) {
-    const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
+export async function loadImagesForHelm(kindClusterName: string, skipImageDeletion: boolean) {
+    const kind = new Kind(config.K8S_VERSION, kindClusterName);
     const promiseArray: Promise<void>[] = [];
     config.ENV_SERVICES.forEach(async (service: Service) => {
         if (service === Service.Opensearch) {
@@ -873,28 +873,28 @@ export async function loadImagesForHelm(options: TestOptions) {
                 service,
                 config.OPENSEARCH_DOCKER_IMAGE,
                 config.OPENSEARCH_VERSION,
-                options.skipImageDeletion
+                skipImageDeletion
             ));
         } else if (service === Service.Elasticsearch) {
             promiseArray.push(kind.loadServiceImage(
                 service,
                 config.ELASTICSEARCH_DOCKER_IMAGE,
                 config.ELASTICSEARCH_VERSION,
-                options.skipImageDeletion
+                skipImageDeletion
             ));
         } else if (service === Service.Minio) {
             promiseArray.push(kind.loadServiceImage(
                 service,
                 config.MINIO_DOCKER_IMAGE,
                 config.MINIO_VERSION,
-                options.skipImageDeletion
+                skipImageDeletion
             ));
         } else if (service === Service.Kafka) {
             promiseArray.push(kind.loadServiceImage(
                 service,
                 config.KAFKA_DOCKER_IMAGE,
                 config.KAFKA_VERSION,
-                options.skipImageDeletion
+                skipImageDeletion
             ));
         }
     });

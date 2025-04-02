@@ -188,7 +188,7 @@ terafoundation:
 master:
     teraslice:
         kubernetes_namespace: ts-dev1
-        cluster_manager_type: kubernetesV2
+        cluster_manager_type: {{ .Values | get "teraslice.cluster_manager_type" "kubernetesV2" }}
         asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
         asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
         name: "ts-dev1"
@@ -198,7 +198,7 @@ master:
 worker:
     teraslice:
         kubernetes_namespace: ts-dev1
-        cluster_manager_type: kubernetesV2
+        cluster_manager_type: {{ .Values | get "teraslice.cluster_manager_type" "kubernetesV2" }}
         asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
         asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
         name: "ts-dev1"

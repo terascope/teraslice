@@ -1,7 +1,11 @@
+import os from 'node:os';
 import { execaCommandSync } from 'execa';
+import { isCI } from '@terascope/utils';
 import {
-    dockerTag, isKindInstalled, isKubectlInstalled,
-    k8sStartService, k8sStopService, getNodeVersionFromImage
+    dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
+    getNodeVersionFromImage, launchTerasliceWithHelmfile, helmfileDestroy,
+    determineSearchHost, deletePersistentVolumeClaim,
+    generateTestCaCerts, createMinioSecret
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
@@ -10,13 +14,17 @@ import { getDevDockerImage, getRootInfo } from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import * as config from '../config.js';
-import { ensureServices } from '../test-runner/services.js';
 import { K8s } from './k8s.js';
+import { loadImagesForHelm } from '../test-runner/services.js';
 
 const rootInfo = getRootInfo();
 const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
 
 export async function launchK8sEnv(options: K8sEnvOptions) {
+    if (process.env.TEST_ELASTICSEARCH && process.env.ELASTICSEARCH_VERSION?.charAt(0) === '6' && isArm()) {
+        signale.error('There is no compatible Elasticsearch6 image for arm based processors. Try a different elasticsearch version.')
+        process.exit(1);
+    }
     signale.pending('Starting k8s environment with the following options: ', options);
     const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
     // TODO: create a kind class
@@ -26,12 +34,20 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         process.exit(1);
     }
 
-    // TODO: Remove once all kubectl commands are converted to k8s client
-    const kubectlInstalled = await isKubectlInstalled();
-    if (!kubectlInstalled) {
-        signale.error('Please install kubectl before launching a k8s dev environment. https://kubernetes.io/docs/tasks/tools/');
+    const helmfileInstalled = await isHelmfileInstalled();
+    if (!helmfileInstalled && !isCI) {
+        signale.error('Please install helmfile before running k8s tests. https://helmfile.readthedocs.io/en/latest/#installation');
         process.exit(1);
     }
+
+    // TODO: Remove once all kubectl commands are converted to k8s client FIXME
+    // const kubectlInstalled = await isKubectlInstalled();
+    // if (!kubectlInstalled) {
+    //     signale.error('Please install kubectl before launching a k8s dev environment. https://kubernetes.io/docs/tasks/tools/');
+    //     process.exit(1);
+    // }
+
+    await generateTestCaCerts();
 
     signale.pending('Creating kind cluster');
     try {
@@ -92,32 +108,25 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             process.exit(1);
         }
     }
+    // console.log('@@@@ env: ', process.env);
 
+    signale.pending('Loading service images into kind cluster');
+    await loadImagesForHelm(options.kindClusterName, false);
+    signale.success('Service images loaded into kind cluster');
+
+    signale.pending('Loading teraslice image into kind cluster');
     await kind.loadTerasliceImage(e2eImage);
-
-    await ensureServices('k8s-env', {
-        ...options,
-        debug: false,
-        trace: false,
-        bail: false,
-        watch: false,
-        all: false,
-        keepOpen: false,
-        reportCoverage: false,
-        useExistingServices: false,
-        ignoreMount: false,
-        testPlatform: options.clusteringType,
-        skipImageDeletion: false,
-        useHelmfile: false
-    });
+    signale.success('Teraslice image loaded into kind cluster');
 
     try {
-        await k8s.deployK8sTeraslice(
-            options.clusteringType,
-            true,
-            options.dev,
-            options.assetStorage
-        );
+        signale.pending('Launching teraslice with helmfile');
+        // Created a minio secret if needed before helm sync
+        // but after the namespaces have been made
+        if (config.ENCRYPT_MINIO) {
+            await createMinioSecret(k8s);
+        }
+        await launchTerasliceWithHelmfile(options.dev);
+        signale.pending('Teraslice launched with helmfile');
     } catch (err) {
         signale.fatal('Error deploying Teraslice: ', err);
         if (!options.keepOpen) {
@@ -130,16 +139,31 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 }
 
 export async function rebuildTeraslice(options: K8sEnvOptions) {
-    const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
-    let k8s: K8s;
-    try {
-        k8s = new K8s(options.tsPort, options.kindClusterName);
-    } catch (err) {
-        signale.error('k8s-env --rebuild command failed. Do you have a running k8s cluster?');
+    signale.time('Rebuild teraslice');
+
+    const helmInstalled = await isHelmInstalled();
+    if (!helmInstalled && !isCI) {
+        signale.error('Please install Helm before running k8s tests.https://helm.sh/docs/intro/install');
         process.exit(1);
     }
 
-    signale.time('Rebuild teraslice');
+    const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
+
+    signale.pending('Deleting Teraslice deployment');
+    helmfileDestroy('teraslice');
+    signale.success('Teraslice deployment successfully deleted');
+
+    if (options.resetStore) {
+        try {
+            const searchHost = await determineSearchHost();
+            signale.pending(`Reset-store option detected - deleting the ${searchHost} service`);
+            await helmfileDestroy(searchHost);
+            await deletePersistentVolumeClaim(searchHost);
+            signale.success(`${searchHost} service successfully deleted`);
+        } catch (err) {
+            signale.error(`Failed to determine search host:\n${err}`);
+        }
+    }
 
     try {
         await buildAndTagTerasliceImage(options);
@@ -152,20 +176,16 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
     await kind.loadTerasliceImage(e2eImage);
     signale.success('Teraslice Docker image loaded');
 
-    if (options.resetStore) {
-        signale.pending('Resetting the elasticsearch service');
-        await k8sStopService('elasticsearch');
-        await k8sStartService('elasticsearch', config.ELASTICSEARCH_DOCKER_IMAGE, config.ELASTICSEARCH_VERSION, kind);
-        signale.success('elasticsearch service reset');
-    }
-
     try {
-        await k8s.deployK8sTeraslice(
-            options.clusteringType,
-            true,
-            options.dev,
-            options.assetStorage
-        );
+        signale.pending('Launching rebuilt teraslice with helmfile');
+        await launchTerasliceWithHelmfile(options.dev);
+        signale.pending('Rebuilt Teraslice launched with helmfile');
+        // await k8s.deployK8sTeraslice(
+        //     options.clusteringType,
+        //     true,
+        //     options.dev,
+        //     options.assetStorage
+        // );
     } catch (err) {
         signale.error('Error re-deploying Teraslice: ', err);
         process.exit(1);
@@ -199,4 +219,8 @@ async function buildAndTagTerasliceImage(options: K8sEnvOptions) {
     } catch (err) {
         throw new Error(`Failed to tag docker image ${runImage} as ${e2eImage}: ${err}`);
     }
+}
+
+function isArm() {
+    return os.machine() === 'arm' || os.machine() === 'arm64' || os.machine() === 'aarch64';
 }

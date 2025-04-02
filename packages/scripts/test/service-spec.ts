@@ -110,9 +110,8 @@ describe('services', () => {
         keepOpen: false,
         reportCoverage: false,
         useExistingServices: false,
-        encryptMinio: false,
         ignoreMount: false,
-        testPlatform: 'native',
+        clusteringType: 'native',
         kindClusterName: 'default',
         skipImageDeletion: false,
         useHelmfile: false

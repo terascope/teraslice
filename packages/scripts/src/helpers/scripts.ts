@@ -21,8 +21,9 @@ import signale from './signale.js';
 import * as config from './config.js';
 import { getE2EDir, getE2eK8sDir } from '../helpers/packages.js';
 import { YamlDeploymentResource, YamlServiceResource } from './k8s-env/interfaces.js';
-import { Kind } from './kind.js';
+import { getVolumesFromDockerfile, Kind } from './kind.js';
 import { ENV_SERVICES } from './config.js';
+import type { K8s } from './k8s-env/k8s.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -801,7 +802,17 @@ export async function logTCPPorts() {
     }
 }
 
-export async function helmfileDelete(selector: string) {
+export async function deletePersistentVolumeClaim(searchHost: string) {
+    try {
+        const label = searchHost.includes('opensearch') ? `app.kubernetes.io/instance=${searchHost}` : `app=${searchHost}-master`;
+        const subprocess = await execaCommand(`kubectl delete -n services-dev1 pvc -l ${label}`);
+        logger.debug(subprocess.stdout);
+    } catch (err) {
+        throw new TSError(`Failed to delete persistent volume claim:\n${err}`);
+    }
+}
+
+export async function helmfileDestroy(selector: string) {
     const e2eDir = getE2EDir();
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
@@ -809,57 +820,62 @@ export async function helmfileDelete(selector: string) {
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
 
     try {
-        const subprocess = await execaCommand(`helmfile delete -f ${helmfilePath} --selector app=${selector}`);
-        logger.debug('helmfile delete: ', subprocess.stdout);
+        const subprocess = await execaCommand(`helmfile destroy -f ${helmfilePath} --selector app=${selector}`);
+        logger.debug(`helmfile delete:\n${subprocess.stdout}`);
     } catch (err) {
         logger.info(err);
     }
 }
 
-export async function helmfileDiff() {
+export async function helmfileCommand(command: string, devMode = false) {
     const e2eDir = getE2EDir();
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const { valuesPath, valuesDir } = generateHelmValuesFromServices();
+    const { valuesPath, valuesDir } = generateHelmValuesFromServices(devMode);
 
     let subprocess;
     try {
-        subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} diff -f ${helmfilePath} --suppress-secrets`);
+        subprocess = await execaCommand(`helmfile --debug --state-values-file ${valuesPath} ${command} -f ${helmfilePath}`);
     } catch (err) {
-        throw new TSError(`Helmfile diff command failed:\n${err}`);
+        throw new TSError(`Helmfile ${command} command failed:\n${err}`);
     } finally {
         fs.rmSync(valuesDir, { recursive: true, force: true });
     }
 
-    logger.debug('helmfile diff: ', subprocess.stdout);
+    logger.debug(`helmfile ${command}:\n${subprocess.stdout}`);
 }
 
-export async function helmfileSync() {
-    const e2eDir = getE2EDir();
-    if (!e2eDir) {
-        throw new Error('Missing e2e test directory');
+export async function launchTerasliceWithHelmfile(devMode = false) {
+    await helmfileCommand('diff', devMode);
+    await helmfileCommand('sync', devMode);
+    if (ENV_SERVICES.includes(Service.Kafka)) {
+        await waitForKafkaRunning('kafka'); // Fixme: does this belong here?
     }
-    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const { valuesPath, valuesDir } = generateHelmValuesFromServices();
-
-    let subprocess;
-    try {
-        subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} sync -f ${helmfilePath}`);
-    } catch (err) {
-        throw new TSError(`Helmfile sync command failed:\n${err}`);
-    } finally {
-        fs.rmSync(valuesDir, { recursive: true, force: true });
-    }
-
-    logger.debug('helmfile sync: ', subprocess.stdout);
 }
 
-export async function launchE2EWithHelmfile() {
-    await helmfileDiff();
-    await helmfileSync();
-    await waitForKafkaRunning('kafka');
+export async function determineSearchHost() {
+    interface ServiceObj {
+        name: string;
+        namespace: string;
+        revision: string;
+        updated: string;
+        status: string;
+        deployed: string;
+        chart: string;
+        app_version: string;
+    }
+
+    const possible = ['elasticsearch6', 'elasticsearch7', 'opensearch1', 'opensearch2'];
+    const subprocess = await execaCommand('helm list -n services-dev1 -o json');
+    logger.debug(`helmfile list:\n${subprocess.stdout}`);
+    const serviceList: Array<ServiceObj> = JSON.parse(subprocess.stdout);
+    const filtered = serviceList.filter((svc: ServiceObj) => possible.includes(svc.name));
+    if (filtered.length > 1) {
+        throw new TSError('Multiple Possible Search Hosts Detected. Cannot reset store.');
+    }
+    return filtered[0].name;
 }
 
 // Helper function for reading the contents of a file in the e2e/test/certs
@@ -928,7 +944,7 @@ function getAdminDnFromCert(): string {
     return `${organizationalUnit},${organization}`;
 }
 
-/**
+/** // Fixme rewrite this
  * Generates a temporary `values.yaml` file based on the test suite configuration.
  * This file is used to configure Helmfile when launching the test environment.
  *
@@ -943,7 +959,9 @@ function getAdminDnFromCert(): string {
  * - `valuesPath` - Path to the generated `values.yaml` file.
  * - `valuesDir` - Path to the temporary directory containing the file.
  */
-function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: string } {
+function generateHelmValuesFromServices(
+    devMode: boolean
+): { valuesPath: string; valuesDir: string } {
     // Grab default values from the e2e/helm/values.yaml
     const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
     const values = parseDocument(fs.readFileSync(e2eHelmfileValuesPath, 'utf8'));
@@ -962,6 +980,10 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
 
     let stateCluster: string | undefined;
     let caCert: string | undefined;
+
+    // disable chart's OS2 default
+    values.setIn(['opensearch2', 'enabled'], false);
+
     // Iterate over each service we want to start and enable them in the
     // helmfile.
     ENV_SERVICES.forEach((service: Service) => {
@@ -969,12 +991,18 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
         // in the "values.yaml"
         let serviceString: string = service;
         const version = versionMap[service];
-
+        // console.log('@@@@ service: ', serviceString);
         if (service === Service.Opensearch) {
             serviceString += config.OPENSEARCH_VERSION.charAt(0);
+            // This assumes there is only one search service enabled. If both ES and OS services
+            // are present the state cluster will be set to elasticsearch below.
             stateCluster = serviceString;
 
+            // console.log('@@@@ config.ENCRYPT_OPENSEARCH: ', config.ENCRYPT_OPENSEARCH);
+
             if (config.ENCRYPT_OPENSEARCH) {
+                // console.log('@@@@ encrypted opensearch');
+
                 if (!caCert) {
                     caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
                 }
@@ -985,11 +1013,16 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
             }
         } else if (service === Service.Elasticsearch) {
             serviceString += config.ELASTICSEARCH_VERSION.charAt(0);
+            // This assumes there is only one search service enabled. If both ES and OS services
+            // are present the state cluster will be set to elasticsearch here.
             stateCluster = serviceString;
         }
 
         if (service === Service.Kafka) {
+            // console.log('@@@@ config.ENCRYPT_KAFKA: ', config.ENCRYPT_KAFKA);
             if (config.ENCRYPT_KAFKA) {
+                // console.log('@@@@ encrypted kafka');
+
                 if (!caCert) {
                     caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
                 }
@@ -1013,20 +1046,51 @@ function generateHelmValuesFromServices(): { valuesPath: string; valuesDir: stri
         values.setIn([serviceString, 'version'], version);
     });
 
-    if (stateCluster) {
-        values.setIn(['teraslice', 'stateCluster'], stateCluster);
+    // If no search service specified set to OS2
+    if (!stateCluster) {
+        stateCluster = 'opensearch2';
+        values.setIn(['opensearch2', 'enabled'], true);
     }
+    values.setIn(['teraslice', 'stateCluster'], stateCluster);
 
     values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
     values.setIn(['teraslice', 'asset_storage_connection_type'], config.ASSET_STORAGE_CONNECTION_TYPE);
     values.setIn(['teraslice', 'asset_storage_connection'], config.ASSET_STORAGE_CONNECTION);
+    values.setIn(['teraslice', 'cluster_manager_type'], config.CLUSTERING_TYPE);
+
+    if (devMode) {
+        const dockerfileMounts = getVolumesFromDockerfile(true, logger);
+        values.setIn(['teraslice', 'extraVolumeMounts'], dockerfileMounts.volumeMounts);
+        values.setIn(['teraslice', 'extraVolumes'], dockerfileMounts.volumes);
+
+        /// Pass in env so master passes volumes to ex's and workers
+        values.setIn(['teraslice', 'env'], [{
+            name: 'MOUNT_LOCAL_TERASLICE',
+            value: JSON.stringify(dockerfileMounts)
+        }]);
+        // if (masterDeployment.spec?.template.spec?.containers[0].env) {
+        //     masterDeployment.spec.template.spec.containers[0].env.push(
+        //         {
+        //             name: 'MOUNT_LOCAL_TERASLICE',
+        //             value: JSON.stringify(dockerfileMounts)
+        //         }
+        //     );
+        // } else if (masterDeployment.spec?.template.spec?.containers[0]) {
+        //     masterDeployment.spec.template.spec.containers[0].env = [
+        //         {
+        //             name: 'MOUNT_LOCAL_TERASLICE',
+        //             value: JSON.stringify(dockerfileMounts)
+        //         }
+        //     ];
+        // }
+    }
     logger.debug('helmfile command values: ', JSON.stringify(values));
 
     // Write the values to a temporary file
     const valuesDir = fs.mkdtempSync(path.join(os.tmpdir(), 'generated-yaml'));
     const valuesPath = path.join(valuesDir, 'values.yaml');
     fs.writeFileSync(valuesPath, values.toString(), 'utf8');
-
+    // logger.debug('@@@@ valuesDir: ', valuesDir);
     return { valuesPath, valuesDir };
 }
 
@@ -1236,5 +1300,122 @@ export async function updateHelmChart(newChartVersion: string | null): Promise<v
         fs.writeFileSync(valuesYamlPath, valuesDoc.toString(), 'utf8');
     } catch (err) {
         throw new TSError(`Unable to read or write Helm chart YAML files:\n${err}`);
+    }
+}
+
+/**
+ * Generates CA certificates for encrypted services in the test environment if needed
+ *
+ * @throws {Error} If certificate generation fails.
+ */
+export async function generateTestCaCerts(): Promise<void> {
+    const encryptedServices: string[] = [];
+    const hostNames: string[] = ['localhost'];
+
+    if (config.ENCRYPT_OPENSEARCH) {
+        encryptedServices.push('opensearch');
+        hostNames.push(
+            'opensearch2.services-dev1',
+            'opensearch',
+            config.OPENSEARCH_HOSTNAME
+        );
+    }
+
+    if (config.ENCRYPT_MINIO) {
+        encryptedServices.push('minio');
+        hostNames.push(
+            'minio.services-dev1',
+            'minio',
+            config.MINIO_HOSTNAME
+        );
+    }
+
+    if (config.ENCRYPT_KAFKA) {
+        encryptedServices.push('kafka');
+        hostNames.push(
+            'kafka-headless.services-dev1.svc.cluster.local',
+            'kafka-headless.services-dev1',
+            'kafka-headless',
+            'kafka',
+            config.KAFKA_HOSTNAME
+        );
+    }
+
+    if (encryptedServices.length > 0) {
+        // Formats the encrypted service list to print with the user feedback
+        const serviceList = encryptedServices.length === 1
+            ? encryptedServices[0]
+            : encryptedServices.length === 2
+                ? encryptedServices.join(' and ')
+                : `${encryptedServices.slice(0, -1).join(', ')} and ${encryptedServices[encryptedServices.length - 1]}`;
+
+        try {
+            signale.pending(`Generating new ca-certificates for ${serviceList}...`);
+            const scriptLocation = path.join(getE2EDir() as string, '../scripts/generate-cert.sh');
+
+            // create a format array for each service
+            const formatCommands: string[] = [];
+            encryptedServices.forEach((service) => {
+                formatCommands.push('--format');
+                formatCommands.push(service);
+            });
+
+            signale.debug('Generate certs command: ', `${scriptLocation} ${formatCommands.concat(hostNames)}`);
+            await execa(scriptLocation, formatCommands.concat(hostNames));
+        } catch (err) {
+            throw new Error(`Error generating ca-certificates for ${serviceList}: ${err.message}`);
+        }
+    }
+}
+
+/**
+ * Generates a secret that contains the minio certs and keys
+ * used by the minio helm chart when enabling tls.
+ * @param k8sClient The Kubernetes k8s client
+ */
+export async function createMinioSecret(k8sClient: K8s): Promise<void> {
+    // Grab all needed cert file paths generated by the generateTestCaCerts() function
+    const e2eDir = getE2EDir() as string;
+    const certsDir = path.join(e2eDir, './test/certs/');
+    const privateKeypath = path.join(certsDir, 'private.key');
+    const publicCertPath = path.join(certsDir, 'public.crt');
+    const rootCaPath = path.join(certsDir, '/CAs/rootCA.pem');
+
+    // ensure all necessary files exist
+    if (fse.existsSync(privateKeypath)
+        && fse.existsSync(publicCertPath)
+        && fse.existsSync(rootCaPath)
+    ) {
+        try {
+            // Read in all certs as strings
+            const privateKey = fse.readFileSync(privateKeypath, 'utf-8');
+            const publicCert = fse.readFileSync(publicCertPath, 'utf-8');
+            const rootCA = fse.readFileSync(rootCaPath, 'utf-8');
+
+            // Create a k8s V1Secret object that is used by the k8s client
+            const minioSecret = {
+                metadata: {
+                    name: 'tls-ssl-minio'
+                },
+                stringData: {
+                    'private.key': privateKey,
+                    'public.crt': publicCert,
+                    'rootCA.pem': rootCA
+                },
+                type: 'Opaque'
+            };
+
+            // create k8s client and deploy secret
+            await k8sClient.createKubernetesSecret('services-dev1', minioSecret);
+        } catch (err) {
+            throw new TSError(`Unable to create minio secret for certificates.\n ${err}`);
+        }
+    } else {
+        throw new Error(
+            'Unable to find all needed minio certificates. One or more paths don\'t exist:\n'
+            + `- ${privateKeypath}\n`
+            + `- ${publicCertPath}\n`
+            + `- ${rootCaPath}\n`
+        );
     }
 }
