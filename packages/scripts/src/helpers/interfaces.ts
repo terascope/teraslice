@@ -184,3 +184,14 @@ export interface OCIimageConfig {
         Labels: Record<string, string>;
     };
 }
+
+export interface ServiceObj {
+    name: string;
+    namespace: string;
+    revision: string;
+    updated: string;
+    status: string;
+    deployed: string;
+    chart: string;
+    app_version: string;
+}

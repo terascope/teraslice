@@ -17,7 +17,6 @@ type Options = {
     'keep-open': boolean;
     trace: boolean;
     'report-coverage': boolean;
-    'encrypt-minio': boolean;
     'use-existing-services': boolean;
     packages?: PackageInfo[];
     'ignore-mount': boolean;
@@ -87,11 +86,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: config.USE_EXISTING_SERVICES,
             })
-            .option('encrypt-minio', {
-                description: 'Add TLS encryption to minio service',
-                type: 'boolean',
-                default: config.ENCRYPT_MINIO,
-            })
             .option('ignore-mount', {
                 description: 'If we should ignore configured mount',
                 type: 'boolean',
@@ -133,7 +127,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const keepOpen = hoistJestArg(argv, 'keep-open', 'boolean');
         const reportCoverage = hoistJestArg(argv, 'report-coverage', 'boolean');
         const useExistingServices = hoistJestArg(argv, 'use-existing-services', 'boolean');
-        const encryptMinio = hoistJestArg(argv, 'encrypt-minio', 'boolean');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
         const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native' | 'kubernetes' | 'kubernetesV2';
@@ -154,12 +147,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             keepOpen,
             forceSuite,
             useExistingServices,
-            encryptMinio,
             all: !argv.packages || !argv.packages.length,
             reportCoverage,
             jestArgs,
             ignoreMount,
-            testPlatform,
+            clusteringType: testPlatform,
             kindClusterName,
             skipImageDeletion,
             useHelmfile

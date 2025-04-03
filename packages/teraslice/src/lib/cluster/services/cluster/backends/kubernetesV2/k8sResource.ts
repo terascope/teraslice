@@ -48,7 +48,7 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
     }
 
     _mountLocalTeraslice(resource: TSJob | TSDeployment): void {
-        const devMounts = JSON.parse(process.env.MOUNT_LOCAL_TERASLICE as string);
+        const devMounts = JSON.parse(Buffer.from(process.env.MOUNT_LOCAL_TERASLICE as string, 'base64').toString('utf-8'));
         resource.spec.template.spec.containers[0].volumeMounts.push(...devMounts.volumeMounts);
         resource.spec.template.spec.volumes.push(...devMounts.volumes);
 

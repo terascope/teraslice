@@ -18,11 +18,6 @@ const cmd: CommandModule = {
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --rebuild --reset-store', 'Rebuild and also clear the elasticsearch store.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --rebuild --skip-build', 'Restart teraslice without rebuilding docker image.')
             .example('$0 k8s-env --rebuild', 'Rebuild teraslice and redeploy to k8s cluster. ES store data is retained.')
-            .option('encrypt-minio', {
-                description: 'Add TLS encryption to minio service',
-                type: 'boolean',
-                default: config.ENCRYPT_MINIO,
-            })
             .option('skip-build', {
                 description: 'Skip building the teraslice docker image',
                 type: 'boolean',
@@ -53,12 +48,6 @@ const cmd: CommandModule = {
                 type: 'string',
                 default: config.TERASLICE_IMAGE
             })
-            .option('asset-storage', {
-                description: 'Choose what backend service assets are stored in.',
-                type: 'string',
-                default: 'elasticsearch-next',
-                choices: ['elasticsearch-next', 's3'],
-            })
             .option('clustering-type', {
                 description: 'Clustering version teraslice will use',
                 type: 'string',
@@ -75,8 +64,8 @@ const cmd: CommandModule = {
                 type: 'boolean',
                 default: false
             })
-            .check((args) => {
-                if (args['asset-storage'] === 's3' && process.env.TEST_MINIO !== 'true') {
+            .check(() => {
+                if (process.env.ASSET_STORAGE_CONNECTION_TYPE === 's3' && process.env.TEST_MINIO !== 'true') {
                     throw new Error('You chose "s3" as an asset storage but don\'t have the minio service enabled.\n'
                         + 'Try either using "yarn k8s:minio" or setting the environment variable TEST_MINIO to true\n');
                 }
@@ -85,12 +74,10 @@ const cmd: CommandModule = {
     },
     handler(argv) {
         const k8sOptions: K8sEnvOptions = {
-            encryptMinio: argv['encrypt-minio'] as boolean,
             skipBuild: Boolean(argv['skip-build']),
             tsPort: argv['ts-port'] as string,
             kindClusterName: argv['cluster-name'] as string,
             terasliceImage: argv['teraslice-image'] as string,
-            assetStorage: argv['asset-storage'] as string,
             dev: Boolean(argv.dev),
             clusteringType: argv['clustering-type'] as 'kubernetes' | 'kubernetesV2',
             keepOpen: Boolean(argv['keep-open']),

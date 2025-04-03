@@ -15,13 +15,13 @@ import { TestOptions } from './interfaces.js';
 import {
     runJest, dockerTag, isKindInstalled, isKubectlInstalled,
     loadThenDeleteImageFromCache, deleteDockerImageCache,
-    isHelmInstalled, isHelmfileInstalled, launchE2EWithHelmfile
+    isHelmInstalled, isHelmfileInstalled, launchTerasliceWithHelmfile,
+    generateTestCaCerts, createMinioSecret
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
     getArgs, filterBySuite,
-    logE2E, getEnv, groupBySuite,
-    generateTestCaCerts, createMinioSecret
+    logE2E, getEnv, groupBySuite
 } from './utils.js';
 import signale from '../signale.js';
 import { getE2EDir, readPackageInfo, listPackages } from '../packages.js';
@@ -202,7 +202,7 @@ async function runE2ETest(
     // Dynamically generate any needed certs before any tests run
     await generateTestCaCerts();
 
-    if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
+    if (options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2') {
         try {
             const kindInstalled = await isKindInstalled();
             if (!kindInstalled && !isCI) {
@@ -252,7 +252,7 @@ async function runE2ETest(
 
     if (isCI) {
         // load service if in native. In k8s services will be loaded directly to kind
-        if (options.testPlatform === 'native') {
+        if (options.clusteringType === 'native') {
             await loadOrPullServiceImages(suite, options.skipImageDeletion);
         }
 
@@ -278,12 +278,12 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
-    if (kind && (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2')) {
+    if (kind && (options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2')) {
         try {
             await kind.loadTerasliceImage(e2eImage);
             if (options.useHelmfile) {
                 const timeLabel = 'helmfile deployment';
-                await loadImagesForHelm(options);
+                await loadImagesForHelm(options.kindClusterName, options.skipImageDeletion);
                 signale.time(timeLabel);
 
                 // Created a minio secret if needed before helm sync
@@ -293,7 +293,7 @@ async function runE2ETest(
                     await createMinioSecret(k8s);
                 }
 
-                await launchE2EWithHelmfile();
+                await launchTerasliceWithHelmfile(options.clusteringType);
                 signale.timeEnd(timeLabel);
             }
         } catch (err) {
@@ -355,7 +355,7 @@ async function runE2ETest(
         }
     }
 
-    if ((options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2')
+    if ((options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2')
         && !options.keepOpen && kind) {
         await kind.destroyCluster();
     }

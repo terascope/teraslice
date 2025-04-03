@@ -11,10 +11,9 @@ export type TestOptions = {
     forceSuite?: string;
     suite?: string[];
     useExistingServices: boolean;
-    encryptMinio: boolean;
     jestArgs?: string[];
     ignoreMount: boolean;
-    testPlatform: 'native' | 'kubernetes' | 'kubernetesV2';
+    clusteringType: 'native' | 'kubernetes' | 'kubernetesV2';
     kindClusterName: string;
     skipImageDeletion: boolean;
     useHelmfile: boolean;

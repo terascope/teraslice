@@ -114,3 +114,6 @@ teraslice:
   stateCluster: opensearch2
   asset_storage_connection_type: elasticsearch-next
   asset_storage_connection: default
+  env: {}
+  extraVolumes: []
+  extraVolumeMounts: []
