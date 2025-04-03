@@ -11,7 +11,7 @@ import { parseDocument } from 'yaml';
 import type { V1Deployment, V1Service } from '@kubernetes/client-node';
 import {
     debugLogger, isString, get,
-    pWhile, pDelay, TSError
+    pWhile, pDelay, TSError,
 } from '@terascope/utils';
 import {
     TSCommands, PackageInfo, Service, OCIImageManifest,
@@ -24,6 +24,8 @@ import { getE2EDir, getE2eK8sDir } from '../helpers/packages.js';
 import { getVolumesFromDockerfile, Kind } from './kind.js';
 import { ENV_SERVICES } from './config.js';
 import type { K8s } from './k8s-env/k8s.js';
+import { K8sEnvOptions } from './k8s-env/interfaces.js';
+import { TestOptions } from './test-runner/interfaces.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -829,17 +831,17 @@ export async function helmfileDestroy(selector: string) {
     }
 }
 
-export async function helmfileCommand(command: string, devMode = false) {
+export async function helmfileCommand(command: string, options: K8sEnvOptions | TestOptions) {
     const e2eDir = getE2EDir();
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const { valuesPath, valuesDir } = generateHelmValuesFromServices(devMode);
+    const { valuesPath, valuesDir } = generateHelmValuesFromServices(options);
 
     let subprocess;
     try {
-        subprocess = await execaCommand(`helmfile --debug --state-values-file ${valuesPath} ${command} -f ${helmfilePath}`);
+        subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} ${command} -f ${helmfilePath}`);
     } catch (err) {
         throw new TSError(`Helmfile ${command} command failed:\n${err}`);
     } finally {
@@ -849,9 +851,9 @@ export async function helmfileCommand(command: string, devMode = false) {
     logger.debug(`helmfile ${command}:\n${subprocess.stdout}`);
 }
 
-export async function launchTerasliceWithHelmfile(devMode = false) {
-    await helmfileCommand('diff', devMode);
-    await helmfileCommand('sync', devMode);
+export async function launchTerasliceWithHelmfile(options: K8sEnvOptions | TestOptions) {
+    await helmfileCommand('diff', options);
+    await helmfileCommand('sync', options);
     if (ENV_SERVICES.includes(Service.Kafka)) {
         await waitForKafkaRunning('kafka');
     }
@@ -947,12 +949,13 @@ function getAdminDnFromCert(): string {
  * - Adds extraVolumes, extraVolumeMounts and env values if running in dev mode.
  * - Generates a temporary directory to store the modified `values.yaml`.
  *
+ * @param { K8sEnvOptions | TestOptions } options - list of options specified by the command
  * @returns An object containing:
  * - `valuesPath` - Path to the generated `values.yaml` file.
  * - `valuesDir` - Path to the temporary directory containing the file.
  */
 function generateHelmValuesFromServices(
-    devMode: boolean
+    options: K8sEnvOptions | TestOptions
 ): { valuesPath: string; valuesDir: string } {
     // Grab default values from the e2e/helm/values.yaml
     const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
@@ -1031,7 +1034,7 @@ function generateHelmValuesFromServices(
         values.setIn([serviceString, 'version'], version);
     });
 
-    // If no search service specified set to OS2
+    // If no search service specified then default to OS2
     if (!stateCluster) {
         stateCluster = 'opensearch2';
         values.setIn(['opensearch2', 'enabled'], true);
@@ -1041,9 +1044,9 @@ function generateHelmValuesFromServices(
     values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
     values.setIn(['teraslice', 'asset_storage_connection_type'], config.ASSET_STORAGE_CONNECTION_TYPE);
     values.setIn(['teraslice', 'asset_storage_connection'], config.ASSET_STORAGE_CONNECTION);
-    values.setIn(['teraslice', 'cluster_manager_type'], config.CLUSTERING_TYPE);
+    values.setIn(['teraslice', 'cluster_manager_type'], options.clusteringType);
 
-    if (devMode) {
+    if ('dev' in options && options.dev === true) {
         const dockerfileMounts = getVolumesFromDockerfile(true, logger);
         values.setIn(['teraslice', 'extraVolumeMounts'], dockerfileMounts.volumeMounts);
         values.setIn(['teraslice', 'extraVolumes'], dockerfileMounts.volumes);
@@ -1373,7 +1376,7 @@ export async function createMinioSecret(k8sClient: K8s): Promise<void> {
                 type: 'Opaque'
             };
 
-            // create k8s client and deploy secret
+            // use k8s client to deploy secret
             await k8sClient.createKubernetesSecret('services-dev1', minioSecret);
         } catch (err) {
             throw new TSError(`Unable to create minio secret for certificates.\n ${err}`);

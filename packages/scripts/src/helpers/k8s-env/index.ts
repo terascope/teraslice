@@ -124,7 +124,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         if (config.ENCRYPT_MINIO) {
             await createMinioSecret(k8s);
         }
-        await launchTerasliceWithHelmfile(options.dev);
+        await launchTerasliceWithHelmfile(options);
         signale.pending('Teraslice launched with helmfile');
     } catch (err) {
         signale.fatal('Error deploying Teraslice: ', err);
@@ -142,7 +142,7 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
 
     const helmInstalled = await isHelmInstalled();
     if (!helmInstalled && !isCI) {
-        signale.error('Please install Helm before running k8s tests.https://helm.sh/docs/intro/install');
+        signale.error('Please install Helm before running k8s tests. https://helm.sh/docs/intro/install');
         process.exit(1);
     }
 
@@ -160,7 +160,7 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
             await deletePersistentVolumeClaim(searchHost);
             signale.success(`${searchHost} service successfully deleted`);
         } catch (err) {
-            signale.error(`Failed to determine search host:\n${err}`);
+            signale.error(`Failed to reset store:\n${err}`);
         }
     }
 
@@ -177,14 +177,8 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
 
     try {
         signale.pending('Launching rebuilt teraslice with helmfile');
-        await launchTerasliceWithHelmfile(options.dev);
+        await launchTerasliceWithHelmfile(options);
         signale.pending('Rebuilt Teraslice launched with helmfile');
-        // await k8s.deployK8sTeraslice(
-        //     options.clusteringType,
-        //     true,
-        //     options.dev,
-        //     options.assetStorage
-        // );
     } catch (err) {
         signale.error('Error re-deploying Teraslice: ', err);
         process.exit(1);

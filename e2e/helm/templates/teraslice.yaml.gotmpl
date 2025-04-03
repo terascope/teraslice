@@ -232,3 +232,4 @@ extraVolumeMounts: |
     }}
     {{- $mergedVolumeMounts := concat $autoloadVolumeMount $customVolumeMounts }}
     {{- toYaml $mergedVolumeMounts | nindent 4 }}
+    
