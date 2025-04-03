@@ -8,19 +8,19 @@ import fse from 'fs-extra';
 import yaml from 'js-yaml';
 import got from 'got';
 import { parseDocument } from 'yaml';
+import type { V1Deployment, V1Service } from '@kubernetes/client-node';
 import {
     debugLogger, isString, get,
     pWhile, pDelay, TSError
 } from '@terascope/utils';
 import {
-    TSCommands, PackageInfo, Service,
-    OCIImageManifest, OCIimageConfig, OCIindexManifest
+    TSCommands, PackageInfo, Service, OCIImageManifest,
+    OCIimageConfig, OCIindexManifest, ServiceObj
 } from './interfaces.js';
 import { getRootDir, getRootInfo } from './misc.js';
 import signale from './signale.js';
 import * as config from './config.js';
 import { getE2EDir, getE2eK8sDir } from '../helpers/packages.js';
-import { YamlDeploymentResource, YamlServiceResource } from './k8s-env/interfaces.js';
 import { getVolumesFromDockerfile, Kind } from './kind.js';
 import { ENV_SERVICES } from './config.js';
 import type { K8s } from './k8s-env/k8s.js';
@@ -693,9 +693,11 @@ export async function k8sStartService(
     const imageString = `${image}:${version}`;
 
     try {
-        const jsDoc = yaml.loadAll(fs.readFileSync(`${path.join(e2eK8sDir, yamlFile)}`, 'utf8')) as Array<YamlDeploymentResource | YamlServiceResource>;
-        const deployment = jsDoc[0] as YamlDeploymentResource;
-        deployment.spec.template.spec.containers[0].image = imageString;
+        const jsDoc = yaml.loadAll(fs.readFileSync(`${path.join(e2eK8sDir, yamlFile)}`, 'utf8')) as Array<V1Deployment | V1Service>;
+        const deployment = jsDoc[0] as V1Deployment;
+        if (deployment.spec && deployment.spec.template.spec) {
+            deployment.spec.template.spec.containers[0].image = imageString;
+        }
         const updatedYaml = jsDoc.map((doc) => yaml.dump(doc)).join('---\n');
         const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
         fs.writeFileSync(path.join(tempDir, `${serviceName}Deployment.yaml`), updatedYaml);
@@ -806,7 +808,7 @@ export async function deletePersistentVolumeClaim(searchHost: string) {
     try {
         const label = searchHost.includes('opensearch') ? `app.kubernetes.io/instance=${searchHost}` : `app=${searchHost}-master`;
         const subprocess = await execaCommand(`kubectl delete -n services-dev1 pvc -l ${label}`);
-        logger.debug(subprocess.stdout);
+        logger.debug(`kubectl delete pvc: ${subprocess.stdout}`);
     } catch (err) {
         throw new TSError(`Failed to delete persistent volume claim:\n${err}`);
     }
@@ -851,22 +853,11 @@ export async function launchTerasliceWithHelmfile(devMode = false) {
     await helmfileCommand('diff', devMode);
     await helmfileCommand('sync', devMode);
     if (ENV_SERVICES.includes(Service.Kafka)) {
-        await waitForKafkaRunning('kafka'); // Fixme: does this belong here?
+        await waitForKafkaRunning('kafka');
     }
 }
 
 export async function determineSearchHost() {
-    interface ServiceObj {
-        name: string;
-        namespace: string;
-        revision: string;
-        updated: string;
-        status: string;
-        deployed: string;
-        chart: string;
-        app_version: string;
-    }
-
     const possible = ['elasticsearch6', 'elasticsearch7', 'opensearch1', 'opensearch2'];
     const subprocess = await execaCommand('helm list -n services-dev1 -o json');
     logger.debug(`helmfile list:\n${subprocess.stdout}`);
@@ -944,15 +935,16 @@ function getAdminDnFromCert(): string {
     return `${organizationalUnit},${organization}`;
 }
 
-/** // Fixme rewrite this
- * Generates a temporary `values.yaml` file based on the test suite configuration.
- * This file is used to configure Helmfile when launching the test environment.
+/**
+ * Generates a temporary `values.yaml` file based on the ts-scripts command configuration.
+ * This file is used to configure Helmfile when launching the k8sEnv or test environment.
  *
  * The function:
  * - Loads a base `values.yaml` template from `e2e/helm/values.yaml`.
  * - Enables services specified in `ENV_SERVICES`, setting their versions when needed
  * - Configures OpenSearch and Elasticsearch to align with versioning conventions.
- * - Handles OpenSearch and Kafka SSL settings if encryption is enabled.
+ * - Handles OpenSearch, Minio and Kafka SSL settings if encryption is enabled.
+ * - Adds extraVolumes, extraVolumeMounts and env values if running in dev mode.
  * - Generates a temporary directory to store the modified `values.yaml`.
  *
  * @returns An object containing:
@@ -991,7 +983,7 @@ function generateHelmValuesFromServices(
         // in the "values.yaml"
         let serviceString: string = service;
         const version = versionMap[service];
-        // console.log('@@@@ service: ', serviceString);
+
         if (service === Service.Opensearch) {
             serviceString += config.OPENSEARCH_VERSION.charAt(0);
             // This assumes there is only one search service enabled. If both ES and OS services

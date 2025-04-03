@@ -3,8 +3,8 @@ import { execaCommandSync } from 'execa';
 import { isCI } from '@terascope/utils';
 import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
-    getNodeVersionFromImage, launchTerasliceWithHelmfile, helmfileDestroy,
-    determineSearchHost, deletePersistentVolumeClaim,
+    isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
+    helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
     generateTestCaCerts, createMinioSecret
 } from '../scripts.js';
 import { Kind } from '../kind.js';
@@ -22,12 +22,12 @@ const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
 
 export async function launchK8sEnv(options: K8sEnvOptions) {
     if (process.env.TEST_ELASTICSEARCH && process.env.ELASTICSEARCH_VERSION?.charAt(0) === '6' && isArm()) {
-        signale.error('There is no compatible Elasticsearch6 image for arm based processors. Try a different elasticsearch version.')
+        signale.error('There is no compatible Elasticsearch6 image for arm based processors. Try a different elasticsearch version.');
         process.exit(1);
     }
     signale.pending('Starting k8s environment with the following options: ', options);
     const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
-    // TODO: create a kind class
+
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
         signale.error('Please install Kind before launching a k8s dev environment. https://kind.sigs.k8s.io/docs/user/quick-start');
@@ -40,12 +40,12 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         process.exit(1);
     }
 
-    // TODO: Remove once all kubectl commands are converted to k8s client FIXME
-    // const kubectlInstalled = await isKubectlInstalled();
-    // if (!kubectlInstalled) {
-    //     signale.error('Please install kubectl before launching a k8s dev environment. https://kubernetes.io/docs/tasks/tools/');
-    //     process.exit(1);
-    // }
+    // TODO: Remove once all kubectl commands are converted to k8s client
+    const kubectlInstalled = await isKubectlInstalled();
+    if (!kubectlInstalled) {
+        signale.error('Please install kubectl before launching a k8s dev environment. https://kubernetes.io/docs/tasks/tools/');
+        process.exit(1);
+    }
 
     await generateTestCaCerts();
 
@@ -119,7 +119,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 
     try {
         signale.pending('Launching teraslice with helmfile');
-        // Created a minio secret if needed before helm sync
+        // Create a minio secret if needed before helm sync
         // but after the namespaces have been made
         if (config.ENCRYPT_MINIO) {
             await createMinioSecret(k8s);
