@@ -246,7 +246,9 @@ export type FlattenProperties = Record<string, [type: ESFieldType, extra?: strin
 export function getFlattenedNamesAndTypes(config: ESTypeMapping): FlattenProperties {
     const output: FlattenProperties = Object.create(null);
     for (const field of Object.keys(config).sort()) {
-        const { type: _type, properties, ...extra } = config[field as keyof ESTypeMapping];
+        const {
+            type: _type, properties, ...extra
+        } = config[field as keyof ESTypeMapping] as ts.AnyObject;
 
         // if there is no type, elasticsearch returns "undefined" for the type
         // but this will cause conflicts, we should set it to "object"
