@@ -293,7 +293,7 @@ async function runE2ETest(
                     await createMinioSecret(k8s);
                 }
 
-                await launchTerasliceWithHelmfile(options);
+                await launchTerasliceWithHelmfile(options.clusteringType);
                 signale.timeEnd(timeLabel);
             }
         } catch (err) {

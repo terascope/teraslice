@@ -24,8 +24,6 @@ import { getE2EDir, getE2eK8sDir } from '../helpers/packages.js';
 import { getVolumesFromDockerfile, Kind } from './kind.js';
 import { ENV_SERVICES } from './config.js';
 import type { K8s } from './k8s-env/k8s.js';
-import { K8sEnvOptions } from './k8s-env/interfaces.js';
-import { TestOptions } from './test-runner/interfaces.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -831,13 +829,13 @@ export async function helmfileDestroy(selector: string) {
     }
 }
 
-export async function helmfileCommand(command: string, options: K8sEnvOptions | TestOptions) {
+export async function helmfileCommand(command: string, clusteringType: 'kubernetes' | 'kubernetesV2', devMode = false) {
     const e2eDir = getE2EDir();
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
-    const { valuesPath, valuesDir } = generateHelmValuesFromServices(options);
+    const { valuesPath, valuesDir } = generateHelmValuesFromServices(clusteringType, devMode);
 
     let subprocess;
     try {
@@ -851,9 +849,9 @@ export async function helmfileCommand(command: string, options: K8sEnvOptions | 
     logger.debug(`helmfile ${command}:\n${subprocess.stdout}`);
 }
 
-export async function launchTerasliceWithHelmfile(options: K8sEnvOptions | TestOptions) {
-    await helmfileCommand('diff', options);
-    await helmfileCommand('sync', options);
+export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetes' | 'kubernetesV2', devMode = false) {
+    await helmfileCommand('diff', clusteringType, devMode);
+    await helmfileCommand('sync', clusteringType, devMode);
     if (ENV_SERVICES.includes(Service.Kafka)) {
         await waitForKafkaRunning('kafka');
     }
@@ -949,13 +947,15 @@ function getAdminDnFromCert(): string {
  * - Adds extraVolumes, extraVolumeMounts and env values if running in dev mode.
  * - Generates a temporary directory to store the modified `values.yaml`.
  *
- * @param { K8sEnvOptions | TestOptions } options - list of options specified by the command
+ * @param { 'kubernetes' | 'kubernetesV2' } clusteringType - backend cluster manager type
+ * @param { boolean } devMode - Mount local teraslice to k8s resources for faster development.
  * @returns An object containing:
  * - `valuesPath` - Path to the generated `values.yaml` file.
  * - `valuesDir` - Path to the temporary directory containing the file.
  */
 function generateHelmValuesFromServices(
-    options: K8sEnvOptions | TestOptions
+    clusteringType: 'kubernetes' | 'kubernetesV2',
+    devMode: boolean
 ): { valuesPath: string; valuesDir: string } {
     // Grab default values from the e2e/helm/values.yaml
     const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
@@ -1044,9 +1044,9 @@ function generateHelmValuesFromServices(
     values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
     values.setIn(['teraslice', 'asset_storage_connection_type'], config.ASSET_STORAGE_CONNECTION_TYPE);
     values.setIn(['teraslice', 'asset_storage_connection'], config.ASSET_STORAGE_CONNECTION);
-    values.setIn(['teraslice', 'cluster_manager_type'], options.clusteringType);
+    values.setIn(['teraslice', 'cluster_manager_type'], clusteringType);
 
-    if ('dev' in options && options.dev === true) {
+    if (devMode) {
         const dockerfileMounts = getVolumesFromDockerfile(true, logger);
         values.setIn(['teraslice', 'extraVolumeMounts'], dockerfileMounts.volumeMounts);
         values.setIn(['teraslice', 'extraVolumes'], dockerfileMounts.volumes);

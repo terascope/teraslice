@@ -124,7 +124,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         if (config.ENCRYPT_MINIO) {
             await createMinioSecret(k8s);
         }
-        await launchTerasliceWithHelmfile(options);
+        await launchTerasliceWithHelmfile(options.clusteringType, options.dev);
         signale.pending('Teraslice launched with helmfile');
     } catch (err) {
         signale.fatal('Error deploying Teraslice: ', err);
@@ -177,7 +177,7 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
 
     try {
         signale.pending('Launching rebuilt teraslice with helmfile');
-        await launchTerasliceWithHelmfile(options);
+        await launchTerasliceWithHelmfile(options.clusteringType, options.dev);
         signale.pending('Rebuilt Teraslice launched with helmfile');
     } catch (err) {
         signale.error('Error re-deploying Teraslice: ', err);

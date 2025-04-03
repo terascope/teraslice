@@ -70,7 +70,8 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
         TERASLICE_PORT: config.TERASLICE_PORT,
         TJM_TEST_MODE: suite !== 'e2e' ? 'true' : 'false',
         NODE_OPTIONS: '--experimental-vm-modules',
-        USE_HELMFILE: options.useHelmfile ? 'true' : 'false'
+        USE_HELMFILE: options.useHelmfile ? 'true' : 'false',
+        TEST_PLATFORM: options.clusteringType
     };
 
     if (config.DOCKER_NETWORK_NAME) {
