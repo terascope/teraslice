@@ -51,7 +51,7 @@
         "@terascope/types": "~1.4.1",
         "@terascope/utils": "~1.8.0",
         "bunyan": "~1.8.15",
-        "elasticsearch-store": "~1.10.0",
+        "elasticsearch-store": "~1.10.1",
         "fs-extra": "~11.3.0",
         "jest": "^29.7.0",
         "jest-extended": "^4.0.2",
