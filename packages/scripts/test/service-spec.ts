@@ -56,6 +56,7 @@ jest.unstable_mockModule('../src/helpers/config.js', () => ({
     MINIO_NAME: '',
     MINIO_HOSTNAME: '',
     MINIO_PORT: '',
+    MINIO_UI_PORT: '',
     ENCRYPT_MINIO: '',
     MINIO_HOST: '',
     MINIO_DOCKER_IMAGE: '',

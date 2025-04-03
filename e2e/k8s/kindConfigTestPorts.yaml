@@ -8,18 +8,25 @@ nodes:
   # teraslice port mapping needs to be at index 0 in this array
   - containerPort: 30678 # Map internal teraslice service to host port
     hostPort: 45678
-  - containerPort: 30200 # Map internal elasticsearch service to host port
-    hostPort: 49200
-  - containerPort: 30210 # Map internal opensearch service to host port
-    hostPort: 49210
-  - containerPort: 30092 # Map internal kafka service to host port
-    hostPort: 49092
-  - containerPort: 30094 # Map external kafka service to host port
-    hostPort: 49094
-  - containerPort: 30900 # Map internal minio service to host port
-    hostPort: 49000
-  - containerPort: 30901 # Map internal minio-ui service to host port
-    hostPort: 49001
+
+  # Leaving this commented out instead if removing. `hostPort` is now dynamic but
+  # `containerPort` is still hardcoded and is useful information to list
+  # These values are dynamically set here:
+  # https://github.com/terascope/teraslice/blob/c83e68c196d926c96bffb37f544c2751ffcc78d3/packages/scripts/src/helpers/kind.ts#L52-L80
+  #
+  # - containerPort: 30200 # Map internal elasticsearch service to host port
+  #   hostPort: 49200
+  # - containerPort: 30210 # Map internal opensearch service to host port
+  #   hostPort: 49210
+  # - containerPort: 30092 # Map internal kafka service to host port
+  #   hostPort: 49092
+  # - containerPort: 30094 # Map external kafka service to host port
+  #   hostPort: 49094
+  # - containerPort: 30900 # Map internal minio service to host port
+  #   hostPort: 49000
+  # - containerPort: 30901 # Map internal minio-ui service to host port
+  #   hostPort: 49001
+
   extraMounts:
   - hostPath: ./e2e/autoload
     containerPath: /autoload

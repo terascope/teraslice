@@ -44,7 +44,7 @@
     "devDependencies": {
         "@terascope/fetch-github-release": "~2.1.0",
         "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.7.8",
+        "@terascope/utils": "~1.8.0",
         "@types/decompress": "~4.2.7",
         "@types/diff": "~7.0.2",
         "@types/ejs": "~3.1.5",
@@ -68,7 +68,7 @@
         "pretty-bytes": "~6.1.1",
         "prompts": "~2.4.2",
         "signale": "~1.4.0",
-        "teraslice-client-js": "~1.7.8",
+        "teraslice-client-js": "~1.8.0",
         "tmp": "~0.2.3",
         "tty-table": "~4.2.3",
         "yargs": "~17.7.2"

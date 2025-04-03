@@ -8,7 +8,11 @@ import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale.js';
 import { getE2eK8sDir } from '../helpers/packages.js';
 import { KindCluster, TsVolumeSet } from './interfaces.js';
-import { DOCKER_CACHE_PATH, TERASLICE_PORT } from './config.js';
+import {
+    DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
+    ELASTICSEARCH_PORT, OPENSEARCH_PORT, MINIO_PORT,
+    MINIO_UI_PORT, KAFKA_PORT
+} from './config.js';
 
 export class Kind {
     clusterName: string;
@@ -44,6 +48,37 @@ export class Kind {
         }
 
         const configFile = yaml.load(fs.readFileSync(configPath, 'utf8')) as KindCluster;
+
+        // Map external ports from kind to the host machine based off of config variables
+        for (const service of ENV_SERVICES) {
+            if (service === 'elasticsearch') {
+                configFile.nodes[0].extraPortMappings.push({
+                    containerPort: 30200,
+                    hostPort: Number.parseInt(ELASTICSEARCH_PORT)
+                });
+            } else if (service === 'opensearch') {
+                configFile.nodes[0].extraPortMappings.push({
+                    containerPort: 30210,
+                    hostPort: Number.parseInt(OPENSEARCH_PORT)
+                });
+            } else if (service === 'minio') {
+                configFile.nodes[0].extraPortMappings.push({
+                    containerPort: 30900,
+                    hostPort: Number.parseInt(MINIO_PORT)
+                });
+                configFile.nodes[0].extraPortMappings.push({
+                    containerPort: 30901,
+                    hostPort: Number.parseInt(MINIO_UI_PORT)
+                });
+            } else if (service === 'kafka') {
+                // map only the external kafka port so it can resolve with the host machine
+                configFile.nodes[0].extraPortMappings.push({
+                    containerPort: 30094,
+                    hostPort: Number.parseInt(KAFKA_PORT)
+                });
+            }
+        }
+
         if (this.k8sVersion) {
             configFile.nodes[0].image = kindToK8sImageMap(this.kindVersion, this.k8sVersion);
         }

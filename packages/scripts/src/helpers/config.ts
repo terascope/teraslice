@@ -1,6 +1,7 @@
 import ipPkg from 'ip';
 import {
-    toBoolean, toSafeString, isCI, toIntegerOrThrow
+    toBoolean, toSafeString, isCI,
+    toIntegerOrThrow
 } from '@terascope/utils';
 import { Service } from './interfaces.js';
 import { kafkaVersionMapper } from './mapper.js';
@@ -46,7 +47,7 @@ export const RESTRAINED_ELASTICSEARCH_HOST = `http://${ELASTICSEARCH_HOSTNAME}:$
 
 export const KAFKA_NAME = process.env.KAFKA_NAME || 'kafka';
 export const KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || HOST_IP;
-export const KAFKA_PORT = process.env.KAFKA_PORT || '49092';
+export const KAFKA_PORT = process.env.KAFKA_PORT || '49094';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.7.2';
 export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'confluentinc/cp-kafka';

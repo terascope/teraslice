@@ -48,6 +48,7 @@ const WORKERS_PER_NODE = 8;
 
 const {
     KAFKA_BROKER = 'locahost:9092',
+    KAFKA_PORT = '49094',
     HOST_IP = '127.0.0.1',
     GENERATE_ONLY,
     TEST_OPENSEARCH = false,
@@ -99,6 +100,7 @@ export {
     ELASTICSEARCH_VERSION,
     HOST_IP,
     KAFKA_BROKER,
+    KAFKA_PORT,
     CLUSTER_NAME,
     TEST_INDEX_PREFIX,
     DEFAULT_NODES,
