@@ -333,10 +333,10 @@ export class K8s {
      */
     async createKubernetesSecret(namespace: string, secret: k8sClient.V1Secret): Promise<void> {
         try {
-            await this.k8sCoreV1Api.createNamespacedSecret(
+            await this.k8sCoreV1Api.createNamespacedSecret({
                 namespace,
-                secret
-            );
+                body: secret
+            });
         } catch (err) {
             throw new TSError(`Unable to make kubernetes secret. \n ${err}`);
         }
