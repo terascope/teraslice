@@ -174,7 +174,7 @@ export class K8s {
 
         const params = {
             namespace,
-            selector
+            labelSelector: selector
         };
 
         try {
@@ -290,7 +290,7 @@ export class K8s {
                 name,
                 namespace: this.defaultNamespace,
                 body: record
-            }, options as k8s.ConfigurationOptions), getRetryConfig());
+            }, options), getRetryConfig());
             return responseObj;
         } catch (e) {
             const err = new Error(`Request k8s.patch with name: ${name} failed with: ${e}`);
@@ -345,7 +345,7 @@ export class K8s {
         const params = {
             name,
             namespace: this.defaultNamespace,
-            deleteOptions
+            body: deleteOptions
         };
 
         const deleteWithErrorHandling = async (
@@ -355,11 +355,12 @@ export class K8s {
                 const res = await deleteFn();
                 return res;
             } catch (e) {
-                if (e.statusCode) {
+                if (e.body) {
+                    const bodyObj = JSON.parse(e.body);
                     // 404 should be an acceptable response to a delete request, not an error
-                    if (e.statusCode === 404) {
+                    if (bodyObj.code === 404) {
                         this.logger.info(`No ${objType} with name ${name} found while attempting to delete.`);
-                        return e;
+                        return bodyObj;
                     }
                 }
                 throw e;

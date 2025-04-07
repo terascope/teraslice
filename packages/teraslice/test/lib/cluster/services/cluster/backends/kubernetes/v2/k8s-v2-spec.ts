@@ -1,6 +1,6 @@
 import {
     V1Deployment, V1Job, V1Pod,
-    V1ReplicaSet, V1Service
+    V1ReplicaSet, V1Service, V1Status
 } from '@kubernetes/client-node';
 import nock from 'nock';
 import { debugLogger } from '@terascope/job-components';
@@ -123,6 +123,13 @@ describe('k8s', () => {
         },
         kind: 'Status',
         status: 'Success'
+    };
+
+    const apiException = {
+        'HTTP-Code': 400,
+        Message: 'Unknown API Status Code!',
+        Body: { statusCode: 400 },
+        Headers: { 'content-type': 'application/json' }
     };
 
     beforeEach(async () => {
@@ -326,17 +333,17 @@ describe('k8s', () => {
             expect(response).toEqual({});
         });
 
-        it('will throw on a reponse code >= 400', async () => {
+        it('will throw on a response code >= 400', async () => {
             nock(_url)
                 .patch('/apis/apps/v1/namespaces/default/deployments/bad-response')
-                .replyWithError({ statusCode: 400 })
+                .reply(400, apiException)
                 .patch('/apis/apps/v1/namespaces/default/deployments/bad-response')
-                .replyWithError({ statusCode: 400 })
+                .reply(400, apiException)
                 .patch('/apis/apps/v1/namespaces/default/deployments/bad-response')
-                .replyWithError({ statusCode: 400 });
+                .reply(400, apiException);
 
             await expect(k8s.patch({ name: 'bad-response' }, 'bad-response'))
-                .rejects.toThrow('Request k8s.patch with name: bad-response failed with: TSError: {"statusCode":400}');
+                .rejects.toThrow('HTTP-Code: 400');
         });
     });
 
@@ -396,43 +403,40 @@ describe('k8s', () => {
             expect(response).toEqual({});
         });
 
-        it('will throw on a reponse code >= 400, excluding 404', async () => {
+        it('will throw on a response code >= 400, excluding 404', async () => {
             nock(_url)
                 .delete('/api/v1/namespaces/default/pods/bad-response')
-                .replyWithError({ statusCode: 400 })
+                .reply(400, apiException)
                 .delete('/api/v1/namespaces/default/pods/bad-response')
-                .replyWithError({ statusCode: 400 })
+                .reply(400, apiException)
                 .delete('/api/v1/namespaces/default/pods/bad-response')
-                .replyWithError({ statusCode: 400 });
+                .reply(400, apiException);
 
             await expect(k8s.delete('bad-response', 'pods'))
-                .rejects.toThrow('Request k8s.delete with name: bad-response failed with: TSError: {"statusCode":400}');
+                .rejects.toThrow('HTTP-Code: 400');
         });
 
         it('will succeed on a 404 response code', async () => {
-            const notFoundResponse = {
-                body: {
-                    kind: 'Status',
-                    apiVersion: 'v1',
-                    metadata: {},
-                    status: 'Failure',
-                    message: 'pods "non-existent" not found',
-                    reason: 'NotFound',
-                    details: { name: 'non-existent', kind: 'pods' },
-                    code: 404
-                },
-                statusCode: 404
+            const notFoundResponse: V1Status = {
+                kind: 'Status',
+                apiVersion: 'v1',
+                metadata: {},
+                status: 'Failure',
+                message: 'pods "non-existent" not found',
+                reason: 'NotFound',
+                details: { name: 'non-existent', kind: 'pods' },
+                code: 404
             };
             nock(_url)
                 .delete('/api/v1/namespaces/default/pods/non-existent')
-                .replyWithError(notFoundResponse);
+                .reply(404, notFoundResponse);
 
             const response = await k8s.delete('non-existent', 'pods');
-            expect(response).toEqual(notFoundResponse.body);
+            expect(response).toEqual(notFoundResponse);
         });
     });
 
-    describe('->_deletObjByExId', () => {
+    describe('->_deleteObjByExId', () => {
         it('can delete a single object', async () => {
             nock(_url)
                 .get('/apis/batch/v1/namespaces/default/jobs')
