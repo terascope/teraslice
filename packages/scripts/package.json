@@ -1,7 +1,7 @@
 {
     "name": "@terascope/scripts",
     "displayName": "Scripts",
-    "version": "1.15.1",
+    "version": "1.15.2",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
@@ -32,7 +32,7 @@
         "typescript": "~5.8.2"
     },
     "dependencies": {
-        "@kubernetes/client-node": "~0.22.3",
+        "@kubernetes/client-node": "~1.1.1",
         "@terascope/utils": "~1.8.0",
         "execa": "~9.5.2",
         "fs-extra": "~11.3.0",

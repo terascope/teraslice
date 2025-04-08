@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "2.14.3",
+    "version": "2.14.4",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -53,7 +53,7 @@
         "@eslint/js": "~9.23.0",
         "@swc/core": "1.11.13",
         "@swc/jest": "~0.2.37",
-        "@terascope/scripts": "~1.15.1",
+        "@terascope/scripts": "~1.15.2",
         "@types/bluebird": "~3.5.42",
         "@types/convict": "~6.1.6",
         "@types/elasticsearch": "~5.0.43",
