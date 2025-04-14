@@ -60,8 +60,8 @@
         "nanoid": "~5.1.5",
         "semver": "~7.7.1",
         "signale": "~1.4.0",
-        "ts-jest": "~29.3.0",
-        "typescript": "~5.8.2",
+        "ts-jest": "~29.3.2",
+        "typescript": "~5.8.3",
         "uuid": "~11.1.0"
     },
     "engines": {
