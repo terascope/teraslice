@@ -98,20 +98,27 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): P
                 name: pkgInfo.name,
                 tsconfig: path.join(pkgInfo.dir, 'tsconfig.json'),
                 plugin: ['typedoc-plugin-markdown'],
-                theme: 'markdown',
                 entryPoints: ['./src'],
                 entryPointStrategy: 'expand',
+                router: 'member',
                 exclude: ['test', 'node_modules'],
-                excludePrivate: true,
-                excludeExternals: true,
-                hideGenerator: true,
+                excludePrivate: 'true',
+                excludeExternals: 'true',
+                hideGenerator: 'true',
+                logLevel: 1,
                 readme: 'none',
+                outputs: [
+                    {
+                        // requires typedoc-plugin-markdown
+                        name: 'markdown',
+                        path: outputDir
+                    }
+                ]
             },
             [new TSConfigReader()]
         );
 
         // typedoc-plugin-markdown specific options
-        app.options.setValue('outputFileStrategy', 'members');
         app.options.setValue('membersWithOwnFile', ['Class', 'Enum', 'Interface']);
         app.options.setValue('useHTMLAnchors', true);
         app.options.setValue('sanitizeComments', true);
@@ -137,7 +144,7 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): P
         }
         await fse.ensureDir(outputDir);
 
-        await app.generateDocs(project, outputDir);
+        await app.generateOutputs(project);
 
         if (app.logger.hasErrors()) {
             signale.error(`found errors when generating typedocs for package ${pkgInfo.name}`);
