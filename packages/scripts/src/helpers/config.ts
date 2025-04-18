@@ -112,6 +112,7 @@ export const RESTRAINED_OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARC
 export const UTILITY_SVC_NAME = process.env.UTILITY_SVC_NAME || 'utility-svc';
 export const UTILITY_SVC_VERSION = process.env.UTILITY_SVC_VERSION || '0.0.1';
 export const UTILITY_SVC_DOCKER_IMAGE = process.env.UTILITY_SVC_DOCKER_IMAGE || 'teraslice-utility';
+export const UTILITY_SVC_DOCKER_PROJECT_PATH = process.env.UTILITY_SVC_DOCKER_PROJECT_PATH || 'e2e/helm/utility';
 
 export const KIND_DOCKER_IMAGE = 'kindest/node';
 export const KIND_VERSION = 'v1.30.0';

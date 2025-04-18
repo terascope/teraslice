@@ -5,8 +5,7 @@ import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
     isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
     helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
-    generateTestCaCerts, createMinioSecret,
-    dockerBuild
+    generateTestCaCerts, createMinioSecret, dockerBuild
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
@@ -17,7 +16,6 @@ import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import * as config from '../config.js';
 import { K8s } from './k8s.js';
 import { loadImagesForHelm } from '../test-runner/services.js';
-import { getUtilitySvcDockerFilePath } from '../packages.js';
 
 const rootInfo = getRootInfo();
 const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
@@ -222,7 +220,7 @@ async function buildAndTagTerasliceImage(options: K8sEnvOptions) {
 async function buildUtilityImage() {
     try {
         const tag = `${config.UTILITY_SVC_DOCKER_IMAGE}:${config.UTILITY_SVC_VERSION}`;
-        const dockerProjectPath = getUtilitySvcDockerFilePath();
+        const dockerProjectPath = config.UTILITY_SVC_DOCKER_PROJECT_PATH;
         dockerBuild(tag, undefined, undefined, undefined, undefined, dockerProjectPath);
     } catch (err) {
         throw new Error(`Utility Service Docker image build failed: ${err}`);
