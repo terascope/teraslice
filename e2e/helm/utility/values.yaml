@@ -9,3 +9,12 @@ image:
   tag: 0.0.1
   pullPolicy: IfNotPresent
   
+extraVolumes:
+  - name: data
+    hostPath:
+      path: /data
+      type: Directory
+      
+extraVolumeMounts:
+  - name: data
+    mountPath: /app/data

@@ -27,6 +27,8 @@ nodes:
   extraMounts:
   - hostPath: ./e2e/autoload
     containerPath: /autoload
+  - hostPath: ./e2e/helm/utility/data
+    containerPath: /data
   ### All extra mounts that the Dockerfile.dev image needs to run teraslice
   - hostPath: ./packages
     containerPath: /packages
