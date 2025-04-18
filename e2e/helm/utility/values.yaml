@@ -1,0 +1,11 @@
+# Default values for utility pod.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicas: 1
+
+image:
+  repository: teraslice-utility
+  tag: 0.0.1
+  pullPolicy: IfNotPresent
+  
