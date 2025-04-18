@@ -44,7 +44,8 @@ export enum Service {
     RabbitMQ = 'rabbitmq',
     Opensearch = 'opensearch',
     RestrainedElasticsearch = 'restrained_elasticsearch',
-    RestrainedOpensearch = 'restrained_opensearch'
+    RestrainedOpensearch = 'restrained_opensearch',
+    Utility = 'utility'
 }
 
 export type PackageConfig = {

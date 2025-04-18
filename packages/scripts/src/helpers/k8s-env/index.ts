@@ -5,7 +5,8 @@ import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
     isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
     helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
-    generateTestCaCerts, createMinioSecret
+    generateTestCaCerts, createMinioSecret,
+    dockerBuild
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
@@ -16,6 +17,7 @@ import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import * as config from '../config.js';
 import { K8s } from './k8s.js';
 import { loadImagesForHelm } from '../test-runner/services.js';
+import { getUtilitySvcDockerFilePath } from '../packages.js';
 
 const rootInfo = getRootInfo();
 const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
@@ -75,6 +77,9 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 
     try {
         await buildAndTagTerasliceImage(options);
+        if (process.env.ENABLE_UTILITY_SVC) {
+            buildUtilityImage();
+        }
     } catch (err) {
         signale.fatal(err);
         if (!options.keepOpen) {
@@ -199,18 +204,28 @@ async function buildAndTagTerasliceImage(options: K8sEnvOptions) {
                 nodeSuffix: true,
                 nodeVersion: config.NODE_VERSION,
                 type: PublishType.Dev,
-                useDevFile: options.dev
+                dockerFileName: options.dev ? 'Dockerfile.dev' : ''
             };
             runImage = await buildDevDockerImage(publishOptions);
         } catch (err) {
-            throw new Error(`Docker image build failed: ${err}`);
+            throw new Error(`Teraslice Docker image build failed: ${err}`);
         }
     }
 
     try {
         await dockerTag(runImage, e2eImage);
     } catch (err) {
-        throw new Error(`Failed to tag docker image ${runImage} as ${e2eImage}: ${err}`);
+        throw new Error(`Failed to tag teraslice docker image ${runImage} as ${e2eImage}: ${err}`);
+    }
+}
+
+async function buildUtilityImage() {
+    try {
+        const tag = `${config.UTILITY_SVC_DOCKER_IMAGE}:${config.UTILITY_SVC_VERSION}`;
+        const dockerProjectPath = getUtilitySvcDockerFilePath();
+        dockerBuild(tag, undefined, undefined, undefined, undefined, dockerProjectPath);
+    } catch (err) {
+        throw new Error(`Utility Service Docker image build failed: ${err}`);
     }
 }
 

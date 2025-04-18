@@ -25,6 +25,7 @@ import {
 let _packages: i.PackageInfo[] = [];
 let _e2eDir: string | undefined;
 let _e2e_k8s_dir: string | undefined;
+let _utility_svc_dockerfile_path: string | undefined;
 
 export function getE2EDir(): string | undefined {
     if (_e2eDir) return _e2eDir;
@@ -43,6 +44,22 @@ export function getE2eK8sDir(): string | undefined {
     if (fs.existsSync(path.join(getRootDir(), 'e2e/k8s'))) {
         _e2e_k8s_dir = path.join(getRootDir(), 'e2e/k8s');
         return _e2e_k8s_dir;
+    }
+
+    return undefined;
+}
+
+export function getUtilitySvcDockerFilePath(): string | undefined {
+    if (_utility_svc_dockerfile_path) return _utility_svc_dockerfile_path;
+
+    if (process.env.UTILITY_SVC_DOCKER_FILE_PATH) {
+        _utility_svc_dockerfile_path = process.env.UTILITY_SVC_DOCKER_FILE_PATH;
+        return process.env.UTILITY_SVC_DOCKER_FILE_PATH;
+    }
+
+    if (fs.existsSync(path.join(getRootDir(), 'e2e/helm/utility'))) {
+        _utility_svc_dockerfile_path = 'e2e/helm/utility';
+        return _utility_svc_dockerfile_path;
     }
 
     return undefined;

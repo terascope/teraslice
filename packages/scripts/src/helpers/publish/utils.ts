@@ -94,7 +94,13 @@ export async function buildDevDockerImage(
     signale.pending(`building docker image ${devImage}`);
 
     try {
-        await dockerBuild(devImage, cacheFromPrev ? [devImage] : [], undefined, [`NODE_VERSION=${publishOptions.nodeVersion}`], publishOptions.useDevFile);
+        await dockerBuild(
+            devImage,
+            cacheFromPrev ? [devImage] : [],
+            undefined,
+            [`NODE_VERSION=${publishOptions.nodeVersion}`],
+            publishOptions.dockerFileName,
+            publishOptions.dockerFilePath);
     } catch (err) {
         throw new TSError(err, {
             message: `Failed to build ${devImage} docker image`,
