@@ -20,5 +20,6 @@ export interface PublishOptions {
     */
     publishOutdatedPackages?: boolean;
     nodeVersion?: string;
-    useDevFile?: boolean;
+    dockerFileName?: string;
+    dockerFilePath?: string;
 }

@@ -70,6 +70,14 @@ releases:
     values:
       - ./templates/kafka.yaml.gotmpl
 
+  - name: utility
+    namespace: services-dev1
+    chart: ./utility
+    version: 0.0.1
+    installed: {{ .Values | get "utility.enabled" true }}
+    values:
+      - ./templates/utility.yaml.gotmpl
+
   - name: teraslice
     namespace: ts-dev1
     chart: ../../helm/teraslice

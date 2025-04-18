@@ -420,7 +420,8 @@ export async function dockerBuild(
     cacheFrom?: string[],
     target?: string,
     buildArgs?: string[],
-    useDevFile?: boolean
+    dockerFileName?: string,
+    dockerFilePath?: string
 ): Promise<void> {
     const cacheFromArgs: string[] = [];
 
@@ -432,11 +433,12 @@ export async function dockerBuild(
     const buildsArgs: string[] = buildArgs
         ? ['--build-arg', ...buildArgs.join(',--build-arg,').split(',')]
         : [];
-    const dockerFilePath = useDevFile ? ['-f', 'Dockerfile.dev', '.'] : ['.'];
+    const fileName = dockerFileName ? ['-f', dockerFileName] : [];
+    const filePath = dockerFilePath ?? '.';
 
     await fork({
         cmd: 'docker',
-        args: ['build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--tag', tag, ...dockerFilePath],
+        args: ['build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--tag', tag, ...fileName, filePath],
     });
 }
 
@@ -971,6 +973,7 @@ function generateHelmValuesFromServices(
         [Service.RabbitMQ]: config.RABBITMQ_VERSION,
         [Service.RestrainedElasticsearch]: config.ELASTICSEARCH_VERSION,
         [Service.RestrainedOpensearch]: config.OPENSEARCH_VERSION,
+        [Service.Utility]: config.UTILITY_SVC_VERSION,
     };
 
     let stateCluster: string | undefined;

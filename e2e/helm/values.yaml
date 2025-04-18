@@ -105,6 +105,15 @@ zookeeper:
   enabled: false
   version: 3.7.2
   instances: 1
+  
+utility:
+  # If false, utility will be excluded on helmfile sync
+  enabled: false
+  image:
+    repository: teraslice-utility
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: 0.0.1
+  instances: 1
 
 teraslice:
   image:
