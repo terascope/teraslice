@@ -8,10 +8,12 @@ export function Suite(name) {
     return new benchmark.Suite(name)
         .on('cycle', (e) => {
             const t = e.target;
+            // console.dir({ e }, { depth: 40 });
             if (t.error) {
                 console.error(`${padl(50, t.name)}${padr(60, t.error)}`);
             } else {
-                const result = `${padl(50, t.name)}${padr(13, `${t.hz.toFixed(2)} op/s`)
+                // t.stats
+                const result = `${padl(50, t.name)}${padr(13, `${(t.stats.mean * 1000).toFixed(3)} avg`)
                 } \xb1${
                     padr(7, `${t.stats.rme.toFixed(2)}%`)
                 }${padr(15, ` (${t.stats.sample.length} samples)`)}`;

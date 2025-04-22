@@ -3,6 +3,7 @@ import {
     DataTypeFieldConfig, Maybe, SortOrder,
     DataTypeFields, FieldType, ReadonlyDataTypeFields
 } from '@terascope/types';
+import { isNil } from '@terascope/utils';
 import { Builder } from '../builder/index.js';
 import { SerializeOptions, Vector } from '../vector/index.js';
 import { ColumnConfig, ColumnOptions } from './interfaces.js';
@@ -242,6 +243,7 @@ export class Column<T = unknown, N extends NameType = string> {
         for (const value of this.vector) {
             builder.append(value);
         }
+
         return this.fork(builder.toVector());
     }
 
@@ -255,14 +257,19 @@ export class Column<T = unknown, N extends NameType = string> {
     }
 
     serialize(): string {
+        const values = this.vector.toJSON();
+        const isEmpty = values.every(isNil);
+        const columnValues = isEmpty ? [] : values;
+
         const column: ColumnConfig<T> = {
             name: `${String(this.name)}`,
             size: this.size,
             version: this.version,
             config: this.vector.config,
             childConfig: this.vector.childConfig,
-            values: this.vector.toJSON(),
+            values: columnValues,
         };
+
         return JSON.stringify(column);
     }
 
@@ -292,8 +299,17 @@ function vectorFromColumnJSON<T>(
             name: config.name,
         }
     );
-    for (const value of config.values) {
-        builder.append(value);
+
+    // we optimize it out if its empty
+    if (config.size > 0 && config.values.length === 0) {
+        for (let i = 0; i < config.size; i++) {
+            builder.append(null);
+        }
+    } else {
+        for (const value of config.values) {
+            builder.append(value);
+        }
     }
+
     return builder.toVector();
 }
