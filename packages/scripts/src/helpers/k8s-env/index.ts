@@ -76,7 +76,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     try {
         await buildAndTagTerasliceImage(options);
         if (process.env.ENABLE_UTILITY_SVC) {
-            buildUtilityImage();
+            await buildUtilityImage();
         }
     } catch (err) {
         signale.fatal(err);
