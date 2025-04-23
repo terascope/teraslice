@@ -3,41 +3,20 @@ import fs from 'node:fs';
 import { Suite } from './helpers.js';
 import { DataFrame } from '../dist/src/index.js';
 
-const mainPath = '/Users/jarednoble/Projects/getData/df-data/';
-const fileName = 'single_call_sparse_100000_df.txt';
-
-const pathName = `${mainPath}${fileName}`;
-
-async function streamFileToBuffer(filePath) {
-    return new Promise((resolve, reject) => {
-        const chunks = [];
-        const stream = fs.createReadStream(filePath);
-
-        stream.on('data', (chunk) => {
-            chunks.push(chunk);
-        });
-
-        stream.on('end', () => {
-            resolve(Buffer.concat(chunks));
-        });
-
-        stream.on('error', (err) => {
-            reject(err);
-        });
-    });
-}
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const dfJSON = fs.readFileSync(path.join(dirname, './fixtures/data.dfjson'));
 
 const run = async () => {
     const suite = Suite(`${fileName}`);
-    const raw = await streamFileToBuffer(pathName);
-    const df = await DataFrame.deserialize(raw);
+
+    const df = await DataFrame.deserialize(dfJSON);
 
     suite.add('dfjson => Dataframe', {
         defer: true,
         fn(deferred) {
             Promise.resolve()
                 .then(async () => {
-                    return DataFrame.deserialize(raw);
+                    return DataFrame.deserialize(dfJSON);
                 })
                 .then(
                     () => {
