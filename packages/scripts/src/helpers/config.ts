@@ -109,6 +109,11 @@ export const OPENSEARCH_DOCKER_IMAGE = process.env.OPENSEARCH_DOCKER_IMAGE || 'o
 export const RESTRAINED_OPENSEARCH_PORT = process.env.RESTRAINED_OPENSEARCH_PORT || '49206';
 export const RESTRAINED_OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}:${RESTRAINED_OPENSEARCH_PORT}`;
 
+export const UTILITY_SVC_NAME = process.env.UTILITY_SVC_NAME || 'utility-svc';
+export const UTILITY_SVC_VERSION = process.env.UTILITY_SVC_VERSION || '0.0.1';
+export const UTILITY_SVC_DOCKER_IMAGE = process.env.UTILITY_SVC_DOCKER_IMAGE || 'teraslice-utility';
+export const UTILITY_SVC_DOCKER_PROJECT_PATH = process.env.UTILITY_SVC_DOCKER_PROJECT_PATH || 'e2e/helm/utility';
+
 export const KIND_DOCKER_IMAGE = 'kindest/node';
 export const KIND_VERSION = 'v1.30.0';
 
@@ -167,7 +172,8 @@ const {
     TEST_MINIO = undefined,
     TEST_RESTRAINED_OPENSEARCH = undefined,
     TEST_RESTRAINED_ELASTICSEARCH = undefined,
-    TEST_RABBITMQ = undefined
+    TEST_RABBITMQ = undefined,
+    ENABLE_UTILITY_SVC = undefined
 } = process.env;
 
 const testOpensearch = toBoolean(TEST_OPENSEARCH);
@@ -187,6 +193,7 @@ export const ENV_SERVICES = [
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
     testRestrainedElasticsearch ? Service.RestrainedElasticsearch : undefined,
     toBoolean(TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
+    toBoolean(ENABLE_UTILITY_SVC) ? Service.Utility : undefined,
 ]
     .filter(Boolean) as Service[];
 

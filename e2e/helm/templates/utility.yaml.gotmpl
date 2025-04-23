@@ -1,0 +1,7 @@
+image:
+    repository: {{ .Values | get "utility.image.repository" }}
+    tag: {{ .Values | get "utility.image.tag" }}
+
+replicas: {{ .Values | get "utility.replicas" 1 }}
+
+clusterName: "utility"

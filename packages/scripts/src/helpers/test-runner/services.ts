@@ -159,6 +159,11 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             RABBITMQ_PASSWORD: config.RABBITMQ_PASSWORD,
         },
         network: config.DOCKER_NETWORK_NAME,
+    },
+    [Service.Utility]: {
+        image: config.UTILITY_SVC_DOCKER_IMAGE,
+        name: `${config.TEST_NAMESPACE}_${config.UTILITY_SVC_NAME}`,
+        network: config.DOCKER_NETWORK_NAME,
     }
 };
 
@@ -209,6 +214,11 @@ export async function loadOrPullServiceImages(
 
         if (launchServices.includes(Service.RabbitMQ)) {
             const image = `${config.RABBITMQ_DOCKER_IMAGE}:${config.RABBITMQ_VERSION}`;
+            images.push(image);
+        }
+
+        if (launchServices.includes(Service.Utility)) {
+            const image = `${config.UTILITY_SVC_DOCKER_IMAGE}:${config.UTILITY_SVC_VERSION}`;
             images.push(image);
         }
 
@@ -287,6 +297,10 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
         promises.push(ensureRabbitMQ(options));
     }
 
+    if (launchServices.includes(Service.Utility)) {
+        promises.push(ensureUtility(options));
+    }
+
     const fns = await Promise.all(promises);
 
     return () => {
@@ -355,6 +369,14 @@ export async function ensureRabbitMQ(options: TestOptions): Promise<() => void> 
     const startTime = Date.now();
     fn = await startService(options, Service.RabbitMQ);
     await checkRabbitMQ(options, startTime);
+    return fn;
+}
+
+export async function ensureUtility(options: TestOptions): Promise<() => void> {
+    let fn = () => { };
+    const startTime = Date.now();
+    fn = await startService(options, Service.Utility);
+    await checkUtility(options, startTime);
     return fn;
 }
 
@@ -798,6 +820,11 @@ async function checkZookeeper(options: TestOptions, startTime: number) {
     signale.success(` zookeeper*might* be running, took ${took}`);
 }
 
+async function checkUtility(options: TestOptions, startTime: number): Promise<void> {
+    const took = toHumanTime(Date.now() - startTime);
+    signale.success(`Utility Service **might** be running, took ${took}`);
+}
+
 async function startService(options: TestOptions, service: Service): Promise<() => void> {
     let serviceName = service;
 
@@ -894,6 +921,13 @@ export async function loadImagesForHelm(kindClusterName: string, skipImageDeleti
                 service,
                 config.KAFKA_DOCKER_IMAGE,
                 config.KAFKA_VERSION,
+                skipImageDeletion
+            ));
+        } else if (service === Service.Utility) {
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.UTILITY_SVC_DOCKER_IMAGE,
+                config.UTILITY_SVC_VERSION,
                 skipImageDeletion
             ));
         }
