@@ -7,7 +7,7 @@
 LINES=500
 INFILE=$1
 TOPIC=${2:-testTopic}
-CMD="kcat" # kafkacat has recently changed its name to kcat, not in this case thouhg
+CMD="kcat" # kafkacat has changed its name to kcat
 BROKER="kafka"
 
 if [ -z "$1" ]
