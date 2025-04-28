@@ -23,7 +23,7 @@
         "@stylistic/eslint-plugin": "~4.2.0",
         "@typescript-eslint/eslint-plugin": "~8.29.1",
         "@typescript-eslint/parser": "~8.29.1",
-        "eslint": "~9.24.0",
+        "eslint": "~9.25.1",
         "eslint-plugin-import": "~2.31.0",
         "eslint-plugin-jest": "~28.11.0",
         "eslint-plugin-jest-dom": "~5.5.0",
