@@ -223,11 +223,21 @@ export class DataFrame<
             return;
         }
 
-        for (let i = 0; i < this.size; i++) {
-            // cast the type of json to true since typescript
-            // can't detect what the return type should be here
-            const row = this.getRow(i, json as true, options);
-            if (row) yield row;
+        if (!options?.useNullForUndefined) {
+            for (let i = 0; i < this.size; i++) {
+                const columns = this.columns.filter((col) => !col.isEmpty());
+                // cast the type of json to true since typescript
+                // can't detect what the return type should be here
+                const row = this._getRowOptimized(i, columns, json as true, options);
+                if (row) yield row;
+            }
+        } else {
+            for (let i = 0; i < this.size; i++) {
+                // cast the type of json to true since typescript
+                // can't detect what the return type should be here
+                const row = this.getRow(i, json as true, options);
+                if (row) yield row;
+            }
         }
     }
 
@@ -318,7 +328,6 @@ export class DataFrame<
         fieldSelectors: string[] | readonly string[],
     ): DataFrame<R> {
         const columns: Column<any, any>[] = [];
-
         const existingFieldsConfig = this.config.fields;
         const existingFields = Object.keys(existingFieldsConfig);
 
@@ -1010,6 +1019,7 @@ export class DataFrame<
         const row = new DataEntity<Partial<T>>({});
 
         let numKeys = 0;
+
         for (const col of this.columns) {
             const field = col.name as string;
             const val = col.vector.get(
@@ -1037,6 +1047,45 @@ export class DataFrame<
         }
 
         return row as unknown as T;
+    }
+
+    private _getRowOptimized(
+        index: number,
+        columns: Column<any, keyof T>[],
+        json?: true | false | undefined,
+        options?: SerializeOptions,
+    ): DataEntity<T> | undefined {
+        if (index > (this.size - 1)) return;
+
+        const row = new DataEntity<Partial<T>>({});
+
+        let hasKeys = false;
+
+        for (const col of columns) {
+            const field = col.name as string;
+            const val = col.vector.get(
+                index, json, options
+            ) as Maybe<T[keyof T]>;
+
+            if (val != null) {
+                hasKeys = true;
+                row[field] = val;
+
+                if (col.name === '_key') {
+                    // there is validation in setKey so we don't have to double validate
+                    row.setKey(val as any);
+                } else if (col.vector.type === VectorType.Date && col.config.is_primary_date) {
+                    // this should be iso string
+                    row.setEventTime(String(val));
+                }
+            }
+        }
+
+        if (!hasKeys) {
+            return undefined;
+        }
+
+        return row as unknown as DataEntity<T>;
     }
 
     /**

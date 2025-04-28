@@ -69,6 +69,11 @@ export abstract class Builder<T = unknown> {
     readonly name?: string;
 
     /**
+     * Used for optimizations to noop certain functions and save memory where possible
+    */
+    private isEmpty = true;
+
+    /**
      * The current insertion index (used for append)
     */
     currentIndex: number;
@@ -136,7 +141,8 @@ export abstract class Builder<T = unknown> {
      * Set value by index
     */
     set(index: number, value: unknown): this {
-        this.data.set(index, this.valueFrom(value, index));
+        const data = this.valueFrom(value, index);
+        this.data.set(index, data);
         return this;
     }
 
