@@ -33,7 +33,7 @@
         "@terascope/data-types": "~1.8.0",
         "@terascope/types": "~1.4.1",
         "@terascope/utils": "~1.8.0",
-        "@types/validator": "~13.15.0",
+        "@types/validator": "~13.12.2",
         "awesome-phonenumber": "~7.4.0",
         "date-fns": "~4.1.0",
         "ip-bigint": "~8.2.1",
@@ -44,7 +44,7 @@
         "mnemonist": "~0.40.3",
         "uuid": "~11.1.0",
         "valid-url": "~1.0.9",
-        "validator": "~13.15.0",
+        "validator": "~13.12.0",
         "xlucene-parser": "~1.8.0"
     },
     "devDependencies": {

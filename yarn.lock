@@ -3046,7 +3046,7 @@ __metadata:
     "@terascope/utils": "npm:~1.8.0"
     "@types/ip6addr": "npm:~0.2.6"
     "@types/uuid": "npm:~10.0.0"
-    "@types/validator": "npm:~13.15.0"
+    "@types/validator": "npm:~13.12.2"
     awesome-phonenumber: "npm:~7.4.0"
     benchmark: "npm:~2.1.4"
     chance: "npm:~1.1.12"
@@ -3059,7 +3059,7 @@ __metadata:
     mnemonist: "npm:~0.40.3"
     uuid: "npm:~11.1.0"
     valid-url: "npm:~1.0.9"
-    validator: "npm:~13.15.0"
+    validator: "npm:~13.12.0"
     xlucene-parser: "npm:~1.8.0"
   languageName: unknown
   linkType: soft
@@ -3323,7 +3323,7 @@ __metadata:
     "@types/is-plain-object": "npm:~2.0.4"
     "@types/js-string-escape": "npm:~1.0.3"
     "@types/lodash-es": "npm:~4.17.12"
-    "@types/validator": "npm:~13.15.0"
+    "@types/validator": "npm:~13.12.2"
     awesome-phonenumber: "npm:~7.4.0"
     benchmark: "npm:~2.1.4"
     date-fns: "npm:~4.1.0"
@@ -3344,7 +3344,7 @@ __metadata:
     mnemonist: "npm:~0.40.3"
     p-map: "npm:~7.0.3"
     shallow-clone: "npm:~3.0.1"
-    validator: "npm:~13.15.0"
+    validator: "npm:~13.12.0"
   languageName: unknown
   linkType: soft
 
@@ -4276,13 +4276,6 @@ __metadata:
   version: 13.12.2
   resolution: "@types/validator@npm:13.12.2"
   checksum: 10c0/64f1326c768947d756ab5bcd73f3f11a6f07dc76292aea83890d0390a9b9acb374f8df6b24af2c783271f276d3d613b78fc79491fe87edee62108d54be2e3c31
-  languageName: node
-  linkType: hard
-
-"@types/validator@npm:~13.15.0":
-  version: 13.15.0
-  resolution: "@types/validator@npm:13.15.0"
-  checksum: 10c0/e05ee9fb59c8b3de0f8910b082e43ffebe1202a2f2bfc0390031d788b2fd68880b365b0cb2b9685d4f8458b2d4e09c7cb6e61d4f24031dc05bafd70e9560738f
   languageName: node
   linkType: hard
 
@@ -13581,7 +13574,7 @@ __metadata:
     "@types/graphlib": "npm:~2.1.12"
     "@types/jexl": "npm:~2.3.4"
     "@types/valid-url": "npm:~1.0.7"
-    "@types/validator": "npm:~13.15.0"
+    "@types/validator": "npm:~13.12.2"
     "@types/yargs": "npm:~17.0.33"
     awesome-phonenumber: "npm:~7.4.0"
     execa: "npm:~9.5.2"
@@ -13589,7 +13582,7 @@ __metadata:
     jexl: "npm:~2.3.0"
     nanoid: "npm:~5.1.5"
     valid-url: "npm:~1.0.9"
-    validator: "npm:~13.15.0"
+    validator: "npm:~13.12.0"
     yargs: "npm:~17.7.2"
   bin:
     ts-match: ./bin/ts-transform.js
@@ -14049,13 +14042,6 @@ __metadata:
   version: 13.12.0
   resolution: "validator@npm:13.12.0"
   checksum: 10c0/21d48a7947c9e8498790550f56cd7971e0e3d724c73388226b109c1bac2728f4f88caddfc2f7ed4b076f9b0d004316263ac786a17e9c4edf075741200718cd32
-  languageName: node
-  linkType: hard
-
-"validator@npm:~13.15.0":
-  version: 13.15.0
-  resolution: "validator@npm:13.15.0"
-  checksum: 10c0/0f13fd7031ac575e8d7828431da8ef5859bac6a38ee65e1d7fdd367dbf1c3d94d95182aecc3183f7fa7a30ff4474bf864d1aff54707620227a2cdbfd36d894c2
   languageName: node
   linkType: hard
 
