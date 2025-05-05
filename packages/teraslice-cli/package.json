@@ -64,7 +64,7 @@
         "globby": "~14.1.0",
         "jest-fixtures": "~0.6.0",
         "js-yaml": "~4.1.0",
-        "nock": "~13.5.6",
+        "nock": "~14.0.4",
         "pretty-bytes": "~6.1.1",
         "prompts": "~2.4.2",
         "signale": "~1.4.0",
