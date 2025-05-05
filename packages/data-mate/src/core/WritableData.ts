@@ -58,8 +58,8 @@ export class WritableData<T> {
         }
 
         if (value == null) {
+            // TODO: this might not be needed, could rip it out
             if (this._values.has(index)) {
-                console.log('AM I EVER HERE TO DELETE')
                 this._values.delete(index);
             }
             return this;
