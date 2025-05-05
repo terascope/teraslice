@@ -1,6 +1,6 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeConfig, FieldType } from '@terascope/types';
-import { Column, DataFrame } from '../src/index.js';
+import { DataFrame } from '../src/index.js';
 
 describe('DataFrame', () => {
     const config: DataTypeConfig = {

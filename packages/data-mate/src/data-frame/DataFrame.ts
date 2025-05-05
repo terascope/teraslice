@@ -223,9 +223,10 @@ export class DataFrame<
             return;
         }
 
-        if (!options?.useNullForUndefined) {
+        if (!options?.useNullForUndefined && json) {
+            const columns = this.columns.filter((col) => !col.isEmpty());
+
             for (let i = 0; i < this.size; i++) {
-                const columns = this.columns.filter((col) => !col.isEmpty());
                 // cast the type of json to true since typescript
                 // can't detect what the return type should be here
                 const row = this._getRowOptimized(i, columns, json as true, options);
@@ -1081,7 +1082,7 @@ export class DataFrame<
             }
         }
 
-        if (!hasKeys) {
+        if (options?.skipEmptyObjects && !hasKeys) {
             return undefined;
         }
 
