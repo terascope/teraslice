@@ -5,7 +5,7 @@ import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
     isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
     helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
-    generateTestCaCerts, createMinioSecret
+    generateTestCaCerts, createMinioSecret, dockerBuild
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
@@ -75,6 +75,9 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 
     try {
         await buildAndTagTerasliceImage(options);
+        if (process.env.ENABLE_UTILITY_SVC) {
+            await buildUtilityImage();
+        }
     } catch (err) {
         signale.fatal(err);
         if (!options.keepOpen) {
@@ -199,18 +202,28 @@ async function buildAndTagTerasliceImage(options: K8sEnvOptions) {
                 nodeSuffix: true,
                 nodeVersion: config.NODE_VERSION,
                 type: PublishType.Dev,
-                useDevFile: options.dev
+                dockerFileName: options.dev ? 'Dockerfile.dev' : ''
             };
             runImage = await buildDevDockerImage(publishOptions);
         } catch (err) {
-            throw new Error(`Docker image build failed: ${err}`);
+            throw new Error(`Teraslice Docker image build failed: ${err}`);
         }
     }
 
     try {
         await dockerTag(runImage, e2eImage);
     } catch (err) {
-        throw new Error(`Failed to tag docker image ${runImage} as ${e2eImage}: ${err}`);
+        throw new Error(`Failed to tag teraslice docker image ${runImage} as ${e2eImage}: ${err}`);
+    }
+}
+
+async function buildUtilityImage() {
+    try {
+        const tag = `${config.UTILITY_SVC_DOCKER_IMAGE}:${config.UTILITY_SVC_VERSION}`;
+        const dockerProjectPath = config.UTILITY_SVC_DOCKER_PROJECT_PATH;
+        dockerBuild(tag, undefined, undefined, undefined, undefined, dockerProjectPath);
+    } catch (err) {
+        throw new Error(`Utility Service Docker image build failed: ${err}`);
     }
 }
 
