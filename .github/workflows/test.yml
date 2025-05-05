@@ -235,9 +235,7 @@ jobs:
 
       - name: Install Helmfile
         run: |
-          VERSION=$(curl -s https://api.github.com/repos/helmfile/helmfile/releases/latest | jq -r '.tag_name')
-          VERSION_NO_V=${VERSION#v}
-          curl -L "https://github.com/helmfile/helmfile/releases/download/${VERSION}/helmfile_${VERSION_NO_V}_linux_amd64.tar.gz" -o helmfile.tgz
+          curl -L "https://github.com/helmfile/helmfile/releases/download/${VERSION}/helmfile_0.171.0_linux_amd64.tar.gz" -o helmfile.tgz
           tar -xzf helmfile.tgz
           chmod +x helmfile
           mv helmfile /usr/local/bin/helmfile
