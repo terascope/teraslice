@@ -1,7 +1,7 @@
 {
     "name": "xlucene-parser",
     "displayName": "xLucene Parser",
-    "version": "1.8.0",
+    "version": "1.8.1",
     "description": "Flexible Lucene-like evaluator and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser#readme",
     "repository": {
@@ -34,7 +34,7 @@
     },
     "dependencies": {
         "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.0",
+        "@terascope/utils": "~1.8.1",
         "peggy": "~4.2.0",
         "ts-pegjs": "~4.2.1"
     },

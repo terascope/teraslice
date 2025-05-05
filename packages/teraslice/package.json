@@ -39,11 +39,11 @@
     },
     "dependencies": {
         "@kubernetes/client-node": "~1.1.2",
-        "@terascope/elasticsearch-api": "~4.9.0",
-        "@terascope/job-components": "~1.10.0",
-        "@terascope/teraslice-messaging": "~1.11.0",
+        "@terascope/elasticsearch-api": "~4.9.1",
+        "@terascope/job-components": "~1.10.1",
+        "@terascope/teraslice-messaging": "~1.11.1",
         "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.0",
+        "@terascope/utils": "~1.8.1",
         "async-mutex": "~0.5.0",
         "barbe": "~3.0.17",
         "body-parser": "~2.2.0",
@@ -62,7 +62,7 @@
         "semver": "~7.7.1",
         "socket.io": "~1.7.4",
         "socket.io-client": "~1.7.4",
-        "terafoundation": "~1.12.1",
+        "terafoundation": "~1.12.2",
         "uuid": "~11.1.0"
     },
     "devDependencies": {
