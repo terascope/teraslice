@@ -1,7 +1,7 @@
 {
     "name": "@terascope/elasticsearch-api",
     "displayName": "Elasticsearch API",
-    "version": "4.9.0",
+    "version": "4.9.1",
     "description": "Elasticsearch client api used across multiple services, handles retries and exponential backoff",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-api#readme",
     "bugs": {
@@ -25,7 +25,7 @@
     },
     "dependencies": {
         "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.0",
+        "@terascope/utils": "~1.8.1",
         "bluebird": "~3.7.2",
         "setimmediate": "~1.0.5"
     },

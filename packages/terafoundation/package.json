@@ -30,7 +30,7 @@
     "dependencies": {
         "@terascope/file-asset-apis": "~1.0.5",
         "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.0",
+        "@terascope/utils": "~1.8.1",
         "bluebird": "~3.7.2",
         "bunyan": "~1.8.15",
         "convict": "~6.2.4",

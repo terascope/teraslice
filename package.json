@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "2.14.5",
+    "version": "2.15.0",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -51,10 +51,10 @@
         "nan": "~2.22.0"
     },
     "devDependencies": {
-        "@eslint/js": "~9.25.1",
-        "@swc/core": "1.11.22",
+        "@eslint/js": "~9.26.0",
+        "@swc/core": "1.11.24",
         "@swc/jest": "~0.2.38",
-        "@terascope/scripts": "~1.16.0",
+        "@terascope/scripts": "~1.16.1",
         "@types/bluebird": "~3.5.42",
         "@types/convict": "~6.1.6",
         "@types/elasticsearch": "~5.0.43",
@@ -63,7 +63,7 @@
         "@types/lodash": "~4.17.16",
         "@types/node": "~22.15.3",
         "@types/uuid": "~10.0.0",
-        "eslint": "~9.25.1",
+        "eslint": "~9.26.0",
         "jest": "~29.7.0",
         "jest-extended": "~4.0.2",
         "jest-watch-typeahead": "~2.2.2",

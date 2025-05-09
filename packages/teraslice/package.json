@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
     "displayName": "Teraslice",
-    "version": "2.14.5",
+    "version": "2.15.0",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -39,11 +39,11 @@
     },
     "dependencies": {
         "@kubernetes/client-node": "~1.1.2",
-        "@terascope/elasticsearch-api": "~4.9.0",
-        "@terascope/job-components": "~1.10.0",
-        "@terascope/teraslice-messaging": "~1.11.0",
+        "@terascope/elasticsearch-api": "~4.9.1",
+        "@terascope/job-components": "~1.10.1",
+        "@terascope/teraslice-messaging": "~1.11.1",
         "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.0",
+        "@terascope/utils": "~1.8.1",
         "async-mutex": "~0.5.0",
         "barbe": "~3.0.17",
         "body-parser": "~2.2.0",
