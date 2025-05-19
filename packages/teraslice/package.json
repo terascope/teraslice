@@ -34,7 +34,7 @@
         "test:watch": "TEST_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test --watch ../teraslice --"
     },
     "resolutions": {
-        "debug": "~4.4.0",
+        "debug": "~4.4.1",
         "ms": "~2.1.3"
     },
     "dependencies": {

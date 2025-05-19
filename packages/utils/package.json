@@ -26,7 +26,7 @@
         "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../utils --"
     },
     "resolutions": {
-        "debug": "~4.4.0"
+        "debug": "~4.4.1"
     },
     "dependencies": {
         "@chainsafe/is-ip": "~2.1.0",
