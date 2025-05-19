@@ -51,7 +51,7 @@
         "nan": "~2.22.0"
     },
     "devDependencies": {
-        "@eslint/js": "~9.26.0",
+        "@eslint/js": "~9.27.0",
         "@swc/core": "1.11.24",
         "@swc/jest": "~0.2.38",
         "@terascope/scripts": "~1.16.1",
@@ -61,14 +61,14 @@
         "@types/fs-extra": "~11.0.4",
         "@types/jest": "~29.5.14",
         "@types/lodash": "~4.17.16",
-        "@types/node": "~22.15.3",
+        "@types/node": "~22.15.19",
         "@types/uuid": "~10.0.0",
-        "eslint": "~9.26.0",
+        "eslint": "~9.27.0",
         "jest": "~29.7.0",
         "jest-extended": "~4.0.2",
         "jest-watch-typeahead": "~2.2.2",
         "node-notifier": "~10.0.1",
-        "ts-jest": "~29.3.2",
+        "ts-jest": "~29.3.4",
         "typescript": "~5.8.3"
     },
     "packageManager": "yarn@4.6.0",
