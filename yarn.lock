@@ -3497,15 +3497,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/diff@npm:~8.0.0":
-  version: 8.0.0
-  resolution: "@types/diff@npm:8.0.0"
-  dependencies:
-    diff: "npm:*"
-  checksum: 10c0/c6e3376abeac8bc77b33252afc239a3cfc2729ecf59abcf00fa0f0eca8c505fd3a375a99a64afecdbb97fbec77b9a6aa8a8918f4d53fd5b45638d609343717cc
-  languageName: node
-  linkType: hard
-
 "@types/ejs@npm:~3.1.5":
   version: 3.1.5
   resolution: "@types/ejs@npm:3.1.5"
@@ -6113,7 +6104,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diff@npm:*, diff@npm:~8.0.1":
+"diff@npm:~8.0.1":
   version: 8.0.1
   resolution: "diff@npm:8.0.1"
   checksum: 10c0/43ebbe63881d34067d77d7b9d16220f1efb8013e04be58c7748ab296d2a9637f49424c69477e36c81a53f2c347b396956966e708e1b5b4dde3620f2b4bb93d02
@@ -13011,7 +13002,6 @@ __metadata:
     "@terascope/types": "npm:~1.4.1"
     "@terascope/utils": "npm:~1.8.1"
     "@types/decompress": "npm:~4.2.7"
-    "@types/diff": "npm:~8.0.0"
     "@types/ejs": "npm:~3.1.5"
     "@types/js-yaml": "npm:~4.0.9"
     "@types/prompts": "npm:~2.4.9"
