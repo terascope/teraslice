@@ -1,7 +1,7 @@
 {
     "name": "@terascope/job-components",
     "displayName": "Job Components",
-    "version": "1.10.1",
+    "version": "1.10.2",
     "description": "A teraslice library for validating jobs schemas, registering apis, and defining and running new Job APIs",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/job-components#readme",
     "bugs": {
@@ -33,7 +33,7 @@
     },
     "dependencies": {
         "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.1",
+        "@terascope/utils": "~1.8.2",
         "convict": "~6.2.4",
         "convict-format-with-moment": "~6.2.0",
         "convict-format-with-validator": "~6.2.0",

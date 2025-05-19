@@ -2845,13 +2845,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/data-mate@npm:~1.8.1, @terascope/data-mate@workspace:packages/data-mate":
+"@terascope/data-mate@npm:~1.8.2, @terascope/data-mate@workspace:packages/data-mate":
   version: 0.0.0-use.local
   resolution: "@terascope/data-mate@workspace:packages/data-mate"
   dependencies:
-    "@terascope/data-types": "npm:~1.8.1"
+    "@terascope/data-types": "npm:~1.8.2"
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@types/ip6addr": "npm:~0.2.6"
     "@types/uuid": "npm:~10.0.0"
     "@types/validator": "npm:~13.12.2"
@@ -2868,16 +2868,16 @@ __metadata:
     uuid: "npm:~11.1.0"
     valid-url: "npm:~1.0.9"
     validator: "npm:~13.12.0"
-    xlucene-parser: "npm:~1.8.1"
+    xlucene-parser: "npm:~1.8.2"
   languageName: unknown
   linkType: soft
 
-"@terascope/data-types@npm:~1.8.1, @terascope/data-types@workspace:packages/data-types":
+"@terascope/data-types@npm:~1.8.2, @terascope/data-types@workspace:packages/data-types":
   version: 0.0.0-use.local
   resolution: "@terascope/data-types@workspace:packages/data-types"
   dependencies:
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@types/yargs": "npm:~17.0.33"
     graphql: "npm:~16.10.0"
     yargs: "npm:~17.7.2"
@@ -2894,17 +2894,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/elasticsearch-api@npm:~4.9.1, @terascope/elasticsearch-api@workspace:packages/elasticsearch-api":
+"@terascope/elasticsearch-api@npm:~4.9.2, @terascope/elasticsearch-api@workspace:packages/elasticsearch-api":
   version: 0.0.0-use.local
   resolution: "@terascope/elasticsearch-api@workspace:packages/elasticsearch-api"
   dependencies:
     "@opensearch-project/opensearch": "npm:~1.2.0"
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@types/elasticsearch": "npm:~5.0.43"
     bluebird: "npm:~3.7.2"
     elasticsearch: "npm:~15.4.1"
-    elasticsearch-store: "npm:~1.10.2"
+    elasticsearch-store: "npm:~1.10.3"
     elasticsearch6: "npm:@elastic/elasticsearch@~6.8.0"
     elasticsearch7: "npm:@elastic/elasticsearch@~7.17.0"
     elasticsearch8: "npm:@elastic/elasticsearch@~8.15.0"
@@ -2966,12 +2966,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/job-components@npm:~1.10.1, @terascope/job-components@workspace:packages/job-components":
+"@terascope/job-components@npm:~1.10.2, @terascope/job-components@workspace:packages/job-components":
   version: 0.0.0-use.local
   resolution: "@terascope/job-components@workspace:packages/job-components"
   dependencies:
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     benchmark: "npm:~2.1.4"
     convict: "npm:~6.2.4"
     convict-format-with-moment: "npm:~6.2.0"
@@ -2986,12 +2986,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/scripts@npm:~1.16.1, @terascope/scripts@workspace:packages/scripts":
+"@terascope/scripts@npm:~1.16.2, @terascope/scripts@workspace:packages/scripts":
   version: 0.0.0-use.local
   resolution: "@terascope/scripts@workspace:packages/scripts"
   dependencies:
     "@kubernetes/client-node": "npm:~1.1.2"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@types/ip": "npm:~1.1.3"
     "@types/micromatch": "npm:~4.0.9"
     "@types/ms": "npm:~0.7.34"
@@ -3029,12 +3029,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/teraslice-messaging@npm:~1.11.1, @terascope/teraslice-messaging@workspace:packages/teraslice-messaging":
+"@terascope/teraslice-messaging@npm:~1.11.2, @terascope/teraslice-messaging@workspace:packages/teraslice-messaging":
   version: 0.0.0-use.local
   resolution: "@terascope/teraslice-messaging@workspace:packages/teraslice-messaging"
   dependencies:
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@types/ms": "npm:~0.7.34"
     "@types/socket.io": "npm:~2.1.13"
     "@types/socket.io-client": "npm:~1.4.36"
@@ -3051,8 +3051,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@terascope/teraslice-state-storage@workspace:packages/teraslice-state-storage"
   dependencies:
-    "@terascope/elasticsearch-api": "npm:~4.9.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/elasticsearch-api": "npm:~4.9.2"
+    "@terascope/utils": "npm:~1.8.2"
   languageName: unknown
   linkType: soft
 
@@ -3064,7 +3064,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/utils@npm:~1.8.1, @terascope/utils@workspace:packages/utils":
+"@terascope/utils@npm:~1.8.1, @terascope/utils@npm:~1.8.2, @terascope/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@terascope/utils@workspace:packages/utils"
   dependencies:
@@ -6152,11 +6152,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "e2e@workspace:e2e"
   dependencies:
-    "@terascope/scripts": "npm:~1.16.1"
+    "@terascope/scripts": "npm:~1.16.2"
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     bunyan: "npm:~1.8.15"
-    elasticsearch-store: "npm:~1.10.2"
+    elasticsearch-store: "npm:~1.10.3"
     fs-extra: "npm:~11.3.0"
     jest: "npm:^29.7.0"
     jest-extended: "npm:^4.0.2"
@@ -6219,14 +6219,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"elasticsearch-store@npm:~1.10.2, elasticsearch-store@workspace:packages/elasticsearch-store":
+"elasticsearch-store@npm:~1.10.3, elasticsearch-store@workspace:packages/elasticsearch-store":
   version: 0.0.0-use.local
   resolution: "elasticsearch-store@workspace:packages/elasticsearch-store"
   dependencies:
-    "@terascope/data-mate": "npm:~1.8.1"
-    "@terascope/data-types": "npm:~1.8.1"
+    "@terascope/data-mate": "npm:~1.8.2"
+    "@terascope/data-types": "npm:~1.8.2"
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@types/uuid": "npm:~10.0.0"
     ajv: "npm:~8.17.1"
     ajv-formats: "npm:~3.0.1"
@@ -6237,7 +6237,7 @@ __metadata:
     opensearch2: "npm:@opensearch-project/opensearch@~2.12.0"
     setimmediate: "npm:~1.0.5"
     uuid: "npm:~11.1.0"
-    xlucene-translator: "npm:~1.8.1"
+    xlucene-translator: "npm:~1.8.2"
   languageName: unknown
   linkType: soft
 
@@ -12966,13 +12966,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"terafoundation@npm:~1.12.2, terafoundation@workspace:packages/terafoundation":
+"terafoundation@npm:~1.12.3, terafoundation@workspace:packages/terafoundation":
   version: 0.0.0-use.local
   resolution: "terafoundation@workspace:packages/terafoundation"
   dependencies:
     "@terascope/file-asset-apis": "npm:~1.0.6"
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@types/bunyan": "npm:~1.8.11"
     "@types/elasticsearch": "npm:~5.0.43"
     "@types/express": "npm:~5.0.2"
@@ -12983,7 +12983,7 @@ __metadata:
     convict-format-with-moment: "npm:~6.2.0"
     convict-format-with-validator: "npm:~6.2.0"
     elasticsearch: "npm:~15.4.1"
-    elasticsearch-store: "npm:~1.10.2"
+    elasticsearch-store: "npm:~1.10.3"
     express: "npm:~5.1.0"
     got: "npm:~13.0.0"
     js-yaml: "npm:~4.1.0"
@@ -13000,7 +13000,7 @@ __metadata:
   dependencies:
     "@terascope/fetch-github-release": "npm:~2.1.0"
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@types/decompress": "npm:~4.2.7"
     "@types/ejs": "npm:~3.1.5"
     "@types/js-yaml": "npm:~4.0.9"
@@ -13024,7 +13024,7 @@ __metadata:
     pretty-bytes: "npm:~6.1.1"
     prompts: "npm:~2.4.2"
     signale: "npm:~1.4.0"
-    teraslice-client-js: "npm:~1.8.1"
+    teraslice-client-js: "npm:~1.8.2"
     tmp: "npm:~0.2.3"
     tty-table: "npm:~4.2.3"
     yargs: "npm:~17.7.2"
@@ -13034,12 +13034,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"teraslice-client-js@npm:~1.8.1, teraslice-client-js@workspace:packages/teraslice-client-js":
+"teraslice-client-js@npm:~1.8.2, teraslice-client-js@workspace:packages/teraslice-client-js":
   version: 0.0.0-use.local
   resolution: "teraslice-client-js@workspace:packages/teraslice-client-js"
   dependencies:
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     auto-bind: "npm:~5.0.1"
     got: "npm:~13.0.0"
     nock: "npm:~13.5.6"
@@ -13051,11 +13051,11 @@ __metadata:
   resolution: "teraslice-test-harness@workspace:packages/teraslice-test-harness"
   dependencies:
     "@terascope/fetch-github-release": "npm:~2.1.0"
-    "@terascope/job-components": "npm:~1.10.1"
+    "@terascope/job-components": "npm:~1.10.2"
     decompress: "npm:~4.2.1"
     fs-extra: "npm:~11.3.0"
   peerDependencies:
-    "@terascope/job-components": ">=1.10.1"
+    "@terascope/job-components": ">=1.10.2"
   languageName: unknown
   linkType: soft
 
@@ -13066,7 +13066,7 @@ __metadata:
     "@eslint/js": "npm:~9.27.0"
     "@swc/core": "npm:1.11.24"
     "@swc/jest": "npm:~0.2.38"
-    "@terascope/scripts": "npm:~1.16.1"
+    "@terascope/scripts": "npm:~1.16.2"
     "@types/bluebird": "npm:~3.5.42"
     "@types/convict": "npm:~6.1.6"
     "@types/elasticsearch": "npm:~5.0.43"
@@ -13090,11 +13090,11 @@ __metadata:
   resolution: "teraslice@workspace:packages/teraslice"
   dependencies:
     "@kubernetes/client-node": "npm:~1.1.2"
-    "@terascope/elasticsearch-api": "npm:~4.9.1"
-    "@terascope/job-components": "npm:~1.10.1"
-    "@terascope/teraslice-messaging": "npm:~1.11.1"
+    "@terascope/elasticsearch-api": "npm:~4.9.2"
+    "@terascope/job-components": "npm:~1.10.2"
+    "@terascope/teraslice-messaging": "npm:~1.11.2"
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@types/archiver": "npm:~6.0.3"
     "@types/express": "npm:~5.0.2"
     "@types/gc-stats": "npm:~1.4.3"
@@ -13125,7 +13125,7 @@ __metadata:
     semver: "npm:~7.7.2"
     socket.io: "npm:~1.7.4"
     socket.io-client: "npm:~1.7.4"
-    terafoundation: "npm:~1.12.2"
+    terafoundation: "npm:~1.12.3"
     uuid: "npm:~11.1.0"
   languageName: unknown
   linkType: soft
@@ -13349,9 +13349,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "ts-transforms@workspace:packages/ts-transforms"
   dependencies:
-    "@terascope/data-mate": "npm:~1.8.1"
+    "@terascope/data-mate": "npm:~1.8.2"
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@types/graphlib": "npm:~2.1.12"
     "@types/jexl": "npm:~2.3.4"
     "@types/valid-url": "npm:~1.0.7"
@@ -14100,12 +14100,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xlucene-parser@npm:~1.8.1, xlucene-parser@workspace:packages/xlucene-parser":
+"xlucene-parser@npm:~1.8.2, xlucene-parser@workspace:packages/xlucene-parser":
   version: 0.0.0-use.local
   resolution: "xlucene-parser@workspace:packages/xlucene-parser"
   dependencies:
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@turf/invariant": "npm:~7.2.0"
     "@turf/random": "npm:~7.2.0"
     peggy: "npm:~4.2.0"
@@ -14113,15 +14113,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"xlucene-translator@npm:~1.8.1, xlucene-translator@workspace:packages/xlucene-translator":
+"xlucene-translator@npm:~1.8.2, xlucene-translator@workspace:packages/xlucene-translator":
   version: 0.0.0-use.local
   resolution: "xlucene-translator@workspace:packages/xlucene-translator"
   dependencies:
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
     "@types/elasticsearch": "npm:~5.0.43"
     elasticsearch: "npm:~15.4.1"
-    xlucene-parser: "npm:~1.8.1"
+    xlucene-parser: "npm:~1.8.2"
   languageName: unknown
   linkType: soft
 
@@ -14137,7 +14137,7 @@ __metadata:
   resolution: "xpressions@workspace:packages/xpressions"
   dependencies:
     "@terascope/types": "npm:~1.4.1"
-    "@terascope/utils": "npm:~1.8.1"
+    "@terascope/utils": "npm:~1.8.2"
   languageName: unknown
   linkType: soft
 
