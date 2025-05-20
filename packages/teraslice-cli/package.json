@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "2.10.6",
+    "version": "2.10.7",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -39,14 +39,13 @@
         "test:watch": "yarn workspace @terascope/scripts test --watch ../teraslice-cli --"
     },
     "dependencies": {
-        "esbuild": "~0.25.3"
+        "esbuild": "~0.25.4"
     },
     "devDependencies": {
         "@terascope/fetch-github-release": "~2.1.0",
         "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.1",
+        "@terascope/utils": "~1.8.2",
         "@types/decompress": "~4.2.7",
-        "@types/diff": "~7.0.2",
         "@types/ejs": "~3.1.5",
         "@types/js-yaml": "~4.0.9",
         "@types/prompts": "~2.4.9",
@@ -56,10 +55,10 @@
         "chalk": "~5.4.1",
         "cli-table3": "~0.6.5",
         "decompress": "~4.2.1",
-        "diff": "~7.0.0",
+        "diff": "~8.0.1",
         "easy-table": "~1.2.0",
         "ejs": "~3.1.10",
-        "execa": "~9.5.2",
+        "execa": "~9.5.3",
         "fs-extra": "~11.3.0",
         "globby": "~14.1.0",
         "jest-fixtures": "~0.6.0",
@@ -68,7 +67,7 @@
         "pretty-bytes": "~6.1.1",
         "prompts": "~2.4.2",
         "signale": "~1.4.0",
-        "teraslice-client-js": "~1.8.1",
+        "teraslice-client-js": "~1.8.2",
         "tmp": "~0.2.3",
         "tty-table": "~4.2.3",
         "yargs": "~17.7.2"
