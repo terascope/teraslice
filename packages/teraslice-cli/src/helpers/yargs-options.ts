@@ -64,15 +64,11 @@ export default class Options {
             type: 'boolean'
         }),
         'bundle-target': () => ({
-            describe: 'Specify which version of node is used as the target for esbuild.'
-                + ' Defaults to current major node version',
+            describe: 'Specify the ECMAScript target environment for esbuild, such as a specific Node.js version.\n'
+                + 'Defaults to the current major Node.js version in use.'
+                + 'Use the syntax accepted by esbuild, for example: "node20" or "es2020".\n'
+                + 'See full list of valid targets at: https://esbuild.github.io/api/#target',
             default: `node${process.version.split('.', 1)[0].substring(1)}`,
-            choices: [
-                'node16',
-                'node18',
-                'node20',
-                'node22'
-            ],
             // I have disabled this because for some reason this requirement was
             // being enforced even when `bundle-target` wasn't specified.
             // Ideally we'd have a way to warn the user that they need to set
