@@ -117,7 +117,7 @@ export const UTILITY_SVC_DOCKER_PROJECT_PATH = process.env.UTILITY_SVC_DOCKER_PR
 export const KIND_DOCKER_IMAGE = 'kindest/node';
 export const KIND_VERSION = 'v1.30.0';
 
-export const BASE_DOCKER_IMAGE = 'terascope/node-base';
+export const BASE_DOCKER_IMAGE = 'ghcr.io/terascope/node-base';
 /**
  * When set this will skip git commands. This is useful for Dockerfile when git is not
  * available or does not work
