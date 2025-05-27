@@ -39,7 +39,7 @@
         "elasticsearch8": "npm:@elastic/elasticsearch@~8.15.0"
     },
     "engines": {
-        "node": ">=18.18.0",
+        "node": ">=22.0.0",
         "yarn": ">=1.22.19"
     },
     "publishConfig": {

@@ -42,7 +42,7 @@
         "@terascope/job-components": ">=1.10.2"
     },
     "engines": {
-        "node": ">=18.18.0",
+        "node": ">=22.0.0",
         "yarn": ">=1.22.19"
     },
     "publishConfig": {
