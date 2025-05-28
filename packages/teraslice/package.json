@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
     "displayName": "Teraslice",
-    "version": "2.15.0",
+    "version": "2.16.0",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -80,7 +80,7 @@
         "nock": "~13.5.6"
     },
     "engines": {
-        "node": ">=18.18.0",
+        "node": ">=22.0.0",
         "yarn": ">=1.22.19"
     },
     "publishConfig": {
