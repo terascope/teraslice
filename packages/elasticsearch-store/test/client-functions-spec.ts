@@ -1615,9 +1615,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             }
             const keys = Object.keys(get(resp, pathToProperties, {}));
 
-            expectedKeys.forEach((key) => {
-                expect(keys).toInclude(key);
-            });
+            expect(keys).toIncludeAllMembers(expectedKeys);
         });
     });
 
