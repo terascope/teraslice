@@ -31,7 +31,7 @@
         "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../teraslice-test-harness --"
     },
     "dependencies": {
-        "@terascope/fetch-github-release": "~2.1.0",
+        "@terascope/fetch-github-release": "~2.2.1",
         "decompress": "~4.2.1",
         "fs-extra": "~11.3.0"
     },

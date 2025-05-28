@@ -32,9 +32,9 @@
         "typescript": "~5.8.3"
     },
     "dependencies": {
-        "@kubernetes/client-node": "~1.1.2",
+        "@kubernetes/client-node": "~1.2.0",
         "@terascope/utils": "~1.8.2",
-        "execa": "~9.5.3",
+        "execa": "~9.6.0",
         "fs-extra": "~11.3.0",
         "globby": "~14.1.0",
         "got": "~13.0.0",
@@ -50,7 +50,7 @@
         "signale": "~1.4.0",
         "sort-package-json": "~2.15.1",
         "toposort": "~2.0.2",
-        "typedoc": "~0.28.4",
+        "typedoc": "~0.28.5",
         "typedoc-plugin-markdown": "~4.6.3",
         "yaml": "^2.8.0",
         "yargs": "~17.7.2"

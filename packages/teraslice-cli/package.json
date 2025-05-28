@@ -39,10 +39,10 @@
         "test:watch": "yarn workspace @terascope/scripts test --watch ../teraslice-cli --"
     },
     "dependencies": {
-        "esbuild": "~0.25.4"
+        "esbuild": "~0.25.5"
     },
     "devDependencies": {
-        "@terascope/fetch-github-release": "~2.1.0",
+        "@terascope/fetch-github-release": "~2.2.1",
         "@terascope/types": "~1.4.1",
         "@terascope/utils": "~1.8.2",
         "@types/decompress": "~4.2.7",
@@ -55,10 +55,10 @@
         "chalk": "~5.4.1",
         "cli-table3": "~0.6.5",
         "decompress": "~4.2.1",
-        "diff": "~8.0.1",
+        "diff": "~8.0.2",
         "easy-table": "~1.2.0",
         "ejs": "~3.1.10",
-        "execa": "~9.5.3",
+        "execa": "~9.6.0",
         "fs-extra": "~11.3.0",
         "globby": "~14.1.0",
         "jest-fixtures": "~0.6.0",
