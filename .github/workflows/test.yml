@@ -44,21 +44,21 @@ jobs:
       run: YARN_ENABLE_HARDENED_MODE=1 yarn && yarn setup
 
   check-docker-limit-before:
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@main
     secrets: inherit
 
   check-github-api-limit-before:
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
     secrets: inherit
 
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@main
     secrets: inherit
 
   cache-asset-bundles:
     needs: check-github-api-limit-before
-    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@main
     secrets: inherit
 
   linux-unit-tests:
@@ -682,7 +682,7 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@main
     secrets: inherit
 
   check-github-api-limit-after:
@@ -696,5 +696,5 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
     secrets: inherit
