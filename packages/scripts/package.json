@@ -37,7 +37,7 @@
         "execa": "~9.6.0",
         "fs-extra": "~11.3.0",
         "globby": "~14.1.0",
-        "got": "~13.0.0",
+        "got": "~14.4.7",
         "ip": "~2.0.1",
         "js-yaml": "~4.1.0",
         "kafkajs": "~2.2.4",
@@ -48,12 +48,12 @@
         "package-up": "~5.0.0",
         "semver": "~7.7.2",
         "signale": "~1.4.0",
-        "sort-package-json": "~2.15.1",
+        "sort-package-json": "~3.2.1",
         "toposort": "~2.0.2",
         "typedoc": "~0.28.5",
-        "typedoc-plugin-markdown": "~4.6.3",
+        "typedoc-plugin-markdown": "~4.6.4",
         "yaml": "^2.8.0",
-        "yargs": "~17.7.2"
+        "yargs": "~18.0.0"
     },
     "devDependencies": {
         "@types/ip": "~1.1.3",

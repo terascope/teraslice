@@ -30,7 +30,7 @@
         "@terascope/types": "~1.4.1",
         "@terascope/utils": "~1.8.2",
         "graphql": "~16.10.0",
-        "yargs": "~17.7.2"
+        "yargs": "~18.0.0"
     },
     "devDependencies": {
         "@types/yargs": "~17.0.33"
