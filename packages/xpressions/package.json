@@ -19,9 +19,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../xpressions --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../xpressions --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../xpressions --"
+        "test": "node ../scripts/bin/ts-scripts test ../xpressions --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../xpressions --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../xpressions --"
     },
     "dependencies": {
         "@terascope/utils": "~1.8.2"
