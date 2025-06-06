@@ -13,9 +13,9 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../eslint-config --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../eslint-config --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../eslint-config --"
+        "test": "node ../scripts/bin/ts-scripts test ../eslint-config --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../eslint-config --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../eslint-config --"
     },
     "dependencies": {
         "@eslint/compat": "~1.2.9",

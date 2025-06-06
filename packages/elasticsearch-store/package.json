@@ -20,13 +20,13 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "TEST_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
-        "test:debug": "TEST_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test --debug ../elasticsearch-store --",
-        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
-        "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
-        "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
-        "test:opensearch1": "TEST_OPENSEARCH='true' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
-        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-store --",
+        "test": "TEST_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
+        "test:debug": "TEST_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-store --",
+        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
+        "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
+        "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
+        "test:opensearch1": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
         "test:watch": "ts-scripts yarn workspace @terascope/scripts test --watch ../elasticsearch-store --"
     },
     "dependencies": {

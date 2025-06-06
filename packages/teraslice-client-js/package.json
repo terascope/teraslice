@@ -27,9 +27,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../teraslice-client-js --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../teraslice-client-js --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../teraslice-client-js --"
+        "test": "node ../scripts/bin/ts-scripts test ../teraslice-client-js --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../teraslice-client-js --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../teraslice-client-js --"
     },
     "dependencies": {
         "@terascope/types": "~1.4.1",

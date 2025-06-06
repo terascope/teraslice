@@ -22,9 +22,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../data-types --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../data-types --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../data-types --"
+        "test": "node ../scripts/bin/ts-scripts test ../data-types --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../data-types --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-types --"
     },
     "dependencies": {
         "@terascope/types": "~1.4.1",
