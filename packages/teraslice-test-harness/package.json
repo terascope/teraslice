@@ -26,9 +26,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../teraslice-test-harness --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../teraslice-test-harness --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../teraslice-test-harness --"
+        "test": "node ../scripts/bin/ts-scripts test ../teraslice-test-harness --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../teraslice-test-harness --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../teraslice-test-harness --"
     },
     "dependencies": {
         "@terascope/fetch-github-release": "~2.2.1",

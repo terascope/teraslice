@@ -34,7 +34,7 @@
         "build": "tsc --build && yarn postbuild",
         "postbuild": "node build.js",
         "build:watch": "tsc --build --watch & node build.js --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../teraslice-cli --",
+        "test": "node ../scripts/bin/ts-scripts test ../teraslice-cli --",
         "test:debug": "yarn workspace @terascope/scripts test --debug ../teraslice-cli --",
         "test:watch": "yarn workspace @terascope/scripts test --watch ../teraslice-cli --"
     },

@@ -24,9 +24,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../xlucene-translator --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../xlucene-translator --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../xlucene-translator --"
+        "test": "node ../scripts/bin/ts-scripts test ../xlucene-translator --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../xlucene-translator --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../xlucene-translator --"
     },
     "dependencies": {
         "@terascope/types": "~1.4.1",

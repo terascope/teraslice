@@ -14,14 +14,14 @@
     "main": "index.js",
     "typings": "types/index.d.ts",
     "scripts": {
-        "test": "TEST_RESTRAINED_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-api --",
-        "test:debug": "TEST_RESTRAINED_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test --debug ../elasticsearch-api --",
-        "test:elasticsearch6": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-api --",
-        "test:elasticsearch7": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-api --",
-        "test:elasticsearch8": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' yarn workspace @terascope/scripts ts-scripts test ../elasticsearch-api --",
-        "test:opensearch1": "TEST_RESTRAINED_OPENSEARCH='true' yarn workspace @terascope/scripts ts-scripts test --debug ../elasticsearch-api --",
-        "test:opensearch2": "TEST_RESTRAINED_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' yarn workspace @terascope/scripts ts-scripts test --debug ../elasticsearch-api --",
-        "test:watch": "TEST_RESTRAINED_ELASTICSEARCH='true' yarn workspace @terascope/scripts ts-scripts test --watch ../elasticsearch-api --"
+        "test": "TEST_RESTRAINED_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
+        "test:debug": "TEST_RESTRAINED_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
+        "test:elasticsearch6": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
+        "test:elasticsearch7": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
+        "test:elasticsearch8": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
+        "test:opensearch1": "TEST_RESTRAINED_OPENSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
+        "test:opensearch2": "TEST_RESTRAINED_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
+        "test:watch": "TEST_RESTRAINED_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --watch ../elasticsearch-api --"
     },
     "dependencies": {
         "@terascope/types": "~1.4.1",
