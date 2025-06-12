@@ -179,6 +179,12 @@ export async function runJest(
                 cwd: getRootDir()
             });
 
+            if (jestBinCall.stderr.length) {
+                throw new Error(
+                    `Unable to find jest bin directory when calling "yarn bin jest": ${jestBinCall.stderr}`
+                );
+            }
+
             const jestBinDir = jestBinCall.stdout;
             args = [
                 'node',
@@ -186,10 +192,11 @@ export async function runJest(
                 '--experimental-vm-modules',
                 jestBinDir
             ];
-        } else if (nodeLinkerConfig === 'pnp') {
+        } else {
             signale.warn(
-                'Projects with pnp are not compatible with '
-                + `ATTACH_JEST_DEBUGGER env config and not be used.`
+                `Projects with ${nodeLinkerConfig} are not compatible with `
+                + `ATTACH_JEST_DEBUGGER env config and not be used. `
+                + 'Only node-modules configuration is valid'
             );
         }
     }
@@ -221,9 +228,15 @@ export async function runJest(
 
 async function getNodeLinkerConfig(): Promise<string> {
     try {
-        const { stdout: nodeLinkerconfig } = await execa('yarn', ['config', 'get', 'nodeLinker'], {
+        const { stdout: nodeLinkerconfig, stderr } = await execa('yarn', ['config', 'get', 'nodeLinker'], {
             cwd: getRootDir()
         });
+
+        // If info is printed in stderr, there must have been an issue
+        if (stderr.length) {
+            throw new Error(stderr);
+        }
+
         return nodeLinkerconfig;
     } catch (err) {
         throw new Error(`Error trying to grab yarn nodeLinker config from the project: ${err.message}`);
