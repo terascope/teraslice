@@ -160,12 +160,40 @@ export async function runJest(
     argsMap: ArgsMap,
     env?: ExecEnv,
     extraArgs?: string[],
-    debug?: boolean
+    debug?: boolean,
+    attachJestDebugger?: boolean
 ): Promise<void> {
     // When running jest in yarn3 PnP with ESM we must call 'yarn jest <...args>'
     // to prevent module not found errors. Therefore we will call fork with the yarn
     // command and set jest to the first argument.
-    const args = ['jest'];
+    let args = ['jest'];
+
+    // Set with ATTACH_JEST_DEBUGGER env variable
+    // Does not work with repos with pnp
+    if (attachJestDebugger) {
+        const nodeLinkerConfig = await getNodeLinkerConfig();
+
+        if (nodeLinkerConfig === 'node-modules') {
+            // Grab jest bin file
+            const jestBinCall = await execa('yarn', ['bin', 'jest'], {
+                cwd: getRootDir()
+            });
+
+            const jestBinDir = jestBinCall.stdout;
+            args = [
+                'node',
+                '--inspect-brk=9230',
+                '--experimental-vm-modules',
+                jestBinDir
+            ];
+        } else if (nodeLinkerConfig === 'pnp') {
+            signale.warn(
+                'Projects with pnp are not compatible with '
+                + `ATTACH_JEST_DEBUGGER env config and not be used.`
+            );
+        }
+    }
+
     args.push(...mapToArgs(argsMap));
     if (extraArgs) {
         extraArgs.forEach((extraArg) => {
@@ -189,6 +217,17 @@ export async function runJest(
         args,
         env,
     });
+}
+
+async function getNodeLinkerConfig(): Promise<string> {
+    try {
+        const { stdout: nodeLinkerconfig } = await execa('yarn', ['config', 'get', 'nodeLinker'], {
+            cwd: getRootDir()
+        });
+        return nodeLinkerconfig;
+    } catch (err) {
+        throw new Error(`Error trying to grab yarn nodeLinker config from the project: ${err.message}`);
+    }
 }
 
 export async function dockerPull(image: string, timeout = 0): Promise<void> {
