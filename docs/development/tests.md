@@ -46,3 +46,59 @@ env DEBUG='*execution-controller*' yarn test:debug
 cd packages/[package-name];
 yarn test:watch
 ```
+
+### Attaching a Debugger to Jest within `ts-scripts`
+
+To debug Jest tests launched through `ts-scripts`, set the `ATTACH_JEST_DEBUGGER` environment variable to start Jest in Node.js debug mode. This will allow for `debugger` statements to work and enable the developer to go line by line within vscode.
+
+#### 1. Enable Debug Mode
+
+Run your test command with the debugger flag:
+
+```bash
+ATTACH_JEST_DEBUGGER=true yarn test
+```
+
+---
+
+#### 2. Configure VS Code
+
+Create or edit your `.vscode/launch.json` file with the following:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Jest Fork in ts-scripts",
+      "port": 9230,
+      "restart": true
+    }
+  ]
+}
+```
+
+Learn more about debugging node.js in vscode Here:
+[Debugging node.js in vscode](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
+
+---
+
+#### 3. Attach from VS Code
+
+1. Open the **Run and Debug** panel in VS Code.
+2. Choose **Attach to Jest Fork in ts-scripts** from the dropdown.
+3. Press the green **Start Debugging** ▶️ button.
+
+VS Code will attach to the Jest process paused at the first line.
+
+---
+
+#### 4. How It Works
+
+- The `ATTACH_JEST_DEBUGGER` flag tells `ts-scripts` to add `--inspect-brk=9230` when spawning Jest.
+- Jest pauses execution until a debugger connects.
+- VScode connects to the process using the settings in `launch.json`.
+
+---
