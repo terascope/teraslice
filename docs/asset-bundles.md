@@ -13,3 +13,4 @@ Asset bundles are collection of processors or files that can be loaded and used 
 - [Standard](https://terascope.github.io/standard-assets)
 - [Kafka](https://terascope.github.io/kafka-assets)
 - [File](https://terascope.github.io/file-assets)
+- [Chaos](https://github.com/terascope/chaos-assets)
