@@ -212,7 +212,7 @@ if (testElasticsearch) {
 
 export const SEARCH_TEST_HOST = process.env.SEARCH_TEST_HOST || testHost;
 
-export const TEST_NODE_VERSIONS = process.env.TEST_NODE_VERSIONS || ['22', '24'];
+export const TEST_NODE_VERSIONS = ['22', '24'];
 export const DEFAULT_NODE_VERSION = '22';
 // This overrides the value in the Dockerfile
 export const NODE_VERSION = process.env.NODE_VERSION || DEFAULT_NODE_VERSION;
