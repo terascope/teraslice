@@ -128,10 +128,10 @@ Asset bundles are collection of processors or files that can be loaded and used 
 
 There are public asset bundles available for:
 
-- [elasticsearch](https://github.com/terascope/elasticsearch-assets)
-- [Kafka](https://github.com/terascope/kafka-assets)
-- [Files](https://github.com/terascope/file-assets) - NFS, Gluster, Amazon S3
-- [Standard](https://github.com/terascope/standard-assets) - library of data transformation tools
+- [elasticsearch](https://terascope.github.io/elasticsearch-assets)
+- [Kafka](https://terascope.github.io/kafka-assets)
+- [Files](https://terascope.github.io/file-assets) - Amazon S3, HDFS
+- [Standard](https://terascope.github.io/standard-assets) - library of data transformation tools
 
 The example job below requires standard-assets and elasticsearch-assets to be available in the cluster for successful execution. Use the teraslice-cli tool to deploy these assets:
 
