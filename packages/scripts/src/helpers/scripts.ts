@@ -195,7 +195,7 @@ export async function runJest(
         } else {
             signale.warn(
                 `Projects with ${nodeLinkerConfig} are not compatible with `
-                + `ATTACH_JEST_DEBUGGER env config and not be used. `
+                + `ATTACH_JEST_DEBUGGER env config and cannot be used. `
                 + 'Only node-modules configuration is valid'
             );
         }

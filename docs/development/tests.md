@@ -51,7 +51,7 @@ yarn test:watch
 
 To debug Jest tests launched through `ts-scripts`, set the `ATTACH_JEST_DEBUGGER` environment variable to start Jest in Node.js debug mode. This will allow for `debugger` statements to work and enable the developer to go line by line within vscode.
 
-#### 1. Enable Debug Mode
+#### 1. Enable Node Debugger
 
 Run your test command with the debugger flag:
 
