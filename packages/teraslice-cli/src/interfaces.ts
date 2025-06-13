@@ -61,3 +61,10 @@ export type UpdateActions = 'running' | 'stopping' | 'status' | 'adjust_workers_
 export type Action = 'start' | 'stop' | 'pause' | 'restart' | 'resume';
 
 export type Tense = 'past' | 'present';
+
+// These should match AssetRepositoryKey values from
+// @terascope/job-components/src/operation-loader/interfaces.ts
+export const OP_TYPES = ['API', 'Fetcher', 'Processor', 'Schema', 'Slicer', 'Observer'] as const;
+
+export type OpTypeTuple = typeof OP_TYPES;
+export type OpType = OpTypeTuple[number];
