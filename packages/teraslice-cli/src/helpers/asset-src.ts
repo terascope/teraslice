@@ -15,6 +15,7 @@ import {
 
 import reply from './reply.js';
 import { wasmPlugin, getPackage } from './utils.js';
+import { OP_TYPES, OpType } from '../interfaces.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,13 +29,6 @@ interface AssetRegistry {
         [property in OpType]: string
     };
 }
-
-// These should match AssetRepositoryKey values from
-// @terascope/job-components/src/operation-loader/interfaces.ts
-const OP_TYPES = ['API', 'Fetcher', 'Processor', 'Schema', 'Slicer', 'Observer'] as const;
-
-type OpTypeTuple = typeof OP_TYPES;
-type OpType = OpTypeTuple[number];
 
 export class AssetSrc {
     /**
