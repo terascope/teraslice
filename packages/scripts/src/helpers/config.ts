@@ -229,3 +229,4 @@ export const DOCKER_IMAGE_LIST_PATH = process.env.DOCKER_IMAGE_LIST_PATH || `${D
 export const DOCKER_CACHE_PATH = process.env.DOCKER_CACHE_PATH || '/tmp/docker_cache';
 export const SKIP_IMAGE_DELETION = toBoolean(process.env.SKIP_IMAGE_DELETION) || false;
 export const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
+export const ATTACH_JEST_DEBUGGER = toBoolean(process.env.ATTACH_JEST_DEBUGGER) || false;
