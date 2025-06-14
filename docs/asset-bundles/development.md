@@ -34,7 +34,7 @@ will look something like this:
         └── schema.js
 ```
 
-In order to decrease the size of your asset bundle keepy the `devDependencies` and any test files at the top-level of the asset bundle
+In order to decrease the size of your asset bundle keep the `devDependencies` and any test files at the top-level of the asset bundle
 and not within the `assets` directory.
 
 An `asset.json` is used to define a bundle of operations, it contains a name and version.
@@ -46,7 +46,10 @@ An `asset.json` is used to define a bundle of operations, it contains a name and
 }
 ```
 
-An `asset.json` can also contain `node_version`, `platform` and `arch` which will be used to restrict the asset for a given environment, which will allowing upgrades to the `node` without breaking jobs. If the value for those restrictions are not specified or are *falsey*, teraslice will not consider it a restricted. This is useful for making an asset bundle that isn't by locked down by node version or os.
+An `asset.json` can also contain `node_version`, `platform` and `arch` which will be used to restrict the asset for a given environment, which will allowing upgrades to the `node` without breaking jobs. If the value for those restrictions are not specified or are *falsy*, teraslice will not consider it restricted. This is useful for making an asset bundle that isn't locked down by node version or os.
+
+Setting `minimum_teraslice_version` will restrict the version of teraslice that can run an asset (teraslice v2.8.0+).
+A `description` field is often included as well.
 
 A job configuration that makes use of a custom operator would simply call the
 operator just like any other operator, as shown below:
@@ -156,4 +159,4 @@ export default class Schema extends ConvictSchema {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-See the [teraslice-cli](../packages/teraslice-cli#assets) documentation for assets.
+See the [teraslice-cli](../packages/teraslice-cli/overview#assets) documentation for assets.

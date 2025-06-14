@@ -4,6 +4,7 @@ import Config from '../../helpers/config.js';
 import YargsOptions from '../../helpers/yargs-options.js';
 import reply from '../../helpers/reply.js';
 import { generateRegistry } from '../../generators/registry/index.js';
+import { updateReadmeOpList } from '../../helpers/readme.js';
 
 const yargsOptions = new YargsOptions();
 
@@ -25,10 +26,9 @@ export default {
 
         try {
             await generateRegistry(assetBaseDir);
+            await updateReadmeOpList(assetBaseDir);
         } catch (e) {
             reply.fatal(e);
         }
-
-        reply.green('All done!');
     }
 } as CMD;
