@@ -26,9 +26,7 @@ export default {
 
         try {
             await generateRegistry(assetBaseDir);
-            reply.green('Registry successfully updated');
             await updateReadmeOpList(assetBaseDir);
-            reply.green('README APIS and Operations lists updated');
         } catch (e) {
             reply.fatal(e);
         }
