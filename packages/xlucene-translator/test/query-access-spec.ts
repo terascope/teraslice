@@ -6,7 +6,7 @@ import { QueryAccess } from '../src/index.js';
 describe('QueryAccess', () => {
     describe('when constructed without type_config', () => {
         it('should throw an error', () => {
-            expect(() => new QueryAccess({})).toThrowError('type_config must be provided');
+            expect(() => new QueryAccess({})).toThrow('type_config must be provided');
         });
     });
 
@@ -90,7 +90,7 @@ describe('QueryAccess', () => {
             it('should throw when input query is restricted with nested fields', () => {
                 const query = 'bar.hello:example';
 
-                expect(() => queryAccess.restrict(query)).toThrowError('Field bar.hello in query is restricted');
+                expect(() => queryAccess.restrict(query)).toThrow('Field bar.hello in query is restricted');
             });
         });
 
@@ -98,7 +98,7 @@ describe('QueryAccess', () => {
             it('should throw when input query is restricted', () => {
                 const query = 'moo:example';
 
-                expect(() => queryAccess.restrict(query)).toThrowError('Field moo in query is restricted');
+                expect(() => queryAccess.restrict(query)).toThrow('Field moo in query is restricted');
             });
         });
 
@@ -106,7 +106,7 @@ describe('QueryAccess', () => {
             it('should throw when input query is restricted', () => {
                 const query = 'baa.maa:example';
 
-                expect(() => queryAccess.restrict(query)).toThrowError('Field baa.maa in query is restricted');
+                expect(() => queryAccess.restrict(query)).toThrow('Field baa.maa in query is restricted');
             });
         });
 
@@ -123,7 +123,7 @@ describe('QueryAccess', () => {
             it('should throw when input query is restricted', () => {
                 const query = 'a.b.c:example';
 
-                expect(() => queryAccess.restrict(query)).toThrowError('Field a.b.c in query is restricted');
+                expect(() => queryAccess.restrict(query)).toThrow('Field a.b.c in query is restricted');
             });
         });
 
@@ -167,7 +167,7 @@ describe('QueryAccess', () => {
 
             const query = 'hello';
 
-            expect(() => queryAccess.restrict(query)).toThrowError('Implicit fields are restricted, please specify the field');
+            expect(() => queryAccess.restrict(query)).toThrow('Implicit fields are restricted, please specify the field');
         });
 
         it('should not throw if given baz.text', () => {
@@ -182,7 +182,7 @@ describe('QueryAccess', () => {
 
             const query = '*';
 
-            expect(() => queryAccess.restrict(query)).toThrowError('Implicit fields are restricted, please specify the field');
+            expect(() => queryAccess.restrict(query)).toThrow('Implicit fields are restricted, please specify the field');
         });
 
         it('should not throw if field implicit are allowed', () => {

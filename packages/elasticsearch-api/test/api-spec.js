@@ -1057,28 +1057,28 @@ describe('elasticsearch-api', () => {
         const finalResponse4 = makeResponse(goodConfig4, msg1, response2, sort3);
         const finalResponse5 = makeResponse(goodConfig2, msg2, response3, sort1);
 
-        expect(() => api.buildQuery(badOpConfig1, msg1)).toThrowError(
+        expect(() => api.buildQuery(badOpConfig1, msg1)).toThrow(
             'if geo_field is specified then the appropriate geo_box or geo_distance query parameters need to be provided as well'
         );
-        expect(() => api.buildQuery(badOpConfig2, msg1)).toThrowError(
+        expect(() => api.buildQuery(badOpConfig2, msg1)).toThrow(
             'Both geo_box_top_left and geo_box_bottom_right must be provided for a geo bounding box query.'
         );
-        expect(() => api.buildQuery(badOpConfig3, msg1)).toThrowError(
+        expect(() => api.buildQuery(badOpConfig3, msg1)).toThrow(
             'Both geo_box_top_left and geo_box_bottom_right must be provided for a geo bounding box query.'
         );
-        expect(() => api.buildQuery(badOpConfig4, msg1)).toThrowError(
+        expect(() => api.buildQuery(badOpConfig4, msg1)).toThrow(
             'Both geo_point and geo_distance must be provided for a geo_point query.'
         );
-        expect(() => api.buildQuery(badOpConfig5, msg1)).toThrowError(
+        expect(() => api.buildQuery(badOpConfig5, msg1)).toThrow(
             'Both geo_point and geo_distance must be provided for a geo_point query.'
         );
-        expect(() => api.buildQuery(badOpConfig6, msg1)).toThrowError(
+        expect(() => api.buildQuery(badOpConfig6, msg1)).toThrow(
             'geo_box and geo_distance queries can not be combined.'
         );
-        expect(() => api.buildQuery(badOpConfig7, msg1)).toThrowError(
+        expect(() => api.buildQuery(badOpConfig7, msg1)).toThrow(
             'bounding box search requires geo_sort_point to be set if any other geo_sort_* parameter is provided'
         );
-        expect(() => api.buildQuery(badOpConfig8, msg1)).toThrowError(
+        expect(() => api.buildQuery(badOpConfig8, msg1)).toThrow(
             'bounding box search requires geo_sort_point to be set if any other geo_sort_* parameter is provided'
         );
 

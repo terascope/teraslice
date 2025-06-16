@@ -13,7 +13,7 @@ describe('Messenger', () => {
             it('should throw an error', () => {
                 expect(() => {
                     new Messenger.Core({} as any);
-                }).toThrowError('Messenger requires a valid actionTimeout');
+                }).toThrow('Messenger requires a valid actionTimeout');
             });
         });
 
@@ -25,7 +25,7 @@ describe('Messenger', () => {
                         // @ts-expect-error
                         networkLatencyBuffer: 'abc'
                     });
-                }).toThrowError('Messenger requires a valid networkLatencyBuffer');
+                }).toThrow('Messenger requires a valid networkLatencyBuffer');
             });
         });
 
@@ -37,7 +37,7 @@ describe('Messenger', () => {
             });
             expect(() => {
                 core.isClientReady();
-            }).toThrowError(errorMsg);
+            }).toThrow(errorMsg);
         });
     });
 
@@ -50,7 +50,7 @@ describe('Messenger', () => {
                         actionTimeout: 1,
                         networkLatencyBuffer: 0
                     });
-                }).toThrowError('Messenger.Client requires a valid hostUrl');
+                }).toThrow('Messenger.Client requires a valid hostUrl');
             });
         });
 
@@ -63,7 +63,7 @@ describe('Messenger', () => {
                         networkLatencyBuffer: 0,
                         hostUrl: 'some-host',
                     });
-                }).toThrowError('Messenger.Client requires a valid clientId');
+                }).toThrow('Messenger.Client requires a valid clientId');
             });
         });
 
@@ -79,7 +79,7 @@ describe('Messenger', () => {
                         hostUrl: 'some-host',
                         clientId,
                     });
-                }).toThrowError('Messenger.Client requires a valid clientType');
+                }).toThrow('Messenger.Client requires a valid clientType');
             });
         });
 
@@ -94,7 +94,7 @@ describe('Messenger', () => {
                         clientId: 'hello',
                         clientType: 'some-client'
                     });
-                }).toThrowError('Messenger.Client requires a valid serverName');
+                }).toThrow('Messenger.Client requires a valid serverName');
             });
         });
 
@@ -110,7 +110,7 @@ describe('Messenger', () => {
                         clientType: 'some-client',
                         serverName: 'some-server-name'
                     });
-                }).toThrowError('Messenger.Client requires a valid connectTimeout');
+                }).toThrow('Messenger.Client requires a valid connectTimeout');
             });
         });
     });
@@ -124,7 +124,7 @@ describe('Messenger', () => {
                         actionTimeout: 1,
                         networkLatencyBuffer: 0
                     });
-                }).toThrowError('Messenger.Server requires a valid port');
+                }).toThrow('Messenger.Server requires a valid port');
             });
         });
 
@@ -138,7 +138,7 @@ describe('Messenger', () => {
                         port: 80,
                         serverName: 'hello'
                     });
-                }).toThrowError('Messenger.Server requires a valid clientDisconnectTimeout');
+                }).toThrow('Messenger.Server requires a valid clientDisconnectTimeout');
             });
         });
 
@@ -152,7 +152,7 @@ describe('Messenger', () => {
                         port: 80,
                         clientDisconnectTimeout: 1,
                     });
-                }).toThrowError('Messenger.Server requires a valid serverName');
+                }).toThrow('Messenger.Server requires a valid serverName');
             });
         });
 
@@ -180,7 +180,7 @@ describe('Messenger', () => {
                     serverName: 'hello'
                 });
                 const error = `Port ${port} is already in-use`;
-                return expect(server.listen()).rejects.toThrowError(error);
+                return expect(server.listen()).rejects.toThrow(error);
             });
         });
     });

@@ -40,7 +40,7 @@ describe('makeLogger foundation API', () => {
 
         expect(() => {
             api(context);
-        }).toThrowError('Could not write to log_path: ./logs');
+        }).toThrow('Could not write to log_path: ./logs');
     });
 
     it('setting logging to file with log_path set to a file should fail', () => {
@@ -57,6 +57,6 @@ describe('makeLogger foundation API', () => {
 
         expect(() => {
             api(context);
-        }).toThrowError('Could not write to log_path: README.md');
+        }).toThrow('Could not write to log_path: README.md');
     });
 });

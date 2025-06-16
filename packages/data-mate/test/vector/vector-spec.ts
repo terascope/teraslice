@@ -484,7 +484,7 @@ describe('Vector', () => {
                 });
                 expect(() => {
                     builder.append(val);
-                }).toThrowError();
+                }).toThrow();
             });
         }
 

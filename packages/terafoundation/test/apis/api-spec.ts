@@ -39,7 +39,7 @@ describe('apis module', () => {
             context.apis.registerAPI('testapi', {
                 testfunction: () => {}
             });
-        }).toThrowError('Registration of API endpoints for module testapi can only occur once');
+        }).toThrow('Registration of API endpoints for module testapi can only occur once');
     });
 
     it('updated terafoundation api endpoints should exist', () => {

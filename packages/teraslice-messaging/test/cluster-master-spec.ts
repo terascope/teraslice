@@ -10,7 +10,7 @@ describe('ClusterMaster', () => {
                 expect(() => {
                     // @ts-expect-error
                     new ClusterMaster.Client({});
-                }).toThrowError('ClusterMaster.Client requires a valid clusterMasterUrl');
+                }).toThrow('ClusterMaster.Client requires a valid clusterMasterUrl');
             });
         });
 
@@ -21,7 +21,7 @@ describe('ClusterMaster', () => {
                     new ClusterMaster.Client({
                         clusterMasterUrl: 'example.com',
                     });
-                }).toThrowError('ClusterMaster.Client requires a valid exId');
+                }).toThrow('ClusterMaster.Client requires a valid exId');
             });
         });
 
@@ -33,7 +33,7 @@ describe('ClusterMaster', () => {
                         clusterMasterUrl: 'example.com',
                         exId: 'test',
                     });
-                }).toThrowError('ClusterMaster.Client requires a valid nodeDisconnectTimeout');
+                }).toThrow('ClusterMaster.Client requires a valid nodeDisconnectTimeout');
             });
         });
 
@@ -55,7 +55,7 @@ describe('ClusterMaster', () => {
 
             it('start should throw an error', () => {
                 const errMsg = /^Unable to connect to ClusterMaster at/;
-                return expect(client.start()).rejects.toThrowError(errMsg);
+                return expect(client.start()).rejects.toThrow(errMsg);
             });
         });
     });
@@ -69,7 +69,7 @@ describe('ClusterMaster', () => {
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
                     });
-                }).toThrowError('ClusterMaster.Server requires a valid nodeDisconnectTimeout');
+                }).toThrow('ClusterMaster.Server requires a valid nodeDisconnectTimeout');
             });
         });
     });

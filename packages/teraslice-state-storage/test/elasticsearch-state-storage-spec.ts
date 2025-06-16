@@ -85,7 +85,7 @@ describe('elasticsearch-state-storage', () => {
         describe('->get', () => {
             it('should not create get requests with undefined keys', async () => {
                 const testDocs = [DataEntity.make({ data: 'someValue' })];
-                await expect(stateStorage.get(testDocs[0])).rejects.toThrowError(/There is no field "_key" set in the metadata/);
+                await expect(stateStorage.get(testDocs[0])).rejects.toThrow(/There is no field "_key" set in the metadata/);
             });
         });
     });

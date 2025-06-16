@@ -258,7 +258,7 @@ describe('geoPolygon', () => {
                         variables,
                         type_config: typeConfig
                     });
-                }).toThrowError('Invalid argument points, when running a disjoint query with a polygon/multi-polygon with holes, it must be against data of type geo-json');
+                }).toThrow('Invalid argument points, when running a disjoint query with a polygon/multi-polygon with holes, it must be against data of type geo-json');
             });
 
             it('can be produced with variables set to multi-polygons', () => {
@@ -499,7 +499,7 @@ describe('geoPolygon', () => {
                         variables,
                         type_config: typeConfig
                     });
-                }).toThrowError('Invalid argument points, when running a disjoint query with a polygon/multi-polygon with holes, it must be against data of type geo-json');
+                }).toThrow('Invalid argument points, when running a disjoint query with a polygon/multi-polygon with holes, it must be against data of type geo-json');
             });
         });
 
@@ -575,7 +575,7 @@ describe('geoPolygon', () => {
                         type_config: typeConfig,
                         variables: { data1 }
                     });
-                }).toThrowError(`Cannot query against geo-points with relation set to "${GeoShapeRelation.Contains}"`);
+                }).toThrow(`Cannot query against geo-points with relation set to "${GeoShapeRelation.Contains}"`);
             });
 
             it('can match points to polygon results with relation set to "Disjoint"', () => {

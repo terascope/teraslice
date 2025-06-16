@@ -10,7 +10,7 @@ describe('ExecutionController', () => {
                 expect(() => {
                     // @ts-expect-error
                     new ExecutionController.Client({});
-                }).toThrowError('ExecutionController.Client requires a valid executionControllerUrl');
+                }).toThrow('ExecutionController.Client requires a valid executionControllerUrl');
             });
         });
 
@@ -21,7 +21,7 @@ describe('ExecutionController', () => {
                     new ExecutionController.Client({
                         executionControllerUrl: 'example.com',
                     });
-                }).toThrowError('ExecutionController.Client requires a valid workerId');
+                }).toThrow('ExecutionController.Client requires a valid workerId');
             });
         });
 
@@ -33,7 +33,7 @@ describe('ExecutionController', () => {
                         executionControllerUrl: 'example.com',
                         workerId: 'test'
                     });
-                }).toThrowError('ExecutionController.Client requires a valid workerDisconnectTimeout');
+                }).toThrow('ExecutionController.Client requires a valid workerDisconnectTimeout');
             });
         });
 
@@ -55,7 +55,7 @@ describe('ExecutionController', () => {
 
             it('start should throw an error', () => {
                 const errMsg = /^Unable to connect to ExecutionController/;
-                return expect(client.start()).rejects.toThrowError(errMsg);
+                return expect(client.start()).rejects.toThrow(errMsg);
             });
         });
     });
@@ -69,7 +69,7 @@ describe('ExecutionController', () => {
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
                     });
-                }).toThrowError('ExecutionController.Server requires a valid workerDisconnectTimeout');
+                }).toThrow('ExecutionController.Server requires a valid workerDisconnectTimeout');
             });
         });
     });

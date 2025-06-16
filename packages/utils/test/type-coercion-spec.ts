@@ -50,7 +50,7 @@ describe('type-coercion', () => {
         ];
         describe.each(invalidTestCases)('when given invalid values for field type %s', (type, input) => {
             it(`should fail to convert ${input}`, () => {
-                expect(() => coerceToNumberType(type)(input)).toThrowError();
+                expect(() => coerceToNumberType(type)(input)).toThrow();
             });
         });
     });
@@ -79,7 +79,7 @@ describe('type-coercion', () => {
         ];
 
         test.each(inValidCases)('should fail to process the invalid input of %p', (input) => {
-            expect(() => coerceToGeoBoundary(input)).toThrowError(TypeError);
+            expect(() => coerceToGeoBoundary(input)).toThrow(TypeError);
         });
     });
 });

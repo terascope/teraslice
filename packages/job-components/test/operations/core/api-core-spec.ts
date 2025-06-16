@@ -91,7 +91,7 @@ describe('APICore', () => {
             it('should throw the original error', () => {
                 expect(() => {
                     api.rejectRecord(record, err);
-                }).toThrowError('Bad news bears');
+                }).toThrow('Bad news bears');
             });
         });
     });

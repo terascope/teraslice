@@ -74,7 +74,7 @@ describe('when using native clustering', () => {
 
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrowError(/Invalid Operation config in operations, got Number/);
+            }).toThrow(/Invalid Operation config in operations, got Number/);
         });
     });
 
@@ -102,7 +102,7 @@ describe('when using native clustering', () => {
 
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrowError(/Operations need to be of type array with at least two operations in it/);
+            }).toThrow(/Operations need to be of type array with at least two operations in it/);
         });
     });
 
@@ -141,7 +141,7 @@ describe('when using native clustering', () => {
 
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrowError(/Operation example-reader refers to connection "unknown" which is unavailable/);
+            }).toThrow(/Operation example-reader refers to connection "unknown" which is unavailable/);
         });
     });
 
@@ -178,7 +178,7 @@ describe('when using native clustering', () => {
 
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrowError(/Invalid API config in apis, got Number/);
+            }).toThrow(/Invalid API config in apis, got Number/);
         });
     });
 
@@ -214,7 +214,7 @@ describe('when using native clustering', () => {
             };
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrowError(/API requires an _name/);
+            }).toThrow(/API requires an _name/);
         });
     });
 
@@ -257,7 +257,7 @@ describe('when using native clustering', () => {
             };
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrowError(/Duplicate API configurations for/);
+            }).toThrow(/Duplicate API configurations for/);
         });
     });
 
@@ -298,7 +298,7 @@ describe('when using native clustering', () => {
             };
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrowError(/API test-api refers to connection "unknown" which is unavailable/);
+            }).toThrow(/API test-api refers to connection "unknown" which is unavailable/);
         });
     });
 
@@ -435,7 +435,7 @@ describe('when using native clustering', () => {
 
             expect(() => {
                 validateOpConfig(schema, op);
-            }).toThrowError(/Invalid schema for formatted value/);
+            }).toThrow(/Invalid schema for formatted value/);
         });
     });
 
@@ -494,7 +494,7 @@ describe('when using native clustering', () => {
 
             expect(() => {
                 validateAPIConfig(schema, api);
-            }).toThrowError(/Invalid schema for formatted value/);
+            }).toThrow(/Invalid schema for formatted value/);
         });
     });
 
@@ -550,7 +550,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrowError('must be object');
+                expect(() => validateJobConfig(schema, job)).toThrow('must be object');
             });
 
             it('should throw an error when given an empty key', () => {
@@ -568,7 +568,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrowError('key must be not empty');
+                expect(() => validateJobConfig(schema, job)).toThrow('key must be not empty');
             });
 
             it('should throw an error when given an empty value', () => {
@@ -586,7 +586,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrowError(
+                expect(() => validateJobConfig(schema, job)).toThrow(
                     'value for key "foo" must be not empty'
                 );
             });
@@ -673,7 +673,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrowError('must be valid integer greater than zero');
+                expect(() => validateJobConfig(schema, job)).toThrow('must be valid integer greater than zero');
             });
         });
 
@@ -691,7 +691,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrowError('must be valid integer greater than zero');
+                expect(() => validateJobConfig(schema, job)).toThrow('must be valid integer greater than zero');
             });
         });
     });
@@ -771,7 +771,7 @@ describe('when validating k8s clustering', () => {
 
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrowError('Validation failed for job config: undefined - cpu/memory can\'t be mixed with resource settings of the same type.');
+            }).toThrow('Validation failed for job config: undefined - cpu/memory can\'t be mixed with resource settings of the same type.');
         });
     });
 
@@ -942,7 +942,7 @@ describe('when validating k8s v2 clustering', () => {
 
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrowError('Validation failed for job config: undefined - cpu/memory can\'t be mixed with resource settings of the same type.');
+            }).toThrow('Validation failed for job config: undefined - cpu/memory can\'t be mixed with resource settings of the same type.');
         });
     });
 

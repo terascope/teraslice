@@ -58,7 +58,7 @@ describe('Teraslice Jobs', () => {
         describe('when given a nothing', () => {
             it('should throw an error', () => {
                 // @ts-expect-error
-                expect(() => jobs.wrap()).toThrowError('Job requires jobId');
+                expect(() => jobs.wrap()).toThrow('Job requires jobId');
             });
         });
     });
