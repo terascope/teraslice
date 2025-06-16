@@ -51,7 +51,7 @@
         "@types/graphlib": "~2.1.12",
         "@types/jexl": "~2.3.4",
         "@types/valid-url": "~1.0.7",
-        "@types/validator": "~13.12.2",
+        "@types/validator": "~13.12.3",
         "@types/yargs": "~17.0.33",
         "execa": "~9.6.0"
     },

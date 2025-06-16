@@ -44,7 +44,7 @@
         "@turf/invariant": "~7.2.0",
         "@turf/line-to-polygon": "~7.2.0",
         "@types/lodash-es": "~4.17.12",
-        "@types/validator": "~13.12.2",
+        "@types/validator": "~13.12.3",
         "awesome-phonenumber": "~7.5.0",
         "date-fns": "~4.1.0",
         "date-fns-tz": "~3.2.0",

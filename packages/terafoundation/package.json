@@ -28,7 +28,7 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../terafoundation --"
     },
     "dependencies": {
-        "@terascope/file-asset-apis": "~1.0.6",
+        "@terascope/file-asset-apis": "~1.1.0",
         "@terascope/types": "~1.4.1",
         "@terascope/utils": "~1.8.2",
         "bluebird": "~3.7.2",
@@ -48,7 +48,7 @@
     "devDependencies": {
         "@types/bunyan": "~1.8.11",
         "@types/elasticsearch": "~5.0.43",
-        "@types/express": "~5.0.2",
+        "@types/express": "~5.0.3",
         "@types/js-yaml": "~4.0.9",
         "got": "~14.4.7"
     },

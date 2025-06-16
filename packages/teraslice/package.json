@@ -67,7 +67,7 @@
     },
     "devDependencies": {
         "@types/archiver": "~6.0.3",
-        "@types/express": "~5.0.2",
+        "@types/express": "~5.0.3",
         "@types/gc-stats": "~1.4.3",
         "archiver": "~7.0.1",
         "bufferstreams": "~3.0.0",
