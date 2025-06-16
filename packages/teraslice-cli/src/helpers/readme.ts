@@ -32,10 +32,10 @@ export async function updateReadmeOpList(assetBaseDir: string): Promise<void> {
 
             if (headingLine.trim() === 'APIS') {
                 const apisContent = _generateSectionContent('apis', apisSet);
-                return `${headingLine}\n\n${note}\n\n${apisContent}\n\n`;
+                return `${headingLine}\n\n${note}\n${apisContent}\n\n`;
             } else if (headingLine.trim() === 'Operations') {
                 const opContent = _generateSectionContent('operations', operationsSet);
-                return `${headingLine}\n\n${note}\n\n${opContent}\n\n`;
+                return `${headingLine}\n\n${note}\n${opContent}\n\n`;
             } else {
                 return section;
             }
