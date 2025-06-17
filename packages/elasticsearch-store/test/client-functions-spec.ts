@@ -76,7 +76,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             const badDistribution = new Client(client, badVersion);
 
-            await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${clientMetadata.distribution} version: 3.2.1`);
+            await expect(() => badDistribution.ping()).rejects.toThrow(`Unsupported ${clientMetadata.distribution} version: 3.2.1`);
         });
     });
 
@@ -96,7 +96,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             const badDistribution = new Client(client, badVersion);
 
-            await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${clientMetadata.distribution} version: 10.0.0`);
+            await expect(() => badDistribution.ping()).rejects.toThrow(`Unsupported ${clientMetadata.distribution} version: 10.0.0`);
         });
     });
 

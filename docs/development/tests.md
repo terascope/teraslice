@@ -21,14 +21,14 @@ yarn test
 
 ```sh
 cd packages/[package-name];
-yarn test --testPathPattern 'example-spec'
+yarn test --testPathPatterns 'example-spec'
 ```
 
 #### Test a single file expectation
 
 ```sh
 cd packages/[package-name];
-yarn test --testPathPattern 'example-spec' -t 'should output hello world'
+yarn test --testPathPatterns 'example-spec' -t 'should output hello world'
 ```
 
 #### Test a single package in debug mode

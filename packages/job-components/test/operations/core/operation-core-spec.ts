@@ -120,7 +120,7 @@ describe('OperationCore', () => {
             it('should throw the original error', () => {
                 expect(() => {
                     operation.rejectRecord(record, err);
-                }).toThrowError('Bad news bears');
+                }).toThrow('Bad news bears');
             });
         });
 
@@ -155,7 +155,7 @@ describe('OperationCore', () => {
             it('should throw an error', () => {
                 expect(() => {
                     operation.rejectRecord(record, err);
-                }).toThrowError('Unable to find API by name "thiswontwork"');
+                }).toThrow('Unable to find API by name "thiswontwork"');
             });
         });
 

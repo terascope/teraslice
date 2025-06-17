@@ -32,7 +32,7 @@ describe('DataFrame', () => {
                 Column.fromJSON('count', { type: FieldType.Integer }, [1]),
                 Column.fromJSON('sum', { type: FieldType.Integer }, [5, 6]),
             ]);
-        }).toThrowError('All columns in a DataFrame must have the same length of 1, column (index: 1, name: sum) got length of 2');
+        }).toThrow('All columns in a DataFrame must have the same length of 1, column (index: 1, name: sum) got length of 2');
     });
 
     it('should be able to rename a data fame', () => {
@@ -100,7 +100,7 @@ describe('DataFrame', () => {
         ]);
         expect(() => {
             dataFrame.getColumnOrThrow('unknown' as any);
-        }).toThrowError('Unknown column unknown in DataFrame');
+        }).toThrow('Unknown column unknown in DataFrame');
     });
 
     it('should throw a readable error when calling getColumnOrThrow and the data frame is named', () => {
@@ -120,7 +120,7 @@ describe('DataFrame', () => {
         });
         expect(() => {
             dataFrame.getColumnOrThrow('unknown' as any);
-        }).toThrowError('Unknown column unknown in example DataFrame');
+        }).toThrow('Unknown column unknown in example DataFrame');
     });
 
     it('should handle a single column with null/undefined values', () => {

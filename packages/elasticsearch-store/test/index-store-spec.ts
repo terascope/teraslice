@@ -53,7 +53,7 @@ describe('IndexStore', () => {
         it('should throw an error', () => {
             expect(() => {
                 new IndexStore(client as any, undefined as any);
-            }).toThrowError();
+            }).toThrow();
         });
     });
 

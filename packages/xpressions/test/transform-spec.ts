@@ -73,7 +73,7 @@ describe('transform', () => {
                 transform('${foo_var\\}', {
                     variables: {}
                 });
-            }).toThrowError('Expected } for end of expression, found EOL');
+            }).toThrow('Expected } for end of expression, found EOL');
         });
 
         it('should not evaluate the expression with \\{', () => {

@@ -68,7 +68,7 @@ describe('registerApis', () => {
             return expect(getPath('asset')).resolves.toEqual(assetPath);
         });
 
-        it('should throw an error if asset is not found', () => expect(getPath('unknown')).rejects.toThrowError('Unable to find asset "unknown"'));
+        it('should throw an error if asset is not found', () => expect(getPath('unknown')).rejects.toThrow('Unable to find asset "unknown"'));
     });
 
     describe('->getClient', () => {

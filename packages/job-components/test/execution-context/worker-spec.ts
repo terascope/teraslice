@@ -295,7 +295,7 @@ describe('WorkerExecutionContext', () => {
                 _created: 'hi',
             };
 
-            return expect(executionContext.runSlice(slice)).rejects.toThrowError(/Failure to parse buffer/);
+            return expect(executionContext.runSlice(slice)).rejects.toThrow(/Failure to parse buffer/);
         });
     });
 });

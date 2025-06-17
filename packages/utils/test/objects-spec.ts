@@ -173,13 +173,13 @@ describe('Objects', () => {
         it('should throw an error if input is not an object, string or array', () => {
             expect(() => {
                 lookup(123456)('key');
-            }).toThrowError('input must be an Object Entity, String, received Number');
+            }).toThrow('input must be an Object Entity, String, received Number');
         });
 
         it('should throw an error if key is not a number or string', () => {
             expect(() => {
                 lookup(['deep', 'bob', 'ray', 'value'])(['foo']);
-            }).toThrowError('lookup key must be not be an object, received Array');
+            }).toThrow('lookup key must be not be an object, received Array');
         });
     });
 });

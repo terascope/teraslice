@@ -365,7 +365,7 @@ describe('IndexModel', () => {
         it('should be able to hard delete the record', async () => {
             await indexModel.deleteById(fetched._key);
 
-            return expect(indexModel.findById(fetched._key)).rejects.toThrowError(/Unable to find ExampleModel/);
+            return expect(indexModel.findById(fetched._key)).rejects.toThrow(/Unable to find ExampleModel/);
         });
     });
 

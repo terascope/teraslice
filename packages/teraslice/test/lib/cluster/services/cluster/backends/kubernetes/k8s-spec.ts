@@ -133,7 +133,7 @@ describe('k8s', () => {
                 .reply(200, { items: [] });
 
             await expect(k8s.nonEmptyList('app=teraslice', 'jobs'))
-                .rejects.toThrowError('Teraslice jobs matching the following selector was not found: app=teraslice (retriable)');
+                .rejects.toThrow('Teraslice jobs matching the following selector was not found: app=teraslice (retriable)');
         });
     });
 

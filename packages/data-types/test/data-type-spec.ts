@@ -16,7 +16,7 @@ describe('DataType', () => {
                 version: null,
                 fields: {},
             });
-        }).toThrowError('Missing version in data type config');
+        }).toThrow('Missing version in data type config');
     });
 
     it('should throw when given a unknown version', () => {
@@ -25,7 +25,7 @@ describe('DataType', () => {
                 version: 999,
                 fields: {},
             });
-        }).toThrowError('Unknown data type version 999');
+        }).toThrow('Unknown data type version 999');
     });
 
     it('should throw when missing fields', () => {
@@ -35,7 +35,7 @@ describe('DataType', () => {
                 // @ts-expect-error
                 fields: null,
             });
-        }).toThrowError('Invalid fields was specified in data type config');
+        }).toThrow('Invalid fields was specified in data type config');
     });
 
     it('should throw when given invalid field type configs', () => {
@@ -46,7 +46,7 @@ describe('DataType', () => {
                     blah: true,
                 } as any,
             });
-        }).toThrowError('Invalid type config for field "blah" in data type config');
+        }).toThrow('Invalid type config for field "blah" in data type config');
     });
 
     it('should work when given a valid config', () => {

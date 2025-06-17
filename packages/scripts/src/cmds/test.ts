@@ -32,7 +32,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     describe: 'Run monorepo tests',
     builder(yargs) {
         return yargs
-            .example('$0 test example --watch -- --testPathPattern worker-spec', 'Run worker-spec test file within example package in watch mode.')
+            .example('$0 test example --watch -- --testPathPatterns worker-spec', 'Run worker-spec test file within example package in watch mode.')
             .example('$0 test example --debug --bail', 'Run all tests in example package. Show debug info. Stop at first failed test.')
             .example('$0 test . --debug --bail', 'Run all tests in current directory. Show debug info. Stop at first failed test.')
             .example(`$0 test . --trace --force-suite ${testSuites.find((s) => s.startsWith('unit'))}`, 'Run a specific suite of tests in trace mode.')
@@ -210,7 +210,7 @@ function getExtraArgs(): string[] {
 function resolveJestArg(arg: string): string[] {
     if (arg == null || arg === '') return [];
     if (fs.existsSync(arg)) {
-        return ['--testPathPattern', arg];
+        return ['--testPathPatterns', arg];
     }
     return [arg];
 }

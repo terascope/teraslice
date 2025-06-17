@@ -121,7 +121,7 @@ export function functionTestHarness<T extends Record<string, any>>(
                             args: testCase.args,
                             field: testCase.field,
                         }).column(column);
-                    }).toThrowError(
+                    }).toThrow(
                         testCase.output ? String(testCase.output) : undefined
                     );
                 } else {
@@ -137,7 +137,7 @@ export function functionTestHarness<T extends Record<string, any>>(
                             args: testCase.args,
                             field: testCase.field,
                         }).frame(frame);
-                    }).toThrowError(
+                    }).toThrow(
                         testCase.output ? String(testCase.output) : undefined
                     );
                 }

@@ -1162,7 +1162,7 @@ describe('AggregationFrame', () => {
                 .mergeBy('state')
                 .count('state', 'count')
                 .groupBy('boating')
-            ).toThrowError('AggregationFrame.groupBy and AggregationFrame.mergeBy running at the same time is not currently supported');
+            ).toThrow('AggregationFrame.groupBy and AggregationFrame.mergeBy running at the same time is not currently supported');
         });
 
         it('should throw when running groupBy -> mergeBy', () => {
@@ -1171,7 +1171,7 @@ describe('AggregationFrame', () => {
                 .groupBy('boating')
                 .orderBy('state')
                 .mergeBy('state')
-            ).toThrowError('AggregationFrame.groupBy and AggregationFrame.mergeBy running at the same time is not currently supported');
+            ).toThrow('AggregationFrame.groupBy and AggregationFrame.mergeBy running at the same time is not currently supported');
         });
     });
 });

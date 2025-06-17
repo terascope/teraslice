@@ -82,7 +82,7 @@ describe('Utils', () => {
             fn.mockRejectedValueOnce(new Error('Fail!'));
             fn.mockResolvedValue('howdy');
 
-            await expect(pRetry(fn, config)).rejects.toThrowError('Fail!');
+            await expect(pRetry(fn, config)).rejects.toThrow('Fail!');
 
             expect(fn).toHaveBeenCalledTimes(3);
         });
@@ -96,7 +96,7 @@ describe('Utils', () => {
             fn.mockRejectedValueOnce(error);
             fn.mockResolvedValue('howdy');
 
-            await expect(pRetry(fn, config)).rejects.toThrowError(error.message);
+            await expect(pRetry(fn, config)).rejects.toThrow(error.message);
 
             expect(fn).toHaveBeenCalledTimes(1);
         });
@@ -110,7 +110,7 @@ describe('Utils', () => {
             fn.mockRejectedValueOnce(error);
             fn.mockResolvedValue('howdy');
 
-            await expect(pRetry(fn, config)).rejects.toThrowError(error.message);
+            await expect(pRetry(fn, config)).rejects.toThrow(error.message);
 
             expect(fn).toHaveBeenCalledTimes(1);
         });

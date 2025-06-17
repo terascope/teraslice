@@ -379,7 +379,7 @@ const { DataEntity } = require('@terascope/utils');
 
 expect(() => {
     new DataEntity().getRawData();
-}).toThrowError();
+}).toThrow();
 
 const buf = Buffer.from('foo:bar');
 const dataEntity = DataEntity.fromBuffer(buf, {
@@ -402,11 +402,11 @@ const dataEntity = new DataEntity();
 
 expect(() => {
     dataEntity.setRawData();
-}).toThrowError();
+}).toThrow();
 
 expect(() => {
     dataEntity.setRawData({ invalid: 'buffer' });
-}).toThrowError();
+}).toThrow();
 
 dataEntity.setRawData(Buffer.from('test'));
 // when given string it will convert it to a buffer
