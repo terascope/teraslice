@@ -27,7 +27,7 @@ main() {
 
     yarn setup &&
         yarn docs &&
-        echo "log: $(git log docs/packages/data-mate/api/function-configs/date/toTimeZoneUsingLocation/overview.md) &&
+        echo "log: $(git log docs/packages/data-mate/api/function-configs/date/toTimeZoneUsingLocation/overview.md)" &&
         cd website &&
         yarn install  &&
         ulimit -n 4096 &&
