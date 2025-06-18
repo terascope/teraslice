@@ -673,7 +673,7 @@ jobs:
 
   test-website:
     needs: verify-build
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -684,7 +684,10 @@ jobs:
         with:
           # NOTE: Hard Coded Node Version
           node-version: '22'
-      - run: yarn && ./scripts/build-documentation.sh
+      - name: Build documentation
+        run: yarn && ./scripts/build-documentation.sh
+      - name: Check Output
+        run: find ./website/build
 
   check-docker-limit-after:
     needs: [
