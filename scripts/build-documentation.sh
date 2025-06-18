@@ -27,7 +27,7 @@ main() {
 
     yarn setup &&
         yarn docs &&
-        git add -f docs/ &&
+        git add -f docs/packages/*/api &&
         cd website &&
         yarn install  &&
         yarn run build
