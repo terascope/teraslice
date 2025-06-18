@@ -27,10 +27,11 @@ main() {
 
     yarn setup &&
         yarn docs &&
-        git log docs/packages/data-mate/api/function-configs/date/toTimeZoneUsingLocation/overview.md &&
+        echo "log: $(git log docs/packages/data-mate/api/function-configs/date/toTimeZoneUsingLocation/overview.md) &&
         cd website &&
         yarn install  &&
-        NODE_OPTIONS="--max-old-space-size=4096" yarn run build
+        ulimit -n 4096 &&
+        yarn run build
 }
 
 main "$@"
