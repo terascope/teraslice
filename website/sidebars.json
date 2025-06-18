@@ -43,12 +43,6 @@
         "Overview": [
             "asset-bundles",
             "asset-bundles/development"
-        ],
-        "Available Bundles": [
-            "asset-bundles/elasticsearch-assets/overview",
-            "asset-bundles/standard-assets/overview",
-            "asset-bundles/kafka-assets/overview",
-            "asset-bundles/file-assets/overview"
         ]
     },
     "packages": {
