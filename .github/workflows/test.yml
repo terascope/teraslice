@@ -710,3 +710,21 @@ jobs:
     ]
     uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
     secrets: inherit
+
+  all-tests-passed:
+    needs: [
+      linux-unit-tests,
+      e2e-k8s-v2-encrypted-tests,
+      e2e-external-storage-tests,
+      e2e-k8s-v2-tests,
+      e2e-k8s-tests,
+      e2e-tests,
+      elasticsearch-api-tests,
+      elasticsearch-store-tests,
+      teraslice-elasticsearch-tests,
+      lint-and-sync,
+      test-website
+    ]
+    runs-on: macos-latest
+    steps:
+      - run: echo "All tests have passed"
