@@ -29,7 +29,7 @@ main() {
         yarn docs &&
         cd website &&
         yarn install  &&
-        yarn run build
+        NODE_OPTIONS="--max-old-space-size=4096" yarn run build
 }
 
 main "$@"
