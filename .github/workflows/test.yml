@@ -671,6 +671,18 @@ jobs:
         run: NODE_VERSION=${{ matrix.node-version }} yarn test:${{ matrix.search-version }}
         working-directory: ./e2e
 
+  test-website:
+    needs: verify-build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          # NOTE: Hard Coded Node Version
+          node-version: '22'
+      - run: yarn && ./scripts/build-documentation.sh
+
   check-docker-limit-after:
     needs: [
       e2e-k8s-v2-encrypted-tests,
