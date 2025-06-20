@@ -45,7 +45,7 @@
         "socket.io-client": "~1.7.4"
     },
     "devDependencies": {
-        "@types/ms": "~0.7.34",
+        "@types/ms": "~2.1.0",
         "@types/socket.io": "~2.1.13",
         "@types/socket.io-client": "~1.4.36"
     },
