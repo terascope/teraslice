@@ -141,7 +141,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Compile e2e code
         run: yarn build
@@ -209,7 +212,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Compile e2e code
         run: yarn build
@@ -292,7 +298,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Install mkcert
         run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
@@ -389,7 +398,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Compile e2e code
         run: yarn build
@@ -451,7 +463,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
@@ -508,7 +523,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
@@ -589,7 +607,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
@@ -648,7 +669,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Compile e2e code
         run: yarn build
@@ -670,6 +694,24 @@ jobs:
       - name: Test ${{ matrix.search-version }}
         run: NODE_VERSION=${{ matrix.node-version }} yarn test:${{ matrix.search-version }}
         working-directory: ./e2e
+
+  test-website:
+    needs: verify-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          # NOTE: Hard Coded Node Version
+          node-version: '22'
+      - name: Build documentation
+        run: yarn && ./scripts/build-documentation.sh
+      - name: Check Output
+        run: find ./website/build
 
   check-docker-limit-after:
     needs: [
@@ -698,3 +740,21 @@ jobs:
     ]
     uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
     secrets: inherit
+
+  all-tests-passed:
+    needs: [
+      linux-unit-tests,
+      e2e-k8s-v2-encrypted-tests,
+      e2e-external-storage-tests,
+      e2e-k8s-v2-tests,
+      e2e-k8s-tests,
+      e2e-tests,
+      elasticsearch-api-tests,
+      elasticsearch-store-tests,
+      teraslice-elasticsearch-tests,
+      lint-and-sync,
+      test-website
+    ]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All tests have passed"
