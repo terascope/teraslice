@@ -755,6 +755,6 @@ jobs:
       lint-and-sync,
       test-website
     ]
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - run: echo "All tests have passed"
