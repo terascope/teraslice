@@ -141,7 +141,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Compile e2e code
         run: yarn build
@@ -209,7 +212,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Compile e2e code
         run: yarn build
@@ -292,7 +298,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Install mkcert
         run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
@@ -389,7 +398,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Compile e2e code
         run: yarn build
@@ -451,7 +463,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
@@ -508,7 +523,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
@@ -589,7 +607,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
@@ -648,7 +669,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Compile e2e code
         run: yarn build

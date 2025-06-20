@@ -30,7 +30,8 @@ main() {
         git add -f docs/packages/*/api &&
         cd website &&
         yarn install  &&
-        yarn run build
+        yarn run build &&
+        git reset ../docs/packages/*/api
 }
 
 main "$@"
