@@ -49,7 +49,7 @@ elasticsearch7:
 
 minio:
   # If false, minio will be excluded on helmfile sync
-  enabled: false
+  enabled: true
   version: RELEASE.2024-08-29T01-40-52Z
   instances: 1
   rootUser: minioadmin
@@ -64,8 +64,19 @@ minio:
 
 kafka:
   # If false, kafka will be excluded on helmfile sync
-  enabled: false
-  version: 7.7.1
+  enabled: true
+
+  # If true, "caCert" needs to be set
+  ssl:
+    enabled: false
+
+    # CA certificate in a single-line string format with "\" as line breaks
+    # Use the following command to convert a rootCA PEM file to the correct format:
+    # awk '{printf "%s\", $0}' <path-to-pem-file> | pbcopy
+    # This is so teraslice can get the rootCA for it's client validation
+    caCert: null
+  image: apache/kafka
+  version: 3.7.2
   brokers: 1
   offsets:
     topic:
@@ -84,6 +95,11 @@ teraslice:
     # Overrides the image tag whose default is the chart appVersion.
     tag: dev
   stateCluster: opensearch2
+  asset_storage_connection_type: elasticsearch-next
+  asset_storage_connection: default
+  env: {}
+  extraVolumes: []
+  extraVolumeMounts: []
 
 chaos-mesh:
   # When enabled, the choas-mesh dashboard will be available in browser
@@ -91,3 +107,12 @@ chaos-mesh:
   # Documentation on how to create "experiments":
   # https://chaos-mesh.org/docs/run-a-chaos-experiment/
   enabled: false
+
+utility:
+  # If false, utility will be excluded on helmfile sync
+  enabled: true
+  image:
+    repository: teraslice-utility
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: 0.0.1
+  instances: 1
