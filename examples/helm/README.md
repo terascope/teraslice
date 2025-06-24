@@ -18,6 +18,62 @@ The following dependencies are required to successfully deploy a basic instance 
 - [teraslice-cli](https://www.npmjs.com/package/teraslice-cli) - A CLI tool for managing Teraslice
     - `npm install -g teraslice-cli`
 
+## Quick Start
+
+Start with being in the correct directory. Starting in the top level of the teraslice directory run:
+
+```bash
+cd ./examples/helm
+```
+
+Quickly build an launch teraslice with `opensearch2` as the state cluster, minio, utility pod, and kafka with the script below:
+
+```bash
+kind create cluster --config kindConfig.yaml
+docker build -t terascope/teraslice:dev ../../.
+docker build -t teraslice-utility:0.0.1 ../../e2e/helm/utility/.
+kind load docker-image --name k8s-env terascope/teraslice:dev teraslice-utility:0.0.1
+helmfile sync
+```
+Once completed, verify that teraslice is running by hitting the api:
+
+```bash
+curl localhost:5678
+```
+
+Also confirm that opensearch2 has all the teraslice state indices by running:
+
+```bash
+curl localhost:9200/_cat/indices
+```
+
+Ensure minio is running correctly logging into the the [Minio UI](http://localhost:9001) with the following username and password:
+
+**Username:** _minioadmin_
+
+**Password:** _minioadmin_
+
+Kafka also has a UI by default, in the browser go to the [Kafka UI](http://localhost:8084) and ensure the `kafka-dev` cluster is present.
+
+The utility pod has useful tools to interact and load data into services. Services include:
+
+- **kcat** a cli tool used to read, write, and interact with kafka
+- **jq** a command-line tool for processing JSON data
+- **fake_stream.sh** script, used for trickling data slowly in to a kafka topic to mimic streams of data
+- **curl** a command-line tool for transferring data with URLs
+
+We can open a bash shell into the utility container to use these tools with the command below:
+
+```bash
+kubectl -n services-dev1 exec -it $(kubectl -n services-dev1 get pod -l app=teraslice-utility -o jsonpath="{.items[0].metadata.name}") -- bash
+```
+
+The utility pod has a shared volume on the host machine to make moving files into the kind cluster easier. For example, a large ldjson file can be moved into the directory `teraslice/e2e/helm/utility/data` on the host machine. Then opening a shell with the command above and going to the `/app/data` directory, the file will now exist in the pod. If we wanted to quickly write this ldjson file into a kafka topic called `test-v1`, we could run:
+
+```bash
+kcat -b kafka-headless.services-dev1.svc.cluster.local:9092 -t test-v1 -P -l /app/data/<ldjson file name>
+```
+
 ### Initial Setup
 
 First you're going to want to be in the correct directory. Starting in the top level of the teraslice directory:
