@@ -28,13 +28,20 @@ cd ./examples/helm
 
 Quickly build an launch teraslice with `opensearch2` as the state cluster, minio, utility pod, and kafka with the script below:
 
+**NOTE:** _Ensure the directory at `teraslice/e2e/helm/utility/data` doesn't have large files in it or else the utility pod will fail to deploy running the script below. It's okay to move large files in the directory after the command below completes. More info about the [utility pod](#utility-pod-usage) is discussed below_
+
 ```bash
 kind create cluster --config kindConfig.yaml
+#### If these images already exist they can be skipped to stand up teraslice faster
 docker build -t terascope/teraslice:dev ../../.
 docker build -t teraslice-utility:0.0.1 ../../e2e/helm/utility/.
+# If instead you'd rather pull a teraslice image you can pull it and retag it like below
+# docker pull ghcr.io/terascope/teraslice:v2.16.4-nodev22.16.0
+# docker tag ghcr.io/terascope/teraslice:v2.16.4-nodev22.16.0 terascope/teraslice:dev
 kind load docker-image --name k8s-env terascope/teraslice:dev teraslice-utility:0.0.1
 helmfile sync
 ```
+
 Once completed, verify that teraslice is running by hitting the api:
 
 ```bash
@@ -54,6 +61,8 @@ Ensure minio is running correctly logging into the the [Minio UI](http://localho
 **Password:** _minioadmin_
 
 Kafka also has a UI by default, in the browser go to the [Kafka UI](http://localhost:8084) and ensure the `kafka-dev` cluster is present.
+
+### Utility pod usage
 
 The utility pod has useful tools to interact and load data into services. Services include:
 
