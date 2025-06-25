@@ -149,7 +149,7 @@ export async function pMap<T, R>(
                     ? err.errors.length
                     : maxErrorLength;
 
-            let message = `pMap failed with ${err.errors.length} error(s):\n`;
+            let message = `pMap failed with an AggregateError containing ${err.errors.length} error(s):\n`;
 
             for (let i = 0; i < errorPrintLength; i++) {
                 const error = err.errors[i];

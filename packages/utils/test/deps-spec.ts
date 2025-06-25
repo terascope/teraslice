@@ -206,7 +206,7 @@ describe('Dependency Utils', () => {
             };
 
             await expect(pMap(input, mapper, { stopOnError: false })).rejects.toThrow(
-                'pMap failed with 2 error(s):\n\n'
+                'pMap failed with an AggregateError containing 2 error(s):\n\n'
                 + '[1] Failed on 1\n'
                 + '[2] {"error":"3 failed and returned a non Error type object"}'
             );
@@ -221,7 +221,7 @@ describe('Dependency Utils', () => {
 
             await expect(
                 pMap(input, mapper, { stopOnError: false })
-            ).rejects.toThrow('pMap failed with 2 error(s):\n\n'
+            ).rejects.toThrow('pMap failed with an AggregateError containing 2 error(s):\n\n'
                 + '[1] Error on 2\n'
                 + '[2] Error on 3'
             );
@@ -236,7 +236,7 @@ describe('Dependency Utils', () => {
 
             await expect(
                 pMap(input, mapper, { stopOnError: false })
-            ).rejects.toThrow('pMap failed with 6 error(s):\n\n'
+            ).rejects.toThrow('pMap failed with an AggregateError containing 6 error(s):\n\n'
                 + '[1] Error on 2\n'
                 + '[2] Error on 3\n'
                 + '[3] Error on 4\n'
