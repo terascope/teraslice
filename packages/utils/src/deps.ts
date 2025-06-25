@@ -142,13 +142,33 @@ export async function pMap<T, R>(
     } catch (err) {
         // Check to ensure it's an aggregate error with an errors key that's an array
         if (err instanceof AggregateError && Array.isArray(err.errors)) {
+            // This will ensure we don't print more than 5 errors
+            const maxErrorLength = 5;
+            const errorPrintLength
+                = err.errors.length < maxErrorLength
+                    ? err.errors.length
+                    : maxErrorLength;
+
             let message = `pMap failed with ${err.errors.length} error(s):\n`;
 
-            for (let i = 0; i < err.errors.length; i++) {
+            for (let i = 0; i < errorPrintLength; i++) {
                 const error = err.errors[i];
                 // ensure this is also an instance of an error so it has a message property
-                const text = error instanceof Error ? error.message : String(error);
+                let text: string;
+                if (error instanceof Error) {
+                    text = error.message;
+                } else {
+                    try {
+                        text = JSON.stringify(error);
+                    } catch (innerError) {
+                        text = String(error);
+                    }
+                }
                 message += `\n[${i + 1}] ${text}`;
+            }
+            if (err.errors.length > maxErrorLength) {
+                const remainingErrors = err.errors.length - maxErrorLength;
+                message += `\n... and ${remainingErrors} other errors.`;
             }
 
             const combinedError = new Error(message);

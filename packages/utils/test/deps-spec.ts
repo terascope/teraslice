@@ -192,6 +192,26 @@ describe('Dependency Utils', () => {
             await expect(pMap(input, mapper)).rejects.toThrow('Failed on 2');
         });
 
+        it('should handle errors that aren\'t error objects', async () => {
+            const input = [1, 2, 3];
+            const mapper = async (n: number) => {
+                if (n === 1) {
+                    throw new Error(`Failed on ${n}`);
+                } else if (n === 3) {
+                    throw {
+                        error: '3 failed and returned a non Error type object'
+                    };
+                }
+                return n;
+            };
+
+            await expect(pMap(input, mapper, { stopOnError: false })).rejects.toThrow(
+                'pMap failed with 2 error(s):\n\n'
+                + '[1] Failed on 1\n'
+                + '[2] {"error":"3 failed and returned a non Error type object"}'
+            );
+        });
+
         it('should collect multiple errors when stopOnError is false', async () => {
             const input = [1, 2, 3];
             const mapper = async (n: number) => {
@@ -204,6 +224,26 @@ describe('Dependency Utils', () => {
             ).rejects.toThrow('pMap failed with 2 error(s):\n\n'
                 + '[1] Error on 2\n'
                 + '[2] Error on 3'
+            );
+        });
+
+        it('should show a maximum of 5 errors', async () => {
+            const input = [1, 2, 3, 4, 5, 6, 7];
+            const mapper = async (n: number) => {
+                if (n !== 1) throw new Error(`Error on ${n}`);
+                return n;
+            };
+
+            await expect(
+                pMap(input, mapper, { stopOnError: false })
+            ).rejects.toThrow('pMap failed with 6 error(s):\n\n'
+                + '[1] Error on 2\n'
+                + '[2] Error on 3\n'
+                + '[3] Error on 4\n'
+                + '[4] Error on 5\n'
+                + '[5] Error on 6\n'
+                + '... and 1 other errors.'
+
             );
         });
     });
