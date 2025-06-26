@@ -143,6 +143,10 @@ export type MatchAllQuery = {
     match_all: Record<string, never>;
 };
 
+export type MatchNoneQuery = {
+    match_none: Record<PropertyKey, never>; // empty object {}
+};
+
 export type GeoDistanceSort = {
     [field: string]: SortOrder | geo.GeoDistanceUnit | {
         lat: number;
