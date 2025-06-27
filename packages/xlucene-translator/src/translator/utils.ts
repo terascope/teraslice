@@ -294,7 +294,9 @@ export function translateQuery(
             const query = buildAnyQuery(node);
             filter.push(...flattenQuery(query, 'filter'));
         }
-        if (!filter.length) return;
+
+        // should match if AND statement
+        if (!filter.length || conj.nodes.length !== filter.length) return;
 
         return {
             bool: {
