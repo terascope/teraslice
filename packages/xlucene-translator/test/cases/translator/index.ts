@@ -13,5 +13,5 @@ export default {
     field_group: fieldGroup,
     logical_group: logicalGroup,
     ip_range: ipRange,
-    arrays: arrays,
+    arrays
 };

@@ -1,6 +1,278 @@
+import { BoolQuery } from 'packages/types/dist/src/elasticsearch-interfaces.js';
 import { TestCase } from './interfaces.js';
 
-// TODO - seems like unnecessary bool/should/filter nesting
+const variables = {
+    variables: {
+        some_array: ['foo', 'bar'],
+        thing: 'something'
+    }
+};
+const fooBarArrayTranslated: BoolQuery = {
+    bool: {
+        should: [{
+            bool: {
+                filter: [{
+                    match: {
+                        some: {
+                            operator: 'and',
+                            query: 'foo'
+                        }
+                    }
+                }]
+            }
+        },
+        {
+            bool: {
+                filter: [{
+                    match: {
+                        some: {
+                            operator: 'and',
+                            query: 'bar'
+                        }
+                    }
+                }]
+            }
+        }]
+    }
+};
+const cases: TestCase[] = [
+    [
+        'some:$some_array',
+        'query.constant_score.filter',
+        fooBarArrayTranslated,
+        variables
+    ],
+    [
+        'some:$some_array AND other:$thing',
+        'query.constant_score.filter',
+        {
+            bool: {
+                should: [{
+                    bool: {
+                        filter: [
+                            fooBarArrayTranslated,
+                            {
+                                match: {
+                                    other: {
+                                        operator: 'and',
+                                        query: 'something'
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }]
+            }
+        },
+        variables
+    ],
+    [
+        'some:$some_array OR other:$thing',
+        'query.constant_score.filter',
+        {
+            bool: {
+                should: [{
+                    bool: {
+                        filter: [
+                            fooBarArrayTranslated
+                        ]
+                    }
+                },
+                {
+                    bool: {
+                        filter: [{
+                            match: {
+                                other: {
+                                    operator: 'and',
+                                    query: 'something'
+                                }
+                            }
+                        }]
+                    }
+                }]
+            }
+        },
+        variables
+    ],
+    [
+        '(some:$some_array OR other:$thing) AND another:$thing',
+        'query.constant_score.filter',
+        {
+            bool: {
+                should: [{
+                    bool: {
+                        filter: [{
+                            bool: {
+                                should: [{
+                                    bool: {
+                                        filter: [
+                                            fooBarArrayTranslated
+                                        ]
+                                    }
+                                },
+                                {
+                                    bool: {
+                                        filter: [{
+                                            match: {
+                                                other: {
+                                                    operator: 'and',
+                                                    query: 'something'
+                                                }
+                                            }
+                                        }]
+                                    }
+                                }]
+                            }
+                        },
+                        {
+                            match: {
+                                another: {
+                                    operator: 'and',
+                                    query: 'something'
+                                }
+                            }
+                        }]
+                    }
+                }]
+            }
+        },
+        variables
+    ],
+    [
+        '(some:$some_array OR other:$thing) OR another:$thing',
+        'query.constant_score.filter',
+        {
+            bool: {
+                should: [{
+                    bool: {
+                        filter: [{
+                            bool: {
+                                should: [{
+                                    bool: {
+                                        filter: [
+                                            fooBarArrayTranslated
+                                        ]
+                                    }
+                                },
+                                {
+                                    bool: {
+                                        filter: [
+                                            {
+                                                match: {
+                                                    other: {
+                                                        operator: 'and',
+                                                        query: 'something'
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }]
+                            }
+                        }]
+                    }
+                },
+                {
+                    bool: {
+                        filter: [{
+                            match: {
+                                another: {
+                                    operator: 'and',
+                                    query: 'something'
+                                }
+                            }
+                        }]
+                    }
+                }]
+            }
+        },
+        variables
+    ],
+    [
+        '(some:$some_array AND other:$thing) OR another:$thing',
+        'query.constant_score.filter',
+        {
+            bool: {
+                should: [{
+                    bool: {
+                        filter: [{
+                            bool: {
+                                should: [{
+                                    bool: {
+                                        filter: [
+                                            fooBarArrayTranslated,
+                                            {
+                                                match: {
+                                                    other: {
+                                                        operator: 'and',
+                                                        query: 'something'
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }]
+                            }
+                        }]
+                    }
+                },
+                {
+                    bool: {
+                        filter: [{
+                            match: {
+                                another: {
+                                    operator: 'and',
+                                    query: 'something'
+                                }
+                            }
+                        }]
+                    }
+                }]
+            }
+        },
+        variables
+    ],
+    [
+        '(some:$some_array AND other:$thing) AND another:$thing',
+        'query.constant_score.filter',
+        {
+            bool: {
+                should: [{
+                    bool: {
+                        filter: [{
+                            bool: {
+                                should: [{
+                                    bool: {
+                                        filter: [
+                                            fooBarArrayTranslated,
+                                            {
+                                                match: {
+                                                    other: {
+                                                        operator: 'and',
+                                                        query: 'something'
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }]
+                            }
+                        },
+                        {
+                            match: {
+                                another: {
+                                    operator: 'and',
+                                    query: 'something'
+                                }
+                            }
+                        }]
+                    }
+                }]
+            }
+        },
+        variables
+    ],
+];
 
 const variablesWithEmptyArray = {
     variables: {
@@ -178,421 +450,6 @@ const emptyArrayCases: TestCase[] = [
             query: { match_none: {} },
         },
         variablesWithEmptyArray
-    ],
-];
-
-const variables = {
-    variables: {
-        some_array: ['foo'],
-        thing: 'something'
-    }
-};
-const cases: TestCase[] = [
-    [
-        'some:$some_array',
-        'query.constant_score.filter',
-        {
-            bool: {
-                should: [
-                    {
-                        bool: {
-                            filter: [
-                                {
-                                    match: {
-                                        some: {
-                                            operator: 'and',
-                                            query: 'foo'
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        variables
-    ],
-    [
-        'some:$some_array AND other:$thing',
-        'query.constant_score.filter',
-        {
-            bool: {
-                should: [
-                    {
-                        bool: {
-                            filter: [
-                                {
-                                    bool: {
-                                        should: [
-                                            {
-                                                bool: {
-                                                    filter: [
-                                                        {
-                                                            match: {
-                                                                some: {
-                                                                    operator: 'and',
-                                                                    query: 'foo'
-                                                                }
-                                                            }
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        ]
-                                    }
-                                },
-                                {
-                                    match: {
-                                        other: {
-                                            operator: 'and',
-                                            query: 'something'
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        variables
-    ],
-    [
-        'some:$some_array OR other:$thing',
-        'query.constant_score.filter',
-        {
-            bool: {
-                should: [
-                    {
-                        bool: {
-                            filter: [
-                                {
-                                    bool: {
-                                        should: [
-                                            {
-                                                bool: {
-                                                    filter: [
-                                                        {
-                                                            match: {
-                                                                some: {
-                                                                    operator: 'and',
-                                                                    query: 'foo'
-                                                                }
-                                                            }
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        bool: {
-                            filter: [
-                                {
-                                    match: {
-                                        other: {
-                                            operator: 'and',
-                                            query: 'something'
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-
-        },
-        variables
-    ],
-    [
-        '(some:$some_array OR other:$thing) AND another:$thing',
-        'query.constant_score.filter',
-        {
-            bool: {
-                should: [
-                    {
-                        bool: {
-                            filter: [
-                                {
-                                    bool: {
-                                        should: [
-                                            {
-                                                bool: {
-                                                    filter: [
-                                                        {
-                                                            bool: {
-                                                                should: [
-                                                                    {
-                                                                        bool: {
-                                                                            filter: [
-                                                                                {
-                                                                                    match: {
-                                                                                        some: {
-                                                                                            operator: 'and',
-                                                                                            query: 'foo'
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    }
-                                                                ]
-                                                            }
-                                                        }
-                                                    ]
-                                                }
-                                            },
-                                            {
-                                                bool: {
-                                                    filter: [
-                                                        {
-                                                            match: {
-                                                                other: {
-                                                                    operator: 'and',
-                                                                    query: 'something'
-                                                                }
-                                                            }
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        ]
-                                    }
-                                },
-                                {
-                                    match: {
-                                        another: {
-                                            operator: 'and',
-                                            query: 'something'
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        variables
-    ],
-    [
-        '(some:$some_array OR other:$thing) OR another:$thing',
-        'query.constant_score.filter',
-        {
-            bool: {
-                should: [
-                    {
-                        bool: {
-                            filter: [
-                                {
-                                    bool: {
-                                        should: [
-                                            {
-                                                bool: {
-                                                    filter: [
-                                                        {
-                                                            bool: {
-                                                                should: [
-                                                                    {
-                                                                        bool: {
-                                                                            filter: [
-                                                                                {
-                                                                                    match: {
-                                                                                        some: {
-                                                                                            operator: 'and',
-                                                                                            query: 'foo'
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    }
-                                                                ]
-                                                            }
-                                                        }
-                                                    ]
-                                                }
-                                            },
-                                            {
-                                                bool: {
-                                                    filter: [
-                                                        {
-                                                            match: {
-                                                                other: {
-                                                                    operator: 'and',
-                                                                    query: 'something'
-                                                                }
-                                                            }
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        bool: {
-                            filter: [
-                                {
-                                    match: {
-                                        another: {
-                                            operator: 'and',
-                                            query: 'something'
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        variables
-    ],
-    [
-        '(some:$some_array AND other:$thing) OR another:$thing',
-        'query.constant_score.filter',
-        {
-            bool: {
-                should: [
-                    {
-                        bool: {
-                            filter: [
-                                {
-                                    bool: {
-                                        should: [
-                                            {
-                                                bool: {
-                                                    filter: [
-                                                        {
-                                                            bool: {
-                                                                should: [
-                                                                    {
-                                                                        bool: {
-                                                                            filter: [
-                                                                                {
-                                                                                    match: {
-                                                                                        some: {
-                                                                                            operator: 'and',
-                                                                                            query: 'foo'
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    }
-                                                                ]
-                                                            }
-                                                        },
-                                                        {
-                                                            match: {
-                                                                other: {
-                                                                    operator: 'and',
-                                                                    query: 'something'
-                                                                }
-                                                            }
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        bool: {
-                            filter: [
-                                {
-                                    match: {
-                                        another: {
-                                            operator: 'and',
-                                            query: 'something'
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        variables
-    ],
-    [
-        '(some:$some_array AND other:$thing) AND another:$thing',
-        'query.constant_score.filter',
-        {
-            bool: {
-                should: [
-                    {
-                        bool: {
-                            filter: [
-                                {
-                                    bool: {
-                                        should: [
-                                            {
-                                                bool: {
-                                                    filter: [
-                                                        {
-                                                            bool: {
-                                                                should: [
-                                                                    {
-                                                                        bool: {
-                                                                            filter: [
-                                                                                {
-                                                                                    match: {
-                                                                                        some: {
-                                                                                            operator: 'and',
-                                                                                            query: 'foo'
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    }
-                                                                ]
-                                                            }
-                                                        },
-                                                        {
-                                                            match: {
-                                                                other: {
-                                                                    operator: 'and',
-                                                                    query: 'something'
-                                                                }
-                                                            }
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        ]
-                                    }
-                                },
-                                {
-                                    match: {
-                                        another: {
-                                            operator: 'and',
-                                            query: 'something'
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        variables
     ],
 ];
 
