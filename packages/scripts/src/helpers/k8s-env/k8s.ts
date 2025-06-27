@@ -185,7 +185,7 @@ export class K8s {
 
         const elapsed = Date.now() - startTime;
 
-        signale.success('Teraslice is ready to go,', `took ${ms(elapsed)}`);
+        signale.success(`Teraslice is ready to go at port ${config.TERASLICE_PORT}, took ${ms(elapsed)}`);
     }
 
     waitForTerasliceResponse(timeoutMs = 120000) {
