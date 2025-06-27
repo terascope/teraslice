@@ -161,7 +161,7 @@ export type GeoSortQuery = {
 export type AnyQuerySort = GeoSortQuery;
 
 export type ElasticsearchDSLResult = {
-    query: ConstantScoreQuery | MatchAllQuery;
+    query: ConstantScoreQuery | MatchAllQuery | MatchNoneQuery;
     sort?: AnyQuerySort | AnyQuerySort[];
 };
 
