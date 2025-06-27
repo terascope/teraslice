@@ -364,7 +364,7 @@ jobs:
           command -v helmfile
 
       - name: Test k8s V2 opensearch2
-        run: 
+        run: |
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
