@@ -15,7 +15,7 @@ jobs:
     outputs:
       NODE_VERSIONS: ${{ steps.step1.outputs.NODE_VERSIONS }}
       NODE_VERSION_MAIN: ${{ steps.step2.outputs.NODE_VERSION_MAIN }}
-      NODE_VERSIONS_EXT_K8S: ${{ steps.step3.outputs.NODE_VERSIONS_K8S }}
+      NODE_VERSIONS_K8S: ${{ steps.step3.outputs.NODE_VERSIONS_K8S }}
       NODE_VERSIONS_EXT_STORAGE: ${{ steps.step4.outputs.NODE_VERSIONS_EXT_STORAGE }}
     steps:
       - id: step1
@@ -110,7 +110,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_K8S) }}
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_K8S) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -169,7 +169,12 @@ jobs:
           install_only: "true"
 
       - name: Test k8s elasticsearch7
-        run: NODE_VERSION=${{ matrix.node-version }} yarn test:k8s
+        run: | 
+          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} yarn test:k8s
         working-directory: ./e2e
 
   e2e-k8s-v2-tests:
@@ -181,7 +186,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_K8S) }}
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_K8S) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -257,7 +262,11 @@ jobs:
           command -v helmfile
 
       - name: Test k8s V2 opensearch2
-        run: NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2Helmfile
+        run: |
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2Helmfile
         working-directory: ./e2e
 
   e2e-k8s-v2-encrypted-tests:
@@ -355,7 +364,12 @@ jobs:
           command -v helmfile
 
       - name: Test k8s V2 opensearch2
-        run: NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2HelmfileEncrypted
+        run: |
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2HelmfileEncrypted
         working-directory: ./e2e
 
   e2e-external-storage-tests:
@@ -421,7 +435,13 @@ jobs:
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Test external Asset Storage opensearch1
-        run: NODE_VERSION=${{ matrix.node-version }} yarn test:s3AssetStorage
+        run: |
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} yarn test:s3AssetStorage
         working-directory: ./e2e
 
   teraslice-elasticsearch-tests:
@@ -471,7 +491,11 @@ jobs:
       - name: Test ${{ matrix.search-version }}
         env:
           REPORT_COVERAGE: true
-        run: yarn test:${{ matrix.search-version }}
+        run: |
+          export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../../scripts/get-random-port.sh)
+          yarn test:${{ matrix.search-version }}
         working-directory: ./packages/teraslice
 
       - name: Upload teraslice node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
@@ -531,7 +555,10 @@ jobs:
       - name: Test ${{ matrix.search-version }}
         env:
           REPORT_COVERAGE: true
-        run: yarn test:${{ matrix.search-version }}
+        run: |
+          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
 
       - name: Upload elasticsearch-store node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
@@ -615,7 +642,10 @@ jobs:
       - name: Test ${{ matrix.search-version }}
         env:
           REPORT_COVERAGE: true
-        run: yarn test:${{ matrix.search-version }}
+        run: |
+          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-api
 
       - name: Upload es-api node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
@@ -692,7 +722,14 @@ jobs:
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
-        run: NODE_VERSION=${{ matrix.node-version }} yarn test:${{ matrix.search-version }}
+        run: |
+          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} yarn test:${{ matrix.search-version }}
         working-directory: ./e2e
 
   test-website:

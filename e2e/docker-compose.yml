@@ -3,7 +3,7 @@ services:
     teraslice-master:
         image: teraslice-workspace:e2e-nodev${NODE_VERSION}
         ports:
-            - '45678:45678'
+            - ${TERASLICE_PORT}:${TERASLICE_PORT}
         deploy:
           replicas: 1
         restart: 'no'

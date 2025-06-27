@@ -4,16 +4,16 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
   image: kindest/node:v1.28.12@sha256:fa0e48b1e83bb8688a5724aa7eebffbd6337abd7909ad089a2700bf08c30c6ea
-  extraPortMappings:
-  # teraslice port mapping needs to be at index 0 in this array
-  - containerPort: 30678 # Map internal teraslice service to host port
-    hostPort: 45678
+  extraPortMappings: []
 
   # Leaving this commented out instead if removing. `hostPort` is now dynamic but
   # `containerPort` is still hardcoded and is useful information to list
   # These values are dynamically set here:
   # https://github.com/terascope/teraslice/blob/c83e68c196d926c96bffb37f544c2751ffcc78d3/packages/scripts/src/helpers/kind.ts#L52-L80
   #
+  # teraslice port mapping needs to be at index 0 in this array
+  # - containerPort: 30678 # Map internal teraslice service to host port
+  #   hostPort: 45678
   # - containerPort: 30200 # Map internal elasticsearch service to host port
   #   hostPort: 49200
   # - containerPort: 30210 # Map internal opensearch service to host port
