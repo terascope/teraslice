@@ -9,7 +9,12 @@ export function isNotNil<T>(input: T | Nil): boolean {
     return input != null;
 }
 
-/** Check if an input is empty, similar to lodash.isEmpty */
+/**
+ * Check if an input is empty, similar to lodash.isEmpty -
+ *
+ * NOTE - NUMBERS & BOOLEANS are always empty as this is
+ * for iterable things strings, arrays, objects, etc.
+*/
 export function isEmpty<T>(val?: T | null | undefined): val is undefined {
     const _val = val as any;
     if (!_val) return true;

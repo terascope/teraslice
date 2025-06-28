@@ -16,7 +16,7 @@ describe('Translator', () => {
         expect(translator).toHaveProperty('query', query);
     });
 
-    it('should return an empty filter query when given an invalid query', () => {
+    it('should return a match none query when given an invalid query', () => {
         const parser = new Parser('');
         // @ts-expect-error
         parser.ast = { type: 'idk', field: 'a', val: true } as any;
@@ -30,9 +30,7 @@ describe('Translator', () => {
             distribution: ElasticsearchDistribution.elasticsearch
         })).toEqual({
             query: {
-                constant_score: {
-                    filter: []
-                }
+                match_none: {}
             }
         });
     });
