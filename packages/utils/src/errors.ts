@@ -478,3 +478,47 @@ export function stripErrorMessage(
     if (firstErr.includes(reason)) return msg;
     return `${reason}: ${msg}`;
 }
+
+/**
+ * Formats an AggregateError into a user-friendly Error which
+ * shows the first five Errors from the Aggregate.
+ * @param aggregateError
+ */
+export async function formatAggregateError(aggregateError: unknown) {
+    // Check to ensure it's an aggregate error with an errors key that's an array
+    if (aggregateError instanceof AggregateError && Array.isArray(aggregateError.errors)) {
+        // This will ensure we don't print more than 5 errors
+        const maxErrorLength = 5;
+        const errorPrintLength
+                    = aggregateError.errors.length < maxErrorLength
+                        ? aggregateError.errors.length
+                        : maxErrorLength;
+
+        let message = `Failed with an AggregateError containing ${aggregateError.errors.length} error(s):\n`;
+
+        for (let i = 0; i < errorPrintLength; i++) {
+            const error = aggregateError.errors[i];
+            // ensure this is also an instance of an error so it has a message property
+            let text: string;
+            if (error instanceof Error) {
+                text = error.message;
+            } else {
+                try {
+                    text = JSON.stringify(error);
+                } catch (innerError) {
+                    text = String(error);
+                }
+            }
+            message += `\n[${i + 1}] ${text}`;
+        }
+        if (aggregateError.errors.length > maxErrorLength) {
+            const remainingErrors = aggregateError.errors.length - maxErrorLength;
+            message += `\n... and ${remainingErrors} other errors.`;
+        }
+
+        const combinedError = new Error(message);
+        throw combinedError;
+    }
+
+    throw aggregateError;
+}
