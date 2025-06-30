@@ -12,6 +12,7 @@ export interface AssetRecord {
     platform?: string;
     node_version?: number;
     _created: string | Date;
+    external_storage?: string;
 }
 
 export interface AssetStatusResponse {
