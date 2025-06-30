@@ -1,8 +1,8 @@
 import 'jest-extended';
-import { FieldType, SearchResponse } from '@terascope/types';
+import { BulkParams, FieldType, SearchResponse } from '@terascope/types';
 import { QueryAccess } from 'xlucene-translator';
 import {
-    Client, ElasticsearchTestHelpers, makeRecordDataType
+    Client, ElasticsearchTestHelpers, getClientMetadata, makeRecordDataType
 } from 'elasticsearch-store';
 
 function mapResults(results: SearchResponse) {
@@ -56,12 +56,14 @@ describe('Array Queries', () => {
 
     let client: Client;
     const index = 'arrays';
+    let clientMetadata = {};
 
     beforeAll(async () => {
         client = await ElasticsearchTestHelpers.makeClient();
+        clientMetadata = getClientMetadata(client);
         await client.indices.create({ index });
 
-        const bulkParams: any[] = [];
+        const bulkParams: BulkParams<unknown, unknown>['body'] = [];
         searchData.forEach(
             (el, _id) => {
                 bulkParams.push({ index: { _index: index, _id } });
@@ -82,7 +84,10 @@ describe('Array Queries', () => {
             it('should correctly inner join', async () => {
                 const searchParams = await access.restrictSearchQuery(
                     'bar:@bar',
-                    { variables: { '@bar': [] } }
+                    {
+                        variables: { '@bar': [] },
+                        ...clientMetadata
+                    }
                 );
                 const results = await client.search(searchParams);
                 expect(mapResults(results)).toEqual([]);
@@ -95,7 +100,8 @@ describe('Array Queries', () => {
                         variables: {
                             '@bar': [],
                             '@foo': ['foo2', 'foo4']
-                        }
+                        },
+                        ...clientMetadata
                     }
                 );
                 const results = await client.search(searchParams);
@@ -109,7 +115,8 @@ describe('Array Queries', () => {
                         variables: {
                             '@bar': [],
                             '@foo': ['foo2', 'foo4']
-                        }
+                        },
+                        ...clientMetadata
                     }
                 );
                 const results = await client.search(searchParams);
@@ -127,7 +134,8 @@ describe('Array Queries', () => {
                             '@bar': [],
                             '@bar2': ['bar3'],
                             '@foo': ['foo2', 'foo4']
-                        }
+                        },
+                        ...clientMetadata
                     }
                 );
                 const results = await client.search(searchParams);
@@ -144,7 +152,8 @@ describe('Array Queries', () => {
                             '@bar': [],
                             '@bar2': ['bar3'],
                             '@foo': ['foo2', 'foo4']
-                        }
+                        },
+                        ...clientMetadata
                     }
                 );
                 const results = await client.search(searchParams);
@@ -156,7 +165,10 @@ describe('Array Queries', () => {
             it('should correctly inner join', async () => {
                 const searchParams = await access.restrictSearchQuery(
                     'bar:@bar',
-                    { variables: { '@bar': ['bar2', 'bar4'] } }
+                    {
+                        variables: { '@bar': ['bar2', 'bar4'] },
+                        ...clientMetadata
+                    }
                 );
                 const results = await client.search(searchParams);
                 expect(mapResults(results)).toEqual([
@@ -173,7 +185,8 @@ describe('Array Queries', () => {
                         variables: {
                             '@bar': ['bar2', 'bar4'],
                             '@foo': ['foo3', 'foo2']
-                        }
+                        },
+                        ...clientMetadata
                     }
                 );
                 const results = await client.search(searchParams);
@@ -190,7 +203,8 @@ describe('Array Queries', () => {
                         variables: {
                             '@bar': ['bar1'],
                             '@foo': ['foo2', 'foo4']
-                        }
+                        },
+                        ...clientMetadata
                     }
                 );
                 const results = await client.search(searchParams);
@@ -209,7 +223,8 @@ describe('Array Queries', () => {
                             '@bar': ['bar2'],
                             '@bar2': ['bar3'],
                             '@foo': ['foo2', 'foo4']
-                        }
+                        },
+                        ...clientMetadata
                     }
                 );
                 const results = await client.search(searchParams);
@@ -227,7 +242,8 @@ describe('Array Queries', () => {
                             '@bar': ['bar3'],
                             '@bar2': ['bar3'],
                             '@foo': ['foo2', 'foo4']
-                        }
+                        },
+                        ...clientMetadata
                     }
                 );
                 const results = await client.search(searchParams);
