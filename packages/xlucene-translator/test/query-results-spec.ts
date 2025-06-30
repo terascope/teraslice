@@ -1,7 +1,7 @@
 import 'jest-extended';
-import { BulkParams, ClientMetadata, FieldType, SearchResponse } from '@terascope/types';
-import { QueryAccess } from 'xlucene-translator';
-import { Client, ElasticsearchTestHelpers, getClientMetadata, makeRecordDataType } from 'elasticsearch-store';
+import { FieldType, type BulkParams, type ClientMetadata, type SearchResponse } from '@terascope/types';
+import { type Client, ElasticsearchTestHelpers, getClientMetadata, makeRecordDataType } from 'elasticsearch-store';
+import { QueryAccess } from '../src/query-access/index.js';
 import allTestCases from './cases/queries/index.js';
 
 function mapResults(results: SearchResponse) {
