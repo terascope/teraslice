@@ -480,7 +480,8 @@ export function stripErrorMessage(
 }
 
 /**
- * Formats an AggregateError into a user-friendly Error which shows the first five Errors from the Aggregate.
+ * Formats an AggregateError into a user-friendly Error which
+ * shows the first five Errors from the Aggregate.
  * @param aggregateError
  */
 export async function formatAggregateError(aggregateError: unknown) {
