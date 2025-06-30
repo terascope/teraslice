@@ -28,7 +28,7 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../terafoundation --"
     },
     "dependencies": {
-        "@terascope/file-asset-apis": "~1.1.0",
+        "@terascope/file-asset-apis": "~1.1.1",
         "@terascope/types": "~1.4.2",
         "@terascope/utils": "~1.9.1",
         "bluebird": "~3.7.2",
