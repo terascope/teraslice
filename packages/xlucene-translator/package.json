@@ -35,7 +35,8 @@
         "xlucene-parser": "~1.8.3"
     },
     "devDependencies": {
-        "elasticsearch": "~15.4.1"
+        "elasticsearch": "~15.4.1",
+        "elasticsearch-store": "workspace:^"
     },
     "engines": {
         "node": ">=22.0.0",
