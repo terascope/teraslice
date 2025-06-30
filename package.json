@@ -50,7 +50,7 @@
         "nan": "~2.22.0"
     },
     "devDependencies": {
-        "@eslint/js": "~9.29.0",
+        "@eslint/js": "~9.30.0",
         "@swc/core": "1.12.1",
         "@swc/jest": "~0.2.38",
         "@terascope/scripts": "~1.19.1",
@@ -59,13 +59,13 @@
         "@types/elasticsearch": "~5.0.43",
         "@types/fs-extra": "~11.0.4",
         "@types/jest": "~30.0.0",
-        "@types/lodash": "~4.17.17",
-        "@types/node": "~24.0.3",
+        "@types/lodash": "~4.17.19",
+        "@types/node": "~24.0.7",
         "@types/uuid": "~10.0.0",
-        "eslint": "~9.29.0",
-        "jest": "~30.0.0",
+        "eslint": "~9.30.0",
+        "jest": "~30.0.3",
         "jest-extended": "~6.0.0",
-        "jest-watch-typeahead": "~2.2.2",
+        "jest-watch-typeahead": "~3.0.1",
         "node-notifier": "~10.0.1",
         "ts-jest": "~29.4.0",
         "typescript": "~5.8.3"
