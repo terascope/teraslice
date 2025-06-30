@@ -14,7 +14,7 @@ import _clone from 'shallow-clone';
 import kindOf from 'kind-of';
 import jsStringEscape from 'js-string-escape';
 import geoHash from 'latlon-geohash';
-import _pMap, { Options as PMapOptions } from 'p-map';
+import pMap from 'p-map';
 import { AnyObject } from './interfaces.js';
 import { DataEntity } from './entities/index.js';
 import { isKey } from './objects.js';
@@ -116,69 +116,6 @@ export function escapeString(input: string | number): string {
     return jsStringEscape(`${input}`);
 }
 
-/**
- * A wrapper around p-map that properly surfaces individual errors
- * from an AggregateError when `stopOnError` is set to `false`.
- * https://github.com/terascope/standard-assets/issues/1114
- *
- * This function is pMap but logs individual errors
- * when multiple errors occur in parallel
- *
- * @template T - The type of items in the input
- * @template R - The type of the result returned by the mapper function
- *
- * @returns {Promise<R[]>} A promise that resolves to an array of mapped results.
- *
- * @throws {AggregateError} When stopOnError is false and multiple errors occur,
- *   this error will include all individual errors under the errors[] key array
- */
-export async function pMap<T, R>(
-    input: Iterable<T>,
-    mapper: (element: T, index: number) => Promise<R> | R,
-    options?: PMapOptions
-): Promise<R[]> {
-    try {
-        return await _pMap(input, mapper, options);
-    } catch (err) {
-        // Check to ensure it's an aggregate error with an errors key that's an array
-        if (err instanceof AggregateError && Array.isArray(err.errors)) {
-            // This will ensure we don't print more than 5 errors
-            const maxErrorLength = 5;
-            const errorPrintLength
-                = err.errors.length < maxErrorLength
-                    ? err.errors.length
-                    : maxErrorLength;
-
-            let message = `pMap failed with an AggregateError containing ${err.errors.length} error(s):\n`;
-
-            for (let i = 0; i < errorPrintLength; i++) {
-                const error = err.errors[i];
-                // ensure this is also an instance of an error so it has a message property
-                let text: string;
-                if (error instanceof Error) {
-                    text = error.message;
-                } else {
-                    try {
-                        text = JSON.stringify(error);
-                    } catch (innerError) {
-                        text = String(error);
-                    }
-                }
-                message += `\n[${i + 1}] ${text}`;
-            }
-            if (err.errors.length > maxErrorLength) {
-                const remainingErrors = err.errors.length - maxErrorLength;
-                message += `\n... and ${remainingErrors} other errors.`;
-            }
-
-            const combinedError = new Error(message);
-            throw combinedError;
-        }
-
-        throw err;
-    }
-}
-
 export {
     get,
     set,
@@ -187,6 +124,7 @@ export {
     geoHash,
     merge,
     padEnd,
+    pMap,
     debounce,
     difference,
     throttle,
