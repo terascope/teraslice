@@ -932,9 +932,6 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
     let subprocess;
     try {
         subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} ${command} -f ${helmfilePath}`);
-        if (subprocess.stderr) {
-            throw new Error(subprocess.stderr);
-        }
     } catch (err) {
         throw new TSError(`Helmfile ${command} command failed:\n${err}`);
     } finally {
