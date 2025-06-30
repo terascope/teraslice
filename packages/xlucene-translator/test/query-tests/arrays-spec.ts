@@ -61,7 +61,6 @@ describe('Array Queries', () => {
         client = await ElasticsearchTestHelpers.makeClient();
         await client.indices.create({ index });
 
-        // FIXME types
         const bulkParams: any[] = [];
         searchData.forEach(
             (el, _id) => {
@@ -80,228 +79,162 @@ describe('Array Queries', () => {
 
     describe('when joining on array variables', () => {
         describe('when the array is empty', () => {
-            it('DELETE - just testing setup is correct', async () => {
-                const searchParams = await access.restrictSearchQuery('');
+            it('should correctly inner join', async () => {
+                const searchParams = await access.restrictSearchQuery(
+                    'bar:@bar',
+                    { variables: { '@bar': [] } }
+                );
                 const results = await client.search(searchParams);
-
-                expect(mapResults(results)).toEqual(searchData);
+                expect(mapResults(results)).toEqual([]);
             });
 
-            // it('should correctly inner join', async () => {
-            //     const query = 'bar:@bar';
+            it('should correctly inner join when using an AND', async () => {
+                const searchParams = await access.restrictSearchQuery(
+                    'bar:@bar AND foo:@foo',
+                    {
+                        variables: {
+                            '@bar': [],
+                            '@foo': ['foo2', 'foo4']
+                        }
+                    }
+                );
+                const results = await client.search(searchParams);
+                expect(mapResults(results)).toEqual([]);
+            });
 
-            //     const searchParams = await access.restrictSearchQuery(
-            //         '',
-            //         {
-            //             variables: { bar: ['bar2'] }
-            //         }
-            //     );
-            //     console.log('===searchParams', JSON.stringify(searchParams, null, 4));
-            //     const results = await client.search(searchParams);
-            //     console.log('===res', JSON.stringify(results, null, 4));
+            it('should correctly inner join when using an OR', async () => {
+                const searchParams = await access.restrictSearchQuery(
+                    'bar:@bar OR foo:@foo',
+                    {
+                        variables: {
+                            '@bar': [],
+                            '@foo': ['foo2', 'foo4']
+                        }
+                    }
+                );
+                const results = await client.search(searchParams);
+                expect(mapResults(results)).toEqual([
+                    { foo: 'foo2', bar: 'bar2' },
+                    { foo: 'foo4', bar: 'bar3' }
+                ]);
+            });
 
-            //     expect(results.hits.hits).toEqual([]);
-            // });
+            it('should correctly inner join when using parens and OR', async () => {
+                const searchParams = await access.restrictSearchQuery(
+                    '(bar:@bar AND foo:@foo) OR bar:@bar2',
+                    {
+                        variables: {
+                            '@bar': [],
+                            '@bar2': ['bar3'],
+                            '@foo': ['foo2', 'foo4']
+                        }
+                    }
+                );
+                const results = await client.search(searchParams);
+                expect(mapResults(results)).toEqual([
+                    { foo: 'foo4', bar: 'bar3' }
+                ]);
+            });
 
-            // it('should correctly inner join when using an AND', async () => {
-            //     const response = await runRequest(fullRoleClient, `
-            //     query {
-            //         search_${endpoint} {
-            //             fakeBar: _set(value: [])
-            //             bar
-            //             related: search_${endpoint}(query: "bar:@fakeBar AND foo:@foo") {
-            //                 foo
-            //             }
-            //         }
-            //     }
-            // `);
-
-            //     expect(response.results).toEqual([
-            //         { bar: 'bar1', fakeBar: [], related: [] },
-            //         { bar: 'bar2', fakeBar: [], related: [] },
-            //         { bar: 'bar2', fakeBar: [], related: [] },
-            //         { bar: 'bar3', fakeBar: [], related: [] },
-            //         { bar: 'bar4', fakeBar: [], related: [] },
-            //     ]);
-            // });
-
-            // it('should correctly inner join when using an OR', async () => {
-            //     const response = await runRequest(fullRoleClient, `
-            //     query {
-            //         search_${endpoint} {
-            //             fakeBar: _set(value: [])
-            //             bar
-            //             related: search_${endpoint}(query: "bar:@fakeBar OR foo:@foo") {
-            //                 foo
-            //             }
-            //         }
-            //     }
-            // `);
-
-            //     expect(response.results).toEqual([
-            //         { bar: 'bar1', fakeBar: [], related: [{ foo: 'foo1' }] },
-            //         { bar: 'bar2', fakeBar: [], related: [{ foo: 'foo2' }] },
-            //         { bar: 'bar2', fakeBar: [], related: [{ foo: 'foo3' }] },
-            //         { bar: 'bar3', fakeBar: [], related: [{ foo: 'foo4' }] },
-            //         { bar: 'bar4', fakeBar: [], related: [] },
-            //     ]);
-            // });
-
-            // it('should correctly inner join when using parens and OR', async () => {
-            //     const response = await runRequest(fullRoleClient, `
-            //     query {
-            //         search_${endpoint} {
-            //             fakeBar: _set(value: [])
-            //             bar
-            //             related: search_${endpoint}(query: "(bar:@fakeBar AND foo:@foo) OR bar:@bar") {
-            //                 foo
-            //             }
-            //         }
-            //     }
-            // `);
-
-            //     expect(response.results).toEqual([
-            //         { bar: 'bar1', fakeBar: [], related: [{ foo: 'foo1' }] },
-            //         { bar: 'bar2', fakeBar: [], related: [{ foo: 'foo2' }, { foo: 'foo3' }] },
-            //         { bar: 'bar2', fakeBar: [], related: [{ foo: 'foo2' }, { foo: 'foo3' }] },
-            //         { bar: 'bar3', fakeBar: [], related: [{ foo: 'foo4' }] },
-            //         { bar: 'bar4', fakeBar: [], related: [] },
-            //     ]);
-            // });
-
-            // it('should correctly inner join when using an parens and AND', async () => {
-            //     const response = await runRequest(fullRoleClient, `
-            //     query {
-            //         search_${endpoint} {
-            //             fakeBar: _set(value: [])
-            //             bar
-            //             related: search_${endpoint}(query: "(bar:@fakeBar AND foo:@foo) AND bar:@bar") {
-            //                 foo
-            //             }
-            //         }
-            //     }
-            // `);
-
-            //     expect(response.results).toEqual([
-            //         { bar: 'bar1', fakeBar: [], related: [] },
-            //         { bar: 'bar2', fakeBar: [], related: [] },
-            //         { bar: 'bar2', fakeBar: [], related: [] },
-            //         { bar: 'bar3', fakeBar: [], related: [] },
-            //         { bar: 'bar4', fakeBar: [], related: [] },
-            //     ]);
-            // });
+            it('should correctly inner join when using an parens and AND', async () => {
+                const searchParams = await access.restrictSearchQuery(
+                    '(bar:@bar AND foo:@foo) AND bar:@bar2',
+                    {
+                        variables: {
+                            '@bar': [],
+                            '@bar2': ['bar3'],
+                            '@foo': ['foo2', 'foo4']
+                        }
+                    }
+                );
+                const results = await client.search(searchParams);
+                expect(mapResults(results)).toEqual([]);
+            });
         });
 
-        // describe('when the array has length', () => {
-        //     it('should correctly inner join', async () => {
-        //         const response = await runRequest(fullRoleClient, `
-        //         query {
-        //             search_${endpoint} {
-        //                 fakeBar: _set(value: ["bar1", "bar3"])
-        //                 bar
-        //                 related: search_${endpoint}(query: "bar:@fakeBar") {
-        //                     foo
-        //                 }
-        //             }
-        //         }
-        //     `);
+        describe('when the array has length', () => {
+            it('should correctly inner join', async () => {
+                const searchParams = await access.restrictSearchQuery(
+                    'bar:@bar',
+                    { variables: { '@bar': ['bar2', 'bar4'] } }
+                );
+                const results = await client.search(searchParams);
+                expect(mapResults(results)).toEqual([
+                    { bar: 'bar2', foo: 'foo2' },
+                    { bar: 'bar2', foo: 'foo3' },
+                    { bar: 'bar4', foo: null }
+                ]);
+            });
 
-        //         expect(response.results).toEqual([
-        //             { bar: 'bar1', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }, { foo: 'foo4' }] },
-        //             { bar: 'bar2', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }, { foo: 'foo4' }] },
-        //             { bar: 'bar2', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }, { foo: 'foo4' }] },
-        //             { bar: 'bar3', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }, { foo: 'foo4' }] },
-        //             { bar: 'bar4', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }, { foo: 'foo4' }] },
-        //         ]);
-        //     });
+            it('should correctly inner join when using an AND', async () => {
+                const searchParams = await access.restrictSearchQuery(
+                    'bar:@bar AND foo:@foo',
+                    {
+                        variables: {
+                            '@bar': ['bar2', 'bar4'],
+                            '@foo': ['foo3', 'foo2']
+                        }
+                    }
+                );
+                const results = await client.search(searchParams);
+                expect(mapResults(results)).toEqual([
+                    { bar: 'bar2', foo: 'foo2' },
+                    { bar: 'bar2', foo: 'foo3' }
+                ]);
+            });
 
-        //     it('should correctly inner join when using an AND', async () => {
-        //         const response = await runRequest(fullRoleClient, `
-        //         query {
-        //             search_${endpoint} {
-        //                 fakeBar: _set(value: ["bar1", "bar3"])
-        //                 bar
-        //                 related: search_${endpoint}(query: "bar:@fakeBar AND foo:@foo") {
-        //                     foo
-        //                 }
-        //             }
-        //         }
-        //     `);
+            it('should correctly inner join when using an OR', async () => {
+                const searchParams = await access.restrictSearchQuery(
+                    'bar:@bar OR foo:@foo',
+                    {
+                        variables: {
+                            '@bar': ['bar1'],
+                            '@foo': ['foo2', 'foo4']
+                        }
+                    }
+                );
+                const results = await client.search(searchParams);
+                expect(mapResults(results)).toEqual([
+                    { foo: 'foo1', bar: 'bar1' },
+                    { foo: 'foo2', bar: 'bar2' },
+                    { foo: 'foo4', bar: 'bar3' }
+                ]);
+            });
 
-        //         expect(response.results).toEqual([
-        //             { bar: 'bar1', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }] },
-        //             { bar: 'bar2', fakeBar: ['bar1', 'bar3'], related: [] },
-        //             { bar: 'bar2', fakeBar: ['bar1', 'bar3'], related: [] },
-        //             { bar: 'bar3', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo4' }] },
-        //             { bar: 'bar4', fakeBar: ['bar1', 'bar3'], related: [] },
-        //         ]);
-        //     });
+            it('should correctly inner join when using parens and OR', async () => {
+                const searchParams = await access.restrictSearchQuery(
+                    '(bar:@bar AND foo:@foo) OR bar:@bar2',
+                    {
+                        variables: {
+                            '@bar': ['bar2'],
+                            '@bar2': ['bar3'],
+                            '@foo': ['foo2', 'foo4']
+                        }
+                    }
+                );
+                const results = await client.search(searchParams);
+                expect(mapResults(results)).toEqual([
+                    { foo: 'foo2', bar: 'bar2' },
+                    { foo: 'foo4', bar: 'bar3' }
+                ]);
+            });
 
-        //     it('should correctly inner join when using an OR', async () => {
-        //         const response = await runRequest(fullRoleClient, `
-        //         query {
-        //             search_${endpoint} {
-        //                 fakeBar: _set(value: ["bar1", "bar3"])
-        //                 bar
-        //                 related: search_${endpoint}(query: "bar:@fakeBar OR foo:@foo") {
-        //                     foo
-        //                 }
-        //             }
-        //         }
-        //     `);
-
-        //         expect(response.results).toEqual([
-        //             { bar: 'bar1', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }, { foo: 'foo4' }] },
-        //             { bar: 'bar2', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }, { foo: 'foo2' }, { foo: 'foo4' }] },
-        //             { bar: 'bar2', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }, { foo: 'foo3' }, { foo: 'foo4' }] },
-        //             { bar: 'bar3', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }, { foo: 'foo4' }] },
-        //             { bar: 'bar4', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }, { foo: 'foo4' }] },
-        //         ]);
-        //     });
-
-        //     it('should correctly inner join when using parens and OR', async () => {
-        //         const response = await runRequest(fullRoleClient, `
-        //         query {
-        //             search_${endpoint} {
-        //                 fakeBar: _set(value: ["bar1", "bar3"])
-        //                 bar
-        //                 related: search_${endpoint}(query: "(bar:@fakeBar AND foo:@foo) OR bar:@bar") {
-        //                     foo
-        //                 }
-        //             }
-        //         }
-        //     `);
-
-        //         expect(response.results).toEqual([
-        //             { bar: 'bar1', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }] },
-        //             { bar: 'bar2', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo2' }, { foo: 'foo3' }] },
-        //             { bar: 'bar2', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo2' }, { foo: 'foo3' }] },
-        //             { bar: 'bar3', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo4' }] },
-        //             { bar: 'bar4', fakeBar: ['bar1', 'bar3'], related: [] },
-        //         ]);
-        //     });
-
-        //     it('should correctly inner join when using an parens and AND', async () => {
-        //         const response = await runRequest(fullRoleClient, `
-        //         query {
-        //             search_${endpoint} {
-        //                 fakeBar: _set(value: ["bar1", "bar3"])
-        //                 bar
-        //                 related: search_${endpoint}(query: "(bar:@fakeBar AND foo:@foo) AND bar:@bar") {
-        //                     foo
-        //                 }
-        //             }
-        //         }
-        //     `);
-
-        //         expect(response.results).toEqual([
-        //             { bar: 'bar1', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo1' }] },
-        //             { bar: 'bar2', fakeBar: ['bar1', 'bar3'], related: [] },
-        //             { bar: 'bar2', fakeBar: ['bar1', 'bar3'], related: [] },
-        //             { bar: 'bar3', fakeBar: ['bar1', 'bar3'], related: [{ foo: 'foo4' }] },
-        //             { bar: 'bar4', fakeBar: ['bar1', 'bar3'], related: [] },
-        //         ]);
-        //     });
-        // });
+            it('should correctly inner join when using an parens and AND', async () => {
+                const searchParams = await access.restrictSearchQuery(
+                    '(bar:@bar AND foo:@foo) AND bar:@bar2',
+                    {
+                        variables: {
+                            '@bar': ['bar3'],
+                            '@bar2': ['bar3'],
+                            '@foo': ['foo2', 'foo4']
+                        }
+                    }
+                );
+                const results = await client.search(searchParams);
+                expect(mapResults(results)).toEqual([
+                    { foo: 'foo4', bar: 'bar3' }
+                ]);
+            });
+        });
     });
 });
