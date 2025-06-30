@@ -28,13 +28,13 @@ export interface GroupLikeNode extends Node {
     flow: Conjunction[];
 }
 
-export type TermLikeType =
-    NodeType.Term |
-    NodeType.Regexp |
-    NodeType.Range |
-    NodeType.Wildcard |
-    NodeType.Function |
-    NodeType.TermList;
+export type TermLikeType
+    = NodeType.Term
+        | NodeType.Regexp
+        | NodeType.Range
+        | NodeType.Wildcard
+        | NodeType.Function
+        | NodeType.TermList;
 
 export interface TermLikeNode extends Node {
     type: TermLikeType;
@@ -192,9 +192,9 @@ export interface FunctionMethodsResults {
     sort?: t.AnyQuerySort;
 }
 
-export type FunctionElasticsearchOptions =
-    { logger: Logger; type_config: t.xLuceneTypeConfig }
-    & Record<string, any>;
+export type FunctionElasticsearchOptions
+    = { logger: Logger; type_config: t.xLuceneTypeConfig }
+        & Record<string, any>;
 
 export interface FunctionMethods {
     match(arg: any): boolean;
