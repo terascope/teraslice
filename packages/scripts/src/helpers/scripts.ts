@@ -835,42 +835,25 @@ export async function setAlias(tsPort: string) {
 export async function showState(tsPort: string) {
     try {
         const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
-        const { stdout, stderr } = subprocess;
-
-        logger.debug(stdout);
+        logger.debug(subprocess.stdout);
         logger.debug(await showESIndices());
         logger.debug(await showAssets(tsPort));
-        if (stderr) {
-            throw new Error(stderr);
-        }
     } catch (err) {
         signale.error(`Failed to get k8s resources: ${err}`);
     }
 }
 
 async function showESIndices() {
-    try {
-        const subprocess = await execaCommand(`curl -k ${config.SEARCH_TEST_HOST}/_cat/indices?v`);
-        const { stdout, stderr } = subprocess;
-        if (stderr) {
-            throw new Error(stderr);
-        }
-        return stdout;
-    } catch (err) {
-        signale.error(`Failed to retrieve indices: ${err}`);
-    }
+    const subprocess = await execaCommand(`curl -k ${config.SEARCH_TEST_HOST}/_cat/indices?v`);
+    return subprocess.stdout;
 }
 
 async function showAssets(tsPort: string) {
     try {
         const subprocess = await execaCommand(`curl ${config.HOST_IP}:${tsPort}/v1/assets`);
-        const { stdout, stderr } = subprocess;
-        if (stderr) {
-            throw new Error(stderr);
-        }
-        return stdout;
+        return subprocess.stdout;
     } catch (err) {
-        signale.error(`Failed to curl assets: ${err}`);
+        return err;
     }
 }
 
@@ -879,6 +862,7 @@ export async function logTCPPorts() {
         const command = 'netstat -an | grep \'^tcp\' | awk \'{print $4}\' | tr ".:" " " | awk \'{print $NF}\' | sort -n | uniq | tr "\n" " "';
         const subprocess = await execaCommand(command, { shell: true, reject: false });
         const { stdout, stderr } = subprocess;
+
         if (stderr) {
             throw new Error(stderr);
         }
@@ -892,11 +876,8 @@ export async function deletePersistentVolumeClaim(searchHost: string) {
     try {
         const label = searchHost.includes('opensearch') ? `app.kubernetes.io/instance=${searchHost}` : `app=${searchHost}-master`;
         const subprocess = await execaCommand(`kubectl delete -n services-dev1 pvc -l ${label}`);
-        const { stdout, stderr } = subprocess;
-        if (stderr) {
-            throw new Error(stderr);
-        }
-        logger.debug(`kubectl delete pvc: ${stdout}`);
+
+        logger.debug(`kubectl delete pvc: ${subprocess.stdout}`);
     } catch (err) {
         throw new TSError(`Failed to delete persistent volume claim:\n${err}`);
     }
@@ -911,11 +892,7 @@ export async function helmfileDestroy(selector: string) {
 
     try {
         const subprocess = await execaCommand(`helmfile destroy -f ${helmfilePath} --selector app=${selector}`);
-        const { stdout, stderr } = subprocess;
-        if (stderr) {
-            throw new Error(stderr);
-        }
-        logger.debug(`helmfile destroy:\n${stdout}`);
+        logger.debug(`helmfile destroy:\n${subprocess.stdout}`);
     } catch (err) {
         logger.info(err);
     }
