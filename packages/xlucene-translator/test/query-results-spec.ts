@@ -1,0 +1,102 @@
+import 'jest-extended';
+import { BulkParams, ClientMetadata, FieldType, SearchResponse } from '@terascope/types';
+import { QueryAccess } from 'xlucene-translator';
+import { Client, ElasticsearchTestHelpers, getClientMetadata, makeRecordDataType } from 'elasticsearch-store';
+import allTestCases from './cases/queries/index.js';
+
+function mapResults(results: SearchResponse) {
+    return results.hits.hits.map(({ _source }) => _source);
+}
+
+describe('Queries', () => {
+    const dataType = makeRecordDataType({
+        name: 'XluceneTranslatorQueries',
+        fields: {
+            foo: { type: FieldType.Keyword },
+            bar: { type: FieldType.Keyword },
+        }
+    });
+
+    const access = new QueryAccess(
+        {
+            prevent_prefix_wildcard: true,
+            allow_empty_queries: true,
+            type_config: dataType.toXlucene()
+        },
+        {
+            type_config: dataType.toXlucene(),
+            filterNilVariables: true,
+            variables: undefined
+        }
+    );
+
+    const searchData = [
+        {
+            foo: 'foo1',
+            bar: 'bar1'
+        },
+        {
+            foo: 'foo2',
+            bar: 'bar2' // same as below
+        },
+        {
+            foo: 'foo3',
+            bar: 'bar2'// same as above
+        },
+        {
+            foo: 'foo4',
+            bar: 'bar3'
+        },
+        {
+            foo: null,
+            bar: 'bar4'
+        },
+    ];
+
+    let client: Client;
+    const index = 'arrays';
+    let clientMetadata: ClientMetadata | undefined;
+
+    beforeAll(async () => {
+        client = await ElasticsearchTestHelpers.makeClient();
+        clientMetadata = getClientMetadata(client);
+
+        await client.indices.create({ index });
+
+        const bulkParams: BulkParams<unknown, unknown>['body'] = [];
+        searchData.forEach(
+            (el, _id) => {
+                bulkParams.push({ index: { _index: index, _id } });
+                bulkParams.push(el);
+            }
+        );
+        await client.bulk({ index, body: bulkParams });
+        await client.indices.refresh();
+    });
+
+    afterAll(async () => {
+        await ElasticsearchTestHelpers.cleanupIndex(client, index);
+    });
+
+    it('should have populated the index', async () => {
+        const searchParams = await access.restrictSearchQuery('', clientMetadata);
+        const results = await client.search(searchParams);
+        expect(mapResults(results)).toEqual(searchData);
+    });
+
+    for (const type in allTestCases) {
+        const [queries, defaultParams] = allTestCases[type];
+        describe(`when testing ${type}`, () => {
+            describe.each(queries)('given query %s', (title, query, options, expectedResults) => {
+                it(`${title}`, async () => {
+                    const searchParams = await access.restrictSearchQuery(
+                        query,
+                        { ...options, ...clientMetadata, ...defaultParams }
+                    );
+                    const results = await client.search(searchParams);
+                    expect(mapResults(results)).toEqual(expectedResults);
+                });
+            });
+        });
+    }
+});
