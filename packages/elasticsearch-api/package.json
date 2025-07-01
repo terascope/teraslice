@@ -21,6 +21,7 @@
         "test:elasticsearch8": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
         "test:opensearch1": "TEST_RESTRAINED_OPENSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
         "test:opensearch2": "TEST_RESTRAINED_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
+        "test:opensearch3": "TEST_RESTRAINED_OPENSEARCH='true' OPENSEARCH_VERSION='3.1.0' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
         "test:watch": "TEST_RESTRAINED_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --watch ../elasticsearch-api --"
     },
     "dependencies": {
