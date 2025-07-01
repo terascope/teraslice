@@ -43,7 +43,7 @@ export function convertUpdateParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1 || majorVersion === 2) {
+        if (majorVersion === 1 || majorVersion === 2 || majorVersion === 3) {
             const {
                 type, ...parsedParams
             } = params;

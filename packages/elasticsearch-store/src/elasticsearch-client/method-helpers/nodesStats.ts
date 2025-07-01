@@ -27,7 +27,7 @@ export function convertNodesStatsParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1 || majorVersion === 2) {
+        if (majorVersion === 1 || majorVersion === 2 || majorVersion === 3) {
             const {
                 master_timeout,
                 ...parsedParams
