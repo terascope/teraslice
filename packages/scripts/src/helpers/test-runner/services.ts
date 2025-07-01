@@ -862,14 +862,14 @@ async function startService(options: TestOptions, service: Service): Promise<() 
             options.skipImageDeletion
         );
         await k8sStopService(service);
-        await logTCPPorts();
+        await logTCPPorts(serviceName);
         await k8sStartService(service, services[service].image, version, kind);
         return () => { };
     }
 
     await stopService(service);
 
-    await logTCPPorts();
+    await logTCPPorts(serviceName);
 
     const fn = await dockerRun(
         services[service],

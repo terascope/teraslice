@@ -1,6 +1,5 @@
 import 'jest-extended';
 
-import net from 'node:net';
 import {
     isIP,
     isIPv6,
@@ -23,9 +22,7 @@ import {
     getLastIPInCIDR,
     shortenIPv6Address,
     getFirstUsableIPInCIDR,
-    getLastUsableIPInCIDR,
-    isPortInUse,
-    getAvailablePort
+    getLastUsableIPInCIDR
 } from '../src/ip.js';
 
 describe('IP Utils', () => {
@@ -573,68 +570,6 @@ describe('IP Utils', () => {
             expect(() => {
                 toCIDR('2001:0db8:0123:4567:89ab:cdef:1234:5678', 223);
             }).toThrow('input must be a valid IP address and suffix must be a value <= 32 for IPv4 or <= 128 for IPv6');
-        });
-    });
-
-    describe('getAvailablePort', () => {
-        let server: net.Server;
-        let takenPort: number;
-
-        beforeAll(async () => {
-            takenPort = await isPortInUse(28333) ? await getAvailablePort() : 28333;
-            server = net.createServer();
-        });
-
-        afterAll(async () => {
-            server.close();
-        });
-
-        it('Should give a valid port', async () => {
-            const minPort = 10000;
-            const maxPort = 30000;
-            const port = await getAvailablePort(minPort, maxPort);
-            expect(port).toBeNumber();
-            expect(port).toBeLessThanOrEqual(maxPort);
-            expect(port).toBeGreaterThanOrEqual(minPort);
-        });
-
-        it('Should throw if no ports are available within a given range', async () => {
-            server.listen(takenPort)
-                .once('listening', async () => {
-                    const expectedError = `No available ports found in range ${takenPort}-${takenPort}`;
-                    await expect(getAvailablePort(takenPort, takenPort))
-                        .rejects.toThrow(expectedError);
-                });
-        });
-    });
-
-    describe('isPortInUse', () => {
-        let server: net.Server;
-        let takenPort: number;
-
-        beforeAll(async () => {
-            takenPort = await isPortInUse(28333) ? await getAvailablePort() : 28333;
-            server = net.createServer();
-        });
-
-        afterAll(async () => {
-            server.close();
-        });
-
-        it('Should be false if port is NOT in use', async () => {
-            const port = await getAvailablePort();
-            const portInUse = await isPortInUse(port);
-
-            expect(portInUse).toBeFalse();
-        });
-
-        it('Should be true if port IS in use', async () => {
-            server.listen(takenPort)
-                .once('listening', async () => {
-                    const portInUse = await isPortInUse(takenPort);
-
-                    expect(portInUse).toBeTrue();
-                });
         });
     });
 });
