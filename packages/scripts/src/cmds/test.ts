@@ -210,6 +210,7 @@ function getExtraArgs(): string[] {
 function resolveJestArg(arg: string): string[] {
     if (arg == null || arg === '') return [];
     if (fs.existsSync(arg)) {
+        // for outside projects that have upgraded to jest 30 yet
         if (process.env.JEST_VERSION) {
             const parsed = process.env.JEST_VERSION?.split('.')[0];
             if (parsed != null) {
