@@ -241,7 +241,7 @@ jobs:
 
       - name: Install Helmfile
         run: |
-          curl -L "https://github.com/helmfile/helmfile/releases/download/v0.171.0/helmfile_0.171.0_linux_amd64.tar.gz" -o helmfile.tgz
+          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
           tar -xzf helmfile.tgz
           chmod +x helmfile
           mv helmfile /usr/local/bin/helmfile
@@ -339,7 +339,7 @@ jobs:
 
       - name: Install Helmfile
         run: |
-          curl -L "https://github.com/helmfile/helmfile/releases/download/v0.171.0/helmfile_0.171.0_linux_amd64.tar.gz" -o helmfile.tgz
+          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
           tar -xzf helmfile.tgz
           chmod +x helmfile
           mv helmfile /usr/local/bin/helmfile

@@ -873,7 +873,7 @@ export async function helmfileDestroy(selector: string) {
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
     }
-    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
+    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
 
     try {
         const subprocess = await execaCommand(`helmfile destroy -f ${helmfilePath} --selector app=${selector}`);
@@ -888,7 +888,7 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
     }
-    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml');
+    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
     const { valuesPath, valuesDir } = generateHelmValuesFromServices(clusteringType, devMode);
 
     let subprocess;
