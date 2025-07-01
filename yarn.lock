@@ -5717,6 +5717,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bufferstreams@npm:~3.0.0":
+  version: 3.0.0
+  resolution: "bufferstreams@npm:3.0.0"
+  dependencies:
+    readable-stream: "npm:^3.4.0"
+  checksum: 10c0/9110ed5e0cf0801d5462fdbb48ee3b655b4a3fd01ceace57ecb92cc3c5574b516ec336f69a489296af8b3e9e229b07f929e649c9a3078a5a7f7f072865482feb
+  languageName: node
+  linkType: hard
+
 "bunyan@npm:~1.8.15":
   version: 1.8.15
   resolution: "bunyan@npm:1.8.15"
@@ -12441,7 +12450,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:^3.0.2":
+"readable-stream@npm:^3.0.2, readable-stream@npm:^3.4.0":
   version: 3.6.2
   resolution: "readable-stream@npm:3.6.2"
   dependencies:
@@ -13951,6 +13960,7 @@ __metadata:
     async-mutex: "npm:~0.5.0"
     barbe: "npm:~3.0.17"
     body-parser: "npm:~2.2.0"
+    bufferstreams: "npm:~3.0.0"
     chance: "npm:~1.1.13"
     convict: "npm:~6.2.4"
     convict-format-with-moment: "npm:~6.2.0"
