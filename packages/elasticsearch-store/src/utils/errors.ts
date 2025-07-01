@@ -36,8 +36,8 @@ export function getErrorType(err: unknown): string {
     return get(err, ['error', 'type'], '');
 }
 
-export type ErrorLike =
-    | {
+export type ErrorLike
+    = | {
         message?: string;
         msg?: string;
         statusCode?: number;

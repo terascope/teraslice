@@ -3,10 +3,10 @@ import { KubernetesClusterBackend } from './backends/kubernetes/index.js';
 import { KubernetesClusterBackendV2 } from './backends/kubernetesV2/index.js';
 import { ClusterMasterContext } from '../../../../interfaces.js';
 
-export type ClusterServiceType =
-    NativeClustering
-    | KubernetesClusterBackend
-    | KubernetesClusterBackendV2;
+export type ClusterServiceType
+    = NativeClustering
+        | KubernetesClusterBackend
+        | KubernetesClusterBackendV2;
 
 export function makeClustering(
     context: ClusterMasterContext,

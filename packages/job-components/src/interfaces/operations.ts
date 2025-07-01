@@ -25,8 +25,8 @@ export interface SlicerRecoveryData {
 
 export const sliceAnalyticsMetrics: readonly (keyof Teraslice.SliceAnalyticsData)[] = ['memory', 'size', 'time'];
 
-export type SlicerResult =
-    Teraslice.Slice | Teraslice.SliceRequest | Teraslice.SliceRequest[] | null;
+export type SlicerResult
+    = Teraslice.Slice | Teraslice.SliceRequest | Teraslice.SliceRequest[] | null;
 
 export interface SliceResult {
     slice: Teraslice.Slice;

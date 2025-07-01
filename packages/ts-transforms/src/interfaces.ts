@@ -6,11 +6,11 @@ export type OperationConfigInput = Partial<OperationConfig> & {
     tag?: string;
 };
 
-export type OperationConfig =
-    { __id: string; target_field?: string; source_field?: string }
-    & Partial<SelectorConfig>
-    & Partial<PostProcessConfig>
-    & Partial<ExtractionConfig>;
+export type OperationConfig
+    = { __id: string; target_field?: string; source_field?: string }
+        & Partial<SelectorConfig>
+        & Partial<PostProcessConfig>
+        & Partial<ExtractionConfig>;
 
 export interface PostProcessConfig {
     __id: string;

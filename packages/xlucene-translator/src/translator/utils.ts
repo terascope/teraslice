@@ -6,21 +6,21 @@ import * as p from 'xlucene-parser';
 import * as i from '@terascope/types';
 import { UtilsTranslateQueryOptions } from './interfaces.js';
 
-type WildCardQueryResults =
-    i.WildcardQuery
-    | i.MultiMatchQuery
-    | i.QueryStringQuery;
+type WildCardQueryResults
+    = i.WildcardQuery
+        | i.MultiMatchQuery
+        | i.QueryStringQuery;
 
-type TermQueryResults =
-    | i.TermQuery
-    | i.MatchQuery
-    | i.MatchPhraseQuery
-    | i.MultiMatchQuery;
+type TermQueryResults
+    = | i.TermQuery
+        | i.MatchQuery
+        | i.MatchPhraseQuery
+        | i.MultiMatchQuery;
 
-type RangeQueryResults =
-    | i.RangeQuery
-    | i.MultiMatchQuery
-    | undefined;
+type RangeQueryResults
+    = | i.RangeQuery
+        | i.MultiMatchQuery
+        | undefined;
 
 export function translateQuery(
     parser: p.Parser,
