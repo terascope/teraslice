@@ -53,12 +53,12 @@ type GeoPointStr = string;
 type GeoObjShort = { lat: string | number; lon: string | number };
 type GeoObjLong = { latitude: string | number; longitude: string | number };
 
-export type GeoPointInput =
-    GeoPointArr |
-    GeoPointStr |
-    GeoObjShort |
-    GeoObjLong |
-    GeoShapePoint;
+export type GeoPointInput
+    = GeoPointArr
+        | GeoPointStr
+        | GeoObjShort
+        | GeoObjLong
+        | GeoShapePoint;
 
 export interface GeoPoint {
     readonly lat: number;

@@ -10,20 +10,20 @@ export interface IsHashArgs {
     algo: string;
 }
 
-export type HashConfigAlgorithms =
-    | 'md4'
-    | 'md5'
-    | 'sha1'
-    | 'sha256'
-    | 'sha384'
-    | 'sha512'
-    | 'ripemd128'
-    | 'ripemd160'
-    | 'tiger128'
-    | 'tiger160'
-    | 'tiger192'
-    | 'crc32'
-    | 'crc32b';
+export type HashConfigAlgorithms
+    = 'md4'
+        | 'md5'
+        | 'sha1'
+        | 'sha256'
+        | 'sha384'
+        | 'sha512'
+        | 'ripemd128'
+        | 'ripemd160'
+        | 'tiger128'
+        | 'tiger160'
+        | 'tiger192'
+        | 'crc32'
+        | 'crc32b';
 
 const listOfAlgorithms = [
     'md4',
