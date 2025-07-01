@@ -48,6 +48,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "search"
+        "testSuite": "unit"
     }
 }
