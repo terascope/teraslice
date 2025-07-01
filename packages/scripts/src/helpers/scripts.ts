@@ -857,7 +857,7 @@ async function showAssets(tsPort: string) {
     }
 }
 
-export async function logTCPPorts() {
+export async function logTCPPorts(service: string) {
     try {
         const command = 'netstat -an | grep \'^tcp\' | awk \'{print $4}\' | tr ".:" " " | awk \'{print $NF}\' | sort -n | uniq | tr "\n" " "';
         const subprocess = await execaCommand(command, { shell: true, reject: false });
@@ -866,7 +866,7 @@ export async function logTCPPorts() {
         if (stderr) {
             throw new Error(stderr);
         }
-        signale.info(`TCP Ports currently in use:\n ${stdout}`);
+        signale.info(`TCP Ports currently in use when starting ${service}:\n ${stdout}`);
     } catch (err) {
         signale.error(`Execa command failed trying to log ports: ${err}`);
     }
