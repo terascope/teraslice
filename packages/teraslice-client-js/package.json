@@ -1,7 +1,7 @@
 {
     "name": "teraslice-client-js",
     "displayName": "Teraslice Client (JavaScript)",
-    "version": "1.9.1",
+    "version": "1.9.2",
     "description": "A Node.js client for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "elasticsearch",
@@ -32,8 +32,8 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../teraslice-client-js --"
     },
     "dependencies": {
-        "@terascope/types": "~1.4.2",
-        "@terascope/utils": "~1.9.1",
+        "@terascope/types": "~1.4.3",
+        "@terascope/utils": "~1.9.2",
         "auto-bind": "~5.0.1",
         "got": "~14.4.7"
     },
