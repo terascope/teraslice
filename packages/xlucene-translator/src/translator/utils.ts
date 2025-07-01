@@ -1,6 +1,6 @@
 import {
-    TSError, isString, isEmpty,
-    matchWildcard,
+    TSError, isString, isArray, isEmpty,
+    matchWildcard
 } from '@terascope/utils';
 import * as p from 'xlucene-parser';
 import * as i from '@terascope/types';
@@ -294,7 +294,9 @@ export function translateQuery(
             const query = buildAnyQuery(node);
             filter.push(...flattenQuery(query, 'filter'));
         }
-        if (!filter.length) return;
+
+        // should match if AND statement
+        if (!filter.length || conj.nodes.length !== filter.length) return;
 
         return {
             bool: {
@@ -316,7 +318,7 @@ export function translateQuery(
         };
     }
 
-    let topLevelQuery: i.MatchAllQuery | i.ConstantScoreQuery;
+    let topLevelQuery: i.MatchAllQuery | i.ConstantScoreQuery | i.MatchNoneQuery;
     if (p.isEmptyNode(parser.ast)) {
         topLevelQuery = {
             match_all: {},
@@ -324,11 +326,20 @@ export function translateQuery(
     } else {
         const anyQuery = buildAnyQuery(parser.ast);
         const filter = compactFinalQuery(anyQuery);
-        topLevelQuery = {
-            constant_score: {
-                filter,
-            }
-        };
+
+        if (isArray(filter) && !filter.length) {
+            // match_none because an empty filter can
+            // throw a parsing exception
+            topLevelQuery = {
+                match_none: {}
+            };
+        } else {
+            topLevelQuery = {
+                constant_score: {
+                    filter
+                }
+            };
+        }
     }
 
     if (!sort && options.default_geo_field && options.geo_sort_point) {
