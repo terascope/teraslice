@@ -53,7 +53,7 @@
         "@eslint/js": "~9.30.0",
         "@swc/core": "1.12.7",
         "@swc/jest": "~0.2.38",
-        "@terascope/scripts": "~1.19.4",
+        "@terascope/scripts": "~1.19.5",
         "@types/bluebird": "~3.5.42",
         "@types/convict": "~6.1.6",
         "@types/elasticsearch": "~5.0.43",
