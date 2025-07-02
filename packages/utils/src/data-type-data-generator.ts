@@ -1,6 +1,7 @@
 import { DataTypeFields, DataTypeFieldConfig, FieldType } from '@terascope/types';
-import { hasOwn, isEmpty } from '@terascope/utils';
 import { Chance } from 'chance';
+import { isEmpty } from './empty.js';
+import { hasOwn } from './objects.js';
 
 const chance = new Chance();
 
