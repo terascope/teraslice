@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { withoutNil } from '@terascope/utils';
-// @ts-expect-error
 import Chance from 'chance';
 import { ValidatedJobConfig } from '@terascope/types';
 import { newId } from '../../../src/lib/utils/id_utils.js';
