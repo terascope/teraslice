@@ -33,6 +33,7 @@ import {
     isBefore as _isBefore,
     isAfter as _isAfter,
 } from 'date-fns';
+import msLib from 'ms';
 import {
     DateFormat, ISO8601DateSegment, DateTuple,
     DateInputTypes, GetTimeBetweenArgs
@@ -115,8 +116,9 @@ function _getValidDate(val: unknown): Date | false {
 }
 
 /**
- * Coerces value into a valid date, returns false if it is invalid.
+ * Coerces a value into a valid date, returns false if it is invalid.
  * Has added support for converting from date math (i.e. now+1h, now-1m, now+2d/y, 2021-01-01||+2d)
+ * and relative dates (i.e. '5 days, 1 year')
 */
 export function getValidDate(val: unknown, relativeNow = new Date()): Date | false {
     const validDate = _getValidDate(val);
@@ -127,7 +129,8 @@ export function getValidDate(val: unknown, relativeNow = new Date()): Date | fal
 }
 
 /**
- * tries to date math values to dates
+ * tries to coerce dateMath (now+1h) or relative (i.e. 5 days, 1 year)
+ * values to dates
  */
 function parseRelativeDate(input: unknown, now: Date): Date | false {
     if (!input || typeof input !== 'string') return false;
@@ -137,6 +140,9 @@ function parseRelativeDate(input: unknown, now: Date): Date | false {
 
     const dateMath = parseDateMath(trimmed, now);
     if (dateMath) return dateMath;
+
+    const msDate = trimmed && getValidDate(now.getTime() + msLib(trimmed));
+    if (msDate) return msDate;
 
     return false;
 }
