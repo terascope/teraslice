@@ -452,7 +452,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -516,7 +516,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -603,7 +603,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -668,7 +668,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
