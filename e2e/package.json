@@ -40,6 +40,7 @@
         "test:k8sV2HelmfileEncrypted": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' TEST_MINIO='true' ENCRYPT_MINIO='true' ASSET_STORAGE_CONNECTION_TYPE='s3' ASSET_STORAGE_CONNECTION='default' ENCRYPT_OPENSEARCH='true' OPENSEARCH_PASSWORD='passwordsufhbivbU123%$' TEST_KAFKA='true' KAFKA_DOCKER_IMAGE='apache/kafka' ENCRYPT_KAFKA='true' TEST_PLATFORM='kubernetesV2' USE_HELMFILE='true' ts-scripts test --suite e2e --",
         "test:opensearch1": "TEST_OPENSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' TEST_KAFKA='true' ts-scripts test --suite e2e --",
+        "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='3.1.0' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:s3AssetStorage": "TEST_OPENSEARCH='true' TEST_KAFKA='true' TEST_MINIO='true' ASSET_STORAGE_CONNECTION_TYPE='s3' ASSET_STORAGE_CONNECTION='default' ts-scripts test --suite e2e --",
         "test:watch": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --watch --"
     },

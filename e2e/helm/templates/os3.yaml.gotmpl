@@ -1,0 +1,127 @@
+replicas: {{ .Values | get "opensearch3.instances" 1 }}
+
+{{- if eq (.Values | get "opensearch3.instances" 1) 1 }}
+singleNode: true
+{{- else }}
+singleNode: false
+{{- end }}
+
+image:
+    tag: {{ .Values | get "opensearch3.version" "3.1.0" }}
+
+service:
+    type: NodePort
+    port: 9200
+    nodePort: {{ .Values | get "opensearch3.nodePort" "30210" }}
+
+config:
+    opensearch.yml:
+        {{- if eq (.Values | get "opensearch3.instances" 1) 1 }}
+
+        discovery.type: single-node
+
+        {{- end }}
+
+        ##@ Set all the security plugins when ssl is enabled
+        ##@ The path to the pem files are hard-coded and rely on the "/cert" volume below
+        {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
+
+        plugins.security.ssl.transport.pemcert_filepath: certs/opensearch-cert.pem
+        plugins.security.ssl.transport.pemkey_filepath: certs/opensearch-key.pem
+        plugins.security.ssl.transport.pemtrustedcas_filepath: certs/CAs/rootCA.pem  # Root CA
+
+        plugins.security.ssl.http.enabled: true
+        plugins.security.ssl.http.pemcert_filepath: certs/opensearch-cert.pem
+        plugins.security.ssl.http.pemkey_filepath: certs/opensearch-key.pem
+        plugins.security.ssl.http.pemtrustedcas_filepath: certs/CAs/rootCA.pem  # Root CA
+
+        plugins.security.authcz.admin_dn:
+            - "{{ .Values | get "opensearch3.ssl.admin_dn" "" }}"
+
+        {{- end }}
+
+extraEnvs:
+    ##@ Setting this password only works when the demo security script runs.
+    ##@ Unfortunately the demo does not fit our needs so this password does not get set here
+    ##@ Leaving it here for reference
+    {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
+
+    - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
+      value: "passwordsufhbivbU123%$"
+
+    {{- else }}
+
+    - name: DISABLE_SECURITY_PLUGIN
+      value: "true"
+
+    {{- end }}
+
+clusterName: opensearch3-cluster
+
+masterService: "opensearch3"
+
+opensearchJavaOpts: {{ .Values | get "opensearch3.esJavaOpts" "-Xmx512M -Xms512M" }}
+
+resources:
+    requests:
+        cpu: "1000m"
+        memory: {{ .Values | get "opensearch3.memoryLimit" "100Mi" }}
+
+persistence:
+    size: {{ .Values | get "opensearch3.persistentVolumeSize" "8Gi" }}
+
+##@ Add all the lines below when ssl is enabled
+
+{{- if eq (.Values | get "opensearch3.ssl.enabled" false) true }}
+
+extraVolumes:
+    - name: certs
+      hostPath:
+        path: /certs
+        type: Directory
+
+extraVolumeMounts:
+    - name: certs
+      mountPath: /usr/share/opensearch/config/certs
+      readOnly: false
+
+##@ This extra container is used to launch the security admin script
+##@ This adds our custom "internal_users.yaml" file to the correct place before running the script
+##@ We need this file for several reasons, the main one is setting the admin password
+##@ https://opensearch.org/docs/latest/security/configuration/security-admin/
+##@ There is room for improvement. As of right now we have sleep set to a large number so the pod doesn't close
+##@ This is because it's policy is always set to restart and I wasn't able to figure out a way to change it.
+extraContainers:
+  - name: security-admin-init
+    image: opensearchproject/opensearch:{{ .Values | get "opensearch3.version" "2.15.0" }}
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        echo "Waiting for OpenSearch to be ready..."
+        until curl -k --silent --output /dev/null https://opensearch3.services-dev1:9200; do
+          echo "Still waiting..."
+          sleep 5
+        done
+        echo "Building securityConfig Directory..."
+        mkdir -p /usr/share/opensearch/plugins/opensearch-security/securityconfig
+        cp -R /usr/share/opensearch/config/opensearch-security/* \
+        /usr/share/opensearch/plugins/opensearch-security/securityconfig/
+        cp /usr/share/opensearch/config/certs/internal_users.yml \
+        /usr/share/opensearch/plugins/opensearch-security/securityconfig/internal_users.yml
+        echo "Successfully built security config!"
+        echo "Running securityadmin.sh..."
+        /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh \
+          -cd /usr/share/opensearch/plugins/opensearch-security/securityconfig/ \
+          -icl \
+          -nhnv \
+          -cacert /usr/share/opensearch/config/certs/CAs/rootCA.pem \
+          -cert /usr/share/opensearch/config/certs/opensearch-cert.pem \
+          -key /usr/share/opensearch/config/certs/opensearch-key.pem \
+          -h opensearch3.services-dev1
+        echo "Security initialized successfully!"
+        sleep 1000000
+    volumeMounts:
+      - name: certs
+        mountPath: /usr/share/opensearch/config/certs
+
+{{- end }}
