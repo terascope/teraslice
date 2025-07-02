@@ -33,7 +33,7 @@ import {
     isBefore as _isBefore,
     isAfter as _isAfter,
 } from 'date-fns';
-import msLib from 'ms';
+import msLib, { StringValue } from 'ms';
 import {
     DateFormat, ISO8601DateSegment, DateTuple,
     DateInputTypes, GetTimeBetweenArgs
@@ -141,7 +141,7 @@ function parseRelativeDate(input: unknown, now: Date): Date | false {
     const dateMath = parseDateMath(trimmed, now);
     if (dateMath) return dateMath;
 
-    const msDate = trimmed && getValidDate(now.getTime() + msLib(trimmed));
+    const msDate = trimmed && getValidDate(now.getTime() + msLib(trimmed as StringValue));
     if (msDate) return msDate;
 
     return false;
