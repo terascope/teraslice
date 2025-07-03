@@ -61,9 +61,45 @@ jobs:
     uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@main
     secrets: inherit
 
-  linux-unit-tests:
+  determine-tests-based-off-commit:
     runs-on: ubuntu-latest
     needs: compute-node-version-vars
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'yarn'
+      - name: Install and build packages
+        run: yarn && yarn setup
+      - name: Determine tests to run
+        id: determine
+        # The output of determine-tests would be a json object that looks like this:
+          # {
+          #   "unit": true,
+          #   "e2e": true,
+          #   "website": false
+          # }
+        run: |
+          echo "Running determine-tests..."
+          JSON=$(yarn determine-tests)
+          echo "$JSON"
+
+          UNIT=$(echo "$JSON" | jq -r '.unit')
+          E2E=$(echo "$JSON" | jq -r '.e2e')
+          WEBSITE=$(echo "$JSON" | jq -r '.website')
+
+          echo "unit=$UNIT" >> $GITHUB_OUTPUT
+          echo "e2e=$E2E" >> $GITHUB_OUTPUT
+          echo "website=$WEBSITE" >> $GITHUB_OUTPUT
+
+
+  linux-unit-tests:
+    if: needs.determine-tests-based-off-commit.outputs.unit == 'true'
+    runs-on: ubuntu-latest
+    needs: [determine-tests-based-off-commit, compute-node-version-vars]
     strategy:
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
@@ -101,10 +137,11 @@ jobs:
           verbose: true # optional (default = false)
 
   e2e-k8s-v2-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -193,8 +230,9 @@ jobs:
         working-directory: ./e2e
 
   e2e-k8s-v2-encrypted-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -296,10 +334,11 @@ jobs:
         working-directory: ./e2e
 
   e2e-external-storage-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -368,8 +407,9 @@ jobs:
         working-directory: ./e2e
 
   teraslice-elasticsearch-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -432,8 +472,9 @@ jobs:
           verbose: true # optional (default = false)
 
   elasticsearch-store-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -519,8 +560,9 @@ jobs:
       run: yarn sync --verify
 
   elasticsearch-api-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -582,10 +624,11 @@ jobs:
           verbose: true # optional (default = false)
 
   e2e-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -656,7 +699,8 @@ jobs:
         working-directory: ./e2e
 
   test-website:
-    needs: verify-build
+    if: needs.determine-tests-based-off-commit.outputs.website == 'true'
+    needs: [verify-build, determine-tests-based-off-commit]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
