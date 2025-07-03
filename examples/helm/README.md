@@ -51,7 +51,7 @@ curl localhost:5678
 Also confirm that opensearch2 has all the teraslice state indices by running:
 
 ```bash
-curl localhost:9200/_cat/indices
+curl localhost:9202/_cat/indices
 ```
 
 Ensure minio is running correctly logging into the the [Minio UI](http://localhost:9001) with the following username and password:
@@ -184,7 +184,7 @@ curl -XPOST 'localhost:5678/v1/jobs' -H "Content-Type: application/json" -d '{
 Once the job completes, query Opensearch to verify that the documents have been written successfully. Use the following command to view the index information:
 
 ```bash
-curl 'localhost:9200/_cat/indices?v&h=index,status,docs.count,docs.deleted,store.size,pri.store.size'
+curl 'localhost:9202/_cat/indices?v&h=index,status,docs.count,docs.deleted,store.size,pri.store.size'
 ```
 
 Results:
