@@ -22,6 +22,7 @@
         "build:pkg": "./scripts/build-pkg.sh",
         "build:watch": "yarn prebuild && tsc --build --watch & yarn workspace teraslice-cli node build.js --watch",
         "bump": "ts-scripts bump",
+        "determine-tests": "node ./scripts/determine-tests.js",
         "docker:limit": "./scripts/docker-limit-check.sh",
         "docker:listImages": "ts-scripts images list",
         "docker:saveImages": "ts-scripts images save",

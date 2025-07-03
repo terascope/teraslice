@@ -29,12 +29,11 @@ function getChangedFiles() {
 
     return diffOutput
         .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0);
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
 }
 
 export function getFileDiff(filePath) {
-
     if (!beforeSha || !afterSha) {
         if (process.env.IS_CI) {
             throw new Error('Missing GITHUB_EVENT_BEFORE or GITHUB_SHA env vars.');
@@ -44,7 +43,7 @@ export function getFileDiff(filePath) {
                     encoding: 'utf8'
                 });
                 return parseUnifiedDiff(rawDiff);
-            } catch(err) {
+            } catch (err) {
                 throw new Error(`Failed to get diff for file "${filePath}": ${err.message}`);
             }
         }
@@ -68,42 +67,42 @@ export function parseUnifiedDiff(diff) {
     let pendingAdds = [];
 
     function flushPending() {
-      const max = Math.max(pendingDeletes.length, pendingAdds.length);
-      for (let i = 0; i < max; i++) {
-        const before = pendingDeletes[i];
-        const after = pendingAdds[i];
+        const max = Math.max(pendingDeletes.length, pendingAdds.length);
+        for (let i = 0; i < max; i++) {
+            const before = pendingDeletes[i];
+            const after = pendingAdds[i];
 
-        if (before !== undefined && after !== undefined) {
-          changes.push({ type: 'modification', before, after });
-        } else if (before !== undefined) {
-          changes.push({ type: 'deletion', before });
-        } else if (after !== undefined) {
-          changes.push({ type: 'addition', after });
+            if (before !== undefined && after !== undefined) {
+                changes.push({ type: 'modification', before, after });
+            } else if (before !== undefined) {
+                changes.push({ type: 'deletion', before });
+            } else if (after !== undefined) {
+                changes.push({ type: 'addition', after });
+            }
         }
-      }
-      pendingDeletes = [];
-      pendingAdds = [];
+        pendingDeletes = [];
+        pendingAdds = [];
     }
 
     for (const line of lines) {
-      if (
-        line.startsWith('diff ') ||
-        line.startsWith('index ') ||
-        line.startsWith('--- ') ||
-        line.startsWith('+++ ') ||
-        line.startsWith('@@')
-      ) {
-        flushPending();
-        continue;
-      }
+        if (
+            line.startsWith('diff ')
+            || line.startsWith('index ')
+            || line.startsWith('--- ')
+            || line.startsWith('+++ ')
+            || line.startsWith('@@')
+        ) {
+            flushPending();
+            continue;
+        }
 
-      if (line.startsWith('-')) {
-        pendingDeletes.push(line.slice(1).trimEnd());
-      } else if (line.startsWith('+')) {
-        pendingAdds.push(line.slice(1).trimEnd());
-      } else {
-        flushPending();
-      }
+        if (line.startsWith('-')) {
+            pendingDeletes.push(line.slice(1).trimEnd());
+        } else if (line.startsWith('+')) {
+            pendingAdds.push(line.slice(1).trimEnd());
+        } else {
+            flushPending();
+        }
     }
 
     // Flush any remaining changes
@@ -116,7 +115,7 @@ function determineTestJobs() {
     const changedFiles = getChangedFiles();
 
     function checkWebsiteTests() {
-        return changedFiles.some(file => file.startsWith('docs/'));
+        return changedFiles.some((file) => file.startsWith('docs/'));
     }
 
     function checkE2eTests() {
@@ -136,7 +135,7 @@ function determineTestJobs() {
     //     return true;
     // }
     const result = {
-        unit: checkE2eTests(),  // For now we do the same check as e2e
+        unit: checkE2eTests(), // For now we do the same check as e2e
         e2e: checkE2eTests(),
         website: checkWebsiteTests(),
     };
@@ -144,5 +143,5 @@ function determineTestJobs() {
     return JSON.stringify(result);
 }
 
+// eslint-disable-next-line no-console
 console.log(determineTestJobs());
-
