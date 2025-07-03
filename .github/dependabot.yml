@@ -6,39 +6,41 @@ updates:
       interval: weekly
       time: '04:00'
       timezone: US/Arizona
-    open-pull-requests-limit: 3
+    # Disable version updates, only get security updates
+    open-pull-requests-limit: 0
     versioning-strategy: increase
     assignees:
       - godber
       - jsnoble
       - sotojn
       - busma13
-    ignore:
-      - dependency-name: elasticsearch
-        versions:
-          - '> 15.5.0'
-      - dependency-name: socket.io
-        versions:
-          - '> 1.7.4'
-      - dependency-name: socket.io-client
-        versions:
-          - '> 1.7.4'
-      - dependency-name: '@types/socket.io'
-        versions:
-          - 2.1.13
-      - dependency-name: '@types/socket.io-client'
-        versions:
-          - 1.4.36
+    # ignore:
+    #   - dependency-name: elasticsearch
+    #     versions:
+    #       - '> 15.5.0'
+    #   - dependency-name: socket.io
+    #     versions:
+    #       - '> 1.7.4'
+    #   - dependency-name: socket.io-client
+    #     versions:
+    #       - '> 1.7.4'
+    #   - dependency-name: '@types/socket.io'
+    #     versions:
+    #       - 2.1.13
+    #   - dependency-name: '@types/socket.io-client'
+    #     versions:
+    #       - 1.4.36
   - package-ecosystem: npm
     directory: '/website'
     schedule:
       interval: monthly
       time: '04:00'
       timezone: US/Arizona
-    ignore:
-      - dependency-name: "*"
-    open-pull-requests-limit: 3
+    # Disable version updates, only get security updates
+    open-pull-requests-limit: 0
     assignees:
       - godber
       - sotojn
       - busma13
+    # ignore:
+    #   - dependency-name: "*"
