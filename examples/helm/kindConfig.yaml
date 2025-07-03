@@ -10,7 +10,9 @@ nodes:
   - containerPort: 30201 # Map internal opensearch1 service to host port
     hostPort: 9201
   - containerPort: 30202 # Map internal opensearch2 service to host port
-    hostPort: 9200
+    hostPort: 9202
+  - containerPort: 30203 # Map internal opensearch3 service to host port
+    hostPort: 9203
   - containerPort: 30206 # Map internal elasticsearch6 service to host port
     hostPort: 9206
   - containerPort: 30207 # Map internal elasticsearch7 service to host port

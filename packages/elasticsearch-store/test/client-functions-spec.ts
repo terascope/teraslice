@@ -70,13 +70,13 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('should throw an error if tried on a non-supported distribution', async () => {
             const badVersion = cloneDeep(clientMetadata);
 
-            badVersion.version = '3.2.1';
-            badVersion.majorVersion = 3;
+            badVersion.version = '4.2.1';
+            badVersion.majorVersion = 4;
             badVersion.minorVersion = 2;
 
             const badDistribution = new Client(client, badVersion);
 
-            await expect(() => badDistribution.ping()).rejects.toThrow(`Unsupported ${clientMetadata.distribution} version: 3.2.1`);
+            await expect(() => badDistribution.ping()).rejects.toThrow(`Unsupported ${clientMetadata.distribution} version: 4.2.1`);
         });
     });
 

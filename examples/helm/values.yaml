@@ -20,6 +20,17 @@ opensearch2:
   instances: 1
   nodePort: 30202
 
+opensearch3:
+  # If false, opensearch3 will be excluded on helmfile sync
+  enabled: false
+  version: 3.1.0
+  esJavaOpts: -Xmx512M -Xms512M
+  memoryLimit: 100Mi
+  persistentVolumeSize: 8Gi
+  # The number of replicas
+  instances: 1
+  nodePort: 30203
+
 elasticsearch6:
   # If false, elasticsearch6 will be excluded on helmfile sync
   enabled: false

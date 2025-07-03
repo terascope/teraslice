@@ -56,7 +56,7 @@ export function convertIndicesPutTemplateParams(
             return params;
         }
 
-        if (majorVersion === 2) {
+        if (majorVersion === 2 || majorVersion === 3) {
             const {
                 include_type_name,
                 master_timeout,

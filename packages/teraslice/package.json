@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
     "displayName": "Teraslice",
-    "version": "2.16.4",
+    "version": "2.17.0",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -31,6 +31,7 @@
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' node ../scripts/bin/ts-scripts test ../teraslice --",
         "test:opensearch1": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test ../teraslice --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' node ../scripts/bin/ts-scripts test ../teraslice --",
+        "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='3.1.0' node ../scripts/bin/ts-scripts test ../teraslice --",
         "test:watch": "TEST_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --watch ../teraslice --"
     },
     "resolutions": {
@@ -39,7 +40,7 @@
     },
     "dependencies": {
         "@kubernetes/client-node": "~1.3.0",
-        "@terascope/elasticsearch-api": "~4.10.3",
+        "@terascope/elasticsearch-api": "~4.11.0",
         "@terascope/job-components": "~1.11.3",
         "@terascope/teraslice-messaging": "~1.12.3",
         "@terascope/types": "~1.4.3",
@@ -62,7 +63,7 @@
         "semver": "~7.7.2",
         "socket.io": "~1.7.4",
         "socket.io-client": "~1.7.4",
-        "terafoundation": "~1.13.4",
+        "terafoundation": "~1.14.0",
         "uuid": "~11.1.0"
     },
     "devDependencies": {

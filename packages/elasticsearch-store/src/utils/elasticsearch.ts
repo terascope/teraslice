@@ -175,6 +175,12 @@ export function isOpensearch2(client: Client): boolean {
 
     return distribution === ElasticsearchDistribution.opensearch && parsedVersion === 2;
 }
+export function isOpensearch3(client: Client): boolean {
+    const { distribution, version: esVersion } = getClientMetadata(client);
+    const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);
+
+    return distribution === ElasticsearchDistribution.opensearch && parsedVersion === 3;
+}
 
 // TODO: move this logic over to datatype
 export function fixMappingRequest(

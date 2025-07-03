@@ -23,8 +23,18 @@ terafoundation:
             # Set the first OS/ES that is enabled as our default
             default:
                 node:
+                    ##@ In the case the "stateCluster" is opensearch3
+                    {{- if eq (.Values | get "teraslice.stateCluster" "none") "opensearch3" }}
+
+                    ##@ In the case the "stateCluster" is opensearch3 and ssl is enabled
+                    {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
+                    - "https://opensearch3.services-dev1:9200"
+                    {{- else}}
+                    - "http://opensearch3.services-dev1:9200"
+                    {{- end }}
+
                     ##@ In the case the "stateCluster" is opensearch2
-                    {{- if eq (.Values | get "teraslice.stateCluster" "none") "opensearch2" }}
+                    {{- else if eq (.Values | get "teraslice.stateCluster" "none") "opensearch2" }}
 
                     ##@ In the case the "stateCluster" is opensearch2 and ssl is enabled
                     {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
@@ -47,6 +57,22 @@ terafoundation:
 
                     {{- end }}
 
+
+                {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
+
+                username: admin
+                password: "passwordsufhbivbU123%$"
+                caCertificate: "{{- if .Values.opensearch3.ssl.caCert -}}
+
+                {{ .Values.opensearch3.ssl.caCert }}
+
+                {{- else -}}
+
+                {{ fail "opensearch3.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
+
+                {{- end }}"
+
+                {{- end }}
 
                 {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
 
@@ -102,6 +128,40 @@ terafoundation:
                 {{- else -}}
 
                 {{ fail "opensearch2.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
+
+                {{- end }}"
+
+                {{- end }}
+            {{- end }}
+
+            ##@ /////////
+            ##@ elasticsearch-next Opensearch3 connector
+            ##@ /////////
+
+            {{- if eq (.Values | get "opensearch3.enabled" false) true }}
+            os3:
+                node:
+                    {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
+                    - "https://opensearch3.services-dev1:9200"
+                    {{- else }}
+                    - "http://opensearch3.services-dev1:9200"
+                    {{- end }}
+
+                ##@ Set the username and password when ssl is enabled
+                ##@ Required when using tls according to opensearch:
+                ##@ The opensearch logs state this:
+                ##@ "OpenSearch 2.12.0 onwards, the OpenSearch Security Plugin a change that requires an initial password for 'admin' user."
+                {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
+
+                username: admin
+                password: "passwordsufhbivbU123%$"
+                caCertificate: "{{- if .Values.opensearch3.ssl.caCert -}}
+
+                {{ .Values.opensearch3.ssl.caCert }}
+
+                {{- else -}}
+
+                {{ fail "opensearch3.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
 
                 {{- end }}"
 

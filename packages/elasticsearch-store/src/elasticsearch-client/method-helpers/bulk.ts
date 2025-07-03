@@ -34,7 +34,7 @@ export function convertBulkParams(
             return params;
         }
 
-        if (majorVersion === 2) {
+        if (majorVersion === 2 || majorVersion === 3) {
             const {
                 type,
                 ...parsedParams

@@ -31,20 +31,6 @@ releases:
     values:
       - ../../e2e/helm/templates/os1.yaml.gotmpl
 
-  - name: chaos-mesh
-    namespace: chaos-mesh
-    chart: chaos-mesh/chaos-mesh
-    version: 2.7.0
-    installed: {{ .Values | get "chaos-mesh.enabled" false }}
-    values:
-      - chaosDaemon:
-          runtime: containerd
-          socketPath: /run/containerd/containerd.sock
-        dashboard:
-          service:
-            type: NodePort
-            nodePort: 30333
-
   - name: opensearch2
     namespace: services-dev1
     chart: opensearch/opensearch
@@ -52,6 +38,14 @@ releases:
     installed: {{ .Values | get "opensearch2.enabled" true }}
     values:
       - ../../e2e/helm/templates/os2.yaml.gotmpl
+
+  - name: opensearch3
+    namespace: services-dev1
+    chart: opensearch/opensearch
+    version: 3.1.0
+    installed: {{ .Values | get "opensearch3.enabled" false }}
+    values:
+      - ../../e2e/helm/templates/os3.yaml.gotmpl
 
   - name: elasticsearch6
     namespace: services-dev1
@@ -115,6 +109,20 @@ releases:
       - ../../e2e/helm/templates/teraslice.yaml.gotmpl
     labels:
       app: teraslice
+
+  - name: chaos-mesh
+    namespace: chaos-mesh
+    chart: chaos-mesh/chaos-mesh
+    version: 2.7.0
+    installed: {{ .Values | get "chaos-mesh.enabled" false }}
+    values:
+      - chaosDaemon:
+          runtime: containerd
+          socketPath: /run/containerd/containerd.sock
+        dashboard:
+          service:
+            type: NodePort
+            nodePort: 30333
 
   - name: utility
     namespace: services-dev1

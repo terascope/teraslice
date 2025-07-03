@@ -47,7 +47,7 @@ describe('Domain V1', () => {
             tokenizer: {
                 domain_tokens: {
                     reverse: 'true',
-                    type: 'PathHierarchy',
+                    type: 'path_hierarchy',
                     delimiter: '.',
                 },
             },

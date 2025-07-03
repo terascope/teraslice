@@ -37,7 +37,7 @@ export default class Domain extends BaseType {
             tokenizer: {
                 domain_tokens: {
                     reverse: 'true',
-                    type: 'PathHierarchy',
+                    type: 'path_hierarchy',
                     delimiter: '.',
                 },
             },

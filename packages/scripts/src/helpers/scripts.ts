@@ -927,7 +927,7 @@ export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetes' |
 }
 
 export async function determineSearchHost() {
-    const possible = ['elasticsearch6', 'elasticsearch7', 'opensearch1', 'opensearch2'];
+    const possible = ['elasticsearch6', 'elasticsearch7', 'opensearch1', 'opensearch2', 'opensearch3'];
     const subprocess = await execaCommand('helm list -n services-dev1 -o json');
     logger.debug(`helmfile list:\n${subprocess.stdout}`);
     const serviceList: Array<ServiceObj> = JSON.parse(subprocess.stdout);
@@ -1061,19 +1061,23 @@ function generateHelmValuesFromServices(
         const version = versionMap[service];
 
         if (service === Service.Opensearch) {
-            serviceString += config.OPENSEARCH_VERSION.charAt(0);
+            const major = config.OPENSEARCH_VERSION.charAt(0);
+            serviceString += major;
             // This assumes there is only one search service enabled. If both ES and OS services
             // are present the state cluster will be set to elasticsearch below.
             stateCluster = serviceString;
 
             if (config.ENCRYPT_OPENSEARCH) {
+                if (major === '1') {
+                    throw new TSError('Encrypted Opensearch version 1 is not enabled. Please use OS2 or OS3.');
+                }
                 if (!caCert) {
                     caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
                 }
                 const admin_dn = getAdminDnFromCert();
-                values.setIn(['opensearch2', 'ssl', 'enabled'], true);
-                values.setIn(['opensearch2', 'ssl', 'caCert'], caCert);
-                values.setIn(['opensearch2', 'ssl', 'admin_dn'], admin_dn);
+                values.setIn([serviceString, 'ssl', 'enabled'], true);
+                values.setIn([serviceString, 'ssl', 'caCert'], caCert);
+                values.setIn([serviceString, 'ssl', 'admin_dn'], admin_dn);
             }
         } else if (service === Service.Elasticsearch) {
             serviceString += config.ELASTICSEARCH_VERSION.charAt(0);
@@ -1360,6 +1364,7 @@ export async function generateTestCaCerts(): Promise<void> {
         encryptedServices.push('opensearch');
         hostNames.push(
             'opensearch2.services-dev1',
+            'opensearch3.services-dev1',
             'opensearch',
             config.OPENSEARCH_HOSTNAME
         );

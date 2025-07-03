@@ -21,7 +21,7 @@ export function convertIndicesDeleteTemplateParams(
             return params;
         }
 
-        if (majorVersion === 2) {
+        if (majorVersion === 2 || majorVersion === 3) {
             const { master_timeout, ...parsedParams } = params;
 
             return {
