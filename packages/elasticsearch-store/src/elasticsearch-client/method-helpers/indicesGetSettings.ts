@@ -17,7 +17,7 @@ export function convertIndicesGetSettingsParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1 || majorVersion === 2 || majorVersion === 3) {
+        if ([1, 2, 3].includes(majorVersion)) {
             const {
                 master_timeout, ...parsedParams
             } = params;
