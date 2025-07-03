@@ -37,7 +37,7 @@ opensearch2:
 
 opensearch3:
   # If false, opensearch3 will be excluded on helmfile sync
-  enabled: true
+  enabled: false
 
   ssl:
     # If true, "caCert" and "admin_dn" need to be set
