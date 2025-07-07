@@ -9,20 +9,19 @@ import { execSync } from 'child_process';
 // };
 
 const beforeSha = process.env.GITHUB_EVENT_BEFORE || process.env.BEFORE || '';
-const afterSha = process.env.GITHUB_SHA || '';
 
 function getChangedFiles() {
     let diffOutput;
-    if (!beforeSha || !afterSha) {
+    if (!beforeSha) {
         if (process.env.IS_CI) {
-            throw new Error('Missing GITHUB_EVENT_BEFORE or GITHUB_SHA env vars.');
+            throw new Error('Missing GITHUB_EVENT_BEFORE env var.');
         } else {
             diffOutput = execSync(`git diff --name-only`, {
                 encoding: 'utf8'
             });
         }
     } else {
-        diffOutput = execSync(`git diff --name-only ${beforeSha} ${afterSha}`, {
+        diffOutput = execSync(`git diff --name-only ${beforeSha}`, {
             encoding: 'utf8'
         });
     }
@@ -34,9 +33,9 @@ function getChangedFiles() {
 }
 
 export function getFileDiff(filePath) {
-    if (!beforeSha || !afterSha) {
+    if (!beforeSha) {
         if (process.env.IS_CI) {
-            throw new Error('Missing GITHUB_EVENT_BEFORE or GITHUB_SHA env vars.');
+            throw new Error('Missing GITHUB_EVENT_BEFORE env var.');
         } else {
             try {
                 const rawDiff = execSync(`git diff -- ${filePath}`, {
@@ -49,7 +48,7 @@ export function getFileDiff(filePath) {
         }
     } else {
         try {
-            const rawDiff = execSync(`git diff ${beforeSha} ${afterSha} -- "${filePath}"`, {
+            const rawDiff = execSync(`git diff ${beforeSha} -- "${filePath}"`, {
                 encoding: 'utf8'
             });
             return parseUnifiedDiff(rawDiff);
