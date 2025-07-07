@@ -9,6 +9,8 @@ import { execSync } from 'child_process';
 // };
 
 const beforeSha = process.env.GITHUB_EVENT_BEFORE || process.env.BEFORE || '';
+// eslint-disable-next-line no-console
+console.log('beforeSha: ', beforeSha);
 
 function getChangedFiles() {
     let diffOutput;
