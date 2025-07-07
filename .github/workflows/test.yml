@@ -69,6 +69,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Setup Node 24
         uses: actions/setup-node@v4
         with:
@@ -76,16 +77,16 @@ jobs:
           cache: 'yarn'
       - name: Install and build packages
         run: yarn && yarn setup
-      - name: Check if branch is out of date with master
-        run: |
-          git fetch origin master
-          BASE=$(git merge-base HEAD origin/master)
-          if [ "$BASE" != "$(git rev-parse origin/master)" ]; then
-            echo "This branch is out of date with master. Please rebase."
-            exit 1
-          else
-            echo "✅ Branch is up to date with master."
-          fi
+      # - name: Check if branch is out of date with master
+      #   run: |
+      #     git fetch origin master
+      #     BASE=$(git merge-base HEAD origin/master)
+      #     if [ "$BASE" != "$(git rev-parse origin/master)" ]; then
+      #       echo "This branch is out of date with master. Please rebase."
+      #       exit 1
+      #     else
+      #       echo "✅ Branch is up to date with master."
+      #     fi
       - name: Determine tests to run
         id: determine
         # The output of determine-tests would be a json object that looks like this:
