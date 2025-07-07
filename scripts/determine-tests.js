@@ -113,6 +113,8 @@ export function parseUnifiedDiff(diff) {
 
 function determineTestJobs() {
     const changedFiles = getChangedFiles();
+    // eslint-disable-next-line no-console
+    console.log('changedFiles: ', changedFiles);
 
     function checkWebsiteTests() {
         return changedFiles.some((file) => file.startsWith('docs/'));
