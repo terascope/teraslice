@@ -67,6 +67,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Setup Node 24
         uses: actions/setup-node@v4
         with:
@@ -84,6 +86,12 @@ jobs:
           # }
         run: |
           echo "Running determine-tests..."
+
+          BEFORE=$(jq -r .before "$GITHUB_EVENT_PATH")
+          echo "$BEFORE"
+          export GITHUB_SHA=${{ github.sha }}
+          echo "$GITHUB_SHA"
+
           JSON=$(yarn determine-tests)
           echo "$JSON"
 
