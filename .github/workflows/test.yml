@@ -89,8 +89,6 @@ jobs:
 
           BEFORE=$(jq -r .before "$GITHUB_EVENT_PATH")
           echo "$BEFORE"
-          export GITHUB_SHA=${{ github.sha }}
-          echo "$GITHUB_SHA"
 
           JSON=$(yarn determine-tests)
           echo "$JSON"
