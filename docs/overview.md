@@ -34,5 +34,3 @@ The graphs below come from a high volume Elasticsearch re-indexing job. This Job
 ## Status
 
 Teraslice is currently in alpha status. Single node deployment, native clustering and Kubernetes support are all stable. APIs are mostly stable but will still be evolving as we work toward a production release. See the list of open issues for other limitations.
-
-test
