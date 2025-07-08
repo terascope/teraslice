@@ -493,7 +493,7 @@ jobs:
           REPORT_COVERAGE: true
         run: |
           pwd
-          ls ../..
+          ls ../../scripts
           export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../../scripts/get-random-port.sh)
@@ -559,8 +559,9 @@ jobs:
           REPORT_COVERAGE: true
         run: |
           pwd
-          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
-          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          ls ../../scripts
+          export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
           yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
 
@@ -647,8 +648,9 @@ jobs:
           REPORT_COVERAGE: true
         run: |
           pwd
-          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
-          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          ls ../../scripts
+          export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
           yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-api
 
