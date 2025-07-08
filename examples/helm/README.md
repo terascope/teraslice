@@ -99,20 +99,20 @@ Create a single node Kubernetes cluster by running the following command:
 kind create cluster --config kindConfig.yaml
 ```
 
-### Step 2: Building the Teraslice Docker Image
+### Step 2: Building the Teraslice and Utility Docker Images
 
-Build the teraslice docker image using the following command:
+Build the teraslice and utility pod docker images using the following command:
 
 ```bash
-docker build -t terascope/teraslice:dev ../../.
+docker build -t teraslice-utility:0.0.1 ../../e2e/helm/utility/.
 ```
 
-### Step 3: Loading the Teraslice Docker Image into the Kind Cluster
+### Step 3: Loading the Teraslice and Utility Docker Images into the Kind Cluster
 
 Load the Teraslice Docker image, built above, into the Kind cluster's control plane:
 
 ```bash
-kind load docker-image --name k8s-env terascope/teraslice:dev
+kind load docker-image --name k8s-env terascope/teraslice:dev teraslice-utility:0.0.1
 ```
 
 ### Step 4: Verifying the Image Load

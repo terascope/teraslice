@@ -65,7 +65,10 @@ opensearchJavaOpts: {{ .Values | get "opensearch2.esJavaOpts" "-Xmx512M -Xms512M
 resources:
     requests:
         cpu: "1000m"
-        memory: {{ .Values | get "opensearch2.memoryLimit" "100Mi" }}
+        memory: {{ .Values | get "opensearch2.memoryRequest" "512Mi" }}
+    limits:
+        cpu: "1000m"
+        memory: {{ .Values | get "opensearch2.memoryLimit" "1Gi" }}
 
 persistence:
     size: {{ .Values | get "opensearch2.persistentVolumeSize" "8Gi" }}
