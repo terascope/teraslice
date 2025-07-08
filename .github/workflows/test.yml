@@ -109,6 +109,10 @@ jobs:
           E2E=$(echo "$JSON" | jq -r '.e2e')
           WEBSITE=$(echo "$JSON" | jq -r '.website')
 
+          echo "unit=$UNIT"
+          echo "e2e=$E2E"
+          echo "website=$WEBSITE"
+
           echo "unit=$UNIT" >> $GITHUB_OUTPUT
           echo "e2e=$E2E" >> $GITHUB_OUTPUT
           echo "website=$WEBSITE" >> $GITHUB_OUTPUT
