@@ -21,6 +21,7 @@ module.exports = {
     customFields: {
         docsUrl: 'docs',
     },
+    trailingSlash: true,
     onBrokenLinks: 'log',
     onBrokenMarkdownLinks: 'log',
     presets: [
@@ -38,11 +39,6 @@ module.exports = {
                 },
                 theme: {
                     customCss: './src/css/customTheme.css'
-                },
-                sitemap: { 
-                    changefreq: 'weekly',
-                    priority: 0.5,
-                    trailingSlash: true,
                 }
             }
         ]
