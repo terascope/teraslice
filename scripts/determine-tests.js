@@ -102,7 +102,8 @@ export function parseUnifiedDiff(diff) {
 }
 
 function determineTestJobs() {
-    // const changedFiles = getChangedFiles();
+    const changedFiles = getChangedFiles();
+    Array.isArray(changedFiles);
 
     function checkWebsiteTests() {
         return false;
