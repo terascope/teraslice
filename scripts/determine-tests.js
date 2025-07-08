@@ -11,20 +11,22 @@ import { execSync } from 'child_process';
 // We can use this later when we want to make this more complex
 // const beforeSha = process.env.GITHUB_EVENT_BEFORE || process.env.BEFORE || '';
 
-function getChangedFiles() {
-    // if (!beforeSha) {
-    //     if (process.env.IS_CI) {
-    //         throw new Error('Missing GITHUB_EVENT_BEFORE env var.');
-    //     } else {
-    //         diffOutput = execSync(`git diff --name-only`, {
-    //             encoding: 'utf8'
-    //         });
-    //     }
-    // } else {
-    const diffOutput = execSync(`git diff --name-only origin/HEAD`, {
+let baseSha;
+
+try {
+    baseSha = execSync(`git merge-base HEAD origin/HEAD`, {
         encoding: 'utf8'
     });
-    // }
+    // eslint-disable-next-line no-console
+    console.log('baseSha: ', baseSha);
+} catch(error) {
+    throw new Error(`Failed to get baseSha of branch: ${error}`);
+}
+
+function getChangedFiles() {
+    const diffOutput = execSync(`git diff --name-only ${baseSha}`, {
+        encoding: 'utf8'
+    });
 
     return diffOutput
         .split('\n')
@@ -33,22 +35,8 @@ function getChangedFiles() {
 }
 
 export function getFileDiff(filePath) {
-    // if (!beforeSha) {
-    //     if (process.env.IS_CI) {
-    //         throw new Error('Missing GITHUB_EVENT_BEFORE env var.');
-    //     } else {
-    //         try {
-    //             const rawDiff = execSync(`git diff -- ${filePath}`, {
-    //                 encoding: 'utf8'
-    //             });
-    //             return parseUnifiedDiff(rawDiff);
-    //         } catch (err) {
-    //             throw new Error(`Failed to get diff for file "${filePath}": ${err.message}`);
-    //         }
-    //     }
-    // } else {
     try {
-        const rawDiff = execSync(`git diff origin/HEAD -- "${filePath}"`, {
+        const rawDiff = execSync(`git diff ${baseSha} -- "${filePath}"`, {
             encoding: 'utf8'
         });
         return parseUnifiedDiff(rawDiff);
@@ -111,6 +99,8 @@ export function parseUnifiedDiff(diff) {
 
 function determineTestJobs() {
     const changedFiles = getChangedFiles();
+    // eslint-disable-next-line no-console
+    console.log(changedFiles);
 
     function checkWebsiteTests() {
         return true;
