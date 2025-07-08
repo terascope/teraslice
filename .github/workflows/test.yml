@@ -751,7 +751,7 @@ jobs:
     uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
     secrets: inherit
 
-  tests-result-checker:
+  all-tests-passed:
     needs:
       [
         linux-unit-tests,
@@ -799,10 +799,3 @@ jobs:
 
           echo "All required jobs passed or were skipped."
 
-
-
-  all-tests-passed:
-    needs: [tests-result-checker]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "All tests have passed"

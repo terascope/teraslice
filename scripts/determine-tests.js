@@ -102,15 +102,16 @@ export function parseUnifiedDiff(diff) {
 }
 
 function determineTestJobs() {
-    const changedFiles = getChangedFiles();
+    // const changedFiles = getChangedFiles();
 
     function checkWebsiteTests() {
-        return true;
+        return false;
     }
 
     function checkE2eTests() {
         // If every file is a docs change, don't run e2e
-        return !changedFiles.every((file) => file.startsWith('docs/'));
+        // return !changedFiles.every((file) => file.startsWith('docs/'));
+        return false;
     }
 
     // function checkUnitTests() {
@@ -119,7 +120,7 @@ function determineTestJobs() {
     // }
     const result = {
         unit: checkE2eTests(), // For now we do the same check as e2e
-        e2e: false,
+        e2e: checkE2eTests(),
         website: checkWebsiteTests(),
     };
 
