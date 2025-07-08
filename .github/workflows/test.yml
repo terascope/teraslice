@@ -81,16 +81,6 @@ jobs:
           cache: 'yarn'
       - name: Install and build packages
         run: yarn && yarn setup
-      # - name: Check if branch is out of date with master
-      #   run: |
-      #     git fetch origin master
-      #     BASE=$(git merge-base HEAD origin/master)
-      #     if [ "$BASE" != "$(git rev-parse origin/master)" ]; then
-      #       echo "This branch is out of date with master. Please rebase."
-      #       exit 1
-      #     else
-      #       echo "✅ Branch is up to date with master."
-      #     fi
       - name: Determine tests to run
         id: determine
         # The output of determine-tests would be a json object that looks like this:
@@ -102,20 +92,12 @@ jobs:
         run: |
           echo "Running determine-tests..."
 
-          BEFORE=$(jq -r .before "$GITHUB_EVENT_PATH")
-          export BEFORE
-          echo "$BEFORE"
-
           JSON=$(yarn determine-tests)
           echo "$JSON"
 
           UNIT=$(echo "$JSON" | jq -r '.unit')
           E2E=$(echo "$JSON" | jq -r '.e2e')
           WEBSITE=$(echo "$JSON" | jq -r '.website')
-
-          echo "unit=$UNIT"
-          echo "e2e=$E2E"
-          echo "website=$WEBSITE"
 
           echo "unit=$UNIT" >> $GITHUB_OUTPUT
           echo "e2e=$E2E" >> $GITHUB_OUTPUT

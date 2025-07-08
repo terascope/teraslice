@@ -9,6 +9,12 @@ import { execSync } from 'child_process';
 // };
 
 // We can use this later when we want to make this more complex
+// Add this to the determine-tests job in the test.yaml to fet this variable
+//
+// BEFORE=$(jq -r .before "$GITHUB_EVENT_PATH")
+// export BEFORE
+// echo "$BEFORE"
+//
 // const beforeSha = process.env.GITHUB_EVENT_BEFORE || process.env.BEFORE || '';
 
 let baseSha;
@@ -17,8 +23,6 @@ try {
     baseSha = execSync(`git merge-base HEAD origin/HEAD`, {
         encoding: 'utf8'
     });
-    // eslint-disable-next-line no-console
-    console.log('baseSha: ', baseSha);
 } catch (error) {
     throw new Error(`Failed to get baseSha of branch: ${error}`);
 }
@@ -99,8 +103,6 @@ export function parseUnifiedDiff(diff) {
 
 function determineTestJobs() {
     const changedFiles = getChangedFiles();
-    // eslint-disable-next-line no-console
-    console.log(changedFiles);
 
     function checkWebsiteTests() {
         return true;
