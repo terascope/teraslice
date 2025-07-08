@@ -19,7 +19,7 @@ try {
     });
     // eslint-disable-next-line no-console
     console.log('baseSha: ', baseSha);
-} catch(error) {
+} catch (error) {
     throw new Error(`Failed to get baseSha of branch: ${error}`);
 }
 
