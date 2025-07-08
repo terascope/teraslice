@@ -495,8 +495,8 @@ jobs:
           pwd
           ls ../../scripts
           export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
-          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
-          export MINIO_PORT=$(../../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../../../scripts/get-random-port.sh)
           yarn test:${{ matrix.search-version }}
         working-directory: ./packages/teraslice
 
