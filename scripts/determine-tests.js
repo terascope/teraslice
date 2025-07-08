@@ -8,26 +8,23 @@ import { execSync } from 'child_process';
 //     after?: string;
 // };
 
-const beforeSha = process.env.GITHUB_EVENT_BEFORE || process.env.BEFORE || '';
-
-// eslint-disable-next-line no-console
-console.log('beforeSha: ', beforeSha);
+// We can use this later when we want to make this more complex
+// const beforeSha = process.env.GITHUB_EVENT_BEFORE || process.env.BEFORE || '';
 
 function getChangedFiles() {
-    let diffOutput;
-    if (!beforeSha) {
-        if (process.env.IS_CI) {
-            throw new Error('Missing GITHUB_EVENT_BEFORE env var.');
-        } else {
-            diffOutput = execSync(`git diff --name-only`, {
-                encoding: 'utf8'
-            });
-        }
-    } else {
-        diffOutput = execSync(`git diff --name-only ${beforeSha}`, {
-            encoding: 'utf8'
-        });
-    }
+    // if (!beforeSha) {
+    //     if (process.env.IS_CI) {
+    //         throw new Error('Missing GITHUB_EVENT_BEFORE env var.');
+    //     } else {
+    //         diffOutput = execSync(`git diff --name-only`, {
+    //             encoding: 'utf8'
+    //         });
+    //     }
+    // } else {
+    const diffOutput = execSync(`git diff --name-only master`, {
+        encoding: 'utf8'
+    });
+    // }
 
     return diffOutput
         .split('\n')
@@ -36,28 +33,27 @@ function getChangedFiles() {
 }
 
 export function getFileDiff(filePath) {
-    if (!beforeSha) {
-        if (process.env.IS_CI) {
-            throw new Error('Missing GITHUB_EVENT_BEFORE env var.');
-        } else {
-            try {
-                const rawDiff = execSync(`git diff -- ${filePath}`, {
-                    encoding: 'utf8'
-                });
-                return parseUnifiedDiff(rawDiff);
-            } catch (err) {
-                throw new Error(`Failed to get diff for file "${filePath}": ${err.message}`);
-            }
-        }
-    } else {
-        try {
-            const rawDiff = execSync(`git diff ${beforeSha} -- "${filePath}"`, {
-                encoding: 'utf8'
-            });
-            return parseUnifiedDiff(rawDiff);
-        } catch (err) {
-            throw new Error(`Failed to get diff for file "${filePath}": ${err.message}`);
-        }
+    // if (!beforeSha) {
+    //     if (process.env.IS_CI) {
+    //         throw new Error('Missing GITHUB_EVENT_BEFORE env var.');
+    //     } else {
+    //         try {
+    //             const rawDiff = execSync(`git diff -- ${filePath}`, {
+    //                 encoding: 'utf8'
+    //             });
+    //             return parseUnifiedDiff(rawDiff);
+    //         } catch (err) {
+    //             throw new Error(`Failed to get diff for file "${filePath}": ${err.message}`);
+    //         }
+    //     }
+    // } else {
+    try {
+        const rawDiff = execSync(`git diff master -- "${filePath}"`, {
+            encoding: 'utf8'
+        });
+        return parseUnifiedDiff(rawDiff);
+    } catch (err) {
+        throw new Error(`Failed to get diff for file "${filePath}": ${err.message}`);
     }
 }
 
@@ -119,19 +115,12 @@ function determineTestJobs() {
     console.log('changedFiles: ', changedFiles);
 
     function checkWebsiteTests() {
-        return changedFiles.some((file) => file.startsWith('docs/'));
+        return true;
     }
 
     function checkE2eTests() {
-        for (const file of changedFiles) {
-            // If we come across a non docs file, run e2e
-            if (!file.startsWith('docs/')) {
-                return true;
-            }
-        }
-
-        // but if all files were in the docs directory we skip e2e tests
-        return false;
+        // If every file is a docs change, don't run e2e
+        return !changedFiles.every((file) => file.startsWith('docs/'));
     }
 
     // function checkUnitTests() {
