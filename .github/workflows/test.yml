@@ -64,6 +64,10 @@ jobs:
   determine-tests-based-off-commit:
     runs-on: ubuntu-latest
     needs: compute-node-version-vars
+    outputs:
+      unit: ${{ steps.determine.outputs.unit }}
+      e2e: ${{ steps.determine.outputs.e2e }}
+      website: ${{ steps.determine.outputs.website }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
