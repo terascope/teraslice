@@ -126,8 +126,8 @@ function determineTestJobs() {
     //     return true;
     // }
     const result = {
-        unit: false, // For now we do the same check as e2e
-        e2e: checkE2eTests(),
+        unit: checkE2eTests(), // For now we do the same check as e2e
+        e2e: false,
         website: checkWebsiteTests(),
     };
 
