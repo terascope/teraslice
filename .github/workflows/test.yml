@@ -100,83 +100,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true # optional (default = false)
 
-
-  e2e-k8s-tests:
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_K8S) }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Install and build packages
-        run: yarn && yarn setup
-
-      - name: Create Docker Image List
-        run: |
-          yarn docker:listImages
-          cat ./images/image-list.txt
-
-      - name: Restore Docker image cache
-        id: docker-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-          restore-keys: |
-            docker-images-${{ hashFiles('./images/image-list.txt') }}-
-            docker-images-
-
-      - name: Compile e2e code
-        run: yarn build
-        working-directory: ./e2e
-
-      - name: Get Asset Bundle List From Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: asset-bundle-txt-file-list
-          path: ${{ github.workspace }}/e2e/scripts
-
-      - name: Restore asset bundle cache
-        id: asset-bundle-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/teraslice_assets
-          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
-
-      - name: Install Kind and Kubectl
-        uses: helm/kind-action@v1.10.0
-        with:
-          install_only: "true"
-
-      - name: Test k8s elasticsearch7
-        run: | 
-          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
-          export KAFKA_PORT=$(../scripts/get-random-port.sh)
-          export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
-          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} yarn test:k8s
-        working-directory: ./e2e
-
   e2e-k8s-v2-tests:
     runs-on: ubuntu-latest
     env:
@@ -755,7 +678,6 @@ jobs:
       e2e-k8s-v2-encrypted-tests,
       e2e-external-storage-tests,
       e2e-k8s-v2-tests,
-      e2e-k8s-tests,
       e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
@@ -769,7 +691,6 @@ jobs:
       e2e-k8s-v2-encrypted-tests,
       e2e-external-storage-tests,
       e2e-k8s-v2-tests,
-      e2e-k8s-tests,
       e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
@@ -784,7 +705,6 @@ jobs:
       e2e-k8s-v2-encrypted-tests,
       e2e-external-storage-tests,
       e2e-k8s-v2-tests,
-      e2e-k8s-tests,
       e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
