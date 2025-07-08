@@ -21,7 +21,7 @@ function getChangedFiles() {
     //         });
     //     }
     // } else {
-    const diffOutput = execSync(`git diff --name-only master`, {
+    const diffOutput = execSync(`git diff --name-only origin/HEAD`, {
         encoding: 'utf8'
     });
     // }
@@ -48,7 +48,7 @@ export function getFileDiff(filePath) {
     //     }
     // } else {
     try {
-        const rawDiff = execSync(`git diff master -- "${filePath}"`, {
+        const rawDiff = execSync(`git diff origin/HEAD -- "${filePath}"`, {
             encoding: 'utf8'
         });
         return parseUnifiedDiff(rawDiff);
