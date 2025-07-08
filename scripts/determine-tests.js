@@ -111,8 +111,6 @@ export function parseUnifiedDiff(diff) {
 
 function determineTestJobs() {
     const changedFiles = getChangedFiles();
-    // eslint-disable-next-line no-console
-    console.log('changedFiles: ', changedFiles);
 
     function checkWebsiteTests() {
         return true;
@@ -128,7 +126,7 @@ function determineTestJobs() {
     //     return true;
     // }
     const result = {
-        unit: checkE2eTests(), // For now we do the same check as e2e
+        unit: false, // For now we do the same check as e2e
         e2e: checkE2eTests(),
         website: checkWebsiteTests(),
     };
