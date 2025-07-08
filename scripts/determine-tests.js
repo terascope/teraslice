@@ -103,16 +103,15 @@ export function parseUnifiedDiff(diff) {
 
 function determineTestJobs() {
     const changedFiles = getChangedFiles();
-    Array.isArray(changedFiles);
 
     function checkWebsiteTests() {
-        return false;
+        // Always run website tests for now
+        return true;
     }
 
     function checkE2eTests() {
         // If every file is a docs change, don't run e2e
-        // return !changedFiles.every((file) => file.startsWith('docs/'));
-        return false;
+        return !changedFiles.every((file) => file.startsWith('docs/'));
     }
 
     // function checkUnitTests() {
