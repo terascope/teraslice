@@ -68,16 +68,17 @@ jobs:
       unit: ${{ steps.determine.outputs.unit }}
       e2e: ${{ steps.determine.outputs.e2e }}
       website: ${{ steps.determine.outputs.website }}
+      integration: ${{ steps.determine.outputs.integration }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: Setup Node 24
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      - name: Setup Node ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
           cache: 'yarn'
       - name: Install and build packages
         run: yarn && yarn setup
@@ -98,10 +99,12 @@ jobs:
           UNIT=$(echo "$JSON" | jq -r '.unit')
           E2E=$(echo "$JSON" | jq -r '.e2e')
           WEBSITE=$(echo "$JSON" | jq -r '.website')
+          INTEGRATION=$(echo "$JSON" | jq -r '.integration')
 
           echo "unit=$UNIT" >> $GITHUB_OUTPUT
           echo "e2e=$E2E" >> $GITHUB_OUTPUT
           echo "website=$WEBSITE" >> $GITHUB_OUTPUT
+          echo "integration=$INTEGRATION" >> $GITHUB_OUTPUT
 
 
   linux-unit-tests:
@@ -415,7 +418,7 @@ jobs:
         working-directory: ./e2e
 
   teraslice-elasticsearch-tests:
-    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
     needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
@@ -480,7 +483,7 @@ jobs:
           verbose: true # optional (default = false)
 
   elasticsearch-store-tests:
-    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
     needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
@@ -568,7 +571,7 @@ jobs:
       run: yarn sync --verify
 
   elasticsearch-api-tests:
-    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
     needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
@@ -763,7 +766,8 @@ jobs:
         elasticsearch-store-tests,
         teraslice-elasticsearch-tests,
         lint-and-sync,
-        test-website
+        test-website,
+        determine-tests-based-off-commit
       ]
     if: always()
     runs-on: ubuntu-latest
@@ -783,6 +787,7 @@ jobs:
           results["teraslice-elasticsearch-tests"]="${{ needs.teraslice-elasticsearch-tests.result }}"
           results["lint-and-sync"]="${{ needs.lint-and-sync.result }}"
           results["test-website"]="${{ needs.test-website.result }}"
+          results["determine-tests-based-off-commit"]="${{needs.determine-tests-based-off-commit.result}}"
 
           for job in "${!results[@]}"; do
             result="${results[$job]}"

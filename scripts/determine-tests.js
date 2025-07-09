@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
 
-// Don't leave console.logs in here
+// TODO FIXME: Maybe add to ts-scripts and add testing to exported functions
 
 // type DiffChange = {
 //     type: 'modification' | 'addition' | 'deletion';
@@ -19,22 +19,18 @@ import { execSync } from 'child_process';
 
 let baseSha;
 
-const currentBranch = execSync(`git rev-parse --abbrev-ref HEAD`, {
-    encoding: 'utf8'
-});
+const currentBranch = getBranchName();
 
 if (currentBranch === 'master') {
-
     // If we are on the master branch (for example after a merge), run all tests
+    // eslint-disable-next-line no-console
     console.log(JSON.stringify({
         unit: true,
         integration: true,
         e2e: true,
         website: true
     }));
-
 } else {
-
     try {
         baseSha = execSync(`git merge-base HEAD origin/HEAD`, {
             encoding: 'utf8'
@@ -45,7 +41,6 @@ if (currentBranch === 'master') {
 
     // eslint-disable-next-line no-console
     console.log(determineTestJobs());
-
 }
 
 export function getChangedFiles() {
@@ -152,4 +147,23 @@ function determineTestJobs() {
     };
 
     return JSON.stringify(result);
+}
+
+function getBranchName() {
+    const eventName = process.env.GITHUB_EVENT_NAME;
+    const refName = process.env.GITHUB_REF_NAME;
+    const headRef = process.env.GITHUB_HEAD_REF;
+
+    if (eventName === 'pull_request' && headRef) {
+        return headRef;
+    }
+
+    if (refName) {
+        return refName;
+    }
+
+    // Fallback: use git directly
+    return execSync('git rev-parse --abbrev-ref HEAD', {
+        encoding: 'utf8'
+    }).trim();
 }
