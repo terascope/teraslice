@@ -19,15 +19,36 @@ import { execSync } from 'child_process';
 
 let baseSha;
 
-try {
-    baseSha = execSync(`git merge-base HEAD origin/HEAD`, {
-        encoding: 'utf8'
-    });
-} catch (error) {
-    throw new Error(`Failed to get baseSha of branch: ${error}`);
+const currentBranch = execSync(`git rev-parse --abbrev-ref HEAD`, {
+    encoding: 'utf8'
+});
+
+if (currentBranch === 'master') {
+
+    // If we are on the master branch (for example after a merge), run all tests
+    console.log(JSON.stringify({
+        unit: true,
+        integration: true,
+        e2e: true,
+        website: true
+    }));
+
+} else {
+
+    try {
+        baseSha = execSync(`git merge-base HEAD origin/HEAD`, {
+            encoding: 'utf8'
+        });
+    } catch (error) {
+        throw new Error(`Failed to get baseSha of branch: ${error}`);
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(determineTestJobs());
+
 }
 
-function getChangedFiles() {
+export function getChangedFiles() {
     const diffOutput = execSync(`git diff --name-only ${baseSha}`, {
         encoding: 'utf8'
     });
@@ -114,18 +135,21 @@ function determineTestJobs() {
         return !changedFiles.every((file) => file.startsWith('docs/'));
     }
 
-    // function checkUnitTests() {
-    //     // also do later
-    //     return true;
-    // }
+    function checkUnitTests() {
+        // If every file is a docs change, don't run unit
+        return !changedFiles.every((file) => file.startsWith('docs/'));
+    }
+
+    function checkIntegrationTests() {
+        // If every file is a docs change, don't run integration
+        return !changedFiles.every((file) => file.startsWith('docs/'));
+    }
     const result = {
-        unit: checkE2eTests(), // For now we do the same check as e2e
+        unit: checkUnitTests(),
+        integration: checkIntegrationTests(),
         e2e: checkE2eTests(),
-        website: checkWebsiteTests(),
+        website: checkWebsiteTests()
     };
 
     return JSON.stringify(result);
 }
-
-// eslint-disable-next-line no-console
-console.log(determineTestJobs());
