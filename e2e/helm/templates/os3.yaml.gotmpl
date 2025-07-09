@@ -1,22 +1,22 @@
-replicas: {{ .Values | get "opensearch2.instances" 1 }}
+replicas: {{ .Values | get "opensearch3.instances" 1 }}
 
-{{- if eq (.Values | get "opensearch2.instances" 1) 1 }}
+{{- if eq (.Values | get "opensearch3.instances" 1) 1 }}
 singleNode: true
 {{- else }}
 singleNode: false
 {{- end }}
 
 image:
-    tag: {{ .Values | get "opensearch2.version" "2.15.0" }}
+    tag: {{ .Values | get "opensearch3.version" "3.1.0" }}
 
 service:
     type: NodePort
     port: 9200
-    nodePort: {{ .Values | get "opensearch2.nodePort" "30210" }}
+    nodePort: {{ .Values | get "opensearch3.nodePort" "30210" }}
 
 config:
     opensearch.yml:
-        {{- if eq (.Values | get "opensearch2.instances" 1) 1 }}
+        {{- if eq (.Values | get "opensearch3.instances" 1) 1 }}
 
         discovery.type: single-node
 
@@ -24,7 +24,7 @@ config:
 
         ##@ Set all the security plugins when ssl is enabled
         ##@ The path to the pem files are hard-coded and rely on the "/cert" volume below
-        {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+        {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
 
         plugins.security.ssl.transport.pemcert_filepath: certs/opensearch-cert.pem
         plugins.security.ssl.transport.pemkey_filepath: certs/opensearch-key.pem
@@ -36,7 +36,7 @@ config:
         plugins.security.ssl.http.pemtrustedcas_filepath: certs/CAs/rootCA.pem  # Root CA
 
         plugins.security.authcz.admin_dn:
-            - "{{ .Values | get "opensearch2.ssl.admin_dn" "" }}"
+            - "{{ .Values | get "opensearch3.ssl.admin_dn" "" }}"
 
         {{- end }}
 
@@ -44,7 +44,7 @@ extraEnvs:
     ##@ Setting this password only works when the demo security script runs.
     ##@ Unfortunately the demo does not fit our needs so this password does not get set here
     ##@ Leaving it here for reference
-    {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
+    {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
 
     - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
       value: "passwordsufhbivbU123%$"
@@ -56,26 +56,26 @@ extraEnvs:
 
     {{- end }}
 
-clusterName: opensearch2-cluster
+clusterName: opensearch3-cluster
 
-masterService: "opensearch2"
+masterService: "opensearch3"
 
-opensearchJavaOpts: {{ .Values | get "opensearch2.esJavaOpts" "-Xmx512M -Xms512M" }}
+opensearchJavaOpts: {{ .Values | get "opensearch3.esJavaOpts" "-Xmx512M -Xms512M" }}
 
 resources:
     requests:
         cpu: "1000m"
-        memory: {{ .Values | get "opensearch2.memoryRequest" "512Mi" }}
+        memory: {{ .Values | get "opensearch3.memoryRequest" "512Mi" }}
     limits:
         cpu: "1000m"
-        memory: {{ .Values | get "opensearch2.memoryLimit" "1Gi" }}
+        memory: {{ .Values | get "opensearch3.memoryLimit" "1Gi" }}
 
 persistence:
-    size: {{ .Values | get "opensearch2.persistentVolumeSize" "8Gi" }}
+    size: {{ .Values | get "opensearch3.persistentVolumeSize" "8Gi" }}
 
 ##@ Add all the lines below when ssl is enabled
 
-{{- if eq (.Values | get "opensearch2.ssl.enabled" false) true }}
+{{- if eq (.Values | get "opensearch3.ssl.enabled" false) true }}
 
 extraVolumes:
     - name: certs
@@ -96,12 +96,12 @@ extraVolumeMounts:
 ##@ This is because it's policy is always set to restart and I wasn't able to figure out a way to change it.
 extraContainers:
   - name: security-admin-init
-    image: opensearchproject/opensearch:{{ .Values | get "opensearch2.version" "2.15.0" }}
+    image: opensearchproject/opensearch:{{ .Values | get "opensearch3.version" "2.15.0" }}
     command: ["/bin/sh", "-c"]
     args:
       - |
         echo "Waiting for OpenSearch to be ready..."
-        until curl -k --silent --output /dev/null https://opensearch2.services-dev1:9200; do
+        until curl -k --silent --output /dev/null https://opensearch3.services-dev1:9200; do
           echo "Still waiting..."
           sleep 5
         done
@@ -120,7 +120,7 @@ extraContainers:
           -cacert /usr/share/opensearch/config/certs/CAs/rootCA.pem \
           -cert /usr/share/opensearch/config/certs/opensearch-cert.pem \
           -key /usr/share/opensearch/config/certs/opensearch-key.pem \
-          -h opensearch2.services-dev1
+          -h opensearch3.services-dev1
         echo "Security initialized successfully!"
         sleep 1000000
     volumeMounts:

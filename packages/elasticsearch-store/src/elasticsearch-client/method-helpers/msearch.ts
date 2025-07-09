@@ -65,7 +65,7 @@ export function convertMSearchParams(
             return parsedParams;
         }
 
-        if (majorVersion === 2) {
+        if (majorVersion === 2 || majorVersion === 3) {
             const {
                 type,
                 body,

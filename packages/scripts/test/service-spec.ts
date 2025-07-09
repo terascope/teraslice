@@ -23,6 +23,7 @@ jest.unstable_mockModule('../src/helpers/config.js', () => ({
     __DEFAULT_ELASTICSEARCH7_VERSION: '',
     __DEFAULT_OPENSEARCH1_VERSION: '',
     __DEFAULT_OPENSEARCH2_VERSION: '',
+    __DEFAULT_OPENSEARCH3_VERSION: '',
     TERASLICE_PORT: '',
     HOST_IP: '',
     USE_EXISTING_SERVICES: '',

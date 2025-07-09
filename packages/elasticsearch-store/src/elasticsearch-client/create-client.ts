@@ -3,6 +3,7 @@ import {
 } from '@terascope/utils';
 import * as opensearch1 from 'opensearch1';
 import * as opensearch2 from 'opensearch2';
+import * as opensearch3 from 'opensearch3';
 import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
@@ -11,7 +12,9 @@ import { Client } from './client.js';
 import { logWrapper } from './log-wrapper.js';
 import { ClientConfig } from './interfaces.js';
 
-const clientList = [opensearch1, opensearch2, elasticsearch7, elasticsearch6, elasticsearch8];
+const clientList = [
+    opensearch1, opensearch2, opensearch3, elasticsearch7, elasticsearch6, elasticsearch8
+];
 
 export async function createClient(
     config: ClientConfig,
@@ -163,6 +166,14 @@ export async function getBaseClient(
                 const client = new opensearch2.Client(config as any);
 
                 logger.debug('Creating an opensearch client v2');
+
+                return client;
+            }
+
+            if (majorVersion === 3) {
+                const client = new opensearch3.Client(config as any);
+
+                logger.debug('Creating an opensearch client v3');
 
                 return client;
             }

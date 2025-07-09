@@ -134,7 +134,7 @@ export async function populateIndex(
 
     await client.indices.create({
         index,
-        waitForActiveShards: 'all',
+        wait_for_active_shards: 'all',
         ...mapping
     });
 

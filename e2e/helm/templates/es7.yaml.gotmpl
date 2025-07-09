@@ -13,10 +13,10 @@ esJavaOpts: {{ .Values | get "elasticsearch7.esJavaOpts" "-Xms1g -Xmx1g" }}
 resources:
     requests:
         cpu: "1000m"
-        memory: {{ .Values | get "elasticsearch7.memoryLimit" "2Gi" }}
+        memory: {{ .Values | get "elasticsearch7.memoryRequest" "512Mi" }}
     limits:
         cpu: "1000m"
-        memory: {{ .Values | get "elasticsearch7.memoryLimit" "2Gi" }}
+        memory: {{ .Values | get "elasticsearch7.memoryLimit" "1Gi" }}
 
 volumeClaimTemplate:
     accessModes: ["ReadWriteOnce"]

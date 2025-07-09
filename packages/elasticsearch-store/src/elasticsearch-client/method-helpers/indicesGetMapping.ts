@@ -26,7 +26,7 @@ export function convertIndicesGetMappingParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1 || majorVersion === 2) {
+        if ([1, 2, 3].includes(majorVersion)) {
             const {
                 master_timeout, type, include_type_name,
                 ...parsedParams
