@@ -4,9 +4,11 @@ sidebar_label: Terminology
 ---
 
 ## Asset Bundle
+
 Asset Bundles are the mechanism used to deploy processors and other components into a Teraslice cluster. Each asset bundle may contain multiple processors, all code dependencies and things like small lookup tables or other smaller sets of data. The commponents from the asset bundle can then be included in a job by adding a reference to the asset bundle in the `assets` array on the job.
 
 ## Cluster Master
+
 The Cluster Master coordinates the deployment and management of jobs into a Teraslice cluster. It also provides APIs to access information about currently running jobs, the assets deployed on the cluster and historical information about jobs and executions.
 
 In native clustering it is an active participant in the cluster and holds active connections to all Node Masters in the cluster. For the cluster to be operational the Cluster Master must be available.
@@ -15,7 +17,7 @@ In Kubernetes clustering the Cluster Master manages the jobs but has a more advi
 
 ## CLI
 
-The Teraslice CLI is a command line tool `teraslice-cli` that can be used to manage Teraslice clusters. The tool uses cluster aliases to enable management of many separate Teraslice clusters using consistent commands. 
+The Teraslice CLI is a command line tool `teraslice-cli` that can be used to manage Teraslice clusters. The tool uses cluster aliases to enable management of many separate Teraslice clusters using consistent commands.
 
 Using this tool you can retrieve information on jobs, executions, assets, nodes, workers and running jobs. You can also schedule and control job executions.
 
@@ -33,7 +35,7 @@ An Execution Context represents an instance of a running job on a cluster. Each 
 
 ## Execution Controller
 
-An Execution Contoller is the process that manages the distribution of work to workers for a running a job. It runs the Slicer for the job which generates work slices that are then handed out to workers. Each job execution will have a new Execution Controller. 
+An Execution Contoller is the process that manages the distribution of work to workers for a running a job. It runs the Slicer for the job which generates work slices that are then handed out to workers. Each job execution will have a new Execution Controller.
 
 The Cluster Master provides APIs to retrieve information about all running Execution Controllers on a cluster.
 
@@ -53,7 +55,7 @@ The Job itself is not the unit of execution but serves as a template for the cre
 
 ## Job - Once - Batch Processing
 
-A Once Job is a job that runs through to completion and then stops. This would be used for something like copying an Elasticsearch index from one cluster to another. 
+A Once Job is a job that runs through to completion and then stops. This would be used for something like copying an Elasticsearch index from one cluster to another.
 
 Not every Reader will support Once Jobs.
 
@@ -111,17 +113,17 @@ Custom Reader's can implement whatever approach makes sense for a particular nee
 
 ## Slicer
 
-A Slicer is the component of a Reader that is responsible for dividing the work into chunks or Slices as they're called in Teraslice. Exactly how it does this is up to the particular Slicer implementation. Once the Slicer has determined a Slice then the Slice can be handed to a Worker for processing. 
+A Slicer is the component of a Reader that is responsible for dividing the work into chunks or Slices as they're called in Teraslice. Exactly how it does this is up to the particular Slicer implementation. Once the Slicer has determined a Slice then the Slice can be handed to a Worker for processing.
 
-For a Slicer to be effective and drive parallelism in processing the data it needs to be able to determine slices without looking at the actual data. This is generally accomplished using operations that provide record counts via search or byte offsets that become the unit of slicing. 
+For a Slicer to be effective and drive parallelism in processing the data it needs to be able to determine slices without looking at the actual data. This is generally accomplished using operations that provide record counts via search or byte offsets that become the unit of slicing.
 
 ## Slice
 
-A Slice is the unit of work in Teraslice. The Slicer determines the slices that are processed by the Workers. The exact content of each slice will be dependent on the algorithm used by the Slicer. 
+A Slice is the unit of work in Teraslice. The Slicer determines the slices that are processed by the Workers. The exact content of each slice will be dependent on the algorithm used by the Slicer.
 
 ## State Cluster
 
-The Teraslice State Cluster is the underlying Elasticsearch cluster that is used by the system to store all metadata for Jobs, Executions, Assets and Analytics used by the cluster. 
+The Teraslice State Cluster is the underlying Elasticsearch cluster that is used by the system to store all metadata for Jobs, Executions, Assets and Analytics used by the cluster.
 
 ## Test Harness
 
@@ -129,10 +131,10 @@ The Teraslice Test Harness is used by Asset Bundles to simplify creating automat
 
 ## TJM - Teraslice Job Manager
 
-TJM is a set of commands included in the Teraslice CLI that is designed to help Data Engineers manage the jobs they create. 
+TJM is a set of commands included in the Teraslice CLI that is designed to help Data Engineers manage the jobs they create.
 
 It uses the Job's JSON file to store metadata about the deployment of the job. This allows the Job file to be committed to Git with information about what is running and where it is running. The TJM commands then allow management of the job by using the Job file without having to pay attention to details like which cluster it's running on and the specific Execution ID. This originated for complex environments where there are multiple Teraslice clusters but has proven to be generally useful even if just running jobs on a laptop.
 
 ## Worker
 
-A Teraslice Worker is the process that retrieves data and sends it through the Operations pipeline. A job can have hundreds or thousands of workers all working away at a dataset in parallel. 
+A Teraslice Worker is the process that retrieves data and sends it through the Operations pipeline. A job can have hundreds or thousands of workers all working away at a dataset in parallel.

@@ -116,6 +116,7 @@ $ curl 'http://localhost:5678/v1/cluster/stats'
 ```
 
 Include the following header to receive stats in "prometheus exporter mode":
+
 ```sh
 $ curl -H "Accept: application/openmetrics-text;" -sS http://localhost:5678/cluster/stats
 # TYPE teraslice_slices_processed counter
@@ -301,7 +302,6 @@ You can pass in a query using `ex` which takes field options for what you want r
 
 Look at the returned object in [GET v1/ex](#get-v1ex) for valid field names.
 
-
 **Usage:**
 
 ```sh
@@ -321,7 +321,9 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd'
     "_context": "job"
 }
 ```
+
 When getting a job with current execution info:
+
 ```sh
 $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd?ex=assets,_status'
 {
@@ -661,7 +663,6 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/errors'
 
 Issues a delete command, deleting the job and all related execution contexts. Deletion is PERMANENT. Once a job is deleted it cannot be started, updated, or recovered. The job must have a terminal status to be deleted. Any orphaned K8s resources associated with the job will also be deleted. The `active` field will automatically be set to `false`.
 
-
 **Usage:**
 
 ```sh
@@ -886,6 +887,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_stop'
 ```
 
 Remove orphaned pods from a failed job:
+
 ```sh
 $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_stop?force=true'
 {
@@ -988,4 +990,3 @@ $ curl 'localhost:5678/v1/ex/1cb20d4c-520a-44fe-a802-313f41dd5b05/controller'
     }
 ]
 ```
-
