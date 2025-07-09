@@ -467,7 +467,7 @@ jobs:
           REPORT_COVERAGE: true
         run: |
           export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
-          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
           export MINIO_PORT=$(../../scripts/get-random-port.sh)
           yarn test:${{ matrix.search-version }}
         working-directory: ./packages/teraslice
@@ -531,8 +531,8 @@ jobs:
         env:
           REPORT_COVERAGE: true
         run: |
-          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
-          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
           yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
 
@@ -619,8 +619,8 @@ jobs:
         env:
           REPORT_COVERAGE: true
         run: |
-          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
-          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
           yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-api
 
