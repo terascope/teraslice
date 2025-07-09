@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
 
-// TODO FIXME: Maybe add to ts-scripts and add testing to exported functions
+// TODO: Maybe add to ts-scripts and add testing to exported functions
 
 // type DiffChange = {
 //     type: 'modification' | 'addition' | 'deletion';
