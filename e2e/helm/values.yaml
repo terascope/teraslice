@@ -3,7 +3,8 @@ opensearch1:
   enabled: false
   version: 1.3.11
   esJavaOpts: -Xmx512M -Xms512M
-  memoryLimit: 100Mi
+  memoryLimit: 1Gi
+  memoryRequest: 512Mi
   persistentVolumeSize: 8Gi
   # The number of replicas
   instances: 1
@@ -30,7 +31,36 @@ opensearch2:
     admin_dn: ""
   version: 2.15.0
   esJavaOpts: -Xmx512M -Xms512M
-  memoryLimit: 100Mi
+  memoryLimit: 1Gi
+  memoryRequest: 512Mi
+  persistentVolumeSize: 8Gi
+  # The number of replicas
+  instances: 1
+
+opensearch3:
+  # If false, opensearch3 will be excluded on helmfile sync
+  enabled: false
+
+  ssl:
+    # If true, "caCert" and "admin_dn" need to be set
+    enabled: false
+
+    # CA certificate in a single-line string format with "\\n" as line breaks
+    # Use the following command to convert a rootCA PEM file to the correct format:
+    # awk '{printf "%s\\\\n", $0}' <path-to-pem-file> | pbcopy
+    # This is so teraslice can get the rootCA for it's client validation
+    caCert: null
+
+    # The distinguished name (DN) of the OpenSearch admin user
+    # Required when SSL is enabled
+    # Retrieve this using the following command:
+    # openssl x509 -in <path-to-cert> -noout -subject | awk '{print substr($0,9)}'
+    # Example output: 'O=mkcert development certificate, OU=local'
+    admin_dn: ""
+  version: 3.1.0
+  esJavaOpts: -Xmx512M -Xms512M
+  memoryLimit: 1Gi
+  memoryRequest: 512Mi
   persistentVolumeSize: 8Gi
   # The number of replicas
   instances: 1
@@ -45,6 +75,7 @@ elasticsearch6:
   instances: 1
   esJavaOpts: -Xms512m -Xmx512m
   memoryLimit: 1Gi
+  memoryRequest: 512Mi
   persistentVolumeSize: 8Gi
 
 elasticsearch7:
@@ -55,8 +86,8 @@ elasticsearch7:
   # The number of replicas
   instances: 1
   esJavaOpts: -Xms512m -Xmx512m
-  # Es7 recommends at least a gig of memory.
   memoryLimit: 1Gi
+  memoryRequest: 512Mi
   persistentVolumeSize: 8Gi
 
 minio:

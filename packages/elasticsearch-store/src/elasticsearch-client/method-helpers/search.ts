@@ -48,7 +48,7 @@ export function convertSearchParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1 || majorVersion === 2) {
+        if ([1, 2, 3].includes(majorVersion)) {
             return {
                 ...parsedParams,
                 track_total_hits: trackTotal,

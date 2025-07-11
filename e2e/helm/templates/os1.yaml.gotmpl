@@ -30,7 +30,10 @@ masterService: "opensearch1"
 resources:
     requests:
         cpu: "1000m"
-        memory: {{ .Values | get "opensearch1.memoryLimit" "100Mi" }}
+        memory: {{ .Values | get "opensearch1.memoryRequest" "512Mi" }}
+    limits:
+        cpu: "1000m"
+        memory: {{ .Values | get "opensearch1.memoryLimit" "1Gi" }}
 
 persistence:
     size: {{ .Values | get "opensearch1.persistentVolumeSize" "8Gi" }}

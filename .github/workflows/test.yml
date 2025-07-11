@@ -61,9 +61,56 @@ jobs:
     uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@main
     secrets: inherit
 
-  linux-unit-tests:
+  determine-tests-based-off-commit:
     runs-on: ubuntu-latest
     needs: compute-node-version-vars
+    outputs:
+      unit: ${{ steps.determine.outputs.unit }}
+      e2e: ${{ steps.determine.outputs.e2e }}
+      website: ${{ steps.determine.outputs.website }}
+      integration: ${{ steps.determine.outputs.integration }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      - name: Setup Node ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
+          cache: 'yarn'
+      - name: Install and build packages
+        run: yarn && yarn setup
+      - name: Determine tests to run
+        id: determine
+        # The output of determine-tests would be a json object that looks like this:
+          # {
+          #   "unit": true,
+          #   "e2e": true,
+          #   "website": false
+          # }
+        run: |
+          echo "Running determine-tests..."
+
+          JSON=$(yarn determine-tests)
+          echo "$JSON"
+
+          UNIT=$(echo "$JSON" | jq -r '.unit')
+          E2E=$(echo "$JSON" | jq -r '.e2e')
+          WEBSITE=$(echo "$JSON" | jq -r '.website')
+          INTEGRATION=$(echo "$JSON" | jq -r '.integration')
+
+          echo "unit=$UNIT" >> $GITHUB_OUTPUT
+          echo "e2e=$E2E" >> $GITHUB_OUTPUT
+          echo "website=$WEBSITE" >> $GITHUB_OUTPUT
+          echo "integration=$INTEGRATION" >> $GITHUB_OUTPUT
+
+
+  linux-unit-tests:
+    if: needs.determine-tests-based-off-commit.outputs.unit == 'true'
+    runs-on: ubuntu-latest
+    needs: [determine-tests-based-off-commit, compute-node-version-vars]
     strategy:
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
@@ -100,88 +147,12 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true # optional (default = false)
 
-
-  e2e-k8s-tests:
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_K8S) }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Install and build packages
-        run: yarn && yarn setup
-
-      - name: Create Docker Image List
-        run: |
-          yarn docker:listImages
-          cat ./images/image-list.txt
-
-      - name: Restore Docker image cache
-        id: docker-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-          restore-keys: |
-            docker-images-${{ hashFiles('./images/image-list.txt') }}-
-            docker-images-
-
-      - name: Compile e2e code
-        run: yarn build
-        working-directory: ./e2e
-
-      - name: Get Asset Bundle List From Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: asset-bundle-txt-file-list
-          path: ${{ github.workspace }}/e2e/scripts
-
-      - name: Restore asset bundle cache
-        id: asset-bundle-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/teraslice_assets
-          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
-
-      - name: Install Kind and Kubectl
-        uses: helm/kind-action@v1.10.0
-        with:
-          install_only: "true"
-
-      - name: Test k8s elasticsearch7
-        run: | 
-          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
-          export KAFKA_PORT=$(../scripts/get-random-port.sh)
-          export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
-          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} yarn test:k8s
-        working-directory: ./e2e
-
   e2e-k8s-v2-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -270,8 +241,9 @@ jobs:
         working-directory: ./e2e
 
   e2e-k8s-v2-encrypted-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -373,10 +345,11 @@ jobs:
         working-directory: ./e2e
 
   e2e-external-storage-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -445,14 +418,15 @@ jobs:
         working-directory: ./e2e
 
   teraslice-elasticsearch-tests:
+    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -509,14 +483,15 @@ jobs:
           verbose: true # optional (default = false)
 
   elasticsearch-store-tests:
+    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -596,14 +571,15 @@ jobs:
       run: yarn sync --verify
 
   elasticsearch-api-tests:
+    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -659,16 +635,17 @@ jobs:
           verbose: true # optional (default = false)
 
   e2e-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -733,7 +710,8 @@ jobs:
         working-directory: ./e2e
 
   test-website:
-    needs: verify-build
+    if: needs.determine-tests-based-off-commit.outputs.website == 'true'
+    needs: [verify-build, determine-tests-based-off-commit]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -755,7 +733,6 @@ jobs:
       e2e-k8s-v2-encrypted-tests,
       e2e-external-storage-tests,
       e2e-k8s-v2-tests,
-      e2e-k8s-tests,
       e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
@@ -769,7 +746,6 @@ jobs:
       e2e-k8s-v2-encrypted-tests,
       e2e-external-storage-tests,
       e2e-k8s-v2-tests,
-      e2e-k8s-tests,
       e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
@@ -779,19 +755,52 @@ jobs:
     secrets: inherit
 
   all-tests-passed:
-    needs: [
-      linux-unit-tests,
-      e2e-k8s-v2-encrypted-tests,
-      e2e-external-storage-tests,
-      e2e-k8s-v2-tests,
-      e2e-k8s-tests,
-      e2e-tests,
-      elasticsearch-api-tests,
-      elasticsearch-store-tests,
-      teraslice-elasticsearch-tests,
-      lint-and-sync,
-      test-website
-    ]
+    needs:
+      [
+        linux-unit-tests,
+        e2e-k8s-v2-encrypted-tests,
+        e2e-external-storage-tests,
+        e2e-k8s-v2-tests,
+        e2e-tests,
+        elasticsearch-api-tests,
+        elasticsearch-store-tests,
+        teraslice-elasticsearch-tests,
+        lint-and-sync,
+        test-website,
+        determine-tests-based-off-commit
+      ]
+    if: always()
     runs-on: ubuntu-latest
     steps:
-      - run: echo "All tests have passed"
+      - name: Check job results
+        run: |
+          failed=""
+
+          declare -A results
+          results["linux-unit-tests"]="${{ needs.linux-unit-tests.result }}"
+          results["e2e-k8s-v2-encrypted-tests"]="${{ needs.e2e-k8s-v2-encrypted-tests.result }}"
+          results["e2e-external-storage-tests"]="${{ needs.e2e-external-storage-tests.result }}"
+          results["e2e-k8s-v2-tests"]="${{ needs.e2e-k8s-v2-tests.result }}"
+          results["e2e-tests"]="${{ needs.e2e-tests.result }}"
+          results["elasticsearch-api-tests"]="${{ needs.elasticsearch-api-tests.result }}"
+          results["elasticsearch-store-tests"]="${{ needs.elasticsearch-store-tests.result }}"
+          results["teraslice-elasticsearch-tests"]="${{ needs.teraslice-elasticsearch-tests.result }}"
+          results["lint-and-sync"]="${{ needs.lint-and-sync.result }}"
+          results["test-website"]="${{ needs.test-website.result }}"
+          results["determine-tests-based-off-commit"]="${{needs.determine-tests-based-off-commit.result}}"
+
+          for job in "${!results[@]}"; do
+            result="${results[$job]}"
+            echo "$job: $result"
+            if [[ "$result" == "failure" || "$result" == "cancelled" ]]; then
+              failed+="$job ($result)\n"
+            fi
+          done
+
+          if [[ -n "$failed" ]]; then
+            echo -e "::error::Some jobs failed or were cancelled:\n$failed"
+            exit 1
+          fi
+
+          echo "All required jobs passed or were skipped."
+

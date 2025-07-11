@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "2.16.4",
+    "version": "2.17.0",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -22,6 +22,7 @@
         "build:pkg": "./scripts/build-pkg.sh",
         "build:watch": "yarn prebuild && tsc --build --watch & yarn workspace teraslice-cli node build.js --watch",
         "bump": "ts-scripts bump",
+        "determine-tests": "node ./scripts/determine-tests.js",
         "docker:limit": "./scripts/docker-limit-check.sh",
         "docker:listImages": "ts-scripts images list",
         "docker:saveImages": "ts-scripts images save",
@@ -53,7 +54,7 @@
         "@eslint/js": "~9.30.0",
         "@swc/core": "1.12.7",
         "@swc/jest": "~0.2.38",
-        "@terascope/scripts": "~1.19.4",
+        "@terascope/scripts": "~1.20.1",
         "@types/bluebird": "~3.5.42",
         "@types/convict": "~6.1.6",
         "@types/elasticsearch": "~5.0.43",
