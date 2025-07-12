@@ -1,7 +1,8 @@
 import { DataTypeFields, DataTypeFieldConfig, FieldType } from '@terascope/types';
 import { Chance } from 'chance';
-import { isEmpty } from './empty.js';
-import { hasOwn } from './objects.js';
+import { isEmpty, hasOwn } from '@terascope/utils';
+
+// TODO - turf for geo, see if faker js adds anything better than chance
 
 const chance = new Chance();
 
