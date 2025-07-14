@@ -21,6 +21,7 @@ module.exports = {
     customFields: {
         docsUrl: 'docs',
     },
+    trailingSlash: true,
     onBrokenLinks: 'log',
     onBrokenMarkdownLinks: 'log',
     presets: [
