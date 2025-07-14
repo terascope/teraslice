@@ -48,7 +48,7 @@
         "package-up": "~5.0.0",
         "semver": "~7.7.2",
         "signale": "~1.4.0",
-        "sort-package-json": "~3.3.1",
+        "sort-package-json": "~3.4.0",
         "toposort": "~2.0.2",
         "typedoc": "~0.28.7",
         "typedoc-plugin-markdown": "~4.7.0",
