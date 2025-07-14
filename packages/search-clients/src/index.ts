@@ -1,2 +1,2 @@
-export * from './distributed-client';
+export * from './distributed-search-client';
 export * from './http-client';
