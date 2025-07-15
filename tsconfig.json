@@ -63,6 +63,9 @@
             "path": "packages/xlucene-translator"
         },
         {
+            "path": "packages/opensearch-client"
+        },
+        {
             "path": "packages/elasticsearch-store"
         },
         {
