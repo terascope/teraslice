@@ -31,6 +31,9 @@ export function coercePkgArg(input: CoercePkgInput): PackageInfo[] {
         })
     ).filter(Boolean) as PackageInfo[];
 
+    console.log('===p', matches);
+    console.log('===p2', names);
+
     if (matches.length < names.length) {
         const list = formatList(getPkgNames(packages));
         throw new Error(`Pattern ${names.join(', ')} must match one of:${list}`);
