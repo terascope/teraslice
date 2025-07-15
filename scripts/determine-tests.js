@@ -32,7 +32,7 @@ if (currentBranch === 'master') {
     }));
 } else {
     try {
-        baseSha = execSync(`git merge-base HEAD origin/HEAD`, {
+        baseSha = execSync(`git merge-base HEAD origin/master`, {
             encoding: 'utf8'
         });
     } catch (error) {
