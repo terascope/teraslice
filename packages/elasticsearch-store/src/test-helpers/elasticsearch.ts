@@ -1,13 +1,14 @@
 import {
     DataEntity, pDelay, get, toNumber,
-    uniq, TSError
+    uniq,
+    TSError
 } from '@terascope/utils';
 import { readFileSync } from 'node:fs';
 import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
-import {
-    createClient, Client, Semver, ClientConfig, getClientMetadata, fixMappingRequest
-} from 'elasticsearch-store';
+import { createClient, Client, Semver, ClientConfig } from '../elasticsearch-client/index.js';
+import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
+import type { IndexStore } from '../index-store.js';
 import {
     ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
     OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST, OPENSEARCH_SSL_HOST,
@@ -53,7 +54,7 @@ export async function makeClient(rootCaPath?: string): Promise<Client> {
 
     const { client } = await createClient(esConfig);
 
-    return client;
+    return client as unknown as Client;
 }
 
 export async function cleanupIndex(
@@ -83,75 +84,6 @@ export async function cleanupIndex(
     }
 }
 
-export function createMappingFromDatatype(
-    client: Client,
-    dataType: DataType,
-    type = '_doc',
-    overrides = {}
-) {
-    const metaData = getClientMetadata(client);
-    const mapping = dataType.toESMapping({ typeName: type, overrides, ...metaData });
-
-    return fixMappingRequest(client, { body: mapping }, false);
-}
-
-export function formatUploadData(
-    index: string, data: any[], apiCompatibility = false
-): Record<string, any>[] {
-    const results: any[] = [];
-
-    data.forEach((record) => {
-        const meta: any = { _index: index };
-
-        if (!removeTypeTest) {
-            meta._type = '_doc';
-        }
-
-        if (DataEntity.isDataEntity(record) && record.getKey()) {
-            meta._id = record.getKey();
-        }
-        // This format is used by elasticsearch-api and elasticsearch-assets
-        if (apiCompatibility) {
-            results.push({ action: { index: meta }, data: record });
-        } else {
-            // this is used for raw elasticsearch bulk queries
-            results.push({ index: meta }, record);
-        }
-    });
-
-    return results;
-}
-
-export async function waitForData(
-    client: any, index: string, count: number, timeout = 5000
-): Promise<void> {
-    const failTestTime = Date.now() + timeout;
-
-    return new Promise((resolve, reject) => {
-        async function checkIndex() {
-            if (failTestTime <= Date.now()) {
-                reject(new Error('Could not find count in alloated time'));
-            }
-
-            await pDelay(100);
-
-            try {
-                const response = await client.count({ index, q: '*' });
-                const responseCount = get(response, 'body.count', response.count);
-
-                if (count === responseCount) return resolve();
-            } catch (err) {
-                return reject(err);
-            }
-
-            checkIndex();
-        }
-
-        checkIndex();
-    });
-}
-
-// NOT USED
 /*
  This is a quick and easy way to upload data, however, types are auto generated
  by elasticsearch itself. If you need to control types for detailed searching
@@ -168,6 +100,18 @@ export async function upload(
     const query = Object.assign({ refresh: 'wait_for', body }, safeQueryBody);
 
     return client.bulk(query);
+}
+
+export function createMappingFromDatatype(
+    client: Client,
+    dataType: DataType,
+    type = '_doc',
+    overrides = {}
+) {
+    const metaData = getClientMetadata(client);
+    const mapping = dataType.toESMapping({ typeName: type, overrides, ...metaData });
+
+    return fixMappingRequest(client, { body: mapping }, false);
 }
 
 export async function populateIndex(
@@ -213,11 +157,71 @@ export async function populateIndex(
     }
 }
 
-// export function cleanupIndexStore(
-//     store: IndexStore<any>
-// ): Promise<void> {
-//     return cleanupIndex(store.client, store.searchIndex);
-// }
+export function formatUploadData(
+    index: string, data: any[], apiCompatibility = false
+): Record<string, any>[] {
+    const results: any[] = [];
+
+    data.forEach((record) => {
+        const meta: any = { _index: index };
+
+        if (!removeTypeTest) {
+            meta._type = '_doc';
+        }
+
+        if (DataEntity.isDataEntity(record) && record.getKey()) {
+            meta._id = record.getKey();
+        }
+        // This format is used by elasticsearch-api and elasticsearch-assets
+        if (apiCompatibility) {
+            results.push({ action: { index: meta }, data: record });
+        } else {
+            // this is used for raw elasticsearch bulk queries
+            results.push({ index: meta }, record);
+        }
+    });
+
+    return results;
+}
+
+export function cleanupIndexStore(
+    store: IndexStore<any>
+): Promise<void> {
+    return cleanupIndex(store.client, store.searchIndex);
+}
+
+export async function waitForData(
+    client: any, index: string, count: number, timeout = 5000
+): Promise<void> {
+    const failTestTime = Date.now() + timeout;
+
+    return new Promise((resolve, reject) => {
+        async function checkIndex() {
+            if (failTestTime <= Date.now()) {
+                reject(new Error('Could not find count in alloated time'));
+            }
+
+            await pDelay(100);
+
+            try {
+                const response = await client.count({ index, q: '*' });
+                const responseCount = get(response, 'body.count', response.count);
+
+                if (count === responseCount) return resolve();
+            } catch (err) {
+                return reject(err);
+            }
+
+            checkIndex();
+        }
+
+        checkIndex();
+    });
+}
+
+export interface TestENVClientInfo extends ClientMetadata {
+    host: string;
+}
 
 function parseVersion(version: string): Semver {
     const [
@@ -228,9 +232,7 @@ function parseVersion(version: string): Semver {
 
     return [majorVersion, minorVersion, patchVersion];
 }
-export interface TestENVClientInfo extends ClientMetadata {
-    host: string;
-}
+
 export function getTestENVClientInfo(): TestENVClientInfo {
     if (process.env.TEST_OPENSEARCH != null) {
         const version = OPENSEARCH_VERSION;

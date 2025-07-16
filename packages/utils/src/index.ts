@@ -1,6 +1,4 @@
 import STATUS_CODES from './status-codes.js';
-import * as TestData from './test-utils/data/fixed/index.js';
-import { ElasticsearchTestHelpers } from './test-utils/elasticsearch/index.js';
 
 export * from './arrays.js';
 export * from './big-map.js';
@@ -9,6 +7,7 @@ export * from './big-set.js';
 export * from './booleans.js';
 export * from './buffers.js';
 export * from './collector.js';
+export * from './data-type-data-generator.js';
 export * from './dates.js';
 export * from './decorators.js';
 export * from './deps.js';
@@ -21,7 +20,6 @@ export * from './event-loop.js';
 export * from './fp.js';
 export * from './functions.js';
 export * from './geo.js';
-export * from './http-request-client.js';
 export * from './interfaces.js';
 export * from './json.js';
 export * from './logger.js';
@@ -34,7 +32,6 @@ export * from './queue/index.js';
 export * from './strings.js';
 export * from './ip.js';
 export * from './iterators.js';
-export * from './test-utils/data/data-type-random-generator.js';
 export * from './type-coercion.js';
 
-export { STATUS_CODES, TestData, ElasticsearchTestHelpers };
+export { STATUS_CODES };

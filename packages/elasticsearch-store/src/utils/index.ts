@@ -1,9 +1,6 @@
+export * from './errors.js';
 export * from './elasticsearch.js';
-
-// TODO
-/**
- * should add back or no?
- * retry config
- * shard stuff
- * bulk stuff
- */
+export * from './misc.js';
+export * from './model.js';
+export * from './retry-config.js';
+export * from './validation.js';

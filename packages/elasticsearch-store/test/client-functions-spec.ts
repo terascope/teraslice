@@ -1,17 +1,21 @@
 import 'jest-extended';
-import { DataEntity, debugLogger, cloneDeep, get } from '@terascope/utils';
+import {
+    DataEntity, debugLogger, cloneDeep,
+    get
+} from '@terascope/utils';
 import { ClientParams, ClientResponse, FieldType } from '@terascope/types';
 import { DataType } from '@terascope/data-types';
-import { ElasticsearchTestHelpers, TestData } from '@terascope/utils';
 import {
-    createClient, getBaseClient, Client, isElasticsearch6
+    createClient, getBaseClient, Client,
+    ElasticsearchTestHelpers,
+    isElasticsearch6,
 } from '../src/index.js';
 
 const {
     upload, populateIndex, cleanupIndex, waitForData,
-    formatUploadData, getTestENVClientInfo, getTotalFormat
+    formatUploadData, getTestENVClientInfo,
+    getTotalFormat, EvenDateData
 } = ElasticsearchTestHelpers;
-const { EvenDateData } = TestData;
 
 const { data, EvenDataType } = EvenDateData;
 

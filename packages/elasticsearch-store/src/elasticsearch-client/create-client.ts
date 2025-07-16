@@ -18,7 +18,7 @@ const clientList = [
 
 export async function createClient(
     config: ClientConfig,
-    logger = debugLogger('search-client')
+    logger = debugLogger('elasticsearch-client')
 ): Promise<{ log: () => Logger; client: Client }> {
     const finalConfig = formatClientConfig(config);
 
@@ -127,7 +127,7 @@ async function getDBMetadata(
                     distribution,
                     majorVersion,
                     minorVersion
-                };
+                } as any;
             }
         } catch (err) {
             if (logger.level() === 10) {
@@ -150,44 +150,73 @@ export async function getBaseClient(
         distribution,
         majorVersion,
         minorVersion
-    } = clientMetadata;
+    } = clientMetadata as any;
 
     try {
         if (distribution === ElasticsearchDistribution.opensearch) {
-            const opensearch = {
-                1: opensearch1,
-                2: opensearch2,
-                3: opensearch3
-            }[majorVersion];
+            if (majorVersion === 1) {
+                const client = new opensearch1.Client(config as any);
 
-            if (opensearch) {
-                logger.debug(`Creating an opensearch v${majorVersion} client`);
-                return new opensearch.Client(config as any);
+                logger.debug('Creating an opensearch client v1');
+
+                return client;
+            }
+
+            if (majorVersion === 2) {
+                const client = new opensearch2.Client(config as any);
+
+                logger.debug('Creating an opensearch client v2');
+
+                return client;
+            }
+
+            if (majorVersion === 3) {
+                const client = new opensearch3.Client(config as any);
+
+                logger.debug('Creating an opensearch client v3');
+
+                return client;
             }
         }
 
         if (distribution === ElasticsearchDistribution.elasticsearch) {
-            if (majorVersion === 7 && minorVersion <= 13) {
-                // 7.13 and lower needs to use opensearch for now as it is backwards
-                // compatible, above 7.13's client will throw if not their proprietary client
-                const client = new opensearch1.Client(config as any);
-                logger.debug('Creating an opensearch 1 client for elasticsearch v7 for backwards compatibility');
+            if (majorVersion === 8) {
+                const client = new elasticsearch8.Client(config as any);
+
+                logger.debug('Creating an elasticsearch v8 client');
+
                 return client;
             }
 
-            const elasticsearch = {
-                6: elasticsearch6,
-                7: elasticsearch7,
-                8: elasticsearch8
-            }[majorVersion];
+            if (majorVersion === 7) {
+                // 7.13 and lower needs to use opensearch for now as its backwards
+                // compatible, anything past this version the newer client will
+                // throw if not their proprietary client
+                if (minorVersion <= 13) {
+                    const client = new opensearch1.Client(config as any);
 
-            if (elasticsearch) {
-                logger.debug(`Creating an elasticsearch v${majorVersion} client`);
-                return new elasticsearch.Client(config as any);
+                    logger.debug('Creating an opensearch client for elasticsearch v7 for backwards compatibility');
+
+                    return client;
+                }
+
+                const client = new elasticsearch7.Client(config as any);
+
+                logger.debug('Creating an elasticsearch v7 client');
+
+                return client;
+            }
+
+            if (majorVersion === 6) {
+                const client = new elasticsearch6.Client(config as any);
+
+                logger.debug('Creating an elasticsearch v6 client');
+
+                return client;
             }
         }
 
-        throw new Error('no valid search client available');
+        throw new Error('no valid client available');
     } catch (error) {
         throw new Error(`Could not create a client for config ${JSON.stringify(config, null, 4)}`);
     }
