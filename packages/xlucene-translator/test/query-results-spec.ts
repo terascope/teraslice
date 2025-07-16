@@ -3,7 +3,7 @@ import {
     xLuceneFieldType, xLuceneTypeConfig,
     type BulkParams, type ClientMetadata, type SearchResponse
 } from '@terascope/types';
-import { type Client, ElasticsearchTestHelpers, getClientMetadata } from 'elasticsearch-store';
+import { type Client, ElasticsearchTestHelpers, getClientMetadata } from '@terascope/opensearch-client';
 import { QueryAccess } from '../src/query-access/index.js';
 import allTestCases from './cases/queries/index.js';
 
