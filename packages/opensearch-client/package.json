@@ -2,7 +2,7 @@
     "name": "@terascope/opensearch-client",
     "displayName": "Opensearch Client",
     "version": "1.0.0",
-    "description": "A Node.js facade client for opensearch or elasticsearch.",
+    "description": "A Node.js facade client for opensearch & elasticsearch.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/opensearch-client#readme",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
@@ -20,35 +20,27 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "TEST_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
-        "test:debug": "TEST_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-store --",
-        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
-        "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
-        "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
-        "test:opensearch1": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
-        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
-        "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='3.1.0' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
-        "test:watch": "ts-scripts yarn workspace @terascope/scripts test --watch ../elasticsearch-store --"
+        "test": "TEST_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test ../opensearch-client --",
+        "test:debug": "TEST_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../opensearch-client --",
+        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' node ../scripts/bin/ts-scripts test ../opensearch-client --",
+        "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' node ../scripts/bin/ts-scripts test ../opensearch-client --",
+        "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' node ../scripts/bin/ts-scripts test ../opensearch-client --",
+        "test:opensearch1": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test ../opensearch-client --",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' node ../scripts/bin/ts-scripts test ../opensearch-client --",
+        "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='3.1.0' node ../scripts/bin/ts-scripts test ../opensearch-client --",
+        "test:watch": "ts-scripts yarn workspace @terascope/scripts test --watch ../opensearch-client --"
     },
     "dependencies": {
-        "@terascope/data-mate": "~1.10.0",
         "@terascope/data-types": "~1.10.0",
         "@terascope/types": "~1.4.3",
         "@terascope/utils": "~1.9.3",
-        "ajv": "~8.17.1",
-        "ajv-formats": "~3.0.1",
         "elasticsearch6": "npm:@elastic/elasticsearch@~6.8.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@~8.15.0",
         "opensearch1": "npm:@opensearch-project/opensearch@~1.2.0",
         "opensearch2": "npm:@opensearch-project/opensearch@~2.12.0",
         "opensearch3": "npm:@opensearch-project/opensearch@~3.5.1",
-        "setimmediate": "~1.0.5",
-        "uuid": "~11.1.0",
-        "xlucene-translator": "~1.9.3"
-    },
-    "devDependencies": {
-        "@types/uuid": "~10.0.0"
+        "setimmediate": "~1.0.5"
     },
     "engines": {
         "node": ">=22.0.0",

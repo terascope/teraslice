@@ -1,7 +1,8 @@
 import 'jest-extended';
 import { TSError, debugLogger } from '@terascope/utils';
 import { DataType } from '@terascope/data-types';
-import { IndexManager, IndexConfig, ElasticsearchTestHelpers } from '../src/index.js';
+import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
+import { IndexManager, IndexConfig } from '../src/index.js';
 
 const dataType = new DataType({}, 'hello');
 

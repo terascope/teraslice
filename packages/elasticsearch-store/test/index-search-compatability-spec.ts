@@ -1,13 +1,14 @@
 import 'jest-extended';
 import { FieldType, GeoShape, GeoShapeType } from '@terascope/types';
 import { QueryAccess } from 'xlucene-translator';
+import { Client, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import {
     IndexModel, IndexModelRecord, IndexModelConfig,
-    IndexModelOptions, makeRecordDataType, Client,
-    ElasticsearchTestHelpers
+    IndexModelOptions, makeRecordDataType
 } from '../src/index.js';
+import { cleanupIndexStore } from './helpers/utils.js';
 
-const { makeClient, cleanupIndexStore, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
+const { makeClient, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
 
 describe('IndexSearchCompatability', () => {
     interface SearchRecord extends IndexModelRecord {

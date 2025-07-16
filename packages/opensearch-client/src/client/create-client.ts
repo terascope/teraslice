@@ -16,9 +16,10 @@ const clientList = [
     opensearch1, opensearch2, opensearch3, elasticsearch7, elasticsearch6, elasticsearch8
 ];
 
+/** creates an opensearch or elasticsearch client depending on the configuration */
 export async function createClient(
     config: ClientConfig,
-    logger = debugLogger('elasticsearch-client')
+    logger = debugLogger('opensearch-client')
 ): Promise<{ log: () => Logger; client: Client }> {
     const finalConfig = formatClientConfig(config);
 
@@ -37,7 +38,7 @@ export async function createClient(
 }
 
 /**
- * Validates and formats the Elasticsearch client configuration.
+ * Validates and formats the client configuration.
  *
  * Ensures that:
  * - Both `username` and `password` are set if defined
@@ -150,69 +151,39 @@ export async function getBaseClient(
         distribution,
         majorVersion,
         minorVersion
-    } = clientMetadata as any;
+    } = clientMetadata;
 
     try {
         if (distribution === ElasticsearchDistribution.opensearch) {
-            if (majorVersion === 1) {
-                const client = new opensearch1.Client(config as any);
+            const model = {
+                1: opensearch1,
+                2: opensearch2,
+                3: opensearch3
+            }[majorVersion];
 
-                logger.debug('Creating an opensearch client v1');
-
-                return client;
-            }
-
-            if (majorVersion === 2) {
-                const client = new opensearch2.Client(config as any);
-
-                logger.debug('Creating an opensearch client v2');
-
-                return client;
-            }
-
-            if (majorVersion === 3) {
-                const client = new opensearch3.Client(config as any);
-
-                logger.debug('Creating an opensearch client v3');
-
-                return client;
+            if (model) {
+                logger.debug(`Creating an opensearch client v${majorVersion} client`);
+                return new model.Client(config as any);
             }
         }
 
         if (distribution === ElasticsearchDistribution.elasticsearch) {
-            if (majorVersion === 8) {
-                const client = new elasticsearch8.Client(config as any);
+            const model = {
+                6: elasticsearch6,
+                7: elasticsearch7,
+                8: elasticsearch8
+            }[majorVersion];
 
-                logger.debug('Creating an elasticsearch v8 client');
-
-                return client;
+            // 7.13 & lower needs to use opensearch for now as it is backwards compatible,
+            // past this version the newer client will throw if not their proprietary client
+            if (majorVersion === 7 && minorVersion <= 13) {
+                logger.debug('Creating an opensearch client for elasticsearch v7 for backwards compatibility');
+                return new opensearch1.Client(config as any);
             }
 
-            if (majorVersion === 7) {
-                // 7.13 and lower needs to use opensearch for now as its backwards
-                // compatible, anything past this version the newer client will
-                // throw if not their proprietary client
-                if (minorVersion <= 13) {
-                    const client = new opensearch1.Client(config as any);
-
-                    logger.debug('Creating an opensearch client for elasticsearch v7 for backwards compatibility');
-
-                    return client;
-                }
-
-                const client = new elasticsearch7.Client(config as any);
-
-                logger.debug('Creating an elasticsearch v7 client');
-
-                return client;
-            }
-
-            if (majorVersion === 6) {
-                const client = new elasticsearch6.Client(config as any);
-
-                logger.debug('Creating an elasticsearch v6 client');
-
-                return client;
+            if (model) {
+                logger.debug(`Creating an elasticsearch v${majorVersion} client`);
+                return new model.Client(config as any);
             }
         }
 

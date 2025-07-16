@@ -3336,6 +3336,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@terascope/opensearch-client@workspace:^, @terascope/opensearch-client@workspace:packages/opensearch-client":
+  version: 0.0.0-use.local
+  resolution: "@terascope/opensearch-client@workspace:packages/opensearch-client"
+  dependencies:
+    "@terascope/data-types": "npm:~1.10.0"
+    "@terascope/types": "npm:~1.4.3"
+    "@terascope/utils": "npm:~1.9.3"
+    elasticsearch6: "npm:@elastic/elasticsearch@~6.8.0"
+    elasticsearch7: "npm:@elastic/elasticsearch@~7.17.0"
+    elasticsearch8: "npm:@elastic/elasticsearch@~8.15.0"
+    opensearch1: "npm:@opensearch-project/opensearch@~1.2.0"
+    opensearch2: "npm:@opensearch-project/opensearch@~2.12.0"
+    opensearch3: "npm:@opensearch-project/opensearch@~3.5.1"
+    setimmediate: "npm:~1.0.5"
+  languageName: unknown
+  linkType: soft
+
 "@terascope/scripts@npm:~1.20.2, @terascope/scripts@workspace:packages/scripts":
   version: 0.0.0-use.local
   resolution: "@terascope/scripts@workspace:packages/scripts"
@@ -6942,17 +6959,12 @@ __metadata:
   dependencies:
     "@terascope/data-mate": "npm:~1.10.0"
     "@terascope/data-types": "npm:~1.10.0"
+    "@terascope/opensearch-client": "workspace:^"
     "@terascope/types": "npm:~1.4.3"
     "@terascope/utils": "npm:~1.9.3"
     "@types/uuid": "npm:~10.0.0"
     ajv: "npm:~8.17.1"
     ajv-formats: "npm:~3.0.1"
-    elasticsearch6: "npm:@elastic/elasticsearch@~6.8.0"
-    elasticsearch7: "npm:@elastic/elasticsearch@~7.17.0"
-    elasticsearch8: "npm:@elastic/elasticsearch@~8.15.0"
-    opensearch1: "npm:@opensearch-project/opensearch@~1.2.0"
-    opensearch2: "npm:@opensearch-project/opensearch@~2.12.0"
-    opensearch3: "npm:@opensearch-project/opensearch@~3.5.1"
     setimmediate: "npm:~1.0.5"
     uuid: "npm:~11.1.0"
     xlucene-translator: "npm:~1.9.3"

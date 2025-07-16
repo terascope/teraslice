@@ -33,16 +33,11 @@
     "dependencies": {
         "@terascope/data-mate": "~1.10.0",
         "@terascope/data-types": "~1.10.0",
+        "@terascope/opensearch-client": "workspace:^",
         "@terascope/types": "~1.4.3",
         "@terascope/utils": "~1.9.3",
         "ajv": "~8.17.1",
         "ajv-formats": "~3.0.1",
-        "elasticsearch6": "npm:@elastic/elasticsearch@~6.8.0",
-        "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
-        "elasticsearch8": "npm:@elastic/elasticsearch@~8.15.0",
-        "opensearch1": "npm:@opensearch-project/opensearch@~1.2.0",
-        "opensearch2": "npm:@opensearch-project/opensearch@~2.12.0",
-        "opensearch3": "npm:@opensearch-project/opensearch@~3.5.1",
         "setimmediate": "~1.0.5",
         "uuid": "~11.1.0",
         "xlucene-translator": "~1.9.3"

@@ -1,6 +1,6 @@
 import {
     TSError, debugLogger, pRetry,
-    Logger, Collector, isString,
+    type Logger, Collector, isString,
     isInteger, isFunction, DataEntity,
     getFirst, isPlainObject, isEmpty,
     get, uniq, getFirstKey, castArray
@@ -11,13 +11,12 @@ import {
 } from '@terascope/types';
 import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { toXluceneQuery, xLuceneQueryResult } from '@terascope/data-mate';
-import { Client } from './elasticsearch-client/index.js';
+import { type Client, isValidClient, isElasticsearch6 } from '@terascope/opensearch-client';
 import { IndexManager } from './index-manager.js';
 import * as i from './interfaces.js';
 import {
     validateId, validateIds, getRetryConfig, validateIndexConfig,
-    isValidClient, toInstanceName, makeDataValidator,
-    getTimeByField, isElasticsearch6, filterBulkRetries
+    toInstanceName, makeDataValidator, getTimeByField, filterBulkRetries
 } from './utils/index.js';
 
 const OPENSEARCH = ElasticsearchDistribution.opensearch;
@@ -446,14 +445,14 @@ export class IndexStore<T extends Record<string, any>> {
     ): Promise<void> {
         validateId(id, 'update');
 
-        const defaults = {
+        const defaults: Partial<ClientParams.UpdateParams> = {
             refresh: true,
-            retry_on_conflict: 3,
-        } as any;
+            retry_on_conflict: 3
+        };
 
-        const _body = body as any;
+        const _body = body;
 
-        if (_body.doc) {
+        if ('doc' in _body) {
             const doc = this._runWriteHooks(_body.doc, false);
             _body.doc = doc;
         }
@@ -480,7 +479,7 @@ export class IndexStore<T extends Record<string, any>> {
         validateId('updatePartial', id);
 
         try {
-            const existing = await this.get(id) as any;
+            const existing = await this.get(id);
             const params: Partial<ClientParams.IndexParams<T>> = {};
 
             if (DataEntity.isDataEntity(existing)) {
@@ -627,7 +626,8 @@ export class IndexStore<T extends Record<string, any>> {
             });
         }
 
-        const id = updates![this.config.id_field as any];
+        if (!this.config.id_field) return { ...updates };
+        const id = updates[this.config.id_field!];
         if (!id) return { ...updates };
 
         const current = await this.findById(id, options, queryAccess);

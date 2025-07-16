@@ -1,10 +1,8 @@
 import 'jest-extended';
 import { debugLogger, times } from '@terascope/utils';
+import { isElasticsearch6, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import * as simple from './helpers/simple-index.js';
-import {
-    IndexManager, IndexConfig, isElasticsearch6,
-    ElasticsearchTestHelpers
-} from '../src/index.js';
+import { IndexManager, IndexConfig } from '../src/index.js';
 
 const { makeClient, cleanupIndex, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
 
