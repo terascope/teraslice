@@ -7,7 +7,6 @@ export * from './big-set.js';
 export * from './booleans.js';
 export * from './buffers.js';
 export * from './collector.js';
-export * from './data-type-data-generator.js';
 export * from './dates.js';
 export * from './decorators.js';
 export * from './deps.js';
