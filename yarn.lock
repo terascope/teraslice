@@ -3448,7 +3448,6 @@ __metadata:
     "@turf/helpers": "npm:~7.2.0"
     "@turf/invariant": "npm:~7.2.0"
     "@turf/line-to-polygon": "npm:~7.2.0"
-    "@types/chance": "npm:^1"
     "@types/debug": "npm:~4.1.12"
     "@types/geojson": "npm:~7946.0.16"
     "@types/is-plain-object": "npm:~2.0.4"
@@ -3458,7 +3457,6 @@ __metadata:
     "@types/validator": "npm:~13.12.3"
     awesome-phonenumber: "npm:~7.5.0"
     benchmark: "npm:~2.1.4"
-    chance: "npm:^1.1.13"
     date-fns: "npm:~4.1.0"
     date-fns-tz: "npm:~3.2.0"
     datemath-parser: "npm:~1.0.6"
@@ -3837,13 +3835,6 @@ __metadata:
   version: 0.12.5
   resolution: "@types/caseless@npm:0.12.5"
   checksum: 10c0/b1f8b8a38ce747b643115d37a40ea824c658bd7050e4b69427a10e9d12d1606ed17a0f6018241c08291cd59f70aeb3c1f3754ad61e45f8dbba708ec72dde7ec8
-  languageName: node
-  linkType: hard
-
-"@types/chance@npm:^1":
-  version: 1.1.7
-  resolution: "@types/chance@npm:1.1.7"
-  checksum: 10c0/896288f0a0f87a738c873dfd8cb0893154225bfda11b1fac36842f4722bc4d73c3933bb986217a59873ad5bc97861ca8939dad370a09ecc32723a928534938bd
   languageName: node
   linkType: hard
 
@@ -5971,7 +5962,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chance@npm:^1.1.13, chance@npm:~1.1.13":
+"chance@npm:~1.1.13":
   version: 1.1.13
   resolution: "chance@npm:1.1.13"
   checksum: 10c0/0e1523b0ef75061df5771c052e8bf8d5fb7d92e56a58e98e170e4be5f2166cceac2f70dd209e49e0605ea2e376ba99fb5e391987e8610c7037cd2fce19c35e3e
