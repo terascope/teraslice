@@ -5,7 +5,7 @@ import {
 } from '@terascope/utils';
 import { showState } from '@terascope/scripts';
 import { JobConfig, Teraslice } from '@terascope/types';
-import { createClient, ElasticsearchTestHelpers, Client, ClientConfig } from 'elasticsearch-store';
+import { createClient, ElasticsearchTestHelpers, Client, ClientConfig } from '@terascope/opensearch-client';
 import { TerasliceClient } from 'teraslice-client-js';
 import fse from 'fs-extra';
 import {

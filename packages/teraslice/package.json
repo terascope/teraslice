@@ -67,6 +67,7 @@
         "uuid": "~11.1.0"
     },
     "devDependencies": {
+        "@terascope/opensearch-client": "~1.0.0",
         "@types/archiver": "~6.0.3",
         "@types/express": "~5.0.3",
         "@types/gc-stats": "~1.4.3",

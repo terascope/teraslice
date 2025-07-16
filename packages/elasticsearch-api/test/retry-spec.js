@@ -1,4 +1,4 @@
-import { ElasticsearchTestHelpers } from 'elasticsearch-store';
+import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import { debugLogger } from '@terascope/utils';
 import opensearch from '@opensearch-project/opensearch';
 import API from '../index.js';

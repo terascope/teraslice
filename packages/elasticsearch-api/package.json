@@ -32,9 +32,9 @@
     },
     "devDependencies": {
         "@opensearch-project/opensearch": "~1.2.0",
+        "@terascope/opensearch-client": "~1.0.0",
         "@types/elasticsearch": "~5.0.43",
         "elasticsearch": "~15.4.1",
-        "elasticsearch-store": "~1.12.0",
         "elasticsearch6": "npm:@elastic/elasticsearch@~6.8.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@~8.15.0"
