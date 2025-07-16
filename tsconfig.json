@@ -63,10 +63,10 @@
             "path": "packages/opensearch-client"
         },
         {
-            "path": "packages/elasticsearch-store"
+            "path": "packages/xlucene-translator"
         },
         {
-            "path": "packages/xlucene-translator"
+            "path": "packages/elasticsearch-store"
         },
         {
             "path": "packages/job-components"
