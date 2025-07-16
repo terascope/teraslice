@@ -162,7 +162,7 @@ export async function getBaseClient(
             }[majorVersion];
 
             if (model) {
-                logger.debug(`Creating an opensearch client v${majorVersion} client`);
+                logger.debug(`Creating an opensearch v${majorVersion} client`);
                 return new model.Client(config as any);
             }
         }
