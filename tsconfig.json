@@ -20,26 +20,14 @@
         "sourceMap": true,
         "isolatedModules": true,
         "disableReferencedProjectLoad": true,
-        "typeRoots": [
-            "./types",
-            "./node_modules/@types"
-        ],
+        "typeRoots": ["./types", "./node_modules/@types"],
         "paths": {
-            "*": [
-                "*",
-                "./types/*"
-            ],
-            "got": [
-                "./node_modules/got/dist/source/index.d.ts"
-            ]
+            "*": ["*", "./types/*"],
+            "got": ["./node_modules/got/dist/source/index.d.ts"]
         }
     },
     "include": [],
-    "exclude": [
-        "**/node_modules",
-        "**/.*/",
-        "**/build/**/*"
-    ],
+    "exclude": ["**/node_modules", "**/.*/", "**/build/**/*"],
     "references": [
         {
             "path": "packages/docker-compose-js"
@@ -60,13 +48,13 @@
             "path": "packages/data-mate"
         },
         {
-            "path": "packages/xlucene-translator"
-        },
-        {
             "path": "packages/opensearch-client"
         },
         {
             "path": "packages/elasticsearch-store"
+        },
+        {
+            "path": "packages/xlucene-translator"
         },
         {
             "path": "packages/job-components"
