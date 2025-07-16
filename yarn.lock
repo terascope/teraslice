@@ -15235,6 +15235,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "xlucene-translator@workspace:packages/xlucene-translator"
   dependencies:
+    "@terascope/opensearch-client": "npm:~1.0.0"
     "@terascope/types": "npm:~1.4.3"
     "@terascope/utils": "npm:~1.9.3"
     "@types/elasticsearch": "npm:~5.0.43"

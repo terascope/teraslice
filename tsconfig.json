@@ -60,10 +60,10 @@
             "path": "packages/data-mate"
         },
         {
-            "path": "packages/xlucene-translator"
+            "path": "packages/opensearch-client"
         },
         {
-            "path": "packages/opensearch-client"
+            "path": "packages/xlucene-translator"
         },
         {
             "path": "packages/elasticsearch-store"
