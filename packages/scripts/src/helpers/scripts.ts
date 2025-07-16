@@ -756,7 +756,11 @@ export async function k8sStartService(
         const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
         fs.writeFileSync(path.join(tempDir, `${serviceName}Deployment.yaml`), updatedYaml);
         const subprocess = await execaCommand(`kubectl create -n services-dev1 -f ${path.join(tempDir, `${serviceName}Deployment.yaml`)}`);
-        logger.debug(subprocess.stdout);
+        const { stdout, stderr } = subprocess;
+        if (stderr) {
+            throw new Error(stderr);
+        }
+        logger.debug(stdout);
         fs.rmSync(tempDir, { recursive: true, force: true });
     } catch (err) {
         logger.error(`The service ${serviceName} could not be started: `, err);
@@ -811,17 +815,32 @@ function waitForKafkaRunning(name: string, timeoutMs = 12000): Promise<void> {
 }
 
 export async function setAlias(tsPort: string) {
-    let subprocess = await execaCommand('earl aliases remove k8s-e2e 2> /dev/null || true', { shell: true });
-    logger.debug(subprocess.stdout);
-    subprocess = await execaCommand(`earl aliases add k8s-e2e http://${config.HOST_IP}:${tsPort}`);
-    logger.debug(subprocess.stdout);
+    try {
+        const subprocess1 = await execaCommand('earl aliases remove k8s-e2e 2> /dev/null || true', { shell: true });
+        logger.debug(subprocess1.stdout);
+        if (subprocess1.stderr) {
+            throw new Error(subprocess1.stderr);
+        }
+
+        const subprocess2 = await execaCommand(`earl aliases add k8s-e2e http://${config.HOST_IP}:${tsPort}`);
+        logger.debug(subprocess2.stdout);
+        if (subprocess2.stderr) {
+            throw new Error(subprocess2.stderr);
+        }
+    } catch (err) {
+        throw new Error(`Failed to set alias: ${err}`);
+    }
 }
 
 export async function showState(tsPort: string) {
-    const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
-    logger.debug(subprocess.stdout);
-    logger.debug(await showESIndices());
-    logger.debug(await showAssets(tsPort));
+    try {
+        const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
+        logger.debug(subprocess.stdout);
+        logger.debug(await showESIndices());
+        logger.debug(await showAssets(tsPort));
+    } catch (err) {
+        signale.error(`Failed to get k8s resources: ${err}`);
+    }
 }
 
 async function showESIndices() {
@@ -838,23 +857,18 @@ async function showAssets(tsPort: string) {
     }
 }
 
-export async function logTCPPorts() {
+export async function logTCPPorts(service: string) {
     try {
-        let command: string;
-        let args: string[];
+        const command = 'netstat -an | grep \'^tcp\' | awk \'{print $4}\' | tr ".:" " " | awk \'{print $NF}\' | sort -n | uniq | tr "\n" " "';
+        const subprocess = await execaCommand(command, { shell: true, reject: false });
+        const { stdout, stderr } = subprocess;
 
-        if (process.platform === 'darwin') {
-            command = 'netstat';
-            args = ['-an', '-f', 'inet', '-p', 'tcp'];
-        } else {
-            command = 'ss';
-            args = ['-tan4'];
+        if (stderr) {
+            throw new Error(stderr);
         }
-
-        const { stdout } = await execa(command, args, { shell: true, reject: false });
-        signale.info('TCP Ports:\n', stdout);
+        signale.info(`TCP Ports currently in use when starting ${service}:\n ${stdout}`);
     } catch (err) {
-        signale.error('Execa command failed trying to log ports: ', err);
+        signale.error(`Execa command failed trying to log ports: ${err}`);
     }
 }
 
@@ -862,6 +876,7 @@ export async function deletePersistentVolumeClaim(searchHost: string) {
     try {
         const label = searchHost.includes('opensearch') ? `app.kubernetes.io/instance=${searchHost}` : `app=${searchHost}-master`;
         const subprocess = await execaCommand(`kubectl delete -n services-dev1 pvc -l ${label}`);
+
         logger.debug(`kubectl delete pvc: ${subprocess.stdout}`);
     } catch (err) {
         throw new TSError(`Failed to delete persistent volume claim:\n${err}`);
@@ -877,7 +892,7 @@ export async function helmfileDestroy(selector: string) {
 
     try {
         const subprocess = await execaCommand(`helmfile destroy -f ${helmfilePath} --selector app=${selector}`);
-        logger.debug(`helmfile delete:\n${subprocess.stdout}`);
+        logger.debug(`helmfile destroy:\n${subprocess.stdout}`);
     } catch (err) {
         logger.info(err);
     }
@@ -912,13 +927,16 @@ export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetes' |
 }
 
 export async function determineSearchHost() {
-    const possible = ['elasticsearch6', 'elasticsearch7', 'opensearch1', 'opensearch2'];
+    const possible = ['elasticsearch6', 'elasticsearch7', 'opensearch1', 'opensearch2', 'opensearch3'];
     const subprocess = await execaCommand('helm list -n services-dev1 -o json');
     logger.debug(`helmfile list:\n${subprocess.stdout}`);
     const serviceList: Array<ServiceObj> = JSON.parse(subprocess.stdout);
     const filtered = serviceList.filter((svc: ServiceObj) => possible.includes(svc.name));
     if (filtered.length > 1) {
         throw new TSError('Multiple Possible Search Hosts Detected. Cannot reset store.');
+    }
+    if (filtered.length === 0) {
+        throw new TSError('No Search Host Detected. Cannot reset store.');
     }
     return filtered[0].name;
 }
@@ -1043,19 +1061,23 @@ function generateHelmValuesFromServices(
         const version = versionMap[service];
 
         if (service === Service.Opensearch) {
-            serviceString += config.OPENSEARCH_VERSION.charAt(0);
+            const major = config.OPENSEARCH_VERSION.charAt(0);
+            serviceString += major;
             // This assumes there is only one search service enabled. If both ES and OS services
             // are present the state cluster will be set to elasticsearch below.
             stateCluster = serviceString;
 
             if (config.ENCRYPT_OPENSEARCH) {
+                if (major === '1') {
+                    throw new TSError('Encrypted Opensearch version 1 is not enabled. Please use OS2 or OS3.');
+                }
                 if (!caCert) {
                     caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
                 }
                 const admin_dn = getAdminDnFromCert();
-                values.setIn(['opensearch2', 'ssl', 'enabled'], true);
-                values.setIn(['opensearch2', 'ssl', 'caCert'], caCert);
-                values.setIn(['opensearch2', 'ssl', 'admin_dn'], admin_dn);
+                values.setIn([serviceString, 'ssl', 'enabled'], true);
+                values.setIn([serviceString, 'ssl', 'caCert'], caCert);
+                values.setIn([serviceString, 'ssl', 'admin_dn'], admin_dn);
             }
         } else if (service === Service.Elasticsearch) {
             serviceString += config.ELASTICSEARCH_VERSION.charAt(0);
@@ -1342,6 +1364,7 @@ export async function generateTestCaCerts(): Promise<void> {
         encryptedServices.push('opensearch');
         hostNames.push(
             'opensearch2.services-dev1',
+            'opensearch3.services-dev1',
             'opensearch',
             config.OPENSEARCH_HOSTNAME
         );

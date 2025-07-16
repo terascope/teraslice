@@ -40,6 +40,7 @@
         "test:k8sV2HelmfileEncrypted": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' TEST_MINIO='true' ENCRYPT_MINIO='true' ASSET_STORAGE_CONNECTION_TYPE='s3' ASSET_STORAGE_CONNECTION='default' ENCRYPT_OPENSEARCH='true' OPENSEARCH_PASSWORD='passwordsufhbivbU123%$' TEST_KAFKA='true' KAFKA_DOCKER_IMAGE='apache/kafka' ENCRYPT_KAFKA='true' TEST_PLATFORM='kubernetesV2' USE_HELMFILE='true' ts-scripts test --suite e2e --",
         "test:opensearch1": "TEST_OPENSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' TEST_KAFKA='true' ts-scripts test --suite e2e --",
+        "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='3.1.0' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:s3AssetStorage": "TEST_OPENSEARCH='true' TEST_KAFKA='true' TEST_MINIO='true' ASSET_STORAGE_CONNECTION_TYPE='s3' ASSET_STORAGE_CONNECTION='default' ts-scripts test --suite e2e --",
         "test:watch": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --watch --"
     },
@@ -47,13 +48,13 @@
         "ms": "~2.1.3"
     },
     "devDependencies": {
-        "@terascope/scripts": "~1.19.3",
+        "@terascope/opensearch-client": "~1.0.0",
+        "@terascope/scripts": "~1.20.2",
         "@terascope/types": "~1.4.3",
-        "@terascope/utils": "~1.9.2",
+        "@terascope/utils": "~1.9.3",
         "bunyan": "~1.8.15",
-        "elasticsearch-store": "~1.11.2",
         "fs-extra": "~11.3.0",
-        "jest": "~30.0.3",
+        "jest": "~30.0.4",
         "jest-extended": "~6.0.0",
         "jest-watch-typeahead": "~3.0.1",
         "ms": "~2.1.3",

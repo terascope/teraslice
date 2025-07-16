@@ -967,6 +967,11 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         return distribution === ElasticsearchDistribution.opensearch && majorVersion === 2;
     }
 
+    function isOpensearch3() {
+        const { distribution, majorVersion } = getClientMetadata();
+        return distribution === ElasticsearchDistribution.opensearch && majorVersion === 3;
+    }
+
     function _fixMappingRequest(_params, isTemplate) {
         if (!_params || !_params.body) {
             throw new Error('Invalid mapping request');
@@ -996,7 +1001,7 @@ export default function elasticsearchApi(client, logger, _opConfig) {
             }
         }
 
-        if (isElasticsearch8(client) || isOpensearch2(client)) {
+        if (isElasticsearch8(client) || isOpensearch2(client) || isOpensearch3(client)) {
             delete defaultParams.includeTypeName;
         }
 

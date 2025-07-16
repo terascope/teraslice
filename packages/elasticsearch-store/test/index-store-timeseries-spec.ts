@@ -5,20 +5,18 @@ import {
 } from '@terascope/utils';
 import { fileURLToPath } from 'node:url';
 import { Translator } from 'xlucene-translator';
+import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import {
     SimpleRecord, SimpleRecordInput, dataType
 } from './helpers/simple-index.js';
 import {
-    IndexStore, IndexConfig, __timeSeriesTest,
-    ElasticsearchTestHelpers
+    IndexStore, IndexConfig, __timeSeriesTest
 } from '../src/index.js';
+import { cleanupIndexStore } from './helpers/utils.js';
 
 const filename = fileURLToPath(import.meta.url);
 
-const {
-    makeClient, cleanupIndexStore, TEST_INDEX_PREFIX,
-    removeTypeTest
-} = ElasticsearchTestHelpers;
+const { makeClient, TEST_INDEX_PREFIX, removeTypeTest } = ElasticsearchTestHelpers;
 
 function expectedStoreType(store: IndexStore<any>): undefined | string {
     if (removeTypeTest) {

@@ -8,5 +8,3 @@ export * from './index-manager.js';
 export * from './index-model.js';
 export * from './index-store.js';
 export * from './interfaces.js';
-export * from './elasticsearch-client/index.js';
-export * as ElasticsearchTestHelpers from './test-helpers/index.js';

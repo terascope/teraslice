@@ -23,6 +23,8 @@ export const __DEFAULT_ELASTICSEARCH7_VERSION = '7.9.3';
 export const __DEFAULT_OPENSEARCH1_VERSION = '1.3.11';
 /** Default opensearch2 version used to populate the CI cache */
 export const __DEFAULT_OPENSEARCH2_VERSION = '2.15.0';
+/** Default opensearch3 version used to populate the CI cache */
+export const __DEFAULT_OPENSEARCH3_VERSION = '3.1.0';
 
 export const TERASLICE_PORT = process.env.TERASLICE_PORT || '45678';
 export const HOST_IP = process.env.HOST_IP || address();

@@ -50,6 +50,10 @@ export class Kind {
         const configFile = yaml.load(fs.readFileSync(configPath, 'utf8')) as KindCluster;
 
         // Map external ports from kind to the host machine based off of config variables
+        configFile.nodes[0].extraPortMappings.push({
+            containerPort: 30678,
+            hostPort: Number.parseInt(TERASLICE_PORT)
+        });
         for (const service of ENV_SERVICES) {
             if (service === 'elasticsearch') {
                 configFile.nodes[0].extraPortMappings.push({

@@ -5,7 +5,7 @@ import {
 } from '@terascope/utils';
 import { showState } from '@terascope/scripts';
 import { JobConfig, Teraslice } from '@terascope/types';
-import { createClient, ElasticsearchTestHelpers, Client, ClientConfig } from 'elasticsearch-store';
+import { createClient, ElasticsearchTestHelpers, Client, ClientConfig } from '@terascope/opensearch-client';
 import { TerasliceClient } from 'teraslice-client-js';
 import fse from 'fs-extra';
 import {
@@ -548,9 +548,9 @@ export class TerasliceHarness {
         const nodes = await this.waitForClusterState();
 
         if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
-            signale.success('Teraslice is ready to go', getElapsed(startTime));
+            signale.success(`Teraslice is ready to go at port ${TERASLICE_PORT}`, getElapsed(startTime));
         } else {
-            signale.success(`Teraslice is ready to go with ${nodes} nodes`, getElapsed(startTime));
+            signale.success(`Teraslice is ready to go at port ${TERASLICE_PORT} with ${nodes} nodes`, getElapsed(startTime));
         }
     }
 

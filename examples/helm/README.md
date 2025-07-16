@@ -51,7 +51,7 @@ curl localhost:5678
 Also confirm that opensearch2 has all the teraslice state indices by running:
 
 ```bash
-curl localhost:9200/_cat/indices
+curl localhost:9202/_cat/indices
 ```
 
 Ensure minio is running correctly logging into the the [Minio UI](http://localhost:9001) with the following username and password:
@@ -99,20 +99,20 @@ Create a single node Kubernetes cluster by running the following command:
 kind create cluster --config kindConfig.yaml
 ```
 
-### Step 2: Building the Teraslice Docker Image
+### Step 2: Building the Teraslice and Utility Docker Images
 
-Build the teraslice docker image using the following command:
+Build the teraslice and utility pod docker images using the following command:
 
 ```bash
-docker build -t terascope/teraslice:dev ../../.
+docker build -t teraslice-utility:0.0.1 ../../e2e/helm/utility/.
 ```
 
-### Step 3: Loading the Teraslice Docker Image into the Kind Cluster
+### Step 3: Loading the Teraslice and Utility Docker Images into the Kind Cluster
 
 Load the Teraslice Docker image, built above, into the Kind cluster's control plane:
 
 ```bash
-kind load docker-image --name k8s-env terascope/teraslice:dev
+kind load docker-image --name k8s-env terascope/teraslice:dev teraslice-utility:0.0.1
 ```
 
 ### Step 4: Verifying the Image Load
@@ -184,7 +184,7 @@ curl -XPOST 'localhost:5678/v1/jobs' -H "Content-Type: application/json" -d '{
 Once the job completes, query Opensearch to verify that the documents have been written successfully. Use the following command to view the index information:
 
 ```bash
-curl 'localhost:9200/_cat/indices?v&h=index,status,docs.count,docs.deleted,store.size,pri.store.size'
+curl 'localhost:9202/_cat/indices?v&h=index,status,docs.count,docs.deleted,store.size,pri.store.size'
 ```
 
 Results:
