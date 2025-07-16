@@ -10,6 +10,7 @@ export function getRetryConfig(): Partial<PRetryConfig> {
         matches: [
             'node_disconnect_exception',
             'es_rejected_execution_exception',
+            'rejected_execution_exception', // opensearch
             'No Living connections'
         ],
     };

@@ -5,7 +5,6 @@ import {
     castArray, Logger, getTypeOf,
     isInteger, get, has
 } from '@terascope/utils';
-import type { Client } from '../elasticsearch-client/index.js';
 import { IndexConfig, IndexSchema, DataSchema } from '../interfaces.js';
 import { throwValidationError, getErrorMessages } from './errors.js';
 
@@ -114,15 +113,6 @@ export function validateIndexConfig(config: Record<string, any>): config is Inde
     }
 
     return true;
-}
-
-export function isValidClient(input: unknown): input is Client {
-    if (input == null) return false;
-    if (typeof input !== 'object') return false;
-
-    const reqKeys = ['indices', 'index', 'get', 'search'];
-
-    return reqKeys.every((key) => (input as any)[key] != null);
 }
 
 export function isTemplatedIndex(config?: IndexSchema): boolean {

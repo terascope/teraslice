@@ -201,6 +201,14 @@
                     "packages/xpressions/overview",
                     "packages/xpressions/api/overview"
                 ]
+            },
+            {
+                "type": "category",
+                "label": "opensearch-client",
+                "items": [
+                    "packages/opensearch-client/overview",
+                    "packages/opensearch-client/api/overview"
+                ]
             }
         ],
         "Internal": [

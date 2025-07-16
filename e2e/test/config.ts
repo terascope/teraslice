@@ -1,4 +1,4 @@
-import { ElasticsearchTestHelpers } from 'elasticsearch-store';
+import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import { customAlphabet } from 'nanoid';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';

@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { debugLogger, chunk, pMap } from '@terascope/utils';
-import { ElasticsearchTestHelpers } from 'elasticsearch-store';
+import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import elasticsearchAPI from '../index.js';
 
 const {
