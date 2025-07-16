@@ -85,14 +85,6 @@
             },
             {
                 "type": "category",
-                "label": "search-clients",
-                "items": [
-                    "packages/search-clients/overview",
-                    "packages/search-clients/api/overview"
-                ]
-            },
-            {
-                "type": "category",
                 "label": "job-components",
                 "items": [
                     "packages/job-components/overview",
@@ -233,14 +225,6 @@
                 "items": [
                     "packages/teraslice-messaging/overview",
                     "packages/teraslice-messaging/api/overview"
-                ]
-            },
-            {
-                "type": "category",
-                "label": "test-utils",
-                "items": [
-                    "packages/test-utils/overview",
-                    "packages/test-utils/api/overview"
                 ]
             }
         ]
