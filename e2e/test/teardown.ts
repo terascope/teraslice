@@ -1,6 +1,5 @@
-import { Client } from 'elasticsearch-store';
+import { ElasticsearchTestHelpers, Client } from 'elasticsearch-store';
 import { helmfileDestroy, K8s } from '@terascope/scripts';
-import { ElasticsearchTestHelpers } from '@terascope/utils';
 import fse from 'fs-extra';
 import {
     KEEP_OPEN, CONFIG_PATH, ASSETS_PATH, TEST_INDEX_PREFIX,
