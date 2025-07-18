@@ -92,6 +92,9 @@ export interface TypeESMapping {
     tokenizer?: {
         [key: string]: any;
     };
+    settings?: {
+        [key: string]: any;
+    };
 }
 
 export interface ESMappingOptions extends ClientMetadata {

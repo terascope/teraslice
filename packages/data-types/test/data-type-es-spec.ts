@@ -101,6 +101,52 @@ describe('DataType (elasticsearch)', () => {
             expect(dataType.toESMapping(mappingConfig)).toEqual(results);
         });
 
+        it('can create a elasticsearch 7 mapping vector mapping', () => {
+            const typeConfig: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    foo: { type: FieldType.String },
+                    bar: { type: FieldType.String },
+                    myVector: {
+                        type: FieldType.Vector,
+                        array: true,
+                        dimension: 2,
+                        space_type: 'l2'
+                    }
+                },
+            };
+
+            const results = {
+                settings: {
+                    'index.knn': true
+                },
+                mappings: {
+                    dynamic: false,
+                    properties: {
+                        foo: { type: 'keyword' },
+                        bar: { type: 'keyword' },
+                        myVector: {
+                            type: 'knn_vector',
+                            dimension: 2,
+                            space_type: 'l2'
+                        }
+                    },
+                    _meta: { foo: 'foo' },
+                }
+            };
+
+            const dataType = new DataType(typeConfig);
+            const mappingConfig: ESMappingOptions = {
+                distribution: ElasticsearchDistribution.elasticsearch,
+                minorVersion: 3,
+                majorVersion: 7,
+                version: '7.3.1',
+                _meta: { foo: 'foo' },
+            };
+
+            expect(dataType.toESMapping(mappingConfig)).toEqual(results);
+        });
+
         it('can create an elasticsearch mapping with nested objects', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
