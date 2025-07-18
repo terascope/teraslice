@@ -181,7 +181,8 @@ export type ESFieldType
         | 'geo_point'
         | 'geo_shape'
         | 'object'
-        | 'nested';
+        | 'nested'
+        | 'knn_vector';
 
 export type ESTypeMapping
     = | PropertyESTypeMapping

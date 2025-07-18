@@ -37,7 +37,11 @@ export enum FieldType {
     /**
      * An ordered-set of values.
     */
-    Tuple = 'Tuple'
+    Tuple = 'Tuple',
+    /*
+        This is a vector from an ML model
+    */
+    Vector = 'Vector'
 }
 
 /**
@@ -210,4 +214,5 @@ export const indexedRequiredFieldTypes = {
     [FieldType.KeywordTokensCaseInsensitive]: true,
     [FieldType.KeywordTokens]: true,
     [FieldType.NgramTokens]: true,
+    [FieldType.Vector]: true
 };
