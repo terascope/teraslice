@@ -8233,12 +8233,11 @@ __metadata:
   linkType: hard
 
 "estree-util-value-to-estree@npm:^3.0.1":
-  version: 3.1.1
-  resolution: "estree-util-value-to-estree@npm:3.1.1"
+  version: 3.4.0
+  resolution: "estree-util-value-to-estree@npm:3.4.0"
   dependencies:
     "@types/estree": "npm:^1.0.0"
-    is-plain-obj: "npm:^4.0.0"
-  checksum: 10c0/0639bee10967344bb012fa43c68fe04437c23869b67b78ce9ec6ee8be02c8d22adb8ebf72964a63bfa8823465e0728552868a42d9f6e7deb69bd1e6804936f07
+  checksum: 10c0/e90e0c784b29182a3feb471589ab3c031be3ff1ab068b2b473e9ee96467f99442f2c571b2708ee3493906af5bf1a0aa9712d9f90fb113a30d99669100235ba4f
   languageName: node
   linkType: hard
 
