@@ -60,6 +60,9 @@
             "path": "packages/data-mate"
         },
         {
+            "path": "packages/opensearch-client"
+        },
+        {
             "path": "packages/xlucene-translator"
         },
         {

@@ -1,14 +1,17 @@
 import {
-    TSError, Logger, toNumber, get,
+    TSError, type Logger, toNumber, get,
     isTest, parseError, isEmpty, cloneDeep,
     pRetry, debugLogger
 } from '@terascope/utils';
-import {
+import type {
     ClientParams, ClientResponse, ClientMetadata, ESMapping
 } from '@terascope/types';
+import {
+    type Client, getClientMetadata, isElasticsearch6, isValidClient,
+    fixMappingRequest, getFlattenedNamesAndTypes
+} from '@terascope/opensearch-client';
 import * as utils from './utils/index.js';
-import { IndexConfig, MigrateIndexOptions } from './interfaces.js';
-import { Client } from './elasticsearch-client/index.js';
+import type { IndexConfig, MigrateIndexOptions } from './interfaces.js';
 
 const _loggers = new WeakMap<IndexConfig<any>, Logger>();
 
@@ -22,14 +25,14 @@ export class IndexManager {
     enableIndexMutations: boolean;
 
     constructor(client: Client, enableIndexMutations = isTest) {
-        if (!utils.isValidClient(client)) {
+        if (!isValidClient(client)) {
             throw new TSError('IndexManager requires elasticsearch client', {
                 fatalError: true,
             });
         }
 
         this.enableIndexMutations = enableIndexMutations;
-        const { version, distribution } = utils.getClientMetadata(client);
+        const { version, distribution } = getClientMetadata(client);
 
         const [majorVersion = 6, minorVersion = 8] = version.split('.').map(toNumber);
         this.clientMetadata = {
@@ -162,7 +165,7 @@ export class IndexManager {
 
         try {
             await this.client.indices.create(
-                utils.fixMappingRequest(
+                fixMappingRequest(
                     this.client,
                     {
                         index: indexName,
@@ -317,7 +320,7 @@ export class IndexManager {
     ): Promise<void> {
         const result = await this.getMapping(index);
 
-        const propertiesPath = !utils.isElasticsearch6(this.client)
+        const propertiesPath = !isElasticsearch6(this.client)
             ? [
                 'mappings', 'properties'
             ]
@@ -329,8 +332,8 @@ export class IndexManager {
         let breakingChange = false;
         let safeChange = false;
 
-        const cFlattened = utils.getFlattenedNamesAndTypes(current);
-        const eFlattened = utils.getFlattenedNamesAndTypes(existing);
+        const cFlattened = getFlattenedNamesAndTypes(current);
+        const eFlattened = getFlattenedNamesAndTypes(existing);
 
         logger.trace({
             current: cFlattened,
@@ -407,7 +410,7 @@ export class IndexManager {
             }
         }
 
-        const params = utils.fixMappingRequest(
+        const params = fixMappingRequest(
             this.client,
             {
                 body: template,

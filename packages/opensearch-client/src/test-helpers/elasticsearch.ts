@@ -6,9 +6,8 @@ import {
 import { readFileSync } from 'node:fs';
 import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
-import { createClient, Client, Semver, ClientConfig } from '../elasticsearch-client/index.js';
+import { createClient, Client, Semver, ClientConfig } from '../client/index.js';
 import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
-import type { IndexStore } from '../index-store.js';
 import {
     ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
     OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST, OPENSEARCH_SSL_HOST,
@@ -84,11 +83,11 @@ export async function cleanupIndex(
     }
 }
 
-/*
- This is a quick and easy way to upload data, however, types are auto generated
- by elasticsearch itself. If you need to control types for detailed searching
- mechanisms use populateIndex
-*/
+/**
+ * This is a quick & easy way to upload data, however, types are auto generated
+ * by elasticsearch itself. If you need to control types for detailed searching
+ * mechanisms use populateIndex. ( uses the bulk method under the hood )
+ */
 export async function upload(
     client: any, queryBody: any, data: any[]
 ): Promise<Record<string, any>> {
@@ -157,6 +156,18 @@ export async function populateIndex(
     }
 }
 
+/**
+ * Formats data for use with the upload function.
+ *
+ * Set apiCompatibility to true for usage within
+ * elasticsearch-api & elasticsearch-assets
+ *
+ * [( { action: { index: meta }, data } )],
+ *
+ * and false for raw elasticsearch bulk queries
+ *
+ * [{ index: meta }, record )]
+ */
 export function formatUploadData(
     index: string, data: any[], apiCompatibility = false
 ): Record<string, any>[] {
@@ -184,12 +195,7 @@ export function formatUploadData(
     return results;
 }
 
-export function cleanupIndexStore(
-    store: IndexStore<any>
-): Promise<void> {
-    return cleanupIndex(store.client, store.searchIndex);
-}
-
+/** wait for an index to have a count of records in it */
 export async function waitForData(
     client: any, index: string, count: number, timeout = 5000
 ): Promise<void> {
@@ -198,7 +204,7 @@ export async function waitForData(
     return new Promise((resolve, reject) => {
         async function checkIndex() {
             if (failTestTime <= Date.now()) {
-                reject(new Error('Could not find count in alloated time'));
+                reject(new Error('Could not find count within allocated time'));
             }
 
             await pDelay(100);

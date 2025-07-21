@@ -5,18 +5,16 @@ import {
 } from '@terascope/utils';
 import { Translator } from 'xlucene-translator';
 import { ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import {
     SimpleRecord, SimpleRecordInput, dataType, schema
 } from './helpers/simple-index.js';
 import {
-    IndexStore, IndexConfig, OnBulkConflictFn,
-    UpsertWithScript, ElasticsearchTestHelpers
+    IndexStore, IndexConfig, OnBulkConflictFn, UpsertWithScript
 } from '../src/index.js';
+import { cleanupIndexStore } from './helpers/utils.js';
 
-const {
-    makeClient, cleanupIndexStore, TEST_INDEX_PREFIX,
-    removeTypeTest
-} = ElasticsearchTestHelpers;
+const { makeClient, TEST_INDEX_PREFIX, removeTypeTest } = ElasticsearchTestHelpers;
 
 function expectedStoreType(store: IndexStore<any>): undefined | string {
     if (removeTypeTest) {

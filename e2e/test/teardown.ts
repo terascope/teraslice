@@ -1,4 +1,4 @@
-import { ElasticsearchTestHelpers, Client } from 'elasticsearch-store';
+import { ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import { helmfileDestroy, K8s } from '@terascope/scripts';
 import fse from 'fs-extra';
 import {

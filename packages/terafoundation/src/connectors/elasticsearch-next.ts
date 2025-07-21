@@ -1,10 +1,10 @@
 import { Logger } from '@terascope/utils';
 import type { Terafoundation } from '@terascope/types';
-import { createClient as esCreateClient } from 'elasticsearch-store';
+import { createClient as createSearchClient } from '@terascope/opensearch-client';
 
 const connector: Terafoundation.Connector = {
     async createClient(customConfig: Record<string, any>, logger: Logger) {
-        const { client, log } = await esCreateClient(customConfig, logger);
+        const { client, log } = await createSearchClient(customConfig, logger);
         return { client, logger: log() };
     },
     config_schema(): Record<string, any> {
