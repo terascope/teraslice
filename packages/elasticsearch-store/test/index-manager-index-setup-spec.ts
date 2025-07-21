@@ -1,11 +1,12 @@
 import 'jest-extended';
 import { debugLogger, get, isKey } from '@terascope/utils';
 import { MappingTypeMapping } from '@terascope/types';
+import { getClientVersion, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import * as simple from './helpers/simple-index.js';
 import * as template from './helpers/template-index.js';
 import {
-    IndexManager, timeSeriesIndex, IndexConfig, getESVersion,
-    __timeSeriesTest, ElasticsearchTestHelpers
+    IndexManager, timeSeriesIndex, IndexConfig,
+    __timeSeriesTest
 } from '../src/index.js';
 
 const {
@@ -38,12 +39,12 @@ describe('IndexManager->indexSetup()', () => {
         const index = `${config.name}-v1-s1`;
         let indexManager: IndexManager;
         let client: any;
-        let esVersion: number;
+        let version: number;
         let result = false;
 
         beforeAll(async () => {
             client = await makeClient();
-            esVersion = getESVersion(client);
+            version = getClientVersion(client);
             indexManager = new IndexManager(client);
 
             await cleanupIndex(client, index);
@@ -69,7 +70,7 @@ describe('IndexManager->indexSetup()', () => {
             const mapping = await indexManager.getMapping(index);
 
             expect(mapping).toHaveProperty(index);
-            if (esVersion === 6) {
+            if (version === 6) {
                 expect(mapping[index].mappings).toHaveProperty(config.name);
                 expect(
                     isKey(mapping[index].mappings, config.name)
@@ -104,7 +105,7 @@ describe('IndexManager->indexSetup()', () => {
 
                 let properties = undefined;
                 const { mappings } = mapping[index];
-                if (esVersion === 6) {
+                if (version === 6) {
                     if (isKey(mappings, config.name)) {
                         const mappingsObj = mappings[config.name] as MappingTypeMapping;
                         if (isKey(mappingsObj, 'properties')) {
@@ -127,7 +128,7 @@ describe('IndexManager->indexSetup()', () => {
                         }
                     },
                 });
-                if (esVersion === 6) {
+                if (version === 6) {
                     expect(
                         isKey(mapping[index].mappings, config.name)
                         && mapping[index].mappings[config.name]
@@ -164,7 +165,7 @@ describe('IndexManager->indexSetup()', () => {
 
                     let properties = undefined;
                     const { mappings } = mapping[index];
-                    if (esVersion === 6) {
+                    if (version === 6) {
                         if (isKey(mappings, config.name)) {
                             const mappingsObj = mappings[config.name] as MappingTypeMapping;
                             if (isKey(mappingsObj, 'properties')) {
@@ -187,7 +188,7 @@ describe('IndexManager->indexSetup()', () => {
                             }
                         },
                     });
-                    if (esVersion === 6) {
+                    if (version === 6) {
                         expect(
                             isKey(mapping[index].mappings, config.name)
                             && mapping[index].mappings[config.name]
@@ -223,7 +224,7 @@ describe('IndexManager->indexSetup()', () => {
 
         let indexManager: IndexManager;
         let client: any;
-        let esVersion: number;
+        let version: number;
         let result = false;
 
         async function cleanup() {
@@ -233,7 +234,7 @@ describe('IndexManager->indexSetup()', () => {
         beforeAll(async () => {
             client = await makeClient();
             await cleanup();
-            esVersion = getESVersion(client);
+            version = getClientVersion(client);
             indexManager = new IndexManager(client);
 
             result = await indexManager.indexSetup(config);
@@ -255,7 +256,7 @@ describe('IndexManager->indexSetup()', () => {
             const mapping = await indexManager.getMapping(index);
 
             expect(mapping).toHaveProperty(index);
-            if (esVersion === 6) {
+            if (version === 6) {
                 expect(mapping[index].mappings).toHaveProperty(config.name);
                 expect(
                     isKey(mapping[index].mappings, config.name)
@@ -270,11 +271,11 @@ describe('IndexManager->indexSetup()', () => {
             const temp = await indexManager.getTemplate(templateName, false);
 
             expect(temp).toHaveProperty(templateName);
-            if (esVersion === 6) {
+            if (version === 6) {
                 expect(temp[templateName].mappings).toHaveProperty(config.name);
             }
             expect(temp[templateName]).toHaveProperty('version', 1);
-            if (esVersion === 6) {
+            if (version === 6) {
                 expect(temp[templateName].mappings?.[config.name]).toHaveProperty('_meta', { bar: 'bar' });
             } else {
                 expect(temp[templateName].mappings).toHaveProperty('_meta', { bar: 'bar' });
@@ -282,7 +283,7 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should be able upsert the same template safely', async () => {
-            const { version } = config.index_schema!;
+            const { version: schemaVersion } = config.index_schema!;
 
             const { mappings } = config.data_type.toESMapping({
                 typeName: config.name,
@@ -293,14 +294,14 @@ describe('IndexManager->indexSetup()', () => {
                 template: templateName,
                 settings: config.index_settings,
                 mappings,
-                version,
+                version: schemaVersion,
             });
 
             const temp = await indexManager.getTemplate(templateName, false);
 
             expect(temp).toHaveProperty(templateName);
-            expect(temp[templateName]).toHaveProperty('version', version);
-            if (esVersion === 6) {
+            expect(temp[templateName]).toHaveProperty('version', schemaVersion);
+            if (version === 6) {
                 expect(temp[templateName].mappings?.[config.name]).toHaveProperty('_meta', { bar: 'bar' });
             } else {
                 expect(temp[templateName].mappings).toHaveProperty('_meta', { bar: 'bar' });
@@ -309,15 +310,15 @@ describe('IndexManager->indexSetup()', () => {
 
         it('should be able to upsert a newer template safely', async () => {
             const mapping = get(config, ['index_schema', 'mapping'], {});
-            const version = get(config, ['index_schema', 'version'], 1);
+            const schemaVersion = get(config, ['index_schema', 'version'], 1);
 
-            const mappings = esVersion !== 6
+            const mappings = version !== 6
                 ? mapping
                 : {
                     [config.name]: mapping
                 };
 
-            const newVersion = version + 1;
+            const newVersion = schemaVersion + 1;
             await indexManager.upsertTemplate({
                 template: templateName,
                 settings: config.index_settings,
@@ -333,10 +334,10 @@ describe('IndexManager->indexSetup()', () => {
 
         it('should apply _meta to new indices', async () => {
             const mapping = get(config, ['index_schema', 'mapping'], {});
-            const version = get(config, ['index_schema', 'version'], 1);
+            const schemaVersion = get(config, ['index_schema', 'version'], 1);
             mapping._meta = { baz: 'baz' };
 
-            const mappings = esVersion !== 6
+            const mappings = version !== 6
                 ? mapping
                 : {
                     [config.name]: mapping
@@ -346,14 +347,14 @@ describe('IndexManager->indexSetup()', () => {
                 settings: config.index_settings,
                 index_patterns: ['foo*'],
                 mappings,
-                version
+                version: schemaVersion
             });
 
             await indexManager.client.indices.create({ index: 'foobar' });
 
             const newIdxMapping = await indexManager.getMapping('foobar');
 
-            if (esVersion === 6) {
+            if (version === 6) {
                 expect(
                     isKey(newIdxMapping.foobar.mappings, config.name)
                     && newIdxMapping.foobar.mappings[config.name]
@@ -394,12 +395,12 @@ describe('IndexManager->indexSetup()', () => {
 
         let indexManager: IndexManager;
         let client: any;
-        let esVersion: number;
+        let version: number;
         let result = false;
 
         beforeAll(async () => {
             client = await makeClient();
-            esVersion = getESVersion(client);
+            version = getClientVersion(client);
             indexManager = new IndexManager(client);
             await cleanupIndex(client, index, templateName);
 
@@ -421,7 +422,7 @@ describe('IndexManager->indexSetup()', () => {
         it('should create the mapping', async () => {
             const mapping = await indexManager.getMapping(index);
 
-            if (esVersion === 6) {
+            if (version === 6) {
                 expect(mapping[currentIndexName].mappings).toHaveProperty(config.name);
             }
         });
@@ -430,7 +431,7 @@ describe('IndexManager->indexSetup()', () => {
             const temp = await indexManager.getTemplate(templateName, false);
 
             expect(temp).toHaveProperty(templateName);
-            if (esVersion === 6) {
+            if (version === 6) {
                 expect(temp[templateName].mappings).toHaveProperty(config.name);
             }
             expect(temp[templateName]).toHaveProperty('version', 1);

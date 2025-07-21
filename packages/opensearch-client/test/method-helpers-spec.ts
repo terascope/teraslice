@@ -1,4 +1,4 @@
-import { ensureNoTypeInMapping } from '../src/elasticsearch-client/method-helpers/index.js';
+import { ensureNoTypeInMapping } from '../src/client/method-helpers/index.js';
 
 describe('test method helpers', () => {
     describe('->ensureNoTypeInMapping', () => {

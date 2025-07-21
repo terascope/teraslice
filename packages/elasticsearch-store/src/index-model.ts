@@ -1,12 +1,12 @@
 import {
     isTest, debugLogger, concat,
-    Logger, makeISODate, toSafeString,
+    type Logger, makeISODate, toSafeString,
     trim, trimAndToLower, TSError, isKey
 } from '@terascope/utils';
 import { JoinBy } from '@terascope/data-mate';
 import { QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { v4 as uuid } from 'uuid';
-import { Client } from './elasticsearch-client/index.js';
+import { type Client } from '@terascope/opensearch-client';
 import { IndexStore, AnyInput } from './index-store.js';
 import {
     addDefaultSchema, toInstanceName, validateId,
@@ -15,8 +15,8 @@ import {
 import * as i from './interfaces.js';
 
 /**
- * An high-level, opinionated, abstract class
- * for an elasticsearch DataType, with a CRUD-like interface
+ * A high-level, opinionated, abstract class for an
+ * elasticsearch DataType, with a CRUD-like interface
  */
 export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStore<T> {
     readonly name: string;
@@ -107,7 +107,7 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
         const fields: Partial<T> = {};
 
         for (const field of this._uniqueFields) {
-            fields[field] = anyId as any;
+            fields[field] = anyId as T[keyof T];
         }
 
         return this.findBy(fields, 'OR', options, queryAccess);
