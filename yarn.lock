@@ -6953,6 +6953,7 @@ __metadata:
   dependencies:
     "@terascope/data-mate": "npm:~1.10.0"
     "@terascope/data-types": "npm:~1.10.0"
+    "@terascope/opensearch-client": "npm:~1.0.0"
     "@terascope/types": "npm:~1.4.3"
     "@terascope/utils": "npm:~1.9.3"
     "@types/uuid": "npm:~10.0.0"
