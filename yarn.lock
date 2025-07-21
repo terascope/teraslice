@@ -3353,7 +3353,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/scripts@npm:~1.20.2, @terascope/scripts@workspace:packages/scripts":
+"@terascope/scripts@npm:~1.20.3, @terascope/scripts@workspace:packages/scripts":
   version: 0.0.0-use.local
   resolution: "@terascope/scripts@workspace:packages/scripts"
   dependencies:
@@ -6881,7 +6881,7 @@ __metadata:
   resolution: "e2e@workspace:e2e"
   dependencies:
     "@terascope/opensearch-client": "npm:~1.0.0"
-    "@terascope/scripts": "npm:~1.20.2"
+    "@terascope/scripts": "npm:~1.20.3"
     "@terascope/types": "npm:~1.4.3"
     "@terascope/utils": "npm:~1.9.3"
     bunyan: "npm:~1.8.15"
@@ -14092,7 +14092,7 @@ __metadata:
     "@eslint/js": "npm:~9.31.0"
     "@swc/core": "npm:1.13.1"
     "@swc/jest": "npm:~0.2.39"
-    "@terascope/scripts": "npm:~1.20.2"
+    "@terascope/scripts": "npm:~1.20.3"
     "@types/bluebird": "npm:~3.5.42"
     "@types/convict": "npm:~6.1.6"
     "@types/elasticsearch": "npm:~5.0.43"
