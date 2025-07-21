@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { TestContext, TestContextOptions } from '@terascope/job-components';
 import { Logger } from '@terascope/utils';
-import { createClient } from 'elasticsearch-store';
+import { createClient } from '@terascope/opensearch-client';
 import { createS3Client } from '@terascope/file-asset-apis';
 import { AssetsStorage } from '../../src/lib/storage';
 import { TEST_INDEX_PREFIX } from '../test.config';
