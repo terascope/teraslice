@@ -1,56 +1,69 @@
 import { AnyQuery, xLuceneVariables } from '@terascope/types';
-import { parseGeoPoint, inGeoBoundingBoxFP } from '@terascope/utils';
-import * as i from '../../interfaces.js';
-import { getFieldValue, logger } from '../../utils.js';
+import { isInteger, isVector } from '@terascope/utils';
+import type { Term, FunctionDefinition } from '../../interfaces.js';
+import { getFieldValue } from '../../utils.js';
 
-function validate(params: i.Term[], variables: xLuceneVariables) {
-    const topLeftParam = params.find((node) => node.field === 'top_left');
-    const bottomRightParam = params.find((node) => node.field === 'bottom_right');
+function validate(params: Term[], variables: xLuceneVariables) {
+    const kValueNode = params.find((node) => node.field === 'k');
+    const vectorValueNode = params.find((node) => node.field === 'vector');
 
-    if (topLeftParam == null) {
-        throw new TypeError('Invalid geoBox query, need to specify a "topLeft" parameter');
-    }
-    if (bottomRightParam == null) {
-        throw new TypeError('Invalid geoBox query, need to specify a "bottomRight" parameter');
+    if (kValueNode == null) {
+        throw new TypeError('Invalid knn query, need to specify a "k" parameter');
     }
 
-    const topLeftValue = getFieldValue<string>(topLeftParam.value, variables);
-    const bottomRightValue = getFieldValue<string>(bottomRightParam.value, variables);
+    if (vectorValueNode == null) {
+        throw new TypeError('Invalid knn query, need to specify a "vector" parameter');
+    }
+
+    const kValue = getFieldValue<string>(kValueNode.value, variables);
+    const vectorValue = getFieldValue<string>(vectorValueNode.value, variables);
+
+    if (!isInteger(kValue)) {
+        throw new TypeError('Invalid knn query, the "k" parameter must be an integer');
+    }
+
+    if (!isVector(vectorValue)) {
+        throw new TypeError('Invalid knn query, the "vector" parameter must be a valid vector');
+    }
 
     return {
-        top_left: parseGeoPoint(topLeftValue),
-        bottom_right: parseGeoPoint(bottomRightValue)
+        k: kValue,
+        vector: vectorValue
     };
 }
 
-const geoBox: i.FunctionDefinition = {
+const knnSearch: FunctionDefinition = {
     name: 'knn',
     version: '1',
     create({
         node, variables,
     }) {
         if (!node.field || node.field === '*') {
-            throw new Error('Field for geoBox cannot be empty or "*"');
+            throw new Error('Field for knn cannot be empty or "*"');
         }
-        const { top_left, bottom_right } = validate(node.params as i.Term[], variables);
+        const { k, vector } = validate(node.params as Term[], variables);
 
         function toElasticsearchQuery(field: string) {
-            const query: AnyQuery = {};
-            query.geo_bounding_box = {};
-            query.geo_bounding_box[field] = {
-                top_left,
-                bottom_right,
+            const query: AnyQuery = {
+                knn: {
+                    [field]: {
+                        vector,
+                        k
+                    }
+                }
             };
 
-            if (logger.level() === 10) logger.trace('built geo bounding box query', { query });
             return { query };
         }
 
         return {
-            match: inGeoBoundingBoxFP(top_left, bottom_right),
+            match: () => {
+                // TODO: look into what it would need to support in process knn lookups
+                throw new Error('knn vector searching does not support matching');
+            },
             toElasticsearchQuery
         };
     }
 };
 
-export default geoBox;
+export default knnSearch;

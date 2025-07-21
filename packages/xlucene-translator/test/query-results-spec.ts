@@ -14,7 +14,8 @@ function mapResults(results: SearchResponse) {
 describe('Queries', () => {
     const typeConfig: xLuceneTypeConfig = {
         foo: xLuceneFieldType.String,
-        bar: xLuceneFieldType.String
+        bar: xLuceneFieldType.String,
+        baz: xLuceneFieldType.Number
     };
 
     const access = new QueryAccess(
@@ -24,7 +25,6 @@ describe('Queries', () => {
             type_config: typeConfig
         },
         {
-            type_config: typeConfig,
             filterNilVariables: true,
             variables: undefined
         }

@@ -24,6 +24,15 @@ export type BoolQuery = {
 
 export type BoolQueryTypes = 'filter' | 'should' | 'must_not';
 
+export interface KNNQuery {
+    knn: {
+        [field: string]: {
+            vector: number[];
+            k: number;
+        };
+    };
+}
+
 export type AnyQuery
     = | BoolQuery
         | GeoQuery
@@ -35,7 +44,8 @@ export type AnyQuery
         | RegExprQuery
         | QueryStringQuery
         | RangeQuery
-        | MultiMatchQuery;
+        | MultiMatchQuery
+        | KNNQuery;
 
 export interface ExistsQuery {
     exists: {

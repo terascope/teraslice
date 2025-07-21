@@ -36,6 +36,7 @@
     },
     "devDependencies": {
         "@terascope/opensearch-client": "~1.0.0",
+        "@terascope/data-types": "1.10.0",
         "elasticsearch": "~15.4.1"
     },
     "engines": {

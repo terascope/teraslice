@@ -16,7 +16,6 @@ export default class VectorType extends BaseType {
         }
 
         const { distribution, majorVersion } = config;
-
         const { dimension, space_type = 'l2', name = 'hnsw' } = this.config;
 
         if (!isInteger(dimension)) {
@@ -27,7 +26,8 @@ export default class VectorType extends BaseType {
             throw new Error(`${this.field} must have an dimension property set to an integer`);
         }
 
-        const mapping: Record<string, Record<string, any>> = {
+        // TODO: fix type
+        const mapping: any = {
             [this.field]: {
                 type: 'knn_vector',
                 dimension,
@@ -44,17 +44,11 @@ export default class VectorType extends BaseType {
                 };
             }
         } else {
-            throw new Error('Vector support currently on works with opensearch')
+            throw new Error('Vector support currently only works with opensearch');
         }
 
         return {
-            mapping: {
-                [this.field]: {
-                    type: 'knn_vector',
-                    dimension,
-                    space_type
-                }
-            },
+            mapping,
             settings: {
                 'index.knn': true
             }
