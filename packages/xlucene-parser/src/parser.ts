@@ -41,12 +41,12 @@ export class Parser {
     /**
      * Create a new Parser instance.
      *
-     * @param query - The xLucene query string to parse
-     * @param options - Optional configuration for parsing behavior
-     * @param options.type_config - Field type configuration for coercion
-     * @param options.filterNilVariables - Filter out nodes with undefined variables
-     * @param options.variables - Variable values for resolution
-     * @param _overrideNode - Internal parameter for creating parser with existing AST
+     * @param { string } query - The xLucene query string to parse
+     * @param { i.ParserOptions } options - Optional configuration for parsing behavior
+     * @param { xLuceneTypeConfig } options.type_config - Field type configuration for coercion
+     * @param { boolean } options.filterNilVariables - Filter out nodes with undefined variables
+     * @param { xLuceneVariables } options.variables - Variable values for resolution
+     * @param { i.Node } _overrideNode - Internal parameter for creating parser with existing AST
      *
      * @example
      * ```typescript
@@ -131,6 +131,28 @@ export class Parser {
         }
     }
 
+    /**
+     * Recursively filters nodes in an AST based on a predicate function. Handles logical groups,
+     * conjunctions, negations, ranges, and function nodes while preserving tree structure and
+     * automatically simplifying when possible (e.g., unwrapping single-node conjunctions).
+     *
+     * @param {i.Node} ast - The root AST node to filter
+     * @param {function(i.Node, i.Node=): boolean} fn - Predicate function that receives
+     *   (node, parent) and returns true to keep the node, false to remove it
+     *
+     * @returns {i.Node} New filtered AST containing only nodes that pass the filter criteria.
+     *   Returns empty node if all nodes are filtered out.
+     *
+     * @example
+     * // Filter out unwanted fields
+     * const filtered = filterNodes(ast, (node) => node.field !== 'unwanted');
+     *
+     * @example
+     * // Filter based on parent context
+     * const filtered = filterNodes(ast, (node, parent) =>
+     *   !parent || utils.isLogicalGroup(parent)
+     * );
+    */
     filterNodes(ast: i.Node, fn: (node: i.Node, parent?: i.Node) => boolean): i.Node {
         const filterNode = (ogNode: i.Node, parent?: i.Node): i.Node => {
             const clone = cloneDeep(ogNode);

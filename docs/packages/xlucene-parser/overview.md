@@ -42,7 +42,28 @@ const typedParser = new Parser('age:25', {
 
 ## Query Syntax Overview
 
+## Limitations and Differences from Standard Lucene
+
+While xLucene extends Lucene syntax in many ways, it does not support some standard Lucene features:
+
+### Unsupported Features
+
+- **Boost queries**: `term^2.5` or `field:value^1.5` syntax is not supported
+- **Proximity matching**: `"term1 term2"~5` slop/distance syntax is not available
+- **Fuzzy queries**: `term~0.8` fuzzy matching is not supported
+
+### Key Behavioral Differences
+
+- **Variable substitution**: xLucene's variable system (`$var`, `@var`) is unique
+- **Function queries**: Geospatial and other function syntax is xLucene-specific
+- **Field groups**: Enhanced field-scoped boolean logic not in standard Lucene
+- **Type coercion**: Automatic type conversion based on field definitions
+- **Enhanced date math**: More flexible date arithmetic expressions
+
+Users migrating from standard Lucene should be aware of these differences when adapting existing queries.
+
 ### Basic Terms
+
 ```typescript
 // Simple terms
 const parser1 = new Parser('hello');           // Search for "hello"
@@ -51,6 +72,7 @@ const parser3 = new Parser('title:"Hello World"'); // Quoted phrases
 ```
 
 ### Field Types
+
 ```typescript
 // Configure field types for proper parsing
 const parser = new Parser('age:25 AND score:89.5', {
@@ -62,6 +84,7 @@ const parser = new Parser('age:25 AND score:89.5', {
 ```
 
 ### Range Queries
+
 ```typescript
 // Numeric ranges
 const parser1 = new Parser('age:>=18');        // Greater than or equal
@@ -76,6 +99,7 @@ const parser5 = new Parser('age:[18 TO *]');   // 18 and above
 ```
 
 ### Logical Operations
+
 ```typescript
 // Boolean operators
 const parser1 = new Parser('name:John AND age:25');
@@ -87,6 +111,7 @@ const parser4 = new Parser('(name:John OR name:Jane) AND age:>=18');
 ```
 
 ### Wildcards and Patterns
+
 ```typescript
 // Wildcard searches
 const parser1 = new Parser('name:J*n');        // Multiple characters
@@ -97,11 +122,12 @@ const parser3 = new Parser('email:/.*@example\\.com/');
 ```
 
 ### Variables
+
 ```typescript
 // Define variables in queries
 const parser = new Parser('name:$username AND age:>=$minAge');
 
-// Resolve variables
+// Resolve variables - Returns a new Parser
 const resolved = parser.resolveVariables({
   username: 'John',
   minAge: 21
@@ -114,6 +140,7 @@ const parser2 = new Parser('category:@user.preference');
 ### Advanced Features
 
 #### Geospatial Queries
+
 ```typescript
 // Geo distance
 const parser1 = new Parser(
@@ -132,12 +159,14 @@ const parser3 = new Parser(
 ```
 
 #### Field Existence
+
 ```typescript
 // Check if field exists
 const parser = new Parser('_exists_:email');
 ```
 
 #### Date Math
+
 ```typescript
 // Date math expressions
 const parser1 = new Parser('created:now-7d');   // 7 days ago
@@ -152,6 +181,7 @@ const parser3 = new Parser('timestamp:now-30d', {
 ```
 
 #### IP Ranges
+
 ```typescript
 // IP and CIDR matching
 const parser1 = new Parser('ip:"192.168.1.100"');
@@ -164,11 +194,13 @@ const parser3 = new Parser('ipv6:"2001:db8::/32"');
 ### Parser Class
 
 #### Constructor
+
 ```typescript
 new Parser(query: string, options?: ParserOptions)
 ```
 
 #### Options
+
 - `type_config`: Field type configuration for value coercion
 - `filterNilVariables`: Filter out undefined variables
 - `variables`: Variable values for resolution
@@ -176,7 +208,9 @@ new Parser(query: string, options?: ParserOptions)
 #### Methods
 
 ##### `forTermTypes(callback)`
+
 Iterate over all term-like nodes:
+
 ```typescript
 parser.forTermTypes((node) => {
   console.log(`Field: ${node.field}, Type: ${node.type}`);
@@ -184,7 +218,9 @@ parser.forTermTypes((node) => {
 ```
 
 ##### `forEachFieldValue(callback)`
+
 Process all field values:
+
 ```typescript
 parser.forEachFieldValue((value, node) => {
   if (value.type === 'variable') {
@@ -194,7 +230,9 @@ parser.forEachFieldValue((value, node) => {
 ```
 
 ##### `resolveVariables(variables)`
+
 Resolve variable references:
+
 ```typescript
 const resolved = parser.resolveVariables({
   username: 'john',
@@ -203,7 +241,9 @@ const resolved = parser.resolveVariables({
 ```
 
 ##### `mapNode(transform)`
+
 Transform AST nodes:
+
 ```typescript
 const transformed = parser.mapNode((node) => {
   if (node.type === 'term' && node.field === 'name') {
@@ -251,6 +291,7 @@ The parser generates an Abstract Syntax Tree with the following node types:
 ## Common Use Cases
 
 ### Search Interface
+
 ```typescript
 function buildSearchQuery(userInput: string, filters: Record<string, any>) {
   const parser = new Parser(userInput);
@@ -266,6 +307,7 @@ function buildSearchQuery(userInput: string, filters: Record<string, any>) {
 ```
 
 ### Query Validation
+
 ```typescript
 function validateQuery(query: string, allowedFields: string[]) {
   const parser = new Parser(query);
@@ -287,6 +329,7 @@ function validateQuery(query: string, allowedFields: string[]) {
 ```
 
 ### Dynamic Query Building
+
 ```typescript
 function buildDynamicQuery(baseQuery: string, userVariables: Record<string, any>) {
   const parser = new Parser(baseQuery, {

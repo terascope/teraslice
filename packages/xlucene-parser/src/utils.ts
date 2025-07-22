@@ -134,7 +134,7 @@ export function isGroupLike(node: unknown): node is i.GroupLikeNode {
 
 /**
  * Validate and normalize a variables object.
- * 
+ *
  * @param obj - The variables object to validate
  * @returns A normalized copy of the variables object
  * @throws {TSError} If the variables object is invalid
@@ -151,10 +151,10 @@ export function validateVariables(obj: xLuceneVariables): xLuceneVariables {
 
 /**
  * Resolve a field value or array of field values using the provided variables.
- * 
+ *
  * This function handles both literal values and variable references, resolving
  * variables to their actual values from the variables object.
- * 
+ *
  * @param value - The field value(s) to resolve
  * @param variables - Object containing variable values
  * @param allowNil - Whether to allow undefined/null values
@@ -239,7 +239,7 @@ export interface ParsedRange {
 
 /**
  * Parse a range node into a simple object with comparison operators.
- * 
+ *
  * @param node - The range node to parse
  * @param variables - Variables for resolving variable references
  * @param excludeInfinite - Whether to exclude infinite values (* or ±Infinity)
@@ -310,7 +310,7 @@ export const coerceValueFns: CoerceValueFns = Object.freeze({
 
 /**
  * Create a coercion function for the specified field type.
- * 
+ *
  * @param fieldType - The xLucene field type
  * @returns A function that coerces values to the specified type
  */
@@ -322,7 +322,7 @@ export function makeCoerceFn(fieldType: xLuceneFieldType | undefined): (v: any) 
 
 /**
  * Convert an IP address or CIDR block term into a range query.
- * 
+ *
  * @param node - The term node containing the IP value
  * @param value - The IP address or CIDR block string
  * @returns A range node representing the IP range

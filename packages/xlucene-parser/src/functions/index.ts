@@ -9,7 +9,7 @@ import { FunctionDefinition, FunctionMethods, FunctionNode } from '../interfaces
 
 /**
  * Enumeration of available xLucene functions.
- * 
+ *
  * These functions provide specialized query capabilities,
  * particularly for geospatial operations.
  */
@@ -23,7 +23,7 @@ export enum xLuceneFunction {
 
 /**
  * Registry of available xLucene function implementations.
- * 
+ *
  * Maps function names to their corresponding function definitions
  * that provide the implementation logic.
  */
@@ -37,17 +37,17 @@ export const xLuceneFunctions: Record<xLuceneFunction, FunctionDefinition> = {
 
 /**
  * Initialize a function node with the appropriate implementation.
- * 
+ *
  * This function looks up the function implementation based on the node's name
  * and creates an instance configured with the provided variables and type config.
- * 
+ *
  * @param config - Configuration object
- * @param config.node - The function node from the AST
- * @param config.variables - Variables for parameter resolution
- * @param config.type_config - Field type configuration
- * @returns Function methods for matching and query generation
- * @throws {TypeError} If the function name is not recognized
- * 
+ * @param { FunctionNode } config.node - The function node from the AST
+ * @param { xLuceneVariables } config.variables - Variables for parameter resolution
+ * @param { xLuceneTypeConfig } config.type_config - Field type configuration
+ * @returns { FunctionMethods } Function methods for matching and query generation
+ * @throws { TypeError } If the function name is not recognized
+ *
  * @example
  * ```typescript
  * const functionMethods = initFunction({
