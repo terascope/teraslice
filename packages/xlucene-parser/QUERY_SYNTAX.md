@@ -1,13 +1,33 @@
 # xLucene Query Syntax Reference
 
-This document describes the complete query syntax supported by the xLucene 
+This document describes the complete query syntax supported by the xLucene
 parser, based on comprehensive test cases.
+
+## Limitations and Differences from Standard Lucene
+
+While xLucene extends Lucene syntax in many ways, it does not support some standard Lucene features:
+
+### Unsupported Features
+
+- **Boost queries**: `term^2.5` or `field:value^1.5` syntax is not supported
+- **Proximity matching**: `"term1 term2"~5` slop/distance syntax is not available
+- **Fuzzy queries**: `term~0.8` fuzzy matching is not supported
+
+### Key Behavioral Differences
+
+- **Variable substitution**: xLucene's variable system (`$var`, `@var`) is unique
+- **Function queries**: Geospatial and other function syntax is xLucene-specific
+- **Field groups**: Enhanced field-scoped boolean logic not in standard Lucene
+- **Type coercion**: Automatic type conversion based on field definitions
+- **Enhanced date math**: More flexible date arithmetic expressions
+
+Users migrating from standard Lucene should be aware of these differences when adapting existing queries.
 
 ## Basic Terms
 
 ### Simple Terms
 
-```txt
+```sh
 bar                    # Unquoted string
 "foo"                  # Double-quoted string
 'foo'                  # Single-quoted string
@@ -18,7 +38,7 @@ foo: bar              # Field with space before value
 
 ### Field Names
 
-```txt
+```sh
 foo:bar               # Simple field
 phone.tokens:3848     # Analyzed field with dots
 fo?:bar              # Field name with wildcard
@@ -27,7 +47,7 @@ field.right:value     # Nested field names
 
 ### Data Types
 
-```
+```sh
 count:123             # Integer (auto-detected)
 count:"123"           # String (quoted forces string type)
 cash:50.50           # Float
@@ -37,14 +57,14 @@ bool:false           # Boolean
 
 Type coercion is controlled by field type configuration:
 
-```
+```sh
 count:"123"           # String if no type config
 count:"123"           # Integer if count configured as integer
 ```
 
 ### Escaping and Special Characters
 
-```
+```sh
 foo:\\"bar\\"         # Escaped quotes
 id:some"thing"else    # Inner quotes
 "+ - () {} [] ^ ' \" ? & | / ~ * OR NOT"  # Reserved chars in quotes
@@ -54,7 +74,7 @@ id:some"thing"else    # Inner quotes
 
 ### Simple Variables
 
-```
+```sh
 field:$bar_val        # Variable reference
 field:$bar           # Variable with boolean value
 field:$bar2          # Variable with number value
@@ -62,7 +82,7 @@ field:$bar2          # Variable with number value
 
 ### Scoped Variables
 
-```
+```sh
 field:@bar2          # Scoped variable
 field:@example.foo   # Nested scoped variable
 field:"@example.foo" # Quoted (not a variable)
@@ -73,7 +93,7 @@ field:\\@example.foo  # Escaped (not a variable)
 
 ### Wildcard Patterns
 
-```
+```sh
 hi:the?e             # Single character wildcard (?)
 foo:ba*              # Multiple character wildcard (*)
 foo:"ba?"            # Quoted wildcard (literal)
@@ -83,7 +103,7 @@ foo:"ba?"            # Quoted wildcard (literal)
 
 ### RegExp Syntax
 
-```
+```sh
 example:/[a-z]+/     # Basic regexp
 example:/foo:bar/    # Regexp with special chars
 example:$foo         # Variable containing regexp
@@ -93,7 +113,7 @@ example:$foo         # Variable containing regexp
 
 ### Comparison Operators
 
-```
+```sh
 count:>=10           # Greater than or equal
 count:>10            # Greater than
 count:<=20.10        # Less than or equal
@@ -102,7 +122,7 @@ count:<20            # Less than
 
 ### Interval Ranges
 
-```
+```sh
 count:[1 TO 5]       # Inclusive range
 count:{1 TO 5}       # Exclusive range
 count:{2 TO 6]       # Mixed inclusive/exclusive
@@ -112,14 +132,14 @@ val:[2012-01-01 TO 2012-12-31]  # Date range
 
 ### Unbounded Ranges
 
-```
+```sh
 val:[2012-01-01 TO *]  # Right unbounded
 val:[* TO 10}          # Left unbounded
 ```
 
 ### IP Ranges
 
-```
+```sh
 ip_range:"1.2.3.0/24"     # IPv4 CIDR
 ip_range:"1.2.3.5"        # Single IPv4
 ip_range:"2001:DB8::0/120" # IPv6 CIDR
@@ -128,7 +148,7 @@ ip_range:"2001:DB8::64"    # Single IPv6
 
 ### Variables in Ranges
 
-```
+```sh
 count:>=$foo         # Variable in comparison
 count:[$foo TO $bar] # Variables in range
 val:[$foo TO *]      # Variable with infinity
@@ -136,25 +156,56 @@ val:[$foo TO *]      # Variable with infinity
 
 ## Date Math
 
-### Date Math Expressions
+xLucene supports sophisticated date math expressions for relative date calculations using the [datemath-parser](https://github.com/randing89/datemath-parser) library.
 
+### Basic Date Math
+
+```sh
+field:now-4d        # 4 days ago
+field:now+2d        # 2 days from now
 ```
-field:now-4d         # 4 days ago
-field:$foo           # Variable with date math (now+2d)
+
+### Date Math in Ranges
+
+```sh
+val:[now-3d TO now+2d]      # Range from 3 days ago to 2 days from now
+val:[now-2w TO now+2y]      # Range from 2 weeks ago to 2 years from now
+val:[2021-04-20 TO now]     # From specific date to now
 ```
 
-Date math works with fields configured as Date type and supports:
+### Complex Date Math
 
-- `now` - current time
-- `+` / `-` - add/subtract
-- `d` - days
-- Other time units as supported by the underlying date math library
+```sh
+val:[now+2d+4d TO now+20d-3d-1d+5d]  # Multiple operations
+val:[now TO now+5D]                   # Case insensitive units
+```
+
+### Date Rounding and Formatting
+
+Use a `/` to round a date down to the nearest time unit. To perform date math on a date string use pipe notation.
+
+```sh
+val:["now-4d/y" TO "2021-01-02||+4d"]  # Rounding and pipe notation
+```
+
+### Supported Time Units
+
+| Symbol | Unit    |
+|--------|---------|
+| y      | Years   |
+| M      | Months  |
+| w      | Weeks   |
+| d      | Days    |
+| h      | Hours   |
+| H      | Hours   |
+| m      | Minutes |
+| s      | Seconds |
 
 ## Logical Operations
 
 ### Boolean Operators
 
-```
+```sh
 a:1 AND b:1          # AND conjunction
 a:1 OR b:1           # OR disjunction
 foo bar              # Implicit AND (space-separated)
@@ -162,7 +213,7 @@ foo bar              # Implicit AND (space-separated)
 
 ### Negation
 
-```
+```sh
 NOT name:Madman      # Negate single term
 (NOT name:Madman)    # Negation with parentheses
 ```
@@ -171,14 +222,14 @@ NOT name:Madman      # Negate single term
 
 ### Logical Groups
 
-```
+```sh
 a:1 AND b:1          # Simple logical group
 (a:1 OR b:2) AND c:3 # Parentheses grouping
 ```
 
 ### Field Groups
 
-```
+```sh
 count:(>=10 AND <=20 AND >=100)  # Multiple conditions on same field
 name:(John OR Jane)              # Multiple values for same field
 ```
@@ -187,7 +238,7 @@ name:(John OR Jane)              # Multiple values for same field
 
 ### Geo Functions
 
-```
+```sh
 location:geoDistance(point:"33.435518,-111.873616", distance:"5000m")
 location:geoBox(bottom_right:"32.813646,-111.058902" top_left:"33.906320,-112.758421")
 location:geoPolygon(points:["40,-70", "30,-80", "20,-90"])
@@ -198,7 +249,7 @@ location:geoContainsPoint(point:"33.435518,-111.873616")
 
 ### Field Existence
 
-```
+```sh
 _exists_:hello       # Check if field exists
 ```
 
@@ -206,7 +257,7 @@ _exists_:hello       # Check if field exists
 
 ### Null/Empty Handling
 
-```
+```sh
 ""                   # Empty string query
                      # Blank query
 ```
@@ -215,7 +266,7 @@ _exists_:hello       # Check if field exists
 
 ### Multi-word Terms
 
-```
+```sh
 foo bar              # Two separate terms (implicit AND)
 "foo bar"            # Single quoted term with spaces
 (foo bar)            # Grouped terms
@@ -223,7 +274,7 @@ foo bar              # Two separate terms (implicit AND)
 
 ### Complex Expressions
 
-```
+```sh
 (a:1 AND b:2) OR (c:3 AND d:4)  # Complex logical grouping
 field:(value1 OR value2) AND other:value3  # Mixed grouping
 ```
