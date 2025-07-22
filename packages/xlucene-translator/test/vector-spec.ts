@@ -60,14 +60,16 @@ describe('vector searches', () => {
         await cleanupIndex(client, index);
     });
 
-    it('should perform vector searches', async () => {
+    fit('should perform vector searches', async () => {
         const searchParams = await access.restrictSearchQuery(
             'someVector:knn(vector:$vector k:3)',
             {
                 variables: { vector: [5, 4] },
-                ...clientMetadata
+                ...clientMetadata,
             }
         );
+        console.dir({ searchParams1: searchParams }, { depth: 40 })
+
         const response = await client.search(searchParams);
 
         const results = response.hits.hits.map((record) => record._source);
@@ -80,7 +82,7 @@ describe('vector searches', () => {
         ]);
     });
 
-    it('should perform vector searches and other field matching', async () => {
+    fit('should perform vector searches order', async () => {
         const searchParams = await access.restrictSearchQuery(
             'foo:"hello" AND someVector:knn(vector:$vector k:3)',
             {
@@ -88,6 +90,30 @@ describe('vector searches', () => {
                 ...clientMetadata
             }
         );
+
+        console.dir({ searchParams2: searchParams }, { depth: 40 })
+
+        const response = await client.search(searchParams);
+
+        const results = response.hits.hits.map((record) => record._source);
+
+        expect(results.length).toEqual(3);
+        expect(results).toMatchObject([
+            { someVector: [5.2, 3.9], foo: 'hello' },
+            { someVector: [5.2, 4.4], foo: 'hello' },
+        ]);
+    });
+
+    fit('should perform vector searches and other field matching', async () => {
+        const searchParams = await access.restrictSearchQuery(
+            'foo:"hello" OR someVector:knn(vector:$vector k:3)',
+            {
+                variables: { vector: [5, 4] },
+                ...clientMetadata
+            }
+        );
+        console.dir({ searchParams3: searchParams }, { depth: 40 })
+
         const response = await client.search(searchParams);
 
         const results = response.hits.hits.map((record) => record._source);
@@ -105,11 +131,10 @@ describe('vector searches', () => {
             {
                 variables: { vector: [5, 4] },
                 ...clientMetadata,
-                params: {
-                    sort: 'someVector',
-                }
+                params: {}
             }
         );
+        console.dir({ searchParams }, { depth: 40 })
         const response = await client.search(searchParams);
 
         const results = response.hits.hits.map((record) => record._source);

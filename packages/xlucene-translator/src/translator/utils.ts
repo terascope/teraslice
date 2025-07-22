@@ -7,10 +7,11 @@ import {
     parseRange, isRange, isRegexp,
     isWildcard, isFunctionNode, initFunction,
     getFieldValue, isGroupLike, isNegation,
-    isExists, isTermType, type Parser,
-    type TermLikeNode, type Exists, type GroupLikeNode,
-    type Conjunction, type Negation, type Range,
-    type Regexp, type Node, type Wildcard, type Term
+    isExists, isTermType, isConjunction,
+    type Parser, type TermLikeNode, type Exists,
+    type GroupLikeNode, type Conjunction, type Negation,
+    type Range, type Regexp, type Node, type Wildcard,
+    type Term,
 } from 'xlucene-parser';
 import type {
     WildcardQuery, MultiMatchQuery, QueryStringQuery,
@@ -18,7 +19,7 @@ import type {
     RangeQuery, AnyQuerySort, ElasticsearchDSLResult,
     MatchAllQuery, ConstantScoreQuery, MatchNoneQuery,
     AnyQuery, BoolQuery, ExistsQuery, RegExprQuery,
-    BoolQueryTypes
+    BoolQueryTypes, KNNQuery
 } from '@terascope/types';
 import { UtilsTranslateQueryOptions } from './interfaces.js';
 
@@ -52,14 +53,37 @@ export function translateQuery(
         ...options
     };
     // TODO: this should probably reference the search type from opensearch, maybe not
-    let topLevelQuery: MatchAllQuery | ConstantScoreQuery | MatchNoneQuery;
+    let topLevelQuery: MatchAllQuery | ConstantScoreQuery | MatchNoneQuery | KNNQuery;
 
     if (isEmptyNode(parser.ast)) {
         topLevelQuery = {
             match_all: {},
         };
     } else {
-        const anyQuery = buildAnyQuery(parser.ast, context);
+        let hasKNN = false;
+        let allANDConjunctions = true;
+
+        parser.walkAST((node: Node) => {
+            if (isFunctionNode(node) && node.name === 'knn') {
+                hasKNN = true;
+                return;
+            }
+
+            if (isConjunction(node)) {
+                if (node.nodes.length === 1) {
+                    allANDConjunctions = false;
+                    return;
+                }
+            }
+        });
+
+        let anyQuery = null;
+
+        if (hasKNN && allANDConjunctions) {
+            anyQuery = buildKNNQuery(parser, context);
+        } else {
+            anyQuery = buildAnyQuery(parser.ast, context);
+        }
 
         if (anyQuery == null) {
             const error = new TSError(`Unexpected problem when translating xlucene query ${parser.query}`, {
@@ -78,6 +102,11 @@ export function translateQuery(
             // throw a parsing exception
             topLevelQuery = {
                 match_none: {}
+            };
+        } else if (hasKNN && allANDConjunctions) {
+            // @ts-expect-error
+            topLevelQuery = {
+                ...anyQuery
             };
         } else {
             topLevelQuery = {
@@ -368,6 +397,58 @@ function buildRegExprQuery(
     };
 
     return regexQuery;
+}
+
+function buildKNNQuery(
+    parser: Parser,
+    context: QueryContext,
+): AnyQuery | undefined {
+    let knnQuery: any = {};
+    const must: any[] = [];
+
+    parser.walkAST((node: Node) => {
+        if (isFunctionNode(node) && node.name === 'knn') {
+            const { variables, type_config } = context;
+            const instance = initFunction({ node, variables, type_config });
+            const { query } = instance.toElasticsearchQuery(
+                getTermField(node),
+                context
+            );
+            knnQuery = query;
+        } else if (isTermType(node)) {
+            must.push(buildTermLevelQuery(node, context));
+        } else if (isNegation(node)) {
+            must.push(buildNegationQuery(node, context));
+        } else if (isExists(node)) {
+            must.push(buildExistsQuery(node));
+        }
+    });
+
+    const buildQuery: any = { knn: {} };
+    for (const [field, config] of Object.entries(knnQuery.knn)) {
+        const knnConjunction = {
+            // @ts-expect-error
+            ...config,
+            ...{
+                filter: {
+                    bool: {
+                        should: [
+                            {
+                                bool: {
+                                    filter: [
+                                        ...must
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        };
+        buildQuery.knn[field] = knnConjunction;
+    }
+
+    return buildQuery;
 }
 
 function buildAnyQuery(

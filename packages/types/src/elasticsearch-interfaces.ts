@@ -29,6 +29,8 @@ export interface KNNQuery {
         [field: string]: {
             vector: number[];
             k: number;
+            filter?: AnyQuery[];
+            [field: string]: any;
         };
     };
 }
@@ -171,7 +173,7 @@ export type GeoSortQuery = {
 export type AnyQuerySort = GeoSortQuery;
 
 export type ElasticsearchDSLResult = {
-    query: ConstantScoreQuery | MatchAllQuery | MatchNoneQuery;
+    query: ConstantScoreQuery | MatchAllQuery | MatchNoneQuery | KNNQuery;
     sort?: AnyQuerySort | AnyQuerySort[];
 };
 

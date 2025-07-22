@@ -246,6 +246,32 @@ export class Parser {
         walkNode(this.ast);
     }
 
+    walkAST(cb: (node: i.Node) => void) {
+        const walkNode = (node: i.Node) => {
+            cb(node);
+
+            if (utils.isNegation(node)) {
+                walkNode(node.node);
+                return;
+            }
+
+            if (utils.isGroupLike(node)) {
+                for (const conj of node.flow) {
+                    walkNode(conj);
+                }
+                return;
+            }
+
+            if (utils.isConjunction(node)) {
+                for (const conj of node.nodes) {
+                    walkNode(conj);
+                }
+            }
+        };
+
+        walkNode(this.ast);
+    }
+
     /**
      * Iterate over all of the Term-Like nodes.
     */
