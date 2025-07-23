@@ -1,3 +1,5 @@
+import { themes } from 'prism-react-renderer';
+
 module.exports = {
     title: 'Teraslice',
     tagline: 'Scalable data processing pipelines in JavaScript',
@@ -160,6 +162,11 @@ module.exports = {
                 light: 'default',
                 dark: 'dark'
             },
-        }
+        },
+        prism: {
+            theme: themes.default,
+            darkTheme: themes.dark,
+            additionalLanguages: ['bash'],
+        },
     }
 };

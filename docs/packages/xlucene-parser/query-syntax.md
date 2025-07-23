@@ -1,7 +1,11 @@
+---
+sidebar_label: "Query Syntax"
+---
+
 # xLucene Query Syntax Reference
 
 This document describes the complete query syntax supported by the xLucene
-parser, based on comprehensive test cases.
+parser.
 
 ## Limitations and Differences from Standard Lucene
 
