@@ -15,8 +15,18 @@ export default class VectorType extends BaseType {
             throw new Error('A vector must be marked as an array');
         }
 
-        const { distribution, majorVersion } = config;
-        const { dimension, space_type = 'l2', name = 'hnsw' } = this.config;
+        const { distribution, majorVersion, minorVersion } = config;
+        const { dimension, space_type = 'l2', name = 'hnsw', engine = 'faiss' } = this.config;
+
+        if (distribution === ElasticsearchDistribution.elasticsearch) {
+            throw new Error('Vector datatypes are not supported with elasticsearch distribution');
+        }
+
+        if (distribution === ElasticsearchDistribution.opensearch) {
+            if (majorVersion === 1 || (majorVersion === 2 && minorVersion < 10)) {
+                throw new Error('Vector datatypes are not supported with opensearch version < 2.10');
+            }
+        }
 
         if (!isInteger(dimension)) {
             throw new Error(`${this.field} must have an dimension property set to an integer`);
@@ -26,25 +36,45 @@ export default class VectorType extends BaseType {
             throw new Error(`${this.field} must have an dimension property set to an integer`);
         }
 
-        // TODO: fix type
-        const mapping: any = {
-            [this.field]: {
-                type: 'knn_vector',
-                dimension,
-            }
-        };
+        if (!validAlgorithms(name)) {
+            throw new Error(`${this.field} must have a correct name property`);
+        }
 
-        if (distribution === ElasticsearchDistribution.opensearch) {
-            if (majorVersion === 3) {
-                mapping[this.field].space_type = space_type;
-            } else {
-                mapping[this.field].method = {
+        if (!isValidEngine(engine)) {
+            throw new Error(`${this.field} must have a correct engine property`);
+        }
+
+        if (engine === 'lucene' && name === 'ivf') {
+            throw new Error(`${this.field} have conflicted configs, engine "lucene" cannot be paired with name "ivf"`);
+        }
+
+        // TODO: fix type
+        let mapping: any;
+
+        if (majorVersion >= 3) {
+            mapping = {
+                [this.field]: {
+                    type: 'knn_vector',
                     space_type,
-                    name
-                };
-            }
+                    dimension,
+                    method: {
+                        name,
+                        engine
+                    }
+                }
+            };
         } else {
-            throw new Error('Vector support currently only works with opensearch');
+            mapping = {
+                [this.field]: {
+                    type: 'knn_vector',
+                    dimension,
+                    method: {
+                        space_type,
+                        name,
+                        engine
+                    }
+                }
+            };
         }
 
         return {
@@ -69,5 +99,19 @@ const listOfSpaces = ['l1', 'l2', 'linf', 'cosinesimil', 'innerproduct', 'hammin
 
 function isValidSpaceType(type?: unknown) {
     if (isString(type) && listOfSpaces.includes(type)) return true;
+    return false;
+}
+
+const listOfEngines = ['lucene', 'faiss'];
+
+function isValidEngine(engine: unknown) {
+    if (isString(engine) && listOfEngines.includes(engine)) return true;
+    return false;
+}
+
+const listOfAlgorithms = ['hnsw', 'ivf'];
+
+function validAlgorithms(algo: unknown) {
+    if (isString(algo) && listOfAlgorithms.includes(algo)) return true;
     return false;
 }

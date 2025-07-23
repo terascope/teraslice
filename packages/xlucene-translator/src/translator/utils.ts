@@ -425,27 +425,38 @@ function buildKNNQuery(
     });
 
     const buildQuery: any = { knn: {} };
-    for (const [field, config] of Object.entries(knnQuery.knn)) {
-        const knnConjunction = {
+
+    if (must.length) {
+        for (const [field, config] of Object.entries(knnQuery.knn)) {
+            const knnConjunction = {
             // @ts-expect-error
-            ...config,
-            ...{
-                filter: {
-                    bool: {
-                        should: [
-                            {
-                                bool: {
-                                    filter: [
-                                        ...must
-                                    ]
+                ...config,
+                ...{
+                    filter: {
+                        bool: {
+                            should: [
+                                {
+                                    bool: {
+                                        filter: [
+                                            ...must
+                                        ]
+                                    }
                                 }
-                            }
-                        ]
+                            ]
+                        }
                     }
                 }
-            }
-        };
-        buildQuery.knn[field] = knnConjunction;
+            };
+            buildQuery.knn[field] = knnConjunction;
+        }
+    } else {
+        for (const [field, config] of Object.entries(knnQuery.knn)) {
+            const knnConjunction = {
+            // @ts-expect-error
+                ...config,
+            };
+            buildQuery.knn[field] = knnConjunction;
+        }
     }
 
     return buildQuery;

@@ -34,6 +34,7 @@ describe('vector searches', () => {
         { someVector: [4.2, 4.6], foo: 'baz' },
         { someVector: [3.3, 4.5], foo: 'buz' },
         { foo: 'roger roger' },
+        { foo: 'hello' }
     ];
 
     const access = new QueryAccess(
@@ -60,7 +61,7 @@ describe('vector searches', () => {
         await cleanupIndex(client, index);
     });
 
-    fit('should perform vector searches', async () => {
+    it('should perform standalone vector searches preserving order', async () => {
         const searchParams = await access.restrictSearchQuery(
             'someVector:knn(vector:$vector k:3)',
             {
@@ -68,7 +69,6 @@ describe('vector searches', () => {
                 ...clientMetadata,
             }
         );
-        console.dir({ searchParams1: searchParams }, { depth: 40 })
 
         const response = await client.search(searchParams);
 
@@ -76,13 +76,13 @@ describe('vector searches', () => {
 
         expect(results.length).toEqual(3);
         expect(results).toMatchObject([
-            { someVector: [5.2, 4.4], foo: 'hello' },
             { someVector: [5.2, 3.9], foo: 'hello' },
+            { someVector: [5.2, 4.4], foo: 'hello' },
             { someVector: [4.9, 3.4] }
         ]);
     });
 
-    fit('should perform vector searches order', async () => {
+    it('should perform vector searches with AND filter criteria and preserve order', async () => {
         const searchParams = await access.restrictSearchQuery(
             'foo:"hello" AND someVector:knn(vector:$vector k:3)',
             {
@@ -91,20 +91,18 @@ describe('vector searches', () => {
             }
         );
 
-        console.dir({ searchParams2: searchParams }, { depth: 40 })
-
         const response = await client.search(searchParams);
 
         const results = response.hits.hits.map((record) => record._source);
 
-        expect(results.length).toEqual(3);
+        expect(results.length).toEqual(2);
         expect(results).toMatchObject([
             { someVector: [5.2, 3.9], foo: 'hello' },
             { someVector: [5.2, 4.4], foo: 'hello' },
         ]);
     });
 
-    fit('should perform vector searches and other field matching', async () => {
+    it('should perform vector searches with OR filter criteria and NOT preserve order', async () => {
         const searchParams = await access.restrictSearchQuery(
             'foo:"hello" OR someVector:knn(vector:$vector k:3)',
             {
@@ -112,37 +110,17 @@ describe('vector searches', () => {
                 ...clientMetadata
             }
         );
-        console.dir({ searchParams3: searchParams }, { depth: 40 })
 
         const response = await client.search(searchParams);
 
         const results = response.hits.hits.map((record) => record._source);
 
-        expect(results.length).toEqual(2);
+        expect(results.length).toEqual(4);
         expect(results).toMatchObject([
             { someVector: [5.2, 4.4], foo: 'hello' },
-            { someVector: [5.2, 3.9], foo: 'hello' },
-        ]);
-    });
-
-    it('should perform vector searches with sorting', async () => {
-        const searchParams = await access.restrictSearchQuery(
-            'someVector:knn(vector:$vector k:5)',
-            {
-                variables: { vector: [5, 4] },
-                ...clientMetadata,
-                params: {}
-            }
-        );
-        console.dir({ searchParams }, { depth: 40 })
-        const response = await client.search(searchParams);
-
-        const results = response.hits.hits.map((record) => record._source);
-
-        expect(results.length).toEqual(2);
-        expect(results).toMatchObject([
-            { someVector: [5.2, 4.4], foo: 'hello' },
-            { someVector: [5.2, 3.9], foo: 'hello' },
+            { someVector: [5.2, 3.9], foo: 'hello' }, // NOTE this is out of sorted order as expected
+            { someVector: [4.9, 3.4] },
+            { foo: 'hello' }
         ]);
     });
 });
