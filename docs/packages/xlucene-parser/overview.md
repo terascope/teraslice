@@ -376,4 +376,4 @@ try {
 - Use `skipFunctionParams` when traversing large ASTs
 - Consider `filterNilVariables` for dynamic queries
 
-For complete query syntax reference, see [QUERY_SYNTAX.md](./QUERY_SYNTAX.md).
+For complete query syntax reference, see [query-syntax.md](./query-syntax.md).
