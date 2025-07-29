@@ -11,30 +11,28 @@ describe('knn', () => {
         type_config: {}
     };
 
-    // TODO: verify if we can take a direct array value,
-    // TODO: determine if conversion should happen in peg or in fn
-    // it('can make a function ast', () => {
-    //     const query = 'vector:knn(vector:[1,2] k:5)';
+    it('can make a function ast', () => {
+        const query = 'vector:knn(vector:[1,2] k:5)';
 
-    //     const { ast } = new Parser(query, {
-    //         type_config: typeConfig
-    //     });
-    //     const {
-    //         name, type, field
-    //     } = ast as FunctionNode;
+        const { ast } = new Parser(query, {
+            type_config: typeConfig
+        });
+        const {
+            name, type, field
+        } = ast as FunctionNode;
 
-    //     const instance = initFunction({
-    //         node: ast as FunctionNode,
-    //         variables: {},
-    //         type_config: typeConfig
-    //     });
+        const instance = initFunction({
+            node: ast as FunctionNode,
+            variables: {},
+            type_config: typeConfig
+        });
 
-    //     expect(name).toEqual('knn');
-    //     expect(type).toEqual('function');
-    //     expect(field).toEqual('vector');
-    //     expect(instance.match).toBeFunction();
-    //     expect(instance.toElasticsearchQuery).toBeFunction();
-    // });
+        expect(name).toEqual('knn');
+        expect(type).toEqual('function');
+        expect(field).toEqual('vector');
+        expect(instance.match).toBeFunction();
+        expect(instance.toElasticsearchQuery).toBeFunction();
+    });
 
     it('can make a function ast with variable', () => {
         const query = 'vector:knn(vector:$foo k:5)';
@@ -63,5 +61,60 @@ describe('knn', () => {
         expect(field).toEqual('vector');
         expect(instance.match).toBeFunction();
         expect(instance.toElasticsearchQuery).toBeFunction();
+    });
+
+    it('match is not supported and will throw', () => {
+        const query = 'vector:knn(vector:$foo k:5)';
+        const variables = {
+            foo: [1, 2]
+        };
+        const { ast } = new Parser(query, {
+            type_config: typeConfig,
+            variables: {
+                foo: [1, 2]
+            }
+        }).resolveVariables(variables);
+
+        const instance = initFunction({
+            node: ast as FunctionNode,
+            variables: {},
+            type_config: typeConfig
+        });
+
+        expect(() => instance.match([1, 2])).toThrow();
+    });
+
+    it('toElasticsearchQuery can return a proper knn search segment', () => {
+        const field = 'someField';
+        const k = 5;
+        const query = `${field}:knn(vector:$foo k:${k})`;
+        const variables = {
+            foo: [1, 2]
+        };
+        const { ast } = new Parser(query, {
+            type_config: typeConfig,
+            variables: {
+                foo: [1, 2]
+            }
+        }).resolveVariables(variables);
+
+        const instance = initFunction({
+            node: ast as FunctionNode,
+            variables: {},
+            type_config: typeConfig
+        });
+
+        const search = instance.toElasticsearchQuery(field, options);
+
+        expect(search).toMatchObject({
+            query: {
+                knn: {
+                    [field]: {
+                        vector: variables.foo,
+                        k
+                    }
+                }
+            }
+        });
     });
 });

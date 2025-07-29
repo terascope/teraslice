@@ -1,7 +1,16 @@
 import { isArray } from './arrays.js';
-import { isNumber } from './numbers.js';
+import { isFloat, toNumberOrThrow } from './numbers.js';
 
-export function isVector(val: unknown): val is number[] {
-    if (!isArray(val)) return false;
-    return val.every(isNumber);
+export function getVector(input: unknown) {
+    if (!isArray(input)) throw new Error('Vector must be an array');
+
+    // its a string input, map and validate
+    if (input.length === 1 && typeof input[0] === 'string') {
+        return input[0].split(',').map(toNumberOrThrow);
+        // this is where variables are put
+    } else if (!input.every(isFloat)) {
+        throw new Error('Vector must be an array of floats');
+    }
+
+    return input;
 }

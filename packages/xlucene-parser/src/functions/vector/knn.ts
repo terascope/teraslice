@@ -1,5 +1,5 @@
 import { AnyQuery, xLuceneVariables } from '@terascope/types';
-import { isInteger, isVector } from '@terascope/utils';
+import { isInteger, getVector } from '@terascope/utils';
 import type { Term, FunctionDefinition } from '../../interfaces.js';
 import { getFieldValue } from '../../utils.js';
 
@@ -22,13 +22,9 @@ function validate(params: Term[], variables: xLuceneVariables) {
         throw new TypeError('Invalid knn query, the "k" parameter must be an integer');
     }
 
-    if (!isVector(vectorValue)) {
-        throw new TypeError('Invalid knn query, the "vector" parameter must be a valid vector');
-    }
-
     return {
         k: kValue,
-        vector: vectorValue
+        vector: getVector(vectorValue)
     };
 }
 

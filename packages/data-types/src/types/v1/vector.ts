@@ -1,6 +1,6 @@
 import {
     xLuceneFieldType, xLuceneTypeConfig, ClientMetadata,
-    ElasticsearchDistribution
+    ElasticsearchDistribution, ESTypeMapping
 } from '@terascope/types';
 import { isInteger, isString } from '@terascope/utils';
 import BaseType from '../base-type.js';
@@ -11,7 +11,7 @@ export default class VectorType extends BaseType {
     toESMapping(config: ClientMetadata): TypeESMapping {
         this._validateESMapping();
 
-        if (this.config.array == false) {
+        if (!this.config.array) {
             throw new Error('A vector must be marked as an array');
         }
 
@@ -33,7 +33,7 @@ export default class VectorType extends BaseType {
         }
 
         if (!isValidSpaceType(space_type)) {
-            throw new Error(`${this.field} must have an dimension property set to an integer`);
+            throw new Error(`${this.field} must have a valid space_type property`);
         }
 
         if (!validAlgorithms(name)) {
@@ -48,8 +48,9 @@ export default class VectorType extends BaseType {
             throw new Error(`${this.field} have conflicted configs, engine "lucene" cannot be paired with name "ivf"`);
         }
 
-        // TODO: fix type
-        let mapping: any;
+        let mapping: {
+            [key: string]: ESTypeMapping;
+        };
 
         if (majorVersion >= 3) {
             mapping = {
@@ -94,7 +95,6 @@ export default class VectorType extends BaseType {
     }
 }
 
-// TODO:This may need to be put somewhere else for definitions
 const listOfSpaces = ['l1', 'l2', 'linf', 'cosinesimil', 'innerproduct', 'hamming', 'hammingbit'];
 
 function isValidSpaceType(type?: unknown) {
