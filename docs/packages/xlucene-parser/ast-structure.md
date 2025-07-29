@@ -8,7 +8,7 @@ This document provides a comprehensive guide to the Abstract Syntax Tree (AST) s
 
 ## Overview
 
-The xLucene Parser converts query strings into a tree structure where each node represents a different type of query operation. All nodes implement the base `Node` interface with a `type` property that identifies the node type.
+The xLucene Parser converts query strings into a tree structure where each node represents a different type of query operation.
 
 ## Node Hierarchy
 
@@ -139,6 +139,23 @@ interface RangeNode {
     value: { type: "value", value: 95 }
   }
 }
+
+// Query: "score:[10 TO 20}"
+{
+  type: "range",
+  field: "score",
+  field_type: "integer",
+  left: {
+    operator: "gte",
+    field_type: "integer",
+    value: { type: "value", value: 10 }
+  },
+  right: {
+    operator: "lt",
+    field_type: "integer",
+    value: { type: "value", value: 20 }
+  }
+}
 ```
 
 ### Wildcard Node
@@ -165,6 +182,15 @@ interface Wildcard extends StringDataType, TermLikeNode {
   field_type: "string",
   quoted: false,
   value: { type: "value", value: "J*n" }
+}
+
+// Query: "name:J?n"
+{
+  type: "wildcard",
+  field: "name",
+  field_type: "string",
+  quoted: false,
+  value: { type: "value", value: "J?n" }
 }
 ```
 
@@ -197,7 +223,7 @@ interface Regexp extends StringDataType, TermLikeNode {
 
 ### Function Node
 
-Represents specialized function calls (primarily geospatial).
+Represents specialized function calls that add unique capabilities to Lucene.
 
 ```typescript
 interface FunctionNode extends TermLikeNode {
