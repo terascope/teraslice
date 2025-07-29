@@ -29,7 +29,6 @@
         "test:watch": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test --watch ../xlucene-translator --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test --watch ../xlucene-translator --",
         "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=3.1.0 node ../scripts/bin/ts-scripts test --watch ../xlucene-translator --"
-
     },
     "dependencies": {
         "@terascope/types": "~1.4.3",
@@ -38,8 +37,8 @@
         "xlucene-parser": "~1.9.3"
     },
     "devDependencies": {
-        "@terascope/opensearch-client": "~1.0.0",
         "@terascope/data-types": "1.10.0",
+        "@terascope/opensearch-client": "~1.0.0",
         "elasticsearch": "~15.4.1"
     },
     "engines": {
