@@ -146,7 +146,6 @@
                 "items": [
                     "packages/xlucene-parser/overview",
                     "packages/xlucene-parser/api/overview",
-                    "packages/xlucene-parser/query-syntax",
                     "packages/xlucene-parser/ast-structure"
                 ]
             },
