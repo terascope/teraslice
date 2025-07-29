@@ -9,9 +9,6 @@ import { FunctionDefinition, FunctionMethods, FunctionNode } from '../interfaces
 
 /**
  * Enumeration of available xLucene functions.
- *
- * These functions provide specialized query capabilities,
- * particularly for geospatial operations.
  */
 export enum xLuceneFunction {
     geoDistance = 'geoDistance',

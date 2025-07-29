@@ -31,16 +31,7 @@ import { Parser } from 'xlucene-parser';
 // Parse a simple query
 const parser = new Parser('name:John AND age:>=25');
 console.log(parser.ast);
-
-// Parse with type configuration
-const typedParser = new Parser('age:25', {
-  type_config: {
-    age: 'integer'
-  }
-});
 ```
-
-## Query Syntax Overview
 
 ## Limitations and Differences from Standard Lucene
 
@@ -58,24 +49,66 @@ While xLucene extends Lucene syntax in many ways, it does not support some stand
 - **Function queries**: Geospatial and other function syntax is xLucene-specific
 - **Field groups**: Enhanced field-scoped boolean logic not in standard Lucene
 - **Type coercion**: Automatic type conversion based on field definitions
-- **Enhanced date math**: More flexible date arithmetic expressions
+- **Enhanced date math**: More flexible date arithmetic expressions using the [datemath-parser](https://github.com/randing89/datemath-parser) library.
 
 Users migrating from standard Lucene should be aware of these differences when adapting existing queries.
 
-### Basic Terms
+## Basic Terms
 
 ```typescript
 // Simple terms
-const parser1 = new Parser('hello');           // Search for "hello"
+const parser1 = new Parser('hello');           // Search for "hello" in any field
 const parser2 = new Parser('name:John');       // Field-specific search
-const parser3 = new Parser('title:"Hello World"'); // Quoted phrases
+const parser3 = new Parser('title:"Hello World"'); // Use quotes to search for exact phrases
+const parser4 = new Parser('book.title:"Catch-22"'); // Use dot notation to search nested field for a value
 ```
 
-### Field Types
+## Field Types
+
+The `xLuceneFieldType` enum lists all available field data types
+
+```typescript
+enum xLuceneFieldType {
+    Geo = 'geo',
+    Date = 'date',
+    IP = 'ip',
+    IPRange = 'ip_range',
+    String = 'string',
+    AnalyzedString = '~string',
+    Integer = 'integer',
+    Float = 'float',
+    Boolean = 'boolean',
+    Object = 'object',
+    GeoPoint = 'geo-point',
+    GeoJSON = 'geo-json',
+    Number = 'number',
+}
+```
+
+If a `type_config` (see [Type Coercion](#type-coercion)) is not supplied the library will use type inference to choose the most appropriate type.
+
+```sh
+count:123             # Integer (auto-detected)
+count:"123"           # String (quotes forces string type)
+cash:50.50           # Float
+bool:true            # Boolean
+bool:false           # Boolean
+```
+
+Type configuration affects:
+
+- Value parsing and coercion
+- Range query behavior
+- Variable resolution
+- Date math evaluation
+
+## Type Coercion
+
+Providing a `type_config` in the ParserOptions will coerce the types of the query values to those provided in the config. This is used to properly match types with the document to be queried. In the example below, the parser will successfully convert the age float to a string and the score integer to a float. If the type cannot be converted the parser will throw an error.
 
 ```typescript
 // Configure field types for proper parsing
-const parser = new Parser('age:25 AND score:89.5', {
+const parser = new Parser('age:25.0 AND score:89', {
   type_config: {
     age: 'integer',
     score: 'float'
@@ -83,89 +116,271 @@ const parser = new Parser('age:25 AND score:89.5', {
 });
 ```
 
-### Range Queries
+## Range Queries
+
+### Comparison Operators
 
 ```typescript
 // Numeric ranges
 const parser1 = new Parser('age:>=18');        // Greater than or equal
-const parser2 = new Parser('score:[80 TO 100]'); // Inclusive range
-const parser3 = new Parser('price:{10 TO 50}'); // Exclusive range
+const parser2 = new Parser('score:>80'); // Greater than
+const parser3 = new Parser('price:<=250.00'); // Less than or equal
+const parser4 = new Parser('price:<15'); // Less than
+```
+
+### Interval Ranges
+
+```typescript
+// Numeric ranges
+const parser1 = new Parser('score:[80 TO 100]'); // Inclusive range
+const parser2 = new Parser('price:{10 TO 50}'); // Exclusive range
+const parser3 = new Parser('price:[10 TO 20}'); // Inclusive start to exclusive end range
 
 // Date ranges
 const parser4 = new Parser('created:[2023-01-01 TO 2023-12-31]');
 
 // Unbounded ranges
-const parser5 = new Parser('age:[18 TO *]');   // 18 and above
+const parser5 = new Parser('date:[2020-01-05 TO *]');   // all dates more recent than January 5th, 2020
+
+const parser6 = new Parser('val:[alpha TO omega]'); // String ranges
 ```
 
-### Logical Operations
+#### IP Ranges
+
+```sh
+const parser1 = new Parser('network:"1.2.3.0/24"');     # IPv4 CIDR
+const parser2 = new Parser('ip_range:"1.2.3.5"');        # Single IPv4
+const parser3 = new Parser('ip_v6:"2001:DB8::0/120"'); # IPv6 CIDR
+const parser4 = new Parser('ip_range:"2001:DB8::64"');    # Single IPv6
+```
+
+## Logical Operations
 
 ```typescript
 // Boolean operators
-const parser1 = new Parser('name:John AND age:25');
-const parser2 = new Parser('city:NYC OR city:LA');
-const parser3 = new Parser('NOT status:inactive');
+const parser1 = new Parser('name:John AND age:25'); // AND conjunction
+const parser2 = new Parser('city:NYC OR city:LA'); // OR disjunction
+const parser3 = new Parser('NOT status:inactive'); // Negation
+const parser4 = new Parser('foo bar'); // Implicit AND (space-separated)
 
 // Grouped operations
 const parser4 = new Parser('(name:John OR name:Jane) AND age:>=18');
 ```
 
-### Wildcards and Patterns
+## Field Groups
+
+```typescript
+const parser1 = new Parser('count:(>=10 AND <=20 AND >=100)'); // Multiple conditions on same field
+const parser2 = new Parser('name:(John OR Jane)'); // Multiple values for same field
+```
+
+## Wildcards and Patterns
 
 ```typescript
 // Wildcard searches
-const parser1 = new Parser('name:J*n');        // Multiple characters
-const parser2 = new Parser('name:J?hn');       // Single character
+const parser1 = new Parser('name:J*n');        // Multiple characters - would match 'Jon', 'John', etc
+const parser2 = new Parser('name:J?n');       // Single character - would match 'Jon', 'Jan', but not 'John'
+const parser3 = new Parser('fo?:bar');       // Field wildcard - would match 'foo:bar', 'for:bar', etc
 
 // Regular expressions
-const parser3 = new Parser('email:/.*@example\\.com/');
+const parser4 = new Parser('email:/.*@example\\.com/');
 ```
 
-### Variables
+Regexp can contain special characters or be supplied as a variable
 
-```typescript
-// Define variables in queries
+## Variables
+
+Xlucene supports parameterized queries using variables, enabling dynamic query construction and reusable query templates.
+
+### How Variables Work
+
+Variables are parsed as placeholder nodes in the AST and resolved later (in the code that is using the xLucene-parser library) with actual values. The `resolveVariables` function can also return a new Parser with an AST with variables resolved:
+
+```javascript
+// 1. Parse query with variables
 const parser = new Parser('name:$username AND age:>=$minAge');
 
-// Resolve variables - Returns a new Parser
-const resolved = parser.resolveVariables({
-  username: 'John',
-  minAge: 21
-});
+// 2. AST contains variable nodes
+{
+  type: 'logical-group',
+  flow: [
+    {
+      type: 'conjunction',
+      nodes: [
+        {
+          type: 'term',
+          field: 'name',
+          field_type: undefined,
+          value: { type: 'variable', scoped: false, value: 'username' }
+        },
+        {
+          type: 'range',
+          left: {
+            operator: 'gte',
+            type: 'term',
+            value: { type: 'variable', scoped: false, value: 'minAge' }
+          },
+          field: 'age'
+        }
+      ]
+    }
+  ]
+}
 
-// Scoped variables (not filtered by filterNilVariables)
-const parser2 = new Parser('category:@user.preference');
+// 3. Resolve variables with actual values.
+const parserWithResolvedVariables = parser.resolveVariables({ username: 'Bob', minAge: 40 });
+
+// 4. Variables become value nodes in new parser's AST
+{
+  type: 'logical-group',
+  flow: [
+    {
+      type: 'conjunction',
+      nodes: [
+        {
+          type: 'term',
+          field: 'name',
+          field_type: undefined,
+          value: { type: 'value', value: 'Bob' }
+        },
+        {
+          type: 'range',
+          left: {
+            operator: 'gte',
+            type: 'term',
+            value: { type: 'value', value: 40 }
+          },
+          field: 'age'
+        }
+      ]
+    }
+  ]
+}
 ```
 
-### Advanced Features
+### Unscoped Variables
 
-#### Geospatial Queries
+```sh
+field:$bar       # Variable reference
+field:"$foo"     # Quoted (not a variable)
+```
+
+### Scoped Variables
+
+Scoped variables are marked as `scoped: true` in the AST for use in special cases.
+
+```sh
+field:@example.foo    # Nested scoped variable
+field:"@example.foo"  # Quoted (not a variable)
+field:\\@example.foo  # Escaped (not a variable)
+```
+
+**Note:** Scoped variables are not filtered by the `filterNilVariables` option.
+
+### Variable Filtering
+
+When `filterNilVariables` is enabled:
+
+- Undefined variables create empty nodes
+- Scoped variables (@var) are preserved
+- Only regular variables ($var) are filtered
+
+## Escaping and Special Characters
+
+```sh
+foo:\\"bar\\"         # Escaped quotes
+id:some"thing"else    # Inner quotes
+"+ - () {} [] ^ ' \" ? & | / ~ * OR NOT"  # Reserved chars in quotes
+```
+
+## Advanced Features
+
+### Geospatial Queries
+
+#### Geo distance
 
 ```typescript
-// Geo distance
 const parser1 = new Parser(
   'location:geoDistance(point:"40.7128,-74.0060", distance:"10km")'
 );
+```
 
-// Geo bounding box
+Valid distance units:
+
+```typescript
+{
+  mi: 'miles',
+  miles: 'miles',
+  mile: 'miles',
+  NM: 'nauticalmiles',
+  nmi: 'nauticalmiles',
+  nauticalmile: 'nauticalmiles',
+  nauticalmiles: 'nauticalmiles',
+  in: 'inch',
+  inch: 'inch',
+  inches: 'inch',
+  yd: 'yards',
+  yard: 'yards',
+  yards: 'yards',
+  m: 'meters',
+  meter: 'meters',
+  meters: 'meters',
+  km: 'kilometers',
+  kilometer: 'kilometers',
+  kilometers: 'kilometers',
+  mm: 'millimeters',
+  millimeter: 'millimeters',
+  millimeters: 'millimeters',
+  cm: 'centimeters',
+  centimeter: 'centimeters',
+  centimeters: 'centimeters',
+  ft: 'feet',
+  feet: 'feet',
+};
+```
+
+#### Geo bounding box
+
+```typescript
 const parser2 = new Parser(
   'location:geoBox(top_left:"40.8,-74.1", bottom_right:"40.7,-73.9")'
 );
+```
 
-// Geo polygon
+#### Geo polygon
+
+```typescript
 const parser3 = new Parser(
-  'location:geoPolygon(points:["40.8,-74.1", "40.7,-74.1", "40.7,-73.9"])'
+  'location:geoPolygon(points:["40.8,-74.1", "40.7,-74.1", "40.7,-73.9"] relation: "intersects"))'
 );
 ```
 
-#### Field Existence
+#### Geo contains point
+
+```typescript
+const parser4 = new Parser(
+  'location:geoContainsPoint(point:"33.435518,-111.873616")'
+  );
+```
+
+### Field Existence
 
 ```typescript
 // Check if field exists
 const parser = new Parser('_exists_:email');
 ```
 
-#### Date Math
+### Empty Queries
+
+```typescript
+const parser1 = new Parser('""'); // Term Node type with empty string
+const parser2 = new Parser(''); // Empty Node type
+
+```
+
+### Date Math
+
+xLucene supports sophisticated date math expressions for relative date calculations using the [datemath-parser](https://github.com/randing89/datemath-parser) library. See the elasticsearch [Date Math](https://www.elastic.co/docs/reference/elasticsearch/rest-apis/common-options#date-math) docs for more info.
 
 ```typescript
 // Date math expressions
@@ -178,16 +393,28 @@ const parser3 = new Parser('timestamp:now-30d', {
     timestamp: 'date'
   }
 });
+
+// Multiple Operations
+const parser4 = new Parser('val:[now+2d-6M TO now+20d-3d-1d+5d]');
+
+// Date Rounding - Use a `/` to round a date down to the nearest time unit.
+const parser5 = new Parser('updated:"now/y"');   // The first day of this year
+
+// To perform date math on a date string use pipe notation.
+const parser6 = new Parser(val:["2020-05-08||-6w" TO "2021-01-02||+4d"]);
 ```
 
-#### IP Ranges
+#### Supported Time Units
 
-```typescript
-// IP and CIDR matching
-const parser1 = new Parser('ip:"192.168.1.100"');
-const parser2 = new Parser('network:"192.168.0.0/24"');
-const parser3 = new Parser('ipv6:"2001:db8::/32"');
-```
+| Symbol | Unit    |
+|--------|---------|
+| y or Y | Years   |
+| M      | Months  |
+| w or W | Weeks   |
+| d or D | Days    |
+| h or H | Hours   |
+| m      | Minutes |
+| s or S | Seconds |
 
 ## API Reference
 
@@ -201,8 +428,8 @@ new Parser(query: string, options?: ParserOptions)
 
 #### Options
 
-- `type_config`: Field type configuration for value coercion
-- `filterNilVariables`: Filter out undefined variables
+- `type_config`: Field type configuration for value coercion. See [Field Types](#field-types)
+- `filterNilVariables`: Filter out undefined variables. See [Variable Filtering](#variable-filtering)
 - `variables`: Variable values for resolution
 
 #### Methods
@@ -288,67 +515,7 @@ The parser generates an Abstract Syntax Tree with the following node types:
 - **Function**: Special functions (`geoDistance(...)`)
 - **Exists**: Field existence checks (`_exists_:email`)
 
-## Common Use Cases
-
-### Search Interface
-
-```typescript
-function buildSearchQuery(userInput: string, filters: Record<string, any>) {
-  const parser = new Parser(userInput);
-  
-  // Add filters
-  const withFilters = parser.mapNode((node) => {
-    // Apply additional filters based on user permissions
-    return node;
-  });
-  
-  return withFilters;
-}
-```
-
-### Query Validation
-
-```typescript
-function validateQuery(query: string, allowedFields: string[]) {
-  const parser = new Parser(query);
-  
-  const invalidFields: string[] = [];
-  
-  parser.forTermTypes((node) => {
-    if (node.field && !allowedFields.includes(node.field)) {
-      invalidFields.push(node.field);
-    }
-  });
-  
-  if (invalidFields.length > 0) {
-    throw new Error(`Invalid fields: ${invalidFields.join(', ')}`);
-  }
-  
-  return parser;
-}
-```
-
-### Dynamic Query Building
-
-```typescript
-function buildDynamicQuery(baseQuery: string, userVariables: Record<string, any>) {
-  const parser = new Parser(baseQuery, {
-    filterNilVariables: true
-  });
-  
-  return parser.resolveVariables(userVariables);
-}
-
-// Usage
-const query = buildDynamicQuery(
-  'status:active AND category:$userCategory AND created:>=$startDate',
-  {
-    userCategory: 'electronics',
-    startDate: '2023-01-01'
-    // undefined variables will be filtered out
-  }
-);
-```
+See [AST Structure](./ast-structure.md)
 
 ## Error Handling
 
@@ -375,5 +542,3 @@ try {
 - Configure field types to avoid runtime coercion
 - Use `skipFunctionParams` when traversing large ASTs
 - Consider `filterNilVariables` for dynamic queries
-
-For complete query syntax reference, see [query-syntax.md](./query-syntax.md).
