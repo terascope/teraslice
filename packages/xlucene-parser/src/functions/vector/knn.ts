@@ -1,4 +1,4 @@
-import { AnyQuery, xLuceneVariables } from '@terascope/types';
+import { KNNQuery, xLuceneVariables } from '@terascope/types';
 import { isInteger, getVector } from '@terascope/utils';
 import type { Term, FunctionDefinition } from '../../interfaces.js';
 import { getFieldValue } from '../../utils.js';
@@ -40,7 +40,7 @@ const knnSearch: FunctionDefinition = {
         const { k, vector } = validate(node.params as Term[], variables);
 
         function toElasticsearchQuery(field: string) {
-            const query: AnyQuery = {
+            const query: KNNQuery = {
                 knn: {
                     [field]: {
                         vector,

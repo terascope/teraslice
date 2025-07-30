@@ -6,7 +6,6 @@ import { isInteger, isString } from '@terascope/utils';
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
-// TODO: maybe validate not elasticsearch 6 or other versions that don't support
 export default class VectorType extends BaseType {
     toESMapping(config: ClientMetadata): TypeESMapping {
         this._validateESMapping();
@@ -19,12 +18,12 @@ export default class VectorType extends BaseType {
         const { dimension, space_type = 'l2', name = 'hnsw', engine = 'faiss' } = this.config;
 
         if (distribution === ElasticsearchDistribution.elasticsearch) {
-            throw new Error('Vector datatypes are not supported with elasticsearch distribution');
+            throw new Error('Vector datatypes are not supported with Elasticsearch distribution');
         }
 
         if (distribution === ElasticsearchDistribution.opensearch) {
             if (majorVersion === 1 || (majorVersion === 2 && minorVersion < 10)) {
-                throw new Error('Vector datatypes are not supported with opensearch version < 2.10');
+                throw new Error('Vector datatypes are not supported with Opensearch versions < 2.10');
             }
         }
 
@@ -37,7 +36,7 @@ export default class VectorType extends BaseType {
         }
 
         if (!validAlgorithms(name)) {
-            throw new Error(`${this.field} must have a correct name property`);
+            throw new Error(`${this.field} must have a correct name property (the algorithm name)`);
         }
 
         if (!isValidEngine(engine)) {
@@ -45,7 +44,7 @@ export default class VectorType extends BaseType {
         }
 
         if (engine === 'lucene' && name === 'ivf') {
-            throw new Error(`${this.field} have conflicted configs, engine "lucene" cannot be paired with name "ivf"`);
+            throw new Error(`${this.field} has conflicting values, engine "lucene" cannot be paired with name "ivf"`);
         }
 
         let mapping: {

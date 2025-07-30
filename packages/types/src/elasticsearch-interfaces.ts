@@ -29,7 +29,7 @@ export interface KNNQuery {
         [field: string]: {
             vector: number[];
             k: number;
-            filter?: AnyQuery[];
+            filter?: AnyQuery | AnyQuery[];
             [field: string]: any;
         };
     };

@@ -101,7 +101,7 @@ describe('DataType (elasticsearch)', () => {
             expect(dataType.toESMapping(mappingConfig)).toEqual(results);
         });
 
-        it('can create a elasticsearch 7 mapping vector mapping', () => {
+        it('can create a opensearch v3 vector mapping', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
@@ -128,7 +128,11 @@ describe('DataType (elasticsearch)', () => {
                         myVector: {
                             type: 'knn_vector',
                             dimension: 2,
-                            space_type: 'l2'
+                            space_type: 'l2',
+                            method: {
+                                engine: 'faiss',
+                                name: 'hnsw'
+                            }
                         }
                     },
                     _meta: { foo: 'foo' },
@@ -137,10 +141,10 @@ describe('DataType (elasticsearch)', () => {
 
             const dataType = new DataType(typeConfig);
             const mappingConfig: ESMappingOptions = {
-                distribution: ElasticsearchDistribution.elasticsearch,
-                minorVersion: 3,
-                majorVersion: 7,
-                version: '7.3.1',
+                distribution: ElasticsearchDistribution.opensearch,
+                minorVersion: 1,
+                majorVersion: 3,
+                version: '3.1.1',
                 _meta: { foo: 'foo' },
             };
 

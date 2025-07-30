@@ -403,8 +403,8 @@ function buildKNNQuery(
     parser: Parser,
     context: QueryContext,
 ): AnyQuery | undefined {
-    let knnQuery: any = {};
-    const must: any[] = [];
+    let knnQuery: KNNQuery | undefined;
+    const must: AnyQuery[] = [];
 
     parser.walkAST((node: Node) => {
         if (isFunctionNode(node) && node.name === 'knn') {
@@ -414,52 +414,47 @@ function buildKNNQuery(
                 getTermField(node),
                 context
             );
-            knnQuery = query;
+            knnQuery = query as KNNQuery;
         } else if (isTermType(node)) {
-            must.push(buildTermLevelQuery(node, context));
+            const query = buildTermLevelQuery(node, context);
+            if (query) must.push(query);
         } else if (isNegation(node)) {
-            must.push(buildNegationQuery(node, context));
+            const query = buildNegationQuery(node, context);
+            if (query) must.push(query);
         } else if (isExists(node)) {
             must.push(buildExistsQuery(node));
         }
     });
 
-    const buildQuery: any = { knn: {} };
+    const finalQuery: KNNQuery = { knn: {} };
 
-    if (must.length) {
+    if (knnQuery && must.length) {
         for (const [field, config] of Object.entries(knnQuery.knn)) {
             const knnConjunction = {
-            // @ts-expect-error
                 ...config,
-                ...{
-                    filter: {
-                        bool: {
-                            should: [
-                                {
-                                    bool: {
-                                        filter: [
-                                            ...must
-                                        ]
-                                    }
+                filter: {
+                    bool: {
+                        should: [
+                            {
+                                bool: {
+                                    filter: [
+                                        ...must
+                                    ]
                                 }
-                            ]
-                        }
+                            }
+                        ]
                     }
                 }
             };
-            buildQuery.knn[field] = knnConjunction;
+            finalQuery.knn[field] = knnConjunction;
         }
-    } else {
+    } else if (knnQuery) {
         for (const [field, config] of Object.entries(knnQuery.knn)) {
-            const knnConjunction = {
-            // @ts-expect-error
-                ...config,
-            };
-            buildQuery.knn[field] = knnConjunction;
+            finalQuery.knn[field] = config;
         }
     }
 
-    return buildQuery;
+    return finalQuery;
 }
 
 function buildAnyQuery(
