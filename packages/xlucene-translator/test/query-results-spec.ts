@@ -7,6 +7,8 @@ import { type Client, ElasticsearchTestHelpers, getClientMetadata } from '@teras
 import { QueryAccess } from '../src/query-access/index.js';
 import allTestCases from './cases/queries/index.js';
 
+const { makeClient, waitForData, cleanupIndex } = ElasticsearchTestHelpers;
+
 function mapResults(results: SearchResponse) {
     return results.hits.hits.map(({ _source }) => _source);
 }
@@ -58,7 +60,7 @@ describe('Queries', () => {
     let clientMetadata: ClientMetadata | undefined;
 
     beforeAll(async () => {
-        client = await ElasticsearchTestHelpers.makeClient();
+        client = await makeClient();
         clientMetadata = getClientMetadata(client);
 
         await client.indices.create({ index });
@@ -71,16 +73,17 @@ describe('Queries', () => {
             }
         );
         await client.bulk({ index, body: bulkParams });
-        await client.indices.refresh();
+        await waitForData(client, index, searchData.length);
     });
 
     afterAll(async () => {
-        await ElasticsearchTestHelpers.cleanupIndex(client, index);
+        await cleanupIndex(client, index);
     });
 
     it('should have populated the index', async () => {
         const searchParams = await access.restrictSearchQuery('', clientMetadata);
         const results = await client.search(searchParams);
+        // console.dir({ searchParams, results }, { depth: 40 })
         expect(mapResults(results)).toEqual(searchData);
     });
 
