@@ -220,10 +220,20 @@ function resolveJestArg(arg: string): string[] {
                 }
             }
         }
-
-        return ['--testPathPatterns', arg];
+        return ['--testPathPatterns', normalizeJestPathPattern(arg)];
     }
     return [arg];
+}
+
+/**
+ * Converts a relative path starting with `./` to a Jest 30+ compatible pattern
+ * by removing the leading `./` if present.
+ *
+ * @param testPath - The input path string
+ * @returns The cleaned path string without leading `./`
+ */
+function normalizeJestPathPattern(testPath: string): string {
+    return testPath.startsWith('./') ? testPath.slice(2) : testPath;
 }
 
 function getPkgInfos(packages?: PackageInfo[]): PackageInfo[] {
