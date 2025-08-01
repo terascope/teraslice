@@ -28,7 +28,7 @@ export default class VectorType extends BaseType {
         }
 
         if (!isInteger(dimension)) {
-            throw new Error(`${this.field} must have an dimension property set to an integer`);
+            throw new Error(`${this.field} must have a dimension property set to an integer`);
         }
 
         if (!isValidSpaceType(space_type)) {
