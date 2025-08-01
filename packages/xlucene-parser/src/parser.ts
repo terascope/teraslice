@@ -207,7 +207,7 @@ export class Parser {
     }
 
     /**
-     * Recursively Iterate over all or select set of the nodes types
+     * Recursively iterate over all or select set of the nodes types
     */
     forTypes<T extends i.NodeType[] | readonly i.NodeType[]>(
         types: T, cb: (node: i.Node) => void, skipFunctionParams = false
@@ -223,6 +223,35 @@ export class Parser {
                 }
                 return;
             }
+
+            if (utils.isNegation(node)) {
+                walkNode(node.node);
+                return;
+            }
+
+            if (utils.isGroupLike(node)) {
+                for (const conj of node.flow) {
+                    walkNode(conj);
+                }
+                return;
+            }
+
+            if (utils.isConjunction(node)) {
+                for (const conj of node.nodes) {
+                    walkNode(conj);
+                }
+            }
+        };
+
+        walkNode(this.ast);
+    }
+
+    /**
+     * Recursively iterate over all nodes types
+    */
+    walkAST(cb: (node: i.Node) => void) {
+        const walkNode = (node: i.Node) => {
+            cb(node);
 
             if (utils.isNegation(node)) {
                 walkNode(node.node);

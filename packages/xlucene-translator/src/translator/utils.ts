@@ -2,329 +2,99 @@ import {
     TSError, isString, isArray, isEmpty,
     matchWildcard
 } from '@terascope/utils';
-import * as p from 'xlucene-parser';
-import * as i from '@terascope/types';
+import {
+    isEmptyNode, isWildcardField, isTerm,
+    parseRange, isRange, isRegexp,
+    isWildcard, isFunctionNode, initFunction,
+    getFieldValue, isGroupLike, isNegation,
+    isExists, isTermType, isConjunction,
+    type Parser, type TermLikeNode, type Exists,
+    type GroupLikeNode, type Conjunction, type Negation,
+    type Range, type Regexp, type Node, type Wildcard,
+    type Term,
+} from 'xlucene-parser';
+import type {
+    WildcardQuery, MultiMatchQuery, QueryStringQuery,
+    TermQuery, MatchQuery, MatchPhraseQuery,
+    RangeQuery, AnyQuerySort, ElasticsearchDSLResult,
+    MatchAllQuery, ConstantScoreQuery, MatchNoneQuery,
+    AnyQuery, BoolQuery, ExistsQuery, RegExprQuery,
+    BoolQueryTypes, KNNQuery
+} from '@terascope/types';
 import { UtilsTranslateQueryOptions } from './interfaces.js';
 
 type WildCardQueryResults
-    = i.WildcardQuery
-        | i.MultiMatchQuery
-        | i.QueryStringQuery;
+    = WildcardQuery
+        | MultiMatchQuery
+        | QueryStringQuery;
 
 type TermQueryResults
-    = | i.TermQuery
-        | i.MatchQuery
-        | i.MatchPhraseQuery
-        | i.MultiMatchQuery;
+    = | TermQuery
+        | MatchQuery
+        | MatchPhraseQuery
+        | MultiMatchQuery;
 
 type RangeQueryResults
-    = | i.RangeQuery
-        | i.MultiMatchQuery
+    = | RangeQuery
+        | MultiMatchQuery
         | undefined;
 
+type SortArgs = AnyQuerySort | AnyQuerySort[] | undefined;
+
+interface QueryContext extends UtilsTranslateQueryOptions {
+    sort?: SortArgs;
+}
+
 export function translateQuery(
-    parser: p.Parser,
+    parser: Parser,
     options: UtilsTranslateQueryOptions
-): i.ElasticsearchDSLResult {
-    const { logger, type_config: typeConfig, variables } = options;
-    let sort: i.AnyQuerySort | i.AnyQuerySort[] | undefined;
+): ElasticsearchDSLResult {
+    const context: QueryContext = {
+        ...options
+    };
+    // TODO: this should probably reference the search type from opensearch, maybe not
+    let topLevelQuery: MatchAllQuery | ConstantScoreQuery | MatchNoneQuery | KNNQuery;
 
-    function buildAnyQuery(node: p.Node): i.AnyQuery | undefined {
-        // if no field and is wildcard
-        if (
-            p.isWildcard(node)
-            && !node.field
-            && p.getFieldValue(node.value, variables) === '*'
-        ) {
-            return {
-                bool: {
-                    filter: [],
-                },
-            };
-        }
-
-        if (p.isGroupLike(node)) {
-            return buildBoolQuery(node);
-        }
-
-        if (p.isNegation(node)) {
-            return buildNegationQuery(node);
-        }
-
-        if (p.isExists(node)) {
-            return buildExistsQuery(node);
-        }
-
-        if (p.isTermType(node)) {
-            const query = buildTermLevelQuery(node);
-            if (query) return query;
-        }
-
-        const error = new TSError(`Unexpected problem when translating xlucene query ${parser.query}`, {
-            context: {
-                node,
-                ast: parser.ast,
-            },
-        });
-
-        logger.error(error);
-    }
-
-    function buildTermLevelQuery(node: p.TermLikeNode): i.AnyQuery | i.BoolQuery | undefined {
-        if (p.isWildcardField(node)) {
-            if (isEmpty(typeConfig)) {
-                throw new Error(
-                    `Configuration for type_config needs to be provided with fields related to ${node.field}`
-                );
-            }
-            const should = Object.keys(typeConfig)
-                .filter((field) => matchWildcard(node.field as string, field))
-                .map((field) => Object.assign({}, node, { field }))
-                .map((newNode) => buildTermLevelQuery(newNode)) as i.AnyQuery[];
-
-            return {
-                bool: {
-                    should
-                }
-            };
-        }
-
-        if (p.isTerm(node)) {
-            return buildTermQuery(node);
-        }
-
-        if (p.isRegexp(node)) {
-            return buildRegExprQuery(node);
-        }
-
-        if (p.isWildcard(node)) {
-            return buildWildcardQuery(node);
-        }
-
-        if (p.isRange(node)) {
-            return buildRangeQuery(node);
-        }
-
-        if (p.isFunctionNode(node)) {
-            const instance = p.initFunction({ node, variables, type_config: typeConfig });
-            const { query, sort: sortQuery } = instance.toElasticsearchQuery(
-                getTermField(node),
-                options
-            );
-            // TODO: review how sort works in this module
-            if (sortQuery != null) {
-                if (!sort) {
-                    sort = sortQuery;
-                } else if (Array.isArray(sort)) {
-                    sort.push(sortQuery);
-                } else {
-                    sort = [sort, sortQuery];
-                }
-            }
-
-            return query;
-        }
-    }
-
-    function buildMultiMatchQuery(node: p.TermLikeNode, query: string): i.MultiMatchQuery {
-        const multiMatchQuery: i.MultiMatchQuery = {
-            multi_match: {
-                query,
-            },
-        };
-
-        logger.trace('built multi-match query', { node, multiMatchQuery });
-        return multiMatchQuery;
-    }
-
-    function buildRangeQuery(node: p.Range): RangeQueryResults {
-        if (isMultiMatch(node)) {
-            if (!node.right) {
-                return;
-            }
-            const leftValue = p.getFieldValue(node.left.value, variables);
-            const query = `${node.left.operator}${leftValue}`;
-            return buildMultiMatchQuery(node, query);
-        }
-
-        const field = getTermField(node);
-        const rangeQuery: i.RangeQuery = {
-            range: {
-                [field]: p.parseRange(node, variables, true),
-            },
-        };
-
-        logger.trace('built range query', { node, rangeQuery });
-        return rangeQuery;
-    }
-
-    function buildTermQuery(node: p.Term): TermQueryResults | undefined {
-        const value = p.getFieldValue(node.value, variables, true);
-        if (value == null) return;
-
-        if (isMultiMatch(node)) {
-            const query = `${value}`;
-            return buildMultiMatchQuery(node, query);
-        }
-
-        const field = getTermField(node);
-
-        if (isString(value) || node.analyzed) {
-            const matchQuery: i.MatchQuery = {
-                match: {
-                    [field]: {
-                        operator: 'and',
-                        query: value,
-                    },
-                },
-            };
-
-            logger.trace('built match query', { node, matchQuery });
-            return matchQuery;
-        }
-
-        const termQuery: i.TermQuery = {
-            term: {
-                [field]: value,
-            },
-        };
-
-        logger.trace('built term query', { node, termQuery });
-        return termQuery;
-    }
-
-    function buildWildcardQuery(node: p.Wildcard): WildCardQueryResults | undefined {
-        const value = p.getFieldValue(node.value, variables, true);
-        if (value == null) return;
-
-        if (isMultiMatch(node)) {
-            const query = `${value}`;
-            return buildMultiMatchQuery(node, query);
-        }
-
-        const field = getTermField(node);
-
-        if (node.analyzed) {
-            return {
-                query_string: {
-                    fields: [field],
-                    query: value
-                }
-            };
-        }
-
-        const wildcardQuery: i.WildcardQuery = {
-            wildcard: {
-                [field]: value,
-            },
-        };
-
-        logger.trace('built wildcard query', { node, wildcardQuery });
-        return wildcardQuery;
-    }
-
-    function buildRegExprQuery(
-        node: p.Regexp
-    ): i.RegExprQuery | i.MultiMatchQuery | i.QueryStringQuery | undefined {
-        const value = p.getFieldValue(node.value, variables, true);
-        if (value == null) return;
-
-        if (isMultiMatch(node)) {
-            const query = `${value}`;
-            return buildMultiMatchQuery(node, query);
-        }
-
-        const field = getTermField(node);
-
-        if (node.analyzed) {
-            return {
-                query_string: {
-                    fields: [field],
-                    query: `/${value}/`
-                }
-            };
-        }
-
-        const regexQuery: i.RegExprQuery = {
-            regexp: {
-                [field]: {
-                    value,
-                    flags: 'COMPLEMENT|EMPTY|INTERSECTION|INTERVAL'
-                }
-            },
-        };
-
-        logger.trace('built regexp query', { node, regexQuery });
-        return regexQuery;
-    }
-
-    function buildExistsQuery(node: p.Exists): i.ExistsQuery {
-        const existsQuery: i.ExistsQuery = {
-            exists: {
-                field: node.field,
-            },
-        };
-
-        logger.trace('built exists query', { node, existsQuery });
-        return existsQuery;
-    }
-
-    function buildBoolQuery(node: p.GroupLikeNode): i.BoolQuery | undefined {
-        const should: i.AnyQuery[] = [];
-
-        for (const conj of node.flow) {
-            const query = buildConjunctionQuery(conj);
-            should.push(...flattenQuery(query, 'should'));
-        }
-        if (!should.length) return;
-
-        const boolQuery: i.BoolQuery = {
-            bool: {
-                should,
-            },
-        };
-
-        logger.trace('built bool query', { node, boolQuery });
-        return boolQuery;
-    }
-
-    function buildConjunctionQuery(conj: p.Conjunction): i.BoolQuery | undefined {
-        const filter: i.AnyQuery[] = [];
-        for (const node of conj.nodes) {
-            const query = buildAnyQuery(node);
-            filter.push(...flattenQuery(query, 'filter'));
-        }
-
-        // should match if AND statement
-        if (!filter.length || conj.nodes.length !== filter.length) return;
-
-        return {
-            bool: {
-                filter,
-            },
-        };
-    }
-
-    function buildNegationQuery(node: p.Negation): i.BoolQuery | undefined {
-        const query = buildAnyQuery(node.node);
-        if (!query) return;
-
-        const mustNot = flattenQuery(query, 'must_not');
-        logger.trace('built negation query', mustNot, node);
-        return {
-            bool: {
-                must_not: mustNot,
-            },
-        };
-    }
-
-    let topLevelQuery: i.MatchAllQuery | i.ConstantScoreQuery | i.MatchNoneQuery;
-    if (p.isEmptyNode(parser.ast)) {
+    if (isEmptyNode(parser.ast)) {
         topLevelQuery = {
             match_all: {},
         };
     } else {
-        const anyQuery = buildAnyQuery(parser.ast);
+        let hasKNN = false;
+        let allANDConjunctions = true;
+
+        parser.walkAST((node: Node) => {
+            if (isFunctionNode(node) && node.name === 'knn') {
+                hasKNN = true;
+                return;
+            }
+
+            if (isConjunction(node)) {
+                if (node.nodes.length === 1) {
+                    allANDConjunctions = false;
+                    return;
+                }
+            }
+        });
+
+        let anyQuery = null;
+
+        if (hasKNN && allANDConjunctions) {
+            anyQuery = buildKNNQuery(parser, context);
+        } else {
+            anyQuery = buildAnyQuery(parser.ast, context);
+        }
+
+        if (anyQuery == null) {
+            const error = new TSError(`Unexpected problem when translating xlucene query ${parser.query}`, {
+                context: {
+                    ast: parser.ast,
+                },
+            });
+
+            options.logger.error(error);
+        }
+
         const filter = compactFinalQuery(anyQuery);
 
         if (isArray(filter) && !filter.length) {
@@ -332,6 +102,11 @@ export function translateQuery(
             // throw a parsing exception
             topLevelQuery = {
                 match_none: {}
+            };
+        } else if (hasKNN && allANDConjunctions) {
+            // @ts-expect-error
+            topLevelQuery = {
+                ...anyQuery
             };
         } else {
             topLevelQuery = {
@@ -341,6 +116,8 @@ export function translateQuery(
             };
         }
     }
+
+    let { sort } = context;
 
     if (!sort && options.default_geo_field && options.geo_sort_point) {
         sort = {
@@ -359,18 +136,374 @@ export function translateQuery(
     };
 }
 
-export function isMultiMatch(node: p.TermLikeNode): boolean {
+function buildTermLevelQuery(
+    node: TermLikeNode,
+    context: QueryContext,
+): AnyQuery | BoolQuery | undefined {
+    if (isWildcardField(node)) {
+        if (isEmpty(context.type_config)) {
+            throw new Error(
+                `Configuration for type_config needs to be provided with fields related to ${node.field}`
+            );
+        }
+        const should = Object.keys(context.type_config)
+            .filter((field) => matchWildcard(node.field as string, field))
+            .map((field) => Object.assign({}, node, { field }))
+            .map((newNode) => buildTermLevelQuery(newNode, context)) as AnyQuery[];
+
+        return {
+            bool: {
+                should
+            }
+        };
+    }
+
+    if (isTerm(node)) {
+        return buildTermQuery(node, context);
+    }
+
+    if (isRegexp(node)) {
+        return buildRegExprQuery(node, context);
+    }
+
+    if (isWildcard(node)) {
+        return buildWildcardQuery(node, context);
+    }
+
+    if (isRange(node)) {
+        return buildRangeQuery(node, context);
+    }
+
+    if (isFunctionNode(node)) {
+        const { variables, type_config } = context;
+        const instance = initFunction({ node, variables, type_config });
+        const { query, sort: sortQuery } = instance.toElasticsearchQuery(
+            getTermField(node),
+            context
+        );
+            // TODO: review how sort works in this module
+        if (sortQuery != null) {
+            if (!context.sort) {
+                context.sort = sortQuery;
+            } else if (Array.isArray(context.sort)) {
+                context.sort.push(sortQuery);
+            } else {
+                context.sort = [context.sort, sortQuery];
+            }
+        }
+
+        return query;
+    }
+}
+
+function buildExistsQuery(node: Exists): ExistsQuery {
+    const existsQuery: ExistsQuery = {
+        exists: {
+            field: node.field,
+        },
+    };
+
+    return existsQuery;
+}
+
+function buildBoolQuery(
+    node: GroupLikeNode,
+    context: QueryContext,
+): BoolQuery | undefined {
+    const should: AnyQuery[] = [];
+
+    for (const conj of node.flow) {
+        const query = buildConjunctionQuery(conj, context);
+        should.push(...flattenQuery(query, 'should'));
+    }
+
+    if (!should.length) return;
+
+    const boolQuery: BoolQuery = {
+        bool: {
+            should,
+        },
+    };
+
+    return boolQuery;
+}
+
+function buildConjunctionQuery(
+    conj: Conjunction,
+    context: QueryContext,
+): BoolQuery | undefined {
+    const filter: AnyQuery[] = [];
+
+    for (const node of conj.nodes) {
+        const query = buildAnyQuery(node, context);
+        filter.push(...flattenQuery(query, 'filter'));
+    }
+
+    // should match if AND statement
+    if (!filter.length || conj.nodes.length !== filter.length) return;
+
+    return {
+        bool: {
+            filter,
+        },
+    };
+}
+
+function buildNegationQuery(
+    node: Negation,
+    context: QueryContext,
+): BoolQuery | undefined {
+    const query = buildAnyQuery(node.node, context);
+    if (!query) return;
+
+    const mustNot = flattenQuery(query, 'must_not');
+
+    return {
+        bool: {
+            must_not: mustNot,
+        },
+    };
+}
+
+function buildMultiMatchQuery(node: TermLikeNode, query: string): MultiMatchQuery {
+    const multiMatchQuery: MultiMatchQuery = {
+        multi_match: {
+            query,
+        },
+    };
+
+    return multiMatchQuery;
+}
+
+function buildRangeQuery(node: Range, context: QueryContext): RangeQueryResults {
+    if (isMultiMatch(node)) {
+        if (!node.right) {
+            return;
+        }
+        const leftValue = getFieldValue(node.left.value, context.variables);
+        const query = `${node.left.operator}${leftValue}`;
+
+        return buildMultiMatchQuery(node, query);
+    }
+
+    const field = getTermField(node);
+    const rangeQuery: RangeQuery = {
+        range: {
+            [field]: parseRange(node, context.variables, true),
+        },
+    };
+
+    return rangeQuery;
+}
+
+function buildTermQuery(
+    node: Term,
+    context: QueryContext
+): TermQueryResults | undefined {
+    const value = getFieldValue(node.value, context.variables, true);
+    if (value == null) return;
+
+    if (isMultiMatch(node)) {
+        const query = `${value}`;
+        return buildMultiMatchQuery(node, query);
+    }
+
+    const field = getTermField(node);
+
+    if (isString(value) || node.analyzed) {
+        const matchQuery: MatchQuery = {
+            match: {
+                [field]: {
+                    operator: 'and',
+                    query: value,
+                },
+            },
+        };
+
+        return matchQuery;
+    }
+
+    const termQuery: TermQuery = {
+        term: {
+            [field]: value,
+        },
+    };
+
+    return termQuery;
+}
+
+function buildWildcardQuery(
+    node: Wildcard,
+    context: QueryContext
+): WildCardQueryResults | undefined {
+    const value = getFieldValue(node.value, context.variables, true);
+    if (value == null) return;
+
+    if (isMultiMatch(node)) {
+        const query = `${value}`;
+        return buildMultiMatchQuery(node, query);
+    }
+
+    const field = getTermField(node);
+
+    if (node.analyzed) {
+        return {
+            query_string: {
+                fields: [field],
+                query: value
+            }
+        };
+    }
+
+    const wildcardQuery: WildcardQuery = {
+        wildcard: {
+            [field]: value,
+        },
+    };
+
+    return wildcardQuery;
+}
+
+function buildRegExprQuery(
+    node: Regexp,
+    context: QueryContext
+): RegExprQuery | MultiMatchQuery | QueryStringQuery | undefined {
+    const value = getFieldValue(node.value, context.variables, true);
+    if (value == null) return;
+
+    if (isMultiMatch(node)) {
+        const query = `${value}`;
+        return buildMultiMatchQuery(node, query);
+    }
+
+    const field = getTermField(node);
+
+    if (node.analyzed) {
+        return {
+            query_string: {
+                fields: [field],
+                query: `/${value}/`
+            }
+        };
+    }
+
+    const regexQuery: RegExprQuery = {
+        regexp: {
+            [field]: {
+                value,
+                flags: 'COMPLEMENT|EMPTY|INTERSECTION|INTERVAL'
+            }
+        },
+    };
+
+    return regexQuery;
+}
+
+function buildKNNQuery(
+    parser: Parser,
+    context: QueryContext,
+): AnyQuery | undefined {
+    let knnQuery: KNNQuery | undefined;
+    const must: AnyQuery[] = [];
+
+    parser.walkAST((node: Node) => {
+        if (isFunctionNode(node) && node.name === 'knn') {
+            const { variables, type_config } = context;
+            const instance = initFunction({ node, variables, type_config });
+            const { query } = instance.toElasticsearchQuery(
+                getTermField(node),
+                context
+            );
+            knnQuery = query as KNNQuery;
+        } else if (isTermType(node)) {
+            const query = buildTermLevelQuery(node, context);
+            if (query) must.push(query);
+        } else if (isNegation(node)) {
+            const query = buildNegationQuery(node, context);
+            if (query) must.push(query);
+        } else if (isExists(node)) {
+            must.push(buildExistsQuery(node));
+        }
+    });
+
+    const finalQuery: KNNQuery = { knn: {} };
+
+    if (knnQuery && must.length) {
+        for (const [field, config] of Object.entries(knnQuery.knn)) {
+            const knnConjunction = {
+                ...config,
+                filter: {
+                    bool: {
+                        should: [
+                            {
+                                bool: {
+                                    filter: [
+                                        ...must
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            };
+            finalQuery.knn[field] = knnConjunction;
+        }
+    } else if (knnQuery) {
+        for (const [field, config] of Object.entries(knnQuery.knn)) {
+            finalQuery.knn[field] = config;
+        }
+    }
+
+    return finalQuery;
+}
+
+function buildAnyQuery(
+    node: Node,
+    context: QueryContext,
+): AnyQuery | undefined {
+    // if no field and is wildcard
+    if (
+        isWildcard(node)
+        && !node.field
+        && getFieldValue(node.value, context.variables) === '*'
+    ) {
+        return {
+            bool: {
+                filter: [],
+            },
+        };
+    }
+
+    if (isGroupLike(node)) {
+        return buildBoolQuery(node, context);
+    }
+
+    if (isNegation(node)) {
+        return buildNegationQuery(node, context);
+    }
+
+    if (isExists(node)) {
+        return buildExistsQuery(node);
+    }
+
+    if (isTermType(node)) {
+        const query = buildTermLevelQuery(node, context);
+        if (query) return query;
+    }
+}
+
+export function isMultiMatch(node: TermLikeNode): boolean {
     return !node.field || node.field === '*';
 }
 
-export function getTermField(node: p.TermLikeNode): string {
+export function getTermField(node: TermLikeNode): string {
     return node.field!;
 }
 
 export function flattenQuery(
-    query: i.AnyQuery | undefined,
-    flattenTo: i.BoolQueryTypes
-): i.AnyQuery[] {
+    query: AnyQuery | undefined,
+    flattenTo: BoolQueryTypes
+): AnyQuery[] {
     if (!query) return [];
     if (isBoolQuery(query) && canFlattenBoolQuery(query, flattenTo)) {
         return query.bool[flattenTo]!;
@@ -379,18 +512,18 @@ export function flattenQuery(
 }
 
 /** This prevents double nested queries that do the same thing */
-export function canFlattenBoolQuery(query: i.BoolQuery, flattenTo: i.BoolQueryTypes): boolean {
+export function canFlattenBoolQuery(query: BoolQuery, flattenTo: BoolQueryTypes): boolean {
     const types = Object.keys(query.bool);
     if (types.length !== 1) return false;
     return types[0] === flattenTo;
 }
 
-export function isBoolQuery(query: unknown): query is i.BoolQuery {
+export function isBoolQuery(query: unknown): query is BoolQuery {
     if (!query || typeof query !== 'object') return false;
     return (query as any).bool != null;
 }
 
-export function compactFinalQuery(query?: i.AnyQuery): i.AnyQuery | i.AnyQuery[] {
+export function compactFinalQuery(query?: AnyQuery): AnyQuery | AnyQuery[] {
     if (!query) return [];
     if (isBoolQuery(query) && canFlattenBoolQuery(query, 'filter')) {
         const filter = query.bool.filter!;

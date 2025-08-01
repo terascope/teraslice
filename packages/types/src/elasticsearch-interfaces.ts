@@ -24,6 +24,17 @@ export type BoolQuery = {
 
 export type BoolQueryTypes = 'filter' | 'should' | 'must_not';
 
+export interface KNNQuery {
+    knn: {
+        [field: string]: {
+            vector: number[];
+            k: number;
+            filter?: AnyQuery | AnyQuery[];
+            [field: string]: any;
+        };
+    };
+}
+
 export type AnyQuery
     = | BoolQuery
         | GeoQuery
@@ -35,7 +46,8 @@ export type AnyQuery
         | RegExprQuery
         | QueryStringQuery
         | RangeQuery
-        | MultiMatchQuery;
+        | MultiMatchQuery
+        | KNNQuery;
 
 export interface ExistsQuery {
     exists: {
@@ -161,7 +173,7 @@ export type GeoSortQuery = {
 export type AnyQuerySort = GeoSortQuery;
 
 export type ElasticsearchDSLResult = {
-    query: ConstantScoreQuery | MatchAllQuery | MatchNoneQuery;
+    query: ConstantScoreQuery | MatchAllQuery | MatchNoneQuery | KNNQuery;
     sort?: AnyQuerySort | AnyQuerySort[];
 };
 
@@ -181,7 +193,8 @@ export type ESFieldType
         | 'geo_point'
         | 'geo_shape'
         | 'object'
-        | 'nested';
+        | 'nested'
+        | 'knn_vector';
 
 export type ESTypeMapping
     = | PropertyESTypeMapping

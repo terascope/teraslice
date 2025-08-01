@@ -1,7 +1,6 @@
 import {
     DataEntity, pDelay, get, toNumber,
-    uniq,
-    TSError
+    uniq, TSError
 } from '@terascope/utils';
 import { readFileSync } from 'node:fs';
 import { DataType } from '@terascope/data-types';

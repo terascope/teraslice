@@ -32,5 +32,6 @@ export * from './strings.js';
 export * from './ip.js';
 export * from './iterators.js';
 export * from './type-coercion.js';
+export * from './vector.js';
 
 export { STATUS_CODES };

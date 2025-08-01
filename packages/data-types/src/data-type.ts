@@ -149,7 +149,9 @@ export class DataType {
         };
 
         for (const type of this._types) {
-            const { mapping, analyzer, tokenizer } = type.toESMapping({
+            const {
+                mapping, analyzer, tokenizer, settings
+            } = type.toESMapping({
                 distribution, majorVersion, minorVersion, version
             });
 
@@ -173,6 +175,11 @@ export class DataType {
             if (tokenizer) {
                 for (const [key, config] of Object.entries(tokenizer)) {
                     set(esMapping, ['settings', 'analysis', 'tokenizer', key], config);
+                }
+            }
+            if (settings) {
+                for (const [key, config] of Object.entries(settings)) {
+                    set(esMapping, ['settings', key], config);
                 }
             }
         }

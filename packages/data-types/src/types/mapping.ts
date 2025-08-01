@@ -26,6 +26,7 @@ import BoundaryV1 from './v1/boundary.js';
 import StringV1 from './v1/string.js';
 import NumberV1 from './v1/number.js';
 import AnyV1 from './v1/any.js';
+import VectorV1 from './v1/vector.js';
 
 export const mapping: DataTypeMapping = {
     1: {
@@ -58,6 +59,7 @@ export const mapping: DataTypeMapping = {
         // we should set this to AnyV1 because it shouldn't
         // ever get here
         Tuple: AnyV1,
-        Any: AnyV1
+        Any: AnyV1,
+        Vector: VectorV1
     }
 };

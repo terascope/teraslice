@@ -101,6 +101,56 @@ describe('DataType (elasticsearch)', () => {
             expect(dataType.toESMapping(mappingConfig)).toEqual(results);
         });
 
+        it('can create a opensearch v3 vector mapping', () => {
+            const typeConfig: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    foo: { type: FieldType.String },
+                    bar: { type: FieldType.String },
+                    myVector: {
+                        type: FieldType.Vector,
+                        array: true,
+                        dimension: 2,
+                        space_type: 'l2'
+                    }
+                },
+            };
+
+            const results = {
+                settings: {
+                    'index.knn': true
+                },
+                mappings: {
+                    dynamic: false,
+                    properties: {
+                        foo: { type: 'keyword' },
+                        bar: { type: 'keyword' },
+                        myVector: {
+                            type: 'knn_vector',
+                            dimension: 2,
+                            space_type: 'l2',
+                            method: {
+                                engine: 'faiss',
+                                name: 'hnsw'
+                            }
+                        }
+                    },
+                    _meta: { foo: 'foo' },
+                }
+            };
+
+            const dataType = new DataType(typeConfig);
+            const mappingConfig: ESMappingOptions = {
+                distribution: ElasticsearchDistribution.opensearch,
+                minorVersion: 1,
+                majorVersion: 3,
+                version: '3.1.1',
+                _meta: { foo: 'foo' },
+            };
+
+            expect(dataType.toESMapping(mappingConfig)).toEqual(results);
+        });
+
         it('can create an elasticsearch mapping with nested objects', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
