@@ -172,6 +172,25 @@ export default ([
                 value: { type: 'value', value: 6 }
             }
         }],
+    ['count:{2 TO *]',
+        'float range values to infinity',
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'gt',
+                field_type: xLuceneFieldType.Float,
+                value: { type: 'value', value: 2 }
+            },
+            right: {
+                type: NodeType.Term,
+                operator: 'lte',
+                field_type: xLuceneFieldType.Float,
+                value: { type: 'value', value: Number.POSITIVE_INFINITY }
+            }
+        },
+        { count: xLuceneFieldType.Float }
+    ],
     ['count:{1.5 TO 5.3}',
         'exclusive ranges with floats',
         {
