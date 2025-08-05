@@ -53,7 +53,7 @@
         "@terascope/types": "~1.4.3",
         "@terascope/utils": "~1.9.3",
         "bunyan": "~1.8.15",
-        "fs-extra": "~11.3.0",
+        "fs-extra": "~11.3.1",
         "jest": "~30.0.5",
         "jest-extended": "~6.0.0",
         "jest-watch-typeahead": "~3.0.1",
