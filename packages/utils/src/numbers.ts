@@ -167,11 +167,11 @@ export function toIntegerOrThrow(input: unknown): number {
     throw new TypeError(`Expected ${val} (${getTypeOf(input)}) to be parsable to a integer`);
 }
 
-/** Verify the input is a finite number (and float like) */
+/** Verify the input is float  */
 export function isFloat(val: unknown): val is number {
     if (!isNumber(val)) return false;
-    if (val === Number.POSITIVE_INFINITY) return false;
-    if (val === Number.NEGATIVE_INFINITY) return false;
+    if (val === Number.POSITIVE_INFINITY) return true;
+    if (val === Number.NEGATIVE_INFINITY) return true;
     return true;
 }
 

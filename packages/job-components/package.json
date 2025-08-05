@@ -33,7 +33,7 @@
     },
     "dependencies": {
         "@terascope/types": "~1.4.3",
-        "@terascope/utils": "~1.9.3",
+        "@terascope/utils": "~1.9.4",
         "convict": "~6.2.4",
         "convict-format-with-moment": "~6.2.0",
         "convict-format-with-validator": "~6.2.0",
