@@ -60,6 +60,7 @@ const NumberTypeFNDict = {
     [FieldType.Byte]: toIntegerOrThrow,
     [FieldType.Short]: toIntegerOrThrow,
     [FieldType.Long]: toBigIntOrThrow,
+    [FieldType.Vector]: toFloatOrThrow,
 };
 
 export function coerceToNumberType(type: FieldType): (input: unknown) => number | bigint {
@@ -301,6 +302,7 @@ function getTransformerForFieldType<T = unknown>(
         case FieldType.Short:
         case FieldType.Integer:
         case FieldType.Long:
+        case FieldType.Vector:
             return callIfNotNil(
                 coerceToNumberType(argFieldType.type as FieldType)
             ) as CoerceFN<any>;

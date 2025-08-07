@@ -1,7 +1,7 @@
 {
     "name": "xlucene-translator",
     "displayName": "xLucene Translator",
-    "version": "1.9.4",
+    "version": "1.10.0",
     "description": "Translate xlucene query to database queries",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-translator#readme",
     "repository": {
@@ -24,18 +24,21 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test ../xlucene-translator --",
-        "test:debug": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../xlucene-translator --",
-        "test:watch": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test --watch ../xlucene-translator --"
+        "test": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
+        "test:debug": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test --debug ../xlucene-translator --",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
+        "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=3.1.0 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
+        "test:watch": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test --watch ../xlucene-translator --"
     },
     "dependencies": {
         "@terascope/types": "~1.4.3",
-        "@terascope/utils": "~1.9.4",
+        "@terascope/utils": "~1.10.0",
         "@types/elasticsearch": "~5.0.43",
-        "xlucene-parser": "~1.9.4"
+        "xlucene-parser": "~1.10.0"
     },
     "devDependencies": {
-        "@terascope/opensearch-client": "~1.0.1",
+        "@terascope/data-types": "~1.11.0",
+        "@terascope/opensearch-client": "~1.1.0",
         "elasticsearch": "~15.4.1"
     },
     "engines": {
