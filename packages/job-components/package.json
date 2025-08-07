@@ -45,7 +45,7 @@
     },
     "devDependencies": {
         "benchmark": "~2.1.4",
-        "fs-extra": "~11.3.0",
+        "fs-extra": "~11.3.1",
         "jest-fixtures": "~0.6.0"
     },
     "engines": {
