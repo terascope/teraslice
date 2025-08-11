@@ -50,7 +50,7 @@
         "signale": "~1.4.0",
         "sort-package-json": "~3.4.0",
         "toposort": "~2.0.2",
-        "typedoc": "~0.28.9",
+        "typedoc": "~0.28.10",
         "typedoc-plugin-markdown": "~4.8.0",
         "yaml": "^2.8.1",
         "yargs": "~18.0.0"

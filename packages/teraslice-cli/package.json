@@ -68,7 +68,7 @@
         "prompts": "~2.4.2",
         "signale": "~1.4.0",
         "teraslice-client-js": "~1.10.1",
-        "tmp": "~0.2.3",
+        "tmp": "~0.2.5",
         "tty-table": "~4.2.3",
         "yargs": "~18.0.0"
     },
