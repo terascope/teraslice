@@ -363,7 +363,6 @@ export class Parser {
     }
 
     /**
-    /**
      * Iterate over all term-like nodes in the AST.
      *
      * Term-like nodes include: Term, Regexp, Range, Wildcard, Function, and TermList.
