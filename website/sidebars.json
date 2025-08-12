@@ -145,7 +145,8 @@
                 "label": "xlucene-parser",
                 "items": [
                     "packages/xlucene-parser/overview",
-                    "packages/xlucene-parser/api/overview"
+                    "packages/xlucene-parser/api/overview",
+                    "packages/xlucene-parser/ast-structure"
                 ]
             },
             {

@@ -12,7 +12,25 @@ const termTypes = new Set<i.NodeType>(utils.termTypes.filter((type) => (
 )));
 
 /**
- * Parse a xLucene query
+ * Parse a xLucene query and provide methods to traverse and manipulate the resulting AST.
+ *
+ * The Parser class is the main entry point for parsing xLucene queries. It converts
+ * query strings into an Abstract Syntax Tree (AST) that can be traversed, validated,
+ * and transformed.
+ *
+ * @example
+ * ```typescript
+ * const parser = new Parser('name:John AND age:>=25');
+ * console.log(parser.ast); // Access the parsed AST
+ *
+ * // Iterate over term nodes
+ * parser.forTermTypes((node) => {
+ *   console.log(node.field, node.value);
+ * });
+ *
+ * // Resolve variables
+ * const resolved = parser.resolveVariables({ minAge: 25 });
+ * ```
 */
 export class Parser {
     readonly ast: i.Node;
@@ -20,6 +38,33 @@ export class Parser {
     readonly typeConfig: xLuceneTypeConfig;
     readonly filterNilVariables: boolean;
 
+    /**
+     * Create a new Parser instance.
+     *
+     * @param { string } query - The xLucene query string to parse
+     * @param { i.ParserOptions } options - Optional configuration for parsing behavior
+     * @param { xLuceneTypeConfig } options.type_config - Field type configuration for coercion
+     * @param { boolean } options.filterNilVariables - Filter out nodes with undefined variables
+     * @param { xLuceneVariables } options.variables - Variable values for resolution
+     * @param { i.Node } _overrideNode - Internal parameter for creating parser with existing AST
+     *
+     * @example
+     * ```typescript
+     * // Basic parsing
+     * const parser = new Parser('name:John');
+     *
+     * // With type configuration
+     * const parser = new Parser('age:25', {
+     *   type_config: { age: 'integer' }
+     * });
+     *
+     * // With variable filtering
+     * const parser = new Parser('name:$username', {
+     *   filterNilVariables: true,
+     *   variables: { username: 'John' }
+     * });
+     * ```
+     */
     constructor(
         query: string,
         options?: i.ParserOptions,
@@ -86,6 +131,28 @@ export class Parser {
         }
     }
 
+    /**
+     * Recursively filters nodes in an AST based on a predicate function. Handles logical groups,
+     * conjunctions, negations, ranges, and function nodes while preserving tree structure and
+     * automatically simplifying when possible (e.g., unwrapping single-node conjunctions).
+     *
+     * @param {i.Node} ast - The root AST node to filter
+     * @param {function(i.Node, i.Node=): boolean} fn - Predicate function that receives
+     *   (node, parent) and returns true to keep the node, false to remove it
+     *
+     * @returns {i.Node} New filtered AST containing only nodes that pass the filter criteria.
+     *   Returns empty node if all nodes are filtered out.
+     *
+     * @example
+     * // Filter out unwanted fields
+     * const filtered = filterNodes(ast, (node) => node.field !== 'unwanted');
+     *
+     * @example
+     * // Filter based on parent context
+     * const filtered = filterNodes(ast, (node, parent) =>
+     *   !parent || utils.isLogicalGroup(parent)
+     * );
+    */
     filterNodes(ast: i.Node, fn: (node: i.Node, parent?: i.Node) => boolean): i.Node {
         const filterNode = (ogNode: i.Node, parent?: i.Node): i.Node => {
             const clone = cloneDeep(ogNode);
@@ -207,8 +274,28 @@ export class Parser {
     }
 
     /**
-     * Recursively iterate over all or select set of the nodes types
-    */
+     * Recursively iterate over all nodes of the specified types in the AST.
+     *
+     * This method performs a depth-first traversal of the AST, calling the callback
+     * function for each node whose type matches one of the specified types.
+     *
+     * @param types - Array of NodeType values to match
+     * @param cb - Callback function called for each matching node
+     * @param skipFunctionParams - Whether to skip traversing function parameters
+     *
+     * @example
+     * ```typescript
+     * // Find all term and wildcard nodes
+     * parser.forTypes([NodeType.Term, NodeType.Wildcard], (node) => {
+     *   console.log('Found node:', node.type);
+     * });
+     *
+     * // Find logical groups, skipping function parameters
+     * parser.forTypes([NodeType.LogicalGroup], (node) => {
+     *   console.log('Logical group with', node.flow.length, 'conjunctions');
+     * }, true);
+     * ```
+     */
     forTypes<T extends i.NodeType[] | readonly i.NodeType[]>(
         types: T, cb: (node: i.Node) => void, skipFunctionParams = false
     ): void {
@@ -247,8 +334,31 @@ export class Parser {
     }
 
     /**
-     * Recursively iterate over all nodes types
-    */
+     * Recursively walk through every node in the AST and call the callback function for each node.
+     *
+     * This method performs a depth-first traversal of the entire AST, visiting every node
+     * exactly once. Unlike `forTypes()` which filters by node type, this method calls the
+     * callback for all nodes regardless of their type.
+     *
+     * @param cb - Callback function called for each node in the AST
+     * @param cb.node - The current node being visited
+     *
+     * @example
+     * ```typescript
+     * // Log all nodes in the AST
+     * parser.walkAST((node) => {
+     *   console.log(`Node type: ${node.type}`);
+     * });
+     *
+     * // Search for node properties
+     * parser.walkAST((node) => {
+     *   if (isFunctionNode(node) && node.name === 'knn') {
+     *     hasKNN = true;
+     *     return;
+     *   }
+     * });
+     * ```
+     */
     walkAST(cb: (node: i.Node) => void) {
         const walkNode = (node: i.Node) => {
             cb(node);
@@ -276,8 +386,29 @@ export class Parser {
     }
 
     /**
-     * Iterate over all of the Term-Like nodes.
-    */
+     * Iterate over all term-like nodes in the AST.
+     *
+     * Term-like nodes include: Term, Regexp, Range, Wildcard, Function, and TermList.
+     * This is a convenience method that filters to nodes representing searchable terms.
+     *
+     * @param cb - Callback function called for each term-like node
+     * @param skipFunctionParams - Whether to skip traversing function parameters (default: true)
+     *
+     * @example
+     * ```typescript
+     * // Process all searchable terms
+     * parser.forTermTypes((node) => {
+     *   if (node.field) {
+     *     console.log(`Field: ${node.field}`);
+     *   }
+     * });
+     *
+     * // Include function parameters in traversal
+     * parser.forTermTypes((node) => {
+     *   console.log('Term type:', node.type);
+     * }, false);
+     * ```
+     */
     forTermTypes(
         cb: (node: i.TermLikeNode) => void,
         skipFunctionParams = true
@@ -290,9 +421,34 @@ export class Parser {
     }
 
     /**
-     * Iterate over all of the field value from Term-Like nodes,
-     * this is useful for validating values and variables.
-    */
+     * Iterate over all field values from term-like nodes.
+     *
+     * This method extracts and processes all field values from nodes that contain
+     * searchable terms. It's particularly useful for validating values and variables,
+     * or for collecting all values used in a query.
+     *
+     * @param cb - Callback function called for each field value
+     * @param cb.value - The field value (can be a literal value or variable reference)
+     * @param cb.node - The parent node containing this value
+     *
+     * @example
+     * ```typescript
+     * // Collect all literal values
+     * const values: any[] = [];
+     * parser.forEachFieldValue((value, node) => {
+     *   if (value.type === 'value') {
+     *     values.push(value.value);
+     *   }
+     * });
+     *
+     * // Validate variable references
+     * parser.forEachFieldValue((value, node) => {
+     *   if (value.type === 'variable') {
+     *     console.log(`Variable ${value.value} used in field ${node.field}`);
+     *   }
+     * });
+     * ```
+     */
     forEachFieldValue(cb: (value: i.FieldValue<any>, node: i.TermLikeNode) => void): void {
         this.forTermTypes((node) => {
             if (utils.isFunctionNode(node)) return;
@@ -382,8 +538,31 @@ export class Parser {
     }
 
     /**
-     * Validate and resolve the variables, returns a new Parser instance
-    */
+     * Validate and resolve variables in the query, returning a new Parser instance.
+     *
+     * This method processes all variable references in the AST, replacing them with
+     * their actual values. Variable references use `$variableName` syntax, and scoped
+     * variables use `@variableName` syntax.
+     *
+     * @param variables - Object mapping variable names to their values
+     * @returns A new Parser instance with resolved variables
+     *
+     * @example
+     * ```typescript
+     * // Original query with variables
+     * const parser = new Parser('name:$username AND age:>=$minAge');
+     *
+     * // Resolve variables
+     * const resolved = parser.resolveVariables({
+     *   username: 'John',
+     *   minAge: 25
+     * });
+     *
+     * // Resolved query equivalent to: name:John AND age:>=25
+     * ```
+     *
+     * @throws {TSError} If variables object is invalid
+     */
     resolveVariables(variables: xLuceneVariables): Parser {
         const validatedVariables = utils.validateVariables(variables);
 
@@ -415,8 +594,34 @@ export class Parser {
     }
 
     /**
-     * Map the Node and return a new Node
-    */
+     * Transform the AST by applying a mapping function to each node.
+     *
+     * This method performs a deep traversal of the AST, applying the provided
+     * function to each node and rebuilding the tree with the results. The function
+     * receives each node and its parent, and should return a transformed node.
+     *
+     * @param fn - Function to transform each node
+     * @param fn.node - The current node being processed
+     * @param fn.parent - The parent node (if any)
+     * @returns The transformed AST root node
+     *
+     * @example
+     * ```typescript
+     * // Transform all string values to lowercase
+     * const transformedAST = parser.mapNode((node, parent) => {
+     *   if (node.type === 'term' && node.value.type === 'value') {
+     *     return {
+     *       ...node,
+     *       value: {
+     *         ...node.value,
+     *         value: String(node.value.value).toLowerCase()
+     *       }
+     *     };
+     *   }
+     *   return node;
+     * });
+     * ```
+     */
     mapNode(fn: (node: i.Node, parent?: i.Node) => i.Node): i.Node {
         const mapNode = (ogNode: i.Node, parent?: i.Node): i.Node => {
             const node = fn({ ...ogNode }, parent);

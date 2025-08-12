@@ -121,13 +121,13 @@ describe('Parser', () => {
             }).toThrow();
         });
 
-        it('should throw an error if it is combined with &', () => {
+        it('should throw an error if it is combined with $', () => {
             expect(() => {
                 new Parser('foo:$@bar');
             }).toThrow();
         });
 
-        it('should throw an error if it is combined with & and @ is escaped', () => {
+        it('should throw an error if it is combined with $ and @ is escaped', () => {
             expect(() => {
                 new Parser('field:$\\@example');
             }).toThrow();
