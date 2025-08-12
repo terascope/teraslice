@@ -609,6 +609,70 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true # optional (default = false)
 
+  opensearch-client-tests:
+      if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
+      runs-on: ubuntu-latest
+      needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+      strategy:
+        # opensearch is finiky, keep testing others if it fails
+        fail-fast: false
+        matrix:
+          node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+          search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2, opensearch3]
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v4
+
+        - name: Setup Node ${{ matrix.node-version }}
+          uses: actions/setup-node@v4
+          with:
+            node-version: ${{ matrix.node-version }}
+            cache: 'yarn'
+
+        # we login to docker to avoid docker pull limit rates
+        - name: Login to Docker Hub
+          uses: docker/login-action@v3
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+
+        - name: Install and build packages
+          run: yarn && yarn setup
+
+        - name: Create Docker Image List
+          run: |
+            yarn docker:listImages
+            cat ./images/image-list.txt
+
+        - name: Restore Docker image cache
+          id: docker-cache
+          uses: actions/cache@v4
+          with:
+            path: /tmp/docker_cache
+            key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+            restore-keys: |
+              docker-images-${{ hashFiles('./images/image-list.txt') }}-
+              docker-images-
+
+        - name: Test ${{ matrix.search-version }}
+          env:
+            REPORT_COVERAGE: true
+          run: |
+            export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
+            export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
+            yarn test:${{ matrix.search-version }}
+          working-directory: ./packages/opensearch-client
+
+        - name: Upload opensearch-client node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+          uses: codecov/codecov-action@v5
+          with:
+            fail_ci_if_error: false
+            codecov_yml_path: ./.github/codecov.yaml
+            flags: opensearch-client-integration,integration
+            name: opensearch-client-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+            token: ${{ secrets.CODECOV_TOKEN }}
+            verbose: true # optional (default = false)
+
   lint-and-sync:
     runs-on: ubuntu-latest
     needs: [compute-node-version-vars, verify-build, cache-docker-images]
@@ -641,7 +705,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        node-version: ${{ fromJSON(needel s.compute-node-version-vars.outputs.NODE_VERSIONS) }}
         search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
