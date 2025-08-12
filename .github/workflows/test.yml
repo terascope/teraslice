@@ -705,7 +705,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needel s.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
         search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
