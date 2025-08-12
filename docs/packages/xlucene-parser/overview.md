@@ -434,6 +434,16 @@ new Parser(query: string, options?: ParserOptions)
 
 #### Methods
 
+##### `walkAST(callback)`
+
+Visit every node in the AST with depth-first traversal:
+
+```typescript
+parser.walkAST((node) => {
+  console.log(`Node type: ${node.type}`);
+});
+```
+
 ##### `forTermTypes(callback)`
 
 Iterate over all term-like nodes:

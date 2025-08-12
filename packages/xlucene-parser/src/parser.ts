@@ -334,8 +334,31 @@ export class Parser {
     }
 
     /**
-     * Recursively iterate over all nodes types
-    */
+     * Recursively walk through every node in the AST and call the callback function for each node.
+     *
+     * This method performs a depth-first traversal of the entire AST, visiting every node
+     * exactly once. Unlike `forTypes()` which filters by node type, this method calls the
+     * callback for all nodes regardless of their type.
+     *
+     * @param cb - Callback function called for each node in the AST
+     * @param cb.node - The current node being visited
+     *
+     * @example
+     * ```typescript
+     * // Log all nodes in the AST
+     * parser.walkAST((node) => {
+     *   console.log(`Node type: ${node.type}`);
+     * });
+     *
+     * // Search for node properties
+     * parser.walkAST((node) => {
+     *   if (isFunctionNode(node) && node.name === 'knn') {
+     *     hasKNN = true;
+     *     return;
+     *   }
+     * });
+     * ```
+     */
     walkAST(cb: (node: i.Node) => void) {
         const walkNode = (node: i.Node) => {
             cb(node);

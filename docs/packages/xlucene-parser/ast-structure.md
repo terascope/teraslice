@@ -590,6 +590,11 @@ Query: `"name:$username AND age:>=$minAge"`
 Use the Parser methods to traverse the AST:
 
 ```typescript
+// Visit all nodes in the AST (depth-first traversal)
+parser.walkAST((node) => {
+  console.log(`Node type: ${node.type}`);
+});
+
 // Visit all term-like nodes
 parser.forTermTypes((node) => {
   console.log(`${node.type}: ${node.field}`);
