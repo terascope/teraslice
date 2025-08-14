@@ -49,7 +49,7 @@
     },
     "devDependencies": {
         "@terascope/opensearch-client": "~1.1.2",
-        "@terascope/scripts": "~1.21.2",
+        "@terascope/scripts": "~1.21.3",
         "@terascope/types": "~1.4.4",
         "@terascope/utils": "~1.10.2",
         "bunyan": "~1.8.15",

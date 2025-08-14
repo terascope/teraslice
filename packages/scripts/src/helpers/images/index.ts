@@ -23,7 +23,7 @@ export async function createImageList(): Promise<void> {
     signale.info(`Creating Docker image list at ${config.DOCKER_IMAGE_LIST_PATH}`);
     const repo = getRootInfo().name;
     let list;
-    if (repo === 'elasticsearch-assets') {
+    if (repo === 'elasticsearch-asset-bundle') {
         list = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
             + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
@@ -35,6 +35,8 @@ export async function createImageList(): Promise<void> {
             + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}`;
     } else if (repo === 'file-assets-bundle') {
         list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}`;
+    } else if (repo === 'standard-assets-bundle') {
+        list = '';
     } else if (repo === 'teraslice-workspace') {
         const baseImages: string = config.TEST_NODE_VERSIONS
             .reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version}\n`, '');
@@ -51,7 +53,7 @@ export async function createImageList(): Promise<void> {
             + `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
             + `${config.KIND_DOCKER_IMAGE}:${config.KIND_VERSION}`;
     } else {
-        list = '';
+        throw new Error(`This command does not support repository ${repo}`);
     }
 
     if (!fse.existsSync(config.DOCKER_IMAGES_PATH)) {
