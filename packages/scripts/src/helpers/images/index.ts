@@ -23,7 +23,7 @@ export async function createImageList(): Promise<void> {
     signale.info(`Creating Docker image list at ${config.DOCKER_IMAGE_LIST_PATH}`);
     const repo = getRootInfo().name;
     let list;
-    if (repo === 'elasticsearch-assets') {
+    if (repo === 'elasticsearch-asset-bundle') {
         list = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
             + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
