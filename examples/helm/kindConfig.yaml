@@ -10,7 +10,9 @@ nodes:
   - containerPort: 30201 # Map internal opensearch1 service to host port
     hostPort: 9201
   - containerPort: 30202 # Map internal opensearch2 service to host port
-    hostPort: 9200
+    hostPort: 9202
+  - containerPort: 30203 # Map internal opensearch3 service to host port
+    hostPort: 9203
   - containerPort: 30206 # Map internal elasticsearch6 service to host port
     hostPort: 9206
   - containerPort: 30207 # Map internal elasticsearch7 service to host port
@@ -19,6 +21,8 @@ nodes:
     hostPort: 9092
   - containerPort: 30094 # Map external kafka service to host port
     hostPort: 9094
+  - containerPort: 30084 # Map external kafka-ui service to host port
+    hostPort: 8084
   - containerPort: 30900 # Map internal minio service to host port
     hostPort: 9000
   - containerPort: 30901 # Map internal minio-ui service to host port
@@ -26,8 +30,10 @@ nodes:
   - containerPort: 30333 # Map internal chaos-mesh-ui service to host port
     hostPort: 2333
   extraMounts:
-  - hostPath: ./e2e/autoload
+  - hostPath: ../../e2e/autoload
     containerPath: /autoload
+  - hostPath: ../../e2e/helm/utility/data
+    containerPath: /data
 
 ###
 # Uncomment the code below for a multi-node kind cluster

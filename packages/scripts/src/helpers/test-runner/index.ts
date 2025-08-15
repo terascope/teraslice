@@ -30,7 +30,8 @@ import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
 import {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
-    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ENCRYPT_MINIO
+    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ENCRYPT_MINIO,
+    ATTACH_JEST_DEBUGGER
 } from '../config.js';
 import { K8s } from '../k8s-env/k8s.js';
 
@@ -162,7 +163,14 @@ async function runTestSuite(
 
         tracker.started += pkgs.length;
         try {
-            await runJest(getRootDir(), args, env, options.jestArgs, options.debug);
+            await runJest(
+                getRootDir(),
+                args,
+                env,
+                options.jestArgs,
+                options.debug,
+                ATTACH_JEST_DEBUGGER
+            );
             tracker.ended += pkgs.length;
         } catch (err) {
             tracker.ended += pkgs.length;
@@ -330,7 +338,8 @@ async function runE2ETest(
                 getArgs(options),
                 env,
                 options.jestArgs,
-                options.debug
+                options.debug,
+                ATTACH_JEST_DEBUGGER
             );
             tracker.ended++;
         } catch (err) {

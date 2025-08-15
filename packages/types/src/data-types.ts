@@ -37,40 +37,44 @@ export enum FieldType {
     /**
      * An ordered-set of values.
     */
-    Tuple = 'Tuple'
+    Tuple = 'Tuple',
+    /*
+        This is a vector from an ML model
+    */
+    Vector = 'Vector'
 }
 
 /**
  * @deprecated use the enum FieldType
 */
-export type DeprecatedFieldType =
-    | 'Boolean'
-    | 'Boundary'
-    | 'Byte'
-    | 'Date'
-    | 'Domain'
-    | 'Double'
-    | 'Float'
-    | 'Geo'
-    | 'GeoPoint'
-    | 'GeoJSON'
-    | 'Hostname'
-    | 'Integer'
-    | 'IPRange'
-    | 'IP'
-    | 'KeywordCaseInsensitive'
-    | 'KeywordTokensCaseInsensitive'
-    | 'KeywordPathAnalyzer'
-    | 'KeywordTokens'
-    | 'Keyword'
-    | 'Long'
-    | 'NgramTokens'
-    | 'Object'
-    | 'Short'
-    | 'Text'
-    | 'String'
-    | 'Number'
-    | 'Any';
+export type DeprecatedFieldType
+    = | 'Boolean'
+        | 'Boundary'
+        | 'Byte'
+        | 'Date'
+        | 'Domain'
+        | 'Double'
+        | 'Float'
+        | 'Geo'
+        | 'GeoPoint'
+        | 'GeoJSON'
+        | 'Hostname'
+        | 'Integer'
+        | 'IPRange'
+        | 'IP'
+        | 'KeywordCaseInsensitive'
+        | 'KeywordTokensCaseInsensitive'
+        | 'KeywordPathAnalyzer'
+        | 'KeywordTokens'
+        | 'Keyword'
+        | 'Long'
+        | 'NgramTokens'
+        | 'Object'
+        | 'Short'
+        | 'Text'
+        | 'String'
+        | 'Number'
+        | 'Any';
 
 /**
  * A list of all of the Field Types
@@ -210,4 +214,5 @@ export const indexedRequiredFieldTypes = {
     [FieldType.KeywordTokensCaseInsensitive]: true,
     [FieldType.KeywordTokens]: true,
     [FieldType.NgramTokens]: true,
+    [FieldType.Vector]: true
 };

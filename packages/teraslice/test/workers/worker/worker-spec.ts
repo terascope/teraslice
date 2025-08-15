@@ -417,7 +417,7 @@ describe('Worker', () => {
                     setTimeout(() => {
                         worker.events.emit('worker:shutdown:complete', new Error('Uh oh'));
                     });
-                    await expect(worker.shutdown()).rejects.toThrowError('Uh oh');
+                    await expect(worker.shutdown()).rejects.toThrow('Uh oh');
                 });
             });
 

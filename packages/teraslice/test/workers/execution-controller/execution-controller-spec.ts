@@ -326,7 +326,7 @@ describe('ExecutionController', () => {
                     setTimeout(() => {
                         exController.events.emit('worker:shutdown:complete', new Error('Uh oh'));
                     });
-                    await expect(exController.shutdown()).rejects.toThrowError('Uh oh');
+                    await expect(exController.shutdown()).rejects.toThrow('Uh oh');
                 });
             });
 

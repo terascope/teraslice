@@ -101,7 +101,7 @@ describe('Loader', () => {
             }
         ];
 
-        expect(() => parseData(configList)).toThrowError();
+        expect(() => parseData(configList)).toThrow();
     });
 
     it('will convert source_field => source, target_fields => target', () => {

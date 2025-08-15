@@ -1,7 +1,7 @@
 {
     "name": "xlucene-parser",
     "displayName": "xLucene Parser",
-    "version": "1.8.1",
+    "version": "1.10.2",
     "description": "Flexible Lucene-like evaluator and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser#readme",
     "repository": {
@@ -28,13 +28,13 @@
         "build": "yarn prebuild && tsc --build",
         "build:watch": "yarn build --watch",
         "postinstall": "./scripts/fix-deps.js",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../xlucene-parser --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../xlucene-parser --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../xlucene-parser --"
+        "test": "node ../scripts/bin/ts-scripts test ../xlucene-parser --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../xlucene-parser --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../xlucene-parser --"
     },
     "dependencies": {
-        "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.1",
+        "@terascope/types": "~1.4.4",
+        "@terascope/utils": "~1.10.2",
         "peggy": "~4.2.0",
         "ts-pegjs": "~4.2.1"
     },
@@ -43,7 +43,7 @@
         "@turf/random": "~7.2.0"
     },
     "engines": {
-        "node": ">=18.18.0",
+        "node": ">=22.0.0",
         "yarn": ">=1.22.19"
     },
     "publishConfig": {

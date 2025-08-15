@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-mate",
     "displayName": "Data-Mate",
-    "version": "1.9.0",
+    "version": "1.11.2",
     "description": "Library of data validations/transformations",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-mate#readme",
     "repository": {
@@ -25,38 +25,38 @@
         "benchmark": "yarn build && node bench/index.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../data-mate --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../data-mate --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../data-mate --"
+        "test": "node ../scripts/bin/ts-scripts test ../data-mate --",
+        "test:debug": "node ../scripts/bin/ts-scripts --debug ../data-mate --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-mate --"
     },
     "dependencies": {
-        "@terascope/data-types": "~1.8.1",
-        "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.1",
-        "@types/validator": "~13.12.2",
+        "@terascope/data-types": "~1.11.2",
+        "@terascope/types": "~1.4.4",
+        "@terascope/utils": "~1.10.2",
+        "@types/validator": "~13.12.3",
         "awesome-phonenumber": "~7.5.0",
         "big-json": "^3.2.0",
         "date-fns": "~4.1.0",
         "ip-bigint": "~8.2.1",
         "ip6addr": "~0.2.5",
         "ipaddr.js": "~2.2.0",
-        "is-cidr": "~5.1.1",
+        "is-cidr": "~6.0.0",
         "jexl": "~2.3.0",
         "mnemonist": "~0.40.3",
         "uuid": "~11.1.0",
         "valid-url": "~1.0.9",
         "validator": "~13.12.0",
-        "xlucene-parser": "~1.8.1"
+        "xlucene-parser": "~1.10.2"
     },
     "devDependencies": {
         "@types/big-json": "^3",
         "@types/ip6addr": "~0.2.6",
         "@types/uuid": "~10.0.0",
         "benchmark": "~2.1.4",
-        "chance": "~1.1.12"
+        "chance": "~1.1.13"
     },
     "engines": {
-        "node": ">=18.18.0",
+        "node": ">=22.0.0",
         "yarn": ">=1.22.19"
     },
     "publishConfig": {

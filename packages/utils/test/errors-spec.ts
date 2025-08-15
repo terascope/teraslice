@@ -2,7 +2,7 @@ import 'jest-extended';
 import {
     TSError, ElasticsearchError, isFatalError,
     isRetryableError, parseError, isTSError,
-    stripErrorMessage
+    stripErrorMessage, formatAggregateError
 } from '../src/errors.js';
 import { times } from '../src/index.js';
 
@@ -362,6 +362,44 @@ describe('Error Utils', () => {
 
                 expect(parseError(input)).toEqual(output);
             });
+        });
+    });
+
+    describe('formatAggregateError', () => {
+        it('should format a mix of Error and non-Error objects', async () => {
+            const aggregate = new AggregateError([
+                new Error('Failed on 1'),
+                { error: '3 failed and returned a non Error type object' }
+            ]);
+
+            await expect(formatAggregateError(aggregate)).rejects.toThrow(
+                'Failed with an AggregateError containing 2 error(s):\n\n'
+                + '[1] Failed on 1\n'
+                + '[2] {"error":"3 failed and returned a non Error type object"}'
+            );
+        });
+
+        it('should show a maximum of 5 errors', async () => {
+            const errors = [];
+            for (let i = 2; i <= 7; i++) {
+                errors.push(new Error(`Error on ${i}`));
+            }
+            const aggregate = new AggregateError(errors);
+
+            await expect(formatAggregateError(aggregate)).rejects.toThrow(
+                'Failed with an AggregateError containing 6 error(s):\n\n'
+                + '[1] Error on 2\n'
+                + '[2] Error on 3\n'
+                + '[3] Error on 4\n'
+                + '[4] Error on 5\n'
+                + '[5] Error on 6\n'
+                + '... and 1 other errors.'
+            );
+        });
+
+        it('should pass through non-AggregateError as-is', async () => {
+            const notAnAggregate = new Error('Just a normal error');
+            await expect(formatAggregateError(notAnAggregate)).rejects.toThrow('Just a normal error');
         });
     });
 });

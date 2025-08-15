@@ -86,7 +86,7 @@ describe('OperationLoader', () => {
 
         const opLoader = new OperationLoader({ assetPath: fixturePath });
 
-        await expect(() => opLoader.loadProcessor('fail')).rejects.toThrowError('Unable to find module for operation: fail');
+        await expect(() => opLoader.loadProcessor('fail')).rejects.toThrow('Unable to find module for operation: fail');
 
         const op = await opLoader.loadProcessor('example-op', [asset]);
 
@@ -118,7 +118,7 @@ describe('OperationLoader', () => {
             assetPath: [fixturePath],
         });
 
-        await expect(() => opLoader.loadProcessor('fail')).rejects.toThrowError('Unable to find module for operation: fail');
+        await expect(() => opLoader.loadProcessor('fail')).rejects.toThrow('Unable to find module for operation: fail');
 
         const op = await opLoader.loadProcessor('example-op', [asset]);
 
@@ -147,7 +147,7 @@ describe('OperationLoader', () => {
             assetPath: fixturePath
         });
 
-        await expect(() => opLoader.loadReader('fail')).rejects.toThrowError('Unable to find module for operation: fail');
+        await expect(() => opLoader.loadReader('fail')).rejects.toThrow('Unable to find module for operation: fail');
 
         const op = await opLoader.loadReader('example-reader', [asset]);
 
@@ -233,7 +233,7 @@ describe('OperationLoader', () => {
             assetPath: fixturePath,
         });
 
-        await expect(() => opLoader.loadAPI('empty-api', [asset])).rejects.toThrowError(/requires at least an api\.js or observer\.js/);
+        await expect(() => opLoader.loadAPI('empty-api', [asset])).rejects.toThrow(/requires at least an api\.js or observer\.js/);
     });
 
     it('should fail if given an api with both an observer and api', async () => {
@@ -241,7 +241,7 @@ describe('OperationLoader', () => {
             assetPath: fixturePath,
         });
 
-        await expect(() => opLoader.loadAPI('invalid-api-observer', [asset])).rejects.toThrowError(/required only one api\.js or observer\.js/);
+        await expect(() => opLoader.loadAPI('invalid-api-observer', [asset])).rejects.toThrow(/required only one api\.js or observer\.js/);
     });
 
     it('should fail if fetching a file with a . or _', async () => {
@@ -249,9 +249,9 @@ describe('OperationLoader', () => {
             assetPath: fixturePath,
         });
 
-        await expect(() => opLoader.loadProcessor('.dot-private-op', [asset])).rejects.toThrowError();
+        await expect(() => opLoader.loadProcessor('.dot-private-op', [asset])).rejects.toThrow();
 
-        await expect(() => opLoader.loadProcessor('_underscore-private-op', [asset])).rejects.toThrowError();
+        await expect(() => opLoader.loadProcessor('_underscore-private-op', [asset])).rejects.toThrow();
     });
 
     describe('loading bundled asset', () => {

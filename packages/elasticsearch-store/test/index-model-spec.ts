@@ -2,13 +2,14 @@ import 'jest-extended';
 import { QueryAccess } from 'xlucene-translator';
 import { FieldType } from '@terascope/types';
 import { times, TSError, AnyObject } from '@terascope/utils';
+import { Client, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import {
     IndexModel, IndexModelRecord, IndexModelConfig,
-    IndexModelOptions, makeRecordDataType, Client,
-    ElasticsearchTestHelpers
+    IndexModelOptions, makeRecordDataType
 } from '../src/index.js';
+import { cleanupIndexStore } from './helpers/utils.js';
 
-const { makeClient, cleanupIndexStore, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
+const { makeClient, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
 
 describe('IndexModel', () => {
     interface ExampleRecord extends IndexModelRecord {
@@ -365,7 +366,7 @@ describe('IndexModel', () => {
         it('should be able to hard delete the record', async () => {
             await indexModel.deleteById(fetched._key);
 
-            return expect(indexModel.findById(fetched._key)).rejects.toThrowError(/Unable to find ExampleModel/);
+            return expect(indexModel.findById(fetched._key)).rejects.toThrow(/Unable to find ExampleModel/);
         });
     });
 

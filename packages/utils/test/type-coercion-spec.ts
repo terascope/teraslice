@@ -11,7 +11,8 @@ describe('type-coercion', () => {
             FieldType.Integer,
             FieldType.Byte,
             FieldType.Short,
-            FieldType.Long
+            FieldType.Long,
+            FieldType.Vector
         ];
         type ValidTestCases = [type: FieldType, input: unknown, output: number | bigint][];
         const validTestCases: ValidTestCases = [
@@ -22,6 +23,7 @@ describe('type-coercion', () => {
             [FieldType.Byte, '12.3', 12],
             [FieldType.Short, '12.3', 12],
             [FieldType.Integer, BigInt(120), 120],
+            [FieldType.Vector, '12.3', 12.3],
             ...numberTypes.flatMap((type): ValidTestCases => [
                 [type, Number.NaN, Number.NaN],
                 [type, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY],
@@ -50,7 +52,7 @@ describe('type-coercion', () => {
         ];
         describe.each(invalidTestCases)('when given invalid values for field type %s', (type, input) => {
             it(`should fail to convert ${input}`, () => {
-                expect(() => coerceToNumberType(type)(input)).toThrowError();
+                expect(() => coerceToNumberType(type)(input)).toThrow();
             });
         });
     });
@@ -79,7 +81,7 @@ describe('type-coercion', () => {
         ];
 
         test.each(inValidCases)('should fail to process the invalid input of %p', (input) => {
-            expect(() => coerceToGeoBoundary(input)).toThrowError(TypeError);
+            expect(() => coerceToGeoBoundary(input)).toThrow(TypeError);
         });
     });
 });

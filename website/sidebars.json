@@ -43,12 +43,6 @@
         "Overview": [
             "asset-bundles",
             "asset-bundles/development"
-        ],
-        "Available Bundles": [
-            "asset-bundles/elasticsearch-assets/overview",
-            "asset-bundles/standard-assets/overview",
-            "asset-bundles/kafka-assets/overview",
-            "asset-bundles/file-assets/overview"
         ]
     },
     "packages": {
@@ -151,7 +145,8 @@
                 "label": "xlucene-parser",
                 "items": [
                     "packages/xlucene-parser/overview",
-                    "packages/xlucene-parser/api/overview"
+                    "packages/xlucene-parser/api/overview",
+                    "packages/xlucene-parser/ast-structure"
                 ]
             },
             {
@@ -206,6 +201,14 @@
                 "items": [
                     "packages/xpressions/overview",
                     "packages/xpressions/api/overview"
+                ]
+            },
+            {
+                "type": "category",
+                "label": "opensearch-client",
+                "items": [
+                    "packages/opensearch-client/overview",
+                    "packages/opensearch-client/api/overview"
                 ]
             }
         ],

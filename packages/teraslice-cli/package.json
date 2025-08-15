@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "2.10.6",
+    "version": "2.12.4",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -34,47 +34,46 @@
         "build": "tsc --build && yarn postbuild",
         "postbuild": "node build.js",
         "build:watch": "tsc --build --watch & node build.js --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../teraslice-cli --",
+        "test": "node ../scripts/bin/ts-scripts test ../teraslice-cli --",
         "test:debug": "yarn workspace @terascope/scripts test --debug ../teraslice-cli --",
         "test:watch": "yarn workspace @terascope/scripts test --watch ../teraslice-cli --"
     },
     "dependencies": {
-        "esbuild": "~0.25.3"
+        "esbuild": "~0.25.8"
     },
     "devDependencies": {
-        "@terascope/fetch-github-release": "~2.1.0",
-        "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.1",
+        "@terascope/fetch-github-release": "~2.2.1",
+        "@terascope/types": "~1.4.4",
+        "@terascope/utils": "~1.10.2",
         "@types/decompress": "~4.2.7",
-        "@types/diff": "~7.0.2",
         "@types/ejs": "~3.1.5",
         "@types/js-yaml": "~4.0.9",
         "@types/prompts": "~2.4.9",
         "@types/signale": "~1.4.7",
         "@types/tmp": "~0.2.6",
         "@types/yargs": "~17.0.33",
-        "chalk": "~5.4.1",
+        "chalk": "~5.5.0",
         "cli-table3": "~0.6.5",
         "decompress": "~4.2.1",
-        "diff": "~7.0.0",
+        "diff": "~8.0.2",
         "easy-table": "~1.2.0",
         "ejs": "~3.1.10",
-        "execa": "~9.5.2",
-        "fs-extra": "~11.3.0",
+        "execa": "~9.6.0",
+        "fs-extra": "~11.3.1",
         "globby": "~14.1.0",
         "jest-fixtures": "~0.6.0",
         "js-yaml": "~4.1.0",
         "nock": "~13.5.6",
-        "pretty-bytes": "~6.1.1",
+        "pretty-bytes": "~7.0.0",
         "prompts": "~2.4.2",
         "signale": "~1.4.0",
-        "teraslice-client-js": "~1.8.1",
-        "tmp": "~0.2.3",
+        "teraslice-client-js": "~1.10.2",
+        "tmp": "~0.2.5",
         "tty-table": "~4.2.3",
-        "yargs": "~17.7.2"
+        "yargs": "~18.0.0"
     },
     "engines": {
-        "node": ">=18.18.0",
+        "node": ">=22.0.0",
         "yarn": ">=1.22.19"
     },
     "publishConfig": {

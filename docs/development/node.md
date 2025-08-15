@@ -47,15 +47,7 @@ https://github.com/terascope/base-docker-image/pkgs/container/node-base
 
 ### 2. Updating node in assets
 
-Before we can update teraslice we must update the assets. This is because teraslice e2e tests will break if we don't already have asset releases with the new node version.
-
-To start, update `teraslice-cli` to have the ability to build assets with the specified node version.
-
-Update the `bundleTarget` in teraslice/packages/teraslice-cli/src/helpers/asset-src.ts and the `bundle-target` `choices` array in teraslice/packages/teraslice-cli/src/helpers/yargs-options.ts
-
-Afterwards bump `teraslice-cli` and make a new npm release.
-
-Next we need to update the workflows repo to include the new node version:
+Update the workflows repo to include the new node version:
 
 https://github.com/terascope/workflows
 
@@ -89,7 +81,7 @@ Add the new node version to all the spots needed inside each file in `.github/wo
 - publish-tag.yml
 - test.yml
 
-Once the node version has been added to the arrays of all the workflow .yml files, pushing the branch and making a new PR should trigger CI to run new tests with the added node version. Once all tests are passing, then a new node version has been succesfully introduced to teraslice.
+Once the node version has been added to the arrays of all the workflow .yml files, pushing the branch and making a new PR should trigger CI to run new tests with the added node version. Once all tests are passing, then a new node version has been successfully introduced to teraslice.
 
 ## Changing the default node version
 

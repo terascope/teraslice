@@ -47,7 +47,7 @@ describe('Domain V1', () => {
             tokenizer: {
                 domain_tokens: {
                     reverse: 'true',
-                    type: 'PathHierarchy',
+                    type: 'path_hierarchy',
                     delimiter: '.',
                 },
             },
@@ -58,7 +58,7 @@ describe('Domain V1', () => {
 
     it('should be indexed to create ES Mappings', () => {
         const domain = new Domain(field, { ...typeConfig, indexed: false });
-        expect(() => domain.toESMapping()).toThrowError('Domain is required to be indexed');
+        expect(() => domain.toESMapping()).toThrow('Domain is required to be indexed');
     });
 
     it('can get proper graphql types', () => {

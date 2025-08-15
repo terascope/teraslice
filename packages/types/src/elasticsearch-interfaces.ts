@@ -24,18 +24,30 @@ export type BoolQuery = {
 
 export type BoolQueryTypes = 'filter' | 'should' | 'must_not';
 
-export type AnyQuery =
-    | BoolQuery
-    | GeoQuery
-    | TermQuery
-    | MatchQuery
-    | MatchPhraseQuery
-    | WildcardQuery
-    | ExistsQuery
-    | RegExprQuery
-    | QueryStringQuery
-    | RangeQuery
-    | MultiMatchQuery;
+export interface KNNQuery {
+    knn: {
+        [field: string]: {
+            vector: number[];
+            k: number;
+            filter?: AnyQuery | AnyQuery[];
+            [field: string]: any;
+        };
+    };
+}
+
+export type AnyQuery
+    = | BoolQuery
+        | GeoQuery
+        | TermQuery
+        | MatchQuery
+        | MatchPhraseQuery
+        | WildcardQuery
+        | ExistsQuery
+        | RegExprQuery
+        | QueryStringQuery
+        | RangeQuery
+        | MultiMatchQuery
+        | KNNQuery;
 
 export interface ExistsQuery {
     exists: {
@@ -143,6 +155,10 @@ export type MatchAllQuery = {
     match_all: Record<string, never>;
 };
 
+export type MatchNoneQuery = {
+    match_none: Record<PropertyKey, never>; // empty object {}
+};
+
 export type GeoDistanceSort = {
     [field: string]: SortOrder | geo.GeoDistanceUnit | {
         lat: number;
@@ -157,33 +173,34 @@ export type GeoSortQuery = {
 export type AnyQuerySort = GeoSortQuery;
 
 export type ElasticsearchDSLResult = {
-    query: ConstantScoreQuery | MatchAllQuery;
+    query: ConstantScoreQuery | MatchAllQuery | MatchNoneQuery | KNNQuery;
     sort?: AnyQuerySort | AnyQuerySort[];
 };
 
-export type ESFieldType =
-    | 'long'
-    | 'integer'
-    | 'short'
-    | 'byte'
-    | 'double'
-    | 'float'
-    | 'keyword'
-    | 'text'
-    | 'boolean'
-    | 'ip'
-    | 'ip_range'
-    | 'date'
-    | 'geo_point'
-    | 'geo_shape'
-    | 'object'
-    | 'nested';
+export type ESFieldType
+    = | 'long'
+        | 'integer'
+        | 'short'
+        | 'byte'
+        | 'double'
+        | 'float'
+        | 'keyword'
+        | 'text'
+        | 'boolean'
+        | 'ip'
+        | 'ip_range'
+        | 'date'
+        | 'geo_point'
+        | 'geo_shape'
+        | 'object'
+        | 'nested'
+        | 'knn_vector';
 
-export type ESTypeMapping =
-    | PropertyESTypeMapping
-    | FieldsESTypeMapping
-    | BasicESTypeMapping
-    | IgnoredESTypeMapping;
+export type ESTypeMapping
+    = | PropertyESTypeMapping
+        | FieldsESTypeMapping
+        | BasicESTypeMapping
+        | IgnoredESTypeMapping;
 
 type BasicESTypeMapping = {
     type: ESFieldType;
@@ -897,14 +914,14 @@ export interface MappingRuntimeField {
     type: MappingRuntimeFieldType;
 }
 
-export type MappingRuntimeFieldType =
-    | 'boolean'
-    | 'date'
-    | 'number'
-    | 'geo_point'
-    | 'ip'
-    | 'keyword'
-    | 'long';
+export type MappingRuntimeFieldType
+    = | 'boolean'
+        | 'date'
+        | 'number'
+        | 'geo_point'
+        | 'ip'
+        | 'keyword'
+        | 'long';
 
 export interface MappingDynamicTemplate {
     mapping?: MappingPropertyBase;
@@ -926,16 +943,16 @@ export interface MappingPropertyBase {
     fields?: Record<string, MappingProperty>;
 }
 
-export type MappingProperty =
-    | MappingFlattenedProperty
-    | MappingJoinProperty
-    | MappingPercolatorProperty
-    | MappingRankFeatureProperty
-    | MappingRankFeaturesProperty
-    | MappingConstantKeywordProperty
-    | MappingFieldAliasProperty
-    | MappingHistogramProperty
-    | MappingCoreProperty;
+export type MappingProperty
+    = | MappingFlattenedProperty
+        | MappingJoinProperty
+        | MappingPercolatorProperty
+        | MappingRankFeatureProperty
+        | MappingRankFeaturesProperty
+        | MappingConstantKeywordProperty
+        | MappingFieldAliasProperty
+        | MappingHistogramProperty
+        | MappingCoreProperty;
 
 export interface MappingFlattenedProperty extends MappingPropertyBase {
     boost?: number;
@@ -950,31 +967,31 @@ export interface MappingFlattenedProperty extends MappingPropertyBase {
     type: 'flattened';
 }
 
-export type MappingCoreProperty =
-    | MappingObjectProperty
-    | MappingNestedProperty
-    | MappingSearchAsYouTypeProperty
-    | MappingTextProperty
-    | MappingDocValuesProperty;
+export type MappingCoreProperty
+    = | MappingObjectProperty
+        | MappingNestedProperty
+        | MappingSearchAsYouTypeProperty
+        | MappingTextProperty
+        | MappingDocValuesProperty;
 
-export type MappingDocValuesProperty =
-    | MappingBinaryProperty
-    | MappingBooleanProperty
-    | MappingDateProperty
-    | MappingDateNanosProperty
-    | MappingKeywordProperty
-    | MappingNumberProperty
-    | MappingRangeProperty
-    | MappingGeoPointProperty
-    | MappingGeoShapeProperty
-    | MappingCompletionProperty
-    | MappingIpProperty
-    | MappingMurmur3HashProperty
-    | MappingShapeProperty
-    | MappingTokenCountProperty
-    | MappingVersionProperty
-    | MappingWildcardProperty
-    | MappingPointProperty;
+export type MappingDocValuesProperty
+    = | MappingBinaryProperty
+        | MappingBooleanProperty
+        | MappingDateProperty
+        | MappingDateNanosProperty
+        | MappingKeywordProperty
+        | MappingNumberProperty
+        | MappingRangeProperty
+        | MappingGeoPointProperty
+        | MappingGeoShapeProperty
+        | MappingCompletionProperty
+        | MappingIpProperty
+        | MappingMurmur3HashProperty
+        | MappingShapeProperty
+        | MappingTokenCountProperty
+        | MappingVersionProperty
+        | MappingWildcardProperty
+        | MappingPointProperty;
 
 export interface MappingBooleanProperty extends MappingDocValuesPropertyBase {
     boost?: number;
@@ -1107,24 +1124,24 @@ export interface MappingDoubleRangeProperty extends MappingRangePropertyBase {
     type: 'double_range';
 }
 
-export type MappingRangeProperty =
-    | MappingLongRangeProperty
-    | MappingIpRangeProperty
-    | MappingIntegerRangeProperty
-    | MappingFloatRangeProperty
-    | MappingDoubleRangeProperty
-    | MappingDateRangeProperty;
+export type MappingRangeProperty
+    = | MappingLongRangeProperty
+        | MappingIpRangeProperty
+        | MappingIntegerRangeProperty
+        | MappingFloatRangeProperty
+        | MappingDoubleRangeProperty
+        | MappingDateRangeProperty;
 
-export type MappingNumberProperty =
-    | MappingFloatNumberProperty
-    | MappingHalfFloatNumberProperty
-    | MappingDoubleNumberProperty
-    | MappingIntegerNumberProperty
-    | MappingLongNumberProperty
-    | MappingShortNumberProperty
-    | MappingByteNumberProperty
-    | MappingUnsignedLongNumberProperty
-    | MappingScaledFloatNumberProperty;
+export type MappingNumberProperty
+    = | MappingFloatNumberProperty
+        | MappingHalfFloatNumberProperty
+        | MappingDoubleNumberProperty
+        | MappingIntegerNumberProperty
+        | MappingLongNumberProperty
+        | MappingShortNumberProperty
+        | MappingByteNumberProperty
+        | MappingUnsignedLongNumberProperty
+        | MappingScaledFloatNumberProperty;
 
 export interface MappingFloatNumberProperty extends MappingStandardNumberProperty {
     type: 'float';
@@ -1523,10 +1540,10 @@ export interface IndicesIndexSettingsAnalysis {
     char_filter?: Record<string, AnalysisCharFilter>;
 }
 
-export type AnalysisCharFilter =
-    | AnalysisHtmlStripCharFilter
-    | AnalysisMappingCharFilter
-    | AnalysisPatternReplaceTokenFilter;
+export type AnalysisCharFilter
+    = | AnalysisHtmlStripCharFilter
+        | AnalysisMappingCharFilter
+        | AnalysisPatternReplaceTokenFilter;
 
 export type AnalysisHtmlStripCharFilter = AnalysisCharFilterBase;
 
@@ -2443,18 +2460,18 @@ export interface ReindexBody {
     };
 }
 
-export type AggregationsAggregate =
-    | AggregationsSingleBucketAggregate
-    | AggregationsAutoDateHistogramAggregate
-    | AggregationsFiltersAggregate
-    | AggregationsSignificantTermsAggregate<any>
-    | AggregationsTermsAggregate<any>
-    | AggregationsBucketAggregate
-    | AggregationsCompositeBucketAggregate
-    | AggregationsMultiBucketAggregate<AggregationsBucket>
-    | AggregationsMatrixStatsAggregate
-    | AggregationsKeyedValueAggregate
-    | AggregationsMetricAggregate;
+export type AggregationsAggregate
+    = | AggregationsSingleBucketAggregate
+        | AggregationsAutoDateHistogramAggregate
+        | AggregationsFiltersAggregate
+        | AggregationsSignificantTermsAggregate<any>
+        | AggregationsTermsAggregate<any>
+        | AggregationsBucketAggregate
+        | AggregationsCompositeBucketAggregate
+        | AggregationsMultiBucketAggregate<AggregationsBucket>
+        | AggregationsMatrixStatsAggregate
+        | AggregationsKeyedValueAggregate
+        | AggregationsMetricAggregate;
 
 export interface AggregationsSingleBucketAggregateKeys extends AggregationsAggregateBase {
     doc_count: number;
@@ -2466,9 +2483,9 @@ export interface AggregationsKeyedValueAggregate extends AggregationsValueAggreg
 
 export type AggregationsValueBucket = { [property: string]: AggregationsAggregate };
 
-export type AggregationsBucket =
-    | AggregationsValueBucket
-    | AggregationsKeyedBucket<any>;
+export type AggregationsBucket
+    = | AggregationsValueBucket
+        | AggregationsKeyedBucket<any>;
 
 export interface AggregationsValueAggregate extends AggregationsAggregateBase {
     value: number;
@@ -2527,21 +2544,21 @@ export interface AggregationsGeoLineProperties {
     sort_values: number[];
 }
 
-export type AggregationsMetricAggregate =
-    | AggregationsValueAggregate
-    | AggregationsBoxPlotAggregate
-    | AggregationsGeoBoundsAggregate
-    | AggregationsGeoCentroidAggregate
-    | AggregationsGeoLineAggregate
-    | AggregationsPercentilesAggregate
-    | AggregationsScriptedMetricAggregate
-    | AggregationsStatsAggregate
-    | AggregationsStringStatsAggregate
-    | AggregationsTopHitsAggregate
-    | AggregationsTopMetricsAggregate
-    | AggregationsExtendedStatsAggregate
-    | AggregationsTDigestPercentilesAggregate
-    | AggregationsHdrPercentilesAggregate;
+export type AggregationsMetricAggregate
+    = | AggregationsValueAggregate
+        | AggregationsBoxPlotAggregate
+        | AggregationsGeoBoundsAggregate
+        | AggregationsGeoCentroidAggregate
+        | AggregationsGeoLineAggregate
+        | AggregationsPercentilesAggregate
+        | AggregationsScriptedMetricAggregate
+        | AggregationsStatsAggregate
+        | AggregationsStringStatsAggregate
+        | AggregationsTopHitsAggregate
+        | AggregationsTopMetricsAggregate
+        | AggregationsExtendedStatsAggregate
+        | AggregationsTDigestPercentilesAggregate
+        | AggregationsHdrPercentilesAggregate;
 
 export interface AggregationsTDigestPercentilesAggregate extends AggregationsAggregateBase {
     values: Record<string, number>;
@@ -2705,9 +2722,9 @@ export interface AggregationsSignificantTermsAggregate<TKey = unknown>
 export interface AggregationsFiltersBucketItemKeys {
     doc_count: number;
 }
-export type AggregationsFiltersBucketItem =
-    | AggregationsFiltersBucketItemKeys
-    | { [property: string]: AggregationsAggregate };
+export type AggregationsFiltersBucketItem
+    = | AggregationsFiltersBucketItemKeys
+        | { [property: string]: AggregationsAggregate };
 
 export interface AggregationsMultiBucketAggregate<TBucket = unknown>
     extends AggregationsAggregateBase {
@@ -2729,13 +2746,13 @@ export interface AggregationsAutoDateHistogramAggregate
     interval: string;
 }
 
-export type AggregationsKeyedBucket<TKey = unknown> =
-    | AggregationsKeyedBucketKeys<TKey>
-    | { [property: string]: AggregationsAggregate };
+export type AggregationsKeyedBucket<TKey = unknown>
+    = | AggregationsKeyedBucketKeys<TKey>
+        | { [property: string]: AggregationsAggregate };
 
-export type AggregationsSingleBucketAggregate =
-    | AggregationsSingleBucketAggregateKeys
-    | { [property: string]: AggregationsAggregate };
+export type AggregationsSingleBucketAggregate
+    = | AggregationsSingleBucketAggregateKeys
+        | { [property: string]: AggregationsAggregate };
 
 export interface HitsTotal {
     value: number;
@@ -2787,11 +2804,11 @@ export interface IndicesStatsShardRouting {
     state: IndicesStatsShardRoutingState;
 }
 
-export type IndicesStatsShardRoutingState =
-    | 'UNASSIGNED'
-    | 'INITIALIZING'
-    | 'STARTED'
-    | 'RELOCATING';
+export type IndicesStatsShardRoutingState
+    = | 'UNASSIGNED'
+        | 'INITIALIZING'
+        | 'STARTED'
+        | 'RELOCATING';
 
 export interface IndicesStatsShardRetentionLeases {
     primary_term: number;

@@ -1,7 +1,7 @@
 {
     "name": "@terascope/types",
     "displayName": "Types",
-    "version": "1.4.1",
+    "version": "1.4.4",
     "description": "A collection of typescript interfaces",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/types#readme",
     "bugs": {
@@ -20,15 +20,15 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../types --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../types --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../types --"
+        "test": "node ../scripts/bin/ts-scripts test ../types --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../types --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../types --"
     },
     "dependencies": {
         "prom-client": "~15.1.3"
     },
     "engines": {
-        "node": ">=18.18.0",
+        "node": ">=22.0.0",
         "yarn": ">=1.22.19"
     },
     "publishConfig": {

@@ -5,7 +5,7 @@ import {
 } from '@terascope/utils';
 import { showState } from '@terascope/scripts';
 import { JobConfig, Teraslice } from '@terascope/types';
-import { createClient, ElasticsearchTestHelpers, Client, ClientConfig } from 'elasticsearch-store';
+import { createClient, ElasticsearchTestHelpers, Client, ClientConfig } from '@terascope/opensearch-client';
 import { TerasliceClient } from 'teraslice-client-js';
 import fse from 'fs-extra';
 import {
@@ -548,9 +548,9 @@ export class TerasliceHarness {
         const nodes = await this.waitForClusterState();
 
         if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
-            signale.success('Teraslice is ready to go', getElapsed(startTime));
+            signale.success(`Teraslice is ready to go at port ${TERASLICE_PORT}`, getElapsed(startTime));
         } else {
-            signale.success(`Teraslice is ready to go with ${nodes} nodes`, getElapsed(startTime));
+            signale.success(`Teraslice is ready to go at port ${TERASLICE_PORT} with ${nodes} nodes`, getElapsed(startTime));
         }
     }
 
@@ -563,6 +563,7 @@ export class TerasliceHarness {
 
         const genStartTime = Date.now();
         let indexName = this.getExampleIndex(count);
+        const requiredAssets = ['elasticsearch', 'standard'];
 
         if (hex) {
             indexName += '-hex';
@@ -573,7 +574,7 @@ export class TerasliceHarness {
             name: `Generate: ${indexName}`,
             lifecycle: 'once',
             workers: 1,
-            assets: ['elasticsearch', 'standard'],
+            assets: requiredAssets,
             operations: [
                 {
                     _op: 'data_generator',
@@ -587,6 +588,12 @@ export class TerasliceHarness {
                 }
             ]
         } as any;
+
+        signale.info(`Validating assets..`);
+        await pRetry(async () => {
+            await this.validateAssets(requiredAssets);
+        });
+        signale.success(`Assets validated successfully!`);
 
         try {
             if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
@@ -625,6 +632,44 @@ export class TerasliceHarness {
         }
 
         return `${EXAMPLE_INDEX_PREFIX}-${size}`;
+    }
+
+    /**
+     *  Validates that all required assets exist and are available.
+     *  Will throw if an asset isn't available.
+     * @param assetsArray
+     */
+    async validateAssets(assetsArray: string[]): Promise<void> {
+        const assets = await this.teraslice.assets.list();
+
+        for (const requiredAsset of assetsArray) {
+            let found = false;
+            for (const asset of assets) {
+                if (asset.name === requiredAsset) {
+                    // In the case we are using s3-storage
+                    if (
+                        asset.external_storage
+                        && asset.external_storage === 'available'
+                    ) {
+                        found = true;
+                        break;
+                    } else if (
+                        asset.external_storage
+                        && asset.external_storage !== 'available'
+                    ) {
+                        const e = `Asset ${asset.name} with id ${asset.id} is not available in the s3 backend.`;
+                        throw new Error(e);
+                    } else {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                const e = `Asset ${requiredAsset} not found in asset list.`;
+                throw new Error(e);
+            }
+        }
     }
 
     async generateTestData() {

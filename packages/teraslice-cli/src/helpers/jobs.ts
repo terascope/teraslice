@@ -755,7 +755,7 @@ export default class Jobs {
         return localJobConfigs;
     }
 
-    printDiff(diffResult: Diff.Change[], showUpdateField: boolean) {
+    printDiff(diffResult: diff.Change[], showUpdateField: boolean) {
         diffResult.forEach((part) => {
             let color: typeof chalk;
             let symbol: string;

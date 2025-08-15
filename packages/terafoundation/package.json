@@ -1,7 +1,7 @@
 {
     "name": "terafoundation",
     "displayName": "Terafoundation",
-    "version": "1.13.0",
+    "version": "1.15.2",
     "description": "A Clustering and Foundation tool for Terascope Tools",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terafoundation#readme",
     "bugs": {
@@ -23,37 +23,37 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../terafoundation --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../terafoundation --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../terafoundation --"
+        "test": "node ../scripts/bin/ts-scripts test ../terafoundation --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../terafoundation --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../terafoundation --"
     },
     "dependencies": {
-        "@terascope/file-asset-apis": "~1.0.5",
-        "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.1",
+        "@terascope/file-asset-apis": "~1.1.1",
+        "@terascope/opensearch-client": "~1.1.2",
+        "@terascope/types": "~1.4.4",
+        "@terascope/utils": "~1.10.2",
         "bluebird": "~3.7.2",
         "bunyan": "~1.8.15",
         "convict": "~6.2.4",
         "convict-format-with-moment": "~6.2.0",
         "convict-format-with-validator": "~6.2.0",
         "elasticsearch": "~15.4.1",
-        "elasticsearch-store": "~1.11.0",
         "express": "~5.1.0",
         "js-yaml": "~4.1.0",
         "nanoid": "~5.1.5",
         "node-webhdfs": "~1.0.2",
         "prom-client": "~15.1.3",
-        "yargs": "~17.7.2"
+        "yargs": "~18.0.0"
     },
     "devDependencies": {
         "@types/bunyan": "~1.8.11",
         "@types/elasticsearch": "~5.0.43",
-        "@types/express": "~5.0.1",
+        "@types/express": "~5.0.3",
         "@types/js-yaml": "~4.0.9",
-        "got": "~13.0.0"
+        "got": "~14.4.7"
     },
     "engines": {
-        "node": ">=18.18.0",
+        "node": ">=22.0.0",
         "yarn": ">=1.22.19"
     },
     "publishConfig": {

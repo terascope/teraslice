@@ -1,0 +1,133 @@
+environments:
+  default:
+    values:
+      - values.yaml
+  custom:
+    values:
+      - custom.yaml
+---
+
+repositories:
+  - name: opensearch
+    url: https://opensearch-project.github.io/helm-charts/
+  - name: minio
+    url: https://charts.min.io/
+  - name: chaos-mesh
+    url: https://charts.chaos-mesh.org
+  - name: terascope
+    url: https://terascope.github.io/helm-charts/
+  - name: kafka-ui
+    url: https://provectus.github.io/kafka-ui-charts/
+
+helmDefaults:
+  wait: true
+
+releases:
+  - name: opensearch1
+    namespace: services-dev1
+    chart: opensearch/opensearch
+    version: 2.17.1
+    installed: {{ .Values | get "opensearch1.enabled" false }}
+    values:
+      - ../../e2e/helm/templates/os1.yaml.gotmpl
+
+  - name: opensearch2
+    namespace: services-dev1
+    chart: opensearch/opensearch
+    version: 2.17.1
+    installed: {{ .Values | get "opensearch2.enabled" true }}
+    values:
+      - ../../e2e/helm/templates/os2.yaml.gotmpl
+
+  - name: opensearch3
+    namespace: services-dev1
+    chart: opensearch/opensearch
+    version: 3.1.0
+    installed: {{ .Values | get "opensearch3.enabled" false }}
+    values:
+      - ../../e2e/helm/templates/os3.yaml.gotmpl
+
+  - name: elasticsearch6
+    namespace: services-dev1
+    chart: ../../e2e/helm/elasticsearch/elasticsearch-6.8.9.tgz
+    installed: {{ .Values | get "elasticsearch6.enabled" false }}
+    values:
+      - ../../e2e/helm/templates/es6.yaml.gotmpl
+
+  - name: elasticsearch7
+    namespace: services-dev1
+    chart: ../../e2e/helm/elasticsearch/elasticsearch-7.9.3.tgz
+    installed: {{ .Values | get "elasticsearch7.enabled" false }}
+    values:
+      - ../../e2e/helm/templates/es7.yaml.gotmpl
+
+  - name: minio
+    namespace: services-dev1
+    chart: minio/minio
+    version: 5.3.0
+    installed: {{ .Values | get "minio.enabled" false }}
+    values:
+      - ../../e2e/helm/templates/minio.yaml.gotmpl
+
+  - name: kafka
+    namespace: services-dev1
+    chart: terascope/kafka
+    version: 1.2.0
+    installed: {{ .Values | get "kafka.enabled" true }}
+    values:
+      - ../../e2e/helm/templates/kafka.yaml.gotmpl
+
+  - name: kafka-ui
+    namespace: services-dev1
+    chart: kafka-ui/kafka-ui
+    needs:
+      - services-dev1/kafka
+    version: 0.7.6
+    installed: {{ .Values | get "kafka.enabled" true }}
+    values:
+      - yamlApplicationConfig:
+          kafka:
+            clusters:
+              - name: kafka-dev
+                bootstrapServers: "PLAINTEXT://kafka-headless.services-dev1.svc.cluster.local:9092"
+          auth:
+            type: disabled
+          management:
+            health:
+              ldap:
+                enabled: false
+        service:
+          type: NodePort
+          nodePort: 30084
+
+  - name: teraslice
+    namespace: ts-dev1
+    chart: ../../helm/teraslice
+    needs:
+      - services-dev1/{{ .Values | get "teraslice.stateCluster" "opensearch2" }}
+    values:
+      - ../../e2e/helm/templates/teraslice.yaml.gotmpl
+    labels:
+      app: teraslice
+
+  - name: chaos-mesh
+    namespace: chaos-mesh
+    chart: chaos-mesh/chaos-mesh
+    version: 2.7.0
+    installed: {{ .Values | get "chaos-mesh.enabled" false }}
+    values:
+      - chaosDaemon:
+          runtime: containerd
+          socketPath: /run/containerd/containerd.sock
+        dashboard:
+          service:
+            type: NodePort
+            nodePort: 30333
+
+  - name: utility
+    namespace: services-dev1
+    chart: ../../e2e/helm/utility
+    version: 0.0.1
+    installed: {{ .Values | get "utility.enabled" true }}
+    values:
+      - ../../e2e/helm/templates/utility.yaml.gotmpl

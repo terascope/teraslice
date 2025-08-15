@@ -49,7 +49,7 @@ describe('Collect Processor', () => {
             schema.validate({
                 _op: 'collect',
             });
-        }).toThrowError();
+        }).toThrow();
     });
 
     describe('when given a batch equal to the target size', () => {
@@ -122,7 +122,7 @@ describe('Collect Processor', () => {
             const input = DataEntity.makeArray(times(opConfig.size / 2, (n) => ({ n })));
             await collect.handle(input);
 
-            return expect(collect.shutdown()).rejects.toThrowError(`Collect is shutdown with ${opConfig.size / 2} unprocessed records`);
+            return expect(collect.shutdown()).rejects.toThrow(`Collect is shutdown with ${opConfig.size / 2} unprocessed records`);
         });
 
         it('should resolve when there are no queued records', async () => expect(collect.shutdown()).resolves.toBeNil());

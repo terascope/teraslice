@@ -10,15 +10,15 @@ export const __ENTITY_METADATA_KEY: TYPE_ENTITY_METADATA_KEY = '___EntityMetadat
 export type _DataEntityMetadataType = DataEntityMetadata | AnyObject;
 export type _DataEntityMetadata<M> = M & DataEntityMetadata & AnyObject;
 
-export type DataEntityMetadataValue<M> =
-    (keyof DataEntityMetadata)
-    | (keyof M)
-    | string
-    | number;
+export type DataEntityMetadataValue<M>
+    = (keyof DataEntityMetadata)
+        | (keyof M)
+        | string
+        | number;
 
-export type EntityMetadataValue<M, K> =
-    K extends (keyof DataEntityMetadata) ?
-        DataEntityMetadata[K] : (
+export type EntityMetadataValue<M, K>
+    = K extends (keyof DataEntityMetadata)
+        ? DataEntityMetadata[K] : (
             K extends (keyof M)
                 ? M[K]
                 : any);

@@ -5,16 +5,15 @@ on:
     - cron: '0 12 * * 1-5' # Monday - Friday at 5am Arizona Time
   workflow_dispatch:
     inputs:
-      # Represents the reason that this workflow is running. If triggering this
-      # workflow with an api call the reason should be included in the request body.
       reason:
+        description: Represents the reason that this workflow is running. If triggering this workflow with an api call the reason should be included in the request body.
         required: false
         default: "Manually triggered"
 
-run-name: Daily Docker Cache - ${{ inputs.reason || 'Scheduled Weekly Run' }}
+run-name: Daily Docker Cache - ${{ inputs.reason || 'Scheduled Daily Run' }}
 
 
 jobs:
   call-refresh-docker-cache-workflow:
-    uses: terascope/workflows/.github/workflows/refresh-docker-cache.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/refresh-docker-cache.yml@main
     secrets: inherit

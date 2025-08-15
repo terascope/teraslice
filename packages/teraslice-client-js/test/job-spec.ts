@@ -111,14 +111,14 @@ describe('Teraslice Job', () => {
         describe('when constructed without a jobId', () => {
             it('should throw an error', () => {
                 // @ts-expect-error
-                expect(() => new Job()).toThrowError('Job requires jobId');
+                expect(() => new Job()).toThrow('Job requires jobId');
             });
         });
 
         describe('when constructed with a invalid jobId', () => {
             it('should throw an error', () => {
                 // @ts-expect-error
-                expect(() => new Job({}, { invalid: true })).toThrowError('Job requires jobId to be a string');
+                expect(() => new Job({}, { invalid: true })).toThrow('Job requires jobId to be a string');
             });
         });
 

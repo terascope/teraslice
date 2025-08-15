@@ -39,13 +39,13 @@ describe('Utils', () => {
             expect(() => {
                 // @ts-expect-error
                 parseJSON(123);
-            }).toThrowError('Failure to serialize non-buffer, got "Number"');
+            }).toThrow('Failure to serialize non-buffer, got "Number"');
         });
 
         it('should throw an Error if given invalid json', () => {
             expect(() => {
                 parseJSON(Buffer.from('foo:bar'));
-            }).toThrowError(/^Failure to parse buffer, SyntaxError:/);
+            }).toThrow(/^Failure to parse buffer, SyntaxError:/);
         });
     });
 });

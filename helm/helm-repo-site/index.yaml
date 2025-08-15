@@ -2,6 +2,142 @@ apiVersion: v1
 entries:
   teraslice-chart:
   - apiVersion: v2
+    appVersion: v2.17.2
+    created: "2025-08-05T21:25:31.226436853Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: 37cd5f5edcf0a5338540f6faf5803e1afa4e3245872b7e1e69a407a9f5396d80
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - elasticsearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:2.17.0
+    version: 2.17.0
+  - apiVersion: v2
+    appVersion: v2.17.1
+    created: "2025-07-16T22:29:07.093753615Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: a2cecd3123e6a659fae54ea605a28109fb821d027ef3b5b0b2c71f7386fe26d3
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - elasticsearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:2.16.0
+    version: 2.16.0
+  - apiVersion: v2
+    appVersion: v2.17.0
+    created: "2025-07-08T16:26:51.445126954Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: 1f6e5f0e85b6516a0b83d159bf63cf68f3c1e2a21c7be599118b0dd339cf6013
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - elasticsearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:2.15.0
+    version: 2.15.0
+  - apiVersion: v2
+    appVersion: v2.16.4
+    created: "2025-06-17T20:39:49.437389389Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: d41eed7b7485918eec8684f30b85c33584834e41279614091939e1ffb6b7a67d
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - elasticsearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:2.14.0
+    version: 2.14.0
+  - apiVersion: v2
+    appVersion: v2.16.3
+    created: "2025-06-02T22:21:23.59901166Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: d1da82755e29b809699842906ac9304e86a0d4a69277edbc488baebc421b73d8
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - elasticsearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:2.13.0
+    version: 2.13.0
+  - apiVersion: v2
+    appVersion: v2.16.2
+    created: "2025-06-02T15:55:49.993178386Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: ffb30cdd3c495187bca00f2b55e336c290e695c82083f13e94d925a92a158e2b
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - elasticsearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:2.12.0
+    version: 2.12.0
+  - apiVersion: v2
+    appVersion: v2.16.1
+    created: "2025-05-28T22:07:22.107341454Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: c88b8943792f9bd3e731b76603ca2296feaf1715b63a23fd79469c8a3cf1c3c0
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - elasticsearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:2.11.0
+    version: 2.11.0
+  - apiVersion: v2
+    appVersion: v2.16.0
+    created: "2025-05-28T15:11:39.170531251Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: f5a470f8c8c74702741bdc176d486dcc96966dcbb5d75a4c3450e472c53862c2
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - elasticsearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:2.10.0
+    version: 2.10.0
+  - apiVersion: v2
     appVersion: v2.15.0
     created: "2025-05-06T14:47:41.283937638Z"
     description: Teraslice -  Distributed computing platform for processing JSON data
@@ -180,4 +316,4 @@ entries:
     urls:
     - oci://ghcr.io/terascope/teraslice-chart:2.0.0
     version: 2.0.0
-generated: "2025-05-06T14:47:41.282117618Z"
+generated: "2025-08-05T21:25:31.221529097Z"

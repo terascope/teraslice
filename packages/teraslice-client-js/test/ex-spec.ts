@@ -79,14 +79,14 @@ describe('Teraslice Ex', () => {
         describe('when constructed without a exId', () => {
             it('should throw an error', () => {
                 // @ts-expect-error
-                expect(() => new Ex()).toThrowError('Ex requires exId');
+                expect(() => new Ex()).toThrow('Ex requires exId');
             });
         });
 
         describe('when constructed with a invalid exId', () => {
             it('should throw an error', () => {
                 // @ts-expect-error
-                expect(() => new Ex({}, { invalid: true })).toThrowError('Ex requires exId to be a string');
+                expect(() => new Ex({}, { invalid: true })).toThrow('Ex requires exId to be a string');
             });
         });
 

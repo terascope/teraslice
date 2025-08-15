@@ -1,7 +1,7 @@
 {
     "name": "@terascope/teraslice-messaging",
     "displayName": "Teraslice Messaging",
-    "version": "1.11.1",
+    "version": "1.13.2",
     "description": "An internal teraslice messaging library using socket.io",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-messaging#readme",
     "bugs": {
@@ -26,17 +26,17 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../teraslice-messaging --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../teraslice-messaging --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../teraslice-messaging --"
+        "test": "node ../scripts/bin/ts-scripts test ../teraslice-messaging --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../teraslice-messaging --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../teraslice-messaging --"
     },
     "resolutions": {
-        "debug": "~4.4.0",
+        "debug": "~4.4.1",
         "ms": "~2.1.3"
     },
     "dependencies": {
-        "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.1",
+        "@terascope/types": "~1.4.4",
+        "@terascope/utils": "~1.10.2",
         "get-port": "~7.1.0",
         "ms": "~2.1.3",
         "nanoid": "~5.1.5",
@@ -50,7 +50,7 @@
         "@types/socket.io-client": "~1.4.36"
     },
     "engines": {
-        "node": ">=18.18.0",
+        "node": ">=22.0.0",
         "yarn": ">=1.22.19"
     },
     "publishConfig": {

@@ -55,7 +55,7 @@ describe('Utils', () => {
             const variables = { other: { some: 'data' } };
             const vState = new VariableState(variables);
 
-            expect(() => vState.createVariable('hello', '$person')).toThrowError('Must provide variable "person" in the variables config');
+            expect(() => vState.createVariable('hello', '$person')).toThrow('Must provide variable "person" in the variables config');
         });
     });
 

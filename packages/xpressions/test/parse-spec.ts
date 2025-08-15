@@ -168,7 +168,7 @@ describe('parse', () => {
         it('should throw when given expression with \\}', () => {
             expect(() => {
                 parse('${foo_var\\}');
-            }).toThrowError('Expected } for end of expression, found EOL');
+            }).toThrow('Expected } for end of expression, found EOL');
         });
 
         it('should not evaluate the expression with \\{', () => {

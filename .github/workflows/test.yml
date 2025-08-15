@@ -4,9 +4,9 @@ on:
   pull_request:
     branches: [ master ]
 env:
-  NODE_VERSIONS: '[18, 22]'
+  NODE_VERSIONS: '[22, 24]'
   NODE_VERSION_MAIN: '22'
-  NODE_VERSIONS_K8S: '[18, 22]'
+  NODE_VERSIONS_K8S: '[22, 24]'
   NODE_VERSIONS_EXT_STORAGE: '[22]'
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
     outputs:
       NODE_VERSIONS: ${{ steps.step1.outputs.NODE_VERSIONS }}
       NODE_VERSION_MAIN: ${{ steps.step2.outputs.NODE_VERSION_MAIN }}
-      NODE_VERSIONS_EXT_K8S: ${{ steps.step3.outputs.NODE_VERSIONS_K8S }}
+      NODE_VERSIONS_K8S: ${{ steps.step3.outputs.NODE_VERSIONS_K8S }}
       NODE_VERSIONS_EXT_STORAGE: ${{ steps.step4.outputs.NODE_VERSIONS_EXT_STORAGE }}
     steps:
       - id: step1
@@ -44,26 +44,73 @@ jobs:
       run: YARN_ENABLE_HARDENED_MODE=1 yarn && yarn setup
 
   check-docker-limit-before:
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@main
     secrets: inherit
 
   check-github-api-limit-before:
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
     secrets: inherit
 
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@main
     secrets: inherit
 
   cache-asset-bundles:
     needs: check-github-api-limit-before
-    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@main
     secrets: inherit
 
-  linux-unit-tests:
+  determine-tests-based-off-commit:
     runs-on: ubuntu-latest
     needs: compute-node-version-vars
+    outputs:
+      unit: ${{ steps.determine.outputs.unit }}
+      e2e: ${{ steps.determine.outputs.e2e }}
+      website: ${{ steps.determine.outputs.website }}
+      integration: ${{ steps.determine.outputs.integration }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      - name: Setup Node ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
+          cache: 'yarn'
+      - name: Install and build packages
+        run: yarn && yarn setup
+      - name: Determine tests to run
+        id: determine
+        # The output of determine-tests would be a json object that looks like this:
+          # {
+          #   "unit": true,
+          #   "e2e": true,
+          #   "website": false
+          # }
+        run: |
+          echo "Running determine-tests..."
+
+          JSON=$(yarn determine-tests)
+          echo "$JSON"
+
+          UNIT=$(echo "$JSON" | jq -r '.unit')
+          E2E=$(echo "$JSON" | jq -r '.e2e')
+          WEBSITE=$(echo "$JSON" | jq -r '.website')
+          INTEGRATION=$(echo "$JSON" | jq -r '.integration')
+
+          echo "unit=$UNIT" >> $GITHUB_OUTPUT
+          echo "e2e=$E2E" >> $GITHUB_OUTPUT
+          echo "website=$WEBSITE" >> $GITHUB_OUTPUT
+          echo "integration=$INTEGRATION" >> $GITHUB_OUTPUT
+
+
+  linux-unit-tests:
+    if: needs.determine-tests-based-off-commit.outputs.unit == 'true'
+    runs-on: ubuntu-latest
+    needs: [determine-tests-based-off-commit, compute-node-version-vars]
     strategy:
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
@@ -100,85 +147,17 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true # optional (default = false)
 
-
-  e2e-k8s-tests:
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_K8S) }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Install and build packages
-        run: yarn && yarn setup
-
-      - name: Create Docker Image List
-        run: |
-          yarn docker:listImages
-          cat ./images/image-list.txt
-
-      - name: Restore Docker image cache
-        id: docker-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
-
-      - name: Compile e2e code
-        run: yarn build
-        working-directory: ./e2e
-
-      - name: Get Asset Bundle List From Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: asset-bundle-txt-file-list
-          path: ${{ github.workspace }}/e2e/scripts
-
-      - name: Restore asset bundle cache
-        id: asset-bundle-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/teraslice_assets
-          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
-
-      - name: Install Kind and Kubectl
-        uses: helm/kind-action@v1.10.0
-        with:
-          install_only: "true"
-
-      - name: Test k8s elasticsearch7
-        run: NODE_VERSION=${{ matrix.node-version }} yarn test:k8s
-        working-directory: ./e2e
-
   e2e-k8s-v2-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_K8S) }}
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_K8S) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -209,7 +188,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Compile e2e code
         run: yarn build
@@ -235,7 +217,7 @@ jobs:
 
       - name: Install Helmfile
         run: |
-          curl -L "https://github.com/helmfile/helmfile/releases/download/v0.171.0/helmfile_0.171.0_linux_amd64.tar.gz" -o helmfile.tgz
+          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
           tar -xzf helmfile.tgz
           chmod +x helmfile
           mv helmfile /usr/local/bin/helmfile
@@ -251,12 +233,17 @@ jobs:
           command -v helmfile
 
       - name: Test k8s V2 opensearch2
-        run: NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2Helmfile
+        run: |
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2Helmfile
         working-directory: ./e2e
 
   e2e-k8s-v2-encrypted-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -292,7 +279,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Install mkcert
         run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
@@ -330,7 +320,7 @@ jobs:
 
       - name: Install Helmfile
         run: |
-          curl -L "https://github.com/helmfile/helmfile/releases/download/v0.171.0/helmfile_0.171.0_linux_amd64.tar.gz" -o helmfile.tgz
+          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
           tar -xzf helmfile.tgz
           chmod +x helmfile
           mv helmfile /usr/local/bin/helmfile
@@ -346,14 +336,20 @@ jobs:
           command -v helmfile
 
       - name: Test k8s V2 opensearch2
-        run: NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2HelmfileEncrypted
+        run: |
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2HelmfileEncrypted
         working-directory: ./e2e
 
   e2e-external-storage-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -389,7 +385,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Compile e2e code
         run: yarn build
@@ -409,18 +408,25 @@ jobs:
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Test external Asset Storage opensearch1
-        run: NODE_VERSION=${{ matrix.node-version }} yarn test:s3AssetStorage
+        run: |
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} yarn test:s3AssetStorage
         working-directory: ./e2e
 
   teraslice-elasticsearch-tests:
+    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -451,12 +457,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
           REPORT_COVERAGE: true
-        run: yarn test:${{ matrix.search-version }}
+        run: |
+          export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../../scripts/get-random-port.sh)
+          yarn test:${{ matrix.search-version }}
         working-directory: ./packages/teraslice
 
       - name: Upload teraslice node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
@@ -470,14 +483,15 @@ jobs:
           verbose: true # optional (default = false)
 
   elasticsearch-store-tests:
+    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -508,12 +522,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
           REPORT_COVERAGE: true
-        run: yarn test:${{ matrix.search-version }}
+        run: |
+          export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
 
       - name: Upload elasticsearch-store node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
@@ -525,6 +545,133 @@ jobs:
           name: es-store-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true # optional (default = false)
+
+  xlucene-translator-tests:
+    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
+    runs-on: ubuntu-latest
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        search-version: [opensearch2, opensearch3]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Install and build packages
+        run: yarn && yarn setup
+
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
+
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
+
+      - name: Test ${{ matrix.search-version }}
+        env:
+          REPORT_COVERAGE: true
+        run: |
+          export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          yarn test:${{ matrix.search-version }}
+        working-directory: ./packages/xlucene-translator
+
+      - name: Upload xlucene-translator node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: false
+          codecov_yml_path: ./.github/codecov.yaml
+          flags: xlucene-translator-integration,integration
+          name: xlucene-translator-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true # optional (default = false)
+
+  opensearch-client-tests:
+      if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
+      runs-on: ubuntu-latest
+      needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+      strategy:
+        # opensearch is finiky, keep testing others if it fails
+        fail-fast: false
+        matrix:
+          node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+          search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v4
+
+        - name: Setup Node ${{ matrix.node-version }}
+          uses: actions/setup-node@v4
+          with:
+            node-version: ${{ matrix.node-version }}
+            cache: 'yarn'
+
+        # we login to docker to avoid docker pull limit rates
+        - name: Login to Docker Hub
+          uses: docker/login-action@v3
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+
+        - name: Install and build packages
+          run: yarn && yarn setup
+
+        - name: Create Docker Image List
+          run: |
+            yarn docker:listImages
+            cat ./images/image-list.txt
+
+        - name: Restore Docker image cache
+          id: docker-cache
+          uses: actions/cache@v4
+          with:
+            path: /tmp/docker_cache
+            key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+            restore-keys: |
+              docker-images-${{ hashFiles('./images/image-list.txt') }}-
+              docker-images-
+
+        - name: Test ${{ matrix.search-version }}
+          env:
+            REPORT_COVERAGE: true
+          run: |
+            export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
+            export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
+            yarn test:${{ matrix.search-version }}
+          working-directory: ./packages/opensearch-client
+
+        - name: Upload opensearch-client node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+          uses: codecov/codecov-action@v5
+          with:
+            fail_ci_if_error: false
+            codecov_yml_path: ./.github/codecov.yaml
+            flags: opensearch-client-integration,integration
+            name: opensearch-client-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+            token: ${{ secrets.CODECOV_TOKEN }}
+            verbose: true # optional (default = false)
 
   lint-and-sync:
     runs-on: ubuntu-latest
@@ -551,14 +698,15 @@ jobs:
       run: yarn sync --verify
 
   elasticsearch-api-tests:
+    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -589,12 +737,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
           REPORT_COVERAGE: true
-        run: yarn test:${{ matrix.search-version }}
+        run: |
+          export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
+          yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-api
 
       - name: Upload es-api node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
@@ -608,16 +762,17 @@ jobs:
           verbose: true # optional (default = false)
 
   e2e-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -648,7 +803,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
       - name: Compile e2e code
         run: yarn build
@@ -668,21 +826,46 @@ jobs:
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
-        run: NODE_VERSION=${{ matrix.node-version }} yarn test:${{ matrix.search-version }}
+        run: |
+          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} yarn test:${{ matrix.search-version }}
         working-directory: ./e2e
+
+  test-website:
+    if: needs.determine-tests-based-off-commit.outputs.website == 'true'
+    needs: [verify-build, determine-tests-based-off-commit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          # NOTE: Hard Coded Node Version
+          node-version: '22'
+      - name: Build documentation
+        run: yarn && ./scripts/build-documentation.sh
+      - name: Check Output
+        run: find ./website/build
 
   check-docker-limit-after:
     needs: [
       e2e-k8s-v2-encrypted-tests,
       e2e-external-storage-tests,
       e2e-k8s-v2-tests,
-      e2e-k8s-tests,
       e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@main
     secrets: inherit
 
   check-github-api-limit-after:
@@ -690,11 +873,60 @@ jobs:
       e2e-k8s-v2-encrypted-tests,
       e2e-external-storage-tests,
       e2e-k8s-v2-tests,
-      e2e-k8s-tests,
       e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@a30c5cb5151ee231edc8ff0ac22d7a29d66540f2
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
     secrets: inherit
+
+  all-tests-passed:
+    needs:
+      [
+        linux-unit-tests,
+        e2e-k8s-v2-encrypted-tests,
+        e2e-external-storage-tests,
+        e2e-k8s-v2-tests,
+        e2e-tests,
+        elasticsearch-api-tests,
+        elasticsearch-store-tests,
+        teraslice-elasticsearch-tests,
+        lint-and-sync,
+        test-website,
+        determine-tests-based-off-commit
+      ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check job results
+        run: |
+          failed=""
+
+          declare -A results
+          results["linux-unit-tests"]="${{ needs.linux-unit-tests.result }}"
+          results["e2e-k8s-v2-encrypted-tests"]="${{ needs.e2e-k8s-v2-encrypted-tests.result }}"
+          results["e2e-external-storage-tests"]="${{ needs.e2e-external-storage-tests.result }}"
+          results["e2e-k8s-v2-tests"]="${{ needs.e2e-k8s-v2-tests.result }}"
+          results["e2e-tests"]="${{ needs.e2e-tests.result }}"
+          results["elasticsearch-api-tests"]="${{ needs.elasticsearch-api-tests.result }}"
+          results["elasticsearch-store-tests"]="${{ needs.elasticsearch-store-tests.result }}"
+          results["teraslice-elasticsearch-tests"]="${{ needs.teraslice-elasticsearch-tests.result }}"
+          results["lint-and-sync"]="${{ needs.lint-and-sync.result }}"
+          results["test-website"]="${{ needs.test-website.result }}"
+          results["determine-tests-based-off-commit"]="${{needs.determine-tests-based-off-commit.result}}"
+
+          for job in "${!results[@]}"; do
+            result="${results[$job]}"
+            echo "$job: $result"
+            if [[ "$result" == "failure" || "$result" == "cancelled" ]]; then
+              failed+="$job ($result)\n"
+            fi
+          done
+
+          if [[ -n "$failed" ]]; then
+            echo -e "::error::Some jobs failed or were cancelled:\n$failed"
+            exit 1
+          fi
+
+          echo "All required jobs passed or were skipped."

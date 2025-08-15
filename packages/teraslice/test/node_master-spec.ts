@@ -188,7 +188,7 @@ describe('Node master', () => {
     afterAll(() => fakeClusterMaster.close());
 
     it('can load without throwing', () => {
-        expect(() => setUpNodeMaster()).not.toThrowError();
+        expect(() => setUpNodeMaster()).not.toThrow();
     });
 
     it('can remove workers', async () => {

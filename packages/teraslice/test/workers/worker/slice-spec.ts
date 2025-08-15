@@ -400,14 +400,14 @@ describe('Slice', () => {
 
         it('should throw an error when marking it as failed', async () => {
             // @ts-expect-error
-            await expect(slice._markFailed(new Error('some error'))).rejects.toThrowError(/Failure to update error state/);
+            await expect(slice._markFailed(new Error('some error'))).rejects.toThrow(/Failure to update error state/);
             // @ts-expect-error
-            await expect(slice._markFailed()).rejects.toThrowError(/Failure to update error state/);
+            await expect(slice._markFailed()).rejects.toThrow(/Failure to update error state/);
         });
 
         it('should throw an error when marking it as complete', async () => {
             // @ts-expect-error
-            await expect(slice._markCompleted()).rejects.toThrowError(/Failure to update completed state/);
+            await expect(slice._markCompleted()).rejects.toThrow(/Failure to update completed state/);
         });
     });
 });

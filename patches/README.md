@@ -26,10 +26,4 @@ Use exactly the same process as for making patches in the first place, i.e. make
 
 ## Current Patches
 
-### jest-config
-
-`jest-config` needed a patch that fixes an issue that's stated here:
-
-[Unknown option testTimeout validation warning when used in project specific config](https://github.com/jestjs/jest/issues/14513)
-
-This is fixed on jest version 30 but it's still in beta. Once out of beta, this patch can be removed.
+None

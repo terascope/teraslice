@@ -210,7 +210,7 @@ describe('DataEntity', () => {
             it('should not be able to set _createTime', () => {
                 expect(() => {
                     dataEntity.setMetadata('_createTime', 10);
-                }).toThrowError('Cannot set readonly metadata property _createTime');
+                }).toThrow('Cannot set readonly metadata property _createTime');
             });
 
             it('should be return undefined if getting a metadata that does not exist', () => {
@@ -266,7 +266,7 @@ describe('DataEntity', () => {
                     } else {
                         DataEntity.make(arr);
                     }
-                }).toThrowError('Invalid data source, must be an object, got "Array"');
+                }).toThrow('Invalid data source, must be an object, got "Array"');
             });
 
             it('should throw an error when called with a Buffer', () => {
@@ -277,7 +277,7 @@ describe('DataEntity', () => {
                     } else {
                         DataEntity.make(buf);
                     }
-                }).toThrowError('Invalid data source, must be an object, got "Buffer"');
+                }).toThrow('Invalid data source, must be an object, got "Buffer"');
             });
         });
 
@@ -287,13 +287,13 @@ describe('DataEntity', () => {
             it('should throw an if there is no key', () => {
                 expect(() => {
                     dataEntity.getKey();
-                }).toThrowError('No key has been set in the metadata');
+                }).toThrow('No key has been set in the metadata');
             });
 
             it('should throw an when setting an invalid key', () => {
                 expect(() => {
                     dataEntity.setKey('');
-                }).toThrowError('Invalid key to set in metadata');
+                }).toThrow('Invalid key to set in metadata');
             });
 
             it('should be able to set and get a string key', () => {
@@ -336,19 +336,19 @@ describe('DataEntity', () => {
                 it('should throw if setting an invalid date', () => {
                     expect(() => {
                         dataEntity[setMethod](new Date('invalid-date'));
-                    }).toThrowError('Invalid date format');
+                    }).toThrow('Invalid date format');
                 });
 
                 it('should throw if setting an invalid date string', () => {
                     expect(() => {
                         dataEntity[setMethod]('invalid-date-string');
-                    }).toThrowError('Invalid date format');
+                    }).toThrow('Invalid date format');
                 });
 
                 it('should throw if setting an invalid unix time', () => {
                     expect(() => {
                         dataEntity[setMethod](Number.NaN);
-                    }).toThrowError('Invalid date format');
+                    }).toThrow('Invalid date format');
                 });
 
                 it('should be able to set a valid date', () => {
@@ -486,7 +486,7 @@ describe('DataEntity', () => {
                 expect(() => {
                     // @ts-expect-error
                     dataEntity.toBuffer({ _encoding: 'baz' });
-                }).toThrowError('Unsupported encoding type, got "baz"');
+                }).toThrow('Unsupported encoding type, got "baz"');
             });
         });
     });
@@ -577,7 +577,7 @@ describe('DataEntity', () => {
         });
 
         it('should throw if not given a data entity', () => {
-            expect(() => DataEntity.fork(null as any)).toThrowError(/Invalid input to fork/);
+            expect(() => DataEntity.fork(null as any)).toThrow(/Invalid input to fork/);
         });
     });
 
@@ -663,7 +663,7 @@ describe('DataEntity', () => {
                     _op: 'test',
                     _encoding: 'crazy' as any,
                 });
-            }).toThrowError('Unsupported encoding type, got "crazy"');
+            }).toThrow('Unsupported encoding type, got "crazy"');
         });
 
         describe('when encoding is type JSON', () => {

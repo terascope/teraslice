@@ -111,7 +111,7 @@ describe('AssetSrc', () => {
         const devMode = false;
         const debug = false;
         const bundle = false;
-        const bundleTarget = 'node18';
+        const bundleTarget = 'node22';
         const overwrite = false;
 
         try {
@@ -124,13 +124,13 @@ describe('AssetSrc', () => {
         }
     });
 
-    it('can build a node 18 bundle', async () => {
+    it('can build a node 22 bundle', async () => {
         expect.hasAssertions();
 
         const devMode = false;
         const debug = false;
         const bundle = true;
-        const bundleTarget = 'node18';
+        const bundleTarget = 'node22';
         const overwrite = false;
 
         const myTestAsset = new AssetSrc(
@@ -141,7 +141,7 @@ describe('AssetSrc', () => {
 
         try {
             resp = await myTestAsset.build();
-            expect(resp.name).toContain('node-18');
+            expect(resp.name).toContain('node-22');
         } finally {
             if (resp) {
                 await fs.remove(resp.name);

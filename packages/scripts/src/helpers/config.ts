@@ -23,8 +23,10 @@ export const __DEFAULT_ELASTICSEARCH7_VERSION = '7.9.3';
 export const __DEFAULT_OPENSEARCH1_VERSION = '1.3.11';
 /** Default opensearch2 version used to populate the CI cache */
 export const __DEFAULT_OPENSEARCH2_VERSION = '2.15.0';
+/** Default opensearch3 version used to populate the CI cache */
+export const __DEFAULT_OPENSEARCH3_VERSION = '3.1.0';
 
-export const TERASLICE_PORT = '45678';
+export const TERASLICE_PORT = process.env.TERASLICE_PORT || '45678';
 export const HOST_IP = process.env.HOST_IP || address();
 export const USE_EXISTING_SERVICES = toBoolean(process.env.USE_EXISTING_SERVICES);
 export const SERVICES_USE_TMPFS = toBoolean(process.env.SERVICES_USE_TMPFS || 'true');
@@ -55,19 +57,19 @@ export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'confluentin
 // to determine image version, else use KAFKA_VERSION
 export const KAFKA_IMAGE_VERSION = KAFKA_DOCKER_IMAGE === 'confluentinc/cp-kafka' ? kafkaVersionMapper(KAFKA_VERSION) : KAFKA_VERSION;
 // If using confluentinc/cp-kafka image, use zookeeper, else use kraft
-export const KAFKA_METADATA_MANAGER = KAFKA_DOCKER_IMAGE === 'confluentinc/cp-kafka' ? 'zookeeper' : 'kraft';
+export const KAFKA_METADATA_MANAGER = process.env.KAFKA_METADATA_MANAGER || KAFKA_DOCKER_IMAGE === 'confluentinc/cp-kafka' ? 'zookeeper' : 'kraft';
 // Zookeeper version needs to match KAFKA_IMAGE_VERSION which is determined by kafkaVersionMapper
 export const ZOOKEEPER_VERSION = KAFKA_IMAGE_VERSION;
 export const ZOOKEEPER_CLIENT_PORT = process.env.ZOOKEEPER_CLIENT_PORT || '42181';
 export const ZOOKEEPER_TICK_TIME = process.env.ZOOKEEPER_TICK_TIME || '2000';
 export const ZOOKEEPER_DOCKER_IMAGE = process.env.ZOOKEEPER_DOCKER_IMAGE || 'confluentinc/cp-zookeeper';
 export const KAFKA_BROKER_ID = process.env.KAFKA_BROKER_ID || '1';
-export const KAFKA_ZOOKEEPER_CONNECT = `${KAFKA_HOSTNAME}:${ZOOKEEPER_CLIENT_PORT}`;
-export const KAFKA_LISTENERS = `INTERNAL://:${KAFKA_PORT}`;
-export const KAFKA_ADVERTISED_LISTENERS = `INTERNAL://${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
+export const KAFKA_ZOOKEEPER_CONNECT = process.env.KAFKA_ZOOKEEPER_CONNECT || `${KAFKA_HOSTNAME}:${ZOOKEEPER_CLIENT_PORT}`;
+export const KAFKA_LISTENERS = process.env.KAFKA_LISTENERS || `INTERNAL://:${KAFKA_PORT}`;
+export const KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS || `INTERNAL://${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const ENCRYPT_KAFKA = toBoolean(process.env.ENCRYPT_KAFKA ?? false);
-export const KAFKA_SECURITY_PROTOCOL = ENCRYPT_KAFKA ? 'SSL' : 'PLAINTEXT';
-export const KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = `INTERNAL:${KAFKA_SECURITY_PROTOCOL}`;
+export const KAFKA_SECURITY_PROTOCOL = process.env.KAFKA_SECURITY_PROTOCOL || ENCRYPT_KAFKA ? 'SSL' : 'PLAINTEXT';
+export const KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP || `INTERNAL:${KAFKA_SECURITY_PROTOCOL}`;
 export const KAFKA_SECRETS_DIR = process.env.KAFKA_SECRETS_DIR || '/etc/kafka/secrets';
 export const KAFKA_INTER_BROKER_LISTENER_NAME = process.env.KAFKA_INTER_BROKER_LISTENER_NAME || 'INTERNAL';
 export const KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR = process.env.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR || '1';
@@ -77,7 +79,8 @@ export const MINIO_HOSTNAME = process.env.MINIO_HOSTNAME || HOST_IP;
 export const MINIO_PORT = process.env.MINIO_PORT || '49000';
 export const MINIO_UI_PORT = process.env.MINIO_UI_PORT || '49001';
 export const ENCRYPT_MINIO = toBoolean(process.env.ENCRYPT_MINIO ?? false);
-export const MINIO_HOST = `http${ENCRYPT_MINIO ? 's' : ''}://${MINIO_HOSTNAME}:${MINIO_PORT}`;
+export const MINIO_PROTOCOL = ENCRYPT_MINIO ? 'https' : 'http';
+export const MINIO_HOST = `${MINIO_PROTOCOL}://${MINIO_HOSTNAME}:${MINIO_PORT}`;
 export const MINIO_VERSION = process.env.MINIO_VERSION || 'RELEASE.2024-08-29T01-40-52Z';
 export const MINIO_DOCKER_IMAGE = process.env.MINIO_DOCKER_IMAGE || 'minio/minio';
 export const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY || 'minioadmin';
@@ -114,10 +117,10 @@ export const UTILITY_SVC_VERSION = process.env.UTILITY_SVC_VERSION || '0.0.1';
 export const UTILITY_SVC_DOCKER_IMAGE = process.env.UTILITY_SVC_DOCKER_IMAGE || 'teraslice-utility';
 export const UTILITY_SVC_DOCKER_PROJECT_PATH = process.env.UTILITY_SVC_DOCKER_PROJECT_PATH || 'e2e/helm/utility';
 
-export const KIND_DOCKER_IMAGE = 'kindest/node';
-export const KIND_VERSION = 'v1.30.0';
+export const KIND_DOCKER_IMAGE = process.env.KIND_DOCKER_IMAGE || 'kindest/node';
+export const KIND_VERSION = process.env.KIND_VERSION || 'v1.30.0';
 
-export const BASE_DOCKER_IMAGE = 'terascope/node-base';
+export const BASE_DOCKER_IMAGE = process.env.BASE_DOCKER_IMAGE || 'ghcr.io/terascope/node-base';
 /**
  * When set this will skip git commands. This is useful for Dockerfile when git is not
  * available or does not work
@@ -209,9 +212,9 @@ if (testElasticsearch) {
     testHost = RESTRAINED_ELASTICSEARCH_HOST;
 }
 
-export const SEARCH_TEST_HOST = testHost;
+export const SEARCH_TEST_HOST = process.env.SEARCH_TEST_HOST || testHost;
 
-export const TEST_NODE_VERSIONS = ['18', '20', '22'];
+export const TEST_NODE_VERSIONS = ['22', '24'];
 export const DEFAULT_NODE_VERSION = '22';
 // This overrides the value in the Dockerfile
 export const NODE_VERSION = process.env.NODE_VERSION || DEFAULT_NODE_VERSION;
@@ -223,8 +226,9 @@ export const {
     TERASLICE_IMAGE = undefined
 } = process.env;
 
-export const DOCKER_IMAGES_PATH = './images';
-export const DOCKER_IMAGE_LIST_PATH = `${DOCKER_IMAGES_PATH}/image-list.txt`;
-export const DOCKER_CACHE_PATH = '/tmp/docker_cache';
+export const DOCKER_IMAGES_PATH = process.env.DOCKER_IMAGES_PATH || './images';
+export const DOCKER_IMAGE_LIST_PATH = process.env.DOCKER_IMAGE_LIST_PATH || `${DOCKER_IMAGES_PATH}/image-list.txt`;
+export const DOCKER_CACHE_PATH = process.env.DOCKER_CACHE_PATH || '/tmp/docker_cache';
 export const SKIP_IMAGE_DELETION = toBoolean(process.env.SKIP_IMAGE_DELETION) || false;
 export const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
+export const ATTACH_JEST_DEBUGGER = toBoolean(process.env.ATTACH_JEST_DEBUGGER) || false;

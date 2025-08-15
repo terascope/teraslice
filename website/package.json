@@ -17,15 +17,15 @@
     "npm-watch": "^0.13.0"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.7.0",
-    "@docusaurus/mdx-loader": "^3.7.0",
-    "@docusaurus/preset-classic": "^3.7.0",
-    "@docusaurus/theme-mermaid": "^3.7.0",
+    "@docusaurus/core": "^3.8.1",
+    "@docusaurus/mdx-loader": "^3.8.1",
+    "@docusaurus/preset-classic": "^3.8.1",
+    "@docusaurus/theme-mermaid": "^3.8.1",
     "@mdx-js/react": "^3.1.0",
     "clsx": "^2.1.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-markdown": "9.0.3"
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-markdown": "10.1.0"
   },
   "packageManager": "yarn@4.6.0",
   "watch": {

@@ -1,7 +1,7 @@
 {
     "name": "xlucene-translator",
     "displayName": "xLucene Translator",
-    "version": "1.8.1",
+    "version": "1.10.2",
     "description": "Translate xlucene query to database queries",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-translator#readme",
     "repository": {
@@ -24,21 +24,25 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "yarn workspace @terascope/scripts ts-scripts test ../xlucene-translator --",
-        "test:debug": "yarn workspace @terascope/scripts ts-scripts test --debug ../xlucene-translator --",
-        "test:watch": "yarn workspace @terascope/scripts ts-scripts test --watch ../xlucene-translator --"
+        "test": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
+        "test:debug": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test --debug ../xlucene-translator --",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
+        "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=3.1.0 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
+        "test:watch": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test --watch ../xlucene-translator --"
     },
     "dependencies": {
-        "@terascope/types": "~1.4.1",
-        "@terascope/utils": "~1.8.1",
+        "@terascope/types": "~1.4.4",
+        "@terascope/utils": "~1.10.2",
         "@types/elasticsearch": "~5.0.43",
-        "xlucene-parser": "~1.8.1"
+        "xlucene-parser": "~1.10.2"
     },
     "devDependencies": {
+        "@terascope/data-types": "~1.11.2",
+        "@terascope/opensearch-client": "~1.1.2",
         "elasticsearch": "~15.4.1"
     },
     "engines": {
-        "node": ">=18.18.0",
+        "node": ">=22.0.0",
         "yarn": ">=1.22.19"
     },
     "publishConfig": {
@@ -48,6 +52,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit"
+        "testSuite": "search"
     }
 }

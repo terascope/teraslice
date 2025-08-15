@@ -134,7 +134,7 @@ describe('Column (Date Types)', () => {
                     functionConfigRepository.toDate,
                     { args: { format: 'M/d/YYYY' } }
                 ).column(col);
-            }).toThrowError('Expected value 2020-09-23 to be a date string with format M/d/YYYY');
+            }).toThrow('Expected value 2020-09-23 to be a date string with format M/d/YYYY');
         });
     });
 
@@ -177,7 +177,7 @@ describe('Column (Date Types)', () => {
                     functionConfigRepository.toDate,
                     { args: { format: 'M/d/YYYY' } }
                 ).column(col);
-            }).toThrowError('Expected value 2018-02-02T07:23:01.000Z to be a date string with format M/d/YYYY');
+            }).toThrow('Expected value 2018-02-02T07:23:01.000Z to be a date string with format M/d/YYYY');
         });
     });
 
@@ -308,7 +308,7 @@ describe('Column (Date Types)', () => {
                     functionConfigRepository.toDate,
                     { args: { format: 'M/d/yyyy' } }
                 ).column(col);
-            }).toThrowError('Expected value 1600844405020 to be a date string with format M/d/yyyy');
+            }).toThrow('Expected value 1600844405020 to be a date string with format M/d/yyyy');
         });
     });
 
@@ -351,7 +351,7 @@ describe('Column (Date Types)', () => {
                     functionConfigRepository.toDate,
                     { args: { format: 'M/d/YYYY' } }
                 ).column(col);
-            }).toThrowError('Expected string for formatted date fields, got 1600844405');
+            }).toThrow('Expected string for formatted date fields, got 1600844405');
         });
 
         it('should return invalid dates when transform formatDate(format: "milliseconds")', () => {

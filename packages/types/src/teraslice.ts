@@ -12,6 +12,7 @@ export interface AssetRecord {
     platform?: string;
     node_version?: number;
     _created: string | Date;
+    external_storage?: string;
 }
 
 export interface AssetStatusResponse {
@@ -434,24 +435,24 @@ export enum ExecutionStatusEnum {
 
 export type ExecutionStatus = keyof typeof ExecutionStatusEnum;
 
-export type ExecutionInitStatus =
-    ExecutionStatusEnum.pending |
-    ExecutionStatusEnum.scheduling |
-    ExecutionStatusEnum.recovering;
+export type ExecutionInitStatus
+    = ExecutionStatusEnum.pending
+        | ExecutionStatusEnum.scheduling
+        | ExecutionStatusEnum.recovering;
 
-export type ExecutionRunningStatus =
-    ExecutionStatusEnum.recovering |
-    ExecutionStatusEnum.running |
-    ExecutionStatusEnum.failing |
-    ExecutionStatusEnum.paused |
-    ExecutionStatusEnum.stopping;
+export type ExecutionRunningStatus
+    = ExecutionStatusEnum.recovering
+        | ExecutionStatusEnum.running
+        | ExecutionStatusEnum.failing
+        | ExecutionStatusEnum.paused
+        | ExecutionStatusEnum.stopping;
 
-export type ExecutionTerminalStatus =
-    ExecutionStatusEnum.completed |
-    ExecutionStatusEnum.stopped |
-    ExecutionStatusEnum.rejected |
-    ExecutionStatusEnum.failed |
-    ExecutionStatusEnum.terminated;
+export type ExecutionTerminalStatus
+    = ExecutionStatusEnum.completed
+        | ExecutionStatusEnum.stopped
+        | ExecutionStatusEnum.rejected
+        | ExecutionStatusEnum.failed
+        | ExecutionStatusEnum.terminated;
 
 export interface ExecutionControllerTargets {
     key: string;
