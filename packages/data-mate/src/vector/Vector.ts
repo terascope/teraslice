@@ -323,6 +323,7 @@ export abstract class Vector<T = unknown> {
         if (!json || !this.toJSONCompatibleValue) {
             return val;
         }
+
         return this.toJSONCompatibleValue(val as T, options);
     }
 

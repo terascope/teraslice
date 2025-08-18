@@ -58,7 +58,10 @@ export class WritableData<T> {
         }
 
         if (value == null) {
-            this._values.delete(index);
+            // TODO: this might not be needed, could rip it out
+            if (this._values.has(index)) {
+                this._values.delete(index);
+            }
             return this;
         }
 
