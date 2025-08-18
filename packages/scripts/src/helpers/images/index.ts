@@ -37,6 +37,8 @@ export async function createImageList(): Promise<void> {
         list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}`;
     } else if (repo === 'standard-assets-bundle') {
         list = '';
+    } else if (repo === 'chaos-assets-bundle') {
+        list = '';
     } else if (repo === 'teraslice-workspace') {
         const baseImages: string = config.TEST_NODE_VERSIONS
             .reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version}\n`, '');
