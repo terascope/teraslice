@@ -26,7 +26,7 @@
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../data-mate --",
-        "test:debug": "node ../scripts/bin/ts-scripts --debug ../data-mate --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../data-mate --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-mate --"
     },
     "dependencies": {
