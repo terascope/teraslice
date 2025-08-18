@@ -4,9 +4,9 @@ on:
   pull_request:
     branches: [ master ]
 env:
-  NODE_VERSIONS: '[22, 24]'
+  NODE_VERSIONS: '[22, 24.4]'
   NODE_VERSION_MAIN: '22'
-  NODE_VERSIONS_K8S: '[22, 24]'
+  NODE_VERSIONS_K8S: '[22, 24.4]'
   NODE_VERSIONS_EXT_STORAGE: '[22]'
 
 jobs:
