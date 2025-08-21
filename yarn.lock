@@ -13510,8 +13510,6 @@ __metadata:
     "@terascope/job-components": "npm:~1.12.2"
     decompress: "npm:~4.2.1"
     fs-extra: "npm:~11.3.1"
-  peerDependencies:
-    "@terascope/job-components": ">=1.12.2"
   languageName: unknown
   linkType: soft
 
