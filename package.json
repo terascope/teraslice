@@ -51,8 +51,8 @@
         "nan": "~2.22.0"
     },
     "devDependencies": {
-        "@eslint/js": "~9.33.0",
-        "@swc/core": "1.13.3",
+        "@eslint/js": "~9.34.0",
+        "@swc/core": "1.13.5",
         "@swc/jest": "~0.2.39",
         "@terascope/scripts": "~1.21.4",
         "@types/bluebird": "~3.5.42",
@@ -61,9 +61,9 @@
         "@types/fs-extra": "~11.0.4",
         "@types/jest": "~30.0.0",
         "@types/lodash": "~4.17.20",
-        "@types/node": "~24.2.1",
+        "@types/node": "~24.3.0",
         "@types/uuid": "~10.0.0",
-        "eslint": "~9.33.0",
+        "eslint": "~9.34.0",
         "jest": "~30.0.5",
         "jest-extended": "~6.0.0",
         "jest-watch-typeahead": "~3.0.1",
