@@ -3371,7 +3371,6 @@ __metadata:
     "@types/elasticsearch": "npm:~5.0.43"
     bluebird: "npm:~3.7.2"
     elasticsearch: "npm:~15.4.1"
-    elasticsearch6: "npm:@elastic/elasticsearch@~6.8.0"
     elasticsearch7: "npm:@elastic/elasticsearch@~7.17.0"
     elasticsearch8: "npm:@elastic/elasticsearch@~8.15.0"
     setimmediate: "npm:~1.0.5"
@@ -3460,6 +3459,7 @@ __metadata:
     "@terascope/types": "npm:~1.4.4"
     "@terascope/utils": "npm:~1.10.4"
     elasticsearch6: "npm:@elastic/elasticsearch@~6.8.0"
+    "@terascope/utils": "npm:~1.10.2"
     elasticsearch7: "npm:@elastic/elasticsearch@~7.17.0"
     elasticsearch8: "npm:@elastic/elasticsearch@~8.15.0"
     opensearch1: "npm:@opensearch-project/opensearch@~1.2.0"
@@ -6653,15 +6653,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"decompress-response@npm:^4.2.0":
-  version: 4.2.1
-  resolution: "decompress-response@npm:4.2.1"
-  dependencies:
-    mimic-response: "npm:^2.0.0"
-  checksum: 10c0/5e4821be332e80e3639acee2441c41d245fc07ac3ee85a6f28893c10c079d66d9bf09e8d84bffeae5656a4625e09e9b93fb4a5705adbe6b07202eea64fae1c8d
-  languageName: node
-  linkType: hard
-
 "decompress-response@npm:^6.0.0":
   version: 6.0.0
   resolution: "decompress-response@npm:6.0.0"
@@ -6986,21 +6977,6 @@ __metadata:
     xlucene-translator: "npm:~1.10.4"
   languageName: unknown
   linkType: soft
-
-"elasticsearch6@npm:@elastic/elasticsearch@~6.8.0":
-  version: 6.8.8
-  resolution: "@elastic/elasticsearch@npm:6.8.8"
-  dependencies:
-    debug: "npm:^4.1.1"
-    decompress-response: "npm:^4.2.0"
-    into-stream: "npm:^5.1.0"
-    ms: "npm:^2.1.1"
-    once: "npm:^1.4.0"
-    pump: "npm:^3.0.0"
-    secure-json-parse: "npm:^2.1.0"
-  checksum: 10c0/afec0fd8936d85924a6dfc0c1b3b1e09df4fe4b8c025066e3edd4d99b238dd21f497a9a70c1478866fb05addd6a07baac70f79f9465a5c7ec65588203e87189e
-  languageName: node
-  linkType: hard
 
 "elasticsearch7@npm:@elastic/elasticsearch@~7.17.0":
   version: 7.17.14
@@ -11074,13 +11050,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mimic-response@npm:^2.0.0":
-  version: 2.1.0
-  resolution: "mimic-response@npm:2.1.0"
-  checksum: 10c0/717475c840f20deca87a16cb2f7561f9115f5de225ea2377739e09890c81aec72f43c81fd4984650c4044e66be5a846fa7a517ac7908f01009e1e624e19864d5
-  languageName: node
-  linkType: hard
-
 "mimic-response@npm:^3.1.0":
   version: 3.1.0
   resolution: "mimic-response@npm:3.1.0"
@@ -12934,7 +12903,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"secure-json-parse@npm:^2.1.0, secure-json-parse@npm:^2.4.0":
+"secure-json-parse@npm:^2.4.0":
   version: 2.7.0
   resolution: "secure-json-parse@npm:2.7.0"
   checksum: 10c0/f57eb6a44a38a3eeaf3548228585d769d788f59007454214fab9ed7f01fbf2e0f1929111da6db28cf0bcc1a2e89db5219a59e83eeaec3a54e413a0197ce879e4
