@@ -16,7 +16,6 @@
     "scripts": {
         "test": "TEST_RESTRAINED_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
         "test:debug": "TEST_RESTRAINED_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
-        "test:elasticsearch6": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
         "test:elasticsearch7": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
         "test:elasticsearch8": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
         "test:opensearch1": "TEST_RESTRAINED_OPENSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
@@ -35,7 +34,6 @@
         "@terascope/opensearch-client": "~1.1.2",
         "@types/elasticsearch": "~5.0.43",
         "elasticsearch": "~15.4.1",
-        "elasticsearch6": "npm:@elastic/elasticsearch@~6.8.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@~8.15.0"
     },
