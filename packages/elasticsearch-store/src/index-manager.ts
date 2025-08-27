@@ -7,7 +7,7 @@ import type {
     ClientParams, ClientResponse, ClientMetadata, ESMapping
 } from '@terascope/types';
 import {
-    type Client, getClientMetadata, isElasticsearch6, isValidClient,
+    type Client, getClientMetadata, isValidClient,
     fixMappingRequest, getFlattenedNamesAndTypes
 } from '@terascope/opensearch-client';
 import * as utils from './utils/index.js';
@@ -301,11 +301,10 @@ export class IndexManager {
     }
 
     async putMapping(
-        index: string, type: string, properties: Record<string, any>
+        index: string, properties: Record<string, any>
     ): Promise<ClientResponse.IndicesPutMappingResponse> {
         const params: ClientParams.IndicesPutMappingParams = {
             index,
-            type,
             body: {
                 properties,
             },
@@ -326,11 +325,7 @@ export class IndexManager {
     ): Promise<boolean> {
         const result = await this.getMapping(index);
 
-        const propertiesPath = !isElasticsearch6(this.client)
-            ? [
-                'mappings', 'properties'
-            ]
-            : ['mappings', type, 'properties'];
+        const propertiesPath = ['mappings', 'properties'];
 
         const existing = get(result[index], propertiesPath, {});
         const current = get(mapping, propertiesPath, {});
@@ -371,7 +366,7 @@ export class IndexManager {
         const changesInfo = changesList.length ? ` CHANGES: ${changesList.join(', ')}` : '';
 
         if (breakingChange) {
-            throw new Error(`Index ${index} (${type}) has breaking change in the mapping, increment the schema version to fix this.${changesInfo}`);
+            throw new Error(`Index ${index} has breaking change in the mapping, increment the schema version to fix this.${changesInfo}`);
         }
 
         if (safeChange) {
@@ -381,9 +376,9 @@ export class IndexManager {
         }
 
         if (changesInfo) {
-            logger.info(`No major changes for ${index} (${type}).${changesInfo}`);
+            logger.info(`No major changes for ${index} ${changesInfo}`);
         } else {
-            logger.info(`No changes for ${index} (${type}).${changesInfo}`);
+            logger.info(`No changes for ${index} ${changesInfo}`);
         }
 
         return false;

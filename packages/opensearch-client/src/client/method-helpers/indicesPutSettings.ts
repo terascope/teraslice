@@ -23,7 +23,7 @@ export function convertIndicesPutSettingsParams(
             };
         }
 
-        if (majorVersion === 7 || majorVersion === 6) {
+        if (majorVersion === 7) {
             return params;
         }
     }

@@ -70,7 +70,6 @@ export class StateStorage {
                 action: {
                     index: {
                         _index: index,
-                        _type: this.recordType,
                         _id: record.slice_id,
                     },
                 },

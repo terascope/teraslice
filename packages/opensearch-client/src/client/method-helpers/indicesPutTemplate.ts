@@ -1,6 +1,6 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
 import { get, isNumber } from '@terascope/utils';
-import { ensureNoTypeInMapping, ensureTypeInMapping } from './helper-utils.js';
+import { ensureNoTypeInMapping } from './helper-utils.js';
 
 export function convertIndicesPutTemplateParams(
     params: ClientParams.IndicesPutTemplateParams,
@@ -16,7 +16,6 @@ export function convertIndicesPutTemplateParams(
         if (majorVersion === 8) {
             const {
                 body,
-                include_type_name,
                 ...parsedParams
             } = params;
 
@@ -35,20 +34,6 @@ export function convertIndicesPutTemplateParams(
         if (majorVersion === 7) {
             return params;
         }
-
-        if (majorVersion === 6) {
-            const {
-                body,
-                include_type_name,
-                ...parsedParams
-            } = params;
-
-            return {
-                include_type_name: true,
-                body: ensureTypeInMapping(body),
-                ...parsedParams
-            };
-        }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
@@ -58,7 +43,6 @@ export function convertIndicesPutTemplateParams(
 
         if (majorVersion === 2 || majorVersion === 3) {
             const {
-                include_type_name,
                 master_timeout,
                 body,
                 ...parsedParams

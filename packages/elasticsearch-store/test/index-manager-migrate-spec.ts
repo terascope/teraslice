@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { debugLogger, times } from '@terascope/utils';
-import { ElasticsearchTestHelpers, type Client, isElasticsearch6 } from '@terascope/opensearch-client';
+import { ElasticsearchTestHelpers, type Client } from '@terascope/opensearch-client';
 import * as simple from './helpers/simple-index.js';
 import { IndexManager, IndexConfig } from '../src/index.js';
 
@@ -64,14 +64,7 @@ describe('IndexManager->migrateIndex()', () => {
             times(10, (n) => {
                 body.push(
                     {
-                        index: !isElasticsearch6(client)
-                            ? {
-                                _index: previousIndex,
-                            }
-                            : {
-                                _index: previousIndex,
-                                _type: previousConfig.name,
-                            },
+                        index: { _index: previousIndex }
                     },
                     {
                         test_id: `id-${n}`,
