@@ -48,7 +48,6 @@ declare namespace elasticsearchAPI {
         /** This api is deprecated, please use getClientMetadata */
         getESVersion: () => number;
         getClientMetadata: () => ClientMetadata;
-        isElasticsearch6: () => boolean
     }
 
     /**
@@ -74,7 +73,6 @@ declare namespace elasticsearchAPI {
     */
     export interface BulkActionMetadata {
         _index: string;
-        _type: string;
         _id: string | number;
         retry_on_conflict?: number;
     }

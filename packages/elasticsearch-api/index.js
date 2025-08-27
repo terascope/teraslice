@@ -57,7 +57,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
             _eventTime: now,
             // pass only the record metadata
             _index: doc._index,
-            _type: doc._type,
             _version: doc._version,
             _seq_no: doc._seq_no,
             _primary_term: doc._primary_term
@@ -65,31 +64,15 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         return DataEntity.make(doc._source, metadata);
     }
 
-    function search(query) {
-        const {
-            _sourceInclude, _source_includes: oldSourIncludes,
-            _sourceExclude, _source_excludes: oldSourExcludes,
-            ...safeQuery
-        } = query;
+    async function search(query) {
+        const data = await _searchES(query);
 
-        const sourceIncludes = _sourceInclude || oldSourIncludes;
-        const sourceExcludes = _sourceExclude || oldSourExcludes;
-
-        if (sourceIncludes) {
-            safeQuery._source_includes = sourceIncludes;
+        if (config.full_response) {
+            return data;
         }
 
-        if (sourceExcludes) {
-            safeQuery._source_excludes = sourceExcludes;
-        }
-
-        return _searchES(safeQuery).then((data) => {
-            if (config.full_response) {
-                return data;
-            }
-            if (!data.hits.hits) return [];
-            return data.hits.hits.map(convertDocToDataEntity);
-        });
+        if (!data.hits.hits) return [];
+        return data.hits.hits.map(convertDocToDataEntity);
     }
 
     function _makeRequest(clientBase, endpoint, query, fnNamePrefix) {
@@ -952,11 +935,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         };
     }
 
-    function isElasticsearch6() {
-        const { distribution, majorVersion } = getClientMetadata();
-        return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 6;
-    }
-
     function isElasticsearch8() {
         const { distribution, majorVersion } = getClientMetadata();
         return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 8;
@@ -1274,7 +1252,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         verifyClient,
         validateGeoParameters,
         getClientMetadata,
-        isElasticsearch6,
         isElasticsearch8,
         // The APIs below are deprecated and should be removed.
         index_exists: indexExists,

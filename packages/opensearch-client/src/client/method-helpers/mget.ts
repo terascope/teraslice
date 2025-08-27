@@ -14,7 +14,6 @@ export function convertMGetParams(
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
             const {
-                type,
                 body,
                 ...parsedParams
             } = params;
@@ -38,45 +37,18 @@ export function convertMGetParams(
         }
 
         if (majorVersion === 7) {
-            const {
-                type,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
-        if (majorVersion === 6) {
-            const {
-                type = '_doc',
-                ...parsedParams
-            } = params;
-
-            return {
-                type,
-                ...parsedParams
-            };
+            return params;
         }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
-            const {
-                type,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
+            return params;
         }
 
         if (majorVersion === 2 || majorVersion === 3) {
-            const {
-                type,
-                ...parsedParams
-            } = params;
-
-            if (has(parsedParams, 'body.docs[0]._type')) {
-                const { body, ...parsedArgs } = parsedParams;
+            if (has(params, 'body.docs[0]._type')) {
+                const { body, ...parsedArgs } = params;
                 const { docs, ids } = body;
 
                 return {
@@ -96,7 +68,7 @@ export function convertMGetParams(
                 };
             }
 
-            return parsedParams;
+            return params;
         }
     }
 

@@ -40,7 +40,7 @@ yargsInstance
             'es-version': {
                 string: true,
                 describe: 'Specify the major version of elasticsearch needed for the mapping',
-                default: '6.8.6',
+                default: '7.9.3',
             },
             distribution: {
                 string: true,

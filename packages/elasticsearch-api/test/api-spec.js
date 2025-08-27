@@ -75,7 +75,6 @@ describe('elasticsearch-api', () => {
     function postedData(action, id) {
         const result = {
             _index: 'bigdata7',
-            _type: 'events',
             _id: id || 'AWKWOrWojTNwAyqyzq5l',
             _version: 1,
             result: action,
@@ -203,7 +202,6 @@ describe('elasticsearch-api', () => {
                 return [{
                     [key]: {
                         _index: value._index,
-                        _type: value._type,
                         _id: String(i),
                         _version: 1,
                         result: `${key}d`,
@@ -233,7 +231,6 @@ describe('elasticsearch-api', () => {
                 return [{
                     [key]: {
                         _index: value._index,
-                        _type: value._type,
                         _id: String(i),
                         _version: 1,
                         result: `${key}d`,
@@ -737,21 +734,21 @@ describe('elasticsearch-api', () => {
         const result = await api.bulkSend([
             {
                 action: {
-                    index: { _index: 'some_index', _type: 'events', _id: 1 }
+                    index: { _index: 'some_index', _id: 1 }
                 },
                 data: { title: 'foo' }
             },
             {
                 action: {
-                    delete: { _index: 'some_index', _type: 'events', _id: 5 }
+                    delete: { _index: 'some_index', _id: 5 }
                 }
             }
         ]);
         expect(bulkData).toEqual({
             body: [
-                { index: { _index: 'some_index', _type: 'events', _id: 1 } },
+                { index: { _index: 'some_index', _id: 1 } },
                 { title: 'foo' },
-                { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
+                { delete: { _index: 'some_index', _id: 5 } }
             ]
         });
         return expect(result).toBe(2);
@@ -766,13 +763,13 @@ describe('elasticsearch-api', () => {
 
         await api.bulkSend([{
             action: {
-                index: { _index: 'some_index', _type: 'events', _id: 1 }
+                index: { _index: 'some_index', _id: 1 }
             },
             data: { title: 'foo' }
         },
         {
             action: {
-                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+                delete: { _index: 'some_index', _id: 5 }
             }
         }]);
         expect(bulkData).toEqual({
@@ -793,20 +790,20 @@ describe('elasticsearch-api', () => {
 
         await api.bulkSend([{
             action: {
-                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+                delete: { _index: 'some_index', _id: 5 }
             },
         },
         {
             action: {
-                index: { _index: 'some_index', _type: 'events', _id: 1 }
+                index: { _index: 'some_index', _id: 1 }
             },
-            data: { title: 'foo', _type: 'doc', name: 'joe' }
+            data: { title: 'foo', name: 'joe' }
         }]);
         expect(bulkData).toEqual({
             body: [
                 { delete: { _index: 'some_index', _id: 5 } },
                 { index: { _index: 'some_index', _id: 1 } },
-                { title: 'foo', _type: 'doc', name: 'joe' }
+                { title: 'foo', name: 'joe' }
             ]
         });
     });
@@ -820,21 +817,21 @@ describe('elasticsearch-api', () => {
 
         await api.bulkSend([{
             action: {
-                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+                delete: { _index: 'some_index', _id: 5 }
             },
         },
         {
             action: {
-                index: { _index: 'some_index', _type: 'events', _id: 1 }
+                index: { _index: 'some_index', _id: 1 }
             },
-            data: { title: 'foo', _type: 'doc', name: 'joe' }
+            data: { title: 'foo', name: 'joe' }
         }]);
 
         expect(bulkData).toEqual({
             body: [
                 { delete: { _index: 'some_index', _id: 5 } },
                 { index: { _index: 'some_index', _id: 1 } },
-                { title: 'foo', _type: 'doc', name: 'joe' }
+                { title: 'foo', name: 'joe' }
             ]
         });
     });
@@ -843,13 +840,13 @@ describe('elasticsearch-api', () => {
         const api = esApi(client, logger);
         const myBulkData = [{
             action: {
-                index: { _index: 'some_index', _type: 'events', _id: 1 }
+                index: { _index: 'some_index', _id: 1 }
             },
             data: { title: 'foo' }
         },
         {
             action: {
-                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+                delete: { _index: 'some_index', _id: 5 }
             }
         }];
 

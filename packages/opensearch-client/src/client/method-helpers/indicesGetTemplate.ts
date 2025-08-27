@@ -11,18 +11,7 @@ export function convertIndicesGetTemplateParams(
     } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            const {
-                include_type_name,
-                ...parsedParams
-            } = params;
-
-            return {
-                ...parsedParams
-            };
-        }
-
-        if ([6, 7].includes(majorVersion)) {
+        if ([7, 8].includes(majorVersion)) {
             return params;
         }
     }
@@ -35,7 +24,6 @@ export function convertIndicesGetTemplateParams(
         if (majorVersion === 2 || majorVersion === 3) {
             const {
                 master_timeout,
-                include_type_name,
                 ...parsedParams
             } = params;
 
