@@ -108,11 +108,9 @@ export class DataType {
      * Convert the DataType to an elasticsearch mapping.
      */
     toESMapping({
-        typeName, overrides, distribution = ElasticsearchDistribution.elasticsearch,
-        majorVersion = 6, minorVersion = 8, version = '6.8.6', _meta
+        overrides, distribution = ElasticsearchDistribution.opensearch,
+        majorVersion = 2, minorVersion = 15, version = '2.15.0', _meta
     }: Partial<i.ESMappingOptions> = {}): ESMapping {
-        const indexType = typeName || this.name || '_doc';
-
         const mappingSettings: ESTypeMappings = {
             dynamic: false,
             properties: {},
@@ -130,18 +128,7 @@ export class DataType {
             });
         }
 
-        let mappings: Record<string, any>;
-
-        if (
-            distribution === ElasticsearchDistribution.elasticsearch
-            && majorVersion === 6
-        ) {
-            mappings = {
-                [indexType]: mappingSettings,
-            };
-        } else {
-            mappings = mappingSettings;
-        }
+        const mappings = mappingSettings;
 
         const esMapping: ESMapping = {
             settings: {},
@@ -157,13 +144,7 @@ export class DataType {
 
             if (mapping) {
                 for (const [key, config] of Object.entries(mapping)) {
-                    const keyPath = (
-                        majorVersion === 6
-                        && distribution === ElasticsearchDistribution.elasticsearch
-                    )
-                        ? ['mappings', indexType, 'properties', key]
-                        : ['mappings', 'properties', key];
-
+                    const keyPath = ['mappings', 'properties', key];
                     set(esMapping, keyPath, config);
                 }
             }

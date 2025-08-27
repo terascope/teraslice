@@ -9,7 +9,6 @@ export function convertBulkParams(
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
             const {
-                type,
                 body,
                 ...parsedParams
             } = params;
@@ -23,10 +22,6 @@ export function convertBulkParams(
         if (majorVersion === 7) {
             return params;
         }
-
-        if (majorVersion === 6) {
-            return params;
-        }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
@@ -35,12 +30,7 @@ export function convertBulkParams(
         }
 
         if (majorVersion === 2 || majorVersion === 3) {
-            const {
-                type,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
+            return params;
         }
     }
 

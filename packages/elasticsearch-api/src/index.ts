@@ -102,7 +102,6 @@ export default function elasticsearchApi(
             _eventTime: now,
             // pass only the record metadata
             _index: doc._index,
-            _type: doc._type,
             _version: doc._version,
             _seq_no: doc._seq_no,
             _primary_term: doc._primary_term
@@ -114,41 +113,15 @@ export default function elasticsearchApi(
         );
     }
 
-    async function search(
-        query: ClientParams.SearchParams
-    ): Promise<ClientResponse.SearchResponse | any[]> {
-        const {
-            // @ts-expect-error this can be removed when es6 is not supported
-            _sourceInclude, _source_includes: oldSourIncludes,
-            // @ts-expect-error
-            _sourceExclude, _source_excludes: oldSourExcludes,
-            ...safeQuery
-        } = query;
-
-        const sourceIncludes = _sourceInclude || oldSourIncludes;
-        const sourceExcludes = _sourceExclude || oldSourExcludes;
-
-        if (sourceIncludes) {
-            // @ts-expect-error
-            safeQuery._source_includes = sourceIncludes;
-        }
-
-        if (sourceExcludes) {
-            // @ts-expect-error
-            safeQuery._source_excludes = sourceExcludes;
-        }
-
-        const data = await _searchES(safeQuery);
+    async function search(query) {
+        const data = await _searchES(query);
 
         if (config.full_response) {
             return data;
         }
 
-        if (!data.hits.hits) return [] as unknown as ClientResponse.SearchResponse;
-
-        return data.hits.hits.map(
-            convertDocToDataEntity
-        ) as unknown as ClientResponse.SearchResponse;
+        if (!data.hits.hits) return [];
+        return data.hits.hits.map(convertDocToDataEntity);
     }
 
     function _makeRequest(
@@ -1057,11 +1030,6 @@ export default function elasticsearchApi(
         };
     }
 
-    function isElasticsearch6() {
-        const { distribution, majorVersion } = getClientMetadata();
-        return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 6;
-    }
-
     function isElasticsearch8() {
         const { distribution, majorVersion } = getClientMetadata();
         return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 8;
@@ -1414,7 +1382,6 @@ export default function elasticsearchApi(
         verifyClient,
         validateGeoParameters,
         getClientMetadata,
-        isElasticsearch6,
         isElasticsearch8,
         // The APIs below are deprecated and should be removed.
         index_exists: indexExists,

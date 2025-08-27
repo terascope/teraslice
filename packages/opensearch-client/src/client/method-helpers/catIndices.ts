@@ -14,15 +14,6 @@ export function convertCatIndicesParams(
         if (majorVersion === 8 || majorVersion === 7) {
             return params;
         }
-
-        if (majorVersion === 6) {
-            const {
-                master_timeout,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
