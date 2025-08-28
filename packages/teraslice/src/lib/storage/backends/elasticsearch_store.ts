@@ -217,17 +217,11 @@ export class TerasliceElasticsearchStorage {
 
         const query: ClientParams.GetParams = {
             index,
-            type: this.recordType,
             id: recordId,
         };
 
         if (fields) {
-            if (!this.api.isElasticsearch6()) {
-                query._source_includes = fields;
-            } else {
-                // @ts-expect-error backwards compatible
-                query._sourceInclude = fields;
-            }
+            query._source_includes = fields;
         }
 
         return this.api.get(query);
@@ -255,7 +249,6 @@ export class TerasliceElasticsearchStorage {
             index,
             from,
             size,
-            type: this.recordType,
             sort,
         };
 
@@ -266,12 +259,7 @@ export class TerasliceElasticsearchStorage {
         }
 
         if (fields) {
-            if (!this.api.isElasticsearch6()) {
-                esQuery._source_includes = fields;
-            } else {
-                // @ts-expect-error backwards compatible
-                esQuery._sourceInclude = fields;
-            }
+            esQuery._source_includes = fields;
         }
 
         return this.api.search(esQuery);
@@ -285,7 +273,6 @@ export class TerasliceElasticsearchStorage {
         this.logger.trace('indexing record', this.options.logRecord ? record : undefined);
         const query: ClientParams.IndexParams = {
             index: indexArg,
-            type: this.recordType,
             body: record,
             refresh: this.options.forceRefresh,
         };
@@ -309,7 +296,6 @@ export class TerasliceElasticsearchStorage {
 
         const query: ClientParams.IndexParams = {
             index,
-            type: this.recordType,
             id: recordId,
             body: record,
             refresh: this.options.forceRefresh,
@@ -328,7 +314,6 @@ export class TerasliceElasticsearchStorage {
 
         const query: ClientParams.CreateParams = {
             index,
-            type: this.recordType,
             id: record[this.idField],
             body: record,
             refresh: this.options.forceRefresh,
@@ -353,7 +338,6 @@ export class TerasliceElasticsearchStorage {
         // TODO: check from
         const esQuery: ClientParams.CountParams = {
             index,
-            type: this.recordType,
             // @ts-expect-error
             from,
             sort,
@@ -379,7 +363,6 @@ export class TerasliceElasticsearchStorage {
 
         const query: ClientParams.UpdateParams = {
             index,
-            type: this.recordType,
             id: recordId,
             body: {
                 doc: updateSpec,
@@ -405,7 +388,6 @@ export class TerasliceElasticsearchStorage {
 
         const getParams: ClientParams.GetParams = {
             index,
-            type: this.recordType,
             id: recordId,
         };
 
@@ -424,18 +406,13 @@ export class TerasliceElasticsearchStorage {
 
         const query: ClientParams.IndexParams = {
             index,
-            type: this.recordType,
             id: recordId,
             body: doc,
             refresh: this.options.forceRefresh,
         };
 
-        if (!this.api.isElasticsearch6()) {
-            query.if_seq_no = existing._seq_no;
-            query.if_primary_term = existing._primary_term;
-        } else {
-            query.version = existing._version;
-        }
+        query.if_seq_no = existing._seq_no;
+        query.if_primary_term = existing._primary_term;
 
         try {
             await this.api.indexWithId(query);
@@ -458,7 +435,6 @@ export class TerasliceElasticsearchStorage {
 
         const query: ClientParams.DeleteParams = {
             index,
-            type: this.recordType,
             id: recordId,
             refresh: this.options.forceRefresh,
         };
@@ -477,10 +453,7 @@ export class TerasliceElasticsearchStorage {
         }
 
         const action = {
-            [type]: {
-                _index: index,
-                _type: this.recordType,
-            }
+            [type]: { _index: index }
         };
 
         this.bulkQueue.push({

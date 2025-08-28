@@ -32,13 +32,6 @@ export function getClientMetadata(client: Client): ClientMetadata {
     };
 }
 
-export function isElasticsearch6(client: Client): boolean {
-    const { distribution, version: esVersion } = getClientMetadata(client);
-    const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);
-
-    return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 6;
-}
-
 export function isElasticsearch8(client: Client): boolean {
     const { distribution, version: esVersion } = getClientMetadata(client);
     const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);

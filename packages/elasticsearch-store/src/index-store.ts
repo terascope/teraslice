@@ -11,7 +11,7 @@ import {
 } from '@terascope/types';
 import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { toXluceneQuery, xLuceneQueryResult } from '@terascope/data-mate';
-import { type Client, isValidClient, isElasticsearch6 } from '@terascope/opensearch-client';
+import { type Client, isValidClient } from '@terascope/opensearch-client';
 import { IndexManager } from './index-manager.js';
 import * as i from './interfaces.js';
 import {
@@ -154,16 +154,10 @@ export class IndexStore<T extends Record<string, any>> {
         const action: i.BulkAction = _action === 'upsert-with-script' ? 'update' : _action;
         const metadata: BulkRequestMetadata = {};
 
-        metadata[action] = !isElasticsearch6(this.client)
-            ? {
-                _index: this.writeIndex,
-                retry_on_conflict
-            }
-            : {
-                _index: this.writeIndex,
-                _type: this.config.name,
-                retry_on_conflict
-            };
+        metadata[action] = {
+            _index: this.writeIndex,
+            retry_on_conflict
+        };
 
         let data: BulkRequestData<Partial<T>> = null;
 
@@ -483,12 +477,8 @@ export class IndexStore<T extends Record<string, any>> {
             const params: Partial<ClientParams.IndexParams<T>> = {};
 
             if (DataEntity.isDataEntity(existing)) {
-                if (!isElasticsearch6(this.client)) {
-                    params.if_seq_no = existing.getMetadata('_seq_no');
-                    params.if_primary_term = existing.getMetadata('_primary_term');
-                } else {
-                    params.version = existing.getMetadata('_version');
-                }
+                params.if_seq_no = existing.getMetadata('_seq_no');
+                params.if_primary_term = existing.getMetadata('_primary_term');
             }
 
             return this.indexById(
@@ -511,14 +501,7 @@ export class IndexStore<T extends Record<string, any>> {
         ...params: ((Partial<P> & Record<string, any>) | undefined)[]
     ): P {
         return Object.assign(
-            !isElasticsearch6(this.client)
-                ? {
-                    index,
-                }
-                : {
-                    index,
-                    type: this.config.name,
-                },
+            { index },
             ...params
         ) as P;
     }
@@ -896,7 +879,6 @@ export class IndexStore<T extends Record<string, any>> {
             _ingestTime: this._getIngestTime(result._source as any),
             _eventTime: this._getEventTime(result._source as any),
             _index: result._index,
-            _type: this.isOpensearch ? undefined : result._type,
             _version: result._version,
             _seq_no: result._seq_no,
             _primary_term: result._primary_term
@@ -977,7 +959,6 @@ export type BulkRequestData<T> = T | { doc: Partial<T> } | UpsertWithScript<T> |
 export type BulkRequestMetadata = {
     [key in i.BulkAction]?: {
         _index: string;
-        _type?: string;
         _id?: string;
         retry_on_conflict?: number;
     }
@@ -987,7 +968,8 @@ export type OnBulkConflictFn<T> = (
     newItem: BulkRequest<Partial<T>>
 ) => BulkRequest<Partial<T>> | null;
 
-type ReservedParams = 'index' | 'type';
+type ReservedParams = 'index';
+// TODO: this type is wrong and is overly permissive, allows for any value to be set
 type PartialParam<T, E = any> = {
     [K in Exclude<keyof T, E extends keyof T ? ReservedParams & E : ReservedParams>]?: T[K]
 };

@@ -15,8 +15,6 @@ export const FORCE_COLOR = toBoolean(forceColor)
 /** The timeout for how long a service has to stand up */
 export const SERVICE_UP_TIMEOUT = process.env.SERVICE_UP_TIMEOUT ?? '2m';
 
-/** Default elasticsearch6 version used to populate the CI cache */
-export const __DEFAULT_ELASTICSEARCH6_VERSION = '6.8.6';
 /** Default elasticsearch7 version used to populate the CI cache */
 export const __DEFAULT_ELASTICSEARCH7_VERSION = '7.9.3';
 /** Default opensearch1 version used to populate the CI cache */
@@ -105,7 +103,7 @@ export const OPENSEARCH_HOSTNAME = process.env.OPENSEARCH_HOSTNAME || HOST_IP;
 export const OPENSEARCH_PORT = process.env.OPENSEARCH_PORT || '49210';
 export const OPENSEARCH_USER = process.env.OPENSEARCH_USER || 'admin';
 export const OPENSEARCH_PASSWORD = process.env.OPENSEARCH_PASSWORD || 'admin';
-export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || __DEFAULT_OPENSEARCH1_VERSION;
+export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || __DEFAULT_OPENSEARCH2_VERSION;
 export const OPENSEARCH_HOST = `${OPENSEARCH_PROTOCOL}://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}:${OPENSEARCH_PORT}`;
 export const OPENSEARCH_DOCKER_IMAGE = process.env.OPENSEARCH_DOCKER_IMAGE || 'opensearchproject/opensearch';
 

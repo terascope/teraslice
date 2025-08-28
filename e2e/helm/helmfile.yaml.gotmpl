@@ -46,15 +46,6 @@ releases:
     labels:
       app: opensearch3
 
-  - name: elasticsearch6
-    namespace: services-dev1
-    chart: ./elasticsearch/elasticsearch-6.8.9.tgz
-    installed: {{ .Values | get "elasticsearch6.enabled" false }}
-    values:
-      - ./templates/es6.yaml.gotmpl
-    labels:
-      app: elasticsearch6
-
   - name: elasticsearch7
     namespace: services-dev1
     chart: ./elasticsearch/elasticsearch-7.9.3.tgz

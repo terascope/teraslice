@@ -4,9 +4,8 @@ import Promise from 'bluebird';
 import {
     isTest, TSError, isFatalError,
     parseError, getBackoffDelay, isRetryableError,
-    get, toNumber, isString, isSimpleObject,
-    castArray, flatten, toBoolean,
-    uniq, random, cloneDeep, DataEntity,
+    get, toNumber, isString, castArray, flatten,
+    toBoolean, uniq, random, cloneDeep, DataEntity,
     isDeepEqual, getTypeOf, isProd
 } from '@terascope/utils';
 import { ElasticsearchDistribution } from '@terascope/types';
@@ -57,7 +56,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
             _eventTime: now,
             // pass only the record metadata
             _index: doc._index,
-            _type: doc._type,
             _version: doc._version,
             _seq_no: doc._seq_no,
             _primary_term: doc._primary_term
@@ -65,31 +63,15 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         return DataEntity.make(doc._source, metadata);
     }
 
-    function search(query) {
-        const {
-            _sourceInclude, _source_includes: oldSourIncludes,
-            _sourceExclude, _source_excludes: oldSourExcludes,
-            ...safeQuery
-        } = query;
+    async function search(query) {
+        const data = await _searchES(query);
 
-        const sourceIncludes = _sourceInclude || oldSourIncludes;
-        const sourceExcludes = _sourceExclude || oldSourExcludes;
-
-        if (sourceIncludes) {
-            safeQuery._source_includes = sourceIncludes;
+        if (config.full_response) {
+            return data;
         }
 
-        if (sourceExcludes) {
-            safeQuery._source_excludes = sourceExcludes;
-        }
-
-        return _searchES(safeQuery).then((data) => {
-            if (config.full_response) {
-                return data;
-            }
-            if (!data.hits.hits) return [];
-            return data.hits.hits.map(convertDocToDataEntity);
-        });
+        if (!data.hits.hits) return [];
+        return data.hits.hits.map(convertDocToDataEntity);
     }
 
     function _makeRequest(clientBase, endpoint, query, fnNamePrefix) {
@@ -119,7 +101,7 @@ export default function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function mget(query, fullResponse = false) {
-        return _clientRequest('mget', _adjustTypeForEs7(query))
+        return _clientRequest('mget', query)
             .then((results) => {
                 if (fullResponse) return results;
                 return results.docs
@@ -137,23 +119,23 @@ export default function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function indexFn(query) {
-        return _clientRequest('index', _adjustTypeForEs7(query));
+        return _clientRequest('index', query);
     }
 
     function indexWithId(query) {
-        return _clientRequest('index', _adjustTypeForEs7(query)).then(() => query.body);
+        return _clientRequest('index', query).then(() => query.body);
     }
 
     function create(query) {
-        return _clientRequest('create', _adjustTypeForEs7(query)).then(() => query.body);
+        return _clientRequest('create', query).then(() => query.body);
     }
 
     function update(query) {
-        return _clientRequest('update', _adjustTypeForEs7(query)).then(() => query.body.doc);
+        return _clientRequest('update', query).then(() => query.body.doc);
     }
 
     function remove(query) {
-        return _clientRequest('delete', _adjustTypeForEs7(query)).then((result) => result.found);
+        return _clientRequest('delete', query).then((result) => result.found);
     }
 
     function indexExists(query) {
@@ -330,10 +312,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         return { retry, successful, error: false };
     }
 
-    function getFirstKey(obj) {
-        return Object.keys(obj)[0];
-    }
-
     /**
      * @param data {Array<{ action: data }>}
      * @returns {Promise<number>}
@@ -348,24 +326,15 @@ export default function elasticsearchApi(client, logger, _opConfig) {
                 throw new Error(`Bulk send record is missing the action property${dbg}`);
             }
 
-            if (!isElasticsearch6()) {
-                const actionKey = getFirstKey(record.action);
-                const { _type, ...withoutTypeAction } = record.action[actionKey];
-                // if data is specified return both
-                return record.data
-                    ? [{
-                        ...record.action,
-                        [actionKey]: withoutTypeAction
-                    },
-                    record.data]
-                    : [{
-                        ...record.action,
-                        [actionKey]: withoutTypeAction
-                    }];
-            }
-
             // if data is specified return both
-            return record.data ? [record.action, record.data] : [record.action];
+            return record.data
+                ? [{
+                    ...record.action,
+                },
+                record.data]
+                : [{
+                    ...record.action,
+                }];
         });
 
         const response = await _clientRequest('bulk', { body });
@@ -683,49 +652,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         });
     }
 
-    function _adjustTypeForEs7(query) {
-        if (!isElasticsearch6()) {
-            if (Array.isArray(query)) {
-                return _removeTypeFromBulkRequest(query);
-            }
-            delete query.type;
-        }
-
-        return query;
-    }
-
-    function _removeTypeFromBulkRequest(query) {
-        if (isElasticsearch6()) return query;
-
-        return query.map((queryItem) => {
-            if (isSimpleObject(queryItem)) {
-                // get the metadata and ignore the record
-                const bulkMetaData = _getBulkMetaData(queryItem);
-
-                if (_hasBulkMetaDataProps(bulkMetaData)) {
-                    delete bulkMetaData._type;
-                }
-            }
-            return queryItem;
-        });
-    }
-
-    function _getBulkMetaData(queryItem) {
-        // bulk actions are index, create, delete, and update
-        return queryItem.index
-            || queryItem.create
-            || queryItem.delete
-            || queryItem.update;
-    }
-
-    function _hasBulkMetaDataProps(bulkMetaData) {
-        return bulkMetaData
-            && isSimpleObject(bulkMetaData)
-            && '_index' in bulkMetaData
-            && '_id' in bulkMetaData
-            && '_type' in bulkMetaData;
-    }
-
     /**
      * Wait for the client to be available before resolving,
      * this will also naturally stagger many in-flight requests
@@ -952,26 +878,12 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         };
     }
 
-    function isElasticsearch6() {
-        const { distribution, majorVersion } = getClientMetadata();
-        return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 6;
-    }
-
     function isElasticsearch8() {
         const { distribution, majorVersion } = getClientMetadata();
         return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 8;
     }
 
-    function isOpensearch2() {
-        const { distribution, majorVersion } = getClientMetadata();
-        return distribution === ElasticsearchDistribution.opensearch && majorVersion === 2;
-    }
-
-    function isOpensearch3() {
-        const { distribution, majorVersion } = getClientMetadata();
-        return distribution === ElasticsearchDistribution.opensearch && majorVersion === 3;
-    }
-
+    // TODO: this should not exists as this
     function _fixMappingRequest(_params, isTemplate) {
         if (!_params || !_params.body) {
             throw new Error('Invalid mapping request');
@@ -984,25 +896,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
                 params.body.index_patterns = castArray(params.body.template).slice();
             }
             delete params.body.template;
-        }
-
-        if (!isElasticsearch6()) {
-            const typeMappings = get(params.body, 'mappings', {});
-            if (typeMappings.properties) {
-                defaultParams.includeTypeName = false;
-            } else {
-                defaultParams.includeTypeName = true;
-                Object.values(typeMappings).forEach((typeMapping) => {
-                    if (typeMapping && typeMapping._all) {
-                        delete typeMapping._all;
-                    }
-                    return '';
-                });
-            }
-        }
-
-        if (isElasticsearch8(client) || isOpensearch2(client) || isOpensearch3(client)) {
-            delete defaultParams.includeTypeName;
         }
 
         return Object.assign({}, defaultParams, params);
@@ -1105,11 +998,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
     function _verifyMapping(query, configMapping, recordType) {
         const params = Object.assign({}, query);
 
-        if (!isElasticsearch6()) {
-            if (recordType) {
-                params.includeTypeName = true;
-            }
-        }
         return _clientIndicesRequest('getMapping', params)
             .then((mapping) => _areSameMappings(configMapping, mapping, recordType))
             .catch((err) => {
@@ -1120,7 +1008,7 @@ export default function elasticsearchApi(client, logger, _opConfig) {
             });
     }
 
-    function _areSameMappings(configMapping, mapping, recordType) {
+    function _areSameMappings(configMapping, mapping) {
         const sysMapping = {};
         const index = Object.keys(mapping)[0];
         sysMapping[index] = { mappings: configMapping.mappings };
@@ -1274,7 +1162,6 @@ export default function elasticsearchApi(client, logger, _opConfig) {
         verifyClient,
         validateGeoParameters,
         getClientMetadata,
-        isElasticsearch6,
         isElasticsearch8,
         // The APIs below are deprecated and should be removed.
         index_exists: indexExists,
