@@ -1,10 +1,9 @@
 import {
     isTest, TSError, isFatalError,
     parseError, getBackoffDelay, isRetryableError,
-    get, toNumber, isString, isSimpleObject,
-    castArray, flatten, toBoolean,
-    uniq, random, cloneDeep, DataEntity,
-    isDeepEqual, getTypeOf, isProd, Logger
+    get, toNumber, isString, castArray, flatten,
+    toBoolean, uniq, random, cloneDeep, DataEntity,
+    isDeepEqual, getTypeOf, isProd
 } from '@terascope/utils';
 import { Client as OpenClient } from '@terascope/opensearch-client';
 import {
@@ -155,13 +154,14 @@ export default function elasticsearchApi(
         return _makeRequest(client.indices, endpoint, query, 'indices');
     }
 
-    async function mget(query: ClientParams.MGetParams, fullResponse = false) {
-        const results: any = await _clientRequest('mget', _adjustTypeForEs7(query));
-
-        if (fullResponse) return results;
-        return results.docs
-            .filter((doc: any) => doc.found)
-            .map(convertDocToDataEntity);
+    function mget(query, fullResponse = false) {
+        return _clientRequest('mget', query)
+            .then((results) => {
+                if (fullResponse) return results;
+                return results.docs
+                    .filter((doc) => doc.found)
+                    .map(convertDocToDataEntity);
+            });
     }
 
     async function getFn(query: ClientParams.GetParams, fullResponse = false): Promise<any> {
@@ -173,30 +173,24 @@ export default function elasticsearchApi(
         return convertDocToDataEntity(records);
     }
 
-    async function indexFn(query: ClientParams.IndexParams) {
-        return _clientRequest('index', _adjustTypeForEs7(query));
+    function indexFn(query) {
+        return _clientRequest('index', query);
     }
 
-    async function indexWithId(query: ClientParams.IndexParams) {
-        return _clientRequest('index', _adjustTypeForEs7(query)).then(() => query.body);
+    function indexWithId(query) {
+        return _clientRequest('index', query).then(() => query.body);
     }
 
-    async function create(query: ClientParams.CreateParams) {
-        return _clientRequest('create', _adjustTypeForEs7(query)).then(() => query.body);
+    function create(query) {
+        return _clientRequest('create', query).then(() => query.body);
     }
 
-    async function update(query: ClientParams.UpdateParams): Promise<any> {
-        // TODO this does not seem right
-        await _clientRequest('update', _adjustTypeForEs7(query));
-        // @ts-expect-error
-        return query.body.doc;
+    function update(query) {
+        return _clientRequest('update', query).then(() => query.body.doc);
     }
 
-    async function remove(
-        query: ClientParams.DeleteParams
-    ): Promise<ClientResponse.DeleteResponse> {
-        const result = await _clientRequest('delete', _adjustTypeForEs7(query)) as any;
-        return result.found;
+    function remove(query) {
+        return _clientRequest('delete', query).then((result) => result.found);
     }
 
     async function indexExists(query: ClientParams.IndicesExistsParams): Promise<boolean> {
@@ -373,10 +367,6 @@ export default function elasticsearchApi(
         return { retry, successful, error: false };
     }
 
-    function getFirstKey(obj: Record<string, any>) {
-        return Object.keys(obj)[0];
-    }
-
     /**
      * @param data {Array<{ action: data }>}
      * @returns {Promise<number>}
@@ -396,24 +386,15 @@ export default function elasticsearchApi(
                 throw new Error(`Bulk send record is missing the action property${dbg}`);
             }
 
-            if (!isElasticsearch6()) {
-                const actionKey = getFirstKey(record.action);
-                const { _type, ...withoutTypeAction } = record.action[actionKey];
-                // if data is specified return both
-                return record.data
-                    ? [{
-                        ...record.action,
-                        [actionKey]: withoutTypeAction
-                    },
-                    record.data]
-                    : [{
-                        ...record.action,
-                        [actionKey]: withoutTypeAction
-                    }];
-            }
-
             // if data is specified return both
-            return record.data ? [record.action, record.data] : [record.action];
+            return record.data
+                ? [{
+                    ...record.action,
+                },
+                record.data]
+                : [{
+                    ...record.action,
+                }];
         });
 
         const response = await _clientRequest('bulk', { body }) as any;
@@ -747,49 +728,6 @@ export default function elasticsearchApi(
         });
     }
 
-    function _adjustTypeForEs7(query: Record<string, any>) {
-        if (!isElasticsearch6()) {
-            if (Array.isArray(query)) {
-                return _removeTypeFromBulkRequest(query);
-            }
-            delete query.type;
-        }
-
-        return query;
-    }
-
-    function _removeTypeFromBulkRequest(query: Record<string, any>[]) {
-        if (isElasticsearch6()) return query;
-
-        return query.map((queryItem) => {
-            if (isSimpleObject(queryItem)) {
-                // get the metadata and ignore the record
-                const bulkMetaData = _getBulkMetaData(queryItem);
-
-                if (_hasBulkMetaDataProps(bulkMetaData)) {
-                    delete bulkMetaData._type;
-                }
-            }
-            return queryItem;
-        });
-    }
-    // TODO: this is not even being called in bulk calls
-    function _getBulkMetaData(queryItem: any) {
-        // bulk actions are index, create, delete, and update
-        return queryItem.index
-            || queryItem.create
-            || queryItem.delete
-            || queryItem.update;
-    }
-
-    function _hasBulkMetaDataProps(bulkMetaData: any) {
-        return bulkMetaData
-            && isSimpleObject(bulkMetaData)
-            && '_index' in bulkMetaData
-            && '_id' in bulkMetaData
-            && '_type' in bulkMetaData;
-    }
-
     /**
      * Wait for the client to be available before resolving,
      * this will also naturally stagger many in-flight requests
@@ -1035,17 +973,8 @@ export default function elasticsearchApi(
         return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 8;
     }
 
-    function isOpensearch2() {
-        const { distribution, majorVersion } = getClientMetadata();
-        return distribution === ElasticsearchDistribution.opensearch && majorVersion === 2;
-    }
-
-    function isOpensearch3() {
-        const { distribution, majorVersion } = getClientMetadata();
-        return distribution === ElasticsearchDistribution.opensearch && majorVersion === 3;
-    }
-
-    function _fixMappingRequest(_params: Record<string, any>, isTemplate: boolean) {
+    // TODO: this should not exists as this
+    function _fixMappingRequest(_params, isTemplate) {
         if (!_params || !_params.body) {
             throw new Error('Invalid mapping request');
         }
@@ -1057,25 +986,6 @@ export default function elasticsearchApi(
                 params.body.index_patterns = castArray(params.body.template).slice();
             }
             delete params.body.template;
-        }
-
-        if (!isElasticsearch6()) {
-            const typeMappings = get(params.body, 'mappings', {}) as Record<string, any>;
-            if (typeMappings.properties) {
-                defaultParams.includeTypeName = false;
-            } else {
-                defaultParams.includeTypeName = true;
-                Object.values(typeMappings).forEach((typeMapping) => {
-                    if (typeMapping && typeMapping._all) {
-                        delete typeMapping._all;
-                    }
-                    return '';
-                });
-            }
-        }
-
-        if (isElasticsearch8() || isOpensearch2() || isOpensearch3()) {
-            delete defaultParams.includeTypeName;
         }
 
         return Object.assign({}, defaultParams, params);
@@ -1193,28 +1103,18 @@ export default function elasticsearchApi(
     ) {
         const params = Object.assign({}, query);
 
-        if (!isElasticsearch6()) {
-            if (recordType) {
-                params.includeTypeName = true;
-            }
-        }
-
-        try {
-            const mapping = await _clientIndicesRequest('getMapping', params) as Record<string, any>;
-            return _areSameMappings(configMapping, mapping, recordType);
-        } catch (err) {
-            throw new TSError(err, {
-                reason: `could not get mapping for query ${JSON.stringify(params)}`,
+        return _clientIndicesRequest('getMapping', params)
+            .then((mapping) => _areSameMappings(configMapping, mapping, recordType))
+            .catch((err) => {
+                const error = new TSError(err, {
+                    reason: `could not get mapping for query ${JSON.stringify(params)}`,
+                });
+                return Promise.reject(error);
             });
-        }
     }
 
-    function _areSameMappings(
-        configMapping: Record<string, any>,
-        mapping: Record<string, any>,
-        recordType: string
-    ) {
-        const sysMapping: Record<string, any> = {};
+    function _areSameMappings(configMapping, mapping) {
+        const sysMapping = {};
         const index = Object.keys(mapping)[0];
         sysMapping[index] = { mappings: configMapping.mappings };
         const { dynamic } = mapping[index].mappings[recordType];
