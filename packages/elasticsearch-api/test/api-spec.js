@@ -92,43 +92,39 @@ describe('elasticsearch-api', () => {
             'index.number_of_replicas': 1
         },
         mappings: {
-            state: {
-                _all: {
-                    enabled: true
+            dynamic: 'false',
+            properties: {
+                ip: {
+                    type: 'string',
+                    index: 'not_analyzed'
                 },
-                dynamic: 'false',
-                properties: {
-                    ip: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    userAgent: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    url: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    uuid: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    created: {
-                        type: 'date'
-                    },
-                    ipv6: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    location: {
-                        type: 'geo_point'
-                    },
-                    bytes: {
-                        type: 'integer'
-                    }
+                userAgent: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                url: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                uuid: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                created: {
+                    type: 'date'
+                },
+                ipv6: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                location: {
+                    type: 'geo_point'
+                },
+                bytes: {
+                    type: 'integer'
                 }
             }
+
         }
     };
 
@@ -139,43 +135,39 @@ describe('elasticsearch-api', () => {
             'index.number_of_replicas': 1
         },
         mappings: {
-            ex: {
-                _all: {
-                    enabled: true
+            dynamic: 'false',
+            properties: {
+                ip: {
+                    type: 'string',
+                    index: 'not_analyzed'
                 },
-                dynamic: 'false',
-                properties: {
-                    ip: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    userAgent: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    url: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    uuid: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    created: {
-                        type: 'date'
-                    },
-                    ipv6: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    location: {
-                        type: 'geo_point'
-                    },
-                    bytes: {
-                        type: 'integer'
-                    }
+                userAgent: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                url: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                uuid: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                created: {
+                    type: 'date'
+                },
+                ipv6: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                location: {
+                    type: 'geo_point'
+                },
+                bytes: {
+                    type: 'integer'
                 }
             }
+
         }
     };
 
