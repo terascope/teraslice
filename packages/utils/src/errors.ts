@@ -490,9 +490,9 @@ export async function formatAggregateError(aggregateError: unknown) {
         // This will ensure we don't print more than 5 errors
         const maxErrorLength = 5;
         const errorPrintLength
-                    = aggregateError.errors.length < maxErrorLength
-                        ? aggregateError.errors.length
-                        : maxErrorLength;
+            = aggregateError.errors.length < maxErrorLength
+                ? aggregateError.errors.length
+                : maxErrorLength;
 
         let message = `Failed with an AggregateError containing ${aggregateError.errors.length} error(s):\n`;
 
