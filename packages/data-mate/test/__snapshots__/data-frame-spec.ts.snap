@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`DataFrame when manipulating a DataFrame ->serialize/->deserialize when given the deepObjDataFrame data frame should match the serialize to the correct output 1`] = `
 "{"v":1,"size":2,"metadata":{},"config":{"version":1,"fields":{"_key":{"type":"Keyword"},"config":{"type":"Object"},"config.id":{"type":"Keyword"},"config.name":{"type":"Keyword"},"config.owner":{"type":"Object"},"config.owner.name":{"type":"Keyword"},"config.owner.id":{"type":"Keyword"},"states":{"type":"Object","array":true,"_allow_empty":true},"states.id":{"type":"Keyword"},"states.name":{"type":"Keyword"}}}}

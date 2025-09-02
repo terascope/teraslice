@@ -28,7 +28,7 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../terafoundation --"
     },
     "dependencies": {
-        "@terascope/file-asset-apis": "~1.1.1",
+        "@terascope/file-asset-apis": "~1.1.2",
         "@terascope/opensearch-client": "~1.1.2",
         "@terascope/types": "~1.4.4",
         "@terascope/utils": "~1.10.2",
@@ -50,7 +50,7 @@
         "@types/elasticsearch": "~5.0.43",
         "@types/express": "~5.0.3",
         "@types/js-yaml": "~4.0.9",
-        "got": "~14.4.7"
+        "got": "~14.4.8"
     },
     "engines": {
         "node": ">=22.0.0",

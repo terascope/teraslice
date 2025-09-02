@@ -37,7 +37,7 @@
         "execa": "~9.6.0",
         "fs-extra": "~11.3.1",
         "globby": "~14.1.0",
-        "got": "~14.4.7",
+        "got": "~14.4.8",
         "ip": "~2.0.1",
         "js-yaml": "~4.1.0",
         "kafkajs": "~2.2.4",
@@ -50,7 +50,7 @@
         "signale": "~1.4.0",
         "sort-package-json": "~3.4.0",
         "toposort": "~2.0.2",
-        "typedoc": "~0.28.11",
+        "typedoc": "~0.28.12",
         "typedoc-plugin-markdown": "~4.8.1",
         "yaml": "^2.8.1",
         "yargs": "~18.0.0"
