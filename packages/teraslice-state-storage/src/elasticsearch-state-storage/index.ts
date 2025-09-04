@@ -9,7 +9,6 @@ import CachedStateStorage from '../cached-state-storage/index.js';
 
 export default class ESCachedStateStorage {
     private index: string;
-    private type: string;
     private concurrency: number;
     private sourceFields: string[];
     private chunkSize: number;
@@ -21,7 +20,6 @@ export default class ESCachedStateStorage {
 
     constructor(client: esApi.Client, logger: Logger, config: ESStateStorageConfig) {
         this.index = config.index;
-        this.type = config.type;
         this.concurrency = config.concurrency;
         this.sourceFields = config.source_fields || [];
         this.chunkSize = config.chunk_size;
@@ -188,7 +186,6 @@ export default class ESCachedStateStorage {
     private async _esGet(key: string): Promise<DataEntity | undefined> {
         const request: ClientParams.GetParams = {
             index: this.index,
-            type: this.type,
             id: key
         };
 
@@ -215,7 +212,6 @@ export default class ESCachedStateStorage {
     private async _esMGet(ids: string[]): Promise<DataEntity[]> {
         const request: ClientParams.MGetParams = {
             index: this.index,
-            type: this.type,
             body: {
                 ids,
             },
@@ -233,7 +229,6 @@ export default class ESCachedStateStorage {
             action: {
                 index: {
                     _index: this.index,
-                    _type: this.type,
                     _id: this.getIdentifier(doc, '_key'),
                 },
             },
@@ -261,7 +256,6 @@ function makeDataEntity(result: ClientResponse.GetResponse): DataEntity {
         _processTime: Date.now(),
         // TODO Add event and ingest time
         _index: result._index,
-        _type: result._type,
         _version: result._version,
     });
 }

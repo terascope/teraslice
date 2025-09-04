@@ -13,7 +13,6 @@ export function convertDeleteByQueryParams(
     // though documentation says body property is optional
     // es base client requires body property to be present even if empty
     const {
-        type = '_doc',
         body = {},
         ...parsedParams
     } = params;
@@ -21,14 +20,6 @@ export function convertDeleteByQueryParams(
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8 || majorVersion === 7) {
             return {
-                body,
-                ...parsedParams
-            };
-        }
-
-        if (majorVersion === 6) {
-            return {
-                type,
                 body,
                 ...parsedParams
             };
