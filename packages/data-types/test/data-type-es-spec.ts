@@ -117,9 +117,9 @@ describe('DataType (elasticsearch)', () => {
                 },
             };
 
-            const output = new DataType(typeConfig).toESMapping({ typeName: 'events' });
+            const output = new DataType(typeConfig).toESMapping();
 
-            expect(output).toHaveProperty('mappings.events.properties', {
+            expect(output).toHaveProperty('mappings.properties', {
                 config: {
                     type: 'object',
                     properties: {
@@ -189,28 +189,24 @@ describe('DataType (elasticsearch)', () => {
             const dataType = new DataType(typeConfig, 'events');
             expect(dataType.toESMapping({ overrides })).toEqual({
                 mappings: {
-                    events: {
-                        _all: {
-                            enabled: false,
-                        },
-                        dynamic: false,
-                        properties: {
-                            hello: {
-                                type: 'text',
-                                analyzer: 'lowercase_keyword_analyzer',
-                                fields: {
-                                    tokens: {
-                                        analyzer: 'standard',
-                                        type: 'text',
-                                    },
+                    dynamic: false,
+                    properties: {
+                        hello: {
+                            type: 'text',
+                            analyzer: 'lowercase_keyword_analyzer',
+                            fields: {
+                                tokens: {
+                                    analyzer: 'standard',
+                                    type: 'text',
                                 },
                             },
-                            location: { type: 'geo_point' },
-                            date: { type: 'date' },
-                            ip: { type: 'ip' },
-                            someNum: { type: 'long' },
                         },
+                        location: { type: 'geo_point' },
+                        date: { type: 'date' },
+                        ip: { type: 'ip' },
+                        someNum: { type: 'long' },
                     },
+
                 },
                 settings: {
                     'index.number_of_shards': 5,
