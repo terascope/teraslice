@@ -2,19 +2,19 @@ import {
     debugLogger, cloneDeep, DataEntity,
     isEmpty, pDelay
 } from '@terascope/utils';
-import esApi from '../index.js';
+import esApi from '../src/index.js';
 
 describe('elasticsearch-api', () => {
-    let recordsReturned = [];
-    let mgetQuery;
-    let bulkData;
-    let searchQuery;
-    let indexQuery;
-    let createQuery;
-    let updateQuery;
-    let removeQuery;
+    let recordsReturned: any[] = [];
+    let mgetQuery: any;
+    let bulkData: any;
+    let searchQuery: any;
+    let indexQuery: any;
+    let createQuery: any;
+    let updateQuery: any;
+    let removeQuery: any;
     let failed = 0;
-    let failures = [];
+    let failures: any[] = [];
     let total = 0;
     let bulkError = false;
     let searchError = false;
@@ -64,7 +64,7 @@ describe('elasticsearch-api', () => {
         };
     }
 
-    async function waitFor(time, fn) {
+    async function waitFor(time: number, fn: any) {
         await pDelay(time);
         if (fn) {
             fn();
@@ -72,8 +72,8 @@ describe('elasticsearch-api', () => {
         return true;
     }
 
-    function postedData(action, id) {
-        const result = {
+    function postedData(action: string, id: string) {
+        const result: Record<string, any> = {
             _index: 'bigdata7',
             _type: 'events',
             _id: id || 'AWKWOrWojTNwAyqyzq5l',
@@ -180,16 +180,16 @@ describe('elasticsearch-api', () => {
         }
     };
 
-    function getRecoveryData(index) {
-        const obj = {};
+    function getRecoveryData(index: string) {
+        const obj: Record<string, any> = {};
         obj[index] = {
             shards: [{ shard: 1, primary: true, stage: recoverError ? 'notdone' : 'DONE' }]
         };
         return obj;
     }
 
-    function createBulkResponse(results) {
-        const response = { took: 22, errors: false, items: results };
+    function createBulkResponse(results: Record<string, any>[]) {
+        const response: Record<string, any> = { took: 22, errors: false, items: results };
         if (!isEmpty(bulkError)) {
             response.errors = true;
             let i = -1;
@@ -252,14 +252,19 @@ describe('elasticsearch-api', () => {
         return response;
     }
 
-    function simulateTemplateResponse(originalMapping, index, recordType) {
-        const results = {};
+    function simulateTemplateResponse(
+        originalMapping: Record<string, any>,
+        index: string,
+        recordType: string
+    ) {
+        const results: Record<string, any> = {};
         results[index] = { mappings: JSON.parse(JSON.stringify(originalMapping.mappings)) };
         // simulate the 'false' to false issue
         results[index].mappings[recordType].dynamic = 'false';
         if (changeMappings) {
             results[index].mappings[recordType].properties.newKey = { type: 'keyword' };
         }
+
         return results;
     }
 

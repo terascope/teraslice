@@ -11,9 +11,18 @@
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
     "type": "module",
-    "main": "index.js",
-    "typings": "types/index.d.ts",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "files": [
+        "dist/src/**/*"
+    ],
+    "directories": {
+        "lib": "dist/src",
+        "test": "test"
+    },
     "scripts": {
+        "build": "tsc --build",
+        "build:watch": "yarn build --watch",
         "test": "TEST_RESTRAINED_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
         "test:debug": "TEST_RESTRAINED_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
         "test:elasticsearch6": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
@@ -47,6 +56,7 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
+    "srcMain": "src/index.ts",
     "terascope": {
         "testSuite": "restrained"
     }

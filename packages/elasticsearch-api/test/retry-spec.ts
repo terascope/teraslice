@@ -1,7 +1,7 @@
 import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import { debugLogger } from '@terascope/utils';
 import opensearch from '@opensearch-project/opensearch';
-import API from '../index.js';
+import API from '../dist/src/index.js';
 
 const logger = debugLogger('retry spec');
 const port = '1111';
