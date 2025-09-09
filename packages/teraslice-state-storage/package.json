@@ -27,6 +27,9 @@
         "@terascope/elasticsearch-api": "~4.12.2",
         "@terascope/utils": "~1.10.2"
     },
+    "devDependencies": {
+        "@terascope/opensearch-client": "~1.1.2"
+    },
     "engines": {
         "node": ">=22.0.0",
         "yarn": ">=1.22.19"

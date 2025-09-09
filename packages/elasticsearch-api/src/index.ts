@@ -116,7 +116,7 @@ export default function elasticsearchApi(
 
     async function search(
         query: ClientParams.SearchParams
-    ): Promise<ClientResponse.SearchResponse> {
+    ): Promise<ClientResponse.SearchResponse | any[]> {
         const {
             // @ts-expect-error this can be removed when es6 is not supported
             _sourceInclude, _source_includes: oldSourIncludes,
@@ -191,7 +191,7 @@ export default function elasticsearchApi(
             .map(convertDocToDataEntity);
     }
 
-    async function getFn(query: ClientParams.GetParams, fullResponse = false) {
+    async function getFn(query: ClientParams.GetParams, fullResponse = false): Promise<any> {
         if (fullResponse) {
             return _clientRequest('get', query);
         }
@@ -212,7 +212,7 @@ export default function elasticsearchApi(
         return _clientRequest('create', _adjustTypeForEs7(query)).then(() => query.body);
     }
 
-    async function update(query: ClientParams.UpdateParams) {
+    async function update(query: ClientParams.UpdateParams): Promise<any> {
         // TODO this does not seem right
         await _clientRequest('update', _adjustTypeForEs7(query));
         // @ts-expect-error
@@ -230,16 +230,16 @@ export default function elasticsearchApi(
         return _clientIndicesRequest('exists', query) as unknown as boolean;
     }
 
-    async function indexCreate(query: ClientParams.IndicesCreateParams) {
+    async function indexCreate(query: ClientParams.IndicesCreateParams): Promise<any> {
         const params = _fixMappingRequest(query, false);
         return _clientIndicesRequest('create', params);
     }
 
-    async function indexRefresh(query: ClientParams.IndicesRefreshParams) {
+    async function indexRefresh(query: ClientParams.IndicesRefreshParams): Promise<any> {
         return _clientIndicesRequest('refresh', query);
     }
 
-    async function indexRecovery(query: ClientParams.IndicesRefreshParams) {
+    async function indexRecovery(query: ClientParams.IndicesRefreshParams): Promise<any> {
         return _clientIndicesRequest('recovery', query);
     }
 
@@ -325,7 +325,7 @@ export default function elasticsearchApi(
             .catch((err) => Promise.reject(new TSError(err)));
     }
 
-    async function putTemplate(template: Record<string, any>, name: string) {
+    async function putTemplate(template: Record<string, any>, name: string): Promise<any> {
         const params = _fixMappingRequest({ body: template, name }, true);
         return _clientIndicesRequest('putTemplate', params);
     }
@@ -486,12 +486,11 @@ export default function elasticsearchApi(
      *
      * @returns {Promise<number>} the number of affected rows
     */
-    function bulkSend(data: BulkRecord[] | Record<string, any>[]) {
+    async function bulkSend(data: BulkRecord[] | Record<string, any>[]) {
         if (!Array.isArray(data)) {
             throw new Error(`Expected bulkSend to receive an array, got ${data} (${getTypeOf(data)})`);
         }
-
-        return Promise.resolve(_bulkSend(data as any));
+        return _bulkSend(data as any);
     }
 
     function _warn(warnLogger: Logger, msg: string) {
@@ -824,8 +823,11 @@ export default function elasticsearchApi(
      *
      * - reject if the connection is closed
      * - resolve after timeout to let the underlying client deal with any problems
+     * TODO: this is not ok, relying on esoteric promise behavior and being checked on every call
     */
     async function waitForClient(resolve: any, reject: any) {
+        // @ts-expect-error
+        let intervalId = null;
         const startTime = Date.now();
 
         // set different values for when process.env.NODE_ENV === test
@@ -837,18 +839,20 @@ export default function elasticsearchApi(
             return;
         }
 
-        const intervalId = setInterval(_checkClient, intervalMs);
+        intervalId = setInterval(_checkClient, intervalMs);
 
         function _checkClient() {
             const elapsed = Date.now() - startTime;
             try {
                 const valid = verifyClient();
                 if (!valid && elapsed <= timeoutMs) return false;
+                // @ts-expect-error
 
                 clearInterval(intervalId);
                 resolve(elapsed);
                 return true;
             } catch (err) {
+                // @ts-expect-error
                 clearInterval(intervalId);
                 reject(err);
                 return true;
