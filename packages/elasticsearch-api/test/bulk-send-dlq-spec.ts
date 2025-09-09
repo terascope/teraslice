@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { debugLogger, cloneDeep, DataEntity } from '@terascope/utils';
-import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
-import elasticsearchAPI from '../index.js';
+import { ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
+import elasticsearchAPI, { Client as APIClient } from '../src/index.js';
 
 const {
     makeClient, cleanupIndex, EvenDateData,
@@ -14,8 +14,8 @@ const THREE_MINUTES = 3 * 60 * 1000;
 jest.setTimeout(THREE_MINUTES + 60000);
 
 describe('bulkSend', () => {
-    let client;
-    let api;
+    let client: Client;
+    let api: APIClient;
 
     beforeAll(async () => {
         client = await makeClient();
@@ -54,7 +54,7 @@ describe('bulkSend', () => {
 
             const docs = cloneDeep(EvenDateData.data.slice(0, 2));
 
-            const result = await diffApi.bulkSend(formatUploadData(index, docs, true));
+            const result = await diffApi.bulkSend(formatUploadData(index, docs, true) as any);
 
             expect(result).toBe(2);
         });
@@ -66,7 +66,7 @@ describe('bulkSend', () => {
 
             docs[0].bytes = 'this is a bad value';
 
-            await expect(diffApi.bulkSend(formatUploadData(index, docs, true)))
+            await expect(diffApi.bulkSend(formatUploadData(index, docs, true) as any))
                 .rejects.toThrow();
         });
 
@@ -76,19 +76,19 @@ describe('bulkSend', () => {
 
             docs[0].bytes = 'this is a bad value';
 
-            const result = await api.bulkSend(formatUploadData(index, docs, true));
+            const result = await api.bulkSend(formatUploadData(index, docs, true) as any);
 
             // 1 good doc  - so only 1 row affected
             expect(result).toBe(1);
 
-            expect(docs[0].getMetadata('_bulk_sender_rejection')).toInclude('mapper_parsing_exception--failed to parse field [bytes]');
+            expect(docs[0].getMetadata('_bulk_sender_rejection')).toContain('mapper_parsing_exception--failed to parse field [bytes]');
             expect(docs[1].getMetadata('_bulk_sender_rejection')).toBeUndefined();
         });
 
         it('should return a count if not un-retryable records if dlq is set', async () => {
             const docs = cloneDeep(EvenDateData.data.slice(0, 2));
 
-            const result = await api.bulkSend(formatUploadData(index, docs, true));
+            const result = await api.bulkSend(formatUploadData(index, docs, true) as any);
 
             expect(result).toBe(2);
         });

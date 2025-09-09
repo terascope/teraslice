@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { debugLogger, chunk, pMap } from '@terascope/utils';
-import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
-import elasticsearchAPI from '../index.js';
+import { ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
+import elasticsearchAPI, { Client as APIClient } from '../src/index.js';
 
 const {
     makeClient, cleanupIndex, waitForData,
@@ -13,8 +13,8 @@ const THREE_MINUTES = 3 * 60 * 1000;
 jest.setTimeout(THREE_MINUTES + 60000);
 
 describe('bulkSend', () => {
-    let client;
-    let api;
+    let client: Client;
+    let api: APIClient;
 
     beforeAll(async () => {
         client = await makeClient();
@@ -37,12 +37,12 @@ describe('bulkSend', () => {
             const chunkedData = chunk(EvenDateData.data, 50);
 
             await pMap(chunkedData, async (cData) => {
-                const formattedData = formatUploadData(index, cData, true);
+                const formattedData = formatUploadData(index, cData, true) as any;
                 return api.bulkSend(formattedData);
             }, { concurrency: 9 });
 
             await expect(
-                waitForData(client, index, EvenDateData.data.length, logger, THREE_MINUTES)
+                waitForData(client, index, EvenDateData.data.length, THREE_MINUTES)
             ).resolves.not.toThrow();
         });
     });

@@ -65,6 +65,9 @@
         {
             "path": "packages/xlucene-translator"
         },
+         {
+            "path": "packages/elasticsearch-api"
+        },
         {
             "path": "packages/elasticsearch-store"
         },

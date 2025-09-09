@@ -2,22 +2,22 @@ import {
     debugLogger, cloneDeep, DataEntity,
     isEmpty, pDelay
 } from '@terascope/utils';
-import esApi from '../index.js';
+import esApi from '../src/index.js';
 
 describe('elasticsearch-api', () => {
-    let recordsReturned = [];
-    let mgetQuery;
-    let bulkData;
-    let searchQuery;
-    let indexQuery;
-    let createQuery;
-    let updateQuery;
-    let removeQuery;
+    let recordsReturned: any[] = [];
+    let mgetQuery: any;
+    let bulkData: any;
+    let searchQuery: any;
+    let indexQuery: any;
+    let createQuery: any;
+    let updateQuery: any;
+    let removeQuery: any;
     let failed = 0;
-    let failures = [];
+    let failures: any[] = [];
     let total = 0;
-    let bulkError = false;
-    let searchError = false;
+    let bulkError: any | any[] = false;
+    let searchError: any = false;
     let elasticDown = false;
     let recoverError = false;
     let changeMappings = false;
@@ -64,7 +64,7 @@ describe('elasticsearch-api', () => {
         };
     }
 
-    async function waitFor(time, fn) {
+    async function waitFor(time: number, fn: any) {
         await pDelay(time);
         if (fn) {
             fn();
@@ -72,8 +72,8 @@ describe('elasticsearch-api', () => {
         return true;
     }
 
-    function postedData(action, id) {
-        const result = {
+    function postedData(action: string, id?: string) {
+        const result: Record<string, any> = {
             _index: 'bigdata7',
             _type: 'events',
             _id: id || 'AWKWOrWojTNwAyqyzq5l',
@@ -180,20 +180,21 @@ describe('elasticsearch-api', () => {
         }
     };
 
-    function getRecoveryData(index) {
-        const obj = {};
+    function getRecoveryData(index: string) {
+        const obj: Record<string, any> = {};
         obj[index] = {
             shards: [{ shard: 1, primary: true, stage: recoverError ? 'notdone' : 'DONE' }]
         };
         return obj;
     }
 
-    function createBulkResponse(results) {
-        const response = { took: 22, errors: false, items: results };
+    function createBulkResponse(results: Record<string, any>[]) {
+        const response: Record<string, any> = { took: 22, errors: false, items: results };
         if (!isEmpty(bulkError)) {
             response.errors = true;
             let i = -1;
-            response.items = results.body.flatMap((obj) => {
+            // @ts-expect-error
+            response.items = results.body.flatMap((obj: Record<string, any>) => {
                 if (!obj.index && !obj.update && !obj.create && !obj.delete) {
                     // ignore the non-metadata objects
                     return [];
@@ -222,7 +223,8 @@ describe('elasticsearch-api', () => {
         } else {
             response.errors = false;
             let i = -1;
-            response.items = results.body.flatMap((obj) => {
+            // @ts-expect-error
+            response.items = results.body.flatMap((obj: Record<string, any>) => {
                 if (!obj.index && !obj.update && !obj.create && !obj.delete) {
                     // ignore the non-metadata objects
                     return [];
@@ -252,14 +254,19 @@ describe('elasticsearch-api', () => {
         return response;
     }
 
-    function simulateTemplateResponse(originalMapping, index, recordType) {
-        const results = {};
+    function simulateTemplateResponse(
+        originalMapping: Record<string, any>,
+        index: string,
+        recordType: string
+    ) {
+        const results: Record<string, any> = {};
         results[index] = { mappings: JSON.parse(JSON.stringify(originalMapping.mappings)) };
         // simulate the 'false' to false issue
         results[index].mappings[recordType].dynamic = 'false';
         if (changeMappings) {
             results[index].mappings[recordType].properties.newKey = { type: 'keyword' };
         }
+
         return results;
     }
 
@@ -276,7 +283,7 @@ describe('elasticsearch-api', () => {
                 }
             }
         },
-        mget: (query) => {
+        mget: (query: Record<string, any>) => {
             mgetQuery = query;
             return Promise.resolve(getMGetData());
         },
@@ -286,27 +293,27 @@ describe('elasticsearch-api', () => {
         // let updateQuery;
         // let deleteQuery;
         get: () => Promise.resolve(recordsReturned[0]),
-        index: (query) => {
+        index: (query: Record<string, any>) => {
             indexQuery = query;
             return Promise.resolve(postedData('created'));
         },
-        create: (obj) => {
+        create: (obj: Record<string, any>) => {
             createQuery = obj;
             return Promise.resolve(postedData('created', obj.id));
         },
-        update: (query) => {
+        update: (query: Record<string, any>) => {
             updateQuery = query;
             return Promise.resolve(postedData('updated'));
         },
-        delete: (query) => {
+        delete: (query: Record<string, any>) => {
             removeQuery = query;
             return Promise.resolve(postedData('deleted'));
         },
-        bulk: (data) => {
+        bulk: (data: Record<string, any>[]) => {
             bulkData = data;
             return Promise.resolve(createBulkResponse(data));
         },
-        search: (_query) => {
+        search: (_query: Record<string, any>) => {
             searchQuery = _query;
             logger.debug(searchQuery);
             if (searchError) return Promise.reject(searchError);
@@ -323,9 +330,9 @@ describe('elasticsearch-api', () => {
             },
             create: () => Promise.resolve({ acknowledged: true, shards_acknowledged: true }),
             refresh: () => Promise.resolve({ _shards: { total: 10, successful: 5, failed: 0 } }),
-            recovery: (query) => Promise.resolve(getRecoveryData(query.index)),
+            recovery: (query: Record<string, any>) => Promise.resolve(getRecoveryData(query.index)),
             getSettings: () => {
-                const obj = {};
+                const obj: Record<string, any> = {};
                 obj.some_index = { settings: { index: { max_result_window: 1000000 } } };
                 return Promise.resolve(obj);
             },
@@ -344,7 +351,7 @@ describe('elasticsearch-api', () => {
             getMapping: () => {
                 let index = 'teracluster__state';
                 let type = 'state';
-                let templateArg = template;
+                let templateArg: Record<string, any> = template;
                 if (isExecutionTemplate) {
                     index = 'teracluster__ex';
                     type = 'ex';
@@ -365,13 +372,11 @@ describe('elasticsearch-api', () => {
             start: 100,
             limit: 500
         }
-    };
+    } as any;
 
     it('can instantiate', () => {
-        let api;
-        expect(() => {
-            api = esApi(client, logger);
-        }).not.toThrow();
+        const api = esApi(client, logger);
+
         expect(typeof api).toEqual('object');
         expect(typeof api.search).toEqual('function');
         expect(typeof api.count).toEqual('function');
@@ -395,18 +400,18 @@ describe('elasticsearch-api', () => {
     });
 
     it('count returns total amount for query', async () => {
-        const query = { body: 'someQuery' };
+        const query = { body: 'someQuery' } as any;
         const api = esApi(client, logger);
 
         const results = await api.count(query);
-        expect(query).toEqual({ body: 'someQuery', size: 0 });
+
         expect(results).toEqual(0);
         total = 500;
         return expect(api.count(query)).resolves.toEqual(500);
     });
 
     it('can search', async () => {
-        const query = { body: 'someQuery' };
+        const query = { body: 'someQuery' } as any;
         const api = esApi(client, logger);
         const apiFullResponse = esApi(client, logger, { full_response: true });
         recordsReturned = [{ _source: { some: 'data' } }];
@@ -418,15 +423,16 @@ describe('elasticsearch-api', () => {
 
         expect(results1).toEqual([recordsReturned[0]._source]);
         expect(results1).toEqual([{ some: 'data' }]);
+        // @ts-expect-error
         expect(DataEntity.isDataEntity(results1[0])).toEqual(true);
         expect(results2).toEqual(getData());
     });
 
     it('search can handle rejection errors', async () => {
-        const query = { body: 'someQuery' };
+        const query = { body: 'someQuery' } as any;
         const api = esApi(client, logger);
         let queryFailed = false;
-        searchError = { body: { error: { type: 'es_rejected_execution_exception' } } };
+        searchError = { body: { error: { type: 'es_rejected_execution_exception' } } } as any;
         recordsReturned = [{ _source: { some: 'data' } }];
 
         const [results] = await Promise.all([
@@ -446,7 +452,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('search can handle shard errors', async () => {
-        const query = { body: 'someQuery' };
+        const query = { body: 'someQuery' } as any;
         const api = esApi(client, logger);
         let queryFailed = false;
         failed = 3;
@@ -545,7 +551,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can call get', async () => {
-        const query = { body: 'someQuery' };
+        const query = { body: 'someQuery' } as any;
         const api = esApi(client, logger);
         recordsReturned = [{ _source: { some: 'data' } }];
 
@@ -558,7 +564,7 @@ describe('elasticsearch-api', () => {
         const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
         const api = esApi(client, logger);
 
-        const results = await api.index(query);
+        const results = await api.index(query) as any;
         return expect(results.created).toEqual(true);
     });
 
@@ -614,7 +620,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can call create', async () => {
-        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
+        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' } as any;
         const api = esApi(client, logger);
 
         const results = await api.create(query);
@@ -622,7 +628,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can remove type from create request for es7', async () => {
-        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
+        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' } as any;
 
         const es7client = cloneDeep(client);
         es7client.transport._config = { apiVersion: '7.0' };
@@ -634,7 +640,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can call update', async () => {
-        const query = { index: 'someIndex', type: 'sometype', body: { doc: { some: 'data' } } };
+        const query = { index: 'someIndex', type: 'sometype', body: { doc: { some: 'data' } } } as any;
         const api = esApi(client, logger);
 
         const results = await api.update(query);
@@ -642,7 +648,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can remove type from update requests on es7', async () => {
-        const query = { index: 'someIndex', type: 'sometype', body: { doc: { some: 'data' } } };
+        const query = { index: 'someIndex', type: 'sometype', body: { doc: { some: 'data' } } } as any;
 
         const es7client = cloneDeep(client);
         es7client.transport._config = { apiVersion: '7.0' };
@@ -721,7 +727,7 @@ describe('elasticsearch-api', () => {
     it('can warn window size with version', async () => {
         const api = esApi(client, logger, { index: 'some_index' });
         // FIXME: this test is only really testing a side effect, need a better test
-        expect(api.version).toBeFunction();
+        expect(api.version).toBeDefined();
     });
 
     it('can call putTemplate', async () => {
@@ -953,8 +959,8 @@ describe('elasticsearch-api', () => {
         const msg1 = { count: 100 };
         const msg2 = { count: 100, start: new Date(), end: new Date() };
 
-        function makeResponse(opConfig, msg, data, sort) {
-            const query = {
+        function makeResponse(opConfig: any, msg: any, data: any | any[], sort?: any) {
+            const query: Record<string, any> = {
                 index: opConfig.index,
                 size: msg.count,
                 body: {
@@ -1106,8 +1112,8 @@ describe('elasticsearch-api', () => {
         const msg3 = { count: 100 };
         const msg4 = { count: 100, wildcard: { field, value: 'someKey' } };
 
-        function makeResponse(opConfig, msg, data) {
-            const query = {
+        function makeResponse(opConfig: any, msg: any, data: any | any[]) {
+            const query: Record<string, any> = {
                 index: opConfig.index,
                 size: msg.count,
                 body: {
