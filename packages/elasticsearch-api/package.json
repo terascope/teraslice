@@ -13,13 +13,13 @@
     "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
-    "files": [
-        "dist/src/**/*"
-    ],
     "directories": {
         "lib": "dist/src",
         "test": "test"
     },
+    "files": [
+        "dist/src/**/*"
+    ],
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
