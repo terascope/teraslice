@@ -8,6 +8,7 @@ import {
 
 /** JSON Schema */
 export const schema = {
+    type: 'object',
     additionalProperties: false,
     properties: {
         _key: {
@@ -25,9 +26,11 @@ export const schema = {
         },
         _created: {
             format: 'date-time',
+            type: 'string'
         },
         _updated: {
             format: 'date-time',
+            type: 'string'
         },
     },
     required: ['_key', 'client_id'],
