@@ -31,7 +31,7 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../teraslice-messaging --"
     },
     "resolutions": {
-        "debug": "~4.4.1",
+        "debug": "~4.4.3",
         "ms": "~2.1.3"
     },
     "dependencies": {

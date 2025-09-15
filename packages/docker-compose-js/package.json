@@ -33,7 +33,7 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../docker-compose-js --"
     },
     "resolutions": {
-        "debug": "~4.4.1"
+        "debug": "~4.4.3"
     },
     "dependencies": {
         "debug": "~4.4.3"
