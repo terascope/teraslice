@@ -43,13 +43,13 @@
         "is-cidr": "~6.0.0",
         "jexl": "~2.3.0",
         "mnemonist": "~0.40.3",
-        "uuid": "~12.0.0",
+        "uuid": "~13.0.0",
         "valid-url": "~1.0.9",
         "validator": "~13.12.0",
         "xlucene-parser": "~1.10.3"
     },
     "devDependencies": {
-        "@types/big-json": "^3",
+        "@types/big-json": "^3.2.5",
         "@types/ip6addr": "~0.2.6",
         "@types/uuid": "~10.0.0",
         "benchmark": "~2.1.4",

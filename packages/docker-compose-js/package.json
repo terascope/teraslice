@@ -36,7 +36,7 @@
         "debug": "~4.4.1"
     },
     "dependencies": {
-        "debug": "~4.4.1"
+        "debug": "~4.4.3"
     },
     "engines": {
         "node": ">=22.0.0",

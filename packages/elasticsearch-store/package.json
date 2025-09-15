@@ -39,7 +39,7 @@
         "ajv": "~8.17.1",
         "ajv-formats": "~3.0.1",
         "setimmediate": "~1.0.5",
-        "uuid": "~12.0.0",
+        "uuid": "~13.0.0",
         "xlucene-translator": "~1.10.3"
     },
     "devDependencies": {

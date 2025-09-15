@@ -3316,7 +3316,7 @@ __metadata:
     "@terascope/data-types": "npm:~1.11.3"
     "@terascope/types": "npm:~1.4.4"
     "@terascope/utils": "npm:~1.10.3"
-    "@types/big-json": "npm:^3"
+    "@types/big-json": "npm:^3.2.5"
     "@types/ip6addr": "npm:~0.2.6"
     "@types/uuid": "npm:~10.0.0"
     "@types/validator": "npm:~13.12.3"
@@ -3331,7 +3331,7 @@ __metadata:
     is-cidr: "npm:~6.0.0"
     jexl: "npm:~2.3.0"
     mnemonist: "npm:~0.40.3"
-    uuid: "npm:~12.0.0"
+    uuid: "npm:~13.0.0"
     valid-url: "npm:~1.0.9"
     validator: "npm:~13.12.0"
     xlucene-parser: "npm:~1.10.3"
@@ -3356,7 +3356,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@terascope/docker-compose-js@workspace:packages/docker-compose-js"
   dependencies:
-    debug: "npm:~4.4.1"
+    debug: "npm:~4.4.3"
   languageName: unknown
   linkType: soft
 
@@ -3394,8 +3394,8 @@ __metadata:
     eslint-plugin-jsx-a11y: "npm:~6.10.2"
     eslint-plugin-react: "npm:~7.37.5"
     eslint-plugin-react-hooks: "npm:~5.2.0"
-    eslint-plugin-testing-library: "npm:~7.6.8"
-    globals: "npm:~16.3.0"
+    eslint-plugin-testing-library: "npm:~7.8.0"
+    globals: "npm:~16.4.0"
     typescript: "npm:~5.9.2"
     typescript-eslint: "npm:~8.43.0"
   languageName: unknown
@@ -3448,7 +3448,7 @@ __metadata:
     jest-fixtures: "npm:~0.6.0"
     prom-client: "npm:~15.1.3"
     semver: "npm:~7.7.2"
-    uuid: "npm:~12.0.0"
+    uuid: "npm:~13.0.0"
   languageName: unknown
   linkType: soft
 
@@ -3497,7 +3497,7 @@ __metadata:
     signale: "npm:~1.4.0"
     sort-package-json: "npm:~3.4.0"
     toposort: "npm:~2.0.2"
-    typedoc: "npm:~0.28.12"
+    typedoc: "npm:~0.28.13"
     typedoc-plugin-markdown: "npm:~4.8.1"
     typescript: "npm:~5.9.2"
     yaml: "npm:^2.8.1"
@@ -3524,7 +3524,7 @@ __metadata:
     get-port: "npm:~7.1.0"
     ms: "npm:~2.1.3"
     nanoid: "npm:~5.1.5"
-    p-event: "npm:~6.0.1"
+    p-event: "npm:~7.0.0"
     socket.io: "npm:~1.7.4"
     socket.io-client: "npm:~1.7.4"
   languageName: unknown
@@ -3577,7 +3577,7 @@ __metadata:
     date-fns: "npm:~4.1.0"
     date-fns-tz: "npm:~3.2.0"
     datemath-parser: "npm:~1.0.6"
-    debug: "npm:~4.4.1"
+    debug: "npm:~4.4.3"
     geo-tz: "npm:~8.1.4"
     ip-bigint: "npm:~8.2.2"
     ip-cidr: "npm:~4.0.2"
@@ -3914,7 +3914,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/big-json@npm:^3":
+"@types/big-json@npm:^3.2.5":
   version: 3.2.5
   resolution: "@types/big-json@npm:3.2.5"
   dependencies:
@@ -4320,12 +4320,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:~24.3.1":
-  version: 24.3.1
-  resolution: "@types/node@npm:24.3.1"
+"@types/node@npm:~24.4.0":
+  version: 24.4.0
+  resolution: "@types/node@npm:24.4.0"
   dependencies:
-    undici-types: "npm:~7.10.0"
-  checksum: 10c0/99b86fc32294fcd61136ca1f771026443a1e370e9f284f75e243b29299dd878e18c193deba1ce29a374932db4e30eb80826e1049b9aad02d36f5c30b94b6f928
+    undici-types: "npm:~7.11.0"
+  checksum: 10c0/3aefa4c6b006b3478f2d28a48d830ab7350ce24efdaf352011418e3ee17ed7683ca9c0a1840e770685ce78f413344badafa91e034be02488efe2eb6b612bd542
   languageName: node
   linkType: hard
 
@@ -6917,7 +6917,7 @@ __metadata:
     signale: "npm:~1.4.0"
     ts-jest: "npm:~29.4.1"
     typescript: "npm:~5.9.2"
-    uuid: "npm:~12.0.0"
+    uuid: "npm:~13.0.0"
   languageName: unknown
   linkType: soft
 
@@ -6982,7 +6982,7 @@ __metadata:
     ajv: "npm:~8.17.1"
     ajv-formats: "npm:~3.0.1"
     setimmediate: "npm:~1.0.5"
-    uuid: "npm:~12.0.0"
+    uuid: "npm:~13.0.0"
     xlucene-translator: "npm:~1.10.3"
   languageName: unknown
   linkType: soft
@@ -7593,15 +7593,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-testing-library@npm:~7.6.8":
-  version: 7.6.8
-  resolution: "eslint-plugin-testing-library@npm:7.6.8"
+"eslint-plugin-testing-library@npm:~7.8.0":
+  version: 7.8.0
+  resolution: "eslint-plugin-testing-library@npm:7.8.0"
   dependencies:
     "@typescript-eslint/scope-manager": "npm:^8.15.0"
     "@typescript-eslint/utils": "npm:^8.15.0"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0
-  checksum: 10c0/aed46f94236f984b5a172a233d91b7c13a1b13258da816a4c0d0698b0103c6d98135081146c79d7d4cb9195ccd49baa26812893622c9e577f548fe7f9dcd91a9
+  checksum: 10c0/902a6d67fd5bab27e279ab51d6bdace524658bdda85b588f21d322f9249d7d5f1a738a7db2bd6562169b31bebb90db81c2eaae84dd8011f9e5462fef098c6c5a
   languageName: node
   linkType: hard
 
@@ -8608,10 +8608,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:~16.3.0":
-  version: 16.3.0
-  resolution: "globals@npm:16.3.0"
-  checksum: 10c0/c62dc20357d1c0bf2be4545d6c4141265d1a229bf1c3294955efb5b5ef611145391895e3f2729f8603809e81b30b516c33e6c2597573844449978606aad6eb38
+"globals@npm:~16.4.0":
+  version: 16.4.0
+  resolution: "globals@npm:16.4.0"
+  checksum: 10c0/a14b447a78b664b42f6d324e8675fcae6fe5e57924fecc1f6328dce08af9b2ca3a3138501e1b1f244a49814a732dc60cfc1aa24e714e0b64ac8bd18910bfac90
   languageName: node
   linkType: hard
 
@@ -11815,12 +11815,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-event@npm:~6.0.1":
-  version: 6.0.1
-  resolution: "p-event@npm:6.0.1"
+"p-event@npm:~7.0.0":
+  version: 7.0.0
+  resolution: "p-event@npm:7.0.0"
   dependencies:
-    p-timeout: "npm:^6.1.2"
-  checksum: 10c0/c2da4d3f445376db2130d740b41309f97e8802d17277590684ca51cdcafcc77a024ccdd6b1a24c275c49c3c4ef57bbfc499e6d2b3b18813c774aaceb81cde7b4
+    p-timeout: "npm:^6.1.4"
+  checksum: 10c0/f90be04b5df3ba21dd32d880e9d9e961ba32fac7c54b88999c29b3975c885b8e532d72f2f190c77b1b61dee6033a9bf2bf7ce322b88c13b0c1af344b51af74e8
   languageName: node
   linkType: hard
 
@@ -11902,7 +11902,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-timeout@npm:^6.1.2":
+"p-timeout@npm:^6.1.4":
   version: 6.1.4
   resolution: "p-timeout@npm:6.1.4"
   checksum: 10c0/019edad1c649ab07552aa456e40ce7575c4b8ae863191477f02ac8d283ac8c66cedef0ca93422735130477a051dfe952ba717641673fd3599befdd13f63bcc33
@@ -13997,7 +13997,7 @@ __metadata:
     "@types/fs-extra": "npm:~11.0.4"
     "@types/jest": "npm:~30.0.0"
     "@types/lodash": "npm:~4.17.20"
-    "@types/node": "npm:~24.3.1"
+    "@types/node": "npm:~24.4.0"
     "@types/uuid": "npm:~10.0.0"
     eslint: "npm:~9.35.0"
     jest: "npm:~30.1.3"
@@ -14051,7 +14051,7 @@ __metadata:
     socket.io: "npm:~1.7.4"
     socket.io-client: "npm:~1.7.4"
     terafoundation: "npm:~1.15.3"
-    uuid: "npm:~12.0.0"
+    uuid: "npm:~13.0.0"
   languageName: unknown
   linkType: soft
 
@@ -14472,9 +14472,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc@npm:~0.28.12":
-  version: 0.28.12
-  resolution: "typedoc@npm:0.28.12"
+"typedoc@npm:~0.28.13":
+  version: 0.28.13
+  resolution: "typedoc@npm:0.28.13"
   dependencies:
     "@gerrit0/mini-shiki": "npm:^3.12.0"
     lunr: "npm:^2.3.9"
@@ -14485,7 +14485,7 @@ __metadata:
     typescript: 5.0.x || 5.1.x || 5.2.x || 5.3.x || 5.4.x || 5.5.x || 5.6.x || 5.7.x || 5.8.x || 5.9.x
   bin:
     typedoc: bin/typedoc
-  checksum: 10c0/b83a182df0887dce0a27df462e86e9ad771b3eff32eeef07b2b2424e57794050de540cd4667a640165518360fe47393cc92b55bc4ca861bd5746ed696df086d0
+  checksum: 10c0/f4815cb21a62fadbfeb6f5ad6405d3c819b6bcb20bd1e125c5b1a1a7c7bfabbd9dd67d742f767ce95283e99814a361b86bcc632e9ffa595e51e057778def4d57
   languageName: node
   linkType: hard
 
@@ -14596,6 +14596,13 @@ __metadata:
   version: 7.10.0
   resolution: "undici-types@npm:7.10.0"
   checksum: 10c0/8b00ce50e235fe3cc601307f148b5e8fb427092ee3b23e8118ec0a5d7f68eca8cee468c8fc9f15cbb2cf2a3797945ebceb1cbd9732306a1d00e0a9b6afa0f635
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~7.11.0":
+  version: 7.11.0
+  resolution: "undici-types@npm:7.11.0"
+  checksum: 10c0/24ff69baeaebc7d09f4dae68564df850b4ff561810148ff6c37d3fc64dd1460c55e59e604420495e73b1fb48594a1c98e69f6732086a24e01b88f2d926378af1
   languageName: node
   linkType: hard
 
@@ -14792,12 +14799,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:~12.0.0":
-  version: 12.0.0
-  resolution: "uuid@npm:12.0.0"
+"uuid@npm:~13.0.0":
+  version: 13.0.0
+  resolution: "uuid@npm:13.0.0"
   bin:
-    uuid: dist/bin/uuid
-  checksum: 10c0/242db6735d15a187a0d7f22576db02668f974ffc65d0806b23fe4237cbb0db3153442cb3082c7550784acb6272e5c6c931532916f9604bd814dfab1edf2dac40
+    uuid: dist-node/bin/uuid
+  checksum: 10c0/950e4c18d57fef6c69675344f5700a08af21e26b9eff2bf2180427564297368c538ea11ac9fb2e6528b17fc3966a9fd2c5049361b0b63c7d654f3c550c9b3d67
   languageName: node
   linkType: hard
 
