@@ -14,9 +14,8 @@ import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
 import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/index.js';
 import {
-    makePrometheus, isPrometheusTerasliceRequest, makeTable,
-    sendError, handleTerasliceRequest, getSearchOptions,
-    createJobActiveQuery, addDeletedToQuery
+    makeTable, sendError, handleTerasliceRequest,
+    getSearchOptions, createJobActiveQuery, addDeletedToQuery
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
@@ -487,16 +486,11 @@ export class ApiService {
         });
 
         v1routes.get('/cluster/stats', (req, res) => {
-            const { name: cluster } = this.context.sysconfig.teraslice;
-
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get cluster statistics');
             requestHandler(async () => {
-                const stats = await executionService.getClusterAnalytics();
+                const stats = executionService.getClusterAnalytics();
 
-                if (isPrometheusTerasliceRequest(req as TerasliceRequest)) {
-                    return makePrometheus(stats, { cluster });
-                }
-                // for backwards compatability (unsupported for prometheus)
+                // for backwards compatability
                 // @ts-expect-error
                 stats.slicer = stats.controllers;
                 return stats;

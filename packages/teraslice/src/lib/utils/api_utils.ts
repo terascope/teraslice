@@ -2,9 +2,8 @@ import Table from 'easy-table';
 import {
     parseErrorInfo, parseList, logError,
     isString, get, toInteger, Logger,
-    TSError, isKey,
+    TSError
 } from '@terascope/utils';
-import type { ClusterMaster } from '@terascope/teraslice-messaging';
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
 
 export function makeTable(
@@ -101,51 +100,6 @@ export function sendError(
         error: code,
         message
     });
-}
-
-// NOTE: This only works for counters, if you're trying to extend this, you
-// should probably switch to using prom-client.
-export function makePrometheus(stats: ClusterMaster.ClusterAnalytics, defaultLabels = {}) {
-    const metricMapping = {
-        processed: 'teraslice_slices_processed',
-        failed: 'teraslice_slices_failed',
-        queued: 'teraslice_slices_queued',
-        job_duration: '', // this isn't really useful, omitting
-        workers_joined: 'teraslice_workers_joined',
-        workers_disconnected: 'teraslice_workers_disconnected',
-        workers_reconnected: 'teraslice_workers_reconnected'
-    };
-
-    let returnString = '';
-    Object.entries(stats.controllers).forEach(([key, value]) => {
-        if (isKey(metricMapping, key)) {
-            const name = metricMapping[key];
-            if (name !== '') {
-                returnString += `# TYPE ${name} counter\n`;
-                const labels = makePrometheusLabels(defaultLabels);
-                returnString += `${name}${labels} ${value}\n`;
-            }
-        }
-    });
-    return returnString;
-}
-
-function makePrometheusLabels(defaults = {}) {
-    const labels = Object.assign({}, defaults);
-    const keys = Object.keys(labels);
-    if (!keys.length) return '';
-
-    const labelsStr = keys.map((key) => {
-        const val = labels[key as keyof typeof labels];
-        return `${key}="${val}"`;
-    }).join(',');
-
-    return `{${labelsStr}}`;
-}
-
-export function isPrometheusTerasliceRequest(req: TerasliceRequest) {
-    const acceptHeader = get(req, 'headers.accept', '');
-    return acceptHeader && acceptHeader.indexOf('application/openmetrics-text;') > -1;
 }
 
 function parseQueryInt(req: TerasliceRequest, key: string, defaultVal: number): number {
