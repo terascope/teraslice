@@ -115,23 +115,6 @@ $ curl 'http://localhost:5678/v1/cluster/stats'
 }
 ```
 
-Include the following header to receive stats in "prometheus exporter mode":
-```sh
-$ curl -H "Accept: application/openmetrics-text;" -sS http://localhost:5678/cluster/stats
-# TYPE teraslice_slices_processed counter
-teraslice_slices_processed{cluster="teraslice-dev1"} 2
-# TYPE teraslice_slices_failed counter
-teraslice_slices_failed{cluster="teraslice-dev1"} 0
-# TYPE teraslice_slices_queued counter
-teraslice_slices_queued{cluster="teraslice-dev1"} 0
-# TYPE teraslice_workers_joined counter
-teraslice_workers_joined{cluster="teraslice-dev1"} 1
-# TYPE teraslice_workers_disconnected counter
-teraslice_workers_disconnected{cluster="teraslice-dev1"} 0
-# TYPE teraslice_workers_reconnected counter
-teraslice_workers_reconnected{cluster="teraslice-dev1"} 0
-```
-
 ## GET /v1/assets
 
 Retreives a list of assets
