@@ -1,6 +1,3 @@
-{{- if and .Values.terafoundation.prom_metrics_enabled .Values.exporter.enabled }}
-{{- fail "Do not enable both internal and external metrics (terafoundation.prom_metrics_enabled and exporter.enabled)" }}
-{{- end}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -89,24 +86,6 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- if .Values.extraContainers }}
         {{- tpl .Values.extraContainers . | nindent 8 }}
-        {{- end }}
-        {{- if .Values.exporter.enabled }}
-        - name: {{ .Chart.Name }}-exporter
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: {{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag }}
-          imagePullPolicy: {{ .Values.exporter.image.pullPolicy }}
-          env:
-          {{- range $key, $value := .Values.exporter.env }}
-          - name: "{{ $key }}"
-            value: "{{ $value }}"
-          {{- end }}
-          ports:
-            - name: metrics
-              containerPort: {{ .Values.exporter.env.PORT }}
-              protocol: TCP
-          resources:
-            {{- toYaml .Values.exporter.resources | nindent 12 }}
         {{- end }}
       volumes:
         - name: config
