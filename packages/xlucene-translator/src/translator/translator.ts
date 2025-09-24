@@ -65,6 +65,8 @@ export class Translator {
             geo_sort_point: opts.geo_sort_point,
             geo_sort_order: opts.geo_sort_order || this._defaultGeoSortOrder,
             geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortUnit,
+            groupBy: opts.groupBy ?? [],
+            aggregations: opts.aggregations ?? []
         });
 
         if (logger.level() === 10) {
