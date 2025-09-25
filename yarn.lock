@@ -3309,7 +3309,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/data-mate@npm:~1.12.2, @terascope/data-mate@workspace:packages/data-mate":
+"@terascope/data-mate@npm:~1.12.3, @terascope/data-mate@workspace:packages/data-mate":
   version: 0.0.0-use.local
   resolution: "@terascope/data-mate@workspace:packages/data-mate"
   dependencies:
@@ -6973,7 +6973,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "elasticsearch-store@workspace:packages/elasticsearch-store"
   dependencies:
-    "@terascope/data-mate": "npm:~1.12.2"
+    "@terascope/data-mate": "npm:~1.12.3"
     "@terascope/data-types": "npm:~1.11.4"
     "@terascope/opensearch-client": "npm:~1.1.4"
     "@terascope/types": "npm:~1.4.4"
@@ -14272,7 +14272,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "ts-transforms@workspace:packages/ts-transforms"
   dependencies:
-    "@terascope/data-mate": "npm:~1.12.2"
+    "@terascope/data-mate": "npm:~1.12.3"
     "@terascope/types": "npm:~1.4.4"
     "@terascope/utils": "npm:~1.10.4"
     "@types/graphlib": "npm:~2.1.12"
