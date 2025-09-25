@@ -2066,7 +2066,7 @@ toGeoPoint()
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts the field to another type, this is also useful changing the metadata of field
+> Converts the field to another type, this is also useful for changing the metadata of a field
 
 #### Arguments
 
@@ -6286,13 +6286,13 @@ isToday()
 <small>Input:</small>
 
 ```ts
-'2025-08-29T21:44:50.796Z'
+'2025-09-25T21:01:25.511Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2025-08-29T21:44:50.796Z'
+'2025-09-25T21:01:25.511Z'
 ```
 
 **# Example (2)**
@@ -6338,7 +6338,7 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2025-08-29T21:44:50.796Z'
+'2025-09-25T21:01:25.511Z'
 ```
 
 <small>Output:</small>
@@ -6358,13 +6358,13 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2025-08-30T21:44:50.796Z'
+'2025-09-26T21:01:25.511Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2025-08-30T21:44:50.796Z'
+'2025-09-26T21:01:25.511Z'
 ```
 
 ### `isTuesday`
@@ -6664,7 +6664,7 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2025-08-29T21:44:50.796Z'
+'2025-09-25T21:01:25.511Z'
 ```
 
 <small>Output:</small>
@@ -6684,13 +6684,13 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2025-08-28T21:44:50.796Z'
+'2025-09-24T21:01:25.511Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2025-08-28T21:44:50.796Z'
+'2025-09-24T21:01:25.511Z'
 ```
 
 ## CATEGORY: Numeric
@@ -6785,7 +6785,7 @@ acosh()
 0
 ```
 
-Since this function doesn't work with numbers <=0, null will be returned
+Since this function doesn't work with numbers less than or equal to 0, null will be returned
 
 **# Example (2)**
 
