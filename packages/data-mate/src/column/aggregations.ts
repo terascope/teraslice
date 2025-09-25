@@ -17,8 +17,8 @@ export enum ValueAggregation {
 
 export interface FieldAgg {
     /**
-     * If this returns true, than the flush method will
-     * return a index which will indicate which row to select
+     * If this returns true, then the flush method will
+     * return an index which will indicate which row to select
     */
     adjustsSelectedRow: boolean;
     push(value: unknown, index: number): void;
@@ -41,6 +41,14 @@ export const valueAggMap: Record<ValueAggregation, MakeValueAgg> = {
     [ValueAggregation.min]: makeMinAgg,
     [ValueAggregation.max]: makeMaxAgg,
     [ValueAggregation.count]: makeCountAgg,
+};
+
+export const valueAggregationDescriptions = {
+    avg: 'Calculate the average value in a column',
+    count: 'Count all of the values in a column',
+    max: 'Find the maximum value in a column',
+    min: 'Find the minimum value in a column',
+    sum: 'Add all of the values in a column together',
 };
 
 export function runVectorAggregation<V>(vector: Vector<any>, valueAgg: ValueAggregation): V {
@@ -210,6 +218,13 @@ export const keyAggMap: Record<KeyAggregation, MakeKeyAggFn> = {
     [KeyAggregation.daily]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.daily)),
     [KeyAggregation.monthly]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.monthly)),
     [KeyAggregation.yearly]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.yearly)),
+};
+
+export const keyAggregationDescriptions = {
+    hourly: 'Group the data in hourly buckets',
+    daily: 'Group the data in daily buckets',
+    monthly: 'Group the data in monthly buckets',
+    yearly: 'Group the data in yearly buckets',
 };
 
 function makeDateAgg(trimDateFn: (input: unknown) => number): MakeKeyAggFn {

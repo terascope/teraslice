@@ -33,7 +33,7 @@ export const acoshConfig: FieldTransformConfig = {
             field: 'testField',
             input: 0,
             output: null,
-            description: 'Since this function doesn\'t work with numbers <=0, null will be returned'
+            description: 'Since this function doesn\'t work with numbers less than or equal to 0, null will be returned'
         }
     ],
     create() {

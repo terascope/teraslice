@@ -174,7 +174,7 @@ function generateAllFunctionsDocs() {
 function generateHeader() {
     return `
 ---
-title: Data-Mate Functions
+title: "Data-Mate Functions"
 sidebar_label: Functions
 ---
     `.trim();

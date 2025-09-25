@@ -2066,7 +2066,7 @@ toGeoPoint()
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts the field to another type, this is also useful changing the metadata of field
+> Converts the field to another type, this is also useful for changing the metadata of a field
 
 #### Arguments
 
@@ -2477,11 +2477,29 @@ formatDate()
 '2001-01-01T01:00:00.000Z'
 ```
 
+**# Example (5)**
+
+```ts
+formatDate({ format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX" })
+```
+
+<small>Input:</small>
+
+```ts
+'2018-01-22T18:00:00.000Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2018-01-22T18:00:00.000Z'
+```
+
 ### `getDate`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the day of the month of the input date in UTC Time
+> Returns the day of the month of the input date time
 
 #### Accepts
 
@@ -2567,7 +2585,7 @@ getDate()
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the hours of the input date in UTC Time
+> Returns the hours of the input date time
 
 #### Accepts
 
@@ -2721,7 +2739,7 @@ getMilliseconds()
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the minutes of the input date in UTC time
+> Returns the minutes of the input date time
 
 #### Accepts
 
@@ -2789,7 +2807,7 @@ getMinutes()
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the month of the input date in UTC Time
+> Returns the month of the input date time
 
 #### Accepts
 
@@ -3142,11 +3160,423 @@ getTimezoneOffset({ timezone: 'Australia/Canberra' })
 600
 ```
 
-### `getYear`
+### `getUTCDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the day of the month of the input date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+getUTCDate()
+```
+
+<small>Input:</small>
+
+```ts
+'2021-05-11T10:12:41.091Z'
+```
+
+<small>Output:</small>
+
+```ts
+11
+```
+
+**# Example (2)**
+
+```ts
+getUTCDate()
+```
+
+<small>Input:</small>
+
+```ts
+2021-05-16T10:59:19.091Z
+```
+
+<small>Output:</small>
+
+```ts
+16
+```
+
+**# Example (3)**
+
+```ts
+getUTCDate()
+```
+
+<small>Input:</small>
+
+```ts
+'05/22/2021 EST'
+```
+
+<small>Output:</small>
+
+```ts
+22
+```
+
+**# Example (4)**
+
+```ts
+getUTCDate()
+```
+
+<small>Input:</small>
+
+```ts
+1510123223231
+```
+
+<small>Output:</small>
+
+```ts
+8
+```
+
+### `getUTCHours`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the hours of the input date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+getUTCHours()
+```
+
+<small>Input:</small>
+
+```ts
+'2021-05-10T10:12:41.091Z'
+```
+
+<small>Output:</small>
+
+```ts
+10
+```
+
+**# Example (2)**
+
+```ts
+getUTCHours()
+```
+
+<small>Input:</small>
+
+```ts
+2021-05-10T10:59:19.091Z
+```
+
+<small>Output:</small>
+
+```ts
+10
+```
+
+**# Example (3)**
+
+```ts
+getUTCHours()
+```
+
+<small>Input:</small>
+
+```ts
+'05/22/2021 EST'
+```
+
+<small>Output:</small>
+
+```ts
+5
+```
+
+**# Example (4)**
+
+```ts
+getUTCHours()
+```
+
+<small>Input:</small>
+
+```ts
+17154123223231
+```
+
+<small>Output:</small>
+
+```ts
+2
+```
+
+### `getUTCMinutes`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the minutes of the input date in UTC time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+getUTCMinutes()
+```
+
+<small>Input:</small>
+
+```ts
+'2021-05-10T10:12:41.091Z'
+```
+
+<small>Output:</small>
+
+```ts
+12
+```
+
+**# Example (2)**
+
+```ts
+getUTCMinutes()
+```
+
+<small>Input:</small>
+
+```ts
+2021-05-10T10:59:19.091Z
+```
+
+<small>Output:</small>
+
+```ts
+59
+```
+
+**# Example (3)**
+
+```ts
+getUTCMinutes()
+```
+
+<small>Input:</small>
+
+```ts
+1715472323231
+```
+
+<small>Output:</small>
+
+```ts
+5
+```
+
+### `getUTCMonth`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the month of the input date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+getUTCMonth()
+```
+
+<small>Input:</small>
+
+```ts
+'2021-05-11T10:12:41.091Z'
+```
+
+<small>Output:</small>
+
+```ts
+5
+```
+
+**# Example (2)**
+
+```ts
+getUTCMonth()
+```
+
+<small>Input:</small>
+
+```ts
+2021-05-16T10:59:19.091Z
+```
+
+<small>Output:</small>
+
+```ts
+5
+```
+
+**# Example (3)**
+
+```ts
+getUTCMonth()
+```
+
+<small>Input:</small>
+
+```ts
+'05/22/2021 EST'
+```
+
+<small>Output:</small>
+
+```ts
+5
+```
+
+**# Example (4)**
+
+```ts
+getUTCMonth()
+```
+
+<small>Input:</small>
+
+```ts
+1510123223231
+```
+
+<small>Output:</small>
+
+```ts
+11
+```
+
+### `getUTCYear`
 
 **Type:** `FIELD_TRANSFORM`
 
 > Returns the year of the input date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+getUTCYear()
+```
+
+<small>Input:</small>
+
+```ts
+'2021-05-11T10:12:41.091Z'
+```
+
+<small>Output:</small>
+
+```ts
+2021
+```
+
+**# Example (2)**
+
+```ts
+getUTCYear()
+```
+
+<small>Input:</small>
+
+```ts
+2021-05-16T10:59:19.091Z
+```
+
+<small>Output:</small>
+
+```ts
+2021
+```
+
+**# Example (3)**
+
+```ts
+getUTCYear()
+```
+
+<small>Input:</small>
+
+```ts
+'05/22/2021 EST'
+```
+
+<small>Output:</small>
+
+```ts
+2021
+```
+
+**# Example (4)**
+
+```ts
+getUTCYear()
+```
+
+<small>Input:</small>
+
+```ts
+1510123223231
+```
+
+<small>Output:</small>
+
+```ts
+2017
+```
+
+### `getYear`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the year of the input date time
 
 #### Accepts
 
@@ -3784,7 +4214,7 @@ setTimezone({ timezone: 420 })
 <small>Output:</small>
 
 ```ts
-'2021-05-14T20:45:30.000+07:00'
+'2021-05-15T03:45:30.000+07:00'
 ```
 
 **# Example (2)**
@@ -3802,7 +4232,7 @@ setTimezone({ timezone: 'America/Phoenix' })
 <small>Output:</small>
 
 ```ts
-'2021-05-14T20:45:30.000-07:00'
+'2021-05-14T13:45:30.000-07:00'
 ```
 
 **# Example (3)**
@@ -3820,7 +4250,7 @@ setTimezone({ timezone: 120 })
 <small>Output:</small>
 
 ```ts
-'2020-02-14T20:45:30.091+02:00'
+'2020-02-14T22:45:30.091+02:00'
 ```
 
 **# Example (4)**
@@ -3838,7 +4268,7 @@ setTimezone({ timezone: 'Europe/Paris' })
 <small>Output:</small>
 
 ```ts
-'2020-02-14T20:45:30.091+02:00'
+'2020-02-14T22:45:30.091+02:00'
 ```
 
 ### `setYear`
@@ -3910,7 +4340,7 @@ setYear({ value: 2023 })
 <small>Output:</small>
 
 ```ts
-'2023-05-14T14:00:00.000Z'
+'2023-05-15T04:00:00.000Z'
 ```
 
 **# Example (4)**
@@ -4103,6 +4533,24 @@ toDailyDate()
 <small>Input:</small>
 
 ```ts
+'2018-01-22T18:00:00.000Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2018-01-22T00:00:00.000Z'
+```
+
+**# Example (3)**
+
+```ts
+toDailyDate()
+```
+
+<small>Input:</small>
+
+```ts
 [ 1571706000000, 60 ]
 ```
 
@@ -4222,6 +4670,42 @@ toDate()
 '2001-01-01T01:00:00.000Z'
 ```
 
+**# Example (6)**
+
+```ts
+toDate({ format: "yyyy-MM-dd'T'HH:mm:ss.SSSxxxxx" })
+```
+
+<small>Input:</small>
+
+```ts
+'2018-01-22T18:00:00.000Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2018-01-22T18:00:00.000Z'
+```
+
+**# Example (7)**
+
+```ts
+toDate({ format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX" })
+```
+
+<small>Input:</small>
+
+```ts
+'2018-01-22T18:00:00.000Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2018-01-22T18:00:00.000Z'
+```
+
 ### `toHourlyDate`
 
 **Type:** `FIELD_TRANSFORM`
@@ -4252,6 +4736,42 @@ toHourlyDate()
 
 ```ts
 '2019-10-22T01:00:00.000Z'
+```
+
+**# Example (2)**
+
+```ts
+toHourlyDate()
+```
+
+<small>Input:</small>
+
+```ts
+'2018-01-22T18:00:00.000Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2018-01-22T18:00:00.000Z'
+```
+
+**# Example (3)**
+
+```ts
+toHourlyDate()
+```
+
+<small>Input:</small>
+
+```ts
+'2018-01-22T18:20:00.000Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2018-01-22T18:00:00.000Z'
 ```
 
 ### `toMonthlyDate`
@@ -4302,6 +4822,312 @@ toMonthlyDate()
 
 ```ts
 '2019-10-01T00:00:00.000Z'
+```
+
+**# Example (3)**
+
+```ts
+toMonthlyDate()
+```
+
+<small>Input:</small>
+
+```ts
+'2018-01-22T18:00:00.000Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2018-01-01T00:00:00.000Z'
+```
+
+### `toTimeZone`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a value to local time
+
+#### Arguments
+
+ - **timezone**: (required) `String` - The timezone that the date will be shown in
+
+#### Accepts
+
+- `String`
+- `Number`
+- `Date`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+toTimeZone({ timezone: 'Africa/Ndjamena' })
+```
+
+<small>Input:</small>
+
+```ts
+'2001-03-19T10:36:44.450Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2001-03-19T11:36:44.450+01:00'
+```
+
+**# Example (2)**
+
+```ts
+toTimeZone({ timezone: 'Africa/Ndjamena' })
+```
+
+<small>Input:</small>
+
+```ts
+2001-03-19T10:36:44.450Z
+```
+
+<small>Output:</small>
+
+```ts
+'2001-03-19T11:36:44.450+01:00'
+```
+
+**# Example (3)**
+
+```ts
+toTimeZone({ timezone: 'America/Phoenix' })
+```
+
+<small>Input:</small>
+
+```ts
+'2023-08-22T15:41:50.172Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2023-08-22T08:41:50.172-07:00'
+```
+
+**# Example (4)**
+
+```ts
+toTimeZone({ timezone: 'America/New_York' })
+```
+
+<small>Input:</small>
+
+```ts
+'2023-08-22T15:41:50.172Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2023-08-22T11:41:50.172-04:00'
+```
+
+**# Example (5)**
+
+```ts
+toTimeZone({ timezone: 'America/New_York' })
+```
+
+<small>Input:</small>
+
+```ts
+'2023-11-22T15:41:50.172Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2023-11-22T10:41:50.172-05:00'
+```
+
+**# Example (6)**
+
+```ts
+toTimeZone({ timezone: 'America/Phoenix' })
+```
+
+<small>Input:</small>
+
+```ts
+'2023-11-22T15:41:50.172Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2023-11-22T08:41:50.172-07:00'
+```
+
+**# Example (7)**
+
+```ts
+toTimeZone({ timezone: 'Asia/Calcutta' })
+```
+
+<small>Input:</small>
+
+```ts
+'2023-11-22T15:41:50.172Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2023-11-22T21:11:50.172+05:30'
+```
+
+### `toTimeZoneUsingLocation`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a value to local time
+
+#### Arguments
+
+ - **location**: (required) `Any` - The geo-point used to determine the timezone
+
+#### Accepts
+
+- `String`
+- `Number`
+- `Date`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+toTimeZoneUsingLocation({ location: { lat: 16.8277, lon: 21.24046 } })
+```
+
+<small>Input:</small>
+
+```ts
+'2001-03-19T10:36:44.450Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2001-03-19T11:36:44.450+01:00'
+```
+
+**# Example (2)**
+
+```ts
+toTimeZoneUsingLocation({ location: '16.8277,21.24046' })
+```
+
+<small>Input:</small>
+
+```ts
+'2001-03-19T10:36:44.450Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2001-03-19T11:36:44.450+01:00'
+```
+
+**# Example (3)**
+
+```ts
+toTimeZoneUsingLocation({ location: [ 21.24046, 16.8277 ] })
+```
+
+<small>Input:</small>
+
+```ts
+'2001-03-19T10:36:44.450Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2001-03-19T11:36:44.450+01:00'
+```
+
+**# Example (4)**
+
+```ts
+toTimeZoneUsingLocation({ location: { lat: 33.4192222, lon: -111.6566588 } })
+```
+
+<small>Input:</small>
+
+```ts
+'2023-08-22T15:41:50.172Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2023-08-22T08:41:50.172-07:00'
+```
+
+**# Example (5)**
+
+```ts
+toTimeZoneUsingLocation({ location: { lat: 40.776936, lon: -73.91114 } })
+```
+
+<small>Input:</small>
+
+```ts
+'2023-08-22T15:41:50.172Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2023-08-22T11:41:50.172-04:00'
+```
+
+**# Example (6)**
+
+```ts
+toTimeZoneUsingLocation({ location: { lat: 40.776936, lon: -73.91114 } })
+```
+
+<small>Input:</small>
+
+```ts
+'2023-11-22T15:41:50.172Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2023-11-22T10:41:50.172-05:00'
+```
+
+**# Example (7)**
+
+```ts
+toTimeZoneUsingLocation({ location: { lat: 31.636133, lon: -106.428667 } })
+```
+
+<small>Input:</small>
+
+```ts
+'2020-01-03T19:41:00.000Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2020-01-03T12:41:00.000-07:00'
 ```
 
 ### `toYearlyDate`
@@ -4441,7 +5267,7 @@ isAfter({ date: [ 1620640800000, -420 ] })
 <small>Output:</small>
 
 ```ts
-null
+'2021-05-10T10:00:00.000Z'
 ```
 
 ### `isBefore`
@@ -4978,7 +5804,7 @@ isFriday()
 <small>Output:</small>
 
 ```ts
-'2021-05-14T10:00:00.000-10:20'
+null
 ```
 
 **# Example (3)**
@@ -5164,7 +5990,7 @@ isLeapYear()
 <small>Output:</small>
 
 ```ts
-'2020-05-10T10:00:00.000+01:00'
+'2020-05-10T11:00:00.000+01:00'
 ```
 
 **# Example (3)**
@@ -5460,13 +6286,13 @@ isToday()
 <small>Input:</small>
 
 ```ts
-'2021-10-28T22:06:00.484Z'
+'2025-09-25T21:01:25.511Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-10-28T22:06:00.484Z'
+'2025-09-25T21:01:25.511Z'
 ```
 
 **# Example (2)**
@@ -5512,7 +6338,7 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-10-28T22:06:00.485Z'
+'2025-09-25T21:01:25.511Z'
 ```
 
 <small>Output:</small>
@@ -5532,13 +6358,13 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-10-29T22:06:00.485Z'
+'2025-09-26T21:01:25.511Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-10-29T22:06:00.485Z'
+'2025-09-26T21:01:25.511Z'
 ```
 
 ### `isTuesday`
@@ -5838,7 +6664,7 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-10-28T22:06:00.488Z'
+'2025-09-25T21:01:25.511Z'
 ```
 
 <small>Output:</small>
@@ -5858,13 +6684,13 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-10-27T22:06:00.488Z'
+'2025-09-24T21:01:25.511Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-10-27T22:06:00.488Z'
+'2025-09-24T21:01:25.511Z'
 ```
 
 ## CATEGORY: Numeric
@@ -5959,7 +6785,7 @@ acosh()
 0
 ```
 
-Since this function doesn't work with numbers {'<=0'}, null will be returned
+Since this function doesn't work with numbers less than or equal to 0, null will be returned
 
 **# Example (2)**
 
@@ -15275,6 +16101,274 @@ getCIDRMax()
 
 ```ts
 getCIDRMax()
+```
+
+<small>Input:</small>
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/46'
+```
+
+<small>Output:</small>
+
+```ts
+'2001:db8:123:ffff:ffff:ffff:ffff:ffff'
+```
+
+### `getFirstIPInCIDR`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the first address of a CIDR range, all inclusive
+
+#### Accepts
+
+- `String`
+- `IPRange`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+getFirstIPInCIDR()
+```
+
+<small>Input:</small>
+
+```ts
+'8.8.12.118/24'
+```
+
+<small>Output:</small>
+
+```ts
+'8.8.12.0'
+```
+
+**# Example (2)**
+
+```ts
+getFirstIPInCIDR()
+```
+
+<small>Input:</small>
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/128'
+```
+
+<small>Output:</small>
+
+```ts
+'2001:db8:123:4567:89ab:cdef:1234:5678'
+```
+
+**# Example (3)**
+
+```ts
+getFirstIPInCIDR()
+```
+
+<small>Input:</small>
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/46'
+```
+
+<small>Output:</small>
+
+```ts
+'2001:db8:120::'
+```
+
+### `getLastIPInCIDR`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the last address of a CIDR range, all inclusive
+
+#### Accepts
+
+- `String`
+- `IPRange`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+getLastIPInCIDR()
+```
+
+<small>Input:</small>
+
+```ts
+'8.8.12.118/24'
+```
+
+<small>Output:</small>
+
+```ts
+'8.8.12.255'
+```
+
+**# Example (2)**
+
+```ts
+getLastIPInCIDR()
+```
+
+<small>Input:</small>
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/128'
+```
+
+<small>Output:</small>
+
+```ts
+'2001:db8:123:4567:89ab:cdef:1234:5678'
+```
+
+**# Example (3)**
+
+```ts
+getLastIPInCIDR()
+```
+
+<small>Input:</small>
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/46'
+```
+
+<small>Output:</small>
+
+```ts
+'2001:db8:123:ffff:ffff:ffff:ffff:ffff'
+```
+
+### `getFirstUsableIPInCIDR`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the first address of a CIDR range, excluding the network address
+
+#### Accepts
+
+- `String`
+- `IPRange`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+getFirstUsableIPInCIDR()
+```
+
+<small>Input:</small>
+
+```ts
+'8.8.12.118/24'
+```
+
+<small>Output:</small>
+
+```ts
+'8.8.12.1'
+```
+
+**# Example (2)**
+
+```ts
+getFirstUsableIPInCIDR()
+```
+
+<small>Input:</small>
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/128'
+```
+
+<small>Output:</small>
+
+```ts
+'2001:db8:123:4567:89ab:cdef:1234:5678'
+```
+
+**# Example (3)**
+
+```ts
+getFirstUsableIPInCIDR()
+```
+
+<small>Input:</small>
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/46'
+```
+
+<small>Output:</small>
+
+```ts
+'2001:db8:120::1'
+```
+
+### `getLastUsableIPInCIDR`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the last address of a CIDR range, excluding the broadcast address for IPv4 addresses
+
+#### Accepts
+
+- `String`
+- `IPRange`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+getLastUsableIPInCIDR()
+```
+
+<small>Input:</small>
+
+```ts
+'8.8.12.118/24'
+```
+
+<small>Output:</small>
+
+```ts
+'8.8.12.254'
+```
+
+**# Example (2)**
+
+```ts
+getLastUsableIPInCIDR()
+```
+
+<small>Input:</small>
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/128'
+```
+
+<small>Output:</small>
+
+```ts
+'2001:db8:123:4567:89ab:cdef:1234:5678'
+```
+
+**# Example (3)**
+
+```ts
+getLastUsableIPInCIDR()
 ```
 
 <small>Input:</small>
