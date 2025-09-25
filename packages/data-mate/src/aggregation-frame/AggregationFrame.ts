@@ -13,13 +13,13 @@ import {
 import { columnsToDataTypeConfig, makeKeyForRow } from '../data-frame/utils.js';
 
 /**
- * A deferred execution frame dedicated to running a aggregations.
+ * A deferred execution frame dedicated to running aggregations.
  *
  * This is different from a DataFrame for a few reasons:
- *  - GroupBy and aggregations have to run at the same time in-order to get the correctly results.
+ *  - GroupBy and aggregations have to run at the same time in-order to get the correct results.
  *  - The operations are added to an instruction set and in one optimized execution.
  *  - All methods in the AggregationFrame will mutate the execution
- *    instructions instead of return a new instance with the applied changes.
+ *    instructions instead of returning a new instance with the applied changes.
 */
 export class AggregationFrame<
     T extends Record<string, any>
@@ -732,7 +732,7 @@ export class AggregationFrame<
                 if (agg.key) {
                     if (isInGroupBy) {
                         throw new Error(
-                            `Invalid to combination of groupBy and ${agg.key} for field ${String(col.name)}`
+                            `Invalid combination of groupBy and ${agg.key} for field ${String(col.name)}`
                         );
                     }
                     keyAggs.set(col.name, keyAggMap[agg.key](col.vector));

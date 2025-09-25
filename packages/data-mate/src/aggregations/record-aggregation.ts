@@ -62,7 +62,7 @@ export const repository: Repository = {
 };
 
 function validateConfig(config: BatchConfig): ValidatedBatchConfig {
-    if (!isPlainObject(config)) throw new Error('Paramter config must be provided and be an object');
+    if (!isPlainObject(config)) throw new Error('Parameter config must be provided and be an object');
     if (!isString(config.source)) throw new Error(`Parameter source must be provided and be a string, received ${getTypeOf(config.source)}`);
     if (config.target && !isString(config.target)) throw new Error(`Parameter target must be a string, received ${getTypeOf(config.target)}`);
 

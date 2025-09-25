@@ -17,7 +17,7 @@ export const castConfig: FieldMetaTransform<CastArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.NONE,
     category: FunctionDefinitionCategory.JSON,
-    description: 'Converts the field to another type, this is also useful changing the metadata of field',
+    description: 'Converts the field to another type, this is also useful changing the metadata of a field',
     examples: [
         {
             args: { type: FieldType.Integer },
