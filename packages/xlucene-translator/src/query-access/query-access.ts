@@ -213,6 +213,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             minorVersion = 8,
             distribution = ElasticsearchDistribution.elasticsearch,
             version = '6.8.6',
+            aggregations = [],
+            groupBy = [],
             ...options
         } = opts ?? {};
 
@@ -221,7 +223,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             distribution,
             majorVersion,
             minorVersion,
-            version
+            version,
+            aggregations,
+            groupBy
         };
 
         const variables = Object.assign({}, this.variables, opts?.variables ?? {});
@@ -230,7 +234,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             throw new Error('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
         const params = { ..._params };
-
+        // TODO: should I restricting aggregations and groupBy here?
         const parser = this._restrict(query, _overrideParsedQuery);
 
         await ts.pImmediate();
