@@ -147,13 +147,15 @@ export class JobsService {
             });
         }
 
-        let currentResources = await this.executionService.listResourcesForJobId(jobId);
+        const currentResources = await this.executionService.listResourcesForJobId(jobId);
 
         if (currentResources.length > 0) {
-            currentResources = currentResources.flat();
+            const flattenedResources = currentResources.flat();
             const exIdsSet = new Set<string>();
-            for (const resource of currentResources) {
-                exIdsSet.add(resource.metadata.labels['teraslice.terascope.io/exId']);
+            for (const resource of flattenedResources) {
+                if (resource.metadata.labels) {
+                    exIdsSet.add(resource.metadata.labels['teraslice.terascope.io/exId']);
+                }
             }
             const exIdsArr = Array.from(exIdsSet);
             const exIdsString = exIdsArr.join(', ');
@@ -257,13 +259,15 @@ export class JobsService {
 
         // This will return any orphaned resources in k8s clustering
         // or an empty array in native clustering
-        let currentResources = await this.executionService.listResourcesForJobId(jobId);
+        const currentResources = await this.executionService.listResourcesForJobId(jobId);
 
         if (currentResources.length > 0) {
-            currentResources = currentResources.flat();
+            const flattenedResources = currentResources.flat();
             const exIdsSet = new Set<string>();
-            for (const resource of currentResources) {
-                exIdsSet.add(resource.metadata.labels['teraslice.terascope.io/exId']);
+            for (const resource of flattenedResources) {
+                if (resource.metadata.labels) {
+                    exIdsSet.add(resource.metadata.labels['teraslice.terascope.io/exId']);
+                }
             }
             const exIdsArr = Array.from(exIdsSet);
             const exIdsString = exIdsArr.join(', ');

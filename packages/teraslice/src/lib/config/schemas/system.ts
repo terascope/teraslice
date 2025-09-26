@@ -225,7 +225,7 @@ export const schema = {
     cluster_manager_type: {
         doc: 'determines which cluster system should be used',
         default: 'native',
-        format: ['native', 'kubernetes', 'kubernetesV2']
+        format: ['native', 'kubernetesV2']
     },
     cpu: {
         doc: 'number of cpus to reserve per teraslice worker in kubernetes',

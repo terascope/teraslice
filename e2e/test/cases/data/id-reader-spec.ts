@@ -22,7 +22,7 @@ describe.skip('id reader', () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
 
@@ -42,7 +42,7 @@ describe.skip('id reader', () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'reindex by hex id';
@@ -63,7 +63,7 @@ describe.skip('id reader', () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'reindex by hex id (range=a..e)';
@@ -86,7 +86,7 @@ describe.skip('id reader', () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         // Job needs to be able to run long enough to cycle
