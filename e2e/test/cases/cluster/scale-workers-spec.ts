@@ -15,7 +15,7 @@ describe('scale execution', () => {
 
         const jobSpec = terasliceHarness.newJob('generator');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'scale execution';

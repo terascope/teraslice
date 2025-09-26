@@ -20,7 +20,7 @@ import { K8sDeploymentResource } from './k8sDeploymentResource.js';
  Exceptions
  rejected - when a job is rejected prior to scheduling
  failed - when there is an error while the job is running
- aborted - when a job was running at the point when the cluster shutsdown
+ aborted - when a job was running at the point when the cluster shuts down
  */
 
 export class KubernetesClusterBackendV2 {
