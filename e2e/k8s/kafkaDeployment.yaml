@@ -20,7 +20,7 @@ spec:
       containers:
       - name: cpkafka
         # version must match KAFKA_IMAGE_VERSION from ts-scripts/src/helpers/config.ts, which is
-        # mapped to the KAFKA_VERSION set in e2e/package.json > script > "test:k8s" or "test:k8sNoBuild"
+        # mapped to the KAFKA_VERSION set in e2e/package.json > script > "test:k8sV2" or "test:k8sV2NoBuild"
         image: confluentinc/cp-kafka:7.1.9
         env:
           - name: KAFKA_BROKER_ID

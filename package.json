@@ -34,7 +34,6 @@
         "k8s:rebuild": "ts-scripts k8s-env --rebuild",
         "k8s:restart": "ts-scripts k8s-env --rebuild --skip-build",
         "k8s:utility": "ENABLE_UTILITY_SVC=true TEST_OPENSEARCH=true OPENSEARCH_VERSION='2.15.0' ts-scripts k8s-env",
-        "k8sV2": "TEST_OPENSEARCH=true OPENSEARCH_VERSION='2.15.0' CLUSTERING_TYPE='kubernetesV2' ts-scripts k8s-env",
         "lint": "eslint",
         "lint:fix": "yarn lint --fix && yarn sync",
         "setup": "yarn ${YARN_SETUP_ARGS:-''} && yarn run build --force",

@@ -20,7 +20,7 @@ spec:
       containers:
       - name: zookeeper
         # version must match ZOOKEEPER_VERSION from ts-scripts/src/helpers/config.ts, which is
-        # mapped to the KAFKA_VERSION set in e2e/package.json > script > "test:k8s" or "test:k8sNoBuild"
+        # mapped to the KAFKA_VERSION set in e2e/package.json > script > "test:k8sV2" or "test:k8sV2NoBuild"
         image: confluentinc/cp-zookeeper:7.1.9
         env:
           - name: ZOOKEEPER_CLIENT_PORT
