@@ -40,12 +40,12 @@ NOTE: These `yarn` commands must be run from the `e2e` subdirectory:
 # change into the e2e subdirectory
 cd e2e
 # use the default version of nodejs
-yarn test:k8s
+yarn test:k8sV2
 # test against a specific version of nodejs
-NODE_VERSION=18.18.2 yarn test:k8s
+NODE_VERSION=18.18.2 yarn test:k8sV2
 # run the tests using an existing dev Teraslice image (handy for working on
 # ts-scripts)
-yarn test:k8sNoBuild
+yarn test:k8sV2NoBuild
 ```
 
 Some of the Kubernetes End-to-End tests are shared with the standard End-to-End
@@ -66,12 +66,10 @@ yarn k8s
 TEST_ELASTICSEARCH='true' ELASTICSEARCH_PORT='9200' yarn run ts-scripts k8s-env
 ```
 
-If running on an ARM based processor the default elasticsearch (6.8.6) will fail.
-Set the ELASTICSEARCH_VERSION env variable to a version with an arm image.
-
 ```bash
+# launch with a specific OPENSEARCH_VERSION or ELASTICSEARCH_VERSION; defaults to Opensearch 2.15.0
 # from the teraslice root directory:
-ELASTICSEARCH_VERSION=7.9.3 yarn k8s
+OPENSEARCH_VERSION='3.0.0' yarn k8s
 
 # from any other directory:
 ELASTICSEARCH_VERSION=7.9.3 TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 yarn run ts-scripts k8s-env
@@ -87,7 +85,7 @@ yarn k8s --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2
 TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2
 ```
 
-If you want to run additional services you must set the appropriate environmental variables. Currently only elasticsearch and kafka are supported (see issue [#3530](https://github.com/terascope/teraslice/issues/3530)).
+If you want to run additional services you must set the appropriate environmental variables. Currently only minio, elasticsearch and kafka are supported (see issue [#3530](https://github.com/terascope/teraslice/issues/3530)).
 
 ```bash
 # from the teraslice root directory:

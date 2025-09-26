@@ -4,7 +4,7 @@ export interface K8sEnvOptions {
     kindClusterName: string;
     terasliceImage?: string;
     resetStore?: boolean;
-    clusteringType: 'kubernetes' | 'kubernetesV2';
+    clusteringType: 'kubernetesV2';
     keepOpen: boolean;
     dev: boolean;
 }

@@ -37,7 +37,7 @@ export default async () => {
     // Try to load in the cache before trying to download
     loadAssetCache();
 
-    if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+    if (TEST_PLATFORM === 'kubernetesV2') {
         await downloadAssets();
         if (USE_HELMFILE) {
             await helmfileCommand('sync', TEST_PLATFORM);
