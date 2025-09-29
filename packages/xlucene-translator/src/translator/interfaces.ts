@@ -2,7 +2,7 @@ import type { Logger } from '@terascope/utils';
 import {
     SortOrder, xLuceneTypeConfig, xLuceneVariables,
     GeoDistanceUnit, GeoPoint, ClientMetadata,
-    TranslatorAggregations
+    TranslatorAggregations, GroupByAggregations
 } from '@terascope/types';
 import { ParserOptions } from 'xlucene-parser';
 
@@ -24,6 +24,6 @@ export interface UtilsTranslateQueryOptions extends Partial<ClientMetadata> {
     geo_sort_point?: GeoPoint;
     geo_sort_order: SortOrder;
     geo_sort_unit: GeoDistanceUnit;
-    groupBy: string[];
+    groupBy: GroupByAggregations;
     aggregations: TranslatorAggregations;
 }

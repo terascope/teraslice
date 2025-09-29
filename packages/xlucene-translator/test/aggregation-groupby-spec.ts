@@ -262,28 +262,6 @@ describe('aggregation like searches', () => {
         expect(result).toBeGreaterThan(0);
     });
 
-    // it('should perform standalone count aggregation searches', async () => {
-    //     const searchParams = await access.restrictSearchQuery(
-    //         '',
-    //         {
-    //             aggregations: [{ field: 'foo', aggregation: 'count' }],
-    //             ...clientMetadata,
-    //         }
-    //     );
-
-    //     const expectedSumResult = uniq(
-    //         searchData.map((data) => data.foo)
-    //             .filter((val) => val !== undefined)
-    //     ).length;
-
-    //     const response = await client.search(searchParams);
-    //     const result = get(response, 'aggregations.aggregation_result.value');
-
-    //     expect(result).toBeDefined();
-    //     expect(result).toEqual(expectedSumResult);
-    //     expect(result).toBeGreaterThan(0);
-    // });
-
     it('should perform standalone unique aggregation searches', async () => {
         const searchParams = await access.restrictSearchQuery(
             '',
@@ -306,11 +284,31 @@ describe('aggregation like searches', () => {
         expect(result).toBeGreaterThan(0);
     });
 
+    it('should check fields to make sure aggregations are not done on restricted fields', async () => {
+        await expect(access.restrictSearchQuery(
+            '',
+            {
+                aggregations: [{ field: 'restrictedField', aggregation: 'unique' }],
+                ...clientMetadata,
+            }
+        )).rejects.toThrow();
+    });
+
+    it('should check fields to make sure groupBy are not done on restricted fields', async () => {
+        await expect(access.restrictSearchQuery(
+            '',
+            {
+                groupBy: { fields: ['restrictedField'] },
+                ...clientMetadata,
+            }
+        )).rejects.toThrow();
+    });
+
     it('should perform standalone groupBy queries, this only returns a count', async () => {
         const searchParams = await access.restrictSearchQuery(
             '',
             {
-                groupBy: ['bool'],
+                groupBy: { fields: ['bool'] },
                 ...clientMetadata,
             }
         );
@@ -329,6 +327,7 @@ describe('aggregation like searches', () => {
         });
 
         const response = await client.search(searchParams);
+
         const result = get(response, 'aggregations.aggregation_result.buckets', []) as Record<string, any>;
         const trueCount = result
             .filter((rec: Record<string, any>) => rec['key_as_string'] === 'true')
@@ -347,7 +346,7 @@ describe('aggregation like searches', () => {
         const searchParams = await access.restrictSearchQuery(
             'foo:hello',
             {
-                groupBy: ['bool'],
+                groupBy: { fields: ['bool'], size: 10000 },
                 ...clientMetadata,
             }
         );
@@ -388,7 +387,7 @@ describe('aggregation like searches', () => {
         const searchParams = await access.restrictSearchQuery(
             '',
             {
-                groupBy: ['bool', 'foo'],
+                groupBy: { fields: ['bool', 'foo'], doc_count: 10000, size: 400000 },
                 ...clientMetadata,
             }
         );
@@ -424,7 +423,7 @@ describe('aggregation like searches', () => {
         const searchParams = await access.restrictSearchQuery(
             '',
             {
-                groupBy: ['foo'],
+                groupBy: { fields: ['foo'] },
                 aggregations: [{ field: 'num', aggregation: 'sum' }],
                 ...clientMetadata,
             }

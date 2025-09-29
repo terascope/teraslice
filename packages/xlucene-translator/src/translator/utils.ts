@@ -20,7 +20,7 @@ import type {
     MatchAllQuery, ConstantScoreQuery, MatchNoneQuery,
     AnyQuery, BoolQuery, ExistsQuery, RegExprQuery,
     BoolQueryTypes, KNNQuery, AggregationTypes,
-    TranslatorAggregations
+    TranslatorAggregations, GroupByAggregations
 } from '@terascope/types';
 import { UtilsTranslateQueryOptions } from './interfaces.js';
 
@@ -135,7 +135,7 @@ export function translateQuery(
 
     return {
         query: topLevelQuery,
-        ...(aggregations && { aggregations, size: 0 }),
+        ...(aggregations && { aggregations, size: 100 }),
         // avoid setting it to undefined
         ...(sort && { sort })
     };
@@ -150,22 +150,25 @@ const AGGREGATION_DICTIONARY = {
     unique: 'cardinality'
 } as Record<AggregationTypes, string>;
 
-function makeGroupByQuerySegment(groupBy: string[]) {
-    if (groupBy.length > 1) {
-        const terms = groupBy.map((str) => {
+function makeGroupByQuerySegment(groupBy: GroupByAggregations) {
+    const { fields, ...params } = groupBy;
+    if (groupBy.fields.length > 1) {
+        const terms = fields.map((str) => {
             return { field: str };
         });
 
         return {
             multi_terms: {
-                terms
+                terms,
+                ...params
             }
         };
     } else {
-        const field = groupBy[0];
+        const field = fields[0];
         return {
             terms: {
-                field
+                field,
+                ...params
             }
         };
     }
@@ -182,14 +185,14 @@ function makeAggregationQuerySegment(aggregations: TranslatorAggregations) {
     return {
         [aggType]: {
             field,
-            ...(aggType === 'cardinality' && { precision_threshold: 40000 })
+            ...(aggType === 'cardinality' && { precision_threshold: 40000 }),
         }
     };
 }
 
 function buildAggregation(options: UtilsTranslateQueryOptions): undefined | Record<string, any> {
     const { aggregations, groupBy } = options;
-    const groupByLength = groupBy.length;
+    const groupByLength = groupBy.fields.length;
     const aggregationsLength = aggregations.length;
 
     if (aggregationsLength > 0 || groupByLength > 0) {

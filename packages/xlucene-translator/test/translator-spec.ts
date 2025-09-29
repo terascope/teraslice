@@ -29,7 +29,7 @@ describe('Translator', () => {
             majorVersion: 6,
             distribution: ElasticsearchDistribution.elasticsearch,
             aggregations: [],
-            groupBy: []
+            groupBy: { fields: [] }
         })).toEqual({
             query: {
                 match_none: {}

@@ -5,6 +5,21 @@ import * as geo from './geo-interfaces.js';
 */
 export type SortOrder = 'asc' | 'desc';
 
+export type AggregationTypes = 'min' | 'max' | 'sum' | 'avg' | 'unique';
+
+export interface TranslatorAggregationConfig {
+    field: string;
+    aggregation: AggregationTypes;
+}
+
+export type TranslatorAggregations = TranslatorAggregationConfig[];
+
+export interface GroupByAggregations {
+    fields: string[];
+    size?: number;
+    doc_count?: number;
+}
+
 export interface ElasticsearchDSLOptions extends Partial<ClientMetadata> {
     /**
      * If a default_geo_field is set, this is required to enable sorting
@@ -12,6 +27,8 @@ export interface ElasticsearchDSLOptions extends Partial<ClientMetadata> {
     geo_sort_point?: geo.GeoPoint;
     geo_sort_order?: SortOrder;
     geo_sort_unit?: geo.GeoDistanceUnit;
+    groupBy?: GroupByAggregations;
+    aggregations?: TranslatorAggregations;
 }
 
 export type BoolQuery = {
