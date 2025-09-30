@@ -41,13 +41,13 @@
         "ms": "~2.1.3",
         "nanoid": "~5.1.5",
         "p-event": "~7.0.0",
-        "socket.io": "~1.7.4",
-        "socket.io-client": "~1.7.4"
+        "socket.io": "^2.0.0",
+        "socket.io-client": "^2.0.0"
     },
     "devDependencies": {
         "@types/ms": "~0.7.34",
-        "@types/socket.io": "~2.1.13",
-        "@types/socket.io-client": "~1.4.36"
+        "@types/socket.io": "~2.1.0",
+        "@types/socket.io-client": "~1.4.0"
     },
     "engines": {
         "node": ">=22.0.0",
