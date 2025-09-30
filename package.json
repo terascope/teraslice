@@ -28,7 +28,7 @@
         "docker:saveImages": "ts-scripts images save",
         "docs": "ts-scripts docs",
         "k8s": "TEST_OPENSEARCH=true OPENSEARCH_VERSION='2.15.0' ts-scripts k8s-env",
-        "k8s:kafka": "TEST_OPENSEARCH=true OPENSEARCH_VERSION='2.15.0' TEST_KAFKA=true KAFKA_PORT=9092 ts-scripts k8s-env",
+        "k8s:kafka": "TEST_OPENSEARCH=true OPENSEARCH_VERSION='2.15.0' TEST_KAFKA=true KAFKA_DOCKER_IMAGE='apache/kafka' KAFKA_PORT=9094 ts-scripts k8s-env",
         "k8s:minio": "TEST_MINIO=true MINIO_PORT=9000 TEST_OPENSEARCH=true OPENSEARCH_VERSION='2.15.0' ts-scripts k8s-env",
         "k8s:noBuild": "TEST_OPENSEARCH=true OPENSEARCH_VERSION='2.15.0' SKIP_DOCKER_BUILD_IN_K8S=true ts-scripts k8s-env",
         "k8s:rebuild": "ts-scripts k8s-env --rebuild",
