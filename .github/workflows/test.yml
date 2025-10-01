@@ -2,7 +2,7 @@ name: Teraslice CI Tests
 # this will technically run again on merge to master, should limit it
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ master, release/teraslice-v* ]
 env:
   NODE_VERSIONS: '[22, 24.4]'
   NODE_VERSION_MAIN: '22'
