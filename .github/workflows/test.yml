@@ -169,7 +169,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}/${{ github.run_id }}.tar 
 
   e2e-k8s-v2-tests:
