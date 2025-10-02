@@ -164,13 +164,13 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           tags: ${{ github.run_id }}-nodev${{ matrix.node-version }}:latest
-          outputs: type=docker,dest=${{ runner.temp }}/${{ github.run_id }}.tar
+          outputs: type=docker,dest=${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-          path: ${{ runner.temp }}/${{ github.run_id }}.tar 
+          path: ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar 
 
   e2e-k8s-v2-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
