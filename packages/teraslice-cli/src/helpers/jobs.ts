@@ -27,14 +27,14 @@ const statusEnum = Teraslice.ExecutionStatusEnum;
 
 const display = new Display();
 
-/// Extracts verison of teraslice out of kubernetes image name
+/// Extracts version of teraslice out of kubernetes image name
 function getK8sJobVersion(imageTag: string | any): string {
     // Define the version number regex pattern
     const versionRegex = /v(\d+\.\d+\.\d+)/;
 
     // Use match to find the first match in the input string
     // It's important that the teraslice version is first in
-    // the image tag or it will give an incorrect verion number
+    // the image tag or it will give an incorrect version number
     const match = imageTag.match(versionRegex);
 
     // If a match is found, return the entire matched version
@@ -95,7 +95,7 @@ export default class Jobs {
         for (const jobFile of cliConfig.args.jobFile) {
             const jobConfig = getJobConfigFromFile(cliConfig.args.srcDir, jobFile) as JobConfigFile;
             if (
-                (clusterStats.clustering_type === 'kubernetes' || clusterStats.clustering_type === 'kubernetesV2')
+                clusterStats.clustering_type === 'kubernetesV2'
                 && jobConfig.kubernetes_image !== undefined
                 && !jobConfig.kubernetes_image?.includes(clusterStats.teraslice_version)
                 && !jobConfig.kubernetes_image?.includes('dev-')
@@ -365,7 +365,7 @@ export default class Jobs {
 
         const newStatus = statusUpdate.newStatus! as Teraslice.ExecutionStatus;
 
-        // update job status incase of further job processes
+        // update job status in case of further job processes
         job.status = newStatus;
 
         if (statusUpdate.error === true) {
