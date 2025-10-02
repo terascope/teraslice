@@ -52,7 +52,7 @@ const cmd: CommandModule = {
                 description: 'Clustering version teraslice will use',
                 type: 'string',
                 default: config.CLUSTERING_TYPE,
-                choices: ['kubernetes', 'kubernetesV2']
+                choices: ['kubernetesV2']
             })
             .option('keep-open', {
                 description: 'This will cause the kind cluster to remain open after a failure (so it can be debugged).',
@@ -79,7 +79,7 @@ const cmd: CommandModule = {
             kindClusterName: argv['cluster-name'] as string,
             terasliceImage: argv['teraslice-image'] as string,
             dev: Boolean(argv.dev),
-            clusteringType: argv['clustering-type'] as 'kubernetes' | 'kubernetesV2',
+            clusteringType: argv['clustering-type'] as 'kubernetesV2',
             keepOpen: Boolean(argv['keep-open']),
         };
 

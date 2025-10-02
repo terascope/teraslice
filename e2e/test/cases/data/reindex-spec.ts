@@ -14,7 +14,7 @@ describe('reindex', () => {
     it('should work for simple case', async () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         // Set resource constraints on workers and ex controllers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
             jobSpec.cpu_execution_controller = 0.4;
         }
@@ -37,7 +37,7 @@ describe('reindex', () => {
         jobSpec.name = 'basic reindex';
         const specIndex = terasliceHarness.newSpecIndex('reindex');
         // Set resource constraints on workers and ex controllers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
             jobSpec.cpu_execution_controller = 0.4;
         }
@@ -82,7 +82,7 @@ describe('reindex', () => {
         const specIndex = terasliceHarness.newSpecIndex('reindex');
         jobSpec.name = `reindex ${iterations} times`;
         // Set resource constraints on workers and ex controllers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
             jobSpec.cpu_execution_controller = 0.4;
         }
@@ -112,7 +112,7 @@ describe('reindex', () => {
         const index = terasliceHarness.newSpecIndex('reindex');
         jobSpec.name = 'reindex (with recovery)';
         // Set resource constraints on workers and ex controllers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
             jobSpec.cpu_execution_controller = 0.4;
         }

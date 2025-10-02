@@ -210,7 +210,7 @@ async function runE2ETest(
     // Dynamically generate any needed certs before any tests run
     await generateTestCaCerts();
 
-    if (options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2') {
+    if (options.clusteringType === 'kubernetesV2') {
         try {
             const kindInstalled = await isKindInstalled();
             if (!kindInstalled && !isCI) {
@@ -288,7 +288,7 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
-    if (kind && (options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2')) {
+    if (kind && options.clusteringType === 'kubernetesV2') {
         try {
             await kind.loadTerasliceImage(e2eImage);
             if (options.useHelmfile) {
@@ -366,8 +366,7 @@ async function runE2ETest(
         }
     }
 
-    if ((options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2')
-        && !options.keepOpen && kind) {
+    if (options.clusteringType === 'kubernetesV2' && !options.keepOpen && kind) {
         await kind.destroyCluster();
     }
 }

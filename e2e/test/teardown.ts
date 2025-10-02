@@ -26,7 +26,7 @@ export async function teardown(testClient?: Client) {
     const errors = [];
 
     try {
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             if (USE_HELMFILE) {
                 await helmfileDestroy('teraslice');
             } else {
