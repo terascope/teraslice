@@ -149,12 +149,36 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true # optional (default = false)
 
+  build-dev-docker-images:
+    runs-on: ubuntu-latest
+    needs: [compute-node-version-vars]
+    strategy:
+      matrix:
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and export
+        uses: docker/build-push-action@v6
+        with:
+          build-args: |
+            NODE_VERSION=${{ matrix.node-version }}
+          tags: ${{ github.run_id }}-nodev${{ matrix.node-version }}:latest
+          outputs: type=docker,dest=${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          path: ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar 
+
   e2e-k8s-v2-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -194,6 +218,17 @@ jobs:
           restore-keys: |
             docker-images-${{ hashFiles('./images/image-list.txt') }}-
             docker-images-
+
+      - name: Download dev docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          path: ${{ runner.temp }}
+
+      - name: Load dev docker image
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          docker image ls -a
 
       - name: Compile e2e code
         run: yarn build
@@ -239,13 +274,13 @@ jobs:
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2Helmfile
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2Helmfile
         working-directory: ./e2e
 
   e2e-k8s-v2-encrypted-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -286,6 +321,17 @@ jobs:
             docker-images-${{ hashFiles('./images/image-list.txt') }}-
             docker-images-
 
+      - name: Download dev docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          path: ${{ runner.temp }}
+
+      - name: Load dev docker image
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          docker image ls -a
+          
       - name: Install mkcert
         run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
 
@@ -343,7 +389,7 @@ jobs:
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} yarn test:k8sV2HelmfileEncrypted
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2HelmfileEncrypted
         working-directory: ./e2e
 
   e2e-external-storage-tests:
@@ -351,7 +397,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -392,6 +438,17 @@ jobs:
             docker-images-${{ hashFiles('./images/image-list.txt') }}-
             docker-images-
 
+      - name: Download dev docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          path: ${{ runner.temp }}
+
+      - name: Load dev docker image
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          docker image ls -a
+          
       - name: Compile e2e code
         run: yarn build
         working-directory: ./e2e
@@ -416,7 +473,7 @@ jobs:
           export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} yarn test:s3AssetStorage
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:s3AssetStorage
         working-directory: ./e2e
 
   teraslice-elasticsearch-tests:
@@ -768,7 +825,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit]
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -810,6 +867,17 @@ jobs:
             docker-images-${{ hashFiles('./images/image-list.txt') }}-
             docker-images-
 
+      - name: Download dev docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          path: ${{ runner.temp }}
+
+      - name: Load dev docker image
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          docker image ls -a
+          
       - name: Compile e2e code
         run: yarn build
         working-directory: ./e2e
@@ -835,7 +903,7 @@ jobs:
           export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} yarn test:${{ matrix.search-version }}
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:${{ matrix.search-version }}
         working-directory: ./e2e
 
   test-website:
@@ -859,6 +927,7 @@ jobs:
 
   check-docker-limit-after:
     needs: [
+      build-dev-docker-images,
       e2e-k8s-v2-encrypted-tests,
       e2e-external-storage-tests,
       e2e-k8s-v2-tests,
@@ -872,6 +941,7 @@ jobs:
 
   check-github-api-limit-after:
     needs: [
+      build-dev-docker-images,
       e2e-k8s-v2-encrypted-tests,
       e2e-external-storage-tests,
       e2e-k8s-v2-tests,
@@ -887,6 +957,7 @@ jobs:
     needs:
       [
         linux-unit-tests,
+        build-dev-docker-images,
         e2e-k8s-v2-encrypted-tests,
         e2e-external-storage-tests,
         e2e-k8s-v2-tests,
