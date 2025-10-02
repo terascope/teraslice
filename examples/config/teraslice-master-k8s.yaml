@@ -11,7 +11,7 @@ terafoundation:
                     - "http://localhost:9200"
 
 teraslice:
-    cluster_manager_type: 'kubernetes'
+    cluster_manager_type: 'kubernetesV2'
     master: true
     master_hostname: "127.0.0.1"
     name: "teracluster"

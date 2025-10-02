@@ -898,7 +898,7 @@ export async function helmfileDestroy(selector: string) {
     }
 }
 
-export async function helmfileCommand(command: string, clusteringType: 'kubernetes' | 'kubernetesV2', devMode = false) {
+export async function helmfileCommand(command: string, clusteringType: 'kubernetesV2', devMode = false) {
     const e2eDir = getE2EDir();
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
@@ -918,7 +918,7 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
     logger.debug(`helmfile ${command}:\n${subprocess.stdout}`);
 }
 
-export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetes' | 'kubernetesV2', devMode = false) {
+export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2', devMode = false) {
     await helmfileCommand('diff', clusteringType, devMode);
     await helmfileCommand('sync', clusteringType, devMode);
 
@@ -1025,14 +1025,14 @@ function getAdminDnFromCert(): string {
  * - Adds extraVolumes, extraVolumeMounts and env values if running in dev mode.
  * - Generates a temporary directory to store the modified `values.yaml`.
  *
- * @param { 'kubernetes' | 'kubernetesV2' } clusteringType - backend cluster manager type
+ * @param { 'kubernetesV2' } clusteringType - backend cluster manager type
  * @param { boolean } devMode - Mount local teraslice to k8s resources for faster development.
  * @returns An object containing:
  * - `valuesPath` - Path to the generated `values.yaml` file.
  * - `valuesDir` - Path to the temporary directory containing the file.
  */
 function generateHelmValuesFromServices(
-    clusteringType: 'kubernetes' | 'kubernetesV2',
+    clusteringType: 'kubernetesV2',
     devMode: boolean
 ): { valuesPath: string; valuesDir: string } {
     // Grab default values from the e2e/helm/values.yaml

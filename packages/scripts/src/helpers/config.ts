@@ -218,7 +218,7 @@ export const DEFAULT_NODE_VERSION = '22';
 export const NODE_VERSION = process.env.NODE_VERSION || DEFAULT_NODE_VERSION;
 
 export const {
-    CLUSTERING_TYPE = 'kubernetes',
+    CLUSTERING_TYPE = 'kubernetesV2',
     TEST_PLATFORM = 'native',
     K8S_VERSION = undefined,
     TERASLICE_IMAGE = undefined

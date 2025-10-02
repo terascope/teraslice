@@ -95,7 +95,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 description: 'Clustering platform for e2e tests',
                 type: 'string',
                 default: config.TEST_PLATFORM,
-                choices: ['native', 'kubernetes', 'kubernetesV2']
+                choices: ['native', 'kubernetesV2']
             })
             .option('skip-image-deletion', {
                 description: 'Skip the deletion of docker images from cache after loading into docker.\n This is useful if a CI job calls `ts-scripts test` more than once.',
@@ -129,7 +129,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const useExistingServices = hoistJestArg(argv, 'use-existing-services', 'boolean');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
-        const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native' | 'kubernetes' | 'kubernetesV2';
+        const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native' | 'kubernetesV2';
         const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
         const skipImageDeletion = hoistJestArg(argv, 'skip-image-deletion', 'boolean');
         const useHelmfile = hoistJestArg(argv, 'use-helmfile', 'boolean');
