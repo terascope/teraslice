@@ -134,7 +134,7 @@ describe('Test Helpers', () => {
 
     describe('MockPromMetrics', () => {
         const context = new TestContext('test-prom-metrics');
-        context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
+        context.sysconfig.teraslice.cluster_manager_type = 'kubernetesV2';
         const config = {
             terasliceName: context.sysconfig.teraslice.name,
             assignment: 'master',
