@@ -491,7 +491,7 @@ export class ExecutionService {
                 }
 
                 const clusteringType = this.context.sysconfig.teraslice.cluster_manager_type;
-                if (clusteringType === 'kubernetes' || clusteringType === 'kubernetesV2'
+                if (clusteringType === 'kubernetesV2'
                 ) {
                     // Since this condition is only hit in cases where the pods
                     // are never scheduled, all this call to stopExecution

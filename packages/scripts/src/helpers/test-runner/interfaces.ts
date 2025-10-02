@@ -13,7 +13,7 @@ export type TestOptions = {
     useExistingServices: boolean;
     jestArgs?: string[];
     ignoreMount: boolean;
-    clusteringType: 'native' | 'kubernetes' | 'kubernetesV2';
+    clusteringType: 'native' | 'kubernetesV2';
     kindClusterName: string;
     skipImageDeletion: boolean;
     useHelmfile: boolean;
