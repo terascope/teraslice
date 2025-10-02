@@ -150,9 +150,8 @@ jobs:
           verbose: true # optional (default = false)
 
   build-dev-docker-images:
-    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, determine-tests-based-off-commit]
+    needs: [compute-node-version-vars]
     strategy:
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
@@ -163,6 +162,8 @@ jobs:
       - name: Build and export
         uses: docker/build-push-action@v6
         with:
+          build-args: |
+            NODE_VERSION=${{ matrix.node-version }}
           tags: ${{ github.run_id }}-nodev${{ matrix.node-version }}:latest
           outputs: type=docker,dest=${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
 
@@ -226,7 +227,6 @@ jobs:
 
       - name: Load dev docker image
         run: |
-          ls -la ${{ runner.temp }}
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
 
