@@ -221,11 +221,12 @@ jobs:
       - name: Download dev docker image artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}
 
       - name: Load dev docker image
         run: |
+          ls -la ${{ runner.temp }}
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
 
@@ -323,7 +324,7 @@ jobs:
       - name: Download dev docker image artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}
 
       - name: Load dev docker image
@@ -440,7 +441,7 @@ jobs:
       - name: Download dev docker image artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}
 
       - name: Load dev docker image
@@ -869,7 +870,7 @@ jobs:
       - name: Download dev docker image artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}
 
       - name: Load dev docker image
