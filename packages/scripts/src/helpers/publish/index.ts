@@ -1,6 +1,5 @@
 import {
-    concat, pMap,
-    isString, toHumanTime
+    pMap, isString, toHumanTime
 } from '@terascope/utils';
 import { PackageInfo } from '../interfaces.js';
 import { listPackages, getMainPackageInfo, getPublishTag } from '../packages.js';
@@ -160,13 +159,15 @@ async function publishToDocker(options: PublishOptions) {
     if (options.dryRun) {
         signale.info(`[DRY RUN] - skipping publish of docker images ${imagesToPush.join(', ')}`);
     } else {
+        imagesToPush.push(devImage);
         signale.info(`publishing docker images ${imagesToPush.join(', ')}`);
-        await pMap(concat(
+        await pMap(
             imagesToPush,
-            devImage,
-        ), dockerPush, {
-            concurrency: 1,
-            stopOnError: false,
-        });
+            dockerPush,
+            {
+                concurrency: 1,
+                stopOnError: false,
+            }
+        );
     }
 }
