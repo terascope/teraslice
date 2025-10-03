@@ -19,7 +19,8 @@ import type {
     RangeQuery, AnyQuerySort, ElasticsearchDSLResult,
     MatchAllQuery, ConstantScoreQuery, MatchNoneQuery,
     AnyQuery, BoolQuery, ExistsQuery, RegExprQuery,
-    BoolQueryTypes, KNNQuery
+    BoolQueryTypes, KNNQuery, AggregationTypes,
+    TranslatorAggregations, GroupByAggregations
 } from '@terascope/types';
 import { UtilsTranslateQueryOptions } from './interfaces.js';
 
@@ -48,6 +49,7 @@ interface QueryContext extends UtilsTranslateQueryOptions {
 export function translateQuery(
     parser: Parser,
     options: UtilsTranslateQueryOptions
+    // TODO: this is to restrictive of a type, should use what opensearch provides
 ): ElasticsearchDSLResult {
     const context: QueryContext = {
         ...options
@@ -129,11 +131,94 @@ export function translateQuery(
         };
     }
 
+    const aggregations = buildAggregation(options);
+
     return {
         query: topLevelQuery,
+        ...(aggregations && { aggregations, size: 100 }),
         // avoid setting it to undefined
         ...(sort && { sort })
     };
+}
+
+const AGGREGATION_DICTIONARY = {
+    min: 'min',
+    max: 'max',
+    sum: 'sum',
+    avg: 'avg',
+    count: '',
+    unique: 'cardinality'
+} as Record<AggregationTypes, string>;
+
+function makeGroupByQuerySegment(groupBy: GroupByAggregations) {
+    const { fields, ...params } = groupBy;
+    if (groupBy.fields.length > 1) {
+        const terms = fields.map((str) => {
+            return { field: str };
+        });
+
+        return {
+            multi_terms: {
+                terms,
+                ...params
+            }
+        };
+    } else {
+        const field = fields[0];
+        return {
+            terms: {
+                field,
+                ...params
+            }
+        };
+    }
+}
+
+function makeAggregationQuerySegment(aggregations: TranslatorAggregations) {
+    const { field, aggregation } = aggregations[0];
+
+    const aggType = AGGREGATION_DICTIONARY[aggregation];
+    if (!aggType) {
+        throw new Error(`Unsupported aggregation type: ${aggregation}`);
+    }
+
+    return {
+        [aggType]: {
+            field,
+            ...(aggType === 'cardinality' && { precision_threshold: 40000 }),
+        }
+    };
+}
+
+function buildAggregation(options: UtilsTranslateQueryOptions): undefined | Record<string, any> {
+    const { aggregations, groupBy } = options;
+    const groupByLength = groupBy.fields.length;
+    const aggregationsLength = aggregations.length;
+
+    if (aggregationsLength > 0 || groupByLength > 0) {
+        if (aggregationsLength > 0 && groupByLength > 0) {
+            return {
+                aggregation_result: {
+                    ...makeGroupByQuerySegment(groupBy),
+                    aggregations: {
+                        aggregation_result: {
+                            ...makeAggregationQuerySegment(aggregations)
+                        }
+                    }
+                }
+            };
+        } else if (groupByLength > 0) {
+            return {
+                aggregation_result: makeGroupByQuerySegment(groupBy)
+            };
+        } else if (aggregations.length > 0) {
+            return {
+                aggregation_result: makeAggregationQuerySegment(aggregations)
+            };
+        }
+    }
+
+    return;
 }
 
 function buildTermLevelQuery(

@@ -7,7 +7,8 @@ import {
     xLuceneTypeConfig,
     xLuceneFieldType,
     ElasticsearchDistribution,
-    ClientParams
+    ClientParams,
+    GroupByAggregations
 } from '@terascope/types';
 import { CachedTranslator } from '../translator/index.js';
 import * as i from './interfaces.js';
@@ -213,6 +214,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             minorVersion = 8,
             distribution = ElasticsearchDistribution.elasticsearch,
             version = '6.8.6',
+            aggregations = [],
+            groupBy = { fields: [] as string[] } as GroupByAggregations,
             ...options
         } = opts ?? {};
 
@@ -221,7 +224,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             distribution,
             majorVersion,
             minorVersion,
-            version
+            version,
+            aggregations,
+            groupBy
         };
 
         const variables = Object.assign({}, this.variables, opts?.variables ?? {});
@@ -230,8 +235,34 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             throw new Error('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
         const params = { ..._params };
-
+        // TODO: should I restricting aggregations and groupBy here?
         const parser = this._restrict(query, _overrideParsedQuery);
+
+        if (aggregations.length > 0) {
+            aggregations.forEach((agg) => {
+                if (this._isFieldRestricted(agg.field)) {
+                    throw new ts.TSError(`Parameter aggregation field ${agg.field} in query is restricted`, {
+                        statusCode: 403,
+                        context: {
+                            safe: true
+                        }
+                    });
+                }
+            });
+        }
+
+        if (groupBy && groupBy.fields.length > 0) {
+            groupBy.fields.forEach((groupField) => {
+                if (this._isFieldRestricted(groupField)) {
+                    throw new ts.TSError(`Parameter groupBy field ${groupField} in query is restricted`, {
+                        statusCode: 403,
+                        context: {
+                            safe: true
+                        }
+                    });
+                }
+            });
+        }
 
         await ts.pImmediate();
 
