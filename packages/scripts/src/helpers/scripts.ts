@@ -921,23 +921,28 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
 export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2', devMode = false) {
     await helmfileCommand('diff', clusteringType, devMode);
     await helmfileCommand('sync', clusteringType, devMode);
+
     if (ENV_SERVICES.includes(Service.Kafka)) {
         await waitForKafkaRunning('kafka');
     }
 }
 
 export async function determineSearchHost() {
-    const possible = ['elasticsearch6', 'elasticsearch7', 'opensearch1', 'opensearch2', 'opensearch3'];
+    const possible = ['elasticsearch7', 'opensearch1', 'opensearch2', 'opensearch3'];
     const subprocess = await execaCommand('helm list -n services-dev1 -o json');
+
     logger.debug(`helmfile list:\n${subprocess.stdout}`);
+
     const serviceList: Array<ServiceObj> = JSON.parse(subprocess.stdout);
     const filtered = serviceList.filter((svc: ServiceObj) => possible.includes(svc.name));
+
     if (filtered.length > 1) {
         throw new TSError('Multiple Possible Search Hosts Detected. Cannot reset store.');
     }
     if (filtered.length === 0) {
         throw new TSError('No Search Host Detected. Cannot reset store.');
     }
+
     return filtered[0].name;
 }
 
@@ -977,6 +982,7 @@ function getAdminDnFromCert(): string {
     let ca: string;
     let organization: string | undefined;
     let organizationalUnit: string | undefined;
+
     try {
         ca = readCertFromTestDir('opensearch-cert.pem');
     } catch (err) {

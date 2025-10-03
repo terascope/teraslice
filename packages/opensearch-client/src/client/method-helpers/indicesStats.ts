@@ -11,26 +11,12 @@ export function convertIndicesStatsParams(
     } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            const {
-                types,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
-        if ([6, 7].includes(majorVersion)) return params;
+        if ([7, 8].includes(majorVersion)) return params;
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
-            const {
-                types,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
+            return params;
         }
     }
 

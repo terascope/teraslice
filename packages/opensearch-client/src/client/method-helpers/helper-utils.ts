@@ -1,4 +1,4 @@
-import { ElasticsearchDistribution, ESTypes, ClientMetadata } from '@terascope/types';
+import { ElasticsearchDistribution, ClientMetadata } from '@terascope/types';
 
 export function validateDistribution(
     distributionMeta: ClientMetadata
@@ -18,7 +18,7 @@ function validDistributionAndVersion(
     distribution: ElasticsearchDistribution,
     majorVersion: number
 ): boolean {
-    const supportedEsVersions = [6, 7, 8];
+    const supportedEsVersions = [7, 8];
     const supportedOpenVersions = [1, 2, 3];
 
     return (distribution === ElasticsearchDistribution.elasticsearch
@@ -29,6 +29,7 @@ function validDistributionAndVersion(
 
 export function ensureNoTypeInMapping(mappings: Record<string, any> | undefined) {
     const parsed: Record<string, any> = {};
+
     if (mappings != null) {
         for (const [k, v] of Object.entries(mappings)) {
             if (k === 'properties') parsed[k] = v;
@@ -40,15 +41,6 @@ export function ensureNoTypeInMapping(mappings: Record<string, any> | undefined)
             if (v.dynamic !== undefined) parsed.dynamic = v.dynamic;
         }
     }
+
     return parsed;
-}
-
-export function ensureTypeInMapping(body: ESTypes.IndexTemplateProperties | undefined) {
-    if (body?.mappings?.properties) {
-        const { properties } = body.mappings;
-
-        body.mappings = { _doc: { properties } };
-    }
-
-    return body;
 }

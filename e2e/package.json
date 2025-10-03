@@ -30,7 +30,6 @@
         "setup": "yarn --silent",
         "test": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:debug": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --debug --",
-        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:k8sV2": "TEST_ELASTICSEARCH='true' OPENSEARCH_VERSION='2.15.0' TEST_KAFKA='true' TEST_PLATFORM='kubernetesV2' ts-scripts test --suite e2e --",
         "test:k8sV2Helmfile": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' TEST_KAFKA='true' KAFKA_DOCKER_IMAGE='apache/kafka' TEST_PLATFORM='kubernetesV2' USE_HELMFILE='true' ts-scripts test --suite e2e --",
