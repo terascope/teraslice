@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "displayName": "Utils",
-    "version": "1.10.2",
+    "version": "1.10.4",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -26,7 +26,7 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../utils --"
     },
     "resolutions": {
-        "debug": "~4.4.1"
+        "debug": "~4.4.3"
     },
     "dependencies": {
         "@chainsafe/is-ip": "~2.1.0",
@@ -49,9 +49,9 @@
         "date-fns": "~4.1.0",
         "date-fns-tz": "~3.2.0",
         "datemath-parser": "~1.0.6",
-        "debug": "~4.4.1",
+        "debug": "~4.4.3",
         "geo-tz": "~8.1.4",
-        "ip-bigint": "~8.2.1",
+        "ip-bigint": "~8.2.2",
         "ip-cidr": "~4.0.2",
         "ip6addr": "~0.2.5",
         "ipaddr.js": "~2.2.0",

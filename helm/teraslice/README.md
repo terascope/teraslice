@@ -77,12 +77,6 @@ View the `values.yaml` for charts configuration settings.
 | `persistence.accessModes`         | Storage access modes                            | `["ReadWriteMany"]`       |
 | `extraVolumes`                    | Additional volumes                              | `[]`                      |
 | `extraVolumeMounts`               | Additional volume mounts                        | `[]`                      |
-| `exporter.enabled`                | Enable external exporter                        | `false`                   |
-| `exporter.image.repository`       | Exporter image repository                       | `terascope/teraslice-exporter` |
-| `exporter.image.tag`              | Exporter image tag. This image is archived as of right now. See repo [here](https://github.com/terascope/teraslice-exporter)                | `v0.4.0`                  |
-| `exporter.image.pullPolicy`       | Exporter image pull policy                      | `IfNotPresent`            |
-| `exporter.env.TERASLICE_URL`      | URL for the Teraslice service                   | `http://localhost:5678`   |
-| `exporter.env.PORT`               | Exporter port                                   | `8080`                    |
 | `serviceMonitor.enabled`          | Enable Prometheus service monitor               | `false`                   |
 | `serviceMonitor.interval`         | Scrape interval                                | `60s`                     |
 | `serviceMonitor.metricRelabelings` | Metric relabeling rules                        | `[]`                      |

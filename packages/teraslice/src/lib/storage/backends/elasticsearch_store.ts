@@ -4,7 +4,7 @@ import {
     pRetry, logError, pWhile, isString, getTypeOf,
     get, random, isInteger, Logger
 } from '@terascope/utils';
-import elasticsearchApi from '@terascope/elasticsearch-api';
+import elasticsearchApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
 import { getClient, Context } from '@terascope/job-components';
 import { ClientParams } from '@terascope/types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
@@ -88,7 +88,7 @@ export class TerasliceElasticsearchStorage {
     private readonly idField: string;
     readonly options!: TerasliceStorageOptions;
     readonly mapping: Record<string, any>;
-    api!: elasticsearchApi.Client;
+    api!: Client;
 
     constructor(backendConfig: TerasliceESStorageConfig) {
         const {
@@ -507,7 +507,7 @@ export class TerasliceElasticsearchStorage {
         }
     }
 
-    async bulkSend(bulkRequest: elasticsearchApi.BulkRecord[]) {
+    async bulkSend(bulkRequest: BulkRecord[]) {
         return this.api.bulkSend(bulkRequest);
     }
 

@@ -12,7 +12,7 @@ export function getFieldsFromArg<
     K extends(number | string | symbol)
 >(fields: readonly K[], arg: FieldArg<K>[]): ReadonlySet<K> {
     if (!Array.isArray(arg)) {
-        throw new Error(`Expected field arg to an array, got ${arg} (${getTypeOf(arg)})`);
+        throw new Error(`Expected field arg to be an array, got ${arg} (${getTypeOf(arg)})`);
     }
 
     const result = flattenStringArg(arg);

@@ -1,4 +1,4 @@
-{{- if .Values.serviceMonitor.enabled }}
+{{- if and .Values.serviceMonitor.enabled .Values.terafoundation.prom_metrics_enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -7,14 +7,6 @@ metadata:
     {{- include "teraslice.master.labels" . | nindent 4 }}
 spec:
   endpoints:
-    - path: /cluster/stats
-      port: api
-      interval: {{ .Values.serviceMonitor.interval }}
-      metricRelabelings:
-        {{- toYaml .Values.serviceMonitor.metricRelabelings | nindent 8 }}
-      relabelings:
-        {{- toYaml .Values.serviceMonitor.relabelings | nindent 8 }}
-    {{- if or .Values.terafoundation.prom_metrics_enabled .Values.exporter.enabled }}
     - path: /metrics
       port: metrics
       interval: {{ .Values.serviceMonitor.interval }}
@@ -22,7 +14,6 @@ spec:
         {{- toYaml .Values.serviceMonitor.metricRelabelings | nindent 8 }}
       relabelings:
         {{- toYaml .Values.serviceMonitor.relabelings | nindent 8 }}
-    {{- end }}
   jobLabel: app.kubernetes.io/instance
   selector:
     matchLabels:

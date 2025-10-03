@@ -12,7 +12,7 @@ teraslice:
     slicer_timeout: 60000
     shutdown_timeout: 30000
     assets_directory: '/app/assets/'
-    cluster_manager_type: "kubernetes"
+    cluster_manager_type: "kubernetesV2"
     master: true
     master_hostname: "127.0.0.1"
     kubernetes_image: "teraslice-k8sdev"

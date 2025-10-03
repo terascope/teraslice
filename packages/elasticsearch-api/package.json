@@ -1,7 +1,7 @@
 {
     "name": "@terascope/elasticsearch-api",
     "displayName": "Elasticsearch API",
-    "version": "4.12.2",
+    "version": "4.13.1",
     "description": "Elasticsearch client api used across multiple services, handles retries and exponential backoff",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-api#readme",
     "bugs": {
@@ -11,9 +11,18 @@
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
     "type": "module",
-    "main": "index.js",
-    "typings": "types/index.d.ts",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "directories": {
+        "lib": "dist/src",
+        "test": "test"
+    },
+    "files": [
+        "dist/src/**/*"
+    ],
     "scripts": {
+        "build": "tsc --build",
+        "build:watch": "yarn build --watch",
         "test": "TEST_RESTRAINED_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
         "test:debug": "TEST_RESTRAINED_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
         "test:elasticsearch7": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
@@ -25,13 +34,13 @@
     },
     "dependencies": {
         "@terascope/types": "~1.4.4",
-        "@terascope/utils": "~1.10.2",
+        "@terascope/utils": "~1.10.4",
         "bluebird": "~3.7.2",
         "setimmediate": "~1.0.5"
     },
     "devDependencies": {
         "@opensearch-project/opensearch": "~1.2.0",
-        "@terascope/opensearch-client": "~1.1.2",
+        "@terascope/opensearch-client": "~1.1.4",
         "@types/elasticsearch": "~5.0.43",
         "elasticsearch": "~15.4.1",
         "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
@@ -45,6 +54,7 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
+    "srcMain": "src/index.ts",
     "terascope": {
         "testSuite": "restrained"
     }

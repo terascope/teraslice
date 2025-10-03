@@ -145,7 +145,7 @@ export class TerasliceHarness {
     async resetState() {
         const startTime = Date.now();
 
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             try {
                 cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
                 await showState(TERASLICE_PORT); // adds logs at debug level
@@ -498,7 +498,7 @@ export class TerasliceHarness {
                 return _waitForClusterState();
             }
 
-            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+            if (TEST_PLATFORM === 'kubernetesV2') {
                 // A get request to 'cluster/state' will return an empty object in kubernetes.
                 // Therefore nodes will be 0.
                 if (nodes === 0) return nodes;
@@ -547,7 +547,7 @@ export class TerasliceHarness {
 
         const nodes = await this.waitForClusterState();
 
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             signale.success(`Teraslice is ready to go at port ${TERASLICE_PORT}`, getElapsed(startTime));
         } else {
             signale.success(`Teraslice is ready to go at port ${TERASLICE_PORT} with ${nodes} nodes`, getElapsed(startTime));
@@ -596,7 +596,7 @@ export class TerasliceHarness {
         signale.success(`Assets validated successfully!`);
 
         try {
-            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+            if (TEST_PLATFORM === 'kubernetesV2') {
                 // Set resource constraints on workers and ex controllers within CI
                 jobSpec.resources_requests_cpu = 0.05;
                 jobSpec.cpu_execution_controller = 0.4;

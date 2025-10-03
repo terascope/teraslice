@@ -47,11 +47,5 @@ spec:
       protocol: TCP
       name: metrics
     {{- end }}
-    {{- if .Values.exporter.enabled }}
-    - port: {{ .Values.exporter.env.PORT }}
-      targetPort: metrics
-      protocol: TCP
-      name: metrics
-    {{- end }}
   selector:
     {{- include "teraslice.master.selectorLabels" . | nindent 4 }}

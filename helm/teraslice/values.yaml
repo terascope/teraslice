@@ -11,7 +11,7 @@ image:
   pullPolicy: IfNotPresent
   # node version will be inserted into the image tag (which defaults to the chart version)
   # setting the image tag will ignore this value
-  nodeVersion: v22.17.1
+  nodeVersion: v22.18.0
 
 imagePullSecrets: []
 nameOverride: ""
@@ -50,8 +50,7 @@ worker:
 terafoundation:
   environment: production
   log_level: info
-  # internal metrics exporter.  Do not combine with the external metrics server
-  # exporter.enabled: false
+  # internal metrics exporter.
   prom_metrics_enabled: false
   prom_metrics_port: 3333
   prom_metrics_add_default: true
@@ -90,7 +89,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: master-service-account
+  name: ""
 
 podSecurityContext: {} # fsGroup: 2000
 
@@ -172,18 +171,6 @@ extraVolumeMounts: []
   # - name: extras
   #   mountPath: /usr/share/extras
   #   readOnly: true
-
-# external exporter.  Do not combine with the internal metrics server
-# terafoundation.prom_metrics_enabled: false
-exporter:
-  enabled: false
-  image:
-    repository: terascope/teraslice-exporter
-    tag: v0.4.0
-    pullPolicy: IfNotPresent
-  env:
-    TERASLICE_URL: http://localhost:5678
-    PORT: 8080
 
 serviceMonitor:
   enabled: false

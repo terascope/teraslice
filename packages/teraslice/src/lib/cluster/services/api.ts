@@ -14,9 +14,8 @@ import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
 import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/index.js';
 import {
-    makePrometheus, isPrometheusTerasliceRequest, makeTable,
-    sendError, handleTerasliceRequest, getSearchOptions,
-    createJobActiveQuery, addDeletedToQuery
+    makeTable, sendError, handleTerasliceRequest,
+    getSearchOptions, createJobActiveQuery, addDeletedToQuery
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
@@ -487,16 +486,11 @@ export class ApiService {
         });
 
         v1routes.get('/cluster/stats', (req, res) => {
-            const { name: cluster } = this.context.sysconfig.teraslice;
-
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get cluster statistics');
             requestHandler(async () => {
-                const stats = await executionService.getClusterAnalytics();
+                const stats = executionService.getClusterAnalytics();
 
-                if (isPrometheusTerasliceRequest(req as TerasliceRequest)) {
-                    return makePrometheus(stats, { cluster });
-                }
-                // for backwards compatability (unsupported for prometheus)
+                // for backwards compatibility
                 // @ts-expect-error
                 stats.slicer = stats.controllers;
                 return stats;
@@ -522,7 +516,7 @@ export class ApiService {
                 defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
             }
 
-            if (this.clusterType === 'kubernetes' || this.clusterType === 'kubernetesV2') {
+            if (this.clusterType === 'kubernetesV2') {
                 defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pod_name', 'image'];
             }
 
@@ -881,7 +875,8 @@ export class ApiService {
                             }
                         }
 
-                        const clusterState = this.clusterService.getClusterState();
+                        // TODO: removing native clustering will remove the need for any here
+                        const clusterState = this.clusterService.getClusterState() as any;
 
                         /// Filter out information about kubernetes ex pods
                         const filteredExecutions: Record<string, string> = {};
