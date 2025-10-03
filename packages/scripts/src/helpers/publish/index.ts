@@ -134,7 +134,8 @@ async function publishToDocker(options: PublishOptions) {
         const buildTimestamp = new Date().toISOString();
         const sha = process.env.GITHUB_SHA;
         const { version } = getRootInfo();
-        await dockerBuild(imageToBuild,
+        await dockerBuild(
+            imageToBuild,
             [devImage],
             undefined,
             [`NODE_VERSION=${options.nodeVersion}`, `TERASLICE_VERSION=${version}`, `BUILD_TIMESTAMP=${buildTimestamp}`, `GITHUB_SHA=${sha}`]

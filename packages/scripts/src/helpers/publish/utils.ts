@@ -5,7 +5,7 @@ import { PublishType, PublishOptions } from './interfaces.js';
 import { PackageInfo } from '../interfaces.js';
 import signale from '../signale.js';
 import { getRemotePackageVersion, getPublishTag, isMainPackage } from '../packages.js';
-import { getDevDockerImage } from '../misc.js';
+import { getDevDockerImage, getRootInfo } from '../misc.js';
 
 export async function shouldNPMPublish(
     pkgInfo: PackageInfo,
@@ -93,12 +93,16 @@ export async function buildDevDockerImage(
     const startTime = Date.now();
     signale.pending(`building docker image ${devImage}`);
 
+    const buildTimestamp = new Date().toISOString();
+    const sha = process.env.GITHUB_SHA || 'local-build';
+    const { version } = getRootInfo();
+
     try {
         await dockerBuild(
             devImage,
             cacheFromPrev ? [devImage] : [],
             undefined,
-            [`NODE_VERSION=${publishOptions.nodeVersion}`],
+            [`NODE_VERSION=${publishOptions.nodeVersion}`, `TERASLICE_VERSION=${version}`, `BUILD_TIMESTAMP=${buildTimestamp}`, `GITHUB_SHA=${sha}`],
             publishOptions.dockerFileName,
             publishOptions.dockerFilePath);
     } catch (err) {
