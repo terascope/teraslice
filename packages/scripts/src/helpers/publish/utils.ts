@@ -22,6 +22,7 @@ export async function shouldNPMPublish(
 
     if (semver.eq(local, remote, options)) return false;
 
+    // FIXME: this will try to republish pre-releases
     if (isPrerelease || publishOutdatedPackages || semver.gt(local, remote, options)) {
         if (type === PublishType.Tag) {
             if (isMain) {
@@ -36,7 +37,7 @@ export async function shouldNPMPublish(
         if (type === PublishType.Prerelease) {
             if (isMain && !isPrerelease) {
                 signale.info(`* skipping main package ${pkgInfo.name}@${remote}->${local} until tag release`);
-                return true;
+                return false;
             }
 
             if (isPrerelease) {
