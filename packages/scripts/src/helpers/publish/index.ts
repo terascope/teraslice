@@ -54,7 +54,8 @@ async function publishToNPM(options: PublishOptions) {
 async function npmPublish(
     pkgInfo: PackageInfo, options: PublishOptions
 ): Promise<string | undefined> {
-    const shouldPublish = await shouldNPMPublish(pkgInfo, options.type);
+    const { dryRun, publishOutdatedPackages, type } = options;
+    const shouldPublish = await shouldNPMPublish(pkgInfo, type, publishOutdatedPackages);
     if (!shouldPublish) return;
 
     const tag = getPublishTag(pkgInfo.version);
@@ -63,7 +64,7 @@ async function npmPublish(
         NODE_ENV: 'production'
     }, true);
 
-    if (options.dryRun) {
+    if (dryRun) {
         signale.info(`[DRY RUN] - skipping publish for package ${pkgInfo.name}@v${pkgInfo.version} (${tag})`);
         return pkgInfo.name;
     }
