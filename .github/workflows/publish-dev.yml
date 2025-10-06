@@ -1,0 +1,143 @@
+name: Publish Teraslice Dev NPM Packages and Docker Image, Create Release
+
+on:
+  pull_request:
+    branches:
+      - 'release/teraslice-v*'
+    types:
+      - closed
+    paths-ignore:
+      - 'helm/helm-repo-site/index.yaml'
+
+jobs:
+  build-release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      teraslice_version: ${{ steps.teraslice-version.outputs.teraslice_version }}
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - name: Register npm token
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
+      - name: Verify npm authentication
+        run: npm whoami
+
+      # we login to docker to publish new teraslice image
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Retrieve Teraslice version
+        id: teraslice-version
+        run: |
+          TERASLICE_VERSION=$(jq -r .version package.json)
+          echo "teraslice_version=$TERASLICE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version:  22
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'yarn'
+
+      - name: Install and build packages
+        run: yarn && yarn setup
+
+      - name: Verify npm authentication within yarn
+        env:
+          CI_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: yarn npm whoami
+
+      - name: Publish to npm
+        env:
+          CI_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: yarn ts-scripts publish -t prerelease npm
+
+      - name: Publish to docker
+        run: yarn ts-scripts publish -t prerelease docker
+
+  create-release-on-teraslice-bump:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    needs: build-release
+    outputs:
+      version_updated: ${{ steps.version_check.outputs.version_updated }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Check for teraslice version update
+        id: version_check
+        run: |
+          CURRENT_VERSION=$(jq -r .version package.json)
+          echo "current version:" $CURRENT_VERSION
+
+          NPM_VERSION=$(yarn npm info teraslice --json | jq -r '.["dist-tags"].latest')
+          echo "npm version:" $NPM_VERSION
+
+          COMP_OUTPUT=$(./scripts/semver-tool.sh $CURRENT_VERSION $NPM_VERSION)
+          echo "Semver comparison output:" $COMP_OUTPUT
+
+          PRERELEASE_TAG=$(./scripts/semver-tool.sh get prerelease $CURRENT_VERSION)
+          IS_DEV_RELEASE=$([ -n "$PRERELEASE_TAG" ] && echo true || echo false)
+          echo "is_dev_release=$IS_DEV_RELEASE" | tee -a $GITHUB_OUTPUT
+
+          if [ "$COMP_OUTPUT" = "1" && "$IS_DEV_RELEASE" = "true" ]; then
+            echo "Teraslice dev version updated from $NPM_VERSION to $CURRENT_VERSION, creating release"
+            echo "version_updated=true" >> $GITHUB_OUTPUT
+            echo "tag: v$CURRENT_VERSION"
+            echo "tag=v$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Teraslice dev version not updated, will not release"
+            echo "version_updated=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate a token
+        if: steps.version_check.outputs.version_updated == 'true'
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.RELEASES_APP_ID }}
+          private-key: ${{ secrets.RELEASES_PRIVATE_KEY }}
+
+      - name: Create Release
+        if: steps.version_check.outputs.version_updated == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          prerelease: true
+          tag_name: ${{ steps.version_check.outputs.tag }}
+          name: ${{ steps.version_check.outputs.tag }}
+          generate_release_notes: true
+
+  slack-announcement:
+    needs: [build-release, create-release-on-teraslice-bump]
+    if: needs.create-release-on-teraslice-bump.outputs.version_updated == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Announce release in Slack releases channel
+        id: announce-release
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ vars.SLACK_RELEASES_CHANNEL_ID }}
+            text: |
+              Teraslice prerelease version `v${{ needs.build-release.outputs.teraslice_version }}` has been published.
+              Please review and revise the automated release notes:
+              https://github.com/terascope/teraslice/releases/tag/v${{ needs.build-release.outputs.teraslice_version }}
+              NPM release: https://www.npmjs.com/package/teraslice/v/${{ needs.build-release.outputs.teraslice_version }}
+              Docker images: https://github.com/terascope/teraslice/pkgs/container/teraslice
+
+      - name: Failed Announcement Response
+        if: ${{ steps.announce-release.outputs.ok == 'false' }}
+        run: echo "Slackbot API failure response - ${{ steps.announce-release.outputs.response }}"
