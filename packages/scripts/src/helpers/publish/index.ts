@@ -1,6 +1,5 @@
 import {
-    concat, pMap,
-    isString, toHumanTime
+    pMap, isString, toHumanTime
 } from '@terascope/utils';
 import { PackageInfo } from '../interfaces.js';
 import { listPackages, getMainPackageInfo, getPublishTag } from '../packages.js';
@@ -55,7 +54,8 @@ async function publishToNPM(options: PublishOptions) {
 async function npmPublish(
     pkgInfo: PackageInfo, options: PublishOptions
 ): Promise<string | undefined> {
-    const shouldPublish = await shouldNPMPublish(pkgInfo, options.type);
+    const { dryRun, publishOutdatedPackages, type } = options;
+    const shouldPublish = await shouldNPMPublish(pkgInfo, type, publishOutdatedPackages);
     if (!shouldPublish) return;
 
     const tag = getPublishTag(pkgInfo.version);
@@ -64,7 +64,7 @@ async function npmPublish(
         NODE_ENV: 'production'
     }, true);
 
-    if (options.dryRun) {
+    if (dryRun) {
         signale.info(`[DRY RUN] - skipping publish for package ${pkgInfo.name}@v${pkgInfo.version} (${tag})`);
         return pkgInfo.name;
     }
@@ -134,7 +134,8 @@ async function publishToDocker(options: PublishOptions) {
         const buildTimestamp = new Date().toISOString();
         const sha = process.env.GITHUB_SHA;
         const { version } = getRootInfo();
-        await dockerBuild(imageToBuild,
+        await dockerBuild(
+            imageToBuild,
             [devImage],
             undefined,
             [`NODE_VERSION=${options.nodeVersion}`, `TERASLICE_VERSION=${version}`, `BUILD_TIMESTAMP=${buildTimestamp}`, `GITHUB_SHA=${sha}`]
@@ -159,13 +160,15 @@ async function publishToDocker(options: PublishOptions) {
     if (options.dryRun) {
         signale.info(`[DRY RUN] - skipping publish of docker images ${imagesToPush.join(', ')}`);
     } else {
+        imagesToPush.push(devImage);
         signale.info(`publishing docker images ${imagesToPush.join(', ')}`);
-        await pMap(concat(
+        await pMap(
             imagesToPush,
-            devImage,
-        ), dockerPush, {
-            concurrency: 1,
-            stopOnError: false,
-        });
+            dockerPush,
+            {
+                concurrency: 1,
+                stopOnError: false,
+            }
+        );
     }
 }

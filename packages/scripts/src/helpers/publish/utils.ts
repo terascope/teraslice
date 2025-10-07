@@ -5,7 +5,7 @@ import { PublishType, PublishOptions } from './interfaces.js';
 import { PackageInfo } from '../interfaces.js';
 import signale from '../signale.js';
 import { getRemotePackageVersion, getPublishTag, isMainPackage } from '../packages.js';
-import { getDevDockerImage } from '../misc.js';
+import { getDevDockerImage, getRootInfo } from '../misc.js';
 
 export async function shouldNPMPublish(
     pkgInfo: PackageInfo,
@@ -18,9 +18,7 @@ export async function shouldNPMPublish(
     const local = pkgInfo.version;
     const isMain = isMainPackage(pkgInfo) || pkgInfo.terascope?.linkToMain;
     const isPrerelease = getPublishTag(local) === 'prerelease';
-    // @ts-expect-error docs says its there, checked the code and its there
-    // but its missing in types
-    const options: semver.Options = { includePrerelease: true };
+    const options: semver.RangeOptions = { includePrerelease: true };
 
     if (semver.eq(local, remote, options)) return false;
 
@@ -37,8 +35,8 @@ export async function shouldNPMPublish(
 
         if (type === PublishType.Prerelease) {
             if (isMain && !isPrerelease) {
-                signale.info('* skipping main package until tag release');
-                return true;
+                signale.info(`* skipping main package ${pkgInfo.name}@${remote}->${local} until tag release`);
+                return false;
             }
 
             if (isPrerelease) {
@@ -93,12 +91,16 @@ export async function buildDevDockerImage(
     const startTime = Date.now();
     signale.pending(`building docker image ${devImage}`);
 
+    const buildTimestamp = new Date().toISOString();
+    const sha = process.env.GITHUB_SHA || 'local-build';
+    const { version } = getRootInfo();
+
     try {
         await dockerBuild(
             devImage,
             cacheFromPrev ? [devImage] : [],
             undefined,
-            [`NODE_VERSION=${publishOptions.nodeVersion}`],
+            [`NODE_VERSION=${publishOptions.nodeVersion}`, `TERASLICE_VERSION=${version}`, `BUILD_TIMESTAMP=${buildTimestamp}`, `GITHUB_SHA=${sha}`],
             publishOptions.dockerFileName,
             publishOptions.dockerFilePath);
     } catch (err) {

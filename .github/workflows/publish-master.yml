@@ -63,10 +63,7 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-
-      - name: Install semver-compare-cli
-        run: yarn && yarn add semver-compare-cli
-
+       
       - name: Check for teraslice version update
         id: version_check
         run: |
@@ -76,7 +73,10 @@ jobs:
           NPM_VERSION=$(yarn npm info teraslice --json | jq -r '.["dist-tags"].latest')
           echo "npm version:" $NPM_VERSION
 
-          if ./node_modules/.bin/semver-compare $CURRENT_VERSION gt $NPM_VERSION; then
+          COMP_OUTPUT=$(./scripts/semver-tool.sh $CURRENT_VERSION $NPM_VERSION)
+          echo "Semver comparison output:" $COMP_OUTPUT
+
+          if [ "$COMP_OUTPUT" = "1" ]; then
             echo "Teraslice version updated from $NPM_VERSION to $CURRENT_VERSION, creating release"
             echo "version_updated=true" >> $GITHUB_OUTPUT
             echo "tag: v$CURRENT_VERSION"
