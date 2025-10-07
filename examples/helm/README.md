@@ -4,9 +4,12 @@
 
 The following dependencies are required to successfully deploy a basic instance of Teraslice and interact with its API. The examples provided use Homebrew (brew) and Node.js's (npm) for installation.
 
-- Docker
+- [Docker](https://www.docker.com/products/docker-desktop/)
+    - `brew install docker`
 - [Helm](https://helm.sh/docs/intro/install/)
     - `brew install helm`
+- [Helm diff plugin](https://github.com/databus23/helm-diff) - after helm is installed
+    - `helm plugin install https://github.com/databus23/helm-diff`
 - [helmfile](https://formulae.brew.sh/formula/helmfile)
     - `brew install helmfile`
 - [Kubectl](https://kubernetes.io/docs/reference/kubectl/)
@@ -215,3 +218,24 @@ Once copied, modify the `custom.yaml` file to specific needs. All available opti
 ```sh
 helmfile -e custom sync
 ```
+
+## Using services external to docker, i.e., localhost
+
+If you have a locally running service that you wish to use with teraslice running in kubernetes you can do the following:
+
+- Add your connector to `../../e2e/helm/templates/teraslice.yaml.gotmpl`. If you wish to add an ElasticSearch/Opensearch service put the following under `terafoundation.connectors.elasticsearch-next`.
+
+```yaml
+            <connector-name>:
+                node:
+                    - "http://host.docker.internal:<local-service-port>"
+```
+
+- Create a `host-gateway` entry in `/etc/hosts` inside your kind cluster:
+
+```bash
+docker exec -it kind-control-plane bash -c \
+  "echo '172.17.0.1 host.docker.internal' >> /etc/hosts"
+```
+
+- Run `helmfile diff` to ensure the change is seen in the teraslice connector, then run `helmfile sync`.
