@@ -3,6 +3,7 @@ import { shutdownHandler } from './dist/src/lib/workers/helpers/worker-shutdown.
 import { makeTerafoundationContext } from './dist/src/lib/workers/context/terafoundation-context.js';
 import { ClusterMaster } from './dist/src/lib/cluster/cluster_master.js';
 import { AssetsService } from './dist/src/lib/cluster/services/index.js';
+import { makeLogger } from './dist/src/lib/workers/helpers/terafoundation.js';
 
 class Service {
     constructor(context) {
@@ -42,6 +43,7 @@ class Service {
 
 async function main() {
     const context = await makeTerafoundationContext();
+    context.logger = makeLogger(context, 'root-module');
     const cmd = new Service(context);
 
     cmd.shutdownHandler = shutdownHandler(context, () => {

@@ -7,6 +7,7 @@ import { makeExecutionContext } from './dist/src/lib/workers/context/execution-c
 import { makeTerafoundationContext } from './dist/src/lib/workers/context/terafoundation-context.js';
 import { ExecutionController } from './dist/src/lib/workers/execution-controller/index.js';
 import { Worker } from './dist/src/lib/workers/worker/index.js';
+import { makeLogger } from './dist/src/lib/workers/helpers/terafoundation.js';
 
 class Service {
     constructor(context) {
@@ -69,6 +70,7 @@ class Service {
 
 async function main() {
     const context = await makeTerafoundationContext();
+    context.logger = makeLogger(context, 'root-module');
     const cmd = new Service(context);
 
     cmd.shutdownHandler = shutdownHandler(context, (event, err) => {
