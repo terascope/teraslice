@@ -113,7 +113,6 @@ export class IndexManager {
         logger.trace(`Using ${this.clientMetadata.distribution} version ${this.clientMetadata.version}`);
 
         const body = config.data_type.toESMapping({
-            typeName: config.name,
             overrides: {
                 settings,
             },

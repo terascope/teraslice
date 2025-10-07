@@ -37,7 +37,7 @@ describe('bulkSend', () => {
             };
 
             const mapping = await createMappingFromDatatype(
-                client, EvenDateData.EvenDataType, '_doc', overrides
+                client, EvenDateData.EvenDataType, overrides
             );
 
             mapping.index = index;

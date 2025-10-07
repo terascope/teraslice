@@ -286,7 +286,6 @@ describe('IndexManager->indexSetup()', () => {
             const { version: schemaVersion } = config.index_schema!;
 
             const { mappings } = config.data_type.toESMapping({
-                typeName: config.name,
                 ...clientMetadata
             });
 
