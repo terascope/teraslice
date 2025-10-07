@@ -50,9 +50,14 @@ export function createClient(context) {
 
 ## Log levels
 
-- **info** — lifecycle or significant actions (start, stop, created, done).
-- **debug** — step-by-step details during development/troubleshooting.
+Teraslice by default will use a Bunyan logger. The logger works by setting a minimum level; the logger emits messages at that level and all higher severities (e.g., set to info → you’ll see info, warn, error, fatal).
+Numeric mapping: trace `10`, debug `20`, info `30`, warn `40`, error `50`, fatal `60`.
+
+- **info** — normal operation and lifecycle events.
+- **debug** — step-by-step details during development/troubleshooting, too verbose to be included in "info" level.
 - **trace** — extremely fine-grained, temporary diagnostics only.
+
+For the full list and guidance, see [Bunyan’s Levels section](https://github.com/trentm/node-bunyan?tab=readme-ov-file#levels).
 
 ## Notes
 
