@@ -22,7 +22,6 @@ export async function shouldNPMPublish(
 
     if (semver.eq(local, remote, options)) return false;
 
-    // FIXME: this will try to republish pre-releases
     if (isPrerelease || publishOutdatedPackages || semver.gt(local, remote, options)) {
         if (type === PublishType.Tag) {
             if (isMain) {
