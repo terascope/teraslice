@@ -109,7 +109,7 @@ jobs:
           echo "current version:" $LOCAL_TERASLICE_VERSION
           echo "npm version:" $NPM_PRERELEASE_VERSION
 
-          COMP_OUTPUT=$(./scripts/semver-tool.sh $LOCAL_TERASLICE_VERSION $NPM_PRERELEASE_VERSION)
+          COMP_OUTPUT=$(./scripts/semver-tool.sh compare $LOCAL_TERASLICE_VERSION $NPM_PRERELEASE_VERSION)
           echo "Semver comparison output:" $COMP_OUTPUT
 
           PRERELEASE_TAG=$(./scripts/semver-tool.sh get prerelease $LOCAL_TERASLICE_VERSION)

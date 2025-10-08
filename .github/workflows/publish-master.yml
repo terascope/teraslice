@@ -73,7 +73,7 @@ jobs:
           NPM_VERSION=$(yarn npm info teraslice --json | jq -r '.["dist-tags"].latest')
           echo "npm version:" $NPM_VERSION
 
-          COMP_OUTPUT=$(./scripts/semver-tool.sh $CURRENT_VERSION $NPM_VERSION)
+          COMP_OUTPUT=$(./scripts/semver-tool.sh compare $CURRENT_VERSION $NPM_VERSION)
           echo "Semver comparison output:" $COMP_OUTPUT
 
           if [ "$COMP_OUTPUT" = "1" ]; then
