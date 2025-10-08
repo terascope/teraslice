@@ -26,13 +26,13 @@ Start with being in the correct directory. Starting in the top level of the tera
 cd ./examples/helm
 ```
 
-Quickly build an launch teraslice with `opensearch2` as the state cluster, minio, utility pod, and kafka with the script below:
+Quickly build and launch teraslice with `opensearch2` as the state cluster, minio, utility pod, and kafka with the script below:
 
-**NOTE:** _Ensure the directory at `teraslice/e2e/helm/utility/data` doesn't have large files in it or else the utility pod will fail to deploy running the script below. It's okay to move large files in the directory after the command below completes. More info about the [utility pod](#utility-pod-usage) is discussed below_
+**NOTE:** _Ensure the directory at `teraslice/e2e/helm/utility/data` doesn't have large files in it or else the utility pod will fail to deploy running the script below. It's okay to move large files in the directory after the command below completes. More info about the [utility pod](#utility-pod-usage) is discussed below._
 
 ```bash
 kind create cluster --config kindConfig.yaml
-#### If these images already exist they can be skipped to stand up teraslice faster
+# If these images already exist they can be skipped to stand up teraslice faster
 docker build -t terascope/teraslice:dev ../../.
 docker build -t teraslice-utility:0.0.1 ../../e2e/helm/utility/.
 # If instead you'd rather pull a teraslice image you can pull it and retag it like below
@@ -54,7 +54,7 @@ Also confirm that opensearch2 has all the teraslice state indices by running:
 curl localhost:9202/_cat/indices
 ```
 
-Ensure minio is running correctly logging into the the [Minio UI](http://localhost:9001) with the following username and password:
+Ensure minio is running correctly by logging into the the [Minio UI](http://localhost:9001) with the following username and password:
 
 **Username:** _minioadmin_
 
@@ -66,10 +66,10 @@ Kafka also has a UI by default, in the browser go to the [Kafka UI](http://local
 
 The utility pod has useful tools to interact and load data into services. Services include:
 
-- **kcat** a cli tool used to read, write, and interact with kafka
-- **jq** a command-line tool for processing JSON data
-- **fake_stream.sh** script, used for trickling data slowly in to a kafka topic to mimic streams of data
-- **curl** a command-line tool for transferring data with URLs
+- **kcat:** a cli tool used to read, write, and interact with kafka
+- **jq:** a command-line tool for processing JSON data
+- **fake_stream.sh:** a script used for trickling data slowly into a kafka topic to mimic streams of data
+- **curl:** a command-line tool for transferring data with URLs
 
 We can open a bash shell into the utility container to use these tools with the command below:
 
@@ -83,7 +83,7 @@ The utility pod has a shared volume on the host machine to make moving files int
 kcat -b kafka-headless.services-dev1.svc.cluster.local:9092 -t test-v1 -P -l /app/data/<ldjson file name>
 ```
 
-### Initial Setup
+## Initial Setup
 
 First you're going to want to be in the correct directory. Starting in the top level of the teraslice directory:
 
@@ -104,6 +104,7 @@ kind create cluster --config kindConfig.yaml
 Build the teraslice and utility pod docker images using the following command:
 
 ```bash
+docker build -t terascope/teraslice:dev ../../.
 docker build -t teraslice-utility:0.0.1 ../../e2e/helm/utility/.
 ```
 
