@@ -5,10 +5,28 @@ on:
     types: [published]
 
 jobs:
-  build-release:
+  ensure-non-pre-release:
     runs-on: ubuntu-latest
     outputs:
       teraslice_version: ${{ steps.teraslice-version.outputs.teraslice_version }}
+      is_dev_release: ${{ steps.teraslice-version.outputs.is_dev_release }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Retrieve Teraslice version & Check if Prerelease
+        id: teraslice-version
+        run: |
+          TERASLICE_VERSION=$(jq -r .version package.json)
+          echo "teraslice_version=$TERASLICE_VERSION" | tee -a $GITHUB_OUTPUT
+          PRERELEASE_TAG=$(./scripts/semver-tool.sh get prerelease $TERASLICE_VERSION)
+          IS_DEV_RELEASE=$([ -n "$PRERELEASE_TAG" ] && echo true || echo false)
+          echo "is_dev_release=$IS_DEV_RELEASE" | tee -a $GITHUB_OUTPUT
+
+  build-release:
+    needs: ensure-non-pre-release
+    if: needs.ensure-non-pre-release.outputs.is_dev_release == 'false'
+    runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
@@ -20,12 +38,6 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@v4
-
-      - name: Retrieve Teraslice version
-        id: teraslice-version
-        run: |
-          TERASLICE_VERSION=$(jq -r .version package.json)
-          echo "teraslice_version=$TERASLICE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -48,6 +60,8 @@ jobs:
         run: yarn ts-scripts publish -t tag npm
 
   docker-build-publish:
+    needs: ensure-non-pre-release
+    if: needs.ensure-non-pre-release.outputs.is_dev_release == 'false'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -77,7 +91,7 @@ jobs:
         run: yarn ts-scripts publish -t tag -n ${{ matrix.node-version }} docker
 
   slack-announcement:
-    needs: [build-release, docker-build-publish]
+    needs: [ensure-non-pre-release, build-release, docker-build-publish]
     runs-on: ubuntu-latest
     steps:
       - name: Announce release in Slack releases channel
@@ -89,10 +103,10 @@ jobs:
           payload: |
             channel: ${{ vars.SLACK_RELEASES_CHANNEL_ID }}
             text: |
-              Teraslice version `v${{ needs.build-release.outputs.teraslice_version }}` has been released.
+              Teraslice version `v${{ needs.ensure-non-pre-release.outputs.teraslice_version }}` has been released.
               Please review and revise the automated release notes:
-              https://github.com/terascope/teraslice/releases/tag/v${{ needs.build-release.outputs.teraslice_version }}
-              NPM release: https://www.npmjs.com/package/teraslice/v/${{ needs.build-release.outputs.teraslice_version }}
+              https://github.com/terascope/teraslice/releases/tag/v${{ needs.ensure-non-pre-release.outputs.teraslice_version }}
+              NPM release: https://www.npmjs.com/package/teraslice/v/${{ needs.ensure-non-pre-release.outputs.teraslice_version }}
               Docker images: https://github.com/terascope/teraslice/pkgs/container/teraslice
 
       - name: Failed Announcement Response

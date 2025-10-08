@@ -264,8 +264,10 @@ async function runE2ETest(
             await loadOrPullServiceImages(suite, options.skipImageDeletion);
         }
 
-        // load the base docker image
-        await loadThenDeleteImageFromCache(`${BASE_DOCKER_IMAGE}:${NODE_VERSION}`, options.skipImageDeletion);
+        // load the base docker image only if needed to build a dev image
+        if (!SKIP_DOCKER_BUILD_IN_E2E) {
+            await loadThenDeleteImageFromCache(`${BASE_DOCKER_IMAGE}:${NODE_VERSION}`, options.skipImageDeletion);
+        }
     }
 
     try {
