@@ -43,7 +43,7 @@ class Service {
 
 async function main() {
     const context = await makeTerafoundationContext();
-    context.logger = makeLogger(context, 'root-module');
+    context.logger = makeLogger(context, 'cluster-service');
     const cmd = new Service(context);
 
     cmd.shutdownHandler = shutdownHandler(context, () => {
