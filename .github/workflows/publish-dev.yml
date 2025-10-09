@@ -67,6 +67,9 @@ jobs:
       matrix:
         node-version: [22, 24]
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -104,8 +107,8 @@ jobs:
         # prerelease tags are newer if alphabetically "greater"
         # rc.0 > dev.2 > dev.1 > beta.5 > alpha.12
         run: |
-          $LOCAL_TERASLICE_VERSION=${{ needs.build-npm.outputs.local_teraslice_version }}
-          $NPM_PRERELEASE_VERSION=${{ needs.build-npm.outputs.npm_prerelease_version }} 
+          LOCAL_TERASLICE_VERSION=${{ needs.build-npm.outputs.local_teraslice_version }}
+          NPM_PRERELEASE_VERSION=${{ needs.build-npm.outputs.npm_prerelease_version }} 
           echo "current version:" $LOCAL_TERASLICE_VERSION
           echo "npm version:" $NPM_PRERELEASE_VERSION
 
