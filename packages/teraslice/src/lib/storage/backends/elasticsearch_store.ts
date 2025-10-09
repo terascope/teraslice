@@ -176,7 +176,7 @@ export class TerasliceElasticsearchStorage {
 
                 this.api = elasticsearchApi(client, this.logger, options);
                 await this._createIndex(newIndex);
-                await this.api.isAvailable(newIndex, this.recordType);
+                await this.api.isAvailable(newIndex);
 
                 return true;
             } catch (err) {
