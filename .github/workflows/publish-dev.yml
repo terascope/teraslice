@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       local_teraslice_version: ${{ steps.teraslice-version.outputs.local_teraslice_version }}
-      npm_prerelease_version: ${{ steps.teraslice-version.outputs.npm_prerelease_version }}
+      npm_prerelease_version: ${{ steps.npm-version.outputs.npm_prerelease_version }}
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
