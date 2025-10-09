@@ -865,7 +865,7 @@ export default function elasticsearchApi(
         };
     }
 
-    async function isAvailable(index: string, recordType?: string) {
+    async function isAvailable(index: string) {
         const query: ClientParams.SearchParams = {
             index,
             q: '',
@@ -874,7 +874,7 @@ export default function elasticsearchApi(
             terminate_after: '1',
         };
 
-        const label = recordType ? `for ${recordType}` : index;
+        const label = index;
 
         return new Promise((resolve, reject) => {
             client
@@ -1015,7 +1015,6 @@ export default function elasticsearchApi(
         index: string,
         migrantIndexName: string,
         mapping: Record<string, any>,
-        recordType: string,
         clusterName: string
     ) {
         const reindexQuery = {
@@ -1036,7 +1035,7 @@ export default function elasticsearchApi(
             const [docCount] = await Promise.all([
                 count({ index }),
                 // the empty string is not great, should maybe separate index creation logic
-                _createIndex(migrantIndexName, '', mapping, recordType, clusterName),
+                _createIndex(migrantIndexName, '', mapping, clusterName),
             ]);
 
             await _clientRequest('reindex', reindexQuery);
@@ -1072,11 +1071,9 @@ export default function elasticsearchApi(
         index: string,
         migrantIndexName: string,
         mapping: Record<string, any>,
-        recordType: string,
         clusterName: string
     ) {
         const existQuery: ClientParams.IndicesExistsParams = { index };
-
         const exists = await indexExists(existQuery);
 
         if (!exists) {
@@ -1087,7 +1084,7 @@ export default function elasticsearchApi(
             };
 
             try {
-                await _sendTemplate(mapping, recordType, clusterName);
+                await _sendTemplate(mapping, clusterName);
                 return indexCreate(createQuery);
             } catch (err: any) {
                 // It's not really an error if it's just that the index is already there
@@ -1106,7 +1103,6 @@ export default function elasticsearchApi(
                 index,
                 migrantIndexName,
                 mapping,
-                recordType
             );
         } catch (err) {
             throw new TSError(err, {
@@ -1119,13 +1115,12 @@ export default function elasticsearchApi(
     async function _verifyMapping(
         query: Record<string, any>,
         configMapping: Record<string, any>,
-        recordType: string
     ) {
         const params = Object.assign({}, query);
 
         try {
             const mapping = await _clientIndicesRequest('getMapping', params) as Record<string, any>;
-            return _areSameMappings(configMapping, mapping, recordType);
+            return _areSameMappings(configMapping, mapping);
         } catch (err) {
             throw new TSError(err, {
                 reason: `could not get mapping for query ${JSON.stringify(params)}`,
@@ -1136,17 +1131,18 @@ export default function elasticsearchApi(
     function _areSameMappings(
         configMapping: Record<string, any>,
         mapping: Record<string, any>,
-        recordType: string
     ) {
         const sysMapping: Record<string, any> = {};
         const index = Object.keys(mapping)[0];
         sysMapping[index] = { mappings: configMapping.mappings };
-        const { dynamic } = mapping[index].mappings[recordType];
+
+        const { dynamic } = mapping[index].mappings;
         // elasticsearch for some reason converts false to 'false' for dynamic key
         if (dynamic !== undefined) {
-            mapping[index].mappings[recordType].dynamic = toBoolean(dynamic);
+            mapping[index].mappings.dynamic = toBoolean(dynamic);
         }
         const areEqual = isDeepEqual(mapping, sysMapping);
+
         return { areEqual };
     }
 
@@ -1155,7 +1151,6 @@ export default function elasticsearchApi(
         index: string,
         migrantIndexName: string,
         mapping: Record<string, any>,
-        recordType: string
     ) {
         if (index === migrantIndexName || migrantIndexName === null) {
             const error = new TSError(
@@ -1165,25 +1160,24 @@ export default function elasticsearchApi(
         }
 
         const query = { index };
-        const results = await _verifyMapping(query, mapping, recordType);
+        const results = await _verifyMapping(query, mapping);
 
         if (results.areEqual) return true;
         // For state and analytics, we will not _migrate, but will post template so that
         // the next index will have them
-        if (recordType === 'state' || recordType === 'analytics') {
-            return _sendTemplate(mapping, recordType, clusterName);
+        if (mapping.template) {
+            return _sendTemplate(mapping, clusterName);
         }
 
-        return _migrate(index, migrantIndexName, mapping, recordType, clusterName);
+        return _migrate(index, migrantIndexName, mapping, clusterName);
     }
 
     async function _sendTemplate(
         mapping: Record<string, any>,
-        recordType: string,
         clusterName: string
     ) {
         if (mapping.template) {
-            const name = `${clusterName}_${recordType}_template`;
+            const name = `${clusterName}_template`;
             // setting template name to reflect current teraslice instance name to help prevent
             // conflicts with differing versions of teraslice with same elastic db
             if (!mapping.template.match(clusterName)) {
@@ -1200,7 +1194,6 @@ export default function elasticsearchApi(
         newIndex: string,
         migrantIndexName: string,
         mapping: Record<string, any>,
-        recordType: string,
         clientName: string,
         _time?: number
     ): Promise<boolean> {
@@ -1211,7 +1204,7 @@ export default function elasticsearchApi(
             // this contains the behavior for teraslice to continually wait
             // until elasticsearch is available before making the store index
             const attemptToCreateIndex = () => {
-                _createIndex(newIndex, migrantIndexName, mapping, recordType, clusterName)
+                _createIndex(newIndex, migrantIndexName, mapping, clusterName)
                     .then(() => isAvailable(newIndex))
                     .catch((err: Error) => {
                         if (isFatalError(err)) return Promise.reject(err);
@@ -1233,7 +1226,6 @@ export default function elasticsearchApi(
                             newIndex,
                             migrantIndexName,
                             mapping,
-                            recordType,
                             clusterName
                         )
                             .then(() => {
