@@ -119,7 +119,7 @@ jobs:
           IS_DEV_RELEASE=$([ -n "$PRERELEASE_TAG" ] && echo true || echo false)
           echo "is_dev_release=$IS_DEV_RELEASE" | tee -a $GITHUB_OUTPUT
 
-          if [ "$COMP_OUTPUT" = "1" && "$IS_DEV_RELEASE" = "true" ]; then
+          if [[ "$COMP_OUTPUT" = "1" && "$IS_DEV_RELEASE" = "true" ]]; then
             echo "Teraslice pre-release version updated from $NPM_PRERELEASE_VERSION to $LOCAL_TERASLICE_VERSION, creating release"
             echo "version_updated=true" >> $GITHUB_OUTPUT
             echo "tag: v$LOCAL_TERASLICE_VERSION"
