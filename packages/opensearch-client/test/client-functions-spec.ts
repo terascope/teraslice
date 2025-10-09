@@ -21,7 +21,6 @@ const { data, EvenDataType } = EvenDateData;
 describe('creates client that exposes elasticsearch and opensearch functions', () => {
     const index = 'wrapped_client_test';
     const taskIndex = 'task_index_test';
-    const docType = '_doc';
 
     const testLogger = debugLogger('create-client-test');
 
@@ -46,7 +45,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             throw new Error(`Expected version to follow semver format (major.minor.patch) got ${clientMetadata.version}`);
         }
 
-        await upload(client, { index, type: docType }, data);
+        await upload(client, { index }, data);
         await waitForData(client, index, 1000);
     }, 15000);
 
@@ -318,7 +317,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
         beforeAll(async () => {
             await cleanupIndex(client, deleteIndex);
-            await upload(client, { index: deleteIndex, type: docType }, data);
+            await upload(client, { index: deleteIndex }, data);
             await waitForData(client, deleteIndex, 1000);
         });
 
@@ -349,7 +348,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
         beforeAll(async () => {
             await cleanupIndex(client, deleteByQueryIndex);
-            await upload(client, { index: deleteByQueryIndex, type: docType }, data);
+            await upload(client, { index: deleteByQueryIndex }, data);
             await waitForData(client, deleteByQueryIndex, 1000);
         });
 
@@ -503,7 +502,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('should handle ids in body property with type', async () => {
             const params = {
                 index: mgetIndex,
-                type: docType,
                 body: {
                     ids: ['1', '7', '4']
                 }
@@ -564,7 +562,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
         it('should return record with type and index in search', async () => {
             const params = {
-                type: docType,
                 index: searchIndex,
                 q: 'uuid:bea4086e-6f2e-4f4b-a1bf-c20330f92e8c'
             };
@@ -586,7 +583,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
         it('should return record with body search', async () => {
             const params = {
-                type: docType,
                 index: searchIndex,
                 body: {
                     query: {
@@ -659,11 +655,10 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('should handle type in params and return requested records', async () => {
             const params = {
                 index: msearchIndex,
-                type: docType,
                 body: [
-                    { index: msearchIndex, type: docType },
+                    { index: msearchIndex },
                     { query: { match: { uuid: 'bd920141-45b3-41fd-8eea-b1640a2fa3d2' } } },
-                    { index: msearchIndex, type: docType },
+                    { index: msearchIndex },
                     { query: { match: { uuid: 'b23a8550-0081-453f-9e80-93a90782a5bd' } } }
                 ]
             };
@@ -683,9 +678,9 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                 index: msearchIndex,
                 ccs_minimize_roundtrips: true,
                 body: [
-                    { index: msearchIndex, type: docType },
+                    { index: msearchIndex },
                     { query: { match: { uuid: 'bd920141-45b3-41fd-8eea-b1640a2fa3d2' } } },
-                    { index: msearchIndex, type: docType },
+                    { index: msearchIndex },
                     { query: { match: { uuid: 'b23a8550-0081-453f-9e80-93a90782a5bd' } } }
                 ]
             };
@@ -710,7 +705,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, existsIndex);
 
-            await upload(client, { index: existsIndex, type: docType }, testData);
+            await upload(client, { index: existsIndex }, testData);
             await waitForData(client, existsIndex, 1);
         });
 
@@ -998,7 +993,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, testIndex);
 
-            await upload(client, { index: testIndex, type: docType }, testData);
+            await upload(client, { index: testIndex }, testData);
             await waitForData(client, testIndex, 1);
         });
 
@@ -1024,7 +1019,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             const testData = data.slice(0, 1)
                 .map((doc, i) => DataEntity.make(doc, { _key: i + 1 }));
 
-            await upload(client, { index: index2, type: docType }, testData);
+            await upload(client, { index: index2 }, testData);
 
             const params = {
                 index: 'test-indices-g*'
@@ -1072,8 +1067,8 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             await cleanupIndex(client, testIndex);
             await cleanupIndex(client, anotherIndex);
 
-            await upload(client, { index: testIndex, type: docType }, testData);
-            await upload(client, { index: anotherIndex, type: docType }, testData);
+            await upload(client, { index: testIndex }, testData);
+            await upload(client, { index: anotherIndex }, testData);
             await waitForData(client, testIndex, 1);
         });
 
@@ -1136,7 +1131,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, testIndex);
 
-            await upload(client, { index: testIndex, type: docType }, testData);
+            await upload(client, { index: testIndex }, testData);
             await waitForData(client, testIndex, 5);
         });
 
@@ -1267,7 +1262,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, testIndex);
 
-            await upload(client, { index: testIndex, type: docType }, testData);
+            await upload(client, { index: testIndex }, testData);
             await waitForData(client, testIndex, 1);
         });
 

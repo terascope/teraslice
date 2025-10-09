@@ -293,7 +293,7 @@ describe('elasticsearch-state-storage', () => {
             });
         });
 
-        describe('when presist is true', () => {
+        describe('when persist is true', () => {
             beforeEach(() => setup({
                 persist: true
             }));
@@ -527,7 +527,6 @@ function isBulkOperationContainerWithIndex(obj: any): obj is BulkOperationContai
         && obj !== null
         && 'index' in obj
         && typeof obj.index._index === 'string'
-        && typeof obj.index._type === 'string'
         && typeof obj.index._id === 'string'
     );
 }
