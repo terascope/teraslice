@@ -1,7 +1,7 @@
 {
     "name": "@terascope/opensearch-client",
     "displayName": "Opensearch Client",
-    "version": "2.0.0-dev.2",
+    "version": "2.0.0-dev.3",
     "description": "A Node.js facade client for opensearch & elasticsearch.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/opensearch-client#readme",
     "bugs": {
@@ -31,9 +31,9 @@
         "test:watch": "ts-scripts yarn workspace @terascope/scripts test --watch ../opensearch-client --"
     },
     "dependencies": {
-        "@terascope/data-types": "~2.0.0-dev.2",
-        "@terascope/types": "~2.0.0-dev.2",
-        "@terascope/utils": "~2.0.0-dev.2",
+        "@terascope/data-types": "~2.0.0-dev.3",
+        "@terascope/types": "~2.0.0-dev.3",
+        "@terascope/utils": "~2.0.0-dev.3",
         "elasticsearch6": "npm:@elastic/elasticsearch@~6.8.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@~8.15.0",
