@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       local_teraslice_version: ${{ steps.teraslice-version.outputs.local_teraslice_version }}
-      npm_prerelease_version: ${{ steps.teraslice-version.outputs.npm_prerelease_version }}
+      npm_prerelease_version: ${{ steps.npm-version.outputs.npm_prerelease_version }}
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
@@ -37,7 +37,7 @@ jobs:
       - name: Retrieve NPM Teraslice prerelease version
         id: npm-version
         run: |
-          NPM_PRERELEASE_VERSION=$(yarn npm info teraslice --json | jq -r '.["dist-tags"].prerelase')
+          NPM_PRERELEASE_VERSION=$(yarn npm info teraslice --json | jq -r '.["dist-tags"].prerelease')
           echo "npm_prerelease_version=$NPM_PRERELEASE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Setup Node
@@ -67,6 +67,9 @@ jobs:
       matrix:
         node-version: [22, 24]
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -104,8 +107,8 @@ jobs:
         # prerelease tags are newer if alphabetically "greater"
         # rc.0 > dev.2 > dev.1 > beta.5 > alpha.12
         run: |
-          $LOCAL_TERASLICE_VERSION=${{ needs.build-npm.outputs.local_teraslice_version }}
-          $NPM_PRERELEASE_VERSION=${{ needs.build-npm.outputs.npm_prerelease_version }} 
+          LOCAL_TERASLICE_VERSION=${{ needs.build-npm.outputs.local_teraslice_version }}
+          NPM_PRERELEASE_VERSION=${{ needs.build-npm.outputs.npm_prerelease_version }} 
           echo "current version:" $LOCAL_TERASLICE_VERSION
           echo "npm version:" $NPM_PRERELEASE_VERSION
 
@@ -116,7 +119,7 @@ jobs:
           IS_DEV_RELEASE=$([ -n "$PRERELEASE_TAG" ] && echo true || echo false)
           echo "is_dev_release=$IS_DEV_RELEASE" | tee -a $GITHUB_OUTPUT
 
-          if [ "$COMP_OUTPUT" = "1" && "$IS_DEV_RELEASE" = "true" ]; then
+          if [[ "$COMP_OUTPUT" = "1" && "$IS_DEV_RELEASE" = "true" ]]; then
             echo "Teraslice pre-release version updated from $NPM_PRERELEASE_VERSION to $LOCAL_TERASLICE_VERSION, creating release"
             echo "version_updated=true" >> $GITHUB_OUTPUT
             echo "tag: v$LOCAL_TERASLICE_VERSION"
