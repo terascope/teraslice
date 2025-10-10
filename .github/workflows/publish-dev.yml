@@ -100,6 +100,9 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
 
       - name: Check for teraslice version update
         id: version_check
@@ -143,6 +146,7 @@ jobs:
         with:
           token: ${{ steps.generate-token.outputs.token }}
           prerelease: true
+          target_commitish: ${{ github.event.pull_request.base.ref }}
           tag_name: ${{ steps.version_check.outputs.tag }}
           name: ${{ steps.version_check.outputs.tag }}
           generate_release_notes: true
