@@ -1,7 +1,7 @@
 {
     "name": "xlucene-parser",
     "displayName": "xLucene Parser",
-    "version": "2.0.0-dev.3",
+    "version": "2.0.0-dev.4",
     "description": "Flexible Lucene-like evaluator and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser#readme",
     "repository": {
@@ -33,8 +33,8 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../xlucene-parser --"
     },
     "dependencies": {
-        "@terascope/types": "~2.0.0-dev.3",
-        "@terascope/utils": "~2.0.0-dev.3",
+        "@terascope/types": "~2.0.0-dev.4",
+        "@terascope/utils": "~2.0.0-dev.4",
         "peggy": "~4.2.0",
         "ts-pegjs": "~4.2.1"
     },
