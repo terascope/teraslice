@@ -65,19 +65,6 @@ opensearch3:
   # The number of replicas
   instances: 1
 
-elasticsearch6:
-  # If false, elasticsearch6 will be excluded on helmfile sync
-  enabled: false
-  version: 6.8.6
-  # Overrides default image. Useful when loading in arm image that es doesn't support
-  # image: elasticsearch
-  # The number of replicas
-  instances: 1
-  esJavaOpts: -Xms512m -Xmx512m
-  memoryLimit: 1Gi
-  memoryRequest: 512Mi
-  persistentVolumeSize: 8Gi
-
 elasticsearch7:
   # If false, elasticsearch7 will be excluded on helmfile sync
   enabled: false

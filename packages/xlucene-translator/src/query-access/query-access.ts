@@ -209,10 +209,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     ): Promise<ClientParams.SearchParams> {
         const {
             params: _params = {},
-            majorVersion = 6,
-            minorVersion = 8,
-            distribution = ElasticsearchDistribution.elasticsearch,
-            version = '6.8.6',
+            majorVersion = 2,
+            minorVersion = 15,
+            distribution = ElasticsearchDistribution.opensearch,
+            version = '2.15.0',
             ...options
         } = opts ?? {};
 
@@ -227,7 +227,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         const variables = Object.assign({}, this.variables, opts?.variables ?? {});
 
         if (_params._source) {
-            throw new Error('Cannot include _source in params, use _sourceInclude or _sourceExclude');
+            throw new Error('Cannot include _source in params, use _source_includes or _source_excludes');
         }
         const params = { ..._params };
 
@@ -246,31 +246,22 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         const translated = translator.toElasticsearchDSL(translateOptions);
 
-        // keep _sourceInclude && _sourceExclude for backward compatibility
         const {
-            _sourceInclude, _source_includes,
-            _sourceExclude, _source_excludes,
+            _source_includes: sourceIncludes,
+            _source_excludes: sourceExcludes,
             ...parsedParams
         } = params as any;
-
-        const sourceIncludes = _sourceInclude ?? _source_includes;
-        const sourceExcludes = _sourceExclude ?? _source_excludes;
 
         const { includes, excludes } = this.restrictSourceFields(
             sourceIncludes as (keyof T)[],
             sourceExcludes as (keyof T)[]
         );
 
-        // we can remove this logic when we can get rid of legacy client
-        const isLegacy = version === '6.5';
-        const excludesKey = isLegacy ? '_sourceExclude' : '_source_excludes';
-        const includesKey = isLegacy ? '_sourceInclude' : '_source_includes';
-
         const searchParams: ClientParams.SearchParams = {
             ...parsedParams,
             body: { ...parsedParams.body, ...translated },
-            [excludesKey]: excludes,
-            [includesKey]: includes,
+            _source_excludes: excludes,
+            _source_includes: includes,
         };
 
         if (searchParams != null) {

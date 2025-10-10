@@ -583,7 +583,6 @@ export class TerasliceHarness {
                 {
                     _op: 'elasticsearch_bulk',
                     index: indexName,
-                    type: 'events',
                     size: 1000
                 }
             ]

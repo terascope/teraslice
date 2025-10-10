@@ -99,10 +99,6 @@ export interface TypeESMapping {
 
 export interface ESMappingOptions extends ClientMetadata {
     /**
-     * The elasticsearch index type
-     */
-    typeName?: string;
-    /**
      * Any elasticsearch mapping overrides,
      * uses a deep assignment so nested fields can be overwritten.
      */

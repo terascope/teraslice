@@ -8,7 +8,6 @@ import { DataType } from '@terascope/data-types';
 import {
     createClient, getBaseClient, Client,
     ElasticsearchTestHelpers,
-    isElasticsearch6,
 } from '../src/index.js';
 
 const {
@@ -22,7 +21,6 @@ const { data, EvenDataType } = EvenDateData;
 describe('creates client that exposes elasticsearch and opensearch functions', () => {
     const index = 'wrapped_client_test';
     const taskIndex = 'task_index_test';
-    const docType = '_doc';
 
     const testLogger = debugLogger('create-client-test');
 
@@ -47,7 +45,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             throw new Error(`Expected version to follow semver format (major.minor.patch) got ${clientMetadata.version}`);
         }
 
-        await upload(client, { index, type: docType }, data);
+        await upload(client, { index }, data);
         await waitForData(client, index, 1000);
     }, 15000);
 
@@ -113,7 +111,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             // has type, should be removed in Elasticsearch v8 tests
             const bodyTypeQuery: ClientParams.CountParams = {
                 index,
-                type: docType,
                 body: {
                     query: {
                         constant_score: {
@@ -144,7 +141,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             const request: ClientParams.BulkParams = {
                 index: testIndex,
-                type: docType,
                 refresh: 'wait_for',
                 body: bulkData
             };
@@ -181,7 +177,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('can create a new record and index', async () => {
             const bodyTypeQuery: ClientParams.CreateParams = {
                 index: createIndex,
-                type: docType,
                 refresh: true,
                 id: recordID,
                 body: record
@@ -215,7 +210,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             const query: ClientParams.IndexParams = {
                 index: testIndex,
-                type: docType,
                 refresh: 'wait_for',
                 body: doc
             };
@@ -263,7 +257,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         beforeAll(async () => {
             // use this to test the function, this ensure a type for a given field
             await populateIndex(
-                client, testIndex, dataType, records, docType
+                client, testIndex, dataType, records
             );
         });
 
@@ -279,7 +273,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             const query: ClientParams.UpdateParams = {
                 id: id1,
                 index: testIndex,
-                type: docType,
                 body: { doc: updatedDoc },
                 refresh: true
             };
@@ -324,7 +317,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
         beforeAll(async () => {
             await cleanupIndex(client, deleteIndex);
-            await upload(client, { index: deleteIndex, type: docType }, data);
+            await upload(client, { index: deleteIndex }, data);
             await waitForData(client, deleteIndex, 1000);
         });
 
@@ -335,7 +328,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('can delete a single records', async () => {
             const bodyTypeQuery: ClientParams.DeleteParams = {
                 index: deleteIndex,
-                type: docType,
                 id: '3849b210-d8b8-4708-b70d-90b043a2598d'
             };
 
@@ -356,7 +348,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
         beforeAll(async () => {
             await cleanupIndex(client, deleteByQueryIndex);
-            await upload(client, { index: deleteByQueryIndex, type: docType }, data);
+            await upload(client, { index: deleteByQueryIndex }, data);
             await waitForData(client, deleteByQueryIndex, 1000);
         });
 
@@ -367,7 +359,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('can delete multiple records by query', async () => {
             const bodyTypeQuery: ClientParams.DeleteByQueryParams = {
                 index: deleteByQueryIndex,
-                type: docType,
                 refresh: true,
                 body: {
                     query: {
@@ -394,7 +385,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('can delete multiple records by query without body present', async () => {
             const bodyTypeQuery: ClientParams.DeleteByQueryParams = {
                 index: deleteByQueryIndex,
-                type: docType,
                 refresh: true,
                 q: 'uuid:c*'
             };
@@ -424,7 +414,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('can fetch a record', async () => {
             const bodyTypeQuery: ClientParams.GetParams = {
                 index,
-                type: docType,
                 id: record.uuid,
             };
 
@@ -439,7 +428,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('records returned can have removed fields', async () => {
             const bodyTypeQuery: ClientParams.GetParams = {
                 index,
-                type: docType,
                 id: record.uuid,
                 _source_excludes: ['location', 'ipv6', 'userAgent']
             };
@@ -466,7 +454,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, mgetIndex);
             await populateIndex(
-                client, mgetIndex, EvenDataType, testData, docType
+                client, mgetIndex, EvenDataType, testData
             );
             await waitForData(client, mgetIndex, 10);
         });
@@ -484,26 +472,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                             { _index: mgetIndex, _id: '1' },
                             { _index: mgetIndex, _id: '7' },
                             { _index: mgetIndex, _id: '4' }
-                        ]
-                }
-            };
-
-            const resp = await client.mget(params) as any;
-
-            expect(resp.docs[0]._source?.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
-            expect(resp.docs[1]._source?.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
-            expect(resp.docs[2]._source?.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
-        });
-
-        it('should handle docs with _type doc objects', async () => {
-            const params = {
-                index: mgetIndex,
-                body: {
-                    docs:
-                        [
-                            { _index: mgetIndex, _id: '1', _type: docType },
-                            { _index: mgetIndex, _id: '7', _type: docType },
-                            { _index: mgetIndex, _id: '4', _type: docType }
                         ]
                 }
             };
@@ -534,7 +502,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('should handle ids in body property with type', async () => {
             const params = {
                 index: mgetIndex,
-                type: docType,
                 body: {
                     ids: ['1', '7', '4']
                 }
@@ -561,7 +528,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             await cleanupIndex(client, searchIndex);
 
             await populateIndex(
-                client, searchIndex, EvenDataType, testData, docType
+                client, searchIndex, EvenDataType, testData
             );
 
             await waitForData(client, searchIndex, 10);
@@ -595,7 +562,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
         it('should return record with type and index in search', async () => {
             const params = {
-                type: docType,
                 index: searchIndex,
                 q: 'uuid:bea4086e-6f2e-4f4b-a1bf-c20330f92e8c'
             };
@@ -617,7 +583,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
         it('should return record with body search', async () => {
             const params = {
-                type: docType,
                 index: searchIndex,
                 body: {
                     query: {
@@ -656,7 +621,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             await cleanupIndex(client, msearchIndex);
 
             await populateIndex(
-                client, msearchIndex, EvenDataType, testData, docType
+                client, msearchIndex, EvenDataType, testData
             );
 
             await waitForData(client, msearchIndex, 10);
@@ -690,11 +655,10 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('should handle type in params and return requested records', async () => {
             const params = {
                 index: msearchIndex,
-                type: docType,
                 body: [
-                    { index: msearchIndex, type: docType },
+                    { index: msearchIndex },
                     { query: { match: { uuid: 'bd920141-45b3-41fd-8eea-b1640a2fa3d2' } } },
-                    { index: msearchIndex, type: docType },
+                    { index: msearchIndex },
                     { query: { match: { uuid: 'b23a8550-0081-453f-9e80-93a90782a5bd' } } }
                 ]
             };
@@ -714,9 +678,9 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                 index: msearchIndex,
                 ccs_minimize_roundtrips: true,
                 body: [
-                    { index: msearchIndex, type: docType },
+                    { index: msearchIndex },
                     { query: { match: { uuid: 'bd920141-45b3-41fd-8eea-b1640a2fa3d2' } } },
-                    { index: msearchIndex, type: docType },
+                    { index: msearchIndex },
                     { query: { match: { uuid: 'b23a8550-0081-453f-9e80-93a90782a5bd' } } }
                 ]
             };
@@ -741,7 +705,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, existsIndex);
 
-            await upload(client, { index: existsIndex, type: docType }, testData);
+            await upload(client, { index: existsIndex }, testData);
             await waitForData(client, existsIndex, 1);
         });
 
@@ -775,7 +739,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             const params = {
                 id: '1',
                 index: existsIndex,
-                type: '_doc',
+
                 preference: '_local',
                 realtime: true,
                 refresh: false,
@@ -806,7 +770,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             await cleanupIndex(client, reindexIndex);
 
             await populateIndex(
-                client, reindexIndex, EvenDataType, testData, docType
+                client, reindexIndex, EvenDataType, testData
             );
 
             await waitForData(client, reindexIndex, 10);
@@ -844,7 +808,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                     },
                     dest: {
                         index: 'test-reindex3',
-                        type: '_doc'
+
                     }
                 }
             };
@@ -864,7 +828,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                     },
                     dest: {
                         index: 'test-reindex4',
-                        type: '_doc'
+
                     },
                     script: {
                         source: 'ctx._source.host = ctx._source.remove("url")',
@@ -889,7 +853,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                     },
                     dest: {
                         index: 'test-reindex6',
-                        type: '_doc'
+
                     }
                 }
             };
@@ -915,7 +879,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                     },
                     dest: {
                         index: 'test-reindex5',
-                        type: '_doc',
                         op_type: 'create'
                     }
                 }
@@ -1029,7 +992,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, testIndex);
 
-            await upload(client, { index: testIndex, type: docType }, testData);
+            await upload(client, { index: testIndex }, testData);
             await waitForData(client, testIndex, 1);
         });
 
@@ -1055,7 +1018,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             const testData = data.slice(0, 1)
                 .map((doc, i) => DataEntity.make(doc, { _key: i + 1 }));
 
-            await upload(client, { index: index2, type: docType }, testData);
+            await upload(client, { index: index2 }, testData);
 
             const params = {
                 index: 'test-indices-g*'
@@ -1075,7 +1038,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('should handle detailed settings and mappings and settings for the index', async () => {
             const params: ClientParams.IndicesGetParams = {
                 index: testIndex,
-                include_type_name: true,
                 local: true,
                 ignore_unavailable: true,
                 allow_no_indices: true,
@@ -1104,8 +1066,8 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             await cleanupIndex(client, testIndex);
             await cleanupIndex(client, anotherIndex);
 
-            await upload(client, { index: testIndex, type: docType }, testData);
-            await upload(client, { index: anotherIndex, type: docType }, testData);
+            await upload(client, { index: testIndex }, testData);
+            await upload(client, { index: anotherIndex }, testData);
             await waitForData(client, testIndex, 1);
         });
 
@@ -1168,7 +1130,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, testIndex);
 
-            await upload(client, { index: testIndex, type: docType }, testData);
+            await upload(client, { index: testIndex }, testData);
             await waitForData(client, testIndex, 5);
         });
 
@@ -1299,7 +1261,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, testIndex);
 
-            await upload(client, { index: testIndex, type: docType }, testData);
+            await upload(client, { index: testIndex }, testData);
             await waitForData(client, testIndex, 1);
         });
 
@@ -1328,7 +1290,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('should save the template to the cluster', async () => {
             const params: ClientParams.IndicesPutTemplateParams = {
                 name: tempName,
-                include_type_name: false,
                 order: 0,
                 create: true,
                 master_timeout: '60s',
@@ -1606,13 +1567,8 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             const resp = await client.indices.getMapping({ index });
             const expectedKeys = Object.keys(data[0]);
 
-            let pathToProperties: string;
+            const pathToProperties = `${index}.mappings.properties`;
 
-            if (isElasticsearch6(client)) {
-                pathToProperties = `${index}.mappings.${docType}.properties`;
-            } else {
-                pathToProperties = `${index}.mappings.properties`;
-            }
             const keys = Object.keys(get(resp, pathToProperties, {}));
 
             expect(keys).toIncludeAllMembers(expectedKeys);

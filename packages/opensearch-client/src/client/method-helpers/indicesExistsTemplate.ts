@@ -11,7 +11,7 @@ export function convertIndicesExistsTemplateParams(
     } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if ([6, 7, 8].includes(majorVersion)) return params;
+        if ([7, 8].includes(majorVersion)) return params;
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {

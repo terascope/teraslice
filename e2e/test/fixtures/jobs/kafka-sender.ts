@@ -9,7 +9,6 @@ export default {
         {
             _op: 'elasticsearch_reader',
             index: 'replace-me-1000',
-            type: 'events',
             size: 500,
             date_field_name: 'created',
             preserve_id: true

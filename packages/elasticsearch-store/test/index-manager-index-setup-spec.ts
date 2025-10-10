@@ -146,7 +146,7 @@ describe('IndexManager->indexSetup()', () => {
                 it('should throw attempting to change the index', async () => {
                     const changes = 'CHANGES: changed field "test_keyword", changed field "test_number", removed field "test_object.added"';
                     await expect(indexManager.indexSetup(configV3)).rejects.toThrow(
-                        `Index ${index} (${config.name}) has breaking change in the mapping, increment the schema version to fix this. ${changes}`
+                        `Index ${index} has breaking change in the mapping, increment the schema version to fix this. ${changes}`
                     );
                 });
             });
@@ -286,7 +286,6 @@ describe('IndexManager->indexSetup()', () => {
             const { version: schemaVersion } = config.index_schema!;
 
             const { mappings } = config.data_type.toESMapping({
-                typeName: config.name,
                 ...clientMetadata
             });
 
