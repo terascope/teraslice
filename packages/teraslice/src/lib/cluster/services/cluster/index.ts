@@ -1,12 +1,9 @@
 import { NativeClustering } from './backends/native/index.js';
-import { KubernetesClusterBackend } from './backends/kubernetes/index.js';
 import { KubernetesClusterBackendV2 } from './backends/kubernetesV2/index.js';
 import { ClusterMasterContext } from '../../../../interfaces.js';
 
 export type ClusterServiceType
-    = NativeClustering
-        | KubernetesClusterBackend
-        | KubernetesClusterBackendV2;
+    = NativeClustering | KubernetesClusterBackendV2;
 
 export function makeClustering(
     context: ClusterMasterContext,
@@ -16,10 +13,6 @@ export function makeClustering(
 
     if (clusterType === 'native') {
         return new NativeClustering(context, clusterMasterServer);
-    }
-
-    if (clusterType === 'kubernetes') {
-        return new KubernetesClusterBackend(context, clusterMasterServer);
     }
 
     if (clusterType === 'kubernetesV2') {

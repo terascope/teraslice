@@ -853,7 +853,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         return () => { };
     }
 
-    if (options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2') {
+    if (options.clusteringType === 'kubernetesV2') {
         const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
         await kind.loadServiceImage(
             service,

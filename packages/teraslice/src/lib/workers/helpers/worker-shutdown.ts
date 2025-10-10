@@ -38,18 +38,8 @@ export function shutdownHandler(
         || process.env.assignment
         || 'unknown-assignment';
 
-    const clusteringType = get(context, 'sysconfig.teraslice.cluster_manager_type');
-    const isK8s = clusteringType === 'kubernetes' || clusteringType === 'kubernetesV2';
     // this is native clustering only
     const isProcessRestart = process.env.process_restart;
-    // everything but the k8s execution_controller should not be allowed be allowed to
-    // set a non-zero exit code (to avoid being restarted)
-    // This is overridden in V2 because it can restart
-    const allowNonZeroExitCode = !(
-        isK8s
-        && assignment === 'execution_controller'
-        && context.sysconfig.teraslice.cluster_manager_type === 'kubernetes'
-    );
     const api = {
         exiting: false,
         exit
@@ -91,7 +81,7 @@ export function shutdownHandler(
     }
 
     async function callShutdownFn(event: string, err?: Error) {
-        // avoid failing before the promse is try / catched in pRaceWithTimeout
+        // avoid failing before the promise is try / catched in pRaceWithTimeout
         await pDelay(100);
         await shutdownFn(event, err);
     }
@@ -105,7 +95,7 @@ export function shutdownHandler(
 
     async function exit(event: string, err?: Error) {
         if (api.exiting) return;
-        /// Potential logic for cluster_master and asset_service
+
         if (err) {
             if (err.name.includes('Error')) {
                 setStatusCode(1);
@@ -120,14 +110,9 @@ export function shutdownHandler(
             logError(logger, error, `${assignment} while shutting down`);
         } finally {
             await flushLogs();
-            if (allowNonZeroExitCode) {
-                const code = process.exitCode != null ? process.exitCode : 0;
-                logger.info(`${assignment} shutdown took ${ms(Date.now() - startTime)}, exit with ${code} status code`);
-                process.exit();
-            } else {
-                logger.info(`${assignment} shutdown took ${ms(Date.now() - startTime)}, exit with zero status code`);
-                process.exit(0);
-            }
+            const code = process.exitCode != null ? process.exitCode : 0;
+            logger.info(`${assignment} shutdown took ${ms(Date.now() - startTime)}, exit with ${code} status code`);
+            process.exit();
         }
     }
 

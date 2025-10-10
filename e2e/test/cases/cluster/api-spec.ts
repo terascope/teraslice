@@ -19,7 +19,7 @@ describe('cluster api', () => {
         const testStream = createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.05;
         }
         await terasliceHarness.teraslice.assets.upload(testStream, {
@@ -36,7 +36,7 @@ describe('cluster api', () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         const { workers, slicers } = jobSpec;
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.05;
         }
         const alteredJob: Partial<JobConfig> = cloneDeep(jobSpec);
@@ -66,7 +66,7 @@ describe('cluster api', () => {
         const specIndex = terasliceHarness.newSpecIndex('api');
         jobSpec.name = 'basic reindex for lifecycle';
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.05;
         }
 
@@ -167,7 +167,7 @@ describe('cluster api', () => {
         beforeAll(async () => {
             jobSpec = terasliceHarness.newJob('generator');
             // Set resource constraints on workers within CI
-            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+            if (TEST_PLATFORM === 'kubernetesV2') {
                 jobSpec.resources_requests_cpu = 0.05;
             }
 

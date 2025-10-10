@@ -216,7 +216,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
 
     const clusteringType = context.sysconfig.teraslice.cluster_manager_type;
 
-    if (clusteringType === 'kubernetes' || clusteringType === 'kubernetesV2') {
+    if (clusteringType === 'kubernetesV2') {
         schemas.targets = {
             default: [],
             doc: 'array of key/value labels used for targeting teraslice jobs to nodes',

@@ -90,7 +90,7 @@ export class K8s {
         }
     }
 
-    async deployK8sTeraslice(clustering: 'kubernetes' | 'kubernetesV2', wait: boolean, dev: boolean, assetStorage = 'elasticsearch-next') {
+    async deployK8sTeraslice(clustering: 'kubernetesV2', wait: boolean, dev: boolean, assetStorage = 'elasticsearch-next') {
         signale.pending('Begin teraslice deployment...');
         const e2eK8sDir = getE2eK8sDir();
         if (!e2eK8sDir) {
@@ -202,7 +202,7 @@ export class K8s {
                 // TODO: switch to a teraslice client
                 const tsResponse = await execaCommand(`curl http://${config.HOST_IP}:${this.tsPort}`);
                 response = JSON.parse(tsResponse.stdout);
-                if (response.clustering_type === 'kubernetes' || response.clustering_type === 'kubernetesV2') {
+                if (response.clustering_type === 'kubernetesV2') {
                     terasliceRunning = true;
                 }
             } catch (err) {

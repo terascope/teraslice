@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       local_teraslice_version: ${{ steps.teraslice-version.outputs.local_teraslice_version }}
-      npm_prerelease_version: ${{ steps.teraslice-version.outputs.npm_prerelease_version }}
+      npm_prerelease_version: ${{ steps.npm-version.outputs.npm_prerelease_version }}
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
@@ -100,6 +100,9 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
 
       - name: Check for teraslice version update
         id: version_check
@@ -119,7 +122,7 @@ jobs:
           IS_DEV_RELEASE=$([ -n "$PRERELEASE_TAG" ] && echo true || echo false)
           echo "is_dev_release=$IS_DEV_RELEASE" | tee -a $GITHUB_OUTPUT
 
-          if [ "$COMP_OUTPUT" = "1" && "$IS_DEV_RELEASE" = "true" ]; then
+          if [[ "$COMP_OUTPUT" = "1" && "$IS_DEV_RELEASE" = "true" ]]; then
             echo "Teraslice pre-release version updated from $NPM_PRERELEASE_VERSION to $LOCAL_TERASLICE_VERSION, creating release"
             echo "version_updated=true" >> $GITHUB_OUTPUT
             echo "tag: v$LOCAL_TERASLICE_VERSION"
@@ -143,6 +146,7 @@ jobs:
         with:
           token: ${{ steps.generate-token.outputs.token }}
           prerelease: true
+          target_commitish: ${{ github.event.pull_request.base.ref }}
           tag_name: ${{ steps.version_check.outputs.tag }}
           name: ${{ steps.version_check.outputs.tag }}
           generate_release_notes: true
@@ -170,118 +174,3 @@ jobs:
       - name: Failed Announcement Response
         if: ${{ steps.announce-release.outputs.ok == 'false' }}
         run: echo "Slackbot API failure response - ${{ steps.announce-release.outputs.response }}"
-
-  build-and-publish-helm-charts:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    needs: build-npm
-    permissions:
-      contents: write
-      packages: write
-    outputs:
-       version_exists: ${{ steps.check-version.outputs.version_exists }}
-    steps:
-      - name: Generate a token
-        id: token-generation
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ vars.RELEASES_APP_ID }}
-          private-key: ${{ secrets.RELEASES_PRIVATE_KEY }}
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ steps.token-generation.outputs.token }}
-
-      - name: Set Up Helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-      - name: Authenticate Helm to GHCR
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username $GITHUB_ACTOR --password-stdin
-
-
-      - name: Extract Helm Chart Version
-        id: extract-helm-version
-        run: |
-          CHART_VERSION=$(yq eval '.version' ./helm/teraslice/Chart.yaml)
-          echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Check if Helm Chart Version Exists in GHCR
-        id: check-version
-        env:
-          CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
-
-        run: |
-          if curl -Ss -L -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          "https://api.github.com/orgs/terascope/packages/container/teraslice-chart/versions" | \
-              jq -r --arg version "$CHART_VERSION" '.[] | select(.metadata.container.tags[] == $version)' | \
-              grep -q "$CHART_VERSION"; then
-              echo "Helm chart version $CHART_VERSION already exists in GHCR."
-              echo "version_exists=true" >> $GITHUB_OUTPUT
-            else
-              echo "Helm chart version $CHART_VERSION does not exist in GHCR."
-              echo "version_exists=false" >> $GITHUB_OUTPUT
-            fi
-
-      - name: Package and Update index.yaml
-        if: steps.check-version.outputs.version_exists == 'false'
-        env:
-          CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
-        run: |
-          cd ./helm/helm-repo-site
-          echo $(helm package ../teraslice)
-          echo "Packaged Helm chart."
-          echo $(ls)
-          helm repo index . --merge=index.yaml --url oci://ghcr.io/terascope/teraslice-chart:${{ env.CHART_VERSION }}
-          echo $(cat index.yaml)
-          echo $(ls)
-          sed -i 's|/teraslice-chart-${{ env.CHART_VERSION }}.tgz||' index.yaml
-          echo $(cat index.yaml)
-
-      - name: Commit Updated index.yaml
-        if: steps.check-version.outputs.version_exists == 'false'
-        run: |
-          echo $(ls)
-          echo $(find ./helm/helm-repo-site/index.yaml)
-          echo $(cat ./helm/helm-repo-site/index.yaml)
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add ./helm/helm-repo-site/index.yaml
-          git commit -m "Update Helm chart index.yaml for version $CHART_VERSION"
-          git push -v https://x-access-token:${{ steps.token-generation.outputs.token }}@github.com/terascope/teraslice.git HEAD:master
-
-      - name: Publish Helm Chart to GHCR
-        if: steps.check-version.outputs.version_exists == 'false'
-        env:
-          CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
-        run: |
-          cd ./helm/helm-repo-site
-          echo $(ls)
-          CHART_FILE=$(ls teraslice-chart-${{ env.CHART_VERSION }}.tgz)
-          echo "Publishing $CHART_FILE to GHCR..."
-          helm push $CHART_FILE oci://ghcr.io/terascope --debug
-
-  trigger-terascope-helm-charts-update-gh-pages-workflow:
-    if: github.event.pull_request.merged == true && needs.build-and-publish-helm-charts.outputs.version_exists == 'false'
-    needs: [build-and-publish-helm-charts]
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Generate a token
-        id: generate-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ vars.GH_CROSS_REPO_ACTIONS_APP_ID }}
-          private-key: ${{ secrets.GH_CROSS_REPO_ACTIONS_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: helm-charts
-      - 
-        name: Send workflow dispatch event to terascope/helm-charts
-        run: |
-          curl -X POST -H "Accept: application/vnd.github+json" \
-                -H "Authorization: Bearer ${{ steps.generate-token.outputs.token }}" \
-                https://api.github.com/repos/terascope/helm-charts/actions/workflows/update-gh-pages.yaml/dispatches \
-                -d '{"ref":"main","inputs":{"reason":"Teraslice chart release"}}'
