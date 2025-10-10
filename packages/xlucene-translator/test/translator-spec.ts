@@ -27,7 +27,9 @@ describe('Translator', () => {
             geo_sort_order: 'asc',
             geo_sort_unit: 'meters',
             majorVersion: 6,
-            distribution: ElasticsearchDistribution.elasticsearch
+            distribution: ElasticsearchDistribution.elasticsearch,
+            aggregations: [],
+            groupBy: { fields: [] }
         })).toEqual({
             query: {
                 match_none: {}
