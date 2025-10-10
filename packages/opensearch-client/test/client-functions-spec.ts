@@ -739,7 +739,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             const params = {
                 id: '1',
                 index: existsIndex,
-                type: '_doc',
+
                 preference: '_local',
                 realtime: true,
                 refresh: false,
@@ -808,7 +808,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                     },
                     dest: {
                         index: 'test-reindex3',
-                        type: '_doc'
+
                     }
                 }
             };
@@ -828,7 +828,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                     },
                     dest: {
                         index: 'test-reindex4',
-                        type: '_doc'
+
                     },
                     script: {
                         source: 'ctx._source.host = ctx._source.remove("url")',
@@ -853,7 +853,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                     },
                     dest: {
                         index: 'test-reindex6',
-                        type: '_doc'
+
                     }
                 }
             };
@@ -879,7 +879,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                     },
                     dest: {
                         index: 'test-reindex5',
-                        type: '_doc',
                         op_type: 'create'
                     }
                 }
