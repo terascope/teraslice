@@ -1,6 +1,5 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
 import { get, isNumber } from '@terascope/utils';
-import { ensureNoTypeInMapping } from './helper-utils.js';
 
 export function convertIndicesPutTemplateParams(
     params: ClientParams.IndicesPutTemplateParams,
@@ -24,7 +23,7 @@ export function convertIndicesPutTemplateParams(
             return {
                 index_patterns: body?.index_patterns,
                 aliases: body?.aliases,
-                mappings: ensureNoTypeInMapping(body?.mappings),
+                mappings: body?.mappings,
                 settings: body?.settings,
                 ...isNumber(indexSchemaVersion) && { version: indexSchemaVersion },
                 ...parsedParams
@@ -50,7 +49,7 @@ export function convertIndicesPutTemplateParams(
 
             const newBody = {
                 ...body,
-                mappings: ensureNoTypeInMapping(body?.mappings),
+                mappings: body?.mappings,
             };
 
             return {
