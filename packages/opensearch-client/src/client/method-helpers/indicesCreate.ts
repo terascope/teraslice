@@ -1,5 +1,4 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
-import { ensureNoTypeInMapping } from './helper-utils.js';
 
 export function convertIndicesCreateParams(
     params: ClientParams.IndicesCreateParams,
@@ -21,7 +20,7 @@ export function convertIndicesCreateParams(
             return {
                 aliases: body?.aliases,
                 // ensure no type in mapping
-                mappings: ensureNoTypeInMapping(body?.mappings),
+                mappings: body?.mappings,
                 settings: body?.settings,
                 ...parsedParams
             };
@@ -46,7 +45,7 @@ export function convertIndicesCreateParams(
 
             const newBody = {
                 ...body,
-                mappings: ensureNoTypeInMapping(body?.mappings),
+                mappings: body?.mappings,
             };
 
             return {
