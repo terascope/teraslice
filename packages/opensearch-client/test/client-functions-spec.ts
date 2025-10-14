@@ -887,13 +887,8 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             const resp = await client.reindex(params) as ClientResponse.ReindexCompletedResponse;
 
             if (clientMetadata.distribution === 'elasticsearch') {
-                if (clientMetadata.majorVersion === 6) {
-                    expect(resp.total).toBe(10);
-                    expect(resp.created).toBe(10);
-                } else {
-                    expect(resp.total).toBe(5);
-                    expect(resp.created).toBe(5);
-                }
+                expect(resp.total).toBe(5);
+                expect(resp.created).toBe(5);
             }
         });
     });
@@ -1319,29 +1314,15 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             const resp = await client.indices.getTemplate(params);
 
-            if (clientMetadata.distribution === 'elasticsearch' && clientMetadata.majorVersion === 6) {
-                if (clientMetadata.majorVersion === 6) {
-                    expect(resp).toEqual({
-                        [tempName]: {
-                            order: 0,
-                            index_patterns: indexPatterns,
-                            settings: { index: settings },
-                            mappings: { _doc: mappings },
-                            aliases
-                        }
-                    });
+            expect(resp).toEqual({
+                [tempName]: {
+                    order: 0,
+                    index_patterns: indexPatterns,
+                    settings: { index: settings },
+                    mappings,
+                    aliases
                 }
-            } else {
-                expect(resp).toEqual({
-                    [tempName]: {
-                        order: 0,
-                        index_patterns: indexPatterns,
-                        settings: { index: settings },
-                        mappings,
-                        aliases
-                    }
-                });
-            }
+            });
         });
     });
 
