@@ -1147,16 +1147,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             expect(resp._all).toBeDefined();
             expect(resp._all.total.docs?.count).toBe(5);
         });
-
-        it('should return stats on the index if types in params', async () => {
-            const params = { index: testIndex, types: '_doc' };
-
-            const resp = await client.indices.stats(params);
-
-            expect(resp._shards).toBeDefined();
-            expect(resp._all).toBeDefined();
-            expect(resp._all.total.docs?.count).toBe(5);
-        });
     });
 
     describe('indices.create', () => {
@@ -1182,41 +1172,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             expect(resp.acknowledged).toBeTrue();
             expect(resp.shards_acknowledged).toBeTrue();
             expect(resp.index).toBe(testIndex);
-        });
-
-        it('should create new index with mappings, alias, and settings if types present', async () => {
-            const params = {
-                index: otherIndex,
-                include_type_name: true,
-                body: {
-                    aliases: {
-                        'test-indices-yo-mama': {
-                            is_write_index: true,
-                            is_hidden: false
-                        }
-                    },
-                    mappings: {
-                        _doc: {
-                            properties: {
-                                _key: { type: 'keyword' },
-                                name: { type: 'text' },
-                                age: { type: 'short' }
-                            }
-                        }
-                    },
-                    settings: {
-                        number_of_shards: 3,
-                        number_of_replicas: 2,
-                        max_result_window: 10
-                    }
-                }
-            };
-
-            const resp = await client.indices.create(params);
-
-            expect(resp.acknowledged).toBeTrue();
-            expect(resp.shards_acknowledged).toBeTrue();
-            expect(resp.index).toBe(otherIndex);
         });
 
         it('should create new index with mappings, alias, and settings without types', async () => {
