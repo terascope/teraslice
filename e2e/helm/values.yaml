@@ -8,6 +8,11 @@ opensearch1:
   persistentVolumeSize: 8Gi
   # The number of replicas
   instances: 1
+  # The absolute path to an es data directory on the host machine to use
+  # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
+  # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
+  # Example -->   hostVolumePath: /Users/local-volumes/es7
+  hostVolumePath: null
 
 opensearch2:
   # If false, opensearch2 will be excluded on helmfile sync
@@ -36,6 +41,11 @@ opensearch2:
   persistentVolumeSize: 8Gi
   # The number of replicas
   instances: 1
+  # The absolute path to an es data directory on the host machine to use
+  # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
+  # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
+  # Example -->   hostVolumePath: /Users/local-volumes/es7
+  hostVolumePath: null
 
 opensearch3:
   # If false, opensearch3 will be excluded on helmfile sync
@@ -64,6 +74,11 @@ opensearch3:
   persistentVolumeSize: 8Gi
   # The number of replicas
   instances: 1
+  # The absolute path to an es data directory on the host machine to use
+  # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
+  # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
+  # Example -->   hostVolumePath: /Users/local-volumes/es7
+  hostVolumePath: null
 
 elasticsearch7:
   # If false, elasticsearch7 will be excluded on helmfile sync
@@ -76,6 +91,11 @@ elasticsearch7:
   memoryLimit: 1Gi
   memoryRequest: 512Mi
   persistentVolumeSize: 8Gi
+  # The absolute path to an es data directory on the host machine to use
+  # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
+  # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
+  # Example -->   hostVolumePath: /Users/local-volumes/es7
+  hostVolumePath: null
 
 minio:
   # If false, minio will be excluded on helmfile sync
@@ -96,6 +116,11 @@ minio:
     privateKeyName: private.key
     # The ca-certificate used by teraslice for minio service
     caCert: null
+  # The absolute path to an es data directory on the host machine to use
+  # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
+  # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
+  # Example -->   hostVolumePath: /Users/local-volumes/es7
+  hostVolumePath: null
 
 kafka:
   # If false, kafka will be excluded on helmfile sync
