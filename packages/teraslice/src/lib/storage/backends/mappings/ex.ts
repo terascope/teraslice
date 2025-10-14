@@ -1,8 +1,5 @@
 export default {
     mappings: {
-        _all: {
-            enabled: false
-        },
         dynamic: false,
         properties: {
             active: {

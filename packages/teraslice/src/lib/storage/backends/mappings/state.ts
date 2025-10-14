@@ -1,9 +1,6 @@
 export default {
     template: '__state*',
     mappings: {
-        _all: {
-            enabled: false
-        },
         dynamic: false,
         properties: {
             ex_id: {

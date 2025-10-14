@@ -4,9 +4,6 @@ export default {
         'index.number_of_replicas': 1
     },
     mappings: {
-        _all: {
-            enabled: false
-        },
         dynamic: false,
         properties: {
             active: {

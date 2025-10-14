@@ -117,17 +117,6 @@ export class DataType {
             ..._meta && { _meta }
         };
 
-        if (
-            distribution === ElasticsearchDistribution.elasticsearch
-            && majorVersion === 6
-        ) {
-            Object.assign(mappingSettings, {
-                _all: {
-                    enabled: false,
-                },
-            });
-        }
-
         const mappings = mappingSettings;
 
         const esMapping: ESMapping = {
