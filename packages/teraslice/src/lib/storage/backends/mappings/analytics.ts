@@ -1,9 +1,6 @@
 export default {
     template: '__analytics*',
     mappings: {
-        _all: {
-            enabled: false
-        },
         dynamic: false,
         properties: {
             ex_id: {
