@@ -27,7 +27,11 @@ export class Kind {
         this.k8sVersion = k8sVersion;
     }
 
-    async createCluster(teraslicePort = TERASLICE_PORT, devMode: boolean = false): Promise<void> {
+    async createCluster(
+        teraslicePort = TERASLICE_PORT,
+        devMode: boolean = false,
+        customConfigPath?: string
+    ): Promise<void> {
         this.kindVersion = await this.getKindVersion();
 
         const e2eK8sDir = getE2eK8sDir();
@@ -50,36 +54,130 @@ export class Kind {
         const configFile = yaml.load(fs.readFileSync(configPath, 'utf8')) as KindCluster;
 
         // Map external ports from kind to the host machine based off of config variables
-        configFile.nodes[0].extraPortMappings.push({
-            containerPort: 30678,
-            hostPort: Number.parseInt(TERASLICE_PORT)
-        });
-        for (const service of ENV_SERVICES) {
-            if (service === 'elasticsearch') {
+        if (!customConfigPath) {
+            configFile.nodes[0].extraPortMappings.push({
+                containerPort: 30678,
+                hostPort: Number.parseInt(TERASLICE_PORT)
+            });
+
+            for (const service of ENV_SERVICES) {
+                if (service === 'elasticsearch') {
+                    configFile.nodes[0].extraPortMappings.push({
+                        containerPort: 30200,
+                        hostPort: Number.parseInt(ELASTICSEARCH_PORT)
+                    });
+                } else if (service === 'opensearch') {
+                    configFile.nodes[0].extraPortMappings.push({
+                        containerPort: 30210,
+                        hostPort: Number.parseInt(OPENSEARCH_PORT)
+                    });
+                } else if (service === 'minio') {
+                    configFile.nodes[0].extraPortMappings.push({
+                        containerPort: 30900,
+                        hostPort: Number.parseInt(MINIO_PORT)
+                    });
+                    configFile.nodes[0].extraPortMappings.push({
+                        containerPort: 30901,
+                        hostPort: Number.parseInt(MINIO_UI_PORT)
+                    });
+                } else if (service === 'kafka') {
+                    // map only the external kafka port so it can resolve with the host machine
+                    configFile.nodes[0].extraPortMappings.push({
+                        containerPort: 30094,
+                        hostPort: Number.parseInt(KAFKA_PORT)
+                    });
+                }
+            }
+        } else {
+            const customConfig = yaml.load(fs.readFileSync(customConfigPath, 'utf8')) as any;
+
+            // Clear all before we add. Still need feedback if I want to do this.
+            // configFile.nodes[0].extraPortMappings = [];
+
+            if (customConfig.opensearch1.enabled === true) {
                 configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30200,
-                    hostPort: Number.parseInt(ELASTICSEARCH_PORT)
+                    containerPort: 30201,
+                    hostPort: customConfig.opensearch1.hostPort || 9201
                 });
-            } else if (service === 'opensearch') {
+            }
+            if (customConfig.opensearch2.enabled === true) {
                 configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30210,
-                    hostPort: Number.parseInt(OPENSEARCH_PORT)
+                    containerPort: 30202,
+                    hostPort: customConfig.opensearch2.hostPort || 9202
                 });
-            } else if (service === 'minio') {
+            }
+            if (customConfig.opensearch3.enabled === true) {
+                configFile.nodes[0].extraPortMappings.push({
+                    containerPort: 30203,
+                    hostPort: customConfig.opensearch3.hostPort || 9203
+                });
+            }
+            if (customConfig.elasticsearch6.enabled === true) {
+                configFile.nodes[0].extraPortMappings.push({
+                    containerPort: 30206,
+                    hostPort: customConfig.elasticsearch6.hostPort || 9206
+                });
+            }
+            if (customConfig.elasticsearch7.enabled === true) {
+                configFile.nodes[0].extraPortMappings.push({
+                    containerPort: 30207,
+                    hostPort: customConfig.elasticsearch7.hostPort || 9207
+                });
+            }
+            if (customConfig.kafka.enabled === true) {
+                configFile.nodes[0].extraPortMappings.push({
+                    containerPort: 30094,
+                    hostPort: 9094
+                });
+                configFile.nodes[0].extraPortMappings.push({
+                    containerPort: 30084,
+                    hostPort: 8084
+                });
+            }
+            if (customConfig.minio.enabled === true) {
                 configFile.nodes[0].extraPortMappings.push({
                     containerPort: 30900,
-                    hostPort: Number.parseInt(MINIO_PORT)
+                    hostPort: 9000
                 });
                 configFile.nodes[0].extraPortMappings.push({
                     containerPort: 30901,
-                    hostPort: Number.parseInt(MINIO_UI_PORT)
+                    hostPort: 9001
                 });
-            } else if (service === 'kafka') {
-                // map only the external kafka port so it can resolve with the host machine
-                configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30094,
-                    hostPort: Number.parseInt(KAFKA_PORT)
-                });
+            }
+            // add port mappings for choas later
+
+            if (customConfig.elasticsearch7.hostVolumePath) {
+                if (configFile.nodes[0].extraMounts) {
+                    configFile.nodes[0].extraMounts.push({
+                        hostPath: customConfig.elasticsearch7.hostVolumePath,
+                        containerPath: '/searchdataes7'
+                    });
+                }
+            }
+            if (customConfig.opensearch1.hostVolumePath) {
+                if (configFile.nodes[0].extraMounts) {
+                    configFile.nodes[0].extraMounts.push({
+                        hostPath: customConfig.opensearch1.hostVolumePath,
+                        containerPath: '/searchdataos1'
+                    });
+                }
+            }
+            if (customConfig.opensearch2.hostVolumePath) {
+                if (configFile.nodes[0].extraMounts) {
+                    configFile.nodes[0].extraMounts.push({
+                        hostPath: customConfig.opensearch2.hostVolumePath,
+                        containerPath: '/searchdataos2'
+                    });
+                }
+            }
+
+            if (customConfig.opensearch3.hostVolumePath) {
+                if (configFile.nodes[0].extraMounts) {
+                    configFile.nodes[0].extraMounts.push({
+                        hostPath: customConfig.opensearch3.hostVolumePath,
+                        containerPath: '/searchdataos3'
+                    });
+                }
             }
         }
 
