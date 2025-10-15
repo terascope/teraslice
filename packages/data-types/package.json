@@ -14,7 +14,6 @@
     "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
-    "bin": "./bin/data-types.js",
     "files": [
         "dist/src/**/*",
         "bin/*"
@@ -29,11 +28,7 @@
     "dependencies": {
         "@terascope/types": "~2.0.0-dev.5",
         "@terascope/utils": "~2.0.0-dev.5",
-        "graphql": "~16.11.0",
-        "yargs": "~18.0.0"
-    },
-    "devDependencies": {
-        "@types/yargs": "~17.0.33"
+        "graphql": "~16.11.0"
     },
     "engines": {
         "node": ">=22.0.0",

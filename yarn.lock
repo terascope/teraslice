@@ -3598,11 +3598,7 @@ __metadata:
     "@terascope/utils": "npm:~2.0.0-dev.4"
     "@terascope/types": "npm:~2.0.0-dev.5"
     "@terascope/utils": "npm:~2.0.0-dev.5"
-    "@types/yargs": "npm:~17.0.33"
     graphql: "npm:~16.11.0"
-    yargs: "npm:~18.0.0"
-  bin:
-    data-types: ./bin/data-types.js
   languageName: unknown
   linkType: soft
 
