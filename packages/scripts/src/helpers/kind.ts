@@ -7,7 +7,7 @@ import { Logger, debugLogger, isCI } from '@terascope/utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale.js';
 import { getE2eK8sDir } from '../helpers/packages.js';
-import { KindCluster, TsVolumeSet } from './interfaces.js';
+import { KindCluster, TsVolumeSet, CustomKindDefaultPorts, CustomKindService } from './interfaces.js';
 import {
     DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
     ELASTICSEARCH_PORT, OPENSEARCH_PORT, MINIO_PORT,
@@ -53,13 +53,13 @@ export class Kind {
 
         const configFile = yaml.load(fs.readFileSync(configPath, 'utf8')) as KindCluster;
 
+        configFile.nodes[0].extraPortMappings.push({
+            containerPort: 30678,
+            hostPort: Number.parseInt(TERASLICE_PORT)
+        });
+
         // Map external ports from kind to the host machine based off of config variables
         if (!customConfigPath) {
-            configFile.nodes[0].extraPortMappings.push({
-                containerPort: 30678,
-                hostPort: Number.parseInt(TERASLICE_PORT)
-            });
-
             for (const service of ENV_SERVICES) {
                 if (service === 'elasticsearch') {
                     configFile.nodes[0].extraPortMappings.push({
@@ -91,92 +91,62 @@ export class Kind {
         } else {
             const customConfig = yaml.load(fs.readFileSync(customConfigPath, 'utf8')) as any;
 
-            // Clear all before we add. Still need feedback if I want to do this.
-            // configFile.nodes[0].extraPortMappings = [];
-
-            if (customConfig.opensearch1.enabled === true) {
-                configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30201,
-                    hostPort: customConfig.opensearch1.hostPort || 9201
-                });
-            }
-            if (customConfig.opensearch2.enabled === true) {
-                configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30202,
-                    hostPort: customConfig.opensearch2.hostPort || 9202
-                });
-            }
-            if (customConfig.opensearch3.enabled === true) {
-                configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30203,
-                    hostPort: customConfig.opensearch3.hostPort || 9203
-                });
-            }
-            if (customConfig.elasticsearch6.enabled === true) {
-                configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30206,
-                    hostPort: customConfig.elasticsearch6.hostPort || 9206
-                });
-            }
-            if (customConfig.elasticsearch7.enabled === true) {
-                configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30207,
-                    hostPort: customConfig.elasticsearch7.hostPort || 9207
-                });
-            }
-            if (customConfig.kafka.enabled === true) {
-                configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30094,
-                    hostPort: 9094
-                });
-                configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30084,
-                    hostPort: 8084
-                });
-            }
-            if (customConfig.minio.enabled === true) {
-                configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30900,
-                    hostPort: 9000
-                });
-                configFile.nodes[0].extraPortMappings.push({
-                    containerPort: 30901,
-                    hostPort: 9001
-                });
-            }
-            // add port mappings for choas later
-
-            if (customConfig.elasticsearch7.hostVolumePath) {
-                if (configFile.nodes[0].extraMounts) {
-                    configFile.nodes[0].extraMounts.push({
-                        hostPath: customConfig.elasticsearch7.hostVolumePath,
-                        containerPath: '/searchdataes7'
-                    });
+            const defaultPorts: CustomKindDefaultPorts = {
+                opensearch1: {
+                    containerPorts: [30201],
+                    hostPorts: [9201],
+                    hostPath: '/searchdataes1'
+                },
+                opensearch2: {
+                    containerPorts: [30202],
+                    hostPorts: [9202],
+                    hostPath: '/searchdataes2'
+                },
+                opensearch3: {
+                    containerPorts: [30203],
+                    hostPorts: [9203],
+                    hostPath: '/searchdataes3'
+                },
+                elasticsearch6: {
+                    containerPorts: [30206],
+                    hostPorts: [9206],
+                    hostPath: ''
+                },
+                elasticsearch7: {
+                    containerPorts: [30207],
+                    hostPorts: [9207],
+                    hostPath: '/searchdataes7'
+                },
+                kafka: {
+                    containerPorts: [30094, 30084],
+                    hostPorts: [9094, 8084],
+                    hostPath: ''
+                },
+                minio: {
+                    containerPorts: [30900, 30901],
+                    hostPorts: [9000, 9001],
+                    hostPath: ''
                 }
-            }
-            if (customConfig.opensearch1.hostVolumePath) {
-                if (configFile.nodes[0].extraMounts) {
-                    configFile.nodes[0].extraMounts.push({
-                        hostPath: customConfig.opensearch1.hostVolumePath,
-                        containerPath: '/searchdataos1'
-                    });
-                }
-            }
-            if (customConfig.opensearch2.hostVolumePath) {
-                if (configFile.nodes[0].extraMounts) {
-                    configFile.nodes[0].extraMounts.push({
-                        hostPath: customConfig.opensearch2.hostVolumePath,
-                        containerPath: '/searchdataos2'
-                    });
-                }
-            }
+            };
 
-            if (customConfig.opensearch3.hostVolumePath) {
-                if (configFile.nodes[0].extraMounts) {
-                    configFile.nodes[0].extraMounts.push({
-                        hostPath: customConfig.opensearch3.hostVolumePath,
-                        containerPath: '/searchdataos3'
-                    });
+            for (const service of Object.keys(defaultPorts) as CustomKindService[]) {
+                if (customConfig[service]?.enabled) {
+                    const defs = defaultPorts[service];
+                    for (const i of defs.containerPorts.keys()) {
+                        configFile.nodes[0].extraPortMappings.push({
+                            containerPort: defs.containerPorts[i],
+                            hostPort: customConfig[service].hostPort ?? defs.hostPorts[i],
+                        });
+                    }
+
+                    if (customConfig[service].hostVolumePath) {
+                        if (configFile.nodes[0].extraMounts) {
+                            configFile.nodes[0].extraMounts.push({
+                                hostPath: customConfig[service].hostVolumePath,
+                                containerPath: defs.hostPath
+                            });
+                        }
+                    }
                 }
             }
         }
