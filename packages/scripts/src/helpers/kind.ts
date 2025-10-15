@@ -107,11 +107,6 @@ export class Kind {
                     hostPorts: [9203],
                     hostPath: '/searchdataos3'
                 },
-                elasticsearch6: {
-                    containerPorts: [30206],
-                    hostPorts: [9206],
-                    hostPath: ''
-                },
                 elasticsearch7: {
                     containerPorts: [30207],
                     hostPorts: [9207],
@@ -169,7 +164,7 @@ export class Kind {
         }
         configFile.nodes[0].extraPortMappings[0].hostPort = Number.parseInt(teraslicePort, 10);
         const updatedYaml = yaml.dump(configFile);
-        console.log(`Final kind config yaml: ${updatedYaml}`);
+
         const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
         fs.writeFileSync(path.join(tempDir, 'kindConfig.yaml'), updatedYaml);
         const updatedYamlConfigPath = `${path.join(tempDir, 'kindConfig.yaml')}`;
