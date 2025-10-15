@@ -874,13 +874,11 @@ export default function elasticsearchApi(
             terminate_after: '1',
         };
 
-        const label = index;
-
         return new Promise((resolve, reject) => {
             client
                 .search(query)
                 .then((results) => {
-                    logger.trace(`index ${label} is now available`);
+                    logger.trace(`index ${index} is now available`);
                     resolve(results);
                 })
                 .catch(() => {
@@ -892,7 +890,7 @@ export default function elasticsearchApi(
                         try {
                             const valid = verifyClient();
                             if (!valid) {
-                                logger.debug(`index ${label} is in an invalid state`);
+                                logger.debug(`index ${index} is in an invalid state`);
                                 return;
                             }
                         } catch (err) {
@@ -913,7 +911,7 @@ export default function elasticsearchApi(
                             .catch(() => {
                                 running = false;
 
-                                logger.warn(`verifying index ${label} is open`);
+                                logger.warn(`verifying index ${index} is open`);
                             });
                     }, 200);
                 });

@@ -130,7 +130,7 @@ function getESMapping(dataType: DataType, argv: yargs.Arguments<any>) {
     const argVersion = argv['es-version'];
     const argDistribution = argv.distribution;
 
-    const [majorVersion = 6, minorVersion = 8] = version.split('.').map(toNumber);
+    const [majorVersion = 7, minorVersion = 9] = version.split('.').map(toNumber);
 
     return dataType.toESMapping({
         overrides,
