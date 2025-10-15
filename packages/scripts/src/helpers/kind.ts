@@ -125,7 +125,7 @@ export class Kind {
                 minio: {
                     containerPorts: [30900, 30901],
                     hostPorts: [9000, 9001],
-                    hostPath: ''
+                    hostPath: '/miniodata'
                 }
             };
 
