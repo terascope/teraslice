@@ -24,8 +24,7 @@ export async function createImageList(): Promise<void> {
     const repo = getRootInfo().name;
     let list;
     if (repo === 'elasticsearch-asset-bundle') {
-        list = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
-            + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
+        list = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH2_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH3_VERSION}`;
@@ -44,7 +43,6 @@ export async function createImageList(): Promise<void> {
             .reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version}\n`, '');
 
         list = `${baseImages}`
-            + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
             + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH2_VERSION}\n`

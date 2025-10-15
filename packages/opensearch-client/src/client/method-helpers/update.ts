@@ -13,7 +13,7 @@ export function convertUpdateParams(
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
             const {
-                type, body, ...parsedParams
+                body, ...parsedParams
             } = params;
 
             return {
@@ -23,32 +23,13 @@ export function convertUpdateParams(
         }
 
         if (majorVersion === 7) {
-            const {
-                type, ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
-        if (majorVersion === 6) {
-            const {
-                type = '_doc', ...parsedParams
-            } = params;
-
-            return {
-                type,
-                ...parsedParams
-            };
+            return params;
         }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
-            const {
-                type, ...parsedParams
-            } = params;
-
-            return parsedParams;
+            return params;
         }
     }
 

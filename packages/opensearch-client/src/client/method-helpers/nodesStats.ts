@@ -14,16 +14,6 @@ export function convertNodesStatsParams(
         if (majorVersion === 7 || majorVersion === 8) {
             return params;
         }
-
-        if (majorVersion === 6) {
-            const {
-                include_unloaded_segments,
-                master_timeout,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {

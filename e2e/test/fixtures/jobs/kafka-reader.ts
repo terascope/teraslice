@@ -17,7 +17,6 @@ export default {
         },
         {
             _op: 'elasticsearch_bulk',
-            type: 'events',
             index: 'replace-me-1000',
             preserve_id: true,
             size: 500

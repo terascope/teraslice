@@ -8,13 +8,11 @@ export interface IndicesStatsParams {
     fields?: string | string[];
     groups?: string | string[];
     level?: i.Level;
-    types?: string | string[];
     expand_wildcards?: i.ExpandWildcards;
 }
 
 export interface DeleteByQueryParams {
     index: string | string[];
-    type?: string | string[];
     analyzer?: string;
     analyze_wildcard?: boolean;
     from?: number;
@@ -49,7 +47,6 @@ export interface DeleteByQueryParams {
 export interface ExistsParams {
     id: string;
     index: string;
-    type?: string;
     preference?: string;
     realtime?: boolean;
     refresh?: boolean;
@@ -59,7 +56,6 @@ export interface ExistsParams {
 export interface GetParams {
     id: string;
     index: string;
-    type?: string;
     stored_fields?: string | string[];
     preference?: string;
     realtime?: boolean;
@@ -75,7 +71,6 @@ export interface GetParams {
 export interface IndexParams<TDocument = unknown> {
     id?: string;
     index: string;
-    type?: string;
     op_type?: i.OpType;
     refresh?: i.IndexRefresh;
     routing?: string;
@@ -96,7 +91,6 @@ export interface IndicesStats {
     fields?: string | string[];
     groups?: string | string[];
     level?: i.Level;
-    types?: string | string[];
     include_segment_file_sizes?: boolean;
     include_unloaded_segments?: boolean;
     expand_wildcards?: i.ExpandWildcards;
@@ -105,7 +99,6 @@ export interface IndicesStats {
 
 export interface IndicesCreateParams {
     index: string;
-    include_type_name?: boolean;
     wait_for_active_shards?: i.WaitForActiveShards;
     timeout?: i.TimeSpan;
     master_timeout?: i.TimeSpan;
@@ -145,7 +138,6 @@ export interface IndicesExistsTemplateParams {
 
 export interface IndicesGetParams {
     index: string | string[];
-    include_type_name?: boolean;
     local?: boolean;
     ignore_unavailable?: boolean;
     allow_no_indices?: boolean;
@@ -158,8 +150,6 @@ export interface IndicesGetParams {
 export interface IndicesGetFieldMappingParams {
     fields: string | string[];
     index?: string | string[];
-    include_type_name?: boolean;
-    type?: string | string[];
     allow_no_indices?: boolean;
     expand_wildcards?: i.ExpandWildcards;
     ignore_unavailable?: boolean;
@@ -169,7 +159,6 @@ export interface IndicesGetFieldMappingParams {
 
 export interface IndicesGetIndexTemplateParams {
     name?: string | string[];
-    include_type_name?: boolean;
     flat_settings?: boolean;
     master_timeout?: i.TimeSpan;
     local?: boolean;
@@ -177,8 +166,6 @@ export interface IndicesGetIndexTemplateParams {
 
 export interface IndicesGetMappingParams {
     index?: string | string[];
-    type?: string | string[];
-    include_type_name?: boolean;
     allow_no_indices?: boolean;
     expand_wildcards?: i.ExpandWildcards;
     ignore_unavailable?: boolean;
@@ -200,7 +187,6 @@ export interface IndicesGetSettingsParams {
 
 export interface IndicesGetTemplateParams {
     name?: string | string[];
-    include_type_name?: boolean;
     flat_settings?: boolean;
     master_timeout?: i.TimeSpan;
     local?: boolean;
@@ -208,8 +194,6 @@ export interface IndicesGetTemplateParams {
 
 export interface IndicesPutMappingParams {
     index?: string | string [];
-    type?: string;
-    include_type_name?: boolean;
     allow_no_indices?: boolean;
     expand_wildcards?: i.ExpandWildcards;
     ignore_unavailable?: boolean;
@@ -251,7 +235,6 @@ export interface IndicesPutSettingsParams {
 
 export interface IndicesPutTemplateParams {
     name: string;
-    include_type_name?: boolean;
     order?: number;
     create?: boolean;
     master_timeout?: i.TimeSpan;
@@ -273,7 +256,6 @@ export interface IndicesRefreshParams {
 
 export interface IndicesValidateQueryParams {
     index?: string | string[];
-    type?: string;
     allow_no_indices?: boolean;
     all_shards?: boolean;
     analyzer?: string;
@@ -292,7 +274,6 @@ export interface IndicesValidateQueryParams {
 
 export interface MGetParams {
     index?: string;
-    type?: string;
     stored_fields?: string | string[];
     preference?: string;
     realtime?: boolean;
@@ -312,7 +293,6 @@ export interface MSearchParams {
     max_concurrent_shard_requests?: number;
     pre_filter_shard_size?: number;
     rest_total_hits_as_int?: boolean;
-    type?: string | string[];
     search_type?: i.SearchTypes;
     typed_keys?: boolean;
 }
@@ -337,7 +317,6 @@ export interface NodesStatsParams {
     level?: i.Level;
     master_timeout?: number | string;
     timeout?: number | string;
-    types?: string[];
     include_unloaded_segments?: boolean;
 }
 
@@ -398,7 +377,6 @@ export interface SearchParams {
     timeout?: i.TimeSpan;
     track_scores?: boolean;
     track_total_hits?: boolean | number;
-    type?: string;
     typed_keys?: boolean;
     version?: boolean;
 }
@@ -431,7 +409,6 @@ export interface TasksListParams {
 export interface UpdateParams<TDocument = unknown, TPartialDocument = unknown> {
     id: string;
     index: string;
-    type?: string;
     lang?: string;
     refresh?: boolean;
     require_alias?: boolean;
@@ -459,7 +436,6 @@ export interface UpdateParams<TDocument = unknown, TPartialDocument = unknown> {
 
 export interface BulkParams<TDocument = unknown, TPartialDocument = unknown> {
     index?: string;
-    type?: string;
     refresh?: i.IndexRefresh;
     routing?: string;
     _source?: boolean | string | string[];
@@ -513,7 +489,6 @@ export interface ClusterHealthParams {
 
 export interface CountParams {
     index: string | string[];
-    type?: string | string[];
     ignore_unavailable?: boolean;
     ignore_throttled?: boolean;
     allow_no_indices?: boolean;
@@ -531,7 +506,6 @@ export interface CountParams {
 export interface CreateParams<TDocument = unknown> {
     id: string;
     index: string;
-    type?: string;
     refresh?: i.IndexRefresh;
     routing?: string;
     timeout?: string | number;
@@ -544,7 +518,6 @@ export interface CreateParams<TDocument = unknown> {
 export interface DeleteParams {
     id: string;
     index: string;
-    type?: string;
     if_primary_term?: number;
     if_seq_no?: number;
     refresh?: 'true' | 'false' | 'wait_for' | boolean;

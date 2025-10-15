@@ -2,7 +2,6 @@ import { DataEntity } from '@terascope/utils';
 
 export interface ESStateStorageConfig extends CacheConfig {
     index: string;
-    type: string;
     concurrency: number;
     source_fields: string[];
     chunk_size: number;
