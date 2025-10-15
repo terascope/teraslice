@@ -111,13 +111,11 @@ export class DataType {
         overrides, distribution = ElasticsearchDistribution.opensearch,
         majorVersion = 2, minorVersion = 15, version = '2.15.0', _meta
     }: Partial<i.ESMappingOptions> = {}): ESMapping {
-        const mappingSettings: ESTypeMappings = {
+        const mappings: ESTypeMappings = {
             dynamic: false,
             properties: {},
             ..._meta && { _meta }
         };
-
-        const mappings = mappingSettings;
 
         const esMapping: ESMapping = {
             settings: {},
