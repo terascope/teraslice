@@ -19,8 +19,8 @@ For changes to your RC, make sure to use `yarn bump --prerelease [...packages]`,
 For major Teraslice release milestones that will contain breaking changes we create a development branch named `release/teraslice-v*`. This branch will start off using the `-dev.*` pre-release tag. The version should be bumped to `v*.0.0-dev.0` with the first PR merged into the branch by running `yarn bump --premajor --prerelease-id dev teraslice ...packages`. When PRs with a new prerelease version are merged into a `release/teraslice-v*` branch it will trigger the `publish-dev.yml` github actions workflow. This will do the following:
 
 - create an npm package for each teraslice package that has been bumped, tagged as `prerelease`
-- create a docker image for each node version currently supported, tagged as `v*.0.0.-dev.*-nodev*.*.*`
-- create a github release titled `v*.0.0.-dev.*` with an identical git tag
+- create a docker image for each node version currently supported, tagged as `v*.0.0-dev.*-nodev*.*.*`
+- create a github release titled `v*.0.0-dev.*` with an identical git tag
 - create a slack announcement with links to the github release, npm, and docker container registry. Automated release notes should be reviewed and edited if necessary.
 
 To bump the `dev` prerelease version run `yarn bump --prerelease --prerelease-id dev teraslice ...packages`.
