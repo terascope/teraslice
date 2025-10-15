@@ -196,3 +196,14 @@ export interface ServiceObj {
     chart: string;
     app_version: string;
 }
+
+export type CustomKindService = | 'opensearch1' | 'opensearch2' | 'opensearch3'
+    | 'elasticsearch6' | 'elasticsearch7' | 'kafka' | 'minio';
+
+export interface CustomKindDefaultPort {
+    containerPorts: number[];
+    hostPorts: number[];
+    hostPath: string;
+}
+
+export type CustomKindDefaultPorts = Record<CustomKindService, CustomKindDefaultPort>;
