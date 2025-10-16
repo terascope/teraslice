@@ -15,7 +15,7 @@ import { newMsgId } from '../utils/index.js';
 const _logger = debugLogger('teraslice-messaging:client');
 
 export class Client extends Core {
-    readonly socket: Socket;
+    readonly socket: Socket<i.ServerToClientEvents, i.ClientToServerEvents>;
     readonly clientId: string;
     readonly clientType: string;
     readonly serverName: string;

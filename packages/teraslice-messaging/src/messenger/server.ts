@@ -25,7 +25,7 @@ const onlineStates = [i.ClientState.Online, i.ClientState.Available, i.ClientSta
 export class Server extends Core {
     isShuttingDown: boolean;
     readonly port: number;
-    readonly server: SocketIOServer;
+    readonly server: SocketIOServer<i.ClientToServerEvents, i.ServerToClientEvents>;
     readonly httpServer: http.Server;
     readonly serverName: string;
     readonly clientDisconnectTimeout: number;
@@ -143,10 +143,14 @@ export class Server extends Core {
 
         this.server.attach(this.httpServer);
 
-        this.server.use((socket: Socket, next: (err?: ExtendedError) => void) => {
-            socket.join(socket.handshake.auth.clientId as string);
-            next();
-        });
+        this.server.use(
+            (socket: Socket<i.ClientToServerEvents, i.ServerToClientEvents>,
+                next: (err?: ExtendedError) => void
+            ) => {
+                socket.join(socket.handshake.auth.clientId as string);
+                next();
+            }
+        );
 
         this.server.on('connection', this._onConnection);
 
@@ -329,7 +333,9 @@ export class Server extends Core {
         return onlineStates.includes(state);
     }
 
-    protected getClientMetadataFromSocket(socket: Socket): i.ClientSocketMetadata {
+    protected getClientMetadataFromSocket(
+        socket: Socket<i.ClientToServerEvents, i.ServerToClientEvents>
+    ): i.ClientSocketMetadata {
         return {
             clientId: socket.handshake.auth.clientId as string,
             clientType: socket.handshake.auth.clientType as string,
@@ -383,7 +389,9 @@ export class Server extends Core {
         return true;
     }
 
-    protected ensureClient(socket: Socket): i.ConnectedClient {
+    protected ensureClient(
+        socket: Socket<i.ClientToServerEvents, i.ServerToClientEvents>
+    ): i.ConnectedClient {
         const { clientId } = this.getClientMetadataFromSocket(socket);
         const client = this._clients[clientId];
 
@@ -404,7 +412,7 @@ export class Server extends Core {
         return newClient;
     }
 
-    private _onConnection(socket: Socket) {
+    private _onConnection(socket: Socket<i.ClientToServerEvents, i.ServerToClientEvents>) {
         const client = this.ensureClient(socket);
         const { clientId } = client;
 

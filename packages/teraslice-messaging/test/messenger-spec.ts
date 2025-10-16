@@ -377,8 +377,9 @@ describe('Messenger', () => {
             it('should throw a timeout error', async () => {
                 expect.hasAssertions();
 
+                const sockets = await server.server.fetchSockets();
                 // @ts-expect-error
-                server.handleResponse(server.server.to(clientId), 'hello', async () => {
+                server.handleResponse(sockets.values().next().value, 'hello', async () => {
                     await pDelay(1000);
                 });
 

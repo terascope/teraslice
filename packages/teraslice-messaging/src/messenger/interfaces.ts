@@ -120,3 +120,14 @@ export interface SocketEmitter {
     on(eventName: string, fn: (msg: Message) => void): void;
     emit(eventName: string, msg: Message): void;
 }
+
+export interface ClientToServerEvents {
+    'message:response': (msg: Message) => void;
+    [eventName: string]: (message: Message) => void;
+}
+
+export interface ServerToClientEvents {
+    'message:response': (msg: Message) => void;
+    shutdown: () => void;
+    [eventName: string]: (message: Message) => void;
+}
