@@ -1,4 +1,5 @@
 import { cloneDeep, isKey, isNumber } from '@terascope/utils';
+import type { Socket } from 'socket.io';
 import { Message, ResponseError, Server as _Server } from '../messenger/index.js';
 import { ClusterAnalytics, ExecutionAnalyticsMessage, ServerOptions } from './interfaces.js';
 
@@ -46,7 +47,7 @@ export class Server extends _Server {
 
     async start(): Promise<void> {
         this.on('connection', (msg) => {
-            this.onConnection(msg.scope, msg.payload as SocketIO.Socket);
+            this.onConnection(msg.scope, msg.payload as Socket);
         });
 
         await this.listen();
@@ -74,7 +75,7 @@ export class Server extends _Server {
         });
     }
 
-    private onConnection(exId: string, socket: SocketIO.Socket) {
+    private onConnection(exId: string, socket: Socket) {
         this.handleResponse(socket, 'execution:finished', (msg: Message) => {
             this.emit('execution:finished', {
                 scope: exId,

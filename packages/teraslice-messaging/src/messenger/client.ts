@@ -1,7 +1,10 @@
 /* eslint-disable prefer-const */
 
 import ms from 'ms';
-import SocketIOClient from 'socket.io-client';
+import {
+    io as SocketIOClient, ManagerOptions,
+    Socket, SocketOptions
+} from 'socket.io-client';
 import {
     isString, isInteger, debugLogger, toString
 } from '@terascope/utils';
@@ -12,7 +15,7 @@ import { newMsgId } from '../utils/index.js';
 const _logger = debugLogger('teraslice-messaging:client');
 
 export class Client extends Core {
-    readonly socket: SocketIOClient.Socket;
+    readonly socket: Socket;
     readonly clientId: string;
     readonly clientType: string;
     readonly serverName: string;
@@ -22,6 +25,7 @@ export class Client extends Core {
     ready: boolean;
     protected serverShutdown: boolean;
 
+    // FIXME: why this other timeout that is never set?
     constructor(opts: i.ClientOptions, _connectTimeout?: number) {
         const {
             hostUrl,
@@ -64,25 +68,16 @@ export class Client extends Core {
             throw new Error('Messenger.Client requires a valid connectTimeout');
         }
 
-        // The pingTimeout should be the client disconnect timeout
-        // (which is greater than the pingTimeout on the server which uses actionTimeout)
-        // to avoid disconnecting from the server before the connection
-        // is considered
-        const pingTimeout = clientDisconnectTimeout;
-        const pingInterval = clientDisconnectTimeout + this.networkLatencyBuffer;
-
-        const options: SocketIOClient.ConnectOpts = Object.assign({}, socketOptions, {
+        const options: Partial<ManagerOptions & SocketOptions> = Object.assign({}, socketOptions, {
             autoConnect: false,
             forceNew: true,
-            pingTimeout,
-            pingInterval,
             perMessageDeflate: false,
-            query: { clientId, clientType },
-            timeout: _connectTimeout
+            auth: { clientId, clientType },
+            timeout: _connectTimeout // FIXME: we never set this
         });
 
         this.socket = SocketIOClient(hostUrl, options);
-        this.socket.on('error', (err: any) => {
+        this.socket.io.on('error', (err: any) => {
             this.logger.error(err, 'unhandled socket.io-client error');
         });
 
@@ -117,12 +112,12 @@ export class Client extends Core {
 
         await this._connect(this.connectTimeout);
 
-        this.socket.on('reconnecting', () => {
+        this.socket.io.on('reconnect_attempt', () => {
             this.logger.debug(`client ${this.clientId} is reconnecting...`);
             this.ready = false;
         });
 
-        this.socket.on('reconnect', () => {
+        this.socket.io.on('reconnect', () => {
             this.logger.info(`client ${this.clientId} reconnected`);
             this.serverShutdown = false;
             this.ready = true;
@@ -191,7 +186,12 @@ export class Client extends Core {
 
             const onError = (err: any) => {
                 const errStr = toString(err).replace('Error: ', '');
-                if (errStr.includes('xhr poll error')) {
+                // connect_timeout event replaced by connect_error event with timeout message
+                if (errStr.includes('timeout')) {
+                    this.logger.debug(`timeout when connecting to ${connectToStr}, reconnecting...`);
+                    cleanup();
+                    resolve();
+                } else if (errStr.includes('xhr poll error')) {
                     // it still connecting so this is probably okay
                     this.logger.debug(`${errStr} when connecting to ${connectToStr}`);
                 } else {
@@ -199,16 +199,9 @@ export class Client extends Core {
                 }
             };
 
-            const onTimeoutError = (timeout: number) => {
-                this.logger.debug(`timeout of ${ms(timeout)} when connecting to ${connectToStr}, reconnecting...`);
-                cleanup();
-                resolve();
-            };
-
             cleanup = () => {
                 clearTimeout(timer);
                 this.socket.removeListener('connect_error', onError);
-                this.socket.removeListener('connect_timeout', onTimeoutError);
                 this.socket.removeListener('connect', onConnect);
             };
 
@@ -218,7 +211,6 @@ export class Client extends Core {
             }
 
             this.socket.on('connect_error', onError);
-            this.socket.once('connect_timeout', onTimeoutError);
             this.socket.once('connect', onConnect);
             this.socket.connect();
 
@@ -230,7 +222,8 @@ export class Client extends Core {
         });
 
         const elapsed = Date.now() - startTime;
-        return this._connect(elapsed, attempt + 1);
+        const remaining = remainingTimeout - elapsed;
+        return this._connect(remaining, attempt + 1);
     }
 
     async sendAvailable(payload?: i.Payload): Promise<i.Message | null | undefined> {
@@ -261,7 +254,7 @@ export class Client extends Core {
         if (!this.ready && !options.volatile) {
             const connected = this.socket.connected ? 'connected' : 'not-connected';
             this.logger.debug(`server is not ready and ${connected}, waiting for the ready event`);
-            await this.onceWithTimeout(`ready:${this.serverName}`);
+            await this.onceWithTimeout(`ready:${this.serverName}`); // FIXME: if this times out we still send message???
         }
 
         const response = options.response != null ? options.response : true;
@@ -324,7 +317,6 @@ export class Client extends Core {
             this.socket.io.once('reconnect', () => {
                 resolve();
             });
-            // @ts-expect-error
             this.socket.io.engine.close();
         });
     }

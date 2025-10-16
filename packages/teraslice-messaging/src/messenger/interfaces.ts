@@ -1,4 +1,4 @@
-import 'socket.io-client';
+import { ManagerOptions, SocketOptions } from 'socket.io-client';
 import http from 'node:http';
 import { Logger } from '@terascope/utils';
 
@@ -15,7 +15,7 @@ export interface ClientOptions extends CoreOptions {
     serverName: string;
     clientDisconnectTimeout: number;
     connectTimeout: number;
-    socketOptions?: SocketIOClient.ConnectOpts;
+    socketOptions?: Partial<ManagerOptions & SocketOptions>;
 }
 
 export interface ServerOptions extends CoreOptions {

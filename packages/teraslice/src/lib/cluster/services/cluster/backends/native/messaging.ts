@@ -9,8 +9,8 @@ import {
     isEmpty, get, toNumber, isKey
 } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
-import socketIOClient from 'socket.io-client';
-import socketIOServer from 'socket.io';
+import { io as socketIOClient } from 'socket.io-client';
+import { Server as socketIOServer } from 'socket.io';
 import { isProcessAssignment, MessagingConfigOptions, ProcessAssignment } from '../../../../../../interfaces.js';
 
 // messages send to cluster_master
@@ -329,9 +329,10 @@ export class Messaging {
             serveClient: false,
         };
         if (server) {
-            this.io = socketIOServer(server, opts);
+            this.io = new socketIOServer(server, opts);
         } else if (port) {
-            this.io = socketIOServer(port, opts);
+            this.io = new socketIOServer(opts);
+            this.io.listen(port as number);
         }
         this._attachRoomsSocketIO();
 
