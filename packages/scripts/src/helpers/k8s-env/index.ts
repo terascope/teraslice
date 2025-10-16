@@ -268,6 +268,10 @@ export function generateTemplateConfig() {
     const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
     const newFilePath = path.join(getE2EDir() as string, '../', 'k8s-config.yaml');
 
+    if (fs.existsSync(newFilePath)) {
+        throw new Error(`A config file has already exists at ${newFilePath}. Either delete it or rename it to generate a new config.`);
+    }
+
     const file = fs.readFileSync(e2eHelmfileValuesPath, 'utf-8');
     fs.writeFileSync(newFilePath, file);
     signale.success(`Generated new templated config file at ${newFilePath}`);
