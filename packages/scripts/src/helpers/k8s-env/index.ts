@@ -1,11 +1,14 @@
 import os from 'node:os';
 import { execaCommandSync } from 'execa';
+import path from 'node:path';
+import fs from 'node:fs';
 import { isCI } from '@terascope/utils';
 import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
     isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
     helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
-    generateTestCaCerts, createMinioSecret, dockerBuild
+    generateTestCaCerts, createMinioSecret, dockerBuild, getTerasliceImageFromConfigYaml,
+    launchTerasliceWithCustomHelmfile
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
@@ -15,7 +18,8 @@ import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import * as config from '../config.js';
 import { K8s } from './k8s.js';
-import { loadImagesForHelm } from '../test-runner/services.js';
+import { loadImagesForHelm, loadImagesForHelmFromConfigFile } from '../test-runner/services.js';
+import { getE2EDir } from '../../helpers/packages.js';
 
 const rootInfo = getRootInfo();
 const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
@@ -25,7 +29,12 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         signale.error('There is no compatible Elasticsearch6 image for arm based processors. Try a different elasticsearch version.');
         process.exit(1);
     }
-    signale.pending('Starting k8s environment with the following options: ', options);
+
+    if (options.configFile) {
+        signale.pending('Starting k8s environment with a config file..');
+    } else {
+        signale.pending('Starting k8s environment with the following options: ', options);
+    }
     const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
 
     const kindInstalled = await isKindInstalled();
@@ -47,11 +56,13 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         process.exit(1);
     }
 
-    await generateTestCaCerts();
+    if (!options.configFile) {
+        await generateTestCaCerts();
+    }
 
     signale.pending('Creating kind cluster');
     try {
-        await kind.createCluster(options.tsPort, options.dev);
+        await kind.createCluster(options.tsPort, options.dev, options.configFile);
     } catch (err) {
         signale.error(err);
         // Do not destroy existing cluster if that was the cause of failure
@@ -74,9 +85,12 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     }
 
     try {
-        await buildAndTagTerasliceImage(options);
-        if (process.env.ENABLE_UTILITY_SVC) {
-            await buildUtilityImage();
+        // We never want to build in the case we use a custom config
+        if (!options.configFile) {
+            await buildAndTagTerasliceImage(options);
+            if (process.env.ENABLE_UTILITY_SVC) {
+                await buildUtilityImage();
+            }
         }
     } catch (err) {
         signale.fatal(err);
@@ -91,7 +105,13 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     if (options.dev) {
         let imageVersion: string;
         try {
-            imageVersion = await getNodeVersionFromImage(e2eImage);
+            if (options.configFile) {
+                // Will grab the image name from the yaml config so it can validate node version
+                const imageName = await getTerasliceImageFromConfigYaml(options.configFile);
+                imageVersion = await getNodeVersionFromImage(imageName);
+            } else {
+                imageVersion = await getNodeVersionFromImage(e2eImage);
+            }
         } catch (err) {
             await kind.destroyCluster();
             throw new Error(`Problem running docker command to check node version: ${err}`);
@@ -113,11 +133,20 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     }
 
     signale.pending('Loading service images into kind cluster');
-    await loadImagesForHelm(options.kindClusterName, false);
+    if (options.configFile) {
+        await loadImagesForHelmFromConfigFile(options.kindClusterName, options.configFile);
+    } else {
+        await loadImagesForHelm(options.kindClusterName, false);
+    }
     signale.success('Service images loaded into kind cluster');
 
     signale.pending('Loading teraslice image into kind cluster');
-    await kind.loadTerasliceImage(e2eImage);
+    if (options.configFile) {
+        const imageName = await getTerasliceImageFromConfigYaml(options.configFile);
+        await kind.loadTerasliceImage(imageName);
+    } else {
+        await kind.loadTerasliceImage(e2eImage);
+    }
     signale.success('Teraslice image loaded into kind cluster');
 
     try {
@@ -127,7 +156,11 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         if (config.ENCRYPT_MINIO) {
             await createMinioSecret(k8s);
         }
-        await launchTerasliceWithHelmfile(options.clusteringType, options.dev);
+        if (options.configFile) {
+            await launchTerasliceWithCustomHelmfile(options.configFile);
+        } else {
+            await launchTerasliceWithHelmfile(options.clusteringType, options.dev);
+        }
         signale.pending('Teraslice launched with helmfile');
     } catch (err) {
         signale.fatal('Error deploying Teraslice: ', err);
@@ -229,4 +262,17 @@ async function buildUtilityImage() {
 
 function isArm() {
     return os.machine() === 'arm' || os.machine() === 'arm64' || os.machine() === 'aarch64';
+}
+
+export function generateTemplateConfig() {
+    const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
+    const newFilePath = path.join(getE2EDir() as string, '../', 'k8s-config.yaml');
+
+    if (fs.existsSync(newFilePath)) {
+        throw new Error(`A config file has already exists at ${newFilePath}. Either delete it or rename it to generate a new config.`);
+    }
+
+    const file = fs.readFileSync(e2eHelmfileValuesPath, 'utf-8');
+    fs.writeFileSync(newFilePath, file);
+    signale.success(`Generated new templated config file at ${newFilePath}`);
 }

@@ -927,6 +927,25 @@ export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2'
     }
 }
 
+export async function launchTerasliceWithCustomHelmfile(configFilePath: string) {
+    let diffProcess;
+    let syncProcess;
+    const e2eDir = getE2EDir();
+    if (!e2eDir) {
+        throw new Error('Missing e2e test directory');
+    }
+    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
+
+    try {
+        diffProcess = await execaCommand(`helmfile --state-values-file ${configFilePath} diff -f ${helmfilePath}`);
+        logger.debug(`helmfile diff:\n${diffProcess.stdout}`);
+        syncProcess = await execaCommand(`helmfile --state-values-file ${configFilePath} sync -f ${helmfilePath}`);
+        logger.debug(`helmfile sync:\n${syncProcess.stdout}`);
+    } catch (err) {
+        throw new TSError(`Helmfile command failed:\n${err}`);
+    }
+}
+
 export async function determineSearchHost() {
     const possible = ['elasticsearch7', 'opensearch1', 'opensearch2', 'opensearch3'];
     const subprocess = await execaCommand('helm list -n services-dev1 -o json');
@@ -1473,4 +1492,9 @@ export async function createMinioSecret(k8sClient: K8s): Promise<void> {
             + `- ${rootCaPath}\n`
         );
     }
+}
+
+export async function getTerasliceImageFromConfigYaml(configFilePath: string): Promise<string> {
+    const customConfig = yaml.load(fs.readFileSync(configFilePath, 'utf8')) as any;
+    return `${customConfig.teraslice.image.repository}:${customConfig.teraslice.image.tag}`;
 }

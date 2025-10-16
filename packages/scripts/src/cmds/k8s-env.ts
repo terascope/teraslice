@@ -1,6 +1,6 @@
 import { CommandModule } from 'yargs';
 import * as config from '../helpers/config.js';
-import { launchK8sEnv, rebuildTeraslice } from '../helpers/k8s-env/index.js';
+import { launchK8sEnv, rebuildTeraslice, generateTemplateConfig } from '../helpers/k8s-env/index.js';
 import { K8sEnvOptions } from '../helpers/k8s-env/interfaces.js';
 
 const cmd: CommandModule = {
@@ -64,6 +64,16 @@ const cmd: CommandModule = {
                 type: 'boolean',
                 default: false
             })
+            .option('config-file', {
+                description: 'Passes in a path to a config file that will override all settings except --dev',
+                type: 'string',
+                default: undefined
+            })
+            .option('generate-config', {
+                description: 'Will generate a default templated config file named k8s-config.yaml',
+                type: 'boolean',
+                default: false
+            })
             .check(() => {
                 if (process.env.ASSET_STORAGE_CONNECTION_TYPE === 's3' && process.env.TEST_MINIO !== 'true') {
                     throw new Error('You chose "s3" as an asset storage but don\'t have the minio service enabled.\n'
@@ -83,11 +93,17 @@ const cmd: CommandModule = {
             keepOpen: Boolean(argv['keep-open']),
         };
 
+        if (argv['config-file'] !== undefined) {
+            k8sOptions.configFile = argv['config-file'] as string;
+        }
+
         if (Boolean(argv.rebuild) === true) {
             if (argv['reset-store']) {
                 k8sOptions.resetStore = true;
             }
             return rebuildTeraslice(k8sOptions);
+        } else if (Boolean(argv['generate-config']) === true) {
+            return generateTemplateConfig();
         }
 
         return launchK8sEnv(k8sOptions);

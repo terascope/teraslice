@@ -3,6 +3,7 @@ import got from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'node:path';
+import yaml from 'js-yaml';
 import { Kafka } from 'kafkajs';
 import {
     pWhile, TSError, debugLogger,
@@ -932,5 +933,66 @@ export async function loadImagesForHelm(kindClusterName: string, skipImageDeleti
             ));
         }
     });
+    await Promise.all(promiseArray);
+}
+
+export async function loadImagesForHelmFromConfigFile(
+    kindClusterName: string,
+    configFilePath: string
+) {
+    const kind = new Kind(config.K8S_VERSION, kindClusterName);
+    const customConfig = yaml.load(fs.readFileSync(configFilePath, 'utf8')) as any;
+    const promiseArray: Promise<void>[] = [];
+
+    for (const service in customConfig) {
+        // Ensure the service is enabled
+        if (customConfig[service].enabled === true) {
+            // Handle all opensearch options
+            if (service.includes(Service.Opensearch)) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Opensearch,
+                    config.OPENSEARCH_DOCKER_IMAGE,
+                    customConfig[service].version,
+                    false
+                ));
+            // Handle all elasticsearch options
+            } else if (service.includes(Service.Elasticsearch)) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Elasticsearch,
+                    config.ELASTICSEARCH_DOCKER_IMAGE,
+                    customConfig[service].version,
+                    false
+                ));
+            } else if (service.includes(Service.Minio)) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Minio,
+                    config.MINIO_DOCKER_IMAGE,
+                    customConfig[service].version,
+                    false
+                ));
+            } else if (service.includes(Service.Kafka)) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Kafka,
+                    customConfig[service].image || config.KAFKA_DOCKER_IMAGE,
+                    customConfig[service].version,
+                    false
+                ));
+            } else if (service.includes(Service.Zookeeper)) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Zookeeper,
+                    config.ZOOKEEPER_DOCKER_IMAGE,
+                    customConfig[service].version,
+                    false
+                ));
+            } else if (service.includes(Service.Utility)) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Utility,
+                    customConfig[service].image.repository,
+                    customConfig[service].image.tag,
+                    false
+                ));
+            }
+        }
+    }
     await Promise.all(promiseArray);
 }
