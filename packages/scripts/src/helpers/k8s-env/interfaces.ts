@@ -7,4 +7,5 @@ export interface K8sEnvOptions {
     clusteringType: 'kubernetesV2';
     keepOpen: boolean;
     dev: boolean;
+    configFile?: string;
 }

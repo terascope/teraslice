@@ -92,3 +92,6 @@ examples/helm/custom.yaml
 
 # Asset cache txt file
 e2e/scripts/ci_asset_bundle_list.txt
+
+# A generated file when running yarn k8s --generate-config
+k8s-config.yaml
