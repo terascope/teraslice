@@ -12,7 +12,7 @@ image:
 service:
     type: NodePort
     port: 9200
-    nodePort: {{ .Values | get "opensearch1.nodePort" "30210" }}
+    nodePort: {{ .Values | get "opensearch1.nodePort" "30201" }}
 
 config:
     opensearch.yml:
@@ -35,5 +35,40 @@ resources:
         cpu: "1000m"
         memory: {{ .Values | get "opensearch1.memoryLimit" "1Gi" }}
 
+{{- if not (empty .Values.opensearch1.hostVolumePath) }}
+
+{{- $currentPath := (.Values | get "opensearch1.hostVolumePath" "") -}}
+
+{{ range $key, $service := .Values }}
+{{- if not (eq $key "opensearch1") }}
+{{- if eq ($service | get "enabled" false) true }}
+{{- if eq ($service | get "hostVolumePath" "") $currentPath }}
+
+{{- $error := (printf "%s.hostVolumePath is the same as opensearch1's hostVolumePath. These Must be unique or else data corruption will occur. Change %s.hostVolumePath to something other than %s" $key $key $service.hostVolumePath) -}}
+{{- fail $error -}}
+
+{{- end }}
+{{- end }}
+{{- end }}
+{{ end }}
+
+persistence:
+  enabled: false
+
+extraVolumes:
+    - name: searchdataos1
+      hostPath:
+        path: /searchdataos1
+        type: Directory
+
+extraVolumeMounts:
+    - name: searchdataos1
+      mountPath: /usr/share/opensearch/data
+      readOnly: false
+
+{{- else }}
+
 persistence:
     size: {{ .Values | get "opensearch1.persistentVolumeSize" "8Gi" }}
+
+{{- end }}

@@ -278,3 +278,15 @@ extraVolumeMounts: |
     }}
     {{- $mergedVolumeMounts := concat $autoloadVolumeMount $customVolumeMounts }}
     {{- toYaml $mergedVolumeMounts | nindent 4 }}
+
+##@ Extra checks to ensure correct config */
+
+##@ Checks to ensure stateCluster selected for teraslice is enabled 
+{{- $stateStorageCluster := (.Values | get "teraslice.stateCluster" "") -}}
+{{- $stateStorageClusterPath := (printf "%s.enabled" $stateStorageCluster) -}}
+{{- $stateStorageClusterEnabled := (.Values | get $stateStorageClusterPath "") -}}
+
+{{ if eq $stateStorageClusterEnabled false }}
+    {{- $error := (printf "You set teraslice.stateCluster to %s but it isn't enabled. Enable it to use it." $stateStorageCluster) -}}
+    {{- fail $error -}}
+{{ end }}
