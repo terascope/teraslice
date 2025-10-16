@@ -11,7 +11,7 @@ import { KindCluster, TsVolumeSet, CustomKindDefaultPorts, CustomKindService } f
 import {
     DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
     ELASTICSEARCH_PORT, OPENSEARCH_PORT, MINIO_PORT,
-    MINIO_UI_PORT, KAFKA_PORT
+    MINIO_UI_PORT, KAFKA_PORT, OPENSEARCH_VERSION
 } from './config.js';
 
 export class Kind {
@@ -63,14 +63,28 @@ export class Kind {
             for (const service of ENV_SERVICES) {
                 if (service === 'elasticsearch') {
                     configFile.nodes[0].extraPortMappings.push({
-                        containerPort: 30200,
+                        containerPort: 30207,
                         hostPort: Number.parseInt(ELASTICSEARCH_PORT)
                     });
                 } else if (service === 'opensearch') {
-                    configFile.nodes[0].extraPortMappings.push({
-                        containerPort: 30210,
-                        hostPort: Number.parseInt(OPENSEARCH_PORT)
-                    });
+                    if (OPENSEARCH_VERSION.startsWith('1')) {
+                        configFile.nodes[0].extraPortMappings.push({
+                            containerPort: 30201,
+                            hostPort: Number.parseInt(OPENSEARCH_PORT)
+                        });
+                    } else if (OPENSEARCH_VERSION.startsWith('2')) {
+                        configFile.nodes[0].extraPortMappings.push({
+                            containerPort: 30202,
+                            hostPort: Number.parseInt(OPENSEARCH_PORT)
+                        });
+                    } else if (OPENSEARCH_VERSION.startsWith('3')) {
+                        configFile.nodes[0].extraPortMappings.push({
+                            containerPort: 30203,
+                            hostPort: Number.parseInt(OPENSEARCH_PORT)
+                        });
+                    } else {
+                        throw new Error(`The OPENSEARCH_VERSION provided is unsupported.`);
+                    }
                 } else if (service === 'minio') {
                     configFile.nodes[0].extraPortMappings.push({
                         containerPort: 30900,
