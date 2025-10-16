@@ -164,6 +164,7 @@ export class Kind {
         }
         configFile.nodes[0].extraPortMappings[0].hostPort = Number.parseInt(teraslicePort, 10);
         const updatedYaml = yaml.dump(configFile);
+        signale.debug(`Final kind config yaml: ${updatedYaml}`);
 
         const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
         fs.writeFileSync(path.join(tempDir, 'kindConfig.yaml'), updatedYaml);
