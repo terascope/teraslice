@@ -78,7 +78,11 @@ export class Client extends Core {
 
         this.socket = SocketIOClient(hostUrl, options);
         this.socket.io.on('error', (err: any) => {
-            this.logger.error(err, 'unhandled socket.io-client error');
+            // xhr poll error handled by socket 'connection_error' handler
+            // but thrown as socket.io 'error' as well
+            if (!toString(err).includes('xhr poll error')) {
+                this.logger.error(err, 'unhandled socket.io-client error');
+            }
         });
 
         this.hostUrl = hostUrl;
