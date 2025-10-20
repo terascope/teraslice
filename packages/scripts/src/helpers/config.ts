@@ -4,7 +4,6 @@ import {
     toIntegerOrThrow
 } from '@terascope/utils';
 import { Service } from './interfaces.js';
-import { kafkaVersionMapper } from './mapper.js';
 
 const { address } = ipPkg;
 
@@ -170,7 +169,6 @@ const testOpensearch = toBoolean(TEST_OPENSEARCH);
 const testElasticsearch = toBoolean(TEST_ELASTICSEARCH);
 const testRestrainedOpensearch = toBoolean(TEST_RESTRAINED_OPENSEARCH);
 const testRestrainedElasticsearch = toBoolean(TEST_RESTRAINED_ELASTICSEARCH);
-
 
 export const ENV_SERVICES = [
     testOpensearch ? Service.Opensearch : undefined,
