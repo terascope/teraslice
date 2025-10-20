@@ -107,25 +107,11 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         env: {
             KAFKA_BROKER_ID: config.KAFKA_BROKER_ID,
             KAFKA_ADVERTISED_HOST_NAME: config.HOST_IP,
-            KAFKA_ZOOKEEPER_CONNECT: config.KAFKA_ZOOKEEPER_CONNECT,
             KAFKA_LISTENERS: config.KAFKA_LISTENERS,
             KAFKA_ADVERTISED_LISTENERS: config.KAFKA_ADVERTISED_LISTENERS,
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP,
             KAFKA_INTER_BROKER_LISTENER_NAME: config.KAFKA_INTER_BROKER_LISTENER_NAME,
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: config.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-        },
-        network: config.DOCKER_NETWORK_NAME
-    },
-    [Service.Zookeeper]: {
-        image: config.ZOOKEEPER_DOCKER_IMAGE,
-        name: `${config.TEST_NAMESPACE}_zookeeper`,
-        tmpfs: config.SERVICES_USE_TMPFS
-            ? ['/tmp/zookeeper-logs']
-            : undefined,
-        ports: [`${config.ZOOKEEPER_CLIENT_PORT}:${config.ZOOKEEPER_CLIENT_PORT}`],
-        env: {
-            ZOOKEEPER_CLIENT_PORT: config.ZOOKEEPER_CLIENT_PORT,
-            ZOOKEEPER_TICK_TIME: config.ZOOKEEPER_TICK_TIME
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -199,12 +185,7 @@ export async function loadOrPullServiceImages(
         }
 
         if (launchServices.includes(Service.Kafka)) {
-            const image = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}`;
-            images.push(image);
-        }
-
-        if (launchServices.includes(Service.Zookeeper)) {
-            const image = `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.ZOOKEEPER_VERSION}`;
+            const image = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}`;
             images.push(image);
         }
 
@@ -281,10 +262,6 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
         promises.push(ensureKafka(options));
     }
 
-    if (launchServices.includes(Service.Zookeeper)) {
-        promises.push(ensureZookeeper(options));
-    }
-
     if (launchServices.includes(Service.Minio)) {
         promises.push(ensureMinio(options));
     }
@@ -314,14 +291,6 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
     const startTime = Date.now();
     fn = await startService(options, Service.Kafka);
     await checkKafka(options, startTime);
-    return fn;
-}
-
-export async function ensureZookeeper(options: TestOptions): Promise<() => void> {
-    let fn = () => { };
-    const startTime = Date.now();
-    fn = await startService(options, Service.Zookeeper);
-    await checkZookeeper(options, startTime);
     return fn;
 }
 
@@ -816,11 +785,6 @@ async function checkKafka(options: TestOptions, startTime: number) {
     signale.success(`kafka@${config.KAFKA_VERSION} is running at ${config.KAFKA_BROKER}, took ${took}`);
 }
 
-async function checkZookeeper(options: TestOptions, startTime: number) {
-    const took = toHumanTime(Date.now() - startTime);
-    signale.success(` zookeeper*might* be running, took ${took}`);
-}
-
 async function checkUtility(options: TestOptions, startTime: number): Promise<void> {
     const took = toHumanTime(Date.now() - startTime);
     signale.success(`Utility Service **might** be running, took ${took}`);
@@ -838,7 +802,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     }
     let version: string;
     if (serviceName === 'kafka') {
-        const key = 'KAFKA_IMAGE_VERSION';
+        const key = 'KAFKA_VERSION';
         version = config[key];
         signale.pending(`starting ${service}@${config.KAFKA_VERSION} service...`);
     } else {
@@ -974,13 +938,6 @@ export async function loadImagesForHelmFromConfigFile(
                 promiseArray.push(kind.loadServiceImage(
                     Service.Kafka,
                     customConfig[service].image || config.KAFKA_DOCKER_IMAGE,
-                    customConfig[service].version,
-                    false
-                ));
-            } else if (service.includes(Service.Zookeeper)) {
-                promiseArray.push(kind.loadServiceImage(
-                    Service.Zookeeper,
-                    config.ZOOKEEPER_DOCKER_IMAGE,
                     customConfig[service].version,
                     false
                 ));
