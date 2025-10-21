@@ -726,7 +726,7 @@ export async function k8sStartService(
 ): Promise<void> {
     // services that have an available k8s deployment yaml file
     const availableServices = [
-        'elasticsearch', 'kafka', 'zookeeper', 'minio' // 'opensearch', 'rabbitmq'
+        'elasticsearch', 'kafka', 'minio' // 'opensearch', 'rabbitmq'
     ];
 
     if (!availableServices.includes(serviceName)) {
@@ -1063,7 +1063,6 @@ function generateHelmValuesFromServices(
         [Service.Opensearch]: config.OPENSEARCH_VERSION,
         [Service.Elasticsearch]: config.ELASTICSEARCH_VERSION,
         [Service.Kafka]: config.KAFKA_VERSION,
-        [Service.Zookeeper]: config.ZOOKEEPER_VERSION,
         [Service.Minio]: config.MINIO_VERSION,
         [Service.RabbitMQ]: config.RABBITMQ_VERSION,
         [Service.RestrainedElasticsearch]: config.ELASTICSEARCH_VERSION,
