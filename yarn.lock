@@ -3149,7 +3149,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/teraslice-messaging@npm:~2.0.0-dev.5, @terascope/teraslice-messaging@workspace:packages/teraslice-messaging":
+"@terascope/teraslice-messaging@npm:~2.0.0-dev.6, @terascope/teraslice-messaging@workspace:packages/teraslice-messaging":
   version: 0.0.0-use.local
   resolution: "@terascope/teraslice-messaging@workspace:packages/teraslice-messaging"
   dependencies:
@@ -13112,7 +13112,7 @@ __metadata:
     "@terascope/elasticsearch-api": "npm:~5.0.0-dev.5"
     "@terascope/job-components": "npm:~2.0.0-dev.5"
     "@terascope/opensearch-client": "npm:~2.0.0-dev.5"
-    "@terascope/teraslice-messaging": "npm:~2.0.0-dev.5"
+    "@terascope/teraslice-messaging": "npm:~2.0.0-dev.6"
     "@terascope/types": "npm:~2.0.0-dev.5"
     "@terascope/utils": "npm:~2.0.0-dev.5"
     "@types/archiver": "npm:~6.0.3"
