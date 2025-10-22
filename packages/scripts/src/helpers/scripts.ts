@@ -937,7 +937,9 @@ export async function launchTerasliceWithCustomHelmfile(configFilePath: string) 
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
 
     try {
-        diffProcess = await execaCommand(`helmfile --state-values-file ${configFilePath} diff -f ${helmfilePath}`);
+        // We want to exclude certain charts from the diff command because
+        //  they may require crds that aren't installed
+        diffProcess = await execaCommand(`helmfile -l group!=skipDiff --state-values-file ${configFilePath} diff -f ${helmfilePath}`);
         logger.debug(`helmfile diff:\n${diffProcess.stdout}`);
         syncProcess = await execaCommand(`helmfile --state-values-file ${configFilePath} sync -f ${helmfilePath}`);
         logger.debug(`helmfile sync:\n${syncProcess.stdout}`);
