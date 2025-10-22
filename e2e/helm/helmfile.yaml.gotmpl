@@ -11,6 +11,8 @@ repositories:
     url: https://opensearch-project.github.io/helm-charts/
   - name: minio
     url: https://charts.min.io/
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
 
 helmDefaults:
   wait: true
@@ -88,3 +90,14 @@ releases:
       - ./templates/teraslice.yaml.gotmpl
     labels:
       app: teraslice
+
+  - name: prometheus-stack
+    namespace: services-dev1
+    version: 78.4.0
+    chart: prometheus-community/kube-prometheus-stack
+    installed: {{ .Values | get "prometheus_stack.enabled" false }}
+    values:
+      - ./templates/prometheus-stack.gotmpl
+    labels:
+      app: prom-grafana
+      group: skipDiff

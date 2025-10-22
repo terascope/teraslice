@@ -185,3 +185,15 @@ teraslice:
   env: {}
   extraVolumes: []
   extraVolumeMounts: []
+
+prometheus_stack:
+  # If enabled, the prom dashboard will be available on http://localhost:9090
+  enabled: false
+  grafana:
+    # If enabled, the grafana dashboard will be available on http://localhost:8050
+    enabled: true
+    adminUser: admin
+    adminPassword: admin
+  alertmanager:
+    # If enabled, the alertmanager dashboard will be available on http://localhost:9091
+    enabled: false
