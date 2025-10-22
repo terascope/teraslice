@@ -1,6 +1,6 @@
 import {
     toNumber, ipToInt, parseDateValue, toBigIntOrThrow
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { FieldType, DateFormat } from '@terascope/types';
 import {
     FieldTransformConfig,

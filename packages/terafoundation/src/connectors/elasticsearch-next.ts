@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import type { Terafoundation } from '@terascope/types';
 import { createClient as createSearchClient } from '@terascope/opensearch-client';
 

@@ -2,7 +2,7 @@ import {
     isString, TSError, isPlainObject,
     isTest, trimStart, tryParseJSON,
     withoutNil,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { STATUS_CODES } from 'node:http';
 import { URL } from 'node:url';
 import got, { type Got, HTTPError } from 'got';

@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { AnyObject, has } from '@terascope/utils';
+import { AnyObject, has } from '@terascope/core-utils';
 import yaml from 'js-yaml';
 import Display from './display.js';
 

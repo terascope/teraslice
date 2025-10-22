@@ -4,7 +4,7 @@ import {
 } from '@terascope/types';
 import { Column } from '../column/index.js';
 
-export type { InNumberRangeArg } from '@terascope/utils';
+export type { InNumberRangeArg } from '@terascope/core-utils';
 
 export enum FunctionDefinitionType {
     FIELD_TRANSFORM = 'FIELD_TRANSFORM',

@@ -1,5 +1,5 @@
 import graphlib from 'graphlib';
-import { Logger, cloneDeep, has } from '@terascope/utils';
+import { Logger, cloneDeep, has } from '@terascope/core-utils';
 import { nanoid } from 'nanoid';
 import { OperationsManager } from '../index.js';
 

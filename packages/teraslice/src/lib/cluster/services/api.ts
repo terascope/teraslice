@@ -7,7 +7,7 @@ import {
     parseErrorInfo, parseList, logError,
     TSError, startsWith, Logger, pWhile,
     isKey
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { ExecutionStatusEnum } from '@terascope/types';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';

@@ -1,4 +1,4 @@
-import { random } from '@terascope/utils';
+import { random } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

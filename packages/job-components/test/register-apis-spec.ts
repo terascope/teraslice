@@ -1,7 +1,7 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AnyObject } from '@terascope/utils';
+import { AnyObject } from '@terascope/core-utils';
 import {
     registerApis, OperationAPI, newTestJobConfig,
     TestContext, TestClientConfig, MetadataFns

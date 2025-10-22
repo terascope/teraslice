@@ -1,4 +1,4 @@
-import { DataEntity, pDelay } from '@terascope/utils';
+import { DataEntity, pDelay } from '@terascope/core-utils';
 import { DelayConfig } from './interfaces.js';
 import { BatchProcessor } from '../../operations/index.js';
 

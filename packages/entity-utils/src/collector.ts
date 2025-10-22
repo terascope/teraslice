@@ -1,4 +1,4 @@
-import { castArray } from './arrays.js';
+import { castArray } from '@terascope/core-utils';
 
 /**
  * An in-memory record collector,

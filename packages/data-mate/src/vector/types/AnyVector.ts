@@ -1,4 +1,4 @@
-import { toJSONCompatibleValue as toJSONCompatValue, isNil } from '@terascope/utils';
+import { toJSONCompatibleValue as toJSONCompatValue, isNil } from '@terascope/core-utils';
 import { Vector, VectorOptions } from '../Vector.js';
 import { VectorType, DataBuckets, SerializeOptions } from '../interfaces.js';
 

@@ -1,4 +1,4 @@
-import { Logger, isString, isFunction } from '@terascope/utils';
+import { Logger, isString, isFunction } from '@terascope/core-utils';
 import type { Terafoundation } from '@terascope/types';
 import registerApis from './api/index.js';
 

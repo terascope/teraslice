@@ -3,7 +3,7 @@ import {
     TSError, pRetry, toString,
     isRetryableError, parseErrorInfo, isTest,
     times, getFullErrorStack, Logger, isKey
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';

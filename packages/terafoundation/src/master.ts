@@ -1,5 +1,5 @@
 import { cpus } from 'node:os';
-import { times, once } from '@terascope/utils';
+import { times, once } from '@terascope/core-utils';
 import type { Terafoundation } from '@terascope/types';
 
 export default function masterModule<

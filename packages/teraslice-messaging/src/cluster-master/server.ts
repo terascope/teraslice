@@ -1,4 +1,4 @@
-import { cloneDeep, isKey, isNumber } from '@terascope/utils';
+import { cloneDeep, isKey, isNumber } from '@terascope/core-utils';
 import { Message, ResponseError, Server as _Server } from '../messenger/index.js';
 import { ClusterAnalytics, ExecutionAnalyticsMessage, ServerOptions } from './interfaces.js';
 

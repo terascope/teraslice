@@ -1,4 +1,4 @@
-import { makeISODate } from '@terascope/utils';
+import { makeISODate } from '@terascope/core-utils';
 import {
     JobValidator, Context, RecoveryCleanupType,
     Slice, JobConfigParams

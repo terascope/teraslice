@@ -1,7 +1,7 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { pDelay, DataEntity, isKey } from '@terascope/utils';
+import { pDelay, DataEntity, isKey } from '@terascope/core-utils';
 import {
     WorkerExecutionContext, TestContext, newTestExecutionConfig,
     FetcherCore, ProcessorCore, newTestSlice

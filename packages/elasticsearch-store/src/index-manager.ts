@@ -2,7 +2,7 @@ import {
     TSError, type Logger, toNumber, get,
     isTest, parseError, isEmpty, cloneDeep,
     pRetry, debugLogger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type {
     ClientParams, ClientResponse, ClientMetadata, ESMapping
 } from '@terascope/types';

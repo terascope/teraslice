@@ -1,4 +1,4 @@
-import { lookup } from '@terascope/utils';
+import { lookup } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,

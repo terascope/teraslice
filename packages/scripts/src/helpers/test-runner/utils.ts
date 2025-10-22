@@ -3,7 +3,7 @@ import fse from 'fs-extra';
 import {
     debugLogger, get, flatten,
     isCI, toString
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     ArgsMap, ExecEnv, exec
 } from '../scripts.js';

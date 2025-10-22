@@ -1,7 +1,7 @@
 import {
     TSError, logError, get,
     cloneDeep, pRetry, Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { Context, ExecutionConfig } from '@terascope/job-components';
 import { ClusterState } from '@terascope/types';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';

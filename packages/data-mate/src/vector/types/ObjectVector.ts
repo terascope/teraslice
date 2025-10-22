@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { isNotNil } from '@terascope/utils';
+import { isNotNil } from '@terascope/core-utils';
 import { Vector, VectorOptions } from '../Vector.js';
 import { SerializeOptions, VectorType, DataBuckets } from '../interfaces.js';
 import { getChildDataTypeConfig } from '../../core/index.js';

@@ -1,4 +1,4 @@
-import { parseGeoPoint, isNil, isNumber } from '@terascope/utils';
+import { parseGeoPoint, isNil, isNumber } from '@terascope/core-utils';
 import { FieldType, DataTypeFieldConfig } from '@terascope/types';
 import {
     FieldTransformConfig,

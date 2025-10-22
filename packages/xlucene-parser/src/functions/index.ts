@@ -1,5 +1,5 @@
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
-import { isKey } from '@terascope/utils';
+import { isKey } from '@terascope/core-utils';
 import geoBoxFn from './geo/box.js';
 import geoDistanceFn from './geo/distance.js';
 import geoPolygonFn from './geo/polygon.js';

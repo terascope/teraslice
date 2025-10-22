@@ -1,4 +1,4 @@
-import { isKey, parseGeoDistance, parseGeoPoint } from '@terascope/utils';
+import { isKey, parseGeoDistance, parseGeoPoint } from '@terascope/core-utils';
 import { GeoPoint, xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import * as i from './interfaces.js';
 import * as utils from './utils.js';

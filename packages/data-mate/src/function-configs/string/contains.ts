@@ -1,4 +1,4 @@
-import { containsFP } from '@terascope/utils';
+import { containsFP } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

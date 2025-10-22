@@ -1,5 +1,5 @@
 import { AnyObject, FieldType, Maybe } from '@terascope/types';
-import { isNotNil, getHashCodeFrom } from '@terascope/utils';
+import { isNotNil, getHashCodeFrom } from '@terascope/core-utils';
 import { Vector, VectorOptions } from './Vector.js';
 import { DataBuckets, SerializeOptions, VectorType } from './interfaces.js';
 

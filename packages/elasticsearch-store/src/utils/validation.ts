@@ -4,7 +4,7 @@ import {
     isString, TSError, uniq,
     castArray, Logger, getTypeOf,
     isInteger, get, has
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { IndexConfig, IndexSchema, DataSchema } from '../interfaces.js';
 import { throwValidationError, getErrorMessages } from './errors.js';
 

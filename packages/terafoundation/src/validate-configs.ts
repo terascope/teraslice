@@ -4,7 +4,7 @@ import {
     TSError, isFunction, isPlainObject,
     isEmpty, concat, PartialDeep, pMap,
     cloneDeep
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { Terafoundation } from '@terascope/types';
 // @ts-expect-error no types
 import convict_format_with_validator from 'convict-format-with-validator';

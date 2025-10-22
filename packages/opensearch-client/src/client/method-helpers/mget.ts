@@ -1,5 +1,5 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
-import { has } from '@terascope/utils';
+import { has } from '@terascope/core-utils';
 
 export function convertMGetParams(
     params: ClientParams.MGetParams,

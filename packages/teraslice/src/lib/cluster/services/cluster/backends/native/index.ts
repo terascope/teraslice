@@ -3,7 +3,7 @@ import {
     Queue, TSError, getFullErrorStack,
     pDelay, cloneDeep, Logger, debounce,
     pMap, orderBy, isInteger, get
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { EventEmitter } from 'node:events';
 import { ExecutionConfig } from '@terascope/types';
 import { Dispatch } from './dispatch.js';

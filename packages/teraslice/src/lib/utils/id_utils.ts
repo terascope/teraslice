@@ -1,4 +1,4 @@
-import { trim, padEnd } from '@terascope/utils';
+import { trim, padEnd } from '@terascope/core-utils';
 import { customAlphabet } from 'nanoid';
 
 export function newId(prefix?: string, lowerCase = false, length = 15): string {

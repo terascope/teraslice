@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { toString, get, isError } from '@terascope/utils';
+import { toString, get, isError } from '@terascope/core-utils';
 
 class Reply {
     quiet = false;

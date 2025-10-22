@@ -1,7 +1,7 @@
 import {
     DataEntity, pDelay, get, toNumber,
     uniq, TSError
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { readFileSync } from 'node:fs';
 import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';

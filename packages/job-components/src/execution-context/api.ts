@@ -2,7 +2,7 @@ import { EventEmitter } from 'node:events';
 import {
     get, set, AnyObject,
     Logger, isTest, isString
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     OpAPI, Context, ExecutionConfig,
     APIConfig

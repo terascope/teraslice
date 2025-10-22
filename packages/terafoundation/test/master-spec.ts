@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { jest } from '@jest/globals';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import masterModule from '../src/master.js';
 
 describe('master', () => {

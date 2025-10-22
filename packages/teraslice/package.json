@@ -43,7 +43,7 @@
         "@terascope/job-components": "~2.0.0-dev.5",
         "@terascope/teraslice-messaging": "~2.0.0-dev.5",
         "@terascope/types": "~2.0.0-dev.5",
-        "@terascope/utils": "~2.0.0-dev.5",
+        "@terascope/core-utils": "~2.0.0-dev.5",
         "async-mutex": "~0.5.0",
         "barbe": "~3.0.17",
         "body-parser": "~2.2.0",

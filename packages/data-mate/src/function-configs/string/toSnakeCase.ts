@@ -1,4 +1,4 @@
-import { toSnakeCase } from '@terascope/utils';
+import { toSnakeCase } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

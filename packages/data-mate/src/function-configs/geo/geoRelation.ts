@@ -1,6 +1,6 @@
 import {
     joinList, geoRelationFP, toGeoJSON
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     FieldType, GeoShapeRelation, GeoShapeType, GeoInput
 } from '@terascope/types';

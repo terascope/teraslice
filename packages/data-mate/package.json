@@ -32,7 +32,7 @@
     "dependencies": {
         "@terascope/data-types": "~2.0.0-dev.5",
         "@terascope/types": "~2.0.0-dev.5",
-        "@terascope/utils": "~2.0.0-dev.5",
+        "@terascope/core-utils": "~2.0.0-dev.5",
         "@types/validator": "~13.12.3",
         "awesome-phonenumber": "~7.5.0",
         "big-json": "^3.2.0",

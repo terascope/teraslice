@@ -1,5 +1,5 @@
 import { FieldType, DateTuple } from '@terascope/types';
-import { isAfter, isValidDate } from '@terascope/utils';
+import { isAfter, isValidDate } from '@terascope/core-utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory

@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { TSError, times, toString } from '@terascope/utils';
+import { TSError, times, toString } from '@terascope/core-utils';
 import { xLuceneFieldType } from '@terascope/types';
 import allTestCases, { filterNilTestCases } from './cases/index.js';
 import {

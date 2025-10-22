@@ -1,4 +1,4 @@
-import type { AnyObject } from '@terascope/utils';
+import type { AnyObject } from '@terascope/core-utils';
 import {
     SortOrder, ElasticsearchDSLOptions, xLuceneTypeConfig,
     xLuceneVariables, GeoDistanceUnit, ClientParams,

@@ -2,7 +2,7 @@ import {
     xLuceneTypeConfig, PropertyESTypeMapping, PropertyESTypes,
     ClientMetadata,
 } from '@terascope/types';
-import { firstToUpper } from '@terascope/utils';
+import { firstToUpper } from '@terascope/core-utils';
 import BaseType, { ToGraphQLOptions } from './base-type.js';
 import { GraphQLType, TypeESMapping } from '../interfaces.js';
 

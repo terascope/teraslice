@@ -1,4 +1,4 @@
-import { DataEntity, cloneDeep } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/core-utils';
 import { HexDecode } from '../../../src/operations';
 
 describe('HexDecode operator', () => {

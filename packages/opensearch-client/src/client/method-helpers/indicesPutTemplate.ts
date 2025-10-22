@@ -1,5 +1,5 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
-import { get, isNumber } from '@terascope/utils';
+import { get, isNumber } from '@terascope/core-utils';
 
 export function convertIndicesPutTemplateParams(
     params: ClientParams.IndicesPutTemplateParams,

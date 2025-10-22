@@ -1,6 +1,6 @@
 import {
     isString, isPlainObject, TSError, unset
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client.js';

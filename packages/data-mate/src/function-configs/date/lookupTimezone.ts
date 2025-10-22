@@ -1,4 +1,4 @@
-import { isNil, isNumber, lookupTimezone } from '@terascope/utils';
+import { isNil, isNumber, lookupTimezone } from '@terascope/core-utils';
 import { FieldType, DataTypeFieldConfig } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,

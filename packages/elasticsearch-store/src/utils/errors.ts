@@ -1,4 +1,4 @@
-import { TSError, isString, get } from '@terascope/utils';
+import { TSError, isString, get } from '@terascope/core-utils';
 import { ErrorObject } from 'ajv';
 
 export function getErrorMessages(errors: ErrorLike[]): string {

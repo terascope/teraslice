@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { pDelay, get, set } from '@terascope/utils';
+import { pDelay, get, set } from '@terascope/core-utils';
 import { TestContext } from '../helpers/index.js';
 import { ExecutionStorage } from '../../../src/lib/storage/index.js';
 import { findPort } from '../../../src/lib/utils/port_utils.js';

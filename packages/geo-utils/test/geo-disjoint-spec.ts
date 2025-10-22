@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { GeoShapeType, GeoInput } from '@terascope/types';
-import { geoDisjointFP, geoDisjoint } from '../src/geo.js';
+import { geoDisjointFP, geoDisjoint } from '../src/index.js';
 
 type GeoDisjointCase = [
     msg: string,

@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { AnyObject } from '@terascope/utils';
+import { AnyObject } from '@terascope/core-utils';
 import {
     ConvictSchema, TestContext, OpConfig,
     ValidatedJobConfig, newTestJobConfig,

@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger, get, times } from '@terascope/utils';
+import { debugLogger, get, times } from '@terascope/core-utils';
 import { ElasticsearchDistribution, xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import { Parser } from 'xlucene-parser';
 import { translateQuery } from '../src/translator/utils.js';

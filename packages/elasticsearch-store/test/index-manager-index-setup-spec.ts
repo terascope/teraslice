@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger, get } from '@terascope/utils';
+import { debugLogger, get } from '@terascope/core-utils';
 import { getClientVersion, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import * as simple from './helpers/simple-index.js';
 import * as template from './helpers/template-index.js';

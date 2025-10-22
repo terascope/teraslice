@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { isLessThanOrEqualToFP } from '@terascope/utils';
+import { isLessThanOrEqualToFP } from '@terascope/core-utils';
 import {
     FieldValidateConfig,
     ProcessMode,

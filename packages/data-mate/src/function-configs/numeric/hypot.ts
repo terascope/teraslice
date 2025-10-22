@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import {
     toFloatOrThrow
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     FieldTransformConfig,
     ProcessMode,

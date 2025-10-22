@@ -1,6 +1,6 @@
 import {
     DataEntity, AnyObject, unset, has
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { hasKeys } from './utils.js';
 import { WatcherConfig, OutputValidation } from '../interfaces.js';
 import PhaseBase from './base.js';
