@@ -73,6 +73,16 @@ releases:
     values:
       - ./templates/kafka.yaml.gotmpl
 
+  - name: kafka-ui
+    namespace: services-dev1
+    chart: kafka-ui/kafka-ui
+    needs:
+      - services-dev1/kafka
+    version: 0.7.6
+    installed: {{ .Values | get "kafka.enabled" true }}
+    values:
+      - ./templates/kafka-ui.yaml.gotmpl
+
   - name: utility
     namespace: services-dev1
     chart: ./utility
@@ -97,7 +107,7 @@ releases:
     chart: prometheus-community/kube-prometheus-stack
     installed: {{ .Values | get "prometheus_stack.enabled" false }}
     values:
-      - ./templates/prometheus-stack.gotmpl
+      - ./templates/prometheus-stack.yaml.gotmpl
     labels:
       app: prom-grafana
       group: skipDiff
