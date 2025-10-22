@@ -1,6 +1,5 @@
 import http from 'node:http';
-import { Server as SocketIOServer, type Socket } from 'socket.io';
-import { ExtendedError } from 'node_modules/socket.io/dist/namespace.js';
+import { Server as SocketIOServer, type Socket, ExtendedError } from 'socket.io';
 import {
     get,
     isTest,
