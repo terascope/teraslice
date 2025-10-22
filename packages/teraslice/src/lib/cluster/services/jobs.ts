@@ -2,7 +2,7 @@ import {
     TSError, uniq, cloneDeep,
     isEmpty, getTypeOf, isString,
     Logger, makeISODate, defaultsDeep
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     JobConfigParams, JobValidator, RecoveryCleanupType,
     ValidatedJobConfig, parseName

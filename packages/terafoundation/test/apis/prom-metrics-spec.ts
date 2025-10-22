@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import got from 'got';
 import {
     Counter, Gauge, Histogram, Summary

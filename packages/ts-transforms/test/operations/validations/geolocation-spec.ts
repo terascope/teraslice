@@ -1,4 +1,4 @@
-import { DataEntity, cloneDeep } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/core-utils';
 import { Geolocation } from '../../../src/operations';
 
 describe('geolocation validation', () => {

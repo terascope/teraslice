@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity } from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import {
     SlicerRecoveryData, SliceResult, ExecutionStats

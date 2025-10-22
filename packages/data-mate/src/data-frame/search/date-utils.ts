@@ -2,7 +2,7 @@ import {
     isWithinInterval, isEqual, subMilliseconds,
     addMilliseconds
 } from 'date-fns';
-import { getTypeOf, getValidDate } from '@terascope/utils';
+import { getTypeOf, getValidDate } from '@terascope/core-utils';
 import { isInfiniteMax, isInfiniteMin, ParsedRange } from 'xlucene-parser';
 import { MatchValueFn } from '../../interfaces.js';
 

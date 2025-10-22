@@ -22,7 +22,7 @@ import {
     toCIDR,
     isValidDate,
     getValidDate
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 
 import {
     xLuceneFieldType, xLuceneVariables, CoordinateTuple,

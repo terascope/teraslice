@@ -1,26 +1,5 @@
 import type { DataEntity } from './entities/data-entity.js';
 
-export type {
-    Omit,
-    Overwrite,
-    Override,
-    Required,
-    Optional,
-    Nil,
-    WithoutNil,
-    Many,
-    RecursiveArray,
-    ListOfRecursiveArraysOrValues,
-    EmptyObject,
-    AnyObject,
-    PartialDeep,
-    Diff,
-    Filter,
-    ValueOf,
-    FilteredResult,
-    Unpacked
-} from '@terascope/types';
-
 /**
  * Used for sending data to particular index/topic/file/table in a storage system.
  * This is used by the routed sender in the standard-assets

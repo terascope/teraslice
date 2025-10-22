@@ -1,4 +1,4 @@
-import { toString, toISO8601 } from '@terascope/utils';
+import { toString, toISO8601 } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

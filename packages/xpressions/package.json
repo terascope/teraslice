@@ -24,7 +24,7 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../xpressions --"
     },
     "dependencies": {
-        "@terascope/utils": "~2.0.0-dev.5"
+        "@terascope/core-utils": "~2.0.0-dev.5"
     },
     "devDependencies": {
         "@terascope/types": "~2.0.0-dev.5"

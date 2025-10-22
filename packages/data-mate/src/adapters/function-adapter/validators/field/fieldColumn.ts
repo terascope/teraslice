@@ -1,4 +1,4 @@
-import { isNotNil, isFunction } from '@terascope/utils';
+import { isNotNil, isFunction } from '@terascope/core-utils';
 import {
     FieldValidateConfig, InitialFunctionContext, FunctionContext,
 } from '../../../../function-configs/interfaces.js';

@@ -5,7 +5,7 @@ import {
     toKebabCase,
     toSnakeCase,
     toCamelCase
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { TerasliceClient } from 'teraslice-client-js';
 import fs from 'node:fs';
 import path from 'node:path';

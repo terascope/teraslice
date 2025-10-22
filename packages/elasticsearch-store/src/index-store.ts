@@ -4,7 +4,7 @@ import {
     isInteger, isFunction, DataEntity,
     getFirst, isPlainObject, isEmpty,
     get, uniq, getFirstKey, castArray
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     xLuceneTypeConfig, ClientMetadata, ESTypes,
     ClientParams, ClientResponse, ElasticsearchDistribution,

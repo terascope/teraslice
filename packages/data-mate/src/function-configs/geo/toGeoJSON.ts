@@ -1,4 +1,4 @@
-import { toGeoJSONOrThrow, isNil } from '@terascope/utils';
+import { toGeoJSONOrThrow, isNil } from '@terascope/core-utils';
 import { FieldType, GeoShapeType } from '@terascope/types';
 import {
     FieldTransformConfig,

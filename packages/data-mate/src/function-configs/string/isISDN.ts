@@ -1,4 +1,4 @@
-import { isISDN, isCountryCode } from '@terascope/utils';
+import { isISDN, isCountryCode } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

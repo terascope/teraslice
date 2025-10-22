@@ -1,4 +1,4 @@
-import { getCIDRMax } from '@terascope/utils';
+import { getCIDRMax } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 
 import {

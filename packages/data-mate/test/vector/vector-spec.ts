@@ -1,7 +1,7 @@
 import 'jest-extended';
 import {
     toString, bigIntToJSON, isNotNil, times
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     DataTypeFields,
     ESGeoShapeMultiPolygon,

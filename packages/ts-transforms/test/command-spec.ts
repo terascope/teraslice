@@ -1,7 +1,7 @@
 import { execaCommand, type Options } from 'execa';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { pWhile } from '@terascope/utils';
+import { pWhile } from '@terascope/core-utils';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

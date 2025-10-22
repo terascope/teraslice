@@ -1,4 +1,4 @@
-import { isNotNil, times } from '@terascope/utils';
+import { isNotNil, times } from '@terascope/core-utils';
 import 'jest-extended';
 import { ReadableData, WritableData } from '../src/core/index.js';
 

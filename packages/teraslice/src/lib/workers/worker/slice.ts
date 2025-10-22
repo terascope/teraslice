@@ -2,7 +2,7 @@ import events from 'node:events';
 import {
     TSError, getTypeOf, logError,
     Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     Context, Slice, WorkerExecutionContext,
     RunSliceResult

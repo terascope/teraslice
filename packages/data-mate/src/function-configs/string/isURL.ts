@@ -1,4 +1,4 @@
-import { isURL } from '@terascope/utils';
+import { isURL } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

@@ -34,7 +34,7 @@
         "@terascope/data-types": "~2.0.0-dev.5",
         "@terascope/opensearch-client": "~2.0.0-dev.5",
         "@terascope/types": "~2.0.0-dev.5",
-        "@terascope/utils": "~2.0.0-dev.5",
+        "@terascope/core-utils": "~2.0.0-dev.5",
         "ajv": "~8.17.1",
         "ajv-formats": "~3.0.1",
         "setimmediate": "~1.0.5",

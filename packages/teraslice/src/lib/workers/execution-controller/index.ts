@@ -9,7 +9,7 @@ import {
     pDelay, getFullErrorStack, logError,
     pWhile, makeISODate, type Logger,
     debounce, throttle
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     Context, SlicerExecutionContext, Slice, isPromAvailable
 } from '@terascope/job-components';

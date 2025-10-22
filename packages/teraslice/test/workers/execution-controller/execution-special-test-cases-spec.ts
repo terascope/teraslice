@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { pDelay, times, random } from '@terascope/utils';
+import { pDelay, times, random } from '@terascope/core-utils';
 import { RecoveryCleanupType } from '@terascope/job-components';
 import { ExecutionController as ExController } from '@terascope/teraslice-messaging';
 import { ExecutionConfig } from '@terascope/types';

@@ -1,7 +1,7 @@
 import {
     TSError, get, isEmpty,
     pDelay, pRetry, Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import * as k8s from '@kubernetes/client-node';
 import {
     convertToTSResource, convertToTSResourceList, getRetryConfig,

@@ -3,7 +3,7 @@
 
 import path from 'node:path';
 import fs from 'fs-extra';
-import { has, TSError } from '@terascope/utils';
+import { has, TSError } from '@terascope/core-utils';
 import { AssetSrc } from '../../helpers/asset-src.js';
 import GithubAsset from '../../helpers/github-asset.js';
 

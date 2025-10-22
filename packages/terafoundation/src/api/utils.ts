@@ -4,7 +4,7 @@ import bunyan from 'bunyan';
 import {
     toBoolean, debugLogger, isTest,
     Logger, includes
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Terafoundation } from '@terascope/types';
 
 type LogLevelObj = {

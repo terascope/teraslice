@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import { ExecutionAnalytics, AggregatedExecutionAnalytics } from '@terascope/types';
 import { Message, RequestListener } from '../messenger/interfaces.js';
 

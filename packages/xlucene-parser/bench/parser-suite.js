@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { times, isExecutedFile } from '@terascope/utils';
+import { times, isExecutedFile } from '@terascope/core-utils';
 import turf from '@turf/random';
 import { multiPolygon } from '@turf/helpers';
 import { xLuceneFieldType } from '@terascope/types';

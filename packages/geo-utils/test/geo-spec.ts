@@ -7,7 +7,7 @@ import {
     isGeoPoint, parseGeoPoint, inGeoBoundingBox,
     inGeoBoundingBoxFP, geoPointWithinRange, geoPointWithinRangeFP,
     toGeoJSON, lookupTimezone, tzCacheLoaded
-} from '../src/geo.js';
+} from '../src/index.js';
 
 describe('geo utils', () => {
     describe('->parseGeoPoint', () => {

@@ -1,6 +1,6 @@
 import {
     debugLogger, get, toNumber, Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import * as opensearch1 from 'opensearch1';
 import * as opensearch2 from 'opensearch2';
 import * as opensearch3 from 'opensearch3';

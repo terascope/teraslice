@@ -1,4 +1,4 @@
-import { isCountryCode } from '@terascope/utils';
+import { isCountryCode } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

@@ -7,7 +7,7 @@ import {
     get,
     cloneDeep,
     isKey
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import Config from './config.js';
 import Jobs from './jobs.js';

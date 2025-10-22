@@ -10,7 +10,7 @@ import {
     isString,
     isInteger,
     toInteger,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 
 const { addFormat, addFormats: nativeAddFormats } = pkg;
 

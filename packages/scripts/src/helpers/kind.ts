@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execaCommand } from 'execa';
 import yaml from 'js-yaml';
-import { Logger, debugLogger, isCI } from '@terascope/utils';
+import { Logger, debugLogger, isCI } from '@terascope/core-utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale.js';
 import { getE2eK8sDir } from '../helpers/packages.js';

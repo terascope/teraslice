@@ -1,4 +1,4 @@
-import { startsWith } from '@terascope/utils';
+import { startsWith } from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import util from 'node:util';
 import autoBind from 'auto-bind';

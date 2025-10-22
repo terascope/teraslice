@@ -1,4 +1,4 @@
-import * as ts from '@terascope/utils';
+import * as ts from '@terascope/core-utils';
 import ipaddr from 'ipaddr.js';
 import ip6addr from 'ip6addr';
 import { parsePhoneNumber } from 'awesome-phonenumber';

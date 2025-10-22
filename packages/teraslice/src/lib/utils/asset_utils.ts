@@ -1,7 +1,7 @@
 import {
     isInteger, trimStart, trim,
     getFirst, joinList
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { AssetRecord } from '@terascope/types';
 import * as semver from 'semver';
 

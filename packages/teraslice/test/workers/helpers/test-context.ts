@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { EventEmitter } from 'node:events';
 import { createTempDirSync, cleanupTempDirs } from 'jest-fixtures';
 import { newTestSlice, ExecutionContext } from '@terascope/job-components';
-import { get, pWhile } from '@terascope/utils';
+import { get, pWhile } from '@terascope/core-utils';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import {
     AssetsStorage, StateStorage, AnalyticsStorage,

@@ -2,7 +2,7 @@ import 'jest-extended';
 import {
     DataEntity, debugLogger, cloneDeep,
     get
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { ClientParams, ClientResponse, FieldType } from '@terascope/types';
 import { DataType } from '@terascope/data-types';
 import {

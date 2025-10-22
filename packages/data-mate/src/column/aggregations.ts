@@ -1,6 +1,6 @@
 import {
     isBigInt, toBigInt, trimISODateSegment, getHashCodeFrom
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Maybe, ISO8601DateSegment } from '@terascope/types';
 import {
     Vector, VectorType, getNumericValues, SerializeOptions,

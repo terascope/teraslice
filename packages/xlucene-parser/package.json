@@ -34,7 +34,7 @@
     },
     "dependencies": {
         "@terascope/types": "~2.0.0-dev.5",
-        "@terascope/utils": "~2.0.0-dev.5",
+        "@terascope/core-utils": "~2.0.0-dev.5",
         "peggy": "~4.2.0",
         "ts-pegjs": "~4.2.1"
     },

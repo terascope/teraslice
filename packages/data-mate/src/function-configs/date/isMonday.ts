@@ -1,4 +1,4 @@
-import { isMonday } from '@terascope/utils';
+import { isMonday } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

@@ -1,4 +1,4 @@
-import * as ts from '@terascope/utils';
+import * as ts from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import crypto from 'node:crypto';
 import { parsePhoneNumber as _parsePhoneNumber } from 'awesome-phonenumber';

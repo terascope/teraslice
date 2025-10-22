@@ -1,5 +1,5 @@
 import { V1Service } from '@kubernetes/client-node';
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
 import { convertToTSResource, makeTemplate } from './utils.js';
 import { K8sConfig, NodeType, TSService } from './interfaces.js';

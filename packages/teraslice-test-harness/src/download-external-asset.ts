@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import os from 'node:os';
 import decompress from 'decompress';
-import { TSError } from '@terascope/utils';
+import { TSError } from '@terascope/core-utils';
 import { downloadRelease } from '@terascope/fetch-github-release';
 import * as I from './interfaces.js';
 

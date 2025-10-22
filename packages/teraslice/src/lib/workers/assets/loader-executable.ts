@@ -1,4 +1,4 @@
-import { getFullErrorStack, pDelay } from '@terascope/utils';
+import { getFullErrorStack, pDelay } from '@terascope/core-utils';
 import type { Context } from '@terascope/job-components';
 import { fileURLToPath } from 'node:url';
 import { AssetLoader } from './loader.js';

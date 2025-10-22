@@ -3,7 +3,7 @@
 import {
     get, getFullErrorStack, isFatalError,
     logError, pWhile, Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
 import { type Context, type WorkerExecutionContext, isPromAvailable } from '@terascope/job-components';

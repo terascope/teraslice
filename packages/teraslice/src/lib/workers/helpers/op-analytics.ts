@@ -1,7 +1,7 @@
 import {
     Logger, isString, isArray,
     truncate,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { Slice } from '@terascope/types';
 
 function formatVal(value: string | string[]) {

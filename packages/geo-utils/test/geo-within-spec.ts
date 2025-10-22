@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { GeoShapeType, GeoInput } from '@terascope/types';
-import { geoWithinFP, geoWithin } from '../src/geo.js';
+import { geoWithinFP, geoWithin } from '../src/index.js';
 
 type WithinCase = [
     msg: string,

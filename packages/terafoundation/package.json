@@ -31,7 +31,7 @@
         "@terascope/file-asset-apis": "~1.1.2",
         "@terascope/opensearch-client": "~2.0.0-dev.5",
         "@terascope/types": "~2.0.0-dev.5",
-        "@terascope/utils": "~2.0.0-dev.5",
+        "@terascope/core-utils": "~2.0.0-dev.5",
         "bluebird": "~3.7.2",
         "bunyan": "~1.8.15",
         "convict": "~6.2.4",

@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { getTypeOf, isNumberLike, toFloatOrThrow } from '@terascope/utils';
+import { getTypeOf, isNumberLike, toFloatOrThrow } from '@terascope/core-utils';
 import {
     FieldTransformConfig,
     ProcessMode,

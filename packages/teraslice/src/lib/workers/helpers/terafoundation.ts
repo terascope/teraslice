@@ -1,7 +1,7 @@
 import {
     Logger, get, isFunction,
     isString
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { makeContextLogger, Context } from '@terascope/job-components';
 import { safeDecode } from '../../utils/encoding_utils.js';
 

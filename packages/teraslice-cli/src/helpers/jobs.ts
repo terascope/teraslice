@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import {
     has, toString, pDelay, pMap,
     pRetry, isKey
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import chalk from 'chalk';
 import * as diff from 'diff';

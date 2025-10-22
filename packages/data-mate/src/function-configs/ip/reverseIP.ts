@@ -1,4 +1,4 @@
-import { reverseIP } from '@terascope/utils';
+import { reverseIP } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 
 import {

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import {
     debugLogger, has, isPlainObject,
     get
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     RulesLoader, RulesParser, OperationConfig,
     OperationConfigInput

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import ms from 'ms';
 import path from 'node:path';
 import { execaCommand } from 'execa';
-import { cloneDeep, debugLogger, pDelay, TSError } from '@terascope/utils';
+import { cloneDeep, debugLogger, pDelay, TSError } from '@terascope/core-utils';
 import { Terafoundation as TF, Teraslice as TS } from '@terascope/types';
 import { getE2eK8sDir } from '../../helpers/packages.js';
 import signale from '../signale.js';
