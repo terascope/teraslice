@@ -197,7 +197,7 @@ export interface ServiceObj {
 }
 
 export type CustomKindService = | 'opensearch1' | 'opensearch2' | 'opensearch3'
-    | 'elasticsearch7' | 'kafka' | 'minio';
+    | 'elasticsearch7' | 'kafka' | 'minio' | 'prometheus_stack';
 
 export interface CustomKindDefaultPort {
     containerPorts: number[];
