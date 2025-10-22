@@ -1,5 +1,6 @@
 import { isNumber, get, Queue } from '@terascope/utils';
 import { SliceCompletePayload, EnqueuedWorker, Slice } from '@terascope/types';
+import type { Socket } from 'socket.io';
 import * as core from '../messenger/index.js';
 import * as i from './interfaces.js';
 
@@ -37,7 +38,10 @@ export class Server extends core.Server {
 
     async start(): Promise<void> {
         this.on('connection', (msg) => {
-            this.onConnection(msg.scope, msg.payload as SocketIO.Socket);
+            this.onConnection(
+                msg.scope,
+                msg.payload as Socket<core.ClientToServerEvents, core.ServerToClientEvents>
+            );
         });
 
         this.onClientUnavailable((workerId) => {
@@ -137,7 +141,10 @@ export class Server extends core.Server {
         return this.queue.size();
     }
 
-    private onConnection(workerId: string, socket: SocketIO.Socket) {
+    private onConnection(
+        workerId: string,
+        socket: Socket<core.ClientToServerEvents, core.ServerToClientEvents>
+    ) {
         this.handleResponse(socket, 'worker:slice:complete', async (msg) => {
             const { payload } = msg;
             const sliceId = get(payload, 'slice.slice_id');

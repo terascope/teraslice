@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { debugLogger } from '@terascope/utils';
-import Socket from 'socket.io';
+import { Server as SocketServer, Socket } from 'socket.io';
 import { nodeMaster } from '../src/lib/cluster/node_master.js';
 
 process.env.assignment = 'node_master';
@@ -55,11 +55,11 @@ describe('Node master', () => {
         __test_assignment: 'worker'
     };
 
-    const fakeClusterMaster = Socket({
+    const fakeClusterMaster = new SocketServer({
         path: '/native-clustering'
     });
 
-    fakeClusterMaster.on('connection', (socket: Socket.Socket) => {
+    fakeClusterMaster.on('connection', (socket: Socket) => {
         socket.on('node:state', (data: Record<string, any>) => {
             eventEmitter.emit('node:state', data);
         });

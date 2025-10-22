@@ -1,5 +1,5 @@
 import http from 'node:http';
-import SocketIOServer from 'socket.io';
+import { Server as SocketIOServer, type Socket, ExtendedError } from 'socket.io';
 import {
     get,
     isTest,
@@ -24,7 +24,7 @@ const onlineStates = [i.ClientState.Online, i.ClientState.Available, i.ClientSta
 export class Server extends Core {
     isShuttingDown: boolean;
     readonly port: number;
-    readonly server: SocketIO.Server;
+    readonly server: SocketIOServer<i.ClientToServerEvents, i.ServerToClientEvents>;
     readonly httpServer: http.Server;
     readonly serverName: string;
     readonly clientDisconnectTimeout: number;
@@ -69,11 +69,12 @@ export class Server extends Core {
         const pingTimeout = this.actionTimeout;
         const pingInterval = this.actionTimeout + this.networkLatencyBuffer;
 
-        this.server = SocketIOServer({
+        this.server = new SocketIOServer({
             pingTimeout,
             pingInterval,
             perMessageDeflate: false,
             serveClient: false,
+            maxHttpBufferSize: 1e8, // 100MB - socketIO v1 default
         });
 
         this.server.on('error', (err: any) => {
@@ -141,9 +142,14 @@ export class Server extends Core {
 
         this.server.attach(this.httpServer);
 
-        this.server.use((socket, next) => {
-            socket.join(socket.handshake.query.clientId, next);
-        });
+        this.server.use(
+            (socket: Socket<i.ClientToServerEvents, i.ServerToClientEvents>,
+                next: (err?: ExtendedError) => void
+            ) => {
+                socket.join(socket.handshake.auth.clientId as string);
+                next();
+            }
+        );
 
         this.server.on('connection', this._onConnection);
 
@@ -326,10 +332,12 @@ export class Server extends Core {
         return onlineStates.includes(state);
     }
 
-    protected getClientMetadataFromSocket(socket: SocketIO.Socket): i.ClientSocketMetadata {
+    protected getClientMetadataFromSocket(
+        socket: Socket<i.ClientToServerEvents, i.ServerToClientEvents>
+    ): i.ClientSocketMetadata {
         return {
-            clientId: socket.handshake.query.clientId,
-            clientType: socket.handshake.query.clientType,
+            clientId: socket.handshake.auth.clientId as string,
+            clientType: socket.handshake.auth.clientType as string,
         };
     }
 
@@ -380,7 +388,9 @@ export class Server extends Core {
         return true;
     }
 
-    protected ensureClient(socket: SocketIO.Socket): i.ConnectedClient {
+    protected ensureClient(
+        socket: Socket<i.ClientToServerEvents, i.ServerToClientEvents>
+    ): i.ConnectedClient {
         const { clientId } = this.getClientMetadataFromSocket(socket);
         const client = this._clients[clientId];
 
@@ -401,7 +411,7 @@ export class Server extends Core {
         return newClient;
     }
 
-    private _onConnection(socket: SocketIO.Socket) {
+    private _onConnection(socket: Socket<i.ClientToServerEvents, i.ServerToClientEvents>) {
         const client = this.ensureClient(socket);
         const { clientId } = client;
 

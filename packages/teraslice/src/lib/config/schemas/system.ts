@@ -149,7 +149,7 @@ export const schema = {
     },
     node_disconnect_timeout: {
         doc:
-            'time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers',
+            'time in milliseconds that the cluster will wait until it drops that node from state and attempts to provision the lost workers',
         default: '5 minutes',
         format: 'duration'
     },
