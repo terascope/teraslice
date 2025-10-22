@@ -25,7 +25,7 @@ export class Client extends Core {
     ready: boolean;
     protected serverShutdown: boolean;
 
-    // FIXME: why this other timeout that is never set?
+    // _connectTimeout overrides the default socketIO client connect timeout, used for testing only
     constructor(opts: i.ClientOptions, _connectTimeout?: number) {
         const {
             hostUrl,
@@ -73,15 +73,18 @@ export class Client extends Core {
             forceNew: true,
             perMessageDeflate: false,
             auth: { clientId, clientType },
-            timeout: _connectTimeout // FIXME: we never set this
+            timeout: _connectTimeout
         });
 
         this.socket = SocketIOClient(hostUrl, options);
         this.socket.io.on('error', (err: any) => {
-            // xhr poll error handled by socket 'connection_error' handler
-            // but thrown as socket.io 'error' as well
-            if (!toString(err).includes('xhr poll error')) {
+            if (this.ready) {
                 this.logger.error(err, 'unhandled socket.io-client error');
+            } else {
+                // If this.ready === false then the error is connection related. Two events are
+                // now emitted, the more specific error events are already listened for, so this
+                // generic error can be logged as a trace.
+                this.logger.trace(err.message, 'socket io-client generic error. This should coincide with an underlying connect_error');
             }
         });
 
@@ -117,7 +120,19 @@ export class Client extends Core {
         await this._connect(this.connectTimeout);
 
         this.socket.io.on('reconnect_attempt', () => {
-            this.logger.debug(`client ${this.clientId} is reconnecting...`);
+            this.logger.info(`client ${this.clientId} is reconnecting...`);
+            this.ready = false;
+        });
+
+        this.socket.io.on('reconnect_error', () => {
+            this.logger.info(`client ${this.clientId} reconnect error, will retry`);
+            this.ready = false;
+        });
+
+        // this will only trigger if we set the 'reconnectionAttempts'
+        // socketIOClient option - defaults to 'infinity'
+        this.socket.io.on('reconnect_failed', () => {
+            this.logger.warn(`client ${this.clientId} failed to reconnect`);
             this.ready = false;
         });
 
@@ -144,7 +159,7 @@ export class Client extends Core {
         });
 
         this.socket.on('shutdown', () => {
-            this.logger.debug(`server ${this.serverName} shutdown`);
+            this.logger.info(`server ${this.serverName} shutdown`);
             this.ready = false;
             this.serverShutdown = true;
             this.emit('server:shutdown');
@@ -166,7 +181,7 @@ export class Client extends Core {
         this.ready = true;
         this.emit('ready');
 
-        this.logger.debug(`client ${this.clientId} connect`);
+        this.logger.info(`client ${this.clientId} connect`);
     }
 
     private async _connect(remainingTimeout: number, attempt = 1): Promise<void> {
@@ -192,7 +207,7 @@ export class Client extends Core {
                 const errStr = toString(err).replace('Error: ', '');
                 // connect_timeout event replaced by connect_error event with timeout message
                 if (errStr.includes('timeout')) {
-                    this.logger.debug(`timeout when connecting to ${connectToStr}, reconnecting...`);
+                    this.logger.info(`timeout when connecting to ${connectToStr}, reconnecting...`);
                     cleanup();
                     resolve();
                 } else if (errStr.includes('xhr poll error')) {
@@ -257,8 +272,8 @@ export class Client extends Core {
 
         if (!this.ready && !options.volatile) {
             const connected = this.socket.connected ? 'connected' : 'not-connected';
-            this.logger.debug(`server is not ready and ${connected}, waiting for the ready event`);
-            await this.onceWithTimeout(`ready:${this.serverName}`); // FIXME: if this times out we still send message???
+            this.logger.info(`server is not ready and ${connected}, waiting for the ready event`);
+            await this.onceWithTimeout(`ready:${this.serverName}`);
         }
 
         const response = options.response != null ? options.response : true;
