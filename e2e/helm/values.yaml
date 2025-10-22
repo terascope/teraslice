@@ -197,3 +197,7 @@ prometheus_stack:
   alertmanager:
     # If enabled, the alertmanager dashboard will be available on http://localhost:9091
     enabled: false
+
+chaos_mesh:
+  # If enabled, chaos dashboard will be available on http://localhost:2333
+  enabled: false

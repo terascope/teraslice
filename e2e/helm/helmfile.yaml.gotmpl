@@ -113,3 +113,20 @@ releases:
     labels:
       app: prom-grafana
       group: skipDiff
+
+  - name: chaos-mesh
+    namespace: chaos-mesh
+    chart: chaos-mesh/chaos-mesh
+    version: 2.7.0
+    installed: {{ .Values | get "chaos_mesh.enabled" false }}
+    values:
+      - chaosDaemon:
+          runtime: containerd
+          socketPath: /run/containerd/containerd.sock
+        dashboard:
+          securityMode: false
+          service:
+            type: NodePort
+            nodePort: 30333
+        controllerManager:
+          replicaCount: 1
