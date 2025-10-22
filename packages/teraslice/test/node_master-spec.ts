@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import Socket from 'socket.io';
 import { nodeMaster } from '../src/lib/cluster/node_master.js';
 

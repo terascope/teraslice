@@ -2,7 +2,7 @@ import ipPkg from 'ip';
 import {
     toBoolean, toSafeString, isCI,
     toIntegerOrThrow
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Service } from './interfaces.js';
 import { kafkaVersionMapper } from './mapper.js';
 

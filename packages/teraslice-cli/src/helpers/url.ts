@@ -1,4 +1,4 @@
-import { startsWith, TSError } from '@terascope/utils';
+import { startsWith, TSError } from '@terascope/core-utils';
 
 export default class Url {
     private defaultPort = 5678;

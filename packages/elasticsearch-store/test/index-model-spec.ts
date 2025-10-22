@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { QueryAccess } from 'xlucene-translator';
 import { FieldType } from '@terascope/types';
-import { times, TSError, AnyObject } from '@terascope/utils';
+import { times, TSError, AnyObject } from '@terascope/core-utils';
 import { Client, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import {
     IndexModel, IndexModelRecord, IndexModelConfig,

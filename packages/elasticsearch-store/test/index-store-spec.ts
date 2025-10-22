@@ -2,7 +2,7 @@ import 'jest-extended';
 import {
     times, pDelay, DataEntity, Omit,
     TSError, debugLogger, get
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Translator } from 'xlucene-translator';
 import { ElasticsearchDistribution } from '@terascope/types';
 import { type Client, ElasticsearchTestHelpers } from '@terascope/opensearch-client';

@@ -2,7 +2,7 @@ import express from 'express';
 import {
     TSError, parseErrorInfo, logError,
     toBoolean, Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import type { Context } from '@terascope/job-components';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';

@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import {
     TSError, uniq, isString,
     toString, filterObject, Logger, pDelay
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Context } from '@terascope/job-components';
 import { ClientResponse, AssetRecord } from '@terascope/types';
 import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';

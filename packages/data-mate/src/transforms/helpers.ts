@@ -5,7 +5,7 @@ import {
     isGeoJSON,
     isGeoShapePolygon,
     isGeoShapeMultiPolygon
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     GeoPointInput,
     xLuceneTypeConfig,

@@ -5,7 +5,7 @@ import {
     flatten, getField, getTypeOf,
     hasOwn, isNotNil, isNumber,
     isPlainObject, isString, logLevels,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Context } from './interfaces/index.js';
 
 const cpuCount = os.cpus().length;

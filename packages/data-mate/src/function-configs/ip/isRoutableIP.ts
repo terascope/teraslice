@@ -1,4 +1,4 @@
-import { isRoutableIP } from '@terascope/utils';
+import { isRoutableIP } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 
 import {

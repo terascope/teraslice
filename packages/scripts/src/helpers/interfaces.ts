@@ -1,4 +1,4 @@
-import { EmptyObject } from '@terascope/utils';
+import { EmptyObject } from '@terascope/core-utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 
 export type PackageInfo = {

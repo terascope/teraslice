@@ -13,10 +13,7 @@ import { isPlainObject as _isPlainObject } from 'is-plain-object';
 import _clone from 'shallow-clone';
 import kindOf from 'kind-of';
 import jsStringEscape from 'js-string-escape';
-import geoHash from 'latlon-geohash';
 import pMap from 'p-map';
-import { AnyObject } from './interfaces.js';
-import { DataEntity } from './entities/index.js';
 import { isKey } from './objects.js';
 
 const multiFieldSort = sortBy;
@@ -24,7 +21,7 @@ const multiFieldSort = sortBy;
 /**
  * Detect if an object created by Object.create(null)
 */
-function isNullObject(input: any): input is AnyObject {
+function isNullObject(input: any): input is Record<string, any> {
     return input != null && typeof input === 'object' && input.constructor === undefined;
 }
 
@@ -48,7 +45,8 @@ export function clone(input: unknown): any {
     return _clone(input);
 }
 
-function _isDataEntity(input: any): input is DataEntity {
+// TODO: should I type this better
+function _isDataEntity(input: any): input is Record<string, any> {
     return input && typeof input === 'object' && Boolean(input.__isDataEntity);
 }
 
@@ -121,7 +119,6 @@ export {
     set,
     unset,
     has,
-    geoHash,
     merge,
     padEnd,
     pMap,

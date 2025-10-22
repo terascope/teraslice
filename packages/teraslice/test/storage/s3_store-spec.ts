@@ -1,5 +1,5 @@
 import fse from 'fs-extra';
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import { TestContext, TestContextOptions } from '@terascope/job-components';
 import { createS3Client, deleteS3Bucket } from '@terascope/file-asset-apis';
 import { S3Store } from '../../src/lib/storage/backends/s3_store';

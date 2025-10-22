@@ -2,7 +2,7 @@ import {
     parseGeoPoint,
     setPrecisionFP,
     setPrecision
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { FieldType, GeoPointInput } from '@terascope/types';
 import {
     FieldTransformConfig,

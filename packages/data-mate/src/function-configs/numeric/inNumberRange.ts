@@ -1,4 +1,4 @@
-import { inNumberRangeFP, InNumberRangeArg } from '@terascope/utils';
+import { inNumberRangeFP, InNumberRangeArg } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig,

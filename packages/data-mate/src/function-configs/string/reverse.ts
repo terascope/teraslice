@@ -1,4 +1,4 @@
-import { getTypeOf, isString } from '@terascope/utils';
+import { getTypeOf, isString } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

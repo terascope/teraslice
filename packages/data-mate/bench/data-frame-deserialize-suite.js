@@ -1,4 +1,4 @@
-import { timesIter, isExecutedFile } from '@terascope/utils';
+import { timesIter, isExecutedFile } from '@terascope/core-utils';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

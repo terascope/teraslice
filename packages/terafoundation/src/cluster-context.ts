@@ -1,5 +1,5 @@
 import _cluster from 'node:cluster';
-import { get, isFunction, getFullErrorStack, isKey } from '@terascope/utils';
+import { get, isFunction, getFullErrorStack, isKey } from '@terascope/core-utils';
 import type { Terafoundation } from '@terascope/types';
 import { getArgs } from './sysconfig.js';
 import validateConfigs from './validate-configs.js';

@@ -1,4 +1,4 @@
-import { isCIDR } from '@terascope/utils';
+import { isCIDR } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 
 import {

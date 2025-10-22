@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { debugLogger, chunk, pMap } from '@terascope/utils';
+import { debugLogger, chunk, pMap } from '@terascope/core-utils';
 import { ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import elasticsearchAPI, { Client as APIClient } from '../src/index.js';
 

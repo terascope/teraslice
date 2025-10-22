@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { jest } from '@jest/globals';
-import { TSError } from '@terascope/utils';
+import { TSError } from '@terascope/core-utils';
 import { TestOptions } from '../src/helpers/test-runner/interfaces.js';
 
 jest.unstable_mockModule('../src/helpers/config.js', () => ({

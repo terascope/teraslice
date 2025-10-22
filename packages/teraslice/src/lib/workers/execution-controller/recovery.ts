@@ -1,7 +1,7 @@
 import {
     pRaceWithTimeout, logError, Queue,
     Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type {
     Context, ExecutionContext, RecoveryCleanupType,
     Slice

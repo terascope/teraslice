@@ -1,14 +1,14 @@
-import { getValidDate, getTime } from '../dates.js';
-import { getTypeOf } from '../deps.js';
-import { isSimpleObject } from '../objects.js';
+import {
+    isSimpleObject, locked, parseJSON,
+    getTypeOf
+} from '@terascope/core-utils';
+import { getValidDate, getTime } from '@terascope/date-utils';
 import { ensureBuffer, isBuffer } from '../buffers.js';
-import { parseJSON } from '../json.js';
 import * as i from './interfaces.js';
 import {
     isDataEntity, defineEntityProperties, makeMetadata,
     isValidKey, jsonToBuffer
 } from './utils.js';
-import { locked } from '../decorators.js';
 
 interface Metadata<M> {
     metadata: i._DataEntityMetadata<M>;

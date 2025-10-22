@@ -1,4 +1,4 @@
-import { getTypeOf, isInteger } from '@terascope/utils';
+import { getTypeOf, isInteger } from '@terascope/core-utils';
 import type { Maybe, TypedArrayConstructor } from '@terascope/types';
 import { SparseMap } from 'mnemonist';
 

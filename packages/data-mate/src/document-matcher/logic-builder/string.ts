@@ -1,7 +1,7 @@
 import {
     isPlainObject, wildCardToRegex, matchWildcard,
     match
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { BooleanCB } from '../interfaces.js';
 
 export function regexp(regexStr: string | undefined) {

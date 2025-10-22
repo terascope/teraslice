@@ -4,7 +4,7 @@ import { EventEmitter } from 'node:events';
 import {
     toString, isInteger, debugLogger,
     Logger, TSError
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import * as i from './interfaces.js';
 
 const _logger = debugLogger('teraslice-messaging:core');

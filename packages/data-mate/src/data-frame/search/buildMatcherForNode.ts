@@ -3,7 +3,7 @@ import {
     and, isEqual, isNotNil, isWildCardString, not, or,
     isGreaterThanFP, isGreaterThanOrEqualToFP,
     isLessThanOrEqualToFP, isLessThanFP, toBigIntOrThrow
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { inspect } from 'node:util';
 import * as p from 'xlucene-parser';
 import type { DataFrame } from '../DataFrame.js';

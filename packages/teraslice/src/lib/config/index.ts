@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { get } from '@terascope/utils';
+import { get } from '@terascope/core-utils';
 import { fileURLToPath } from 'node:url';
 import { formats } from '@terascope/job-components';
 import { TerasliceConfig, Terafoundation } from '@terascope/types';

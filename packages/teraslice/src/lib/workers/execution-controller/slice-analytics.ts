@@ -1,7 +1,7 @@
 import {
     has, isInteger, Logger,
     toNumber
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { Context, ExecutionContext, OpConfig } from '@terascope/job-components';
 import type { SliceAnalyticsData, SliceCompletePayload } from '@terascope/types';
 import type { EventEmitter } from 'node:events';

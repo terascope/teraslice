@@ -40,11 +40,19 @@ import type {
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
 import { find as geoToTimezone, setCache } from 'geo-tz';
-import { isArrayLike } from './arrays.js';
-import { isPlainObject, geoHash, getTypeOf } from './deps.js';
-import { trim, toString } from './strings.js';
-import { parseNumberList, toNumber, isNumber } from './numbers.js';
-import { isKey } from './objects.js';
+import geoHash from 'latlon-geohash';
+import {
+    isArrayLike,
+    isPlainObject,
+    getTypeOf,
+    trim,
+    toString,
+    parseNumberList,
+    toNumber,
+    isNumber,
+    isKey
+} from '@terascope/core-utils';
+// import { isPlainObject, geoHash, getTypeOf } from './deps.js';
 
 export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCase());
 
@@ -667,3 +675,7 @@ export function lookupTimezone(input: unknown): string {
 export function tzCacheLoaded(): boolean {
     return TZ_GEO_CACHE.size > 0;
 }
+
+export {
+    geoHash
+};

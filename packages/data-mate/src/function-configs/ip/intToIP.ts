@@ -1,4 +1,4 @@
-import { intToIP, toString } from '@terascope/utils';
+import { intToIP, toString } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 
 import {

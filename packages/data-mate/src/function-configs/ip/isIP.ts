@@ -1,4 +1,4 @@
-import { isIP } from '@terascope/utils';
+import { isIP } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 
 import {

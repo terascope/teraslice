@@ -1,4 +1,4 @@
-import { isNotNil, isFunction } from '@terascope/utils';
+import { isNotNil, isFunction } from '@terascope/core-utils';
 import { FieldTransformConfig, InitialFunctionContext, FunctionContext } from '../../../../function-configs/interfaces.js';
 import { callValue } from '../../utils.js';
 import { DynamicFunctionAdapterContext, FunctionAdapterContext } from '../../interfaces.js';

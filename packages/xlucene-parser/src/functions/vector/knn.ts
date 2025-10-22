@@ -1,5 +1,5 @@
 import { KNNQuery, xLuceneVariables } from '@terascope/types';
-import { isInteger, getVector } from '@terascope/utils';
+import { isInteger, getVector } from '@terascope/core-utils';
 import type { Term, FunctionDefinition } from '../../interfaces.js';
 import { getFieldValue } from '../../utils.js';
 

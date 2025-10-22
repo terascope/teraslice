@@ -1,4 +1,4 @@
-import { toCamelCase } from '@terascope/utils';
+import { toCamelCase } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

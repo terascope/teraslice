@@ -1,7 +1,7 @@
 import {
     get, pDelay, pRaceWithTimeout,
     isError, logError
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { Context } from '@terascope/job-components';
 import ms from 'ms';
 import { makeLogger } from './terafoundation.js';

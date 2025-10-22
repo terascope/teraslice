@@ -1,5 +1,5 @@
 import ms from 'ms';
-import { getFullErrorStack, isString, isFunction } from '@terascope/utils';
+import { getFullErrorStack, isString, isFunction } from '@terascope/core-utils';
 import { TestOptions, CleanupFN } from './interfaces.js';
 import signale from '../signale.js';
 import { formatList } from '../misc.js';

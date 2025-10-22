@@ -1,4 +1,4 @@
-import type { Logger, Omit, AnyObject } from '@terascope/utils';
+import type { Logger, Omit, AnyObject } from '@terascope/core-utils';
 import type { xLuceneVariables, ESIndexSettings } from '@terascope/types';
 import type { QueryAccess } from 'xlucene-translator';
 import type { DataType } from '@terascope/data-types';

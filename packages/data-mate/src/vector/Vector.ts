@@ -2,7 +2,7 @@ import {
     DataTypeFieldConfig, Maybe, SortOrder,
     ReadonlyDataTypeFields,
 } from '@terascope/types';
-import { isPrimitiveValue, getHashCodeFrom } from '@terascope/utils';
+import { isPrimitiveValue, getHashCodeFrom } from '@terascope/core-utils';
 import { inspect } from 'node:util';
 import { ReadableData, WritableData } from '../core/index.js';
 import { DataBuckets, SerializeOptions, VectorType } from './interfaces.js';

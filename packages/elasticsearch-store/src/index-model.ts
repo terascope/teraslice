@@ -2,7 +2,7 @@ import {
     isTest, debugLogger, concat,
     type Logger, makeISODate, toSafeString,
     trim, trimAndToLower, TSError, isKey
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { JoinBy } from '@terascope/data-mate';
 import { QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { v4 as uuid } from 'uuid';

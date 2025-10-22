@@ -1,4 +1,4 @@
-import { pDelay, includes } from '@terascope/utils';
+import { pDelay, includes } from '@terascope/core-utils';
 import { CMD } from '../../interfaces.js';
 import Config from '../../helpers/config.js';
 import YargsOptions from '../../helpers/yargs-options.js';

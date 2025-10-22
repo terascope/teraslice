@@ -3,7 +3,7 @@ import {
     TSError, parseError, isTest, pDelay,
     pRetry, logError, pWhile, isString, getTypeOf,
     get, random, isInteger, Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import elasticsearchApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
 import { getClient, Context } from '@terascope/job-components';
 import { ClientParams } from '@terascope/types';

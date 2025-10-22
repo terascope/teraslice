@@ -2,7 +2,7 @@ import {
     ClientMetadata, DataTypeFieldConfig, xLuceneTypeConfig,
     indexedRequiredFieldTypes
 } from '@terascope/types';
-import { castArray } from '@terascope/utils';
+import { castArray } from '@terascope/core-utils';
 import { GraphQLType, TypeESMapping } from '../interfaces.js';
 import { formatGQLDescription } from '../graphql-helper.js';
 

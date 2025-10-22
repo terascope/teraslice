@@ -1,4 +1,4 @@
-import { DataEntity, cloneDeep } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/core-utils';
 import { MacAddress } from '../../../src/operations';
 
 describe('MacAddress validation', () => {

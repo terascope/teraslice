@@ -1,7 +1,7 @@
 import {
     isString, AnyObject, PartialDeep,
     get, isFunction, getTypeOf
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { Terafoundation } from '@terascope/types';
 import { nanoid } from 'nanoid';
 import { CoreContext } from './core-context.js';

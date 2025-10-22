@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fork } from 'node:child_process';
-import { isEmpty, get, has } from '@terascope/utils';
+import { isEmpty, get, has } from '@terascope/core-utils';
 import type { Context } from '@terascope/job-components';
 import { makeLogger } from '../helpers/terafoundation.js';
 import { safeEncode } from '../../utils/encoding_utils.js';

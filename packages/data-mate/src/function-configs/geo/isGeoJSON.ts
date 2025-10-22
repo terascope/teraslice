@@ -1,4 +1,4 @@
-import { isGeoJSON } from '@terascope/utils';
+import { isGeoJSON } from '@terascope/core-utils';
 import { FieldType, GeoShapeType } from '@terascope/types';
 import {
     FieldValidateConfig,

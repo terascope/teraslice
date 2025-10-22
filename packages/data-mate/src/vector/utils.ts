@@ -2,7 +2,7 @@ import { DataTypeFields, FieldType } from '@terascope/types';
 import {
     isNumber, isBigInt, getTypeOf, isArrayLike,
     TSError, ipToInt, isIP
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { ListVector } from './ListVector.js';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,

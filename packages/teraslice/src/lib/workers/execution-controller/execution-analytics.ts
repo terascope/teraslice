@@ -1,7 +1,7 @@
 import {
     makeISODate, get, has,
     Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { EventEmitter } from 'node:events';
 import type { Context, ExecutionContext } from '@terascope/job-components';
 import type { ClusterMaster } from '@terascope/teraslice-messaging';

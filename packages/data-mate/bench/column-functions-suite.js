@@ -1,4 +1,4 @@
-import { isEmpty, isExecutedFile } from '@terascope/utils';
+import { isEmpty, isExecutedFile } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import { Suite } from './helpers.js';
 import json from './fixtures/data.json' with { type: 'json' };

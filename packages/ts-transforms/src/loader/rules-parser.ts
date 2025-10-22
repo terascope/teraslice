@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { Logger, set } from '@terascope/utils';
+import { Logger, set } from '@terascope/core-utils';
 import { OperationConfigInput, OperationConfig } from '../interfaces.js';
 import { isDeprecatedCompactConfig, needsDefaultSelector, hasExtractions } from './utils.js';
 

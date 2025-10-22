@@ -1,4 +1,4 @@
-import { isFunction } from '@terascope/utils';
+import { isFunction } from '@terascope/core-utils';
 import {
     fieldValidationRowExecution, fieldValidationColumnExecution,
     wholeFieldValidationRowExecution, wholeFieldValidationColumnExecution,

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { get, isEmpty, Logger } from '@terascope/utils';
+import { get, isEmpty, Logger } from '@terascope/core-utils';
 import type { Context } from '@terascope/job-components';
 import { AssetsStorage } from '../../storage/index.js';
 import { makeLogger } from '../helpers/terafoundation.js';

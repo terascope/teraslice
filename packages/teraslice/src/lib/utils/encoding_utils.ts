@@ -1,7 +1,7 @@
 import {
     AnyObject, isString, isObjectEntity,
     getTypeOf, isArrayLike
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 
 export function safeEncode(obj: string | AnyObject) {
     let str: string;

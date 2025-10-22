@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import { Context, ExecutionConfig, OperationLifeCycle } from '../../interfaces/index.js';
 
 /**

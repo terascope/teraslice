@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import * as ts from '@terascope/utils';
+import * as ts from '@terascope/core-utils';
 import { Repository, RecordInput, InputType } from '../interfaces.js';
 import { isString, isArray } from '../validations/field-validator.js';
 

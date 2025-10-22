@@ -1,4 +1,4 @@
-import * as utils from '@terascope/utils';
+import * as utils from '@terascope/core-utils';
 import {
     GeoQuery, GeoShapeType, ESGeoShapeType,
     xLuceneVariables, GeoShape, GeoShapeRelation,
@@ -7,7 +7,7 @@ import {
 import {
     toString, geoRelationFP, validateListCoords,
     polyHasHoles
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import * as i from '../../interfaces.js';
 import { getFieldValue, logger } from '../../utils.js';
 

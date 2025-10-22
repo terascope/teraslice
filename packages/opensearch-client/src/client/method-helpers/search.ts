@@ -1,5 +1,5 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
-import { isNotNil } from '@terascope/utils';
+import { isNotNil } from '@terascope/core-utils';
 
 export function convertSearchParams(
     params: ClientParams.SearchParams,

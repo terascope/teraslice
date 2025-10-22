@@ -4,7 +4,7 @@ import ms from 'ms';
 import SocketIOClient from 'socket.io-client';
 import {
     isString, isInteger, debugLogger, toString
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import * as i from './interfaces.js';
 import { Core } from './core.js';
 import { newMsgId } from '../utils/index.js';

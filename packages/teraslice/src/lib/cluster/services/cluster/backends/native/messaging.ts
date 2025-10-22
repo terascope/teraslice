@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid';
 import {
     pDelay, Queue, Logger, isFunction,
     isEmpty, get, toNumber, isKey
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Context } from '@terascope/job-components';
 import socketIOClient from 'socket.io-client';
 import socketIOServer from 'socket.io';

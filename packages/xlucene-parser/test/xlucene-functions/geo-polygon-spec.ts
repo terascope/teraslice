@@ -1,7 +1,7 @@
 /* eslint-disable jest/no-commented-out-tests */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import 'jest-extended';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import {
     xLuceneFieldType,
     xLuceneTypeConfig,
