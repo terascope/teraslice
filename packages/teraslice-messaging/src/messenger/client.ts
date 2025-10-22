@@ -125,7 +125,7 @@ export class Client extends Core {
         });
 
         this.socket.io.on('reconnect_error', () => {
-            this.logger.info(`client ${this.clientId} reconnect error, will retry`);
+            this.logger.debug(`client ${this.clientId} reconnect error, will retry`);
             this.ready = false;
         });
 
@@ -272,8 +272,10 @@ export class Client extends Core {
 
         if (!this.ready && !options.volatile) {
             const connected = this.socket.connected ? 'connected' : 'not-connected';
-            this.logger.info(`server is not ready and ${connected}, waiting for the ready event`);
+            this.logger.info(`server is not ready and ${connected}, waiting for the ready event before sending ${eventName} message`);
             await this.onceWithTimeout(`ready:${this.serverName}`);
+            // TODO: In the case where the timeout is reached, should we really continue with
+            // sending the message to a server that is not ready?
         }
 
         const response = options.response != null ? options.response : true;
