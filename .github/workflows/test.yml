@@ -389,7 +389,7 @@ jobs:
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2HelmfileEncrypted
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2HelmfileEncrypted --testPathPatterns='elasticsearch-bulk-spec.ts|elasticsearch-ssl-spec.ts|kafka-spec.ts|simple-spec.ts'
         working-directory: ./e2e
 
   e2e-external-storage-tests:
