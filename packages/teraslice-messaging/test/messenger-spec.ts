@@ -198,6 +198,8 @@ describe('Messenger', () => {
         const clientShutdownFn: ClientFn = jest.fn();
         const clientErrorFn: ClientFn = jest.fn();
 
+        let loggerSpy: any;
+
         beforeAll(() => {
             return new Promise((resolves) => {
                 clientAvailableFn = jest.fn(() => {
@@ -239,6 +241,8 @@ describe('Messenger', () => {
                     // connect timeout for the socket.io client
                     }, 500);
 
+                    loggerSpy = jest.spyOn((client as any).logger, 'debug');
+
                     // let the client connect first so
                     // we can test that client can come up
                     // before the server
@@ -254,11 +258,21 @@ describe('Messenger', () => {
             });
         });
 
+        afterEach(() => {
+            if (loggerSpy) {
+                loggerSpy.mockRestore();
+            }
+        });
+
         afterAll(async () => {
             await Promise.all([
                 client.shutdown(),
                 server.shutdown(),
             ]);
+        });
+
+        it('should have logged xhr poll error on setup', () => {
+            expect(loggerSpy).toHaveBeenCalledWith(expect.stringContaining('xhr poll error when connecting to example'));
         });
 
         it('should have the correct client properties', () => {
@@ -377,8 +391,9 @@ describe('Messenger', () => {
             it('should throw a timeout error', async () => {
                 expect.hasAssertions();
 
+                const sockets = await server.server.fetchSockets();
                 // @ts-expect-error
-                server.handleResponse(server.server.to(clientId), 'hello', async () => {
+                server.handleResponse(sockets.values().next().value, 'hello', async () => {
                     await pDelay(1000);
                 });
 
@@ -410,8 +425,7 @@ describe('Messenger', () => {
             });
         });
 
-        // eslint-disable-next-line jest/no-disabled-tests
-        describe.skip('when the client responds with an error', () => {
+        describe('when the client responds with an error', () => {
             let responseMsg: Message | Record<string, any> | undefined;
             let responseErr: Error | undefined;
 
@@ -430,18 +444,23 @@ describe('Messenger', () => {
 
             it('server should get an error back', () => {
                 expect(responseMsg).toBeNil();
-                expect(responseErr && responseErr.toString()).toEqual('Error: Message Response Failure: this should fail');
+                expect(responseErr && responseErr.toString()).toEqual('Error: failure:message Message Response Failure: this should fail');
             });
         });
 
         describe('when testing reconnect', () => {
             it('should call server.onClientReconnect', () => {
+                loggerSpy = jest.spyOn((client as any).logger, 'info');
                 expect.hasAssertions();
 
                 return new Promise((resolves) => {
                     server.onClientReconnect(() => {
                         resolves(true);
                         expect(true).toBeTrue();
+                        expect(loggerSpy).toHaveBeenCalledTimes(3);
+                        expect(loggerSpy).toHaveBeenCalledWith(`client ${client.clientId} disconnected`, { reason: 'forced close' });
+                        expect(loggerSpy).toHaveBeenCalledWith(`client ${client.clientId} is reconnecting...`);
+                        expect(loggerSpy).toHaveBeenCalledWith(`client ${client.clientId} reconnected`);
                     });
 
                     client.forceReconnect();
