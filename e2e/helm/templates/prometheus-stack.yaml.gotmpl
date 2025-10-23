@@ -1,7 +1,7 @@
 grafana:
     enabled: {{ .Values | get "prometheus_stack.grafana.enabled" true }}
     adminUser: {{ .Values | get "prometheus_stack.grafana.adminUser" "admin" }}
-    adminPassword: {{ .Values | get "prometheus_stack.grafana.adminUser" "prom-operator" }}
+    adminPassword: {{ .Values | get "prometheus_stack.grafana.adminPassword" "prom-operator" }}
     service:
         type: NodePort
         nodePort: 30222
