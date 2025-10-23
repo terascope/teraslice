@@ -173,8 +173,10 @@ teraslice:
     # Only relates to yarn k8s command. Will overwrite/overide repo and tag fields and build a teraslice image.
     # Turn this off if there is a specific image you want used.
     build: true
+    # The repo/name of the image. WILL be overwritten if build is true
     repository: teraslice-workspace
     # Overrides the image tag whose default is the chart appVersion.
+    # WILL be overwritten if build is true
     tag: e2e-nodev22
   stateCluster: opensearch2
   asset_storage_connection_type: elasticsearch-next
