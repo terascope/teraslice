@@ -25,6 +25,9 @@ const rootInfo = getRootInfo();
 const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
 
 export async function launchK8sEnv(options: K8sEnvOptions) {
+    let repo: string = '';
+    let tag: string = '';
+
     if (process.env.TEST_ELASTICSEARCH && process.env.ELASTICSEARCH_VERSION?.charAt(0) === '6' && isArm()) {
         signale.error('There is no compatible Elasticsearch6 image for arm based processors. Try a different elasticsearch version.');
         process.exit(1);
@@ -32,6 +35,9 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 
     if (options.configFile) {
         signale.pending('Starting k8s environment with a config file..');
+        // set the repo and tag to whats in th custom config to use later
+        repo = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.repository');
+        tag = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.tag');
     } else {
         signale.pending('Starting k8s environment with the following options: ', options);
     }
@@ -109,8 +115,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         try {
             if (options.configFile) {
                 // Will grab the image name from the yaml config so it can validate node version
-                const repo = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.repository');
-                const tag = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.tag');
                 const imageName = `${repo}:${tag}`;
                 imageVersion = await getNodeVersionFromImage(imageName);
             } else {
@@ -147,8 +151,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     signale.pending('Loading teraslice image into kind cluster');
     if (options.configFile) {
         if (!await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.build')) {
-            const repo = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.repository');
-            const tag = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.tag');
             const imageName = `${repo}:${tag}`;
             await kind.loadTerasliceImage(imageName);
         } else {
