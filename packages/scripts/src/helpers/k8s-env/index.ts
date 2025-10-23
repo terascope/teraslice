@@ -8,7 +8,7 @@ import {
     isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
     helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
     generateTestCaCerts, createMinioSecret, dockerBuild, getConfigValueFromCustomYaml,
-    launchTerasliceWithCustomHelmfile, setConfigValuesFromCustomYaml
+    launchTerasliceWithCustomHelmfile, setConfigValuesForCustomYaml
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
@@ -154,9 +154,9 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         } else {
             // We need to ensure the custom config has the image we are going to use set.
             const imageArray = e2eImage.split(':');
-            await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
+            await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
             signale.info(`Overwrote teraslice.image.repository field in custom config to "${imageArray[0]}"`);
-            await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
+            await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
             signale.info(`Overwrote teraslice.image.tag field in custom config to "${imageArray[1]}"`);
             await kind.loadTerasliceImage(e2eImage);
         }
@@ -230,9 +230,9 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
         }
         // We need to ensure the custom config has the image we are going to use set.
         const imageArray = e2eImage.split(':');
-        await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
+        await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
         signale.info(`Overwrote teraslice.image.repository field in custom config to "${imageArray[0]}"`);
-        await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
+        await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
         signale.info(`Overwrote teraslice.image.tag field in custom config to "${imageArray[1]}"`);
     }
     await kind.loadTerasliceImage(e2eImage);

@@ -1513,7 +1513,7 @@ export async function getConfigValueFromCustomYaml(
     return value;
 }
 
-export async function setConfigValuesFromCustomYaml(
+export async function setConfigValuesForCustomYaml(
     configFilePath: string,
     valuePath: string,
     valueToSet: unknown
