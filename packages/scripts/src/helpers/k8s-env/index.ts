@@ -7,8 +7,8 @@ import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
     isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
     helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
-    generateTestCaCerts, createMinioSecret, dockerBuild, getTerasliceImageFromConfigYaml,
-    launchTerasliceWithCustomHelmfile
+    generateTestCaCerts, createMinioSecret, dockerBuild, getConfigValueFromCustomYaml,
+    launchTerasliceWithCustomHelmfile, setConfigValuesFromCustomYaml
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
@@ -85,8 +85,10 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     }
 
     try {
-        // We never want to build in the case we use a custom config
-        if (!options.configFile) {
+        if (
+            !options.configFile
+            || (await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.build'))
+        ) {
             await buildAndTagTerasliceImage(options);
             if (process.env.ENABLE_UTILITY_SVC) {
                 await buildUtilityImage();
@@ -107,7 +109,9 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         try {
             if (options.configFile) {
                 // Will grab the image name from the yaml config so it can validate node version
-                const imageName = await getTerasliceImageFromConfigYaml(options.configFile);
+                const repo = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.repository');
+                const tag = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.tag');
+                const imageName = `${repo}:${tag}`;
                 imageVersion = await getNodeVersionFromImage(imageName);
             } else {
                 imageVersion = await getNodeVersionFromImage(e2eImage);
@@ -142,8 +146,18 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 
     signale.pending('Loading teraslice image into kind cluster');
     if (options.configFile) {
-        const imageName = await getTerasliceImageFromConfigYaml(options.configFile);
-        await kind.loadTerasliceImage(imageName);
+        if (!await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.build')) {
+            const repo = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.repository');
+            const tag = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.tag');
+            const imageName = `${repo}:${tag}`;
+            await kind.loadTerasliceImage(imageName);
+        } else {
+            // We need to ensure the custom config has the image we are going to use set.
+            const imageArray = e2eImage.split(':');
+            await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
+            await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
+            await kind.loadTerasliceImage(e2eImage);
+        }
     } else {
         await kind.loadTerasliceImage(e2eImage);
     }
@@ -208,12 +222,22 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
     }
 
     signale.pending('Loading Teraslice Docker image');
+    if (options.configFile) {
+        // We need to ensure the custom config has the image we are going to use set.
+        const imageArray = e2eImage.split(':');
+        await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
+        await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
+    }
     await kind.loadTerasliceImage(e2eImage);
     signale.success('Teraslice Docker image loaded');
 
     try {
         signale.pending('Launching rebuilt teraslice with helmfile');
-        await launchTerasliceWithHelmfile(options.clusteringType, options.dev);
+        if (options.configFile) {
+            await launchTerasliceWithCustomHelmfile(options.configFile);
+        } else {
+            await launchTerasliceWithHelmfile(options.clusteringType, options.dev);
+        }
         signale.pending('Rebuilt Teraslice launched with helmfile');
     } catch (err) {
         signale.error('Error re-deploying Teraslice: ', err);

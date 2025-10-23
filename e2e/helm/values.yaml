@@ -176,6 +176,9 @@ utility:
 
 teraslice:
   image:
+    # Only relates to yarn k8s command. Will overwrite/overide repo and tag fields and build a teraslice image.
+    # Turn this off if there is a specific image you want used.
+    build: true
     repository: teraslice-workspace
     # Overrides the image tag whose default is the chart appVersion.
     tag: e2e-nodev22
