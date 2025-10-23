@@ -1507,9 +1507,6 @@ export async function getConfigValueFromCustomYaml(
     const customConfig = yaml.load(fs.readFileSync(configFilePath, 'utf8')) as any;
 
     const value = get(customConfig, valuePath, undefined);
-    if (!value) {
-        throw new Error(`Failed to find a config value ${valuePath} in the custom yaml at ${configFilePath}`);
-    }
     return value;
 }
 
