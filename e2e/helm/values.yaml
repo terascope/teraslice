@@ -158,12 +158,6 @@ kafka:
     topic:
       replication:
         factor: 1
-
-zookeeper:
-  # If false, zookeeper will be excluded on helmfile sync
-  enabled: false
-  version: 3.7.2
-  instances: 1
   
 utility:
   # If false, utility will be excluded on helmfile sync
@@ -196,7 +190,7 @@ prometheus_stack:
     # If enabled, the grafana dashboard will be available on http://localhost:8050
     enabled: true
     adminUser: admin
-    adminPassword: admin
+    adminPassword: tera
   alertmanager:
     # If enabled, the alertmanager dashboard will be available on http://localhost:9091
     enabled: false
