@@ -155,7 +155,9 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             // We need to ensure the custom config has the image we are going to use set.
             const imageArray = e2eImage.split(':');
             await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
+            signale.info(`Overwrote teraslice.image.repository field in custom config to "${imageArray[0]}"`);
             await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
+            signale.info(`Overwrote teraslice.image.tag field in custom config to "${imageArray[1]}"`);
             await kind.loadTerasliceImage(e2eImage);
         }
     } else {
@@ -223,10 +225,15 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
 
     signale.pending('Loading Teraslice Docker image');
     if (options.configFile) {
+        if (await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.build') === false) {
+            signale.warn(`Your teraslice configuration at "teraslice.image.build" is set to false but you passed in --rebuild. Your image configured will be replaced with the default built image.`);
+        }
         // We need to ensure the custom config has the image we are going to use set.
         const imageArray = e2eImage.split(':');
         await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
+        signale.info(`Overwrote teraslice.image.repository field in custom config to "${imageArray[0]}"`);
         await setConfigValuesFromCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
+        signale.info(`Overwrote teraslice.image.tag field in custom config to "${imageArray[1]}"`);
     }
     await kind.loadTerasliceImage(e2eImage);
     signale.success('Teraslice Docker image loaded');

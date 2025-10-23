@@ -1503,7 +1503,7 @@ export async function createMinioSecret(k8sClient: K8s): Promise<void> {
 export async function getConfigValueFromCustomYaml(
     configFilePath: string,
     valuePath: string
-): Promise<string> {
+): Promise<any> {
     const customConfig = yaml.load(fs.readFileSync(configFilePath, 'utf8')) as any;
 
     const value = get(customConfig, valuePath, undefined);
