@@ -1,4 +1,5 @@
-import { DataEntity, cloneDeep } from '@terascope/core-utils';
+import { cloneDeep } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import { MakeArray } from '../../../src/operations';
 
 describe('MakeArray operator', () => {

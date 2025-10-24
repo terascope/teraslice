@@ -1,10 +1,10 @@
 import {
     TSError, debugLogger, pRetry,
-    type Logger, Collector, isString,
-    isInteger, isFunction, DataEntity,
+    type Logger, isString, isInteger, isFunction,
     getFirst, isPlainObject, isEmpty,
     get, uniq, getFirstKey, castArray
 } from '@terascope/core-utils';
+import { Collector, DataEntity } from '@terascope/entity-utils';
 import {
     xLuceneTypeConfig, ClientMetadata, ESTypes,
     ClientParams, ClientResponse, ElasticsearchDistribution,

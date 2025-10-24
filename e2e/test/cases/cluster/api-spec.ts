@@ -1,5 +1,5 @@
 import { createReadStream } from 'node:fs';
-import { cloneDeep, pDelay } from '@terascope/utils';
+import { cloneDeep, pDelay } from '@terascope/core-utils';
 import { JobConfig } from '@terascope/types';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { TEST_PLATFORM } from '../../config.js';

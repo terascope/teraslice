@@ -1,4 +1,4 @@
-import { inGeoBoundingBoxFP, isGeoPoint } from '@terascope/core-utils';
+import { inGeoBoundingBoxFP, isGeoPoint } from '@terascope/geo-utils';
 import { FieldType, GeoPointInput } from '@terascope/types';
 import {
     FieldValidateConfig,

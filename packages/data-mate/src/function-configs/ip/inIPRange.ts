@@ -1,4 +1,4 @@
-import { inIPRange, isIP, isCIDR } from '@terascope/core-utils';
+import { inIPRange, isIP, isCIDR } from '@terascope/ip-utils';
 import { FieldType } from '@terascope/types';
 
 import {

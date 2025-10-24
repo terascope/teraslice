@@ -1,17 +1,10 @@
 import 'jest-extended';
-import { DataEntity } from '../src/entities/index.js';
-import {
-    getTypeOf, isPlainObject, cloneDeep
-} from '../src/deps.js';
+import { getTypeOf, isPlainObject, cloneDeep } from '../src/deps.js';
 
 describe('Dependency Utils', () => {
     class TestObj {
         hi = true;
         has() {}
-    }
-
-    class TestEntity extends DataEntity {
-        test = true;
     }
 
     class ClassWithValidation {
@@ -35,7 +28,6 @@ describe('Dependency Utils', () => {
             expect(isPlainObject('some-string')).toBeFalse();
             expect(isPlainObject(Buffer.from('some-string'))).toBeFalse();
             expect(isPlainObject(new TestObj())).toBeFalse();
-            expect(isPlainObject(new DataEntity({}))).toBeFalse();
             expect(isPlainObject(Promise.resolve())).toBeFalse();
             expect(isPlainObject(Object.create({}))).toBeTrue();
             expect(isPlainObject(Object.create({ hello: true }))).toBeTrue();
@@ -48,10 +40,6 @@ describe('Dependency Utils', () => {
         it('should return the correct kind', () => {
             expect(getTypeOf({})).toEqual('Object');
             expect(getTypeOf(Object.create(null))).toEqual('Object');
-
-            expect(getTypeOf(new DataEntity({}))).toEqual('DataEntity');
-            expect(getTypeOf(DataEntity.make({}))).toEqual('DataEntity');
-            expect(getTypeOf(new TestEntity({}))).toEqual('TestEntity');
 
             expect(getTypeOf([])).toEqual('Array');
 
@@ -81,9 +69,12 @@ describe('Dependency Utils', () => {
         it('should clone deep a plain object', () => {
             const input = { a: 1, b: { c: 2 } };
             const output = cloneDeep(input);
+
             expect(output).not.toBe(input);
             expect(output.b).not.toBe(input.b);
+
             output.b.c = 3;
+
             expect(output.b.c).toEqual(3);
             expect(input.b.c).toEqual(2);
         });
@@ -92,9 +83,12 @@ describe('Dependency Utils', () => {
             const input: any = Object.create(null);
             input.foo = { bar: true };
             const output = cloneDeep(input);
+
             expect(output).not.toBe(input);
             expect(output.foo).not.toBe(input.foo);
+
             output.foo.bar = false;
+
             expect(output.foo.bar).toEqual(false);
             expect(input.foo.bar).toEqual(true);
         });
@@ -104,6 +98,7 @@ describe('Dependency Utils', () => {
                 foo: { bar: true }
             });
             const output = cloneDeep(input);
+
             expect(output).not.toBe(input);
             expect(output.foo).not.toBe(input.foo);
         });
@@ -111,53 +106,33 @@ describe('Dependency Utils', () => {
         it('should clone deep an array of objects', () => {
             const input = [{ foo: { bar: 1 } }, { foo: { bar: 1 } }];
             const output = cloneDeep(input);
+
             expect(output).not.toBe(input);
+
             let i = 0;
+
             for (const inputItem of input) {
                 const outputItem = output[i++];
+
                 expect(outputItem).not.toBe(inputItem);
+
                 outputItem.foo.bar = 10;
+
                 expect(outputItem.foo.bar).toEqual(10);
                 expect(inputItem.foo.bar).toEqual(1);
             }
         });
 
-        it('should clone deep a DataEntity', () => {
-            const input = new DataEntity({ a: 1, b: { c: 2 } }, { _key: 'foo' });
-            const buf = Buffer.from('foo-bar');
-            input.setRawData(buf);
-            const output = cloneDeep(input);
-            expect(output).toBeInstanceOf(DataEntity);
-            // Test data mutation
-            expect(output).not.toBe(input);
-            expect(output.b).not.toBe(input.b);
-            output.b.c = 3;
-            expect(output.b.c).toEqual(3);
-            expect(input.b.c).toEqual(2);
-
-            // Test metadata mutation
-            expect(output.getMetadata('_key')).toEqual('foo');
-            output.setMetadata('_key', 'bar');
-            expect(output.getMetadata('_key')).toEqual('bar');
-            expect(input.getMetadata('_key')).toEqual('foo');
-
-            // Test raw data mutation
-            expect(output.getRawData()).not.toBe(input.getRawData());
-            expect(output.getRawData().toString('utf-8'))
-                .toEqual(input.getRawData().toString('utf-8'));
-
-            output.setRawData(Buffer.from('changed'));
-            expect(output.getRawData().toString('utf-8')).toEqual('changed');
-            expect(input.getRawData().toString('utf-8')).toEqual('foo-bar');
-        });
-
         it('should clone deep an object with classes', () => {
             const input = { obj: new TestObj() };
             const output = cloneDeep(input);
+
             expect(output).not.toBe(input);
             expect(output.obj).not.toBe(input.obj);
             expect(output.obj).toBeInstanceOf(TestObj);
+
             output.obj.hi = false;
+
             expect(output.obj.hi).toEqual(false);
             expect(input.obj.hi).toEqual(true);
         });
@@ -165,10 +140,13 @@ describe('Dependency Utils', () => {
         it('should clone deep a class with validation', () => {
             const input = new ClassWithValidation(123);
             const output = cloneDeep(input);
+
             expect(output).not.toBe(input);
             expect(output).toBeInstanceOf(ClassWithValidation);
             expect(output.value).toEqual(123);
+
             output.value = 456;
+
             expect(output.value).toBe(456);
             expect(input.value).toBe(123);
         });

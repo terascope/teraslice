@@ -1,13 +1,14 @@
 import 'jest-extended';
 import { addDays } from 'date-fns/addDays';
 import {
+    getTypeOf, isPlainObject, cloneDeep,
+    isObjectEntity, parseJSON, fastCloneDeep,
+    firstToLower, isKey,
+} from '@terascope/core-utils';
+import {
     DataEntity, DataEncoding, __IS_DATAENTITY_KEY,
     __ENTITY_METADATA_KEY, DataEntityMetadata,
 } from '../src/entities/index.js';
-import {
-    parseJSON, cloneDeep, fastCloneDeep,
-    firstToLower, isKey,
-} from '../src/index.js';
 
 describe('DataEntity', () => {
     const methods: readonly (keyof DataEntity)[] = [
@@ -781,6 +782,72 @@ describe('DataEntity', () => {
                         _encoding: DataEncoding.RAW,
                     });
                 }).toThrow();
+            });
+        });
+    });
+
+    describe('interactions with core-utils functions', () => {
+        class TestEntity extends DataEntity {
+            test = true;
+        }
+
+        describe('getTypeOf', () => {
+            it('should return the correct kind', () => {
+                expect(getTypeOf(new DataEntity({}))).toEqual('DataEntity');
+                expect(getTypeOf(DataEntity.make({}))).toEqual('DataEntity');
+                expect(getTypeOf(new TestEntity({}))).toEqual('TestEntity');
+            });
+        });
+
+        describe('isPlainObject', () => {
+            it('should correctly detect the an object type', () => {
+                expect(isPlainObject(new DataEntity({}))).toBeFalse();
+            });
+        });
+
+        describe('isObjectEntity', () => {
+            describe('when given a DataEntity', () => {
+                it('should return true', () => {
+                    const data = new DataEntity({});
+                    expect(isObjectEntity(data)).toBeTrue();
+                });
+            });
+        });
+
+        describe('cloneDeep', () => {
+            it('should clone deep a DataEntity', () => {
+                const input = new DataEntity({ a: 1, b: { c: 2 } }, { _key: 'foo' });
+                const buf = Buffer.from('foo-bar');
+                input.setRawData(buf);
+                const output = cloneDeep(input);
+
+                expect(output).toBeInstanceOf(DataEntity);
+                // Test data mutation
+                expect(output).not.toBe(input);
+                expect(output.b).not.toBe(input.b);
+
+                output.b.c = 3;
+
+                expect(output.b.c).toEqual(3);
+                expect(input.b.c).toEqual(2);
+
+                // Test metadata mutation
+                expect(output.getMetadata('_key')).toEqual('foo');
+
+                output.setMetadata('_key', 'bar');
+
+                expect(output.getMetadata('_key')).toEqual('bar');
+                expect(input.getMetadata('_key')).toEqual('foo');
+
+                // Test raw data mutation
+                expect(output.getRawData()).not.toBe(input.getRawData());
+                expect(output.getRawData().toString('utf-8'))
+                    .toEqual(input.getRawData().toString('utf-8'));
+
+                output.setRawData(Buffer.from('changed'));
+
+                expect(output.getRawData().toString('utf-8')).toEqual('changed');
+                expect(input.getRawData().toString('utf-8')).toEqual('foo-bar');
             });
         });
     });

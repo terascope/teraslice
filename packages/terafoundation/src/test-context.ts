@@ -1,8 +1,8 @@
 import {
-    isString, AnyObject, PartialDeep,
-    get, isFunction, getTypeOf
+    isString, get, isFunction,
+    getTypeOf
 } from '@terascope/core-utils';
-import type { Terafoundation } from '@terascope/types';
+import type { Terafoundation, PartialDeep } from '@terascope/types';
 import { nanoid } from 'nanoid';
 import { CoreContext } from './core-context.js';
 import validateConfigs from './validate-configs.js';
@@ -64,8 +64,14 @@ function setConnectorConfig<T extends Record<string, any>>(
     return connectors[type][endpoint];
 }
 
-const _cachedClients = new WeakMap<TestContext<AnyObject, AnyObject>, CachedClients>();
-const _createClientFns = new WeakMap<TestContext<AnyObject, AnyObject>, ClientFactoryFns>();
+const _cachedClients = new WeakMap<
+    TestContext<Record<string, any>, Record<string, any>>,
+    CachedClients
+>();
+const _createClientFns = new WeakMap<
+    TestContext<Record<string, any>, Record<string, any>>,
+    ClientFactoryFns
+>();
 
 export interface TestContextOptions<S> {
     name?: string;

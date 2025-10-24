@@ -34,7 +34,7 @@ if (key in obj) {
 }
 ```
 
-Or use the `isKey` @terascope/utils function. This will always narrow the types. Within the code block, key will be typed as a `keyof typeof obj`, not just any string, number, or symbol:
+Or use the `isKey` @terascope/core-utils function. This will always narrow the types. Within the code block, key will be typed as a `keyof typeof obj`, not just any string, number, or symbol:
 
 ```typescript
 if (isKey(obj, key)) {

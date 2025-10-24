@@ -1,4 +1,5 @@
-import { DataEntity, get } from '@terascope/core-utils';
+import { get } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import { FieldValidator } from '@terascope/data-mate';
 import { InjectMethod } from '../mixins.js';
 import OperationBase from '../../lib/base.js';

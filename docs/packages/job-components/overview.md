@@ -18,4 +18,4 @@ npm install --save @terascope/job-components
 
 Checkout the [Job documentation](../../jobs/overview.md) for usage an instructions.
 
-**NOTE:** This library also exports all of the utilities from [@terascope/utils](../utils/overview.md)
+**NOTE:** This library also exports all of the utilities from [@terascope/core-utils](../utils/overview.md)

@@ -3,7 +3,7 @@ import ms from 'ms';
 import semver from 'semver';
 import { DEFAULT_WORKERS, NODE_VERSION } from './config.js';
 import signale from './signale.js';
-import { pRetry } from '@terascope/utils';
+import { pRetry } from '@terascope/core-utils';
 
 const compose = new Compose('docker-compose.yml');
 

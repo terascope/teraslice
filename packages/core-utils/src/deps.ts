@@ -2,12 +2,13 @@
  * This file exports tiny facades over the external packages.
  * The behavior of a dependency can be overridden here
 */
+import { isDataEntity } from '@terascope/types';
 import {
     has, set, get, unset,
     merge, debounce, padEnd,
     difference, throttle, chain,
     orderBy, shuffle, defaultsDeep,
-    sortBy, range
+    sortBy, range, isEqualWith
 } from 'lodash-es';
 import { isPlainObject as _isPlainObject } from 'is-plain-object';
 import _clone from 'shallow-clone';
@@ -43,11 +44,6 @@ export function clone(input: unknown): any {
         return Object.assign(Object.create(null), input);
     }
     return _clone(input);
-}
-
-// TODO: should I type this better
-function _isDataEntity(input: any): input is Record<string, any> {
-    return input && typeof input === 'object' && Boolean(input.__isDataEntity);
 }
 
 const _cloneTypeHandlers = Object.freeze({
@@ -86,7 +82,7 @@ export function getTypeOf(val: any): string {
     if (val === undefined) return 'undefined';
     if (val === null) return 'null';
 
-    if (_isDataEntity(val)) {
+    if (isDataEntity(val)) {
         if (val.constructor && val.constructor.name !== 'Object') {
             return val.constructor.name;
         }
@@ -130,5 +126,6 @@ export {
     shuffle,
     defaultsDeep,
     multiFieldSort,
-    range
+    range,
+    isEqualWith
 };

@@ -5,13 +5,13 @@ import { fileURLToPath } from 'node:url';
 import {
     newTestJobConfig,
     newTestSlice,
-    DataEntity,
     Fetcher,
     BatchProcessor,
     NoopProcessor,
     debugLogger,
     TestClientConfig
 } from '@terascope/job-components';
+import { DataEntity } from '@terascope/entity-utils';
 import { WorkerTestHarness } from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));

@@ -1,7 +1,7 @@
 {
     "name": "@terascope/entity-utils",
     "displayName": "Entity Utils",
-    "version":  "2.0.0-dev.5",
+    "version": "2.0.0-dev.5",
     "description": "A collection of Teraslice Entity Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/entity-utils#readme",
     "bugs": {
@@ -20,16 +20,15 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "node ../scripts/bin/ts-scripts test ../geo-utils --",
-        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../geo-utils --",
-        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../geo-utils --"
+        "test": "node ../scripts/bin/ts-scripts test ../entity-utils --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../entity-utils --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../entity-utils --"
     },
     "dependencies": {
-        "@terascope/types": "~2.0.0-dev.5",
         "@terascope/core-utils": "~2.0.0-dev.5",
+        "@terascope/types": "~2.0.0-dev.5",
         "mnemonist": "~0.40.3"
     },
-    "devDependencies": {},
     "engines": {
         "node": ">=22.0.0",
         "yarn": ">=1.22.19"

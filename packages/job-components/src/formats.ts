@@ -6,11 +6,11 @@ import convict_format_with_moment from 'convict-format-with-moment';
 import dateMath from 'datemath-parser';
 import {
     startsWith,
-    isValidDate,
     isString,
     isInteger,
     toInteger,
 } from '@terascope/core-utils';
+import { isValidDate } from '@terascope/date-utils';
 
 const { addFormat, addFormats: nativeAddFormats } = pkg;
 

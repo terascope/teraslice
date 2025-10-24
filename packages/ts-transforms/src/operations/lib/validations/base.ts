@@ -1,6 +1,5 @@
-import {
-    DataEntity, get, isFunction, isNil
-} from '@terascope/core-utils';
+import { get, isFunction, isNil } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import OperationBase from '../base.js';
 import { OperationConfig } from '../../../interfaces.js';
 

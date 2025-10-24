@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { getTimezoneOffsetFP } from '@terascope/core-utils';
+import { getTimezoneOffsetFP } from '@terascope/date-utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,

@@ -1,6 +1,5 @@
-import {
-    DataEntity, AnyObject, unset, has
-} from '@terascope/core-utils';
+import { unset, has } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import { hasKeys } from './utils.js';
 import { WatcherConfig, OutputValidation } from '../interfaces.js';
 import PhaseBase from './base.js';
@@ -59,13 +58,13 @@ export default class OutputPhase extends PhaseBase {
     }
 }
 
-function removeKeys(doc: DataEntity, dict: AnyObject) {
+function removeKeys(doc: DataEntity, dict: Record<string, any>) {
     for (const key in dict) {
         if (has(doc, key)) unset(doc, key);
     }
 }
 
-function restrictFields(data: DataEntity[], restrictOutput: AnyObject) {
+function restrictFields(data: DataEntity[], restrictOutput: Record<string, any>) {
     const restrictedData: DataEntity[] = [];
     for (const doc of data) {
         removeKeys(doc, restrictOutput);
@@ -74,7 +73,7 @@ function restrictFields(data: DataEntity[], restrictOutput: AnyObject) {
     return restrictedData;
 }
 
-function isKeyMatchRequiredFn(matchRequirements: AnyObject) {
+function isKeyMatchRequiredFn(matchRequirements: Record<string, any>) {
     return function isKeyMatchRequired(key: string) {
         return matchRequirements[key] !== undefined;
     };

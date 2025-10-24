@@ -1,4 +1,4 @@
-import { cloneDeep } from '@terascope/utils';
+import { cloneDeep } from '@terascope/core-utils';
 import path from 'node:path';
 import fse from 'fs-extra';
 import {

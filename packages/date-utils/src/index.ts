@@ -38,14 +38,10 @@ import {
     DateInputTypes, GetTimeBetweenArgs
 } from '@terascope/types';
 import { getTimezoneOffset as tzOffset } from 'date-fns-tz';
-import { getTypeOf } from './deps.js';
 import {
-    bigIntToJSON, isNumber, toInteger,
-    isInteger, inNumberRange
-} from './numbers.js';
-import { isString } from './strings.js';
-import { isBoolean } from './booleans.js';
-import { lookupTimezone } from './geo.js';
+    getTypeOf, bigIntToJSON, isNumber, toInteger,
+    isInteger, inNumberRange, isString, isBoolean
+} from '@terascope/core-utils';
 
 // date-fns doesn't handle utc correctly here
 // https://github.com/date-fns/date-fns/issues/376
@@ -175,21 +171,6 @@ export function toTimeZone(val: unknown, timezone: string): DateTuple | null {
     if (isNaN(offset)) return null;
 
     return setTimezone(date, offset);
-}
-
-export function toTimeZoneUsingLocation(val: unknown, location: unknown) {
-    // location validation happens inside lookupTimezone
-    const timezone = lookupTimezone(location);
-    return toTimeZone(val, timezone);
-}
-
-export function toTimeZoneUsingLocationFP(location: unknown) {
-    // location validation happens inside lookupTimezone
-    const timezone = lookupTimezone(location);
-
-    return function _toTimeZoneUsingLocation(val: unknown) {
-        return toTimeZone(val, timezone);
-    };
 }
 
 /**

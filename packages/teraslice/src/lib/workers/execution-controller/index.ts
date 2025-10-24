@@ -7,9 +7,9 @@ import type { EventEmitter } from 'node:events';
 import {
     TSError, includes, get,
     pDelay, getFullErrorStack, logError,
-    pWhile, makeISODate, type Logger,
-    debounce, throttle
+    pWhile, type Logger, debounce, throttle
 } from '@terascope/core-utils';
+import { makeISODate } from '@terascope/date-utils';
 import {
     Context, SlicerExecutionContext, Slice, isPromAvailable
 } from '@terascope/job-components';

@@ -1,4 +1,4 @@
-import { getCIDRNetwork } from '@terascope/core-utils';
+import { getCIDRNetwork } from '@terascope/ip-utils';
 import { FieldType } from '@terascope/types';
 
 import {

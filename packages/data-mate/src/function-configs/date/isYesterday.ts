@@ -1,4 +1,4 @@
-import { isYesterday, subtractFromDate, toISO8601 } from '@terascope/core-utils';
+import { isYesterday, subtractFromDate, toISO8601 } from '@terascope/date-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

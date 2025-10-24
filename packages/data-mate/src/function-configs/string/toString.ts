@@ -1,12 +1,9 @@
-import { toString, toISO8601 } from '@terascope/core-utils';
+import { toString } from '@terascope/core-utils';
+import { toISO8601 } from '@terascope/date-utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory,
-    FunctionDefinitionExample
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces.js';
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [

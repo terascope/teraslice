@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import {
-    get, set, AnyObject,
-    Logger, isTest, isString
+    get, set, Logger,
+    isTest, isString
 } from '@terascope/core-utils';
 import {
     OpAPI, Context, ExecutionConfig,
@@ -13,8 +13,8 @@ import { JobAPIInstances } from './interfaces.js';
 import { makeExContextLogger } from '../utils.js';
 
 export interface MetadataFns {
-    update: (exId: string, metadata: AnyObject) => Promise<void>;
-    get: (exId: string) => Promise<AnyObject>;
+    update: (exId: string, metadata: Record<string, any>) => Promise<void>;
+    get: (exId: string) => Promise<Record<string, any>>;
 }
 
 const _metadataFns = new WeakMap<Context, MetadataFns>();
@@ -153,7 +153,7 @@ export class ExecutionContextAPI {
     /**
      * Make a logger with a the job_id and ex_id in the logger context
      */
-    makeLogger(moduleName: string, extra: AnyObject = {}): Logger {
+    makeLogger(moduleName: string, extra: Record<string, any> = {}): Logger {
         return makeExContextLogger(this._context, this._executionConfig, moduleName, extra);
     }
 
@@ -166,14 +166,14 @@ export class ExecutionContextAPI {
             throw new Error('Unable to set execution metadata, missing key');
         }
         const exId = this._executionConfig.ex_id;
-        const metadata: AnyObject = await this._getMetadata(exId);
+        const metadata: Record<string, any> = await this._getMetadata(exId);
 
         set(metadata, key, value);
         this._logger.warn('updating execution metadata', metadata);
         await this._updateMetadata(exId, metadata);
     }
 
-    async getMetadata(key?: string): Promise<AnyObject> {
+    async getMetadata(key?: string): Promise<Record<string, any>> {
         const exId = this._executionConfig.ex_id;
         const metadata = await this._getMetadata(exId);
 
@@ -184,7 +184,7 @@ export class ExecutionContextAPI {
 
     // These methods will be replaced to actually update the
     // execution metadata when running in production
-    private async _updateMetadata(exId: string, metadata: AnyObject): Promise<void> {
+    private async _updateMetadata(exId: string, metadata: Record<string, any>): Promise<void> {
         const api = _metadataFns.get(this._context);
         if (api && api.update) {
             return api.update(exId, metadata);
@@ -195,7 +195,7 @@ export class ExecutionContextAPI {
 
     // These methods will be replaced to actually get the
     // execution metadata when running in production
-    private async _getMetadata(exId: string): Promise<AnyObject> {
+    private async _getMetadata(exId: string): Promise<Record<string, any>> {
         const api = _metadataFns.get(this._context);
         if (api && api.get) {
             return api.get(exId);

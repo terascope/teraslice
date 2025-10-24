@@ -1,4 +1,4 @@
-import { isPast } from '@terascope/core-utils';
+import { isPast } from '@terascope/date-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
