@@ -927,9 +927,14 @@ export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2'
     }
 }
 
-export async function launchTerasliceWithCustomHelmfile(configFilePath: string) {
+export async function launchTerasliceWithCustomHelmfile(
+    configFilePath: string,
+    selector?: { diff: string; sync: string }
+) {
     let diffProcess;
     let syncProcess;
+    const diffSelector = selector && selector.diff ? `-l group!=skipDiff,${selector.diff}` : '-l group!=skipDiff';
+    const syncSelector = selector && selector.sync ? `-l ${selector.sync}` : '';
     const e2eDir = getE2EDir();
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
@@ -937,9 +942,11 @@ export async function launchTerasliceWithCustomHelmfile(configFilePath: string) 
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
 
     try {
-        diffProcess = await execaCommand(`helmfile --state-values-file ${configFilePath} diff -f ${helmfilePath}`);
+        // We want to exclude certain charts from the diff command because
+        //  they may require crds that aren't installed
+        diffProcess = await execaCommand(`helmfile ${diffSelector} --state-values-file ${configFilePath} diff -f ${helmfilePath}`);
         logger.debug(`helmfile diff:\n${diffProcess.stdout}`);
-        syncProcess = await execaCommand(`helmfile --state-values-file ${configFilePath} sync -f ${helmfilePath}`);
+        syncProcess = await execaCommand(`helmfile ${syncSelector} --state-values-file ${configFilePath} sync -f ${helmfilePath}`);
         logger.debug(`helmfile sync:\n${syncProcess.stdout}`);
     } catch (err) {
         throw new TSError(`Helmfile command failed:\n${err}`);
@@ -1493,7 +1500,27 @@ export async function createMinioSecret(k8sClient: K8s): Promise<void> {
     }
 }
 
-export async function getTerasliceImageFromConfigYaml(configFilePath: string): Promise<string> {
+export async function getConfigValueFromCustomYaml(
+    configFilePath: string,
+    valuePath: string
+): Promise<any> {
     const customConfig = yaml.load(fs.readFileSync(configFilePath, 'utf8')) as any;
-    return `${customConfig.teraslice.image.repository}:${customConfig.teraslice.image.tag}`;
+
+    const value = get(customConfig, valuePath, undefined);
+    return value;
+}
+
+export async function setConfigValuesForCustomYaml(
+    configFilePath: string,
+    valuePath: string,
+    valueToSet: unknown
+): Promise<void> {
+    try {
+        const customConfig = parseDocument(fs.readFileSync(configFilePath, 'utf8'));
+        const splitPath = valuePath.split('.');
+        customConfig.setIn(splitPath, valueToSet);
+        fs.writeFileSync(configFilePath, customConfig.toString(), 'utf8');
+    } catch (err) {
+        throw new Error(`Failed to set ${valuePath} to ${valueToSet} in config file ${configFilePath}. Reason: ${err.message}`);
+    }
 }

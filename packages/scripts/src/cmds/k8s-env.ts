@@ -1,4 +1,5 @@
 import { CommandModule } from 'yargs';
+import path from 'node:path';
 import * as config from '../helpers/config.js';
 import { launchK8sEnv, rebuildTeraslice, generateTemplateConfig } from '../helpers/k8s-env/index.js';
 import { K8sEnvOptions } from '../helpers/k8s-env/interfaces.js';
@@ -94,7 +95,13 @@ const cmd: CommandModule = {
         };
 
         if (argv['config-file'] !== undefined) {
-            k8sOptions.configFile = argv['config-file'] as string;
+            const configPath = argv['config-file'] as string;
+            // Check to see if the path is already absolute
+            if (path.isAbsolute(configPath)) {
+                k8sOptions.configFile = configPath;
+            } else {
+                k8sOptions.configFile = path.join(process.cwd(), configPath);
+            }
         }
 
         if (Boolean(argv.rebuild) === true) {

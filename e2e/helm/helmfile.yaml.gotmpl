@@ -11,6 +11,12 @@ repositories:
     url: https://opensearch-project.github.io/helm-charts/
   - name: minio
     url: https://charts.min.io/
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+  - name: kafka-ui
+    url: https://provectus.github.io/kafka-ui-charts/
+  - name: chaos-mesh
+    url: https://charts.chaos-mesh.org
 
 helmDefaults:
   wait: true
@@ -71,6 +77,16 @@ releases:
     values:
       - ./templates/kafka.yaml.gotmpl
 
+  - name: kafka-ui
+    namespace: services-dev1
+    chart: kafka-ui/kafka-ui
+    needs:
+      - services-dev1/kafka
+    version: 0.7.6
+    installed: {{ .Values | get "kafka.enabled" true }}
+    values:
+      - ./templates/kafka-ui.yaml.gotmpl
+
   - name: utility
     namespace: services-dev1
     chart: ./utility
@@ -88,3 +104,31 @@ releases:
       - ./templates/teraslice.yaml.gotmpl
     labels:
       app: teraslice
+
+  - name: prometheus-stack
+    namespace: services-dev1
+    version: 78.4.0
+    chart: prometheus-community/kube-prometheus-stack
+    installed: {{ .Values | get "prometheus_stack.enabled" false }}
+    values:
+      - ./templates/prometheus-stack.yaml.gotmpl
+    labels:
+      app: prom-grafana
+      group: skipDiff
+
+  - name: chaos-mesh
+    namespace: chaos-mesh
+    chart: chaos-mesh/chaos-mesh
+    version: 2.7.0
+    installed: {{ .Values | get "chaos_mesh.enabled" false }}
+    values:
+      - chaosDaemon:
+          runtime: containerd
+          socketPath: /run/containerd/containerd.sock
+        dashboard:
+          securityMode: false
+          service:
+            type: NodePort
+            nodePort: 30333
+        controllerManager:
+          replicaCount: 1
