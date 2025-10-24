@@ -2,12 +2,12 @@
 import type { EventEmitter } from 'node:events';
 import type { Server as HttpServer } from 'node:http';
 import type { Server as HttpsServer } from 'node:https';
-
 import { nanoid } from 'nanoid';
 import {
-    pDelay, Queue, Logger, isFunction,
+    pDelay, Logger, isFunction,
     isEmpty, get, toNumber, isKey
 } from '@terascope/core-utils';
+import { Queue } from '@terascope/entity-utils';
 import { Context } from '@terascope/job-components';
 import socketIOClient from 'socket.io-client';
 import socketIOServer from 'socket.io';

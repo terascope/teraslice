@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseJSON, fastCloneDeep, DataEntity } from '@terascope/core-utils';
+import { parseJSON, fastCloneDeep } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import { TestReaderConfig } from './interfaces.js';
 import { Fetcher } from '../../operations/index.js';
 import { SliceRequest } from '../../interfaces/index.js';

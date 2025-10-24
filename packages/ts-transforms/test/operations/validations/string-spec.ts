@@ -1,4 +1,5 @@
-import { DataEntity, cloneDeep } from '@terascope/core-utils';
+import { cloneDeep } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import { StringValidation } from '../../../src/operations';
 
 describe('string validation', () => {

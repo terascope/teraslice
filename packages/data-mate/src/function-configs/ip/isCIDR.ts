@@ -1,4 +1,4 @@
-import { isCIDR } from '@terascope/core-utils';
+import { isCIDR } from '@terascope/ip-utils';
 import { FieldType } from '@terascope/types';
 
 import {

@@ -1,4 +1,4 @@
-import { isLeapYear } from '@terascope/core-utils';
+import { isLeapYear } from '@terascope/date-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

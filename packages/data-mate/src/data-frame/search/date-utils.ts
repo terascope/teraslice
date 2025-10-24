@@ -1,8 +1,10 @@
+// TODO: should we pull this from data-utils?
 import {
     isWithinInterval, isEqual, subMilliseconds,
     addMilliseconds
 } from 'date-fns';
-import { getTypeOf, getValidDate } from '@terascope/core-utils';
+import { getTypeOf } from '@terascope/core-utils';
+import { getValidDate } from '@terascope/date-utils';
 import { isInfiniteMax, isInfiniteMin, ParsedRange } from 'xlucene-parser';
 import { MatchValueFn } from '../../interfaces.js';
 

@@ -1,10 +1,10 @@
 import 'jest-extended';
+import { __IS_DATAENTITY_KEY } from '@terascope/types';
 import {
-    isDeepEqual, isGreaterThan, isGreaterThanFP,
+    isGreaterThan, isGreaterThanFP, isLessThanOrEqualToFP,
     isLessThan, isLessThanFP, isGreaterThanOrEqualTo,
-    isGreaterThanOrEqualToFP, isLessThanOrEqualTo, isLessThanOrEqualToFP
+    isGreaterThanOrEqualToFP, isLessThanOrEqualTo, isDeepEqual
 } from '../src/equality.js';
-import { DataEntity } from '../src/index.js';
 
 describe('Equality', () => {
     describe('isDeepEqual', () => {
@@ -25,8 +25,12 @@ describe('Equality', () => {
 
             it('should return true if they have same key/values even if other is DataEntity', () => {
                 const obj = { key1: 1, key2: 2 };
-
-                expect(isDeepEqual(obj, new DataEntity(obj))).toBeTrue();
+                // This is a mock
+                const fakeDataEntity = {
+                    ...obj,
+                    __IS_DATAENTITY_KEY: true
+                };
+                expect(isDeepEqual(obj, fakeDataEntity)).toBeTrue();
             });
 
             it('should return true false when compared to anything else', () => {

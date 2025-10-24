@@ -1,6 +1,5 @@
 import type { Logger } from '@terascope/types';
 import STATUS_CODES from './status-codes.js';
-import { AnyObject } from './interfaces.js';
 import { getFirst } from './arrays.js';
 import { isFunction } from './functions.js';
 import { getTypeOf, isPlainObject } from './deps.js';
@@ -131,13 +130,13 @@ export interface TSErrorConfig {
     /**
      * Attach any context metadata to the error
      */
-    context?: AnyObject;
+    context?: Record<string, any>;
 
     defaultStatusCode?: number;
     defaultErrorMsg?: string;
 }
 
-export interface TSErrorContext extends AnyObject {
+export interface TSErrorContext extends Record<string, any> {
     /** ISO Date string */
     _createdAt: string;
     _cause: any;

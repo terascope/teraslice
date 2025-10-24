@@ -1,4 +1,4 @@
-import { toISO8601 } from '@terascope/core-utils';
+import { toISO8601 } from '@terascope/date-utils';
 import { DateTuple } from '@terascope/types';
 import { Vector, VectorOptions } from '../Vector.js';
 import { VectorType, DataBuckets } from '../interfaces.js';

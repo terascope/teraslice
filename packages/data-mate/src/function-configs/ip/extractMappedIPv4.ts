@@ -1,4 +1,4 @@
-import { extractMappedIPv4 } from '@terascope/core-utils';
+import { extractMappedIPv4 } from '@terascope/ip-utils';
 import { FieldType } from '@terascope/types';
 
 import {

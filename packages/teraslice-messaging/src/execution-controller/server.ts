@@ -1,4 +1,5 @@
-import { isNumber, get, Queue } from '@terascope/core-utils';
+import { isNumber, get } from '@terascope/core-utils';
+import { Queue } from '@terascope/entity-utils';
 import { SliceCompletePayload, EnqueuedWorker, Slice } from '@terascope/types';
 import * as core from '../messenger/index.js';
 import * as i from './interfaces.js';

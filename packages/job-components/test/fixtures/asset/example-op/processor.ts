@@ -1,4 +1,5 @@
-import { DataEntity, times } from '@terascope/core-utils';
+import { times } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import { BatchProcessor } from '../../../../src/index.js';
 
 export default class ExampleBatch extends BatchProcessor {

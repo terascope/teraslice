@@ -1,17 +1,11 @@
+import { startsWith } from '@terascope/core-utils';
 import {
-    AnyObject,
-    parseGeoPoint,
-    startsWith,
-    isGeoJSON,
-    isGeoShapePolygon,
+    parseGeoPoint, isGeoJSON, isGeoShapePolygon,
     isGeoShapeMultiPolygon
-} from '@terascope/core-utils';
+} from '@terascope/geo-utils';
 import {
-    GeoPointInput,
-    xLuceneTypeConfig,
-    xLuceneVariables,
-    xLuceneFieldType,
-    GeoShapeRelation
+    GeoPointInput, xLuceneTypeConfig, xLuceneVariables,
+    xLuceneFieldType, GeoShapeRelation
 } from '@terascope/types';
 import { isGeoShapePoint } from '../validations/field-validator.js';
 
@@ -27,7 +21,7 @@ export type CreateJoinQueryOptions = {
     typeConfig?: xLuceneTypeConfig;
     fieldParams?: Record<string, string>;
     joinBy?: JoinBy;
-    variables?: AnyObject;
+    variables?: Record<string, any>;
 };
 
 function isGeoQuery(type: xLuceneFieldType) {
@@ -131,7 +125,7 @@ function createGeoQuery(
 }
 
 export function toXluceneQuery(
-    input: AnyObject,
+    input: Record<string, any>,
     options: CreateJoinQueryOptions = {}
 ): xLuceneQueryResult {
     const {
@@ -170,9 +164,9 @@ export function toXluceneQuery(
 }
 
 export class VariableState {
-    private variables: AnyObject;
+    private variables: Record<string, any>;
 
-    constructor(variables?: AnyObject) {
+    constructor(variables?: Record<string, any>) {
         this.variables = { ...variables };
     }
 
@@ -204,8 +198,8 @@ export class VariableState {
     /**
      * Shallow clones and sorts the keys
     */
-    getVariables(): AnyObject {
-        const result: AnyObject = {};
+    getVariables(): Record<string, any> {
+        const result: Record<string, any> = {};
         for (const key of Object.keys(this.variables).sort()) {
             result[key] = this.variables[key];
         }

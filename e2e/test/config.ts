@@ -2,7 +2,7 @@ import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import { customAlphabet } from 'nanoid';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { toBoolean } from '@terascope/utils';
+import { toBoolean } from '@terascope/core-utils';
 
 const {
     TEST_INDEX_PREFIX,

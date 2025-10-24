@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataEntity } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import { CachedStateStorage, SetTuple, EvictedEvent } from '../src/index.js';
 
 describe('Cache Storage State', () => {

@@ -10,7 +10,7 @@ import {
     S3Client,
 } from '@terascope/file-asset-apis';
 import { Teraslice } from '@terascope/types';
-import { pWhile } from '@terascope/utils';
+import { pWhile } from '@terascope/core-utils';
 import crypto from 'crypto';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import {

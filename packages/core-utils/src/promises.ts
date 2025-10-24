@@ -1,9 +1,6 @@
 import { debugLogger } from './logger.js';
-import { toHumanTime } from './dates.js';
 import {
-    isRetryableError,
-    TSError,
-    parseError,
+    isRetryableError, TSError, parseError,
     isFatalError
 } from './errors.js';
 
@@ -267,7 +264,7 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
 
             const remaining = endTime - Date.now();
             if (remaining <= 0) {
-                let errMsg = `${name} timeout after ${toHumanTime(timeoutMs)}`;
+                let errMsg = `${name} timeout after ${timeoutMs} ms`;
                 if (options.error) errMsg = `${errMsg}; ${options.error}`;
 
                 reject(

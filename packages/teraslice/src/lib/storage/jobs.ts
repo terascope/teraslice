@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid';
-import { TSError, makeISODate, Logger } from '@terascope/core-utils';
+import { TSError, Logger } from '@terascope/core-utils';
+import { makeISODate } from '@terascope/date-utils';
 import { Context, ValidatedJobConfig, JobConfigParams } from '@terascope/job-components';
 import { JobConfig } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';

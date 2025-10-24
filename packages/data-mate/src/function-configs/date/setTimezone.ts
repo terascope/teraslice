@@ -1,8 +1,6 @@
 import { FieldType } from '@terascope/types';
-import {
-    isNumber, isString, setTimezoneFP,
-    timezoneToOffset, toISO8601
-} from '@terascope/core-utils';
+import { isNumber, isString } from '@terascope/core-utils';
+import { setTimezoneFP, timezoneToOffset, toISO8601 } from '@terascope/date-utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig

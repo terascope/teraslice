@@ -1,8 +1,9 @@
 import {
     isTest, debugLogger, concat,
-    type Logger, makeISODate, toSafeString,
-    trim, trimAndToLower, TSError, isKey
+    type Logger, toSafeString, trim,
+    trimAndToLower, TSError, isKey
 } from '@terascope/core-utils';
+import { makeISODate } from '@terascope/date-utils';
 import { JoinBy } from '@terascope/data-mate';
 import { QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { v4 as uuid } from 'uuid';

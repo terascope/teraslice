@@ -1,4 +1,4 @@
-import { isGeoPoint } from '@terascope/core-utils';
+import { isGeoPoint } from '@terascope/geo-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig,

@@ -31,8 +31,9 @@
         "test:watch": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test --watch ../xlucene-translator --"
     },
     "dependencies": {
-        "@terascope/types": "~2.0.0-dev.5",
         "@terascope/core-utils": "~2.0.0-dev.5",
+        "@terascope/geo-utils": "~2.0.0-dev.5",
+        "@terascope/types": "~2.0.0-dev.5",
         "@types/elasticsearch": "~5.0.43",
         "xlucene-parser": "~2.0.0-dev.5"
     },

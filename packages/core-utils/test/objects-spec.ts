@@ -3,7 +3,6 @@ import {
     getFirstKey, getFirstValue, withoutNil,
     filterObject, isObjectEntity, lookup
 } from '../src/objects.js';
-import { DataEntity } from '../src/index.js';
 
 describe('Objects', () => {
     describe('withoutNil', () => {
@@ -130,13 +129,6 @@ describe('Objects', () => {
             it('should return true', () => {
                 const obj = { key1: 1, key2: 2 };
                 expect(isObjectEntity(obj)).toBeTrue();
-            });
-        });
-
-        describe('when given a DataEntity', () => {
-            it('should return true', () => {
-                const data = new DataEntity({});
-                expect(isObjectEntity(data)).toBeTrue();
             });
         });
 

@@ -1,4 +1,4 @@
-import { AnyObject } from '@terascope/core-utils';
+
 import { OperationAPI } from '../../../../src/index.js';
 
 export default class ExampleAPI extends OperationAPI {
@@ -15,7 +15,7 @@ export default class ExampleAPI extends OperationAPI {
         return super.shutdown();
     }
 
-    async createAPI(): Promise<AnyObject> {
+    async createAPI(): Promise<Record<string, any>> {
         return {};
     }
 

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
     newTestJobConfig, Slicer, uniq,
-    AnyObject, LifeCycle, TestClientConfig,
+    LifeCycle, TestClientConfig,
     debugLogger, ValidatedJobConfig
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src/index.js';
@@ -231,7 +231,7 @@ describe('SlicerTestHarness', () => {
             const test = await makeTest(2);
 
             const sliceResults = uniq(await test.getAllSlices({ fullResponse: true }))
-                .filter(Boolean) as AnyObject[];
+                .filter(Boolean) as Record<string, any>[];
 
             const slicerOne = sliceResults.filter((obj) => obj.slicer_id === 0);
             const slicerTwo = sliceResults.filter((obj) => obj.slicer_id === 1);

@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { isUnixTimeFP } from '@terascope/core-utils';
+import { isUnixTimeFP } from '@terascope/date-utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory

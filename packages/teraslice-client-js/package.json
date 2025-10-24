@@ -32,8 +32,9 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../teraslice-client-js --"
     },
     "dependencies": {
-        "@terascope/types": "~2.0.0-dev.5",
         "@terascope/core-utils": "~2.0.0-dev.5",
+        "@terascope/date-utils": "~2.0.0-dev.5",
+        "@terascope/types": "~2.0.0-dev.5",
         "auto-bind": "~5.0.1",
         "got": "~14.4.8"
     },

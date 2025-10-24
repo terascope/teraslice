@@ -2,10 +2,10 @@ import os from 'node:os';
 import convict from 'convict';
 import {
     TSError, isFunction, isPlainObject,
-    isEmpty, concat, PartialDeep, pMap,
+    isEmpty, concat, pMap,
     cloneDeep
 } from '@terascope/core-utils';
-import type { Terafoundation } from '@terascope/types';
+import type { Terafoundation, PartialDeep } from '@terascope/types';
 // @ts-expect-error no types
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types

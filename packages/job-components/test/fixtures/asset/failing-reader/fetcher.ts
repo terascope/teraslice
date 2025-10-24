@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import { Fetcher } from '../../../../src/index.js';
 
 export default class FailingFetcher extends Fetcher {

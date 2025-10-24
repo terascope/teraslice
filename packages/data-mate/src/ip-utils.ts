@@ -1,8 +1,8 @@
 import isCidr from 'is-cidr';
 import ip6addr from 'ip6addr';
-import { isIP, isIPv6 } from '@terascope/core-utils';
+import { isIP, isIPv6, isNonZeroCidr } from '@terascope/ip-utils';
 import { isInfiniteMin, isInfiniteMax, ParsedRange } from 'xlucene-parser';
-import { getTypeOf, isString, isNonZeroCidr } from '@terascope/core-utils';
+import { getTypeOf, isString } from '@terascope/core-utils';
 import { MatchValueFn } from './interfaces.js';
 
 const MIN_IPV4_IP = '0.0.0.0';

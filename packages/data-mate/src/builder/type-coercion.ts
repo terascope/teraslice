@@ -4,21 +4,16 @@ import {
     GeoPoint, GeoBoundary
 } from '@terascope/types';
 import { createHash } from 'node:crypto';
-import { primitiveToString, toString } from './strings.js';
-import { isIPRangeOrThrow, isIPOrThrow } from './ip.js';
-import { toEpochMSOrThrow } from './dates.js';
-import { toBooleanOrThrow } from './booleans.js';
 import {
+    primitiveToString, toString, toBooleanOrThrow,
     isValidateNumberType, toBigIntOrThrow, toNumberOrThrow,
-    toIntegerOrThrow, toFloatOrThrow,
-} from './numbers.js';
-import { toGeoJSONOrThrow, parseGeoPoint } from './geo.js';
-import { hasOwn, isKey } from './objects.js';
-import { isArrayLike, castArray } from './arrays.js';
-import { getTypeOf, isPlainObject } from './deps.js';
-import { noop } from './functions.js';
-import { isNotNil } from './empty.js';
-import { isIterator } from './iterators.js';
+    toIntegerOrThrow, toFloatOrThrow, hasOwn, isKey,
+    isArrayLike, castArray, getTypeOf, isPlainObject,
+    noop, isNotNil, isIterator
+} from '@terascope/core-utils';
+import { isIPRangeOrThrow, isIPOrThrow } from '@terascope/ip-utils';
+import { toEpochMSOrThrow } from '@terascope/date-utils';
+import { toGeoJSONOrThrow, parseGeoPoint } from '@terascope/geo-utils';
 
 type CoerceFN<T = unknown> = (input: unknown) => T;
 

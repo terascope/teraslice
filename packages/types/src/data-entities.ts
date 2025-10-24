@@ -1,4 +1,3 @@
-// TODO: this was put in types
 export type TYPE_IS_DATAENTITY_KEY = '__isDataEntity';
 export type TYPE_ENTITY_METADATA_KEY = '___EntityMetadata';
 
@@ -56,19 +55,6 @@ export interface DataEntityMetadata {
     _key?: string | number;
 }
 
-/**
- * Available data encoding types for a DataEntity
- */
-export enum DataEncoding {
-    JSON = 'json',
-    RAW = 'raw',
+export function isDataEntity(input: unknown): boolean {
+    return Boolean(input != null && (input as any)[__IS_DATAENTITY_KEY] === true);
 }
-
-/** an encoding focused interfaces */
-export interface EncodingConfig {
-    _op?: string;
-    _encoding?: DataEncoding;
-}
-
-/** A list of supported encoding formats */
-export const dataEncodings: readonly DataEncoding[] = Object.values(DataEncoding);

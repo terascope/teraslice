@@ -1,7 +1,8 @@
 import {
     isString, TSError, toString,
-    pDelay, toHumanTime
+    pDelay
 } from '@terascope/core-utils';
+import { toHumanTime } from '@terascope/date-utils'
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client.js';

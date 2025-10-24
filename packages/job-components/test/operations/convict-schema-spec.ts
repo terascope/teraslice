@@ -1,5 +1,4 @@
 import 'jest-extended';
-import { AnyObject } from '@terascope/core-utils';
 import {
     ConvictSchema, TestContext, OpConfig,
     ValidatedJobConfig, newTestJobConfig,
@@ -60,7 +59,7 @@ describe('Convict Schema', () => {
 
     describe('->ensureAPIFromConfig', () => {
         let job: ValidatedJobConfig;
-        let testSchema: AnyObject;
+        let testSchema: Record<string, any>;
 
         beforeEach(() => {
             const apiContext = new TestContext('schema-api-tests');

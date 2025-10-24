@@ -1,11 +1,13 @@
 import os from 'node:os';
 import convict from 'convict';
 import {
-    AnyObject, DataEncoding, dataEncodings,
     flatten, getField, getTypeOf,
     hasOwn, isNotNil, isNumber,
     isPlainObject, isString, logLevels,
 } from '@terascope/core-utils';
+import { dataEncodings } from '@terascope/entity-utils';
+import { DataEncoding } from '@terascope/types';
+
 import { Context } from './interfaces/index.js';
 
 const cpuCount = os.cpus().length;
@@ -315,7 +317,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         schemas.pod_spec_override = {
             doc: 'foo',
             default: {},
-            format(obj: AnyObject) {
+            format(obj: Record<string, any>) {
                 if (!isPlainObject(obj)) {
                     throw new Error('must be object');
                 }
