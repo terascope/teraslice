@@ -1,6 +1,6 @@
-import { ParallelSlicer, AnyObject, pDelay } from '@terascope/job-components';
+import { ParallelSlicer, pDelay } from '@terascope/job-components';
 
-export default class Counter extends ParallelSlicer<AnyObject> {
+export default class Counter extends ParallelSlicer<Record<string, any>> {
     count = 0;
 
     async newSlicer(id: number): Promise<() => Promise<({

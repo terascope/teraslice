@@ -1,9 +1,10 @@
 import {
-    Queue, TSError, getFullErrorStack,
-    logError, get, withoutNil, isEmpty,
+    TSError, getFullErrorStack, get,
+    logError, withoutNil, isEmpty,
     multiFieldSort, isString, flatten,
     includes, cloneDeep, Logger
 } from '@terascope/core-utils';
+import { Queue } from '@terascope/entity-utils';
 import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import { ExecutionConfig, JobConfig } from '@terascope/types';

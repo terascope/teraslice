@@ -5,9 +5,9 @@ import readline from 'node:readline';
 import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs';
 import {
-    DataEntity, debugLogger, parseList,
-    AnyObject, get, pMap
+    debugLogger, parseList, get, pMap
 } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import { isXLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import { PhaseManager } from './index.js';
 import { PhaseConfig } from './interfaces.js';
@@ -136,7 +136,7 @@ function parseData(data: string): Record<string, unknown>[] | null {
     return results;
 }
 
-function toJSON(obj: AnyObject) {
+function toJSON(obj: Record<string, any>) {
     return JSON.stringify(obj);
 }
 
@@ -186,7 +186,7 @@ function parseLine(str: string) {
     }
 }
 
-function outputData(results: AnyObject[]) {
+function outputData(results: Record<string, any>[]) {
     const output = `${results.map(toJSON).join('\n')}\n`;
     process.stdout.write(output);
 }

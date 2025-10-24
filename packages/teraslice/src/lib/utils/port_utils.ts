@@ -1,7 +1,6 @@
 import {
     get, toIntegerOrThrow, shuffle, range
 } from '@terascope/core-utils';
-
 import getPort from 'get-port';
 import { Context } from '@terascope/job-components';
 

@@ -1,5 +1,5 @@
-import { coerceToType } from '@terascope/core-utils';
 import { Maybe } from '@terascope/types';
+import { coerceToType } from './type-coercion.js';
 import { BuilderOptions, Builder } from './Builder.js';
 import { VectorType } from '../vector/index.js';
 import { WritableData } from '../core/index.js';

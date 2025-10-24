@@ -1,12 +1,8 @@
-import {
-    geoPointWithinRangeFP, isGeoPoint, joinList,
-    parseGeoDistance
-} from '@terascope/core-utils';
+import { joinList } from '@terascope/core-utils';
+import { geoPointWithinRangeFP, isGeoPoint, parseGeoDistance } from '@terascope/geo-utils';
 import { FieldType, GEO_DISTANCE_UNITS, GeoPointInput } from '@terascope/types';
 import {
-    FieldValidateConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
 

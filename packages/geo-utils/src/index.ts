@@ -52,7 +52,6 @@ import {
     isNumber,
     isKey
 } from '@terascope/core-utils';
-// import { isPlainObject, geoHash, getTypeOf } from './deps.js';
 
 export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCase());
 
@@ -675,6 +674,22 @@ export function lookupTimezone(input: unknown): string {
 export function tzCacheLoaded(): boolean {
     return TZ_GEO_CACHE.size > 0;
 }
+
+// TODO: maybe move this to data-mate as this is a directive only function
+// export function toTimeZoneUsingLocation(val: unknown, location: unknown) {
+//     // location validation happens inside lookupTimezone
+//     const timezone = lookupTimezone(location);
+//     return toTimeZone(val, timezone);
+// }
+
+// export function toTimeZoneUsingLocationFP(location: unknown) {
+//     // location validation happens inside lookupTimezone
+//     const timezone = lookupTimezone(location);
+
+//     return function _toTimeZoneUsingLocation(val: unknown) {
+//         return toTimeZone(val, timezone);
+//     };
+// }
 
 export {
     geoHash

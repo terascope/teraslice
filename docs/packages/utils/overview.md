@@ -9,9 +9,9 @@ sidebar_label: Overview
 
 ```bash
 # Using yarn
-yarn add @terascope/utils
+yarn add @terascope/core-utils
 # Using npm
-npm install --save @terascope/utils
+npm install --save @terascope/core-utils
 ```
 
 Checkout the [API docs](./api/overview.md)

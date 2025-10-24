@@ -1,4 +1,4 @@
-import { get, times } from '@terascope/utils';
+import { get, times } from '@terascope/core-utils';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { TEST_PLATFORM } from '../../config.js';
 

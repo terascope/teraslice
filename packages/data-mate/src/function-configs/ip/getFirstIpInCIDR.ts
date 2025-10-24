@@ -1,4 +1,4 @@
-import { getFirstIPInCIDR } from '@terascope/core-utils';
+import { getFirstIPInCIDR } from '@terascope/ip-utils';
 import { FieldType } from '@terascope/types';
 
 import {

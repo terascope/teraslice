@@ -1,7 +1,8 @@
 import {
-    isNil, isNumber, isBoolean, coerceToType,
+    isNil, isNumber, isBoolean,
     joinList, set, isEmpty,
 } from '@terascope/core-utils';
+import { coerceToType } from '../../builder/type-coercion.js';
 import { getDataTypeFieldAndChildren } from '../utils.js';
 import { FunctionDefinitionConfig, DataTypeFieldAndChildren } from '../../function-configs/interfaces.js';
 

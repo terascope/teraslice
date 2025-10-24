@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { getDate } from '@terascope/core-utils';
+import { getDate } from '@terascope/date-utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,

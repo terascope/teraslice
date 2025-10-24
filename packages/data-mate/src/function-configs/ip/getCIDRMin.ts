@@ -1,4 +1,4 @@
-import { getCIDRMin } from '@terascope/core-utils';
+import { getCIDRMin } from '@terascope/ip-utils';
 import { FieldType } from '@terascope/types';
 
 import {

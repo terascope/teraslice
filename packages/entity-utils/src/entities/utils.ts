@@ -43,7 +43,3 @@ export function isValidKey(key: unknown): key is string | number {
     if (isNumber(key)) return true;
     return false;
 }
-
-export function isDataEntity(input: unknown): boolean {
-    return Boolean(input != null && (input as any)[i.__IS_DATAENTITY_KEY] === true);
-}

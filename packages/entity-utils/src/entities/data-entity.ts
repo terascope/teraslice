@@ -1,12 +1,12 @@
 import {
     isSimpleObject, locked, parseJSON,
-    getTypeOf
+    getTypeOf, ensureBuffer, isBuffer
 } from '@terascope/core-utils';
+import { isDataEntity } from '@terascope/types';
 import { getValidDate, getTime } from '@terascope/date-utils';
-import { ensureBuffer, isBuffer } from '../buffers.js';
 import * as i from './interfaces.js';
 import {
-    isDataEntity, defineEntityProperties, makeMetadata,
+    defineEntityProperties, makeMetadata,
     isValidKey, jsonToBuffer
 } from './utils.js';
 
@@ -207,6 +207,7 @@ export class DataEntity<
         key?: K
     ): i.EntityMetadataValue<M, K> | i._DataEntityMetadata<M> {
         if (key) {
+            // @ts-expect-error TODO: fixme
             return this[i.__ENTITY_METADATA_KEY].metadata[key];
         }
         return this[i.__ENTITY_METADATA_KEY].metadata;
@@ -227,7 +228,7 @@ export class DataEntity<
         if (field === '_createTime') {
             throw new Error(`Cannot set readonly metadata property ${String(field)}`);
         }
-
+        // @ts-expect-error TODO: fixme
         this[i.__ENTITY_METADATA_KEY].metadata[field] = value as any;
     }
 

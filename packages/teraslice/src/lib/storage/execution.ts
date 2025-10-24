@@ -1,7 +1,8 @@
 import {
     TSError, includes, getTypeOf,
-    makeISODate, Logger
+    Logger
 } from '@terascope/core-utils';
+import { makeISODate } from '@terascope/date-utils';
 import { Context, RecoveryCleanupType } from '@terascope/job-components';
 import { v4 as uuid } from 'uuid';
 import { JobConfig, ExecutionConfig } from '@terascope/types';

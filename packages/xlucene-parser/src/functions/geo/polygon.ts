@@ -1,13 +1,16 @@
-import * as utils from '@terascope/core-utils';
+import {
+    toString, isWildCardString, matchWildcard,
+    uniq, TSError, isKey
+} from '@terascope/core-utils';
 import {
     GeoQuery, GeoShapeType, ESGeoShapeType,
     xLuceneVariables, GeoShape, GeoShapeRelation,
     AnyQuery, CoordinateTuple, xLuceneFieldType
 } from '@terascope/types';
 import {
-    toString, geoRelationFP, validateListCoords,
-    polyHasHoles
-} from '@terascope/core-utils';
+    geoRelationFP, validateListCoords, isGeoShapeMultiPolygon,
+    polyHasHoles, isGeoShapePolygon, parseGeoPoint
+} from '@terascope/geo-utils';
 import * as i from '../../interfaces.js';
 import { getFieldValue, logger } from '../../utils.js';
 
@@ -60,7 +63,7 @@ function validate(
 
     const geoPointsValue = getFieldValue(geoPointsParam.value, variables);
 
-    if (utils.isGeoShapePolygon(geoPointsValue) || utils.isGeoShapeMultiPolygon(geoPointsValue)) {
+    if (isGeoShapePolygon(geoPointsValue) || isGeoShapeMultiPolygon(geoPointsValue)) {
         polygonShape = geoPointsValue;
     } else {
         if (!Array.isArray(geoPointsValue)) {
@@ -69,7 +72,7 @@ function validate(
 
         const points: CoordinateTuple[] = geoPointsValue.map((node) => {
             const value = node.value || node;
-            const { lat, lon } = utils.parseGeoPoint(value);
+            const { lat, lon } = parseGeoPoint(value);
             return [lon, lat];
         });
         const coords = validateListCoords(points);
@@ -94,15 +97,15 @@ const geoPolygon: i.FunctionDefinition = {
         );
         let type: string;
 
-        if (utils.isWildCardString(node.field)) {
+        if (isWildCardString(node.field)) {
             const results: string[] = [];
             // collect all pertinent typeConfig fields to wildcard
             for (const [key] of Object.entries(typeConfig)) {
-                if (utils.matchWildcard(node.field, key)) results.push(typeConfig[key]);
+                if (matchWildcard(node.field, key)) results.push(typeConfig[key]);
             }
-            const types = utils.uniq(results);
+            const types = uniq(results);
             if (types.length > 1) {
-                throw new utils.TSError(`Invalid geoPolygon query against different field types: ${toString(types)}`, {
+                throw new TSError(`Invalid geoPolygon query against different field types: ${toString(types)}`, {
                     context: { safe: true },
                     statusCode: 400
                 });
@@ -175,14 +178,14 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function esPolyToPointQuery(field: string) {
-            if (utils.isGeoShapePolygon(polygonShape)) {
+            if (isGeoShapePolygon(polygonShape)) {
                 const query = makePolygonQuery(field, polygonShape.coordinates);
                 if (logger.level() === 10) logger.trace('built geo polygon to point query', { query });
 
                 return { query };
             }
 
-            if (utils.isGeoShapeMultiPolygon(polygonShape)) {
+            if (isGeoShapeMultiPolygon(polygonShape)) {
                 const dsl = polygonShape.coordinates.map(
                     (polyCoords) => makePolygonQuery(field, polyCoords)
                 );
@@ -206,7 +209,7 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function esPolyToPolyQuery(field: string) {
-            const esType = utils.isKey(compatMapping, polygonShape.type)
+            const esType = isKey(compatMapping, polygonShape.type)
                 ? compatMapping[polygonShape.type]
                 : ESGeoShapeType.Polygon;
 

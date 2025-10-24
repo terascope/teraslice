@@ -1,7 +1,8 @@
 import {
-    DataEntity, pDelay, get, toNumber,
+    pDelay, get, toNumber,
     uniq, TSError
 } from '@terascope/core-utils';
+import { isDataEntity } from '@terascope/types';
 import { readFileSync } from 'node:fs';
 import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
@@ -168,7 +169,7 @@ export function formatUploadData(
     data.forEach((record) => {
         const meta: any = { _index: index };
 
-        if (DataEntity.isDataEntity(record) && record.getKey()) {
+        if (isDataEntity(record) && record.getKey()) {
             meta._id = record.getKey();
         }
         // This format is used by elasticsearch-api and elasticsearch-assets

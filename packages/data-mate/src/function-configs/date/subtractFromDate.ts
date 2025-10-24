@@ -1,7 +1,6 @@
 import { FieldType } from '@terascope/types';
-import {
-    joinList, toISO8601, subtractFromDateFP, AdjustDateArgs
-} from '@terascope/core-utils';
+import { joinList } from '@terascope/core-utils';
+import { toISO8601, subtractFromDateFP, AdjustDateArgs } from '@terascope/date-utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory

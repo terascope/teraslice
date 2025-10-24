@@ -1,10 +1,12 @@
 import {
     isTest, TSError, isFatalError,
     parseError, getBackoffDelay, isRetryableError,
-    get, toNumber, isString, castArray, flatten,
-    toBoolean, uniq, random, cloneDeep, DataEntity,
+    get, toNumber, isString, Logger,
+    castArray, flatten, toBoolean,
+    uniq, random, cloneDeep,
     isDeepEqual, getTypeOf, isProd
 } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import { Client as OpenClient } from '@terascope/opensearch-client';
 import {
     ElasticsearchDistribution, SearchResult, ClientParams,

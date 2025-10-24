@@ -1,16 +1,23 @@
-import * as ts from '@terascope/core-utils';
+import {
+    isNil, isNotNil, isMACAddressFP, isArrayLike,
+    inNumberRangeFP, isDeepEqual, includes,
+    inNumberRange as utilsInNumberRange
+} from '@terascope/core-utils';
+import { parseGeoPoint } from '@terascope/geo-utils';
+import { isIPv6, isNonZeroCidr } from '@terascope/ip-utils';
+// TODO: should this be comming from ip utils?
 import ipaddr from 'ipaddr.js';
+// TODO: should this be comming from ip utils?
 import ip6addr from 'ip6addr';
+// TODO: should this be comming from utils?
 import { parsePhoneNumber } from 'awesome-phonenumber';
+// TODO: should this be comming from utils?
 import validator from 'validator';
 import url from 'valid-url';
 import { FieldType, GeoShapePoint, MACDelimiter } from '@terascope/types';
 import {
-    FQDNOptions,
-    HashConfig,
-    LengthConfig,
-    PostalCodeLocale,
-    ArgsISSNOptions,
+    FQDNOptions, HashConfig, LengthConfig,
+    PostalCodeLocale, ArgsISSNOptions,
 } from './interfaces.js';
 
 import * as i from '../interfaces.js';
@@ -169,7 +176,7 @@ export const repository: i.Repository = {
 };
 
 function _lift(fn: any, input: unknown[], parentContext?: any, args?: any) {
-    const sanitized = input.filter(ts.isNotNil);
+    const sanitized = input.filter(isNotNil);
     if (sanitized.length === 0) return false;
 
     return sanitized.every((data) => fn(data, parentContext, args));
@@ -195,10 +202,10 @@ function handleArgs(fn: any) {
  */
 
 export function isBoolean(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(handleArgs(ts.isBoolean), input, _parentContext);
+    if (isNil(input)) return false;
+    if (isArray(input)) return _lift(handleArgs(isBoolean), input, _parentContext);
 
-    return ts.isBoolean(input);
+    return isBoolean(input);
 }
 
 /**
@@ -219,9 +226,9 @@ export function isBoolean(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isBooleanLike(input: unknown, _parentContext?: unknown): boolean {
-    if (isArray(input)) return input.every(ts.isBooleanLike);
+    if (isArray(input)) return input.every(isBooleanLike);
 
-    return ts.isBooleanLike(input);
+    return isBooleanLike(input);
 }
 
 /**
@@ -239,10 +246,10 @@ export function isBooleanLike(input: unknown, _parentContext?: unknown): boolean
  */
 
 export function isEmail(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(handleArgs(ts.isEmail), input, _parentContext);
+    if (isNil(input)) return false;
+    if (isArray(input)) return _lift(handleArgs(isEmail), input, _parentContext);
 
-    return ts.isEmail(input);
+    return isEmail(input);
 }
 
 /**
@@ -262,14 +269,14 @@ export function isEmail(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isGeoPoint(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input) && !isNumberTuple(input)) {
-        return _lift(handleArgs(ts.parseGeoPoint), input, _parentContext, false);
+        return _lift(handleArgs(parseGeoPoint), input, _parentContext, false);
     }
 
     // TODO: check for tuple vs an array of numbers
-    const results = ts.parseGeoPoint(input as any, false);
+    const results = parseGeoPoint(input as any, false);
     return results != null;
 }
 
@@ -293,10 +300,10 @@ export function isGeoPoint(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isGeoJSON(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(handleArgs(ts.isGeoJSON), input, _parentContext);
+    if (isNil(input)) return false;
+    if (isArray(input)) return _lift(handleArgs(isGeoJSON), input, _parentContext);
 
-    return ts.isGeoJSON(input);
+    return isGeoJSON(input);
 }
 
 /**
@@ -332,10 +339,10 @@ export function isGeoShapePoint(
 export function isGeoShapePoint(
     input: unknown, _parentContext?: unknown
 ): input is GeoShapePoint[] | GeoShapePoint {
-    if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(handleArgs(ts.isGeoShapePoint), input, _parentContext);
+    if (isNil(input)) return false;
+    if (isArray(input)) return _lift(handleArgs(isGeoShapePoint), input, _parentContext);
 
-    return ts.isGeoShapePoint(input as any);
+    return isGeoShapePoint(input as any);
 }
 
 /**
@@ -365,10 +372,10 @@ export function isGeoShapePoint(
  */
 
 export function isGeoShapePolygon(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(handleArgs(ts.isGeoShapePolygon), input, _parentContext);
+    if (isNil(input)) return false;
+    if (isArray(input)) return _lift(handleArgs(isGeoShapePolygon), input, _parentContext);
 
-    return ts.isGeoShapePolygon(input as any);
+    return isGeoShapePolygon(input as any);
 }
 
 /**
@@ -410,10 +417,10 @@ export function isGeoShapePolygon(input: unknown, _parentContext?: unknown): boo
  */
 
 export function isGeoShapeMultiPolygon(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(handleArgs(ts.isGeoShapeMultiPolygon), input, _parentContext);
+    if (isNil(input)) return false;
+    if (isArray(input)) return _lift(handleArgs(isGeoShapeMultiPolygon), input, _parentContext);
 
-    return ts.isGeoShapeMultiPolygon(input as any);
+    return isGeoShapeMultiPolygon(input as any);
 }
 
 /**
@@ -435,15 +442,15 @@ export function isGeoShapeMultiPolygon(input: unknown, _parentContext?: unknown)
  */
 
 export function isIP(input: unknown, _parentContext?: unknown): input is string {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (isArray(input)) return _lift(isValidIP, input, _parentContext);
 
     return isValidIP(input);
 }
 
 function isValidIP(input: unknown, _parentContext?: unknown) {
-    if (!ts.isString(input)) return false;
-    if (!ts.isIP(input)) return false;
+    if (!isString(input)) return false;
+    if (!isIP(input)) return false;
 
     return true;
 }
@@ -470,7 +477,7 @@ function isValidIP(input: unknown, _parentContext?: unknown) {
  */
 
 export function isRoutableIP(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (isArray(input)) return _lift(_isRoutableIP, input, _parentContext);
 
     return _isRoutableIP(input);
@@ -504,7 +511,7 @@ function _isRoutableIP(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isNonRoutableIP(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (isArray(input)) return _lift(_isNonRoutableIP, input, _parentContext);
 
     return _isNonRoutableIP(input);
@@ -593,15 +600,15 @@ function _inRestrictedIPRange(parsedIp: ipaddr.IPv4 | ipaddr.IPv6) {
  */
 
 export function isCIDR(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (isArray(input)) return _lift(_isCidr, input, _parentContext);
 
     return _isCidr(input);
 }
 
 function _isCidr(input: unknown, _parentContext?: unknown): boolean {
-    if (!ts.isString(input)) return false;
-    return ts.isNonZeroCidr(input);
+    if (!isString(input)) return false;
+    return isNonZeroCidr(input);
 }
 
 /**
@@ -622,7 +629,7 @@ function _isCidr(input: unknown, _parentContext?: unknown): boolean {
 export function inIPRange(
     input: unknown, _parentContext: unknown, args: { min?: string; max?: string; cidr?: string }
 ): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (isArray(input)) return _lift(_inIPRange, input, _parentContext, args);
 
     return _inIPRange(input, args);
@@ -644,11 +651,11 @@ function _inIPRange(input: unknown, args: { min?: string; max?: string; cidr?: s
 
     // assign upper/lower bound even if min or max is missing
     let { min, max } = args;
-    if (!min) min = ts.isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
-    if (!max) max = ts.isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
+    if (!min) min = isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
+    if (!max) max = isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
 
     // min and max must be valid ips, same IP type, and min < max
-    if (!isIP(min) || !isIP(max) || ts.isIPv6(min) !== ts.isIPv6(max)
+    if (!isIP(min) || !isIP(max) || isIPv6(min) !== isIPv6(max)
         || ip6addr.compare(max, min) === -1) {
         return false;
     }
@@ -671,7 +678,7 @@ function _inIPRange(input: unknown, args: { min?: string; max?: string; cidr?: s
  */
 
 export function isISDN(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (isArray(input)) {
         const fn = (data: any) => {
             const phoneNumber = parsePhoneNumber(`+${data}`);
@@ -714,12 +721,12 @@ interface MACAddressArgs {
 export function isMACAddress(
     input: unknown, _parentContext?: unknown, args?: MACAddressArgs
 ): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (isArray(input)) {
-        return _lift(ts.isMACAddressFP(args?.delimiter), input, _parentContext);
+        return _lift(isMACAddressFP(args?.delimiter), input, _parentContext);
     }
 
-    return ts.isMACAddress(input, args?.delimiter);
+    return isMACAddress(input, args?.delimiter);
 }
 
 /**
@@ -744,12 +751,12 @@ export function inNumberRange(
     _parentContext: unknown,
     args: { min?: number; max?: number; inclusive?: boolean }
 ): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (isArray(input)) {
-        return _lift(ts.inNumberRangeFP(args), input, _parentContext);
+        return _lift(inNumberRangeFP(args), input, _parentContext);
     }
 
-    return ts.inNumberRange(input, args);
+    return utilsInNumberRange(input, args);
 }
 
 /**
@@ -767,10 +774,10 @@ export function inNumberRange(
  */
 
 export function isNumber(input: unknown, _parentContext?: unknown): input is number {
-    if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(handleArgs(ts.isNumber), input, _parentContext);
+    if (isNil(input)) return false;
+    if (isArray(input)) return _lift(handleArgs(isNumber), input, _parentContext);
 
-    return ts.isNumber(input);
+    return isNumber(input);
 }
 
 /**
@@ -790,10 +797,10 @@ export function isNumber(input: unknown, _parentContext?: unknown): input is num
  */
 
 export function isInteger(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(handleArgs(ts.isInteger), input, _parentContext);
+    if (isNil(input)) return false;
+    if (isArray(input)) return _lift(handleArgs(isInteger), input, _parentContext);
 
-    return ts.isInteger(input);
+    return isInteger(input);
 }
 
 /**
@@ -810,10 +817,10 @@ export function isInteger(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isString(input: unknown, _parentContext?: unknown): input is string {
-    if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(handleArgs(ts.isString), input, _parentContext);
+    if (isNil(input)) return false;
+    if (isArray(input)) return _lift(handleArgs(isString), input, _parentContext);
 
-    return ts.isString(input);
+    return isString(input);
 }
 
 /**
@@ -832,14 +839,14 @@ export function isString(input: unknown, _parentContext?: unknown): input is str
  */
 
 export function isURL(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && url.isUri(data) !== null;
+        const fn = (data: any) => isString(data) && url.isUri(data) !== null;
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && url.isUri(input) != null;
+    return isString(input) && url.isUri(input) != null;
 }
 
 /**
@@ -858,14 +865,14 @@ export function isURL(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isUUID(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isUUID(data);
+        const fn = (data: any) => isString(data) && validator.isUUID(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isUUID(input);
+    return isString(input) && validator.isUUID(input);
 }
 
 /**
@@ -887,15 +894,15 @@ export function isUUID(input: unknown, _parentContext?: unknown): boolean {
 export function contains(
     input: unknown, _parentContext: unknown, args: { value: string }
 ): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (!args.value) throw new Error('Parameter value must provided');
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.includes(data, args.value);
+        const fn = (data: any) => includes(data, args.value);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.includes(input, args.value);
+    return includes(input, args.value);
 }
 
 /**
@@ -912,15 +919,15 @@ export function contains(
  */
 
 export function equals(input: unknown, _parentContext: unknown, args: { value: string }): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (!args.value) throw new Error('A value must provided with the input');
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isDeepEqual(data, args.value);
+        const fn = (data: any) => isDeepEqual(data, args.value);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isDeepEqual(input, args.value);
+    return isDeepEqual(input, args.value);
 }
 
 /**
@@ -940,16 +947,16 @@ export function equals(input: unknown, _parentContext: unknown, args: { value: s
 export function isAlpha(
     input: unknown, _parentContext?: unknown, args?: { locale: validator.AlphaLocale }
 ): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     const locale: validator.AlphaLocale = args && args.locale ? args.locale : 'en-US';
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isAlpha(data, locale);
+        const fn = (data: any) => isString(data) && validator.isAlpha(data, locale);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isAlpha(input, locale);
+    return isString(input) && validator.isAlpha(input, locale);
 }
 
 /**
@@ -972,16 +979,16 @@ export function isAlphanumeric(
     _parentContext?: unknown,
     args?: { locale: validator.AlphanumericLocale }
 ): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     const locale: validator.AlphanumericLocale = args && args.locale ? args.locale : 'en-US';
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isAlphanumeric(data, locale);
+        const fn = (data: any) => isString(data) && validator.isAlphanumeric(data, locale);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isAlphanumeric(input, locale);
+    return isString(input) && validator.isAlphanumeric(input, locale);
 }
 
 /**
@@ -998,14 +1005,14 @@ export function isAlphanumeric(
  */
 
 export function isASCII(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isAscii(data);
+        const fn = (data: any) => isString(data) && validator.isAscii(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isAscii(input);
+    return isString(input) && validator.isAscii(input);
 }
 
 /**
@@ -1023,7 +1030,7 @@ export function isASCII(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isBase64(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input)) {
         const fn = (data: any) => _validBase64(data);
@@ -1034,7 +1041,7 @@ export function isBase64(input: unknown, _parentContext?: unknown): boolean {
 }
 
 function _validBase64(input: unknown): boolean {
-    if (ts.isString(input)) {
+    if (isString(input)) {
         const validatorValid = validator.isBase64(input);
         const validatorValidUrl = validator.isBase64(input, { urlSafe: true });
         // validator does not include pad char(=)
@@ -1071,11 +1078,11 @@ export function isEmpty(
 ): boolean {
     let value = input;
 
-    if (!isArray(value) && ts.isString(value) && args && args.ignoreWhitespace) {
+    if (!isArray(value) && isString(value) && args && args.ignoreWhitespace) {
         value = value.trim();
     }
 
-    return ts.isEmpty(value);
+    return isEmpty(value);
 }
 
 /**
@@ -1093,7 +1100,7 @@ export function isEmpty(
  */
 
 export function isFQDN(input: unknown, _parentContext?: unknown, args?: FQDNOptions): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     const config = {
         require_tld: args?.requireTld || true,
@@ -1102,11 +1109,11 @@ export function isFQDN(input: unknown, _parentContext?: unknown, args?: FQDNOpti
     };
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isFQDN(data, config);
+        const fn = (data: any) => isString(data) && validator.isFQDN(data, config);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isFQDN(input, config);
+    return isString(input) && validator.isFQDN(input, config);
 }
 
 /**
@@ -1136,15 +1143,15 @@ export function isFQDN(input: unknown, _parentContext?: unknown, args?: FQDNOpti
  */
 
 export function isHash(input: unknown, _parentContext: unknown, args: HashConfig): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (args?.algo === undefined) throw new Error('Parameter property algo was not provided');
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isHash(data, args.algo);
+        const fn = (data: any) => isString(data) && validator.isHash(data, args.algo);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isHash(input, args.algo);
+    return isString(input) && validator.isHash(input, args.algo);
 }
 
 /**
@@ -1162,14 +1169,14 @@ export function isHash(input: unknown, _parentContext: unknown, args: HashConfig
  */
 
 export function isCountryCode(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isISO31661Alpha2(data);
+        const fn = (data: any) => isString(data) && validator.isISO31661Alpha2(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isISO31661Alpha2(input);
+    return isString(input) && validator.isISO31661Alpha2(input);
 }
 
 /**
@@ -1184,14 +1191,14 @@ export function isCountryCode(input: unknown, _parentContext?: unknown): boolean
  */
 
 export function isISO8601(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isISO8601(data);
+        const fn = (data: any) => isString(data) && validator.isISO8601(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isISO8601(input);
+    return isString(input) && validator.isISO8601(input);
 }
 
 /**
@@ -1210,7 +1217,7 @@ export function isISO8601(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isISSN(input: unknown, _parentContext?: unknown, args?: ArgsISSNOptions): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     const config = {
         case_sensitive: args?.caseSensitive || false,
@@ -1218,11 +1225,11 @@ export function isISSN(input: unknown, _parentContext?: unknown, args?: ArgsISSN
     };
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isISSN(data, config);
+        const fn = (data: any) => isString(data) && validator.isISSN(data, config);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isISSN(input, config);
+    return isString(input) && validator.isISSN(input, config);
 }
 
 /**
@@ -1239,14 +1246,14 @@ export function isISSN(input: unknown, _parentContext?: unknown, args?: ArgsISSN
  */
 
 export function isRFC3339(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isRFC3339(data);
+        const fn = (data: any) => isString(data) && validator.isRFC3339(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isRFC3339(input);
+    return isString(input) && validator.isRFC3339(input);
 }
 
 /**
@@ -1264,14 +1271,14 @@ export function isRFC3339(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isJSON(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isJSON(data);
+        const fn = (data: any) => isString(data) && validator.isJSON(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isJSON(input);
+    return isString(input) && validator.isJSON(input);
 }
 
 /**
@@ -1291,11 +1298,11 @@ export function isJSON(input: unknown, _parentContext?: unknown): boolean {
 export function isLength(
     input: unknown, _parentContext: unknown, { size, min, max }: LengthConfig
 ): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input)) {
         const fn = (data: any) => {
-            if (size) return ts.isString(data) && data.length === size;
+            if (size) return isString(data) && data.length === size;
             if (min || max) return validator.isLength(data, { min, max });
             return false;
         };
@@ -1325,14 +1332,14 @@ export function isLength(
  */
 
 export function isMIMEType(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isMimeType(data);
+        const fn = (data: any) => isString(data) && validator.isMimeType(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isMimeType(input);
+    return isString(input) && validator.isMimeType(input);
 }
 
 /**
@@ -1354,15 +1361,15 @@ export function isMIMEType(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isPostalCode(input: unknown, _parentContext: unknown, args: { locale: 'any' | PostalCodeLocale }): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
     if (!args?.locale) throw new Error('Invalid parameter locale, must provide an object with locale');
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isPostalCode(data, args.locale);
+        const fn = (data: any) => isString(data) && validator.isPostalCode(data, args.locale);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isPostalCode(input, args.locale);
+    return isString(input) && validator.isPostalCode(input, args.locale);
 }
 
 /**
@@ -1385,13 +1392,13 @@ export function isPostalCode(input: unknown, _parentContext: unknown, args: { lo
  */
 
 export function isValidDate(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) return false;
+    if (isNil(input)) return false;
 
     if (isArray(input)) {
-        return _lift(handleArgs(ts.isValidDate), input, _parentContext);
+        return _lift(handleArgs(isValidDate), input, _parentContext);
     }
 
-    return !ts.isBoolean(input as any) && ts.isValidDate(input);
+    return !isBoolean(input as any) && isValidDate(input);
 }
 
 /**
@@ -1407,7 +1414,7 @@ export function isValidDate(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function guard(input: unknown, _parentContext?: unknown): boolean {
-    if (ts.isNil(input)) throw new Error('Expected value not to be empty');
+    if (isNil(input)) throw new Error('Expected value not to be empty');
     return true;
 }
 
@@ -1424,7 +1431,7 @@ export function guard(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function exists(input: unknown, _parentContext?: unknown): boolean {
-    return ts.isNotNil(input);
+    return isNotNil(input);
 }
 
 /**
@@ -1439,7 +1446,7 @@ export function exists(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isArray(input: unknown, _parentContext?: unknown): input is any[] {
-    return ts.isArrayLike(input);
+    return isArrayLike(input);
 }
 
 /**

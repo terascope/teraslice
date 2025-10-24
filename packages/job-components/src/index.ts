@@ -1,4 +1,6 @@
 export * from '@terascope/core-utils';
+export * from '@terascope/entity-utils';
+export * from '@terascope/date-utils';
 export * from './utils.js';
 export * from './builtin/index.js';
 export * from './config-validators.js';

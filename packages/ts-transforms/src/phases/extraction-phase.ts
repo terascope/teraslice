@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import { hasKeys } from './utils.js';
 import {
     WatcherConfig,

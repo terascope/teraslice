@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import {
     Context, ExecutionConfig, Slice,
     SliceAnalyticsData, SlicerOperationLifeCycle,

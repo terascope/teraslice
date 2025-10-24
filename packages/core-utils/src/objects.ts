@@ -1,7 +1,6 @@
-import { WithoutNil, FilteredResult } from './interfaces.js';
+import { WithoutNil, FilteredResult, isDataEntity } from '@terascope/types';
 import { isBooleanLike } from './booleans.js';
-import { get, getTypeOf, isPlainObject } from './deps.js';
-import { DataEntity } from './entities/index.js';
+import { get, isPlainObject, getTypeOf } from './deps.js';
 import { isArrayLike, isArray } from './arrays.js';
 import { isBuffer } from './buffers.js';
 import { isString, trim, isPrimitiveValue } from './strings.js';
@@ -44,7 +43,7 @@ export function isKey<T extends object>(O: T, k: PropertyKey): k is keyof T {
  * Verify if the input is a object like type
 */
 export function isObjectEntity(input: unknown): boolean {
-    return DataEntity.isDataEntity(input) || isSimpleObject(input);
+    return isDataEntity(input) || isSimpleObject(input);
 }
 
 /**

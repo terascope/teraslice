@@ -1,6 +1,5 @@
-import {
-    DataEntity, matchAll, get, set
-} from '@terascope/core-utils';
+import { matchAll, get, set } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import jexl from 'jexl';
 import { ExtractionConfig, InputOutputCardinality } from '../../../interfaces.js';
 

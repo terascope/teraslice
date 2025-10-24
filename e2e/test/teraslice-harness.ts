@@ -2,7 +2,7 @@ import ms from 'ms';
 import {
     pDelay, uniq, toString,
     cloneDeep, isEmpty, castArray, pRetry
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { showState } from '@terascope/scripts';
 import { JobConfig, Teraslice } from '@terascope/types';
 import { createClient, ElasticsearchTestHelpers, Client, ClientConfig } from '@terascope/opensearch-client';

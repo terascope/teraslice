@@ -1,5 +1,4 @@
-import { TypedArray } from '@terascope/types';
-import { Many, ListOfRecursiveArraysOrValues } from './interfaces.js';
+import { Many, ListOfRecursiveArraysOrValues, TypedArray } from '@terascope/types';
 import { get } from './deps.js';
 import { isBuffer } from './buffers.js';
 import { isKey } from './objects.js';

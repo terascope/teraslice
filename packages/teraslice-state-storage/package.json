@@ -24,8 +24,9 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../teraslice-state-storage --"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "~5.0.0-dev.5",
-        "@terascope/core-utils": "~2.0.0-dev.5"
+        "@terascope/core-utils": "~2.0.0-dev.5",
+        "@terascope/entity-utils": "~2.0.0-dev.5",
+        "@terascope/elasticsearch-api": "~5.0.0-dev.5"
     },
     "devDependencies": {
         "@terascope/opensearch-client": "~2.0.0-dev.5"

@@ -1,4 +1,4 @@
-import { geoWithinFP, toGeoJSON } from '@terascope/core-utils';
+import { geoWithinFP, toGeoJSON } from '@terascope/geo-utils';
 import { FieldType, GeoShapeType, GeoInput } from '@terascope/types';
 import {
     FieldValidateConfig,

@@ -1,4 +1,5 @@
-import { isKey, makeISODate } from '@terascope/core-utils';
+import { isKey } from '@terascope/core-utils';
+import { makeISODate } from '@terascope/date-utils';
 
 const options = {
     year: 'y',

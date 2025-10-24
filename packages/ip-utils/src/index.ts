@@ -1,4 +1,8 @@
 import {
+    toInteger, isNumberLike, toBigIntOrThrow,
+    isNumber, isString, getTypeOf, isBoolean
+} from '@terascope/core-utils';
+import {
     isIP as _isIP, isIPv4 as _isIPv4,
     isIPv6 as _isIPv6, ipVersion as _ipVersion
 } from '@chainsafe/is-ip';
@@ -7,13 +11,6 @@ import isCidr from 'is-cidr';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
 import { parseIp, stringifyIp } from 'ip-bigint';
 import ip6addr from 'ip6addr';
-import { isString } from './strings.js';
-import {
-    toInteger, isNumberLike, toBigIntOrThrow,
-    isNumber
-} from './numbers.js';
-import { getTypeOf } from './deps.js';
-import { isBoolean } from './booleans.js';
 
 export function isIP(input: unknown): input is string {
     return isString(input) && _isIP(input);

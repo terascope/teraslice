@@ -6,7 +6,7 @@ import {
 import {
     isGeoPoint, parseGeoPoint, inGeoBoundingBox,
     inGeoBoundingBoxFP, geoPointWithinRange, geoPointWithinRangeFP,
-    toGeoJSON, lookupTimezone, tzCacheLoaded
+    toGeoJSON, lookupTimezone, tzCacheLoaded, // toTimeZoneUsingLocationFP
 } from '../src/index.js';
 
 describe('geo utils', () => {
@@ -303,4 +303,18 @@ describe('geo utils', () => {
             expect(tzCacheLoaded()).toBeTrue();
         });
     });
+    // TODO: maybe move to data-mate
+    // describe('toTimeZoneUsingLocationFP', () => {
+    //     test.each([
+    //         ['2001-03-19T10:36:44.450Z', { lat: 16.8277, lon: 21.24046 }, [984998204450, 60]],
+    //         ['2001-03-19T10:36:44.450Z', '16.8277,21.24046', [984998204450, 60]],
+    //         ['2001-03-19T10:36:44.450Z', [21.24046, 16.8277], [984998204450, 60]],
+    //         ['2023-08-22T15:41:50.172Z', { lat: 33.4192222, lon: -111.6566588 }, [1692718910172, -420]],
+    //         ['2023-08-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, [1692718910172, -240]],
+    //         ['2023-11-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, [1700667710172, -300]],
+    //         ['2020-01-03T19:41:00.000Z', { lat: 31.636133, lon: -106.428667 }, [1578080460000, -420]]
+    //     ])('should handle %p with location %p and return %p', (input, location, expected) => {
+    //         expect(toTimeZoneUsingLocationFP(location)(input)).toEqual(expected);
+    //     });
+    // });
 });

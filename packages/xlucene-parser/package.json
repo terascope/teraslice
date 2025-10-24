@@ -33,8 +33,11 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../xlucene-parser --"
     },
     "dependencies": {
-        "@terascope/types": "~2.0.0-dev.5",
         "@terascope/core-utils": "~2.0.0-dev.5",
+        "@terascope/date-utils": "~2.0.0-dev.5",
+        "@terascope/geo-utils": "~2.0.0-dev.5",
+        "@terascope/ip-utils": "~2.0.0-dev.5",
+        "@terascope/types": "~2.0.0-dev.5",
         "peggy": "~4.2.0",
         "ts-pegjs": "~4.2.1"
     },

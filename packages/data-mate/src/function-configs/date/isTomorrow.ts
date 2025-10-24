@@ -1,4 +1,4 @@
-import { isTomorrow, addToDate } from '@terascope/core-utils';
+import { isTomorrow, addToDate } from '@terascope/date-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

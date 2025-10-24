@@ -2,7 +2,6 @@ import {
     WorkerExecutionContext,
     JobConfigParams,
     Slice,
-    DataEntity,
     RunSliceResult,
     SliceRequest,
     newTestSlice,
@@ -13,6 +12,7 @@ import {
     newTestJobConfig,
     OpAPI,
 } from '@terascope/job-components';
+import { DataEntity } from '@terascope/entity-utils';
 import BaseTestHarness from './base-test-harness.js';
 import { JobHarnessOptions } from './interfaces.js';
 

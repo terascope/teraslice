@@ -1,5 +1,4 @@
 import {
-    DataEntity,
     JobConfigParams,
     Slice,
     RunSliceResult,
@@ -11,6 +10,7 @@ import {
     pDelay,
     flatten,
 } from '@terascope/job-components';
+import { DataEntity } from '@terascope/entity-utils';
 import SlicerTestHarness from './slicer-test-harness.js';
 import WorkerTestHarness from './worker-test-harness.js';
 import { JobHarnessOptions, SliceResults } from './interfaces.js';

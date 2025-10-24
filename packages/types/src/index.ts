@@ -1,3 +1,4 @@
+export * from './data-entities.js';
 export * from './data-types.js';
 export * from './elasticsearch-interfaces.js';
 export * from './geo-interfaces.js';

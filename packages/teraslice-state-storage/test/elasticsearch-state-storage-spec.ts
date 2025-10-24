@@ -1,5 +1,6 @@
 import 'jest-extended';
-import { DataEntity, debugLogger, times } from '@terascope/core-utils';
+import { debugLogger, times } from '@terascope/core-utils';
+import { DataEntity } from '@terascope/entity-utils';
 import {
     BulkIndexOperation, BulkOperationContainer,
     BulkUpdateAction, ClientParams, ClientResponse

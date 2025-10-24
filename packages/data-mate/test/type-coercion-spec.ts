@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { FieldType } from '@terascope/types';
-import { coerceToGeoBoundary, coerceToNumberType } from '../src/type-coercion.js';
+import { coerceToGeoBoundary, coerceToNumberType } from '../src/builder/type-coercion.js';
 
 describe('type-coercion', () => {
     describe('coerceToNumberType', () => {
