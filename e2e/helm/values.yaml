@@ -158,12 +158,6 @@ kafka:
     topic:
       replication:
         factor: 1
-
-zookeeper:
-  # If false, zookeeper will be excluded on helmfile sync
-  enabled: false
-  version: 3.7.2
-  instances: 1
   
 utility:
   # If false, utility will be excluded on helmfile sync
@@ -176,8 +170,13 @@ utility:
 
 teraslice:
   image:
+    # Only relates to yarn k8s command. Will overwrite/overide repo and tag fields and build a teraslice image.
+    # Turn this off if there is a specific image you want used.
+    build: true
+    # The repo/name of the image. WILL be overwritten if build is true
     repository: teraslice-workspace
     # Overrides the image tag whose default is the chart appVersion.
+    # WILL be overwritten if build is true
     tag: e2e-nodev22
   stateCluster: opensearch2
   asset_storage_connection_type: elasticsearch-next
@@ -185,3 +184,19 @@ teraslice:
   env: {}
   extraVolumes: []
   extraVolumeMounts: []
+
+prometheus_stack:
+  # If enabled, the prom dashboard will be available on http://localhost:9090
+  enabled: false
+  grafana:
+    # If enabled, the grafana dashboard will be available on http://localhost:8050
+    enabled: true
+    adminUser: admin
+    adminPassword: tera
+  alertmanager:
+    # If enabled, the alertmanager dashboard will be available on http://localhost:9091
+    enabled: false
+
+chaos_mesh:
+  # If enabled, chaos dashboard will be available on http://localhost:2333
+  enabled: false
