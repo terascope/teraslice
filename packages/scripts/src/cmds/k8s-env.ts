@@ -1,4 +1,5 @@
 import { CommandModule } from 'yargs';
+import path from 'node:path';
 import * as config from '../helpers/config.js';
 import { launchK8sEnv, rebuildTeraslice, generateTemplateConfig } from '../helpers/k8s-env/index.js';
 import { K8sEnvOptions } from '../helpers/k8s-env/interfaces.js';
@@ -11,7 +12,7 @@ const cmd: CommandModule = {
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice from your local repository and elasticsearch.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --dev', 'Start a kind kubernetes cluster running teraslice in dev mode. Faster build times.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2', 'Start a kind kubernetes cluster running teraslice from a specific docker image and elasticsearch.')
-            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' TEST_KAFKA=\'true\' KAFKA_PORT=\'9092\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice, elasticsearch, kafka, and zookeeper.')
+            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' TEST_KAFKA=\'true\' KAFKA_PORT=\'9092\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice, elasticsearch, and kafka.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --skip-build', 'Start a kind kubernetes cluster, but skip building a new teraslice docker image.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --keep-open', 'Start a kind kubernetes cluster, preserving the kind cluster on failure.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --rebuild', 'Stop teraslice, rebuild docker image, and restart teraslice.')
@@ -94,7 +95,13 @@ const cmd: CommandModule = {
         };
 
         if (argv['config-file'] !== undefined) {
-            k8sOptions.configFile = argv['config-file'] as string;
+            const configPath = argv['config-file'] as string;
+            // Check to see if the path is already absolute
+            if (path.isAbsolute(configPath)) {
+                k8sOptions.configFile = configPath;
+            } else {
+                k8sOptions.configFile = path.join(process.cwd(), configPath);
+            }
         }
 
         if (Boolean(argv.rebuild) === true) {

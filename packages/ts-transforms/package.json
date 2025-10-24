@@ -37,8 +37,8 @@
     },
     "dependencies": {
         "@terascope/core-utils": "~2.0.0-dev.5",
-        "@terascope/entity-utils": "~2.0.0-dev.5",
         "@terascope/data-mate": "~2.0.0-dev.5",
+        "@terascope/entity-utils": "~2.0.0-dev.5",
         "@terascope/ip-utils": "~2.0.0-dev.5",
         "@terascope/types": "~2.0.0-dev.5",
         "awesome-phonenumber": "~7.5.0",

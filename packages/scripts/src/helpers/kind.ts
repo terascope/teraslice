@@ -135,6 +135,16 @@ export class Kind {
                     containerPorts: [30900, 30901],
                     hostPorts: [9000, 9001],
                     hostPath: '/miniodata'
+                },
+                prometheus_stack: {
+                    containerPorts: [30222, 30223, 30224],
+                    hostPorts: [8050, 9090, 9091],
+                    hostPath: ''
+                },
+                chaos_mesh: {
+                    containerPorts: [30333],
+                    hostPorts: [2333],
+                    hostPath: ''
                 }
             };
 

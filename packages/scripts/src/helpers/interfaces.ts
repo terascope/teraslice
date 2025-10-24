@@ -38,7 +38,6 @@ export type PackageInfo = {
 
 export enum Service {
     Kafka = 'kafka',
-    Zookeeper = 'zookeeper',
     Elasticsearch = 'elasticsearch',
     Minio = 'minio',
     RabbitMQ = 'rabbitmq',
@@ -198,7 +197,7 @@ export interface ServiceObj {
 }
 
 export type CustomKindService = | 'opensearch1' | 'opensearch2' | 'opensearch3'
-    | 'elasticsearch7' | 'kafka' | 'minio';
+    | 'elasticsearch7' | 'kafka' | 'minio' | 'prometheus_stack' | 'chaos_mesh';
 
 export interface CustomKindDefaultPort {
     containerPorts: number[];
