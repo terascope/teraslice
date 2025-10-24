@@ -4924,6 +4924,7 @@ __metadata:
 "@terascope/scripts@npm:~2.0.0-dev.4, @terascope/scripts@workspace:packages/scripts":
 "@terascope/scripts@npm:~2.0.0-dev.5, @terascope/scripts@workspace:packages/scripts":
 "@terascope/scripts@npm:~2.0.0-dev.6, @terascope/scripts@workspace:packages/scripts":
+"@terascope/scripts@npm:~2.0.0-dev.7, @terascope/scripts@workspace:packages/scripts":
   version: 0.0.0-use.local
   resolution: "@terascope/scripts@workspace:packages/scripts"
   dependencies:
@@ -8856,7 +8857,7 @@ __metadata:
     "@terascope/utils": "npm:~2.0.0-dev.4"
     "@terascope/core-utils": "npm:~2.0.0-dev.5"
     "@terascope/opensearch-client": "npm:~2.0.0-dev.5"
-    "@terascope/scripts": "npm:~2.0.0-dev.6"
+    "@terascope/scripts": "npm:~2.0.0-dev.7"
     "@terascope/types": "npm:~2.0.0-dev.5"
     bunyan: "npm:~1.8.15"
     fs-extra: "npm:~11.3.1"
@@ -16453,6 +16454,7 @@ __metadata:
     "@terascope/scripts": "npm:~2.0.0-dev.4"
     "@terascope/scripts": "npm:~2.0.0-dev.5"
     "@terascope/scripts": "npm:~2.0.0-dev.6"
+    "@terascope/scripts": "npm:~2.0.0-dev.7"
     "@types/bluebird": "npm:~3.5.42"
     "@types/convict": "npm:~6.1.6"
     "@types/elasticsearch": "npm:~5.0.43"
