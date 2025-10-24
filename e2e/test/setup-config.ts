@@ -11,7 +11,6 @@ import {
 
 const baseConfig = {
     terafoundation: {
-        environment: 'development',
         log_level: [
             { console: 'warn' },
             { file: process.env.DEBUG_LOG_LEVEL || 'info' }

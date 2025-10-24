@@ -3,7 +3,7 @@ import path from 'node:path';
 import bunyan from 'bunyan';
 import {
     toBoolean, debugLogger, isTest,
-    Logger, includes
+    Logger, includes, isDev
 } from '@terascope/utils';
 import { Terafoundation } from '@terascope/types';
 
@@ -42,11 +42,10 @@ export function createRootLogger(
     }
 
     const streamConfig: bunyan.Stream[] = [];
-    const { environment = 'development' } = foundationConfig;
 
     // Setup console logging. Always turned on for development but off by
     // default for production.
-    if (environment === 'development' || includes(foundationConfig.logging, 'console')) {
+    if (isDev || includes(foundationConfig.logging, 'console')) {
         const level = logLevel.console ? logLevel.console : 'info';
         streamConfig.push({ stream: process.stdout, level });
     }

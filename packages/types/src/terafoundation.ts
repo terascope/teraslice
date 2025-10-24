@@ -125,7 +125,6 @@ export type Cluster = Overwrite<NodeJSCluster, {
 
 export interface TerafoundationConfig {
     workers: number;
-    environment: 'production' | 'development' | 'test' | string;
     connectors: Record<string, Record<string, any>>;
     log_path: string;
     log_level: LogLevelConfig;

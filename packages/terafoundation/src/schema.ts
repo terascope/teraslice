@@ -5,11 +5,6 @@ const workerCount = cpus().length;
 
 export function foundationSchema() {
     const schema: convict.Schema<Record<string, any>> = {
-        environment: {
-            doc: 'If set to `production`, console logging will be disabled and logs will be sent to a file',
-            default: 'development',
-            env: 'NODE_ENV'
-        },
         log_path: {
             doc: 'Directory where the logs will be stored if logging is set to `file`',
             default: process.cwd(),
