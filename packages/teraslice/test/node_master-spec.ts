@@ -1,11 +1,6 @@
 import { EventEmitter } from 'node:events';
-<<<<<<< HEAD
 import { debugLogger } from '@terascope/core-utils';
-import Socket from 'socket.io';
-=======
-import { debugLogger } from '@terascope/utils';
 import { Server as SocketServer, Socket } from 'socket.io';
->>>>>>> release/teraslice-v3
 import { nodeMaster } from '../src/lib/cluster/node_master.js';
 
 process.env.assignment = 'node_master';
