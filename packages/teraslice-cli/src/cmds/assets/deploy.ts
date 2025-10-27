@@ -6,7 +6,6 @@ import fs from 'fs-extra';
 import { has, TSError } from '@terascope/core-utils';
 import { AssetSrc } from '../../helpers/asset-src.js';
 import GithubAsset from '../../helpers/github-asset.js';
-
 import { CMD, GithubAssetConfig } from '../../interfaces.js';
 import reply from '../../helpers/reply.js';
 import Config from '../../helpers/config.js';

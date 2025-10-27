@@ -5,7 +5,7 @@ export type {
     DeadLetterAction, DeadLetterAPIFn, Assignment,
     LifeCycle, Config as TerasliceConfig, ClusterManagerType
 } from '@terascope/types';
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 
 // this is an enum, cant export as type
 export { RecoveryCleanupType } from '@terascope/types';

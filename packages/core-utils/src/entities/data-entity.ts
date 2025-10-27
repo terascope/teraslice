@@ -1,9 +1,10 @@
-import {
-    isSimpleObject, locked, parseJSON,
-    getTypeOf, ensureBuffer, isBuffer
-} from '@terascope/core-utils';
-import { isDataEntity } from '@terascope/types';
-import { getValidDate, getTime } from '@terascope/date-utils';
+import { parseJSON } from '../json.js';
+import { isSimpleObject } from '../objects.js';
+import { getTypeOf } from '../deps.js';
+import { locked } from '../decorators.js';
+import { ensureBuffer, isBuffer } from '../buffers.js';
+import { isDataEntity } from './utils.js';
+import { getValidDate, getTime } from '../dates.js';
 import * as i from './interfaces.js';
 import {
     defineEntityProperties, makeMetadata,

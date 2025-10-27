@@ -8,10 +8,9 @@ import {
     Fetcher,
     BatchProcessor,
     NoopProcessor,
-    debugLogger,
     TestClientConfig
 } from '@terascope/job-components';
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity, debugLogger } from '@terascope/core-utils';
 import { WorkerTestHarness } from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));

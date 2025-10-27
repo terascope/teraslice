@@ -1,5 +1,4 @@
-import { isBigInt, toBigInt } from '@terascope/core-utils';
-import { trimISODateSegment } from '@terascope/date-utils';
+import { isBigInt, toBigInt, trimISODateSegment } from '@terascope/core-utils';
 import { Maybe, ISO8601DateSegment } from '@terascope/types';
 import { getHashCodeFrom } from '../builder/type-coercion.js';
 import {

@@ -1,9 +1,7 @@
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 import { hasKeys } from './utils.js';
 import {
-    WatcherConfig,
-    ExtractionProcessingDict,
-    ExtractionPipline
+    WatcherConfig, ExtractionProcessingDict, ExtractionPipline
 } from '../interfaces.js';
 import PhaseBase from './base.js';
 import { OperationsManager, Extraction } from '../operations/index.js';

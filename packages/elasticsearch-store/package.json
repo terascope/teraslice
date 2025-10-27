@@ -33,8 +33,6 @@
         "@terascope/core-utils": "~2.0.0-dev.5",
         "@terascope/data-mate": "~2.0.0-dev.5",
         "@terascope/data-types": "~2.0.0-dev.5",
-        "@terascope/date-utils": "~2.0.0-dev.5",
-        "@terascope/entity-utils": "~2.0.0-dev.5",
         "@terascope/opensearch-client": "~2.0.0-dev.5",
         "@terascope/types": "~2.0.0-dev.5",
         "ajv": "~8.17.1",

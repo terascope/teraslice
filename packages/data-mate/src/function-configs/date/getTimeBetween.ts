@@ -1,6 +1,6 @@
 import { FieldType, GetTimeBetweenArgs } from '@terascope/types';
 import { joinList } from '@terascope/core-utils';
-import { getTimeBetween, getDurationFunc } from '@terascope/date-utils';
+import { getTimeBetween, getDurationFunc } from '@terascope/core-utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig

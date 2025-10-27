@@ -1,4 +1,3 @@
-
 import { OperationAPI } from '../../../../src/index.js';
 
 export class AssetExampleAPI extends OperationAPI {

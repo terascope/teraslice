@@ -1,7 +1,6 @@
 import { isMatch } from 'date-fns';
 import { FieldType, DateFormat } from '@terascope/types';
-import { primitiveToString } from '@terascope/core-utils';
-import { isValidDate } from '@terascope/date-utils';
+import { primitiveToString, isValidDate } from '@terascope/core-utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory

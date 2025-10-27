@@ -1,9 +1,8 @@
 import { EventEmitter } from 'node:events';
 import {
     isFunction, cloneDeep, pMap,
-    Logger
+    Logger, toHumanTime
 } from '@terascope/core-utils';
-import { toHumanTime } from '@terascope/date-utils';
 import { OperationLoader } from '../operation-loader/index.js';
 import { registerApis } from '../register-apis.js';
 import { ExecutionConfig, Context, OperationLifeCycle } from '../interfaces/index.js';

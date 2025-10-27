@@ -1,10 +1,7 @@
 import 'jest-extended';
 import { promisify } from 'node:util';
-import { times } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
-import {
-    TestContext, newTestExecutionConfig, Context,
-} from '../../src/index.js';
+import { times, DataEntity } from '@terascope/core-utils';
+import { TestContext, newTestExecutionConfig, Context } from '../../src/index.js';
 import Collect from '../../src/builtin/collect/processor.js';
 import Schema from '../../src/builtin/collect/schema.js';
 

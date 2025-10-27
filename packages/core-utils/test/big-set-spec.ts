@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { jest } from '@jest/globals';
-import { BigSet } from '../src/big-set.js';
+import { BigSet } from '../src/index.js';
 
 describe('BigSet', () => {
     let bigSet: BigSet<string>;

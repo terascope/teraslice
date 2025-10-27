@@ -13,7 +13,6 @@ import Config from './config.js';
 import Jobs from './jobs.js';
 import { getPackage } from './utils.js';
 import { JobConfigFile } from '../interfaces.js';
-
 import reply from './reply.js';
 
 /**

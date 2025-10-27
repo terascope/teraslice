@@ -1,7 +1,5 @@
-import {
-    ConvictSchema, ValidatedJobConfig, isNil,
-    getTypeOf
-} from '../../../../src/index.js';
+import { isNil, getTypeOf } from '@terascope/core-utils';
+import { ConvictSchema, ValidatedJobConfig } from '../../../../src/index.js';
 
 const DEFAULT_API_NAME = 'api-asset';
 

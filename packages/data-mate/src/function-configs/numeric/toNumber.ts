@@ -1,5 +1,4 @@
-import { toNumber, toBigIntOrThrow } from '@terascope/core-utils';
-import { parseDateValue } from '@terascope/date-utils';
+import { toNumber, toBigIntOrThrow, parseDateValue } from '@terascope/core-utils';
 import { ipToInt } from '@terascope/ip-utils';
 import { FieldType, DateFormat } from '@terascope/types';
 import {

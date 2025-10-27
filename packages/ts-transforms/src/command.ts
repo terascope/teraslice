@@ -7,7 +7,7 @@ import yargs from 'yargs';
 import {
     debugLogger, parseList, get, pMap
 } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 import { isXLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import { PhaseManager } from './index.js';
 import { PhaseConfig } from './interfaces.js';

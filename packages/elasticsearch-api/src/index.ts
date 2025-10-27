@@ -4,9 +4,9 @@ import {
     get, toNumber, isString, Logger,
     castArray, flatten, toBoolean,
     uniq, random, cloneDeep,
-    isDeepEqual, getTypeOf, isProd
+    isDeepEqual, getTypeOf, isProd,
+    DataEntity
 } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
 import { Client as OpenClient } from '@terascope/opensearch-client';
 import {
     ElasticsearchDistribution, SearchResult, ClientParams,

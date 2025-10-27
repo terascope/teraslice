@@ -2,9 +2,9 @@
 import {
     TSError, getFullErrorStack, debounce,
     pDelay, cloneDeep, Logger,
-    pMap, orderBy, isInteger, get
+    pMap, orderBy, isInteger, get,
+    Queue
 } from '@terascope/core-utils';
-import { Queue } from '@terascope/entity-utils';
 import type { EventEmitter } from 'node:events';
 import { ExecutionConfig } from '@terascope/types';
 import { Dispatch } from './dispatch.js';

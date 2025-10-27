@@ -1,7 +1,7 @@
 import 'jest-extended';
-import { times, pDelay } from '@terascope/core-utils';
-import { Collector } from '../src/collector.js';
-import { DataEntity } from '../src/index.js';
+import {
+    times, pDelay, Collector, DataEntity
+} from '../src/index.js';
 
 describe('Collector', () => {
     let collector: Collector<DataEntity>;

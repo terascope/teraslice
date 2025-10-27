@@ -1,5 +1,4 @@
-import { unset, has } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import { unset, has, DataEntity } from '@terascope/core-utils';
 import { hasKeys } from './utils.js';
 import { WatcherConfig, OutputValidation } from '../interfaces.js';
 import PhaseBase from './base.js';

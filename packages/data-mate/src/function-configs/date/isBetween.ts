@@ -1,5 +1,5 @@
 import { FieldType, DateTuple } from '@terascope/types';
-import { isBetween, isValidDate } from '@terascope/date-utils';
+import { isBetween, isValidDate } from '@terascope/core-utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory

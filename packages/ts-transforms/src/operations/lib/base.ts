@@ -1,5 +1,6 @@
-import { set, unset, isString } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import {
+    set, unset, isString, DataEntity
+} from '@terascope/core-utils';
 import { OperationConfig, InputOutputCardinality } from '../../interfaces.js';
 
 export default class OperationBase {

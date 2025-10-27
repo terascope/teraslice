@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { debugLogger } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import { debugLogger, DataEntity } from '@terascope/core-utils';
 import {
     OutputPhase, Loader, OperationsManager, OutputValidation
 } from '../../src/index.js';

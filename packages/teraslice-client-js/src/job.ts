@@ -2,9 +2,8 @@ import util from 'node:util';
 import autoBind from 'auto-bind';
 import {
     pDelay, isString, toString,
-    TSError,
+    TSError, toHumanTime
 } from '@terascope/core-utils';
-import { toHumanTime } from '@terascope/date-utils'
 import { Teraslice } from '@terascope/types';
 import { ClientConfig, RequestOptions } from './interfaces.js';
 import Client from './client.js';

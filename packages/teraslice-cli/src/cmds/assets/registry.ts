@@ -1,5 +1,4 @@
 import { CMD } from '../../interfaces.js';
-
 import Config from '../../helpers/config.js';
 import YargsOptions from '../../helpers/yargs-options.js';
 import reply from '../../helpers/reply.js';

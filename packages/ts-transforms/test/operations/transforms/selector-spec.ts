@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 import { Selector } from '../../../src/operations';
 
 describe('selector operator', () => {

@@ -1,4 +1,4 @@
-import { isWeekday } from '@terascope/date-utils';
+import { isWeekday } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

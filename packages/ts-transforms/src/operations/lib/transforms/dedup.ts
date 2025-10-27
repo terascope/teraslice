@@ -1,5 +1,4 @@
-import { get, uniq } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import { get, uniq, DataEntity } from '@terascope/core-utils';
 import TransformOpBase from './base.js';
 import { PostProcessConfig } from '../../../interfaces.js';
 
