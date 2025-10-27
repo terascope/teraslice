@@ -1,6 +1,5 @@
 import { jest } from '@jest/globals';
-import { debugLogger, cloneDeep } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import { debugLogger, cloneDeep, DataEntity } from '@terascope/core-utils';
 import { ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import elasticsearchAPI, { Client as APIClient } from '../src/index.js';
 

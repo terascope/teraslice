@@ -16,7 +16,6 @@ import { newId } from '../../../src/lib/utils/id_utils.js';
 import { findPort } from '../../../src/lib/utils/port_utils.js';
 import { newConfig, newSysConfig, TestJobConfig } from './configs.js';
 import { zipDirectory } from './zip-directory.js';
-
 import { TERASLICE_CLUSTER_NAME } from '../../test.config.js';
 
 const tmpAssetDir = createTempDirSync();

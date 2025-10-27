@@ -1,4 +1,5 @@
-import { WithoutNil, FilteredResult, isDataEntity } from '@terascope/types';
+import { WithoutNil, FilteredResult } from '@terascope/types';
+import { isDataEntity } from './entities/utils.js';
 import { isBooleanLike } from './booleans.js';
 import { get, isPlainObject, getTypeOf } from './deps.js';
 import { isArrayLike, isArray } from './arrays.js';

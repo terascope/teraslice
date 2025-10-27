@@ -51,12 +51,6 @@
             "path": "packages/core-utils"
         },
         {
-            "path": "packages/date-utils"
-        },
-        {
-            "path": "packages/entity-utils"
-        },
-        {
             "path": "packages/ip-utils"
         },
         {

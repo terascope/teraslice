@@ -5,9 +5,9 @@ import type { Server as HttpsServer } from 'node:https';
 import { nanoid } from 'nanoid';
 import {
     pDelay, Logger, isFunction,
-    isEmpty, get, toNumber, isKey
+    isEmpty, get, toNumber, isKey,
+    Queue
 } from '@terascope/core-utils';
-import { Queue } from '@terascope/entity-utils';
 import { Context } from '@terascope/job-components';
 import { io as socketIOClient } from 'socket.io-client';
 import { Server as socketIOServer } from 'socket.io';

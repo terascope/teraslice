@@ -1,9 +1,8 @@
 import {
     noop, pDelay, get, toString,
-    logError, pWhile, Logger
+    logError, pWhile, Logger,
+    Queue, makeISODate
 } from '@terascope/core-utils';
-import { makeISODate } from '@terascope/date-utils';
-import { Queue } from '@terascope/entity-utils';
 import type { EventEmitter } from 'node:events';
 import type {
     Context, SlicerExecutionContext, Slice,

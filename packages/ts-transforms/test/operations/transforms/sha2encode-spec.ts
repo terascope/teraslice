@@ -1,5 +1,4 @@
-import { cloneDeep } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import { cloneDeep, DataEntity } from '@terascope/core-utils';
 import crypto from 'crypto';
 import { Sha2Encode } from '../../../src/operations';
 

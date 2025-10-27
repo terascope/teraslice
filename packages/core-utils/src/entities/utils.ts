@@ -1,4 +1,5 @@
-import { isString, isNumber } from '@terascope/core-utils';
+import { isString } from '../strings.js';
+import { isNumber } from '../numbers.js';
 import * as i from './interfaces.js';
 
 export function defineEntityProperties(entity: unknown): void {
@@ -42,4 +43,8 @@ export function isValidKey(key: unknown): key is string | number {
     if (isString(key) && key !== '') return true;
     if (isNumber(key)) return true;
     return false;
+}
+
+export function isDataEntity(input: unknown): boolean {
+    return Boolean(input != null && (input as any)[i.__IS_DATAENTITY_KEY] === true);
 }

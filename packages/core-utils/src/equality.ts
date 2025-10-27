@@ -1,4 +1,4 @@
-import { isDataEntity } from '@terascope/types';
+import { isDataEntity } from './entities/utils.js';
 import { isEqualWith } from './deps.js';
 import { toBigIntOrThrow } from './numbers.js';
 

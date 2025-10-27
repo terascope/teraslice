@@ -1,8 +1,8 @@
 import {
     debugLogger, cloneDeep, isEmpty,
-    pDelay, unset
+    pDelay, unset, DataEntity
 } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+
 import esApi from '../src/index.js';
 
 describe('elasticsearch-api', () => {

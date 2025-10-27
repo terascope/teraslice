@@ -1,5 +1,4 @@
-import { toString } from '@terascope/core-utils';
-import { toISO8601 } from '@terascope/date-utils';
+import { toString, toISO8601 } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,

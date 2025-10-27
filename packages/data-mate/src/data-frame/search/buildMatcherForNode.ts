@@ -2,7 +2,7 @@ import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascop
 import {
     and, isEqual, isNotNil, isWildCardString, not, or,
     isGreaterThanFP, isGreaterThanOrEqualToFP,
-    isLessThanOrEqualToFP, isLessThanFP, toBigIntOrThrow
+    isLessThanOrEqualToFP, isLessThanFP, toBigIntOrThrow,
 } from '@terascope/core-utils';
 import { inspect } from 'node:util';
 import * as p from 'xlucene-parser';

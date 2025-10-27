@@ -5,12 +5,9 @@ import convict_format_with_validator from 'convict-format-with-validator';
 import convict_format_with_moment from 'convict-format-with-moment';
 import dateMath from 'datemath-parser';
 import {
-    startsWith,
-    isString,
-    isInteger,
-    toInteger,
+    startsWith, isString, isInteger,
+    toInteger, isValidDate
 } from '@terascope/core-utils';
-import { isValidDate } from '@terascope/date-utils';
 
 const { addFormat, addFormats: nativeAddFormats } = pkg;
 

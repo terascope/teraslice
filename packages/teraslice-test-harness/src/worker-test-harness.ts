@@ -12,7 +12,7 @@ import {
     newTestJobConfig,
     OpAPI,
 } from '@terascope/job-components';
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 import BaseTestHarness from './base-test-harness.js';
 import { JobHarnessOptions } from './interfaces.js';
 

@@ -2,9 +2,9 @@ import {
     TSError, debugLogger, pRetry,
     type Logger, isString, isInteger, isFunction,
     getFirst, isPlainObject, isEmpty,
-    get, uniq, getFirstKey, castArray
+    get, uniq, getFirstKey, castArray,
+    Collector, DataEntity
 } from '@terascope/core-utils';
-import { Collector, DataEntity } from '@terascope/entity-utils';
 import {
     xLuceneTypeConfig, ClientMetadata, ESTypes,
     ClientParams, ClientResponse, ElasticsearchDistribution,

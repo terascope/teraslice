@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 import {
     TestContext, newTestExecutionConfig, Context
 } from '../../src/index.js';

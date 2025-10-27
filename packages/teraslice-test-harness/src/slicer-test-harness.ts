@@ -7,11 +7,10 @@ import {
     ExecutionStats,
     SlicerCore,
     SlicerRecoveryData,
-    times,
-    isPlainObject,
     APICore,
     OpAPI
 } from '@terascope/job-components';
+import { times, isPlainObject } from '@terascope/core-utils';
 import BaseTestHarness from './base-test-harness.js';
 import { JobHarnessOptions } from './interfaces.js';
 

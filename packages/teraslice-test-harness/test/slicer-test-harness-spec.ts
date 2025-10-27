@@ -2,10 +2,10 @@ import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-    newTestJobConfig, Slicer, uniq,
-    LifeCycle, TestClientConfig,
-    debugLogger, ValidatedJobConfig
+    newTestJobConfig, Slicer, LifeCycle,
+    TestClientConfig, ValidatedJobConfig
 } from '@terascope/job-components';
+import { uniq, debugLogger } from '@terascope/core-utils';
 import { SlicerTestHarness } from '../src/index.js';
 import ParallelSlicer from './fixtures/asset/parallel-reader/slicer.js';
 

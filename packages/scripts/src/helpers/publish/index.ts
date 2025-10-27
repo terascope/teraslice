@@ -1,5 +1,4 @@
-import { pMap, isString } from '@terascope/core-utils';
-import { toHumanTime } from '@terascope/date-utils';
+import { pMap, isString, toHumanTime } from '@terascope/core-utils';
 import { PackageInfo } from '../interfaces.js';
 import { listPackages, getMainPackageInfo, getPublishTag } from '../packages.js';
 import { PublishAction, PublishOptions, PublishType } from './interfaces.js';

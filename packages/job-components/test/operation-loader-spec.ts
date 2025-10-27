@@ -1,7 +1,7 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 import {
     OperationLoader, newTestExecutionConfig, TestContext,
     Context, parseName, ParseNameResponse

@@ -1,5 +1,5 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import { isISO8601 } from '@terascope/date-utils';
+import { isISO8601 } from '@terascope/core-utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,

@@ -1,4 +1,4 @@
-import { DataEntity, Collector } from '@terascope/entity-utils';
+import { DataEntity, Collector } from '@terascope/core-utils';
 import { CollectConfig } from './interfaces.js';
 import { BatchProcessor } from '../../operations/index.js';
 import { Context, ExecutionConfig } from '../../interfaces/index.js';

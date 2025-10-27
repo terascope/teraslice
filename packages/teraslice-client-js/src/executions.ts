@@ -5,7 +5,6 @@ import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client.js';
 import Ex from './ex.js';
-
 import { ClientConfig, RequestOptions } from './interfaces';
 
 type ListOptions = undefined | string | Teraslice.SearchQuery;

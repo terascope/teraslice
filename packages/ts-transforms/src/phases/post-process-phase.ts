@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 import { hasKeys } from './utils.js';
 import { OperationsManager } from '../operations/index.js';
 import {
