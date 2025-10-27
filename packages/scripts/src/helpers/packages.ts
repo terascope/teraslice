@@ -8,7 +8,6 @@ import {
 } from '@terascope/core-utils';
 import toposort from 'toposort';
 import { MultiMap } from 'mnemonist';
-
 import packageJson, { PackageNotFoundError, VersionNotFoundError } from 'package-json';
 import sortPackageJson from 'sort-package-json';
 import {

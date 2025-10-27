@@ -1,8 +1,15 @@
 import STATUS_CODES from './status-codes.js';
 
+export * from './entities/index.js';
+export * from './queue/index.js';
 export * from './arrays.js';
+export * from './big-lru-map.js';
+export * from './big-map.js';
+export * from './big-set.js';
 export * from './booleans.js';
 export * from './buffers.js';
+export * from './collector.js';
+export * from './dates.js';
 export * from './decorators.js';
 export * from './deps.js';
 export * from './empty.js';

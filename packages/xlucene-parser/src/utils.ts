@@ -4,8 +4,8 @@ import {
     primitiveToString, isPrimitiveValue, toBoolean,
     toNumber, toIntegerOrThrow, toFloatOrThrow,
     getTypeOf, isBooleanLike, isNotNil,
+    isValidDate, getValidDate
 } from '@terascope/core-utils';
-import { isValidDate, getValidDate } from '@terascope/date-utils';
 import {
     isIP, isCIDR, isIPv6, getFirstIPInCIDR,
     getLastIPInCIDR, toCIDR,

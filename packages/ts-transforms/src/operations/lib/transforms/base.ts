@@ -1,5 +1,4 @@
-import { get } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import { get, DataEntity } from '@terascope/core-utils';
 import OperationBase from '../base.js';
 
 export default abstract class TransformOpBase extends OperationBase {

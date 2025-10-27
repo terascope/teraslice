@@ -1,7 +1,5 @@
-import {
-    Fetcher, SliceRequest, times
-} from '@terascope/job-components';
-import { DataEntity } from '@terascope/entity-utils';
+import { Fetcher, SliceRequest } from '@terascope/job-components';
+import { DataEntity, times } from '@terascope/core-utils';
 import { SimpleReaderConfig } from './interfaces';
 import SimpleClient from '../simple-connector/client';
 import { SimpleAPI } from '../simple-api/interfaces';

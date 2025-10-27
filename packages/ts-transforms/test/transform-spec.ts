@@ -1,8 +1,7 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { get, cloneDeep } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import { get, cloneDeep, DataEntity } from '@terascope/core-utils';
 import { xLuceneFieldType } from '@terascope/types';
 import TestHarness from './test-harness.js';
 import { WatcherConfig } from '../src/index.js';

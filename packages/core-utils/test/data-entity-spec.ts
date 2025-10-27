@@ -3,12 +3,10 @@ import { addDays } from 'date-fns/addDays';
 import {
     getTypeOf, isPlainObject, cloneDeep,
     isObjectEntity, parseJSON, fastCloneDeep,
-    firstToLower, isKey,
-} from '@terascope/core-utils';
-import {
-    DataEntity, DataEncoding, __IS_DATAENTITY_KEY,
-    __ENTITY_METADATA_KEY, DataEntityMetadata,
-} from '../src/entities/index.js';
+    firstToLower, isKey, DataEntity, DataEncoding,
+    __IS_DATAENTITY_KEY, __ENTITY_METADATA_KEY,
+    DataEntityMetadata,
+} from '../src/index.js';
 
 describe('DataEntity', () => {
     const methods: readonly (keyof DataEntity)[] = [

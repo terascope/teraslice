@@ -32,7 +32,6 @@
     "dependencies": {
         "@terascope/core-utils": "~2.0.0-dev.5",
         "@terascope/data-types": "~2.0.0-dev.5",
-        "@terascope/entity-utils": "~2.0.0-dev.5",
         "@terascope/types": "~2.0.0-dev.5",
         "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@~8.15.0",

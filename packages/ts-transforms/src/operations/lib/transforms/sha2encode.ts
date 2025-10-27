@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 import crypto from 'crypto';
 import { PostProcessConfig } from '../../../interfaces.js';
 import TransformOpBase from './base.js';

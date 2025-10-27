@@ -1,5 +1,6 @@
 import {
     isNil, isNotNil, getTypeOf,
+    getTime, getUnixTime, isValidDateInstance,
     toString as utilsToString,
     toBoolean as utilsToBoolean,
     trim as utilsTrim,
@@ -10,9 +11,8 @@ import {
     toKebabCase as utilsKebabCase,
     toPascalCase as utilsPascalCase,
     toSnakeCase as utilsSnakeCase,
-    toTitleCase as utilsTitleCase
+    toTitleCase as utilsTitleCase,
 } from '@terascope/core-utils';
-import { getTime, getUnixTime, isValidDateInstance } from '@terascope/date-utils';
 import { parseGeoPoint } from '@terascope/geo-utils';
 import { FieldType } from '@terascope/types';
 import crypto from 'node:crypto';

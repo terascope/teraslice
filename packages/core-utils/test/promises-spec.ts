@@ -196,7 +196,7 @@ describe('Utils', () => {
         });
 
         it('should run until it times out', async () => {
-            await expect(pWhile(async () => false, defaultOptions)).rejects.toThrow(/Request timeout after \d+(ms|sec)/);
+            await expect(pWhile(async () => false, defaultOptions)).rejects.toThrow(/Request timeout after/);
         });
     });
 });

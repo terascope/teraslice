@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Queue } from '@terascope/entity-utils';
+import { Queue } from '@terascope/core-utils';
 import {
     OpConfig, ExecutionConfig, Slice,
     SliceRequest, SlicerOperationLifeCycle,

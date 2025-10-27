@@ -5,8 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import decompress from 'decompress';
-import { newTestJobConfig, uniqBy } from '@terascope/job-components';
-import { DataEntity } from '@terascope/entity-utils';
+import { newTestJobConfig } from '@terascope/job-components';
+import { uniqBy, DataEntity } from '@terascope/core-utils';
 import { WorkerTestHarness, DownloadExternalAsset } from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));

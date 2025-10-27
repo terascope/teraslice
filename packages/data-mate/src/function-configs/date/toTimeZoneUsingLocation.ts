@@ -1,5 +1,5 @@
 import { DateFormat, FieldType, GeoInput } from '@terascope/types';
-import { toTimeZone } from '@terascope/date-utils';
+import { toTimeZone } from '@terascope/core-utils';
 import { lookupTimezone } from '@terascope/geo-utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,

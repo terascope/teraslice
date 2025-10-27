@@ -7,7 +7,7 @@ import {
     Slice,
     ClusterManagerType
 } from '@terascope/job-components';
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 
 export type { Context } from '@terascope/job-components';
 

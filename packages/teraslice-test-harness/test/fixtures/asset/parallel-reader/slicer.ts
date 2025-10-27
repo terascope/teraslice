@@ -1,4 +1,5 @@
-import { ParallelSlicer, pDelay } from '@terascope/job-components';
+import { ParallelSlicer } from '@terascope/job-components';
+import { pDelay } from '@terascope/core-utils';
 
 export default class Counter extends ParallelSlicer<Record<string, any>> {
     count = 0;

@@ -2,7 +2,7 @@
  * This file exports tiny facades over the external packages.
  * The behavior of a dependency can be overridden here
 */
-import { isDataEntity } from '@terascope/types';
+import { isDataEntity } from './entities/utils.js';
 import {
     has, set, get, unset,
     merge, debounce, padEnd,

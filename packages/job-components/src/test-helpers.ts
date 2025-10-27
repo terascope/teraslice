@@ -4,8 +4,8 @@ import { Terafoundation } from '@terascope/types';
 import {
     random, isString, getTypeOf,
     isFunction, debugLogger, Logger,
+    makeISODate
 } from '@terascope/core-utils';
-import { makeISODate } from '@terascope/date-utils';
 import promClient, {
     CollectFunction, Counter, Gauge, Histogram, Summary
 } from 'prom-client';

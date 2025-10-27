@@ -4,10 +4,9 @@ import {
     flatten, getField, getTypeOf,
     hasOwn, isNotNil, isNumber,
     isPlainObject, isString, logLevels,
+    dataEncodings
 } from '@terascope/core-utils';
-import { dataEncodings } from '@terascope/entity-utils';
 import { DataEncoding } from '@terascope/types';
-
 import { Context } from './interfaces/index.js';
 
 const cpuCount = os.cpus().length;

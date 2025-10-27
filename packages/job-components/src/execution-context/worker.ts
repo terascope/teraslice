@@ -1,5 +1,5 @@
 import * as ts from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+
 import {
     ExecutionContextConfig, RunSliceResult, WorkerSliceState,
     WorkerStatus, SliceStatus, JobAPIInstances
@@ -29,7 +29,7 @@ export class WorkerExecutionContext
     status: WorkerStatus = 'initializing';
 
     private readonly _fetcher!: FetcherCore;
-    private _queue!: ((input: any) => Promise<DataEntity[]>)[];
+    private _queue!: ((input: any) => Promise<ts.DataEntity[]>)[];
 
     constructor(config: ExecutionContextConfig) {
         super(config, 'worker_context');
@@ -316,7 +316,7 @@ export class WorkerExecutionContext
         await this._runMethodAsync('onSliceRetry', this._sliceId);
     }
 
-    private _onOperationComplete(index: number, records: DataEntity[]) {
+    private _onOperationComplete(index: number, records: ts.DataEntity[]) {
         this._runMethod('onOperationComplete', this._sliceId, index, records.length, records);
     }
 
@@ -356,7 +356,7 @@ export class WorkerExecutionContext
 
         try {
             const request = ts.cloneDeep(this.sliceState.slice.request);
-            const results: DataEntity[] = await ts.waterfall(request, this._queue, ts.isProd);
+            const results: ts.DataEntity[] = await ts.waterfall(request, this._queue, ts.isProd);
 
             if (this.status === 'flushing') {
                 this._updateSliceState('flushed');

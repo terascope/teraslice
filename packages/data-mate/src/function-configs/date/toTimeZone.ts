@@ -1,5 +1,5 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import { toTimeZone } from '@terascope/date-utils';
+import { toTimeZone } from '@terascope/core-utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory

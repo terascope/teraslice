@@ -1,8 +1,7 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { debugLogger } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import { debugLogger, DataEntity } from '@terascope/core-utils';
 import {
     SelectionPhase, Loader, OperationsManager,
     SelectorConfig, WatcherConfig

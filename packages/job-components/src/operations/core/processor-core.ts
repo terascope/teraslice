@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 import OperationCore from './operation-core.js';
 import { SliceRequest, OpConfig } from '../../interfaces/index.js';
 

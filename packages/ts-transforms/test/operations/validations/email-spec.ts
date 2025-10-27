@@ -1,5 +1,4 @@
-import { cloneDeep } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import { cloneDeep, DataEntity } from '@terascope/core-utils';
 import { Email } from '../../../src/operations';
 
 describe('email validation', () => {

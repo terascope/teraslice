@@ -1,6 +1,5 @@
 import { parsePhoneNumber as _parsePhoneNumber } from 'awesome-phonenumber';
 import { toString, isString } from './strings.js';
-
 import { isNumber, inNumberRange } from './numbers.js';
 
 export function parsePhoneNumber(input: string | number): string {

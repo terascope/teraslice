@@ -1,9 +1,8 @@
 import 'jest-extended';
 import {
     times, pDelay, TSError,
-    debugLogger, get
+    debugLogger, get, DataEntity
 } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
 import { Translator } from 'xlucene-translator';
 import { ElasticsearchDistribution, Omit } from '@terascope/types';
 import { type Client, ElasticsearchTestHelpers } from '@terascope/opensearch-client';

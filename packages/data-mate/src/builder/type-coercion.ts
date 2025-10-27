@@ -9,10 +9,9 @@ import {
     isValidateNumberType, toBigIntOrThrow, toNumberOrThrow,
     toIntegerOrThrow, toFloatOrThrow, hasOwn, isKey,
     isArrayLike, castArray, getTypeOf, isPlainObject,
-    noop, isNotNil, isIterator
+    noop, isNotNil, isIterator, toEpochMSOrThrow
 } from '@terascope/core-utils';
 import { isIPRangeOrThrow, isIPOrThrow } from '@terascope/ip-utils';
-import { toEpochMSOrThrow } from '@terascope/date-utils';
 import { toGeoJSONOrThrow, parseGeoPoint } from '@terascope/geo-utils';
 
 type CoerceFN<T = unknown> = (input: unknown) => T;

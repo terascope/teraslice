@@ -7,9 +7,8 @@ import {
 import { Node as xLuceneNode } from 'xlucene-parser';
 import {
     TSError, getTypeOf, isFunction,
-    isPlainObject, trimFP,
+    isPlainObject, trimFP, DataEntity
 } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column/index.js';
 import { AggregationFrame } from '../aggregation-frame/index.js';
 import {

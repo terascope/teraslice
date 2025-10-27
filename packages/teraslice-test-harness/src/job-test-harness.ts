@@ -7,10 +7,8 @@ import {
     FetcherCore,
     SlicerCore,
     SlicerRecoveryData,
-    pDelay,
-    flatten,
 } from '@terascope/job-components';
-import { DataEntity } from '@terascope/entity-utils';
+import { pDelay, flatten, DataEntity } from '@terascope/core-utils';
 import SlicerTestHarness from './slicer-test-harness.js';
 import WorkerTestHarness from './worker-test-harness.js';
 import { JobHarnessOptions, SliceResults } from './interfaces.js';

@@ -1,5 +1,4 @@
-import { Logger, debugLogger } from '@terascope/core-utils';
-import { DataEntity } from '@terascope/entity-utils';
+import { Logger, debugLogger, DataEntity } from '@terascope/core-utils';
 import { PhaseConfig, PluginList } from '../interfaces.js';
 import { Loader } from '../loader/index.js';
 import SelectionPhase from './selector-phase.js';

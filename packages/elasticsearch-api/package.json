@@ -34,7 +34,6 @@
     },
     "dependencies": {
         "@terascope/core-utils": "~2.0.0-dev.5",
-        "@terascope/entity-utils": "~2.0.0-dev.5",
         "@terascope/types": "~2.0.0-dev.5",
         "bluebird": "~3.7.2",
         "setimmediate": "~1.0.5"

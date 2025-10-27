@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/entity-utils';
+import { DataEntity } from '@terascope/core-utils';
 import { OperationConfig, TransformOpBase, InputOutputCardinality } from '../../../src';
 
 export default class Double extends TransformOpBase {
