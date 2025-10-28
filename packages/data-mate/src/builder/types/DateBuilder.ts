@@ -1,4 +1,4 @@
-import { coerceToType } from '../type-coercion';
+import { coerceToType } from '../type-coercion.js';
 import { DateTuple } from '@terascope/types';
 import { WritableData } from '../../core/index.js';
 import { VectorType } from '../../vector/index.js';

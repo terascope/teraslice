@@ -1,5 +1,5 @@
 import { GeoShape } from '@terascope/types';
-import { coerceToType } from '../type-coercion';
+import { coerceToType } from '../type-coercion.js';
 import { WritableData } from '../../core/index.js';
 import { VectorType } from '../../vector/index.js';
 import { Builder, BuilderOptions } from '../Builder.js';
