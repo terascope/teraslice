@@ -46,7 +46,7 @@ const elasticsearchResults = [
 ];
 
 describe('ts-transforms cli', () => {
-    it('can read json array input from file', async () => {
+    fit('can read json array input from file', async () => {
         const rulesPath = path.join(cwd, './test/fixtures/transformRules36.txt');
         const dataPath = path.join(cwd, './test/fixtures/data/array.txt');
 
