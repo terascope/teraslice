@@ -103,6 +103,9 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         tmpfs: config.SERVICES_USE_TMPFS
             ? ['/tmp/kafka-logs']
             : undefined,
+        mount: config.ENCRYPT_KAFKA
+            ? [`type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=${config.KAFKA_SECRETS_DIR}`]
+            : [],
         ports: [`${config.KAFKA_PORT}:${config.KAFKA_PORT}`],
         env: {
             KAFKA_NODE_ID: config.KAFKA_NODE_ID,
@@ -116,7 +119,18 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             KAFKA_INTER_BROKER_LISTENER_NAME: config.KAFKA_INTER_BROKER_LISTENER_NAME,
             KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: `${config.KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR}`,
             KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: config.KAFKA_TRANSACTION_STATE_LOG_MIN_ISR,
-            KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: config.KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS
+            KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: config.KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS,
+            // TLS related config
+            ...(config.ENCRYPT_KAFKA
+                ? {
+                    KAFKA_SECURITY_PROTOCOL: 'ssl',
+                    KAFKA_SSL_CLIENT_AUTH: 'none',
+                    KAFKA_SSL_KEYSTORE_LOCATION: '/etc/kafka/secrets/kafka-keypair.pem',
+                    KAFKA_SSL_KEYSTORE_TYPE: 'PEM',
+                    KAFKA_SSL_TRUSTSTORE_LOCATION: '/etc/kafka/secrets/CAs/rootCA.pem',
+                    KAFKA_SSL_TRUSTSTORE_TYPE: 'PEM',
+                }
+                : {}),
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -754,6 +768,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
     const retryCount = 5;
     const retryTime = 10000;
     const totalTime = retryCount * retryTime;
+    const rootCaPath = path.join(getRootDir(), 'e2e/test/certs/CAs/rootCA.pem');
 
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.KAFKA_HOSTNAME)) return;
@@ -773,7 +788,11 @@ async function checkKafka(options: TestOptions, startTime: number) {
             maxRetryTime: retryTime,
             factor: 0,
             retries: retryCount
-        }
+        },
+        ...(config.ENCRYPT_KAFKA
+            ? { ssl: { ca: fs.readFileSync(rootCaPath) } }
+            : {}
+        )
     });
     const producer = kafka.producer();
     const took = toHumanTime(Date.now() - startTime);
