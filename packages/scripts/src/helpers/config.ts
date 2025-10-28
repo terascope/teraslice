@@ -1,4 +1,7 @@
 import ipPkg from 'ip';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {
     toBoolean, toSafeString, isCI,
     toIntegerOrThrow
@@ -159,6 +162,14 @@ export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
     : undefined;
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
+
+export const CERT_PATH = process.env.CERT_PATH
+    || ((ENCRYPT_KAFKA || ENCRYPT_MINIO || ENCRYPT_OPENSEARCH)
+        ? fs.mkdtempSync(path.join(os.tmpdir(), 'ts-CAs'))
+        : 'tmp/ts-certs'
+    );
+// We need to set CERT_PATH through process.env so config in e2e can use it.
+process.env.CERT_PATH = CERT_PATH;
 
 const {
     TEST_OPENSEARCH = undefined,
