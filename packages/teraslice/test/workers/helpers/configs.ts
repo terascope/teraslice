@@ -141,7 +141,6 @@ const newSysConfig = (options: SystemConfig) => {
 
     return {
         terafoundation: {
-            environment: 'development',
             log_level: log_level_terafoundation,
             connectors: {
                 'elasticsearch-next': {

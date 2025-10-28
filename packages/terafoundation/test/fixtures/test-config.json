@@ -1,6 +1,5 @@
 {
     "terafoundation": {
-        "environment": "test",
         "connectors": {}
     }
 }
