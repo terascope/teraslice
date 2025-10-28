@@ -104,7 +104,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             ? ['/tmp/kafka-logs']
             : undefined,
         mount: config.ENCRYPT_KAFKA
-            ? [`type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=${config.KAFKA_SECRETS_DIR}`]
+            ? [`type=bind,source=${config.CERT_PATH},target=${config.KAFKA_SECRETS_DIR}`]
             : [],
         ports: [`${config.KAFKA_PORT}:${config.KAFKA_PORT}`],
         env: {
@@ -142,7 +142,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             : undefined,
         ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`, `${config.MINIO_UI_PORT}:${config.MINIO_UI_PORT}`],
         mount: config.ENCRYPT_MINIO
-            ? [`type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`]
+            ? [`type=bind,source=${config.CERT_PATH},target=/opt/certs`]
             : [],
         env: {
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
@@ -666,7 +666,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
             }
 
             let statusCode: number;
-            const rootCaPath = path.join(getRootDir(), 'e2e/test/certs/CAs/rootCA.pem');
+            const rootCaPath = path.join(config.CERT_PATH, 'CAs/rootCA.pem');
             try {
                 ({ statusCode } = await got('minio/health/live', {
                     prefixUrl: host,
@@ -768,7 +768,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
     const retryCount = 5;
     const retryTime = 10000;
     const totalTime = retryCount * retryTime;
-    const rootCaPath = path.join(getRootDir(), 'e2e/test/certs/CAs/rootCA.pem');
+    const rootCaPath = path.join(config.CERT_PATH, 'CAs/rootCA.pem');
 
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.KAFKA_HOSTNAME)) return;
