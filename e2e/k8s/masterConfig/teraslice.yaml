@@ -1,5 +1,4 @@
 terafoundation:
-  environment: "development"
   log_level: debug
   prom_metrics_enabled: false
   prom_metrics_add_default: true
