@@ -34,7 +34,7 @@ const baseConfig = {
             kafka: {
                 default: {
                     brokers: [KAFKA_BROKER],
-                    security_protocol: '',
+                    security_protocol: 'plaintext',
                     caCertificate: ''
                 }
             },
