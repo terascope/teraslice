@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import ms from 'ms';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { X509Certificate } from 'node:crypto';
 import { execa, execaCommand, type Options } from 'execa';
 import fse from 'fs-extra';
@@ -25,6 +26,8 @@ import { getVolumesFromDockerfile, Kind } from './kind.js';
 import { ENV_SERVICES } from './config.js';
 
 const logger = debugLogger('ts-scripts:cmd');
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
 export type ExecEnv = { [name: string]: string };
 type ExecOpts = {
@@ -1442,7 +1445,7 @@ export async function generateTestCaCerts(): Promise<void> {
 
         try {
             signale.pending(`Generating new ca-certificates for ${serviceList}...`);
-            const scriptLocation = path.join(getE2EDir() as string, '../scripts/generate-cert.sh');
+            const scriptLocation = path.join(dirname, '../../../src/scripts/generate-cert.sh');
 
             // create a format array for each service
             const formatCommands: string[] = [];
@@ -1450,6 +1453,10 @@ export async function generateTestCaCerts(): Promise<void> {
                 formatCommands.push('--format');
                 formatCommands.push(service);
             });
+
+            // Ensure we pass in the cert path at the end
+            formatCommands.push('--dirPath');
+            formatCommands.push(config.CERT_PATH);
 
             signale.debug('Generate certs command: ', `${scriptLocation} ${formatCommands.concat(hostNames)}`);
             await execa(scriptLocation, formatCommands.concat(hostNames));
