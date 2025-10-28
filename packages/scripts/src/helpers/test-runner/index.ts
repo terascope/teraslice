@@ -2,6 +2,7 @@ import {
     debugLogger, chunk, TSError,
     isCI, pMap
 } from '@terascope/core-utils';
+import fs from 'node:fs';
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
@@ -30,7 +31,7 @@ import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
 import {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
-    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER
+    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH
 } from '../config.js';
 import { K8s } from '../k8s-env/k8s.js';
 
@@ -364,6 +365,11 @@ async function runE2ETest(
 
     if (options.clusteringType === 'kubernetesV2' && !options.keepOpen && kind) {
         await kind.destroyCluster();
+    }
+
+    // Ensure the certs dir gets cleaned up
+    if (fs.existsSync(CERT_PATH)) {
+        fs.rmSync(CERT_PATH, { recursive: true, force: true });
     }
 }
 
