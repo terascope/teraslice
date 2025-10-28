@@ -83,7 +83,7 @@ releases:
     needs:
       - services-dev1/kafka
     version: 0.7.6
-    installed: {{ .Values | get "kafka.enabled" true }}
+    installed: {{ .Values | get "kafka-ui.enabled" true }}
     values:
       - ./templates/kafka-ui.yaml.gotmpl
 

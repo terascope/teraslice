@@ -158,6 +158,10 @@ kafka:
     topic:
       replication:
         factor: 1
+
+kafka-ui:
+  # If false, kafka-ui will be excluded on helmfile sync
+  enabled: false
   
 utility:
   # If false, utility will be excluded on helmfile sync
