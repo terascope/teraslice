@@ -19,7 +19,7 @@ fullnameOverride: ""
 
 extraContainers: []
 
-# Terasclice master env
+# Teraslice master env
 env: {}
 
 # Teraslice State Connection / es util service
@@ -28,7 +28,7 @@ stateConnection: default
 # Create Pod Priority Class for this cluster
 # assigns kubernetes_priority_class_name
 # https://terascope.github.io/teraslice/docs/configuration/clustering-k8s#kubernetes-specific-configuration-settings
-# if you want to use an existing priortyClass, set create to false and assign kubernetes_priority_class_name yourself
+# if you want to use an existing priorityClass, set create to false and assign kubernetes_priority_class_name yourself
 priorityClass:
   create: false
   preemptionPolicy: Never
