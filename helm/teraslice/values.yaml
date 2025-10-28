@@ -48,7 +48,6 @@ worker:
 # Terafoundation
 # Everything under terafoundation key will used as the master and worker config
 terafoundation:
-  environment: production
   log_level: info
   # internal metrics exporter.
   prom_metrics_enabled: false

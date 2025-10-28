@@ -1,5 +1,4 @@
 terafoundation:
-    environment: 'development'
     log_level: debug
     connectors:
         elasticsearch-next:

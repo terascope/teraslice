@@ -20,7 +20,7 @@ function getLogLevel(level: Terafoundation.LogLevelConfig): LogLevelObj {
         };
     }
 
-    // Otherwise there may be a list of separate settins for each type.
+    // Otherwise there may be a list of separate settings for each type.
     return level.reduce((prev, curr) => {
         Object.assign(prev, curr);
         return prev;
@@ -42,11 +42,9 @@ export function createRootLogger(
     }
 
     const streamConfig: bunyan.Stream[] = [];
-    const { environment = 'development' } = foundationConfig;
 
-    // Setup console logging. Always turned on for development but off by
-    // default for production.
-    if (environment === 'development' || includes(foundationConfig.logging, 'console')) {
+    // Setup logging to console. 'logging: ["console"]' is the default
+    if (includes(foundationConfig.logging, 'console')) {
         const level = logLevel.console ? logLevel.console : 'info';
         streamConfig.push({ stream: process.stdout, level });
     }
@@ -56,14 +54,14 @@ export function createRootLogger(
         const configPath = foundationConfig.log_path || './logs';
 
         // remove whitespace
-        const logfile = filename.trim();
+        const logFile = filename.trim();
 
         try {
         // Verify the path is a directory by resolving any symlinks
             const pathCheck = fs.lstatSync(fs.realpathSync(configPath));
             if (pathCheck.isDirectory()) {
                 const level = logLevel.file ? logLevel.file : 'info';
-                streamConfig.push({ path: path.join(configPath, `${logfile}.log`), level });
+                streamConfig.push({ path: path.join(configPath, `${logFile}.log`), level });
             } else {
             // This is error is just caught by the catch block below.
                 throw new Error(`${configPath} is not a directory`);
