@@ -12,6 +12,7 @@ import {
     toPascalCase as utilsPascalCase,
     toSnakeCase as utilsSnakeCase,
     toTitleCase as utilsTitleCase,
+    toNumber as utilsToNumber
 } from '@terascope/core-utils';
 import { parseGeoPoint } from '@terascope/geo-utils';
 import { FieldType } from '@terascope/types';
@@ -420,7 +421,7 @@ export function toBoolean(input: unknown, _parentContext?: unknown): boolean | b
     if (isNil(input)) return null;
     if (isArray(input)) return input.filter(isNotNil).map(utilsToBoolean);
 
-    return toBoolean(input);
+    return utilsToBoolean(input);
 }
 
 /**
@@ -605,7 +606,7 @@ export function truncate(
 }
 
 function parsePhoneNumber(str: any) {
-    let testNumber = utilsTrim(str).trim();
+    let testNumber = utilsToString(str).trim();
     if (testNumber.charAt(0) === '0') testNumber = testNumber.slice(1);
 
     // needs to start with a +
@@ -643,10 +644,10 @@ function convertToNumber(input: any, args?: { booleanLike?: boolean }) {
     let result = input;
 
     if (args?.booleanLike === true && utilsIsBooleanLike(input)) {
-        result = toNumber(toBoolean(result));
+        result = utilsToNumber(toBoolean(result));
     }
 
-    result = toNumber(result);
+    result = utilsToNumber(result);
 
     if (Number.isNaN(result)) throw new Error(`Could not convert input of type ${getTypeOf(input)} to a number`);
     return result;
