@@ -70,6 +70,9 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions): P
 async function _runTests(
     pkgInfos: PackageInfo[], options: TestOptions, tracker: TestTracker
 ): Promise<void> {
+    // Dynamically generate any needed certs before any tests run
+    await generateTestCaCerts();
+
     if (options.suite?.includes('e2e')) {
         await runE2ETest(options, tracker);
         return;
@@ -206,9 +209,6 @@ async function runE2ETest(
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
     }
-
-    // Dynamically generate any needed certs before any tests run
-    await generateTestCaCerts();
 
     if (options.clusteringType === 'kubernetesV2') {
         try {
