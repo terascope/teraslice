@@ -231,3 +231,4 @@ export const DOCKER_CACHE_PATH = process.env.DOCKER_CACHE_PATH || '/tmp/docker_c
 export const SKIP_IMAGE_DELETION = toBoolean(process.env.SKIP_IMAGE_DELETION) || false;
 export const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
 export const ATTACH_JEST_DEBUGGER = toBoolean(process.env.ATTACH_JEST_DEBUGGER) || false;
+export const ENCRYPTION_ENABLED = ENCRYPT_KAFKA || ENCRYPT_MINIO || ENCRYPT_OPENSEARCH;
