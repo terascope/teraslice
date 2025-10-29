@@ -30,8 +30,8 @@
     },
     "dependencies": {
         "@chainsafe/is-ip": "~2.1.0",
-        "@terascope/core-utils": "~2.0.0-dev.5",
-        "@terascope/types": "~2.0.0-dev.5",
+        "@terascope/core-utils": "~2.0.0-dev.6",
+        "@terascope/types": "~2.0.0-dev.6",
         "ip-bigint": "~8.2.2",
         "ip-cidr": "~4.0.2",
         "ip6addr": "~0.2.5",
