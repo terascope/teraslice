@@ -974,17 +974,13 @@ export async function determineSearchHost() {
     return filtered[0].name;
 }
 
-// Helper function for reading the contents of a file in the e2e/test/certs
-// directory
-function readCertFromTestDir(fileName: string): string {
-    const certsDir = path.join(getE2EDir() as string, 'test/certs');
-    const testCertPath = path.join(certsDir, fileName);
-
-    if (!fs.existsSync(testCertPath)) {
-        throw new TSError(`Unable to find cert at: ${testCertPath}`);
+// Helper function for reading the contents of a certificate by providing its path
+function readCertFromPath(certPath: string): string {
+    if (!fs.existsSync(certPath)) {
+        throw new TSError(`Unable to find cert at: ${certPath}`);
     }
 
-    return fs.readFileSync(testCertPath, 'utf8');
+    return fs.readFileSync(certPath, 'utf8');
 }
 
 /**
@@ -1012,7 +1008,7 @@ function getAdminDnFromCert(): string {
     let organizationalUnit: string | undefined;
 
     try {
-        ca = readCertFromTestDir('opensearch-cert.pem');
+        ca = readCertFromPath(path.join(config.CERT_PATH, 'opensearch-cert.pem'));
     } catch (err) {
         throw new TSError(`Failed to read certificate file (opensearch-cert.pem).\n${err}`);
     }
@@ -1107,7 +1103,7 @@ function generateHelmValuesFromServices(
                     throw new TSError('Encrypted Opensearch version 1 is not enabled. Please use OS2 or OS3.');
                 }
                 if (!caCert) {
-                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                    caCert = readCertFromPath(path.join(config.CERT_PATH, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
                 }
                 const admin_dn = getAdminDnFromCert();
                 values.setIn([serviceString, 'ssl', 'enabled'], true);
@@ -1124,7 +1120,7 @@ function generateHelmValuesFromServices(
         if (service === Service.Kafka) {
             if (config.ENCRYPT_KAFKA) {
                 if (!caCert) {
-                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                    caCert = readCertFromPath(path.join(config.CERT_PATH, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
                 }
                 values.setIn(['kafka', 'ssl', 'enabled'], true);
                 values.setIn(['kafka', 'ssl', 'caCert'], caCert);
@@ -1134,7 +1130,7 @@ function generateHelmValuesFromServices(
         if (service === Service.Minio) {
             if (config.ENCRYPT_MINIO) {
                 if (!caCert) {
-                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                    caCert = readCertFromPath(path.join(config.CERT_PATH, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
                 }
                 const publicCert = readCertFromTestDir('public.crt').replace(/\n/g, '\\n');
                 const privateKey = readCertFromTestDir('private.key').replace(/\n/g, '\\n');
@@ -1460,6 +1456,7 @@ export async function generateTestCaCerts(): Promise<void> {
 
             signale.debug('Generate certs command: ', `${scriptLocation} ${formatCommands.concat(hostNames)}`);
             await execa(scriptLocation, formatCommands.concat(hostNames));
+            signale.success(`Created certs in ${config.CERT_PATH}`);
         } catch (err) {
             throw new Error(`Error generating ca-certificates for ${serviceList}: ${err.message}`);
         }
