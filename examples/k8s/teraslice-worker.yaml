@@ -1,5 +1,4 @@
 terafoundation:
-    environment: 'development'
     connectors:
         elasticsearch-next:
             default:

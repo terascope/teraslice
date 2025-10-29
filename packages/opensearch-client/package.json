@@ -1,7 +1,7 @@
 {
     "name": "@terascope/opensearch-client",
     "displayName": "Opensearch Client",
-    "version": "2.0.0-dev.5",
+    "version": "2.0.0-dev.6",
     "description": "A Node.js facade client for opensearch & elasticsearch.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/opensearch-client#readme",
     "bugs": {

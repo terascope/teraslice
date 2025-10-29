@@ -147,7 +147,6 @@ export class TestContext implements i.Context {
         const sysconfig: i.SysConfig = {
             terafoundation: {
                 workers: 8,
-                environment: 'test',
                 log_path: '',
                 log_level: { console: 'debug' } as any,
                 logging: ['console'],
