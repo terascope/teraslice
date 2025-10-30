@@ -31,3 +31,5 @@ nodes:
     containerPath: /autoload
   - hostPath: ./e2e/helm/utility/data
     containerPath: /data
+  - hostPath: ./logs
+    containerPath: /mnt/logs
