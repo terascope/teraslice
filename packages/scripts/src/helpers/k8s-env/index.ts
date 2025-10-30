@@ -6,7 +6,7 @@ import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
     isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
     helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
-    generateTestCaCerts, createMinioSecret, dockerBuild, getConfigValueFromCustomYaml,
+    generateTestCaCerts, dockerBuild, getConfigValueFromCustomYaml,
     launchTerasliceWithCustomHelmfile, setConfigValuesForCustomYaml
 } from '../scripts.js';
 import { Kind } from '../kind.js';
@@ -16,7 +16,6 @@ import { getDevDockerImage, getRootInfo } from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import * as config from '../config.js';
-import { K8s } from './k8s.js';
 import { loadImagesForHelm, loadImagesForHelmFromConfigFile } from '../test-runner/services.js';
 import { getE2EDir } from '../../helpers/packages.js';
 
@@ -76,8 +75,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         process.exit(1);
     }
     signale.success('Kind cluster created');
-
-    const k8s = new K8s(options.tsPort, options.kindClusterName);
 
     try {
         if (!options.configFile || (buildTerasliceImage)) {
@@ -154,11 +151,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 
     try {
         signale.pending('Launching teraslice with helmfile');
-        // Create a minio secret if needed before helm sync
-        // but after the namespaces have been made
-        if (config.ENCRYPT_MINIO) {
-            await createMinioSecret(k8s);
-        }
         if (options.configFile) {
             await launchTerasliceWithCustomHelmfile(options.configFile);
         } else {
