@@ -3,9 +3,10 @@ import {
     parseError, getBackoffDelay, isRetryableError,
     get, toNumber, isString, Logger,
     castArray, flatten, toBoolean,
-    uniq, random, cloneDeep, DataEntity,
-    isDeepEqual, getTypeOf, isProd
-} from '@terascope/utils';
+    uniq, random, cloneDeep,
+    isDeepEqual, getTypeOf, isProd,
+    DataEntity
+} from '@terascope/core-utils';
 import { Client as OpenClient } from '@terascope/opensearch-client';
 import {
     ElasticsearchDistribution, SearchResult, ClientParams,

@@ -1,4 +1,4 @@
-import { isUUID } from '@terascope/utils';
+import { isUUID } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

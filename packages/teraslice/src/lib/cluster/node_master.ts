@@ -2,7 +2,7 @@ import ms from 'ms';
 import { Mutex } from 'async-mutex';
 import {
     getFullErrorStack, debounce, isEmpty, has
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Terafoundation } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { Messaging } from './services/cluster/backends/native/messaging.js';

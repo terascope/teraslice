@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { isObjectEntity } from '@terascope/utils';
+import { isObjectEntity } from '@terascope/core-utils';
 import {
     dataFrameAdapter,
     FunctionDefinitionConfig,

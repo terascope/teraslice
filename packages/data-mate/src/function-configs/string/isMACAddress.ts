@@ -1,4 +1,4 @@
-import { isMACAddress, isString, joinList } from '@terascope/utils';
+import { isMACAddress, isString, joinList } from '@terascope/core-utils';
 import { MACDelimiter, FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

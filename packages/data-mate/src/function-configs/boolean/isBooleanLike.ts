@@ -1,4 +1,4 @@
-import { isBooleanLike } from '@terascope/utils';
+import { isBooleanLike } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

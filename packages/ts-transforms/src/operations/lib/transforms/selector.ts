@@ -1,5 +1,5 @@
 import { DocumentMatcher } from '@terascope/data-mate';
-import { DataEntity } from '@terascope/utils';
+import { DataEntity } from '@terascope/core-utils';
 import { InputOutputCardinality, SelectorConfig, MatcherConfig } from '../../../interfaces.js';
 
 export default class Selector {

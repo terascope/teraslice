@@ -1,4 +1,4 @@
-import { TSError } from '@terascope/utils';
+import { TSError } from '@terascope/core-utils';
 import {
     Nodes, ExpressionNode, LiteralNode,
     NodeType, VariableNode

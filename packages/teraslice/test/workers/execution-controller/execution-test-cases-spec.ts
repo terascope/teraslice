@@ -1,7 +1,7 @@
 import {
     pDelay, times, random,
     isNotNil
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { ExecutionController as ExController } from '@terascope/teraslice-messaging';
 import { ExecutionConfig } from '@terascope/types';
 import { TestContext } from '../helpers/index.js';

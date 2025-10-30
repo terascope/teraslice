@@ -1,5 +1,5 @@
+import { Logger } from '@terascope/core-utils';
 import { ManagerOptions, SocketOptions } from 'socket.io-client';
-import { Logger } from '@terascope/utils';
 import { ExecutionAnalytics, AggregatedExecutionAnalytics } from '@terascope/types';
 import { Message, RequestListener } from '../messenger/interfaces.js';
 

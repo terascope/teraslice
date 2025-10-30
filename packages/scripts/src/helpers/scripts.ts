@@ -12,7 +12,7 @@ import type { V1Deployment, V1Service } from '@kubernetes/client-node';
 import {
     debugLogger, isString, get,
     pWhile, pDelay, TSError,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     TSCommands, PackageInfo, Service, OCIImageManifest,
     OCIimageConfig, OCIindexManifest, ServiceObj

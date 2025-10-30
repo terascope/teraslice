@@ -1,6 +1,6 @@
 import { ManagerOptions, SocketOptions } from 'socket.io-client';
 import http from 'node:http';
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 
 export interface CoreOptions {
     networkLatencyBuffer?: number;

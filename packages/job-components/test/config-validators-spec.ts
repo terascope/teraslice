@@ -2,7 +2,7 @@ import 'jest-extended';
 import { Schema } from 'convict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { logLevels } from '@terascope/utils';
+import { logLevels } from '@terascope/core-utils';
 import {
     jobSchema, validateJobConfig, validateOpConfig,
     TestContext, validateAPIConfig,

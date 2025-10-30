@@ -1,7 +1,7 @@
 import {
     TSError, isString, isArray, isEmpty,
     matchWildcard
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     isEmptyNode, isWildcardField, isTerm,
     parseRange, isRange, isRegexp,

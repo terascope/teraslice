@@ -1,4 +1,4 @@
-import { isTest } from '@terascope/utils';
+import { isTest } from '@terascope/core-utils';
 import signalePkg from 'signale';
 
 const { Signale } = signalePkg;

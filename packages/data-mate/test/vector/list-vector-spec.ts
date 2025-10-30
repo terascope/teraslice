@@ -1,7 +1,7 @@
 import 'jest-fixtures';
 import {
     bigIntToJSON, isNotNil, times, toString
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     Vector, Builder, WritableData, ListVector

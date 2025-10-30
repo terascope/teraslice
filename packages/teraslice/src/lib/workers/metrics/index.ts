@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import {
     debugLogger, isTest, Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type GCStats from 'gc-stats';
 
 const defaultLogger = debugLogger('metrics');

@@ -1,7 +1,7 @@
 import {
     isString, set, startsWith,
     defaultsDeep
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     DataTypeConfig, ElasticsearchDistribution, ESMapping,
     ESTypeMappings, ReadonlyDataTypeFields, xLuceneTypeConfig

@@ -48,7 +48,13 @@
             "path": "packages/types"
         },
         {
-            "path": "packages/utils"
+            "path": "packages/core-utils"
+        },
+        {
+            "path": "packages/ip-utils"
+        },
+        {
+            "path": "packages/geo-utils"
         },
         {
             "path": "packages/data-types"

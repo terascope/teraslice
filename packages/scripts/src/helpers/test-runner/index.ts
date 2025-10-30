@@ -1,7 +1,7 @@
 import {
     debugLogger, chunk, TSError,
     isCI, pMap
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,

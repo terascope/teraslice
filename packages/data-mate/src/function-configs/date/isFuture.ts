@@ -1,4 +1,4 @@
-import { isFuture } from '@terascope/utils';
+import { isFuture } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

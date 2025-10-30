@@ -1,10 +1,10 @@
 import 'jest-extended';
 import {
-    times, pDelay, DataEntity, Omit,
-    TSError, debugLogger, get
-} from '@terascope/utils';
+    times, pDelay, TSError,
+    debugLogger, get, DataEntity
+} from '@terascope/core-utils';
 import { Translator } from 'xlucene-translator';
-import { ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchDistribution, Omit } from '@terascope/types';
 import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import {
     SimpleRecord, SimpleRecordInput, dataType, schema

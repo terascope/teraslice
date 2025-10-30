@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity } from '@terascope/core-utils';
 import { DataType } from '@terascope/data-types';
 import type { Data } from './interfaces.js';
 

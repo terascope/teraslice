@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import type { Terafoundation } from '@terascope/types';
 import pkg from 'bluebird';
 // @ts-expect-error

@@ -8,7 +8,7 @@ import {
     debugLogger,
     pDelay,
     pRetry,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { newMsgId } from '../utils/index.js';
 import * as i from './interfaces.js';
 import { Core } from './core.js';

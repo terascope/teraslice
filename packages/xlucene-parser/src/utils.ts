@@ -1,29 +1,15 @@
 import {
-    isString,
-    isEmpty,
-    isPlainObject,
-    TSError,
-    isWildCardString,
-    debugLogger,
-    primitiveToString,
-    isPrimitiveValue,
-    toBoolean,
-    toNumber,
-    toIntegerOrThrow,
-    toFloatOrThrow,
-    getTypeOf,
-    isBooleanLike,
-    isNotNil,
-    isIP,
-    isCIDR,
-    isIPv6,
-    getFirstIPInCIDR,
-    getLastIPInCIDR,
-    toCIDR,
-    isValidDate,
-    getValidDate
-} from '@terascope/utils';
-
+    isString, isEmpty, isPlainObject,
+    TSError, isWildCardString, debugLogger,
+    primitiveToString, isPrimitiveValue, toBoolean,
+    toNumber, toIntegerOrThrow, toFloatOrThrow,
+    getTypeOf, isBooleanLike, isNotNil,
+    isValidDate, getValidDate
+} from '@terascope/core-utils';
+import {
+    isIP, isCIDR, isIPv6, getFirstIPInCIDR,
+    getLastIPInCIDR, toCIDR,
+} from '@terascope/ip-utils';
 import {
     xLuceneFieldType, xLuceneVariables, CoordinateTuple,
     Maybe

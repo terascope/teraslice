@@ -3,7 +3,7 @@ import got from 'got';
 import {
     pDelay, logError, get,
     parseError, Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { ClusterMaster as ClusterMasterMessaging } from '@terascope/teraslice-messaging';
 import { isPromAvailable } from '@terascope/job-components';
 import { makeLogger } from '../workers/helpers/terafoundation.js';

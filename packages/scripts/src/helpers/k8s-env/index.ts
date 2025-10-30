@@ -2,7 +2,7 @@ import os from 'node:os';
 import { execaCommandSync } from 'execa';
 import path from 'node:path';
 import fs from 'node:fs';
-import { isCI } from '@terascope/utils';
+import { isCI } from '@terascope/core-utils';
 import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
     isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,

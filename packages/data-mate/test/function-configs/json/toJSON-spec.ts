@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { isEmpty } from '@terascope/utils';
+import { isEmpty } from '@terascope/core-utils';
 import { FieldType, DataTypeFields, Maybe } from '@terascope/types';
 import {
     functionConfigRepository, FunctionDefinitionType,

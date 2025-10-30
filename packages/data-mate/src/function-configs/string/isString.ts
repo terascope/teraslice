@@ -1,4 +1,4 @@
-import { isString } from '@terascope/utils';
+import { isString } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory

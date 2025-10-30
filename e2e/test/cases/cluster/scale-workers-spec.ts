@@ -1,6 +1,6 @@
 import { Ex } from 'teraslice-client-js';
 import { WorkerNode } from '@terascope/types/dist/src/teraslice.js';
-import { pDelay } from '@terascope/utils';
+import { pDelay } from '@terascope/core-utils';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { DEFAULT_WORKERS, TEST_PLATFORM } from '../../config.js';
 

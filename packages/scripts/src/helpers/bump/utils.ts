@@ -1,7 +1,7 @@
 import semver, { ReleaseType } from 'semver';
 import {
     get, chunk, isEmpty, joinList
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { BumpPackageOptions, BumpPkgInfo, BumpType } from './interfaces.js';
 import { isMainPackage, findPackageByName, getRemotePackageVersion } from '../packages.js';
 import { PackageInfo } from '../interfaces.js';

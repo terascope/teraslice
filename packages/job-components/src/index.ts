@@ -1,4 +1,3 @@
-export * from '@terascope/utils';
 export * from './utils.js';
 export * from './builtin/index.js';
 export * from './config-validators.js';

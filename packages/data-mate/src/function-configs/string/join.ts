@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { isNotNil } from '@terascope/utils';
+import { isNotNil } from '@terascope/core-utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionExample, FunctionDefinitionCategory

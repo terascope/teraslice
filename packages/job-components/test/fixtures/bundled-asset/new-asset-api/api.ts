@@ -1,4 +1,3 @@
-import { AnyObject } from '@terascope/utils';
 import { OperationAPI } from '../../../../src/index.js';
 
 export class AssetExampleAPI extends OperationAPI {
@@ -11,7 +10,7 @@ export class AssetExampleAPI extends OperationAPI {
         return super.initialize();
     }
 
-    async createAPI(): Promise<AnyObject> {
+    async createAPI(): Promise<Record<string, any>> {
         return {};
     }
 

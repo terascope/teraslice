@@ -1,0 +1,61 @@
+{
+    "name": "@terascope/geo-utils",
+    "displayName": "Geo Utils",
+    "version": "2.0.0-dev.7",
+    "description": "A collection of Teraslice Geo Utilities",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/geo-utils#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "repository": "git@github.com:terascope/teraslice.git",
+    "license": "MIT",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "sideEffects": false,
+    "type": "module",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "files": [
+        "dist/src/**/*"
+    ],
+    "scripts": {
+        "build": "tsc --build",
+        "build:watch": "yarn build --watch",
+        "test": "node ../scripts/bin/ts-scripts test ../geo-utils --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../geo-utils --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../geo-utils --"
+    },
+    "dependencies": {
+        "@terascope/core-utils": "~2.0.0-dev.7",
+        "@terascope/types": "~2.0.0-dev.6",
+        "@turf/bbox": "~7.2.0",
+        "@turf/bbox-polygon": "~7.2.0",
+        "@turf/boolean-contains": "~7.2.0",
+        "@turf/boolean-disjoint": "~7.2.0",
+        "@turf/boolean-equal": "~7.2.0",
+        "@turf/boolean-intersects": "~7.2.0",
+        "@turf/boolean-point-in-polygon": "~7.2.0",
+        "@turf/boolean-within": "~7.2.0",
+        "@turf/circle": "~7.2.0",
+        "@turf/helpers": "~7.2.0",
+        "@turf/invariant": "~7.2.0",
+        "@turf/line-to-polygon": "~7.2.0",
+        "geo-tz": "~8.1.4",
+        "latlon-geohash": "~2.0.0"
+    },
+    "devDependencies": {
+        "@types/geojson": "~7946.0.16"
+    },
+    "engines": {
+        "node": ">=22.0.0",
+        "yarn": ">=1.22.19"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
+    "srcMain": "src/index.ts",
+    "terascope": {
+        "enableTypedoc": true,
+        "testSuite": "unit"
+    }
+}

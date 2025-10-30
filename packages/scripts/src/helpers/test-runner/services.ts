@@ -7,8 +7,8 @@ import yaml from 'js-yaml';
 import { Kafka } from 'kafkajs';
 import {
     pWhile, TSError, debugLogger,
-    toHumanTime, getErrorStatusCode, isKey
-} from '@terascope/utils';
+    getErrorStatusCode, isKey, toHumanTime
+} from '@terascope/core-utils';
 import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo,

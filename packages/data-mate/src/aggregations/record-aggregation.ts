@@ -3,7 +3,7 @@ import {
     isPlainObject, isNumber, isBoolean,
     isEmpty, mapValues, filterObject,
     toString
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import { BatchConfig, ValidatedBatchConfig } from './interfaces.js';
 import { Repository, InputType, ArgSchema } from '../interfaces.js';

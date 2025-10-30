@@ -1,5 +1,6 @@
-import { AnyObject, FieldType, Maybe } from '@terascope/types';
-import { isNotNil, getHashCodeFrom } from '@terascope/utils';
+import { FieldType, Maybe } from '@terascope/types';
+import { isNotNil } from '@terascope/core-utils';
+import { getHashCodeFrom } from '../builder/type-coercion.js';
 import { Vector, VectorOptions } from './Vector.js';
 import { DataBuckets, SerializeOptions, VectorType } from './interfaces.js';
 
@@ -107,7 +108,7 @@ export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
     }
 }
 
-function dedupeValues(result: Maybe<AnyObject>[]): Maybe<AnyObject>[] {
+function dedupeValues(result: Maybe<Record<string, any>>[]): Maybe<Record<string, any>>[] {
     const hashes = new Set<string>();
     return result.filter((value) => {
         const hash = getHashCodeFrom(value);

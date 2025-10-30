@@ -1,6 +1,6 @@
 import yaml from 'js-yaml';
 import * as k8s from '@kubernetes/client-node';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import { K8sDeploymentResource } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8sDeploymentResource.js';
 import { K8sJobResource } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8sJobResource.js';
 import { K8sServiceResource } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8sServiceResource.js';

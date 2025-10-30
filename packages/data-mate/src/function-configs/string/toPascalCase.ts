@@ -1,4 +1,4 @@
-import { toPascalCase } from '@terascope/utils';
+import { toPascalCase } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

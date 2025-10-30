@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import 'jest-extended';
-import { pDelay } from '@terascope/utils';
+import { pDelay } from '@terascope/core-utils';
 import { ExecutionController } from '@terascope/teraslice-messaging';
 import { Slice } from '@terascope/types';
 import { findPort } from '../../../src/lib/utils/port_utils.js';

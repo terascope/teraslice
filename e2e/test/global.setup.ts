@@ -1,4 +1,4 @@
-import { pDelay } from '@terascope/utils';
+import { pDelay } from '@terascope/core-utils';
 import fse from 'fs-extra';
 import { helmfileCommand, K8s, setAlias } from '@terascope/scripts';
 import { TerasliceHarness } from './teraslice-harness.js';

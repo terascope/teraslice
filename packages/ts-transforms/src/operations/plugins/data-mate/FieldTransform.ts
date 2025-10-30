@@ -1,4 +1,4 @@
-import { DataEntity, get, isEmpty } from '@terascope/utils';
+import { get, isEmpty, DataEntity } from '@terascope/core-utils';
 import { FieldTransform, RecordTransform } from '@terascope/data-mate';
 import { InjectMethod } from '../mixins.js';
 import TransformsOpBase from '../../lib/transforms/base.js';

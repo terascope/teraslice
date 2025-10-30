@@ -4,7 +4,7 @@ import { Terafoundation, Teraslice } from '@terascope/types';
 import {
     isPlainObject, isString, isArray,
     isInteger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { cpus } from 'node:os';
 
 const workerCount = cpus().length;

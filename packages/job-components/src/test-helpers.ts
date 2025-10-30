@@ -5,7 +5,7 @@ import {
     random, isString, getTypeOf,
     isFunction, debugLogger, Logger,
     makeISODate
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import promClient, {
     CollectFunction, Counter, Gauge, Histogram, Summary
 } from 'prom-client';

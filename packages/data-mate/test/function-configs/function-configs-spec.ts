@@ -2,7 +2,7 @@ import 'jest-extended';
 import { promises as fsp } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { uniq } from '@terascope/utils';
+import { uniq } from '@terascope/core-utils';
 import { functionConfigRepository, FunctionDefinitionConfig } from '../../src/index.js';
 import { functionTestHarness } from './functionTestHarness.js';
 

@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 
 export type CrossValidationFn = (

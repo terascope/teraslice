@@ -1,4 +1,4 @@
-import { Logger, debugLogger } from '@terascope/utils';
+import { Logger, debugLogger } from '@terascope/core-utils';
 import { PhaseManager } from './phases/index.js';
 import { WatcherConfig } from './interfaces.js';
 

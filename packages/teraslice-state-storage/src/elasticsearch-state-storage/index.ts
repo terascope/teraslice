@@ -1,7 +1,7 @@
 import {
-    DataEntity, Logger, TSError,
-    chunk, pMap
-} from '@terascope/utils';
+    Logger, TSError, chunk, pMap,
+    DataEntity
+} from '@terascope/core-utils';
 import { ClientParams, ClientResponse } from '@terascope/types';
 import esApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
 import { Client as OpenClient } from '@terascope/opensearch-client';

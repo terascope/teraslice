@@ -1,4 +1,3 @@
-import type { AnyObject } from '@terascope/utils';
 import {
     SortOrder, ElasticsearchDSLOptions, xLuceneTypeConfig,
     xLuceneVariables, GeoDistanceUnit, ClientParams,
@@ -19,7 +18,7 @@ export interface RestrictOptions {
     variables?: xLuceneVariables;
 }
 
-export interface QueryAccessConfig<T extends AnyObject = AnyObject> {
+export interface QueryAccessConfig<T extends Record<string, any> = Record<string, any>> {
     excludes?: (keyof T)[];
     includes?: (keyof T)[];
     constraint?: string | string[];

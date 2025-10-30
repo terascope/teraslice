@@ -1,6 +1,5 @@
-import {
-    debugLogger, isString, parseGeoDistanceUnit
-} from '@terascope/utils';
+import { debugLogger, isString } from '@terascope/core-utils';
+import { parseGeoDistanceUnit } from '@terascope/geo-utils';
 import {
     xLuceneVariables, xLuceneTypeConfig, GeoDistanceUnit,
     ElasticsearchDSLOptions, ElasticsearchDSLResult,

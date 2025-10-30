@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { isString, isEmpty } from '@terascope/utils';
+import { isString, isEmpty } from '@terascope/core-utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample

@@ -1,4 +1,4 @@
-import { isBase64 } from '@terascope/utils';
+import { isBase64 } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

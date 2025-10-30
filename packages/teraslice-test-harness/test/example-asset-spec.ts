@@ -2,7 +2,8 @@ import 'jest-extended';
 import { jest } from '@jest/globals';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DataEntity, TestClientConfig, debugLogger } from '@terascope/job-components';
+import { TestClientConfig } from '@terascope/job-components';
+import { DataEntity, debugLogger } from '@terascope/core-utils';
 import SimpleClient from './fixtures/asset/simple-connector/client';
 import {
     JobTestHarness, newTestJobConfig, newTestSlice,
