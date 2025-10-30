@@ -1,0 +1,88 @@
+{{- $terasliceTemplate := `{{.Message}}` -}}
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Values.pod.name }}
+  labels:
+    app: {{ .Values.pod.Name }}
+spec:
+  serviceAccountName: {{ .Values.serviceAccount.name }}
+  initContainers:
+  - name: install-stern
+    image: {{ .Values.initContainer.image }}
+    command: ['sh', '-c']
+    args:
+      - |
+        wget {{ .Values.stern.downloadUrl }} -O stern.tar.gz
+        tar xzf stern.tar.gz -C /shared
+        chmod +x /shared/stern
+    volumeMounts:
+    - name: shared-bin
+      mountPath: /shared
+  containers:
+    - name: stern-log-services-dev1
+      image: {{ .Values.container.image }}
+      resources:
+        requests:
+          memory: "128Mi"
+          cpu: "100m"
+        limits:
+          memory: "512Mi"
+          cpu: "500m"
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          /shared/stern ".*" \
+            --namespace={{ .Values.stern.namespaces.services }} \
+            --tail=-1 \
+            | tee /logs/{{ .Values.stern.logs.services }}
+      volumeMounts:
+        - name: log-storage
+          mountPath: /logs
+        - name: shared-bin
+          mountPath: /shared
+      readinessProbe:
+        exec:
+          command: ["true"]
+        initialDelaySeconds: 5
+        periodSeconds: 5
+
+    - name: stern-log-ts-dev1
+      image: {{ .Values.container.image }}
+      resources:
+        requests:
+          memory: "128Mi"
+          cpu: "100m"
+        limits:
+          memory: "512Mi"
+          cpu: "500m"
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          /shared/stern ".*" \
+            --namespace={{ .Values.stern.namespaces.teraslice }} \
+            --tail=-1 \
+            --template '{{ $terasliceTemplate }}
+          ' \
+            | tee /logs/{{ .Values.stern.logs.teraslice }}
+      volumeMounts:
+        - name: log-storage
+          mountPath: /logs
+        - name: shared-bin
+          mountPath: /shared
+      readinessProbe:
+        exec:
+          command: ["true"]
+        initialDelaySeconds: 5
+        periodSeconds: 5
+
+  volumes:
+    - name: log-storage
+      hostPath:
+        path: {{ .Values.volumes.logPath }}
+        type: DirectoryOrCreate
+    - name: shared-bin
+      emptyDir: {}
+
+  restartPolicy: {{ .Values.pod.restartPolicy }}

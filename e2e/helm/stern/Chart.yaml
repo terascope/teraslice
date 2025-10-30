@@ -1,0 +1,4 @@
+apiVersion: v2
+name: stern
+version: 0.1.0
+description: Stern log aggregation by Kubernetes namespace
