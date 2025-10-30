@@ -35,6 +35,16 @@ releases:
       - default/namespaces
     installed: {{ .Values | get "stern.enabled" false }}
 
+  - name: minio-secret
+    namespace: default
+    chart: ./minio-secret
+    version: 0.1.0
+    needs:
+      - default/namespaces
+    installed: {{ and (.Values | get "minio.enabled" false) (.Values | get "minio.tls.enabled" false) }}
+    values:
+      - ./templates/minio-secret.yaml.gotmpl
+
   - name: opensearch1
     namespace: services-dev1
     chart: opensearch/opensearch
@@ -105,6 +115,9 @@ releases:
       - default/namespaces
     {{- if .Values | get "stern.enabled" false }}
       - default/stern
+    {{- end }}
+    {{- if .Values | get "minio.tls.enabled" false }}
+      - default/minio-secret
     {{- end }}
 
   - name: kafka
