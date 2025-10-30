@@ -131,7 +131,18 @@ minio:
     publicCrtName: public.crt
     privateKeyName: private.key
     # The ca-certificate used by teraslice for minio service
+    # CA certificate in a single-line string format with "\\n" as line breaks
+    # Use the following command to convert a rootCA PEM file to the correct format:
+    # awk '{printf "%s\\\\n", $0}' <path-to-pem-file> | pbcopy
     caCert: null
+    # The public certificate in single-line string format with "\\n" as line breaks
+    # Use the following command to convert a certificate PEM file to the correct format:
+    # awk '{printf "%s\\\\n", $0}' <path-to-pem-file> | pbcopy
+    publicCert: null
+    # The private key in single-line string format with "\\n" as line breaks
+    # Use the following command to convert a key file to the correct format:
+    # awk '{printf "%s\\\\n", $0}' <path-to-key-file> | pbcopy
+    privateKey: null
   # The absolute path to an es data directory on the host machine to use
   # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
   # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
