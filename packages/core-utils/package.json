@@ -1,9 +1,17 @@
 {
+<<<<<<< HEAD
     "name": "@terascope/utils",
     "displayName": "Utils",
     "version": "2.0.0-dev.6",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
+=======
+    "name": "@terascope/core-utils",
+    "displayName": "Core Utils",
+    "version": "2.0.0-dev.7",
+    "description": "A collection of Teraslice Core Utilities",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/core-utils#readme",
+>>>>>>> 23991127d7c (release: (prerelease) teraslice@3.0.0-dev.8)
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
