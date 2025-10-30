@@ -226,7 +226,7 @@ async function runE2ETest(
 
             const helmInstalled = await isHelmInstalled();
             if (!helmInstalled && !isCI) {
-                signale.error('Please install Helm before running k8s tests.https://helm.sh/docs/intro/install');
+                signale.error('Please install Helm before running k8s tests. https://helm.sh/docs/intro/install');
                 process.exit(1);
             }
 
@@ -248,8 +248,10 @@ async function runE2ETest(
                 process.exit(1);
             }
 
-            const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
-            await k8s.createNamespace('services-ns.yaml', 'services');
+            if (!options.useHelmfile) {
+                const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
+                await k8s.createNamespace('services-ns.yaml', 'services');
+            }
         } catch (err) {
             tracker.addError(err);
         }

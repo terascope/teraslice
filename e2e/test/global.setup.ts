@@ -17,7 +17,9 @@ export default async () => {
     await teraslice.init();
 
     await teardown(teraslice.client);
-    await teraslice.resetLogs();
+    if (TEST_PLATFORM === 'native') {
+        await teraslice.resetLogs();
+    }
 
     process.stdout.write('\n');
     signale.time('global setup');
