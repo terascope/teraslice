@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "3.0.0-dev.4",
+    "version": "3.0.0-dev.5",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -42,7 +42,7 @@
         "esbuild": "~0.25.9"
     },
     "devDependencies": {
-        "@terascope/core-utils": "~2.0.0-dev.5",
+        "@terascope/core-utils": "~2.0.0-dev.7",
         "@terascope/fetch-github-release": "~2.2.1",
         "@terascope/types": "~2.0.0-dev.6",
         "@terascope/utils": "~2.0.0-dev.6",
@@ -68,7 +68,7 @@
         "pretty-bytes": "~7.0.1",
         "prompts": "~2.4.2",
         "signale": "~1.4.0",
-        "teraslice-client-js": "~2.0.0-dev.6",
+        "teraslice-client-js": "~2.0.0-dev.7",
         "tmp": "~0.2.5",
         "tty-table": "~4.2.3",
         "yargs": "~18.0.0"
