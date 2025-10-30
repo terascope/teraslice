@@ -1,0 +1,4 @@
+apiVersion: v2
+name: namespaces
+version: 0.1.0
+description: Kubernetes namespaces for teraslice e2e testing
