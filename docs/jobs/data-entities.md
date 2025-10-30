@@ -16,8 +16,6 @@ This is more straightforward way of creating data entities but since `DataEntity
 'use strict';
 
 const { DataEntity } = require('@terascope/core-utils');
-// it is also available on job-components
-// const { DataEntity } = require('@terascope/job-components');
 
 const input = {
     foo: 1,
