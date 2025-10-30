@@ -23,7 +23,6 @@ import * as config from './config.js';
 import { getE2EDir, getE2eK8sDir } from '../helpers/packages.js';
 import { getVolumesFromDockerfile, Kind } from './kind.js';
 import { ENV_SERVICES } from './config.js';
-import type { K8s } from './k8s-env/k8s.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
