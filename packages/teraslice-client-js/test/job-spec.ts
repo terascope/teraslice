@@ -104,7 +104,7 @@ describe('Teraslice Job', () => {
             _has_errors: false,
             _slicer_stats: {},
             _failureReason: '',
-            teraslice_version: '3.0.0'
+            teraslice_version: 'v3.0.0'
         },
     ];
 
