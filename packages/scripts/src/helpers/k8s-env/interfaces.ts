@@ -8,4 +8,5 @@ export interface K8sEnvOptions {
     keepOpen: boolean;
     dev: boolean;
     configFile?: string;
+    logs: boolean;
 }
