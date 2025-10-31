@@ -74,6 +74,7 @@ const TEST_HOST = TEST_OPENSEARCH
     : ELASTICSEARCH_HOST;
 
 const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
+const FILE_LOGGING = toBoolean(process.env.FILE_LOGGING) || true;
 
 // Check current teraslice for pre release tag. Use dev assets if present.
 const terasliceVersion = semver.coerce(getRootInfo().version, { includePrerelease: true });
@@ -147,5 +148,6 @@ export {
     OPENSEARCH_USER,
     OPENSEARCH_PASSWORD,
     ASSET_BUNDLES_PATH,
+    FILE_LOGGING,
     USE_DEV_ASSETS
 };
