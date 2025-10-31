@@ -701,7 +701,7 @@ export class ApiService {
                                 name,
                                 node_version: process.version,
                                 platform: this.context.platform,
-                                teraslice_version: `v${getPackageJSON().version}`
+                                teraslice_version: `v${terasliceVersion}`
                             },
                             1
                         );
