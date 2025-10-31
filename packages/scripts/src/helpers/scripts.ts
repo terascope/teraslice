@@ -897,13 +897,13 @@ export async function helmfileDestroy(selector: string) {
     }
 }
 
-export async function helmfileCommand(command: string, clusteringType: 'kubernetesV2', devMode = false) {
+export async function helmfileCommand(command: string, clusteringType: 'kubernetesV2', devMode = false, logs = false) {
     const e2eDir = getE2EDir();
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
-    const { valuesPath, valuesDir } = generateHelmValuesFromServices(clusteringType, devMode);
+    const { valuesPath, valuesDir } = generateHelmValuesFromServices(clusteringType, devMode, logs);
 
     let subprocess;
     try {
@@ -917,9 +917,9 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
     logger.debug(`helmfile ${command}:\n${subprocess.stdout}`);
 }
 
-export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2', devMode = false) {
-    await helmfileCommand('diff', clusteringType, devMode);
-    await helmfileCommand('sync', clusteringType, devMode);
+export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2', devMode = false, logs = false) {
+    await helmfileCommand('diff', clusteringType, devMode, logs);
+    await helmfileCommand('sync', clusteringType, devMode, logs);
 
     if (ENV_SERVICES.includes(Service.Kafka)) {
         await waitForKafkaRunning('kafka');
@@ -1052,13 +1052,15 @@ function getAdminDnFromCert(): string {
  *
  * @param { 'kubernetesV2' } clusteringType - backend cluster manager type
  * @param { boolean } devMode - Mount local teraslice to k8s resources for faster development.
+ * @param { boolean } logs - Copy teraslice and service logs from k8s pods to local filesystem.
  * @returns An object containing:
  * - `valuesPath` - Path to the generated `values.yaml` file.
  * - `valuesDir` - Path to the temporary directory containing the file.
  */
 function generateHelmValuesFromServices(
     clusteringType: 'kubernetesV2',
-    devMode: boolean
+    devMode: boolean,
+    logs: boolean
 ): { valuesPath: string; valuesDir: string } {
     // Grab default values from the e2e/helm/values.yaml
     const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
@@ -1168,6 +1170,11 @@ function generateHelmValuesFromServices(
             MOUNT_LOCAL_TERASLICE: Buffer.from(JSON.stringify(dockerfileMounts)).toString('base64')
         });
     }
+
+    if (logs) {
+        values.setIn(['stern', 'enabled'], true);
+    }
+
     logger.debug('helmfile command values: ', JSON.stringify(values));
 
     // Write the values to a temporary file
