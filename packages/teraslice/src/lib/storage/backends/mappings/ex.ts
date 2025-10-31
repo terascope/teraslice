@@ -50,6 +50,9 @@ export default {
             },
             _deleted_on: {
                 type: 'date'
+            },
+            teraslice_version: {
+                type: 'keyword'
             }
         }
     }
