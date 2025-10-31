@@ -75,6 +75,11 @@ const cmd: CommandModule = {
                 type: 'boolean',
                 default: false
             })
+            .option('logs', {
+                description: 'Copy kubernetes pod logs to local filesystem',
+                type: 'boolean',
+                default: false
+            })
             .check(() => {
                 if (process.env.ASSET_STORAGE_CONNECTION_TYPE === 's3' && process.env.TEST_MINIO !== 'true') {
                     throw new Error('You chose "s3" as an asset storage but don\'t have the minio service enabled.\n'
@@ -92,6 +97,7 @@ const cmd: CommandModule = {
             dev: Boolean(argv.dev),
             clusteringType: argv['clustering-type'] as 'kubernetesV2',
             keepOpen: Boolean(argv['keep-open']),
+            logs: Boolean(argv.logs)
         };
 
         if (argv['config-file'] !== undefined) {

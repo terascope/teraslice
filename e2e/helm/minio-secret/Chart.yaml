@@ -1,0 +1,4 @@
+apiVersion: v2
+name: minio-secret
+version: 0.1.0
+description: Creates Kubernetes secret for Minio TLS certificates

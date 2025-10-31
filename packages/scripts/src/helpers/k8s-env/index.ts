@@ -1,4 +1,3 @@
-import os from 'node:os';
 import { execaCommandSync } from 'execa';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -7,7 +6,7 @@ import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
     isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
     helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
-    generateTestCaCerts, createMinioSecret, dockerBuild, getConfigValueFromCustomYaml,
+    generateTestCaCerts, dockerBuild, getConfigValueFromCustomYaml,
     launchTerasliceWithCustomHelmfile, setConfigValuesForCustomYaml
 } from '../scripts.js';
 import { Kind } from '../kind.js';
@@ -17,7 +16,6 @@ import { getDevDockerImage, getRootInfo } from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import * as config from '../config.js';
-import { K8s } from './k8s.js';
 import { loadImagesForHelm, loadImagesForHelmFromConfigFile } from '../test-runner/services.js';
 import { getE2EDir } from '../../helpers/packages.js';
 
@@ -27,21 +25,19 @@ const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
 export async function launchK8sEnv(options: K8sEnvOptions) {
     let repo: string = '';
     let tag: string = '';
-
-    if (process.env.TEST_ELASTICSEARCH && process.env.ELASTICSEARCH_VERSION?.charAt(0) === '6' && isArm()) {
-        signale.error('There is no compatible Elasticsearch6 image for arm based processors. Try a different elasticsearch version.');
-        process.exit(1);
-    }
+    let imageName: string = '';
+    let buildTerasliceImage: boolean = true;
 
     if (options.configFile) {
         signale.pending('Starting k8s environment with a config file..');
         // set the repo and tag to whats in th custom config to use later
         repo = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.repository');
         tag = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.tag');
+        imageName = `${repo}:${tag}`;
+        buildTerasliceImage = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.build');
     } else {
         signale.pending('Starting k8s environment with the following options: ', options);
     }
-    const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
 
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
@@ -67,6 +63,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     }
 
     signale.pending('Creating kind cluster');
+    const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
     try {
         await kind.createCluster(options.tsPort, options.dev, options.configFile);
     } catch (err) {
@@ -79,26 +76,13 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     }
     signale.success('Kind cluster created');
 
-    const k8s = new K8s(options.tsPort, options.kindClusterName);
     try {
-        await k8s.createNamespace('services-ns.yaml', 'services');
-    } catch (err) {
-        signale.fatal(err);
-        if (!options.keepOpen) {
-            await kind.destroyCluster();
-        }
-        process.exit(1);
-    }
-
-    try {
-        if (
-            !options.configFile
-            || (await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.build'))
-        ) {
+        if (!options.configFile || (buildTerasliceImage)) {
             await buildAndTagTerasliceImage(options);
-            if (process.env.ENABLE_UTILITY_SVC) {
-                await buildUtilityImage();
-            }
+        }
+
+        if ((options.configFile && await getConfigValueFromCustomYaml(options.configFile, 'utility.enabled')) || process.env.ENABLE_UTILITY_SVC) {
+            await buildUtilityImage();
         }
     } catch (err) {
         signale.fatal(err);
@@ -115,7 +99,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         try {
             if (options.configFile) {
                 // Will grab the image name from the yaml config so it can validate node version
-                const imageName = `${repo}:${tag}`;
                 imageVersion = await getNodeVersionFromImage(imageName);
             } else {
                 imageVersion = await getNodeVersionFromImage(e2eImage);
@@ -150,8 +133,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 
     signale.pending('Loading teraslice image into kind cluster');
     if (options.configFile) {
-        if (!await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.build')) {
-            const imageName = `${repo}:${tag}`;
+        if (!buildTerasliceImage) {
             await kind.loadTerasliceImage(imageName);
         } else {
             // We need to ensure the custom config has the image we are going to use set.
@@ -169,15 +151,10 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 
     try {
         signale.pending('Launching teraslice with helmfile');
-        // Create a minio secret if needed before helm sync
-        // but after the namespaces have been made
-        if (config.ENCRYPT_MINIO) {
-            await createMinioSecret(k8s);
-        }
         if (options.configFile) {
             await launchTerasliceWithCustomHelmfile(options.configFile);
         } else {
-            await launchTerasliceWithHelmfile(options.clusteringType, options.dev);
+            await launchTerasliceWithHelmfile(options.clusteringType, options.dev, options.logs);
         }
         signale.pending('Teraslice launched with helmfile');
     } catch (err) {
@@ -245,7 +222,7 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
         if (options.configFile) {
             await launchTerasliceWithCustomHelmfile(options.configFile);
         } else {
-            await launchTerasliceWithHelmfile(options.clusteringType, options.dev);
+            await launchTerasliceWithHelmfile(options.clusteringType, options.dev, options.logs);
         }
         signale.pending('Rebuilt Teraslice launched with helmfile');
     } catch (err) {
@@ -291,10 +268,6 @@ async function buildUtilityImage() {
     } catch (err) {
         throw new Error(`Utility Service Docker image build failed: ${err}`);
     }
-}
-
-function isArm() {
-    return os.machine() === 'arm' || os.machine() === 'arm64' || os.machine() === 'aarch64';
 }
 
 export function generateTemplateConfig() {

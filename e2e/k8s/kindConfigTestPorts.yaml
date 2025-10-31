@@ -28,5 +28,7 @@ nodes:
   #   hostPort: 49001
 
   extraMounts:
-  - hostPath: ./e2e/autoload
+  - hostPath: ./autoload
     containerPath: /autoload
+  - hostPath: ./logs
+    containerPath: /mnt/logs    

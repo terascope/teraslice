@@ -16,7 +16,7 @@ import {
     runJest, dockerTag, isKindInstalled, isKubectlInstalled,
     loadThenDeleteImageFromCache, deleteDockerImageCache,
     isHelmInstalled, isHelmfileInstalled, launchTerasliceWithHelmfile,
-    generateTestCaCerts, createMinioSecret
+    generateTestCaCerts
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
@@ -30,8 +30,7 @@ import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
 import {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
-    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ENCRYPT_MINIO,
-    ATTACH_JEST_DEBUGGER
+    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER
 } from '../config.js';
 import { K8s } from '../k8s-env/k8s.js';
 
@@ -226,7 +225,7 @@ async function runE2ETest(
 
             const helmInstalled = await isHelmInstalled();
             if (!helmInstalled && !isCI) {
-                signale.error('Please install Helm before running k8s tests.https://helm.sh/docs/intro/install');
+                signale.error('Please install Helm before running k8s tests. https://helm.sh/docs/intro/install');
                 process.exit(1);
             }
 
@@ -248,8 +247,10 @@ async function runE2ETest(
                 process.exit(1);
             }
 
-            const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
-            await k8s.createNamespace('services-ns.yaml', 'services');
+            if (!options.useHelmfile) {
+                const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
+                await k8s.createNamespace('services-ns.yaml', 'services');
+            }
         } catch (err) {
             tracker.addError(err);
         }
@@ -292,18 +293,13 @@ async function runE2ETest(
         try {
             await kind.loadTerasliceImage(e2eImage);
             if (options.useHelmfile) {
+                // Do not set up pod logging in CI
+                // TODO: We may want to archive CI logs in the future
+                const podLogs = !isCI && options.logs;
                 const timeLabel = 'helmfile deployment';
                 await loadImagesForHelm(options.kindClusterName, options.skipImageDeletion);
                 signale.time(timeLabel);
-
-                // Created a minio secret if needed before helm sync
-                // but after the namespaces have been made
-                if (ENCRYPT_MINIO) {
-                    const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
-                    await createMinioSecret(k8s);
-                }
-
-                await launchTerasliceWithHelmfile(options.clusteringType);
+                await launchTerasliceWithHelmfile(options.clusteringType, false, podLogs);
                 signale.timeEnd(timeLabel);
             }
         } catch (err) {
