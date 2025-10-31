@@ -932,21 +932,21 @@ export async function loadImagesForHelmFromConfigFile(
                     customConfig[service].version,
                     false
                 ));
-            } else if (service.includes(Service.Minio)) {
+            } else if (service === Service.Minio) {
                 promiseArray.push(kind.loadServiceImage(
                     Service.Minio,
                     config.MINIO_DOCKER_IMAGE,
                     customConfig[service].version,
                     false
                 ));
-            } else if (service.includes(Service.Kafka)) {
+            } else if (service === Service.Kafka) {
                 promiseArray.push(kind.loadServiceImage(
                     Service.Kafka,
                     customConfig[service].image || config.KAFKA_DOCKER_IMAGE,
                     customConfig[service].version,
                     false
                 ));
-            } else if (service.includes(Service.Utility)) {
+            } else if (service === Service.Utility) {
                 promiseArray.push(kind.loadServiceImage(
                     Service.Utility,
                     customConfig[service].image.repository,
