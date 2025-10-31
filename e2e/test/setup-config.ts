@@ -6,7 +6,7 @@ import {
     TEST_HOST, TERASLICE_PORT, CLUSTER_NAME,
     HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST,
-    ENCRYPT_MINIO, ROOT_CERT_PATH
+    ENCRYPT_MINIO, ROOT_CERT_PATH, FILE_LOGGING
 } from './config.js';
 
 const baseConfig = {
@@ -17,7 +17,7 @@ const baseConfig = {
         ],
         logging: [
             'console',
-            'file'
+            ...(FILE_LOGGING ? ['file'] : [])
         ],
         log_path: '/app/logs',
         connectors: {

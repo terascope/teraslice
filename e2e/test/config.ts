@@ -72,6 +72,7 @@ const TEST_HOST = TEST_OPENSEARCH
     : ELASTICSEARCH_HOST;
 
 const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
+const FILE_LOGGING = toBoolean(process.env.FILE_LOGGING) || true;
 
 function newId(prefix?: string, lowerCase = false, length = 15) {
     let characters = '0123456789abcdefghijklmnopqrstuvwxyz';
@@ -136,5 +137,6 @@ export {
     USE_HELMFILE,
     OPENSEARCH_USER,
     OPENSEARCH_PASSWORD,
-    ASSET_BUNDLES_PATH
+    ASSET_BUNDLES_PATH,
+    FILE_LOGGING
 };

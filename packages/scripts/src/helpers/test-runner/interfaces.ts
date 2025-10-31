@@ -17,6 +17,7 @@ export type TestOptions = {
     kindClusterName: string;
     skipImageDeletion: boolean;
     useHelmfile: boolean;
+    logs: boolean;
 };
 
 export type GroupedPackages = {
