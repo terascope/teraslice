@@ -23,6 +23,7 @@ type Options = {
     'test-platform': string;
     'skip-image-deletion': boolean;
     'use-helmfile': boolean;
+    logs: boolean;
 };
 
 const jestArgs = getExtraArgs();
@@ -107,6 +108,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: config.USE_HELMFILE,
             })
+            .option('logs', {
+                description: 'Copy logs to local file during e2e testing',
+                type: 'boolean',
+                default: true,
+            })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
                 coerce(arg) {
@@ -133,6 +139,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
         const skipImageDeletion = hoistJestArg(argv, 'skip-image-deletion', 'boolean');
         const useHelmfile = hoistJestArg(argv, 'use-helmfile', 'boolean');
+        const logs = hoistJestArg(argv, 'logs', 'boolean');
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -154,7 +161,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             clusteringType: testPlatform,
             kindClusterName,
             skipImageDeletion,
-            useHelmfile
+            useHelmfile,
+            logs
         });
     },
 };

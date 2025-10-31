@@ -222,7 +222,7 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
         if (options.configFile) {
             await launchTerasliceWithCustomHelmfile(options.configFile);
         } else {
-            await launchTerasliceWithHelmfile(options.clusteringType, options.dev);
+            await launchTerasliceWithHelmfile(options.clusteringType, options.dev, options.logs);
         }
         signale.pending('Rebuilt Teraslice launched with helmfile');
     } catch (err) {
