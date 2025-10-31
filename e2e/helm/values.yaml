@@ -220,3 +220,4 @@ stern:
   # If enabled, stern will copy kubernetes logs to local file system
   # Previous log files will be overwritten
   enabled: false
+  
