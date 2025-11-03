@@ -163,13 +163,12 @@ export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
 
+export const ENCRYPTION_ENABLED = ENCRYPT_KAFKA || ENCRYPT_MINIO || ENCRYPT_OPENSEARCH;
 export const CERT_PATH = process.env.CERT_PATH
-    || ((ENCRYPT_KAFKA || ENCRYPT_MINIO || ENCRYPT_OPENSEARCH)
+    || (ENCRYPTION_ENABLED
         ? fs.mkdtempSync(path.join(os.tmpdir(), 'ts-CAs'))
         : 'tmp/ts-certs'
     );
-// We need to set CERT_PATH through process.env so config in e2e can use it.
-process.env.CERT_PATH = CERT_PATH;
 
 const {
     TEST_OPENSEARCH = undefined,
@@ -231,4 +230,3 @@ export const DOCKER_CACHE_PATH = process.env.DOCKER_CACHE_PATH || '/tmp/docker_c
 export const SKIP_IMAGE_DELETION = toBoolean(process.env.SKIP_IMAGE_DELETION) || false;
 export const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
 export const ATTACH_JEST_DEBUGGER = toBoolean(process.env.ATTACH_JEST_DEBUGGER) || false;
-export const ENCRYPTION_ENABLED = ENCRYPT_KAFKA || ENCRYPT_MINIO || ENCRYPT_OPENSEARCH;
