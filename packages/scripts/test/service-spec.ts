@@ -93,6 +93,8 @@ jest.unstable_mockModule('../src/helpers/config.js', () => ({
     NODE_VERSION: '',
     DOCKER_IMAGES_PATH: '',
     DOCKER_IMAGE_LIST_PATH: '',
+    CERT_PATH: '',
+    ENCRYPTION_ENABLED: ''
 }));
 
 describe('services', () => {

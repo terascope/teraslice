@@ -1,4 +1,7 @@
 import ipPkg from 'ip';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {
     toBoolean, toSafeString, isCI,
     toIntegerOrThrow
@@ -55,7 +58,7 @@ export const KAFKA_LISTENERS = process.env.KAFKA_LISTENERS || `INTERNAL://0.0.0.
 export const KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS || `INTERNAL://${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const ENCRYPT_KAFKA = toBoolean(process.env.ENCRYPT_KAFKA ?? false);
 export const KAFKA_SECURITY_PROTOCOL = process.env.KAFKA_SECURITY_PROTOCOL || ENCRYPT_KAFKA ? 'SSL' : 'PLAINTEXT';
-export const KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP || `INTERNAL:${KAFKA_SECURITY_PROTOCOL}, CONTROLLER:${KAFKA_SECURITY_PROTOCOL}`;
+export const KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP || `INTERNAL:${KAFKA_SECURITY_PROTOCOL}, CONTROLLER:PLAINTEXT`;
 export const KAFKA_SECRETS_DIR = process.env.KAFKA_SECRETS_DIR || '/etc/kafka/secrets';
 export const KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR = process.env.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR || '1';
 export const KAFKA_PROCESS_ROLES = process.env.KAFKA_PROCESS_ROLES || 'broker,controller';
@@ -159,6 +162,13 @@ export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
     : undefined;
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
+
+export const ENCRYPTION_ENABLED = ENCRYPT_KAFKA || ENCRYPT_MINIO || ENCRYPT_OPENSEARCH;
+export const CERT_PATH = process.env.CERT_PATH
+    || (ENCRYPTION_ENABLED
+        ? fs.mkdtempSync(path.join(os.tmpdir(), 'ts-CAs'))
+        : 'tmp/ts-certs'
+    );
 
 const {
     TEST_OPENSEARCH = undefined,
