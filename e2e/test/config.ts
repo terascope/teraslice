@@ -31,8 +31,6 @@ const BASE_PATH = filePath.slice(0, pathLength);
 const CONFIG_PATH = path.join(BASE_PATH, '.config');
 const ASSETS_PATH = path.join(BASE_PATH, '../assets');
 const AUTOLOAD_PATH = path.join(BASE_PATH, 'autoload');
-const ROOT_CERT_PATH = path.join(BASE_PATH, 'test/certs/CAs/rootCA.pem');
-const CERT_PATH = path.join(BASE_PATH, 'test/certs');
 const LOG_PATH = path.join(BASE_PATH, 'logs/teraslice.log');
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
 const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
@@ -66,8 +64,11 @@ const {
     ENCRYPT_OPENSEARCH = false,
     MINIO_HOST = 'http://127.0.0.1:49000',
     MINIO_ACCESS_KEY = 'minioadmin',
-    MINIO_SECRET_KEY = 'minioadmin'
+    MINIO_SECRET_KEY = 'minioadmin',
+    CERT_PATH = path.join(BASE_PATH, 'test/certs')
 } = process.env;
+
+const ROOT_CERT_PATH = path.join(CERT_PATH, 'CAs/rootCA.pem');
 
 const TEST_HOST = TEST_OPENSEARCH
     ? ENCRYPT_OPENSEARCH ? OPENSEARCH_SSL_HOST : OPENSEARCH_HOST

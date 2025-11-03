@@ -4,25 +4,25 @@ set -e
 
 cmdname=$(basename "$0")
 
-echoerr() { if [[ $QUIET -ne 1 ]]; then echo "$@" 1>&2; fi; }
+echoerr() { if [[ ${QUIET:-0} -ne 1 ]]; then echo "$@" 1>&2; fi; }
 
 usage() {
     cat <<USAGE >&2
 Usage:
-    $cmdname --format [minio|opensearch] <dns_names...>
+    $cmdname --format [minio|opensearch|kafka] <dns_names...> --dirPath [absolute path]
 
-    Generate a certificate in the e2e/test/certs directory.
+    Generate a certificate in a specified absolute directory.
 
-    Example:
-        generate-cert.sh --format minio 127.0.0.1 localhost service.com
-        generate-cert.sh --format opensearch --format minio 127.0.0.1 localhost service.com
-        generate-cert.sh 127.0.0.1 localhost service.com  (keeps original file names)
+    Examples:
+        $cmdname --format minio 127.0.0.1 localhost service.com --dirPath /abs/out
+        $cmdname --format opensearch --format minio 127.0.0.1 localhost service.com --dirPath=/abs/out
+        $cmdname 127.0.0.1 localhost service.com --dirPath /abs/out  (keeps original file names)
 
     If no --format is specified, the original files are kept without renaming.
+    If --dirPath is not specified, this command will exit with an error.
 USAGE
     exit 1
 }
-
 
 format() {
     local CERT_DIR="$1"
@@ -35,8 +35,10 @@ format() {
     mv rootCA.pem ./CAs
 
     # Detect the generated key and certificate files
-    local PRIVATE_KEY_NAME=$(ls | grep -i "key.pem")
-    local PUBLIC_CERT_NAME=$(ls | grep -i ".pem" | grep -v "key.pem")
+    local PRIVATE_KEY_NAME
+    PRIVATE_KEY_NAME=$(ls | grep -i "key.pem" || true)
+    local PUBLIC_CERT_NAME
+    PUBLIC_CERT_NAME=$(ls | grep -i ".pem" | grep -v "key.pem" || true)
 
     # Ensure both files exist before proceeding
     if [[ -z "$PRIVATE_KEY_NAME" || -z "$PUBLIC_CERT_NAME" ]]; then
@@ -48,24 +50,20 @@ format() {
     for format in "${FORMATS[@]}"; do
         case "$format" in
             minio)
-            # Minio requires these files to be a specific name:
-            # https://min.io/docs/minio/linux/operations/network-encryption.html
+                # https://min.io/docs/minio/linux/operations/network-encryption.html
                 cp "$PRIVATE_KEY_NAME" private.key
                 cp "$PUBLIC_CERT_NAME" public.crt
                 ;;
             opensearch)
-            # Opensearch expects these files to be in pem format
-            # The naming of these files are because these are how we name them in the os2 template file
-            # at teraslice/e2e/helm/templates/os2.yaml.gotmpl
-            # https://opensearch.org/docs/latest/security/configuration/tls/#x509-pem-certificates-and-pkcs-8-keys
+                # https://opensearch.org/docs/latest/security/configuration/tls/#x509-pem-certificates-and-pkcs-8-keys
                 cp "$PRIVATE_KEY_NAME" opensearch-key.pem
                 cp "$PUBLIC_CERT_NAME" opensearch-cert.pem
                 create_internal_users_file "$CERT_DIR"
                 ;;
             kafka)
-            # Kafka requires key/cert pairs in PEM format to be in a certificate chain:
-            # https://kafka.apache.org/documentation/#security_ssl_signing
-                cat "$PRIVATE_KEY_NAME" "$PUBLIC_CERT_NAME" > kafka-keypair.pem;;
+                # https://kafka.apache.org/documentation/#security_ssl_signing
+                cat "$PRIVATE_KEY_NAME" "$PUBLIC_CERT_NAME" > kafka-keypair.pem
+                ;;
             *)
                 echo "Warning: Unknown format '$format' ignored."
                 ;;
@@ -83,40 +81,78 @@ format() {
 
 grab_rootCA() {
     local CERT_DIR="$1"
-    local CA_ROOT_PATH=$(mkcert -CAROOT)
+    local CA_ROOT_PATH
+    CA_ROOT_PATH=$(mkcert -CAROOT)
 
     cp "$CA_ROOT_PATH/rootCA.pem" "$CERT_DIR"
 }
 
 generate() {
-    local CERT_DIR="$1/certs"
-    local DNS_NAMES=""
-    shift
+    # Parse args: collect --dirPath, multiple --format, and DNS names
+    local DIR_PATH=""
+    local -a FORMATS=()
+    local -a DNS_NAMES=()
 
-    # Parse format flags
-    local FORMATS=()
-    while [[ "$1" == --format ]]; do
-        shift
-        FORMATS+=("$1")
-        shift
-    done
-
-    # Collect DNS names
     while [[ $# -gt 0 ]]; do
-        DNS_NAMES+="$1 "
+        case "$1" in
+            -h|--help|help)
+                usage
+                ;;
+            --format)
+                shift
+                [[ $# -gt 0 ]] || { echoerr "Error: --format requires a value"; usage; }
+                FORMATS+=("$1")
+                ;;
+            --format=*)
+                FORMATS+=("${1#*=}")
+                ;;
+            --dirPath)
+                shift
+                [[ $# -gt 0 ]] || { echoerr "Error: --dirPath requires a value"; usage; }
+                DIR_PATH="$1"
+                ;;
+            --dirPath=*)
+                DIR_PATH="${1#*=}"
+                ;;
+            -*)
+                echoerr "Error: Unknown flag '$1'"
+                usage
+                ;;
+            *)
+                DNS_NAMES+=("$1")
+                ;;
+        esac
         shift
     done
 
-    echo "Generating certificates for: $DNS_NAMES"
+    if [[ -z "$DIR_PATH" ]]; then
+        echoerr "Error: --dirPath is required"
+        usage
+    fi
+
+    if [[ "$DIR_PATH" != /* ]]; then
+        echoerr "Error: --dirPath must be an absolute path (starts with /)"
+        exit 1
+    fi
+
+    if [[ ${#DNS_NAMES[@]} -eq 0 ]]; then
+        echoerr "Error: At least one DNS name is required"
+        usage
+    fi
+
+    local CERT_DIR="$DIR_PATH"
+
+    echo "Generating certificates for: ${DNS_NAMES[*]}"
+    echo "Output directory: $CERT_DIR"
 
     # Remove existing cert directory if it exists
-    if [ -d "$CERT_DIR" ]; then
+    if [[ -d "$CERT_DIR" ]]; then
         rm -rf "$CERT_DIR"
     fi
 
     mkdir -p "$CERT_DIR"
     cd "$CERT_DIR"
-    mkcert --client $DNS_NAMES
+    mkcert --client "${DNS_NAMES[@]}"
 
     grab_rootCA "$CERT_DIR"
     format "$CERT_DIR" "${FORMATS[@]}"
@@ -189,8 +225,8 @@ EOF
 }
 
 main() {
-    # Handle help flag
-    if [[ "$1" == "-h" || "$1" == "--help" || "$1" == "help" ]]; then
+    # Handle help flag early
+    if [[ "${1:-}" == "-h" || "${1:-}" == "--help" || "${1:-}" == "help" ]]; then
         usage
     fi
 
@@ -205,11 +241,8 @@ main() {
         exit 1
     fi
 
-    # Find cert directory in e2e
-    local SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-    local TEST_DIR=$(builtin cd "$SCRIPT_DIR/../e2e/test"; pwd)
-
-    generate "$TEST_DIR" "$@"
+    # All arg parsing happens in generate now
+    generate "$@"
 }
 
 main "$@"

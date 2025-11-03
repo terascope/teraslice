@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import ms from 'ms';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { X509Certificate } from 'node:crypto';
 import { execa, execaCommand, type Options } from 'execa';
 import fse from 'fs-extra';
@@ -25,6 +26,8 @@ import { getVolumesFromDockerfile, Kind } from './kind.js';
 import { ENV_SERVICES } from './config.js';
 
 const logger = debugLogger('ts-scripts:cmd');
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
 export type ExecEnv = { [name: string]: string };
 type ExecOpts = {
@@ -971,17 +974,13 @@ export async function determineSearchHost() {
     return filtered[0].name;
 }
 
-// Helper function for reading the contents of a file in the e2e/test/certs
-// directory
-function readCertFromTestDir(fileName: string): string {
-    const certsDir = path.join(getE2EDir() as string, 'test/certs');
-    const testCertPath = path.join(certsDir, fileName);
-
-    if (!fs.existsSync(testCertPath)) {
-        throw new TSError(`Unable to find cert at: ${testCertPath}`);
+// Helper function for reading the contents of a certificate by providing its path
+function readCertFromPath(certPath: string): string {
+    if (!fs.existsSync(certPath)) {
+        throw new TSError(`Unable to find cert at: ${certPath}`);
     }
 
-    return fs.readFileSync(testCertPath, 'utf8');
+    return fs.readFileSync(certPath, 'utf8');
 }
 
 /**
@@ -1009,7 +1008,7 @@ function getAdminDnFromCert(): string {
     let organizationalUnit: string | undefined;
 
     try {
-        ca = readCertFromTestDir('opensearch-cert.pem');
+        ca = readCertFromPath(path.join(config.CERT_PATH, 'opensearch-cert.pem'));
     } catch (err) {
         throw new TSError(`Failed to read certificate file (opensearch-cert.pem).\n${err}`);
     }
@@ -1104,7 +1103,7 @@ function generateHelmValuesFromServices(
                     throw new TSError('Encrypted Opensearch version 1 is not enabled. Please use OS2 or OS3.');
                 }
                 if (!caCert) {
-                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                    caCert = readCertFromPath(path.join(config.CERT_PATH, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
                 }
                 const admin_dn = getAdminDnFromCert();
                 values.setIn([serviceString, 'ssl', 'enabled'], true);
@@ -1121,7 +1120,7 @@ function generateHelmValuesFromServices(
         if (service === Service.Kafka) {
             if (config.ENCRYPT_KAFKA) {
                 if (!caCert) {
-                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                    caCert = readCertFromPath(path.join(config.CERT_PATH, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
                 }
                 values.setIn(['kafka', 'ssl', 'enabled'], true);
                 values.setIn(['kafka', 'ssl', 'caCert'], caCert);
@@ -1131,10 +1130,10 @@ function generateHelmValuesFromServices(
         if (service === Service.Minio) {
             if (config.ENCRYPT_MINIO) {
                 if (!caCert) {
-                    caCert = readCertFromTestDir('CAs/rootCA.pem').replace(/\n/g, '\\n');
+                    caCert = readCertFromPath(path.join(config.CERT_PATH, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
                 }
-                const publicCert = readCertFromTestDir('public.crt').replace(/\n/g, '\\n');
-                const privateKey = readCertFromTestDir('private.key').replace(/\n/g, '\\n');
+                const publicCert = readCertFromPath(path.join(config.CERT_PATH, 'public.crt')).replace(/\n/g, '\\n');
+                const privateKey = readCertFromPath(path.join(config.CERT_PATH, 'private.key')).replace(/\n/g, '\\n');
 
                 values.setIn(['minio', 'tls', 'enabled'], true);
                 values.setIn(['minio', 'tls', 'caCert'], caCert);
@@ -1442,7 +1441,7 @@ export async function generateTestCaCerts(): Promise<void> {
 
         try {
             signale.pending(`Generating new ca-certificates for ${serviceList}...`);
-            const scriptLocation = path.join(getE2EDir() as string, '../scripts/generate-cert.sh');
+            const scriptLocation = path.join(dirname, '../../../src/scripts/generate-cert.sh');
 
             // create a format array for each service
             const formatCommands: string[] = [];
@@ -1451,8 +1450,13 @@ export async function generateTestCaCerts(): Promise<void> {
                 formatCommands.push(service);
             });
 
+            // Ensure we pass in the cert path at the end
+            formatCommands.push('--dirPath');
+            formatCommands.push(config.CERT_PATH);
+
             signale.debug('Generate certs command: ', `${scriptLocation} ${formatCommands.concat(hostNames)}`);
             await execa(scriptLocation, formatCommands.concat(hostNames));
+            signale.success(`Created certs in ${config.CERT_PATH}`);
         } catch (err) {
             throw new Error(`Error generating ca-certificates for ${serviceList}: ${err.message}`);
         }

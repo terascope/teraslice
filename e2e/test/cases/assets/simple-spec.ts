@@ -15,7 +15,7 @@ import crypto from 'crypto';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import {
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST,
-    MINIO_SECRET_KEY, TEST_PLATFORM, ENCRYPT_MINIO
+    MINIO_SECRET_KEY, TEST_PLATFORM, ENCRYPT_MINIO, ROOT_CERT_PATH
 } from '../../config.js';
 
 describe('assets', () => {
@@ -220,7 +220,7 @@ describe('s3 asset storage', () => {
             sslEnabled: ENCRYPT_MINIO === 'true',
             region: 'test-region',
             caCertificate: ENCRYPT_MINIO === 'true'
-                ? fs.readFileSync('test/certs/CAs/rootCA.pem', 'utf8')
+                ? fs.readFileSync(ROOT_CERT_PATH, 'utf8')
                 : ''
         };
 
