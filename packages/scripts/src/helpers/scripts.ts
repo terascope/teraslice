@@ -1132,8 +1132,8 @@ function generateHelmValuesFromServices(
                 if (!caCert) {
                     caCert = readCertFromPath(path.join(config.CERT_PATH, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
                 }
-                const publicCert = readCertFromTestDir('public.crt').replace(/\n/g, '\\n');
-                const privateKey = readCertFromTestDir('private.key').replace(/\n/g, '\\n');
+                const publicCert = readCertFromPath(path.join(config.CERT_PATH, 'public.crt')).replace(/\n/g, '\\n');
+                const privateKey = readCertFromPath(path.join(config.CERT_PATH, 'private.key')).replace(/\n/g, '\\n');
 
                 values.setIn(['minio', 'tls', 'enabled'], true);
                 values.setIn(['minio', 'tls', 'caCert'], caCert);
