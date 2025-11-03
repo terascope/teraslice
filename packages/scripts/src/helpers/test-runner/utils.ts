@@ -72,7 +72,8 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
         NODE_OPTIONS: '--experimental-vm-modules',
         USE_HELMFILE: options.useHelmfile ? 'true' : 'false',
         TEST_PLATFORM: options.clusteringType,
-        FILE_LOGGING: options.logs ? 'true' : 'false'
+        FILE_LOGGING: options.logs ? 'true' : 'false',
+        CERT_PATH: config.CERT_PATH
     };
 
     if (config.DOCKER_NETWORK_NAME) {

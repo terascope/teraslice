@@ -11,7 +11,8 @@ import { KindCluster, TsVolumeSet, CustomKindDefaultPorts, CustomKindService } f
 import {
     DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
     ELASTICSEARCH_PORT, OPENSEARCH_PORT, MINIO_PORT,
-    MINIO_UI_PORT, KAFKA_PORT, OPENSEARCH_VERSION
+    MINIO_UI_PORT, KAFKA_PORT, OPENSEARCH_VERSION,
+    ENCRYPTION_ENABLED, CERT_PATH
 } from './config.js';
 
 export class Kind {
@@ -180,9 +181,9 @@ export class Kind {
                 configFile.nodes[0].extraMounts.push(...dockerFileMounts);
             }
         }
-        if (configFile.nodes[0].extraMounts) {
+        if (configFile.nodes[0].extraMounts && ENCRYPTION_ENABLED && CERT_PATH) {
             configFile.nodes[0].extraMounts.push({
-                hostPath: path.join(e2eK8sDir, '../test/certs'),
+                hostPath: path.join(CERT_PATH),
                 containerPath: '/certs'
             });
         }
