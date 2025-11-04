@@ -22,8 +22,6 @@ npm install --save  @terascope/docker-compose-js
 
 The API largely just mirrors the regular docker-compose commands such as up(), down(), start(), stop() and so on. At the present time all commands except 'logs' and 'events' have been implemented.
 
-The API is Promise based using the Bluebird promises library.
-
 The examples below show the common patterns for calls. Since this is a wrapper around the standard docker-compose command details on each operation can be found [in the docker-compose documentation](https://docs.docker.com/compose/reference/).
 
 Note: Each function takes an object for keyword parameters as the last argument.
