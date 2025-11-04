@@ -100,6 +100,7 @@ export interface ExecutionConfig extends ValidatedJobConfig {
     _failureReason?: string;
     slicer_port: number;
     slicer_hostname: string;
+    teraslice_version: string;
 }
 
 export interface StateRecord {
