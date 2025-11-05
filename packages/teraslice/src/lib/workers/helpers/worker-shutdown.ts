@@ -160,14 +160,6 @@ export function shutdownHandler(
     process.stdout.on('error', handleStdError);
     process.stderr.on('error', handleStdError);
 
-    // event is fired from terafoundation when an error occurs during instantiation of a client
-    // **DEPRECATED:** This handler should be removed on teraslice v1
-    events.once('client:initialization:error', (err) => {
-        logError(logger, err, `${assignment} received a client initialization error, ${exitingIn()}`);
-        setStatusCode(1);
-        exit('client:initialization:error', err);
-    });
-
     events.once('worker:shutdown:complete', (err) => {
         setStatusCode(0);
         if (err) {
