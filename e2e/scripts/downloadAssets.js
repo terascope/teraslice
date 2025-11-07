@@ -161,7 +161,12 @@ const moreAssetBundles = [];
 // We need to loop through what we just pulled from github and see if we got any pre released assets
 // If we did, we need to also download the latest non pre released version.
 jsonAssetList.forEach((repo) => {
-    const fileInfo = assetFileInfo(repo.assetFileNames[0]);
+    let fileInfo;
+    if (repo.assetFileNames) {
+        fileInfo = assetFileInfo(repo.assetFileNames[0]);
+    } else {
+        fileInfo = assetFileInfo(path.basename(repo[0]));
+    }
     if (fileInfo.version.prerelease && fileInfo.version.prerelease.length > 0) {
         defaultAssetBundles.forEach((val) => {
             if (val.name === fileInfo.name) {
