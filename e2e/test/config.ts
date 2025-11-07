@@ -1,5 +1,7 @@
 import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
+import { getRootInfo } from '@terascope/scripts';
 import { customAlphabet } from 'nanoid';
+import semver from 'semver';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { toBoolean } from '@terascope/utils';
@@ -72,7 +74,14 @@ const TEST_HOST = TEST_OPENSEARCH
     : ELASTICSEARCH_HOST;
 
 const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
-const USE_DEV_ASSETS = toBoolean(process.env.USE_DEV_ASSETS) || false;
+
+// Check current teraslice for pre release tag. Use dev assets if present.
+const terasliceVersion = semver.coerce(getRootInfo().version, { includePrerelease: true });
+const USE_DEV_ASSETS = process.env.USE_DEV_ASSETS
+    ? toBoolean(process.env.USE_DEV_ASSETS) || false
+    : terasliceVersion?.prerelease
+        ? terasliceVersion.prerelease.length > 0
+        : false;
 
 function newId(prefix?: string, lowerCase = false, length = 15) {
     let characters = '0123456789abcdefghijklmnopqrstuvwxyz';

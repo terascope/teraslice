@@ -65,7 +65,7 @@ function assetFileInfo(assetName: string): AssetInfo {
             throw new Error(`Error parsing asset file name. The name should have dashes in it (-)`);
         }
         // Removes the asset name prefix
-        // EX: v4.4.0-node-22-bundle.zip -> v4.4.0-node-22-bundle.zip -> v4.4.0
+        // EX: kafka-v4.4.0-node-22-bundle.zip -> v4.4.0-node-22-bundle.zip -> v4.4.0
         assetVersion = assetName.slice(firstDashIndex + 1);
 
         const nodeIndex = assetVersion.indexOf('-node-');
@@ -79,11 +79,11 @@ function assetFileInfo(assetName: string): AssetInfo {
         assetVersion = semver.clean(assetVersion);
         if (assetVersion === null) {
             throw new Error(`semver was unable to clean asset version for ${assetName}`);
-        } else {
-            semverVersion = semver.coerce(assetVersion, { includePrerelease: true });
-            if (semverVersion === null) {
-                throw new Error(`semver was unable to return a version for ${assetName}`);
-            }
+        }
+
+        semverVersion = semver.coerce(assetVersion, { includePrerelease: true });
+        if (semverVersion === null) {
+            throw new Error(`semver was unable to return a version for ${assetName}`);
         }
         assetNodeVersion = splitAssetName[splitAssetName.indexOf('node') + 1];
     }
@@ -218,7 +218,7 @@ function deleteAssetsWithDevTag() {
         }
     });
     for (const asset of filteredAssets) {
-        signale.warn(`Deleting asset ${asset.name}@v${asset.version} because it has a pre-release tag`);
+        signale.warn(`Deleting asset ${asset.fileName} because it has a pre-release tag`);
         fs.unlinkSync(path.join(AUTOLOAD_PATH, asset.fileName));
     }
 }
