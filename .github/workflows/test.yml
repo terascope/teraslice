@@ -6,9 +6,9 @@ on:
       - master
       - 'release/teraslice-v*'
 env:
-  NODE_VERSIONS: '[22, 24.4]'
+  NODE_VERSIONS: '[22, 24]'
   NODE_VERSION_MAIN: '22'
-  NODE_VERSIONS_K8S: '[22, 24.4]'
+  NODE_VERSIONS_K8S: '[22, 24]'
   NODE_VERSIONS_EXT_STORAGE: '[22]'
 
 jobs:
@@ -965,6 +965,7 @@ jobs:
         elasticsearch-api-tests,
         elasticsearch-store-tests,
         teraslice-elasticsearch-tests,
+        xlucene-translator-tests,
         lint-and-sync,
         test-website,
         determine-tests-based-off-commit
@@ -978,6 +979,7 @@ jobs:
 
           declare -A results
           results["linux-unit-tests"]="${{ needs.linux-unit-tests.result }}"
+          results["xlucene-translator-tests"]="${{ needs.xlucene-translator-tests.result }}"
           results["e2e-k8s-v2-encrypted-tests"]="${{ needs.e2e-k8s-v2-encrypted-tests.result }}"
           results["e2e-external-storage-tests"]="${{ needs.e2e-external-storage-tests.result }}"
           results["e2e-k8s-v2-tests"]="${{ needs.e2e-k8s-v2-tests.result }}"

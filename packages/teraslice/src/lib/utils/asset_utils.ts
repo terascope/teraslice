@@ -73,7 +73,7 @@ function isCompatibleNodeVersion(version: string | number | undefined) {
 function _isCompatibleAsset(name: string, range: string, skipRestrictions = false) {
     return function checkIfCompatibleAsset(record: AssetRecord): boolean {
         if (record.name !== name) return false;
-        if (!semver.satisfies(record.version, range)) {
+        if (!semver.satisfies(record.version, range, { includePrerelease: true })) {
             return false;
         }
         if (skipRestrictions) return true;

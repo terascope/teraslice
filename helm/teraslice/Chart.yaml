@@ -4,8 +4,8 @@ description: Teraslice -  Distributed computing platform for processing JSON dat
 home: https://github.com/terascope/teraslice
 icon: https://terascope.github.io/teraslice/img/logo.png
 type: application
-version: 2.20.0
-appVersion: v2.17.4
+version: 2.21.0
+appVersion: v2.17.5
 sources:
   - https://github.com/terascope/teraslice
 keywords:
