@@ -8,7 +8,7 @@
 import {
     defaultAssetBundles,
     downloadWithDelayedRetry,
-    filterRelease
+    assetFileInfo
 } from '../dist/test/download-assets.js';
 import { ASSET_BUNDLES_PATH } from '../dist/test/config.js';
 import { downloadRelease } from '@terascope/fetch-github-release';
@@ -41,6 +41,7 @@ Options:
 // Grab the path to the downloadAssets.js file
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+let filterOutDevAsset = false;
 
 /**
  * Grabs the NODE_VERSIONS value from the test.yml ci file and formats it into an array
@@ -92,6 +93,24 @@ function mapMajorVersions(nodeVersionArray) {
 }
 
 /**
+ * Filter function for downloadRelease() that will filter releases to only grab either a dev release
+ * or the latest non dev release
+ * @param release Github release object
+ * @returns Boolean
+ */
+function filterRelease(release) {
+    if (filterOutDevAsset) {
+        const version = semver.clean(release.tag_name);
+        const semverVersion = semver.coerce(version, { includePrerelease: true });
+        // If the prerelease array isn't empty we don't want it.
+        if (semverVersion?.prerelease && semverVersion?.prerelease.length > 0) {
+            return false;
+        }
+    }
+    return !release.draft;
+}
+
+/**
  * Filter function for downloadRelease() that will filter assets to only grab specified
  * node versions
  * @param asset Github asset object
@@ -137,6 +156,36 @@ const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
     ))
 );
 const jsonAssetList = await Promise.all(promises);
+
+const moreAssetBundles = [];
+// We need to loop through what we just pulled from github and see if we got any pre released assets
+// If we did, we need to also download the latest non pre released version.
+jsonAssetList.forEach((repo) => {
+    const fileInfo = assetFileInfo(repo.assetFileNames[0]);
+    if (fileInfo.version.prerelease && fileInfo.version.prerelease.length > 0) {
+        defaultAssetBundles.forEach((val) => {
+            if (val.name === fileInfo.name) {
+                moreAssetBundles.push(val);
+            }
+        });
+    }
+});
+
+filterOutDevAsset = true;
+const morePromises = moreAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
+    () => downloadRelease(
+        'terascope',
+        repo,
+        ASSET_BUNDLES_PATH,
+        filterRelease,
+        filterAsset,
+        true, // Keep assets zipped
+        false, // Don't disable logging
+        userCommand === 'download' ? false : true
+    ))
+);
+
+jsonAssetList.push(...await Promise.all(morePromises));
 
 if (userCommand === 'generate-list') {
     const assetBundleList = generateList(jsonAssetList);
