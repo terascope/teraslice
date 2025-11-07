@@ -5,7 +5,7 @@ import semver from 'semver';
 import { downloadRelease, HTTPError } from '@terascope/fetch-github-release';
 import { pRetry, isCI } from '@terascope/utils';
 import signale from './signale.js';
-import { AUTOLOAD_PATH, ASSET_BUNDLES_PATH } from './config.js';
+import { AUTOLOAD_PATH, ASSET_BUNDLES_PATH, USE_DEV_ASSETS } from './config.js';
 
 type AssetInfo = {
     name: string;
@@ -51,10 +51,46 @@ export const defaultAssetBundles = [
 ];
 
 function assetFileInfo(assetName: string): AssetInfo {
-    const [name, version, _, assetNodeVersion] = assetName.split('-');
+    const splitAssetName = assetName.split('-');
+    const name = splitAssetName[0];
+    let semverVersion;
+    let assetVersion: string | null;
+    let assetNodeVersion: string;
+    // Ensure the files are of the correct extension
+    if (!assetName.endsWith('.zip')) {
+        throw new Error(`Invalid file extension for asset file ${assetName}. Should be a .zip file.`);
+    } else {
+        const firstDashIndex = assetName.indexOf('-');
+        if (firstDashIndex === -1) {
+            throw new Error(`Error parsing asset file name. The name should have dashes in it (-)`);
+        }
+        // Removes the asset name prefix
+        // EX: v4.4.0-node-22-bundle.zip -> v4.4.0-node-22-bundle.zip -> v4.4.0
+        assetVersion = assetName.slice(firstDashIndex + 1);
+
+        const nodeIndex = assetVersion.indexOf('-node-');
+        if (nodeIndex === -1) {
+            throw new Error(`Error parsing asset file name. The name should have "-node-**" in it to determine node version.`);
+        }
+        // Removes node*
+        // EX: v4.4.0-node-22-bundle.zip -> v4.4.0
+        assetVersion = assetVersion.slice(0, nodeIndex);
+
+        assetVersion = semver.clean(assetVersion);
+        if (assetVersion === null) {
+            throw new Error(`semver was unable to clean asset version for ${assetName}`);
+        } else {
+            semverVersion = semver.coerce(assetVersion, { includePrerelease: true });
+            if (semverVersion === null) {
+                throw new Error(`semver was unable to return a version for ${assetName}`);
+            }
+        }
+        assetNodeVersion = splitAssetName[splitAssetName.indexOf('node') + 1];
+    }
+
     return {
         name,
-        version: semver.coerce(version),
+        version: semverVersion,
         repo: `${name}-assets`,
         bundle: assetName.includes('-bundle'),
         fileName: assetName,
@@ -81,6 +117,14 @@ function getOlderAssets(assets: AssetInfo[], assetName: string): AssetInfo[] {
 }
 
 export function filterRelease(release: any) {
+    if (!USE_DEV_ASSETS) {
+        const version = semver.clean(release.tag_name);
+        const semverVersion = semver.coerce(version, { includePrerelease: true });
+        // If the prerelease array isn't empty we don't want it.
+        if (semverVersion?.prerelease && semverVersion?.prerelease.length > 0) {
+            return false;
+        }
+    }
     return !release.draft;
 }
 
@@ -160,6 +204,21 @@ function deleteOlderAssets() {
     for (const asset of olderAssets) {
         const b = asset.bundle ? ' [bundle]' : ' [non-bundle]';
         signale.warn(`Deleting asset ${asset.name}@v${asset.version} in-favor of existing v${asset.newerVersion || asset.version}${b}`);
+        fs.unlinkSync(path.join(AUTOLOAD_PATH, asset.fileName));
+    }
+}
+
+function deleteAssetsWithDevTag() {
+    const assets = listAssets();
+    const filteredAssets = assets.filter((val) => {
+        if (val.version) {
+            return val.version?.prerelease.length > 0;
+        } else {
+            throw false;
+        }
+    });
+    for (const asset of filteredAssets) {
+        signale.warn(`Deleting asset ${asset.name}@v${asset.version} because it has a pre-release tag`);
         fs.unlinkSync(path.join(AUTOLOAD_PATH, asset.fileName));
     }
 }
@@ -251,6 +310,10 @@ export const downloadWithDelayedRetry = async <T>(
  * defaultAssetBundles array to the autoload directory
 */
 export async function downloadAssets() {
+    if (!USE_DEV_ASSETS) {
+        signale.info('Removing any assets with a pre-released tag..');
+        deleteAssetsWithDevTag();
+    }
     const assetBundles = await getNeededAssetBundles();
     // We already have all required asset bundles if the length is zero
     if (assetBundles.length) {
