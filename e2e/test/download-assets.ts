@@ -50,7 +50,7 @@ export const defaultAssetBundles = [
     }
 ];
 
-function assetFileInfo(assetName: string): AssetInfo {
+export function assetFileInfo(assetName: string): AssetInfo {
     const splitAssetName = assetName.split('-');
     const name = splitAssetName[0];
     let semverVersion;
