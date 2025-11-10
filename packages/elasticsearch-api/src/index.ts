@@ -114,15 +114,20 @@ export default function elasticsearchApi(
         );
     }
 
-    async function search(query) {
+    async function search(
+        query: ClientParams.SearchParams
+    ): Promise<ClientResponse.SearchResponse | any[]> {
         const data = await _searchES(query);
 
         if (config.full_response) {
             return data;
         }
 
-        if (!data.hits.hits) return [];
-        return data.hits.hits.map(convertDocToDataEntity);
+        if (!data.hits.hits) return [] as unknown as ClientResponse.SearchResponse;
+
+        return data.hits.hits.map(
+            convertDocToDataEntity
+        ) as unknown as ClientResponse.SearchResponse;
     }
 
     function _makeRequest(
@@ -156,14 +161,13 @@ export default function elasticsearchApi(
         return _makeRequest(client.indices, endpoint, query, 'indices');
     }
 
-    function mget(query, fullResponse = false) {
-        return _clientRequest('mget', query)
-            .then((results) => {
-                if (fullResponse) return results;
-                return results.docs
-                    .filter((doc) => doc.found)
-                    .map(convertDocToDataEntity);
-            });
+    async function mget(query: ClientParams.MGetParams, fullResponse = false) {
+        const results: any = await _clientRequest('mget', query);
+
+        if (fullResponse) return results;
+        return results.docs
+            .filter((doc: any) => doc.found)
+            .map(convertDocToDataEntity);
     }
 
     async function getFn(query: ClientParams.GetParams, fullResponse = false): Promise<any> {
@@ -175,24 +179,30 @@ export default function elasticsearchApi(
         return convertDocToDataEntity(records);
     }
 
-    function indexFn(query) {
+    async function indexFn(query: ClientParams.IndexParams) {
         return _clientRequest('index', query);
     }
 
-    function indexWithId(query) {
+    async function indexWithId(query: ClientParams.IndexParams) {
         return _clientRequest('index', query).then(() => query.body);
     }
 
-    function create(query) {
+    async function create(query: ClientParams.CreateParams) {
         return _clientRequest('create', query).then(() => query.body);
     }
 
-    function update(query) {
-        return _clientRequest('update', query).then(() => query.body.doc);
+    async function update(query: ClientParams.UpdateParams): Promise<any> {
+        // TODO this does not seem right
+        await _clientRequest('update', query);
+        // @ts-expect-error
+        return query.body.doc;
     }
 
-    function remove(query) {
-        return _clientRequest('delete', query).then((result) => result.found);
+    async function remove(
+        query: ClientParams.DeleteParams
+    ): Promise<ClientResponse.DeleteResponse> {
+        const result = await _clientRequest('delete', query) as any;
+        return result.found;
     }
 
     async function indexExists(query: ClientParams.IndicesExistsParams): Promise<boolean> {
@@ -973,8 +983,17 @@ export default function elasticsearchApi(
         return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 8;
     }
 
-    // TODO: this should not exists as this
-    function _fixMappingRequest(_params, isTemplate) {
+    function isOpensearch2() {
+        const { distribution, majorVersion } = getClientMetadata();
+        return distribution === ElasticsearchDistribution.opensearch && majorVersion === 2;
+    }
+
+    function isOpensearch3() {
+        const { distribution, majorVersion } = getClientMetadata();
+        return distribution === ElasticsearchDistribution.opensearch && majorVersion === 3;
+    }
+
+    function _fixMappingRequest(_params: Record<string, any>, isTemplate: boolean) {
         if (!_params || !_params.body) {
             throw new Error('Invalid mapping request');
         }
@@ -1279,6 +1298,8 @@ export default function elasticsearchApi(
         validateGeoParameters,
         getClientMetadata,
         isElasticsearch8,
+        isOpensearch2,
+        isOpensearch3,
         // The APIs below are deprecated and should be removed.
         index_exists: indexExists,
         index_create: indexCreate,

@@ -1,4 +1,4 @@
-import { cloneDeep, isKey, isNumber } from '@terascope/utils';
+import { cloneDeep, isKey, isNumber } from '@terascope/core-utils';
 import type { Socket } from 'socket.io';
 import {
     ClientToServerEvents, Message, ResponseError,
