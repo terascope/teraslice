@@ -5,7 +5,7 @@ import {
 } from '@terascope/utils';
 import { fileURLToPath } from 'node:url';
 import { Translator } from 'xlucene-translator';
-import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
+import { type Client, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import {
     SimpleRecord, SimpleRecordInput, dataType
 } from './helpers/simple-index.js';
@@ -66,7 +66,7 @@ describe('IndexStore (timeseries)', () => {
             enable_index_mutations: false
         };
         let indexStore: IndexStore<SimpleRecord>;
-        let client: any;
+        let client: Client;
 
         beforeAll(async () => {
             client = await makeClient();

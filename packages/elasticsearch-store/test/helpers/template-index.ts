@@ -29,6 +29,21 @@ export const dataType = new DataType({
     }
 });
 
+export const newField = 'new_field';
+/**
+ * This has a new field
+ */
+export const dataTypeV2 = new DataType({
+    fields: {
+        some_id: { type: FieldType.Keyword },
+        search_keyword: { type: FieldType.Keyword },
+        random_number: { type: FieldType.Integer },
+        _created: { type: FieldType.Keyword },
+        _updated: { type: FieldType.Keyword },
+        [newField]: { type: FieldType.Keyword }
+    }
+});
+
 export const schema = {
     additionalProperties: false,
     properties: {

@@ -37,6 +37,9 @@ export const dataType = new DataType({
     }
 });
 
+/**
+ * This has a new field
+ */
 export const dataTypeV2 = new DataType({
     fields: {
         ...dataType.fields,

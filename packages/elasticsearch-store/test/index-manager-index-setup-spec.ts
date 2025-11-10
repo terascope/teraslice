@@ -1,12 +1,12 @@
 import 'jest-extended';
-import { debugLogger, get, isKey } from '@terascope/utils';
+import { debugLogger, get, isKey, toBoolean } from '@terascope/utils';
 import { MappingTypeMapping } from '@terascope/types';
-import { getClientVersion, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
+import { getClientVersion, ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import * as simple from './helpers/simple-index.js';
 import * as template from './helpers/template-index.js';
 import {
     IndexManager, timeSeriesIndex, IndexConfig,
-    __timeSeriesTest
+    __timeSeriesTest,
 } from '../src/index.js';
 
 const {
@@ -38,7 +38,7 @@ describe('IndexManager->indexSetup()', () => {
 
         const index = `${config.name}-v1-s1`;
         let indexManager: IndexManager;
-        let client: any;
+        let client: Client;
         let version: number;
         let result = false;
 
@@ -86,6 +86,16 @@ describe('IndexManager->indexSetup()', () => {
             expect(created).toBeFalse();
         });
 
+        it('should NOT create a template', async () => {
+            expect.hasAssertions();
+            try {
+                const templateName = indexManager.formatTemplateName(config);
+                await indexManager.getTemplate(templateName, false);
+            } catch (error) {
+                expect(error.statusCode).toBe(404);
+            }
+        });
+
         describe('when changing the data type', () => {
             const configV2: IndexConfig<any> = {
                 ...config,
@@ -96,11 +106,11 @@ describe('IndexManager->indexSetup()', () => {
                 result = await indexManager.indexSetup(configV2);
             });
 
-            it('should have returned false since now index was created', () => {
+            it('should return false since the index was already created', () => {
                 expect(result).toBeFalse();
             });
 
-            it('should have updated the index metadata', async () => {
+            it('should have updated the index mapping', async () => {
                 const mapping = await indexManager.getMapping(index);
 
                 let properties = undefined;
@@ -156,11 +166,11 @@ describe('IndexManager->indexSetup()', () => {
                     result = await indexManager.indexSetup(config);
                 });
 
-                it('should have returned false since now index was created', () => {
+                it('should return false since the index was already created', () => {
                     expect(result).toBeFalse();
                 });
 
-                it('should have the previous the index metadata since removed fields shouldn\'t break', async () => {
+                it('should NOT remove the added fields since removed fields shouldn\'t break', async () => {
                     const mapping = await indexManager.getMapping(index);
 
                     let properties = undefined;
@@ -223,7 +233,7 @@ describe('IndexManager->indexSetup()', () => {
         const templateName = `${config.name}-v1`;
 
         let indexManager: IndexManager;
-        let client: any;
+        let client: Client;
         let version: number;
         let result = false;
 
@@ -308,7 +318,7 @@ describe('IndexManager->indexSetup()', () => {
             }
         });
 
-        it('should be able to upsert a newer template safely', async () => {
+        it('should be able to upsert a newer version template safely', async () => {
             const mapping = get(config, ['index_schema', 'mapping'], {});
             const schemaVersion = get(config, ['index_schema', 'version'], 1);
 
@@ -394,7 +404,7 @@ describe('IndexManager->indexSetup()', () => {
         const templateName = `${config.name}-v1`;
 
         let indexManager: IndexManager;
-        let client: any;
+        let client: Client;
         let version: number;
         let result = false;
 
@@ -435,11 +445,104 @@ describe('IndexManager->indexSetup()', () => {
                 expect(temp[templateName].mappings).toHaveProperty(config.name);
             }
             expect(temp[templateName]).toHaveProperty('version', 1);
+
+            const mapping = config.data_type.toESMapping();
+            const fixed = mapping.mappings?._doc?.properties || mapping.mappings.properties;
+            expect(temp[templateName]?.mappings?.properties).toMatchObject(fixed);
         });
 
         it('should be able to call create again', async () => {
             const created = await indexManager.indexSetup(config);
             expect(created).toBeFalse();
+        });
+
+        it('should update the mapping & template if new fields were added', async () => {
+            const manager = new IndexManager(client, false);
+
+            // verify mapping/template don't have new field yet
+            const oldTemp = (await indexManager.getTemplate(templateName, false))[templateName];
+            const oldMapping = (await indexManager.getMapping(index))[currentIndexName].mappings;
+            const _expectedOld = template.dataType.toESMapping();
+            const expectedOld = _expectedOld?.mappings?._doc || _expectedOld?.mappings;
+            expect(oldTemp.mappings?.properties).toMatchObject(expectedOld.properties);
+            expect(oldMapping?.properties).toMatchObject(expectedOld.properties);
+
+            await manager.indexSetup({
+                ...config,
+                data_type: template.dataTypeV2,
+                enable_index_mutations: false,
+            });
+
+            const tempMapping = (await indexManager.getTemplate(templateName, false))[templateName];
+            expect(tempMapping.version).toBe(1);
+
+            const mapping = (await indexManager.getMapping(index))[currentIndexName].mappings;
+
+            const _expected = template.dataTypeV2.toESMapping();
+            const expected = _expected?.mappings?._doc || _expected?.mappings;
+
+            // verify properties in template and mapping have new data type field
+            expect(mapping.properties).toMatchObject(expected.properties);
+            expect(tempMapping.mappings?.properties).toMatchObject(expected.properties);
+
+            // verify dynamic hasn't changed
+            expect(mapping.dynamic).toBeDefined();
+            expect(toBoolean(mapping.dynamic)).toBeFalse();
+
+            expect(tempMapping?.mappings?.dynamic).toBeDefined();
+            expect(tempMapping?.mappings?.dynamic).toBeFalse();
+
+            expect(expected.dynamic).toBeDefined();
+            expect(expected.dynamic).toBeFalse();
+        });
+
+        it('should add mapping & template for version changed', async () => {
+            const manager = new IndexManager(client, false);
+
+            // verify mapping/template have the new field added above
+            const oldTemp = (await indexManager.getTemplate(templateName, false))[templateName];
+            const oldMapping = (await indexManager.getMapping(index))[currentIndexName].mappings;
+            const _expectedOld = template.dataTypeV2.toESMapping();
+            const expectedOld = _expectedOld?.mappings?._doc || _expectedOld?.mappings;
+            expect(oldTemp.mappings?.properties).toMatchObject(expectedOld.properties);
+            expect(oldMapping?.properties).toMatchObject(expectedOld.properties);
+
+            const newVersionConfig = {
+                ...config,
+                index_schema: {
+                    ...config.index_schema,
+                    version: 2
+                },
+                enable_index_mutations: false,
+            };
+
+            await manager.indexSetup(newVersionConfig);
+
+            const tempMapping = (await indexManager.getTemplate(templateName, false))[templateName];
+            expect(tempMapping?.version).toBe(2);
+
+            const indexName = indexManager.formatIndexName(newVersionConfig, false);
+            const { mappings } = (await indexManager.getMapping(index))[indexName];
+
+            // won't have new field added in previous test since new version
+            const _expected = template.dataType.toESMapping();
+            const expected = _expected?.mappings?._doc || _expected?.mappings;
+
+            // verify properties in template and mapping
+            expect(mappings.properties).toMatchObject(expected.properties);
+            expect(tempMapping.mappings?.properties).toMatchObject(expected.properties);
+            expect(mappings.properties).not.toHaveProperty(template.newField);
+            expect(tempMapping.mappings?.properties).not.toHaveProperty(template.newField);
+
+            // verify dynamic hasn't changed
+            expect(mappings.dynamic).toBeDefined();
+            expect(toBoolean(mappings.dynamic)).toBeFalse();
+
+            expect(tempMapping?.mappings?.dynamic).toBeDefined();
+            expect(tempMapping?.mappings?.dynamic).toBeFalse();
+
+            expect(expected.dynamic).toBeDefined();
+            expect(expected.dynamic).toBeFalse();
         });
 
         it('should be able to call create a new index if a day has passed', async () => {
