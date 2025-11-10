@@ -1,10 +1,18 @@
+import util from 'node:util';
 import { Logger } from '@terascope/core-utils';
-import type { Terafoundation } from '@terascope/types';
-import pkg from 'bluebird';
+import type { AnyObject, Terafoundation } from '@terascope/types';
 // @ts-expect-error
 import { WebHDFSClient } from 'node-webhdfs';
 
-const { promisifyAll } = pkg;
+function promisifyAll(obj: AnyObject) {
+    const promisified: AnyObject = {};
+    for (const key of Object.keys(obj)) {
+        if (typeof obj[key] === 'function') {
+            promisified[key] = util.promisify(obj[key]);
+        }
+    }
+    return promisified;
+}
 
 const connector: Terafoundation.Connector = {
     async createClient(customConfig: Record<string, any>, logger: Logger) {

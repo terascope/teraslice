@@ -11,7 +11,6 @@ import { newId } from '../../../src/lib/utils/id_utils.js';
 import { ExecutionStorage, StateStorage } from '../../../src/lib/storage/index.js';
 
 const ExecutionControllerClient = ExController.Client;
-process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 
 describe('ExecutionController Special Tests', () => {
     // [ message, config ]
