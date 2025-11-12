@@ -2,8 +2,10 @@ import path from 'node:path';
 import fse from 'fs-extra';
 import { v4 as uuidv4 } from 'uuid';
 import { initializeTestExecution, makeTerafoundationContext } from 'teraslice';
-import { ASSETS_PATH, CONFIG_PATH, TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
 import { TerasliceHarness } from '../../teraslice-harness.js';
+
+const { ASSETS_PATH, CONFIG_PATH, TEST_PLATFORM } = config;
 
 describe('recovery', () => {
     const stores = {};

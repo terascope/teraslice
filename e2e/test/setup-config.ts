@@ -1,20 +1,22 @@
 import { cloneDeep } from '@terascope/core-utils';
 import path from 'node:path';
 import fse from 'fs-extra';
-import {
+import { config } from './config.js';
+
+const {
     WORKERS_PER_NODE, KAFKA_BROKER,
     TEST_HOST, TERASLICE_PORT, CLUSTER_NAME,
     HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST,
     ENCRYPT_MINIO, ROOT_CERT_PATH, FILE_LOGGING,
-    ENCRYPT_KAFKA
-} from './config.js';
+    ENCRYPT_KAFKA, DEBUG_LOG_LEVEL
+} = config;
 
 const baseConfig = {
     terafoundation: {
         log_level: [
             { console: 'warn' },
-            { file: process.env.DEBUG_LOG_LEVEL || 'info' }
+            { file: DEBUG_LOG_LEVEL || 'info' }
         ],
         logging: [
             'console',

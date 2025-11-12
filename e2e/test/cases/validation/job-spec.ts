@@ -1,5 +1,7 @@
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
+
+const { TEST_PLATFORM } = config;
 
 describe('job validation', () => {
     let terasliceHarness: TerasliceHarness;

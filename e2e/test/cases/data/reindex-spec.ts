@@ -1,6 +1,8 @@
 import { get, times } from '@terascope/core-utils';
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
+
+const { TEST_PLATFORM } = config;
 
 describe('reindex', () => {
     let terasliceHarness: TerasliceHarness;

@@ -13,10 +13,12 @@ import { Teraslice } from '@terascope/types';
 import { pWhile } from '@terascope/core-utils';
 import crypto from 'crypto';
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import {
+import { config } from '../../config.js';
+
+const {
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST,
     MINIO_SECRET_KEY, TEST_PLATFORM, ENCRYPT_MINIO, ROOT_CERT_PATH
-} from '../../config.js';
+} = config;
 
 describe('assets', () => {
     let terasliceHarness: TerasliceHarness;
