@@ -9,6 +9,7 @@ export * from './xlucene-interfaces.js';
 export * from './elasticsearch-client/index.js';
 export * from './teraslice.js';
 export * from './logger.js';
+export * from './env.js';
 
 export * as DataTypes from './data-types.js';
 export * as Elasticsearch from './elasticsearch-interfaces.js';
@@ -16,3 +17,4 @@ export * as Geo from './geo-interfaces.js';
 export * as ESLikeClient from './elasticsearch-client/index.js';
 export * as Teraslice from './teraslice.js';
 export * as Terafoundation from './terafoundation.js';
+export * as ENV from './env.js';
