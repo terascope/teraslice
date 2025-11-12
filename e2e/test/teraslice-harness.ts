@@ -8,12 +8,7 @@ import { JobConfig, Teraslice } from '@terascope/types';
 import { createClient, ElasticsearchTestHelpers, Client, ClientConfig } from '@terascope/opensearch-client';
 import { TerasliceClient } from 'teraslice-client-js';
 import fse from 'fs-extra';
-import {
-    TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
-    DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
-    EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT,
-    LOG_PATH, ENCRYPT_OPENSEARCH, OPENSEARCH_USER, OPENSEARCH_PASSWORD, ROOT_CERT_PATH
-} from './config.js';
+import { config } from './config.js';
 import { scaleWorkers, getElapsed } from './docker-helpers.js';
 import signale from './signale.js';
 import generatorToESJob from './fixtures/jobs/generate-to-es.js';
@@ -26,6 +21,13 @@ import kafkaSenderJob from './fixtures/jobs/kafka-sender.js';
 import multisendJob from './fixtures/jobs/multisend.js';
 import reindexJob from './fixtures/jobs/reindex.js';
 import { defaultAssetBundles } from './download-assets.js';
+
+const {
+    TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
+    DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
+    EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT,
+    LOG_PATH, ENCRYPT_OPENSEARCH, OPENSEARCH_USER, OPENSEARCH_PASSWORD, ROOT_CERT_PATH
+} = config;
 
 const JobDict = Object.freeze({
     'generate-to-es': generatorToESJob,
@@ -100,8 +102,8 @@ export class TerasliceHarness {
     }
 
     async logExStatus(ex: any) {
-        const config = await ex.config();
-        this.warn('ex status', config);
+        const exConfig = await ex.config();
+        this.warn('ex status', exConfig);
     }
     // TODO: look at types here
 

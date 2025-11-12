@@ -1,6 +1,8 @@
 /* eslint-disable jest/expect-expect */
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
+
+const { TEST_PLATFORM } = config;
 
 async function workersTest(
     harness: TerasliceHarness,
