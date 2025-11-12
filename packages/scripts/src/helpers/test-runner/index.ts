@@ -2,6 +2,7 @@ import {
     debugLogger, chunk, TSError,
     isCI, pMap
 } from '@terascope/core-utils';
+import { TestEnv } from '@terascope/types';
 import fs from 'node:fs';
 import {
     writePkgHeader, writeHeader, getRootDir,
@@ -166,7 +167,7 @@ async function runTestSuite(
 
         tracker.started += pkgs.length;
         try {
-            await runJest(
+            await runJest<TestEnv>(
                 getRootDir(),
                 args,
                 env,
@@ -332,7 +333,7 @@ async function runE2ETest(
 
         tracker.started++;
         try {
-            await runJest(
+            await runJest<TestEnv>(
                 e2eDir,
                 getArgs(options),
                 env,
@@ -373,7 +374,7 @@ async function runE2ETest(
     }
 }
 
-function printAndGetEnv(suite: string, options: TestOptions) {
+function printAndGetEnv(suite: string, options: TestOptions): TestEnv {
     const env = getEnv(options, suite);
     if (options.debug || options.trace || isCI) {
         const envStr = Object
