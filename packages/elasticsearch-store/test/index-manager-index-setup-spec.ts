@@ -6,7 +6,7 @@ import * as simple from './helpers/simple-index.js';
 import * as template from './helpers/template-index.js';
 import {
     IndexManager, timeSeriesIndex, IndexConfig,
-    __timeSeriesTest,
+    __timeSeriesTest
 } from '../src/index.js';
 
 const {
@@ -456,7 +456,7 @@ describe('IndexManager->indexSetup()', () => {
             expect(created).toBeFalse();
         });
 
-        it('should update the mapping & template if new fields were added', async () => {
+        it('should update the mapping & template if new fields detected', async () => {
             const manager = new IndexManager(client, false);
 
             // verify mapping/template don't have new field yet
@@ -496,7 +496,7 @@ describe('IndexManager->indexSetup()', () => {
             expect(expected.dynamic).toBeFalse();
         });
 
-        it('should add mapping & template for version changed', async () => {
+        it('should add mapping & template if version changed', async () => {
             const manager = new IndexManager(client, false);
 
             // verify mapping/template have the new field added above
