@@ -9,9 +9,10 @@ import {
 } from '../src/index.js';
 
 const {
-    makeClient, cleanupIndex, TEST_INDEX_PREFIX,
-    getTestENVClientInfo
+    makeClient, cleanupIndex, getTestENVClientInfo, sharedEnvSchema
 } = ElasticsearchTestHelpers;
+
+const { TEST_INDEX_PREFIX } = sharedEnvSchema.parse(process.env);
 
 const { host, ...clientMetadata } = getTestENVClientInfo();
 

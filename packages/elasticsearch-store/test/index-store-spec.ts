@@ -14,7 +14,8 @@ import {
 } from '../src/index.js';
 import { cleanupIndexStore } from './helpers/utils.js';
 
-const { makeClient, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
+const { makeClient, sharedEnvSchema } = ElasticsearchTestHelpers;
+const { TEST_INDEX_PREFIX } = sharedEnvSchema.parse(process.env);
 
 describe('IndexStore', () => {
     const logger = debugLogger('index-store-spec');
