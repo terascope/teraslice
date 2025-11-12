@@ -114,9 +114,7 @@ export class IndexManager {
 
         const body = config.data_type.toESMapping({
             typeName: config.name,
-            overrides: {
-                settings,
-            },
+            overrides: { settings },
             ...this.clientMetadata,
             ...config._meta && { _meta: config._meta }
         });
@@ -125,24 +123,27 @@ export class IndexManager {
             this.enableIndexMutations || utils.isTimeSeriesIndex(config.index_schema)
         );
 
-        if (enableMutations && utils.isTemplatedIndex(config.index_schema)) {
-            const templateName = this.formatTemplateName(config);
-            const schemaVersion = utils.getSchemaVersion(config);
+        const addOrUpdateTemplate = async (allowNewFields = false) => {
+            if (enableMutations && utils.isTemplatedIndex(config.index_schema)) {
+                const templateName = this.formatTemplateName(config);
+                const schemaVersion = utils.getSchemaVersion(config);
 
-            body.template = templateName;
+                body.template = templateName;
 
-            await this.upsertTemplate(
-                {
-                    ...body,
-                    index_patterns: [this.formatIndexName(
-                        // only use wildcard for timeseries indices
-                        config, utils.isTimeSeriesIndex(config.index_schema)
-                    )],
-                    version: schemaVersion,
-                },
-                logger
-            );
-        }
+                await this.upsertTemplate(
+                    {
+                        ...body,
+                        index_patterns: [this.formatIndexName(
+                            // only use wildcard for timeseries indices
+                            config, utils.isTimeSeriesIndex(config.index_schema)
+                        )],
+                        version: schemaVersion,
+                    },
+                    logger,
+                    allowNewFields
+                );
+            }
+        };
 
         if (await this.exists(indexName)) {
             if (!enableMutations) {
@@ -151,9 +152,12 @@ export class IndexManager {
             }
 
             logger.info(`Index for config ${config.name} already exists, updating the mappings`);
-            await this.updateMapping(indexName, config.name, body, logger);
+            const updated = await this.updateMapping(indexName, config.name, body, logger);
+            await addOrUpdateTemplate(updated);
             return false;
         }
+
+        await addOrUpdateTemplate();
 
         if (!enableMutations) {
             throw new Error(
@@ -314,10 +318,12 @@ export class IndexManager {
      * Safely update a mapping
      *
      * **WARNING:** This only updates the mapping if it exists
+     *
+     * @returns a boolean that indicates whether the mapping was updated
      */
     async updateMapping(
         index: string, type: string, mapping: Record<string, any>, logger: Logger
-    ): Promise<void> {
+    ): Promise<boolean> {
         const result = await this.getMapping(index);
 
         const propertiesPath = !isElasticsearch6(this.client)
@@ -371,7 +377,7 @@ export class IndexManager {
         if (safeChange) {
             logger.info(`Detected mapping changes for ${index} (${type}).${changesInfo}`);
             await this.putMapping(index, type, current);
-            return;
+            return true;
         }
 
         if (changesInfo) {
@@ -379,6 +385,8 @@ export class IndexManager {
         } else {
             logger.info(`No changes for ${index} (${type}).${changesInfo}`);
         }
+
+        return false;
     }
 
     async getTemplate(
@@ -388,22 +396,24 @@ export class IndexManager {
             name,
             flat_settings
         };
-
         return this.client.indices.getTemplate(params);
     }
 
     /**
-     * Safely create or update a template
+     * Safely create or update a template -
+     *
+     * NOTE: if version is same it will NOT update template,
+     * pass overrideCurrentVersion to allow
      */
     async upsertTemplate(
-        template: ESMapping, logger?: Logger
+        template: ESMapping, logger?: Logger, overrideCurrentVersion = false
     ): Promise<void> {
         const { template: name, version } = template;
 
         try {
             const templates = await this.getTemplate(name || '', true);
             const latestVersion = templates[name || ''].version;
-            if (version === latestVersion) return;
+            if ((version === latestVersion) && !overrideCurrentVersion) return;
         } catch (err) {
             if (err.statusCode !== 404) {
                 throw err;

@@ -5,7 +5,7 @@ import {
 } from '@terascope/utils';
 import { Translator } from 'xlucene-translator';
 import { ElasticsearchDistribution } from '@terascope/types';
-import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
+import { type Client, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import {
     SimpleRecord, SimpleRecordInput, dataType, schema
 } from './helpers/simple-index.js';
@@ -33,7 +33,7 @@ function expectedStoreType(store: IndexStore<any>): undefined | string {
 describe('IndexStore', () => {
     const logger = debugLogger('index-store-spec');
 
-    let client: any;
+    let client: Client;
 
     beforeAll(async () => {
         client = await makeClient();
