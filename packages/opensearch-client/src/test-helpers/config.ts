@@ -1,26 +1,24 @@
-const {
-    TEST_INDEX_PREFIX = 'teratest_',
-    ELASTICSEARCH_HOST = 'http://localhost:9200',
-    ELASTICSEARCH_VERSION = '7.9.3',
-    OPENSEARCH_PORT = '49210',
-    OPENSEARCH_HOSTNAME = `http://localhost:${OPENSEARCH_PORT}`,
-    OPENSEARCH_USER = 'admin',
-    OPENSEARCH_PASSWORD = 'admin',
-    OPENSEARCH_VERSION = '2.15.0',
-    OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}`,
-    OPENSEARCH_SSL_HOST = `https://${OPENSEARCH_HOSTNAME}:${OPENSEARCH_PORT}`,
-    RESTRAINED_OPENSEARCH_PORT = process.env.RESTRAINED_OPENSEARCH_PORT || '49206',
-    RESTRAINED_OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@localhost:${RESTRAINED_OPENSEARCH_PORT}`,
-} = process.env;
+import { z } from 'zod';
+
+const sharedEnvSchema = z.object({
+    SEARCH_TEST_HOST: z.string(),
+    TEST_INDEX_PREFIX: z.string(),
+});
+
+const opensearchEnvSchema = sharedEnvSchema.extend({
+    OPENSEARCH_PASSWORD: z.string(),
+    OPENSEARCH_USER: z.string(),
+    OPENSEARCH_VERSION: z.string(),
+});
+
+const elasticsearchEnvSchema = sharedEnvSchema.extend(
+    {
+        ELASTICSEARCH_VERSION: z.string()
+    }
+);
 
 export {
-    TEST_INDEX_PREFIX,
-    ELASTICSEARCH_HOST,
-    ELASTICSEARCH_VERSION,
-    OPENSEARCH_HOST,
-    OPENSEARCH_SSL_HOST,
-    OPENSEARCH_VERSION,
-    RESTRAINED_OPENSEARCH_HOST,
-    OPENSEARCH_USER,
-    OPENSEARCH_PASSWORD
+    elasticsearchEnvSchema,
+    opensearchEnvSchema,
+    sharedEnvSchema,
 };
