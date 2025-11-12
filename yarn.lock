@@ -3333,7 +3333,7 @@ __metadata:
     mnemonist: "npm:~0.40.3"
     uuid: "npm:~13.0.0"
     valid-url: "npm:~1.0.9"
-    validator: "npm:~13.12.0"
+    validator: "npm:~13.15.20"
     xlucene-parser: "npm:~1.10.4"
   languageName: unknown
   linkType: soft
@@ -3592,7 +3592,7 @@ __metadata:
     mnemonist: "npm:~0.40.3"
     p-map: "npm:~7.0.3"
     shallow-clone: "npm:~3.0.1"
-    validator: "npm:~13.12.0"
+    validator: "npm:~13.15.20"
   languageName: unknown
   linkType: soft
 
@@ -14286,7 +14286,7 @@ __metadata:
     jexl: "npm:~2.3.0"
     nanoid: "npm:~5.1.5"
     valid-url: "npm:~1.0.9"
-    validator: "npm:~13.12.0"
+    validator: "npm:~13.15.20"
     yargs: "npm:~18.0.0"
   bin:
     ts-match: ./bin/ts-transform.js
@@ -14833,10 +14833,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"validator@npm:~13.12.0":
-  version: 13.12.0
-  resolution: "validator@npm:13.12.0"
-  checksum: 10c0/21d48a7947c9e8498790550f56cd7971e0e3d724c73388226b109c1bac2728f4f88caddfc2f7ed4b076f9b0d004316263ac786a17e9c4edf075741200718cd32
+"validator@npm:~13.15.20":
+  version: 13.15.20
+  resolution: "validator@npm:13.15.20"
+  checksum: 10c0/65453f0c91ef154ae2da4d5ff3c22acff239d2c15216335ba83895b6f79914708709c641119aa9fba0ec9dd69229c1cf8196aff0081584bdda8a7f50ea97b789
   languageName: node
   linkType: hard
 

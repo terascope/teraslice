@@ -45,7 +45,7 @@
         "mnemonist": "~0.40.3",
         "uuid": "~13.0.0",
         "valid-url": "~1.0.9",
-        "validator": "~13.12.0",
+        "validator": "~13.15.20",
         "xlucene-parser": "~1.10.4"
     },
     "devDependencies": {
