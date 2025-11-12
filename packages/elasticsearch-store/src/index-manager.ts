@@ -153,7 +153,7 @@ export class IndexManager {
 
             logger.info(`Index for config ${config.name} already exists, updating the mappings`);
             const updated = await this.updateMapping(indexName, config.name, body, logger);
-            if (updated) await addOrUpdateTemplate(true);
+            await addOrUpdateTemplate(updated);
             return false;
         }
 
