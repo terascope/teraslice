@@ -2,7 +2,7 @@ import 'jest-extended';
 
 import {
     dockerRun, dockerStop, getContainerInfo,
-    dockerPull
+    dockerPull, DockerRunOptions
 } from '../src/helpers/scripts';
 
 describe('scripts', () => {
@@ -23,7 +23,7 @@ describe('scripts', () => {
         });
 
         it('should throw an error if version does not exist', async () => {
-            const dockerOptions = {
+            const dockerOptions: DockerRunOptions = {
                 image: 'opensearchproject/opensearch',
                 name: 'opensearch_no_tag',
                 ports: ['49210:49210'],

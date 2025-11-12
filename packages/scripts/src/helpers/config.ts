@@ -6,7 +6,21 @@ import {
     toBoolean, toSafeString, isCI,
     toIntegerOrThrow
 } from '@terascope/core-utils';
+import { TestEnv } from '@terascope/types';
 import { Service } from './interfaces.js';
+
+// FixMe: this gives us type completion on process.env
+// We could move this declaration to a .d.ts file.
+// Or we could use zod and define a zod schema, then call
+// const env = TestEnvSchema.parse(process.env)
+
+// This merges our interface with NodeJS.ProcessEnv
+declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace NodeJS {
+        interface ProcessEnv extends TestEnv {}
+    }
+}
 
 const { address } = ipPkg;
 
@@ -125,8 +139,6 @@ export const SKIP_GIT_COMMANDS = toBoolean(process.env.SKIP_GIT_COMMANDS ?? fals
 // make sure the string doesn't contain unwanted characters
 export const DEV_TAG = toSafeString((
     process.env.DEV_TAG
-    || process.env.TRAVIS_PULL_REQUEST_BRANCH
-    || process.env.TRAVIS_BRANCH
     || process.env.CI_COMMIT_REF_SLUG
     || 'local'
     // convert dependabot/npm_and_yarn/dep-x.x.x to dependabot
@@ -198,6 +210,7 @@ export const ENV_SERVICES = [
 ]
     .filter(Boolean) as Service[];
 
+const __DEFAULT_TEST_HOST = OPENSEARCH_HOST;
 let testHost;
 
 if (testElasticsearch) {
@@ -208,6 +221,8 @@ if (testElasticsearch) {
     testHost = RESTRAINED_OPENSEARCH_HOST;
 } else if (testRestrainedElasticsearch) {
     testHost = RESTRAINED_ELASTICSEARCH_HOST;
+} else {
+    testHost = __DEFAULT_TEST_HOST;
 }
 
 export const SEARCH_TEST_HOST = process.env.SEARCH_TEST_HOST || testHost;

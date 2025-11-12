@@ -771,7 +771,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
     const rootCaPath = path.join(config.CERT_PATH, 'CAs/rootCA.pem');
 
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
-    if (dockerGateways.includes(config.KAFKA_HOSTNAME)) return;
+    if (dockerGateways.includes(host)) return;
 
     if (options.trace) {
         signale.debug(`checking kafka at ${host}`);
@@ -799,14 +799,14 @@ async function checkKafka(options: TestOptions, startTime: number) {
     try {
         await producer.connect();
     } catch (err) {
-        if (err.message.includes('ENOTFOUND') && err.message.includes(config.KAFKA_BROKER)) {
+        if (err.message.includes('ENOTFOUND') && err.message.includes(kafkaBroker)) {
             throw new Error(`Unable to connect to kafka broker after ${totalTime}ms at ${kafkaBroker}`);
-        } else if (err.message.includes('ECONNREFUSED') && err.message.includes(config.KAFKA_BROKER)) {
+        } else if (err.message.includes('ECONNREFUSED') && err.message.includes(kafkaBroker)) {
             throw new Error(`Unable to connect to kafka broker after ${totalTime}ms at ${kafkaBroker}`);
         }
         throw new Error(err.message);
     }
-    signale.success(`kafka@${config.KAFKA_VERSION} is running at ${config.KAFKA_BROKER}, took ${took}`);
+    signale.success(`kafka@${config.KAFKA_VERSION} is running at ${kafkaBroker}, took ${took}`);
 }
 
 async function checkUtility(options: TestOptions, startTime: number): Promise<void> {
