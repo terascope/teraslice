@@ -79,6 +79,10 @@ RUN node -e "import('teraslice')"
 RUN node -e "console.log('librdkafka:', require('@confluentinc/kafka-javascript').librdkafkaVersion)"
 
 # Verify what binary confluent client downloaded
+# confluent kafka uses 'node-pre-gyp' which has a binary feature in the package.json
+# https://nodejs.github.io/node-addon-examples/build-tools/node-pre-gyp/#the-code-classlanguage-textbinarycode-property
+# I pull values similar to how node-pre-gyp does:
+# https://github.com/mapbox/node-pre-gyp/blob/aa397bd49702c24bfa2110d23307ec1c9a158d59/lib/util/versioning.js#L283-L311
 RUN node - <<'EOF'
 const pkg = require('@confluentinc/kafka-javascript/package.json');
 const os = require('os');
