@@ -13215,7 +13215,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"terafoundation@npm:~2.0.0-dev.9, terafoundation@workspace:packages/terafoundation":
+"terafoundation@npm:~2.0.0-dev.10, terafoundation@workspace:packages/terafoundation":
   version: 0.0.0-use.local
   resolution: "terafoundation@workspace:packages/terafoundation"
   dependencies:
@@ -13380,7 +13380,7 @@ __metadata:
     semver: "npm:~7.7.2"
     socket.io: "npm:~4.8.1"
     socket.io-client: "npm:~4.8.1"
-    terafoundation: "npm:~2.0.0-dev.9"
+    terafoundation: "npm:~2.0.0-dev.10"
     uuid: "npm:~13.0.0"
   languageName: unknown
   linkType: soft
