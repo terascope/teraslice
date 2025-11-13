@@ -113,7 +113,6 @@ export class IndexManager {
         logger.trace(`Using ${this.clientMetadata.distribution} version ${this.clientMetadata.version}`);
 
         const body = config.data_type.toESMapping({
-            typeName: config.name,
             overrides: { settings },
             ...this.clientMetadata,
             ...config._meta && { _meta: config._meta }
@@ -152,7 +151,7 @@ export class IndexManager {
             }
 
             logger.info(`Index for config ${config.name} already exists, updating the mappings`);
-            const updated = await this.updateMapping(indexName, config.name, body, logger);
+            const updated = await this.updateMapping(indexName, body, logger);
             await addOrUpdateTemplate(updated);
             return false;
         }
@@ -321,7 +320,7 @@ export class IndexManager {
      * @returns a boolean that indicates whether the mapping was updated
      */
     async updateMapping(
-        index: string, type: string, mapping: Record<string, any>, logger: Logger
+        index: string, mapping: Record<string, any>, logger: Logger
     ): Promise<boolean> {
         const result = await this.getMapping(index);
 
@@ -370,8 +369,8 @@ export class IndexManager {
         }
 
         if (safeChange) {
-            logger.info(`Detected mapping changes for ${index} (${type}).${changesInfo}`);
-            await this.putMapping(index, type, current);
+            logger.info(`Detected mapping changes for ${index} ${changesInfo}`);
+            await this.putMapping(index, current);
             return true;
         }
 

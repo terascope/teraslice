@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger, get, toBoolean } from '@terascope/utils';
+import { debugLogger, get, toBoolean } from '@terascope/core-utils';
 import { getClientVersion, ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import * as simple from './helpers/simple-index.js';
 import * as template from './helpers/template-index.js';
@@ -38,7 +38,6 @@ describe('IndexManager->indexSetup()', () => {
         const index = `${config.name}-v1-s1`;
         let indexManager: IndexManager;
         let client: Client;
-        let version: number;
         let result = false;
 
         beforeAll(async () => {
@@ -340,7 +339,6 @@ describe('IndexManager->indexSetup()', () => {
 
         let indexManager: IndexManager;
         let client: Client;
-        let version: number;
         let result = false;
 
         beforeAll(async () => {
