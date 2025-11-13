@@ -214,7 +214,7 @@ describe('s3 asset storage', () => {
         let s3client: S3Client;
         let assetId: string;
         let bucketName: string;
-        const config = {
+        const clientConfig = {
             endpoint: MINIO_HOST,
             accessKeyId: MINIO_ACCESS_KEY,
             secretAccessKey: MINIO_SECRET_KEY,
@@ -231,7 +231,7 @@ describe('s3 asset storage', () => {
             await terasliceHarness.init();
             await terasliceHarness.resetState();
 
-            s3client = await createS3Client(config);
+            s3client = await createS3Client(clientConfig);
             terasliceInfo = await terasliceHarness.teraslice.cluster.info();
             bucketName = `ts-assets-${terasliceInfo.name}`.replaceAll('_', '-');
         });
