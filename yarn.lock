@@ -3237,6 +3237,7 @@ __metadata:
     typescript: "npm:~5.9.2"
     yaml: "npm:^2.8.1"
     yargs: "npm:~18.0.0"
+    zod: "npm:~4.1.12"
   peerDependencies:
     typescript: ~5.9.2
   peerDependenciesMeta:
