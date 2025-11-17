@@ -101,7 +101,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         image: config.KAFKA_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.KAFKA_NAME}`,
         tmpfs: config.SERVICES_USE_TMPFS
-            ? ['/tmp/kafka-logs']
+            ? ['/tmp/kafka-logs:uid=1000,gid=1000']
             : undefined,
         mount: config.ENCRYPT_KAFKA
             ? [`type=bind,source=${config.CERT_PATH},target=${config.KAFKA_SECRETS_DIR}`]
