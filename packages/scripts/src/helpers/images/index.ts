@@ -1,5 +1,5 @@
 import fse from 'fs-extra';
-import * as config from '../config.js';
+import config from '../config.js';
 import { ImagesAction } from './interfaces.js';
 import signale from '../signale.js';
 import { dockerPull, saveAndZip } from '../scripts.js';

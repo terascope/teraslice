@@ -1,6 +1,6 @@
 import 'jest-extended';
 import * as index from '../src';
-import * as config from '../src/helpers/config';
+import config from '../src/helpers/config';
 import { makeArray } from '../src/helpers/args';
 import { getName } from '../src/helpers/misc';
 

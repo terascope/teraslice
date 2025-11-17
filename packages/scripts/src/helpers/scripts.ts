@@ -21,10 +21,9 @@ import {
 import type { TestEnv } from '@terascope/types';
 import { getRootDir, getRootInfo } from './misc.js';
 import signale from './signale.js';
-import * as config from './config.js';
+import config from './config.js';
 import { getE2EDir, getE2eK8sDir } from '../helpers/packages.js';
 import { getVolumesFromDockerfile, Kind } from './kind.js';
-import { ENV_SERVICES } from './config.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 const filename = fileURLToPath(import.meta.url);
@@ -98,15 +97,15 @@ export async function exec<T extends TestEnv = TestEnv>(
     }
 }
 
-export async function fork<T extends TestEnv = TestEnv>(
-    opts: ExecOpts<T>
+export async function fork(
+    opts: ExecOpts
 ): Promise<void> {
     try {
-        const env: T = {
+        const env: ExecEnv = {
             FORCE_COLOR: config.FORCE_COLOR,
             ...opts.env
-        } as T;
-        const _opts: ExecOpts<T> = { stdio: 'inherit', ...opts };
+        } as ExecEnv;
+        const _opts: ExecOpts = { stdio: 'inherit', ...opts };
         _opts.env = env;
         await _exec(_opts);
     } catch (err) {
@@ -163,10 +162,10 @@ export async function yarnRun(
     });
 }
 
-export async function runJest<T extends TestEnv = TestEnv>(
+export async function runJest(
     cwd: string,
     argsMap: ArgsMap,
-    env?: T,
+    env?: ExecEnv,
     extraArgs?: string[],
     debug?: boolean,
     attachJestDebugger?: boolean
@@ -226,7 +225,7 @@ export async function runJest<T extends TestEnv = TestEnv>(
         signale.debug(`executing: jest ${args.join(' ')}`);
     }
 
-    await fork<T>({
+    await fork({
         cmd: 'yarn',
         cwd,
         args,
@@ -930,7 +929,7 @@ export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2'
     await helmfileCommand('diff', clusteringType, devMode, logs);
     await helmfileCommand('sync', clusteringType, devMode, logs);
 
-    if (ENV_SERVICES.includes(Service.Kafka)) {
+    if (config.ENV_SERVICES.includes(Service.Kafka)) {
         await waitForKafkaRunning('kafka');
     }
 }
@@ -1091,7 +1090,7 @@ function generateHelmValuesFromServices(
 
     // Iterate over each service we want to start and enable them in the
     // helmfile.
-    ENV_SERVICES.forEach((service: Service) => {
+    config.ENV_SERVICES.forEach((service: Service) => {
         // "serviceString" represents the literal service name string
         // in the "values.yaml"
         let serviceString: string = service;
