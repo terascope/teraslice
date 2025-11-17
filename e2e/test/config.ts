@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { z } from 'zod';
+import { toBoolean } from '@terascope/core-utils';
 import { Logger } from '@terascope/types';
 import {
     ASSET_BUNDLES_PATH,
@@ -25,6 +26,7 @@ const E2EEnvSchema = z.object({
     ASSET_STORAGE_CONNECTION_TYPE: z.string().optional(),
     CERT_PATH: z.string(),
     DEBUG_LOG_LEVEL: z.enum(logLevels).optional(),
+    ELASTICSEARCH_HOST: z.string().optional(),
     ENCRYPT_KAFKA: z.enum(boolean).optional(),
     ENCRYPT_MINIO: z.enum(boolean).optional(),
     ENCRYPT_OPENSEARCH: z.enum(boolean).optional(),
@@ -39,6 +41,9 @@ const E2EEnvSchema = z.object({
     MINIO_HOST: z.string().optional(),
     MINIO_SECRET_KEY: z.string().optional(),
     NODE_VERSION: z.string(),
+    OPENSEARCH_HOST: z.string().optional(),
+    OPENSEARCH_HOSTNAME: z.string().optional(),
+    OPENSEARCH_PORT: z.string().optional(),
     OPENSEARCH_PASSWORD: z.string().optional(),
     OPENSEARCH_USER: z.string().optional(),
     OPENSEARCH_VERSION: z.string().optional(),
@@ -52,6 +57,8 @@ const E2EEnvSchema = z.object({
 });
 
 const envConfig = E2EEnvSchema.parse(process.env);
+
+const OPENSEARCH_SSL_HOST = `https://${envConfig.OPENSEARCH_HOSTNAME}:${envConfig.OPENSEARCH_PORT}`;
 
 export const config = {
     ...envConfig,
@@ -67,10 +74,15 @@ export const config = {
     EXAMPLE_INDEX_PREFIX: `${envConfig.TEST_INDEX_PREFIX}example`,
     EXAMPLE_INDEX_SIZES,
     LOG_PATH,
+    OPENSEARCH_SSL_HOST,
     newId,
     ROOT_CERT_PATH: path.join(envConfig.CERT_PATH, 'CAs/rootCA.pem'),
     SPEC_INDEX_PREFIX: `${envConfig.TEST_INDEX_PREFIX}spec`,
-    TEST_HOST: envConfig.SEARCH_TEST_HOST,
+    TEST_HOST: toBoolean(envConfig.TEST_OPENSEARCH)
+        ? toBoolean(envConfig.ENCRYPT_OPENSEARCH)
+            ? OPENSEARCH_SSL_HOST
+            : envConfig.OPENSEARCH_HOST
+        : envConfig.ELASTICSEARCH_HOST,
     USE_DEV_ASSETS,
     WORKERS_PER_NODE,
 };

@@ -3,7 +3,7 @@ import { execa } from 'execa';
 
 const {
     ENCRYPT_OPENSEARCH, ROOT_CERT_PATH,
-    SEARCH_TEST_HOST, TEST_OPENSEARCH
+    OPENSEARCH_SSL_HOST, TEST_OPENSEARCH
 } = config;
 
 describe('encrypted opensearch', () => {
@@ -12,9 +12,9 @@ describe('encrypted opensearch', () => {
             // Format string to be without protocol
             // The openssl s_client will throw if provided
             const opensearchURL
-                = SEARCH_TEST_HOST.startsWith('https://')
-                    ? SEARCH_TEST_HOST.slice(8)
-                    : SEARCH_TEST_HOST;
+                = OPENSEARCH_SSL_HOST.startsWith('https://')
+                    ? OPENSEARCH_SSL_HOST.slice(8)
+                    : OPENSEARCH_SSL_HOST;
 
             const result = await execa({ shell: true })`printf '\\n' | openssl s_client -connect ${opensearchURL} -CAfile ${ROOT_CERT_PATH}`;
             expect(result.stdout).toContain('Verification: OK');

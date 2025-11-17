@@ -103,25 +103,26 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
 
     if (launchServices.includes(Service.RestrainedElasticsearch)) {
         Object.assign(env, {
-            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
             ELASTICSEARCH_HOST: config.RESTRAINED_ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: config.ELASTICSEARCH_VERSION,
-            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`,
+            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
         } satisfies ElasticsearchTestEnv);
     }
 
     if (launchServices.includes(Service.Minio)) {
         Object.assign(env, {
-            MINIO_HOST: config.MINIO_HOST,
-            MINIO_VERSION: config.MINIO_VERSION,
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
+            MINIO_HOST: config.MINIO_HOST,
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
+            MINIO_VERSION: config.MINIO_VERSION,
         } satisfies MinioTestEnv);
     }
 
     if (launchServices.includes(Service.Kafka)) {
         Object.assign(env, {
             KAFKA_BROKER: config.KAFKA_BROKER,
+            KAFKA_PORT: config.KAFKA_PORT,
             KAFKA_VERSION: config.KAFKA_VERSION,
         } satisfies KafkaTestEnv);
     }
@@ -129,37 +130,41 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
     if (launchServices.includes(Service.RabbitMQ)) {
         Object.assign(env, {
             RABBITMQ_HOSTNAME: config.RABBITMQ_HOSTNAME,
-            RABBITMQ_USER: config.RABBITMQ_USER,
-            RABBITMQ_VERSION: config.RABBITMQ_VERSION,
-            RABBITMQ_PORT: `${config.RABBITMQ_PORT}`,
             RABBITMQ_MANAGEMENT_PORT: `${config.RABBITMQ_MANAGEMENT_PORT}`,
             RABBITMQ_PASSWORD: config.RABBITMQ_PASSWORD,
+            RABBITMQ_PORT: `${config.RABBITMQ_PORT}`,
+            RABBITMQ_USER: config.RABBITMQ_USER,
+            RABBITMQ_VERSION: config.RABBITMQ_VERSION,
         } satisfies RabbitMQTestEnv);
     }
 
     if (launchServices.includes(Service.Opensearch)) {
         Object.assign(env, {
-            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
-            OPENSEARCH_USER: config.OPENSEARCH_USER,
-            OPENSEARCH_PASSWORD: config.OPENSEARCH_PASSWORD,
-            OPENSEARCH_VERSION: config.OPENSEARCH_VERSION,
-            OPENSEARCH_HOST: config.OPENSEARCH_HOST,
-            DISABLE_SECURITY_PLUGIN: 'true',
             DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
+            DISABLE_SECURITY_PLUGIN: 'true',
+            OPENSEARCH_HOST: config.OPENSEARCH_HOST,
+            OPENSEARCH_HOSTNAME: config.OPENSEARCH_HOSTNAME,
+            OPENSEARCH_PASSWORD: config.OPENSEARCH_PASSWORD,
+            OPENSEARCH_PORT: config.OPENSEARCH_PORT,
+            OPENSEARCH_USER: config.OPENSEARCH_USER,
+            OPENSEARCH_VERSION: config.OPENSEARCH_VERSION,
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`,
+            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`
         } satisfies OpenSearchTestEnv);
     }
 
     if (launchServices.includes(Service.RestrainedOpensearch)) {
         Object.assign(env, {
-            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
-            OPENSEARCH_USER: config.OPENSEARCH_USER,
+            DISABLE_INSTALL_DEMO_CONFIG: 'true',
+            DISABLE_SECURITY_PLUGIN: 'true',
+            OPENSEARCH_HOSTNAME: config.OPENSEARCH_HOSTNAME,
             OPENSEARCH_PASSWORD: config.OPENSEARCH_PASSWORD,
+            OPENSEARCH_PORT: config.OPENSEARCH_PORT,
+            OPENSEARCH_USER: config.OPENSEARCH_USER,
             OPENSEARCH_VERSION: config.OPENSEARCH_VERSION,
             RESTRAINED_OPENSEARCH_HOST: config.RESTRAINED_OPENSEARCH_HOST,
-            DISABLE_SECURITY_PLUGIN: 'true',
-            DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`,
+            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`
         } satisfies OpenSearchTestEnv);
     }
 
