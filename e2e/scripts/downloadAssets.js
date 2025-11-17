@@ -10,15 +10,13 @@ import {
     downloadWithDelayedRetry,
     assetFileInfo
 } from '../dist/test/download-assets.js';
-import { config } from '../dist/test/config.js';
+import { ASSET_BUNDLES_PATH } from '../dist/test/constants.js';
 import { downloadRelease } from '@terascope/fetch-github-release';
 import { parse } from 'yaml';
 import fs from 'node:fs';
 import { fileURLToPath } from 'url';
 import path from 'node:path';
 import semver from 'semver';
-
-const { ASSET_BUNDLES_PATH } = config;
 
 const validCommands = ['download', 'generate-list'];
 // First argument after script
