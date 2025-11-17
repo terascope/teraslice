@@ -1,6 +1,6 @@
 import { CommandModule } from 'yargs';
 import path from 'node:path';
-import * as config from '../helpers/config.js';
+import config from '../helpers/config.js';
 import { launchK8sEnv, rebuildTeraslice, generateTemplateConfig } from '../helpers/k8s-env/index.js';
 import { K8sEnvOptions } from '../helpers/k8s-env/interfaces.js';
 

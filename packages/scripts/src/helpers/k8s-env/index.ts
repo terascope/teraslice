@@ -15,7 +15,7 @@ import signale from '../signale.js';
 import { getDevDockerImage, getRootInfo } from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
-import * as config from '../config.js';
+import config from '../config.js';
 import { loadImagesForHelm, loadImagesForHelmFromConfigFile } from '../test-runner/services.js';
 import { getE2EDir } from '../../helpers/packages.js';
 

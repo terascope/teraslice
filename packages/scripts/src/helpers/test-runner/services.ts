@@ -18,7 +18,7 @@ import {
 import { Kind } from '../kind.js';
 import { TestOptions } from './interfaces.js';
 import { Service } from '../interfaces.js';
-import * as config from '../config.js';
+import config from '../config.js';
 import signale from '../signale.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');

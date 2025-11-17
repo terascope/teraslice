@@ -1,7 +1,7 @@
 import 'jest-extended';
 import fs from 'node:fs';
 import { createImageList } from '../src/helpers/images/index.js';
-import * as config from '../src/helpers/config.js';
+import config from '../src/helpers/config.js';
 
 describe('images command', () => {
     afterEach(() => {

@@ -10,7 +10,7 @@ import {
 import { TestOptions, GroupedPackages } from './interfaces.js';
 import { PackageInfo, Service } from '../interfaces.js';
 import { getServicesForSuite } from '../misc.js';
-import * as config from '../config.js';
+import config from '../config.js';
 import signale from '../signale.js';
 import type {
     TestEnv,

@@ -3,8 +3,7 @@ import { jest } from '@jest/globals';
 import { TSError } from '@terascope/core-utils';
 import { TestOptions } from '../src/helpers/test-runner/interfaces.js';
 
-jest.unstable_mockModule('../src/helpers/config.js', () => ({
-    __esModule: true,
+const mockConfig = {
     ELASTICSEARCH_VERSION: 'bad-version',
     KAFKA_VERSION: 'very-bad-version',
     MINIO_VERSION: 'very-bad-version',
@@ -95,6 +94,11 @@ jest.unstable_mockModule('../src/helpers/config.js', () => ({
     DOCKER_IMAGE_LIST_PATH: '',
     CERT_PATH: '',
     ENCRYPTION_ENABLED: ''
+};
+
+jest.unstable_mockModule('../src/helpers/config.js', () => ({
+    __esModule: true,
+    default: mockConfig
 }));
 
 describe('services', () => {

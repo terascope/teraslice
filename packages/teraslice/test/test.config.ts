@@ -1,11 +1,12 @@
 import { z } from 'zod';
+import { TerasliceEnv } from '@terascope/types';
 import { newId } from '../src/lib/utils/id_utils.js';
 
 const terasliceTestEnvSchema = z.object({
     SEARCH_TEST_HOST: z.string(),
     TERASLICE_CLUSTER_NAME: z.string().optional(),
     TEST_INDEX_PREFIX: z.string(),
-});
+}) satisfies z.ZodType<TerasliceEnv>;
 
 const envConfig = terasliceTestEnvSchema.parse(process.env);
 
