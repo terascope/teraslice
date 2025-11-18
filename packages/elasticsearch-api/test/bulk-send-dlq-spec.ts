@@ -5,10 +5,10 @@ import elasticsearchAPI, { Client as APIClient } from '../src/index.js';
 
 const {
     makeClient, cleanupIndex, EvenDateData,
-    sharedEnvSchema, createMappingFromDatatype,
+    opensearchEnvSchema, createMappingFromDatatype,
     formatUploadData
 } = ElasticsearchTestHelpers;
-const { TEST_INDEX_PREFIX } = sharedEnvSchema.parse(process.env);
+const { TEST_INDEX_PREFIX } = opensearchEnvSchema.parse(process.env);
 
 const THREE_MINUTES = 3 * 60 * 1000;
 
