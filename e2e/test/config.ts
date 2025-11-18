@@ -42,6 +42,7 @@ const E2EEnvSchema = z.object({
     MINIO_SECRET_KEY: z.string().optional(),
     NODE_VERSION: z.string(),
     OPENSEARCH_HOST: z.string().optional(),
+    OPENSEARCH_SSL_HOST: z.string().optional(),
     OPENSEARCH_HOSTNAME: z.string().optional(),
     OPENSEARCH_PORT: z.string().optional(),
     OPENSEARCH_PASSWORD: z.string().optional(),
@@ -58,8 +59,6 @@ const E2EEnvSchema = z.object({
 
 const envConfig = E2EEnvSchema.parse(process.env);
 
-const OPENSEARCH_SSL_HOST = `https://${envConfig.OPENSEARCH_HOSTNAME}:${envConfig.OPENSEARCH_PORT}`;
-
 export const config = {
     ...envConfig,
     ASSET_BUNDLES_PATH,
@@ -74,13 +73,12 @@ export const config = {
     EXAMPLE_INDEX_PREFIX: `${envConfig.TEST_INDEX_PREFIX}example`,
     EXAMPLE_INDEX_SIZES,
     LOG_PATH,
-    OPENSEARCH_SSL_HOST,
     newId,
     ROOT_CERT_PATH: path.join(envConfig.CERT_PATH, 'CAs/rootCA.pem'),
     SPEC_INDEX_PREFIX: `${envConfig.TEST_INDEX_PREFIX}spec`,
     TEST_HOST: toBoolean(envConfig.TEST_OPENSEARCH)
         ? toBoolean(envConfig.ENCRYPT_OPENSEARCH)
-            ? OPENSEARCH_SSL_HOST
+            ? envConfig.OPENSEARCH_SSL_HOST
             : envConfig.OPENSEARCH_HOST
         : envConfig.ELASTICSEARCH_HOST,
     USE_DEV_ASSETS,
