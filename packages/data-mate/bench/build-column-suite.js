@@ -1,5 +1,5 @@
 import { getGroupedFields } from '@terascope/data-types';
-import { isExecutedFile } from '@terascope/utils';
+import { isExecutedFile } from '@terascope/core-utils';
 import { Suite } from './helpers.js';
 import json from './fixtures/data.json' with { type: 'json' };
 import { Column } from '../dist/src/index.js';

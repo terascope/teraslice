@@ -1,4 +1,4 @@
-import { DataEntity, cloneDeep } from '@terascope/utils';
+import { cloneDeep, DataEntity } from '@terascope/core-utils';
 import crypto from 'crypto';
 import { Validator, ValidatorPlugins } from '../../../src/operations/plugins/validator';
 import { PostProcessConfig } from '../../../src/interfaces';

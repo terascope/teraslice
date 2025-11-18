@@ -1,4 +1,5 @@
-import { MapProcessor, DataEntity } from '@terascope/job-components';
+import { MapProcessor } from '@terascope/job-components';
+import { DataEntity } from '@terascope/core-utils';
 import { SimpleAPI } from '../simple-api/interfaces';
 import { TransformerConfig } from './interfaces';
 

@@ -23,51 +23,6 @@ describe('DataType (elasticsearch)', () => {
             }
         });
 
-        it('can create a elasticsearch 6 mapping', () => {
-            const typeConfig: DataTypeConfig = {
-                version: LATEST_VERSION,
-                fields: {
-                    hello: { type: FieldType.Text },
-                    location: { type: FieldType.GeoPoint },
-                    date: { type: FieldType.Date },
-                    ip: { type: FieldType.IP },
-                    someNum: { type: FieldType.Long },
-                },
-            };
-
-            const results = {
-                mappings: {
-                    _doc: {
-                        _all: {
-                            enabled: false,
-                        },
-                        _meta: { foo: 'foo' },
-                        dynamic: false,
-                        properties: {
-                            hello: { type: 'text' },
-                            location: { type: 'geo_point' },
-                            date: { type: 'date' },
-                            ip: { type: 'ip' },
-                            someNum: { type: 'long' },
-                        },
-                    },
-                },
-                settings: {},
-            };
-
-            const dataType = new DataType(typeConfig);
-
-            const mappingConfig: ESMappingOptions = {
-                distribution: ElasticsearchDistribution.elasticsearch,
-                minorVersion: 8,
-                majorVersion: 6,
-                version: '6.8.6',
-                _meta: { foo: 'foo' }
-            };
-
-            expect(dataType.toESMapping(mappingConfig)).toEqual(results);
-        });
-
         it('can create a elasticsearch 7 mapping', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
@@ -162,9 +117,9 @@ describe('DataType (elasticsearch)', () => {
                 },
             };
 
-            const output = new DataType(typeConfig).toESMapping({ typeName: 'events' });
+            const output = new DataType(typeConfig).toESMapping();
 
-            expect(output).toHaveProperty('mappings.events.properties', {
+            expect(output).toHaveProperty('mappings.properties', {
                 config: {
                     type: 'object',
                     properties: {
@@ -234,28 +189,24 @@ describe('DataType (elasticsearch)', () => {
             const dataType = new DataType(typeConfig, 'events');
             expect(dataType.toESMapping({ overrides })).toEqual({
                 mappings: {
-                    events: {
-                        _all: {
-                            enabled: false,
-                        },
-                        dynamic: false,
-                        properties: {
-                            hello: {
-                                type: 'text',
-                                analyzer: 'lowercase_keyword_analyzer',
-                                fields: {
-                                    tokens: {
-                                        analyzer: 'standard',
-                                        type: 'text',
-                                    },
+                    dynamic: false,
+                    properties: {
+                        hello: {
+                            type: 'text',
+                            analyzer: 'lowercase_keyword_analyzer',
+                            fields: {
+                                tokens: {
+                                    analyzer: 'standard',
+                                    type: 'text',
                                 },
                             },
-                            location: { type: 'geo_point' },
-                            date: { type: 'date' },
-                            ip: { type: 'ip' },
-                            someNum: { type: 'long' },
                         },
+                        location: { type: 'geo_point' },
+                        date: { type: 'date' },
+                        ip: { type: 'ip' },
+                        someNum: { type: 'long' },
                     },
+
                 },
                 settings: {
                     'index.number_of_shards': 5,

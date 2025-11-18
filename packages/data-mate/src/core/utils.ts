@@ -1,4 +1,4 @@
-import { getTypeOf, TSError } from '@terascope/utils';
+import { getTypeOf, TSError } from '@terascope/core-utils';
 import {
     DataTypeFields, FieldType, ReadonlyDataTypeFields,
     TypedArray, TypedArrayConstructor

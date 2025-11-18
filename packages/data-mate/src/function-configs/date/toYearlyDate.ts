@@ -1,5 +1,5 @@
 import { DateFormat, FieldType, ISO8601DateSegment } from '@terascope/types';
-import { toISO8601, trimISODateSegment } from '@terascope/utils';
+import { toISO8601, trimISODateSegment } from '@terascope/core-utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory

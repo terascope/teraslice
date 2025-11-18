@@ -1,9 +1,5 @@
-import {
-    toCIDR,
-    isNumberLike,
-    toNumber,
-    toString
-} from '@terascope/utils';
+import { isNumberLike, toNumber, toString } from '@terascope/core-utils';
+import { toCIDR } from '@terascope/ip-utils';
 import { FieldType } from '@terascope/types';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,

@@ -8,7 +8,6 @@ describe('Terafoundation (ProcessContext)', () => {
         } as any, {
             configfile: {
                 terafoundation: {
-                    environment: process.env.NODE_ENV,
                     connectors: {
                         'elasticsearch-next': {}
                     }

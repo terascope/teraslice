@@ -1,6 +1,5 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
-import { get, isNumber } from '@terascope/utils';
-import { ensureNoTypeInMapping, ensureTypeInMapping } from './helper-utils.js';
+import { get, isNumber } from '@terascope/core-utils';
 
 export function convertIndicesPutTemplateParams(
     params: ClientParams.IndicesPutTemplateParams,
@@ -16,7 +15,6 @@ export function convertIndicesPutTemplateParams(
         if (majorVersion === 8) {
             const {
                 body,
-                include_type_name,
                 ...parsedParams
             } = params;
 
@@ -25,7 +23,7 @@ export function convertIndicesPutTemplateParams(
             return {
                 index_patterns: body?.index_patterns,
                 aliases: body?.aliases,
-                mappings: ensureNoTypeInMapping(body?.mappings),
+                mappings: body?.mappings,
                 settings: body?.settings,
                 ...isNumber(indexSchemaVersion) && { version: indexSchemaVersion },
                 ...parsedParams
@@ -34,20 +32,6 @@ export function convertIndicesPutTemplateParams(
 
         if (majorVersion === 7) {
             return params;
-        }
-
-        if (majorVersion === 6) {
-            const {
-                body,
-                include_type_name,
-                ...parsedParams
-            } = params;
-
-            return {
-                include_type_name: true,
-                body: ensureTypeInMapping(body),
-                ...parsedParams
-            };
         }
     }
 
@@ -58,7 +42,6 @@ export function convertIndicesPutTemplateParams(
 
         if (majorVersion === 2 || majorVersion === 3) {
             const {
-                include_type_name,
                 master_timeout,
                 body,
                 ...parsedParams
@@ -66,7 +49,7 @@ export function convertIndicesPutTemplateParams(
 
             const newBody = {
                 ...body,
-                mappings: ensureNoTypeInMapping(body?.mappings),
+                mappings: body?.mappings,
             };
 
             return {

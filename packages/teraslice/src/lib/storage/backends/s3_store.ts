@@ -1,7 +1,7 @@
 import {
     Logger, TSError, isTest,
     logError, pDelay, pWhile, random
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Context, TerafoundationConfig } from '@terascope/job-components';
 import {
     S3ClientResponse,

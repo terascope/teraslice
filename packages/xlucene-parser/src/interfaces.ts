@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import * as t from '@terascope/types';
 
 /**

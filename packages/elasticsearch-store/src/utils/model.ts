@@ -4,7 +4,7 @@ import {
     cloneDeep, isPlainObject, concat,
     getWordParts, firstToUpper, isNumberLike,
     isKey
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 
 /** JSON Schema */
 export const schema = {

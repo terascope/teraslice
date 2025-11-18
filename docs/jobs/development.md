@@ -5,7 +5,7 @@ title: Development
 When developing on an operation you'll need to be aware of three packages.
 
 - [@teracope/job-components](../packages/job-components/overview.md) - contains the abstract classes and components for building and interacting with Teraslice operations.
-- [@teracope/utils](../packages/utils/overview.md) - contains many useful utility functions
+- [@teracope/core-utils](../packages/core-utils/overview.md) - contains many useful utility functions
 - [teraslice-test-harness](../packages/teraslice-test-harness/overview.md) - a testing framework for teraslice.
 
 ## Reader

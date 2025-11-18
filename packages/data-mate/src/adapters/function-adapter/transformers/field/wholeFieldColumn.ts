@@ -1,4 +1,4 @@
-import { isNil, isFunction } from '@terascope/utils';
+import { isNil, isFunction } from '@terascope/core-utils';
 import { FieldTransformConfig, InitialFunctionContext, FunctionContext } from '../../../../function-configs/interfaces.js';
 import { DynamicFunctionAdapterContext, FunctionAdapterContext } from '../../interfaces.js';
 import { validateFunctionArgs } from '../../../argument-validator/index.js';

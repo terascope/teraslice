@@ -1,4 +1,4 @@
-import { DataEntity, cloneDeep } from '@terascope/utils';
+import { cloneDeep, DataEntity } from '@terascope/core-utils';
 import { Base64Encode } from '../../../src/operations';
 
 describe('Base64Encode operator', () => {

@@ -1,4 +1,4 @@
-import { isGeoShapeMultiPolygon } from '@terascope/utils';
+import { isGeoShapeMultiPolygon } from '@terascope/geo-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig,

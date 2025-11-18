@@ -1,5 +1,5 @@
 import { Context, WorkerExecutionContext } from '@terascope/job-components';
-import { pMap, Logger } from '@terascope/utils';
+import { pMap, Logger } from '@terascope/core-utils';
 import { Slice, SliceAnalyticsData } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils.js';

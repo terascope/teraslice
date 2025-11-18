@@ -10,14 +10,12 @@ export default {
             index: 'replace-me-1000',
             preserve_id: true,
             date_field_name: 'created',
-            type: 'change',
             size: 500
         },
         {
             _op: 'elasticsearch_bulk',
             index: 'multisend-1000',
             preserve_id: true,
-            type: 'change',
             multisend_index_append: false,
             size: 100,
             multisend: true,

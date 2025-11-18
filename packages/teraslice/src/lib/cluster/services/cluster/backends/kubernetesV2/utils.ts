@@ -3,7 +3,7 @@ import path from 'node:path';
 // @ts-expect-error
 import barbe from 'barbe';
 import * as k8s from '@kubernetes/client-node';
-import { isTest } from '@terascope/utils';
+import { isTest } from '@terascope/core-utils';
 import * as i from './interfaces.js';
 
 const MAX_RETRIES = isTest ? 2 : 3;

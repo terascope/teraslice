@@ -1,4 +1,4 @@
-import { bigIntToJSON, isPlainObject, toBigInt } from '@terascope/utils';
+import { bigIntToJSON, isPlainObject, toBigInt } from '@terascope/core-utils';
 
 const BIG_INT_PREFIX = '__transformed_bigint_';
 /**

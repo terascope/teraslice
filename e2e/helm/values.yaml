@@ -1,6 +1,9 @@
 opensearch1:
   # If false, opensearch1 will be excluded on helmfile sync
   enabled: false
+  # Port that the service will resolve to on the host
+  # Default is 9201
+  hostPort: null
   version: 1.3.11
   esJavaOpts: -Xmx512M -Xms512M
   memoryLimit: 1Gi
@@ -8,10 +11,19 @@ opensearch1:
   persistentVolumeSize: 8Gi
   # The number of replicas
   instances: 1
+  # The absolute path to an es data directory on the host machine to use
+  # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
+  # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
+  # Example -->   hostVolumePath: /Users/local-volumes/es7
+  hostVolumePath: null
 
 opensearch2:
   # If false, opensearch2 will be excluded on helmfile sync
   enabled: true
+
+  # Port that the service will resolve to on the host
+  # Default is 9202
+  hostPort: null
 
   ssl:
     # If true, "caCert" and "admin_dn" need to be set
@@ -36,10 +48,19 @@ opensearch2:
   persistentVolumeSize: 8Gi
   # The number of replicas
   instances: 1
+  # The absolute path to an es data directory on the host machine to use
+  # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
+  # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
+  # Example -->   hostVolumePath: /Users/local-volumes/es7
+  hostVolumePath: null
 
 opensearch3:
   # If false, opensearch3 will be excluded on helmfile sync
   enabled: false
+
+  # Port that the service will resolve to on the host
+  # Default is 9203
+  hostPort: null
 
   ssl:
     # If true, "caCert" and "admin_dn" need to be set
@@ -64,23 +85,20 @@ opensearch3:
   persistentVolumeSize: 8Gi
   # The number of replicas
   instances: 1
-
-elasticsearch6:
-  # If false, elasticsearch6 will be excluded on helmfile sync
-  enabled: false
-  version: 6.8.6
-  # Overrides default image. Useful when loading in arm image that es doesn't support
-  # image: elasticsearch
-  # The number of replicas
-  instances: 1
-  esJavaOpts: -Xms512m -Xmx512m
-  memoryLimit: 1Gi
-  memoryRequest: 512Mi
-  persistentVolumeSize: 8Gi
+  # The absolute path to an es data directory on the host machine to use
+  # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
+  # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
+  # Example -->   hostVolumePath: /Users/local-volumes/es7
+  hostVolumePath: null
 
 elasticsearch7:
   # If false, elasticsearch7 will be excluded on helmfile sync
   enabled: false
+
+  # Port that the service will resolve to on the host
+  # Default is 9207
+  hostPort: null
+
   # It's not recommended to deviate from es versions 7.9. The chart is tied to this specific version.
   version: 7.9.3
   # The number of replicas
@@ -89,6 +107,11 @@ elasticsearch7:
   memoryLimit: 1Gi
   memoryRequest: 512Mi
   persistentVolumeSize: 8Gi
+  # The absolute path to an es data directory on the host machine to use
+  # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
+  # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
+  # Example -->   hostVolumePath: /Users/local-volumes/es7
+  hostVolumePath: null
 
 minio:
   # If false, minio will be excluded on helmfile sync
@@ -108,7 +131,23 @@ minio:
     publicCrtName: public.crt
     privateKeyName: private.key
     # The ca-certificate used by teraslice for minio service
+    # CA certificate in a single-line string format with "\\n" as line breaks
+    # Use the following command to convert a rootCA PEM file to the correct format:
+    # awk '{printf "%s\\\\n", $0}' <path-to-pem-file> | pbcopy
     caCert: null
+    # The public certificate in single-line string format with "\\n" as line breaks
+    # Use the following command to convert a certificate PEM file to the correct format:
+    # awk '{printf "%s\\\\n", $0}' <path-to-pem-file> | pbcopy
+    publicCert: null
+    # The private key in single-line string format with "\\n" as line breaks
+    # Use the following command to convert a key file to the correct format:
+    # awk '{printf "%s\\\\n", $0}' <path-to-key-file> | pbcopy
+    privateKey: null
+  # The absolute path to an es data directory on the host machine to use
+  # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
+  # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
+  # Example -->   hostVolumePath: /Users/local-volumes/es7
+  hostVolumePath: null
 
 kafka:
   # If false, kafka will be excluded on helmfile sync
@@ -131,11 +170,9 @@ kafka:
       replication:
         factor: 1
 
-zookeeper:
-  # If false, zookeeper will be excluded on helmfile sync
+kafka-ui:
+  # If false, kafka-ui will be excluded on helmfile sync
   enabled: false
-  version: 3.7.2
-  instances: 1
   
 utility:
   # If false, utility will be excluded on helmfile sync
@@ -148,8 +185,13 @@ utility:
 
 teraslice:
   image:
+    # Only relates to yarn k8s command. Will overwrite/overide repo and tag fields and build a teraslice image.
+    # Turn this off if there is a specific image you want used.
+    build: true
+    # The repo/name of the image. WILL be overwritten if build is true
     repository: teraslice-workspace
     # Overrides the image tag whose default is the chart appVersion.
+    # WILL be overwritten if build is true
     tag: e2e-nodev22
   stateCluster: opensearch2
   asset_storage_connection_type: elasticsearch-next
@@ -157,3 +199,24 @@ teraslice:
   env: {}
   extraVolumes: []
   extraVolumeMounts: []
+
+prometheus_stack:
+  # If enabled, the prom dashboard will be available on http://localhost:9090
+  enabled: false
+  grafana:
+    # If enabled, the grafana dashboard will be available on http://localhost:8050
+    enabled: true
+    adminUser: admin
+    adminPassword: tera
+  alertmanager:
+    # If enabled, the alertmanager dashboard will be available on http://localhost:9091
+    enabled: false
+
+chaos_mesh:
+  # If enabled, chaos dashboard will be available on http://localhost:2333
+  enabled: false
+
+stern:
+  # If enabled, stern will copy kubernetes logs to local file system
+  # Previous log files will be overwritten
+  enabled: false

@@ -1,4 +1,4 @@
-import { trim } from '@terascope/utils';
+import { trim } from '@terascope/core-utils';
 import { buildSchema, printSchema } from 'graphql/utilities/index.js';
 
 export function formatSchema(schemaStr: string, removeScalars = false): string {

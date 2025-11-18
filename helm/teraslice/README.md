@@ -43,7 +43,6 @@ View the `values.yaml` for charts configuration settings.
 | `master.teraslice.assets_directory` | Directory for assets in the master pod              | `/app/assets`             |
 | `master.teraslice.workers`        | Number of worker processes in master pod            | `0`                       |
 | `worker.teraslice.assets_directory` | Directory for assets in the worker pod              | `/app/assets`             |
-| `terafoundation.environment`      | Runtime environment                                 | `production`              |
 | `terafoundation.log_level`        | Logging level                                       | `info`                    |
 | `terafoundation.prom_metrics_enabled` | Enable internal Prometheus metrics                  | `false`                   |
 | `terafoundation.prom_metrics_port` | Prometheus metrics port                            | `3333`                    |

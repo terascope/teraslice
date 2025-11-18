@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { AnyObject, has } from '@terascope/utils';
+import { has } from '@terascope/core-utils';
 import yaml from 'js-yaml';
 import Display from './display.js';
 
@@ -12,13 +12,13 @@ const defaultConfigData = {
 };
 
 export default class Aliases {
-    static writeSync(filename: string, obj: AnyObject): void {
+    static writeSync(filename: string, obj: Record<string, any>): void {
         fs.writeFileSync(filename, yaml.dump(obj), { encoding: 'utf-8' });
     }
 
-    static readSync(filename: string): AnyObject {
+    static readSync(filename: string): Record<string, any> {
         const content = fs.readFileSync(filename, { encoding: 'utf-8' });
-        return yaml.load(content) as AnyObject;
+        return yaml.load(content) as Record<string, any>;
     }
 
     config: Record<string, Record<string, any>>;

@@ -13,7 +13,6 @@ export function convertMSearchParams(
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
             const {
-                type,
                 body,
                 ...parsedParams
             } = params;
@@ -33,58 +32,13 @@ export function convertMSearchParams(
         }
 
         if (majorVersion === 7) {
-            const {
-                type,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
-        if (majorVersion === 6) {
-            const {
-                type = '_doc',
-                ccs_minimize_roundtrips,
-                ...parsedParams
-            } = params;
-
-            return {
-                type,
-                ...parsedParams
-            };
+            return params;
         }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
-            const {
-                type,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
-        if (majorVersion === 2 || majorVersion === 3) {
-            const {
-                type,
-                body,
-                ...parsedParams
-            } = params;
-
-            return {
-                ...parsedParams,
-                body: body.map((doc) => {
-                    // @ts-expect-error type only exists on one type, not the other
-                    // hence th error
-                    const { type: _type, ...docArgs } = doc;
-
-                    return {
-                        ...docArgs
-                    };
-                })
-
-            };
+        if ([1, 2, 3].includes(majorVersion)) {
+            return params;
         }
     }
 

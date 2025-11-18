@@ -466,7 +466,7 @@ jobs:
           path: /tmp/teraslice_assets
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
-      - name: Test external Asset Storage opensearch1
+      - name: Test external Asset Storage opensearch2
         run: |
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)

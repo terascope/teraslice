@@ -1,4 +1,7 @@
-import * as ts from '@terascope/utils';
+import {
+    isNil, isNotNil, isObjectEntity,
+    getTypeOf
+} from '@terascope/core-utils';
 import { FieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { isArray } from './field-validator.js';
 import { DocumentMatcher } from '../document-matcher/index.js';
@@ -51,7 +54,7 @@ export const repository: Repository = {
 };
 
 function _filterBy(fn: any, input: any[], args?: any) {
-    const sanitized = input.filter((data) => ts.isNotNil(data) && ts.isObjectEntity(data));
+    const sanitized = input.filter((data) => isNotNil(data) && isObjectEntity(data));
     if (sanitized.length === 0) return [];
 
     return sanitized.filter((data) => fn(data, args));
@@ -71,7 +74,7 @@ function _filterBy(fn: any, input: any[], args?: any) {
  * results1; // true;
  * results2; // false;
  *
- * @param {AnyObject} obj
+ * @param { Record<string, any>} obj
  * @param {{ fields: string[] }} { fields }
  * @returns boolean
  */
@@ -81,7 +84,7 @@ export function required(
     _parentContext: RecordInput,
     args: { fields: string[] }
 ): RecordInput | null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
     if (!args?.fields || !isArray(args.fields) || !isString(args.fields)) {
         throw new Error('Parameter fields must be provided and be an array of strings');
     }
@@ -93,7 +96,7 @@ export function required(
     return _checkKeys(input, args.fields);
 }
 
-function _checkKeys(data: ts.AnyObject, fields: string[]) {
+function _checkKeys(data: Record<string, any>, fields: string[]) {
     try {
         const keys = Object.keys(data);
         if (fields.every((rField) => keys.includes(rField))) return data;
@@ -123,7 +126,7 @@ interface DMOptions {
  * results1; // true;
  * results2; // false;
  *
- * @param {AnyObject} obj
+ * @param { Record<string, any>} obj
  * @param {{ query: string, type_config: xLuceneTypeConfig, variables: xLuceneVariables }} args
  * shape is { query: string, type_config: xLuceneTypeConfig, variables: xLuceneVariables }
  * @returns boolean
@@ -138,26 +141,26 @@ export function select(
     if (!matcher) return null;
 
     if (isArray(input)) {
-        const fn = (data: ts.AnyObject) => ts.isObjectEntity(data) && matcher.match(data);
+        const fn = (data: Record<string, any>) => isObjectEntity(data) && matcher.match(data);
         return _filterBy(fn, input);
     }
 
-    if (ts.isObjectEntity(input) && matcher.match(input)) return input;
+    if (isObjectEntity(input) && matcher.match(input)) return input;
 
     return null;
 }
 
 function _validateMatcher(input: RecordInput, args: DMOptions) {
-    if (ts.isNil(input)) return null;
-    if (ts.isNil(args) || !ts.isObjectEntity(args)) {
-        throw new Error(`Parameter args must be provided and be an object, got ${ts.getTypeOf(args)}`);
+    if (isNil(input)) return null;
+    if (isNil(args) || !isObjectEntity(args)) {
+        throw new Error(`Parameter args must be provided and be an object, got ${getTypeOf(args)}`);
     }
 
     const { query = '*', type_config, variables } = args;
 
-    if (!isString(query)) throw new Error(`Invalid query, must be a string, got ${ts.getTypeOf(args)}`);
-    if ((type_config && !ts.isObjectEntity(type_config))) throw new Error(`Invalid argument typeConfig must be an object got ${ts.getTypeOf(args)}`);
-    if ((variables && !ts.isObjectEntity(variables))) throw new Error(`Invalid argument variables must be an object got ${ts.getTypeOf(args)}`);
+    if (!isString(query)) throw new Error(`Invalid query, must be a string, got ${getTypeOf(args)}`);
+    if ((type_config && !isObjectEntity(type_config))) throw new Error(`Invalid argument typeConfig must be an object got ${getTypeOf(args)}`);
+    if ((variables && !isObjectEntity(variables))) throw new Error(`Invalid argument variables must be an object got ${getTypeOf(args)}`);
 
     return new DocumentMatcher(query, { type_config, variables });
 }
@@ -176,7 +179,7 @@ function _validateMatcher(input: RecordInput, args: DMOptions) {
  * results1; // false;
  * results2; // true;
  *
- * @param {AnyObject} obj
+ * @param { Record<string, any>} obj
  * @param {DMOptions} args
  * shape is { query: string, type_config: xLuceneTypeConfig, variables: xLuceneVariables }
  * @returns boolean
@@ -191,10 +194,10 @@ export function reject(
     if (!matcher) return null;
 
     if (isArray(input)) {
-        const fn = (data: ts.AnyObject) => ts.isObjectEntity(data) && !matcher.match(data);
+        const fn = (data: Record<string, any>) => isObjectEntity(data) && !matcher.match(data);
         return _filterBy(fn, input);
     }
 
-    if (ts.isObjectEntity(input) && !matcher.match(input)) return input;
+    if (isObjectEntity(input) && !matcher.match(input)) return input;
     return null;
 }

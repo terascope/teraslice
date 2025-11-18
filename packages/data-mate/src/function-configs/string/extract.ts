@@ -1,4 +1,4 @@
-import { isNil, matchAll } from '@terascope/utils';
+import { isNil, matchAll } from '@terascope/core-utils';
 import { FieldType, ReadonlyDataTypeConfig } from '@terascope/types';
 import {
     FieldTransformConfig,

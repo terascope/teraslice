@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { isPlainObject, times } from '@terascope/utils';
+import { isPlainObject, times } from '@terascope/core-utils';
 import type { Terafoundation } from '@terascope/types';
 import { createClient as createDBClient } from '../connector-utils.js';
 import { createRootLogger } from './utils.js';

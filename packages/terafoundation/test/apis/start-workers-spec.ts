@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { jest } from '@jest/globals';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import api from '../../src/api/index.js';
 
 describe('startWorkers foundation API', () => {

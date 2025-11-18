@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity } from '@terascope/core-utils';
 import { BatchProcessor } from '../../../../src/index.js';
 
 export default class OpTest extends BatchProcessor {

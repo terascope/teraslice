@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseJSON, castArray } from '@terascope/utils';
+import { parseJSON, castArray } from '@terascope/core-utils';
 import { Terafoundation } from '@terascope/types';
 import {
     Context, ValidatedJobConfig, ExecutionConfig,

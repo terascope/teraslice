@@ -2,7 +2,7 @@ import {
     xLuceneFieldType, ESFieldType, xLuceneTypeConfig,
     DateFormat
 } from '@terascope/types';
-import { withoutNil } from '@terascope/utils';
+import { withoutNil } from '@terascope/core-utils';
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 

@@ -2,7 +2,7 @@ import jexlCore from 'jexl';
 import {
     isNil, matchAll, isNotNil,
     isObjectEntity, TSError
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import { FieldTransform } from '../transforms/index.js';
 import { FieldValidator, RecordValidator } from '../validations/index.js';

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isExecutedFile } from '@terascope/utils';
-import { Suite } from '@terascope/utils/bench/helpers.js';
+import { isExecutedFile } from '@terascope/core-utils';
+import { Suite } from '@terascope/core-utils/bench/helpers.js';
 import { TestContext, newTestExecutionConfig, WorkerExecutionContext } from '../dist/src/index.js';
 import SimpleFetcher from './fixtures/simple-reader/fetcher.js';
 import SimpleMap from './fixtures/simple-map/processor.js';

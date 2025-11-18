@@ -3,7 +3,7 @@ import { FieldType } from '@terascope/types';
 import {
     isNotNil, isObjectEntity,
     isEmpty, sortKeys, getTypeOf
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 // import { RecordTransformConfig, FunctionDefinitionType } from '../interfaces.js';
 
 // export const dedupConfig: RecordTransformConfig = {

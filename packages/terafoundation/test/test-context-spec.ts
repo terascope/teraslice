@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import { TestContext } from '../src/index.js';
 
 const logger = debugLogger('TestContext');
@@ -68,7 +68,7 @@ describe('TestContext', () => {
 
     it('should be able to init prom_metrics_api', async () => {
         const context = await TestContext.createContext();
-        context.sysconfig.teraslice = { cluster_manager_type: 'kubernetes', name: 'ts-test' };
+        context.sysconfig.teraslice = { cluster_manager_type: 'kubernetesV2', name: 'ts-test' };
         context.sysconfig.terafoundation.prom_metrics_enabled = true;
         const config = {
             terasliceName: context.sysconfig.teraslice.name,

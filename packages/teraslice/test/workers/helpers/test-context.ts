@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { EventEmitter } from 'node:events';
 import { createTempDirSync, cleanupTempDirs } from 'jest-fixtures';
 import { newTestSlice, ExecutionContext } from '@terascope/job-components';
-import { get, pWhile } from '@terascope/utils';
+import { get, pWhile } from '@terascope/core-utils';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import {
     AssetsStorage, StateStorage, AnalyticsStorage,
@@ -16,7 +16,6 @@ import { newId } from '../../../src/lib/utils/id_utils.js';
 import { findPort } from '../../../src/lib/utils/port_utils.js';
 import { newConfig, newSysConfig, TestJobConfig } from './configs.js';
 import { zipDirectory } from './zip-directory.js';
-
 import { TERASLICE_CLUSTER_NAME } from '../../test.config.js';
 
 const tmpAssetDir = createTempDirSync();

@@ -13,8 +13,6 @@ nodes:
     hostPort: 9202
   - containerPort: 30203 # Map internal opensearch3 service to host port
     hostPort: 9203
-  - containerPort: 30206 # Map internal elasticsearch6 service to host port
-    hostPort: 9206
   - containerPort: 30207 # Map internal elasticsearch7 service to host port
     hostPort: 9207
   - containerPort: 30092 # Map internal kafka service to host port

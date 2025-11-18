@@ -1,4 +1,5 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
+import { ManagerOptions, SocketOptions } from 'socket.io-client';
 import { ExecutionAnalytics, AggregatedExecutionAnalytics } from '@terascope/types';
 import { Message, RequestListener } from '../messenger/interfaces.js';
 
@@ -6,7 +7,7 @@ export interface ClientOptions {
     exId: string;
     clusterMasterUrl: string;
     nodeDisconnectTimeout: number;
-    socketOptions?: SocketIOClient.ConnectOpts;
+    socketOptions?: Partial<ManagerOptions & SocketOptions>;
     networkLatencyBuffer?: number;
     actionTimeout: number;
     connectTimeout: number;

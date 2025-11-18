@@ -9,7 +9,7 @@ sidebar_label: Plugins
 
 ```js
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 const { OperationConfig, TransformOpBase } = require('ts-transforms');
 
 class Double extends TransformOpBase {

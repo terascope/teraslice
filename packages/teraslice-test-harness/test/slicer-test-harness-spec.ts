@@ -2,10 +2,10 @@ import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-    newTestJobConfig, Slicer, uniq,
-    AnyObject, LifeCycle, TestClientConfig,
-    debugLogger, ValidatedJobConfig
+    newTestJobConfig, Slicer, LifeCycle,
+    TestClientConfig, ValidatedJobConfig
 } from '@terascope/job-components';
+import { uniq, debugLogger } from '@terascope/core-utils';
 import { SlicerTestHarness } from '../src/index.js';
 import ParallelSlicer from './fixtures/asset/parallel-reader/slicer.js';
 
@@ -231,7 +231,7 @@ describe('SlicerTestHarness', () => {
             const test = await makeTest(2);
 
             const sliceResults = uniq(await test.getAllSlices({ fullResponse: true }))
-                .filter(Boolean) as AnyObject[];
+                .filter(Boolean) as Record<string, any>[];
 
             const slicerOne = sliceResults.filter((obj) => obj.slicer_id === 0);
             const slicerTwo = sliceResults.filter((obj) => obj.slicer_id === 1);

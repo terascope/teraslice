@@ -1,6 +1,6 @@
 import { ReleaseType } from 'semver';
 import { CommandModule } from 'yargs';
-import { castArray } from '@terascope/utils';
+import { castArray } from '@terascope/core-utils';
 import { coercePkgArg } from '../helpers/args.js';
 import { bumpPackages } from '../helpers/bump/index.js';
 import { PackageInfo } from '../helpers/interfaces.js';

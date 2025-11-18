@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { cloneDeep } from '@terascope/utils';
+import { cloneDeep } from '@terascope/core-utils';
 import { xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import { DocumentMatcher } from '../../src/index.js';
 import allTestCases from './cases/document-matcher/index.js';

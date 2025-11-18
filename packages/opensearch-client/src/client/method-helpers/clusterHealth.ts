@@ -11,20 +11,11 @@ export function convertClusterHealthParams(
             return params;
         }
 
-        if (majorVersion === 6) {
-            const {
-                master_timeout,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
         throw new Error(`Unsupported elasticsearch version: ${version}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1 || majorVersion === 2) {
+        if ([1, 2, 3].includes(majorVersion)) {
             const {
                 master_timeout,
                 ...parsedParams

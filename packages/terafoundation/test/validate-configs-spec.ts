@@ -51,7 +51,6 @@ describe('Validate Configs', () => {
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {},
-                    environment: 'test',
                 },
                 other: {
                     test: 'custom'
@@ -135,7 +134,6 @@ describe('Validate Configs', () => {
                             }
                         },
                     },
-                    environment: 'test',
                 },
                 _nodeName: os.hostname()
             });

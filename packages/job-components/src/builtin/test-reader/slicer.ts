@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseJSON, fastCloneDeep } from '@terascope/utils';
+import { parseJSON, fastCloneDeep } from '@terascope/core-utils';
 import { SlicerRecoveryData } from '../../interfaces/index.js';
 import { TestReaderConfig } from './interfaces.js';
 import defaultData from './data/slicer-data.js';

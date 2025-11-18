@@ -2,8 +2,8 @@ import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascop
 import {
     and, isEqual, isNotNil, isWildCardString, not, or,
     isGreaterThanFP, isGreaterThanOrEqualToFP,
-    isLessThanOrEqualToFP, isLessThanFP, toBigIntOrThrow
-} from '@terascope/utils';
+    isLessThanOrEqualToFP, isLessThanFP, toBigIntOrThrow,
+} from '@terascope/core-utils';
 import { inspect } from 'node:util';
 import * as p from 'xlucene-parser';
 import type { DataFrame } from '../DataFrame.js';

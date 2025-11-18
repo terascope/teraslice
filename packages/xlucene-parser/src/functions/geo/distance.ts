@@ -1,5 +1,5 @@
 import { AnyQuery, xLuceneVariables } from '@terascope/types';
-import { parseGeoPoint, parseGeoDistance, geoPointWithinRangeFP } from '@terascope/utils';
+import { parseGeoPoint, parseGeoDistance, geoPointWithinRangeFP } from '@terascope/geo-utils';
 import * as i from '../../interfaces.js';
 import { getFieldValue, logger } from '../../utils.js';
 

@@ -1,4 +1,4 @@
-import { isNil, isFunction, isString } from '@terascope/utils';
+import { isNil, isFunction, isString } from '@terascope/core-utils';
 import { validateFunctionArgs } from '../argument-validator/index.js';
 import {
     Column, validateAccepts,

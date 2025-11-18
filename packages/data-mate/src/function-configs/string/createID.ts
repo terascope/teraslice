@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { toString } from '@terascope/utils';
+import { toString } from '@terascope/core-utils';
 import { BinaryToTextEncoding } from 'node:crypto';
 import {
     FieldTransformConfig,

@@ -7,13 +7,10 @@
     "include": [
         "src",
         "test",
+        "./src/lib/cluster/services/cluster/backends/kubernetesV2/deployments/**.hbs",
+        "./src/lib/cluster/services/cluster/backends/kubernetesV2/jobs/**.hbs",
         "./src/lib/storage/backends/mappings/**.ts",
-        "./src/lib/cluster/services/cluster/backends/kubernetes/jobs/**.hbs",
-        "./src/lib/cluster/services/cluster/backends/kubernetes/deployments/**.hbs",
         "./test/lib/cluster/services/cluster/backends/files/**.json",
         "./test/lib/cluster/services/cluster/backends/kubernetes/files/**.json",
-        "./src/lib/cluster/services/cluster/backends/kubernetesV2/jobs/**.hbs",
-        "./src/lib/cluster/services/cluster/backends/kubernetesV2/deployments/**.hbs",
-        "./test/lib/cluster/services/cluster/backends/kubernetesV2/files/**.json"
     ]
 }

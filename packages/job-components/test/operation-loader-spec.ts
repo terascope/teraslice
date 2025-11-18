@@ -1,9 +1,10 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DataEntity } from '@terascope/core-utils';
 import {
     OperationLoader, newTestExecutionConfig, TestContext,
-    Context, DataEntity, parseName, ParseNameResponse
+    Context, parseName, ParseNameResponse
 } from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));

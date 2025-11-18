@@ -1,4 +1,4 @@
-import { get, trim } from '@terascope/utils';
+import { get, trim } from '@terascope/core-utils';
 import { TimeSeriesFormat } from '../interfaces.js';
 
 export function getRolloverFrequency(config: unknown): TimeSeriesFormat {

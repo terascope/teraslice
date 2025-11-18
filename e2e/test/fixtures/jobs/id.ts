@@ -9,14 +9,12 @@ export default {
         {
             _op: 'id_reader',
             index: 'replace-me-1000',
-            type: 'events',
             size: 500,
             key_type: 'base64url'
         },
         {
             _op: 'elasticsearch_bulk',
             index: 'test-id_reindex-1000',
-            type: 'events',
             size: 200
         }
     ]

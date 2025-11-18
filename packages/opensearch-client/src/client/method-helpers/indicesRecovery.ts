@@ -11,7 +11,7 @@ export function convertIndicesRecoveryParams(
     } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if ([6, 7, 8].includes(majorVersion)) {
+        if ([7, 8].includes(majorVersion)) {
             return params;
         }
     }

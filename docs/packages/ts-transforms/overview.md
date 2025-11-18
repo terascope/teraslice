@@ -104,7 +104,7 @@ const configObj: Config = {
 #### Optional logger
 
 ```js
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import { Transform } from 'ts-transforms'
 
 const logger = new Logger({ name: 'ts-transforms' })

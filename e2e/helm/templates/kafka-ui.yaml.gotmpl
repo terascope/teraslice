@@ -1,0 +1,14 @@
+yamlApplicationConfig:
+    kafka:
+        clusters:
+            - name: kafka-dev
+              bootstrapServers: "PLAINTEXT://kafka-headless.services-dev1.svc.cluster.local:9092"
+        auth:
+            type: disabled
+        management:
+            health:
+                ldap:
+                    enabled: false
+service:
+    type: NodePort
+    nodePort: 30084

@@ -3,7 +3,7 @@ import {
     xLuceneFieldType, xLuceneTypeConfig, GeoShapeType,
     CoordinateTuple
 } from '@terascope/types';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import { Parser, initFunction } from '../../src/index.js';
 import { coordinateToXlucene } from '../../src/utils.js';
 import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces.js';

@@ -1,6 +1,6 @@
-import { Slicer, AnyObject, SlicerRecoveryData } from '@terascope/job-components';
+import { Slicer, SlicerRecoveryData } from '@terascope/job-components';
 
-export default class Counter extends Slicer<AnyObject> {
+export default class Counter extends Slicer<Record<string, any>> {
     count = 0;
 
     async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {

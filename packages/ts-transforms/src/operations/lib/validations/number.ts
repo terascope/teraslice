@@ -1,4 +1,4 @@
-import { DataEntity, toNumber } from '@terascope/utils';
+import { toNumber, DataEntity } from '@terascope/core-utils';
 import { PostProcessConfig } from '../../../interfaces.js';
 import ValidationOpBase from './base.js';
 

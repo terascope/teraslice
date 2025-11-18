@@ -1,4 +1,4 @@
-import { debugLogger, get } from '@terascope/utils';
+import { debugLogger, get } from '@terascope/core-utils';
 import { createClient, ElasticsearchTestHelpers } from '../src/index.js';
 
 describe('can create an elasticsearch or opensearch client', () => {

@@ -1,4 +1,4 @@
-import { isFQDN } from '@terascope/utils';
+import { isFQDN } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

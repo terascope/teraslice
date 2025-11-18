@@ -1,4 +1,4 @@
-import { isBigInt, isNumber, toFloatOrThrow } from '@terascope/utils';
+import { isBigInt, isNumber, toFloatOrThrow } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, FunctionDefinitionType,

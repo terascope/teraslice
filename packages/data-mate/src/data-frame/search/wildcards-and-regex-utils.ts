@@ -1,7 +1,7 @@
 import {
     wildCardToRegex, matchWildcard, match,
     isString, getTypeOf
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { MatchValueFn } from '../../interfaces.js';
 
 export function regexp(regexStr: unknown): MatchValueFn {

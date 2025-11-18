@@ -1,4 +1,4 @@
-import { DataEntity, cloneDeep } from '@terascope/utils';
+import { cloneDeep, DataEntity } from '@terascope/core-utils';
 import { Dedup } from '../../../src/operations';
 
 describe('Dedup operator', () => {

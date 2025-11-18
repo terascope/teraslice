@@ -1,4 +1,4 @@
-import { get, logError } from '@terascope/utils';
+import { get, logError } from '@terascope/core-utils';
 import { shutdownHandler } from './dist/src/lib/workers/helpers/worker-shutdown.js';
 import { makeTerafoundationContext } from './dist/src/lib/workers/context/terafoundation-context.js';
 import { ClusterMaster } from './dist/src/lib/cluster/cluster_master.js';

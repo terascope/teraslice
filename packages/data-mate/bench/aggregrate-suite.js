@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { FieldType } from '@terascope/types';
-import { isExecutedFile } from '@terascope/utils';
+import { isExecutedFile } from '@terascope/core-utils';
 import { Suite } from './helpers.js';
 import {
     DataFrame, isNumberLike, ValueAggregation,

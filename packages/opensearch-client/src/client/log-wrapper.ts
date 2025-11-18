@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 
 export function logWrapper(logger: Logger) {
     return function _logger(): Logger {

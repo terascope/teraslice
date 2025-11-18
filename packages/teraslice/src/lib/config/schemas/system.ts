@@ -4,7 +4,7 @@ import { Terafoundation, Teraslice } from '@terascope/types';
 import {
     isPlainObject, isString, isArray,
     isInteger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { cpus } from 'node:os';
 
 const workerCount = cpus().length;
@@ -149,7 +149,7 @@ export const schema = {
     },
     node_disconnect_timeout: {
         doc:
-            'time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers',
+            'time in milliseconds that the cluster will wait until it drops that node from state and attempts to provision the lost workers',
         default: '5 minutes',
         format: 'duration'
     },
@@ -225,7 +225,7 @@ export const schema = {
     cluster_manager_type: {
         doc: 'determines which cluster system should be used',
         default: 'native',
-        format: ['native', 'kubernetes', 'kubernetesV2']
+        format: ['native', 'kubernetesV2']
     },
     cpu: {
         doc: 'number of cpus to reserve per teraslice worker in kubernetes',

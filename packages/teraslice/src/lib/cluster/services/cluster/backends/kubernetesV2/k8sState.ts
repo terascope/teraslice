@@ -1,6 +1,6 @@
 import {
     get, has, uniq, difference
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { ClusterState, ProcessAssignment } from '@terascope/types';
 import { TSPodList } from './interfaces';
 

@@ -1,4 +1,4 @@
-import { has } from '@terascope/utils';
+import { has } from '@terascope/core-utils';
 import { CMD } from '../../interfaces.js';
 import reply from '../../helpers/reply.js';
 import Config from '../../helpers/config.js';

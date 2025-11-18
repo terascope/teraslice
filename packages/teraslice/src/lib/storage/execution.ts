@@ -1,12 +1,13 @@
 import {
     TSError, includes, getTypeOf,
-    makeISODate, Logger
-} from '@terascope/utils';
+    Logger, makeISODate
+} from '@terascope/core-utils';
 import { Context, RecoveryCleanupType } from '@terascope/job-components';
 import { v4 as uuid } from 'uuid';
 import { JobConfig, ExecutionConfig } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
+import { getPackageJSON } from '../utils/file_utils.js';
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
 const RUNNING_STATUS = ['recovering', 'running', 'failing', 'paused', 'stopping'];
@@ -104,7 +105,8 @@ export class ExecutionStorage {
             _updated: date,
             _has_errors: false,
             _slicer_stats: {},
-            _failureReason: ''
+            _failureReason: '',
+            teraslice_version: `v${getPackageJSON().version}`
         });
         // @ts-expect-error
         delete doc.slicer_port;

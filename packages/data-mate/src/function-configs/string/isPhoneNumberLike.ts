@@ -1,4 +1,4 @@
-import { isPhoneNumberLike } from '@terascope/utils';
+import { isPhoneNumberLike } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 
 import {

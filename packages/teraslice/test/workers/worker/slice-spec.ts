@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { times } from '@terascope/utils';
+import { times } from '@terascope/core-utils';
 import { SliceExecution } from '../../../src/lib/workers/worker/slice.js';
 import { TestContext } from '../helpers/index.js';
 

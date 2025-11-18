@@ -1,7 +1,7 @@
 import {
     isBigInt, bigIntToJSON, isNil,
     isObjectEntity, toJSONCompatibleValue
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

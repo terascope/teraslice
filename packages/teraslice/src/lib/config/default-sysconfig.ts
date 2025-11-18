@@ -17,7 +17,6 @@ function getConnectors() {
 
 export default {
     terafoundation: {
-        environment: 'development',
         connectors: getConnectors()
     },
     teraslice: {

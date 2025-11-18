@@ -103,7 +103,8 @@ describe('Teraslice Job', () => {
             slicer_port: 5673,
             _has_errors: false,
             _slicer_stats: {},
-            _failureReason: ''
+            _failureReason: '',
+            teraslice_version: 'v3.0.0'
         },
     ];
 

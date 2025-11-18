@@ -1,4 +1,4 @@
-import { has } from '@terascope/utils';
+import { has } from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import { TerasliceClient } from 'teraslice-client-js';
 

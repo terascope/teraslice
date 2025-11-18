@@ -40,6 +40,41 @@ resources:
 persistence:
   size: {{ .Values | get "minio.persistentVolumeSize" "50Gi" }}
 
+{{- if not (empty .Values.minio.hostVolumePath) }}
+
+{{- $currentPath := (.Values | get "minio.hostVolumePath" "") -}}
+
+{{ range $key, $service := .Values }}
+{{- if not (eq $key "minio") }}
+{{- if eq ($service | get "enabled" false) true }}
+{{- if eq ($service | get "hostVolumePath" "") $currentPath }}
+
+{{- $error := (printf "%s.hostVolumePath is the same as minio's hostVolumePath. These Must be unique or else data corruption will occur. Change %s.hostVolumePath to something other than %s" $key $key $service.hostVolumePath) -}}
+{{- fail $error -}}
+
+{{- end }}
+{{- end }}
+{{- end }}
+{{ end }}
+
+persistence:
+  enabled: false
+
+extraVolumes:
+    - name: miniodata
+      hostPath:
+        path: /miniodata
+        type: Directory
+
+extraVolumeMounts:
+    - name: miniodata
+      mountPath: /data
+      readOnly: false
+
+bucketRoot: "/data"
+
+{{- end }}
+
 {{- if eq (.Values | get "minio.tls.enabled" false) true }}
 
 volumes:

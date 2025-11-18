@@ -12,15 +12,6 @@ export function convertIndicesGetMappingParams(
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 7 || majorVersion === 8) {
-            const {
-                include_type_name, type,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
-        if (majorVersion === 6) {
             return params;
         }
     }
@@ -28,7 +19,7 @@ export function convertIndicesGetMappingParams(
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
             const {
-                master_timeout, type, include_type_name,
+                master_timeout,
                 ...parsedParams
             } = params;
 

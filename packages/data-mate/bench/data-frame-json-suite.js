@@ -1,4 +1,4 @@
-import { isExecutedFile } from '@terascope/utils';
+import { isExecutedFile } from '@terascope/core-utils';
 import json from './fixtures/data.json' with { type: 'json' };
 import { Suite } from './helpers.js';
 import { DataFrame } from '../dist/src/index.js';

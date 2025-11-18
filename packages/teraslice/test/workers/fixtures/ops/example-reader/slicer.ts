@@ -1,5 +1,5 @@
 import { ParallelSlicer } from '@terascope/job-components';
-import { get } from '@terascope/utils';
+import { get } from '@terascope/core-utils';
 
 const defaultSlicerResults = [{ howdy: true }, null];
 

@@ -4,7 +4,7 @@ import fse from 'fs-extra';
 import {
     isPlainObject, get, toTitleCase,
     defaultsDeep
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo, Service } from './interfaces.js';
 import {

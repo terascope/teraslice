@@ -1,5 +1,5 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
-import { isNumber, isNotNil } from '@terascope/utils';
+import { isNotNil } from '@terascope/core-utils';
 
 export function convertSearchParams(
     params: ClientParams.SearchParams,
@@ -12,12 +12,10 @@ export function convertSearchParams(
     } = distributionMeta;
 
     const {
-        type,
         track_total_hits,
         ...parsedParams
     } = params;
 
-    // includesExcludes(parsedParams);
     qDependentFieldsCheck(parsedParams);
     const hasTotalConfig = isNotNil(track_total_hits);
     let trackTotal = track_total_hits;
@@ -31,18 +29,6 @@ export function convertSearchParams(
             return {
                 ...parsedParams,
                 track_total_hits: trackTotal,
-            };
-        }
-
-        if (majorVersion === 6) {
-            if (hasTotalConfig && isNumber(track_total_hits)) {
-                trackTotal = true;
-            }
-
-            return {
-                ...(type !== undefined && { type }),
-                ...parsedParams,
-                ...hasTotalConfig && { track_total_hits: trackTotal }
             };
         }
     }

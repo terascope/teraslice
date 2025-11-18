@@ -1,5 +1,6 @@
 import { FieldType } from '@terascope/types';
-import { TSError, coerceToType } from '@terascope/utils';
+import { TSError } from '@terascope/core-utils';
+import { coerceToType } from '../type-coercion.js';
 import { WritableData } from '../../core/index.js';
 import { VectorType } from '../../vector/index.js';
 import { Builder, BuilderOptions } from '../Builder.js';

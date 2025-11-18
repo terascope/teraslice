@@ -1,4 +1,4 @@
-import { cloneDeep } from '@terascope/utils';
+import { cloneDeep } from '@terascope/core-utils';
 import { ClusterState } from '@terascope/types';
 import _podsJobRunning from '../files/job-running-v1-k8s-pods-multicluster.json';
 import { gen } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8sState.js';

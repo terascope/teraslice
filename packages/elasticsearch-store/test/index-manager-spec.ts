@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { TSError, debugLogger } from '@terascope/utils';
+import { TSError, debugLogger } from '@terascope/core-utils';
 import { DataType } from '@terascope/data-types';
 import { ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import { IndexManager, IndexConfig } from '../src/index.js';

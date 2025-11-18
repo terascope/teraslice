@@ -1,12 +1,11 @@
 import 'jest-extended';
-import { AnyObject } from '@terascope/utils';
 import {
     ExecutionContextAPI, newTestExecutionConfig, TestContext,
     APIFactoryRegistry
 } from '../../src/index.js';
 import FactoryAPITest from '../fixtures/asset/api-factory/api.js';
 
-type API = APIFactoryRegistry<AnyObject, AnyObject>;
+type API = APIFactoryRegistry<Record<string, any>, Record<string, any>>;
 
 describe('APIFactory', () => {
     const apiName = 'FactoryAPITest';
@@ -96,7 +95,7 @@ describe('APIFactory', () => {
         expect(keys).toBeArrayOfSize(1);
         expect(keys[0]).toEqual('test');
 
-        const values: AnyObject[] = [];
+        const values: Record<string, any>[] = [];
 
         for (const value of api.values()) {
             values.push(value);
@@ -105,7 +104,7 @@ describe('APIFactory', () => {
         expect(values).toBeArrayOfSize(1);
         expect(values[0]).toEqual(expectedData);
 
-        const entries: [string, AnyObject][] = [];
+        const entries: [string, Record<string, any>][] = [];
 
         for (const entry of api.entries()) {
             entries.push(entry);

@@ -4,7 +4,7 @@ import {
     DataTypeConfig, FieldType, GeoShape,
     GeoShapeType, DataTypeFieldConfig
 } from '@terascope/types';
-import { bigIntToJSON, cloneDeep, isBigInt } from '@terascope/utils';
+import { bigIntToJSON, cloneDeep, isBigInt } from '@terascope/core-utils';
 import { Column, DataFrame } from '../src/index.js';
 
 describe('DataFrame', () => {

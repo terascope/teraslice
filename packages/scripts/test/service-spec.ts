@@ -1,14 +1,12 @@
 import 'jest-extended';
 import { jest } from '@jest/globals';
-import { TSError } from '@terascope/utils';
+import { TSError } from '@terascope/core-utils';
 import { TestOptions } from '../src/helpers/test-runner/interfaces.js';
 
 jest.unstable_mockModule('../src/helpers/config.js', () => ({
     __esModule: true,
     ELASTICSEARCH_VERSION: 'bad-version',
     KAFKA_VERSION: 'very-bad-version',
-    KAFKA_IMAGE_VERSION: 'very-bad-version',
-    ZOOKEEPER_VERSION: 'very-bad-version',
     MINIO_VERSION: 'very-bad-version',
     RABBITMQ_VERSION: 'very-bad-version',
     OPENSEARCH_VERSION: 'very-bad-version',
@@ -44,11 +42,7 @@ jest.unstable_mockModule('../src/helpers/config.js', () => ({
     KAFKA_BROKER: '',
     KAFKA_DOCKER_IMAGE: '',
     ENCRYPT_KAFKA: '',
-    ZOOKEEPER_CLIENT_PORT: '',
-    ZOOKEEPER_TICK_TIME: '',
-    ZOOKEEPER_DOCKER_IMAGE: '',
     KAFKA_BROKER_ID: '',
-    KAFKA_ZOOKEEPER_CONNECT: '',
     KAFKA_LISTENERS: '',
     KAFKA_ADVERTISED_LISTENERS: '',
     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: '',
@@ -99,6 +93,8 @@ jest.unstable_mockModule('../src/helpers/config.js', () => ({
     NODE_VERSION: '',
     DOCKER_IMAGES_PATH: '',
     DOCKER_IMAGE_LIST_PATH: '',
+    CERT_PATH: '',
+    ENCRYPTION_ENABLED: ''
 }));
 
 describe('services', () => {
@@ -115,7 +111,8 @@ describe('services', () => {
         clusteringType: 'native',
         kindClusterName: 'default',
         skipImageDeletion: false,
-        useHelmfile: false
+        useHelmfile: false,
+        logs: false
     };
     let services: any;
 

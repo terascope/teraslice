@@ -171,7 +171,7 @@ describe('ClusterMaster', () => {
             expect(onExecutionFinished).toHaveBeenCalled();
         });
 
-        it('should be able to handle exection pause', async () => {
+        it('should be able to handle execution pause', async () => {
             const onExecutionPause = jest.fn() as any;
 
             client.onExecutionPause(onExecutionPause);
@@ -181,7 +181,7 @@ describe('ClusterMaster', () => {
             expect(onExecutionPause).toHaveBeenCalled();
         });
 
-        it('should be able to handle exection resume', async () => {
+        it('should be able to handle execution resume', async () => {
             const onExecutionResume = jest.fn() as any;
 
             client.onExecutionResume(onExecutionResume);

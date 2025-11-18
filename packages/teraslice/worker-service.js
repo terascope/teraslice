@@ -1,6 +1,6 @@
 import {
     logError, get, isEmpty, isPlainObject
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { shutdownHandler } from './dist/src/lib/workers/helpers/worker-shutdown.js';
 import { safeDecode } from './dist/src/lib/utils/encoding_utils.js';
 import { makeExecutionContext } from './dist/src/lib/workers/context/execution-context.js';

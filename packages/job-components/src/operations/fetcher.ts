@@ -1,4 +1,4 @@
-import { DataEntity, DataArrayInput } from '@terascope/utils';
+import { DataEntity, DataArrayInput } from '@terascope/core-utils';
 import { OpConfig } from '../interfaces/index.js';
 import FetcherCore from './core/fetcher-core.js';
 

@@ -1,4 +1,4 @@
-import { cloneDeep } from '@terascope/utils';
+import { cloneDeep } from '@terascope/core-utils';
 import { RecordTransform } from '../src/index.js';
 
 describe('record transforms', () => {
