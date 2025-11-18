@@ -38,7 +38,8 @@
         "opensearch1": "npm:@opensearch-project/opensearch@~1.2.0",
         "opensearch2": "npm:@opensearch-project/opensearch@~2.12.0",
         "opensearch3": "npm:@opensearch-project/opensearch@~3.5.1",
-        "setimmediate": "~1.0.5"
+        "setimmediate": "~1.0.5",
+        "zod": "~4.1.12"
     },
     "engines": {
         "node": ">=22.0.0",

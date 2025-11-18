@@ -8,12 +8,14 @@ import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale.js';
 import { getE2eK8sDir } from '../helpers/packages.js';
 import { KindCluster, TsVolumeSet, CustomKindDefaultPorts, CustomKindService } from './interfaces.js';
-import {
+import config from './config.js';
+
+const {
     DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
     ELASTICSEARCH_PORT, OPENSEARCH_PORT, MINIO_PORT,
     MINIO_UI_PORT, KAFKA_PORT, OPENSEARCH_VERSION,
     ENCRYPTION_ENABLED, CERT_PATH
-} from './config.js';
+} = config;
 
 export class Kind {
     clusterName: string;

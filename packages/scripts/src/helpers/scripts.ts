@@ -18,29 +18,30 @@ import {
     TSCommands, PackageInfo, Service, OCIImageManifest,
     OCIimageConfig, OCIindexManifest, ServiceObj
 } from './interfaces.js';
+import type { TestEnv } from '@terascope/types';
 import { getRootDir, getRootInfo } from './misc.js';
 import signale from './signale.js';
-import * as config from './config.js';
+import config from './config.js';
 import { getE2EDir, getE2eK8sDir } from '../helpers/packages.js';
 import { getVolumesFromDockerfile, Kind } from './kind.js';
-import { ENV_SERVICES } from './config.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-export type ExecEnv = { [name: string]: string };
-type ExecOpts = {
+export type ExecEnv<T extends TestEnv = TestEnv>
+    = T & { [name: string]: string | undefined };
+type ExecOpts<T extends TestEnv = TestEnv> = {
     cmd: string;
     args?: string[];
     cwd?: string;
-    env?: ExecEnv;
+    env?: ExecEnv<T>;
     stdio?: 'inherit';
     timeout?: number;
     detached?: boolean;
 };
 
-function _exec(opts: ExecOpts) {
+function _exec<T extends TestEnv = TestEnv>(opts: ExecOpts<T>) {
     let subprocess;
     const options: Options = {
         cwd: opts.cwd || getRootDir(),
@@ -71,9 +72,11 @@ function _exec(opts: ExecOpts) {
     return subprocess;
 }
 
-export async function exec(opts: ExecOpts, log = true): Promise<string> {
+export async function exec<T extends TestEnv = TestEnv>(
+    opts: ExecOpts<T>, log = true
+): Promise<string> {
     try {
-        const env: ExecEnv = { FORCE_COLOR: '0', ...opts.env };
+        const env: ExecEnv<T> = { FORCE_COLOR: '0', ...opts.env } as ExecEnv<T>;
         const _opts = { ...opts };
         _opts.env = env;
         const subprocess = _exec(_opts);
@@ -94,16 +97,19 @@ export async function exec(opts: ExecOpts, log = true): Promise<string> {
     }
 }
 
-export async function fork(opts: ExecOpts): Promise<void> {
+export async function fork(
+    opts: ExecOpts
+): Promise<void> {
     try {
         const env: ExecEnv = {
             FORCE_COLOR: config.FORCE_COLOR,
             ...opts.env
-        };
+        } as ExecEnv;
         const _opts: ExecOpts = { stdio: 'inherit', ...opts };
         _opts.env = env;
         await _exec(_opts);
     } catch (err) {
+        console.log('@@@@ fork error: ', err);
         if (!err.command) {
             throw err;
         }
@@ -924,7 +930,7 @@ export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2'
     await helmfileCommand('diff', clusteringType, devMode, logs);
     await helmfileCommand('sync', clusteringType, devMode, logs);
 
-    if (ENV_SERVICES.includes(Service.Kafka)) {
+    if (config.ENV_SERVICES.includes(Service.Kafka)) {
         await waitForKafkaRunning('kafka');
     }
 }
@@ -1085,7 +1091,7 @@ function generateHelmValuesFromServices(
 
     // Iterate over each service we want to start and enable them in the
     // helmfile.
-    ENV_SERVICES.forEach((service: Service) => {
+    config.ENV_SERVICES.forEach((service: Service) => {
         // "serviceString" represents the literal service name string
         // in the "values.yaml"
         let serviceString: string = service;

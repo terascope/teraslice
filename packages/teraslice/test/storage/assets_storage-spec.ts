@@ -4,7 +4,7 @@ import { Logger } from '@terascope/core-utils';
 import { createClient } from '@terascope/opensearch-client';
 import { createS3Client } from '@terascope/file-asset-apis';
 import { AssetsStorage } from '../../src/lib/storage';
-import { TEST_INDEX_PREFIX } from '../test.config';
+import { SEARCH_TEST_HOST, TEST_INDEX_PREFIX } from '../test.config';
 
 describe('AssetsStorage using S3 backend', () => {
     let storage: AssetsStorage;
@@ -35,7 +35,7 @@ describe('AssetsStorage using S3 backend', () => {
         connectors: {
             'elasticsearch-next': {
                 default: {
-                    node: [process.env.SEARCH_TEST_HOST]
+                    node: [SEARCH_TEST_HOST]
                 }
             },
             s3: {

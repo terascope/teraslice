@@ -2,6 +2,7 @@ import {
     debugLogger, chunk, TSError,
     isCI, pMap
 } from '@terascope/core-utils';
+import { TestEnv } from '@terascope/types';
 import fs from 'node:fs';
 import {
     writePkgHeader, writeHeader, getRootDir,
@@ -17,7 +18,7 @@ import {
     runJest, dockerTag, isKindInstalled, isKubectlInstalled,
     loadThenDeleteImageFromCache, deleteDockerImageCache,
     isHelmInstalled, isHelmfileInstalled, launchTerasliceWithHelmfile,
-    generateTestCaCerts
+    generateTestCaCerts, ExecEnv
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
@@ -29,11 +30,13 @@ import { getE2EDir, readPackageInfo, listPackages } from '../packages.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
-import {
+import { K8s } from '../k8s-env/k8s.js';
+import config from '../config.js';
+
+const {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
     BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH
-} from '../config.js';
-import { K8s } from '../k8s-env/k8s.js';
+} = config;
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -169,7 +172,7 @@ async function runTestSuite(
             await runJest(
                 getRootDir(),
                 args,
-                env,
+                env as ExecEnv,
                 options.jestArgs,
                 options.debug,
                 ATTACH_JEST_DEBUGGER
@@ -335,7 +338,7 @@ async function runE2ETest(
             await runJest(
                 e2eDir,
                 getArgs(options),
-                env,
+                env as ExecEnv,
                 options.jestArgs,
                 options.debug,
                 ATTACH_JEST_DEBUGGER
@@ -373,7 +376,7 @@ async function runE2ETest(
     }
 }
 
-function printAndGetEnv(suite: string, options: TestOptions) {
+function printAndGetEnv(suite: string, options: TestOptions): TestEnv {
     const env = getEnv(options, suite);
     if (options.debug || options.trace || isCI) {
         const envStr = Object

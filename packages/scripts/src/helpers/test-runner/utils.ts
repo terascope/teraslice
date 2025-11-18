@@ -10,8 +10,16 @@ import {
 import { TestOptions, GroupedPackages } from './interfaces.js';
 import { PackageInfo, Service } from '../interfaces.js';
 import { getServicesForSuite } from '../misc.js';
-import * as config from '../config.js';
+import config from '../config.js';
 import signale from '../signale.js';
+import type {
+    TestEnv,
+    ElasticsearchTestEnv,
+    KafkaTestEnv,
+    MinioTestEnv,
+    OpenSearchTestEnv,
+    RabbitMQTestEnv
+} from '@terascope/types';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -58,28 +66,28 @@ export function getArgs(options: TestOptions): ArgsMap {
     return args;
 }
 
-export function getEnv(options: TestOptions, suite: string): ExecEnv {
-    const env: ExecEnv = {
+export function getEnv(options: TestOptions, suite: string): TestEnv {
+    const env: TestEnv = {
         HOST_IP: config.HOST_IP,
-        NODE_ENV: 'test',
+        NODE_ENV: 'test' as const,
         FORCE_COLOR: config.FORCE_COLOR,
         TEST_NAMESPACE: config.TEST_NAMESPACE,
         TZ: 'utc',
         NODE_VERSION: config.NODE_VERSION,
         KIND_CLUSTER: options.kindClusterName,
         TERASLICE_PORT: config.TERASLICE_PORT,
-        TJM_TEST_MODE: suite !== 'e2e' ? 'true' : 'false',
+        TJM_TEST_MODE: (suite !== 'e2e' ? 'true' : 'false') as 'true' | 'false',
         NODE_OPTIONS: '--experimental-vm-modules',
-        USE_HELMFILE: options.useHelmfile ? 'true' : 'false',
+        USE_HELMFILE: (options.useHelmfile ? 'true' : 'false') as 'true' | 'false',
         TEST_PLATFORM: options.clusteringType,
-        FILE_LOGGING: options.logs ? 'true' : 'false',
+        FILE_LOGGING: (options.logs ? 'true' : 'false') as 'true' | 'false',
         CERT_PATH: config.CERT_PATH
-    };
+    } satisfies NodeJS.ProcessEnv;
 
     if (config.DOCKER_NETWORK_NAME) {
         Object.assign(env, {
             DOCKER_NETWORK_NAME: config.DOCKER_NETWORK_NAME
-        });
+        } satisfies NodeJS.ProcessEnv);
     }
 
     const launchServices: Service[] = suite ? getServicesForSuite(suite) : [];
@@ -90,71 +98,76 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
             ELASTICSEARCH_HOST: config.ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: config.ELASTICSEARCH_VERSION,
             SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
-        });
+        } satisfies ElasticsearchTestEnv);
     }
 
     if (launchServices.includes(Service.RestrainedElasticsearch)) {
         Object.assign(env, {
-            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
             ELASTICSEARCH_HOST: config.RESTRAINED_ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: config.ELASTICSEARCH_VERSION,
-            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
-        });
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`,
+            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
+        } satisfies ElasticsearchTestEnv);
     }
 
     if (launchServices.includes(Service.Minio)) {
         Object.assign(env, {
-            MINIO_HOST: config.MINIO_HOST,
-            MINIO_VERSION: config.MINIO_VERSION,
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
+            MINIO_HOST: config.MINIO_HOST,
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
-        });
+            MINIO_VERSION: config.MINIO_VERSION,
+        } satisfies MinioTestEnv);
     }
 
     if (launchServices.includes(Service.Kafka)) {
         Object.assign(env, {
             KAFKA_BROKER: config.KAFKA_BROKER,
+            KAFKA_PORT: config.KAFKA_PORT,
             KAFKA_VERSION: config.KAFKA_VERSION,
-        });
+        } satisfies KafkaTestEnv);
     }
 
     if (launchServices.includes(Service.RabbitMQ)) {
         Object.assign(env, {
             RABBITMQ_HOSTNAME: config.RABBITMQ_HOSTNAME,
+            RABBITMQ_MANAGEMENT_PORT: `${config.RABBITMQ_MANAGEMENT_PORT}`,
+            RABBITMQ_PASSWORD: config.RABBITMQ_PASSWORD,
+            RABBITMQ_PORT: `${config.RABBITMQ_PORT}`,
             RABBITMQ_USER: config.RABBITMQ_USER,
             RABBITMQ_VERSION: config.RABBITMQ_VERSION,
-            RABBITMQ_PORT: config.RABBITMQ_PORT,
-            RABBITMQ_MANAGEMENT_PORT: config.RABBITMQ_MANAGEMENT_PORT,
-            RABBITMQ_PASSWORD: config.RABBITMQ_PASSWORD,
-        });
+        } satisfies RabbitMQTestEnv);
     }
 
     if (launchServices.includes(Service.Opensearch)) {
         Object.assign(env, {
+            DISABLE_INSTALL_DEMO_CONFIG: 'true',
+            DISABLE_SECURITY_PLUGIN: 'true',
+            OPENSEARCH_HOST: config.OPENSEARCH_HOST,
             OPENSEARCH_HOSTNAME: config.OPENSEARCH_HOSTNAME,
-            OPENSEARCH_USER: config.OPENSEARCH_USER,
             OPENSEARCH_PASSWORD: config.OPENSEARCH_PASSWORD,
             OPENSEARCH_PORT: config.OPENSEARCH_PORT,
+            OPENSEARCH_SSL_HOST: config.OPENSEARCH_SSL_HOST,
+            OPENSEARCH_USER: config.OPENSEARCH_USER,
             OPENSEARCH_VERSION: config.OPENSEARCH_VERSION,
-            OPENSEARCH_HOST: config.OPENSEARCH_HOST,
-            DISABLE_SECURITY_PLUGIN: true,
-            DISABLE_INSTALL_DEMO_CONFIG: true,
-            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
-        });
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`,
+            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`
+        } satisfies OpenSearchTestEnv);
     }
 
     if (launchServices.includes(Service.RestrainedOpensearch)) {
         Object.assign(env, {
+            DISABLE_INSTALL_DEMO_CONFIG: 'true',
+            DISABLE_SECURITY_PLUGIN: 'true',
             OPENSEARCH_HOSTNAME: config.OPENSEARCH_HOSTNAME,
-            OPENSEARCH_USER: config.OPENSEARCH_USER,
             OPENSEARCH_PASSWORD: config.OPENSEARCH_PASSWORD,
-            RESTRAINED_OPENSEARCH_PORT: config.RESTRAINED_OPENSEARCH_PORT,
+            OPENSEARCH_PORT: config.OPENSEARCH_PORT,
+            OPENSEARCH_SSL_HOST: config.OPENSEARCH_SSL_HOST,
+            OPENSEARCH_USER: config.OPENSEARCH_USER,
             OPENSEARCH_VERSION: config.OPENSEARCH_VERSION,
             RESTRAINED_OPENSEARCH_HOST: config.RESTRAINED_OPENSEARCH_HOST,
-            DISABLE_SECURITY_PLUGIN: true,
-            DISABLE_INSTALL_DEMO_CONFIG: true,
-            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
-        });
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`,
+            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`
+        } satisfies OpenSearchTestEnv);
     }
 
     if (options.keepOpen) {
@@ -174,7 +187,7 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
         Object.assign(env, {
             DEBUG,
             DEBUG_LOG_LEVEL
-        });
+        } satisfies NodeJS.ProcessEnv);
     }
 
     return env;
@@ -268,7 +281,7 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
     if (config.SKIP_E2E_OUTPUT_LOGS) return;
 
     const errLogs = await getE2ELogs(dir, {
-        LOG_LEVEL: 'INFO',
+        LOG_LEVEL: 'info',
         RAW_LOGS: isCI ? 'true' : 'false',
         FORCE_COLOR: isCI ? '0' : '1',
     });

@@ -90,7 +90,7 @@ new ClusterContext({
     assets_service: assets_service,
     cluster_master: cluster_master,
     descriptors: {
-        slicer: true,
+        execution_controller: true,
         worker: true,
         cluster_master: true,
         assets_service: true

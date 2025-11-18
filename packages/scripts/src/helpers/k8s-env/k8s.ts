@@ -7,7 +7,7 @@ import { cloneDeep, debugLogger, pDelay, TSError } from '@terascope/core-utils';
 import { Terafoundation as TF, Teraslice as TS } from '@terascope/types';
 import { getE2eK8sDir } from '../../helpers/packages.js';
 import signale from '../signale.js';
-import * as config from '../config.js';
+import config from '../config.js';
 import { getVolumesFromDockerfile } from '../kind.js';
 
 const logger = debugLogger('ts-scripts:k8s-env');
