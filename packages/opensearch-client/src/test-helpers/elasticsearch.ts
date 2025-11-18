@@ -7,22 +7,31 @@ import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
 import { createClient, Client, Semver, ClientConfig } from '../client/index.js';
 import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
-import { elasticsearchEnvSchema, opensearchEnvSchema, sharedEnvSchema } from './config.js';
+import { opensearchEnvSchema } from './config.js';
 
 export async function makeClient(rootCaPath?: string): Promise<Client> {
+    let host: string;
     let esConfig: ClientConfig = {};
+    const env = opensearchEnvSchema.parse(process.env);
+
+    // Figure out the right host
+    if (process.env.TEST_RESTRAINED_OPENSEARCH) {
+        host = env.RESTRAINED_OPENSEARCH_HOST;
+    } else if (process.env.TEST_OPENSEARCH) {
+        host = process.env.ENCRYPT_OPENSEARCH ? env.OPENSEARCH_SSL_HOST : env.OPENSEARCH_HOST;
+    } else {
+        host = env.ELASTICSEARCH_HOST;
+    }
 
     // Add SSL settings if encryption is enabled
     if (process.env.TEST_OPENSEARCH && process.env.ENCRYPT_OPENSEARCH) {
-        const env = opensearchEnvSchema.parse(process.env);
-
         if (!rootCaPath || typeof rootCaPath !== 'string') {
             throw new TSError(`No rootCA path provided, but ENCRYPT_OPENSEARCH is enabled`);
         }
 
         try {
             esConfig = {
-                node: env.SEARCH_TEST_HOST,
+                node: host,
                 username: env.OPENSEARCH_USER,
                 password: env.OPENSEARCH_PASSWORD,
                 caCertificate: readFileSync(rootCaPath, 'utf8')
@@ -31,8 +40,7 @@ export async function makeClient(rootCaPath?: string): Promise<Client> {
             throw new TSError(`Unable to read root CA file when creating ES/OS client`, err);
         }
     } else {
-        const env = sharedEnvSchema.parse(process.env);
-        esConfig = { node: env.SEARCH_TEST_HOST };
+        esConfig = { node: host };
     }
 
     const { client } = await createClient(esConfig);
@@ -217,13 +225,13 @@ function parseVersion(version: string): Semver {
 }
 
 export function getTestENVClientInfo(): TestENVClientInfo {
-    if (process.env.TEST_OPENSEARCH != null || process.env.TEST_RESTRAINED_OPENSEARCH != null) {
-        const env = opensearchEnvSchema.parse(process.env);
+    const env = opensearchEnvSchema.parse(process.env);
+    if (process.env.TEST_OPENSEARCH != null) {
         const version = env.OPENSEARCH_VERSION;
         const [majorVersion, minorVersion] = parseVersion(version);
 
         return {
-            host: env.SEARCH_TEST_HOST,
+            host: env.OPENSEARCH_HOST,
             distribution: ElasticsearchDistribution.opensearch,
             version,
             majorVersion,
@@ -231,12 +239,23 @@ export function getTestENVClientInfo(): TestENVClientInfo {
         };
     }
 
-    const env = elasticsearchEnvSchema.parse(process.env);
+    if (process.env.TEST_RESTRAINED_OPENSEARCH != null) {
+        const version = env.OPENSEARCH_VERSION;
+        const [majorVersion, minorVersion] = parseVersion(version);
+
+        return {
+            host: env.RESTRAINED_OPENSEARCH_HOST,
+            distribution: ElasticsearchDistribution.opensearch,
+            version,
+            majorVersion,
+            minorVersion
+        };
+    }
     const version = env.ELASTICSEARCH_VERSION;
     const [majorVersion, minorVersion] = parseVersion(version);
 
     return {
-        host: env.SEARCH_TEST_HOST,
+        host: env.ELASTICSEARCH_HOST,
         distribution: ElasticsearchDistribution.elasticsearch,
         version,
         majorVersion,
