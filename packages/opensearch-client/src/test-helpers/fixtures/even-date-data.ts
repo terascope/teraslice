@@ -1,8 +1,5 @@
 import { DataEntity } from '@terascope/core-utils';
 import { DataType } from '@terascope/data-types';
-import type { Data } from './interfaces.js';
-
-export type EvenData = Data;
 
 // These records are converted to a DataEntity with its _id set to the uuid field
 export const data = [

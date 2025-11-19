@@ -4,7 +4,7 @@ import {
 } from '@terascope/core-utils';
 import { readFileSync } from 'node:fs';
 import { DataType } from '@terascope/data-types';
-import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
+import { ClientMetadata, ClientResponse, ElasticsearchDistribution } from '@terascope/types';
 import { createClient, Client, Semver, ClientConfig } from '../client/index.js';
 import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
 import {

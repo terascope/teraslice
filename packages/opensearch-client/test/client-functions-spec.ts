@@ -34,7 +34,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
     beforeAll(async () => {
         ({ client } = await createClient(config, testLogger));
 
-        Promise.all([
+        await Promise.all([
             cleanupIndex(client, index),
             cleanupIndex(client, taskIndex)
         ]);

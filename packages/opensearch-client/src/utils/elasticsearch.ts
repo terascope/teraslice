@@ -3,12 +3,12 @@ import {
     cloneDeep, castArray, isEmpty,
     sortKeys, parseError, TSError,
     toBoolean, isDeepEqual, isFatalError,
-    isProd,
-    pDelay
+    isProd, pDelay
 } from '@terascope/core-utils';
 import {
     ESFieldType, ESTypeMapping, ClientMetadata,
     ElasticsearchDistribution, ESMapping, ClientParams,
+    ClientResponse
 } from '@terascope/types';
 import type { Client } from '../client/index.js';
 import { validateGeoParameters } from './validation.js';
@@ -347,7 +347,7 @@ export async function setupIndex(
     // until elasticsearch is available before making the store index
     try {
         await _createIndex(client, newIndex, migrantIndexName, mapping, clusterName);
-        await client.isAvailable(newIndex);
+        await client.isIndexAvailable(newIndex);
         return true;
     } catch (err: any) {
         if (isFatalError(err)) throw err;
@@ -378,7 +378,7 @@ export async function setupIndex(
 
             if (bool) {
                 // logger.info('connection to elasticsearch has been established');
-                await client.isAvailable(newIndex);
+                await client.isIndexAvailable(newIndex);
             }
 
             return true;
@@ -738,4 +738,10 @@ async function _handleRetries(
     // const nextRetryDelay = await _awaitRetry(previousRetryDelay);
     // return _bulkSend(client, retry, affectedCount, nextRetryDelay);
     return _bulkSend(client, retry, affectedCount, 200);
+}
+
+export function convertToDocs<T extends Record<string, any>>(
+    input: ClientResponse.SearchResponse<T>
+) {
+    return input.hits.hits.map((record) => record._source) as T[];
 }

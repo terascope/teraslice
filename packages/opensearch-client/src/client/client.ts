@@ -68,22 +68,21 @@ export class Client {
         return this.distributionMeta;
     }
 
-    async isAvailable(index: string) {
+    async isIndexAvailable(index: string) {
         const query: ClientParams.SearchParams = {
             index,
             q: '',
             size: 0,
+            terminate_after: 1
         };
 
         await pWhile(async () => {
             try {
-                const valid = this.verifyClient();
+                const valid = this.isClientConnected();
                 if (!valid) {
-                    console.log(`index ${index} is in an invalid state`);
                     return false;
                 }
-                const results = await this.client.search(query);
-                console.log('results', results);
+                await this.client.search(query);
                 return true;
             } catch (err) {
                 console.error(`verifying index ${index} is open`);
@@ -91,14 +90,14 @@ export class Client {
         }, { timeoutMs: -1, enabledJitter: true, minJitter: 200 });
     }
 
-    // TODO: verifyClient needs to be checked with new client usage
+    // TODO: isClientConnected needs to be checked with new client usage
     /**
      * Verify the state of the underlying es client.
      * Will throw error if in fatal state, like the connection is closed.
      *
      * @returns {boolean} if client is working state it will return true
     */
-    verifyClient() {
+    isClientConnected() {
         const closed = get(this.client, 'transport.closed', false);
         if (closed) {
             throw new TSError('Elasticsearch Client is closed', {
@@ -158,16 +157,26 @@ export class Client {
     }
 
     async createWithRetry(
-        params: ClientParams.CreateParams
+        params: ClientParams.CreateParams,
+        timeoutMs = 10000,
+        minJitter = 200
     ): Promise<ClientResponse.CreateResponse> {
-        const parsedParams = methods.convertCreateParams(
-            params as ClientParams.CreateParams,
-            this.distributionMeta
-        );
+        try {
+            return this.create(params);
+        } catch (err) {
+            if (isRetryableError(err)) {
+                let response!: ClientResponse.CreateResponse;
 
-        const resp = await this.client.create(parsedParams);
+                await pWhile(async () => {
+                    response = await this.create(params);
+                    return true;
+                }, { enabledJitter: true, timeoutMs, minJitter });
 
-        return this._removeBody(resp);
+                return response;
+            } else {
+                throw Error;
+            }
+        }
     }
 
     /**
@@ -188,16 +197,26 @@ export class Client {
     }
 
     async indexWithRetry(
-        params: ClientParams.IndexParams
+        params: ClientParams.IndexParams,
+        timeoutMs = 10000,
+        minJitter = 200
     ): Promise<ClientResponse.IndexResponse> {
-        const parsedParams = methods.convertIndexParams(
-            params as ClientParams.IndexParams,
-            this.distributionMeta
-        );
+        try {
+            return this.index(params);
+        } catch (err) {
+            if (isRetryableError(err)) {
+                let response!: ClientResponse.IndexResponse;
 
-        const resp = await this.client.index(parsedParams);
+                await pWhile(async () => {
+                    response = await this.index(params);
+                    return true;
+                }, { enabledJitter: true, timeoutMs, minJitter });
 
-        return this._removeBody(resp);
+                return response;
+            } else {
+                throw Error;
+            }
+        }
     }
 
     /**
@@ -218,16 +237,26 @@ export class Client {
     }
 
     async updateWithRetry(
-        params: ClientParams.UpdateParams
+        params: ClientParams.UpdateParams,
+        timeoutMs = 10000,
+        minJitter = 200
     ): Promise<ClientResponse.UpdateResponse> {
-        const parsedParams = methods.convertUpdateParams(
-            params as ClientParams.UpdateParams,
-            this.distributionMeta
-        );
+        try {
+            return this.update(params);
+        } catch (err) {
+            if (isRetryableError(err)) {
+                let response!: ClientResponse.UpdateResponse;
 
-        const resp = await this.client.update(parsedParams);
+                await pWhile(async () => {
+                    response = await this.update(params);
+                    return true;
+                }, { enabledJitter: true, timeoutMs, minJitter });
 
-        return this._removeBody(resp);
+                return response;
+            } else {
+                throw Error;
+            }
+        }
     }
 
     /**
@@ -249,17 +278,27 @@ export class Client {
         return this._removeBody(resp);
     }
 
-    async countWithRetry(params: ClientParams.CountParams) {
-        const countQuery = {
-            ...params,
-            size: 0
-        } as ClientParams.SearchParams;
-        // need with retry
-        const response = await this.search(countQuery);
+    async countWithRetry(
+        params: ClientParams.CountParams,
+        timeoutMs = 10000,
+        minJitter = 200
+    ): Promise<ClientResponse.CountResponse> {
+        try {
+            return this.count(params);
+        } catch (err) {
+            if (isRetryableError(err)) {
+                let response!: ClientResponse.CountResponse;
 
-        const data = get(response, 'hits.total.value', get(response, 'hits.total'));
+                await pWhile(async () => {
+                    response = await this.count(params);
+                    return true;
+                }, { enabledJitter: true, timeoutMs, minJitter });
 
-        return data as number;
+                return response;
+            } else {
+                throw Error;
+            }
+        }
     }
 
     get cluster() {
@@ -371,7 +410,28 @@ export class Client {
         return this._removeBody(resp);
     }
 
-    async deleteWithRetry() {}
+    async deleteWithRetry(
+        params: ClientParams.DeleteParams,
+        timeoutMs = 10000,
+        minJitter = 200
+    ): Promise<ClientResponse.DeleteResponse> {
+        try {
+            return this.delete(params);
+        } catch (err) {
+            if (isRetryableError(err)) {
+                let response!: ClientResponse.DeleteResponse;
+
+                await pWhile(async () => {
+                    response = await this.delete(params);
+                    return true;
+                }, { enabledJitter: true, timeoutMs, minJitter });
+
+                return response;
+            } else {
+                throw Error;
+            }
+        }
+    }
 
     /**
      * Deletes documents that match the specified query.
@@ -410,21 +470,26 @@ export class Client {
     }
 
     async existsWithRetry(
-        params: ClientParams.ExistsParams
+        params: ClientParams.ExistsParams,
+        timeoutMs = 10000,
+        minJitter = 200
     ): Promise<ClientResponse.ExistsResponse> {
-        let results: ClientResponse.ExistsResponse;
+        try {
+            return this.exists(params);
+        } catch (err) {
+            if (isRetryableError(err)) {
+                let response!: ClientResponse.ExistsResponse;
 
-        await pWhile(async () => {
-            try {
-                results = await this.indices.exists(params);
-            } catch (err) {
-                if (!isRetryableError(err)) {
-                    throw err;
-                }
+                await pWhile(async () => {
+                    response = await this.exists(params);
+                    return true;
+                }, { enabledJitter: true, timeoutMs, minJitter });
+
+                return response;
+            } else {
+                throw Error;
             }
-        }, { enabledJitter: true });
-        // @ts-ignore TODO: fixme
-        return results;
+        }
     }
 
     /**
@@ -446,16 +511,26 @@ export class Client {
     }
 
     async getWithRetry<T = Record<string, unknown>>(
-        params: ClientParams.GetParams
+        params: ClientParams.GetParams,
+        timeoutMs = 10000,
+        minJitter = 200
     ): Promise<ClientResponse.GetResponse<T>> {
-        const parsedParams = methods.convertGetParams(
-            params as ClientParams.GetParams,
-            this.distributionMeta
-        );
+        try {
+            return this.get(params);
+        } catch (err) {
+            if (isRetryableError(err)) {
+                let response!: ClientResponse.GetResponse<T>;
 
-        const response = await this.client.get(parsedParams);
+                await pWhile(async () => {
+                    response = await this.get(params);
+                    return true;
+                }, { enabledJitter: true, timeoutMs, minJitter });
 
-        return this._removeBody(response);
+                return response;
+            } else {
+                throw Error;
+            }
+        }
     }
 
     /**
@@ -494,7 +569,7 @@ export class Client {
             params as ClientParams.SearchParams,
             this.distributionMeta
         );
-
+        console.log('parsedParams', parsedParams);
         const resp = await this.client.search(parsedParams);
 
         return this._removeBody(resp);
@@ -502,7 +577,8 @@ export class Client {
 
     async searchWithRetry<T = Record<string, unknown>>(
         params: ClientParams.SearchParams,
-        timeoutInMS = 1000
+        timeoutMs = 10000,
+        minJitter = 200
     ): Promise<ClientResponse.SearchResponse<T>> {
         try {
             const data = await this.search(params);
@@ -530,8 +606,8 @@ export class Client {
 
                 throw error;
             } else {
-                if (timeoutInMS === -1) {
-                    return this.searchWithRetry<T>(params, timeoutInMS);
+                if (timeoutMs === -1) {
+                    return this.searchWithRetry<T>(params, timeoutMs);
                 } else {
                 // pWhile it
                     let response: ClientResponse.SearchResponse;
@@ -542,15 +618,16 @@ export class Client {
                             response = result;
                             return true;
                         }
-                    }, { timeoutMs: timeoutInMS, enabledJitter: true });
+                    }, { timeoutMs, enabledJitter: true });
 
                     // @ts-expect-error
                     return response;
                 }
             }
         } catch (err) {
+            console.log('err', err, params);
             if (isErrorRetryable(err)) {
-                return this.searchWithRetry(params, timeoutInMS);
+                return this.searchWithRetry(params, timeoutMs);
             }
             throw err;
         }
@@ -593,16 +670,26 @@ export class Client {
     }
 
     async mgetWithRetry(
-        params: ClientParams.MGetParams
+        params: ClientParams.MGetParams,
+        timeoutMs = 10000,
+        minJitter = 200
     ): Promise<ClientResponse.MGetResponse> {
-        const parsedParams = methods.convertMGetParams(
-            params as ClientParams.MGetParams,
-            this.distributionMeta
-        );
+        try {
+            return this.mget(params);
+        } catch (err) {
+            if (isRetryableError(err)) {
+                let response!: ClientResponse.MGetResponse;
 
-        const resp = await this.client.mget(parsedParams);
+                await pWhile(async () => {
+                    response = await this.mget(params);
+                    return true;
+                }, { enabledJitter: true, timeoutMs, minJitter });
 
-        return this._removeBody(resp);
+                return response;
+            } else {
+                throw Error;
+            }
+        }
     }
 
     /**
@@ -731,16 +818,26 @@ export class Client {
             },
 
             async putTemplateWithRetry(
-                params: ClientParams.IndicesPutTemplateParams
+                params: ClientParams.IndicesPutTemplateParams,
+                timeoutMs = 10000,
+                minJitter = 200
             ): Promise<ClientResponse.IndicesPutTemplateResponse> {
-                const parsedParams = methods.convertIndicesPutTemplateParams(
-                    params as ClientParams.IndicesPutTemplateParams,
-                    distributionMeta
-                );
+                try {
+                    return this.putTemplate(params);
+                } catch (err) {
+                    if (isRetryableError(err)) {
+                        let response!: ClientResponse.IndicesPutTemplateResponse;
 
-                const resp = await client.indices.putTemplate(parsedParams);
+                        await pWhile(async () => {
+                            response = await this.putTemplate(params);
+                            return true;
+                        }, { enabledJitter: true, timeoutMs, minJitter });
 
-                return _removeBody(resp);
+                        return response;
+                    } else {
+                        throw Error;
+                    }
+                }
             },
             /**
              * Deletes index templates
@@ -923,17 +1020,27 @@ export class Client {
             },
 
             async refreshWithRetry(
-                params: ClientParams.IndicesRefreshParams = {}
+                params: ClientParams.IndicesRefreshParams = {},
+                timeoutMs = 10000,
+                minJitter = 200
             ): Promise<ClientResponse.IndicesRefreshResponse> {
-                const parsedParams = methods.convertIndicesRefreshParams(
-                    params as ClientParams.IndicesRefreshParams,
-                    distributionMeta
-                );
+                try {
+                    return this.refresh(params);
+                } catch (err) {
+                    if (isRetryableError(err)) {
+                        let response!: ClientResponse.IndicesRefreshResponse;
 
-                const resp = await client.indices.refresh(parsedParams);
+                        await pWhile(async () => {
+                            response = await this.refresh(params);
+                            return true;
+                        }, { enabledJitter: true, timeoutMs, minJitter });
 
-                return _removeBody(resp);
-            },
+                        return response;
+                    } else {
+                        throw Error;
+                    }
+                }
+            }
 
             /**
              * Returns information about shard recoveries for one or more indices
@@ -955,16 +1062,26 @@ export class Client {
             },
 
             async recoveryWithRetry(
-                params: ClientParams.IndicesRecoveryParams = {}
+                params: ClientParams.IndicesRecoveryParams = {},
+                timeoutMs = 10000,
+                minJitter = 200
             ): Promise<ClientResponse.IndicesRecoveryResponse> {
-                const parsedParams = methods.convertIndicesRecoveryParams(
-                    params as ClientParams.IndicesRecoveryParams,
-                    distributionMeta
-                );
+               try {
+                    return this.recovery(params);
+                } catch (err) {
+                    if (isRetryableError(err)) {
+                        let response!: ClientResponse.IndicesRecoveryResponse;
 
-                const resp = await client.indices.recovery(parsedParams);
+                        await pWhile(async () => {
+                            response = await this.recovery(params);
+                            return true;
+                        }, { enabledJitter: true, timeoutMs, minJitter });
 
-                return _removeBody(resp);
+                        return response;
+                    } else {
+                        throw Error;
+                    }
+                }
             },
 
             /**
