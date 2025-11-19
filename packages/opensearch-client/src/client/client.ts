@@ -1,5 +1,56 @@
 import { ClientParams, ClientResponse, ClientMetadata } from '@terascope/types';
+import {
+    flatten, uniq, TSError, DataEntity,
+    pWhile, isRetryableError, get,
+} from '@terascope/core-utils';
+import { setupIndex as utilsSetupIndex, _bulkSend } from '../utils/elasticsearch.js';
 import * as methods from './method-helpers/index.js';
+
+const DOCUMENT_EXISTS = 409;
+const TOO_MANY_REQUESTS = 429;
+
+// TODO: need a more authoritative interface here
+export interface Config {
+    index?: string;
+    full_response?: boolean;
+    connection?: string;
+    _dead_letter_action?: string;
+}
+
+/**
+     * This is used for improved bulk sending function
+    */
+export interface BulkRecord {
+    action: AnyBulkAction;
+    // this is definitely wrong, record was set to UpdateConfig which had no definition
+    data?: Record<string, any> | DataEntity;
+}
+
+/**
+     * This is used for improved bulk sending function
+    */
+export interface AnyBulkAction {
+    update?: Partial<BulkActionMetadata>;
+    index?: Partial<BulkActionMetadata>;
+    create?: Partial<BulkActionMetadata>;
+    delete?: Partial<BulkActionMetadata>;
+}
+
+/*
+    const retryStart = get(client, '__testing.start', 5000);
+    const retryLimit = get(client, '__testing.limit', 10000);
+
+*/
+
+/**
+     * This is used for improved bulk sending function
+    */
+export interface BulkActionMetadata {
+    _index: string;
+    _type: string;
+    _id: string | number;
+    retry_on_conflict?: number;
+}
 
 export class Client {
     private client: any;
@@ -17,6 +68,54 @@ export class Client {
         return this.distributionMeta;
     }
 
+    async isAvailable(index: string) {
+        const query: ClientParams.SearchParams = {
+            index,
+            q: '',
+            size: 0,
+        };
+
+        await pWhile(async () => {
+            try {
+                const valid = this.verifyClient();
+                if (!valid) {
+                    console.log(`index ${index} is in an invalid state`);
+                    return false;
+                }
+                const results = await this.client.search(query);
+                console.log('results', results);
+                return true;
+            } catch (err) {
+                console.error(`verifying index ${index} is open`);
+            }
+        }, { timeoutMs: -1, enabledJitter: true, minJitter: 200 });
+    }
+
+    // TODO: verifyClient needs to be checked with new client usage
+    /**
+     * Verify the state of the underlying es client.
+     * Will throw error if in fatal state, like the connection is closed.
+     *
+     * @returns {boolean} if client is working state it will return true
+    */
+    verifyClient() {
+        const closed = get(this.client, 'transport.closed', false);
+        if (closed) {
+            throw new TSError('Elasticsearch Client is closed', {
+                fatalError: true
+            });
+        }
+
+        const alive = get(this.client, 'transport.connectionPool._conns.alive') as undefined | any[];
+        // so we don't break existing tests with mocked clients, we will default to 1
+        const aliveCount = alive && Array.isArray(alive) ? alive.length : 1;
+        if (!aliveCount) {
+            return false;
+        }
+
+        return true;
+    }
+
     async bulk(
         params: ClientParams.BulkParams
     ): Promise<ClientResponse.BulkResponse> {
@@ -28,6 +127,17 @@ export class Client {
         const resp = await this.client.bulk(parsedParams);
 
         return this._removeBody(resp);
+    }
+
+    async bulkWithRetry(
+        params: ClientParams.BulkParams
+    ): Promise<number> {
+        const parsedParams = methods.convertBulkParams(
+            params,
+            this.distributionMeta
+        );
+        // @ts-expect-error
+        return _bulkSend(this, parsedParams.body);
     }
 
     /**
@@ -47,11 +157,37 @@ export class Client {
         return this._removeBody(resp);
     }
 
+    async createWithRetry(
+        params: ClientParams.CreateParams
+    ): Promise<ClientResponse.CreateResponse> {
+        const parsedParams = methods.convertCreateParams(
+            params as ClientParams.CreateParams,
+            this.distributionMeta
+        );
+
+        const resp = await this.client.create(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
     /**
      * indexes a new record
-     * @param CountParams
+     * @param IndexParams
     */
     async index(
+        params: ClientParams.IndexParams
+    ): Promise<ClientResponse.IndexResponse> {
+        const parsedParams = methods.convertIndexParams(
+            params as ClientParams.IndexParams,
+            this.distributionMeta
+        );
+
+        const resp = await this.client.index(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    async indexWithRetry(
         params: ClientParams.IndexParams
     ): Promise<ClientResponse.IndexResponse> {
         const parsedParams = methods.convertIndexParams(
@@ -81,6 +217,19 @@ export class Client {
         return this._removeBody(resp);
     }
 
+    async updateWithRetry(
+        params: ClientParams.UpdateParams
+    ): Promise<ClientResponse.UpdateResponse> {
+        const parsedParams = methods.convertUpdateParams(
+            params as ClientParams.UpdateParams,
+            this.distributionMeta
+        );
+
+        const resp = await this.client.update(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
     /**
      * Gets the number of matches for a search query or
      * if no query provided the count for docs in an index
@@ -98,6 +247,19 @@ export class Client {
         const resp = await this.client.count(parsedParams);
 
         return this._removeBody(resp);
+    }
+
+    async countWithRetry(params: ClientParams.CountParams) {
+        const countQuery = {
+            ...params,
+            size: 0
+        } as ClientParams.SearchParams;
+        // need with retry
+        const response = await this.search(countQuery);
+
+        const data = get(response, 'hits.total.value', get(response, 'hits.total'));
+
+        return data as number;
     }
 
     get cluster() {
@@ -209,6 +371,8 @@ export class Client {
         return this._removeBody(resp);
     }
 
+    async deleteWithRetry() {}
+
     /**
      * Deletes documents that match the specified query.
      * @param RequestParams.DeleteByQuery
@@ -245,12 +409,43 @@ export class Client {
         return this._removeBody(resp);
     }
 
+    async existsWithRetry(
+        params: ClientParams.ExistsParams
+    ): Promise<ClientResponse.ExistsResponse> {
+        let results: ClientResponse.ExistsResponse;
+
+        await pWhile(async () => {
+            try {
+                results = await this.indices.exists(params);
+            } catch (err) {
+                if (!isRetryableError(err)) {
+                    throw err;
+                }
+            }
+        }, { enabledJitter: true });
+        // @ts-ignore TODO: fixme
+        return results;
+    }
+
     /**
      * Retrieves the specified JSON document from an index or an empty doc if no doc id is found
      * @param ClientParams.GetParams
      * @returns Object
     */
     async get<T = Record<string, unknown>>(
+        params: ClientParams.GetParams
+    ): Promise<ClientResponse.GetResponse<T>> {
+        const parsedParams = methods.convertGetParams(
+            params as ClientParams.GetParams,
+            this.distributionMeta
+        );
+
+        const response = await this.client.get(parsedParams);
+
+        return this._removeBody(response);
+    }
+
+    async getWithRetry<T = Record<string, unknown>>(
         params: ClientParams.GetParams
     ): Promise<ClientResponse.GetResponse<T>> {
         const parsedParams = methods.convertGetParams(
@@ -305,6 +500,62 @@ export class Client {
         return this._removeBody(resp);
     }
 
+    async searchWithRetry<T = Record<string, unknown>>(
+        params: ClientParams.SearchParams,
+        timeoutInMS = 1000
+    ): Promise<ClientResponse.SearchResponse<T>> {
+        try {
+            const data = await this.search(params);
+
+            const failuresReasons = [];
+            // @ts-expect-error TODO: check which versions do this, i think its elasticsearch8
+            const results = data?.body ? data?.body : data;
+            const { failures, failed } = results._shards;
+
+            if (!failed) {
+                return results as ClientResponse.SearchResponse<T>;
+            }
+
+            failuresReasons.push(...failures);
+
+            const reasons = uniq(
+                flatten(failuresReasons.map((shard) => shard.reason.type))
+            );
+
+            if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
+                const errorReason = reasons.join(' | ');
+                const error = new TSError(errorReason, {
+                    reason: reasons.join(';\n'),
+                });
+
+                throw error;
+            } else {
+                if (timeoutInMS === -1) {
+                    return this.searchWithRetry<T>(params, timeoutInMS);
+                } else {
+                // pWhile it
+                    let response: ClientResponse.SearchResponse;
+
+                    await pWhile(async () => {
+                        const result = await this.search(params);
+                        if (result) {
+                            response = result;
+                            return true;
+                        }
+                    }, { timeoutMs: timeoutInMS, enabledJitter: true });
+
+                    // @ts-expect-error
+                    return response;
+                }
+            }
+        } catch (err) {
+            if (isErrorRetryable(err)) {
+                return this.searchWithRetry(params, timeoutInMS);
+            }
+            throw err;
+        }
+    }
+
     /**
      * The multi search execution of several searches within the same API request
      * @param MSearchParams
@@ -329,6 +580,19 @@ export class Client {
      * @returns {Record<string,any>[]}
     */
     async mget(
+        params: ClientParams.MGetParams
+    ): Promise<ClientResponse.MGetResponse> {
+        const parsedParams = methods.convertMGetParams(
+            params as ClientParams.MGetParams,
+            this.distributionMeta
+        );
+
+        const resp = await this.client.mget(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    async mgetWithRetry(
         params: ClientParams.MGetParams
     ): Promise<ClientResponse.MGetResponse> {
         const parsedParams = methods.convertMGetParams(
@@ -381,6 +645,22 @@ export class Client {
 
                 const resp = await client.indices.create(parsedParams);
                 return _removeBody(resp);
+            },
+
+            // TODO: create with retry?? from elasticsearch store in teraslice
+
+            async setupIndex(
+                clusterName: string,
+                newIndex: string,
+                migrantIndexName: string,
+                mapping: Record<string, any>,
+                timeout = 10000,
+            ): Promise<boolean> {
+                const calcTimeout = Date.now() + timeout;
+                return utilsSetupIndex(
+                    // @ts-expect-error TODO: fixme
+                    this, clusterName, newIndex, migrantIndexName, mapping, calcTimeout
+                );
             },
             /**
              * Deletes one or more indices.
@@ -438,6 +718,19 @@ export class Client {
              * @returns IndicesPutTemplateResponse
             */
             async putTemplate(
+                params: ClientParams.IndicesPutTemplateParams
+            ): Promise<ClientResponse.IndicesPutTemplateResponse> {
+                const parsedParams = methods.convertIndicesPutTemplateParams(
+                    params as ClientParams.IndicesPutTemplateParams,
+                    distributionMeta
+                );
+
+                const resp = await client.indices.putTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+
+            async putTemplateWithRetry(
                 params: ClientParams.IndicesPutTemplateParams
             ): Promise<ClientResponse.IndicesPutTemplateResponse> {
                 const parsedParams = methods.convertIndicesPutTemplateParams(
@@ -629,6 +922,19 @@ export class Client {
                 return _removeBody(resp);
             },
 
+            async refreshWithRetry(
+                params: ClientParams.IndicesRefreshParams = {}
+            ): Promise<ClientResponse.IndicesRefreshResponse> {
+                const parsedParams = methods.convertIndicesRefreshParams(
+                    params as ClientParams.IndicesRefreshParams,
+                    distributionMeta
+                );
+
+                const resp = await client.indices.refresh(parsedParams);
+
+                return _removeBody(resp);
+            },
+
             /**
              * Returns information about shard recoveries for one or more indices
              * @param IndicesRecoveryParams
@@ -636,6 +942,19 @@ export class Client {
              * can be an empty query
             */
             async recovery(
+                params: ClientParams.IndicesRecoveryParams = {}
+            ): Promise<ClientResponse.IndicesRecoveryResponse> {
+                const parsedParams = methods.convertIndicesRecoveryParams(
+                    params as ClientParams.IndicesRecoveryParams,
+                    distributionMeta
+                );
+
+                const resp = await client.indices.recovery(parsedParams);
+
+                return _removeBody(resp);
+            },
+
+            async recoveryWithRetry(
                 params: ClientParams.IndicesRecoveryParams = {}
             ): Promise<ClientResponse.IndicesRecoveryResponse> {
                 const parsedParams = methods.convertIndicesRecoveryParams(
@@ -753,3 +1072,38 @@ export class Client {
         return input.body;
     }
 }
+
+// TODO: should i export this?
+function isErrorRetryable(err: Error) {
+    const checkErrorMsg = isRetryableError(err);
+
+    if (checkErrorMsg) {
+        return true;
+    }
+
+    const isRejectedError = get(err, 'body.error.type') === 'es_rejected_execution_exception';
+    const isConnectionError = isConnectionErrorMessage(err);
+
+    if (isRejectedError || isConnectionError) {
+        return true;
+    }
+
+    return false;
+}
+
+function isConnectionErrorMessage(err: Error) {
+    const msg = get(err, 'message', '');
+    return msg.includes('No Living connections') || msg.includes('ECONNREFUSED');
+}
+
+/**
+     * When the bulk request has errors this will find the actions
+     * records to retry.
+     *
+     * @returns {{
+     *    retry: Record<string, any>[],
+     *    successful: number,
+     *    error: boolean,
+     *    reason?: string
+     * }}
+    */

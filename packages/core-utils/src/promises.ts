@@ -248,9 +248,9 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
 
     const maxJitter = options.maxJitter ?? minJitter * 3;
 
-    if (timeoutMs <= 2 && options.enabledJitter) {
-        throw new Error('Jitter cannot be enabled whe timeout is <=2');
-    }
+    // if (timeoutMs <= 2 && options.enabledJitter) {
+    //     throw new Error('Jitter cannot be enabled whe timeout is <=2');
+    // }
 
     const startTime = Date.now();
     const endTime = timeoutMs > 0 ? startTime + timeoutMs : Number.POSITIVE_INFINITY;
