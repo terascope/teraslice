@@ -2,7 +2,7 @@ import {
     xLuceneFieldType, xLuceneTypeConfig, ClientMetadata,
     ElasticsearchDistribution, ESTypeMapping
 } from '@terascope/types';
-import { isInteger, isString } from '@terascope/utils';
+import { isInteger, isString } from '@terascope/core-utils';
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 

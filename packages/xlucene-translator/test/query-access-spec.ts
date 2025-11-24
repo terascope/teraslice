@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { xLuceneFieldType, ClientParams } from '@terascope/types';
-import { TSError } from '@terascope/utils';
+import { TSError } from '@terascope/core-utils';
 import { QueryAccess } from '../src/index.js';
 
 describe('QueryAccess', () => {

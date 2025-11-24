@@ -1,8 +1,8 @@
-import { ConvictSchema, AnyObject } from '@terascope/job-components';
+import { ConvictSchema } from '@terascope/job-components';
 import { FlusherConfig } from './interfaces';
 
 export default class Schema extends ConvictSchema<FlusherConfig> {
-    build(): AnyObject {
+    build(): Record<string, any> {
         return {
             someSetting: {
                 default: 'hello world'

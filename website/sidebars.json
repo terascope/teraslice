@@ -159,10 +159,26 @@
             },
             {
                 "type": "category",
-                "label": "utils",
+                "label": "core-utils",
                 "items": [
-                    "packages/utils/overview",
-                    "packages/utils/api/overview"
+                    "packages/core-utils/overview",
+                    "packages/core-utils/api/overview"
+                ]
+            },
+            {
+                "type": "category",
+                "label": "ip-utils",
+                "items": [
+                    "packages/ip-utils/overview",
+                    "packages/ip-utils/api/overview"
+                ]
+            },
+            {
+                "type": "category",
+                "label": "geo-utils",
+                "items": [
+                    "packages/geo-utils/overview",
+                    "packages/geo-utils/api/overview"
                 ]
             },
             {

@@ -1,4 +1,4 @@
-import { Overwrite } from '@terascope/utils';
+import { Overwrite } from '@terascope/types';
 import { DataType } from '@terascope/data-types';
 import { FieldType } from '@terascope/types';
 

@@ -1,7 +1,7 @@
 import { DateFormat, FieldType } from '@terascope/types';
 import {
     formatDateValue, getValidDateWithTimezoneOrThrow
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,

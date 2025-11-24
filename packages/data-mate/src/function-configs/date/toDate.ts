@@ -1,5 +1,5 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import { parseDateValue, toISO8601 } from '@terascope/utils';
+import { parseDateValue, toISO8601 } from '@terascope/core-utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory

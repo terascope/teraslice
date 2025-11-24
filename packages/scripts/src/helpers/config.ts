@@ -1,10 +1,12 @@
 import ipPkg from 'ip';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {
     toBoolean, toSafeString, isCI,
     toIntegerOrThrow
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { Service } from './interfaces.js';
-import { kafkaVersionMapper } from './mapper.js';
 
 const { address } = ipPkg;
 
@@ -15,8 +17,6 @@ export const FORCE_COLOR = toBoolean(forceColor)
 /** The timeout for how long a service has to stand up */
 export const SERVICE_UP_TIMEOUT = process.env.SERVICE_UP_TIMEOUT ?? '2m';
 
-/** Default elasticsearch6 version used to populate the CI cache */
-export const __DEFAULT_ELASTICSEARCH6_VERSION = '6.8.6';
 /** Default elasticsearch7 version used to populate the CI cache */
 export const __DEFAULT_ELASTICSEARCH7_VERSION = '7.9.3';
 /** Default opensearch1 version used to populate the CI cache */
@@ -52,27 +52,22 @@ export const KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || HOST_IP;
 export const KAFKA_PORT = process.env.KAFKA_PORT || '49094';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.7.2';
-export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'confluentinc/cp-kafka';
-// If using confluentinc/cp-kafka image, use kafkaVersionMapper
-// to determine image version, else use KAFKA_VERSION
-export const KAFKA_IMAGE_VERSION = KAFKA_DOCKER_IMAGE === 'confluentinc/cp-kafka' ? kafkaVersionMapper(KAFKA_VERSION) : KAFKA_VERSION;
-// If using confluentinc/cp-kafka image, use zookeeper, else use kraft
-export const KAFKA_METADATA_MANAGER = process.env.KAFKA_METADATA_MANAGER || KAFKA_DOCKER_IMAGE === 'confluentinc/cp-kafka' ? 'zookeeper' : 'kraft';
-// Zookeeper version needs to match KAFKA_IMAGE_VERSION which is determined by kafkaVersionMapper
-export const ZOOKEEPER_VERSION = KAFKA_IMAGE_VERSION;
-export const ZOOKEEPER_CLIENT_PORT = process.env.ZOOKEEPER_CLIENT_PORT || '42181';
-export const ZOOKEEPER_TICK_TIME = process.env.ZOOKEEPER_TICK_TIME || '2000';
-export const ZOOKEEPER_DOCKER_IMAGE = process.env.ZOOKEEPER_DOCKER_IMAGE || 'confluentinc/cp-zookeeper';
-export const KAFKA_BROKER_ID = process.env.KAFKA_BROKER_ID || '1';
-export const KAFKA_ZOOKEEPER_CONNECT = process.env.KAFKA_ZOOKEEPER_CONNECT || `${KAFKA_HOSTNAME}:${ZOOKEEPER_CLIENT_PORT}`;
-export const KAFKA_LISTENERS = process.env.KAFKA_LISTENERS || `INTERNAL://:${KAFKA_PORT}`;
+export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'apache/kafka';
+export const KAFKA_NODE_ID = process.env.KAFKA_NODE_ID || '1';
+export const KAFKA_LISTENERS = process.env.KAFKA_LISTENERS || `INTERNAL://0.0.0.0:${KAFKA_PORT}, CONTROLLER://:9093`;
 export const KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS || `INTERNAL://${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const ENCRYPT_KAFKA = toBoolean(process.env.ENCRYPT_KAFKA ?? false);
 export const KAFKA_SECURITY_PROTOCOL = process.env.KAFKA_SECURITY_PROTOCOL || ENCRYPT_KAFKA ? 'SSL' : 'PLAINTEXT';
-export const KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP || `INTERNAL:${KAFKA_SECURITY_PROTOCOL}`;
+export const KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP || `INTERNAL:${KAFKA_SECURITY_PROTOCOL}, CONTROLLER:PLAINTEXT`;
 export const KAFKA_SECRETS_DIR = process.env.KAFKA_SECRETS_DIR || '/etc/kafka/secrets';
-export const KAFKA_INTER_BROKER_LISTENER_NAME = process.env.KAFKA_INTER_BROKER_LISTENER_NAME || 'INTERNAL';
 export const KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR = process.env.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR || '1';
+export const KAFKA_PROCESS_ROLES = process.env.KAFKA_PROCESS_ROLES || 'broker,controller';
+export const KAFKA_CONTROLLER_LISTENER_NAMES = process.env.KAFKA_CONTROLLER_LISTENER_NAMES || 'CONTROLLER';
+export const KAFKA_CONTROLLER_QUORUM_VOTERS = process.env.KAFKA_CONTROLLER_QUORUM_VOTERS || `1@0.0.0.0:9093`;
+export const KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR = process.env.KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR || '1';
+export const KAFKA_TRANSACTION_STATE_LOG_MIN_ISR = process.env.KAFKA_TRANSACTION_STATE_LOG_MIN_ISR || '1';
+export const KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS = process.env.KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS || '0';
+export const KAFKA_INTER_BROKER_LISTENER_NAME = process.env.KAFKA_INTER_BROKER_LISTENER_NAME || 'INTERNAL';
 
 export const MINIO_NAME = process.env.MINIO_NAME || 'minio';
 export const MINIO_HOSTNAME = process.env.MINIO_HOSTNAME || HOST_IP;
@@ -105,7 +100,7 @@ export const OPENSEARCH_HOSTNAME = process.env.OPENSEARCH_HOSTNAME || HOST_IP;
 export const OPENSEARCH_PORT = process.env.OPENSEARCH_PORT || '49210';
 export const OPENSEARCH_USER = process.env.OPENSEARCH_USER || 'admin';
 export const OPENSEARCH_PASSWORD = process.env.OPENSEARCH_PASSWORD || 'admin';
-export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || __DEFAULT_OPENSEARCH1_VERSION;
+export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || __DEFAULT_OPENSEARCH2_VERSION;
 export const OPENSEARCH_HOST = `${OPENSEARCH_PROTOCOL}://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}:${OPENSEARCH_PORT}`;
 export const OPENSEARCH_DOCKER_IMAGE = process.env.OPENSEARCH_DOCKER_IMAGE || 'opensearchproject/opensearch';
 
@@ -168,6 +163,13 @@ export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
 
+export const ENCRYPTION_ENABLED = ENCRYPT_KAFKA || ENCRYPT_MINIO || ENCRYPT_OPENSEARCH;
+export const CERT_PATH = process.env.CERT_PATH
+    || (ENCRYPTION_ENABLED
+        ? fs.mkdtempSync(path.join(os.tmpdir(), 'ts-CAs'))
+        : 'tmp/ts-certs'
+    );
+
 const {
     TEST_OPENSEARCH = undefined,
     TEST_ELASTICSEARCH = undefined,
@@ -184,14 +186,10 @@ const testElasticsearch = toBoolean(TEST_ELASTICSEARCH);
 const testRestrainedOpensearch = toBoolean(TEST_RESTRAINED_OPENSEARCH);
 const testRestrainedElasticsearch = toBoolean(TEST_RESTRAINED_ELASTICSEARCH);
 
-/// couple kafka with zookeeper if using cp-kafka image
-const testZookeeper = toBoolean(TEST_KAFKA) && KAFKA_METADATA_MANAGER === 'zookeeper';
-
 export const ENV_SERVICES = [
     testOpensearch ? Service.Opensearch : undefined,
     testElasticsearch ? Service.Elasticsearch : undefined,
     toBoolean(TEST_KAFKA) ? Service.Kafka : undefined,
-    testZookeeper ? Service.Zookeeper : undefined,
     toBoolean(TEST_MINIO) ? Service.Minio : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
     testRestrainedElasticsearch ? Service.RestrainedElasticsearch : undefined,
@@ -220,7 +218,7 @@ export const DEFAULT_NODE_VERSION = '22';
 export const NODE_VERSION = process.env.NODE_VERSION || DEFAULT_NODE_VERSION;
 
 export const {
-    CLUSTERING_TYPE = 'kubernetes',
+    CLUSTERING_TYPE = 'kubernetesV2',
     TEST_PLATFORM = 'native',
     K8S_VERSION = undefined,
     TERASLICE_IMAGE = undefined

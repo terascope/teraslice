@@ -1,4 +1,4 @@
-import { pDelay } from '@terascope/utils';
+import { pDelay } from '@terascope/core-utils';
 import fse from 'fs-extra';
 import { helmfileCommand, K8s, setAlias } from '@terascope/scripts';
 import { TerasliceHarness } from './teraslice-harness.js';
@@ -17,7 +17,9 @@ export default async () => {
     await teraslice.init();
 
     await teardown(teraslice.client);
-    await teraslice.resetLogs();
+    if (TEST_PLATFORM === 'native') {
+        await teraslice.resetLogs();
+    }
 
     process.stdout.write('\n');
     signale.time('global setup');
@@ -37,7 +39,7 @@ export default async () => {
     // Try to load in the cache before trying to download
     loadAssetCache();
 
-    if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+    if (TEST_PLATFORM === 'kubernetesV2') {
         await downloadAssets();
         if (USE_HELMFILE) {
             await helmfileCommand('sync', TEST_PLATFORM);

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { pDelay } from '@terascope/utils';
+import { pDelay } from '@terascope/core-utils';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

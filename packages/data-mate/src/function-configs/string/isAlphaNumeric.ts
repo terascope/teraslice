@@ -1,4 +1,4 @@
-import { isAlphaNumeric, joinList, isString } from '@terascope/utils';
+import { isAlphaNumeric, joinList, isString } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import validator from 'validator';
 import {

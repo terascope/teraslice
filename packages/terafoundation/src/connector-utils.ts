@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { TSError, parseError, Logger } from '@terascope/utils';
+import { TSError, parseError, Logger } from '@terascope/core-utils';
 import type { Terafoundation } from '@terascope/types';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));

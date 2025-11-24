@@ -1,4 +1,4 @@
-import { PRetryConfig, isTest } from '@terascope/utils';
+import { PRetryConfig, isTest } from '@terascope/core-utils';
 
 export const MAX_RETRIES = isTest ? 2 : 100;
 export const RETRY_DELAY = isTest ? 50 : 500;

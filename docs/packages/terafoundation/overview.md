@@ -197,7 +197,6 @@ or by setting an environmental variable `TERAFOUNDATION_CONFIG` to the configura
 top_root_level_application:
   some: configuration
 terafoundation:
-  environment: development
   log_level:
   - console: info
   - elasticsearch: info

@@ -1,7 +1,7 @@
 import {
     TSError, trim, isRegExpLike,
     cloneDeep, unset, get
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine.js';
 import * as i from './interfaces.js';

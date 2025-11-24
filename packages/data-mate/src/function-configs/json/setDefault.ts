@@ -3,7 +3,7 @@ import {
 } from '@terascope/types';
 import {
     castArray
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     FieldTransformConfig,
     ProcessMode,

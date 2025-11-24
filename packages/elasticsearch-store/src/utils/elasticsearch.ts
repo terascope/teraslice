@@ -1,7 +1,7 @@
 import {
     castArray, get, getFirstKey, getFirstValue,
-    getTime, isTest
-} from '@terascope/utils';
+    isTest, getTime
+} from '@terascope/core-utils';
 import { getErrorType } from './errors.js';
 import {
     Shard, TimeSeriesFormat, BulkResponse,

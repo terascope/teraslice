@@ -1,4 +1,4 @@
-import { isFunction } from '@terascope/utils';
+import { isFunction } from '@terascope/core-utils';
 import { OperationAPI, OperationAPIType } from '../operations/index.js';
 
 export function getMetric(input: number[], i: number): number {

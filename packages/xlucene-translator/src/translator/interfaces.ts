@@ -1,4 +1,4 @@
-import type { Logger } from '@terascope/utils';
+import type { Logger } from '@terascope/core-utils';
 import {
     SortOrder, xLuceneTypeConfig, xLuceneVariables,
     GeoDistanceUnit, GeoPoint, ClientMetadata

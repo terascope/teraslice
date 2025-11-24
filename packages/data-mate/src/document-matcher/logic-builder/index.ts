@@ -4,7 +4,7 @@ import {
     isWildCardString, get, isEqual, isArray,
     and, isGreaterThanFP, isGreaterThanOrEqualToFP,
     isLessThanOrEqualToFP, isLessThanFP,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { compareTermDates, dateRange } from './dates.js';
 import { regexp, wildcard, findWildcardField } from './string.js';
 import { BooleanCB } from '../interfaces.js';

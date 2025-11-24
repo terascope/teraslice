@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity } from '@terascope/core-utils';
 import { Extraction } from '../../../src/operations';
 
 describe('transform operator', () => {

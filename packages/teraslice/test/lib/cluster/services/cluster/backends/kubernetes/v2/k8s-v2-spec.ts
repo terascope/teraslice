@@ -3,7 +3,7 @@ import {
     V1ReplicaSet, V1Service, V1Status
 } from '@kubernetes/client-node';
 import nock from 'nock';
-import { debugLogger } from '@terascope/job-components';
+import { debugLogger } from '@terascope/core-utils';
 import { K8s } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8s.js';
 
 const logger = debugLogger('k8s-v2-spec');

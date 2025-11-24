@@ -1,5 +1,5 @@
 import { DataTypeConfig, FieldType } from '@terascope/types';
-import { BigMap, isArray, castArray } from '@terascope/utils';
+import { isArray, castArray, BigMap } from '@terascope/core-utils';
 import {
     Column, KeyAggregation, ValueAggregation, valueAggMap,
     FieldAgg, KeyAggFn, keyAggMap, makeUniqueKeyAgg

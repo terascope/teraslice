@@ -10,12 +10,12 @@ import {
     S3Client,
 } from '@terascope/file-asset-apis';
 import { Teraslice } from '@terascope/types';
-import { pWhile } from '@terascope/utils';
+import { pWhile } from '@terascope/core-utils';
 import crypto from 'crypto';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import {
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST,
-    MINIO_SECRET_KEY, TEST_PLATFORM, ENCRYPT_MINIO
+    MINIO_SECRET_KEY, TEST_PLATFORM, ENCRYPT_MINIO, ROOT_CERT_PATH
 } from '../../config.js';
 
 describe('assets', () => {
@@ -95,7 +95,7 @@ describe('assets', () => {
         // the asset on this job already points to 'ex1' so it should use the latest available asset
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         const { workers } = jobSpec;
@@ -127,7 +127,7 @@ describe('assets', () => {
     it('can directly ask for a specific asset version to be used', async () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
 
@@ -155,7 +155,7 @@ describe('assets', () => {
     it('will throw if there are naming conflicts', async () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
 
@@ -167,7 +167,7 @@ describe('assets', () => {
     it('will not throw if there are naming conflicts but you use asset identifiers', async () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
 
@@ -220,7 +220,7 @@ describe('s3 asset storage', () => {
             sslEnabled: ENCRYPT_MINIO === 'true',
             region: 'test-region',
             caCertificate: ENCRYPT_MINIO === 'true'
-                ? fs.readFileSync('test/certs/CAs/rootCA.pem', 'utf8')
+                ? fs.readFileSync(ROOT_CERT_PATH, 'utf8')
                 : ''
         };
 
@@ -344,7 +344,7 @@ describe('s3 asset storage', () => {
 
             const jobSpec = terasliceHarness.newJob('generator-large-asset');
             // // Set resource constraints on workers within CI
-            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+            if (TEST_PLATFORM === 'kubernetesV2') {
                 jobSpec.resources_requests_cpu = 0.1;
             }
 

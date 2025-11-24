@@ -37,7 +37,6 @@ NOTE: All `asset_storage` related fields are deprecated. Please use the fields i
 |      Field      |    Type    |     Default     |                                      Description                                      |
 | :-------------: | :--------: | :-------------: | :-----------------------------------------------------------------------------------: |
 | **connectors** |  `Object`  | none |       Required. An object whose keys are connection types and values are objects describing each connection of that type. See [Terafoundation Connectors](#terafoundation-connectors).        |
-| **environment** |  `String`  | `"development"` |       If set to `development` console logging will automatically be turned on.        |
 |  **log_level**  |  `String`  |    `"info"`     |                                Default logging levels                                 |
 |  **log_path**   |  `String`  |    `"$PWD"`     |          Directory where the logs will be stored if logging is set to `file`          |
 |   **logging**   | `String[]` |  `["console"]`  | Logging destinations. Expects an array of logging targets. options: `console`, `file` |

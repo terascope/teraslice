@@ -1,4 +1,4 @@
-import { EmptyObject } from '@terascope/utils';
+import { EmptyObject } from '@terascope/types';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 
 export type PackageInfo = {
@@ -38,7 +38,6 @@ export type PackageInfo = {
 
 export enum Service {
     Kafka = 'kafka',
-    Zookeeper = 'zookeeper',
     Elasticsearch = 'elasticsearch',
     Minio = 'minio',
     RabbitMQ = 'rabbitmq',
@@ -196,3 +195,14 @@ export interface ServiceObj {
     chart: string;
     app_version: string;
 }
+
+export type CustomKindService = | 'opensearch1' | 'opensearch2' | 'opensearch3'
+    | 'elasticsearch7' | 'kafka' | 'minio' | 'prometheus_stack' | 'chaos_mesh';
+
+export interface CustomKindDefaultPort {
+    containerPorts: number[];
+    hostPorts: number[];
+    hostPath: string;
+}
+
+export type CustomKindDefaultPorts = Record<CustomKindService, CustomKindDefaultPort>;

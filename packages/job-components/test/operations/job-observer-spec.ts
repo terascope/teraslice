@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { times } from '@terascope/utils';
+import { times } from '@terascope/core-utils';
 import {
     TestContext, newTestExecutionConfig, Context,
     JobObserver, SliceAnalyticsData

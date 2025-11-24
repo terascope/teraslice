@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { has } from '@terascope/utils';
+import { has } from '@terascope/core-utils';
 import Aliases from './aliases.js';
 import { camelCase } from './utils.js';
 import reply from './reply.js';

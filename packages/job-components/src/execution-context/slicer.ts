@@ -1,4 +1,4 @@
-import { cloneDeep } from '@terascope/utils';
+import { cloneDeep } from '@terascope/core-utils';
 import {
     SlicerOperationLifeCycle, ExecutionStats, Slice,
     SliceResult, SlicerRecoveryData,

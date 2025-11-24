@@ -1,5 +1,5 @@
 /* eslint-disable jest/expect-expect */
-import { pDelay, flatten } from '@terascope/utils';
+import { pDelay, flatten } from '@terascope/core-utils';
 import signale from '../../signale.js';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { WORKERS_PER_NODE, DEFAULT_NODES, TEST_PLATFORM } from '../../config.js';
@@ -96,7 +96,7 @@ describe('cluster state', () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         const specIndex = terasliceHarness.newSpecIndex('state');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'cluster state with 1 worker';
@@ -145,7 +145,7 @@ describe('cluster state', () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         const specIndex = terasliceHarness.newSpecIndex('state');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'cluster state with 4 workers';

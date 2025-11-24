@@ -1,4 +1,4 @@
-import { TSError } from '@terascope/utils';
+import { TSError } from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client.js';

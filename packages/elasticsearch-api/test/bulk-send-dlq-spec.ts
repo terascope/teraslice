@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { debugLogger, cloneDeep, DataEntity } from '@terascope/utils';
+import { debugLogger, cloneDeep, DataEntity } from '@terascope/core-utils';
 import { ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import elasticsearchAPI, { Client as APIClient } from '../src/index.js';
 
@@ -37,7 +37,7 @@ describe('bulkSend', () => {
             };
 
             const mapping = await createMappingFromDatatype(
-                client, EvenDateData.EvenDataType, '_doc', overrides
+                client, EvenDateData.EvenDataType, overrides
             );
 
             mapping.index = index;

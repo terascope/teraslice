@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { pImmediate, BigLRUMap } from '@terascope/utils';
+import { pImmediate, BigLRUMap } from '@terascope/core-utils';
 import {
     CacheConfig, MGetCacheResponse, SetTuple,
     ValuesFn, EvictedEvent

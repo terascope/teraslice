@@ -1,4 +1,4 @@
-import { bigIntToJSON } from '@terascope/utils';
+import { bigIntToJSON } from '@terascope/core-utils';
 import { Vector, VectorOptions } from '../Vector.js';
 import { VectorType, DataBuckets } from '../interfaces.js';
 

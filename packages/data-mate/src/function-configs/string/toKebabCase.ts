@@ -1,4 +1,4 @@
-import { toKebabCase } from '@terascope/utils';
+import { toKebabCase } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

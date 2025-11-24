@@ -1,5 +1,4 @@
-import { Overwrite } from '@terascope/utils';
-import { FieldType } from '@terascope/types';
+import { FieldType, Overwrite } from '@terascope/types';
 import { DataType } from '@terascope/data-types';
 
 export interface TemplateRecord {

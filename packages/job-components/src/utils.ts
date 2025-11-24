@@ -1,4 +1,4 @@
-import { get, Logger } from '@terascope/utils';
+import { get, Logger } from '@terascope/core-utils';
 import { Context, ExecutionConfig } from './interfaces/index';
 
 export function makeContextLogger(context: Context, moduleName: string, extra = {}): Logger {

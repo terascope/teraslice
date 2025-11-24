@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import {
     isString, uniq, parseError,
     castArray, get, has, joinList,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { resolve } from 'import-meta-resolve';
 import {
     OperationAPIConstructor, FetcherConstructor, SlicerConstructor,

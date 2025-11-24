@@ -1,4 +1,5 @@
-import { Slicer, times, SlicerRecoveryData } from '@terascope/job-components';
+import { Slicer, SlicerRecoveryData } from '@terascope/job-components';
+import { times } from '@terascope/core-utils';
 import { SimpleReaderConfig } from './interfaces';
 import SimpleClient from '../simple-connector/client';
 

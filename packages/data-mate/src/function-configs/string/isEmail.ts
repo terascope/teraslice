@@ -1,4 +1,4 @@
-import { isEmail } from '@terascope/utils';
+import { isEmail } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

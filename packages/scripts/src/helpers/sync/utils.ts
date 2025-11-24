@@ -4,7 +4,7 @@ import semver from 'semver';
 import {
     getFirstChar, uniq, trim,
     isCI, isString
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     getDocPath, updatePkgJSON, fixDepPkgName,
     listPackages, isMainPackage

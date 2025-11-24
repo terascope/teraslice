@@ -1,4 +1,4 @@
-import { isString, isRegExpLike } from '@terascope/utils';
+import { isString, isRegExpLike } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,

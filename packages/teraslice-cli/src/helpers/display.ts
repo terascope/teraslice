@@ -4,7 +4,7 @@ import ttyTable from 'tty-table';
 import CliTable from 'cli-table3';
 import easyTable from 'easy-table';
 import prompts from 'prompts';
-import { toTitleCase } from '@terascope/utils';
+import { toTitleCase } from '@terascope/core-utils';
 import { Action, Tense, UpdateActions } from '../interfaces.js';
 
 function pretty(headerValues: string[], rows: string[]) {

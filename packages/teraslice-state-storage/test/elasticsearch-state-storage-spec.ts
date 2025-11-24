@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataEntity, debugLogger, times } from '@terascope/utils';
+import { debugLogger, times, DataEntity } from '@terascope/core-utils';
 import {
     BulkIndexOperation, BulkOperationContainer,
     BulkUpdateAction, ClientParams, ClientResponse
@@ -17,7 +17,6 @@ describe('elasticsearch-state-storage', () => {
     async function setup(overrides?: Partial<ESStateStorageConfig>) {
         const config: ESStateStorageConfig = Object.assign({
             index: 'some_index',
-            type: 'sometype',
             concurrency: 3,
             source_fields: [],
             chunk_size: 7,
@@ -294,7 +293,7 @@ describe('elasticsearch-state-storage', () => {
             });
         });
 
-        describe('when presist is true', () => {
+        describe('when persist is true', () => {
             beforeEach(() => setup({
                 persist: true
             }));
@@ -528,7 +527,6 @@ function isBulkOperationContainerWithIndex(obj: any): obj is BulkOperationContai
         && obj !== null
         && 'index' in obj
         && typeof obj.index._index === 'string'
-        && typeof obj.index._type === 'string'
         && typeof obj.index._id === 'string'
     );
 }
@@ -560,7 +558,6 @@ class TestClient {
 
             const response: ClientResponse.GetResponse = {
                 _index: this._config.index,
-                _type: this._config.type,
                 _version: 1,
                 _id: id,
                 found,
@@ -595,9 +592,6 @@ class TestClient {
         if (params.index !== this._config.index) {
             throw new Error(`Invalid index ${params.index} on fake get`);
         }
-        if (params.type !== this._config.type) {
-            throw new Error(`Invalid type ${params.type} on fake get`);
-        }
         if (!params.id || typeof params.id !== 'string') {
             throw new Error('Invalid id to get');
         }
@@ -614,9 +608,6 @@ class TestClient {
         if (params.index !== this._config.index) {
             throw new Error(`${invalidMsg}, expected type in request ${params.index}`);
         }
-        if (params.type !== this._config.type) {
-            throw new Error(`${invalidMsg}, expected type in request ${params.type}`);
-        }
         if (!this._mgetResponse || !Array.isArray(this._mgetResponse.docs)) {
             throw new Error(`${invalidMsg}, expected response.docs to be an array`);
         }
@@ -628,9 +619,6 @@ class TestClient {
         for (const doc of this._mgetResponse.docs) {
             if (doc._index !== this._config.index) {
                 throw new Error(`${invalidMsg}, expected index on record ${JSON.stringify(doc, null, 2)}`);
-            }
-            if (doc.found && doc._type !== this._config.type) {
-                throw new Error(`${invalidMsg}, expected type on record ${JSON.stringify(doc, null, 2)}`);
             }
         }
 
@@ -655,7 +643,6 @@ class TestClient {
                 return [{
                     [key]: {
                         _index: value._index,
-                        _type: value._type,
                         _id: String(i),
                         _version: 1,
                         result: `${key}d`,

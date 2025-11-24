@@ -1,4 +1,4 @@
-import { times, isFunction, pDelay } from '@terascope/utils';
+import { times, isFunction, pDelay } from '@terascope/core-utils';
 import {
     SlicerFn, SlicerResult, OpConfig, SlicerRecoveryData
 } from '../interfaces/index.js';

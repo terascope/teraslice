@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { random } from '@terascope/utils';
+import { random } from '@terascope/core-utils';
 // @ts-expect-error
 import BufferStreams from 'bufferstreams';
 import archiver from 'archiver';

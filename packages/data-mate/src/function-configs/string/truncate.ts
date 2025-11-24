@@ -1,4 +1,4 @@
-import { truncateFP } from '@terascope/utils';
+import { truncateFP } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

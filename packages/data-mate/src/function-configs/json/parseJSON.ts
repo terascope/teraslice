@@ -1,4 +1,4 @@
-import { parseJSON, isNil } from '@terascope/utils';
+import { parseJSON, isNil } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

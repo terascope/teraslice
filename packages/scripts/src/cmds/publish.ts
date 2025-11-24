@@ -1,5 +1,5 @@
 import { CommandModule } from 'yargs';
-import { isCI } from '@terascope/utils';
+import { isCI } from '@terascope/core-utils';
 import { GlobalCMDOptions } from '../helpers/interfaces.js';
 import { PublishAction, PublishType } from '../helpers/publish/interfaces.js';
 import { publish } from '../helpers/publish/index.js';

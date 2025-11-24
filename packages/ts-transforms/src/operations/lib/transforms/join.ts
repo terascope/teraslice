@@ -1,6 +1,6 @@
 import {
-    DataEntity, set, get, flattenDeep
-} from '@terascope/utils';
+    set, get, flattenDeep, DataEntity
+} from '@terascope/core-utils';
 import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces.js';
 import TransformOpBase from './base.js';
 

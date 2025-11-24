@@ -1,4 +1,4 @@
-import { pMap } from '@terascope/utils';
+import { pMap } from '@terascope/core-utils';
 import { listPackages, updatePkgJSON } from '../packages.js';
 import { SyncOptions } from './interfaces.js';
 import { getRootInfo } from '../misc.js';

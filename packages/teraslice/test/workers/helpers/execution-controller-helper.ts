@@ -1,4 +1,4 @@
-import { pDelay, pDefer } from '@terascope/utils';
+import { pDelay, pDefer } from '@terascope/core-utils';
 
 export interface MakeShutdownEarlyFnArgs {
     enabled?: boolean;

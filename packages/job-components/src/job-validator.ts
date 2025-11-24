@@ -1,5 +1,5 @@
 import convict from 'convict';
-import { cloneDeep, pMap } from '@terascope/utils';
+import { cloneDeep, pMap } from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import { Context, OpConfig, ValidatedJobConfig } from './interfaces';
 import { validateJobConfig } from './config-validators.js';

@@ -1,15 +1,11 @@
-import {
-    joinList, geoRelationFP, toGeoJSON
-} from '@terascope/utils';
+import { joinList } from '@terascope/core-utils';
+import { geoRelationFP, toGeoJSON } from '@terascope/geo-utils';
 import {
     FieldType, GeoShapeRelation, GeoShapeType, GeoInput
 } from '@terascope/types';
 import {
-    FieldValidateConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    FunctionDefinitionExample
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces.js';
 
 export interface GeoRelationArgs {

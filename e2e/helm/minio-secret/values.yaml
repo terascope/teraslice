@@ -1,0 +1,5 @@
+secretName: tls-ssl-minio
+namespace: services-dev1
+privateKey: ""
+publicCert: ""
+rootCA: ""

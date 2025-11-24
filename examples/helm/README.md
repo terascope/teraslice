@@ -21,6 +21,10 @@ The following dependencies are required to successfully deploy a basic instance 
 - [teraslice-cli](https://www.npmjs.com/package/teraslice-cli) - A CLI tool for managing Teraslice
     - `npm install -g teraslice-cli`
 
+## Notice of Deprecation
+
+As of right now we are moving on from updating this helm repo. This can now all be achieved by using the `yarn k8s` command on the root directory for Teraslice. Usage can be found by running `yarn k8s --help`. The functionality and stability of the docs below may or may not work moving forward.
+
 ## Quick Start
 
 Start with being in the correct directory. Starting in the top level of the teraslice directory run:

@@ -4,7 +4,6 @@ import Ex from './ex.js';
 import Executions from './executions.js';
 import Job from './job.js';
 import Jobs from './jobs.js';
-
 import * as i from './interfaces.js';
 
 class TerasliceClient {

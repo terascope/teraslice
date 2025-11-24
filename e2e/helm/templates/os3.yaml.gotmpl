@@ -12,7 +12,7 @@ image:
 service:
     type: NodePort
     port: 9200
-    nodePort: {{ .Values | get "opensearch3.nodePort" "30210" }}
+    nodePort: {{ .Values | get "opensearch3.nodePort" "30203" }}
 
 config:
     opensearch.yml:
@@ -126,5 +126,38 @@ extraContainers:
     volumeMounts:
       - name: certs
         mountPath: /usr/share/opensearch/config/certs
+
+{{- end }}
+
+{{- if not (empty .Values.opensearch3.hostVolumePath) }}
+
+{{- $currentPath := (.Values | get "opensearch3.hostVolumePath" "") -}}
+
+{{ range $key, $service := .Values }}
+{{- if not (eq $key "opensearch3") }}
+{{- if eq ($service | get "enabled" false) true }}
+{{- if eq ($service | get "hostVolumePath" "") $currentPath }}
+
+{{- $error := (printf "%s.hostVolumePath is the same as opensearch3's hostVolumePath. These Must be unique or else data corruption will occur. Change %s.hostVolumePath to something other than %s" $key $key $service.hostVolumePath) -}}
+{{- fail $error -}}
+
+{{- end }}
+{{- end }}
+{{- end }}
+{{ end }}
+
+persistence:
+  enabled: false
+
+extraVolumes:
+    - name: searchdataos3
+      hostPath:
+        path: /searchdataos3
+        type: Directory
+
+extraVolumeMounts:
+    - name: searchdataos3
+      mountPath: /usr/share/opensearch/data
+      readOnly: false
 
 {{- end }}

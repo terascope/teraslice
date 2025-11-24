@@ -1,7 +1,6 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AnyObject } from '@terascope/utils';
 import {
     registerApis, OperationAPI, newTestJobConfig,
     TestContext, TestClientConfig, MetadataFns
@@ -307,7 +306,7 @@ describe('registerApis', () => {
                     return Object.assign({}, data);
                 }
 
-                async function updateApi(_exId: string, metadata: AnyObject) {
+                async function updateApi(_exId: string, metadata: Record<string, any>) {
                     Object.assign({}, metadata);
                 }
 

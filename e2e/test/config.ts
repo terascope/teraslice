@@ -4,7 +4,7 @@ import { customAlphabet } from 'nanoid';
 import semver from 'semver';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { toBoolean } from '@terascope/utils';
+import { toBoolean } from '@terascope/core-utils';
 
 const {
     TEST_INDEX_PREFIX,
@@ -31,8 +31,6 @@ const BASE_PATH = filePath.slice(0, pathLength);
 const CONFIG_PATH = path.join(BASE_PATH, '.config');
 const ASSETS_PATH = path.join(BASE_PATH, '../assets');
 const AUTOLOAD_PATH = path.join(BASE_PATH, 'autoload');
-const ROOT_CERT_PATH = path.join(BASE_PATH, 'test/certs/CAs/rootCA.pem');
-const CERT_PATH = path.join(BASE_PATH, 'test/certs');
 const LOG_PATH = path.join(BASE_PATH, 'logs/teraslice.log');
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
 const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
@@ -66,14 +64,18 @@ const {
     ENCRYPT_OPENSEARCH = false,
     MINIO_HOST = 'http://127.0.0.1:49000',
     MINIO_ACCESS_KEY = 'minioadmin',
-    MINIO_SECRET_KEY = 'minioadmin'
+    MINIO_SECRET_KEY = 'minioadmin',
+    CERT_PATH = path.join(BASE_PATH, 'test/certs')
 } = process.env;
+
+const ROOT_CERT_PATH = path.join(CERT_PATH, 'CAs/rootCA.pem');
 
 const TEST_HOST = TEST_OPENSEARCH
     ? ENCRYPT_OPENSEARCH ? OPENSEARCH_SSL_HOST : OPENSEARCH_HOST
     : ELASTICSEARCH_HOST;
 
 const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
+const FILE_LOGGING = toBoolean(process.env.FILE_LOGGING) || true;
 
 // Check current teraslice for pre release tag. Use dev assets if present.
 const terasliceVersion = semver.coerce(getRootInfo().version, { includePrerelease: true });
@@ -147,5 +149,6 @@ export {
     OPENSEARCH_USER,
     OPENSEARCH_PASSWORD,
     ASSET_BUNDLES_PATH,
+    FILE_LOGGING,
     USE_DEV_ASSETS
 };

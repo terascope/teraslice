@@ -1,7 +1,7 @@
 import {
-    DataEntity, pDelay, get, toNumber,
-    uniq, TSError
-} from '@terascope/utils';
+    pDelay, get, toNumber,
+    uniq, TSError, DataEntity
+} from '@terascope/core-utils';
 import { readFileSync } from 'node:fs';
 import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
@@ -12,10 +12,6 @@ import {
     OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST, OPENSEARCH_SSL_HOST,
     OPENSEARCH_PASSWORD, OPENSEARCH_USER
 } from './config.js';
-
-const semver = ELASTICSEARCH_VERSION.split('.').map(toNumber);
-const isOpensearchTest = process.env.TEST_OPENSEARCH != null;
-export const removeTypeTest = isOpensearchTest || (semver[0] === 8);
 
 export async function makeClient(rootCaPath?: string): Promise<Client> {
     let host: string;
@@ -103,11 +99,10 @@ export async function upload(
 export function createMappingFromDatatype(
     client: Client,
     dataType: DataType,
-    type = '_doc',
     overrides = {}
 ) {
     const metaData = getClientMetadata(client);
-    const mapping = dataType.toESMapping({ typeName: type, overrides, ...metaData });
+    const mapping = dataType.toESMapping({ overrides, ...metaData });
 
     return fixMappingRequest(client, { body: mapping }, false);
 }
@@ -117,7 +112,6 @@ export async function populateIndex(
     index: string,
     dataType: DataType,
     records: any[],
-    type = '_doc'
 ): Promise<void> {
     const overrides = {
         settings: {
@@ -127,7 +121,7 @@ export async function populateIndex(
     };
 
     const mapping = createMappingFromDatatype(
-        client, dataType, type, overrides
+        client, dataType, overrides
     );
 
     await client.indices.create({
@@ -140,7 +134,6 @@ export async function populateIndex(
 
     const results = await client.bulk({
         index,
-        type,
         body,
         refresh: true
     });
@@ -174,10 +167,6 @@ export function formatUploadData(
 
     data.forEach((record) => {
         const meta: any = { _index: index };
-
-        if (!removeTypeTest) {
-            meta._type = '_doc';
-        }
 
         if (DataEntity.isDataEntity(record) && record.getKey()) {
             meta._id = record.getKey();

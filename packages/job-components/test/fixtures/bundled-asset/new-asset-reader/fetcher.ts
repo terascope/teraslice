@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity } from '@terascope/core-utils';
 import { Fetcher } from '../../../../src/index.js';
 
 export class AssetExampleFetcher extends Fetcher {

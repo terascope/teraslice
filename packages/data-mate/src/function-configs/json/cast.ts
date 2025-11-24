@@ -1,4 +1,4 @@
-import { joinList, withoutNil } from '@terascope/utils';
+import { joinList, withoutNil } from '@terascope/core-utils';
 import {
     FieldType, availableFieldTypes, DataTypeFields, DataTypeFieldConfig
 } from '@terascope/types';

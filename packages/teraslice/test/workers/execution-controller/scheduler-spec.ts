@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { v4 as uuidv4 } from 'uuid';
-import { pDelay, once, times } from '@terascope/utils';
+import { pDelay, once, times } from '@terascope/core-utils';
 import { TestContext } from '../helpers/test-context.js';
 import { Scheduler } from '../../../src/lib/workers/execution-controller/scheduler.js';
 

@@ -3,7 +3,7 @@ import fse from 'fs-extra';
 import {
     debugLogger, get, flatten,
     isCI, toString
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import {
     ArgsMap, ExecEnv, exec
 } from '../scripts.js';
@@ -71,7 +71,9 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
         TJM_TEST_MODE: suite !== 'e2e' ? 'true' : 'false',
         NODE_OPTIONS: '--experimental-vm-modules',
         USE_HELMFILE: options.useHelmfile ? 'true' : 'false',
-        TEST_PLATFORM: options.clusteringType
+        TEST_PLATFORM: options.clusteringType,
+        FILE_LOGGING: options.logs ? 'true' : 'false',
+        CERT_PATH: config.CERT_PATH
     };
 
     if (config.DOCKER_NETWORK_NAME) {

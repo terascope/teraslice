@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity } from '@terascope/core-utils';
 import * as i from '../interfaces.js';
 import PhaseBase from './base.js';
 import { OperationsManager } from '../operations/index.js';

@@ -1,4 +1,4 @@
-import { parsePhoneNumber } from '@terascope/utils';
+import { parsePhoneNumber } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

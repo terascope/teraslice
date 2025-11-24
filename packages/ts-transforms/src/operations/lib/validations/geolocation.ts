@@ -1,4 +1,4 @@
-import { parseNumberList } from '@terascope/utils';
+import { parseNumberList } from '@terascope/core-utils';
 import ValidationOpBase from './base.js';
 import { PostProcessConfig } from '../../../interfaces.js';
 

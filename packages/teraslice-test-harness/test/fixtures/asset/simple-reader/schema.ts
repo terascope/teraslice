@@ -1,8 +1,8 @@
-import { ConvictSchema, AnyObject } from '@terascope/job-components';
+import { ConvictSchema } from '@terascope/job-components';
 import { SimpleReaderConfig } from './interfaces';
 
 export default class Schema extends ConvictSchema<SimpleReaderConfig> {
-    build(): AnyObject {
+    build(): Record<string, any> {
         return {
             slicesToCreate: {
                 default: 10,

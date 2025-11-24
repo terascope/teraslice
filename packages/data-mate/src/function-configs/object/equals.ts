@@ -1,4 +1,4 @@
-import { isDeepEqualFP } from '@terascope/utils';
+import { isDeepEqualFP } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,

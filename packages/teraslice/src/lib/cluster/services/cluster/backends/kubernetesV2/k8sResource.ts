@@ -2,7 +2,7 @@ import { V1Deployment, V1Job, V1Service } from '@kubernetes/client-node';
 import {
     isNumber, Logger, get, set,
     has, isEmpty, merge
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
 import { safeEncode } from '../../../../../utils/encoding_utils.js';
 import { setMaxOldSpaceViaEnv } from './utils.js';

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import { Context } from '@terascope/job-components';
 import { ExecutionAnalytics } from '@terascope/types';
 import type { ExecutionStorage, StateStorage, JobsStorage } from './lib/storage';

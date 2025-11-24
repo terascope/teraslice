@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import { Loader, PhaseConfig, OperationsManager } from '../../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));

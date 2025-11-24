@@ -2,7 +2,7 @@ import convict from 'convict';
 import {
     has, get, toString,
     isDeepEqual
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import SchemaCore, { OpType } from './core/schema-core.js';
 import {
     Context, OpConfig, APIConfig,

@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataEntity } from '@terascope/utils';
+import { DataEntity } from '@terascope/core-utils';
 import {
     TestContext, newTestExecutionConfig, Context
 } from '../../src/index.js';
@@ -32,10 +32,10 @@ describe('Delay Processor', () => {
     it('should delay at least 100ms', async () => {
         const startTime = Date.now();
         await delay.handle([new DataEntity({ hi: true })]);
-        expect(Date.now() - startTime).toBeGreaterThanOrEqual(98);
+        expect(Date.now() - startTime).toBeGreaterThanOrEqual(100);
     });
 
-    it('should be use a custom delay', async () => {
+    it('should use a custom delay', async () => {
         // @ts-expect-error
         delay.opConfig.ms = 150;
 
@@ -43,7 +43,6 @@ describe('Delay Processor', () => {
 
         await delay.handle([]);
 
-        // this is 148 because bluebird.delay isn't as predicatable
-        expect(Date.now() - startTime).toBeGreaterThanOrEqual(148);
+        expect(Date.now() - startTime).toBeGreaterThanOrEqual(150);
     });
 });

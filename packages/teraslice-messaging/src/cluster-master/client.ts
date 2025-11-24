@@ -1,4 +1,4 @@
-import { isString, isNumber } from '@terascope/utils';
+import { isString, isNumber } from '@terascope/core-utils';
 import { AggregatedExecutionAnalytics } from '@terascope/types';
 import * as i from './interfaces.js';
 import * as core from '../messenger/index.js';

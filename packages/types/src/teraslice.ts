@@ -1,6 +1,6 @@
 import { SysConfig as BaseSysconfig } from './terafoundation.js';
 
-export type ClusterManagerType = 'native' | 'kubernetes' | 'kubernetesV2';
+export type ClusterManagerType = 'native' | 'kubernetesV2';
 
 export interface AssetRecord {
     blob: SharedArrayBuffer | string | Buffer;
@@ -100,6 +100,7 @@ export interface ExecutionConfig extends ValidatedJobConfig {
     _failureReason?: string;
     slicer_port: number;
     slicer_hostname: string;
+    teraslice_version: string;
 }
 
 export interface StateRecord {
@@ -185,7 +186,7 @@ export interface Slice {
 export interface SliceRequest {
     /** A reserved key for sending work to a particular worker */
     request_worker?: string;
-    /** The slice request can contain any metdata */
+    /** The slice request can contain any metadata */
     [prop: string]: any;
 }
 

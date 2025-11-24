@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import mm from 'micromatch';
-import { trim, uniq, isEmpty } from '@terascope/utils';
+import { trim, uniq, isEmpty } from '@terascope/core-utils';
 import { listPackages, getPkgNames } from './packages.js';
 import { formatList } from './misc.js';
 import { PackageInfo } from './interfaces.js';

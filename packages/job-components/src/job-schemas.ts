@@ -1,11 +1,12 @@
 import os from 'node:os';
 import convict from 'convict';
 import {
-    AnyObject, DataEncoding, dataEncodings,
     flatten, getField, getTypeOf,
     hasOwn, isNotNil, isNumber,
     isPlainObject, isString, logLevels,
-} from '@terascope/utils';
+    dataEncodings
+} from '@terascope/core-utils';
+import { DataEncoding } from '@terascope/types';
 import { Context } from './interfaces/index.js';
 
 const cpuCount = os.cpus().length;
@@ -216,7 +217,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
 
     const clusteringType = context.sysconfig.teraslice.cluster_manager_type;
 
-    if (clusteringType === 'kubernetes' || clusteringType === 'kubernetesV2') {
+    if (clusteringType === 'kubernetesV2') {
         schemas.targets = {
             default: [],
             doc: 'array of key/value labels used for targeting teraslice jobs to nodes',
@@ -315,7 +316,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         schemas.pod_spec_override = {
             doc: 'foo',
             default: {},
-            format(obj: AnyObject) {
+            format(obj: Record<string, any>) {
                 if (!isPlainObject(obj)) {
                     throw new Error('must be object');
                 }

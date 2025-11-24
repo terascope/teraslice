@@ -1,4 +1,4 @@
-import { isString, withoutNil, isNumber } from '@terascope/utils';
+import { isString, withoutNil, isNumber } from '@terascope/core-utils';
 import { SliceCompletePayload, Slice } from '@terascope/types';
 import * as core from '../messenger/index.js';
 import * as i from './interfaces.js';

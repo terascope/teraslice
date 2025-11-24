@@ -15,9 +15,7 @@ This is more straightforward way of creating data entities but since `DataEntity
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
-// it is also available on job-components
-// const { DataEntity } = require('@terascope/job-components');
+const { DataEntity } = require('@terascope/core-utils');
 
 const input = {
     foo: 1,
@@ -55,7 +53,7 @@ A utility for safely converting an object a `DataEntity`. If the input is a Data
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const input = {
     foo: 1,
@@ -79,7 +77,7 @@ A utility for safely converting an input of an object, or an array of objects, t
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const input = [
     {
@@ -100,7 +98,7 @@ expect(DataEntity.isDataEntityArray(dataEntities)).toBeTrue();
 Create a new instance of a DataEntity. If the second param `withData` is set to `true` both the data and metadata will be forked, if set to `false` only the metadata will be copied. Defaults to `true`.
 
 ```js
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const input = {
     foo: 'bar',
@@ -130,7 +128,7 @@ expect(forkedWithData.getKey()).toBe('hello');
 A utility for converting a `Buffer` to a `DataEntity`, using the DataEntity encoding.
 
 ```js
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const jsonBuffer = Buffer.from(JSON.stringify({ foo: 'bar' }));
 const dataEntity = DataEntity.fromBuffer(jsonBuffer, {
@@ -155,7 +153,7 @@ Get the metadata for the DataEntity. If a field is specified, it will get that p
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const metadata = {
     from: 'test'
@@ -177,7 +175,7 @@ Given a field and value set the metadata on the record. The field cannot be empt
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const dataEntity = new DataEntity();
 
@@ -200,7 +198,7 @@ Get the unique document `_key` from the metadata. If no `_key` is found, an erro
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 expect(() => {
     new DataEntity().getKey();
@@ -219,7 +217,7 @@ Set the unique document `_key` from the metadata. If no `_key` is found, an erro
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 expect(() => {
     new DataEntity().setKey({ invalid: 'key' });
@@ -244,7 +242,7 @@ Get the time at which this entity was created.
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const dataEntity = new DataEntity();
 
@@ -270,7 +268,7 @@ Any date formated accepted by [JavaScript Date](https://developer.mozilla.org/en
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const dataEntity = new DataEntity({}, {
     _key: 'foo'
@@ -309,7 +307,7 @@ Any date formated accepted by [JavaScript Date](https://developer.mozilla.org/en
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const dataEntity = new DataEntity({}, {
     _key: 'foo'
@@ -348,7 +346,7 @@ Any date formated accepted by [JavaScript Date](https://developer.mozilla.org/en
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const dataEntity = new DataEntity({}, {
     _key: 'foo'
@@ -375,7 +373,7 @@ Get the raw data, usually used for encoding type `raw`. If there is no data, an 
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 expect(() => {
     new DataEntity().getRawData();
@@ -396,7 +394,7 @@ Set the raw data, usually used for encoding type `raw`. If given `null`, it will
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const dataEntity = new DataEntity();
 
@@ -423,7 +421,7 @@ Convert the DataEntity to an encoded buffer.
 ```js
 'use strict';
 
-const { DataEntity } = require('@terascope/utils');
+const { DataEntity } = require('@terascope/core-utils');
 
 const dataEntity = new DataEntity({
     foo: 'bar'
@@ -450,6 +448,6 @@ As a convention we use the following metadata keys in many of our asset bundles
 | `_ingestTime`  | The time at which the data was ingested into the source data                                         | `Unix Timestamp` | optional                        |
 | `_processTime` | The time at which the data was consumed by the reader                                                | `Unix Timestamp` | optional                        |
 | `_eventTime`   | The time associated with this data entity, usually off of a specific field on source data or message | `Unix Timestamp` | optional                        |
-| `_key`         | A unique key for the data which will be can be used to key the data                                  | `String|Number`  | optional                        |
+| `_key`         | A unique key for the data which will be can be used to key the data                                  | `String          | Number`                         | optional |
 
 Checkout [this Github issue](https://github.com/terascope/teraslice/issues/950) for more details.

@@ -1,6 +1,6 @@
 import {
     trimEndFP
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,

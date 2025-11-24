@@ -2,7 +2,6 @@ import { CMD } from '../../interfaces.js';
 import Config from '../../helpers/config.js';
 import YargsOptions from '../../helpers/yargs-options.js';
 import TerasliceUtil from '../../helpers/teraslice-util.js';
-
 import reply from '../../helpers/reply.js';
 import Display from '../../helpers/display.js';
 
@@ -31,7 +30,7 @@ export default {
         const format = `${cliConfig.args.output}Horizontal`;
 
         const clusterType = await teraslice.type();
-        if (clusterType === 'kubernetes' || clusterType === 'kubernetesV2') {
+        if (clusterType === 'kubernetesV2') {
             // total and pid are n/a with kubernetes, so they are removed from the output
             header = ['assignment', 'job_id', 'ex_id', 'node_id', 'worker_id', 'teraslice_version'];
         }

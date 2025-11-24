@@ -1,4 +1,4 @@
-import { uniq, isNil, isNumber } from '@terascope/utils';
+import { uniq, isNil, isNumber } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import { Repository, InputType } from '../interfaces.js';
 import { isArray } from '../validations/field-validator.js';

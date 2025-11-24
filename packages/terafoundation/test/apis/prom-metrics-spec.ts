@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import got from 'got';
 import {
     Counter, Gauge, Histogram, Summary
@@ -20,7 +20,7 @@ describe('promMetrics foundation API', () => {
                             prom_metrics_display_url: 'http://localhost'
                         },
                         teraslice: {
-                            cluster_manager_type: 'kubernetes',
+                            cluster_manager_type: 'kubernetesV2',
                             name: 'tera-test'
                         }
                     },
@@ -78,7 +78,7 @@ describe('promMetrics foundation API', () => {
                             prom_metrics_add_default: true
                         },
                         teraslice: {
-                            cluster_manager_type: 'kubernetes',
+                            cluster_manager_type: 'kubernetesV2',
                             name: 'tera-test'
                         }
                     },
@@ -121,7 +121,7 @@ describe('promMetrics foundation API', () => {
                             prom_metrics_add_default: true
                         },
                         teraslice: {
-                            cluster_manager_type: 'kubernetes',
+                            cluster_manager_type: 'kubernetesV2',
                             name: 'tera-test'
                         }
                     },
@@ -171,7 +171,7 @@ describe('promMetrics foundation API', () => {
                             prom_metrics_add_default: true
                         },
                         teraslice: {
-                            cluster_manager_type: 'kubernetes',
+                            cluster_manager_type: 'kubernetesV2',
                             name: 'tera-test'
                         }
                     },
@@ -213,7 +213,7 @@ describe('promMetrics foundation API', () => {
                             prom_metrics_add_default: true
                         },
                         teraslice: {
-                            cluster_manager_type: 'kubernetes',
+                            cluster_manager_type: 'kubernetesV2',
                             name: 'tera-test'
                         }
                     },
@@ -256,7 +256,7 @@ describe('promMetrics foundation API', () => {
                             prom_metrics_add_default: true
                         },
                         teraslice: {
-                            cluster_manager_type: 'kubernetes',
+                            cluster_manager_type: 'kubernetesV2',
                             name: 'tera-test'
                         }
                     },
@@ -306,7 +306,7 @@ describe('promMetrics foundation API', () => {
                     prom_metrics_add_default: false
                 },
                 teraslice: {
-                    cluster_manager_type: 'kubernetes',
+                    cluster_manager_type: 'kubernetesV2',
                     name: 'tera-test'
                 }
             },
@@ -373,7 +373,7 @@ describe('promMetrics foundation API', () => {
                     prom_metrics_add_default: true
                 },
                 teraslice: {
-                    cluster_manager_type: 'kubernetes',
+                    cluster_manager_type: 'kubernetesV2',
                     name: 'tera-test'
                 }
             },
@@ -468,7 +468,7 @@ describe('promMetrics foundation API', () => {
                     prom_metrics_add_default: false
                 },
                 teraslice: {
-                    cluster_manager_type: 'kubernetes',
+                    cluster_manager_type: 'kubernetesV2',
                     name: 'tera-test'
                 }
             },
@@ -549,7 +549,7 @@ describe('promMetrics foundation API', () => {
                     prom_metrics_add_default: false
                 },
                 teraslice: {
-                    cluster_manager_type: 'kubernetes',
+                    cluster_manager_type: 'kubernetesV2',
                     name: 'tera-test'
                 }
             },
@@ -629,7 +629,7 @@ describe('promMetrics foundation API', () => {
                     prom_metrics_add_default: false
                 },
                 teraslice: {
-                    cluster_manager_type: 'kubernetes',
+                    cluster_manager_type: 'kubernetesV2',
                     name: 'tera-test-labels'
                 }
             },
@@ -674,7 +674,7 @@ describe('promMetrics foundation API', () => {
                     prom_metrics_add_default: false
                 },
                 teraslice: {
-                    cluster_manager_type: 'kubernetes',
+                    cluster_manager_type: 'kubernetesV2',
                     name: 'tera-test'
                 }
             },

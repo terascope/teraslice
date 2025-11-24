@@ -1,4 +1,4 @@
-import { toFloatOrThrow } from '@terascope/utils';
+import { toFloatOrThrow } from '@terascope/core-utils';
 
 export function runMathFn<T extends(num: number, ...args: number[]) => number>(
     fn: T,

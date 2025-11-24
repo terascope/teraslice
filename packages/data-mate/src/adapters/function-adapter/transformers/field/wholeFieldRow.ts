@@ -1,7 +1,7 @@
 import {
     isObjectEntity, get, set, cloneDeep,
     isNil, unset, isFunction
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { FieldTransformConfig, InitialFunctionContext, FunctionContext } from '../../../../function-configs/interfaces.js';
 import { DynamicFunctionAdapterContext, FunctionAdapterContext } from '../../interfaces.js';
 import { validateFunctionArgs } from '../../../argument-validator/index.js';

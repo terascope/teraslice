@@ -1,5 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { cloneDeep } from '@terascope/utils';
+import { cloneDeep } from '@terascope/core-utils';
 import { TestCase } from './interfaces.js';
 
 const data = [

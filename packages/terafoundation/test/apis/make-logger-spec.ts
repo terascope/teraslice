@@ -8,7 +8,6 @@ describe('makeLogger foundation API', () => {
         const context = {
             sysconfig: {
                 terafoundation: {
-                    environment: 'development',
                     log_level: 'debug',
                     logging: ['file', 'console'],
                     log_path: '/tmp'

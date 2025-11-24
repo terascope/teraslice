@@ -1,6 +1,6 @@
 import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
-import { toBoolean } from '@terascope/utils';
+import { toBoolean } from '@terascope/core-utils';
 import {
     Column, Vector,
     dataFrameAdapter, functionConfigRepository

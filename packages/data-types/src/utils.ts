@@ -2,7 +2,7 @@ import { DataTypeConfig, DataTypeFields, DataTypeVersion } from '@terascope/type
 import {
     isEmpty, isPlainObject, isString,
     toInteger, trim, unescapeString
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { mapping } from './types/mapping.js';
 
 type ConcatStrType = string | undefined|((string | undefined)[]);

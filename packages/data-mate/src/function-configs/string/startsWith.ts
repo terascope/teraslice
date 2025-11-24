@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { startsWithFP } from '@terascope/utils';
+import { startsWithFP } from '@terascope/core-utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory

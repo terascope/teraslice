@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { jest } from '@jest/globals';
-import { debugLogger, cloneDeep } from '@terascope/utils';
+import { debugLogger, cloneDeep } from '@terascope/core-utils';
 import { isPrimaryConfig } from '../../src/loader/utils.js';
 import {
     RulesValidator,

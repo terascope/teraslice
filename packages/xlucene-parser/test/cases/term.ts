@@ -1,7 +1,7 @@
 import { subDays } from 'date-fns/subDays';
 import { addDays } from 'date-fns/addDays';
 import { xLuceneFieldType } from '@terascope/types';
-import { escapeString } from '@terascope/utils';
+import { escapeString } from '@terascope/core-utils';
 import { NodeType, Term } from '../../src/index.js';
 import { TestCase } from './interfaces.js';
 
