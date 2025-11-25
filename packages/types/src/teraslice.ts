@@ -21,10 +21,6 @@ export interface AssetStatusResponse {
 
 export type AssetIDResponse = {
     asset_id: string;
-    /**
-        @deprecated Use asset_id instead, will be removed in teraslice v3
-    */
-    _id?: string;
 };
 
 // On asset upload

@@ -67,7 +67,6 @@ export class AssetsService {
                         const code = created ? 201 : 200;
                         const assetResponse: Teraslice.AssetIDResponse = {
                             asset_id: assetId,
-                            _id: assetId
                         };
 
                         res.status(code).json(assetResponse);
@@ -97,7 +96,6 @@ export class AssetsService {
                 } else {
                     const assetResponse: Teraslice.AssetIDResponse = {
                         asset_id: assetId,
-                        _id: assetId
                     };
 
                     requestHandler(async () => {
