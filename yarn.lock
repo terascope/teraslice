@@ -13215,7 +13215,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"terafoundation@npm:~2.0.0-dev.10, terafoundation@workspace:packages/terafoundation":
+"terafoundation@npm:~2.0.0-dev.11, terafoundation@workspace:packages/terafoundation":
   version: 0.0.0-use.local
   resolution: "terafoundation@workspace:packages/terafoundation"
   dependencies:
@@ -13238,17 +13238,17 @@ __metadata:
     nanoid: "npm:~5.1.5"
     node-webhdfs: "npm:~1.0.2"
     prom-client: "npm:~15.1.3"
-    terafoundation_kafka_connector: "npm:~2.0.0-dev.0"
+    terafoundation_kafka_connector: "npm:~2.0.0-dev.1"
     yargs: "npm:~18.0.0"
   languageName: unknown
   linkType: soft
 
-"terafoundation_kafka_connector@npm:~2.0.0-dev.0":
-  version: 2.0.0-dev.0
-  resolution: "terafoundation_kafka_connector@npm:2.0.0-dev.0"
+"terafoundation_kafka_connector@npm:~2.0.0-dev.1":
+  version: 2.0.0-dev.1
+  resolution: "terafoundation_kafka_connector@npm:2.0.0-dev.1"
   dependencies:
     "@confluentinc/kafka-javascript": "npm:~1.6.0"
-  checksum: 10c0/f27646af0bb64f01fbb80e3cf96e2bf962d9a3b165c4431def2b64f5b79f5d839940dd1d4f4d1c2bada9e4c94bc56ebfe067a9811e5cf4c08ca3f6ad3493f2ef
+  checksum: 10c0/92436c8ba917f62462aacfaa9ca42aa91719bb972a81451219d16caceb687fd69d2f49f35961cef0f950a15eac43cef7e19c33461986fe684e32d2e7030d5717
   languageName: node
   linkType: hard
 
@@ -13380,7 +13380,7 @@ __metadata:
     semver: "npm:~7.7.2"
     socket.io: "npm:~4.8.1"
     socket.io-client: "npm:~4.8.1"
-    terafoundation: "npm:~2.0.0-dev.10"
+    terafoundation: "npm:~2.0.0-dev.11"
     uuid: "npm:~13.0.0"
   languageName: unknown
   linkType: soft
