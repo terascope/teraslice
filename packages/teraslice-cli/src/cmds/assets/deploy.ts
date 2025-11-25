@@ -197,7 +197,7 @@ export default {
                 const resp = await terasliceClient.assets.upload(assetZip, {
                     blocking: cliConfig.args.blocking
                 });
-                const assetID = resp.asset_id ?? resp._id;
+                const assetID = resp.asset_id;
                 reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${assetID}`);
             } catch (err) {
                 reply.fatal(`Error posting asset: ${err.message}`);
