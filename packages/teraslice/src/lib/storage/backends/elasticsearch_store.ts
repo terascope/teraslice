@@ -4,8 +4,8 @@ import {
     pRetry, logError, pWhile, isString, getTypeOf,
     get, random, isInteger, Logger
 } from '@terascope/core-utils';
-import elasticsearchApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
 import { getClient, Context } from '@terascope/job-components';
+import { Client, convertToDocs } from '@terascope/opensearch-client';
 import { ClientParams } from '@terascope/types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { timeseriesIndex } from '../../utils/date_utils.js';
@@ -163,20 +163,13 @@ export class TerasliceElasticsearchStorage {
             connectionConfig.connection_cache = true;
         }
 
-        const { connection } = config.state;
-
-        const options = {
-            full_response: !!this.options.fullResponse,
-            connection,
-        };
-
         await pWhile(async () => {
             try {
                 const client = await getClient(this.context, connectionConfig, 'elasticsearch-next');
 
-                this.api = elasticsearchApi(client, this.logger, options);
+                this.api = client;
                 await this._createIndex(newIndex);
-                await this.api.isAvailable(newIndex);
+                await this.api.isIndexAvailable(newIndex);
 
                 return true;
             } catch (err) {
@@ -207,7 +200,7 @@ export class TerasliceElasticsearchStorage {
         }, random(9000, 11000));
     }
 
-    async get(
+    async get<T>(
         recordId: string,
         index = this.defaultIndexName,
         fields?: string | string[]
@@ -224,10 +217,12 @@ export class TerasliceElasticsearchStorage {
             query._source_includes = fields;
         }
 
-        return this.api.get(query);
+        const response = await this.api.get<T>(query);
+
+        return response._source;
     }
 
-    async search(
+    async search<T extends Record<string, any>>(
         query: string | Record<string, any>,
         from = 0,
         size = 10000,
@@ -262,7 +257,9 @@ export class TerasliceElasticsearchStorage {
             esQuery._source_includes = fields;
         }
 
-        return this.api.search(esQuery);
+        const results = await this.api.search<T>(esQuery);
+
+        return convertToDocs<T>(results);
     }
 
     /*
@@ -302,7 +299,7 @@ export class TerasliceElasticsearchStorage {
             timeout: _getTimeout(timeout)
         };
 
-        return this.api.indexWithId(query);
+        return this.api.indexWithRetry(query);
     }
 
     /*
@@ -349,7 +346,9 @@ export class TerasliceElasticsearchStorage {
             esQuery.body = query;
         }
 
-        return this.api.count(esQuery);
+        const response = await this.api.count(esQuery);
+
+        return response.count;
     }
 
     async update(
@@ -375,11 +374,11 @@ export class TerasliceElasticsearchStorage {
         return this.api.update(query);
     }
 
-    async updatePartial(
+    async updatePartial<T extends Record<string, any>>(
         recordId: string,
         applyChanges: (doc: Record<string, any>) => Promise<Record<string, any>>,
         index = this.defaultIndexName
-    ): Promise<Record<string, any>> {
+    ): Promise<T> {
         if (typeof applyChanges !== 'function') {
             throw new Error('Update Partial expected a applyChanges function');
         }
@@ -391,7 +390,7 @@ export class TerasliceElasticsearchStorage {
             id: recordId,
         };
 
-        const existing = await pRetry(() => this.api.get(getParams, true), {
+        const existing = await pRetry(() => this.api.get<T>(getParams), {
             matches: ['no_shard_available_action_exception'],
             delay: 1000,
             retries: 10,
@@ -415,8 +414,8 @@ export class TerasliceElasticsearchStorage {
         query.if_primary_term = existing._primary_term;
 
         try {
-            await this.api.indexWithId(query);
-            return doc;
+            await this.api.indexWithRetry(query);
+            return doc as T;
         } catch (err) {
             // if there is a version conflict
             if (err.statusCode === 409 && err.message.includes('version conflict')) {
@@ -439,7 +438,7 @@ export class TerasliceElasticsearchStorage {
             refresh: this.options.forceRefresh,
         };
 
-        return this.api.remove(query);
+        return this.api.deleteWithRetry(query);
     }
 
     async bulk(record: Record<string, any>, type = 'index', index = this.defaultIndexName) {
@@ -507,8 +506,9 @@ export class TerasliceElasticsearchStorage {
         }
     }
 
+    // @ts-expect-error TODO: FIxME
     async bulkSend(bulkRequest: BulkRecord[]) {
-        return this.api.bulkSend(bulkRequest);
+        return this.api.bulkWithRetry(bulkRequest as any);
     }
 
     private async _flush(shuttingDown = false) {
@@ -550,7 +550,7 @@ export class TerasliceElasticsearchStorage {
     private async _createIndex(index = this.defaultIndexName) {
         // @ts-expect-error TODO: check type missing id
         const existQuery: ClientParams.ExistsParams = { index };
-        const exists = await this.api.indexExists(existQuery);
+        const exists = await this.api.indices.exists(existQuery);
 
         if (!exists) {
             // Make sure the index exists before we do anything else.
@@ -561,7 +561,7 @@ export class TerasliceElasticsearchStorage {
 
             try {
                 await this.sendTemplate(this.mapping);
-                return await this.api.indexCreate(createQuery);
+                return await this.api.indices.create(createQuery);
             } catch (err) {
                 // It's not really an error if it's just that the index is already there
                 if (parseError(err).includes('already_exists_exception')) {
@@ -581,25 +581,25 @@ export class TerasliceElasticsearchStorage {
 
     async refresh(index = this.defaultIndexName) {
         const query: ClientParams.IndicesRefreshParams = { index };
-        return this.api.indexRefresh(query);
+        return this.api.indices.refreshWithRetry(query);
     }
 
     // TODO: fix type here
-    async putTemplate(template: any, name: string) {
-        return this.api.putTemplate(template, name);
+    async putTemplate(template: any, _name: string) {
+        return this.api.indices.putTemplateWithRetry(template);
     }
 
     verifyClient() {
         if (this.isShuttingDown) return false;
-        return this.api.verifyClient();
+        return this.api.isClientConnected();
     }
 
     async waitForClient() {
-        if (this.api.verifyClient()) return;
+        if (this.api.isClientConnected()) return;
 
         await pWhile(async () => {
             if (this.isShuttingDown) throw new Error('Elasticsearch store is shutdown');
-            if (this.api.verifyClient()) return true;
+            if (this.api.isClientConnected()) return true;
             await pDelay(100);
             return false;
         });

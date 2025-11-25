@@ -97,6 +97,7 @@ export class AssetsStorage {
 
     async initialize() {
         await this.ensureAssetDir();
+
         if (this.s3Backend) {
             await Promise.all([
                 this.s3Backend.initialize(),
@@ -303,13 +304,13 @@ export class AssetsStorage {
     // this should be a SearchResponse as full_response is set to true in backendConfig
     // however for some reason the api ignores that for get and mget, and fullResponse
     // is an argument to the call itself, which can defy the config, defaults to false
-    async get(id: string): Promise<AssetRecord> {
+    async get(id: string): Promise<AssetRecord | undefined> {
         let record;
         if (this.s3Backend) {
-            record = await this.esBackend.get(id);
-            record.blob = await this.s3Backend.get(id);
+            record = await this.esBackend.get<AssetRecord>(id);
+            if (record) record.blob = await this.s3Backend.get(id);
         } else {
-            record = this.esBackend.get(id);
+            record = await this.esBackend.get<AssetRecord>(id);
         }
         return record;
     }

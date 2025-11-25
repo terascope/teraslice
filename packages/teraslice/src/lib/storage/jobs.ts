@@ -78,7 +78,7 @@ export class JobsStorage {
         jobId: string, updateSpec: Partial<JobConfig | JobConfigParams>
     ): Promise<JobConfig> {
         // We want to save the whole job as it is posted, update api does partial doc updates
-        const results = await this.backend.indexWithId(jobId, Object.assign(
+        const record = Object.assign(
             {},
             updateSpec,
             {
@@ -86,9 +86,11 @@ export class JobsStorage {
                 _context: this.jobType,
                 _updated: makeISODate()
             }
-        ));
+        ) as JobConfig;
 
-        return results as JobConfig;
+        await this.backend.indexWithId(jobId, record);
+
+        return record;
     }
 
     async remove(jobId: string) {

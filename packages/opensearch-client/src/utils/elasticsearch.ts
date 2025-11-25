@@ -3,7 +3,6 @@ import {
     cloneDeep, castArray, isEmpty,
     sortKeys, parseError, TSError,
     toBoolean, isDeepEqual, isFatalError,
-    isProd, pDelay
 } from '@terascope/core-utils';
 import {
     ESFieldType, ESTypeMapping, ClientMetadata,
@@ -599,79 +598,15 @@ async function _migrate(
     }
 }
 
-/**
-     * This is used for improved bulk sending function
-    */
-// export interface BulkRecord {
-//     action: AnyBulkAction;
-//     // this is definitely wrong, record was set to UpdateConfig which had no definition
-//     data?: Record<string, any> | DataEntity;
-// }
-
-export async function _bulkSend(
-    client: Client,
+export function _filterRetryRecords(
     actionRecords: any[],
-    previousCount = 0,
-    previousRetryDelay = 0
-    // TODO: why are we returning a number?
-): Promise<number> {
-    const body = actionRecords.flatMap((record: Record<string, any>, index) => {
-        if (record.action == null) {
-            let dbg = '';
-            if (!isProd) {
-                dbg = `, dbg: ${JSON.stringify({ record, index })}`;
-            }
-            throw new Error(`Bulk send record is missing the action property${dbg}`);
-        }
-
-        // if data is specified return both
-        return record.data
-            ? [{
-                ...record.action,
-            },
-            record.data]
-            : [{
-                ...record.action,
-            }];
-    });
-    // @ts-expect-error
-    const response = await client.bulk('bulk', { body }) as any;
-    const results = response.body ? response.body : response;
-
-    if (!results.errors) {
-        return results.items.reduce((c: number, item: Record<string, any>) => {
-            const [value] = Object.values(item);
-            // ignore non-successful status codes
-            if (value.status != null && value.status >= 400) return c;
-            return c + 1;
-        }, 0);
-    }
-
-    const {
-        retry, successful, error, reason
-    } = _filterRetryRecords(actionRecords, results);
-
-    //     if (error && config._dead_letter_action !== 'kafka_dead_letter') {
-
-    if (error) {
-        throw new Error(`bulk send error: ${reason}`);
-    }
-
-    if (retry.length === 0) {
-        return previousCount + successful;
-    }
-
-    return _handleRetries(client, retry, previousCount + successful, previousRetryDelay);
-}
-
-function _filterRetryRecords(
-    actionRecords: any[],
-    result: any
-) {
+    result: any,
+    useKafkaDeadLetterQueue = false,
+): { retryRecords: any[]; successful: number; error: boolean; reason?: string } {
     const retry = [];
     const { items } = result;
 
-    let nonRetriableError = false;
+    let nonRetryableError = false;
     let reason = '';
     let successful = 0;
 
@@ -698,14 +633,13 @@ function _filterRetryRecords(
                 item.error.type !== 'document_already_exists_exception'
                 && item.error.type !== 'document_missing_exception'
             ) {
-                nonRetriableError = true;
+                nonRetryableError = true;
                 reason = `${item.error.type}--${item.error.reason}`;
 
-                // if (config._dead_letter_action === 'kafka_dead_letter') {
-                //     // @ts-expect-error
-                //     actionRecords[i].data.setMetadata('_bulk_sender_rejection', reason);
-                //     continue;
-                // }
+                if (useKafkaDeadLetterQueue) {
+                    actionRecords[i].data.setMetadata('_bulk_sender_rejection', reason);
+                    continue;
+                }
 
                 break;
             }
@@ -714,30 +648,16 @@ function _filterRetryRecords(
         }
     }
 
-    if (nonRetriableError) {
+    if (nonRetryableError) {
         // if dlq active still attempt the retries
-        // const retryOnError = config._dead_letter_action === 'kafka_dead_letter' ? retry : [];
-        const retryOnError = retry;
+        const retryOnError = useKafkaDeadLetterQueue ? retry : [];
 
         return {
-            retry: retryOnError, successful, error: true, reason
+            retryRecords: retryOnError, successful, error: true, reason
         };
     }
 
-    return { retry, successful, error: false };
-}
-
-async function _handleRetries(
-    client: Client,
-    retry: any[],
-    affectedCount: number,
-    previousRetryDelay: number
-) {
-    //  warning();
-    await pDelay(200);
-    // const nextRetryDelay = await _awaitRetry(previousRetryDelay);
-    // return _bulkSend(client, retry, affectedCount, nextRetryDelay);
-    return _bulkSend(client, retry, affectedCount, 200);
+    return { retryRecords: retry, successful, error: false };
 }
 
 export function convertToDocs<T extends Record<string, any>>(

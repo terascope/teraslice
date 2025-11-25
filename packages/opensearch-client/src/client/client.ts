@@ -1,13 +1,10 @@
 import { ClientParams, ClientResponse, ClientMetadata } from '@terascope/types';
 import {
     flatten, uniq, TSError, DataEntity,
-    pWhile, isRetryableError, get,
+    pWhile, get, isRetryableError,
 } from '@terascope/core-utils';
-import { setupIndex as utilsSetupIndex, _bulkSend } from '../utils/elasticsearch.js';
+import { setupIndex as utilsSetupIndex, _filterRetryRecords } from '../utils/elasticsearch.js';
 import * as methods from './method-helpers/index.js';
-
-const DOCUMENT_EXISTS = 409;
-const TOO_MANY_REQUESTS = 429;
 
 // TODO: need a more authoritative interface here
 export interface Config {
@@ -93,7 +90,7 @@ export class Client {
     // TODO: isClientConnected needs to be checked with new client usage
     /**
      * Verify the state of the underlying es client.
-     * Will throw error if in fatal state, like the connection is closed.
+     * Will throw err if in fatal state, like the connection is closed.
      *
      * @returns {boolean} if client is working state it will return true
     */
@@ -129,14 +126,61 @@ export class Client {
     }
 
     async bulkWithRetry(
-        params: ClientParams.BulkParams
+        params: ClientParams.BulkParams,
+        useKafkaDeadLetterQueue = false,
+        timeoutMs = 10000,
+        minJitter = 200
     ): Promise<number> {
         const parsedParams = methods.convertBulkParams(
             params,
             this.distributionMeta
         );
-        // @ts-expect-error
-        return _bulkSend(this, parsedParams.body);
+
+        let docsProcessed: number = 0;
+
+        await pWhile(async () => {
+            try {
+                let query = parsedParams;
+                const response = await this.bulk(query);
+
+                if (!response.errors) {
+                    const docs = response.items.reduce((c: number, item: Record<string, any>) => {
+                        const [value] = Object.values(item);
+                        // ignore non-successful status codes
+                        if (value.status != null && value.status >= 400) return c;
+                        return c + 1;
+                    }, 0);
+                    docsProcessed += docs;
+                    return true;
+                }
+
+                console.dir({ parsedParams, response }, { depth: 100 })
+                const {
+                    retryRecords, successful, error, reason
+                    // @ts-expect-error
+                } = _filterRetryRecords(query.body, query, useKafkaDeadLetterQueue);
+
+                if (error && useKafkaDeadLetterQueue) {
+                    throw new Error(`bulk send error: ${reason}`);
+                }
+
+                if (retryRecords.length === 0) {
+                    docsProcessed += successful;
+                    return true;
+                }
+                // we recreate the query with all the unprocessed docs
+                query = {
+                    ...query,
+                    body: retryRecords
+                };
+            } catch (err) {
+                if (!isErrorRetryable(err)) {
+                    throw err;
+                }
+            }
+        }, { enabledJitter: true, timeoutMs, minJitter });
+
+        return docsProcessed;
     }
 
     /**
@@ -164,7 +208,7 @@ export class Client {
         try {
             return this.create(params);
         } catch (err) {
-            if (isRetryableError(err)) {
+            if (isErrorRetryable(err)) {
                 let response!: ClientResponse.CreateResponse;
 
                 await pWhile(async () => {
@@ -174,7 +218,7 @@ export class Client {
 
                 return response;
             } else {
-                throw Error;
+                throw err;
             }
         }
     }
@@ -204,7 +248,7 @@ export class Client {
         try {
             return this.index(params);
         } catch (err) {
-            if (isRetryableError(err)) {
+            if (isErrorRetryable(err)) {
                 let response!: ClientResponse.IndexResponse;
 
                 await pWhile(async () => {
@@ -214,7 +258,7 @@ export class Client {
 
                 return response;
             } else {
-                throw Error;
+                throw err;
             }
         }
     }
@@ -244,7 +288,7 @@ export class Client {
         try {
             return this.update(params);
         } catch (err) {
-            if (isRetryableError(err)) {
+            if (isErrorRetryable(err)) {
                 let response!: ClientResponse.UpdateResponse;
 
                 await pWhile(async () => {
@@ -254,7 +298,7 @@ export class Client {
 
                 return response;
             } else {
-                throw Error;
+                throw err;
             }
         }
     }
@@ -286,7 +330,7 @@ export class Client {
         try {
             return this.count(params);
         } catch (err) {
-            if (isRetryableError(err)) {
+            if (isErrorRetryable(err)) {
                 let response!: ClientResponse.CountResponse;
 
                 await pWhile(async () => {
@@ -296,7 +340,7 @@ export class Client {
 
                 return response;
             } else {
-                throw Error;
+                throw err;
             }
         }
     }
@@ -418,7 +462,7 @@ export class Client {
         try {
             return this.delete(params);
         } catch (err) {
-            if (isRetryableError(err)) {
+            if (isErrorRetryable(err)) {
                 let response!: ClientResponse.DeleteResponse;
 
                 await pWhile(async () => {
@@ -428,7 +472,7 @@ export class Client {
 
                 return response;
             } else {
-                throw Error;
+                throw err;
             }
         }
     }
@@ -477,7 +521,7 @@ export class Client {
         try {
             return this.exists(params);
         } catch (err) {
-            if (isRetryableError(err)) {
+            if (isErrorRetryable(err)) {
                 let response!: ClientResponse.ExistsResponse;
 
                 await pWhile(async () => {
@@ -487,7 +531,7 @@ export class Client {
 
                 return response;
             } else {
-                throw Error;
+                throw err;
             }
         }
     }
@@ -518,7 +562,7 @@ export class Client {
         try {
             return this.get(params);
         } catch (err) {
-            if (isRetryableError(err)) {
+            if (isErrorRetryable(err)) {
                 let response!: ClientResponse.GetResponse<T>;
 
                 await pWhile(async () => {
@@ -528,7 +572,7 @@ export class Client {
 
                 return response;
             } else {
-                throw Error;
+                throw err;
             }
         }
     }
@@ -569,7 +613,6 @@ export class Client {
             params as ClientParams.SearchParams,
             this.distributionMeta
         );
-        console.log('parsedParams', parsedParams);
         const resp = await this.client.search(parsedParams);
 
         return this._removeBody(resp);
@@ -580,57 +623,43 @@ export class Client {
         timeoutMs = 10000,
         minJitter = 200
     ): Promise<ClientResponse.SearchResponse<T>> {
-        try {
-            const data = await this.search(params);
+        let response!: ClientResponse.SearchResponse<T>;
 
-            const failuresReasons = [];
-            // @ts-expect-error TODO: check which versions do this, i think its elasticsearch8
-            const results = data?.body ? data?.body : data;
-            const { failures, failed } = results._shards;
+        await pWhile(async () => {
+            try {
+                const data = await this.search<T>(params);
+                // @ts-expect-error
+                const { failures, failed } = data._shards;
 
-            if (!failed) {
-                return results as ClientResponse.SearchResponse<T>;
-            }
+                const failuresReasons = [];
 
-            failuresReasons.push(...failures);
+                if (!failed) {
+                    response = data;
+                    return true;
+                }
 
-            const reasons = uniq(
-                flatten(failuresReasons.map((shard) => shard.reason.type))
-            );
+                failuresReasons.push(...failures);
 
-            if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
-                const errorReason = reasons.join(' | ');
-                const error = new TSError(errorReason, {
-                    reason: reasons.join(';\n'),
-                });
+                const reasons = uniq(
+                    flatten(failuresReasons.map((shard) => shard.reason.type))
+                );
 
-                throw error;
-            } else {
-                if (timeoutMs === -1) {
-                    return this.searchWithRetry<T>(params, timeoutMs);
-                } else {
-                // pWhile it
-                    let response: ClientResponse.SearchResponse;
+                if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
+                    const errorReason = reasons.join(' | ');
+                    const error = new TSError(errorReason, {
+                        reason: reasons.join(';\n'),
+                    });
 
-                    await pWhile(async () => {
-                        const result = await this.search(params);
-                        if (result) {
-                            response = result;
-                            return true;
-                        }
-                    }, { timeoutMs, enabledJitter: true });
-
-                    // @ts-expect-error
-                    return response;
+                    throw error;
+                }
+            } catch (err) {
+                if (!isErrorRetryable(err)) {
+                    throw err;
                 }
             }
-        } catch (err) {
-            console.log('err', err, params);
-            if (isErrorRetryable(err)) {
-                return this.searchWithRetry(params, timeoutMs);
-            }
-            throw err;
-        }
+        }, { enabledJitter: true, timeoutMs, minJitter });
+
+        return response;
     }
 
     /**
@@ -677,7 +706,7 @@ export class Client {
         try {
             return this.mget(params);
         } catch (err) {
-            if (isRetryableError(err)) {
+            if (isErrorRetryable(err)) {
                 let response!: ClientResponse.MGetResponse;
 
                 await pWhile(async () => {
@@ -687,7 +716,7 @@ export class Client {
 
                 return response;
             } else {
-                throw Error;
+                throw err;
             }
         }
     }
@@ -825,7 +854,7 @@ export class Client {
                 try {
                     return this.putTemplate(params);
                 } catch (err) {
-                    if (isRetryableError(err)) {
+                    if (isErrorRetryable(err)) {
                         let response!: ClientResponse.IndicesPutTemplateResponse;
 
                         await pWhile(async () => {
@@ -835,7 +864,7 @@ export class Client {
 
                         return response;
                     } else {
-                        throw Error;
+                        throw err;
                     }
                 }
             },
@@ -1027,7 +1056,7 @@ export class Client {
                 try {
                     return this.refresh(params);
                 } catch (err) {
-                    if (isRetryableError(err)) {
+                    if (isErrorRetryable(err)) {
                         let response!: ClientResponse.IndicesRefreshResponse;
 
                         await pWhile(async () => {
@@ -1037,10 +1066,10 @@ export class Client {
 
                         return response;
                     } else {
-                        throw Error;
+                        throw err;
                     }
                 }
-            }
+            },
 
             /**
              * Returns information about shard recoveries for one or more indices
@@ -1066,10 +1095,10 @@ export class Client {
                 timeoutMs = 10000,
                 minJitter = 200
             ): Promise<ClientResponse.IndicesRecoveryResponse> {
-               try {
+                try {
                     return this.recovery(params);
                 } catch (err) {
-                    if (isRetryableError(err)) {
+                    if (isErrorRetryable(err)) {
                         let response!: ClientResponse.IndicesRecoveryResponse;
 
                         await pWhile(async () => {
@@ -1079,7 +1108,7 @@ export class Client {
 
                         return response;
                     } else {
-                        throw Error;
+                        throw err;
                     }
                 }
             },

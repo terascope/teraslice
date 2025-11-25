@@ -54,9 +54,8 @@ export class ExecutionStorage {
         this.logger.info('execution storage initialized');
     }
 
-    async get(exId: string): Promise<ExecutionConfig> {
-        const results = await this.backend.get(exId);
-        return results as ExecutionConfig;
+    async get(exId: string): Promise<ExecutionConfig | undefined> {
+        return this.backend.get<ExecutionConfig>(exId);
     }
 
     // encompasses all executions in either initialization or running statuses
@@ -64,7 +63,7 @@ export class ExecutionStorage {
         const str = this.getTerminalStatuses().map((state) => ` _status:${state} `)
             .join('OR');
         const query = `ex_id:"${exId}" NOT (${str.trim()})`;
-        const executions = await this.backend.search(query, undefined, 1, '_created:desc') as any[];
+        const executions = await this.backend.search<ExecutionConfig>(query, undefined, 1, '_created:desc');
 
         if (!executions.length) {
             throw new TSError(`no active execution context was found for ex_id: ${exId}`, {
@@ -72,7 +71,7 @@ export class ExecutionStorage {
             });
         }
 
-        return executions[0] as ExecutionConfig;
+        return executions[0];
     }
 
     async search(
@@ -82,8 +81,7 @@ export class ExecutionStorage {
         sort?: string,
         fields?: string | string[]
     ): Promise<ExecutionConfig[]> {
-        const results = await this.backend.search(query, from, size, sort, fields);
-        return results as ExecutionConfig[];
+        return this.backend.search<ExecutionConfig>(query, from, size, sort, fields);
     }
 
     async create(record: JobConfig | ExecutionConfig, status = 'pending'): Promise<ExecutionConfig> {
@@ -126,7 +124,7 @@ export class ExecutionStorage {
         exId: string,
         applyChanges: (doc: Record<string, any>) => Promise<Record<string, any>>
     ): Promise<ExecutionConfig> {
-        return this.backend.updatePartial(exId, applyChanges) as unknown as ExecutionConfig;
+        return this.backend.updatePartial<ExecutionConfig>(exId, applyChanges);
     }
 
     /**
