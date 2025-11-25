@@ -5,7 +5,7 @@ import semver from 'semver';
 import { downloadRelease, HTTPError } from '@terascope/fetch-github-release';
 import { pRetry, isCI } from '@terascope/core-utils';
 import signale from './signale.js';
-import { AUTOLOAD_PATH, ASSET_BUNDLES_PATH, USE_DEV_ASSETS } from './config.js';
+import { AUTOLOAD_PATH, ASSET_BUNDLES_PATH, USE_DEV_ASSETS } from './constants.js';
 
 type AssetInfo = {
     name: string;

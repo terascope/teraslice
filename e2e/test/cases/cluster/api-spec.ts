@@ -2,8 +2,10 @@ import { createReadStream } from 'node:fs';
 import { cloneDeep, pDelay } from '@terascope/core-utils';
 import { JobConfig } from '@terascope/types';
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
 import { Ex, Job } from 'teraslice-client-js';
+
+const { TEST_PLATFORM } = config;
 
 describe('cluster api', () => {
     let terasliceHarness: TerasliceHarness;

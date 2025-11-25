@@ -5,8 +5,8 @@ import { withoutNil } from '@terascope/core-utils';
 import Chance from 'chance';
 import { ValidatedJobConfig } from '@terascope/types';
 import { newId } from '../../../src/lib/utils/id_utils.js';
+import { SEARCH_TEST_HOST } from '../../test.config.js';
 
-const { SEARCH_TEST_HOST } = process.env;
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const opsPath = path.join(dirname, '..', 'fixtures', 'ops');

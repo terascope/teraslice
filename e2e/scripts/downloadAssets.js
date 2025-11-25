@@ -10,7 +10,7 @@ import {
     downloadWithDelayedRetry,
     assetFileInfo
 } from '../dist/test/download-assets.js';
-import { ASSET_BUNDLES_PATH } from '../dist/test/config.js';
+import { ASSET_BUNDLES_PATH } from '../dist/test/constants.js';
 import { downloadRelease } from '@terascope/fetch-github-release';
 import { parse } from 'yaml';
 import fs from 'node:fs';
@@ -130,16 +130,16 @@ function filterAsset(asset) {
  * @returns A string of all zip file names separated by '/n'
  */
 function generateList(list) {
-    const formatedList = [];
+    const formattedList = [];
     list.forEach((release) => {
-        formatedList.push(...release.assetFileNames);
+        formattedList.push(...release.assetFileNames);
     });
     // Format list alphabetically to ensure we don't make an identical list with
     // a different order
-    formatedList.sort();
+    formattedList.sort();
 
     // Lastly write it as a string
-    const listString = formatedList.join('\n');
+    const listString = formattedList.join('\n');
     return listString;
 }
 

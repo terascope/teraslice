@@ -7,23 +7,22 @@ import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
 import { createClient, Client, Semver, ClientConfig } from '../client/index.js';
 import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
-import {
-    ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
-    OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST, OPENSEARCH_SSL_HOST,
-    OPENSEARCH_PASSWORD, OPENSEARCH_USER
-} from './config.js';
+import { opensearchEnvSchema } from './config.js';
 
 export async function makeClient(rootCaPath?: string): Promise<Client> {
     let host: string;
     let esConfig: ClientConfig = {};
+    const env = opensearchEnvSchema.parse(process.env);
 
     // Figure out the right host
-    if (process.env.TEST_RESTRAINED_OPENSEARCH) {
-        host = RESTRAINED_OPENSEARCH_HOST;
-    } else if (process.env.TEST_OPENSEARCH) {
-        host = process.env.ENCRYPT_OPENSEARCH ? OPENSEARCH_SSL_HOST : OPENSEARCH_HOST;
+    if (process.env.TEST_RESTRAINED_OPENSEARCH && env.RESTRAINED_OPENSEARCH_HOST) {
+        host = env.RESTRAINED_OPENSEARCH_HOST;
+    } else if (process.env.TEST_OPENSEARCH && env.OPENSEARCH_SSL_HOST && env.OPENSEARCH_HOST) {
+        host = process.env.ENCRYPT_OPENSEARCH ? env.OPENSEARCH_SSL_HOST : env.OPENSEARCH_HOST;
+    } else if (env.ELASTICSEARCH_HOST) {
+        host = env.ELASTICSEARCH_HOST;
     } else {
-        host = ELASTICSEARCH_HOST;
+        throw new Error('No elasticsearch host defined');
     }
 
     // Add SSL settings if encryption is enabled
@@ -35,8 +34,8 @@ export async function makeClient(rootCaPath?: string): Promise<Client> {
         try {
             esConfig = {
                 node: host,
-                username: OPENSEARCH_USER,
-                password: OPENSEARCH_PASSWORD,
+                username: env.OPENSEARCH_USER,
+                password: env.OPENSEARCH_PASSWORD,
                 caCertificate: readFileSync(rootCaPath, 'utf8')
             };
         } catch (err) {
@@ -228,12 +227,13 @@ function parseVersion(version: string): Semver {
 }
 
 export function getTestENVClientInfo(): TestENVClientInfo {
-    if (process.env.TEST_OPENSEARCH != null) {
-        const version = OPENSEARCH_VERSION;
+    const env = opensearchEnvSchema.parse(process.env);
+    if (process.env.TEST_OPENSEARCH != null && env.OPENSEARCH_HOST && env.OPENSEARCH_VERSION) {
+        const version = env.OPENSEARCH_VERSION;
         const [majorVersion, minorVersion] = parseVersion(version);
 
         return {
-            host: OPENSEARCH_HOST,
+            host: env.OPENSEARCH_HOST,
             distribution: ElasticsearchDistribution.opensearch,
             version,
             majorVersion,
@@ -241,28 +241,38 @@ export function getTestENVClientInfo(): TestENVClientInfo {
         };
     }
 
-    if (process.env.TEST_RESTRAINED_OPENSEARCH != null) {
-        const version = OPENSEARCH_VERSION;
+    if (
+        process.env.TEST_RESTRAINED_OPENSEARCH != null
+        && env.RESTRAINED_OPENSEARCH_HOST
+        && env.OPENSEARCH_VERSION
+    ) {
+        const version = env.OPENSEARCH_VERSION;
         const [majorVersion, minorVersion] = parseVersion(version);
 
         return {
-            host: RESTRAINED_OPENSEARCH_HOST,
+            host: env.RESTRAINED_OPENSEARCH_HOST,
             distribution: ElasticsearchDistribution.opensearch,
             version,
             majorVersion,
             minorVersion
         };
     }
-    const version = ELASTICSEARCH_VERSION;
-    const [majorVersion, minorVersion] = parseVersion(version);
+    if (
+        env.ELASTICSEARCH_HOST
+        && env.ELASTICSEARCH_VERSION
+    ) {
+        const version = env.ELASTICSEARCH_VERSION;
+        const [majorVersion, minorVersion] = parseVersion(version);
 
-    return {
-        host: ELASTICSEARCH_HOST,
-        distribution: ElasticsearchDistribution.elasticsearch,
-        version,
-        majorVersion,
-        minorVersion
-    };
+        return {
+            host: env.ELASTICSEARCH_HOST,
+            distribution: ElasticsearchDistribution.elasticsearch,
+            version,
+            majorVersion,
+            minorVersion
+        };
+    }
+    throw new Error('Unable to get test ENV client info');
 }
 
 export function getTotalFormat(distribution: string, majorVersion: number, n: number) {

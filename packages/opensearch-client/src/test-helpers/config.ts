@@ -1,26 +1,18 @@
-const {
-    TEST_INDEX_PREFIX = 'teratest_',
-    ELASTICSEARCH_HOST = 'http://localhost:9200',
-    ELASTICSEARCH_VERSION = '7.9.3',
-    OPENSEARCH_PORT = '49210',
-    OPENSEARCH_HOSTNAME = `http://localhost:${OPENSEARCH_PORT}`,
-    OPENSEARCH_USER = 'admin',
-    OPENSEARCH_PASSWORD = 'admin',
-    OPENSEARCH_VERSION = '2.15.0',
-    OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}`,
-    OPENSEARCH_SSL_HOST = `https://${OPENSEARCH_HOSTNAME}:${OPENSEARCH_PORT}`,
-    RESTRAINED_OPENSEARCH_PORT = process.env.RESTRAINED_OPENSEARCH_PORT || '49206',
-    RESTRAINED_OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@localhost:${RESTRAINED_OPENSEARCH_PORT}`,
-} = process.env;
+import { z } from 'zod';
+
+const opensearchEnvSchema = z.object({
+    ELASTICSEARCH_HOST: z.string().optional(),
+    ELASTICSEARCH_VERSION: z.string().optional(),
+    OPENSEARCH_HOST: z.string().optional(),
+    OPENSEARCH_PASSWORD: z.string().optional(),
+    OPENSEARCH_SSL_HOST: z.string().optional(),
+    OPENSEARCH_USER: z.string().optional(),
+    OPENSEARCH_VERSION: z.string().optional(),
+    RESTRAINED_OPENSEARCH_HOST: z.string().optional(),
+    SEARCH_TEST_HOST: z.string(),
+    TEST_INDEX_PREFIX: z.string(),
+});
 
 export {
-    TEST_INDEX_PREFIX,
-    ELASTICSEARCH_HOST,
-    ELASTICSEARCH_VERSION,
-    OPENSEARCH_HOST,
-    OPENSEARCH_SSL_HOST,
-    OPENSEARCH_VERSION,
-    RESTRAINED_OPENSEARCH_HOST,
-    OPENSEARCH_USER,
-    OPENSEARCH_PASSWORD
+    opensearchEnvSchema
 };
