@@ -36,7 +36,7 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
     private readonly _parser: CachedParser = new CachedParser();
     private readonly _translator: CachedTranslator = new CachedTranslator();
 
-    constructor(config: i.QueryAccessConfig<T> = {}, options: i.QueryAccessOptions = {}) {
+    constructor(config: i.QueryAccessConfig<T> = {}) {
         const {
             excludes = [],
             includes = [],
@@ -44,8 +44,8 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
             allow_empty_queries: allowEmpty = true,
         } = config;
 
-        const typeConfig = config.type_config || options.type_config || {};
-        const variables = options.variables || {};
+        const typeConfig = config.type_config || {};
+        const variables = config.variables || {};
 
         if (isEmpty(typeConfig)) throw new Error('Configuration for type_config must be provided');
         this.typeConfig = { ...typeConfig };
@@ -61,7 +61,7 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
         this.defaultGeoSortUnit = config.default_geo_sort_unit;
         this.parsedTypeConfig = this._restrictTypeConfig();
         this.variables = variables;
-        this.filterNilVariables = !!options.filterNilVariables;
+        this.filterNilVariables = !!config.filterNilVariables;
     }
 
     clearCache(): void {
