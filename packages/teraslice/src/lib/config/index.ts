@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { get } from '@terascope/core-utils';
 import { fileURLToPath } from 'node:url';
-import { formats } from '@terascope/job-components';
 import { TerasliceConfig, Terafoundation } from '@terascope/types';
 import { configSchema } from './schemas/system.js';
 
@@ -16,7 +15,6 @@ export function getTerasliceConfig(sysconfig?: Terafoundation.Config): Terafound
         name: 'teraslice',
         default_config_file: path.join(filePath, 'default-sysconfig.js'),
         config_schema: configSchema,
-        schema_formats: formats,
         cluster_name: clusterName,
         shutdownMessaging: false,
         start_workers: false,
@@ -24,6 +22,5 @@ export function getTerasliceConfig(sysconfig?: Terafoundation.Config): Terafound
 }
 
 export {
-    formats,
     configSchema,
 };
