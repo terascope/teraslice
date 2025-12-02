@@ -131,7 +131,7 @@ describe('when using native clustering', () => {
                 operations: [
                     {
                         _op: 'example-reader',
-                        connection: 'unknown',
+                        _connection: 'unknown',
                     },
                     {
                         _op: 'noop',
@@ -284,7 +284,7 @@ describe('when using native clustering', () => {
                 apis: [
                     {
                         _name: 'test-api',
-                        connection: 'unknown',
+                        _connection: 'unknown',
                     },
                 ],
                 operations: [
@@ -296,9 +296,14 @@ describe('when using native clustering', () => {
                     },
                 ],
             };
-            expect(() => {
+
+            try {
                 validateJobConfig(schema, job);
-            }).toThrow(/API test-api refers to connection "unknown" which is unavailable/);
+                throw new Error('expected validateJobConfig to throw');
+            } catch (err) {
+                const correctMessage = err.message.includes('API test-api refers to connection "unknown" which is unavailable');
+                expect(correctMessage).toBeTrue();
+            }
         });
     });
 

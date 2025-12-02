@@ -139,7 +139,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                     const connectionName = api._connection ? api._connection : api.connection;
 
                     if (connectionName && !connections.includes(connectionName)) {
-                        throw new Error(`API ${api._name} refers to connection "${api.connection}" which is unavailable`);
+                        throw new Error(`API ${api._name} refers to connection "${api._connection}" which is unavailable`);
                     }
                 }
             },
