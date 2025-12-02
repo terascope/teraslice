@@ -24,9 +24,7 @@ describe('Queries', () => {
         {
             prevent_prefix_wildcard: true,
             allow_empty_queries: true,
-            type_config: typeConfig
-        },
-        {
+            type_config: typeConfig,
             filterNilVariables: true,
             variables: undefined
         }

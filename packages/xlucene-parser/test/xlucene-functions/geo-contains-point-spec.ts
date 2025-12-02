@@ -46,7 +46,8 @@ describe('geoContainsPoint', () => {
         const query = 'location:geoContainsPoint(point: $point1)';
         const { ast } = new Parser(query, {
             type_config: typeConfig,
-        }).resolveVariables(variables);
+            variables
+        });
 
         const {
             name, type, field
@@ -104,8 +105,7 @@ describe('geoContainsPoint', () => {
 
             const astResults = queries
                 .map((query) => (
-                    new Parser(query, { type_config: typeConfig })
-                        .resolveVariables(variables)
+                    new Parser(query, { type_config: typeConfig, variables })
                 ))
                 .map((parser) => initFunction({
                     node: (parser.ast as FunctionNode),
@@ -237,7 +237,8 @@ describe('geoContainsPoint', () => {
 
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
-            }).resolveVariables(variables);
+                variables
+            });
 
             const { match } = initFunction({
                 node: ast as FunctionNode,

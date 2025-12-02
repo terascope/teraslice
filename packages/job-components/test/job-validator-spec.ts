@@ -195,7 +195,7 @@ describe('JobValidator', () => {
                 operations: [
                     {
                         _op: `reader-asset@${assetHash2}`,
-                        api_name: `api-asset@${assetHash2}`,
+                        _api_name: `api-asset@${assetHash2}`,
                         version: '1.4.0'
                     },
                     {

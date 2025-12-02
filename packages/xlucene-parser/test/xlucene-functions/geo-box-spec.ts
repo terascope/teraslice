@@ -43,7 +43,8 @@ describe('geoBox', () => {
         const query = 'location:geoBox(bottom_right: $point1 top_left: $point2)';
         const { ast } = new Parser(query, {
             type_config: typeConfig,
-        }).resolveVariables(variables);
+            variables
+        });
         const {
             name, type, field
         } = ast as FunctionNode;
@@ -102,7 +103,7 @@ describe('geoBox', () => {
 
             const astResults = queries
                 .map((query) => (
-                    new Parser(query, { type_config: typeConfig }).resolveVariables(variables)
+                    new Parser(query, { type_config: typeConfig, variables })
                 ))
                 .map((parser) => initFunction({
                     node: (parser.ast as FunctionNode),
@@ -145,7 +146,8 @@ describe('geoBox', () => {
             const query = 'location:geoBox(bottom_right: $point1 top_left: $point2)';
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
-            }).resolveVariables(variables);
+                variables
+            });
             const { match } = initFunction({
                 node: ast as FunctionNode,
                 type_config: typeConfig,
@@ -170,7 +172,8 @@ describe('geoBox', () => {
             const query = 'location:geoBox(bottom_right: $point1 top_left: $point2)';
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
-            }).resolveVariables(variables);
+                variables
+            });
             const { match } = initFunction({
                 node: ast as FunctionNode,
                 type_config: typeConfig,

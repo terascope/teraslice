@@ -2,7 +2,6 @@ import {
     SortOrder, ElasticsearchDSLOptions, xLuceneTypeConfig,
     xLuceneVariables, GeoDistanceUnit, ClientParams,
 } from '@terascope/types';
-import { ParserOptions } from 'xlucene-parser';
 
 export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
     variables?: xLuceneVariables;

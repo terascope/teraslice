@@ -228,10 +228,10 @@ export interface OpConfig {
     _op: string;
 
     /** The name of the api used by this operation */
-    api_name?: string;
+    _api_name?: string;
 
     /** The name of connection, should match the same as listed in your sysconfigs.connectors */
-    connection?: string;
+    _connection?: string;
     /**
      * Used for specifying the data encoding type when using `DataEntity.fromBuffer`.
      *

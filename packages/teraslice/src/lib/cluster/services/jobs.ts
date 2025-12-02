@@ -503,12 +503,12 @@ export class JobsService {
         dict: Map<string, string>
     ) {
         jobConfig.operations = jobConfig.operations.map((op) => {
-            if (op.api_name?.includes('@')) {
-                const { name, assetIdentifier, tag } = parseName(op.api_name);
+            if (op._api_name?.includes('@')) {
+                const { name, assetIdentifier, tag } = parseName(op._api_name);
                 const hashId = dict.get(assetIdentifier as string);
 
                 if (!hashId) {
-                    throw new Error(`Invalid operation api_name for _op: ${name}, could not find the hashID for asset identifier ${assetIdentifier}`);
+                    throw new Error(`Invalid operation _api_name for _op: ${name}, could not find the hashID for asset identifier ${assetIdentifier}`);
                 }
 
                 let hashedName = `${name}@${hashId}`;
@@ -517,7 +517,7 @@ export class JobsService {
                     hashedName = `${hashedName}:${tag}`;
                 }
 
-                op.api_name = hashedName;
+                op._api_name = hashedName;
             }
 
             if (op._op.includes('@')) {

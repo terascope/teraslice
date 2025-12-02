@@ -198,6 +198,7 @@ describe('Translator', () => {
             });
 
             const result = translator.toElasticsearchDSL();
+
             expect(result).toStrictEqual({
                 query: {
                     constant_score: {

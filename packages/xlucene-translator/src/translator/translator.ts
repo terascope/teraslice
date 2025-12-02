@@ -34,10 +34,6 @@ export class Translator {
             this._parser = input;
         }
 
-        if (options.variables) {
-            this._parser = this._parser.resolveVariables(options.variables);
-        }
-
         if (options.default_geo_field) {
             this._defaultGeoField = options.default_geo_field;
         }

@@ -16,7 +16,7 @@ import {
     ElasticsearchDistribution,
 } from '@terascope/types';
 import { CachedTranslator } from '../translator/index.js';
-import * as i from './interfaces.js';
+import { RestrictSearchQueryOptions, QueryAccessConfig } from './interfaces.js';
 
 export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
     readonly excludes: (keyof T)[];
@@ -36,7 +36,7 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
     private readonly _parser: CachedParser = new CachedParser();
     private readonly _translator: CachedTranslator = new CachedTranslator();
 
-    constructor(config: i.QueryAccessConfig<T> = {}) {
+    constructor(config: QueryAccessConfig<T> = {}) {
         const {
             excludes = [],
             includes = [],
@@ -210,7 +210,7 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
      */
     async restrictSearchQuery(
         query: string,
-        opts?: i.RestrictSearchQueryOptions,
+        opts?: RestrictSearchQueryOptions,
         _overrideParsedQuery?: Node
     ): Promise<ClientParams.SearchParams> {
         const {

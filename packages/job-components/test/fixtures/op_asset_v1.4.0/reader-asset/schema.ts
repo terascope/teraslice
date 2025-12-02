@@ -18,10 +18,10 @@ export default class Schema extends ConvictSchema<any, any> {
         if (opConfig == null) throw new Error('Could not find reader-asset operation in jobConfig');
 
         const {
-            api_name, field, ...newConfig
+            _api_name, field, ...newConfig
         } = opConfig;
 
-        const apiName = api_name || `${DEFAULT_API_NAME}:${opConfig._op}-${opIndex}`;
+        const apiName = _api_name || `${DEFAULT_API_NAME}:${opConfig._op}-${opIndex}`;
 
         // we set the new apiName back on the opConfig so it can reference the unique name
         opConfig.api_name = apiName;
