@@ -31,6 +31,7 @@
     "dependencies": {
         "@terascope/types": "~2.0.0-dev.7",
         "awesome-phonenumber": "~7.5.0",
+        "datemath-parser": "~1.0.6",
         "debug": "~4.4.3",
         "is-plain-object": "~5.0.0",
         "js-string-escape": "~1.0.1",
