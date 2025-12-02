@@ -1,10 +1,9 @@
 import os from 'node:os';
-import convict from 'convict';
 import {
     flatten, getField, getTypeOf,
     hasOwn, isNotNil, isNumber,
     isPlainObject, isString, logLevels,
-    dataEncodings
+    dataEncodings, Schema
 } from '@terascope/core-utils';
 import { DataEncoding } from '@terascope/types';
 import { Context } from './interfaces/index.js';
@@ -15,10 +14,10 @@ const workers = cpuCount < 5 ? cpuCount : 5;
 /**
  * This schema is for a Teraslice Job definition.
  * @param context Teraslice context object
- * @returns Complete convict schema for the Teraslice Job
+ * @returns Complete convict style schema for the Teraslice Job
  */
-export function jobSchema(context: Context): convict.Schema<any> {
-    const schemas: convict.Schema<any> = {
+export function jobSchema(context: Context): Schema<any> {
+    const schemas: Schema<any> = {
         active: {
             default: true,
             doc: 'A convenience property that allows the user to indicate whether the job'
@@ -41,8 +40,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         assets: {
             default: null,
             doc:
-                'An array of actions to execute, typically the first is a reader '
-                + 'and the last is a sender with any number of processing function in-between',
+                'An array of strings that are the IDs for the corresponding assets zip files.',
             format(arr: any) {
                 if (arr != null) {
                     if (!Array.isArray(arr)) {
@@ -403,7 +401,7 @@ export const makeJobSchema = jobSchema;
 /**
  * This is the schema for a Teraslice Operation.
  */
-export const opSchema: convict.Schema<any> = {
+export const opSchema: Schema<any> = {
     _op: {
         default: '',
         doc: 'Name of operation, , it must reflect the name of the file or folder',
@@ -432,7 +430,7 @@ export const opSchema: convict.Schema<any> = {
 /**
  * This is the schema for a Teraslice API.
  */
-export const apiSchema: convict.Schema<any> = {
+export const apiSchema: Schema<any> = {
     _name: {
         default: '',
         doc: `The _name property is required, and it is required to be unique

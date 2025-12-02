@@ -26,6 +26,7 @@ export * from './objects.js';
 export * from './phone-number.js';
 export * from './promises.js';
 export * from './regex.js';
+export * from './schemas.js';
 export * from './strings.js';
 export * from './iterators.js';
 export * from './vector.js';

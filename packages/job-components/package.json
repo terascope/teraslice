@@ -34,9 +34,6 @@
     "dependencies": {
         "@terascope/core-utils": "~2.0.0-dev.8",
         "@terascope/types": "~2.0.0-dev.7",
-        "convict": "~6.2.4",
-        "convict-format-with-moment": "~6.2.0",
-        "convict-format-with-validator": "~6.2.0",
         "datemath-parser": "~1.0.6",
         "import-meta-resolve": "~4.2.0",
         "prom-client": "~15.1.3",

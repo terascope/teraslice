@@ -1,8 +1,7 @@
 import 'jest-extended';
-import { Schema } from 'convict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { logLevels } from '@terascope/core-utils';
+import { logLevels, Schema } from '@terascope/core-utils';
 import {
     jobSchema, validateJobConfig, validateOpConfig,
     TestContext, validateAPIConfig,
@@ -141,7 +140,7 @@ describe('when using native clustering', () => {
 
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrow(/Operation example-reader refers to connection "unknown" which is unavailable/);
+            }).toThrow(/Operation example-reader refers to connection \\"unknown\\" which is unavailable/);
         });
     });
 
@@ -298,7 +297,7 @@ describe('when using native clustering', () => {
             };
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrow(/API test-api refers to connection "unknown" which is unavailable/);
+            }).toThrow(/API test-api refers to connection \\"unknown\\" which is unavailable/);
         });
     });
 
@@ -587,7 +586,7 @@ describe('when using native clustering', () => {
                     ],
                 };
                 expect(() => validateJobConfig(schema, job)).toThrow(
-                    'value for key "foo" must be not empty'
+                    'value for key \\"foo\\" must be not empty'
                 );
             });
         });

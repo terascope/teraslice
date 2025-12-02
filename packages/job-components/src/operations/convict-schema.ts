@@ -1,7 +1,6 @@
-import convict from 'convict';
 import {
     has, get, toString,
-    isDeepEqual
+    isDeepEqual, Schema
 } from '@terascope/core-utils';
 import SchemaCore, { OpType } from './core/schema-core.js';
 import {
@@ -11,12 +10,12 @@ import {
 import { validateOpConfig, validateAPIConfig } from '../config-validators.js';
 
 /**
- * A base class for supporting convict "Schema" definitions
+ * A base class for supporting convict style "Schema" definitions
  */
 export default abstract class ConvictSchema<T extends Record<string, any>, S = any>
     extends SchemaCore<T> {
     // ...
-    schema: convict.Schema<S>;
+    schema: Schema<S>;
 
     constructor(context: Context, opType: OpType = 'operation') {
         super(context, opType);
@@ -27,10 +26,14 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
     validate(inputConfig: Record<string, any>): OpConfig & T;
     validate(inputConfig: Record<string, any>): OpConfig | APIConfig & T {
         if (this.opType === 'api') {
-            return validateAPIConfig(this.schema, inputConfig);
-        }
+            const validatedConfig = validateAPIConfig<T>(this.schema, inputConfig);
+            console.log('@@@@ validatedAPIConfig: ', validatedConfig);
 
-        return validateOpConfig(this.schema, inputConfig);
+            return validatedConfig;
+        }
+        const validatedConfig = validateOpConfig<T>(this.schema, inputConfig);
+        console.log('@@@@ validatedOPConfig: ', validatedConfig);
+        return validatedConfig;
     }
 
     validateJob(_job: ValidatedJobConfig): void {
@@ -99,5 +102,5 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
         return 'convict';
     }
 
-    abstract build<U = any>(context?: Context): convict.Schema<S & U>;
+    abstract build<U = any>(context?: Context): Schema<S & U>;
 }

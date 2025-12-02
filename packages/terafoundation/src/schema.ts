@@ -1,10 +1,10 @@
-import convict from 'convict';
 import { cpus } from 'node:os';
+import { Schema } from '@terascope/core-utils';
 
 const workerCount = cpus().length;
 
 export function foundationSchema() {
-    const schema: convict.Schema<Record<string, any>> = {
+    const schema: Schema<Record<string, any>> = {
         log_path: {
             doc: 'Directory where the logs will be stored if logging is set to `file`',
             default: process.cwd(),

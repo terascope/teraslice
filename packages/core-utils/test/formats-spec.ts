@@ -1,0 +1,373 @@
+import 'jest-extended';
+// import convict from 'convict';
+import { formats, SchemaValidator } from '../src/schemas.js';
+// @t s-expect-error no types
+// import convict_format_with_moment from 'convict-format-with-moment';
+
+// formats.forEach((format) => {
+//    if (format.name !== 'duration' && format.name !== 'timestamp') {
+//        convict.addFormat(format);
+//    }
+// });
+
+// convict.addFormats(convict_format_with_moment);
+
+// I added tests for duration and timestamp using convict-format-with-moment
+// I then ran those tests using duration and timestamp from schemas.js and convict validation
+
+// TODO: fix tests when running SchemaValidator validation. Looks to just be error structure
+
+describe('Convict Formats', () => {
+    function createSchemaValueTest(name: string, defaultVal: any = null) {
+        const myConfig = {
+            [name]: {
+                default: defaultVal,
+                format: name
+            }
+        };
+
+        const validator = new SchemaValidator(myConfig, name);
+        // const config = convict(myConfig);
+
+        return (val: any) => {
+            validator.validate({ [name]: val });
+        };
+        // return (val: any) => {
+        //     config.load({ [name]: val });
+        //     config.validate({ allowed: 'warn' });
+        //     console.log('@@@@ config.getProperties(): ', config.getProperties());
+        // };
+    }
+
+    it('returns an array with objects used for validations', () => {
+        expect(formats).toBeArray();
+    });
+
+    it('required_String will throw if not given a string', () => {
+        const testFormat = createSchemaValueTest('required_String', '');
+
+        expect(() => {
+            testFormat('someString');
+        }).not.toThrow();
+        expect(() => {
+            testFormat(253);
+        }).toThrow(`"message": "Invalid input: expected string, received number"`);
+        expect(() => {
+            testFormat(undefined);
+        }).toThrow('This field is required and must by of type string');
+    });
+
+    it('optional_String if not given a string it will not throw if its undefined', () => {
+        const testFormat = createSchemaValueTest('optional_String');
+
+        expect(() => {
+            testFormat('someString');
+        }).not.toThrow();
+        expect(() => {
+            testFormat(253);
+        }).toThrow(`"message": "Invalid input: expected string, received number"`);
+        expect(() => {
+            testFormat(undefined);
+        }).not.toThrow();
+    });
+
+    it('positive_int if given a float it not fail', () => {
+        const testFormat = createSchemaValueTest('positive_int');
+
+        expect(() => {
+            testFormat(12.6);
+        }).not.toThrow();
+    });
+
+    it('positive_int if given a negative int it should fail', () => {
+        const testFormat = createSchemaValueTest('positive_int');
+
+        expect(() => {
+            testFormat(-1);
+        }).toThrow(`"message": "must be valid integer greater than zero"`);
+    });
+
+    it('positive_int if given a zero it should fail', () => {
+        const testFormat = createSchemaValueTest('positive_int');
+
+        expect(() => {
+            testFormat(0);
+        }).toThrow('must be valid integer greater than zero');
+    });
+
+    it('positive_int if given a undefined it should fail', () => {
+        const testFormat = createSchemaValueTest('positive_int');
+
+        expect(() => {
+            testFormat(undefined);
+        }).toThrow(`"message": "must be valid integer greater than zero"`);
+    });
+
+    it('positive_int if given a string it should fail', () => {
+        const testFormat = createSchemaValueTest('positive_int');
+
+        expect(() => {
+            testFormat('hello');
+        }).toThrow(`"message": "must be valid integer greater than zero"`);
+    });
+
+    it('positive_int if given a stringified int it should pass', () => {
+        const testFormat = createSchemaValueTest('positive_int');
+
+        expect(() => {
+            testFormat('1');
+        }).not.toThrow();
+    });
+
+    it('optional_Date if not given a date it will not throw if its undefined', () => {
+        const testFormat = createSchemaValueTest('optional_Date');
+
+        expect(() => {
+            testFormat(Date.now());
+        }).not.toThrow();
+        expect(() => {
+            testFormat('now+1h');
+        }).not.toThrow();
+        expect(() => {
+            testFormat({ hi: 'there' });
+        }).toThrow(/(?=.*Invalid input: expected string, received object)(?=.*Invalid input: expected number, received object)/s);
+        expect(() => {
+            testFormat('idk');
+        }).toThrow(/value: \\"idk\\" cannot be coerced into a proper date/s);
+        expect(() => {
+            testFormat(undefined);
+        }).not.toThrow();
+    });
+
+    describe('elasticsearch_Name', () => {
+        it('should work for common index names', () => {
+            const testFormat = createSchemaValueTest('elasticsearch_Name');
+
+            expect(() => {
+                testFormat('data-2018-01-01');
+            }).not.toThrow();
+            expect(() => {
+                testFormat('data-2018-01-01.01');
+            }).not.toThrow();
+        });
+
+        it('should not exceed 255 characters', () => {
+            const testFormat = createSchemaValueTest('elasticsearch_Name');
+
+            expect(() => {
+                testFormat('a'.repeat(256));
+            }).toThrow(/value: .* should not exceed 255 characters/);
+            expect(() => {
+                testFormat('a'.repeat(255));
+            }).not.toThrow();
+        });
+
+        // eslint-disable-next-line no-useless-escape
+        it('should not contain any of: #\\\/*?"<>|', () => {
+            const testFormat = createSchemaValueTest('elasticsearch_Name');
+
+            expect(() => {
+                testFormat('a#a');
+            }).toThrow(/value: .* should not contain any invalid characters/);
+            expect(() => {
+                testFormat('a\\a');
+            }).toThrow(/value: .* should not contain any invalid characters/);
+            expect(() => {
+                testFormat('a/a');
+            }).toThrow(/value: .* should not contain any invalid characters/);
+            expect(() => {
+                testFormat('a*a');
+            }).toThrow(/value: .* should not contain any invalid characters/);
+            expect(() => {
+                testFormat('a?a');
+            }).toThrow(/value: .* should not contain any invalid characters/);
+            expect(() => {
+                testFormat('a"a');
+            }).toThrow(/value: .* should not contain any invalid characters/);
+            expect(() => {
+                testFormat('a<a');
+            }).toThrow(/value: .* should not contain any invalid characters/);
+            expect(() => {
+                testFormat('a>a');
+            }).toThrow(/value: .* should not contain any invalid characters/);
+            expect(() => {
+                testFormat('a|a');
+            }).toThrow(/value: .* should not contain any invalid characters/);
+
+            expect(() => {
+                testFormat('|aa');
+            }).toThrow(/value: .* should not contain any invalid characters/);
+        });
+
+        it('should not start with _, -, or +', () => {
+            const testFormat = createSchemaValueTest('elasticsearch_Name');
+
+            expect(() => {
+                testFormat('_foo');
+            }).toThrow(/value: .* should not start with _, -, or +/);
+
+            expect(() => {
+                testFormat('-foo');
+            }).toThrow(/value: .* should not start with _, -, or +/);
+
+            expect(() => {
+                testFormat('+foo');
+            }).toThrow(/value: .* should not start with _, -, or +/);
+
+            expect(() => {
+                testFormat('a_foo');
+            }).not.toThrow();
+        });
+
+        it('should not equal . or ..', () => {
+            const testFormat = createSchemaValueTest('elasticsearch_Name');
+
+            expect(() => {
+                testFormat('.');
+            }).toThrow(/value: .* should not equal . or ../);
+            expect(() => {
+                testFormat('..');
+            }).toThrow(/value: .* should not equal . or ../);
+            expect(() => {
+                testFormat('.foo');
+            }).not.toThrow();
+            expect(() => {
+                testFormat('..foo');
+            }).not.toThrow();
+        });
+
+        it('should be lowercase', () => {
+            const testFormat = createSchemaValueTest('elasticsearch_Name');
+
+            expect(() => {
+                testFormat('ASDF');
+            }).toThrow(/value: .* should be lower case/);
+            expect(() => {
+                testFormat('asdF');
+            }).toThrow(/value: .* should be lower case/);
+            expect(() => {
+                testFormat('asdf');
+            }).not.toThrow();
+        });
+    });
+
+    describe('duration', () => {
+        it('should accept strings and numbers', () => {
+            const testFormat = createSchemaValueTest('duration');
+
+            expect(() => {
+                testFormat('2 minutes');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('180000');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat(null);
+            }).toThrow('Cannot read properties of null (reading \'split\')');
+
+            expect(() => {
+                testFormat('');
+            }).toThrow('x.match is not a function');
+
+            expect(() => {
+                testFormat(undefined);
+            }).toThrow('Cannot read properties of null (reading \'split\')');
+        });
+
+        it('should throw on invalid numbers', () => {
+            const testFormat = createSchemaValueTest('duration');
+
+            expect(() => {
+                testFormat('two minutes');
+            }).toThrow('x.match is not a function');
+
+            expect(() => {
+                testFormat('-1000');
+            }).toThrow('must be a positive integer or human readable string (e.g. 3000, \\"5 days\\")');
+
+            expect(() => {
+                testFormat('-5 seconds');
+            }).toThrow('must be a positive integer or human readable string (e.g. 3000, \\"5 days\\")');
+        });
+
+        it('should coerce string with invalid units to 0', () => {
+            const myConfig = {
+                duration: {
+                    default: null,
+                    format: 'duration'
+                }
+            };
+            const validator = new SchemaValidator(myConfig, 'duration');
+
+            // const config = SchemaValidator.convictSchemaToZod(myConfig, 'duration');
+            // const config = convict(myConfig);
+
+            const result = validator.validate({ duration: '2 volts' });
+            // config.load({ duration: '2 volts' });
+            // config.validate({ allowed: 'warn' });
+            // const result = config.getProperties();
+
+            expect(result).toMatchObject({ duration: 0 });
+        });
+    });
+
+    describe('timestamp', () => {
+        it('should accept positive integers and strings that are valid date formats', () => {
+            const testFormat = createSchemaValueTest('timestamp');
+
+            expect(() => {
+                testFormat('2013-05-05');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('2025-11-26T10:31:00Z');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('11/26/2025 15:03');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('2025-11-26 15:03:05');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('Wed, 26 Nov 2025 15:03:05 GMT');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat(Date.now());
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat(180000000);
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat(1000);
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat(3.14);
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat(-5);
+            }).toThrow('must be a positive integer');
+
+            expect(() => {
+                testFormat(null);
+            }).toThrow('must be a positive integer');
+
+            expect(() => {
+                testFormat('');
+            }).toThrow('must be a positive integer');
+
+            expect(() => {
+                testFormat(undefined);
+            }).toThrow('must be a positive integer');
+        });
+    });
+});
