@@ -7,7 +7,7 @@ const {
 } = config;
 
 describe('encrypted opensearch', () => {
-    if (ENCRYPT_OPENSEARCH === 'true' && TEST_OPENSEARCH === 'true') {
+    if (ENCRYPT_OPENSEARCH === true && TEST_OPENSEARCH === true) {
         it('should have an encrypted connection', async () => {
             if (!OPENSEARCH_SSL_HOST) {
                 throw new Error('OPENSEARCH_SSL_HOST is not defined');

@@ -219,9 +219,9 @@ describe('s3 asset storage', () => {
             accessKeyId: MINIO_ACCESS_KEY,
             secretAccessKey: MINIO_SECRET_KEY,
             forcePathStyle: true,
-            sslEnabled: ENCRYPT_MINIO === 'true',
+            sslEnabled: ENCRYPT_MINIO === true,
             region: 'test-region',
-            caCertificate: ENCRYPT_MINIO === 'true'
+            caCertificate: ENCRYPT_MINIO === true
                 ? fs.readFileSync(ROOT_CERT_PATH, 'utf8')
                 : ''
         };

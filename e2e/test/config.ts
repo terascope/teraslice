@@ -17,8 +17,6 @@ import {
     newId
 } from './constants.js';
 
-type BoolStrings = 'true' | 'false';
-const boolean: BoolStrings[] = ['true', 'false'];
 const logLevels: Logger.LogLevelString[] = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
 
 const E2EEnvSchema = z.object({
@@ -27,15 +25,15 @@ const E2EEnvSchema = z.object({
     CERT_PATH: z.string(),
     DEBUG_LOG_LEVEL: z.enum(logLevels).optional(),
     ELASTICSEARCH_HOST: z.string().optional(),
-    ENCRYPT_KAFKA: z.enum(boolean).optional(),
-    ENCRYPT_MINIO: z.enum(boolean).optional(),
-    ENCRYPT_OPENSEARCH: z.enum(boolean).optional(),
-    FILE_LOGGING: z.enum(boolean),
+    ENCRYPT_KAFKA: z.stringbool().optional(),
+    ENCRYPT_MINIO: z.stringbool().optional(),
+    ENCRYPT_OPENSEARCH: z.stringbool().optional(),
+    FILE_LOGGING: z.stringbool(),
     GENERATE_ONLY: z.string().optional(),
     HOST_IP: z.string(),
     KAFKA_BROKER: z.string(),
     KAFKA_PORT: z.string().optional(),
-    KEEP_OPEN: z.enum(boolean).optional(),
+    KEEP_OPEN: z.stringbool().optional(),
     KIND_CLUSTER: z.string(),
     MINIO_ACCESS_KEY: z.string().optional(),
     MINIO_HOST: z.string().optional(),
@@ -51,10 +49,10 @@ const E2EEnvSchema = z.object({
     SEARCH_TEST_HOST: z.string(),
     TERASLICE_PORT: z.string(),
     TEST_INDEX_PREFIX: z.string(),
-    TEST_OPENSEARCH: z.enum(boolean).optional(),
+    TEST_OPENSEARCH: z.stringbool().optional(),
     TEST_PLATFORM: z.string(),
-    USE_DEV_ASSETS: z.enum(boolean).optional(),
-    USE_HELMFILE: z.enum(boolean),
+    USE_DEV_ASSETS: z.stringbool().optional(),
+    USE_HELMFILE: z.stringbool(),
 });
 
 const envConfig = E2EEnvSchema.parse(process.env);

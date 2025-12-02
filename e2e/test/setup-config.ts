@@ -105,13 +105,13 @@ export default async function setupTerasliceConfig() {
 async function writeMasterConfig() {
     const masterConfig = cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
-    if (ENCRYPT_MINIO === 'true') {
+    if (ENCRYPT_MINIO === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         masterConfig.terafoundation.connectors.s3.default.sslEnabled = true;
         masterConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
     }
 
-    if (ENCRYPT_KAFKA === 'true') {
+    if (ENCRYPT_KAFKA === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         masterConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
         masterConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;
@@ -126,13 +126,13 @@ async function writeMasterConfig() {
 async function writeWorkerConfig() {
     const workerConfig = cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
-    if (ENCRYPT_MINIO === 'true') {
+    if (ENCRYPT_MINIO === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         workerConfig.terafoundation.connectors.s3.default.sslEnabled = true;
         workerConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
     }
 
-    if (ENCRYPT_KAFKA === 'true') {
+    if (ENCRYPT_KAFKA === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         workerConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
         workerConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;
