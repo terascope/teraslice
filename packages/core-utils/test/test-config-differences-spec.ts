@@ -13,29 +13,16 @@ describe('Schema Object validation', () => {
         testValues: Record<string, any>[],
         schema: Schema<any>
     ) {
-        console.log('@@@@ successfulValidation');
-
         for (const testObj of testValues) {
             const key = Object.keys(testObj)[0];
-            console.log('@@@@ key: ', key);
             const schemaObj = schema[key];
-            console.log('@@@@ schemaObj: ', schemaObj);
 
             const testSchema: AnyObject = {};
             testSchema[key] = schemaObj;
-            console.log('@@@@ testSchema: ', testSchema);
 
-            // const config = convict(testSchema || {});
             const validator = new SchemaValidator(testSchema, 'test');
-            // config.load(testObj);
-            // config.validate();
-            console.log('@@@@  after validate()');
-
             const validatedConfig = validator.validate(testObj);
-            // const validatedConfig = config.getProperties();
-            console.log('@@@@ validatedConfig: ', validatedConfig);
             expect(validatedConfig).toMatchObject(testObj);
-            console.log('@@@@  after validatedConfig expect ');
         }
     }
 
@@ -45,34 +32,18 @@ describe('Schema Object validation', () => {
         errorMsg?: (key: string) => string,
         errorRegex?: RegExp
     ) {
-        console.log('@@@@ failedValidation');
-
         for (const testObj of testValues) {
-            console.log('@@@@ for loop');
             try {
                 const key = Object.keys(testObj)[0];
-                console.log('@@@@ key: ', key);
                 const schemaObj = schema[key];
-                console.log('@@@@ schemaObj: ', schemaObj);
 
                 const testSchema: AnyObject = {};
                 testSchema[key] = schemaObj;
-                console.log('@@@@ testSchema: ', testSchema);
 
-                // const config = convict(testSchema || {});
                 const validator = new SchemaValidator(testSchema, 'test');
-                // config.load(testObj);
-                // config.validate();
-                console.log('@@@@  after new validator');
-
-                const validatedConfig = validator.validate(testObj);
-                // const validatedConfig = config.getProperties();
-                console.log('@@@@ validatedConfig: ', validatedConfig);
-                expect(validatedConfig).toMatchObject(testObj);
-                console.log('@@@@  after validatedConfig expect ');
+                validator.validate(testObj);
                 throw new Error('Validation should have failed');
             } catch (err) {
-                console.log('@@@@ err: ', err);
                 if (errorMsg) {
                     expect((err as Error).message).toContain(errorMsg(Object.keys(testObj)[0]));
                 } else if (errorRegex) {
@@ -471,7 +442,6 @@ describe('Schema Object validation', () => {
 
                     expect.hasAssertions();
                     failedValidation(testValues, schema, () => 'Invalid input: expected record');
-                    // failedValidation(testValues, schema, (key) => `configuration param '${key}' missing from config, did you override its parent?`);
                 });
 
                 it('RegExp formats with non Regexp defaults should fail validation', () => {
@@ -507,8 +477,6 @@ describe('Schema Object validation', () => {
                     it('should throw on validation', async () => {
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected boolean');
-                        // failedValidation(testValues, schema, () => 'Invalid input: expected boolean, received null');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be of type Boolean`);
                     });
                 });
 
@@ -529,7 +497,6 @@ describe('Schema Object validation', () => {
                     it('should throw on validation', async () => {
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected string');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be of type String`);
                     });
                 });
 
@@ -550,7 +517,6 @@ describe('Schema Object validation', () => {
                     it('should throw on validation', async () => {
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected number');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be of type Number`);
                     });
                 });
 
@@ -571,7 +537,6 @@ describe('Schema Object validation', () => {
                     it('should throw on validation', async () => {
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected record');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be of type Object`);
                     });
                 });
 
@@ -592,7 +557,6 @@ describe('Schema Object validation', () => {
                     it('should throw on validation', async () => {
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected array');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be of type Array`);
                     });
                 });
 
@@ -613,42 +577,12 @@ describe('Schema Object validation', () => {
                     it('should throw on validation', async () => {
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Input not instance of RegExp');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be of type RegExp`);
                     });
                 });
             });
 
             describe('undefined inputs', () => {
                 describe('Booleans', () => {
-                    // convict only
-                    // it('should accept undefined if default is undefined', () => {
-                    //     const testValues = [
-                    //         { booleanDefaultUndefined: undefined },
-                    //         { booleanQuotedDefaultUndefined: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     successfulValidation(testValues, schema);
-                    // });
-
-                    // convict only
-                    // it('should throw on validation with other defaults', async () => {
-                    //     const testValues = [
-                    //         { booleanDefaultTrue: undefined },
-                    //         { booleanDefaultFalse: undefined },
-                    //         { booleanDefaultEmptyString: undefined },
-                    //         { booleanDefaultNull: undefined },
-                    //         { booleanQuotedDefaultTrue: undefined },
-                    //         { booleanQuotedDefaultFalse: undefined },
-                    //         { booleanQuotedDefaultEmptyString: undefined },
-                    //         { booleanQuotedDefaultNull: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     failedValidation(testValues, schema, () => 'Invalid input: expected boolean, received undefined');
-                    //     // failedValidation(testValues, schema, (key) => `${key}: must be of type Boolean`);
-                    // });
-
                     it('should use defaults', async () => {
                         const testValues = [
                             { booleanDefaultTrue: undefined },
@@ -665,59 +599,19 @@ describe('Schema Object validation', () => {
 
                         for (const testObj of testValues) {
                             const key = Object.keys(testObj)[0];
-                            console.log('@@@@ key: ', key);
                             const schemaObj = schema[key];
-                            console.log('@@@@ schemaObj: ', schemaObj);
 
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
-                            console.log('@@@@ testSchema: ', testSchema);
 
-                            // const config = convict(testSchema || {});
                             const validator = new SchemaValidator(testSchema, 'test');
-                            // config.load(testObj);
-                            // config.validate();
-                            console.log('@@@@  after validate()');
-
                             const validatedConfig = validator.validate(testObj);
-                            // const validatedConfig = config.getProperties();
-                            console.log('@@@@ validatedConfig: ', validatedConfig);
                             expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                            console.log('@@@@  after validatedConfig expect ');
                         }
                     });
                 });
 
                 describe('Strings', () => {
-                    // convict only
-                    // it('should accept undefined if default is undefined', () => {
-                    //     const testValues = [
-                    //         { stringDefaultUndefined: undefined },
-                    //         { stringQuotedDefaultUndefined: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     successfulValidation(testValues, schema);
-                    // });
-
-                    // convict only
-                    // it('should throw on validation with other defaults', async () => {
-                    //     const testValues = [
-                    //         { stringDefaultEmptyString: undefined },
-                    //         { stringDefaultValidValue: undefined },
-                    //         { stringDefaultInvalidValue: undefined },
-                    //         { stringDefaultNull: undefined },
-                    //         { stringQuotedDefaultEmptyString: undefined },
-                    //         { stringQuotedDefaultValidValue: undefined },
-                    //         { stringQuotedDefaultInvalidValue: undefined },
-                    //         { stringQuotedDefaultNull: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     failedValidation(testValues, schema, () => 'Invalid input: expected string, received undefined');
-                    //     // failedValidation(testValues, schema, (key) => `${key}: must be of type String`);
-                    // });
-
                     it('should use defaults', async () => {
                         const testValues = [
                             { stringDefaultEmptyString: undefined },
@@ -734,59 +628,19 @@ describe('Schema Object validation', () => {
 
                         for (const testObj of testValues) {
                             const key = Object.keys(testObj)[0];
-                            console.log('@@@@ key: ', key);
                             const schemaObj = schema[key];
-                            console.log('@@@@ schemaObj: ', schemaObj);
 
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
-                            console.log('@@@@ testSchema: ', testSchema);
 
-                            // const config = convict(testSchema || {});
                             const validator = new SchemaValidator(testSchema, 'test');
-                            // config.load(testObj);
-                            // config.validate();
-                            console.log('@@@@  after validate()');
-
                             const validatedConfig = validator.validate(testObj);
-                            // const validatedConfig = config.getProperties();
-                            console.log('@@@@ validatedConfig: ', validatedConfig);
                             expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                            console.log('@@@@  after validatedConfig expect ');
                         }
                     });
                 });
 
                 describe('Numbers', () => {
-                    // convict only
-                    // it('should accept undefined if default is undefined', () => {
-                    //     const testValues = [
-                    //         { numberDefaultUndefined: undefined },
-                    //         { numberQuotedDefaultUndefined: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     successfulValidation(testValues, schema);
-                    // });
-
-                    // convict only
-                    // it('should throw on validation with other defaults', async () => {
-                    //     const testValues = [
-                    //         { numberDefaultEmptyString: undefined },
-                    //         { numberDefaultValidValue: undefined },
-                    //         { numberDefaultInvalidValue: undefined },
-                    //         { numberDefaultNull: undefined },
-                    //         { numberQuotedDefaultEmptyString: undefined },
-                    //         { numberQuotedDefaultValidValue: undefined },
-                    //         { numberQuotedDefaultInvalidValue: undefined },
-                    //         { numberQuotedDefaultNull: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     failedValidation(testValues, schema, () => 'Invalid input: expected number, received undefined');
-                    //     // failedValidation(testValues, schema, (key) => `${key}: must be of type Number`);
-                    // });
-
                     it('should use defaults', async () => {
                         const testValues = [
                             { numberDefaultUndefined: undefined },
@@ -803,59 +657,19 @@ describe('Schema Object validation', () => {
 
                         for (const testObj of testValues) {
                             const key = Object.keys(testObj)[0];
-                            console.log('@@@@ key: ', key);
                             const schemaObj = schema[key];
-                            console.log('@@@@ schemaObj: ', schemaObj);
 
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
-                            console.log('@@@@ testSchema: ', testSchema);
 
-                            // const config = convict(testSchema || {});
                             const validator = new SchemaValidator(testSchema, 'test');
-                            // config.load(testObj);
-                            // config.validate();
-                            console.log('@@@@  after validate()');
-
                             const validatedConfig = validator.validate(testObj);
-                            // const validatedConfig = config.getProperties();
-                            console.log('@@@@ validatedConfig: ', validatedConfig);
                             expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                            console.log('@@@@  after validatedConfig expect ');
                         }
                     });
                 });
 
                 describe('Objects', () => {
-                    // convict only
-                    // it('should accept undefined if default is undefined', () => {
-                    //     const testValues = [
-                    //         { objectDefaultUndefined: undefined },
-                    //         { objectQuotedDefaultUndefined: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     successfulValidation(testValues, schema);
-                    // });
-
-                    // convict only
-                    // it('should throw on validation with other defaults', async () => {
-                    //     const testValues = [
-                    //         { objectDefaultEmptyObject: undefined },
-                    //         { objectDefaultValidValue: undefined },
-                    //         { objectDefaultInvalidValue: undefined },
-                    //         { objectDefaultNull: undefined },
-                    //         { objectQuotedDefaultEmptyObject: undefined },
-                    //         { objectQuotedDefaultValidValue: undefined },
-                    //         { objectQuotedDefaultInvalidValue: undefined },
-                    //         { objectQuotedDefaultNull: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     failedValidation(testValues, schema, () => 'Invalid input: expected record, received undefined');
-                    //     // failedValidation(testValues, schema, (key) => `${key}: must be of type Object`);
-                    // });
-
                     it('should use defaults', async () => {
                         const testValues = [
                             { objectDefaultUndefined: undefined },
@@ -872,59 +686,19 @@ describe('Schema Object validation', () => {
 
                         for (const testObj of testValues) {
                             const key = Object.keys(testObj)[0];
-                            console.log('@@@@ key: ', key);
                             const schemaObj = schema[key];
-                            console.log('@@@@ schemaObj: ', schemaObj);
 
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
-                            console.log('@@@@ testSchema: ', testSchema);
 
-                            // const config = convict(testSchema || {});
                             const validator = new SchemaValidator(testSchema, 'test');
-                            // config.load(testObj);
-                            // config.validate();
-                            console.log('@@@@  after validate()');
-
                             const validatedConfig = validator.validate(testObj);
-                            // const validatedConfig = config.getProperties();
-                            console.log('@@@@ validatedConfig: ', validatedConfig);
                             expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                            console.log('@@@@  after validatedConfig expect ');
                         }
                     });
                 });
 
                 describe('Arrays', () => {
-                    // convict only
-                    // it('should accept undefined if default is undefined', () => {
-                    //     const testValues = [
-                    //         { arrayDefaultUndefined: undefined },
-                    //         { arrayQuotedDefaultUndefined: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     successfulValidation(testValues, schema);
-                    // });
-
-                    // convict only
-                    // it('should throw on validation with other defaults', async () => {
-                    //     const testValues = [
-                    //         { arrayDefaultEmptyArray: undefined },
-                    //         { arrayDefaultValidValue: undefined },
-                    //         { arrayDefaultInvalidValue: undefined },
-                    //         { arrayDefaultNull: undefined },
-                    //         { arrayQuotedDefaultEmptyArray: undefined },
-                    //         { arrayQuotedDefaultValidValue: undefined },
-                    //         { arrayQuotedDefaultInvalidValue: undefined },
-                    //         { arrayQuotedDefaultNull: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     failedValidation(testValues, schema, () => 'Invalid input: expected array, received undefined');
-                    //     // failedValidation(testValues, schema, (key) => `${key}: must be of type Array`);
-                    // });
-
                     it('should use defaults', async () => {
                         const testValues = [
                             { arrayDefaultUndefined: undefined },
@@ -941,59 +715,19 @@ describe('Schema Object validation', () => {
 
                         for (const testObj of testValues) {
                             const key = Object.keys(testObj)[0];
-                            console.log('@@@@ key: ', key);
                             const schemaObj = schema[key];
-                            console.log('@@@@ schemaObj: ', schemaObj);
 
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
-                            console.log('@@@@ testSchema: ', testSchema);
 
-                            // const config = convict(testSchema || {});
                             const validator = new SchemaValidator(testSchema, 'test');
-                            // config.load(testObj);
-                            // config.validate();
-                            console.log('@@@@  after validate()');
-
                             const validatedConfig = validator.validate(testObj);
-                            // const validatedConfig = config.getProperties();
-                            console.log('@@@@ validatedConfig: ', validatedConfig);
                             expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                            console.log('@@@@  after validatedConfig expect ');
                         }
                     });
                 });
 
                 describe('RegExp', () => {
-                    // convict only
-                    // it('should accept undefined if default is undefined', () => {
-                    //     const testValues = [
-                    //         { regExpDefaultUndefined: undefined },
-                    //         { regExpQuotedDefaultUndefined: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     successfulValidation(testValues, schema);
-                    // });
-
-                    // convict only
-                    // it('should throw on validation with other defaults', async () => {
-                    //     const testValues = [
-                    //         { regExpDefaultEmptyString: undefined },
-                    //         { regExpDefaultValidValue: undefined },
-                    //         { regExpDefaultInvalidValue: undefined },
-                    //         { regExpDefaultNull: undefined },
-                    //         { regExpQuotedDefaultEmptyString: undefined },
-                    //         { regExpQuotedDefaultValidValue: undefined },
-                    //         { regExpQuotedDefaultInvalidValue: undefined },
-                    //         { regExpQuotedDefaultNull: undefined },
-                    //     ];
-
-                    //     expect.hasAssertions();
-                    //     failedValidation(testValues, schema, () => 'Input not instance of RegExp');
-                    //     // failedValidation(testValues, schema, (key) => `${key}: must be of type RegExp`);
-                    // });
-
                     it('should use defaults', async () => {
                         const testValues = [
                             { regExpDefaultUndefined: undefined },
@@ -1010,25 +744,14 @@ describe('Schema Object validation', () => {
 
                         for (const testObj of testValues) {
                             const key = Object.keys(testObj)[0];
-                            console.log('@@@@ key: ', key);
                             const schemaObj = schema[key];
-                            console.log('@@@@ schemaObj: ', schemaObj);
 
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
-                            console.log('@@@@ testSchema: ', testSchema);
 
-                            // const config = convict(testSchema || {});
                             const validator = new SchemaValidator(testSchema, 'test');
-                            // config.load(testObj);
-                            // config.validate();
-                            console.log('@@@@  after validate()');
-
                             const validatedConfig = validator.validate(testObj);
-                            // const validatedConfig = config.getProperties();
-                            console.log('@@@@ validatedConfig: ', validatedConfig);
                             expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                            console.log('@@@@  after validatedConfig expect ');
                         }
                     });
                 });
@@ -1056,14 +779,10 @@ describe('Schema Object validation', () => {
 
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
+
                             const validator = new SchemaValidator(testSchema, 'test');
                             const validatedConfig = validator.validate(testObj);
 
-                            // const config = convict(testSchema || {});
-                            // config.load(testObj);
-
-                            // config.validate();
-                            // const validatedConfig = config.getProperties();
                             const finalObj: AnyObject = {};
                             finalObj[key] = true;
                             expect(validatedConfig).toMatchObject(finalObj);
@@ -1112,14 +831,10 @@ describe('Schema Object validation', () => {
 
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
-                            // const config = convict(testSchema || {});
-                            // config.load(testObj);
-                            const validator = new SchemaValidator(testSchema, 'test');
 
+                            const validator = new SchemaValidator(testSchema, 'test');
                             const validatedConfig = validator.validate(testObj);
 
-                            // config.validate();
-                            // const validatedConfig = config.getProperties();
                             const finalObj: AnyObject = {};
                             finalObj[key] = NaN;
                             expect(validatedConfig).toMatchObject(finalObj);
@@ -1144,7 +859,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected record, received string');
-                        // failedValidation(testValues, schema, () => 'Unexpected end of JSON input');
                     });
                 });
 
@@ -1169,13 +883,10 @@ describe('Schema Object validation', () => {
 
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
-                            // const config = convict(testSchema || {});
-                            // config.load(testObj);
+
                             const validator = new SchemaValidator(testSchema, 'test');
                             const validatedConfig = validator.validate(testObj);
 
-                            // config.validate();
-                            // const validatedConfig = config.getProperties();
                             const finalObj: AnyObject = {};
                             finalObj[key] = [''];
                             expect(validatedConfig).toMatchObject(finalObj);
@@ -1204,12 +915,10 @@ describe('Schema Object validation', () => {
 
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
-                            // const config = convict(testSchema || {});
+
                             const validator = new SchemaValidator(testSchema, 'test');
                             const validatedConfig = validator.validate(testObj);
 
-                            // config.validate();
-                            // const validatedConfig = config.getProperties();
                             const finalObj: AnyObject = {};
                             finalObj[key] = undefined;
                             expect(validatedConfig).toMatchObject(finalObj);
@@ -1471,7 +1180,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected number, received null');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be an integer`);
                     });
                 });
 
@@ -1487,7 +1195,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected number, received null');
-                        // failedValidation(testValues, schema, (key) => `${key}: ports must be within range 0 - 65535`);
                     });
                 });
 
@@ -1503,7 +1210,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected number, received null');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be a positive integer`);
                     });
                 });
 
@@ -1519,7 +1225,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected string, received null');
-                        // failedValidation(testValues, schema, (key) => `${key}: Expected a string but received a null`);
                     });
                 });
 
@@ -1535,7 +1240,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected string, received null');
-                        // failedValidation(testValues, schema, (key) => `${key}: Expected a string but received a null`);
                     });
                 });
 
@@ -1551,7 +1255,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected string, received null');
-                        // failedValidation(testValues, schema, (key) => `${key}: Expected a string but received a null`);
                     });
                 });
             });
@@ -1739,7 +1442,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected number, received string');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be an integer`);
                     });
                 });
 
@@ -1755,7 +1457,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected number, received string');
-                        // failedValidation(testValues, schema, (key) => `${key}: ports must be within range 0 - 65535`);
                     });
                 });
 
@@ -1771,7 +1472,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid input: expected number, received string');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be a positive integer`);
                     });
                 });
 
@@ -1787,7 +1487,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid URL');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be a URL`);
                     });
                 });
 
@@ -1803,7 +1502,6 @@ describe('Schema Object validation', () => {
 
                         expect.hasAssertions();
                         failedValidation(testValues, schema, () => 'Invalid email address');
-                        // failedValidation(testValues, schema, (key) => `${key}: must be an email address`);
                     });
                 });
 
@@ -1818,7 +1516,6 @@ describe('Schema Object validation', () => {
                         ];
 
                         expect.hasAssertions();
-                        // failedValidation(testValues, schema, (key) => `${key}: must be an IP address`);
                         failedValidation(
                             testValues,
                             schema,
@@ -1832,8 +1529,6 @@ describe('Schema Object validation', () => {
 
         describe('inline formats', () => {
             const inlineFormatFn = (val: unknown): void => {
-                console.log('@@@@ val: ', val);
-                console.log('@@@@ isString(val): ', isString(val));
                 if (!isString(val)) {
                     throw new Error('if parameter is defined it must be a string');
                 }
@@ -1970,23 +1665,13 @@ describe('Schema Object validation', () => {
                         ];
 
                         for (const key of validDefaultKeys) {
-                            console.log('@@@@ key: ', key);
                             const schemaObj = schema[key as keyof typeof schema];
-                            console.log('@@@@ schemaObj: ', schemaObj);
 
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
-                            console.log('@@@@ testSchema: ', testSchema);
 
                             const validator = new SchemaValidator(testSchema, 'test');
                             const validatedConfig = validator.validate({});
-                            // const config = convict(testSchema || {});
-                            // config.load({});
-                            // config.validate();
-                            console.log('@@@@  after validate()');
-
-                            // const validatedConfig = config.getProperties();
-                            console.log('@@@@ validatedConfig: ', validatedConfig);
                             expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
                         }
                     });
@@ -1994,44 +1679,26 @@ describe('Schema Object validation', () => {
                     it('null default will fail', () => {
                         try {
                             const schemaObj = schema.inlineFunctionDefaultNull;
-                            console.log('@@@@ schemaObj: ', schemaObj);
 
                             const testSchema: AnyObject = {};
                             testSchema.inlineFunctionDefaultNull = schemaObj;
-                            console.log('@@@@ testSchema: ', testSchema);
 
                             const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate({});
-                            // const config = convict(testSchema || {});
-                            // config.load({});
-                            // config.validate();
-                            console.log('@@@@  after validate()');
-
-                            // const validatedConfig = config.getProperties();
-                            console.log('@@@@ validatedConfig: ', validatedConfig);
+                            validator.validate({});
+                            throw new Error('Validation should have failed');
                         } catch (err) {
-                            console.log('@@@@ err: ', err);
                             expect((err as Error).message).toContain('inlineFunctionDefaultNull: if parameter is defined it must be a string');
                         }
                     });
 
                     it('undefined default will strip key from object', () => {
                         const schemaObj = schema.inlineFunctionDefaultUndefined;
-                        console.log('@@@@ schemaObj: ', schemaObj);
 
                         const testSchema: AnyObject = {};
                         testSchema.inlineFunctionDefaultUndefined = schemaObj;
-                        console.log('@@@@ testSchema: ', testSchema);
 
                         const validator = new SchemaValidator(testSchema, 'test');
                         const validatedConfig = validator.validate({});
-                        // const config = convict(testSchema || {});
-                        // config.load({});
-                        // config.validate();
-                        console.log('@@@@  after validate()');
-
-                        // const validatedConfig = config.getProperties();
-                        console.log('@@@@ validatedConfig: ', validatedConfig);
                         expect(validatedConfig).toMatchObject({});
                     });
                 });
@@ -2096,12 +1763,6 @@ describe('Schema Object validation', () => {
             delete process.env.TEST_ENV2;
         });
 
-        afterAll(() => {
-            console.log('@@@@ process.argv: ', process.argv);
-            console.log('@@@@ process.env.TEST_ENV1: ', process.env.TEST_ENV1);
-            console.log('@@@@ process.env.TEST_ENV2: ', process.env.TEST_ENV2);
-        });
-
         describe('should return highest precedence values', () => {
             it('with valid loaded config values', () => {
                 const testValues = {
@@ -2123,12 +1784,8 @@ describe('Schema Object validation', () => {
                 };
 
                 const validator = new SchemaValidator(schema, 'test');
-                console.log('@@@@  after validate()');
-
                 const validatedConfig = validator.validate(testValues);
-                console.log('@@@@ validatedConfig: ', validatedConfig);
                 expect(validatedConfig).toMatchObject(convertedValues);
-                console.log('@@@@  after validatedConfig expect ');
             });
 
             it('with empty string loaded config value', () => {
@@ -2151,12 +1808,8 @@ describe('Schema Object validation', () => {
                 };
 
                 const validator = new SchemaValidator(schema, 'test');
-                console.log('@@@@  after validate()');
-
                 const validatedConfig = validator.validate(testValues);
-                console.log('@@@@ validatedConfig: ', validatedConfig);
                 expect(validatedConfig).toMatchObject(convertedValues);
-                console.log('@@@@  after validatedConfig expect ');
             });
 
             it('with null loaded config value', () => {
@@ -2179,12 +1832,8 @@ describe('Schema Object validation', () => {
                 };
 
                 const validator = new SchemaValidator(schema, 'test');
-                console.log('@@@@  after validate()');
-
                 const validatedConfig1 = validator.validate(testValues1);
-                console.log('@@@@ validatedConfig1: ', validatedConfig1);
                 expect(validatedConfig1).toMatchObject(convertedValues1);
-                console.log('@@@@  after validatedConfig1 expect ');
 
                 expect(() => validator.validate(testValues2)).toThrow('Invalid input: expected string, received null');
             });
@@ -2205,12 +1854,8 @@ describe('Schema Object validation', () => {
                 };
 
                 const validator = new SchemaValidator(schema, 'test');
-                console.log('@@@@  after validate()');
-
                 const validatedConfig = validator.validate(testValues);
-                console.log('@@@@ validatedConfig: ', validatedConfig);
                 expect(validatedConfig).toMatchObject(convertedValues);
-                console.log('@@@@  after validatedConfig expect ');
             });
 
             it('with empty object config', () => {
@@ -2224,12 +1869,8 @@ describe('Schema Object validation', () => {
                 };
 
                 const validator = new SchemaValidator(schema, 'test');
-                console.log('@@@@  after validate()');
-
                 const validatedConfig = validator.validate(testValues);
-                console.log('@@@@ validatedConfig: ', validatedConfig);
                 expect(validatedConfig).toMatchObject(convertedValues);
-                console.log('@@@@  after validatedConfig expect ');
             });
         });
     });

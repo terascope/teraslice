@@ -1,10 +1,9 @@
 import os from 'node:os';
-// import convict from 'convict';
 import {
     TSError, isFunction, isPlainObject,
     isEmpty, concat, pMap,
     cloneDeep, SchemaValidator,
-    pDelay, Schema, Format
+    Schema, Format
 } from '@terascope/core-utils';
 import type { Terafoundation, PartialDeep } from '@terascope/types';
 import { getConnectorSchemaAndValFn } from './connector-utils.js';
@@ -18,33 +17,7 @@ function validateConfig(
     extraFormats?: Format[]
 ) {
     try {
-        console.log('@@@@ schema: ');
-        console.dir(schema, { depth: null });
-        console.log('@@@@ namespaceConfig: ', namespaceConfig);
-        console.log('@@@@ extraFormats: ', extraFormats);
-
-        // const config = convict(schema || {});
         const validator = new SchemaValidator<any>(schema, schemaKey, extraFormats);
-        console.log('@@@@ config created');
-
-        // config.load(namespaceConfig);
-
-        // if (cluster.isMaster) {
-        //     config.validate({
-        //         // IMPORTANT: changing this will break things
-        //         // FIXME
-        //         // false is deprecated and will be removed in ^5.0.0
-        //         // must be warn or strict
-        //         allowed: true,
-        //     } as any);
-        // }
-
-        // const result = config.safeParse(namespaceConfig);
-        // if (!result.success) {
-        //     throw result.error;
-        // }
-        // return result.data;
-        // return config.parse(namespaceConfig);
         return validator.validate(namespaceConfig);
     } catch (err) {
         throw new TSError(err, { reason: 'Error validating configuration' });
@@ -124,7 +97,6 @@ export default async function validateConfigs<
     const schemaKeys = concat(Object.keys(schema), Object.keys(sysconfig));
 
     for (const schemaKey of schemaKeys) {
-        console.log('@@@@ schemaKey: ', schemaKey);
         const subSchema = schema[schemaKey] || {};
         const subConfig: Record<string, any>
             = sysconfig[schemaKey as keyof Terafoundation.SysConfig<S>] || {};
@@ -136,9 +108,6 @@ export default async function validateConfigs<
             schemaKey,
             config.schema_formats
         );
-        console.log('@@@@ validatedConfig: ');
-        console.dir(validatedConfig, { depth: null });
-        await pDelay(1000); // FIXME remove
 
         result[schemaKey] = validatedConfig;
 
@@ -149,8 +118,6 @@ export default async function validateConfigs<
             const connectorList = Object.entries(connectors);
 
             await pMap(connectorList, async ([connector, connectorConfig]) => {
-                console.log('@@@@ connector: ', connector);
-
                 const {
                     schema: connectorSchema,
                     validatorFn: connValidatorFn
@@ -166,9 +133,6 @@ export default async function validateConfigs<
                         `${connector}.${connection}`,
                         config.schema_formats
                     );
-                    console.log('@@@@ validatedConfig: ');
-                    console.dir(validatedConfig, { depth: null });
-                    await pDelay(1000); // FIXME remove
 
                     result[schemaKey].connectors[connector][connection] = validatedConnConfig;
 
@@ -214,8 +178,6 @@ export default async function validateConfigs<
             }
         }
     }
-    console.log('@@@@ result: ');
-    console.dir(result, { depth: null });
 
     return result;
 }

@@ -186,20 +186,15 @@ export class SchemaValidator<T = any> {
         const finalConfig: any = config;
         // precedence: args, env, loaded value (config), default
         for (const key in this.envMap) {
-            console.log('@@@@ envMap key: ', key);
             const envVarName = this.envMap[key];
-            console.log('@@@@ envVarName: ', envVarName);
             if (envVarName in process.env) {
                 finalConfig[key] = process.env[envVarName];
-                console.log(`@@@@ finalConfig[${key}]: `, finalConfig[key]);
             }
         }
 
         for (const key in this.argsMap) {
             const argName = this.argsMap[key];
-            console.log(`@@@@ argName: `, argName);
             const argIndex = process.argv.indexOf(argName);
-            console.log(`@@@@ argIndex: `, argIndex);
             if (argIndex >= 2) { // command line arguments start at index 2
                 const flag = process.argv[argIndex];
                 let argValue: string;
@@ -209,33 +204,26 @@ export class SchemaValidator<T = any> {
                     argValue = process.argv[argIndex + 1];
                 }
                 finalConfig[key] = argValue;
-                console.log(`@@@@ finalConfig[${key}]: `, finalConfig[key]);
             }
         }
-        console.log('@@@@ finalConfig: ', finalConfig);
 
         // FIXME: would it simplify things to set the defaults
         // here instead of adding default() to zodType?
         const validatedWithZod = this.zodSchema.parse(finalConfig);
-        console.log(`@@@@ validatedWithZod: `, validatedWithZod);
 
         this.convictSchema.load(config);
         this.logger.info({ schemaAfterLoad: this.convictSchema }, 'convictSchema after load');
 
-
-        // only ever validated if cluster master
+        // convict only ever validated if cluster master
         // this.convictSchema.validate({
         //     allowed: true,
         // } as any);
         const validatedWithConvict = this.convictSchema.getProperties();
-        console.log(`@@@@ validatedWithConvict utils: `, validatedWithConvict);
         const diff = diffJson(validatedWithConvict as object, validatedWithZod as object);
-        console.log('@@@@ schema diff in schemaValidator class: ');
-        console.dir(diff, { depth: null });
-        // if (diff.length > 1) {
-        const difference = diff.filter((obj) => obj.added === true || obj.removed === true);
-        this.logger.info({ schemaDiff: difference }, 'Difference between convict and zod schemas detected');
-        // }
+        if (diff.length > 1) {
+            const difference = diff.filter((obj) => obj.added === true || obj.removed === true);
+            this.logger.info({ schemaDiff: difference }, 'Difference between convict and zod schemas detected');
+        }
         return validatedWithZod;
     }
 
@@ -246,10 +234,11 @@ export class SchemaValidator<T = any> {
     /**
      * convert a convict schema to zod schema
      *
-     * @param convictSchema 
-     * @param parentKey 
-     * @param extraFormats 
-     * @returns 
+     * @param { Schema<T> } convictSchema A convict style schema
+     * @param { PropertyKey } parentKey Property name of a nested schema object
+     *                                  or other identifier for the schema
+     * @param { Format[] } extraFormats User defined formats to be used for schema validation
+     * @returns { z.ZodType } A zod schema
      */
     _convictSchemaToZod(
         convictSchema: Schema<T>,
@@ -268,7 +257,6 @@ export class SchemaValidator<T = any> {
                 }
             });
         }
-        // console.log('@@@@ SchemaValidator.formats: ', SchemaValidator.formats);
 
         if (isSchemaObj<T>(convictSchema)) {
             return this._convictSchemaObjToZod(
@@ -283,8 +271,6 @@ export class SchemaValidator<T = any> {
                 fields[key] = this._convictSchemaObjToZod(key, value, extraFormats);
                 defaults[key] = value.default;
             } else {
-                // console.log(`@@@@ key: `, key);
-
                 fields[key] = this._convictSchemaToZod(
                     value as Schema<T>,
                     `${parentKey.toString()}.${key}`,
@@ -293,8 +279,6 @@ export class SchemaValidator<T = any> {
                 defaults[key] = fields[key].parse({});
             }
         }
-        // console.log(`@@@@ fields for ${parentKey.toString()}: `, fields);
-        // console.log(`@@@@ defaults for ${parentKey.toString()}: `, defaults);
 
         return z.looseObject(fields)
             .default(defaults) as z.ZodType<T>;
@@ -306,13 +290,10 @@ export class SchemaValidator<T = any> {
         extraFormats: Format[]
     ) {
         let type: ZodType;
-        console.log('@@@@ convictSchemaObjToZod key: ', key);
 
         if (schemaObj.format === undefined) {
             // default format is the typeof the default value
             const defaultType = Object.prototype.toString.call(schemaObj.default);
-            // console.log('@@@@ defaultType: ', defaultType);
-
             const formatFn = function (x: unknown) {
                 assert(Object.prototype.toString.call(x) == defaultType,
                     ' should be of type ' + defaultType.replace(/\[.* |]/g, ''));
@@ -327,20 +308,6 @@ export class SchemaValidator<T = any> {
                 extraFormats);
         }
 
-        // if (schemaObj.doc) {
-        //     console.log('@@@@ key: ', key);
-        //     console.log('@@@@ parentKey: ', parentKey);
-
-        //     const combinedKey = `${parentKey.toString()}.${key.toString()}`;
-        //     console.log('@@@@ combinedKey: ', combinedKey);
-
-        //     type = type.meta({
-        //         id: combinedKey,
-        //         title: combinedKey,
-        //         description: schemaObj.doc
-        //     });
-        // }
-
         if (schemaObj.arg) {
             this.argsMap[key.toString()] = schemaObj.arg;
         }
@@ -353,11 +320,9 @@ export class SchemaValidator<T = any> {
             // no zod equivalent
         }
 
-        // FIXME: write nullable tests
         if (schemaObj.nullable) {
-            type = type.nullable();
+            // we want the format fn to control whether null is valid
         }
-        // console.log(`@@@@ type.meta for ${key.toString()}: `, type.meta());
 
         return type;
     }
@@ -368,8 +333,6 @@ export class SchemaValidator<T = any> {
         convictFormatValue: ConvictFormat,
         extraFormats: Format[]
     ): ZodType {
-        console.log(`@@@@ convictFormat for ${key.toString()} : `, convictFormatValue);
-        // console.log(`@@@@ extraFormats : `, extraFormats);
         let type: ZodType;
 
         switch (convictFormatValue) {
@@ -390,7 +353,6 @@ export class SchemaValidator<T = any> {
             case 'timestamp':
             case 'positive_int':
             case 'duration':
-                // we can't do any checks before initial value is coerced
                 type = z.any();
                 break;
             case 'url':
@@ -435,7 +397,11 @@ export class SchemaValidator<T = any> {
                 type = z.union([z.string(), z.number()]);
                 break;
             case (isFunction(convictFormatValue) ? convictFormatValue : undefined):
-            case ((extraFormats && extraFormats.length > 0) ? convictFormatValue : undefined):
+            case ((extraFormats && extraFormats.length > 0)
+                ? extraFormats.some((format) => format.name === convictFormatValue)
+                    ? convictFormatValue
+                    : undefined
+                : undefined):
                 // we can't predict the type of a schema defined function
                 type = z.any();
                 break;
@@ -447,43 +413,14 @@ export class SchemaValidator<T = any> {
         }
 
         if (Object.hasOwn(schemaObj, 'default')) {
-            console.log('@@@@ default: ', schemaObj.default);
-
-            // validate that the default fits the format
-            // try {
-            //     type.parse(schemaObj.default);
-            // } catch (err) {
-            //     console.log('@@@@ default parse failed');
-            //     throw err;
-            // }
-
-            if (schemaObj.default === undefined) {
-                console.log('@@@@ default makes field optional');
-
-                type = type.optional().default(undefined);
-            } else if (schemaObj.default === '') {
-                console.log('@@@@ default makes field optional');
-
-                type = type.optional().default('');
-            } else if (schemaObj.default === null) {
-                console.log('@@@@ default makes field optional');
-
-                type = type.optional().default(null);
-            } else {
-                type = type.default(schemaObj.default);
-            }
+            type = type.default(schemaObj.default);
         }
 
         const customFormat = getCustomFormat(convictFormatValue);
-        // console.log('@@@@ customFormat: ', customFormat);
-
         const finalFormat: ConvictFormat = customFormat ?? convictFormatValue;
-        // console.log('@@@@ finalFormat: ', finalFormat);
 
         if (isOfTypeFormat(finalFormat)) {
             if (finalFormat.coerce && finalFormat.validate) {
-                // console.log('@@@@ coerce fn');
-
                 return type.transform((val, ctx) => {
                     try {
                         let finalVal = val;
@@ -491,7 +428,7 @@ export class SchemaValidator<T = any> {
                             finalVal = finalFormat.coerce(val);
                         }
 
-                        // FIXME add tests for this
+                        // FIXME : reconsider this
                         // with convict predefined formats, if nullable is true and val is null
                         // then null should be considered a valid value for the field and
                         // validation is skipped
@@ -512,10 +449,9 @@ export class SchemaValidator<T = any> {
                     }
                 });
             } else {
-                // console.log('@@@@ validate fn only');
-
                 return type.superRefine((val, ctx) => {
                     try {
+                        // FIXME : reconsider this
                         // with convict predefined formats, if nullable is true and val is null
                         // then null should be considered a valid value for the field and
                         // validation is skipped
@@ -540,22 +476,18 @@ export class SchemaValidator<T = any> {
             return type.superRefine((args: any, ctx: RefinementCtx<any>) => {
                 try {
                     let val;
-                    console.log('@@@@ args: ', args);
                     if (args === null || args === undefined) {
                         val = schemaObj.default;
+                        // FIXME : reconsider this
                         // with convict inline functions, if the default value is 'null'
                         // or 'undefined' then it's considered a valid value for the
                         // field and the format Fn is skipped
-                        console.log('@@@@ val after args not defined: ', val);
-
                         if (val === null || val === undefined) {
-                            console.log('@@@@ validation fn skipped: ', val);
                             return;
                         }
                     } else {
                         val = args;
                     }
-                    console.log('@@@@ val before validation: ', val);
                     convictFormatValue(val);
                 } catch (err) {
                     ctx.addIssue({
@@ -566,8 +498,6 @@ export class SchemaValidator<T = any> {
                 }
             });
         }
-
-        // console.log('@@@@ type after default added: ', type);
         return type;
     }
 }

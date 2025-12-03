@@ -1,21 +1,5 @@
 import 'jest-extended';
-// import convict from 'convict';
 import { formats, SchemaValidator } from '../src/schemas.js';
-// @t s-expect-error no types
-// import convict_format_with_moment from 'convict-format-with-moment';
-
-// formats.forEach((format) => {
-//    if (format.name !== 'duration' && format.name !== 'timestamp') {
-//        convict.addFormat(format);
-//    }
-// });
-
-// convict.addFormats(convict_format_with_moment);
-
-// I added tests for duration and timestamp using convict-format-with-moment
-// I then ran those tests using duration and timestamp from schemas.js and convict validation
-
-// TODO: fix tests when running SchemaValidator validation. Looks to just be error structure
 
 describe('Convict Formats', () => {
     function createSchemaValueTest(name: string, defaultVal: any = null) {
@@ -27,16 +11,10 @@ describe('Convict Formats', () => {
         };
 
         const validator = new SchemaValidator(myConfig, name);
-        // const config = convict(myConfig);
 
         return (val: any) => {
             validator.validate({ [name]: val });
         };
-        // return (val: any) => {
-        //     config.load({ [name]: val });
-        //     config.validate({ allowed: 'warn' });
-        //     console.log('@@@@ config.getProperties(): ', config.getProperties());
-        // };
     }
 
     it('returns an array with objects used for validations', () => {
@@ -299,16 +277,9 @@ describe('Convict Formats', () => {
                     format: 'duration'
                 }
             };
+
             const validator = new SchemaValidator(myConfig, 'duration');
-
-            // const config = SchemaValidator.convictSchemaToZod(myConfig, 'duration');
-            // const config = convict(myConfig);
-
             const result = validator.validate({ duration: '2 volts' });
-            // config.load({ duration: '2 volts' });
-            // config.validate({ allowed: 'warn' });
-            // const result = config.getProperties();
-
             expect(result).toMatchObject({ duration: 0 });
         });
     });

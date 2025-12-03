@@ -27,12 +27,10 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
     validate(inputConfig: Record<string, any>): OpConfig | APIConfig & T {
         if (this.opType === 'api') {
             const validatedConfig = validateAPIConfig<T>(this.schema, inputConfig);
-            console.log('@@@@ validatedAPIConfig: ', validatedConfig);
 
             return validatedConfig;
         }
         const validatedConfig = validateOpConfig<T>(this.schema, inputConfig);
-        console.log('@@@@ validatedOPConfig: ', validatedConfig);
         return validatedConfig;
     }
 

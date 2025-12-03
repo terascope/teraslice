@@ -109,7 +109,6 @@ export async function fork(
         _opts.env = env;
         await _exec(_opts);
     } catch (err) {
-        console.log('@@@@ fork error: ', err);
         if (!err.command) {
             throw err;
         }
