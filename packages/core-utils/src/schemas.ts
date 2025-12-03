@@ -179,7 +179,6 @@ export class SchemaValidator<T = any> {
         this.inputSchema = schema;
         this.zodSchema = this._convictSchemaToZod(schema, parentKey, extraFormats);
         this.convictSchema = convict(schema);
-        this.logger.info({ schema: this.convictSchema }, 'convictSchema');
     }
 
     validate(config: any) {
@@ -212,7 +211,6 @@ export class SchemaValidator<T = any> {
         const validatedWithZod = this.zodSchema.parse(finalConfig);
 
         this.convictSchema.load(config);
-        this.logger.info({ schemaAfterLoad: this.convictSchema }, 'convictSchema after load');
 
         // convict only ever validated if cluster master
         // this.convictSchema.validate({
