@@ -348,7 +348,7 @@ export class SchemaValidator<T = any> {
                 break;
             case 'port':
                 type = z
-                    .number()
+                    .coerce.number()
                     .int()
                     .min(1)
                     .max(65535);
