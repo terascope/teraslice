@@ -152,15 +152,13 @@ export const formats: Format[] = [
 export class SchemaValidator<T = any> {
     schema: Schema<T>;
     zodSchema: ZodType<T>;
+    envMap: Record<string, string> = {};
+    argsMap: Record<string, string> = {};
     // convict pattern:
-    // const config = convict(inputSchema); convict() == z.object()
+    // const config = convict(inputSchema);
     // config.load(inputConfig);
-    // config.validate(validateOptions); validate() == parse()
-    // const jobProperties = config.getProperties(); equivalent to the object returned by parse()
-
-    // parse a schema - validate that object meets schema criteria. returns the type we need.
-    // parse or safeParse?
-    // Important: need to handle args and env
+    // config.validate(validateOptions);
+    // const jobProperties = config.getProperties();
 
     constructor(
         schema: Schema<T>,
@@ -172,7 +170,40 @@ export class SchemaValidator<T = any> {
     }
 
     validate(config: any) {
-        return this.zodSchema.parse(config);
+        const finalConfig: any = config;
+        // precedence: args, env, loaded value (config), loadedFile (we don't do this), default
+        for (const key in this.envMap) {
+            console.log('@@@@ envMap key: ', key);
+            const envVarName = this.envMap[key];
+            console.log('@@@@ envVarName: ', envVarName);
+            if (envVarName in process.env) {
+                finalConfig[key] = process.env[envVarName];
+                console.log(`@@@@ finalConfig[${key}]: `, finalConfig[key]);
+            }
+        }
+
+        for (const key in this.argsMap) {
+            const argName = this.argsMap[key];
+            console.log(`@@@@ argName: `, argName);
+            const argIndex = process.argv.indexOf(argName);
+            console.log(`@@@@ argIndex: `, argIndex);
+            if (argIndex >= 2) { // command line arguments start at index 2
+                const flag = process.argv[argIndex];
+                let argValue: string;
+                if (flag.includes('=')) {
+                    argValue = flag.split('=')[1];
+                } else {
+                    argValue = process.argv[argIndex + 1];
+                }
+                finalConfig[key] = argValue;
+                console.log(`@@@@ finalConfig[${key}]: `, finalConfig[key]);
+            }
+        }
+        console.log('@@@@ finalConfig: ', finalConfig);
+
+        // FIXME: would it simplify things to set the default
+        // here instead of adding default() to zodType?
+        return this.zodSchema.parse(finalConfig);
     }
 
     static getSchemaJSON(schema: ZodType) {
@@ -278,15 +309,18 @@ export class SchemaValidator<T = any> {
         // }
 
         if (schemaObj.arg) {
-            // handle in parse step?
+            this.argsMap[key.toString()] = schemaObj.arg;
         }
+
         if (schemaObj.env) {
-            // handle in parse step?
+            this.envMap[key.toString()] = schemaObj.env;
         }
+
         if (schemaObj.sensitive) {
             // no zod equivalent
         }
 
+        // FIXME: write nullable tests
         if (schemaObj.nullable) {
             type = type.nullable();
         }
@@ -499,28 +533,6 @@ export class SchemaValidator<T = any> {
                 }
             });
         }
-
-        // console.log('@@@@ type after function parts: ', type);
-
-        // if (Object.hasOwn(schemaObj, 'default')) {
-        //     console.log('@@@@ default: ', schemaObj.default);
-
-        //     if (schemaObj.default === undefined) {
-        //         console.log('@@@@ default makes field optional');
-
-        //         type = type.optional().default(undefined);
-        //     } else if (schemaObj.default === '') {
-        //         // console.log('@@@@ default makes field optional');
-
-        //         type = type.optional().default('');
-        //     } else if (schemaObj.default === null) {
-        //         // console.log('@@@@ default makes field optional');
-
-        //         type = type.optional().default(null);
-        //     } else {
-        //         type = type.default(schemaObj.default);
-        //     }
-        // }
 
         // console.log('@@@@ type after default added: ', type);
         return type;
