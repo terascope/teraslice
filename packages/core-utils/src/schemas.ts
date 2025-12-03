@@ -12,6 +12,7 @@ import convict from 'convict';
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
+import bunyan from 'bunyan';
 
 export const formats: Format[] = [
     {
@@ -167,20 +168,23 @@ export class SchemaValidator<T = any> {
     convictSchema: convict.Config<T>;
     envMap: Record<string, string> = {};
     argsMap: Record<string, string> = {};
+    logger: bunyan;
 
     constructor(
         schema: Schema<T>,
         parentKey: PropertyKey,
         extraFormats: Format[] = []
     ) {
+        this.logger = bunyan.createLogger({ name: 'SchemaValidator' });
         this.inputSchema = schema;
         this.zodSchema = this._convictSchemaToZod(schema, parentKey, extraFormats);
         this.convictSchema = convict(schema);
+        this.logger.info({ schema: this.convictSchema }, 'convictSchema');
     }
 
     validate(config: any) {
         const finalConfig: any = config;
-        // precedence: args, env, loaded value (config), loadedFile (we don't do this), default
+        // precedence: args, env, loaded value (config), default
         for (const key in this.envMap) {
             console.log('@@@@ envMap key: ', key);
             const envVarName = this.envMap[key];
@@ -213,15 +217,25 @@ export class SchemaValidator<T = any> {
         // FIXME: would it simplify things to set the defaults
         // here instead of adding default() to zodType?
         const validatedWithZod = this.zodSchema.parse(finalConfig);
-        // console.log(`@@@@ validatedWithZod: `, validatedWithZod);
+        console.log(`@@@@ validatedWithZod: `, validatedWithZod);
 
         this.convictSchema.load(config);
-        this.convictSchema.validate();
+        this.logger.info({ schemaAfterLoad: this.convictSchema }, 'convictSchema after load');
+
+
+        // only ever validated if cluster master
+        // this.convictSchema.validate({
+        //     allowed: true,
+        // } as any);
         const validatedWithConvict = this.convictSchema.getProperties();
-        // console.log(`@@@@ validatedWithConvict: `, validatedWithConvict);
-        const diffObject = diffJson(validatedWithZod as object, validatedWithConvict as object);
-        console.log('@@@@ schema diff: ');
-        console.dir(diffObject, { depth: null });
+        console.log(`@@@@ validatedWithConvict utils: `, validatedWithConvict);
+        const diff = diffJson(validatedWithConvict as object, validatedWithZod as object);
+        console.log('@@@@ schema diff in schemaValidator class: ');
+        console.dir(diff, { depth: null });
+        // if (diff.length > 1) {
+        const difference = diff.filter((obj) => obj.added === true || obj.removed === true);
+        this.logger.info({ schemaDiff: difference }, 'Difference between convict and zod schemas detected');
+        // }
         return validatedWithZod;
     }
 

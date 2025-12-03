@@ -2997,6 +2997,7 @@ __metadata:
     "@types/validator": "npm:~13.12.3"
     awesome-phonenumber: "npm:~7.5.0"
     benchmark: "npm:~2.1.4"
+    bunyan: "npm:~1.8.15"
     convict: "npm:~6.2.4"
     convict-format-with-moment: "npm:~6.2.0"
     convict-format-with-validator: "npm:~6.2.0"
