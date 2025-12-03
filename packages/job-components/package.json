@@ -32,8 +32,8 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../job-components --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.0-dev.8",
-        "@terascope/types": "~2.0.0-dev.7",
+        "@terascope/core-utils": "workspace:*",
+        "@terascope/types": "workspace:*",
         "convict": "~6.2.4",
         "convict-format-with-moment": "~6.2.0",
         "convict-format-with-validator": "~6.2.0",
@@ -44,6 +44,7 @@
         "uuid": "~13.0.0"
     },
     "devDependencies": {
+        "@types/semver": "^7.7.1",
         "benchmark": "~2.1.4",
         "fs-extra": "~11.3.1",
         "jest-fixtures": "~0.6.0"

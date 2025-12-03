@@ -114,7 +114,7 @@ function parseQueryInt(req: TerasliceRequest, key: string, defaultVal: number): 
     return parsed;
 }
 
-export function getSearchOptions(req: TerasliceRequest, defaultSort = '_updated:desc') {
+export function getSearchOptions(req: TerasliceRequest, defaultSort = '_updated:desc'): any {
     const sort = req.query.sort || defaultSort;
     const size = parseQueryInt(req, 'size', 100);
     const from = parseQueryInt(req, 'from', 0);

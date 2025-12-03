@@ -204,7 +204,7 @@ export class ApiService {
         const assetRedirect = this._assetRedirect.bind(this);
 
         this.app.use(bodyParser.json({
-            type(req) {
+            type(req: any) {
                 return (req.headers['content-type'] === 'application/json' || req.headers['content-type'] === 'application/x-www-form-urlencoded');
             }
         }));

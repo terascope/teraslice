@@ -1,6 +1,7 @@
 {
     "extends": "../../tsconfig",
     "compilerOptions": {
+        "moduleResolution": "bundler",
         "outDir": "dist",
         "rootDir": "."
     },

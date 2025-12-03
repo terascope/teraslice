@@ -30,9 +30,9 @@
         "test:watch": "ts-scripts yarn workspace @terascope/scripts test --watch ../opensearch-client --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.0-dev.8",
-        "@terascope/data-types": "~2.0.0-dev.8",
-        "@terascope/types": "~2.0.0-dev.7",
+        "@terascope/core-utils": "workspace:*",
+        "@terascope/data-types": "workspace:*",
+        "@terascope/types": "workspace:*",
         "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@~8.15.0",
         "opensearch1": "npm:@opensearch-project/opensearch@~1.2.0",

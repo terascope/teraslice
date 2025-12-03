@@ -102,9 +102,9 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): P
                 entryPointStrategy: 'expand',
                 router: 'member',
                 exclude: ['test', 'node_modules'],
-                excludePrivate: 'true',
-                excludeExternals: 'true',
-                hideGenerator: 'true',
+                excludePrivate: true,
+                excludeExternals: true,
+                hideGenerator: true,
                 logLevel: 1,
                 readme: 'none',
                 outputs: [

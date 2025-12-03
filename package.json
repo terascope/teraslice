@@ -14,8 +14,8 @@
     ],
     "scripts": {
         "prebuild": "./packages/xlucene-parser/scripts/generate-engine.js",
-        "build": "yarn prebuild && tsc --build --verbose && yarn postbuild",
-        "postbuild": "yarn workspace teraslice-cli postbuild",
+        "build": "bun prebuild && tsc --build --verbose && bun postbuild",
+        "postbuild": "bun workspace teraslice-cli postbuild",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:doctor": "./scripts/build-doctor.sh",
         "build:fix": "echo '[DEPRECATED], use yarn run build:doctor instead'",
@@ -51,9 +51,10 @@
     },
     "devDependencies": {
         "@eslint/js": "~9.35.0",
+        "@jest/globals": "^30.2.0",
         "@swc/core": "1.13.5",
         "@swc/jest": "~0.2.39",
-        "@terascope/scripts": "~2.0.0-dev.13",
+        "@terascope/scripts": "workspace:*",
         "@types/convict": "~6.1.6",
         "@types/elasticsearch": "~5.0.43",
         "@types/fs-extra": "~11.0.4",
@@ -112,5 +113,8 @@
             "yarn": ">=1.22.19"
         },
         "version": 1
+    },
+    "dependencies": {
+        "got": "14.4.8"
     }
 }

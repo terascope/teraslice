@@ -28,10 +28,10 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../terafoundation --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.0-dev.8",
+        "@terascope/core-utils": "workspace:*",
         "@terascope/file-asset-apis": "~1.1.2",
-        "@terascope/opensearch-client": "~2.0.0-dev.8",
-        "@terascope/types": "~2.0.0-dev.7",
+        "@terascope/opensearch-client": "workspace:*",
+        "@terascope/types": "workspace:*",
         "bunyan": "~1.8.15",
         "convict": "~6.2.4",
         "convict-format-with-moment": "~6.2.0",
@@ -50,6 +50,7 @@
         "@types/elasticsearch": "~5.0.43",
         "@types/express": "~5.0.3",
         "@types/js-yaml": "~4.0.9",
+        "@types/yargs": "^17.0.35",
         "got": "~14.4.8"
     },
     "engines": {

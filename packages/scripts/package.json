@@ -33,7 +33,7 @@
     },
     "dependencies": {
         "@kubernetes/client-node": "~1.3.0",
-        "@terascope/core-utils": "~2.0.0-dev.8",
+        "@terascope/core-utils": "workspace:*",
         "execa": "~9.6.0",
         "fs-extra": "~11.3.1",
         "globby": "~14.1.0",
@@ -42,7 +42,7 @@
         "js-yaml": "~4.1.0",
         "kafkajs": "~2.2.4",
         "micromatch": "~4.0.8",
-        "mnemonist": "~0.40.3",
+        "mnemonist": "^0.40.3",
         "ms": "~2.1.3",
         "package-json": "~10.0.1",
         "package-up": "~5.0.0",
@@ -56,12 +56,15 @@
         "yargs": "~18.0.0"
     },
     "devDependencies": {
+        "@terascope/types": "workspace:*",
         "@types/ip": "~1.1.3",
+        "@types/js-yaml": "^4.0.9",
         "@types/micromatch": "~4.0.9",
         "@types/ms": "~0.7.34",
         "@types/semver": "~7.7.1",
         "@types/signale": "~1.4.7",
         "@types/toposort": "~2.0.7",
+        "@types/yargs": "^17.0.35",
         "typescript": "~5.9.2"
     },
     "peerDependencies": {

@@ -36,10 +36,10 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../ts-transforms --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.0-dev.8",
-        "@terascope/data-mate": "~2.0.0-dev.8",
-        "@terascope/ip-utils": "~2.0.0-dev.8",
-        "@terascope/types": "~2.0.0-dev.7",
+        "@terascope/core-utils": "workspace:*",
+        "@terascope/data-mate": "workspace:*",
+        "@terascope/ip-utils": "workspace:*",
+        "@terascope/types": "workspace:*",
         "awesome-phonenumber": "~7.5.0",
         "graphlib": "~2.1.8",
         "jexl": "~2.3.0",

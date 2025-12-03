@@ -50,5 +50,8 @@
     "terascope": {
         "testSuite": "unit",
         "enableTypedoc": true
+    },
+    "devDependencies": {
+        "@types/debug": "^4.1.12"
     }
 }

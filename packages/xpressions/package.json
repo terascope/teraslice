@@ -24,10 +24,10 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../xpressions --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.0-dev.8"
+        "@terascope/core-utils": "workspace:*"
     },
     "devDependencies": {
-        "@terascope/types": "~2.0.0-dev.7"
+        "@terascope/types": "workspace:*"
     },
     "engines": {
         "node": ">=22.0.0",
