@@ -6,6 +6,12 @@ import { isFunction } from './functions.js';
 import { isString, startsWith } from './strings.js';
 import { isInteger, toInteger } from './numbers.js';
 import { isValidDate } from './dates.js';
+import { diffJson } from 'diff';
+import convict from 'convict';
+// @ts-expect-error no types
+import convict_format_with_validator from 'convict-format-with-validator';
+// @ts-expect-error no types
+import convict_format_with_moment from 'convict-format-with-moment';
 
 export const formats: Format[] = [
     {
@@ -149,24 +155,27 @@ export const formats: Format[] = [
     }
 ];
 
+formats.forEach((format) => {
+    convict.addFormat(format);
+});
+convict.addFormats(convict_format_with_validator);
+convict.addFormats(convict_format_with_moment);
+
 export class SchemaValidator<T = any> {
-    schema: Schema<T>;
+    inputSchema: Schema<T>;
     zodSchema: ZodType<T>;
+    convictSchema: convict.Config<T>;
     envMap: Record<string, string> = {};
     argsMap: Record<string, string> = {};
-    // convict pattern:
-    // const config = convict(inputSchema);
-    // config.load(inputConfig);
-    // config.validate(validateOptions);
-    // const jobProperties = config.getProperties();
 
     constructor(
         schema: Schema<T>,
         parentKey: PropertyKey,
         extraFormats: Format[] = []
     ) {
-        this.schema = schema;
+        this.inputSchema = schema;
         this.zodSchema = this._convictSchemaToZod(schema, parentKey, extraFormats);
+        this.convictSchema = convict(schema);
     }
 
     validate(config: any) {
@@ -201,9 +210,19 @@ export class SchemaValidator<T = any> {
         }
         console.log('@@@@ finalConfig: ', finalConfig);
 
-        // FIXME: would it simplify things to set the default
+        // FIXME: would it simplify things to set the defaults
         // here instead of adding default() to zodType?
-        return this.zodSchema.parse(finalConfig);
+        const validatedWithZod = this.zodSchema.parse(finalConfig);
+        // console.log(`@@@@ validatedWithZod: `, validatedWithZod);
+
+        this.convictSchema.load(config);
+        this.convictSchema.validate();
+        const validatedWithConvict = this.convictSchema.getProperties();
+        // console.log(`@@@@ validatedWithConvict: `, validatedWithConvict);
+        const diffObject = diffJson(validatedWithZod as object, validatedWithConvict as object);
+        console.log('@@@@ schema diff: ');
+        console.dir(diffObject, { depth: null });
+        return validatedWithZod;
     }
 
     static getSchemaJSON(schema: ZodType) {
