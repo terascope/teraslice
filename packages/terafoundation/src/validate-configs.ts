@@ -87,13 +87,6 @@ export default async function validateConfigs<
     schema.terafoundation = foundationSchema();
 
     const result: any = {};
-
-    // if (config.schema_formats) {
-    //     config.schema_formats.forEach((format) => {
-    //         convict.addFormat(format);
-    //     });
-    // }
-
     const schemaKeys = concat(Object.keys(schema), Object.keys(sysconfig));
 
     for (const schemaKey of schemaKeys) {

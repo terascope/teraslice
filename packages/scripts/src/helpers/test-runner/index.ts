@@ -172,7 +172,7 @@ async function runTestSuite(
             await runJest(
                 getRootDir(),
                 args,
-                env as ExecEnv,
+                env,
                 options.jestArgs,
                 options.debug,
                 ATTACH_JEST_DEBUGGER
@@ -338,7 +338,7 @@ async function runE2ETest(
             await runJest(
                 e2eDir,
                 getArgs(options),
-                env as ExecEnv,
+                env,
                 options.jestArgs,
                 options.debug,
                 ATTACH_JEST_DEBUGGER

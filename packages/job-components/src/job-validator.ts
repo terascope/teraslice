@@ -27,7 +27,6 @@ export class JobValidator {
     ): Promise<ValidatedJobConfig> {
         // top level job validation occurs, but not operations
         const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec));
-
         const assetIds = jobConfig.assets || [];
         const apis: Record<string, OperationAPIConstructor> = {};
 
