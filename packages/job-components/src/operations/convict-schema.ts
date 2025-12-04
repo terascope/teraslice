@@ -1,8 +1,4 @@
 import convict from 'convict';
-import {
-    has, get, toString,
-    isDeepEqual
-} from '@terascope/core-utils';
 import SchemaCore, { OpType } from './core/schema-core.js';
 import {
     Context, OpConfig, APIConfig,
@@ -35,64 +31,6 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
 
     validateJob(_job: ValidatedJobConfig): void {
 
-    }
-
-    /**
-    * This method will make sure that the api exists on the job, if it does not then
-    * it will inject it using apiName provided and with the config key/values provided.
-    * If the api does exist it will compare the apiConfig against the provided config.
-    * If the key/values do not match, then it will throw
-    *
-    * @example
-        const job = newTestJobConfig({
-            operations: [
-                { _op: 'test-reader' },
-                { _op: 'noop' },
-            ]
-        });
-
-        schema.ensureAPIFromConfig('someApi', job, { some: 'configs' });
-
-        job === {
-            apis: [{ _name: 'someApi', some: 'configs' }],
-            operations: [
-                { _op: 'test-reader' },
-                { _op: 'noop' },
-            ]
-        }
-
-    */
-    ensureAPIFromConfig(
-        apiName: string, job: ValidatedJobConfig, config: Record<string, any>
-    ): void {
-        if (!job.apis) job.apis = [];
-        const apiConfig = job.apis.find((jobApi) => jobApi._name === apiName);
-
-        if (!apiConfig) {
-            job.apis.push({
-                _name: apiName,
-                ...config
-            });
-        } else {
-            const mixedValues: Record<string, string[]> = {};
-
-            for (const [key, value] of Object.entries(apiConfig)) {
-                const configVal = get(config, key);
-                if (has(config, key) && !isDeepEqual(configVal, value)) {
-                    mixedValues[key] = [toString(configVal), toString(value)];
-                }
-            }
-
-            let errMsg = '';
-
-            for (const [key, values] of Object.entries(mixedValues)) {
-                errMsg += `parameter "${key}" in the apiConfig is set to "${values[1]}" and will take precedence over provided value "${values[0]}"\n`;
-            }
-
-            if (errMsg.length > 0) {
-                throw new Error(`Configuration clashes have been found between apiConfigs and opConfigs: \n${errMsg}`);
-            }
-        }
     }
 
     static type(): string {
