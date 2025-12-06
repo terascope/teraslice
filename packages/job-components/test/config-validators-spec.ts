@@ -1,7 +1,8 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { logLevels, Schema } from '@terascope/core-utils';
+import { logLevels } from '@terascope/core-utils';
+import { Terafoundation } from '@terascope/types';
 import {
     jobSchema, validateJobConfig, validateOpConfig,
     TestContext, validateAPIConfig,
@@ -302,7 +303,7 @@ describe('when using native clustering', () => {
     });
 
     describe('when validating opConfig', () => {
-        const schema: Schema<any> = {
+        const schema: Terafoundation.Schema<any> = {
             example: {
                 default: '',
                 doc: 'some example value',
@@ -439,7 +440,7 @@ describe('when using native clustering', () => {
     });
 
     describe('when validating apiConfig', () => {
-        const schema: Schema<any> = {
+        const schema: Terafoundation.Schema<any> = {
             example: {
                 default: '',
                 doc: 'some example value',

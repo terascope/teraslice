@@ -2,8 +2,7 @@ import os from 'node:os';
 import {
     TSError, isFunction, isPlainObject,
     isEmpty, concat, pMap,
-    cloneDeep, SchemaValidator,
-    Schema, Format
+    cloneDeep, SchemaValidator, Format
 } from '@terascope/core-utils';
 import type { Terafoundation, PartialDeep } from '@terascope/types';
 import { getConnectorSchemaAndValFn } from './connector-utils.js';
@@ -11,7 +10,7 @@ import { foundationSchema } from './schema.js';
 
 function validateConfig(
     cluster: { isMaster: boolean },
-    schema: Schema<any>,
+    schema: Terafoundation.Schema<any>,
     namespaceConfig: any,
     schemaKey: string,
     extraFormats?: Format[]

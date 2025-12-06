@@ -16,7 +16,7 @@ interface Format {
     coerce?(val: any): any;
 }
 
-interface SchemaObj<T = any> {
+export interface SchemaObj<T = any> {
     default: T | null;
     doc?: string | undefined;
     format?: any;

@@ -1,7 +1,7 @@
 import {
-    has, get, toString,
-    isDeepEqual, Schema
+    has, get, toString, isDeepEqual
 } from '@terascope/core-utils';
+import { Terafoundation } from '@terascope/types';
 import SchemaCore, { OpType } from './core/schema-core.js';
 import {
     Context, OpConfig, APIConfig,
@@ -15,7 +15,7 @@ import { validateOpConfig, validateAPIConfig } from '../config-validators.js';
 export default abstract class ConvictSchema<T extends Record<string, any>, S = any>
     extends SchemaCore<T> {
     // ...
-    schema: Schema<S>;
+    schema: Terafoundation.Schema<S>;
 
     constructor(context: Context, opType: OpType = 'operation') {
         super(context, opType);
@@ -97,5 +97,5 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
         return 'convict';
     }
 
-    abstract build<U = any>(context?: Context): Schema<S & U>;
+    abstract build<U = any>(context?: Context): Terafoundation.Schema<S & U>;
 }

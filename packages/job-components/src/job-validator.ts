@@ -1,5 +1,5 @@
-import { cloneDeep, pMap, Schema } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { cloneDeep, pMap } from '@terascope/core-utils';
+import { Teraslice, Terafoundation } from '@terascope/types';
 import { Context, OpConfig, ValidatedJobConfig } from './interfaces';
 import { validateJobConfig } from './config-validators.js';
 import { jobSchema } from './job-schemas.js';
@@ -8,7 +8,7 @@ import { registerApis } from './register-apis.js';
 import { OperationAPIConstructor, OperationModule } from './operations/index.js';
 
 export class JobValidator {
-    public schema: Schema<any>;
+    public schema: Terafoundation.Schema<any>;
     private readonly context: Context;
     private readonly opLoader: OperationLoader;
 

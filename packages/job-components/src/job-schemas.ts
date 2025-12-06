@@ -3,9 +3,9 @@ import {
     flatten, getField, getTypeOf,
     hasOwn, isNotNil, isNumber,
     isPlainObject, isString, logLevels,
-    dataEncodings, Schema
+    dataEncodings
 } from '@terascope/core-utils';
-import { DataEncoding } from '@terascope/types';
+import { DataEncoding, Terafoundation } from '@terascope/types';
 import { Context } from './interfaces/index.js';
 
 const cpuCount = os.cpus().length;
@@ -16,8 +16,8 @@ const workers = cpuCount < 5 ? cpuCount : 5;
  * @param context Teraslice context object
  * @returns Complete convict style schema for the Teraslice Job
  */
-export function jobSchema(context: Context): Schema<any> {
-    const schemas: Schema<any> = {
+export function jobSchema(context: Context): Terafoundation.Schema<any> {
+    const schemas: Terafoundation.Schema<any> = {
         active: {
             default: true,
             doc: 'A convenience property that allows the user to indicate whether the job'
@@ -256,7 +256,7 @@ export function jobSchema(context: Context): Schema<any> {
         schemas.external_ports = {
             doc: 'A numerical array of ports that should be exposed as external ports on the pods',
             default: undefined,
-            format(arr) {
+            format(arr: unknown) {
                 // TODO: What should we really do to validate this?  It can be
                 // omitted, an empty array, or an array with numbers.  It can't
                 // contain anything other than numbers.  Processors should be able
@@ -401,7 +401,7 @@ export const makeJobSchema = jobSchema;
 /**
  * This is the schema for a Teraslice Operation.
  */
-export const opSchema: Schema<any> = {
+export const opSchema: Terafoundation.Schema<any> = {
     _op: {
         default: '',
         doc: 'Name of operation, , it must reflect the name of the file or folder',
@@ -430,7 +430,7 @@ export const opSchema: Schema<any> = {
 /**
  * This is the schema for a Teraslice API.
  */
-export const apiSchema: Schema<any> = {
+export const apiSchema: Terafoundation.Schema<any> = {
     _name: {
         default: '',
         doc: `The _name property is required, and it is required to be unique

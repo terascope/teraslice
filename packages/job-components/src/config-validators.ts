@@ -1,4 +1,5 @@
-import { Schema, SchemaValidator } from '@terascope/core-utils';
+import { SchemaValidator } from '@terascope/core-utils';
+import { Terafoundation as TF } from '@terascope/types';
 import { ValidatedJobConfig, OpConfig, APIConfig } from './interfaces/index.js';
 import { opSchema, apiSchema } from './job-schemas.js';
 
@@ -7,11 +8,10 @@ import { opSchema, apiSchema } from './job-schemas.js';
  * provided opConfig against the resulting schema.
  */
 export function validateOpConfig<T>(
-    inputSchema: Schema<any>, inputConfig: Record<string, any>
+    inputSchema: TF.Schema<any>, inputConfig: Record<string, any>
 ): OpConfig & T {
-    const schema = Object.assign({}, opSchema, inputSchema) as Schema<OpConfig & T>;
+    const schema = Object.assign({}, opSchema, inputSchema) as TF.Schema<OpConfig & T>;
     const validator = new SchemaValidator<OpConfig & T>(schema, inputConfig._op);
-
     try {
         return validator.validate(inputConfig);
     } catch (err) {
@@ -24,9 +24,9 @@ export function validateOpConfig<T>(
  * provided apiConfig against the resulting schema.
  */
 export function validateAPIConfig<T>(
-    inputSchema: Schema<any>, inputConfig: Record<string, any>
+    inputSchema: TF.Schema<any>, inputConfig: Record<string, any>
 ): APIConfig & T {
-    const schema = Object.assign({}, apiSchema, inputSchema) as Schema<APIConfig & T>;
+    const schema = Object.assign({}, apiSchema, inputSchema) as TF.Schema<APIConfig & T>;
     const validator = new SchemaValidator<APIConfig & T>(schema, inputConfig._name);
 
     try {
@@ -41,10 +41,10 @@ export function validateAPIConfig<T>(
  * provided jobConfig against the resulting schema.
  */
 export function validateJobConfig<T>(
-    inputSchema: Schema<any>, inputConfig: Record<string, any>
+    inputSchema: TF.Schema<any>, inputConfig: Record<string, any>
 ): ValidatedJobConfig & T {
     const validator = new SchemaValidator<ValidatedJobConfig & T>(
-        inputSchema as Schema<ValidatedJobConfig & T>,
+        inputSchema as TF.Schema<ValidatedJobConfig & T>,
         inputConfig.name
     );
 
