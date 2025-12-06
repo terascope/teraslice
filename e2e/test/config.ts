@@ -1,7 +1,6 @@
 import path from 'node:path';
-import { z } from 'zod';
-import { toBoolean } from '@terascope/core-utils';
-import { Logger } from '@terascope/types';
+import { SchemaValidator, toBoolean } from '@terascope/core-utils';
+import { E2ETestEnv, Logger, Terafoundation } from '@terascope/types';
 import {
     ASSET_BUNDLES_PATH,
     ASSETS_PATH,
@@ -14,50 +13,151 @@ import {
     LOG_PATH,
     USE_DEV_ASSETS,
     WORKERS_PER_NODE,
-    newId
+    newId,
+    E2EConstants
 } from './constants.js';
 
 const logLevels: Logger.LogLevelString[] = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
 
-const E2EEnvSchema = z.object({
-    ASSET_STORAGE_CONNECTION: z.string().optional(),
-    ASSET_STORAGE_CONNECTION_TYPE: z.string().optional(),
-    CERT_PATH: z.string(),
-    DEBUG_LOG_LEVEL: z.enum(logLevels).optional(),
-    ELASTICSEARCH_HOST: z.string().optional(),
-    ENCRYPT_KAFKA: z.stringbool().optional(),
-    ENCRYPT_MINIO: z.stringbool().optional(),
-    ENCRYPT_OPENSEARCH: z.stringbool().optional(),
-    FILE_LOGGING: z.stringbool(),
-    GENERATE_ONLY: z.string().optional(),
-    HOST_IP: z.string(),
-    KAFKA_BROKER: z.string(),
-    KAFKA_PORT: z.string().optional(),
-    KEEP_OPEN: z.stringbool().optional(),
-    KIND_CLUSTER: z.string(),
-    MINIO_ACCESS_KEY: z.string().optional(),
-    MINIO_HOST: z.string().optional(),
-    MINIO_SECRET_KEY: z.string().optional(),
-    NODE_VERSION: z.string(),
-    OPENSEARCH_HOST: z.string().optional(),
-    OPENSEARCH_SSL_HOST: z.string().optional(),
-    OPENSEARCH_HOSTNAME: z.string().optional(),
-    OPENSEARCH_PORT: z.string().optional(),
-    OPENSEARCH_PASSWORD: z.string().optional(),
-    OPENSEARCH_USER: z.string().optional(),
-    OPENSEARCH_VERSION: z.string().optional(),
-    SEARCH_TEST_HOST: z.string(),
-    TERASLICE_PORT: z.string(),
-    TEST_INDEX_PREFIX: z.string(),
-    TEST_OPENSEARCH: z.stringbool().optional(),
-    TEST_PLATFORM: z.string(),
-    USE_DEV_ASSETS: z.stringbool().optional(),
-    USE_HELMFILE: z.stringbool(),
-});
+const E2EEnvSchema: Terafoundation.Schema<any> = {
+    ASSET_STORAGE_CONNECTION: {
+        default: null,
+        format: 'optional_String'
+    },
+    ASSET_STORAGE_CONNECTION_TYPE: {
+        default: null,
+        format: 'optional_String'
+    },
+    CERT_PATH: {
+        default: null,
+        format: String
+    },
+    DEBUG_LOG_LEVEL: {
+        default: null,
+        format: logLevels
+    },
+    ELASTICSEARCH_HOST: {
+        default: null,
+        format: 'optional_String'
+    },
+    ENCRYPT_KAFKA: {
+        default: null,
+        format: 'optional_bool'
+    },
+    ENCRYPT_MINIO: {
+        default: false,
+        format: 'optional_bool'
+    },
+    ENCRYPT_OPENSEARCH: {
+        default: null,
+        format: 'optional_bool'
+    },
+    FILE_LOGGING: {
+        default: null,
+        format: 'optional_bool'
+    },
+    GENERATE_ONLY: {
+        default: null,
+        format: 'optional_String'
+    },
+    HOST_IP: {
+        default: null,
+        format: String
+    },
+    KAFKA_BROKER: {
+        default: null,
+        format: String
+    },
+    KAFKA_PORT: {
+        default: null,
+        format: 'optional_String'
+    },
+    KEEP_OPEN: {
+        default: null,
+        format: 'optional_bool'
+    },
+    KIND_CLUSTER: {
+        default: null,
+        format: String
+    },
+    MINIO_ACCESS_KEY: {
+        default: null,
+        format: 'optional_String'
+    },
+    MINIO_HOST: {
+        default: null,
+        format: 'optional_String'
+    },
+    MINIO_SECRET_KEY: {
+        default: null,
+        format: 'optional_String'
+    },
+    NODE_VERSION: {
+        default: null,
+        format: String
+    },
+    OPENSEARCH_HOST: {
+        default: null,
+        format: 'optional_String'
+    },
+    OPENSEARCH_SSL_HOST: {
+        default: null,
+        format: 'optional_String'
+    },
+    OPENSEARCH_HOSTNAME: {
+        default: null,
+        format: 'optional_String'
+    },
+    OPENSEARCH_PORT: {
+        default: null,
+        format: 'optional_String'
+    },
+    OPENSEARCH_PASSWORD: {
+        default: null,
+        format: 'optional_String'
+    },
+    OPENSEARCH_USER: {
+        default: null,
+        format: 'optional_String'
+    },
+    OPENSEARCH_VERSION: {
+        default: null,
+        format: 'optional_String'
+    },
+    SEARCH_TEST_HOST: {
+        default: null,
+        format: String
+    },
+    TERASLICE_PORT: {
+        default: null,
+        format: String
+    },
+    TEST_INDEX_PREFIX: {
+        default: null,
+        format: String
+    },
+    TEST_OPENSEARCH: {
+        default: null,
+        format: 'optional_bool'
+    },
+    TEST_PLATFORM: {
+        default: null,
+        format: String
+    },
+    USE_DEV_ASSETS: {
+        default: null,
+        format: 'optional_bool'
+    },
+    USE_HELMFILE: {
+        default: null,
+        format: 'optional_bool'
+    },
+};
 
-const envConfig = E2EEnvSchema.parse(process.env);
+const validator = new SchemaValidator<E2ETestEnv>(E2EEnvSchema, 'E2EEnvSchema');
+const envConfig = validator.validate(process.env);
 
-export const config = {
+export const config: E2ETestEnv & E2EConstants = {
     ...envConfig,
     ASSET_BUNDLES_PATH,
     ASSETS_PATH,
