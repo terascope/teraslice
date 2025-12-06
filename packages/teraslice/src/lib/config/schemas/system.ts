@@ -334,7 +334,7 @@ export const schema = {
     },
     asset_storage_bucket: {
         doc: 'Name of S3 bucket used to store assets. Can only be used if "asset_storage_connection_type" is "s3".',
-        default: undefined,
+        default: null,
         format: 'optional_String'
     },
 };
