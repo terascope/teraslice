@@ -3203,7 +3203,6 @@ __metadata:
     opensearch2: "npm:@opensearch-project/opensearch@~2.12.0"
     opensearch3: "npm:@opensearch-project/opensearch@~3.5.1"
     setimmediate: "npm:~1.0.5"
-    zod: "npm:~4.1.12"
   languageName: unknown
   linkType: soft
 
@@ -3241,7 +3240,6 @@ __metadata:
     typescript: "npm:~5.9.2"
     yaml: "npm:^2.8.1"
     yargs: "npm:~18.0.0"
-    zod: "npm:~4.1.12"
   peerDependencies:
     typescript: ~5.9.2
   peerDependenciesMeta:
@@ -6489,7 +6487,6 @@ __metadata:
     ts-jest: "npm:~29.4.1"
     typescript: "npm:~5.9.2"
     uuid: "npm:~13.0.0"
-    zod: "npm:~4.1.12"
   languageName: unknown
   linkType: soft
 
@@ -13384,7 +13381,6 @@ __metadata:
     socket.io-client: "npm:~4.8.1"
     terafoundation: "npm:~2.0.0-dev.10"
     uuid: "npm:~13.0.0"
-    zod: "npm:~4.1.12"
   languageName: unknown
   linkType: soft
 

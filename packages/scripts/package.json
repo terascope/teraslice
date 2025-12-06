@@ -53,8 +53,7 @@
         "typedoc": "~0.28.13",
         "typedoc-plugin-markdown": "~4.8.1",
         "yaml": "^2.8.1",
-        "yargs": "~18.0.0",
-        "zod": "~4.1.12"
+        "yargs": "~18.0.0"
     },
     "devDependencies": {
         "@terascope/types": "~2.0.0-dev.7",
