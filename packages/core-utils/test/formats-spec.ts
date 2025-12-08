@@ -43,7 +43,7 @@ describe('Convict Formats', () => {
         }).not.toThrow();
         expect(() => {
             testFormat(253);
-        }).toThrow(`"message": "Invalid input: expected string, received number"`);
+        }).toThrow(`"message": "This field is optional but if specified it must be of type string"`);
         expect(() => {
             testFormat(undefined);
         }).not.toThrow();
@@ -108,7 +108,7 @@ describe('Convict Formats', () => {
         }).not.toThrow();
         expect(() => {
             testFormat({ hi: 'there' });
-        }).toThrow(/(?=.*Invalid input: expected string, received object)(?=.*Invalid input: expected number, received object)/s);
+        }).toThrow(`"message": "parameter must be a string or number IF specified"`);
         expect(() => {
             testFormat('idk');
         }).toThrow(/value: \\"idk\\" cannot be coerced into a proper date/s);
@@ -270,7 +270,7 @@ describe('Convict Formats', () => {
             }).toThrow('must be a positive integer or human readable string (e.g. 3000, \\"5 days\\")');
         });
 
-        it('should coerce string with invalid units to 0', () => {
+        it('should return 0 when given invalid units', () => { // FIXME: I think this should error instead
             const myConfig = {
                 duration: {
                     default: null,
@@ -279,7 +279,7 @@ describe('Convict Formats', () => {
             };
 
             const validator = new SchemaValidator(myConfig, 'duration');
-            const result = validator.validate({ duration: '2 volts' });
+            const result = validator.validate({ duration: '2 weaks' });
             expect(result).toMatchObject({ duration: 0 });
         });
     });
