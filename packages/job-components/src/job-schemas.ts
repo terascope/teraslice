@@ -202,9 +202,10 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
             },
         },
         log_level: {
-            default: undefined,
+            default: null,
             doc: 'the log level to be set on all loggers associated with the job',
             format(level: unknown) {
+                if (level === null) return;
                 const logLevelStrings = Object.keys(logLevels);
                 if (typeof level !== 'string' || !logLevelStrings.includes(level)) {
                     throw new Error(`must be one of the following: ${logLevelStrings}`);
@@ -237,13 +238,13 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
 
         schemas.cpu = {
             doc: 'DEPRECATED: number of cpus to reserve per teraslice worker in kubernetes',
-            default: undefined,
+            default: null,
             format: 'Number',
         };
 
         schemas.cpu_execution_controller = {
             doc: 'number of cpus to reserve per teraslice execution controller in kubernetes',
-            default: undefined,
+            default: null,
             format: 'Number',
         };
 
@@ -255,7 +256,7 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
 
         schemas.external_ports = {
             doc: 'A numerical array of ports that should be exposed as external ports on the pods',
-            default: undefined,
+            default: null,
             format(arr: unknown) {
                 // TODO: What should we really do to validate this?  It can be
                 // omitted, an empty array, or an array with numbers.  It can't
@@ -301,13 +302,13 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
 
         schemas.memory = {
             doc: 'DEPRECATED: memory, in bytes, to reserve per teraslice worker in Kubernetes',
-            default: undefined,
+            default: null,
             format: 'Number',
         };
 
         schemas.memory_execution_controller = {
             doc: 'memory, in bytes, to reserve per teraslice execution controller in kubernetes',
-            default: undefined,
+            default: null,
             format: 'Number',
         };
 
@@ -327,25 +328,25 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
 
         schemas.resources_requests_cpu = {
             doc: 'kubernetes CPU request, in cores, to set on Teraslice workers',
-            default: undefined,
+            default: null,
             format: 'Number'
         };
 
         schemas.resources_requests_memory = {
             doc: 'kubernetes memory request, in bytes, to set on Teraslice workers',
-            default: undefined,
+            default: null,
             format: 'Number'
         };
 
         schemas.resources_limits_cpu = {
             doc: 'kubernetes CPU limit, in cores, to set on Teraslice workers',
-            default: undefined,
+            default: null,
             format: 'Number'
         };
 
         schemas.resources_limits_memory = {
             doc: 'kubernetes memory limit, in bytes, to set on Teraslice workers',
-            default: undefined,
+            default: null,
             format: 'Number'
         };
 
@@ -370,25 +371,25 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
 
         schemas.kubernetes_image = {
             doc: 'Specify a custom image name for kubernetes, this only applies to kubernetes systems',
-            default: undefined,
+            default: null,
             format: 'optional_String',
         };
 
         schemas.prom_metrics_enabled = {
-            default: undefined,
+            default: null,
             doc: 'Create a prometheus exporter. Overrides terafoundation value',
             format: Boolean,
         };
 
         schemas.prom_metrics_port = {
             doc: 'Port of prometheus exporter server for teraslice process. Overrides terafoundation value',
-            default: undefined,
+            default: null,
             format: Number
         };
 
         schemas.prom_metrics_add_default = {
             doc: 'Display default node metrics in prom client. Overrides terafoundation value',
-            default: undefined,
+            default: null,
             format: Boolean
         };
     }
@@ -403,7 +404,7 @@ export const makeJobSchema = jobSchema;
  */
 export const opSchema: Terafoundation.Schema<any> = {
     _op: {
-        default: '',
+        default: undefined,
         doc: 'Name of operation, , it must reflect the name of the file or folder',
         format: 'required_String',
     },
@@ -432,7 +433,7 @@ export const opSchema: Terafoundation.Schema<any> = {
  */
 export const apiSchema: Terafoundation.Schema<any> = {
     _name: {
-        default: '',
+        default: undefined,
         doc: `The _name property is required, and it is required to be unique
         but can be suffixed with a identifier by using the format "example:0",
         anything after the ":" is stripped out when searching for the file or folder.`,
@@ -440,7 +441,7 @@ export const apiSchema: Terafoundation.Schema<any> = {
     },
     _encoding: {
         doc: 'Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.',
-        default: undefined,
+        default: null,
         format: (val: unknown): void => {
             if (isNotNil(val)) {
                 if (isString(val)) {

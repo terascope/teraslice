@@ -305,7 +305,7 @@ describe('when using native clustering', () => {
     describe('when validating opConfig', () => {
         const schema: Terafoundation.Schema<any> = {
             example: {
-                default: '',
+                default: undefined,
                 doc: 'some example value',
                 format: 'required_String',
             },
@@ -442,7 +442,7 @@ describe('when using native clustering', () => {
     describe('when validating apiConfig', () => {
         const schema: Terafoundation.Schema<any> = {
             example: {
-                default: '',
+                default: undefined,
                 doc: 'some example value',
                 format: 'required_String',
             },
@@ -481,7 +481,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
                 test: true,
                 _dead_letter_action: 'throw',
-                _encoding: undefined,
+                _encoding: null,
             });
         });
 

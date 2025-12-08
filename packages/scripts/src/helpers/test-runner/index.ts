@@ -18,7 +18,7 @@ import {
     runJest, dockerTag, isKindInstalled, isKubectlInstalled,
     loadThenDeleteImageFromCache, deleteDockerImageCache,
     isHelmInstalled, isHelmfileInstalled, launchTerasliceWithHelmfile,
-    generateTestCaCerts, ExecEnv
+    generateTestCaCerts
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
@@ -35,7 +35,7 @@ import config from '../config.js';
 
 const {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
-    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH
+    K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH
 } = config;
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -267,11 +267,6 @@ async function runE2ETest(
         // load service if in native. In k8s services will be loaded directly to kind
         if (options.clusteringType === 'native') {
             await loadOrPullServiceImages(suite, options.skipImageDeletion);
-        }
-
-        // load the base docker image only if needed to build a dev image
-        if (!SKIP_DOCKER_BUILD_IN_E2E) {
-            await loadThenDeleteImageFromCache(`${BASE_DOCKER_IMAGE}:${NODE_VERSION}`, options.skipImageDeletion);
         }
     }
 

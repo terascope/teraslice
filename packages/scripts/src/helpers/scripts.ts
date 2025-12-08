@@ -30,7 +30,7 @@ const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
 export type ExecEnv<T extends TestEnv = TestEnv>
-    = T & { [name: string]: string | undefined };
+    = T & { [name: string]: any };
 type ExecOpts<T extends TestEnv = TestEnv> = {
     cmd: string;
     args?: string[];
@@ -821,7 +821,7 @@ function waitForKafkaRunning(name: string, timeoutMs = 12000): Promise<void> {
     return _waitForKafkaRunning();
 }
 
-export async function setAlias(tsPort: string) {
+export async function setAlias(tsPort: number) {
     try {
         const subprocess1 = await execaCommand('earl aliases remove k8s-e2e 2> /dev/null || true', { shell: true });
         logger.debug(subprocess1.stdout);
@@ -839,7 +839,7 @@ export async function setAlias(tsPort: string) {
     }
 }
 
-export async function showState(tsPort: string) {
+export async function showState(tsPort: number) {
     try {
         const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
         logger.debug(subprocess.stdout);
@@ -855,7 +855,7 @@ async function showESIndices() {
     return subprocess.stdout;
 }
 
-async function showAssets(tsPort: string) {
+async function showAssets(tsPort: number) {
     try {
         const subprocess = await execaCommand(`curl ${config.HOST_IP}:${tsPort}/v1/assets`);
         return subprocess.stdout;

@@ -68,7 +68,7 @@ const cmd: CommandModule = {
             .option('config-file', {
                 description: 'Passes in a path to a config file that will override all settings except --dev',
                 type: 'string',
-                default: undefined
+                default: null
             })
             .option('generate-config', {
                 description: 'Will generate a default templated config file named k8s-config.yaml',
@@ -91,7 +91,7 @@ const cmd: CommandModule = {
     handler(argv) {
         const k8sOptions: K8sEnvOptions = {
             skipBuild: Boolean(argv['skip-build']),
-            tsPort: argv['ts-port'] as string,
+            tsPort: argv['ts-port'] as number,
             kindClusterName: argv['cluster-name'] as string,
             terasliceImage: argv['teraslice-image'] as string,
             dev: Boolean(argv.dev),
@@ -100,7 +100,7 @@ const cmd: CommandModule = {
             logs: Boolean(argv.logs)
         };
 
-        if (argv['config-file'] !== undefined) {
+        if (argv['config-file'] !== null) {
             const configPath = argv['config-file'] as string;
             // Check to see if the path is already absolute
             if (path.isAbsolute(configPath)) {

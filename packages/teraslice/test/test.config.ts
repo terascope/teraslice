@@ -4,7 +4,7 @@ import { newId } from '../src/lib/utils/id_utils.js';
 
 const terasliceTestEnvSchema = {
     SEARCH_TEST_HOST: {
-        default: null,
+        default: undefined,
         format: String,
     },
     TERASLICE_CLUSTER_NAME: {
@@ -12,7 +12,7 @@ const terasliceTestEnvSchema = {
         format: 'optional_String',
     },
     TEST_INDEX_PREFIX: {
-        default: null,
+        default: undefined,
         format: String,
     },
 };

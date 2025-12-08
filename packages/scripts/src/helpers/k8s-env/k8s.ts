@@ -19,10 +19,10 @@ export class K8s {
     k8sSchedulingV1Api: k8sClient.SchedulingV1Api;
     terasliceNamespace: string;
     servicesNamespace: string;
-    tsPort: string;
+    tsPort: number;
     kindClusterName: string;
 
-    constructor(tsPort: string, kindClusterName: string) {
+    constructor(tsPort: number, kindClusterName: string) {
         this.kc = new k8sClient.KubeConfig();
         this.kc.loadFromDefault();
 

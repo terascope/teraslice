@@ -29,11 +29,11 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         format: 'optional_String'
     },
     CERT_PATH: {
-        default: null,
+        default: undefined,
         format: String
     },
     DEBUG_LOG_LEVEL: {
-        default: null,
+        default: undefined,
         format: logLevels
     },
     ELASTICSEARCH_HOST: {
@@ -45,7 +45,7 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         format: 'optional_bool'
     },
     ENCRYPT_MINIO: {
-        default: false,
+        default: null,
         format: 'optional_bool'
     },
     ENCRYPT_OPENSEARCH: {
@@ -61,11 +61,11 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         format: 'optional_String'
     },
     HOST_IP: {
-        default: null,
+        default: undefined,
         format: String
     },
     KAFKA_BROKER: {
-        default: null,
+        default: undefined,
         format: String
     },
     KAFKA_PORT: {
@@ -77,7 +77,7 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         format: 'optional_bool'
     },
     KIND_CLUSTER: {
-        default: null,
+        default: undefined,
         format: String
     },
     MINIO_ACCESS_KEY: {
@@ -93,7 +93,7 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         format: 'optional_String'
     },
     NODE_VERSION: {
-        default: null,
+        default: undefined,
         format: String
     },
     OPENSEARCH_HOST: {
@@ -125,15 +125,15 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         format: 'optional_String'
     },
     SEARCH_TEST_HOST: {
-        default: null,
+        default: undefined,
         format: String
     },
     TERASLICE_PORT: {
-        default: null,
+        default: undefined,
         format: String
     },
     TEST_INDEX_PREFIX: {
-        default: null,
+        default: undefined,
         format: String
     },
     TEST_OPENSEARCH: {
@@ -141,7 +141,7 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         format: 'optional_bool'
     },
     TEST_PLATFORM: {
-        default: null,
+        default: undefined,
         format: String
     },
     USE_DEV_ASSETS: {

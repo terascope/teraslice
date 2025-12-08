@@ -32,8 +32,8 @@ describe('scripts', () => {
                     'network.host': '0.0.0.0',
                     'http.port': '49210',
                     'discovery.type': 'single-node',
-                    DISABLE_INSTALL_DEMO_CONFIG: 'true',
-                    DISABLE_SECURITY_PLUGIN: 'true'
+                    DISABLE_INSTALL_DEMO_CONFIG: true,
+                    DISABLE_SECURITY_PLUGIN: true
                 },
                 network: undefined
             };

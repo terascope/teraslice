@@ -74,8 +74,8 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'network.host': '0.0.0.0',
             'http.port': config.RESTRAINED_OPENSEARCH_PORT,
             'discovery.type': 'single-node',
-            DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            DISABLE_SECURITY_PLUGIN: 'true'
+            DISABLE_INSTALL_DEMO_CONFIG: true,
+            DISABLE_SECURITY_PLUGIN: true
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -91,8 +91,8 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'network.host': '0.0.0.0',
             'http.port': config.OPENSEARCH_PORT,
             'discovery.type': 'single-node',
-            DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            DISABLE_SECURITY_PLUGIN: 'true',
+            DISABLE_INSTALL_DEMO_CONFIG: true,
+            DISABLE_SECURITY_PLUGIN: true,
             DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI: 'true'
         },
         network: config.DOCKER_NETWORK_NAME

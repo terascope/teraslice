@@ -6,7 +6,7 @@ export default class Schema extends ConvictSchema<any, any> {
             version: {
                 doc: 'my version',
                 format: 'required_String',
-                default: null
+                default: undefined
             }
         };
     }

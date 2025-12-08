@@ -36,7 +36,7 @@ export const schema = {
     },
     assets_volume: {
         doc: 'name of shared asset volume (k8s)',
-        default: '',
+        default: null,
         format: 'optional_String'
     },
     autoload_directory: {
@@ -229,7 +229,7 @@ export const schema = {
     },
     cpu: {
         doc: 'number of cpus to reserve per teraslice worker in kubernetes',
-        default: undefined,
+        default: null,
         format: 'Number'
     },
     cpu_execution_controller: {
@@ -244,7 +244,7 @@ export const schema = {
     },
     memory: {
         doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
-        default: undefined,
+        default: null,
         format: 'Number'
     },
     memory_execution_controller: {
@@ -304,7 +304,7 @@ export const schema = {
     },
     kubernetes_priority_class_name: {
         doc: 'Priority class that the Teraslice master, execution controller, and stateful workers should run with',
-        default: undefined,
+        default: null,
         format: 'optional_String'
     },
     kubernetes_config_map_name: {
@@ -314,7 +314,7 @@ export const schema = {
     },
     kubernetes_image_pull_secret: {
         doc: 'Name of Kubernetes secret used to pull docker images from private repository',
-        default: '',
+        default: null,
         format: 'optional_String'
     },
     kubernetes_worker_antiaffinity: {

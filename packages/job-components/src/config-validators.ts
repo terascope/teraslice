@@ -49,7 +49,6 @@ export function validateJobConfig<T>(
     );
 
     try {
-        // FIXME
         const jobProperties = validator.validate(inputConfig);
 
         if ((jobProperties.cpu && jobProperties.resources_limits_cpu)

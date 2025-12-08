@@ -13,12 +13,8 @@ import { getServicesForSuite } from '../misc.js';
 import config from '../config.js';
 import signale from '../signale.js';
 import type {
-    TestEnv,
-    ElasticsearchTestEnv,
-    KafkaTestEnv,
-    MinioTestEnv,
-    OpenSearchTestEnv,
-    RabbitMQTestEnv
+    TestEnv, ElasticsearchTestEnv, KafkaTestEnv,
+    MinioTestEnv, OpenSearchTestEnv, RabbitMQTestEnv
 } from '@terascope/types';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -76,13 +72,15 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
         NODE_VERSION: config.NODE_VERSION,
         KIND_CLUSTER: options.kindClusterName,
         TERASLICE_PORT: config.TERASLICE_PORT,
-        TJM_TEST_MODE: (suite !== 'e2e' ? 'true' : 'false') as 'true' | 'false',
+        TJM_TEST_MODE: suite !== 'e2e',
         NODE_OPTIONS: '--experimental-vm-modules',
-        USE_HELMFILE: (options.useHelmfile ? 'true' : 'false') as 'true' | 'false',
+        USE_HELMFILE: options.useHelmfile,
         TEST_PLATFORM: options.clusteringType,
-        FILE_LOGGING: (options.logs ? 'true' : 'false') as 'true' | 'false',
-        CERT_PATH: config.CERT_PATH
-    } satisfies NodeJS.ProcessEnv;
+        FILE_LOGGING: options.logs,
+        CERT_PATH: config.CERT_PATH,
+        ASSET_STORAGE_CONNECTION: config.ASSET_STORAGE_CONNECTION,
+        ASSET_STORAGE_CONNECTION_TYPE: config.ASSET_STORAGE_CONNECTION_TYPE,
+    };
 
     if (config.DOCKER_NETWORK_NAME) {
         Object.assign(env, {
@@ -130,9 +128,9 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
     if (launchServices.includes(Service.RabbitMQ)) {
         Object.assign(env, {
             RABBITMQ_HOSTNAME: config.RABBITMQ_HOSTNAME,
-            RABBITMQ_MANAGEMENT_PORT: `${config.RABBITMQ_MANAGEMENT_PORT}`,
+            RABBITMQ_MANAGEMENT_PORT: config.RABBITMQ_MANAGEMENT_PORT,
             RABBITMQ_PASSWORD: config.RABBITMQ_PASSWORD,
-            RABBITMQ_PORT: `${config.RABBITMQ_PORT}`,
+            RABBITMQ_PORT: config.RABBITMQ_PORT,
             RABBITMQ_USER: config.RABBITMQ_USER,
             RABBITMQ_VERSION: config.RABBITMQ_VERSION,
         } satisfies RabbitMQTestEnv);
@@ -171,7 +169,7 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
     }
 
     if (options.keepOpen) {
-        env.KEEP_OPEN = 'true';
+        env.KEEP_OPEN = true;
     }
 
     if (options.debug || options.trace) {
@@ -282,7 +280,7 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
 
     const errLogs = await getE2ELogs(dir, {
         LOG_LEVEL: 'info',
-        RAW_LOGS: isCI ? 'true' : 'false',
+        RAW_LOGS: isCI ? true : false,
         FORCE_COLOR: isCI ? '0' : '1',
     });
     process.stderr.write(`${errLogs}\n`);

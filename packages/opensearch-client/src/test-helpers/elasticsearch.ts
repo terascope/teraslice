@@ -7,20 +7,24 @@ import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
 import { createClient, Client, Semver, ClientConfig } from '../client/index.js';
 import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
-import { opensearchEnvSchema } from './config.js';
+import { envConfig } from './config.js';
 
+const {
+    ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
+    OPENSEARCH_PASSWORD, OPENSEARCH_SSL_HOST, OPENSEARCH_USER,
+    OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST
+} = envConfig;
 export async function makeClient(rootCaPath?: string): Promise<Client> {
     let host: string;
     let esConfig: ClientConfig = {};
-    const env = opensearchEnvSchema.parse(process.env);
 
     // Figure out the right host
-    if (process.env.TEST_RESTRAINED_OPENSEARCH && env.RESTRAINED_OPENSEARCH_HOST) {
-        host = env.RESTRAINED_OPENSEARCH_HOST;
-    } else if (process.env.TEST_OPENSEARCH && env.OPENSEARCH_SSL_HOST && env.OPENSEARCH_HOST) {
-        host = process.env.ENCRYPT_OPENSEARCH ? env.OPENSEARCH_SSL_HOST : env.OPENSEARCH_HOST;
-    } else if (env.ELASTICSEARCH_HOST) {
-        host = env.ELASTICSEARCH_HOST;
+    if (process.env.TEST_RESTRAINED_OPENSEARCH && RESTRAINED_OPENSEARCH_HOST) {
+        host = RESTRAINED_OPENSEARCH_HOST;
+    } else if (process.env.TEST_OPENSEARCH && OPENSEARCH_SSL_HOST && OPENSEARCH_HOST) {
+        host = process.env.ENCRYPT_OPENSEARCH ? OPENSEARCH_SSL_HOST : OPENSEARCH_HOST;
+    } else if (ELASTICSEARCH_HOST) {
+        host = ELASTICSEARCH_HOST;
     } else {
         throw new Error('No elasticsearch host defined');
     }
@@ -34,8 +38,8 @@ export async function makeClient(rootCaPath?: string): Promise<Client> {
         try {
             esConfig = {
                 node: host,
-                username: env.OPENSEARCH_USER,
-                password: env.OPENSEARCH_PASSWORD,
+                username: OPENSEARCH_USER,
+                password: OPENSEARCH_PASSWORD,
                 caCertificate: readFileSync(rootCaPath, 'utf8')
             };
         } catch (err) {
@@ -227,13 +231,12 @@ function parseVersion(version: string): Semver {
 }
 
 export function getTestENVClientInfo(): TestENVClientInfo {
-    const env = opensearchEnvSchema.parse(process.env);
-    if (process.env.TEST_OPENSEARCH != null && env.OPENSEARCH_HOST && env.OPENSEARCH_VERSION) {
-        const version = env.OPENSEARCH_VERSION;
+    if (process.env.TEST_OPENSEARCH != null && OPENSEARCH_HOST && OPENSEARCH_VERSION) {
+        const version = OPENSEARCH_VERSION;
         const [majorVersion, minorVersion] = parseVersion(version);
 
         return {
-            host: env.OPENSEARCH_HOST,
+            host: OPENSEARCH_HOST,
             distribution: ElasticsearchDistribution.opensearch,
             version,
             majorVersion,
@@ -243,14 +246,14 @@ export function getTestENVClientInfo(): TestENVClientInfo {
 
     if (
         process.env.TEST_RESTRAINED_OPENSEARCH != null
-        && env.RESTRAINED_OPENSEARCH_HOST
-        && env.OPENSEARCH_VERSION
+        && RESTRAINED_OPENSEARCH_HOST
+        && OPENSEARCH_VERSION
     ) {
-        const version = env.OPENSEARCH_VERSION;
+        const version = OPENSEARCH_VERSION;
         const [majorVersion, minorVersion] = parseVersion(version);
 
         return {
-            host: env.RESTRAINED_OPENSEARCH_HOST,
+            host: RESTRAINED_OPENSEARCH_HOST,
             distribution: ElasticsearchDistribution.opensearch,
             version,
             majorVersion,
@@ -258,14 +261,14 @@ export function getTestENVClientInfo(): TestENVClientInfo {
         };
     }
     if (
-        env.ELASTICSEARCH_HOST
-        && env.ELASTICSEARCH_VERSION
+        ELASTICSEARCH_HOST
+        && ELASTICSEARCH_VERSION
     ) {
-        const version = env.ELASTICSEARCH_VERSION;
+        const version = ELASTICSEARCH_VERSION;
         const [majorVersion, minorVersion] = parseVersion(version);
 
         return {
-            host: env.ELASTICSEARCH_HOST,
+            host: ELASTICSEARCH_HOST,
             distribution: ElasticsearchDistribution.elasticsearch,
             version,
             majorVersion,
