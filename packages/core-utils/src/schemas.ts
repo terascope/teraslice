@@ -558,8 +558,8 @@ export class SchemaValidator<T = AnyObject> {
     }
 
     _validateDefault(type: z.ZodType, defaultVal: any) {
-        // allow undefined default values to force the user to provide a value
-        if (defaultVal !== undefined) {
+        if (defaultVal !== undefined && defaultVal !== null) {
+            console.log('@@@@ defaultVal: ', defaultVal);
             type.parse(defaultVal);
         }
     }
