@@ -85,7 +85,7 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
     if (config.DOCKER_NETWORK_NAME) {
         Object.assign(env, {
             DOCKER_NETWORK_NAME: config.DOCKER_NETWORK_NAME
-        } satisfies NodeJS.ProcessEnv);
+        });
     }
 
     const launchServices: Service[] = suite ? getServicesForSuite(suite) : [];
@@ -185,7 +185,7 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
         Object.assign(env, {
             DEBUG,
             DEBUG_LOG_LEVEL
-        } satisfies NodeJS.ProcessEnv);
+        });
     }
 
     return env;

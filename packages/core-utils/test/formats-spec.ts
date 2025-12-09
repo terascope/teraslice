@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { formats, SchemaValidator } from '../src/schemas.js';
+import { formats, SchemaValidator, isMomentUnitOfTime } from '../src/schemas.js';
 
 describe('Convict Formats', () => {
     function createSchemaValueTest(name: string, defaultVal: any = null) {
@@ -270,17 +270,100 @@ describe('Convict Formats', () => {
             }).toThrow('must be a positive integer or human readable string (e.g. 3000, \\"5 days\\")');
         });
 
-        it('should return 0 when given invalid units', () => { // FIXME: I think this should error instead
-            const myConfig = {
-                duration: {
-                    default: null,
-                    format: 'duration'
-                }
-            };
+        it('should throw when given invalid units', () => {
+            const testFormat = createSchemaValueTest('duration');
 
-            const validator = new SchemaValidator(myConfig, 'duration');
-            const result = validator.validate({ duration: '2 weaks' });
-            expect(result).toMatchObject({ duration: 0 });
+            expect(() => {
+                testFormat('2 weaks');
+            }).toThrow('Invalid duration unit: weaks');
+
+            expect(() => {
+                testFormat('5 fortnights');
+            }).toThrow('Invalid duration unit: fortnights');
+        });
+
+        it('should accept valid moment.js duration units', () => {
+            const testFormat = createSchemaValueTest('duration');
+
+            expect(() => {
+                testFormat('2 years');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('3 months');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('1 week');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('5 days');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('2 hours');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('30 minutes');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('45 seconds');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('100 milliseconds');
+            }).not.toThrow();
+
+            expect(() => {
+                testFormat('1 quarter');
+            }).not.toThrow();
+        });
+    });
+
+    describe('isMomentUnitOfTime', () => {
+        it('should return true for valid base units', () => {
+            expect(isMomentUnitOfTime('year')).toBe(true);
+            expect(isMomentUnitOfTime('years')).toBe(true);
+            expect(isMomentUnitOfTime('y')).toBe(true);
+            expect(isMomentUnitOfTime('month')).toBe(true);
+            expect(isMomentUnitOfTime('months')).toBe(true);
+            expect(isMomentUnitOfTime('M')).toBe(true);
+            expect(isMomentUnitOfTime('week')).toBe(true);
+            expect(isMomentUnitOfTime('weeks')).toBe(true);
+            expect(isMomentUnitOfTime('w')).toBe(true);
+            expect(isMomentUnitOfTime('day')).toBe(true);
+            expect(isMomentUnitOfTime('days')).toBe(true);
+            expect(isMomentUnitOfTime('d')).toBe(true);
+            expect(isMomentUnitOfTime('hour')).toBe(true);
+            expect(isMomentUnitOfTime('hours')).toBe(true);
+            expect(isMomentUnitOfTime('h')).toBe(true);
+            expect(isMomentUnitOfTime('minute')).toBe(true);
+            expect(isMomentUnitOfTime('minutes')).toBe(true);
+            expect(isMomentUnitOfTime('m')).toBe(true);
+            expect(isMomentUnitOfTime('second')).toBe(true);
+            expect(isMomentUnitOfTime('seconds')).toBe(true);
+            expect(isMomentUnitOfTime('s')).toBe(true);
+            expect(isMomentUnitOfTime('millisecond')).toBe(true);
+            expect(isMomentUnitOfTime('milliseconds')).toBe(true);
+            expect(isMomentUnitOfTime('ms')).toBe(true);
+        });
+
+        it('should return true for quarter units', () => {
+            expect(isMomentUnitOfTime('quarter')).toBe(true);
+            expect(isMomentUnitOfTime('quarters')).toBe(true);
+            expect(isMomentUnitOfTime('Q')).toBe(true);
+        });
+
+        it('should return false for invalid units', () => {
+            expect(isMomentUnitOfTime('invalid')).toBe(false);
+            expect(isMomentUnitOfTime('weaks')).toBe(false);
+            expect(isMomentUnitOfTime('fortnight')).toBe(false);
+            expect(isMomentUnitOfTime('')).toBe(false);
+            expect(isMomentUnitOfTime('Year')).toBe(false); // case sensitive
+            expect(isMomentUnitOfTime('YEARS')).toBe(false); // case sensitive
         });
     });
 

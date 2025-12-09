@@ -161,13 +161,18 @@ export const formats: Format[] = [
                 // It must be an integer in string form.
                 val = parseInt(v, 10);
             } else {
+                let unitString = split[1];
                 // Add an "s" as the unit of measurement used in Moment
-                if (!split[1].match(/s$/)) {
-                    split[1] += 's';
+                if (!unitString.match(/s$/)) {
+                    unitString += 's';
+                }
+
+                if (!isMomentUnitOfTime(unitString)) {
+                    throw new Error(`Invalid duration unit: ${unitString}`);
                 }
                 val = moment.duration(
                     parseInt(split[0], 10),
-                    split[1] as moment.unitOfTime.DurationConstructor
+                    unitString
                 ).valueOf();
             }
             return val;
@@ -674,4 +679,44 @@ function isOfTypeFormat(value: unknown): value is Format {
 function getCustomFormatFromName(format: ConvictFormat) {
     if (typeof format !== 'string') return undefined;
     return formats.find((obj: Format) => obj.name === format);
+}
+export function isMomentUnitOfTime(
+    unitString: string
+): unitString is moment.unitOfTime.DurationConstructor {
+    // Helper function to create a type-checked array of valid units
+    const units = <T extends readonly moment.unitOfTime.DurationConstructor[]>(
+        arr: T
+    ): T => arr;
+
+    const validUnits = units([
+        'year',
+        'years',
+        'y',
+        'month',
+        'months',
+        'M',
+        'week',
+        'weeks',
+        'w',
+        'day',
+        'days',
+        'd',
+        'hour',
+        'hours',
+        'h',
+        'minute',
+        'minutes',
+        'm',
+        'second',
+        'seconds',
+        's',
+        'millisecond',
+        'milliseconds',
+        'ms',
+        'quarter',
+        'quarters',
+        'Q'
+    ]);
+
+    return (validUnits as readonly string[]).includes(unitString);
 }
