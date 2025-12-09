@@ -1,18 +1,27 @@
 import assert from 'node:assert';
-import { z, ZodType, RefinementCtx } from 'zod';
-import moment from 'moment';
+import bunyan from 'bunyan';
 import dateMath from 'datemath-parser';
-import { isFunction } from './functions.js';
-import { isString, startsWith } from './strings.js';
-import { isInteger, toInteger } from './numbers.js';
-import { isValidDate } from './dates.js';
-import { diffJson } from 'diff';
+import moment from 'moment';
+import { z, ZodType, RefinementCtx } from 'zod';
 import convict from 'convict';
 // @ts-expect-error no types
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
-import bunyan from 'bunyan';
+import { AnyObject, Terafoundation } from '@terascope/types';
+import { diffJson } from 'diff';
+import { isBoolean, toBoolean } from './booleans.js';
+import { isValidDate } from './dates.js';
+import { isFunction } from './functions.js';
+import { isInteger, toInteger, toIntegerOrThrow, toNumber } from './numbers.js';
+import { isSimpleObject } from './objects.js';
+import { isString, startsWith } from './strings.js';
+
+const convictCompatibleBooleanFn = (value: unknown) => {
+    if (value === 'true' || value === '1' || value === 1) return true;
+    if (value === 'false' || value === '0' || value === 0) return false;
+    return value;
+};
 
 export const formats: Format[] = [
     {
@@ -115,6 +124,32 @@ export const formats: Format[] = [
         },
     },
     {
+        name: 'optional_bool',
+        validate(val: unknown) {
+            if (val === null) return;
+            if (!isBoolean(val)) {
+                throw new Error(`If specified, must be convertible to a boolean. Received: ${val}`);
+            }
+        },
+        coerce: convictCompatibleBooleanFn,
+    },
+    {
+        name: 'optional_int',
+        validate(val: unknown) {
+            if (!val) return;
+            if (!isInteger(val)) {
+                throw new Error(`If specified, must be a boolean, 'true', or 'false'. Received: ${val}`);
+            }
+        },
+        coerce(val: unknown) {
+            try {
+                toIntegerOrThrow(val);
+            } catch (err) {
+                return val;
+            }
+        },
+    },
+    {
         name: 'duration',
         coerce: (v: string | number) => {
             if (typeof v === 'number') {
@@ -162,71 +197,94 @@ formats.forEach((format) => {
 convict.addFormats(convict_format_with_validator);
 convict.addFormats(convict_format_with_moment);
 
-export class SchemaValidator<T = any> {
-    inputSchema: Schema<T>;
+export class SchemaValidator<T = AnyObject> {
+    inputSchema: Terafoundation.Schema<T>;
     zodSchema: ZodType<T>;
     convictSchema: convict.Config<T>;
-    envMap: Record<string, string> = {};
-    argsMap: Record<string, string> = {};
+    envMap: Record<string, { envName: string; format: ConvictFormat }> = {};
+    argsMap: Record<string, { argName: string; format: ConvictFormat }> = {};
     logger: bunyan;
 
     constructor(
-        schema: Schema<T>,
-        parentKey: PropertyKey,
+        schema: Terafoundation.Schema<T>,
+        name: string,
         extraFormats: Format[] = []
     ) {
         this.logger = bunyan.createLogger({ name: 'SchemaValidator' });
         this.inputSchema = schema;
-        this.zodSchema = this._convictSchemaToZod(schema, parentKey, extraFormats);
+        this.zodSchema = this._convictSchemaToZod(schema, name, extraFormats);
         this.convictSchema = convict(schema);
     }
 
+    /**
+     * Validate that a configuration conforms to the schema
+     *
+     * @param { any } config A configuration to validate
+     * @returns { T } A valid object of type T
+     */
     validate(config: any) {
         const finalConfig: any = config;
-        // precedence: args, env, loaded value (config), default
+
+        // Node process arguments and environmental variables override
+        // values from a configuration
+        // precedence: args, env, loaded value from config, default
         for (const key in this.envMap) {
-            const envVarName = this.envMap[key];
-            if (envVarName in process.env) {
-                finalConfig[key] = process.env[envVarName];
+            const { envName, format } = this.envMap[key];
+            if (envName in process.env) {
+                let envVal;
+                if (format === Boolean || format === 'Boolean') {
+                    envVal = toBoolean(process.env[envName]);
+                }
+                if (format === Number || format === 'Number') {
+                    envVal = toNumber(process.env[envName]);
+                } else {
+                    envVal = process.env[envName];
+                }
+                finalConfig[key] = envVal;
             }
         }
 
         for (const key in this.argsMap) {
-            const argName = this.argsMap[key];
+            const { argName, format } = this.argsMap[key];
             const argIndex = process.argv.indexOf(argName);
-            if (argIndex >= 2) { // command line arguments start at index 2
+            if (argIndex >= 2) { // argv flags start at index 2
                 const flag = process.argv[argIndex];
-                let argValue: string;
+                let argValue: string | number | boolean;
                 if (flag.includes('=')) {
                     argValue = flag.split('=')[1];
                 } else {
                     argValue = process.argv[argIndex + 1];
                 }
+                if (format === Boolean || format === 'Boolean') {
+                    argValue = toBoolean(argValue);
+                }
+                if (format === Number || format === 'Number') {
+                    argValue = toNumber(argValue);
+                }
                 finalConfig[key] = argValue;
             }
         }
 
-        // FIXME: would it simplify things to set the defaults
-        // here instead of adding default() to zodType?
         const validatedWithZod = this.zodSchema.parse(finalConfig);
 
-        this.convictSchema.load(config);
-
-        // convict only ever validated if cluster master
+        // convict only ever validated if cluster.isMaster was true
         // this.convictSchema.validate({
         //     allowed: true,
         // } as any);
+
+        try {
+            this.convictSchema.load(config);
+        } catch (err) {
+            this.logger.info(`Error loading convict schema. Convict/Zod diff will be inaccurate: ${err}`);
+        }
         const validatedWithConvict = this.convictSchema.getProperties();
+
         const diff = diffJson(validatedWithConvict as object, validatedWithZod as object);
         if (diff.length > 1) {
             const difference = diff.filter((obj) => obj.added === true || obj.removed === true);
             this.logger.info({ schemaDiff: difference }, 'Difference between convict and zod schemas detected');
         }
         return validatedWithZod;
-    }
-
-    static getSchemaJSON(schema: ZodType) {
-        return z.toJSONSchema(schema);
     }
 
     /**
@@ -239,12 +297,16 @@ export class SchemaValidator<T = any> {
      * @returns { z.ZodType } A zod schema
      */
     _convictSchemaToZod(
-        convictSchema: Schema<T>,
+        convictSchema: Terafoundation.Schema<T>,
         parentKey: PropertyKey,
         extraFormats: Format[] = []
     ) {
         const fields: Record<string, ZodType> = {};
         const defaults: Record<string, any> = {};
+
+        if (!isSimpleObject(convictSchema)) {
+            return z.any().default(convictSchema);
+        }
 
         if (extraFormats) {
             extraFormats.forEach((formatToAdd) => {
@@ -256,21 +318,14 @@ export class SchemaValidator<T = any> {
             });
         }
 
-        if (isSchemaObj<T>(convictSchema)) {
-            return this._convictSchemaObjToZod(
-                parentKey,
-                convictSchema,
-                extraFormats) as z.ZodType<T>;
-        }
-
         for (const key in convictSchema) {
             const value = convictSchema[key];
             if (isSchemaObj<T>(value)) {
-                fields[key] = this._convictSchemaObjToZod(key, value, extraFormats);
+                fields[key] = this._convictSchemaObjToZod(value, key, extraFormats);
                 defaults[key] = value.default;
             } else {
                 fields[key] = this._convictSchemaToZod(
-                    value as Schema<T>,
+                    value as Terafoundation.Schema<T>,
                     `${parentKey.toString()}.${key}`,
                     extraFormats
                 );
@@ -278,40 +333,57 @@ export class SchemaValidator<T = any> {
             }
         }
 
+        // FixMe:
+        // A looseObject allows keys not in the schema.
+        // It is the equivalent of using convict.validate({ allowed: true }.
+        // Job validation used { allowed: warn } so we should add the option to display
+        // warnings for keys that are not in the schema.
         return z.looseObject(fields)
             .default(defaults) as z.ZodType<T>;
     }
 
     _convictSchemaObjToZod(
+        schemaObj: Terafoundation.SchemaObj,
         key: PropertyKey,
-        schemaObj: SchemaObj<T>,
         extraFormats: Format[]
     ) {
         let type: ZodType;
+        let formatFn;
 
         if (schemaObj.format === undefined) {
-            // default format is the typeof the default value
+            // If no format is set assume the format is the typeof the default value
             const defaultType = Object.prototype.toString.call(schemaObj.default);
-            const formatFn = function (x: unknown) {
+            formatFn = function (x: unknown) {
                 assert(Object.prototype.toString.call(x) == defaultType,
                     ' should be of type ' + defaultType.replace(/\[.* |]/g, ''));
             };
 
-            type = this._convictFormatToZod(key, schemaObj, formatFn, extraFormats);
+            type = this._getBaseType(key, formatFn, extraFormats);
         } else {
-            type = this._convictFormatToZod(
-                key,
-                schemaObj,
-                schemaObj.format,
-                extraFormats);
+            type = this._getBaseType(key, schemaObj.format, extraFormats);
+        }
+
+        if (Object.hasOwn(schemaObj, 'default')) {
+            try {
+                this._validateDefault(type, schemaObj.default);
+            } catch (err) {
+                throw new Error(`Invalid default value for key ${key.toString()}: ${schemaObj.default}`);
+            }
+            type = type.default(schemaObj.default);
         }
 
         if (schemaObj.arg) {
-            this.argsMap[key.toString()] = schemaObj.arg;
+            this.argsMap[key.toString()] = { argName: schemaObj.arg, format: schemaObj.format };
         }
 
         if (schemaObj.env) {
-            this.envMap[key.toString()] = schemaObj.env;
+            this.envMap[key.toString()] = { envName: schemaObj.env, format: schemaObj.format };
+        }
+
+        // FIXME: remove these last 3 checks before merging
+        if (schemaObj.doc) {
+            // we could store this in a zod metadata registry
+            // we would have to deal with naming conflicts
         }
 
         if (schemaObj.sensitive) {
@@ -319,122 +391,21 @@ export class SchemaValidator<T = any> {
         }
 
         if (schemaObj.nullable) {
+            // we will not implement this
             // we want the format fn to control whether null is valid
         }
 
-        return type;
-    }
-
-    _convictFormatToZod(
-        key: PropertyKey,
-        schemaObj: SchemaObj<T>,
-        convictFormatValue: ConvictFormat,
-        extraFormats: Format[]
-    ): ZodType {
-        let type: ZodType;
-
-        switch (convictFormatValue) {
-            case '*':
-                type = z.any();
-                break;
-            case 'int':
-                type = z.number().int();
-                break;
-            case 'port':
-                type = z
-                    .coerce.number()
-                    .int()
-                    .min(1)
-                    .max(65535);
-                break;
-            case 'nat':
-            case 'timestamp':
-            case 'positive_int':
-            case 'duration':
-                type = z.any();
-                break;
-            case 'url':
-                type = z.url();
-                break;
-            case 'email':
-                type = z.email();
-                break;
-            case 'ipaddress':
-                type = z.union([z.ipv4(), z.ipv6()]);
-                break;
-            case 'String':
-            case String:
-            case 'elasticsearch_Name':
-            case 'required_String':
-                type = z.string();
-                break;
-            case 'optional_String':
-                type = z.string().optional();
-                break;
-            case 'Number':
-            case Number:
-                type = z.number();
-                break;
-            case 'Boolean':
-            case Boolean:
-                type = z.boolean();
-                break;
-            case 'Object':
-            case Object:
-                type = z.record(z.string(), z.any());
-                break;
-            case 'Array':
-            case Array:
-                type = z.array(z.any());
-                break;
-            case 'RegExp':
-            case RegExp:
-                type = z.instanceof(RegExp);
-                break;
-            case 'optional_Date':
-                type = z.union([z.string(), z.number()]);
-                break;
-            case (isFunction(convictFormatValue) ? convictFormatValue : undefined):
-            case ((extraFormats && extraFormats.length > 0)
-                ? extraFormats.some((format) => format.name === convictFormatValue)
-                    ? convictFormatValue
-                    : undefined
-                : undefined):
-                // we can't predict the type of a schema defined function
-                type = z.any();
-                break;
-            case (Array.isArray(convictFormatValue) ? convictFormatValue : undefined):
-                type = z.enum(convictFormatValue as unknown as Array<any>);
-                break;
-            default:
-                throw new Error(`Unrecognized convict format for key: ${key.toString()} cannot be converted to zod format: ${convictFormatValue}`);
-        }
-
-        if (Object.hasOwn(schemaObj, 'default')) {
-            type = type.default(schemaObj.default);
-        }
-
-        const customFormat = getCustomFormat(convictFormatValue);
-        const finalFormat: ConvictFormat = customFormat ?? convictFormatValue;
+        const customFormat = getCustomFormatFromName(schemaObj.format);
+        const finalFormat: ConvictFormat = customFormat || formatFn || schemaObj.format;
 
         if (isOfTypeFormat(finalFormat)) {
+            // custom formats
             if (finalFormat.coerce && finalFormat.validate) {
                 return type.transform((val, ctx) => {
                     try {
-                        let finalVal = val;
-                        if (finalFormat.coerce) {
-                            finalVal = finalFormat.coerce(val);
-                        }
-
-                        // FIXME : reconsider this
-                        // with convict predefined formats, if nullable is true and val is null
-                        // then null should be considered a valid value for the field and
-                        // validation is skipped
-                        const skipValidation = val === null && schemaObj.nullable === true;
-                        if (finalFormat.validate && !skipValidation) {
-                            finalFormat.validate(finalVal, schemaObj);
-                        }
-
+                        // Both coerce and validate are guaranteed to exist from the check above
+                        const finalVal = finalFormat.coerce!(val);
+                        finalFormat.validate!(finalVal, schemaObj);
                         return finalVal;
                     } catch (err) {
                         ctx.addIssue({
@@ -449,12 +420,7 @@ export class SchemaValidator<T = any> {
             } else {
                 return type.superRefine((val, ctx) => {
                     try {
-                        // FIXME : reconsider this
-                        // with convict predefined formats, if nullable is true and val is null
-                        // then null should be considered a valid value for the field and
-                        // validation is skipped
-                        const skipValidation = val === null && schemaObj.nullable === true;
-                        if (finalFormat.validate && !skipValidation) {
+                        if (finalFormat.validate) {
                             finalFormat.validate(val, schemaObj);
                         }
                     } catch (err) {
@@ -469,24 +435,17 @@ export class SchemaValidator<T = any> {
             }
         }
 
-        // FIXME need to double check Boolean, String, etc???
-        if (isFunction(convictFormatValue)) {
+        if (isFunction(finalFormat)) {
+            // formats defined in inline functions
             return type.superRefine((args: any, ctx: RefinementCtx<any>) => {
                 try {
                     let val;
                     if (args === null || args === undefined) {
                         val = schemaObj.default;
-                        // FIXME : reconsider this
-                        // with convict inline functions, if the default value is 'null'
-                        // or 'undefined' then it's considered a valid value for the
-                        // field and the format Fn is skipped
-                        if (val === null || val === undefined) {
-                            return;
-                        }
                     } else {
                         val = args;
                     }
-                    convictFormatValue(val);
+                    finalFormat(val);
                 } catch (err) {
                     ctx.addIssue({
                         code: 'custom',
@@ -496,7 +455,113 @@ export class SchemaValidator<T = any> {
                 }
             });
         }
+
         return type;
+    }
+
+    _getBaseType(
+        key: PropertyKey,
+        convictFormatValue: ConvictFormat,
+        extraFormats: Format[]
+    ) {
+        let baseType: ZodType;
+
+        switch (convictFormatValue) {
+            case '*':
+                baseType = z.any();
+                break;
+            case 'int':
+                baseType = z.number().int();
+                break;
+            case 'port':
+                baseType = z
+                    .coerce.number()
+                    .int()
+                    .min(1)
+                    .max(65535);
+                break;
+            case 'nat':
+                baseType = z
+                    .number()
+                    .int()
+                    .min(0);
+                break;
+            case 'duration':
+            case 'elasticsearch_Name':
+            case 'optional_Date':
+            case 'optional_int':
+            case 'optional_String':
+            case 'positive_int':
+            case 'timestamp':
+                baseType = z.any();
+                break;
+            case 'url':
+                baseType = z.url();
+                break;
+            case 'email':
+                baseType = z.email();
+                break;
+            case 'ipaddress':
+                baseType = z.union([z.ipv4(), z.ipv6()]);
+                break;
+            case 'String':
+            case String:
+            case 'required_String':
+                baseType = z.string();
+                break;
+            case 'Number':
+            case Number:
+                baseType = z.number();
+                break;
+            case 'Boolean':
+            case Boolean:
+                baseType = z.preprocess(
+                    convictCompatibleBooleanFn,
+                    z.boolean()
+                );
+                break;
+            case 'optional_bool':
+                baseType = z.preprocess(
+                    convictCompatibleBooleanFn,
+                    z.union([z.boolean(), z.null()])
+                );
+                break;
+            case 'Object':
+            case Object:
+                baseType = z.record(z.string(), z.any());
+                break;
+            case 'Array':
+            case Array:
+                baseType = z.array(z.any());
+                break;
+            case 'RegExp':
+            case RegExp:
+                baseType = z.instanceof(RegExp);
+                break;
+            case (isFunction(convictFormatValue) ? convictFormatValue : undefined):
+            case ((extraFormats && extraFormats.length > 0)
+                ? extraFormats.some((format) => format.name === convictFormatValue)
+                    ? convictFormatValue
+                    : undefined
+                : undefined):
+                // we can't predict the type of a schema defined function
+                baseType = z.any();
+                break;
+            case (Array.isArray(convictFormatValue) ? convictFormatValue : undefined):
+                baseType = z.enum(convictFormatValue as unknown as Array<any>);
+                break;
+            default:
+                throw new Error(`Unrecognized convict format for key: ${key.toString()} cannot be converted to zod format: ${convictFormatValue}`);
+        }
+
+        return baseType;
+    }
+
+    _validateDefault(type: z.ZodType, defaultVal: any) {
+        // allow undefined default values to force the user to provide a value
+        if (defaultVal !== undefined) {
+            type.parse(defaultVal);
+        }
     }
 }
 
@@ -504,7 +569,7 @@ type ConvictFormat = any[] | PredefinedFormat | FormatFn | Format;
 
 export interface Format {
     name?: string | undefined;
-    validate?(val: any, schema: SchemaObj): void;
+    validate?(val: any, schema: Terafoundation.SchemaObj): void;
     coerce?(val: any): any;
 }
 
@@ -528,38 +593,7 @@ type PredefinedFormat
 
 type FormatFn<T = any> = ((val: any) => asserts val is T) | ((val: any) => void);
 
-interface SchemaObj<T = any> {
-    /**
-     * You can define a configuration property as "required" without providing a default value.
-     * Set its default to null and if your format doesn't accept null it will throw an error.
-     */
-    default: T | null;
-    doc?: string | undefined;
-    /**
-     * From the implementation:
-     *
-     *  format can be a:
-     *   - predefined type, as seen below
-     *   - an array of enumerated values, e.g. ["production", "development", "testing"]
-     *   - built-in JavaScript type, i.e. Object, Array, String, Number, Boolean
-     *   - function that performs validation and throws an Error on failure
-     *
-     * If omitted, format will be set to the value of Object.prototype.toString.call
-     * for the default value
-     */
-    format?: ConvictFormat;
-    env?: string | undefined;
-    arg?: string | undefined;
-    sensitive?: boolean | undefined;
-    nullable?: boolean | undefined;
-    [key: string]: any;
-}
-
-export type Schema<T> = {
-    [P in keyof T]: Schema<T[P]> | SchemaObj<T[P]>;
-};
-
-function isSchemaObj<T>(value: unknown): value is SchemaObj<T> {
+function isSchemaObj<T>(value: unknown): value is Terafoundation.SchemaObj<T> {
     if (typeof value !== 'object' || value === null) {
         return false;
     }
@@ -638,7 +672,7 @@ function isOfTypeFormat(value: unknown): value is Format {
     return true;
 }
 
-function getCustomFormat(format: ConvictFormat) {
+function getCustomFormatFromName(format: ConvictFormat) {
     if (typeof format !== 'string') return undefined;
     return formats.find((obj: Format) => obj.name === format);
 }
