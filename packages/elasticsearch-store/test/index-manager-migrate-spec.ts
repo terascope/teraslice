@@ -4,8 +4,8 @@ import { ElasticsearchTestHelpers, type Client } from '@terascope/opensearch-cli
 import * as simple from './helpers/simple-index.js';
 import { IndexManager, IndexConfig } from '../src/index.js';
 
-const { makeClient, cleanupIndex, opensearchEnvSchema } = ElasticsearchTestHelpers;
-const { TEST_INDEX_PREFIX } = opensearchEnvSchema.parse(process.env);
+const { makeClient, cleanupIndex, envConfig } = ElasticsearchTestHelpers;
+const { TEST_INDEX_PREFIX } = envConfig;
 
 describe('IndexManager->migrateIndex()', () => {
     const logger = debugLogger('index-manager-migrate');
