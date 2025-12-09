@@ -157,7 +157,7 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
 const validator = new SchemaValidator<E2ETestEnv>(E2EEnvSchema, 'E2EEnvSchema');
 const envConfig = validator.validate(process.env);
 
-export const config: E2ETestEnv & E2EConstants = {
+export const config: E2ETestEnv & E2EConstants & E2EConfig = {
     ...envConfig,
     ASSET_BUNDLES_PATH,
     ASSETS_PATH,
@@ -182,3 +182,11 @@ export const config: E2ETestEnv & E2EConstants = {
     USE_DEV_ASSETS,
     WORKERS_PER_NODE,
 };
+
+interface E2EConfig {
+    CLUSTER_NAME: string;
+    EXAMPLE_INDEX_PREFIX: string;
+    ROOT_CERT_PATH: string;
+    SPEC_INDEX_PREFIX: string;
+    TEST_HOST: string;
+}
