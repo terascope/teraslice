@@ -559,7 +559,6 @@ export class SchemaValidator<T = AnyObject> {
 
     _validateDefault(type: z.ZodType, defaultVal: any) {
         if (defaultVal !== undefined && defaultVal !== null) {
-            console.log('@@@@ defaultVal: ', defaultVal);
             type.parse(defaultVal);
         }
     }
