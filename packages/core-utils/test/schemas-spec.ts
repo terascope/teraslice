@@ -1,17 +1,13 @@
 import 'jest-extended';
-// import convict from 'convict';
 import { AnyObject, Terafoundation } from '@terascope/types';
-// @ ts-expect-error no types
-// import convict_format_with_validator from 'convict-format-with-validator';
 import { isString } from '../src/strings.js';
-import { SchemaValidator } from '../src';
-
-// convict.addFormats(convict_format_with_validator);
+import { SchemaValidator } from '../src/index.js';
 
 describe('Schema Object validation', () => {
     function successfulValidation(
         testValues: Record<string, any>[],
-        schema: Terafoundation.Schema<any>
+        schema: Terafoundation.Schema<any>,
+        matchDefault = false
     ) {
         for (const testObj of testValues) {
             const key = Object.keys(testObj)[0];
@@ -22,7 +18,9 @@ describe('Schema Object validation', () => {
 
             const validator = new SchemaValidator(testSchema, 'test');
             const validatedConfig = validator.validate(testObj);
-            expect(validatedConfig).toMatchObject(testObj);
+            expect(validatedConfig).toMatchObject(
+                matchDefault ? { [key]: schemaObj.default } : testObj
+            );
         }
     }
 
@@ -619,7 +617,6 @@ describe('Schema Object validation', () => {
                         failedValidation(testValues, schema, (key) => `Invalid default value for key ${key}`);
                     });
 
-                    // FIXME: should undefined default be allowed?
                     it('should use valid, null, or undefined defaults', async () => {
                         const testValues = [
                             { booleanDefaultTrue: undefined },
@@ -632,17 +629,8 @@ describe('Schema Object validation', () => {
                             { booleanQuotedDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
                 });
 
@@ -669,17 +657,8 @@ describe('Schema Object validation', () => {
                             { stringQuotedDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
                 });
 
@@ -706,17 +685,8 @@ describe('Schema Object validation', () => {
                             { numberQuotedDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
                 });
 
@@ -743,17 +713,8 @@ describe('Schema Object validation', () => {
                             { objectQuotedDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
                 });
 
@@ -780,17 +741,8 @@ describe('Schema Object validation', () => {
                             { arrayQuotedDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
                 });
 
@@ -817,17 +769,8 @@ describe('Schema Object validation', () => {
                             { regExpQuotedDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
                 });
             });
@@ -1400,17 +1343,8 @@ describe('Schema Object validation', () => {
                             { asteriskDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key as keyof typeof schema];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
                 });
 
@@ -1422,17 +1356,8 @@ describe('Schema Object validation', () => {
                             { intDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key as keyof typeof schema];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
 
                     it('will throw on validation for other defaults', () => {
@@ -1454,17 +1379,8 @@ describe('Schema Object validation', () => {
                             { portDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key as keyof typeof schema];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
 
                     it('will throw on validation for other defaults', () => {
@@ -1486,17 +1402,8 @@ describe('Schema Object validation', () => {
                             { natDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key as keyof typeof schema];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
 
                     it('will throw on validation for other defaults', () => {
@@ -1518,17 +1425,8 @@ describe('Schema Object validation', () => {
                             { urlDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key as keyof typeof schema];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
 
                     it('will throw on validation for other defaults', () => {
@@ -1550,17 +1448,8 @@ describe('Schema Object validation', () => {
                             { emailDefaultUndefined: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key as keyof typeof schema];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
 
                     it('will throw on validation for other defaults', () => {
@@ -1582,17 +1471,8 @@ describe('Schema Object validation', () => {
                             { ipAddressDefaultNull: undefined },
                         ];
 
-                        for (const testObj of testValues) {
-                            const key = Object.keys(testObj)[0];
-                            const schemaObj = schema[key as keyof typeof schema];
-
-                            const testSchema: AnyObject = {};
-                            testSchema[key] = schemaObj;
-
-                            const validator = new SchemaValidator(testSchema, 'test');
-                            const validatedConfig = validator.validate(testObj);
-                            expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                        }
+                        expect.hasAssertions();
+                        successfulValidation(testValues, schema, true);
                     });
 
                     it('will throw on validation for other defaults', () => {
@@ -1892,17 +1772,8 @@ describe('Schema Object validation', () => {
                         { inlineFunctionDefaultValidValue: undefined },
                     ];
 
-                    for (const testObj of testValues) {
-                        const key = Object.keys(testObj)[0];
-                        const schemaObj = schema[key as keyof typeof schema];
-
-                        const testSchema: AnyObject = {};
-                        testSchema[key] = schemaObj;
-
-                        const validator = new SchemaValidator(testSchema, 'test');
-                        const validatedConfig = validator.validate(testObj);
-                        expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
-                    }
+                    expect.hasAssertions();
+                    successfulValidation(testValues, schema, true);
                 });
             });
 
