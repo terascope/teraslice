@@ -16,7 +16,7 @@ describe('Schema Object validation', () => {
             const testSchema: AnyObject = {};
             testSchema[key] = schemaObj;
 
-            const validator = new SchemaValidator(testSchema, 'test');
+            const validator = new SchemaValidator(testSchema, 'successful_test');
             const validatedConfig = validator.validate(testObj);
             expect(validatedConfig).toMatchObject(
                 matchDefault ? { [key]: schemaObj.default } : testObj
@@ -38,7 +38,7 @@ describe('Schema Object validation', () => {
                 const testSchema: AnyObject = {};
                 testSchema[key] = schemaObj;
 
-                const validator = new SchemaValidator(testSchema, 'test');
+                const validator = new SchemaValidator(testSchema, 'failed_test');
                 validator.validate(testObj);
                 throw new Error('Validation should have failed');
             } catch (err) {
@@ -1809,7 +1809,7 @@ describe('Schema Object validation', () => {
                             const testSchema: AnyObject = {};
                             testSchema[key] = schemaObj;
 
-                            const validator = new SchemaValidator(testSchema, 'test');
+                            const validator = new SchemaValidator(testSchema, 'no_property_test');
                             const validatedConfig = validator.validate({});
                             expect(validatedConfig).toMatchObject({ [key]: schemaObj.default });
                         }
@@ -1832,7 +1832,7 @@ describe('Schema Object validation', () => {
                                 const testSchema: AnyObject = {};
                                 testSchema[key] = schemaObj;
 
-                                const validator = new SchemaValidator(testSchema, 'test');
+                                const validator = new SchemaValidator(testSchema, 'no_property_test');
                                 validator.validate({});
                                 throw new Error('Validation should have failed');
                             } catch (err) {
@@ -1922,7 +1922,7 @@ describe('Schema Object validation', () => {
                     envInSchemaButNotDefined: 'loaded value from config',
                 };
 
-                const validator = new SchemaValidator(schema, 'test');
+                const validator = new SchemaValidator(schema, 'precedence_test');
                 const validatedConfig = validator.validate(testValues);
                 expect(validatedConfig).toMatchObject(convertedValues);
             });
@@ -1946,7 +1946,7 @@ describe('Schema Object validation', () => {
                     envInSchemaButNotDefined: '',
                 };
 
-                const validator = new SchemaValidator(schema, 'test');
+                const validator = new SchemaValidator(schema, 'precedence_test');
                 const validatedConfig = validator.validate(testValues);
                 expect(validatedConfig).toMatchObject(convertedValues);
             });
@@ -1970,7 +1970,7 @@ describe('Schema Object validation', () => {
                     envDefined: 'envValue2',
                 };
 
-                const validator = new SchemaValidator(schema, 'test');
+                const validator = new SchemaValidator(schema, 'precedence_test');
                 const validatedConfig1 = validator.validate(testValues1);
                 expect(validatedConfig1).toMatchObject(convertedValues1);
 
@@ -1992,7 +1992,7 @@ describe('Schema Object validation', () => {
                     neitherDefined: 'default value'
                 };
 
-                const validator = new SchemaValidator(schema, 'test');
+                const validator = new SchemaValidator(schema, 'precedence_test');
                 const validatedConfig = validator.validate(testValues);
                 expect(validatedConfig).toMatchObject(convertedValues);
             });
@@ -2007,7 +2007,7 @@ describe('Schema Object validation', () => {
                     neitherDefined: 'default value'
                 };
 
-                const validator = new SchemaValidator(schema, 'test');
+                const validator = new SchemaValidator(schema, 'precedence_test');
                 const validatedConfig = validator.validate(testValues);
                 expect(validatedConfig).toMatchObject(convertedValues);
             });

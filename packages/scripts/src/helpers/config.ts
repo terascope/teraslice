@@ -721,7 +721,7 @@ config.DOCKER_IMAGES_PATH = process.env.DOCKER_IMAGES_PATH || './images';
 config.DOCKER_IMAGE_LIST_PATH = process.env.DOCKER_IMAGE_LIST_PATH || `${config.DOCKER_IMAGES_PATH}/image-list.txt`;
 
 try {
-    const configValidator = new SchemaValidator<ScriptsTestEnv>(configSchema, 'configSchema');
+    const configValidator = new SchemaValidator<ScriptsTestEnv>(configSchema, 'scriptsConfigSchema');
     validatedConfig = configValidator.validate(config);
 } catch (err) {
     throw new Error(`ts-scripts config validation failed: ${err}`);

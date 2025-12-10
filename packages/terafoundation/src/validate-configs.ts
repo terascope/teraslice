@@ -16,7 +16,8 @@ function validateConfig(
     extraFormats?: Format[]
 ) {
     try {
-        const validator = new SchemaValidator<any>(schema, schemaKey, extraFormats);
+        const checkKeys = cluster.isMaster ? 'allow' : 'warn';
+        const validator = new SchemaValidator<any>(schema, schemaKey, extraFormats, checkKeys);
         return validator.validate(namespaceConfig);
     } catch (err) {
         throw new TSError(err, { reason: 'Error validating configuration' });

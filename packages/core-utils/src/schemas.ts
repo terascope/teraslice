@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import bunyan from 'bunyan';
 import dateMath from 'datemath-parser';
 import moment from 'moment';
-import { z, ZodType, RefinementCtx } from 'zod';
+import { z, type ZodType, type RefinementCtx } from 'zod';
 import convict from 'convict';
 // @ts-expect-error no types
 import convict_format_with_validator from 'convict-format-with-validator';
@@ -203,9 +203,11 @@ convict.addFormats(convict_format_with_validator);
 convict.addFormats(convict_format_with_moment);
 
 export class SchemaValidator<T = AnyObject> {
+    name: string;
     inputSchema: Terafoundation.Schema<T>;
     zodSchema: ZodType<T>;
     convictSchema: convict.Config<T>;
+    checkUndeclaredKeys: CheckUndeclaredKeys;
     envMap: Record<string, { envName: string; format: ConvictFormat }> = {};
     argsMap: Record<string, { argName: string; format: ConvictFormat }> = {};
     logger: bunyan;
@@ -213,12 +215,15 @@ export class SchemaValidator<T = AnyObject> {
     constructor(
         schema: Terafoundation.Schema<T>,
         name: string,
-        extraFormats: Format[] = []
+        extraFormats: Format[] = [],
+        checkUndeclaredKeys: CheckUndeclaredKeys = 'warn'
     ) {
+        this.name = name;
         this.logger = bunyan.createLogger({ name: 'SchemaValidator' });
         this.inputSchema = schema;
         this.zodSchema = this._convictSchemaToZod(schema, name, extraFormats);
         this.convictSchema = convict(schema);
+        this.checkUndeclaredKeys = checkUndeclaredKeys;
     }
 
     /**
@@ -272,22 +277,35 @@ export class SchemaValidator<T = AnyObject> {
 
         const validatedWithZod = this.zodSchema.parse(finalConfig);
 
-        // convict only ever validated if cluster.isMaster was true
-        // this.convictSchema.validate({
-        //     allowed: true,
-        // } as any);
+        if (this.checkUndeclaredKeys) {
+            const schemaKeys = this.getSchemaObjectKeys(this.zodSchema);
+            if (schemaKeys) {
+                for (const key in finalConfig) {
+                    if (!schemaKeys.includes(key)) {
+                        if (this.checkUndeclaredKeys === 'warn') {
+                            this.logger.warn(`Key '${key}' is not declared in ${this.name} schema`);
+                        } else if (this.checkUndeclaredKeys === 'strict') {
+                            throw new Error(`Key '${key}' is not declared in ${this.name} schema`);
+                        }
+                    }
+                }
+            }
+        }
 
         try {
             this.convictSchema.load(config);
+            this.convictSchema.validate({
+                allowed: this.checkUndeclaredKeys,
+            } as any);
         } catch (err) {
-            this.logger.info(`Error loading convict schema. Convict/Zod diff will be inaccurate: ${err}`);
+            this.logger.info(`Error loading or validating convict schema for ${this.name}. Convict/Zod diff will be inaccurate: ${err}`);
         }
         const validatedWithConvict = this.convictSchema.getProperties();
 
         const diff = diffJson(validatedWithConvict as object, validatedWithZod as object);
         if (diff.length > 1) {
             const difference = diff.filter((obj) => obj.added === true || obj.removed === true);
-            this.logger.info({ schemaDiff: difference }, 'Difference between convict and zod schemas detected');
+            this.logger.info({ schemaDiff: difference }, `Difference between convict and zod schemas detected for ${this.name}`);
         }
         return validatedWithZod;
     }
@@ -567,6 +585,25 @@ export class SchemaValidator<T = AnyObject> {
             type.parse(defaultVal);
         }
     }
+
+    getSchemaObjectKeys(schema: ZodType): string[] | undefined {
+        let s: ZodType | any = schema;
+
+        // unwrap known wrappers
+        while (
+            s instanceof z.ZodDefault
+            || s instanceof z.ZodOptional
+            || s instanceof z.ZodNullable
+        ) {
+            s = s.def.innerType;
+        }
+
+        if (s instanceof z.ZodObject) {
+            return Object.keys(s.shape);
+        }
+
+        return undefined;
+    }
 }
 
 type ConvictFormat = any[] | PredefinedFormat | FormatFn | Format;
@@ -596,6 +633,8 @@ type PredefinedFormat
         | boolean;
 
 type FormatFn<T = any> = ((val: any) => asserts val is T) | ((val: any) => void);
+
+type CheckUndeclaredKeys = 'allow' | 'warn' | 'strict';
 
 function isSchemaObj<T>(value: unknown): value is Terafoundation.SchemaObj<T> {
     if (typeof value !== 'object' || value === null) {

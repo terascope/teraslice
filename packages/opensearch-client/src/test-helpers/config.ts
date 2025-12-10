@@ -44,7 +44,7 @@ const opensearchEnvSchema: Terafoundation.Schema<any> = {
     },
 };
 
-const validator = new SchemaValidator<OpenSearchTestEnv | ElasticsearchTestEnv>(opensearchEnvSchema, 'opensearchEnvSchema');
+const validator = new SchemaValidator<OpenSearchTestEnv | ElasticsearchTestEnv>(opensearchEnvSchema, 'opensearchEnvSchema', undefined, 'allow');
 const envConfig = validator.validate(process.env);
 
 export {
