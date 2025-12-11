@@ -549,13 +549,14 @@ export class SchemaValidator<T = AnyObject> {
     /** Look up a custom format by name and return the format object */
     _getCustomFormatFromName(format: TF.ConvictFormat | undefined) {
         if (typeof format !== 'string') return null;
-        return formats.find((obj: TF.Format) => obj.name === format);
+        const formatLowerCase = format.toLowerCase();
+        return formats.find((obj: TF.Format) => obj.name === formatLowerCase);
     }
 
     /** Determine if a format is the name of a custom format */
     _isCustomFormatName(format: TF.ConvictFormat) {
         if (typeof format !== 'string') return false;
-        const result = formats.filter((obj: TF.Format) => obj.name === format);
+        const result = formats.filter((obj: TF.Format) => obj.name === format.toLowerCase());
 
         return result.length > 0;
     }
