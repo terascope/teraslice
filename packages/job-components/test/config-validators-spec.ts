@@ -481,7 +481,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
                 test: true,
                 _dead_letter_action: 'throw',
-                _encoding: null,
+                _encoding: undefined,
             });
         });
 

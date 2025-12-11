@@ -19,17 +19,17 @@ const connector: Terafoundation.Connector = {
             },
             caCertificate: {
                 doc: 'A string containing a single or multiple ca certificates',
-                default: null,
+                default: undefined,
                 format: String
             },
             username: {
                 doc: 'Username for authenticating with cluster. Required if authentication is enabled.',
-                default: null,
+                default: undefined,
                 format: String
             },
             password: {
                 doc: 'Password for authenticating with cluster. Must be used in conjunction with the username.',
-                default: null,
+                default: undefined,
                 format: String
             },
             sniffOnConnectionFault: {

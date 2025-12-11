@@ -225,7 +225,7 @@ export type ScriptsTestEnv = RequireKeys<
 >;
 export interface TerasliceEnv {
     ASSETS?: string;
-    assets_port?: string;
+    assets_port?: number;
     assignment?: 'assets_service' | 'cluster_master' | 'execution_controller' | 'node_master' | 'worker';
     EX?: string;
     ex_id?: string;
@@ -238,7 +238,7 @@ export interface TerasliceEnv {
     NODE_TYPE?: 'assets_service' | 'cluster_master' | 'execution_controller' | 'node_master' | 'worker';
     node_id?: string;
     POD_IP?: string;
-    port?: string;
+    port?: number;
     process_restart?: boolean;
     slicer_port?: string;
     TERASLICE_CLUSTER_NAME?: string;

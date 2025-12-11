@@ -409,7 +409,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
 
         const [clusterMaster] = context.apis.foundation.startWorkers(1, {
             assignment: 'cluster_master',
-            assets_port: `${ports.assetsPort}`,
+            assets_port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
         } satisfies ClusterMasterEnv);
 
@@ -424,7 +424,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
         const [assetService] = context.apis.foundation.startWorkers(1, {
             assignment: 'assets_service',
             // key needs to be called port to bypass cluster port sharing
-            port: `${ports.assetsPort}`,
+            port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
         } satisfies AssetsServiceEnv);
 

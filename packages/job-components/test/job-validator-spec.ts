@@ -24,6 +24,7 @@ describe('JobValidator', () => {
                 apis: [
                     {
                         _name: 'example-api',
+                        _encoding: undefined,
                         _dead_letter_action: 'throw'
                     }
                 ],
@@ -157,6 +158,7 @@ describe('JobValidator', () => {
                 apis: [
                     {
                         _name: 'example-api',
+                        _encoding: undefined,
                         _dead_letter_action: 'throw'
                     }
                 ],

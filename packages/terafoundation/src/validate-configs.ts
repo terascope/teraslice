@@ -2,7 +2,7 @@ import os from 'node:os';
 import {
     TSError, isFunction, isPlainObject,
     isEmpty, concat, pMap,
-    cloneDeep, SchemaValidator, Format
+    cloneDeep, SchemaValidator
 } from '@terascope/core-utils';
 import type { Terafoundation, PartialDeep } from '@terascope/types';
 import { getConnectorSchemaAndValFn } from './connector-utils.js';
@@ -13,7 +13,7 @@ function validateConfig(
     schema: Terafoundation.Schema<any>,
     namespaceConfig: any,
     schemaKey: string,
-    extraFormats?: Format[]
+    extraFormats?: Terafoundation.Format[]
 ) {
     try {
         const checkKeys = cluster.isMaster ? 'allow' : 'warn';

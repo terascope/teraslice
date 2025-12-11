@@ -84,8 +84,6 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
         const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 
         const config: K8sConfig = {
-            // assetsDirectory: get(this.terasliceConfig, 'assets_directory', ''),
-            // assetsVolume: get(this.terasliceConfig, 'assets_volume', ''),
             clusterName,
             clusterNameLabel,
             configMapName,

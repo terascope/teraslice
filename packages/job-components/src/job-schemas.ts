@@ -244,7 +244,7 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
 
         schemas.cpu_execution_controller = {
             doc: 'number of cpus to reserve per teraslice execution controller in kubernetes',
-            default: null,
+            default: undefined,
             format: 'Number',
         };
 
@@ -441,7 +441,7 @@ export const apiSchema: Terafoundation.Schema<any> = {
     },
     _encoding: {
         doc: 'Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.',
-        default: null,
+        default: undefined,
         format: (val: unknown): void => {
             if (isNotNil(val)) {
                 if (isString(val)) {
