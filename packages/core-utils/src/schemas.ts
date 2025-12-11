@@ -3,13 +3,7 @@ import bunyan from 'bunyan';
 import dateMath from 'datemath-parser';
 import moment from 'moment';
 import { z, type ZodType, type RefinementCtx } from 'zod';
-import convict from 'convict';
-// @ts-expect-error no types
-import convict_format_with_validator from 'convict-format-with-validator';
-// @ts-expect-error no types
-import convict_format_with_moment from 'convict-format-with-moment';
 import { AnyObject, Terafoundation as TF } from '@terascope/types';
-import { diffJson } from 'diff';
 import { isBoolean, toBoolean } from './booleans.js';
 import { isValidDate } from './dates.js';
 import { isFunction } from './functions.js';
@@ -192,18 +186,13 @@ export const formats: TF.Format[] = [
     }
 ];
 
-formats.forEach((format) => {
-    convict.addFormat(format);
-});
-
-convict.addFormats(convict_format_with_validator);
-convict.addFormats(convict_format_with_moment);
-
+/**
+ * Facade class used to validate convict style schemas using the Zod library
+ */
 export class SchemaValidator<T = AnyObject> {
     name: string;
     inputSchema: TF.Schema<T>;
     zodSchema: ZodType<T>;
-    convictSchema: convict.Config<T>;
     checkUndeclaredKeys: CheckUndeclaredKeys;
     envMap: Record<string, { envName: string; format: TF.ConvictFormat }> = {};
     argsMap: Record<string, { argName: string; format: TF.ConvictFormat }> = {};
@@ -216,8 +205,6 @@ export class SchemaValidator<T = AnyObject> {
         checkUndeclaredKeys: CheckUndeclaredKeys = 'warn'
     ) {
         extraFormats.forEach((format) => {
-            convict.addFormat(format);
-
             if (!formats.some(
                 (existingFormat) => existingFormat.name === format.name)
             ) {
@@ -228,8 +215,7 @@ export class SchemaValidator<T = AnyObject> {
         this.name = name;
         this.logger = bunyan.createLogger({ name: 'SchemaValidator' });
         this.inputSchema = schema;
-        this.zodSchema = this._convictSchemaToZod(schema, name);
-        this.convictSchema = convict(schema);
+        this.zodSchema = this._convictStyleSchemaToZod(schema, name);
         this.checkUndeclaredKeys = checkUndeclaredKeys;
     }
 
@@ -305,56 +291,36 @@ export class SchemaValidator<T = AnyObject> {
             }
         }
 
-        try {
-            this.convictSchema.load(config);
-        } catch (err) {
-            this.logger.info(`Error loading convict schema for ${this.name}. Convict/Zod diff will be inaccurate: ${err}`);
-        }
-
-        try {
-            this.convictSchema.validate({
-                allowed: this.checkUndeclaredKeys,
-            } as any);
-        } catch (err) {
-            this.logger.info(`Error validating config against ${this.name} schema with convict. Convict/Zod diff will be inaccurate: ${err}`);
-        }
-        const validatedWithConvict = this.convictSchema.getProperties();
-
-        const diff = diffJson(validatedWithConvict as object, validatedWithZod as object);
-        if (diff.length > 1) {
-            const difference = diff.filter((obj) => obj.added === true || obj.removed === true);
-            this.logger.info({ schemaDiff: difference }, `Difference between convict and zod schemas detected for ${this.name}`);
-        }
         return validatedWithZod;
     }
 
     /**
-     * convert a convict schema to zod schema
+     * convert a convict style schema to zod schema
      *
-     * @param { Schema<T> } convictSchema A convict style schema
+     * @param { Schema<T> } schema A convict style schema
      * @param { PropertyKey } parentKey Property name of a nested schema object
      *                                  or other identifier for the schema
      * @param { Format[] } extraFormats User defined formats to be used for schema validation
      * @returns { z.ZodType } A zod schema
      */
-    _convictSchemaToZod(
-        convictSchema: TF.Schema<T>,
+    _convictStyleSchemaToZod(
+        schema: TF.Schema<T>,
         parentKey: PropertyKey,
     ) {
         const fields: Record<string, ZodType> = {};
         const defaults: Record<string, any> = {};
 
-        if (!isSimpleObject(convictSchema)) {
-            return z.any().default(convictSchema);
+        if (!isSimpleObject(schema)) {
+            return z.any().default(schema);
         }
 
-        for (const key in convictSchema) {
-            const value = convictSchema[key];
+        for (const key in schema) {
+            const value = schema[key];
             if (isSchemaObj<T>(value)) {
                 fields[key] = this._convictSchemaObjToZod(value, key);
                 defaults[key] = value.default;
             } else {
-                fields[key] = this._convictSchemaToZod(
+                fields[key] = this._convictStyleSchemaToZod(
                     value as TF.Schema<T>,
                     `${parentKey.toString()}.${key}`
                 );
@@ -366,6 +332,12 @@ export class SchemaValidator<T = AnyObject> {
             .default(defaults) as z.ZodType<T>;
     }
 
+    /**
+     * Converts a convict style schema object to a zod schema
+     * @param { TF.SchemaObj } schemaObj The schema object to convert
+     * @param { PropertyKey } key The name of the property that uses the schemaObj
+     * @returns { ZodType } A Zod schema object
+     */
     _convictSchemaObjToZod(
         schemaObj: TF.SchemaObj,
         key: PropertyKey
@@ -464,6 +436,12 @@ export class SchemaValidator<T = AnyObject> {
         return type;
     }
 
+    /**
+     * Determines the base type that a full schema will be built on
+     * @param { PropertyKey } key The name of the property that uses the schemaObj
+     * @param { TF.ConvictFormat } convictFormatValue A convict compatible format value
+     * @returns { ZodType } The base type
+     */
     _getBaseType(
         key: PropertyKey,
         convictFormatValue: TF.ConvictFormat,
@@ -541,12 +519,14 @@ export class SchemaValidator<T = AnyObject> {
         return baseType;
     }
 
+    /** Run the default value against the created schema to ensure it is valid */
     _validateDefault(type: z.ZodType, defaultVal: any) {
         if (defaultVal !== undefined && defaultVal !== null) {
             type.parse(defaultVal);
         }
     }
 
+    /** Unwrap the wrappers on base schema object and retrieve all keys */
     getSchemaObjectKeys(schema: ZodType): string[] | undefined {
         let s: ZodType | any = schema;
 
@@ -566,11 +546,13 @@ export class SchemaValidator<T = AnyObject> {
         return undefined;
     }
 
+    /** Look up a custom format by name and return the format object */
     _getCustomFormatFromName(format: TF.ConvictFormat | undefined) {
         if (typeof format !== 'string') return null;
         return formats.find((obj: TF.Format) => obj.name === format);
     }
 
+    /** Determine if a format is the name of a custom format */
     _isCustomFormatName(format: TF.ConvictFormat) {
         if (typeof format !== 'string') return false;
         const result = formats.filter((obj: TF.Format) => obj.name === format);

@@ -73,7 +73,7 @@ const context = new ProcessContext({
 |   `cluster_name`    |                                                                                         name of application                                                                                         | `String` or `Function` |                               optional, defaults to terafoundation                                |
 |      `script`       |                                                                                    javascript execution of code                                                                                     |       `Function`       |                                             optional                                              |
 |   `config_schema`   |                                                                               system schema for the top level service                                                                               | `Object` or `Function` |                                             optional                                              |
-|  `schema_formats`   |                                                         If you have custom formats used for your schema validations you must pass them down                                                         |        `Array`         |              optional, used to add any custom formats for convict validation library              |
+|  `schema_formats`   |                                                         If you have custom formats used for your schema validations you must pass them down                                                         |        `Array`         |              optional, used to add any custom formats for SchemaValidator util              |
 |   `start_workers`   | By default, the service will attempt to create as many child process as set in the config, if set to false then the top level application will be in charge of when a child process will be created |       `Boolean`        |                                    optional, defaults to true                                     |
 | `shutdownMessaging` |      If set to `true` then it provides a ipc shutdown message so all child process can hook into for custom shutdown. All child process will receive an ipc message of `{message: 'shutdown'}`      |       `Boolean`        | optional, defaults to false which in turn cause the main process to call a kill signal `"SIGINT"` |
 
@@ -106,7 +106,7 @@ You may pass in multiple different type of child process that behave differently
 
 #### Schemas
 
-We use the [convict](https://github.com/mozilla/node-convict) library for configuration validations. Any top level program can pass down its schema as the config_schema parameter when instantiating terafoundation
+We use schemas loosely based on the [convict](https://github.com/mozilla/node-convict) library for configuration validations. These are converted to [Zod](https://github.com/colinhacks/zod) schemas by the SchemaValidator wrapper class. Any top level program can pass down its schema as the config_schema parameter when instantiating terafoundation
 
 You may reference `system_schema.js` at the root of terafoundation for references
 

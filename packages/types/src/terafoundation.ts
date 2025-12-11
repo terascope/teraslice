@@ -22,8 +22,6 @@ export interface SchemaObj<T = any> {
     format?: ConvictFormat;
     env?: string | undefined;
     arg?: string | undefined;
-    sensitive?: boolean | undefined;
-    nullable?: boolean | undefined;
     [key: string]: any;
 }
 
