@@ -4,35 +4,35 @@ import { ElasticsearchTestEnv, OpenSearchTestEnv, Terafoundation } from '@terasc
 const opensearchEnvSchema: Terafoundation.Schema<any> = {
     ELASTICSEARCH_HOST: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
     },
     ELASTICSEARCH_VERSION: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
     },
     OPENSEARCH_HOST: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
     },
     OPENSEARCH_PASSWORD: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
     },
     OPENSEARCH_SSL_HOST: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
     },
     OPENSEARCH_USER: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
     },
     OPENSEARCH_VERSION: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
     },
     RESTRAINED_OPENSEARCH_HOST: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
     },
     SEARCH_TEST_HOST: {
         default: undefined,
@@ -44,7 +44,12 @@ const opensearchEnvSchema: Terafoundation.Schema<any> = {
     },
 };
 
-const validator = new SchemaValidator<OpenSearchTestEnv | ElasticsearchTestEnv>(opensearchEnvSchema, 'opensearchEnvSchema', undefined, 'allow');
+const validator = new SchemaValidator<OpenSearchTestEnv | ElasticsearchTestEnv>(
+    opensearchEnvSchema,
+    'opensearchEnvSchema',
+    undefined,
+    'allow'
+);
 const envConfig = validator.validate(process.env);
 
 export {

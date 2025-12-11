@@ -36,8 +36,8 @@ const cmd: CommandModule = {
             })
             .option('ts-port', {
                 description: 'Port where teraslice api will be exposed.',
-                type: 'string',
-                default: '5678'
+                type: 'number',
+                default: 5678
             })
             .option('cluster-name', {
                 description: 'Name of the kind kubernetes cluster.',
@@ -68,7 +68,7 @@ const cmd: CommandModule = {
             .option('config-file', {
                 description: 'Passes in a path to a config file that will override all settings except --dev',
                 type: 'string',
-                default: null
+                default: undefined
             })
             .option('generate-config', {
                 description: 'Will generate a default templated config file named k8s-config.yaml',
@@ -100,7 +100,7 @@ const cmd: CommandModule = {
             logs: Boolean(argv.logs)
         };
 
-        if (argv['config-file'] !== null) {
+        if (argv['config-file'] !== undefined) {
             const configPath = argv['config-file'] as string;
             // Check to see if the path is already absolute
             if (path.isAbsolute(configPath)) {

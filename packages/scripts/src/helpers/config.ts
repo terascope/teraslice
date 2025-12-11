@@ -118,18 +118,18 @@ const configSchema: Terafoundation.Schema<any> = {
     },
     CI_COMMIT_REF_SLUG: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
         env: 'CI_COMMIT_REF_SLUG'
     },
     DEV_DOCKER_IMAGE: {
         doc: 'Use this to override the default dev docker image tag, if this is set, using DEV_TAG is no longer needed',
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
         env: 'DEV_DOCKER_IMAGE'
     },
     DEV_TAG: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
     },
     DOCKER_CACHE_PATH: {
         default: '/tmp/docker_cache',
@@ -146,7 +146,7 @@ const configSchema: Terafoundation.Schema<any> = {
     },
     DOCKER_NETWORK_NAME: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
         env: 'DOCKER_NETWORK_NAME'
     },
     ENCRYPTION_ENABLED: {
@@ -168,7 +168,7 @@ const configSchema: Terafoundation.Schema<any> = {
     },
     K8S_VERSION: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
         env: 'K8S_VERSION'
     },
     MAX_PROJECTS_PER_BATCH: {
@@ -236,7 +236,7 @@ const configSchema: Terafoundation.Schema<any> = {
     },
     TERASLICE_IMAGE: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
         env: 'TERASLICE_IMAGE'
     },
     TEST_NAMESPACE: {

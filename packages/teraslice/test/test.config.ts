@@ -9,7 +9,7 @@ const terasliceTestEnvSchema = {
     },
     TERASLICE_CLUSTER_NAME: {
         default: null,
-        format: 'optional_String',
+        format: 'optional_string',
     },
     TEST_INDEX_PREFIX: {
         default: undefined,
@@ -17,7 +17,12 @@ const terasliceTestEnvSchema = {
     },
 };
 
-const validator = new SchemaValidator<TerasliceEnv>(terasliceTestEnvSchema, 'terasliceTestEnvSchema');
+const validator = new SchemaValidator<TerasliceEnv>(
+    terasliceTestEnvSchema,
+    'terasliceTestEnvSchema',
+    undefined,
+    'allow'
+);
 
 const envConfig = validator.validate(process.env);
 

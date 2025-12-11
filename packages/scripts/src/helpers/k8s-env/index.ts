@@ -69,7 +69,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     } catch (err) {
         signale.error(err);
         // Do not destroy existing cluster if that was the cause of failure
-        if (!err.stderr.includes('node(s) already exist for a cluster with the name')) {
+        if (!err.message.includes('node(s) already exist for a cluster with the name')) {
             await kind.destroyCluster();
         }
         process.exit(1);

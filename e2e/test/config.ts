@@ -22,11 +22,11 @@ const logLevels: Logger.LogLevelString[] = ['trace', 'debug', 'info', 'warn', 'e
 const E2EEnvSchema: Terafoundation.Schema<any> = {
     ASSET_STORAGE_CONNECTION: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     ASSET_STORAGE_CONNECTION_TYPE: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     CERT_PATH: {
         default: undefined,
@@ -38,7 +38,7 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
     },
     ELASTICSEARCH_HOST: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     ENCRYPT_KAFKA: {
         default: null,
@@ -58,7 +58,7 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
     },
     GENERATE_ONLY: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     HOST_IP: {
         default: undefined,
@@ -70,7 +70,7 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
     },
     KAFKA_PORT: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     KEEP_OPEN: {
         default: null,
@@ -82,15 +82,15 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
     },
     MINIO_ACCESS_KEY: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     MINIO_HOST: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     MINIO_SECRET_KEY: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     NODE_VERSION: {
         default: undefined,
@@ -98,31 +98,31 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
     },
     OPENSEARCH_HOST: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     OPENSEARCH_SSL_HOST: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     OPENSEARCH_HOSTNAME: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     OPENSEARCH_PORT: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     OPENSEARCH_PASSWORD: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     OPENSEARCH_USER: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     OPENSEARCH_VERSION: {
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     SEARCH_TEST_HOST: {
         default: undefined,
@@ -154,7 +154,7 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
     },
 };
 
-const validator = new SchemaValidator<E2ETestEnv>(E2EEnvSchema, 'E2EEnvSchema');
+const validator = new SchemaValidator<E2ETestEnv>(E2EEnvSchema, 'E2EEnvSchema', undefined, 'allow');
 const envConfig = validator.validate(process.env);
 
 export const config: E2ETestEnv & E2EConstants & E2EConfig = {

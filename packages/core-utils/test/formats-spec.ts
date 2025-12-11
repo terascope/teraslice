@@ -21,22 +21,22 @@ describe('Convict Formats', () => {
         expect(formats).toBeArray();
     });
 
-    it('required_String will throw if not given a string', () => {
-        const testFormat = createSchemaValueTest('required_String', '');
+    it('required_string will throw if not given a string', () => {
+        const testFormat = createSchemaValueTest('required_string', '');
 
         expect(() => {
             testFormat('someString');
         }).not.toThrow();
         expect(() => {
             testFormat(253);
-        }).toThrow(`"message": "Invalid input: expected string, received number"`);
+        }).toThrow('This field is required and must be of type string');
         expect(() => {
             testFormat(undefined);
-        }).toThrow('This field is required and must by of type string');
+        }).toThrow('This field is required and must be of type string');
     });
 
-    it('optional_String if not given a string it will not throw if its undefined', () => {
-        const testFormat = createSchemaValueTest('optional_String');
+    it('optional_string if not given a string it will not throw if its undefined', () => {
+        const testFormat = createSchemaValueTest('optional_string');
 
         expect(() => {
             testFormat('someString');
@@ -97,8 +97,8 @@ describe('Convict Formats', () => {
         }).not.toThrow();
     });
 
-    it('optional_Date if not given a date it will not throw if its undefined', () => {
-        const testFormat = createSchemaValueTest('optional_Date');
+    it('optional_date if not given a date it will not throw if its undefined', () => {
+        const testFormat = createSchemaValueTest('optional_date');
 
         expect(() => {
             testFormat(Date.now());
@@ -117,9 +117,9 @@ describe('Convict Formats', () => {
         }).not.toThrow();
     });
 
-    describe('elasticsearch_Name', () => {
+    describe('elasticsearch_name', () => {
         it('should work for common index names', () => {
-            const testFormat = createSchemaValueTest('elasticsearch_Name');
+            const testFormat = createSchemaValueTest('elasticsearch_name');
 
             expect(() => {
                 testFormat('data-2018-01-01');
@@ -130,7 +130,7 @@ describe('Convict Formats', () => {
         });
 
         it('should not exceed 255 characters', () => {
-            const testFormat = createSchemaValueTest('elasticsearch_Name');
+            const testFormat = createSchemaValueTest('elasticsearch_name');
 
             expect(() => {
                 testFormat('a'.repeat(256));
@@ -142,7 +142,7 @@ describe('Convict Formats', () => {
 
         // eslint-disable-next-line no-useless-escape
         it('should not contain any of: #\\\/*?"<>|', () => {
-            const testFormat = createSchemaValueTest('elasticsearch_Name');
+            const testFormat = createSchemaValueTest('elasticsearch_name');
 
             expect(() => {
                 testFormat('a#a');
@@ -178,7 +178,7 @@ describe('Convict Formats', () => {
         });
 
         it('should not start with _, -, or +', () => {
-            const testFormat = createSchemaValueTest('elasticsearch_Name');
+            const testFormat = createSchemaValueTest('elasticsearch_name');
 
             expect(() => {
                 testFormat('_foo');
@@ -198,7 +198,7 @@ describe('Convict Formats', () => {
         });
 
         it('should not equal . or ..', () => {
-            const testFormat = createSchemaValueTest('elasticsearch_Name');
+            const testFormat = createSchemaValueTest('elasticsearch_name');
 
             expect(() => {
                 testFormat('.');
@@ -215,7 +215,7 @@ describe('Convict Formats', () => {
         });
 
         it('should be lowercase', () => {
-            const testFormat = createSchemaValueTest('elasticsearch_Name');
+            const testFormat = createSchemaValueTest('elasticsearch_name');
 
             expect(() => {
                 testFormat('ASDF');

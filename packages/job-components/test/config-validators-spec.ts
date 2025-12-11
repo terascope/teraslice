@@ -307,7 +307,7 @@ describe('when using native clustering', () => {
             example: {
                 default: undefined,
                 doc: 'some example value',
-                format: 'required_String',
+                format: 'required_string',
             },
             formatted_value: {
                 default: 'hi',
@@ -444,7 +444,7 @@ describe('when using native clustering', () => {
             example: {
                 default: undefined,
                 doc: 'some example value',
-                format: 'required_String',
+                format: 'required_string',
             },
             formatted_value: {
                 default: 'hi',

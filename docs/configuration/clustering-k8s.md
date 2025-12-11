@@ -491,7 +491,7 @@ If using Prometheus for metrics gathering, you can start an exporter that will s
 The following properties will override the matching property set within the `terafoundation` configuration.
 * `prom_metrics_enabled` - start a Prometheus exporter server
 * `prom_metrics_port` - port the server will listen on
-* `prom_metrics_add_defaults` - collect default metrics recommended by Prometheus as well as Node.js-specific metrics
+* `prom_metrics_add_default` - collect default metrics recommended by Prometheus as well as Node.js-specific metrics
 
 ## Kubernetes Labels
 
