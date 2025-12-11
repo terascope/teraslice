@@ -108,7 +108,7 @@ describe('Convict Formats', () => {
         }).not.toThrow();
         expect(() => {
             testFormat({ hi: 'there' });
-        }).toThrow(`"message": "parameter must be a string or number IF specified"`);
+        }).toThrow(/value: {\\"hi\\":\\"there\\"} cannot be coerced into a proper date/s);
         expect(() => {
             testFormat('idk');
         }).toThrow(/value: \\"idk\\" cannot be coerced into a proper date/s);

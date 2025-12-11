@@ -30,10 +30,7 @@ export const formats: TF.Format[] = [
             if (!val || !isString(val)) {
                 throw new Error('This field is required and must be of type string');
             }
-        },
-        coerce(val: any) {
-            return val;
-        },
+        }
     },
     {
         name: 'optional_string',
@@ -45,10 +42,7 @@ export const formats: TF.Format[] = [
                 return;
             }
             throw new Error('This field is optional but if specified it must be of type string');
-        },
-        coerce(val: any) {
-            return val;
-        },
+        }
     },
     {
         name: 'optional_date',
@@ -60,20 +54,22 @@ export const formats: TF.Format[] = [
                 if (isValidDate(val)) {
                     return;
                 }
-                try {
-                    dateMath.parse(val);
-                } catch (err) {
-                    throw new Error(
-                        `value: "${val}" cannot be coerced into a proper date
-                            the error: ${err.stack}`
-                    );
-                }
             } else {
                 throw new Error('parameter must be a string or number IF specified');
             }
         },
         coerce(val: any) {
-            return val;
+            if (!val) {
+                return val;
+            }
+            try {
+                return dateMath.parse(`${val}`);
+            } catch (err) {
+                throw new Error(
+                    `value: ${JSON.stringify(val)} cannot be coerced into a proper date
+                        the error: ${err.stack}`
+                );
+            }
         },
     },
     {
@@ -196,29 +192,10 @@ export const formats: TF.Format[] = [
     }
 ];
 
-function convertDeprecatedFormatName(format: TF.Format) {
-    const map: Record<string, string> = {
-        required_string: 'required_String',
-        optional_string: 'optional_String',
-        optional_date: 'optional_Date',
-        elasticsearch_name: 'elasticsearch_Name'
-    };
-
-    if (format.name && format.name in map) {
-        const depFormat: TF.Format = Object.assign({}, format, { name: map[format.name] });
-        return depFormat;
-    }
-
-    return null;
-}
-
 formats.forEach((format) => {
     convict.addFormat(format);
-    const depFormat = convertDeprecatedFormatName(format);
-    if (depFormat) {
-        convict.addFormat(depFormat);
-    }
 });
+
 convict.addFormats(convict_format_with_validator);
 convict.addFormats(convict_format_with_moment);
 
@@ -238,15 +215,20 @@ export class SchemaValidator<T = AnyObject> {
         extraFormats: TF.Format[] = [],
         checkUndeclaredKeys: CheckUndeclaredKeys = 'warn'
     ) {
+        extraFormats.forEach((format) => {
+            convict.addFormat(format);
+
+            if (!formats.some(
+                (existingFormat) => existingFormat.name === format.name)
+            ) {
+                formats.push(format);
+            }
+        });
+
         this.name = name;
         this.logger = bunyan.createLogger({ name: 'SchemaValidator' });
         this.inputSchema = schema;
-        this.zodSchema = this._convictSchemaToZod(schema, name, extraFormats);
-
-        extraFormats.forEach((format) => {
-            convict.addFormat(format);
-        });
-
+        this.zodSchema = this._convictSchemaToZod(schema, name);
         this.convictSchema = convict(schema);
         this.checkUndeclaredKeys = checkUndeclaredKeys;
     }
@@ -358,23 +340,12 @@ export class SchemaValidator<T = AnyObject> {
     _convictSchemaToZod(
         convictSchema: TF.Schema<T>,
         parentKey: PropertyKey,
-        extraFormats: TF.Format[] = []
     ) {
         const fields: Record<string, ZodType> = {};
         const defaults: Record<string, any> = {};
 
         if (!isSimpleObject(convictSchema)) {
             return z.any().default(convictSchema);
-        }
-
-        if (extraFormats) {
-            extraFormats.forEach((formatToAdd) => {
-                if (!formats.some(
-                    (existingFormat) => existingFormat.name === formatToAdd.name)
-                ) {
-                    formats.push(formatToAdd);
-                }
-            });
         }
 
         for (const key in convictSchema) {
@@ -385,8 +356,7 @@ export class SchemaValidator<T = AnyObject> {
             } else {
                 fields[key] = this._convictSchemaToZod(
                     value as TF.Schema<T>,
-                    `${parentKey.toString()}.${key}`,
-                    extraFormats
+                    `${parentKey.toString()}.${key}`
                 );
                 defaults[key] = fields[key].parse({});
             }
@@ -598,18 +568,12 @@ export class SchemaValidator<T = AnyObject> {
 
     _getCustomFormatFromName(format: TF.ConvictFormat | undefined) {
         if (typeof format !== 'string') return null;
-        const formatLowerCase = format.toLowerCase();
-        const formatObj = formats.find((obj: TF.Format) => obj.name === formatLowerCase);
-
-        if (formatObj && format !== formatLowerCase) {
-            this.logger.warn(`Format ${format} used on ${this.name} config has been deprecated. Use ${formatLowerCase}.`);
-        }
-        return formatObj || null;
+        return formats.find((obj: TF.Format) => obj.name === format);
     }
 
     _isCustomFormatName(format: TF.ConvictFormat) {
         if (typeof format !== 'string') return false;
-        const result = formats.filter((obj: TF.Format) => obj.name === format.toLowerCase());
+        const result = formats.filter((obj: TF.Format) => obj.name === format);
 
         return result.length > 0;
     }
