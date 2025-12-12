@@ -117,7 +117,151 @@ describe('Convict Formats', () => {
         }).not.toThrow();
     });
 
+    it('optional_bool should not throw if value is falsy', () => {
+        const testFormat = createSchemaValueTest('optional_bool');
+
+        expect(() => {
+            testFormat(undefined);
+        }).not.toThrow();
+        expect(() => {
+            testFormat(null);
+        }).not.toThrow();
+        expect(() => {
+            testFormat(false);
+        }).not.toThrow();
+        expect(() => {
+            testFormat(0);
+        }).not.toThrow();
+        expect(() => {
+            testFormat('');
+        }).not.toThrow();
+    });
+
+    it('optional_bool should accept valid boolean values', () => {
+        const testFormat = createSchemaValueTest('optional_bool');
+
+        expect(() => {
+            testFormat(true);
+        }).not.toThrow();
+        expect(() => {
+            testFormat(false);
+        }).not.toThrow();
+        expect(() => {
+            testFormat('true');
+        }).not.toThrow();
+        expect(() => {
+            testFormat('false');
+        }).not.toThrow();
+        expect(() => {
+            testFormat(1);
+        }).not.toThrow();
+        expect(() => {
+            testFormat('1');
+        }).not.toThrow();
+    });
+
+    it('optional_bool should throw if value is not convertible to boolean', () => {
+        const testFormat = createSchemaValueTest('optional_bool');
+
+        expect(() => {
+            testFormat('not a boolean');
+        }).toThrow(/If specified, must be convertible to a boolean. Received:/);
+        expect(() => {
+            testFormat(123);
+        }).toThrow(/If specified, must be convertible to a boolean. Received:/);
+        expect(() => {
+            testFormat({ bool: true });
+        }).toThrow(/If specified, must be convertible to a boolean. Received:/);
+        expect(() => {
+            testFormat([true]);
+        }).toThrow(/If specified, must be convertible to a boolean. Received:/);
+    });
+
+    it('optional_int should not throw if value is falsy', () => {
+        const testFormat = createSchemaValueTest('optional_int');
+
+        expect(() => {
+            testFormat(undefined);
+        }).not.toThrow();
+        expect(() => {
+            testFormat(null);
+        }).not.toThrow();
+        expect(() => {
+            testFormat(0);
+        }).not.toThrow();
+        expect(() => {
+            testFormat('');
+        }).not.toThrow();
+        expect(() => {
+            testFormat(false);
+        }).not.toThrow();
+    });
+
+    it('optional_int should accept valid integer values and coerce to integers', () => {
+        const testFormat = createSchemaValueTest('optional_int');
+
+        // Regular integers
+        expect(() => {
+            testFormat(123);
+        }).not.toThrow();
+        expect(() => {
+            testFormat(-456);
+        }).not.toThrow();
+
+        // String integers (coerced via toIntegerOrThrow)
+        expect(() => {
+            testFormat('789');
+        }).not.toThrow();
+        expect(() => {
+            testFormat('-123');
+        }).not.toThrow();
+
+        // Floats (truncated via Math.trunc in toIntegerOrThrow)
+        expect(() => {
+            testFormat(12.34);
+        }).not.toThrow();
+        expect(() => {
+            testFormat('56.78');
+        }).not.toThrow();
+
+        // BigInts (converted in toIntegerOrThrow)
+        expect(() => {
+            testFormat(BigInt(999));
+        }).not.toThrow();
+    });
+
+    it('optional_int should throw if value is not convertible to integer', () => {
+        const testFormat = createSchemaValueTest('optional_int');
+
+        expect(() => {
+            testFormat('not an int');
+        }).toThrow(/If specified, must be a boolean, 'true', or 'false'. Received:/);
+        expect(() => {
+            testFormat({ num: 123 });
+        }).toThrow(/If specified, must be a boolean, 'true', or 'false'. Received:/);
+        expect(() => {
+            testFormat([123]);
+        }).toThrow(/If specified, must be a boolean, 'true', or 'false'. Received:/);
+    });
+
     describe('elasticsearch_name', () => {
+        it('should throw if value is not a string', () => {
+            const testFormat = createSchemaValueTest('elasticsearch_name');
+
+            expect(() => {
+                testFormat(123);
+            }).toThrow(/value: .* must be a string/);
+            expect(() => {
+                testFormat(null);
+            }).toThrow(/value: .* must be a string/);
+            expect(() => {
+                testFormat(undefined);
+            }).toThrow(/value: .* must be a string/);
+            expect(() => {
+                testFormat({ name: 'test' });
+            }).toThrow(/value: .* must be a string/);
+        });
+
         it('should work for common index names', () => {
             const testFormat = createSchemaValueTest('elasticsearch_name');
 

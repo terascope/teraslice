@@ -97,9 +97,6 @@ export const formats: TF.Format[] = [
                 throw new Error(`value: ${val} should be lower case`);
             }
         },
-        coerce(val) {
-            return val;
-        },
     },
     {
         name: 'positive_int',
@@ -249,7 +246,12 @@ export class SchemaValidator<T = AnyObject> {
 
         for (const key in this.argsMap) {
             const { argName, format } = this.argsMap[key];
-            const argIndex = process.argv.indexOf(argName);
+            // Find the arg either as exact match or with = syntax
+            let argIndex = process.argv.indexOf(`--${argName}`);
+            if (argIndex === -1) {
+                // Look for --argName=value syntax
+                argIndex = process.argv.findIndex((arg) => arg.startsWith(`--${argName}=`));
+            }
             if (argIndex >= 2) { // argv flags start at index 2
                 const flag = process.argv[argIndex];
                 let argValue: string | number | boolean;
@@ -564,7 +566,7 @@ export class SchemaValidator<T = AnyObject> {
 
 type CheckUndeclaredKeys = 'allow' | 'warn' | 'strict';
 
-function isSchemaObj<T>(value: unknown): value is TF.SchemaObj<T> {
+export function isSchemaObj<T>(value: unknown): value is TF.SchemaObj<T> {
     if (typeof value !== 'object' || value === null) {
         return false;
     }
@@ -606,18 +608,10 @@ function isSchemaObj<T>(value: unknown): value is TF.SchemaObj<T> {
         return false;
     }
 
-    if ('sensitive' in obj && typeof obj.sensitive !== 'boolean') {
-        return false;
-    }
-
-    if ('nullable' in obj && typeof obj.nullable !== 'boolean') {
-        return false;
-    }
-
     return true;
 }
 
-function isOfTypeFormat(value: unknown): value is TF.Format {
+export function isOfTypeFormat(value: unknown): value is TF.Format {
     if (typeof value !== 'object' || value === null) {
         return false;
     }

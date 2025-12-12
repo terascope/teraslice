@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { AnyObject, Terafoundation } from '@terascope/types';
 import { isString } from '../src/strings.js';
-import { SchemaValidator } from '../src/index.js';
+import { SchemaValidator, isSchemaObj, isOfTypeFormat } from '../src/index.js';
 
 describe('Schema Object validation', () => {
     function successfulValidation(
@@ -1889,8 +1889,13 @@ describe('Schema Object validation', () => {
 
         beforeEach(() => {
             process.argv = ['node', 'jest'];
-            process.argv.push('testArg1', 'argValue1');
-            process.argv.push('testArg2', 'argValue2');
+            process.argv.push('--testArg1', 'argValue1');
+            process.argv.push('--testArg2', 'argValue2');
+            process.argv.push('--testArg4=argValue4');
+            process.argv.push('--boolArg', 'true');
+            process.argv.push('--boolQuotedArg', '1');
+            process.argv.push('--numArg', '42');
+            process.argv.push('--numQuotedArg', '3.14');
 
             process.env.TEST_ENV1 = 'envValue1';
             process.env.TEST_ENV2 = 'envValue2';
@@ -2011,6 +2016,320 @@ describe('Schema Object validation', () => {
                 const validatedConfig = validator.validate(testValues);
                 expect(validatedConfig).toMatchObject(convertedValues);
             });
+        });
+
+        describe('should handle args with = syntax', () => {
+            const schemaWithEquals: Terafoundation.Schema<any> = {
+                argWithEquals: {
+                    doc: 'test',
+                    format: String,
+                    default: 'default value',
+                    arg: 'testArg4'
+                }
+            };
+
+            it('should parse args with = syntax', () => {
+                const validator = new SchemaValidator(schemaWithEquals, 'equals_test');
+                const validatedConfig = validator.validate({ argWithEquals: 'config value' });
+                expect(validatedConfig).toMatchObject({ argWithEquals: 'argValue4' });
+            });
+        });
+
+        describe('should handle Boolean and Number format args', () => {
+            const schemaWithFormats: Terafoundation.Schema<any> = {
+                booleanArg: {
+                    doc: 'test',
+                    format: Boolean,
+                    default: false,
+                    arg: 'boolArg'
+                },
+                booleanQuotedArg: {
+                    doc: 'test',
+                    format: 'Boolean',
+                    default: false,
+                    arg: 'boolQuotedArg'
+                },
+                numberArg: {
+                    doc: 'test',
+                    format: Number,
+                    default: 0,
+                    arg: 'numArg'
+                },
+                numberQuotedArg: {
+                    doc: 'test',
+                    format: 'Number',
+                    default: 0,
+                    arg: 'numQuotedArg'
+                }
+            };
+
+            it('should convert Boolean format args to boolean', () => {
+                const validator = new SchemaValidator(schemaWithFormats, 'boolean_test');
+                const validatedConfig = validator.validate({});
+                expect(validatedConfig).toMatchObject({
+                    booleanArg: true,
+                    booleanQuotedArg: true
+                });
+            });
+
+            it('should convert Number format args to number', () => {
+                const validator = new SchemaValidator(schemaWithFormats, 'number_test');
+                const validatedConfig = validator.validate({});
+                expect(validatedConfig).toMatchObject({
+                    numberArg: 42,
+                    numberQuotedArg: 3.14
+                });
+            });
+        });
+    });
+
+    describe('checkUndeclaredKeys', () => {
+        const schema: Terafoundation.Schema<any> = {
+            declaredKey: {
+                doc: 'test',
+                format: String,
+                default: 'default value'
+            }
+        };
+
+        describe('warn mode (default)', () => {
+            it('should not throw for undeclared keys in warn mode', () => {
+                const validator = new SchemaValidator(schema, 'warn_test');
+
+                const config = {
+                    declaredKey: 'valid value',
+                    undeclaredKey: 'this should warn'
+                };
+
+                // In warn mode, validation should succeed even with undeclared keys
+                expect(() => {
+                    const validatedConfig = validator.validate(config);
+                    expect(validatedConfig.declaredKey).toBe('valid value');
+                }).not.toThrow();
+            });
+        });
+
+        describe('strict mode', () => {
+            it('should throw error for undeclared keys', () => {
+                const validator = new SchemaValidator(schema, 'strict_test', [], 'strict');
+
+                const config = {
+                    declaredKey: 'valid value',
+                    undeclaredKey: 'this should throw'
+                };
+
+                expect(() => {
+                    validator.validate(config);
+                }).toThrow('Key \'undeclaredKey\' is not declared in strict_test schema');
+            });
+
+            it('should not throw for declared keys only', () => {
+                const validator = new SchemaValidator(schema, 'strict_test', [], 'strict');
+
+                const config = {
+                    declaredKey: 'valid value'
+                };
+
+                expect(() => {
+                    validator.validate(config);
+                }).not.toThrow();
+            });
+        });
+
+        describe('allow mode', () => {
+            it('should allow undeclared keys without error', () => {
+                const validator = new SchemaValidator(schema, 'allow_test', [], 'allow');
+
+                const config = {
+                    declaredKey: 'valid value',
+                    undeclaredKey: 'this should be allowed'
+                };
+
+                expect(() => {
+                    const validatedConfig = validator.validate(config);
+                    expect(validatedConfig.declaredKey).toBe('valid value');
+                }).not.toThrow();
+            });
+        });
+    });
+
+    describe('unrecognized format', () => {
+        it('should throw error for unrecognized format type', () => {
+            const invalidSchema: Terafoundation.Schema<any> = {
+                invalidKey: {
+                    doc: 'test',
+                    format: 'invalid',
+                    default: 'default value'
+                }
+            };
+
+            expect(() => {
+                new SchemaValidator(invalidSchema, 'invalid_test');
+            }).toThrow(/Unrecognized convict format for key: invalidKey cannot be converted to zod format/);
+        });
+    });
+
+    describe('isSchemaObj', () => {
+        it('should return true for valid schema objects', () => {
+            const validSchemaObj = {
+                default: 'test',
+                format: String,
+                doc: 'test doc'
+            };
+            expect(isSchemaObj(validSchemaObj)).toBe(true);
+        });
+
+        it('should return true for schema object with all valid properties', () => {
+            const validSchemaObj = {
+                default: 'test',
+                format: String,
+                doc: 'test doc',
+                env: 'TEST_ENV',
+                arg: 'test-arg'
+            };
+            expect(isSchemaObj(validSchemaObj)).toBe(true);
+        });
+
+        it('should return true for schema object with various format types', () => {
+            expect(isSchemaObj({ default: 'test', format: 'string' })).toBe(true);
+            expect(isSchemaObj({ default: 0, format: Number })).toBe(true);
+            expect(isSchemaObj({ default: false, format: Boolean })).toBe(true);
+            expect(isSchemaObj({ default: {}, format: Object })).toBe(true);
+            expect(isSchemaObj({ default: [], format: Array })).toBe(true);
+            expect(isSchemaObj({ default: /.*/, format: RegExp })).toBe(true);
+            expect(isSchemaObj({ default: 'test', format: (x: any) => x })).toBe(true);
+            expect(isSchemaObj({ default: 'test', format: ['a', 'b', 'c'] })).toBe(true);
+        });
+
+        it('should return false if not an object', () => {
+            expect(isSchemaObj(null)).toBe(false);
+            expect(isSchemaObj(undefined)).toBe(false);
+            expect(isSchemaObj('string')).toBe(false);
+            expect(isSchemaObj(123)).toBe(false);
+            expect(isSchemaObj(true)).toBe(false);
+        });
+
+        it('should return false if missing default property', () => {
+            const invalidSchemaObj = {
+                format: String,
+                doc: 'test doc'
+            };
+            expect(isSchemaObj(invalidSchemaObj)).toBe(false);
+        });
+
+        it('should return false if format is invalid type', () => {
+            const invalidSchemaObj = {
+                default: 'test',
+                format: Symbol('invalid')
+            };
+            expect(isSchemaObj(invalidSchemaObj)).toBe(false);
+        });
+
+        it('should return false if doc is not a string', () => {
+            const invalidSchemaObj = {
+                default: 'test',
+                format: String,
+                doc: 123
+            };
+            expect(isSchemaObj(invalidSchemaObj)).toBe(false);
+        });
+
+        it('should return false if env is not a string', () => {
+            const invalidSchemaObj = {
+                default: 'test',
+                format: String,
+                env: 123
+            };
+            expect(isSchemaObj(invalidSchemaObj)).toBe(false);
+        });
+
+        it('should return false if arg is not a string', () => {
+            const invalidSchemaObj = {
+                default: 'test',
+                format: String,
+                arg: 123
+            };
+            expect(isSchemaObj(invalidSchemaObj)).toBe(false);
+        });
+    });
+
+    describe('isOfTypeFormat', () => {
+        it('should return true for valid format objects with name', () => {
+            const validFormat = {
+                name: 'custom_format',
+                validate: (x: any) => x
+            };
+            expect(isOfTypeFormat(validFormat)).toBe(true);
+        });
+
+        it('should return true for valid format objects with validate only', () => {
+            const validFormat = {
+                validate: (x: any) => x
+            };
+            expect(isOfTypeFormat(validFormat)).toBe(true);
+        });
+
+        it('should return true for valid format objects with coerce only', () => {
+            const validFormat = {
+                coerce: (x: any) => x
+            };
+            expect(isOfTypeFormat(validFormat)).toBe(true);
+        });
+
+        it('should return true for valid format objects with all properties', () => {
+            const validFormat = {
+                name: 'custom_format',
+                validate: (x: any) => x,
+                coerce: (x: any) => x
+            };
+            expect(isOfTypeFormat(validFormat)).toBe(true);
+        });
+
+        it('should return false if not an object', () => {
+            expect(isOfTypeFormat(null)).toBe(false);
+            expect(isOfTypeFormat(undefined)).toBe(false);
+            expect(isOfTypeFormat('string')).toBe(false);
+            expect(isOfTypeFormat(123)).toBe(false);
+            expect(isOfTypeFormat(true)).toBe(false);
+        });
+
+        it('should return false if name is not a string or undefined', () => {
+            const invalidFormat = {
+                name: 123,
+                validate: (x: any) => x
+            };
+            expect(isOfTypeFormat(invalidFormat)).toBe(false);
+        });
+
+        it('should return false if coerce is not a function or undefined', () => {
+            const invalidFormat = {
+                name: 'custom',
+                coerce: 'not a function'
+            };
+            expect(isOfTypeFormat(invalidFormat)).toBe(false);
+        });
+
+        it('should return false if validate is not a function or undefined', () => {
+            const invalidFormat = {
+                name: 'custom',
+                validate: 'not a function'
+            };
+            expect(isOfTypeFormat(invalidFormat)).toBe(false);
+        });
+
+        it('should return false if missing all required properties', () => {
+            const invalidFormat = {
+                someOtherProp: 'value'
+            };
+            expect(isOfTypeFormat(invalidFormat)).toBe(false);
+        });
+
+        it('should return true when name is undefined but has validate or coerce', () => {
+            const validFormat = {
+                name: undefined,
+                validate: (x: any) => x
+            };
+            expect(isOfTypeFormat(validFormat)).toBe(true);
         });
     });
 });
