@@ -34,7 +34,6 @@
         "bunyan": "~1.8.15",
         "datemath-parser": "~1.0.6",
         "debug": "~4.4.3",
-        "diff": "~8.0.2",
         "is-plain-object": "~5.0.0",
         "js-string-escape": "~1.0.1",
         "kind-of": "~6.0.3",
