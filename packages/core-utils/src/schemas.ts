@@ -562,7 +562,7 @@ export class SchemaValidator<T = AnyObject> {
     _getCustomFormatFromName(format: TF.ConvictFormat | undefined) {
         if (typeof format !== 'string') return null;
         return formats.find(
-            (obj: TF.Format) => obj.name?.toLowerCase() === format.toLowerCase()
+            (obj: TF.Format) => obj.name === format
         );
     }
 
@@ -570,7 +570,7 @@ export class SchemaValidator<T = AnyObject> {
     _isCustomFormatName(format: TF.ConvictFormat) {
         if (typeof format !== 'string') return false;
         const result = formats.filter(
-            (obj: TF.Format) => obj.name?.toLowerCase() === format.toLowerCase()
+            (obj: TF.Format) => obj.name === format
         );
 
         return result.length > 0;
