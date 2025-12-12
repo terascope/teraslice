@@ -7,7 +7,7 @@ import { cloneDeep, debugLogger, pDelay, TSError } from '@terascope/core-utils';
 import { Terafoundation as TF, Teraslice as TS } from '@terascope/types';
 import { getE2eK8sDir } from '../../helpers/packages.js';
 import signale from '../signale.js';
-import * as config from '../config.js';
+import config from '../config.js';
 import { getVolumesFromDockerfile } from '../kind.js';
 
 const logger = debugLogger('ts-scripts:k8s-env');
@@ -19,10 +19,10 @@ export class K8s {
     k8sSchedulingV1Api: k8sClient.SchedulingV1Api;
     terasliceNamespace: string;
     servicesNamespace: string;
-    tsPort: string;
+    tsPort: number;
     kindClusterName: string;
 
-    constructor(tsPort: string, kindClusterName: string) {
+    constructor(tsPort: number, kindClusterName: string) {
         this.kc = new k8sClient.KubeConfig();
         this.kc.loadFromDefault();
 

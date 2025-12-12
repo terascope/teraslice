@@ -1,8 +1,8 @@
 import 'jest-extended';
-import { Schema } from 'convict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { logLevels } from '@terascope/core-utils';
+import { Terafoundation } from '@terascope/types';
 import {
     jobSchema, validateJobConfig, validateOpConfig,
     TestContext, validateAPIConfig,
@@ -141,7 +141,7 @@ describe('when using native clustering', () => {
 
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrow(/Operation example-reader refers to connection "unknown" which is unavailable/);
+            }).toThrow(/Operation example-reader refers to connection \\"unknown\\" which is unavailable/);
         });
     });
 
@@ -298,16 +298,16 @@ describe('when using native clustering', () => {
             };
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrow(/API test-api refers to connection "unknown" which is unavailable/);
+            }).toThrow(/API test-api refers to connection \\"unknown\\" which is unavailable/);
         });
     });
 
     describe('when validating opConfig', () => {
-        const schema: Schema<any> = {
+        const schema: Terafoundation.Schema<any> = {
             example: {
-                default: '',
+                default: undefined,
                 doc: 'some example value',
-                format: 'required_String',
+                format: 'required_string',
             },
             formatted_value: {
                 default: 'hi',
@@ -440,11 +440,11 @@ describe('when using native clustering', () => {
     });
 
     describe('when validating apiConfig', () => {
-        const schema: Schema<any> = {
+        const schema: Terafoundation.Schema<any> = {
             example: {
-                default: '',
+                default: undefined,
                 doc: 'some example value',
-                format: 'required_String',
+                format: 'required_string',
             },
             formatted_value: {
                 default: 'hi',
@@ -587,7 +587,7 @@ describe('when using native clustering', () => {
                     ],
                 };
                 expect(() => validateJobConfig(schema, job)).toThrow(
-                    'value for key "foo" must be not empty'
+                    'value for key \\"foo\\" must be not empty'
                 );
             });
         });

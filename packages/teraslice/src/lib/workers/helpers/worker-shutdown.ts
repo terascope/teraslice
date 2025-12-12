@@ -39,7 +39,7 @@ export function shutdownHandler(
         || 'unknown-assignment';
 
     // this is native clustering only
-    const isProcessRestart = process.env.process_restart;
+    const isProcessRestart = process.env.__process_restart;
     const api = {
         exiting: false,
         exit

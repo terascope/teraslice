@@ -1,41 +1,24 @@
 import os from 'node:os';
-import convict from 'convict';
 import {
     TSError, isFunction, isPlainObject,
     isEmpty, concat, pMap,
-    cloneDeep
+    cloneDeep, SchemaValidator
 } from '@terascope/core-utils';
 import type { Terafoundation, PartialDeep } from '@terascope/types';
-// @ts-expect-error no types
-import convict_format_with_validator from 'convict-format-with-validator';
-// @ts-expect-error no types
-import convict_format_with_moment from 'convict-format-with-moment';
 import { getConnectorSchemaAndValFn } from './connector-utils.js';
 import { foundationSchema } from './schema.js';
 
-convict.addFormats(convict_format_with_validator);
-convict.addFormats(convict_format_with_moment);
-
 function validateConfig(
     cluster: { isMaster: boolean },
-    schema: convict.Schema<any>,
-    namespaceConfig: any
+    schema: Terafoundation.Schema<any>,
+    namespaceConfig: any,
+    schemaKey: string,
+    extraFormats?: Terafoundation.Format[]
 ) {
     try {
-        const config = convict(schema || {});
-        config.load(namespaceConfig);
-
-        if (cluster.isMaster) {
-            config.validate({
-                // IMPORTANT: changing this will break things
-                // FIXME
-                // false is deprecated and will be removed in ^5.0.0
-                // must be warn or strict
-                allowed: true,
-            } as any);
-        }
-
-        return config.getProperties();
+        const checkKeys = cluster.isMaster ? 'allow' : 'warn';
+        const validator = new SchemaValidator<any>(schema, schemaKey, extraFormats, checkKeys);
+        return validator.validate(namespaceConfig);
     } catch (err) {
         throw new TSError(err, { reason: 'Error validating configuration' });
     }
@@ -104,13 +87,6 @@ export default async function validateConfigs<
     schema.terafoundation = foundationSchema();
 
     const result: any = {};
-
-    if (config.schema_formats) {
-        config.schema_formats.forEach((format) => {
-            convict.addFormat(format);
-        });
-    }
-
     const schemaKeys = concat(Object.keys(schema), Object.keys(sysconfig));
 
     for (const schemaKey of schemaKeys) {
@@ -118,7 +94,14 @@ export default async function validateConfigs<
         const subConfig: Record<string, any>
             = sysconfig[schemaKey as keyof Terafoundation.SysConfig<S>] || {};
 
-        const validatedConfig = validateConfig(cluster, subSchema, subConfig);
+        const validatedConfig = validateConfig(
+            cluster,
+            subSchema,
+            subConfig,
+            schemaKey,
+            config.schema_formats
+        );
+
         result[schemaKey] = validatedConfig;
 
         if (schemaKey === 'terafoundation') {
@@ -139,7 +122,9 @@ export default async function validateConfigs<
                     const validatedConnConfig = validateConfig(
                         cluster,
                         connectorSchema,
-                        connectionConfig as any
+                        connectionConfig as any,
+                        `${connector}.${connection}`,
+                        config.schema_formats
                     );
 
                     result[schemaKey].connectors[connector][connection] = validatedConnConfig;

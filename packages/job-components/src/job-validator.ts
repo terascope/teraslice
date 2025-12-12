@@ -1,6 +1,5 @@
-import convict from 'convict';
 import { cloneDeep, pMap } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, Terafoundation } from '@terascope/types';
 import { Context, OpConfig, ValidatedJobConfig } from './interfaces';
 import { validateJobConfig } from './config-validators.js';
 import { jobSchema } from './job-schemas.js';
@@ -9,7 +8,7 @@ import { registerApis } from './register-apis.js';
 import { OperationAPIConstructor, OperationModule } from './operations/index.js';
 
 export class JobValidator {
-    public schema: convict.Schema<any>;
+    public schema: Terafoundation.Schema<any>;
     private readonly context: Context;
     private readonly opLoader: OperationLoader;
 
@@ -40,13 +39,13 @@ export class JobValidator {
             op: OperationModule,
             index: number
         ) => {
-            const { Schema, API } = op;
+            const { Schema: OpSchema, API } = op;
 
             if (API != null) {
                 apis[opConfig._op] = API;
             }
 
-            const schema = new Schema(this.context);
+            const schema = new OpSchema(this.context);
 
             validateJobFns.push((job) => {
                 if (!schema.validateJob) return;
@@ -88,8 +87,8 @@ export class JobValidator {
         });
 
         jobConfig.apis = await pMap(jobConfig.apis, async (apiConfig, index) => {
-            const { Schema } = await this.opLoader.loadAPI(apiConfig._name, assetIds);
-            const schema = new Schema(this.context, 'api');
+            const { Schema: ApiSchema } = await this.opLoader.loadAPI(apiConfig._name, assetIds);
+            const schema = new ApiSchema(this.context, 'api');
 
             validateApisFns.push((job) => {
                 if (!schema.validateJob) return;

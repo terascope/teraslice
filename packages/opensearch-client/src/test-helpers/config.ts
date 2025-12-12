@@ -1,26 +1,57 @@
-const {
-    TEST_INDEX_PREFIX = 'teratest_',
-    ELASTICSEARCH_HOST = 'http://localhost:9200',
-    ELASTICSEARCH_VERSION = '7.9.3',
-    OPENSEARCH_PORT = '49210',
-    OPENSEARCH_HOSTNAME = `http://localhost:${OPENSEARCH_PORT}`,
-    OPENSEARCH_USER = 'admin',
-    OPENSEARCH_PASSWORD = 'admin',
-    OPENSEARCH_VERSION = '2.15.0',
-    OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}`,
-    OPENSEARCH_SSL_HOST = `https://${OPENSEARCH_HOSTNAME}:${OPENSEARCH_PORT}`,
-    RESTRAINED_OPENSEARCH_PORT = process.env.RESTRAINED_OPENSEARCH_PORT || '49206',
-    RESTRAINED_OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@localhost:${RESTRAINED_OPENSEARCH_PORT}`,
-} = process.env;
+import { SchemaValidator } from '@terascope/core-utils';
+import { ElasticsearchTestEnv, OpenSearchTestEnv, Terafoundation } from '@terascope/types';
+
+const opensearchEnvSchema: Terafoundation.Schema<any> = {
+    ELASTICSEARCH_HOST: {
+        default: null,
+        format: 'optional_string',
+    },
+    ELASTICSEARCH_VERSION: {
+        default: null,
+        format: 'optional_string',
+    },
+    OPENSEARCH_HOST: {
+        default: null,
+        format: 'optional_string',
+    },
+    OPENSEARCH_PASSWORD: {
+        default: null,
+        format: 'optional_string',
+    },
+    OPENSEARCH_SSL_HOST: {
+        default: null,
+        format: 'optional_string',
+    },
+    OPENSEARCH_USER: {
+        default: null,
+        format: 'optional_string',
+    },
+    OPENSEARCH_VERSION: {
+        default: null,
+        format: 'optional_string',
+    },
+    RESTRAINED_OPENSEARCH_HOST: {
+        default: null,
+        format: 'optional_string',
+    },
+    SEARCH_TEST_HOST: {
+        default: undefined,
+        format: String,
+    },
+    TEST_INDEX_PREFIX: {
+        default: undefined,
+        format: String,
+    },
+};
+
+const validator = new SchemaValidator<OpenSearchTestEnv | ElasticsearchTestEnv>(
+    opensearchEnvSchema,
+    'opensearchEnvSchema',
+    undefined,
+    'allow'
+);
+const envConfig = validator.validate(process.env);
 
 export {
-    TEST_INDEX_PREFIX,
-    ELASTICSEARCH_HOST,
-    ELASTICSEARCH_VERSION,
-    OPENSEARCH_HOST,
-    OPENSEARCH_SSL_HOST,
-    OPENSEARCH_VERSION,
-    RESTRAINED_OPENSEARCH_HOST,
-    OPENSEARCH_USER,
-    OPENSEARCH_PASSWORD
+    envConfig
 };

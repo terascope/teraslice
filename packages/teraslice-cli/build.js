@@ -8,7 +8,7 @@ const ctx = await esbuild.context({
     format: 'esm', // Ensure compatibility with `import`
     sourcemap: false,
     inject: ['cjs-to-esm.js'],
-    external: ['esbuild']
+    external: ['esbuild', 'dtrace-provider']
 });
 
 if (process.argv.includes('--watch')) {

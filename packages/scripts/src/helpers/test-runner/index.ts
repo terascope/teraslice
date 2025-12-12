@@ -2,6 +2,7 @@ import {
     debugLogger, chunk, TSError,
     isCI, pMap
 } from '@terascope/core-utils';
+import { TestEnv } from '@terascope/types';
 import fs from 'node:fs';
 import {
     writePkgHeader, writeHeader, getRootDir,
@@ -29,11 +30,13 @@ import { getE2EDir, readPackageInfo, listPackages } from '../packages.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
-import {
-    MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
-    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH
-} from '../config.js';
 import { K8s } from '../k8s-env/k8s.js';
+import config from '../config.js';
+
+const {
+    MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
+    K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH
+} = config;
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -265,11 +268,6 @@ async function runE2ETest(
         if (options.clusteringType === 'native') {
             await loadOrPullServiceImages(suite, options.skipImageDeletion);
         }
-
-        // load the base docker image only if needed to build a dev image
-        if (!SKIP_DOCKER_BUILD_IN_E2E) {
-            await loadThenDeleteImageFromCache(`${BASE_DOCKER_IMAGE}:${NODE_VERSION}`, options.skipImageDeletion);
-        }
     }
 
     try {
@@ -373,7 +371,7 @@ async function runE2ETest(
     }
 }
 
-function printAndGetEnv(suite: string, options: TestOptions) {
+function printAndGetEnv(suite: string, options: TestOptions): TestEnv {
     const env = getEnv(options, suite);
     if (options.debug || options.trace || isCI) {
         const envStr = Object

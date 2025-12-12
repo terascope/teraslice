@@ -5,12 +5,12 @@ export default class Schema extends ConvictSchema<TransformerConfig> {
     build(): Record<string, any> {
         return {
             action: {
-                default: null,
-                doc: 'The type of tranformation action to perform. (Required)',
+                default: undefined,
+                doc: 'The type of transformation action to perform. (Required)',
                 format: actions
             },
             key: {
-                default: null,
+                default: undefined,
                 doc: 'The key to transform on the data. (Required)',
                 format: 'String'
             },

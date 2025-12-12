@@ -3,8 +3,7 @@ import { jest } from '@jest/globals';
 import { TSError } from '@terascope/core-utils';
 import { TestOptions } from '../src/helpers/test-runner/interfaces.js';
 
-jest.unstable_mockModule('../src/helpers/config.js', () => ({
-    __esModule: true,
+const mockConfig = {
     ELASTICSEARCH_VERSION: 'bad-version',
     KAFKA_VERSION: 'very-bad-version',
     MINIO_VERSION: 'very-bad-version',
@@ -17,11 +16,10 @@ jest.unstable_mockModule('../src/helpers/config.js', () => ({
     DOCKER_CACHE_PATH: '',
     FORCE_COLOR: '',
     SERVICE_UP_TIMEOUT: '1000',
-    __DEFAULT_ELASTICSEARCH6_VERSION: '',
-    __DEFAULT_ELASTICSEARCH7_VERSION: '',
-    __DEFAULT_OPENSEARCH1_VERSION: '',
-    __DEFAULT_OPENSEARCH2_VERSION: '',
-    __DEFAULT_OPENSEARCH3_VERSION: '',
+    DEFAULT_ELASTICSEARCH7_VERSION: '',
+    DEFAULT_OPENSEARCH1_VERSION: '',
+    DEFAULT_OPENSEARCH2_VERSION: '',
+    DEFAULT_OPENSEARCH3_VERSION: '',
     TERASLICE_PORT: '',
     HOST_IP: '',
     USE_EXISTING_SERVICES: '',
@@ -79,7 +77,6 @@ jest.unstable_mockModule('../src/helpers/config.js', () => ({
     RESTRAINED_OPENSEARCH_HOST: '',
     KIND_DOCKER_IMAGE: '',
     KIND_VERSION: '',
-    BASE_DOCKER_IMAGE: '',
     SKIP_GIT_COMMANDS: '',
     SKIP_DOCKER_BUILD_IN_E2E: '',
     SKIP_DOCKER_BUILD_IN_K8S: '',
@@ -88,13 +85,17 @@ jest.unstable_mockModule('../src/helpers/config.js', () => ({
     REPORT_COVERAGE: '',
     JEST_MAX_WORKERS: '',
     SEARCH_TEST_HOST: '',
-    TEST_NODE_VERSIONS: '',
     DEFAULT_NODE_VERSION: '',
     NODE_VERSION: '',
     DOCKER_IMAGES_PATH: '',
     DOCKER_IMAGE_LIST_PATH: '',
     CERT_PATH: '',
     ENCRYPTION_ENABLED: ''
+};
+
+jest.unstable_mockModule('../src/helpers/config.js', () => ({
+    __esModule: true,
+    default: mockConfig
 }));
 
 describe('services', () => {

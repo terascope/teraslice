@@ -7,12 +7,13 @@ import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
 import { createClient, Client, Semver, ClientConfig } from '../client/index.js';
 import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
-import {
-    ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
-    OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST, OPENSEARCH_SSL_HOST,
-    OPENSEARCH_PASSWORD, OPENSEARCH_USER
-} from './config.js';
+import { envConfig } from './config.js';
 
+const {
+    ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
+    OPENSEARCH_PASSWORD, OPENSEARCH_SSL_HOST, OPENSEARCH_USER,
+    OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST
+} = envConfig;
 export async function makeClient(rootCaPath?: string): Promise<Client> {
     let host: string;
     let esConfig: ClientConfig = {};
@@ -253,6 +254,7 @@ export function getTestENVClientInfo(): TestENVClientInfo {
             minorVersion
         };
     }
+
     const version = ELASTICSEARCH_VERSION;
     const [majorVersion, minorVersion] = parseVersion(version);
 

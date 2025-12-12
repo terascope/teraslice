@@ -36,18 +36,18 @@ export const schema = {
     },
     assets_volume: {
         doc: 'name of shared asset volume (k8s)',
-        default: '',
-        format: 'optional_String'
+        default: undefined,
+        format: 'optional_string'
     },
     autoload_directory: {
         doc: 'directory to look for assets to auto deploy when teraslice boots up',
         default: path.join(process.cwd(), './autoload'),
-        format: 'optional_String'
+        format: 'optional_string'
     },
     hostname: {
         doc: 'IP or hostname for server',
         default: ip.address(),
-        format: 'required_String'
+        format: 'required_string'
     },
     workers: {
         doc: 'Number of workers per server',
@@ -63,7 +63,7 @@ export const schema = {
         doc:
             'hostname where the cluster_master resides, used to notify all node_masters where to connect',
         default: 'localhost',
-        format: 'required_String'
+        format: 'required_string'
     },
     port: {
         doc: 'port for the cluster_master to listen on',
@@ -73,7 +73,7 @@ export const schema = {
     name: {
         doc: 'Name for the cluster itself, its used for naming log files/indices',
         default: 'teracluster',
-        format: 'elasticsearch_Name'
+        format: 'elasticsearch_name'
     },
     state: {
         doc: 'Elasticsearch cluster where job state, analytics and logs are stored',
@@ -290,12 +290,12 @@ export const schema = {
     kubernetes_image: {
         doc: 'Specify a custom image name for kubernetes, this only applies to kubernetes systems',
         default: 'terascope/teraslice',
-        format: 'optional_String'
+        format: 'optional_string'
     },
     kubernetes_namespace: {
         doc: 'Specify a custom kubernetes namespace, this only applies to kubernetes systems',
         default: 'default',
-        format: 'optional_String'
+        format: 'optional_string'
     },
     kubernetes_overrides_enabled: {
         doc: '',
@@ -305,17 +305,17 @@ export const schema = {
     kubernetes_priority_class_name: {
         doc: 'Priority class that the Teraslice master, execution controller, and stateful workers should run with',
         default: undefined,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     kubernetes_config_map_name: {
         doc: 'Specify the name of the Kubernetes ConfigMap used to configure worker pods',
         default: 'teraslice-worker',
-        format: 'optional_String'
+        format: 'optional_string'
     },
     kubernetes_image_pull_secret: {
         doc: 'Name of Kubernetes secret used to pull docker images from private repository',
-        default: '',
-        format: 'optional_String'
+        default: undefined,
+        format: 'optional_string'
     },
     kubernetes_worker_antiaffinity: {
         doc: 'Enable Teraslice woker pod AntiAffinity in Kubernetes',
@@ -335,7 +335,7 @@ export const schema = {
     asset_storage_bucket: {
         doc: 'Name of S3 bucket used to store assets. Can only be used if "asset_storage_connection_type" is "s3".',
         default: undefined,
-        format: String
+        format: 'optional_string'
     },
 };
 
