@@ -201,11 +201,21 @@ export class SchemaValidator<T = AnyObject> {
         extraFormats: TF.Format[] = [],
         checkUndeclaredKeys: CheckUndeclaredKeys = 'warn'
     ) {
-        extraFormats.forEach((format) => {
-            if (!formats.some(
-                (existingFormat) => existingFormat.name === format.name)
-            ) {
-                formats.push(format);
+        extraFormats.forEach((newFormat) => {
+            let unique = true;
+            formats.forEach((existingFormat) => {
+                // find formats with same name
+                if (existingFormat.name === newFormat.name) {
+                    // find format with different functions
+                    if (existingFormat.coerce?.toString() !== newFormat.coerce?.toString()
+                        || existingFormat.validate?.toString() !== newFormat.validate?.toString()) {
+                        throw new Error(`Custom formats library already contains a format named ${newFormat.name}`);
+                    }
+                    unique = false;
+                }
+            });
+            if (unique) {
+                formats.push(newFormat);
             }
         });
 
@@ -551,14 +561,17 @@ export class SchemaValidator<T = AnyObject> {
     /** Look up a custom format by name and return the format object */
     _getCustomFormatFromName(format: TF.ConvictFormat | undefined) {
         if (typeof format !== 'string') return null;
-        const formatLowerCase = format.toLowerCase();
-        return formats.find((obj: TF.Format) => obj.name === formatLowerCase);
+        return formats.find(
+            (obj: TF.Format) => obj.name?.toLowerCase() === format.toLowerCase()
+        );
     }
 
     /** Determine if a format is the name of a custom format */
     _isCustomFormatName(format: TF.ConvictFormat) {
         if (typeof format !== 'string') return false;
-        const result = formats.filter((obj: TF.Format) => obj.name === format.toLowerCase());
+        const result = formats.filter(
+            (obj: TF.Format) => obj.name?.toLowerCase() === format.toLowerCase()
+        );
 
         return result.length > 0;
     }

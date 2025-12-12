@@ -2332,4 +2332,264 @@ describe('Schema Object validation', () => {
             expect(isOfTypeFormat(validFormat)).toBe(true);
         });
     });
+
+    describe('extraFormats', () => {
+        const schema: Terafoundation.Schema<any> = {
+            testKey: {
+                doc: 'test',
+                format: 'custom_test_format',
+                default: 'default value'
+            }
+        };
+
+        it('should accept and use a new custom format', () => {
+            const customFormat: Terafoundation.Format = {
+                name: 'custom_test_format',
+                validate: (val: unknown) => {
+                    if (!isString(val) || !val.startsWith('test_')) {
+                        throw new Error('Value must be a string starting with test_');
+                    }
+                }
+            };
+
+            const validator = new SchemaValidator(schema, 'custom_format_test', [customFormat]);
+
+            expect(() => {
+                validator.validate({ testKey: 'test_value' });
+            }).not.toThrow();
+
+            expect(() => {
+                validator.validate({ testKey: 'invalid_value' });
+            }).toThrow(/Value must be a string starting with test_/);
+        });
+
+        it('should not add duplicate format when functions are identical', () => {
+            const customFormat1: Terafoundation.Format = {
+                name: 'no_duplicate_format',
+                validate: (val: unknown) => {
+                    if (!isString(val)) throw new Error('Must be string');
+                }
+            };
+
+            const customFormat2: Terafoundation.Format = {
+                name: 'no_duplicate_format',
+                validate: (val: unknown) => {
+                    if (!isString(val)) throw new Error('Must be string');
+                }
+            };
+
+            const schema1: Terafoundation.Schema<any> = {
+                field1: {
+                    doc: 'test',
+                    format: 'no_duplicate_format',
+                    default: 'test'
+                }
+            };
+
+            // First validator adds the format
+            const validator1 = new SchemaValidator(schema1, 'test1', [customFormat1]);
+            expect(validator1).toBeDefined();
+
+            // Second validator should not throw and should not add duplicate
+            expect(() => {
+                const validator2 = new SchemaValidator(schema1, 'test2', [customFormat2]);
+                expect(validator2).toBeDefined();
+            }).not.toThrow();
+
+            // Verify both validators work correctly with the same format
+            expect(() => {
+                validator1.validate({ field1: 'valid' });
+            }).not.toThrow();
+
+            expect(() => {
+                validator1.validate({ field1: 123 });
+            }).toThrow('Must be string');
+        });
+
+        it('should throw error when adding format with same name but different validate function', () => {
+            const customFormat1: Terafoundation.Format = {
+                name: 'conflicting_format',
+                validate: (val: unknown) => {
+                    if (!isString(val)) throw new Error('Must be string');
+                }
+            };
+
+            const customFormat2: Terafoundation.Format = {
+                name: 'conflicting_format',
+                validate: (val: unknown) => {
+                    if (typeof val !== 'number') throw new Error('Must be number');
+                }
+            };
+
+            const schema1: Terafoundation.Schema<any> = {
+                field1: {
+                    doc: 'test',
+                    format: 'conflicting_format',
+                    default: 'test'
+                }
+            };
+
+            // First validator adds the format
+            new SchemaValidator(schema1, 'test1', [customFormat1]);
+
+            // Second validator should throw because validate function is different
+            expect(() => {
+                new SchemaValidator(schema1, 'test2', [customFormat2]);
+            }).toThrow('Custom formats library already contains a format named conflicting_format');
+        });
+
+        it('should throw error when adding format with same name but different coerce function', () => {
+            const customFormat1: Terafoundation.Format = {
+                name: 'coerce_conflict_format',
+                coerce: (val: unknown) => String(val)
+            };
+
+            const customFormat2: Terafoundation.Format = {
+                name: 'coerce_conflict_format',
+                coerce: (val: unknown) => Number(val)
+            };
+
+            const schema1: Terafoundation.Schema<any> = {
+                field1: {
+                    doc: 'test',
+                    format: 'coerce_conflict_format',
+                    default: 'test'
+                }
+            };
+
+            // First validator adds the format
+            new SchemaValidator(schema1, 'test1', [customFormat1]);
+
+            // Second validator should throw because coerce function is different
+            expect(() => {
+                new SchemaValidator(schema1, 'test2', [customFormat2]);
+            }).toThrow('Custom formats library already contains a format named coerce_conflict_format');
+        });
+
+        it('should allow adding format with coerce and validate functions', () => {
+            const customFormatWithBoth: Terafoundation.Format = {
+                name: 'format_with_both',
+                validate: (val: unknown) => {
+                    if (typeof val !== 'number') throw new Error('Must be number');
+                },
+                coerce: (val: unknown) => Number(val)
+            };
+
+            const schema1: Terafoundation.Schema<any> = {
+                field1: {
+                    doc: 'test',
+                    format: 'format_with_both',
+                    default: 42
+                }
+            };
+
+            expect(() => {
+                new SchemaValidator(schema1, 'test_both', [customFormatWithBoth]);
+            }).not.toThrow();
+        });
+
+        it('should allow empty extraFormats array', () => {
+            const basicSchema: Terafoundation.Schema<any> = {
+                field1: {
+                    doc: 'test',
+                    format: String,
+                    default: 'test'
+                }
+            };
+
+            expect(() => {
+                new SchemaValidator(basicSchema, 'empty_formats_test', []);
+            }).not.toThrow();
+        });
+
+        it('should not duplicate format when added multiple times with identical implementation', () => {
+            const customFormat: Terafoundation.Format = {
+                name: 'reusable_format',
+                validate: (val: unknown) => {
+                    if (!isString(val) || val.length < 3) {
+                        throw new Error('Must be string with at least 3 characters');
+                    }
+                },
+                coerce: (val: unknown) => String(val)
+            };
+
+            const schema1: Terafoundation.Schema<any> = {
+                field1: {
+                    doc: 'test',
+                    format: 'reusable_format',
+                    default: 'test'
+                }
+            };
+
+            // Add format first time
+            const validator1 = new SchemaValidator(schema1, 'first', [customFormat]);
+
+            // Add same format second time with identical implementation
+            const validator2 = new SchemaValidator(schema1, 'second', [customFormat]);
+
+            // Add same format third time with identical implementation
+            const validator3 = new SchemaValidator(schema1, 'third', [customFormat]);
+
+            // All validators should work correctly
+            expect(() => {
+                validator1.validate({ field1: 'abc' });
+                validator2.validate({ field1: 'def' });
+                validator3.validate({ field1: 'ghi' });
+            }).not.toThrow();
+
+            // All validators should fail for invalid values
+            expect(() => {
+                validator1.validate({ field1: 'ab' });
+            }).toThrow('Must be string with at least 3 characters');
+
+            expect(() => {
+                validator2.validate({ field1: 'xy' });
+            }).toThrow('Must be string with at least 3 characters');
+        });
+
+        it('should handle multiple different formats added at once', () => {
+            const format1: Terafoundation.Format = {
+                name: 'multi_format_1',
+                validate: (val: unknown) => {
+                    if (!isString(val)) throw new Error('Format 1: Must be string');
+                }
+            };
+
+            const format2: Terafoundation.Format = {
+                name: 'multi_format_2',
+                validate: (val: unknown) => {
+                    if (typeof val !== 'number') throw new Error('Format 2: Must be number');
+                }
+            };
+
+            const schema1: Terafoundation.Schema<any> = {
+                field1: {
+                    doc: 'test',
+                    format: 'multi_format_1',
+                    default: 'test'
+                },
+                field2: {
+                    doc: 'test',
+                    format: 'multi_format_2',
+                    default: 42
+                }
+            };
+
+            // Add both formats at once
+            const validator = new SchemaValidator(schema1, 'multi_test', [format1, format2]);
+
+            // Both formats should work
+            expect(() => {
+                validator.validate({ field1: 'valid', field2: 100 });
+            }).not.toThrow();
+
+            expect(() => {
+                validator.validate({ field1: 123, field2: 100 });
+            }).toThrow('Format 1: Must be string');
+
+            expect(() => {
+                validator.validate({ field1: 'valid', field2: 'invalid' });
+            }).toThrow('Format 2: Must be number');
+        });
+    });
 });
