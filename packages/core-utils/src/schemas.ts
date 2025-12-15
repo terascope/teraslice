@@ -354,6 +354,7 @@ export class SchemaValidator<T = AnyObject> {
         schemaObj: TF.SchemaObj,
         key: PropertyKey
     ) {
+        let baseType: ZodType;
         let type: ZodType;
         let finalFormat: TF.ConvictFormat;
 
@@ -364,19 +365,32 @@ export class SchemaValidator<T = AnyObject> {
                 assert(Object.prototype.toString.call(x) == defaultType,
                     ' should be of type ' + defaultType.replace(/\[.* |]/g, ''));
             };
-            type = this._getBaseType(key, finalFormat);
+            baseType = this._getBaseType(key, finalFormat);
         } else {
-            type = this._getBaseType(key, schemaObj.format);
+            baseType = this._getBaseType(key, schemaObj.format);
             finalFormat = this._getCustomFormatFromName(schemaObj.format) || schemaObj.format;
         }
 
         if (Object.hasOwn(schemaObj, 'default')) {
             try {
-                this._validateDefault(type, schemaObj.default);
+                this._validateDefault(baseType, schemaObj.default);
             } catch (err) {
                 throw new Error(`Invalid default value for key ${key.toString()}: ${schemaObj.default}`);
             }
-            type = type.default(schemaObj.default);
+
+            type = z.preprocess(
+                (val: unknown) => {
+                    // Only apply default for undefined, keep null as null
+                    return val === undefined ? schemaObj.default : val;
+                },
+                baseType.nullable()
+            );
+        } else {
+            type = baseType;
+        }
+
+        if (schemaObj.default === undefined) {
+            type = type.optional();
         }
 
         if (schemaObj.arg) {
@@ -428,13 +442,7 @@ export class SchemaValidator<T = AnyObject> {
             // formats defined in inline functions
             return type.superRefine((args: any, ctx: RefinementCtx<any>) => {
                 try {
-                    let val;
-                    if (args === null || args === undefined) {
-                        val = schemaObj.default;
-                    } else {
-                        val = args;
-                    }
-                    finalFormat(val);
+                    finalFormat(args);
                 } catch (err) {
                     ctx.addIssue({
                         code: 'custom',
@@ -518,7 +526,7 @@ export class SchemaValidator<T = AnyObject> {
                 break;
             case (this._isCustomFormatName(convictFormatValue) ? convictFormatValue : undefined):
             case (isFunction(convictFormatValue) ? convictFormatValue : undefined):
-                // let the format function do all validation
+                // let the inline format function do all validation
                 baseType = z.any();
                 break;
             case (Array.isArray(convictFormatValue) ? convictFormatValue : undefined):

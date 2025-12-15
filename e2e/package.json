@@ -45,9 +45,9 @@
         "ms": "~2.1.3"
     },
     "devDependencies": {
-        "@terascope/core-utils": "~2.0.0-dev.9",
-        "@terascope/opensearch-client": "~2.0.0-dev.9",
-        "@terascope/scripts": "~2.0.0-dev.14",
+        "@terascope/core-utils": "~2.0.0-dev.10",
+        "@terascope/opensearch-client": "~2.0.0-dev.10",
+        "@terascope/scripts": "~2.0.0-dev.15",
         "@terascope/types": "~2.0.0-dev.8",
         "bunyan": "~1.8.15",
         "fs-extra": "~11.3.1",
