@@ -24,11 +24,8 @@ importers:
         specifier: ~0.2.39
         version: 0.2.39(@swc/core@1.13.5)
       '@terascope/scripts':
-        specifier: ~2.0.0-dev.13
-        version: 2.0.0-dev.13(typescript@5.9.3)
-      '@types/convict':
-        specifier: ~6.1.6
-        version: 6.1.6
+        specifier: ~2.0.0-dev.14
+        version: 2.0.0-dev.14(typescript@5.9.3)
       '@types/elasticsearch':
         specifier: ~5.0.43
         version: 5.0.43
@@ -72,17 +69,17 @@ importers:
   e2e:
     devDependencies:
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/opensearch-client':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/scripts':
+        specifier: ~2.0.0-dev.14
+        version: 2.0.0-dev.14(typescript@5.9.3)
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/scripts':
-        specifier: ~2.0.0-dev.13
-        version: 2.0.0-dev.13(typescript@5.9.3)
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       bunyan:
         specifier: ~1.8.15
         version: 1.8.15
@@ -123,11 +120,17 @@ importers:
   packages/core-utils:
     dependencies:
       '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
+        specifier: ~2.0.0-dev.8
+        version: 2.0.0-dev.8
       awesome-phonenumber:
         specifier: ~7.5.0
         version: 7.5.0
+      bunyan:
+        specifier: ~1.8.15
+        version: 1.8.15
+      datemath-parser:
+        specifier: ~1.0.6
+        version: 1.0.6
       debug:
         specifier: ~4.4.3
         version: 4.4.3
@@ -143,6 +146,9 @@ importers:
       lodash-es:
         specifier: ~4.17.21
         version: 4.17.21
+      moment:
+        specifier: ~2.30.1
+        version: 2.30.1
       p-map:
         specifier: ~7.0.3
         version: 7.0.4
@@ -152,6 +158,9 @@ importers:
       validator:
         specifier: ~13.12.0
         version: 13.12.0
+      zod:
+        specifier: ~4.1.12
+        version: 4.1.13
     devDependencies:
       '@types/debug':
         specifier: ~4.1.12
@@ -178,20 +187,20 @@ importers:
   packages/data-mate:
     dependencies:
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/data-types':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/geo-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/ip-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       '@types/validator':
         specifier: ~13.12.3
         version: 13.12.3
@@ -232,8 +241,8 @@ importers:
         specifier: ~13.12.0
         version: 13.12.0
       xlucene-parser:
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
     devDependencies:
       '@types/big-json':
         specifier: ^3.2.5
@@ -254,11 +263,11 @@ importers:
   packages/data-types:
     dependencies:
       '@terascope/core-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       graphql:
         specifier: ~16.11.0
         version: 16.11.0
@@ -272,11 +281,11 @@ importers:
   packages/elasticsearch-api:
     dependencies:
       '@terascope/core-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       setimmediate:
         specifier: ~1.0.5
         version: 1.0.5
@@ -285,8 +294,8 @@ importers:
         specifier: ~1.2.0
         version: 1.2.0
       '@terascope/opensearch-client':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@types/elasticsearch':
         specifier: ~5.0.43
         version: 5.0.43
@@ -303,20 +312,20 @@ importers:
   packages/elasticsearch-store:
     dependencies:
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/data-mate':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/data-types':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/opensearch-client':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       ajv:
         specifier: ~8.17.1
         version: 8.17.1
@@ -330,8 +339,8 @@ importers:
         specifier: ~13.0.0
         version: 13.0.0
       xlucene-translator:
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
     devDependencies:
       '@types/uuid':
         specifier: ~10.0.0
@@ -391,11 +400,11 @@ importers:
   packages/geo-utils:
     dependencies:
       '@terascope/core-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       '@turf/bbox':
         specifier: ~7.2.0
         version: 7.2.0
@@ -449,11 +458,11 @@ importers:
         specifier: ~2.1.0
         version: 2.1.0
       '@terascope/core-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       ip-bigint:
         specifier: ~8.2.2
         version: 8.2.2
@@ -473,23 +482,11 @@ importers:
   packages/job-components:
     dependencies:
       '@terascope/core-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
-      convict:
-        specifier: ~6.2.4
-        version: 6.2.4
-      convict-format-with-moment:
-        specifier: ~6.2.0
-        version: 6.2.0
-      convict-format-with-validator:
-        specifier: ~6.2.0
-        version: 6.2.0
-      datemath-parser:
-        specifier: ~1.0.6
-        version: 1.0.6
       import-meta-resolve:
         specifier: ~4.2.0
         version: 4.2.0
@@ -516,14 +513,14 @@ importers:
   packages/opensearch-client:
     dependencies:
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/data-types':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       elasticsearch7:
         specifier: npm:@elastic/elasticsearch@~7.17.0
         version: '@elastic/elasticsearch@7.17.14'
@@ -549,8 +546,8 @@ importers:
         specifier: ~1.3.0
         version: 1.3.0
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       execa:
         specifier: ~9.6.0
         version: 9.6.1
@@ -612,6 +609,9 @@ importers:
         specifier: ~18.0.0
         version: 18.0.0
     devDependencies:
+      '@terascope/types':
+        specifier: ~2.0.0-dev.8
+        version: 2.0.0-dev.8
       '@types/ip':
         specifier: ~1.1.3
         version: 1.1.3
@@ -637,29 +637,20 @@ importers:
   packages/terafoundation:
     dependencies:
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/file-asset-apis':
         specifier: ~1.1.2
         version: 1.1.2
       '@terascope/opensearch-client':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       bunyan:
         specifier: ~1.8.15
         version: 1.8.15
-      convict:
-        specifier: ~6.2.4
-        version: 6.2.4
-      convict-format-with-moment:
-        specifier: ~6.2.0
-        version: 6.2.0
-      convict-format-with-validator:
-        specifier: ~6.2.0
-        version: 6.2.0
       elasticsearch:
         specifier: ~15.4.1
         version: 15.4.1
@@ -707,20 +698,20 @@ importers:
         specifier: ~1.3.0
         version: 1.3.0
       '@terascope/core-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/elasticsearch-api':
+        specifier: ~5.0.0-dev.10
+        version: 5.0.0-dev.10
+      '@terascope/job-components':
+        specifier: ~2.0.0-dev.10
+        version: 2.0.0-dev.10
+      '@terascope/teraslice-messaging':
+        specifier: ~2.0.0-dev.10
+        version: 2.0.0-dev.10
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/elasticsearch-api':
-        specifier: ~5.0.0-dev.9
-        version: 5.0.0-dev.9
-      '@terascope/job-components':
-        specifier: ~2.0.0-dev.9
-        version: 2.0.0-dev.9
-      '@terascope/teraslice-messaging':
-        specifier: ~2.0.0-dev.9
-        version: 2.0.0-dev.9
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       async-mutex:
         specifier: ~0.5.0
         version: 0.5.0
@@ -773,15 +764,15 @@ importers:
         specifier: ~4.8.1
         version: 4.8.1
       terafoundation:
-        specifier: ~2.0.0-dev.10
-        version: 2.0.0-dev.10
+        specifier: ~2.0.0-dev.11
+        version: 2.0.0-dev.11
       uuid:
         specifier: ~13.0.0
         version: 13.0.0
     devDependencies:
       '@terascope/opensearch-client':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@types/archiver':
         specifier: ~6.0.3
         version: 6.0.4
@@ -800,15 +791,6 @@ importers:
       chance:
         specifier: ~1.1.13
         version: 1.1.13
-      convict:
-        specifier: ~6.2.4
-        version: 6.2.4
-      convict-format-with-moment:
-        specifier: ~6.2.0
-        version: 6.2.0
-      convict-format-with-validator:
-        specifier: ~6.2.0
-        version: 6.2.0
       jest-fixtures:
         specifier: ~0.6.0
         version: 0.6.0
@@ -826,14 +808,14 @@ importers:
         version: 0.25.12
     devDependencies:
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/fetch-github-release':
         specifier: ~2.2.1
         version: 2.2.1
       '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
+        specifier: ~2.0.0-dev.8
+        version: 2.0.0-dev.8
       '@types/decompress':
         specifier: ~4.2.7
         version: 4.2.7
@@ -901,8 +883,8 @@ importers:
         specifier: ~1.4.0
         version: 1.4.0
       teraslice-client-js:
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       tmp:
         specifier: ~0.2.5
         version: 0.2.5
@@ -916,11 +898,11 @@ importers:
   packages/teraslice-client-js:
     dependencies:
       '@terascope/core-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       auto-bind:
         specifier: ~5.0.1
         version: 5.0.1
@@ -935,11 +917,11 @@ importers:
   packages/teraslice-messaging:
     dependencies:
       '@terascope/core-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       get-port:
         specifier: ~7.1.0
         version: 7.1.0
@@ -966,15 +948,15 @@ importers:
   packages/teraslice-state-storage:
     dependencies:
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/elasticsearch-api':
-        specifier: ~5.0.0-dev.9
-        version: 5.0.0-dev.9
+        specifier: ~5.0.0-dev.10
+        version: 5.0.0-dev.10
     devDependencies:
       '@terascope/opensearch-client':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
 
   packages/teraslice-test-harness:
     dependencies:
@@ -982,8 +964,8 @@ importers:
         specifier: ~2.2.1
         version: 2.2.1
       '@terascope/job-components':
-        specifier: ~2.0.0-dev.9
-        version: 2.0.0-dev.9
+        specifier: ~2.0.0-dev.10
+        version: 2.0.0-dev.10
       decompress:
         specifier: ~4.2.1
         version: 4.2.1
@@ -994,17 +976,17 @@ importers:
   packages/ts-transforms:
     dependencies:
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/data-mate':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/ip-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       awesome-phonenumber:
         specifier: ~7.5.0
         version: 7.5.0
@@ -1055,17 +1037,17 @@ importers:
   packages/xlucene-parser:
     dependencies:
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/geo-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/ip-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       peggy:
         specifier: ~4.2.0
         version: 4.2.0
@@ -1083,27 +1065,27 @@ importers:
   packages/xlucene-translator:
     dependencies:
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/geo-utils':
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
+      '@terascope/types':
         specifier: ~2.0.0-dev.8
         version: 2.0.0-dev.8
-      '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
       '@types/elasticsearch':
         specifier: ~5.0.43
         version: 5.0.43
       xlucene-parser:
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
     devDependencies:
       '@terascope/data-types':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       '@terascope/opensearch-client':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
       elasticsearch:
         specifier: ~15.4.1
         version: 15.4.1
@@ -1111,12 +1093,12 @@ importers:
   packages/xpressions:
     dependencies:
       '@terascope/core-utils':
-        specifier: ~2.0.0-dev.8
-        version: 2.0.0-dev.8
+        specifier: ~2.0.0-dev.9
+        version: 2.0.0-dev.9
     devDependencies:
       '@terascope/types':
-        specifier: ~2.0.0-dev.7
-        version: 2.0.0-dev.7
+        specifier: ~2.0.0-dev.8
+        version: 2.0.0-dev.8
 
 packages:
 
@@ -2275,20 +2257,20 @@ packages:
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
 
-  '@terascope/core-utils@2.0.0-dev.8':
-    resolution: {integrity: sha512-4/RFDpIXeCyoMSGo153ln4iN4GP5+qMVEmFwYSSUgcUJw3aj0qzwEh4BCyI7CSod2NnOyGLcEkC24sicwInyUg==}
+  '@terascope/core-utils@2.0.0-dev.9':
+    resolution: {integrity: sha512-WKsuz9e5ZTKa1TNM7/SA9v1HDJ3F+9rsQase3LtQzdi+IapoT9Mvzt8P5Qg19D9JAi500iz2nUq3RKtiDFsthg==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
-  '@terascope/data-mate@2.0.0-dev.8':
-    resolution: {integrity: sha512-I7SP0jt1UufCibLmHRh5nyg8UX/Su2u/tElKr+LFYgDX0MI2SzFmck7qddogNIzgMcXjdHinQkFpo2YS/QMORw==}
+  '@terascope/data-mate@2.0.0-dev.9':
+    resolution: {integrity: sha512-fz178lpSssxinfR76eOYf8IUZ9/waqERorUSisdgq265BKa2P6vRFLtAUBY9eQ3bz5uqy5ENTlScWhi2eFtx6w==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
-  '@terascope/data-types@2.0.0-dev.8':
-    resolution: {integrity: sha512-k8LV8Xd6YyJNAXLbDpOU/ZcV77731yPvZ7pu+72sW09LiOgtaM6b6+/7WJy95yVGpkqq0XxFTjGwp+7l6/mPSQ==}
+  '@terascope/data-types@2.0.0-dev.9':
+    resolution: {integrity: sha512-H5dVgpmpBam35++m+II6zOFX1v+j2L5ejyZ42VEdPYrvkoXLb3uQBe7M3LfVazUwEOTgyYVX2uBk9YiWTjd89Q==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
-  '@terascope/elasticsearch-api@5.0.0-dev.9':
-    resolution: {integrity: sha512-CLYKLzzo2nlZNFPOuvCyCJt0lgwDmd385WPdbz0dsLGZLygxZAxSfrXCPxS/6Uyvs3YDGNR2FRs2yC6B5S0fJQ==}
+  '@terascope/elasticsearch-api@5.0.0-dev.10':
+    resolution: {integrity: sha512-LKSgIMqlgIfJ28PNsEHO+ZV7rZMFTNH/kvUGFcxqu1aDpjOcF4epCDG1tQuR/7No4uZaLfOH7bunctUcG1ZGYg==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
   '@terascope/fetch-github-release@2.2.1':
@@ -2300,24 +2282,24 @@ packages:
     resolution: {integrity: sha512-JUIjnMytpnf5nuAbC0R3DxBk20dA8hwdajLnE7bY9HJXjT2T30YzDNBdfapl7aZ4RHJZbIq4pRzvggOdsZpd9w==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
-  '@terascope/geo-utils@2.0.0-dev.8':
-    resolution: {integrity: sha512-XpsaH+T8iHU8G3hlj7kPacicSSfwXBp7DHuB9kNL6/udsrB2kLvNSCTT4OHImMsQaLOfXC9fBNhoYeCzt1HLGw==}
+  '@terascope/geo-utils@2.0.0-dev.9':
+    resolution: {integrity: sha512-1vYgsdgjRxKf3aA8jGtbWbzOom90NIL9kRUf2RnPyX9Kt+MFXNBGZ1DMxsf2bejAuDmsU8P0OOYAhGkhJ6OSnA==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
-  '@terascope/ip-utils@2.0.0-dev.8':
-    resolution: {integrity: sha512-BpzQwISpachJQDO1PPTl90f0mSdbAxyqKjtOhHv0zAdJGxvIov0fPXeDh3GmF13z+V8qpQV4mUSA5vjEss4cGA==}
+  '@terascope/ip-utils@2.0.0-dev.9':
+    resolution: {integrity: sha512-pOxMm7qX6Oo+eYKy7MuJk9edi8oLF7jgOjGblkMGkHWonLaw9JpTy/VT4wWHzYGE+Hi1ti2wjQ0T1jNmpdo1Vg==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
-  '@terascope/job-components@2.0.0-dev.9':
-    resolution: {integrity: sha512-X+T6R47wFO7FIk8azZl3+ZzMCsCJnLKaneUg+araoEqAGv2tmSvh5qyWEVx4G3GjH/Ojny9s4HO3xSK587PuzQ==}
+  '@terascope/job-components@2.0.0-dev.10':
+    resolution: {integrity: sha512-jscl7Z1adiaCKLFeD2Cdp+m2Cv/l07ovrGRVXRU5VEGWcKuHW2+QqkwAAkdvKAcsfsD7QB9DgIfnWa+yVJ15Hw==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
-  '@terascope/opensearch-client@2.0.0-dev.8':
-    resolution: {integrity: sha512-NgKC5lF7hEYavmKviezGM6l8930p98QRUWHIZ31FaBfb4PSvAT5IL1i6E42eN/As4qt13+r/KzuMy/iIylwRmQ==}
+  '@terascope/opensearch-client@2.0.0-dev.9':
+    resolution: {integrity: sha512-MBS9k1m8ODENTve6Imf3nBXwlXbUnughzH+fkIcWV/j+xdWLeRjUgb51EUcBQag2EhD9lqHcZRfE13y3CRLaQA==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
-  '@terascope/scripts@2.0.0-dev.13':
-    resolution: {integrity: sha512-W1fd1QXHJP0QTxWyWCOuM+24VlaWBtEXYMnFVSq1u4LUgTY9nYgdXGSNVu1V3waRtEQaxWx/mm9sOYjVFvkitA==}
+  '@terascope/scripts@2.0.0-dev.14':
+    resolution: {integrity: sha512-elxh56bTgC1qpHveMm5/inaDo2nPE/Sls4y4Jozf4x9AMTUsA8kbLP/SsHe1ByNIoXB5Px/7gQRoiBJ1vta4Mg==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
     hasBin: true
     peerDependencies:
@@ -2326,16 +2308,16 @@ packages:
       typescript:
         optional: true
 
-  '@terascope/teraslice-messaging@2.0.0-dev.9':
-    resolution: {integrity: sha512-Jn6U5rK/+qmFbQSwdnTKGFoAlHfcXZbzNRnh88xhNrj8tb2ugiMUZyuvCvz/FrqTN5wJFPGxcycZs+aLO+Lumw==}
+  '@terascope/teraslice-messaging@2.0.0-dev.10':
+    resolution: {integrity: sha512-uy59zwz3wZ6imVkHtULygGteEdGa9IvOpeg0jOzLvMLXgA9JTgbo0GmCaO/cjKKYoPQWWQCBsNMSqPGSuvT+lA==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
   '@terascope/types@1.4.4':
     resolution: {integrity: sha512-Typ+xgSOrVck3JTtIrbqaFX2xi0vVQGIKrgckj1PFZ+tS3JmTIqj2PlV58fBPQJM7uSTBA4k9cQI05V43e5scw==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
-  '@terascope/types@2.0.0-dev.7':
-    resolution: {integrity: sha512-Issz6wsD3DZQhj9IvdsFktfLSDB7dHwRDdoW7c3xvTay+UOfBH3cVV4uVXFkr/0Zdga96DEj9L4mO91Jt0tabg==}
+  '@terascope/types@2.0.0-dev.8':
+    resolution: {integrity: sha512-Zml0a1S/vu1qMsEJrWRWRxDgTGBPB/4wbj5HhPEj/zadTe7IuTwYie/SdbmfEHW8gZWKEUWMf6dVfTv0vIzXQA==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
   '@terascope/utils@1.10.4':
@@ -2443,9 +2425,6 @@ packages:
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
-
-  '@types/convict@6.1.6':
-    resolution: {integrity: sha512-1B6jqWHWQud+7yyWAqbxnPmzlHrrOtJzZr1DhhYJ/NbpS4irfZSnq+N5Fm76J9LNRlUZvCmYxTVhhohWRvtqHw==}
 
   '@types/cors@2.8.19':
     resolution: {integrity: sha512-mFNylyeyqN93lfe/9CSxOGREz8cpzAhH+E93xJ4xWQf62V8sQ/24reV2nyzUWM6H6Xji+GGHpkbLe7pVoUEskg==}
@@ -3374,18 +3353,6 @@ packages:
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
-
-  convict-format-with-moment@6.2.0:
-    resolution: {integrity: sha512-0+LoBKLk/2SP1gyZUPkrZOgRXL0ud/rhEYzdAyJmMMZgNm31OUcgnupny9KMW5xMbMgUd25M0ohIPWYsHV26CA==}
-    engines: {node: '>=6'}
-
-  convict-format-with-validator@6.2.0:
-    resolution: {integrity: sha512-2LIL3yEZY27M13UHLIP4mGivusP9h2M+X4mYsRBLexwUp8+0sgVk2MgB2b2bnQwkn293lkbkxgdevzn0nZdyzQ==}
-    engines: {node: '>=6'}
-
-  convict@6.2.4:
-    resolution: {integrity: sha512-qN60BAwdMVdofckX7AlohVJ2x9UvjTNoKVXCL2LxFk1l7757EJqf1nySdMkPQer0bt8kQ5lQiyZ9/2NvrFBuwQ==}
-    engines: {node: '>=6'}
 
   cookie-signature@1.2.2:
     resolution: {integrity: sha512-D76uU73ulSXrD1UXF4KE2TMxVVwhsnCgfAyTg9k8P6KGZjlXKrOLe4dJQKI3Bxi5wjesZoFXJWElNWBjPZMbhg==}
@@ -4978,9 +4945,6 @@ packages:
   lodash-es@4.17.21:
     resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
 
-  lodash.clonedeep@4.5.0:
-    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
-
   lodash.get@4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
     deprecated: This package is deprecated. Use the optional chaining (?.) operator instead.
@@ -6108,16 +6072,16 @@ packages:
   tdigest@0.1.2:
     resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
 
-  terafoundation@2.0.0-dev.10:
-    resolution: {integrity: sha512-yYX5e9HVmV/eEjeOGhgfNRDYhE9Il/LHclFrmGd0zKZ79DE5nZJR1oaqY+86avO1qjWp4z66cdte+0ukf0CcCQ==}
+  terafoundation@2.0.0-dev.11:
+    resolution: {integrity: sha512-UbVp5S9ZNlgukmsJDKMmUzVHTCfhPPDxsfpbr9Ro7qw2/WrlFg6WypiT3wwZqDKG1D8Gqnfv79p4gg84Y2q72w==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
   terafoundation_kafka_connector@2.0.0-dev.1:
     resolution: {integrity: sha512-f6AtmJ4i290OEoQV9eQ+W0GmQUj5IQrEK5S5bx6zClJM/aTt0IkAQpoEs8qEcPZHSd0MMKhcUFeRTRZz0c8+dg==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.22'}
 
-  teraslice-client-js@2.0.0-dev.8:
-    resolution: {integrity: sha512-R9kKhjuSJc3UMb9+//uS24nonHe0OQRZ4S8fvtH6IcRgb0wBbBz8gxvId1V1os7O4/kZKw9AhBtCPElHRAHeWg==}
+  teraslice-client-js@2.0.0-dev.9:
+    resolution: {integrity: sha512-3+MBf5PuPL/iFAlu9mdexULJE7m3rMf4bEmVHnw4e0NIxsiws0Oc0uvWb61Qw+GigzyqalFsHH1IBXXuxpYSpw==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
   test-exclude@6.0.0:
@@ -6496,12 +6460,12 @@ packages:
       utf-8-validate:
         optional: true
 
-  xlucene-parser@2.0.0-dev.8:
-    resolution: {integrity: sha512-2R9dDi/LgTI2JZ1296m/qbFTbDoww/xruGu81UuYJaf3IkX0xPqSBDeTGSTK3l3X1szlEDjfon0u0rmbCpTpdQ==}
+  xlucene-parser@2.0.0-dev.9:
+    resolution: {integrity: sha512-cW5BIVEN/xe11M3XO9MMvwIRvkHlH/KnGTkNuX+qzdejb0j6QU9LNI4LhbNi7u9ONHWzYLaC0pILSpTnqW/4Mg==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
-  xlucene-translator@2.0.0-dev.8:
-    resolution: {integrity: sha512-aHEA/psCuNrlMSAARikFrWGkJMCiRNbeLxhgX3ZmqlgGUcSLZyKFIGp748olUopZit2XH0J/RKP1ST7U6RtXiQ==}
+  xlucene-translator@2.0.0-dev.9:
+    resolution: {integrity: sha512-Ri3TmdSEQyzg3s8ljCBqU3DebEhDVqLAYS2f7K8tJP/Ck5oWQhcypUnZd4kOyqZGVRcD1zaNdo45bkBoJffT8g==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
   xmlhttprequest-ssl@2.1.2:
@@ -6536,10 +6500,6 @@ packages:
   yargs-parser@18.1.3:
     resolution: {integrity: sha512-o50j0JeToy/4K6OZcaQmW6lyXXKhq7csREXcDwk2omFPJEwUNOVtJKvmDr9EI1fAJZUyZcRF7kxGBWmRXudrCQ==}
     engines: {node: '>=6'}
-
-  yargs-parser@20.2.9:
-    resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}
-    engines: {node: '>=10'}
 
   yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
@@ -6578,6 +6538,9 @@ packages:
   zip-stream@6.0.1:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
+
+  zod@4.1.13:
+    resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
 
 snapshots:
 
@@ -8297,28 +8260,32 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
-  '@terascope/core-utils@2.0.0-dev.8':
+  '@terascope/core-utils@2.0.0-dev.9':
     dependencies:
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/types': 2.0.0-dev.8
       awesome-phonenumber: 7.5.0
+      bunyan: 1.8.15
+      datemath-parser: 1.0.6
       debug: 4.4.3
       is-plain-object: 5.0.0
       js-string-escape: 1.0.1
       kind-of: 6.0.3
       lodash-es: 4.17.21
+      moment: 2.30.1
       p-map: 7.0.4
       shallow-clone: 3.0.1
       validator: 13.12.0
+      zod: 4.1.13
     transitivePeerDependencies:
       - supports-color
 
-  '@terascope/data-mate@2.0.0-dev.8':
+  '@terascope/data-mate@2.0.0-dev.9':
     dependencies:
-      '@terascope/core-utils': 2.0.0-dev.8
-      '@terascope/data-types': 2.0.0-dev.8
-      '@terascope/geo-utils': 2.0.0-dev.8
-      '@terascope/ip-utils': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/core-utils': 2.0.0-dev.9
+      '@terascope/data-types': 2.0.0-dev.9
+      '@terascope/geo-utils': 2.0.0-dev.9
+      '@terascope/ip-utils': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       '@types/validator': 13.12.3
       awesome-phonenumber: 7.5.0
       big-json: 3.2.0
@@ -8332,22 +8299,22 @@ snapshots:
       uuid: 13.0.0
       valid-url: 1.0.9
       validator: 13.12.0
-      xlucene-parser: 2.0.0-dev.8
+      xlucene-parser: 2.0.0-dev.9
     transitivePeerDependencies:
       - supports-color
 
-  '@terascope/data-types@2.0.0-dev.8':
+  '@terascope/data-types@2.0.0-dev.9':
     dependencies:
-      '@terascope/core-utils': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/core-utils': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       graphql: 16.11.0
     transitivePeerDependencies:
       - supports-color
 
-  '@terascope/elasticsearch-api@5.0.0-dev.9':
+  '@terascope/elasticsearch-api@5.0.0-dev.10':
     dependencies:
-      '@terascope/core-utils': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/core-utils': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       setimmediate: 1.0.5
     transitivePeerDependencies:
       - supports-color
@@ -8376,10 +8343,10 @@ snapshots:
       - aws-crt
       - supports-color
 
-  '@terascope/geo-utils@2.0.0-dev.8':
+  '@terascope/geo-utils@2.0.0-dev.9':
     dependencies:
-      '@terascope/core-utils': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/core-utils': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       '@turf/bbox': 7.2.0
       '@turf/bbox-polygon': 7.2.0
       '@turf/boolean-contains': 7.2.0
@@ -8397,11 +8364,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@terascope/ip-utils@2.0.0-dev.8':
+  '@terascope/ip-utils@2.0.0-dev.9':
     dependencies:
       '@chainsafe/is-ip': 2.1.0
-      '@terascope/core-utils': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/core-utils': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       ip-bigint: 8.2.2
       ip-cidr: 4.0.2
       ip6addr: 0.2.5
@@ -8410,14 +8377,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@terascope/job-components@2.0.0-dev.9':
+  '@terascope/job-components@2.0.0-dev.10':
     dependencies:
-      '@terascope/core-utils': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
-      convict: 6.2.4
-      convict-format-with-moment: 6.2.0
-      convict-format-with-validator: 6.2.0
-      datemath-parser: 1.0.6
+      '@terascope/core-utils': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       import-meta-resolve: 4.2.0
       prom-client: 15.1.3
       semver: 7.7.3
@@ -8425,11 +8388,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@terascope/opensearch-client@2.0.0-dev.8':
+  '@terascope/opensearch-client@2.0.0-dev.9':
     dependencies:
-      '@terascope/core-utils': 2.0.0-dev.8
-      '@terascope/data-types': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/core-utils': 2.0.0-dev.9
+      '@terascope/data-types': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       elasticsearch7: '@elastic/elasticsearch@7.17.14'
       elasticsearch8: '@elastic/elasticsearch@8.15.3'
       opensearch1: '@opensearch-project/opensearch@1.2.0'
@@ -8439,10 +8402,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@terascope/scripts@2.0.0-dev.13(typescript@5.9.3)':
+  '@terascope/scripts@2.0.0-dev.14(typescript@5.9.3)':
     dependencies:
       '@kubernetes/client-node': 1.3.0
-      '@terascope/core-utils': 2.0.0-dev.8
+      '@terascope/core-utils': 2.0.0-dev.9
       execa: 9.6.1
       fs-extra: 11.3.2
       globby: 14.1.0
@@ -8474,10 +8437,10 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@terascope/teraslice-messaging@2.0.0-dev.9':
+  '@terascope/teraslice-messaging@2.0.0-dev.10':
     dependencies:
-      '@terascope/core-utils': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/core-utils': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       get-port: 7.1.0
       ms: 2.1.3
       nanoid: 5.1.6
@@ -8493,7 +8456,7 @@ snapshots:
     dependencies:
       prom-client: 15.1.3
 
-  '@terascope/types@2.0.0-dev.7':
+  '@terascope/types@2.0.0-dev.8':
     dependencies:
       prom-client: 15.1.3
 
@@ -8750,10 +8713,6 @@ snapshots:
       '@types/node': 24.4.0
 
   '@types/connect@3.4.38':
-    dependencies:
-      '@types/node': 24.4.0
-
-  '@types/convict@6.1.6':
     dependencies:
       '@types/node': 24.4.0
 
@@ -9772,19 +9731,6 @@ snapshots:
   content-type@1.0.5: {}
 
   convert-source-map@2.0.0: {}
-
-  convict-format-with-moment@6.2.0:
-    dependencies:
-      moment: 2.30.1
-
-  convict-format-with-validator@6.2.0:
-    dependencies:
-      validator: 13.12.0
-
-  convict@6.2.4:
-    dependencies:
-      lodash.clonedeep: 4.5.0
-      yargs-parser: 20.2.9
 
   cookie-signature@1.2.2: {}
 
@@ -11799,8 +11745,6 @@ snapshots:
 
   lodash-es@4.17.21: {}
 
-  lodash.clonedeep@4.5.0: {}
-
   lodash.get@4.4.2: {}
 
   lodash.memoize@4.1.2: {}
@@ -13005,16 +12949,13 @@ snapshots:
     dependencies:
       bintrees: 1.0.2
 
-  terafoundation@2.0.0-dev.10:
+  terafoundation@2.0.0-dev.11:
     dependencies:
-      '@terascope/core-utils': 2.0.0-dev.8
+      '@terascope/core-utils': 2.0.0-dev.9
       '@terascope/file-asset-apis': 1.1.2
-      '@terascope/opensearch-client': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/opensearch-client': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       bunyan: 1.8.15
-      convict: 6.2.4
-      convict-format-with-moment: 6.2.0
-      convict-format-with-validator: 6.2.0
       elasticsearch: 15.4.1
       express: 5.1.0
       js-yaml: 4.1.1
@@ -13035,10 +12976,10 @@ snapshots:
       - encoding
       - supports-color
 
-  teraslice-client-js@2.0.0-dev.8:
+  teraslice-client-js@2.0.0-dev.9:
     dependencies:
-      '@terascope/core-utils': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/core-utils': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       auto-bind: 5.0.1
       got: 14.4.9
     transitivePeerDependencies:
@@ -13447,24 +13388,24 @@ snapshots:
 
   ws@8.18.3: {}
 
-  xlucene-parser@2.0.0-dev.8:
+  xlucene-parser@2.0.0-dev.9:
     dependencies:
-      '@terascope/core-utils': 2.0.0-dev.8
-      '@terascope/geo-utils': 2.0.0-dev.8
-      '@terascope/ip-utils': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/core-utils': 2.0.0-dev.9
+      '@terascope/geo-utils': 2.0.0-dev.9
+      '@terascope/ip-utils': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       peggy: 4.2.0
       ts-pegjs: 4.2.1(peggy@4.2.0)
     transitivePeerDependencies:
       - supports-color
 
-  xlucene-translator@2.0.0-dev.8:
+  xlucene-translator@2.0.0-dev.9:
     dependencies:
-      '@terascope/core-utils': 2.0.0-dev.8
-      '@terascope/geo-utils': 2.0.0-dev.8
-      '@terascope/types': 2.0.0-dev.7
+      '@terascope/core-utils': 2.0.0-dev.9
+      '@terascope/geo-utils': 2.0.0-dev.9
+      '@terascope/types': 2.0.0-dev.8
       '@types/elasticsearch': 5.0.43
-      xlucene-parser: 2.0.0-dev.8
+      xlucene-parser: 2.0.0-dev.9
     transitivePeerDependencies:
       - supports-color
 
@@ -13488,8 +13429,6 @@ snapshots:
     dependencies:
       camelcase: 5.3.1
       decamelize: 1.2.0
-
-  yargs-parser@20.2.9: {}
 
   yargs-parser@21.1.1: {}
 
@@ -13552,3 +13491,5 @@ snapshots:
       archiver-utils: 5.0.2
       compress-commons: 6.0.2
       readable-stream: 4.7.0
+
+  zod@4.1.13: {}
