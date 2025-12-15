@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
     "displayName": "Teraslice",
-    "version": "3.0.0-dev.12",
+    "version": "3.0.0-dev.13",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -39,10 +39,10 @@
     },
     "dependencies": {
         "@kubernetes/client-node": "~1.3.0",
-        "@terascope/core-utils": "~2.0.0-dev.9",
-        "@terascope/elasticsearch-api": "~5.0.0-dev.10",
-        "@terascope/job-components": "~2.0.0-dev.10",
-        "@terascope/teraslice-messaging": "~2.0.0-dev.10",
+        "@terascope/core-utils": "~2.0.0-dev.10",
+        "@terascope/elasticsearch-api": "~5.0.0-dev.11",
+        "@terascope/job-components": "~2.0.0-dev.11",
+        "@terascope/teraslice-messaging": "~2.0.0-dev.11",
         "@terascope/types": "~2.0.0-dev.8",
         "async-mutex": "~0.5.0",
         "barbe": "~3.0.17",
@@ -61,11 +61,11 @@
         "semver": "~7.7.2",
         "socket.io": "~4.8.1",
         "socket.io-client": "~4.8.1",
-        "terafoundation": "~2.0.0-dev.11",
+        "terafoundation": "~2.0.0-dev.12",
         "uuid": "~13.0.0"
     },
     "devDependencies": {
-        "@terascope/opensearch-client": "~2.0.0-dev.9",
+        "@terascope/opensearch-client": "~2.0.0-dev.10",
         "@types/archiver": "~6.0.3",
         "@types/body-parser": "^1.19.6",
         "@types/decompress": "^4.2.7",
