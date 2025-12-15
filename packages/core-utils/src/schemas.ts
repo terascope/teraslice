@@ -376,7 +376,15 @@ export class SchemaValidator<T = AnyObject> {
             } catch (err) {
                 throw new Error(`Invalid default value for key ${key.toString()}: ${schemaObj.default}`);
             }
-            type = type.default(schemaObj.default);
+
+            type = z.preprocess(
+                (val: unknown) => {
+                    // Only apply default for undefined, keep null as null
+                    const result = val === undefined ? schemaObj.default : val;
+                    return result;
+                },
+                type.nullable()
+            );
         }
 
         if (schemaObj.arg) {
@@ -428,13 +436,7 @@ export class SchemaValidator<T = AnyObject> {
             // formats defined in inline functions
             return type.superRefine((args: any, ctx: RefinementCtx<any>) => {
                 try {
-                    let val;
-                    if (args === null || args === undefined) {
-                        val = schemaObj.default;
-                    } else {
-                        val = args;
-                    }
-                    finalFormat(val);
+                    finalFormat(args);
                 } catch (err) {
                     ctx.addIssue({
                         code: 'custom',
@@ -518,7 +520,7 @@ export class SchemaValidator<T = AnyObject> {
                 break;
             case (this._isCustomFormatName(convictFormatValue) ? convictFormatValue : undefined):
             case (isFunction(convictFormatValue) ? convictFormatValue : undefined):
-                // let the format function do all validation
+                // let the inline format function do all validation
                 baseType = z.any();
                 break;
             case (Array.isArray(convictFormatValue) ? convictFormatValue : undefined):
