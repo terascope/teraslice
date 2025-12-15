@@ -617,16 +617,6 @@ describe('Schema Object validation', () => {
                         failedValidation(testValues, schema, (key) => `Invalid default value for key ${key}`);
                     });
 
-                    it('will throw on undefined default', () => {
-                        const testValues = [
-                            { booleanDefaultUndefined: undefined },
-                            { booleanQuotedDefaultUndefined: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Invalid input: expected boolean, received undefined');
-                    });
-
                     it('should use valid or null defaults', async () => {
                         const testValues = [
                             { booleanDefaultTrue: undefined },
@@ -635,6 +625,8 @@ describe('Schema Object validation', () => {
                             { booleanQuotedDefaultTrue: undefined },
                             { booleanQuotedDefaultFalse: undefined },
                             { booleanQuotedDefaultNull: undefined },
+                            { booleanDefaultUndefined: undefined },
+                            { booleanQuotedDefaultUndefined: undefined },
                         ];
 
                         expect.hasAssertions();
@@ -653,16 +645,6 @@ describe('Schema Object validation', () => {
                         failedValidation(testValues, schema, (key) => `Invalid default value for key ${key}`);
                     });
 
-                    it('will throw on undefined default', () => {
-                        const testValues = [
-                            { stringDefaultUndefined: undefined },
-                            { stringQuotedDefaultUndefined: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Invalid input: expected string, received undefined');
-                    });
-
                     it('should use valid or null defaults', async () => {
                         const testValues = [
                             { stringDefaultEmptyString: undefined },
@@ -671,6 +653,8 @@ describe('Schema Object validation', () => {
                             { stringQuotedDefaultEmptyString: undefined },
                             { stringQuotedDefaultValidValue: undefined },
                             { stringQuotedDefaultNull: undefined },
+                            { stringDefaultUndefined: undefined },
+                            { stringQuotedDefaultUndefined: undefined },
                         ];
 
                         expect.hasAssertions();
@@ -691,22 +675,14 @@ describe('Schema Object validation', () => {
                         failedValidation(testValues, schema, (key) => `Invalid default value for key ${key}`);
                     });
 
-                    it('will throw on undefined default', () => {
-                        const testValues = [
-                            { numberDefaultUndefined: undefined },
-                            { numberQuotedDefaultUndefined: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Invalid input: expected number, received undefined');
-                    });
-
                     it('should use valid or null defaults', async () => {
                         const testValues = [
                             { numberDefaultValidValue: undefined },
                             { numberDefaultNull: undefined },
                             { numberQuotedDefaultValidValue: undefined },
                             { numberQuotedDefaultNull: undefined },
+                            { numberDefaultUndefined: undefined },
+                            { numberQuotedDefaultUndefined: undefined },
                         ];
 
                         expect.hasAssertions();
@@ -725,16 +701,6 @@ describe('Schema Object validation', () => {
                         failedValidation(testValues, schema, (key) => `Invalid default value for key ${key}`);
                     });
 
-                    it('will throw on undefined default', () => {
-                        const testValues = [
-                            { objectDefaultUndefined: undefined },
-                            { objectQuotedDefaultUndefined: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Invalid input: expected record, received undefined');
-                    });
-
                     it('should use valid or null defaults', async () => {
                         const testValues = [
                             { objectDefaultEmptyObject: undefined },
@@ -743,6 +709,8 @@ describe('Schema Object validation', () => {
                             { objectQuotedDefaultEmptyObject: undefined },
                             { objectQuotedDefaultValidValue: undefined },
                             { objectQuotedDefaultNull: undefined },
+                            { objectDefaultUndefined: undefined },
+                            { objectQuotedDefaultUndefined: undefined },
                         ];
 
                         expect.hasAssertions();
@@ -761,16 +729,6 @@ describe('Schema Object validation', () => {
                         failedValidation(testValues, schema, (key) => `Invalid default value for key ${key}`);
                     });
 
-                    it('will throw on undefined default', () => {
-                        const testValues = [
-                            { arrayDefaultUndefined: undefined },
-                            { arrayQuotedDefaultUndefined: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Invalid input: expected array, received undefined');
-                    });
-
                     it('should use valid or null defaults', async () => {
                         const testValues = [
                             { arrayDefaultEmptyArray: undefined },
@@ -779,6 +737,8 @@ describe('Schema Object validation', () => {
                             { arrayQuotedDefaultEmptyArray: undefined },
                             { arrayQuotedDefaultValidValue: undefined },
                             { arrayQuotedDefaultNull: undefined },
+                            { arrayDefaultUndefined: undefined },
+                            { arrayQuotedDefaultUndefined: undefined },
                         ];
 
                         expect.hasAssertions();
@@ -799,22 +759,14 @@ describe('Schema Object validation', () => {
                         failedValidation(testValues, schema, (key) => `Invalid default value for key ${key}`);
                     });
 
-                    it('will throw on undefined default', () => {
-                        const testValues = [
-                            { regExpDefaultUndefined: undefined },
-                            { regExpQuotedDefaultUndefined: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Input not instance of RegExp');
-                    });
-
                     it('should use valid or null defaults', async () => {
                         const testValues = [
                             { regExpDefaultValidValue: undefined },
                             { regExpDefaultNull: undefined },
                             { regExpQuotedDefaultValidValue: undefined },
                             { regExpQuotedDefaultNull: undefined },
+                            { regExpDefaultUndefined: undefined },
+                            { regExpQuotedDefaultUndefined: undefined },
                         ];
 
                         expect.hasAssertions();
@@ -1401,19 +1353,11 @@ describe('Schema Object validation', () => {
                         const testValues = [
                             { intDefaultValidValue: undefined },
                             { intDefaultNull: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        successfulValidation(testValues, schema, true);
-                    });
-
-                    it('will throw on undefined default', () => {
-                        const testValues = [
                             { intDefaultUndefined: undefined },
                         ];
 
                         expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Invalid input: expected number, received undefined');
+                        successfulValidation(testValues, schema, true);
                     });
 
                     it('will throw on validation for other defaults', () => {
@@ -1432,19 +1376,11 @@ describe('Schema Object validation', () => {
                         const testValues = [
                             { portDefaultValidValue: undefined },
                             { portDefaultNull: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        successfulValidation(testValues, schema, true);
-                    });
-
-                    it('will throw on undefined default', () => {
-                        const testValues = [
                             { portDefaultUndefined: undefined },
                         ];
 
                         expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Invalid input: expected number, received NaN');
+                        successfulValidation(testValues, schema, true);
                     });
 
                     it('will throw on validation for other defaults', () => {
@@ -1463,19 +1399,11 @@ describe('Schema Object validation', () => {
                         const testValues = [
                             { natDefaultValidValue: undefined },
                             { natDefaultNull: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        successfulValidation(testValues, schema, true);
-                    });
-
-                    it('will throw on undefined default', () => {
-                        const testValues = [
                             { natDefaultUndefined: undefined },
                         ];
 
                         expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Invalid input: expected number, received undefined');
+                        successfulValidation(testValues, schema, true);
                     });
 
                     it('will throw on validation for other defaults', () => {
@@ -1493,20 +1421,12 @@ describe('Schema Object validation', () => {
                     it('will accept a valid or null default', () => {
                         const testValues = [
                             { urlDefaultValidValue: undefined },
+                            { urlDefaultUndefined: undefined },
                             { urlDefaultNull: undefined },
                         ];
 
                         expect.hasAssertions();
                         successfulValidation(testValues, schema, true);
-                    });
-
-                    it('will throw on undefined default', () => {
-                        const testValues = [
-                            { urlDefaultUndefined: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Invalid input: expected string, received undefined');
                     });
 
                     it('will throw on validation for other defaults', () => {
@@ -1525,19 +1445,11 @@ describe('Schema Object validation', () => {
                         const testValues = [
                             { emailDefaultValidValue: undefined },
                             { emailDefaultNull: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        successfulValidation(testValues, schema, true);
-                    });
-
-                    it('will throw on undefined default', () => {
-                        const testValues = [
                             { emailDefaultUndefined: undefined },
                         ];
 
                         expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Invalid input: expected string, received undefined');
+                        successfulValidation(testValues, schema, true);
                     });
 
                     it('will throw on validation for other defaults', () => {
@@ -1556,19 +1468,11 @@ describe('Schema Object validation', () => {
                         const testValues = [
                             { ipAddressDefaultValidValue: undefined },
                             { ipAddressDefaultNull: undefined },
-                        ];
-
-                        expect.hasAssertions();
-                        successfulValidation(testValues, schema, true);
-                    });
-
-                    it('will throw on undefined default', () => {
-                        const testValues = [
                             { ipAddressDefaultUndefined: undefined },
                         ];
 
                         expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Invalid input: expected string, received undefined');
+                        successfulValidation(testValues, schema, true);
                     });
 
                     it('will throw on validation for other defaults', () => {

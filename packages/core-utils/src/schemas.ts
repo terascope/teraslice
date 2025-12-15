@@ -354,6 +354,7 @@ export class SchemaValidator<T = AnyObject> {
         schemaObj: TF.SchemaObj,
         key: PropertyKey
     ) {
+        let baseType: ZodType;
         let type: ZodType;
         let finalFormat: TF.ConvictFormat;
 
@@ -364,15 +365,15 @@ export class SchemaValidator<T = AnyObject> {
                 assert(Object.prototype.toString.call(x) == defaultType,
                     ' should be of type ' + defaultType.replace(/\[.* |]/g, ''));
             };
-            type = this._getBaseType(key, finalFormat);
+            baseType = this._getBaseType(key, finalFormat);
         } else {
-            type = this._getBaseType(key, schemaObj.format);
+            baseType = this._getBaseType(key, schemaObj.format);
             finalFormat = this._getCustomFormatFromName(schemaObj.format) || schemaObj.format;
         }
 
         if (Object.hasOwn(schemaObj, 'default')) {
             try {
-                this._validateDefault(type, schemaObj.default);
+                this._validateDefault(baseType, schemaObj.default);
             } catch (err) {
                 throw new Error(`Invalid default value for key ${key.toString()}: ${schemaObj.default}`);
             }
@@ -380,11 +381,16 @@ export class SchemaValidator<T = AnyObject> {
             type = z.preprocess(
                 (val: unknown) => {
                     // Only apply default for undefined, keep null as null
-                    const result = val === undefined ? schemaObj.default : val;
-                    return result;
+                    return val === undefined ? schemaObj.default : val;
                 },
-                type.nullable()
+                baseType.nullable()
             );
+        } else {
+            type = baseType;
+        }
+
+        if (schemaObj.default === undefined) {
+            type = type.optional();
         }
 
         if (schemaObj.arg) {
