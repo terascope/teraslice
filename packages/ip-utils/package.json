@@ -25,9 +25,6 @@
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../ip-utils --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../ip-utils --"
     },
-    "resolutions": {
-        "debug": "~4.4.3"
-    },
     "dependencies": {
         "@chainsafe/is-ip": "~2.1.0",
         "@terascope/core-utils": "~2.0.0-dev.9",

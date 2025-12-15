@@ -8,14 +8,10 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "type": "module",
-    "workspaces": [
-        "e2e",
-        "packages/*"
-    ],
     "scripts": {
         "prebuild": "./packages/xlucene-parser/scripts/generate-engine.js",
-        "build": "yarn prebuild && tsc --build --verbose && yarn postbuild",
-        "postbuild": "yarn workspace teraslice-cli postbuild",
+        "build": "pnpm prebuild && tsc --build --verbose && pnpm postbuild",
+        "postbuild": "pnpm --filter teraslice-cli postbuild",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:doctor": "./scripts/build-doctor.sh",
         "build:fix": "echo '[DEPRECATED], use yarn run build:doctor instead'",
@@ -68,10 +64,10 @@
         "ts-jest": "~29.4.1",
         "typescript": "~5.9.2"
     },
-    "packageManager": "yarn@4.6.0",
+    "packageManager": "pnpm@10.25.0",
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "os": [
         "darwin",
@@ -108,7 +104,7 @@
         },
         "engines": {
             "node": ">=22.0.0",
-            "yarn": ">=1.22.19"
+            "pnpm": ">=10.25.0"
         },
         "version": 1
     }

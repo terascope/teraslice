@@ -1,0 +1,13 @@
+packages:
+  - e2e
+  - packages/*
+
+onlyBuiltDependencies:
+  - '@confluentinc/kafka-javascript'
+  - '@swc/core'
+  - dtrace-provider
+  - esbuild
+  - event-loop-stats
+  - gc-stats
+  - unrs-resolver
+  - xlucene-parser
