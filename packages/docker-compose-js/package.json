@@ -38,6 +38,9 @@
     "dependencies": {
         "debug": "~4.4.3"
     },
+    "devDependencies": {
+        "@types/debug": "^4.1.12"
+    },
     "engines": {
         "node": ">=22.0.0",
         "yarn": ">=1.22.19"

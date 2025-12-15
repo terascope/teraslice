@@ -38,6 +38,9 @@
         "ipaddr.js": "~2.2.0",
         "is-cidr": "~6.0.0"
     },
+    "devDependencies": {
+        "@types/ip6addr": "^0.2.6"
+    },
     "engines": {
         "node": ">=22.0.0",
         "yarn": ">=1.22.19"

@@ -36,6 +36,10 @@
         "decompress": "~4.2.1",
         "fs-extra": "~11.3.1"
     },
+    "devDependencies": {
+        "@types/decompress": "^4.2.7",
+        "nock": "^14.0.10"
+    },
     "engines": {
         "node": ">=22.0.0",
         "yarn": ">=1.22.19"
