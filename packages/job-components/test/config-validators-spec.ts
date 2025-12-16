@@ -702,10 +702,6 @@ describe('when using native clustering', () => {
     });
 });
 
-describe('using apis', () => {
-
-});
-
 describe('when validating k8s v2 clustering', () => {
     const context = new TestContext('teraslice-operations');
     context.sysconfig.teraslice.cluster_manager_type = 'kubernetesV2';
