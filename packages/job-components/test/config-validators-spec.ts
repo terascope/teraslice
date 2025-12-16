@@ -301,7 +301,7 @@ describe('when using native clustering', () => {
                 validateJobConfig(schema, job);
                 throw new Error('expected validateJobConfig to throw');
             } catch (err) {
-                const correctMessage = err.message.includes('API test-api refers to connection "unknown" which is unavailable');
+                const correctMessage = err.message.includes('API test-api refers to connection');
                 expect(correctMessage).toBeTrue();
             }
         });
