@@ -1,7 +1,6 @@
 import convict from 'convict';
 import { ValidatedJobConfig, OpConfig, APIConfig } from './interfaces/index.js';
 import { opSchema, apiSchema } from './job-schemas.js';
-import { Teraslice } from 'packages/types/dist/src/index.js';
 
 const validateOptions: convict.ValidateOptions = {
     allowed: 'warn',
@@ -75,4 +74,3 @@ export function validateJobConfig<T>(
 
     return jobProperties;
 }
-

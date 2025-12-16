@@ -76,6 +76,7 @@ export class JobsService {
         }
 
         this.addExternalPortsToJobSpec(jobSpec);
+
         const validJob = await this._validateJobSpec(jobSpec);
 
         // We don't create with the fully parsed validJob as it changes the asset names

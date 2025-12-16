@@ -205,6 +205,8 @@ describe('WorkerTestHarness', () => {
                     _op: 'test-reader',
                     passthrough_slice: true,
                 },
+                // TODO: this is probably wrong
+                { _name: 'simple-api' },
                 options
             );
             await harness.initialize();

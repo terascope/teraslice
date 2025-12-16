@@ -1,16 +1,8 @@
 import {
-    WorkerExecutionContext,
-    JobConfigParams,
-    Slice,
-    RunSliceResult,
-    SliceRequest,
-    newTestSlice,
-    FetcherCore,
-    OperationCore,
-    APICore,
-    OpConfig,
-    newTestJobConfig,
-    OpAPI,
+    WorkerExecutionContext, JobConfigParams, Slice,
+    RunSliceResult, SliceRequest, newTestSlice,
+    FetcherCore, OperationCore, APICore,
+    OpConfig, newTestJobConfig, OpAPI, APIConfig
 } from '@terascope/job-components';
 import { DataEntity } from '@terascope/core-utils';
 import BaseTestHarness from './base-test-harness.js';
@@ -43,9 +35,34 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
         return new WorkerTestHarness(job, options);
     }
 
-    static testFetcher(opConfig: OpConfig, options?: JobHarnessOptions): WorkerTestHarness {
+    static testSender(
+        opConfig: OpConfig,
+        apiConfig: APIConfig,
+        options?: JobHarnessOptions
+    ): WorkerTestHarness {
         const job = newTestJobConfig({
             max_retries: 0,
+            apis: [apiConfig],
+            operations: [
+                {
+                    _op: 'test-reader',
+                    passthrough_slice: true,
+                },
+                opConfig,
+            ],
+        });
+
+        return new WorkerTestHarness(job, options);
+    }
+
+    static testFetcher(
+        opConfig: OpConfig,
+        apiConfig: APIConfig,
+        options?: JobHarnessOptions
+    ): WorkerTestHarness {
+        const job = newTestJobConfig({
+            max_retries: 0,
+            apis: [apiConfig],
             operations: [
                 opConfig,
                 {

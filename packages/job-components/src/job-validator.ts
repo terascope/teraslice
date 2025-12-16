@@ -1,7 +1,7 @@
 import convict from 'convict';
 import {
-    cloneDeep, pMap, has,
-    get, isNil
+    cloneDeep, pMap, get, isNil,
+    has
 } from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import { Context, OpConfig, ValidatedJobConfig } from './interfaces';
@@ -67,10 +67,13 @@ export class JobValidator {
 
             const validatedConfig = schema.validate(opConfig);
 
-            if (has(opConfig, '_connection') || has(opConfig, 'connection')) {
+            const needsAPI = has(validatedConfig, '_api_name') || has(validatedConfig, 'api_name');
+
+            if (needsAPI) {
                 const apiName = get(validatedConfig, '_api_name', null) ?? get(validatedConfig, 'api_name', null);
+
                 if (isNil(apiName)) {
-                    throw new Error('An operation with a _connection keyword must have an _api_name to link it to a valid api');
+                    throw new Error('An operation with a _api_name keyword must link it to a valid api configuration on the job');
                 }
 
                 opAPIMapping.set(apiName, apiName);

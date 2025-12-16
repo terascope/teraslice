@@ -4,11 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import decompress from 'decompress';
 import archiver from 'archiver';
-import {
-    createS3Client,
-    getS3Object,
-    S3Client,
-} from '@terascope/file-asset-apis';
+import { createS3Client, getS3Object, S3Client } from '@terascope/file-asset-apis';
 import { Teraslice } from '@terascope/types';
 import { pWhile } from '@terascope/core-utils';
 import crypto from 'crypto';
