@@ -2,7 +2,9 @@
 import { pDelay, flatten } from '@terascope/core-utils';
 import signale from '../../signale.js';
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { WORKERS_PER_NODE, DEFAULT_NODES, TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
+
+const { WORKERS_PER_NODE, DEFAULT_NODES, TEST_PLATFORM } = config;
 
 describe('cluster state', () => {
     let terasliceHarness: TerasliceHarness;

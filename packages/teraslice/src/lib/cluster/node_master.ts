@@ -3,7 +3,10 @@ import { Mutex } from 'async-mutex';
 import {
     getFullErrorStack, debounce, isEmpty, has
 } from '@terascope/core-utils';
-import { Terafoundation } from '@terascope/types';
+import {
+    AssetsServiceEnv, ClusterMasterEnv, Terafoundation,
+    TSExecutionControllerEnv, TSWorkerEnv
+} from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { Messaging } from './services/cluster/backends/native/messaging.js';
 import { spawnAssetLoader } from '../workers/assets/spawn.js';
@@ -130,7 +133,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
                     ex_id: createSlicerMsg.ex_id,
                     job_id: createSlicerMsg.job_id,
                     slicer_port: createSlicerMsg.slicer_port
-                };
+                } satisfies TSExecutionControllerEnv;
                 logger.trace('starting a execution controller', controllerContext);
 
                 return context.apis.foundation.startWorkers(1, controllerContext);
@@ -184,7 +187,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
                         job: createWorkerMsg.job,
                         ex_id: createWorkerMsg.ex_id,
                         job_id: createWorkerMsg.job_id
-                    });
+                    } satisfies TSWorkerEnv);
                 }
 
                 return workers;
@@ -408,7 +411,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
             assignment: 'cluster_master',
             assets_port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
-        });
+        } satisfies ClusterMasterEnv);
 
         clusterMaster.on('exit', (code: any) => {
             if (code !== 0) {
@@ -423,7 +426,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
             // key needs to be called port to bypass cluster port sharing
             port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
-        });
+        } satisfies AssetsServiceEnv);
 
         assetService.on('exit', (code: any) => {
             if (code !== 0) {

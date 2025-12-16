@@ -1,13 +1,15 @@
 import { ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import { helmfileDestroy, K8s } from '@terascope/scripts';
 import fse from 'fs-extra';
-import {
+import { config } from './config.js';
+import { tearDown } from './docker-helpers.js';
+import signale from './signale.js';
+
+const {
     KEEP_OPEN, CONFIG_PATH, ASSETS_PATH, TEST_INDEX_PREFIX,
     TEST_PLATFORM, TERASLICE_PORT, KIND_CLUSTER, USE_HELMFILE,
     ROOT_CERT_PATH
-} from './config.js';
-import { tearDown } from './docker-helpers.js';
-import signale from './signale.js';
+} = config;
 
 const { cleanupIndex, makeClient } = ElasticsearchTestHelpers;
 

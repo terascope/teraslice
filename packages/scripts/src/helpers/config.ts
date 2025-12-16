@@ -3,230 +3,728 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
-    toBoolean, toSafeString, isCI,
-    toIntegerOrThrow
+    toSafeString, isCI, toIntegerOrThrow,
+    SchemaValidator, toBoolean
 } from '@terascope/core-utils';
+import { TestEnv, Terafoundation, ScriptsTestEnv } from '@terascope/types';
 import { Service } from './interfaces.js';
+
+/** Default elasticsearch7 version used to populate the CI cache */
+const __DEFAULT_ELASTICSEARCH7_VERSION = '7.9.3';
+/** Default opensearch1 version used to populate the CI cache */
+const __DEFAULT_OPENSEARCH1_VERSION = '1.3.11';
+/** Default opensearch2 version used to populate the CI cache */
+const __DEFAULT_OPENSEARCH2_VERSION = '2.15.0';
+/** Default opensearch3 version used to populate the CI cache */
+const __DEFAULT_OPENSEARCH3_VERSION = '3.1.0';
+
+const __DEFAULT_NODE_VERSION = '22';
 
 const { address } = ipPkg;
 
+const config: TestEnv = {};
+let validatedConfig: ScriptsTestEnv;
+
+// Any var computed by config or used by config to compute another var should not set
+// an env value within 'configSchema' and should set the default to undefined
+const configSchema: Terafoundation.Schema<any> = {
+    // Services
+    DEFAULT_ELASTICSEARCH7_VERSION: {
+        default: __DEFAULT_ELASTICSEARCH7_VERSION,
+        format: String,
+    },
+    DEFAULT_OPENSEARCH1_VERSION: {
+        default: __DEFAULT_OPENSEARCH1_VERSION,
+        format: String,
+    },
+    DEFAULT_OPENSEARCH2_VERSION: {
+        default: __DEFAULT_OPENSEARCH2_VERSION,
+        format: String,
+    },
+    DEFAULT_OPENSEARCH3_VERSION: {
+        default: __DEFAULT_OPENSEARCH3_VERSION,
+        format: String,
+    },
+    ENABLE_UTILITY_SVC: {
+        default: false,
+        format: Boolean,
+        env: 'ENABLE_UTILITY_SVC'
+    },
+    ENV_SERVICES: {
+        default: undefined,
+        format(val: unknown) {
+            if (Array.isArray(val)) {
+                for (const name of val) {
+                    const servicesArr = Object.values(Service);
+                    if (!servicesArr.includes(name)) {
+                        throw new Error(`Invalid ENV_SERVICES value. Must be one of ${servicesArr}`);
+                    }
+                }
+            } else {
+                throw new Error('ENV_SERVICES must be an array');
+            }
+        }
+    },
+    TEST_TERASLICE: {
+        default: false,
+        format: Boolean,
+        env: 'TEST_TERASLICE'
+    },
+    TEST_OPENSEARCH: {
+        default: false,
+        format: Boolean,
+        env: 'TEST_OPENSEARCH'
+    },
+    TEST_ELASTICSEARCH: {
+        default: false,
+        format: Boolean,
+        env: 'TEST_ELASTICSEARCH'
+    },
+    TEST_KAFKA: {
+        default: false,
+        format: Boolean,
+        env: 'TEST_KAFKA'
+    },
+    TEST_MINIO: {
+        default: false,
+        format: Boolean,
+        env: 'TEST_MINIO'
+    },
+    TEST_RESTRAINED_OPENSEARCH: {
+        default: false,
+        format: Boolean,
+        env: 'TEST_RESTRAINED_OPENSEARCH'
+    },
+    TEST_RESTRAINED_ELASTICSEARCH: {
+        default: false,
+        format: Boolean,
+        env: 'TEST_RESTRAINED_ELASTICSEARCH'
+    },
+    TEST_RABBITMQ: {
+        default: false,
+        format: Boolean,
+        env: 'TEST_RABBITMQ'
+    },
+
+    // General config
+    ATTACH_JEST_DEBUGGER: {
+        default: false,
+        format: Boolean,
+        env: 'ATTACH_JEST_DEBUGGER'
+    },
+    CERT_PATH: {
+        default: undefined,
+        format: String,
+    },
+    CI_COMMIT_REF_SLUG: {
+        default: null,
+        format: 'optional_string',
+        env: 'CI_COMMIT_REF_SLUG'
+    },
+    DEV_DOCKER_IMAGE: {
+        doc: 'Use this to override the default dev docker image tag, if this is set, using DEV_TAG is no longer needed',
+        default: null,
+        format: 'optional_string',
+        env: 'DEV_DOCKER_IMAGE'
+    },
+    DEV_TAG: {
+        default: null,
+        format: 'optional_string',
+    },
+    DOCKER_CACHE_PATH: {
+        default: '/tmp/docker_cache',
+        format: String,
+        env: 'DOCKER_CACHE_PATH'
+    },
+    DOCKER_IMAGES_PATH: {
+        default: undefined,
+        format: String,
+    },
+    DOCKER_IMAGE_LIST_PATH: {
+        default: undefined,
+        format: String,
+    },
+    DOCKER_NETWORK_NAME: {
+        default: null,
+        format: 'optional_string',
+        env: 'DOCKER_NETWORK_NAME'
+    },
+    ENCRYPTION_ENABLED: {
+        default: undefined,
+        format: Boolean,
+    },
+    FORCE_COLOR: {
+        default: undefined,
+        format: ['0', '1'],
+    },
+    HOST_IP: {
+        default: undefined,
+        format: String,
+    },
+    JEST_MAX_WORKERS: {
+        default: null,
+        format: 'optional_int',
+        env: 'JEST_MAX_WORKERS'
+    },
+    K8S_VERSION: {
+        default: null,
+        format: 'optional_string',
+        env: 'K8S_VERSION'
+    },
+    MAX_PROJECTS_PER_BATCH: {
+        default: undefined,
+        format: 'int',
+    },
+    NODE_VERSION: {
+        doc: 'Node version to use. This overrides the value in the Dockerfile',
+        default: __DEFAULT_NODE_VERSION,
+        format: String,
+        env: 'NODE_VERSION'
+    },
+    NPM_DEFAULT_REGISTRY: {
+        default: 'https://registry.npmjs.org/',
+        format: String,
+    },
+    REPORT_COVERAGE: {
+        default: false,
+        format: Boolean,
+        env: 'REPORT_COVERAGE'
+    },
+    SERVICE_HEAP_OPTS: {
+        default: '-Xms512m -Xmx512m',
+        format: String,
+        env: 'SERVICE_HEAP_OPTS'
+    },
+    SERVICE_UP_TIMEOUT: {
+        doc: 'The timeout for how long a service has to stand up',
+        default: '2m',
+        format: String,
+        env: 'SERVICE_UP_TIMEOUT'
+    },
+    SERVICES_USE_TMPFS: {
+        default: true,
+        format: Boolean,
+        env: 'SERVICES_USE_TMPFS'
+    },
+    SKIP_DOCKER_BUILD_IN_E2E: {
+        doc: 'Use this to skip the docker build command in e2e tests, this might be '
+            + 'useful if you pull down a cache image outside of this and you know it '
+            + 'is up-to-date',
+        default: false,
+        format: Boolean,
+        env: 'SKIP_DOCKER_BUILD_IN_E2E'
+    },
+    SKIP_DOCKER_BUILD_IN_K8S: {
+        default: false,
+        format: Boolean,
+        env: 'SKIP_DOCKER_BUILD_IN_K8S'
+    },
+    SKIP_E2E_OUTPUT_LOGS: {
+        default: undefined,
+        format: Boolean,
+    },
+    SKIP_GIT_COMMANDS: {
+        doc: 'When set this will skip git commands. This is useful for Dockerfile when git is not available or does not work',
+        default: false,
+        format: Boolean,
+        env: 'SKIP_GIT_COMMANDS'
+    },
+    SKIP_IMAGE_DELETION: {
+        default: false,
+        format: Boolean,
+        env: 'SKIP_IMAGE_DELETION'
+    },
+    TERASLICE_IMAGE: {
+        default: null,
+        format: 'optional_string',
+        env: 'TERASLICE_IMAGE'
+    },
+    TEST_NAMESPACE: {
+        default: 'ts_test',
+        format: String,
+        env: 'TEST_NAMESPACE'
+    },
+    USE_EXISTING_SERVICES: {
+        default: false,
+        format: Boolean,
+        env: 'USE_EXISTING_SERVICES'
+    },
+    USE_HELMFILE: {
+        default: false,
+        format: Boolean,
+        env: 'USE_HELMFILE'
+    },
+
+    // Elasticsearch config
+    ELASTICSEARCH_DOCKER_IMAGE: {
+        default: 'elasticsearch',
+        format: String,
+        env: 'ELASTICSEARCH_DOCKER_IMAGE'
+    },
+    ELASTICSEARCH_HOST: {
+        default: undefined,
+        format: String,
+    },
+    ELASTICSEARCH_HOSTNAME: {
+        default: undefined,
+        format: String,
+    },
+    ELASTICSEARCH_NAME: {
+        default: 'elasticsearch',
+        format: String,
+        env: 'ELASTICSEARCH_NAME'
+    },
+    ELASTICSEARCH_PORT: {
+        default: undefined,
+        format: Number,
+    },
+    ELASTICSEARCH_VERSION: {
+        default: __DEFAULT_ELASTICSEARCH7_VERSION,
+        format: String,
+        env: 'ELASTICSEARCH_VERSION'
+    },
+    RESTRAINED_ELASTICSEARCH_HOST: {
+        default: undefined,
+        format: String,
+    },
+    RESTRAINED_ELASTICSEARCH_PORT: {
+        default: undefined,
+        format: Number,
+    },
+
+    // Kafka config
+    ENCRYPT_KAFKA: {
+        default: undefined,
+        format: Boolean,
+    },
+    KAFKA_ADVERTISED_LISTENERS: {
+        default: undefined,
+        format: String,
+    },
+    KAFKA_BROKER: {
+        default: undefined,
+        format: String,
+    },
+    KAFKA_CONTROLLER_LISTENER_NAMES: {
+        default: 'CONTROLLER',
+        format: String,
+        env: 'KAFKA_CONTROLLER_LISTENER_NAMES'
+    },
+    KAFKA_CONTROLLER_QUORUM_VOTERS: {
+        default: '1@0.0.0.0:9093',
+        format: String,
+        env: 'KAFKA_CONTROLLER_QUORUM_VOTERS'
+    },
+    KAFKA_DOCKER_IMAGE: {
+        default: 'apache/kafka',
+        format: String,
+        env: 'KAFKA_DOCKER_IMAGE'
+    },
+    KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: {
+        default: '0',
+        format: String,
+        env: 'KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS'
+    },
+    KAFKA_HOSTNAME: {
+        default: undefined,
+        format: String,
+    },
+    KAFKA_INTER_BROKER_LISTENER_NAME: {
+        default: 'INTERNAL',
+        format: String,
+        env: 'KAFKA_INTER_BROKER_LISTENER_NAME'
+    },
+    KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: {
+        default: undefined,
+        format: String,
+    },
+    KAFKA_LISTENERS: {
+        default: undefined,
+        format: String,
+    },
+    KAFKA_NAME: {
+        default: 'kafka',
+        format: String,
+        env: 'KAFKA_NAME'
+    },
+    KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: {
+        default: '1',
+        format: String,
+        env: 'KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR'
+    },
+    KAFKA_NODE_ID: {
+        default: '1',
+        format: String,
+        env: 'KAFKA_NODE_ID'
+    },
+    KAFKA_PORT: {
+        default: undefined,
+        format: Number,
+    },
+    KAFKA_PROCESS_ROLES: {
+        default: 'broker,controller',
+        format: String,
+        env: 'KAFKA_PROCESS_ROLES'
+    },
+    KAFKA_SECRETS_DIR: {
+        default: '/etc/kafka/secrets',
+        format: String,
+        env: 'KAFKA_SECRETS_DIR'
+    },
+    KAFKA_SECURITY_PROTOCOL: {
+        default: undefined,
+        format: String,
+    },
+    KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: {
+        default: '1',
+        format: String,
+        env: 'KAFKA_TRANSACTION_STATE_LOG_MIN_ISR'
+    },
+    KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: {
+        default: '1',
+        format: String,
+        env: 'KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR'
+    },
+    KAFKA_VERSION: {
+        default: '3.7.2',
+        format: String,
+        env: 'KAFKA_VERSION'
+    },
+
+    // Kind config
+    KIND_DOCKER_IMAGE: {
+        default: 'kindest/node',
+        format: String,
+        env: 'KIND_DOCKER_IMAGE'
+    },
+    KIND_VERSION: {
+        default: 'v1.30.0',
+        format: String,
+        env: 'KIND_VERSION'
+    },
+
+    // Minio config
+    ENCRYPT_MINIO: {
+        default: undefined,
+        format: Boolean,
+    },
+    MINIO_ACCESS_KEY: {
+        default: 'minioadmin',
+        format: String,
+        env: 'MINIO_ACCESS_KEY'
+    },
+    MINIO_DOCKER_IMAGE: {
+        default: 'minio/minio',
+        format: String,
+        env: 'MINIO_DOCKER_IMAGE'
+    },
+    MINIO_HOST: {
+        default: undefined,
+        format: String,
+    },
+    MINIO_HOSTNAME: {
+        default: undefined,
+        format: String,
+    },
+    MINIO_NAME: {
+        default: 'minio',
+        format: String,
+        env: 'MINIO_NAME'
+    },
+    MINIO_PORT: {
+        default: undefined,
+        format: Number,
+    },
+    MINIO_PROTOCOL: {
+        default: undefined,
+        format: ['http', 'https'],
+    },
+    MINIO_SECRET_KEY: {
+        default: 'minioadmin',
+        format: String,
+        env: 'MINIO_SECRET_KEY'
+    },
+    MINIO_UI_PORT: {
+        default: 49001,
+        format: Number,
+        env: 'MINIO_UI_PORT'
+    },
+    MINIO_VERSION: {
+        default: 'RELEASE.2024-08-29T01-40-52Z',
+        format: String,
+        env: 'MINIO_VERSION'
+    },
+
+    // OpenSearch config
+    ENCRYPT_OPENSEARCH: {
+        default: undefined,
+        format: Boolean,
+    },
+    OPENSEARCH_DOCKER_IMAGE: {
+        default: 'opensearchproject/opensearch',
+        format: String,
+        env: 'OPENSEARCH_DOCKER_IMAGE'
+    },
+    OPENSEARCH_HOST: {
+        default: undefined,
+        format: String,
+    },
+    OPENSEARCH_HOSTNAME: {
+        default: undefined,
+        format: String,
+    },
+    OPENSEARCH_NAME: {
+        default: 'opensearch',
+        format: String,
+        env: 'OPENSEARCH_NAME'
+    },
+    OPENSEARCH_PASSWORD: {
+        default: undefined,
+        format: String,
+    },
+    OPENSEARCH_PORT: {
+        default: undefined,
+        format: Number,
+    },
+    OPENSEARCH_PROTOCOL: {
+        default: undefined,
+        format: ['http', 'https'],
+    },
+    OPENSEARCH_SSL_HOST: {
+        default: undefined,
+        format: String,
+    },
+    OPENSEARCH_USER: {
+        default: undefined,
+        format: String,
+    },
+    OPENSEARCH_VERSION: {
+        default: __DEFAULT_OPENSEARCH2_VERSION,
+        format: String,
+        env: 'OPENSEARCH_VERSION'
+    },
+    RESTRAINED_OPENSEARCH_HOST: {
+        default: undefined,
+        format: String,
+    },
+    RESTRAINED_OPENSEARCH_PORT: {
+        default: undefined,
+        format: Number,
+    },
+
+    // RabbitMQ config
+    RABBITMQ_DOCKER_IMAGE: {
+        default: 'rabbitmq',
+        format: String,
+        env: 'RABBITMQ_DOCKER_IMAGE'
+    },
+    RABBITMQ_HOST: {
+        default: undefined,
+        format: String,
+    },
+    RABBITMQ_HOSTNAME: {
+        default: undefined,
+        format: String,
+    },
+    RABBITMQ_MANAGEMENT: {
+        default: undefined,
+        format: String,
+    },
+    RABBITMQ_MANAGEMENT_PORT: {
+        default: undefined,
+        format: Number,
+    },
+    RABBITMQ_NAME: {
+        default: 'rabbitmq',
+        format: String,
+        env: 'RABBITMQ_NAME'
+    },
+    RABBITMQ_PASSWORD: {
+        default: 'guest',
+        format: String,
+        env: 'RABBITMQ_PASSWORD'
+    },
+    RABBITMQ_PORT: {
+        default: undefined,
+        format: Number,
+    },
+    RABBITMQ_USER: {
+        default: 'guest',
+        format: String,
+        env: 'RABBITMQ_USER'
+    },
+    RABBITMQ_VERSION: {
+        default: '3.13.7-management',
+        format: String,
+        env: 'RABBITMQ_VERSION'
+    },
+
+    // Teraslice Config
+    ASSET_STORAGE_CONNECTION: {
+        default: 'default',
+        format: String,
+        env: 'ASSET_STORAGE_CONNECTION'
+    },
+    ASSET_STORAGE_CONNECTION_TYPE: {
+        default: 'elasticsearch-next',
+        format: String,
+        env: 'ASSET_STORAGE_CONNECTION_TYPE'
+    },
+    CLUSTERING_TYPE: {
+        default: 'kubernetesV2',
+        format: ['kubernetesV2'],
+        env: 'CLUSTERING_TYPE'
+    },
+    SEARCH_TEST_HOST: {
+        default: undefined,
+        format: String,
+    },
+    TERASLICE_PORT: {
+        default: 45678,
+        format: Number,
+        env: 'TERASLICE_PORT'
+    },
+    TEST_PLATFORM: {
+        default: 'native',
+        format: ['native', 'kubernetesV2'],
+        env: 'TEST_PLATFORM'
+    },
+
+    // Utility service config
+    UTILITY_SVC_DOCKER_IMAGE: {
+        default: 'teraslice-utility',
+        format: String,
+        env: 'UTILITY_SVC_DOCKER_IMAGE'
+    },
+    UTILITY_SVC_DOCKER_PROJECT_PATH: {
+        default: 'e2e/helm/utility',
+        format: String,
+        env: 'UTILITY_SVC_DOCKER_PROJECT_PATH'
+    },
+    UTILITY_SVC_NAME: {
+        default: 'utility-svc',
+        format: String,
+        env: 'UTILITY_SVC_NAME'
+    },
+    UTILITY_SVC_VERSION: {
+        default: '0.0.1',
+        format: String,
+        env: 'UTILITY_SVC_VERSION'
+    },
+};
+
 const forceColor = process.env.FORCE_COLOR || '1';
-export const FORCE_COLOR = toBoolean(forceColor)
+config.FORCE_COLOR = toBoolean(forceColor)
     ? '1'
     : '0';
-/** The timeout for how long a service has to stand up */
-export const SERVICE_UP_TIMEOUT = process.env.SERVICE_UP_TIMEOUT ?? '2m';
 
-/** Default elasticsearch7 version used to populate the CI cache */
-export const __DEFAULT_ELASTICSEARCH7_VERSION = '7.9.3';
-/** Default opensearch1 version used to populate the CI cache */
-export const __DEFAULT_OPENSEARCH1_VERSION = '1.3.11';
-/** Default opensearch2 version used to populate the CI cache */
-export const __DEFAULT_OPENSEARCH2_VERSION = '2.15.0';
-/** Default opensearch3 version used to populate the CI cache */
-export const __DEFAULT_OPENSEARCH3_VERSION = '3.1.0';
+config.HOST_IP = process.env.HOST_IP || address();
 
-export const TERASLICE_PORT = process.env.TERASLICE_PORT || '45678';
-export const HOST_IP = process.env.HOST_IP || address();
-export const USE_EXISTING_SERVICES = toBoolean(process.env.USE_EXISTING_SERVICES);
-export const SERVICES_USE_TMPFS = toBoolean(process.env.SERVICES_USE_TMPFS || 'true');
-export const SERVICE_HEAP_OPTS = process.env.SERVICE_HEAP_OPTS || '-Xms512m -Xmx512m';
-export const DOCKER_NETWORK_NAME = process.env.DOCKER_NETWORK_NAME || undefined;
-export const TEST_NAMESPACE = process.env.TEST_NAMESPACE || 'ts_test';
-export const ASSET_STORAGE_CONNECTION_TYPE = process.env.ASSET_STORAGE_CONNECTION_TYPE || 'elasticsearch-next';
-export const ASSET_STORAGE_CONNECTION = process.env.ASSET_STORAGE_CONNECTION || 'default';
+config.ELASTICSEARCH_HOSTNAME = process.env.ELASTICSEARCH_HOSTNAME || config.HOST_IP;
+config.ELASTICSEARCH_PORT = Number(process.env.ELASTICSEARCH_PORT) || 49200;
 
-export const ELASTICSEARCH_NAME = process.env.ELASTICSEARCH_NAME || 'elasticsearch';
-export const ELASTICSEARCH_HOSTNAME = process.env.ELASTICSEARCH_HOSTNAME || HOST_IP;
-export const ELASTICSEARCH_PORT = process.env.ELASTICSEARCH_PORT || '49200';
-export const ELASTICSEARCH_HOST = `http://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}`;
-export const ELASTICSEARCH_VERSION = process.env.ELASTICSEARCH_VERSION
-    || __DEFAULT_ELASTICSEARCH7_VERSION;
-export const ELASTICSEARCH_DOCKER_IMAGE = process.env.ELASTICSEARCH_DOCKER_IMAGE || 'elasticsearch';
+config.ELASTICSEARCH_HOST = `http://${config.ELASTICSEARCH_HOSTNAME}:${config.ELASTICSEARCH_PORT}`;
 
-export const RESTRAINED_ELASTICSEARCH_PORT = process.env.RESTRAINED_ELASTICSEARCH_PORT || '49202';
-export const RESTRAINED_ELASTICSEARCH_HOST = `http://${ELASTICSEARCH_HOSTNAME}:${RESTRAINED_ELASTICSEARCH_PORT}`;
+config.RESTRAINED_ELASTICSEARCH_PORT = Number(process.env.RESTRAINED_ELASTICSEARCH_PORT) || 49202;
+config.RESTRAINED_ELASTICSEARCH_HOST = `http://${config.ELASTICSEARCH_HOSTNAME}:${config.RESTRAINED_ELASTICSEARCH_PORT}`;
 
-export const KAFKA_NAME = process.env.KAFKA_NAME || 'kafka';
-export const KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || HOST_IP;
-export const KAFKA_PORT = process.env.KAFKA_PORT || '49094';
-export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
-export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.7.2';
-export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'apache/kafka';
-export const KAFKA_NODE_ID = process.env.KAFKA_NODE_ID || '1';
-export const KAFKA_LISTENERS = process.env.KAFKA_LISTENERS || `INTERNAL://0.0.0.0:${KAFKA_PORT}, CONTROLLER://:9093`;
-export const KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS || `INTERNAL://${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
-export const ENCRYPT_KAFKA = toBoolean(process.env.ENCRYPT_KAFKA ?? false);
-export const KAFKA_SECURITY_PROTOCOL = process.env.KAFKA_SECURITY_PROTOCOL || ENCRYPT_KAFKA ? 'SSL' : 'PLAINTEXT';
-export const KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP || `INTERNAL:${KAFKA_SECURITY_PROTOCOL}, CONTROLLER:PLAINTEXT`;
-export const KAFKA_SECRETS_DIR = process.env.KAFKA_SECRETS_DIR || '/etc/kafka/secrets';
-export const KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR = process.env.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR || '1';
-export const KAFKA_PROCESS_ROLES = process.env.KAFKA_PROCESS_ROLES || 'broker,controller';
-export const KAFKA_CONTROLLER_LISTENER_NAMES = process.env.KAFKA_CONTROLLER_LISTENER_NAMES || 'CONTROLLER';
-export const KAFKA_CONTROLLER_QUORUM_VOTERS = process.env.KAFKA_CONTROLLER_QUORUM_VOTERS || `1@0.0.0.0:9093`;
-export const KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR = process.env.KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR || '1';
-export const KAFKA_TRANSACTION_STATE_LOG_MIN_ISR = process.env.KAFKA_TRANSACTION_STATE_LOG_MIN_ISR || '1';
-export const KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS = process.env.KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS || '0';
-export const KAFKA_INTER_BROKER_LISTENER_NAME = process.env.KAFKA_INTER_BROKER_LISTENER_NAME || 'INTERNAL';
+config.ENCRYPT_KAFKA = toBoolean(process.env.ENCRYPT_KAFKA) || false;
+config.KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || config.HOST_IP;
+config.KAFKA_PORT = Number(process.env.KAFKA_PORT) || 49094;
+config.KAFKA_BROKER = `${config.KAFKA_HOSTNAME}:${config.KAFKA_PORT}`;
+config.KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS || `INTERNAL://${config.KAFKA_HOSTNAME}:${config.KAFKA_PORT}`;
+config.KAFKA_SECURITY_PROTOCOL = process.env.KAFKA_SECURITY_PROTOCOL || (config.ENCRYPT_KAFKA ? 'SSL' : 'PLAINTEXT');
+config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP || `INTERNAL:${config.KAFKA_SECURITY_PROTOCOL}, CONTROLLER:PLAINTEXT`;
+config.KAFKA_LISTENERS = process.env.KAFKA_LISTENERS || `INTERNAL://0.0.0.0:${config.KAFKA_PORT}, CONTROLLER://:9093`;
 
-export const MINIO_NAME = process.env.MINIO_NAME || 'minio';
-export const MINIO_HOSTNAME = process.env.MINIO_HOSTNAME || HOST_IP;
-export const MINIO_PORT = process.env.MINIO_PORT || '49000';
-export const MINIO_UI_PORT = process.env.MINIO_UI_PORT || '49001';
-export const ENCRYPT_MINIO = toBoolean(process.env.ENCRYPT_MINIO ?? false);
-export const MINIO_PROTOCOL = ENCRYPT_MINIO ? 'https' : 'http';
-export const MINIO_HOST = `${MINIO_PROTOCOL}://${MINIO_HOSTNAME}:${MINIO_PORT}`;
-export const MINIO_VERSION = process.env.MINIO_VERSION || 'RELEASE.2024-08-29T01-40-52Z';
-export const MINIO_DOCKER_IMAGE = process.env.MINIO_DOCKER_IMAGE || 'minio/minio';
-export const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY || 'minioadmin';
-export const MINIO_SECRET_KEY = process.env.MINIO_SECRET_KEY || 'minioadmin';
+config.ENCRYPT_MINIO = toBoolean(process.env.ENCRYPT_MINIO) || false;
+config.MINIO_HOSTNAME = process.env.MINIO_HOSTNAME || config.HOST_IP;
+config.MINIO_PORT = Number(process.env.MINIO_PORT) || 49000;
+config.MINIO_PROTOCOL = config.ENCRYPT_MINIO ? 'https' : 'http';
+config.MINIO_HOST = `${config.MINIO_PROTOCOL}://${config.MINIO_HOSTNAME}:${config.MINIO_PORT}`;
 
-export const RABBITMQ_VERSION = process.env.RABBITMQ_VERSION || '3.13.7-management';
-export const RABBITMQ_DOCKER_IMAGE = process.env.RABBITMQ_DOCKER_IMAGE || 'rabbitmq';
-export const RABBITMQ_NAME = process.env.RABBITMQ_NAME || 'rabbitmq';
-export const RABBITMQ_PORT = process.env.RABBITMQ_PORT || 45672;
-export const RABBITMQ_MANAGEMENT_PORT = process.env.RABBITMQ_MANAGEMENT_PORT || 55672;
-export const RABBITMQ_HOSTNAME = process.env.RABBITMQ_HOSTNAME || HOST_IP;
-export const RABBITMQ_HOST = `http://${RABBITMQ_HOSTNAME}:${RABBITMQ_PORT}`;
-export const RABBITMQ_MANAGEMENT = `http://${RABBITMQ_HOSTNAME}:${RABBITMQ_MANAGEMENT_PORT}`;
+config.RABBITMQ_PORT = Number(process.env.RABBITMQ_PORT) || 45672;
+config.RABBITMQ_MANAGEMENT_PORT = Number(process.env.RABBITMQ_MANAGEMENT_PORT) || 55672;
+config.RABBITMQ_HOSTNAME = process.env.RABBITMQ_HOSTNAME || config.HOST_IP;
+config.RABBITMQ_HOST = `http://${config.RABBITMQ_HOSTNAME}:${config.RABBITMQ_PORT}`;
+config.RABBITMQ_MANAGEMENT = `http://${config.RABBITMQ_HOSTNAME}:${config.RABBITMQ_MANAGEMENT_PORT}`;
 
-export const RABBITMQ_USER = process.env.RABBITMQ_USER || 'guest';
-export const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD || 'guest';
+config.ENCRYPT_OPENSEARCH = toBoolean(process.env.ENCRYPT_OPENSEARCH) || false;
+config.OPENSEARCH_PROTOCOL = config.ENCRYPT_OPENSEARCH ? 'https' : 'http';
+config.OPENSEARCH_HOSTNAME = process.env.OPENSEARCH_HOSTNAME || config.HOST_IP;
+config.OPENSEARCH_PORT = Number(process.env.OPENSEARCH_PORT) || 49210;
+config.OPENSEARCH_USER = process.env.OPENSEARCH_USER || 'admin';
+config.OPENSEARCH_PASSWORD = process.env.OPENSEARCH_PASSWORD || 'admin';
+config.OPENSEARCH_HOST = `${config.OPENSEARCH_PROTOCOL}://${config.OPENSEARCH_USER}:${config.OPENSEARCH_PASSWORD}@${config.OPENSEARCH_HOSTNAME}:${config.OPENSEARCH_PORT}`;
+config.OPENSEARCH_SSL_HOST = `https://${config.OPENSEARCH_HOSTNAME}:${config.OPENSEARCH_PORT}`;
 
-export const OPENSEARCH_NAME = process.env.OPENSEARCH_NAME || 'opensearch';
-export const ENCRYPT_OPENSEARCH = toBoolean(process.env.ENCRYPT_OPENSEARCH ?? false);
-export const OPENSEARCH_PROTOCOL = ENCRYPT_OPENSEARCH ? 'https' : 'http';
-export const OPENSEARCH_HOSTNAME = process.env.OPENSEARCH_HOSTNAME || HOST_IP;
-export const OPENSEARCH_PORT = process.env.OPENSEARCH_PORT || '49210';
-export const OPENSEARCH_USER = process.env.OPENSEARCH_USER || 'admin';
-export const OPENSEARCH_PASSWORD = process.env.OPENSEARCH_PASSWORD || 'admin';
-export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || __DEFAULT_OPENSEARCH2_VERSION;
-export const OPENSEARCH_HOST = `${OPENSEARCH_PROTOCOL}://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}:${OPENSEARCH_PORT}`;
-export const OPENSEARCH_DOCKER_IMAGE = process.env.OPENSEARCH_DOCKER_IMAGE || 'opensearchproject/opensearch';
-
-export const RESTRAINED_OPENSEARCH_PORT = process.env.RESTRAINED_OPENSEARCH_PORT || '49206';
-export const RESTRAINED_OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}:${RESTRAINED_OPENSEARCH_PORT}`;
-
-export const UTILITY_SVC_NAME = process.env.UTILITY_SVC_NAME || 'utility-svc';
-export const UTILITY_SVC_VERSION = process.env.UTILITY_SVC_VERSION || '0.0.1';
-export const UTILITY_SVC_DOCKER_IMAGE = process.env.UTILITY_SVC_DOCKER_IMAGE || 'teraslice-utility';
-export const UTILITY_SVC_DOCKER_PROJECT_PATH = process.env.UTILITY_SVC_DOCKER_PROJECT_PATH || 'e2e/helm/utility';
-
-export const KIND_DOCKER_IMAGE = process.env.KIND_DOCKER_IMAGE || 'kindest/node';
-export const KIND_VERSION = process.env.KIND_VERSION || 'v1.30.0';
-
-export const BASE_DOCKER_IMAGE = process.env.BASE_DOCKER_IMAGE || 'ghcr.io/terascope/node-base';
-/**
- * When set this will skip git commands. This is useful for Dockerfile when git is not
- * available or does not work
-*/
-export const SKIP_GIT_COMMANDS = toBoolean(process.env.SKIP_GIT_COMMANDS ?? false);
+config.RESTRAINED_OPENSEARCH_PORT = Number(process.env.RESTRAINED_OPENSEARCH_PORT) || 49206;
+config.RESTRAINED_OPENSEARCH_HOST = `http://${config.OPENSEARCH_USER}:${config.OPENSEARCH_PASSWORD}@${config.OPENSEARCH_HOSTNAME}:${config.RESTRAINED_OPENSEARCH_PORT}`;
 
 // make sure the string doesn't contain unwanted characters
-export const DEV_TAG = toSafeString((
+config.DEV_TAG = toSafeString((
     process.env.DEV_TAG
-    || process.env.TRAVIS_PULL_REQUEST_BRANCH
-    || process.env.TRAVIS_BRANCH
     || process.env.CI_COMMIT_REF_SLUG
     || 'local'
     // convert dependabot/npm_and_yarn/dep-x.x.x to dependabot
 ).split('/', 1)[0]);
 
-/**
- * Use this to override the default dev docker image tag, if this
- * is set, using DEV_TAG is no longer needed
-*/
-export const DEV_DOCKER_IMAGE = process.env.DEV_DOCKER_IMAGE || undefined;
-
-/**
- * Use this to skip the docker build command in e2e tests, this might be
- * useful if you pull down a cache image outside of this and you know it
- * is up-to-date
-*/
-export const SKIP_DOCKER_BUILD_IN_E2E = toBoolean(process.env.SKIP_DOCKER_BUILD_IN_E2E ?? false);
-
-export const SKIP_DOCKER_BUILD_IN_K8S = toBoolean(process.env.SKIP_DOCKER_BUILD_IN_K8S ?? false);
-
-export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?? !isCI);
+config.SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS) ?? (!isCI ? true : false);
 
 /**
  * jest or our tests have a memory leak, limiting this seems to help
- */
-export const MAX_PROJECTS_PER_BATCH = toIntegerOrThrow(process.env.MAX_PROJECTS_PER_BATCH ?? 5);
+*/
+config.MAX_PROJECTS_PER_BATCH = toIntegerOrThrow(process.env.MAX_PROJECTS_PER_BATCH ?? 5);
 
-const reportCov = process.env.REPORT_COVERAGE || 'false';
-export const REPORT_COVERAGE = toBoolean(reportCov);
+config.ENCRYPTION_ENABLED = toBoolean(process.env.ENCRYPT_KAFKA)
+    || toBoolean(process.env.ENCRYPT_MINIO)
+    || toBoolean(process.env.ENCRYPT_OPENSEARCH);
 
-export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
-    ? toIntegerOrThrow(process.env.JEST_MAX_WORKERS)
-    : undefined;
-
-export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
-
-export const ENCRYPTION_ENABLED = ENCRYPT_KAFKA || ENCRYPT_MINIO || ENCRYPT_OPENSEARCH;
-export const CERT_PATH = process.env.CERT_PATH
-    || (ENCRYPTION_ENABLED
+config.CERT_PATH = process.env.CERT_PATH
+    || (config.ENCRYPTION_ENABLED
         ? fs.mkdtempSync(path.join(os.tmpdir(), 'ts-CAs'))
-        : 'tmp/ts-certs'
-    );
+        : 'tmp/ts-certs');
 
-const {
-    TEST_OPENSEARCH = undefined,
-    TEST_ELASTICSEARCH = undefined,
-    TEST_KAFKA = undefined,
-    TEST_MINIO = undefined,
-    TEST_RESTRAINED_OPENSEARCH = undefined,
-    TEST_RESTRAINED_ELASTICSEARCH = undefined,
-    TEST_RABBITMQ = undefined,
-    ENABLE_UTILITY_SVC = undefined
-} = process.env;
+const testOpensearch = toBoolean(process.env.TEST_OPENSEARCH);
+const testElasticsearch = toBoolean(process.env.TEST_ELASTICSEARCH);
+const testRestrainedOpensearch = toBoolean(process.env.TEST_RESTRAINED_OPENSEARCH);
+const testRestrainedElasticsearch = toBoolean(process.env.TEST_RESTRAINED_ELASTICSEARCH);
 
-const testOpensearch = toBoolean(TEST_OPENSEARCH);
-const testElasticsearch = toBoolean(TEST_ELASTICSEARCH);
-const testRestrainedOpensearch = toBoolean(TEST_RESTRAINED_OPENSEARCH);
-const testRestrainedElasticsearch = toBoolean(TEST_RESTRAINED_ELASTICSEARCH);
-
-export const ENV_SERVICES = [
+config.ENV_SERVICES = [
     testOpensearch ? Service.Opensearch : undefined,
     testElasticsearch ? Service.Elasticsearch : undefined,
-    toBoolean(TEST_KAFKA) ? Service.Kafka : undefined,
-    toBoolean(TEST_MINIO) ? Service.Minio : undefined,
+    toBoolean(process.env.TEST_KAFKA) ? Service.Kafka : undefined,
+    toBoolean(process.env.TEST_MINIO) ? Service.Minio : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
     testRestrainedElasticsearch ? Service.RestrainedElasticsearch : undefined,
-    toBoolean(TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
-    toBoolean(ENABLE_UTILITY_SVC) ? Service.Utility : undefined,
+    toBoolean(process.env.TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
+    toBoolean(process.env.ENABLE_UTILITY_SVC) ? Service.Utility : undefined,
 ]
     .filter(Boolean) as Service[];
 
-let testHost;
+const __DEFAULT_TEST_HOST = config.OPENSEARCH_HOST;
+let testHost = __DEFAULT_TEST_HOST;
 
 if (testElasticsearch) {
-    testHost = ELASTICSEARCH_HOST;
+    testHost = config.ELASTICSEARCH_HOST;
 } else if (testOpensearch) {
-    testHost = OPENSEARCH_HOST;
+    testHost = config.OPENSEARCH_HOST;
 } else if (testRestrainedOpensearch) {
-    testHost = RESTRAINED_OPENSEARCH_HOST;
+    testHost = config.RESTRAINED_OPENSEARCH_HOST;
 } else if (testRestrainedElasticsearch) {
-    testHost = RESTRAINED_ELASTICSEARCH_HOST;
+    testHost = config.RESTRAINED_ELASTICSEARCH_HOST;
 }
 
-export const SEARCH_TEST_HOST = process.env.SEARCH_TEST_HOST || testHost;
+config.SEARCH_TEST_HOST = process.env.SEARCH_TEST_HOST || testHost;
 
-export const TEST_NODE_VERSIONS = ['22', '24'];
-export const DEFAULT_NODE_VERSION = '22';
-// This overrides the value in the Dockerfile
-export const NODE_VERSION = process.env.NODE_VERSION || DEFAULT_NODE_VERSION;
+config.DOCKER_IMAGES_PATH = process.env.DOCKER_IMAGES_PATH || './images';
+config.DOCKER_IMAGE_LIST_PATH = process.env.DOCKER_IMAGE_LIST_PATH || `${config.DOCKER_IMAGES_PATH}/image-list.txt`;
 
-export const {
-    CLUSTERING_TYPE = 'kubernetesV2',
-    TEST_PLATFORM = 'native',
-    K8S_VERSION = undefined,
-    TERASLICE_IMAGE = undefined
-} = process.env;
+try {
+    const configValidator = new SchemaValidator<ScriptsTestEnv>(configSchema, 'scriptsConfigSchema');
+    validatedConfig = configValidator.validate(config);
+} catch (err) {
+    throw new Error(`ts-scripts config validation failed: ${err}`);
+}
 
-export const DOCKER_IMAGES_PATH = process.env.DOCKER_IMAGES_PATH || './images';
-export const DOCKER_IMAGE_LIST_PATH = process.env.DOCKER_IMAGE_LIST_PATH || `${DOCKER_IMAGES_PATH}/image-list.txt`;
-export const DOCKER_CACHE_PATH = process.env.DOCKER_CACHE_PATH || '/tmp/docker_cache';
-export const SKIP_IMAGE_DELETION = toBoolean(process.env.SKIP_IMAGE_DELETION) || false;
-export const USE_HELMFILE = toBoolean(process.env.USE_HELMFILE) || false;
-export const ATTACH_JEST_DEBUGGER = toBoolean(process.env.ATTACH_JEST_DEBUGGER) || false;
+export default validatedConfig;

@@ -9,10 +9,12 @@ import { Teraslice } from '@terascope/types';
 import { pWhile } from '@terascope/core-utils';
 import crypto from 'crypto';
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import {
+import { config } from '../../config.js';
+
+const {
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST,
     MINIO_SECRET_KEY, TEST_PLATFORM, ENCRYPT_MINIO, ROOT_CERT_PATH
-} from '../../config.js';
+} = config;
 
 describe('assets', () => {
     let terasliceHarness: TerasliceHarness;
@@ -202,14 +204,14 @@ describe('s3 asset storage', () => {
         let s3client: S3Client;
         let assetId: string;
         let bucketName: string;
-        const config = {
+        const clientConfig = {
             endpoint: MINIO_HOST,
             accessKeyId: MINIO_ACCESS_KEY,
             secretAccessKey: MINIO_SECRET_KEY,
             forcePathStyle: true,
-            sslEnabled: ENCRYPT_MINIO === 'true',
+            sslEnabled: ENCRYPT_MINIO === true,
             region: 'test-region',
-            caCertificate: ENCRYPT_MINIO === 'true'
+            caCertificate: ENCRYPT_MINIO === true
                 ? fs.readFileSync(ROOT_CERT_PATH, 'utf8')
                 : ''
         };
@@ -219,7 +221,7 @@ describe('s3 asset storage', () => {
             await terasliceHarness.init();
             await terasliceHarness.resetState();
 
-            s3client = await createS3Client(config);
+            s3client = await createS3Client(clientConfig);
             terasliceInfo = await terasliceHarness.teraslice.cluster.info();
             bucketName = `ts-assets-${terasliceInfo.name}`.replaceAll('_', '-');
         });

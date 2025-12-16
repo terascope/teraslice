@@ -15,7 +15,7 @@ import signale from '../signale.js';
 import { getDevDockerImage, getRootInfo } from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
-import * as config from '../config.js';
+import config from '../config.js';
 import { loadImagesForHelm, loadImagesForHelmFromConfigFile } from '../test-runner/services.js';
 import { getE2EDir } from '../../helpers/packages.js';
 
@@ -69,7 +69,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     } catch (err) {
         signale.error(err);
         // Do not destroy existing cluster if that was the cause of failure
-        if (!err.stderr.includes('node(s) already exist for a cluster with the name')) {
+        if (!err.message.includes('node(s) already exist for a cluster with the name')) {
             await kind.destroyCluster();
         }
         process.exit(1);

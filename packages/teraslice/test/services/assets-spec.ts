@@ -5,7 +5,7 @@ import { Logger } from '@terascope/core-utils';
 import { createClient } from '@terascope/opensearch-client';
 import { createS3Client } from '@terascope/file-asset-apis';
 import { AssetsService } from '../../src/lib/cluster/services/assets';
-import { TEST_INDEX_PREFIX } from '../test.config';
+import { SEARCH_TEST_HOST, TEST_INDEX_PREFIX } from '../test.config';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 
 describe('Assets Service', () => {
@@ -51,7 +51,7 @@ describe('Assets Service', () => {
             },
             'elasticsearch-next': {
                 default: {
-                    node: [process.env.SEARCH_TEST_HOST]
+                    node: [SEARCH_TEST_HOST]
                 },
             },
         }

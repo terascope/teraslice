@@ -1,20 +1,22 @@
 import { cloneDeep } from '@terascope/core-utils';
 import path from 'node:path';
 import fse from 'fs-extra';
-import {
+import { config } from './config.js';
+
+const {
     WORKERS_PER_NODE, KAFKA_BROKER,
     TEST_HOST, TERASLICE_PORT, CLUSTER_NAME,
     HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST,
     ENCRYPT_MINIO, ROOT_CERT_PATH, FILE_LOGGING,
-    ENCRYPT_KAFKA
-} from './config.js';
+    ENCRYPT_KAFKA, DEBUG_LOG_LEVEL
+} = config;
 
 const baseConfig = {
     terafoundation: {
         log_level: [
             { console: 'warn' },
-            { file: process.env.DEBUG_LOG_LEVEL || 'info' }
+            { file: DEBUG_LOG_LEVEL || 'info' }
         ],
         logging: [
             'console',
@@ -103,13 +105,13 @@ export default async function setupTerasliceConfig() {
 async function writeMasterConfig() {
     const masterConfig = cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
-    if (ENCRYPT_MINIO === 'true') {
+    if (ENCRYPT_MINIO === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         masterConfig.terafoundation.connectors.s3.default.sslEnabled = true;
         masterConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
     }
 
-    if (ENCRYPT_KAFKA === 'true') {
+    if (ENCRYPT_KAFKA === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         masterConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
         masterConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;
@@ -124,13 +126,13 @@ async function writeMasterConfig() {
 async function writeWorkerConfig() {
     const workerConfig = cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
-    if (ENCRYPT_MINIO === 'true') {
+    if (ENCRYPT_MINIO === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         workerConfig.terafoundation.connectors.s3.default.sslEnabled = true;
         workerConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
     }
 
-    if (ENCRYPT_KAFKA === 'true') {
+    if (ENCRYPT_KAFKA === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         workerConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
         workerConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;

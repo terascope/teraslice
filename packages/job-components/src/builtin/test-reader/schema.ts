@@ -7,12 +7,12 @@ export default class Schema extends ConvictSchema<TestReaderConfig> {
             fetcher_data_file_path: {
                 default: null,
                 doc: 'File to path to JSON array of data records. Defaults to ./data/fetcher-data.json this directroy',
-                format: 'optional_String'
+                format: 'optional_string'
             },
             slicer_data_file_path: {
                 default: null,
                 doc: 'File to path to JSON array of slice requests. Defaults to ./data/slicer-data.json this directroy',
-                format: 'optional_String'
+                format: 'optional_string'
             },
             passthrough_slice: {
                 default: false,

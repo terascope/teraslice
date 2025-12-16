@@ -2,7 +2,9 @@ import { Ex } from 'teraslice-client-js';
 import { WorkerNode } from '@terascope/types/dist/src/teraslice.js';
 import { pDelay } from '@terascope/core-utils';
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { DEFAULT_WORKERS, TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
+
+const { DEFAULT_WORKERS, TEST_PLATFORM } = config;
 
 describe('scale execution', () => {
     let terasliceHarness: TerasliceHarness;

@@ -1,21 +1,38 @@
+import { TerasliceEnv } from '@terascope/types';
+import { SchemaValidator } from '@terascope/core-utils';
 import { newId } from '../src/lib/utils/id_utils.js';
 
-const {
-    TEST_INDEX_PREFIX = 'teratest_',
-    ELASTICSEARCH_HOST = 'http://localhost:9200',
-    TERASLICE_CLUSTER_NAME = newId(`${TEST_INDEX_PREFIX}teraslice`, true, 2),
-    ELASTICSEARCH_VERSION = '6.8',
-    SEARCH_TEST_HOST = ELASTICSEARCH_HOST
-} = process.env;
+const terasliceTestEnvSchema = {
+    SEARCH_TEST_HOST: {
+        default: undefined,
+        format: String,
+    },
+    TERASLICE_CLUSTER_NAME: {
+        default: null,
+        format: 'optional_string',
+    },
+    TEST_INDEX_PREFIX: {
+        default: undefined,
+        format: String,
+    },
+};
 
-process.env.TERASLICE_CLUSTER_NAME = TERASLICE_CLUSTER_NAME;
-process.env.ELASTICSEARCH_HOST = ELASTICSEARCH_HOST;
-process.env.ELASTICSEARCH_VERSION = ELASTICSEARCH_VERSION;
-process.env.SEARCH_TEST_HOST = SEARCH_TEST_HOST;
+const validator = new SchemaValidator<TerasliceEnv>(
+    terasliceTestEnvSchema,
+    'terasliceTestEnvSchema',
+    undefined,
+    'allow'
+);
+
+const envConfig = validator.validate(process.env);
+
+const { SEARCH_TEST_HOST, TEST_INDEX_PREFIX } = envConfig;
+
+const TERASLICE_CLUSTER_NAME = envConfig.TERASLICE_CLUSTER_NAME
+    || newId(`${TEST_INDEX_PREFIX}teraslice`, true, 2);
 
 export {
     TEST_INDEX_PREFIX,
     SEARCH_TEST_HOST,
     TERASLICE_CLUSTER_NAME,
-    ELASTICSEARCH_VERSION,
 };

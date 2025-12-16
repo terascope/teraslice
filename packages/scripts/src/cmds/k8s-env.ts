@@ -1,6 +1,6 @@
 import { CommandModule } from 'yargs';
 import path from 'node:path';
-import * as config from '../helpers/config.js';
+import config from '../helpers/config.js';
 import { launchK8sEnv, rebuildTeraslice, generateTemplateConfig } from '../helpers/k8s-env/index.js';
 import { K8sEnvOptions } from '../helpers/k8s-env/interfaces.js';
 
@@ -36,8 +36,8 @@ const cmd: CommandModule = {
             })
             .option('ts-port', {
                 description: 'Port where teraslice api will be exposed.',
-                type: 'string',
-                default: '5678'
+                type: 'number',
+                default: 5678
             })
             .option('cluster-name', {
                 description: 'Name of the kind kubernetes cluster.',
@@ -91,7 +91,7 @@ const cmd: CommandModule = {
     handler(argv) {
         const k8sOptions: K8sEnvOptions = {
             skipBuild: Boolean(argv['skip-build']),
-            tsPort: argv['ts-port'] as string,
+            tsPort: argv['ts-port'] as number,
             kindClusterName: argv['cluster-name'] as string,
             terasliceImage: argv['teraslice-image'] as string,
             dev: Boolean(argv.dev),

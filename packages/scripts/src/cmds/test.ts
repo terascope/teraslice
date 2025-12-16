@@ -3,7 +3,7 @@ import { CommandModule } from 'yargs';
 import { toBoolean, castArray } from '@terascope/core-utils';
 import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces.js';
 import { getAvailableTestSuites } from '../helpers/misc.js';
-import * as config from '../helpers/config.js';
+import config from '../helpers/config.js';
 import { listPackages } from '../helpers/packages.js';
 import { runTests } from '../helpers/test-runner/index.js';
 import { coercePkgArg } from '../helpers/args.js';

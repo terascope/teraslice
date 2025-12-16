@@ -52,6 +52,7 @@ const connector: Terafoundation.Connector = {
                 doc: 'a single host, or multiple hosts listed in an array',
                 default: null,
                 format(val: any) {
+                    if (val === null) return;
                     if (typeof val === 'string') {
                         return;
                     }

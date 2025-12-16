@@ -16,7 +16,8 @@ import { cleanupIndexStore } from './helpers/utils.js';
 
 const filename = fileURLToPath(import.meta.url);
 
-const { makeClient, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
+const { makeClient, envConfig } = ElasticsearchTestHelpers;
+const { TEST_INDEX_PREFIX } = envConfig;
 
 describe('IndexStore (timeseries)', () => {
     const logger = debugLogger(filename);

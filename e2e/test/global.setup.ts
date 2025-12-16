@@ -6,11 +6,13 @@ import { dockerUp } from './docker-helpers.js';
 import signale from './signale.js';
 import setupTerasliceConfig from './setup-config.js';
 import { downloadAssets, loadAssetCache } from './download-assets.js';
-import {
+import { config } from './config.js';
+import { teardown } from './teardown.js';
+
+const {
     CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM,
     TERASLICE_PORT, KIND_CLUSTER, USE_HELMFILE
-} from './config.js';
-import { teardown } from './teardown.js';
+} = config;
 
 export default async () => {
     const teraslice = new TerasliceHarness();

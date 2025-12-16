@@ -18,7 +18,7 @@ import {
 import { Kind } from '../kind.js';
 import { TestOptions } from './interfaces.js';
 import { Service } from '../interfaces.js';
-import * as config from '../config.js';
+import config from '../config.js';
 import signale from '../signale.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -74,8 +74,8 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'network.host': '0.0.0.0',
             'http.port': config.RESTRAINED_OPENSEARCH_PORT,
             'discovery.type': 'single-node',
-            DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            DISABLE_SECURITY_PLUGIN: 'true'
+            DISABLE_INSTALL_DEMO_CONFIG: true,
+            DISABLE_SECURITY_PLUGIN: true
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -91,8 +91,8 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'network.host': '0.0.0.0',
             'http.port': config.OPENSEARCH_PORT,
             'discovery.type': 'single-node',
-            DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            DISABLE_SECURITY_PLUGIN: 'true',
+            DISABLE_INSTALL_DEMO_CONFIG: true,
+            DISABLE_SECURITY_PLUGIN: true,
             DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI: 'true'
         },
         network: config.DOCKER_NETWORK_NAME
@@ -771,7 +771,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
     const rootCaPath = path.join(config.CERT_PATH, 'CAs/rootCA.pem');
 
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
-    if (dockerGateways.includes(config.KAFKA_HOSTNAME)) return;
+    if (dockerGateways.includes(host)) return;
 
     if (options.trace) {
         signale.debug(`checking kafka at ${host}`);
@@ -799,14 +799,14 @@ async function checkKafka(options: TestOptions, startTime: number) {
     try {
         await producer.connect();
     } catch (err) {
-        if (err.message.includes('ENOTFOUND') && err.message.includes(config.KAFKA_BROKER)) {
+        if (err.message.includes('ENOTFOUND') && err.message.includes(kafkaBroker)) {
             throw new Error(`Unable to connect to kafka broker after ${totalTime}ms at ${kafkaBroker}`);
-        } else if (err.message.includes('ECONNREFUSED') && err.message.includes(config.KAFKA_BROKER)) {
+        } else if (err.message.includes('ECONNREFUSED') && err.message.includes(kafkaBroker)) {
             throw new Error(`Unable to connect to kafka broker after ${totalTime}ms at ${kafkaBroker}`);
         }
         throw new Error(err.message);
     }
-    signale.success(`kafka@${config.KAFKA_VERSION} is running at ${config.KAFKA_BROKER}, took ${took}`);
+    signale.success(`kafka@${config.KAFKA_VERSION} is running at ${kafkaBroker}, took ${took}`);
 }
 
 async function checkUtility(options: TestOptions, startTime: number): Promise<void> {

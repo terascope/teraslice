@@ -8,12 +8,14 @@ import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale.js';
 import { getE2eK8sDir } from '../helpers/packages.js';
 import { KindCluster, TsVolumeSet, CustomKindDefaultPorts, CustomKindService } from './interfaces.js';
-import {
+import config from './config.js';
+
+const {
     DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
     ELASTICSEARCH_PORT, OPENSEARCH_PORT, MINIO_PORT,
     MINIO_UI_PORT, KAFKA_PORT, OPENSEARCH_VERSION,
     ENCRYPTION_ENABLED, CERT_PATH
-} from './config.js';
+} = config;
 
 export class Kind {
     clusterName: string;
@@ -56,7 +58,7 @@ export class Kind {
 
         configFile.nodes[0].extraPortMappings.push({
             containerPort: 30678,
-            hostPort: Number.parseInt(TERASLICE_PORT)
+            hostPort: TERASLICE_PORT
         });
 
         // Map external ports from kind to the host machine based off of config variables
@@ -65,23 +67,23 @@ export class Kind {
                 if (service === 'elasticsearch') {
                     configFile.nodes[0].extraPortMappings.push({
                         containerPort: 30207,
-                        hostPort: Number.parseInt(ELASTICSEARCH_PORT)
+                        hostPort: ELASTICSEARCH_PORT
                     });
                 } else if (service === 'opensearch') {
                     if (OPENSEARCH_VERSION.startsWith('1')) {
                         configFile.nodes[0].extraPortMappings.push({
                             containerPort: 30201,
-                            hostPort: Number.parseInt(OPENSEARCH_PORT)
+                            hostPort: OPENSEARCH_PORT
                         });
                     } else if (OPENSEARCH_VERSION.startsWith('2')) {
                         configFile.nodes[0].extraPortMappings.push({
                             containerPort: 30202,
-                            hostPort: Number.parseInt(OPENSEARCH_PORT)
+                            hostPort: OPENSEARCH_PORT
                         });
                     } else if (OPENSEARCH_VERSION.startsWith('3')) {
                         configFile.nodes[0].extraPortMappings.push({
                             containerPort: 30203,
-                            hostPort: Number.parseInt(OPENSEARCH_PORT)
+                            hostPort: OPENSEARCH_PORT
                         });
                     } else {
                         throw new Error(`The OPENSEARCH_VERSION provided is unsupported.`);
@@ -89,17 +91,17 @@ export class Kind {
                 } else if (service === 'minio') {
                     configFile.nodes[0].extraPortMappings.push({
                         containerPort: 30900,
-                        hostPort: Number.parseInt(MINIO_PORT)
+                        hostPort: MINIO_PORT
                     });
                     configFile.nodes[0].extraPortMappings.push({
                         containerPort: 30901,
-                        hostPort: Number.parseInt(MINIO_UI_PORT)
+                        hostPort: MINIO_UI_PORT
                     });
                 } else if (service === 'kafka') {
                     // map only the external kafka port so it can resolve with the host machine
                     configFile.nodes[0].extraPortMappings.push({
                         containerPort: 30094,
-                        hostPort: Number.parseInt(KAFKA_PORT)
+                        hostPort: KAFKA_PORT
                     });
                 }
             }
@@ -187,7 +189,7 @@ export class Kind {
                 containerPath: '/certs'
             });
         }
-        configFile.nodes[0].extraPortMappings[0].hostPort = Number.parseInt(teraslicePort, 10);
+        configFile.nodes[0].extraPortMappings[0].hostPort = teraslicePort;
         const updatedYaml = yaml.dump(configFile);
         signale.debug(`Final kind config yaml: ${updatedYaml}`);
 

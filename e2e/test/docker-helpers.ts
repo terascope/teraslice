@@ -1,10 +1,11 @@
 import { Compose } from '@terascope/docker-compose-js';
 import ms from 'ms';
 import semver from 'semver';
-import { DEFAULT_WORKERS, NODE_VERSION } from './config.js';
+import { config } from './config.js';
 import signale from './signale.js';
 import { pRetry } from '@terascope/core-utils';
 
+const { DEFAULT_WORKERS, NODE_VERSION } = config;
 const compose = new Compose('docker-compose.yml');
 
 export async function scaleWorkers(workerToAdd = 0) {

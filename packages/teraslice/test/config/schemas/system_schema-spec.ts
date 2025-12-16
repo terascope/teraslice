@@ -1,25 +1,14 @@
-import convict from 'convict';
-// @ts-expect-error no types
-import convict_format_with_validator from 'convict-format-with-validator';
-// @ts-expect-error no types
-import convict_format_with_moment from 'convict-format-with-moment';
-import { formats } from '@terascope/job-components';
+import { SchemaValidator } from '@terascope/core-utils';
 import { config_schema } from '../../../src/lib/config/schemas/system.js';
-// load any convict schema
-
-convict.addFormats(convict_format_with_validator);
-convict.addFormats(convict_format_with_moment);
-formats.forEach((format) => convict.addFormat(format));
 
 describe('system_schema', () => {
     const schema = config_schema().schema.teraslice;
 
     function checkValidation(config: Record<string, any>) {
         try {
-            const validator = convict(schema);
-            validator.load(config);
-            validator.validate();
-            return validator.getProperties();
+            const validator = new SchemaValidator<any>(schema, 'teraslice');
+
+            return validator.validate(config);
         } catch (err) {
             return err.message;
         }
@@ -35,8 +24,8 @@ describe('system_schema', () => {
     });
 
     it('assets_directory is optional but requires a string', () => {
-        expect(checkValidation({ assets_directory: 234 })).toEqual(
-            'assets_directory: Invalid parameter assets_directory, it must either be a string or an array of strings: value was 234'
+        expect(checkValidation({ assets_directory: 234 })).toContain(
+            'Invalid parameter assets_directory, it must either be a string or an array of strings'
         );
     });
 });

@@ -1,12 +1,11 @@
 import os from 'node:os';
-import convict from 'convict';
 import {
     flatten, getField, getTypeOf,
     hasOwn, isNotNil, isNumber,
     isPlainObject, isString, logLevels,
     dataEncodings
 } from '@terascope/core-utils';
-import { DataEncoding } from '@terascope/types';
+import { DataEncoding, Terafoundation } from '@terascope/types';
 import { Context } from './interfaces/index.js';
 
 const cpuCount = os.cpus().length;
@@ -15,10 +14,10 @@ const workers = cpuCount < 5 ? cpuCount : 5;
 /**
  * This schema is for a Teraslice Job definition.
  * @param context Teraslice context object
- * @returns Complete convict schema for the Teraslice Job
+ * @returns Complete convict style schema for the Teraslice Job
  */
-export function jobSchema(context: Context): convict.Schema<any> {
-    const schemas: convict.Schema<any> = {
+export function jobSchema(context: Context): Terafoundation.Schema<any> {
+    const schemas: Terafoundation.Schema<any> = {
         active: {
             default: true,
             doc: 'A convenience property that allows the user to indicate whether the job'
@@ -41,8 +40,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         assets: {
             default: null,
             doc:
-                'An array of actions to execute, typically the first is a reader '
-                + 'and the last is a sender with any number of processing function in-between',
+                'An array of strings that are the IDs for the corresponding assets zip files.',
             format(arr: any) {
                 if (arr != null) {
                     if (!Array.isArray(arr)) {
@@ -76,7 +74,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         name: {
             default: 'Custom Job',
             doc: 'Name for specific job',
-            format: 'required_String',
+            format: 'required_string',
         },
         operations: {
             default: [],
@@ -207,9 +205,10 @@ export function jobSchema(context: Context): convict.Schema<any> {
             },
         },
         log_level: {
-            default: undefined,
+            default: null,
             doc: 'the log level to be set on all loggers associated with the job',
             format(level: unknown) {
+                if (!level) return;
                 const logLevelStrings = Object.keys(logLevels);
                 if (typeof level !== 'string' || !logLevelStrings.includes(level)) {
                     throw new Error(`must be one of the following: ${logLevelStrings}`);
@@ -261,7 +260,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         schemas.external_ports = {
             doc: 'A numerical array of ports that should be exposed as external ports on the pods',
             default: undefined,
-            format(arr) {
+            format(arr: unknown) {
                 // TODO: What should we really do to validate this?  It can be
                 // omitted, an empty array, or an array with numbers.  It can't
                 // contain anything other than numbers.  Processors should be able
@@ -376,7 +375,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         schemas.kubernetes_image = {
             doc: 'Specify a custom image name for kubernetes, this only applies to kubernetes systems',
             default: undefined,
-            format: 'optional_String',
+            format: 'optional_string',
         };
 
         schemas.prom_metrics_enabled = {
@@ -406,11 +405,11 @@ export const makeJobSchema = jobSchema;
 /**
  * This is the schema for a Teraslice Operation.
  */
-export const opSchema: convict.Schema<any> = {
+export const opSchema: Terafoundation.Schema<any> = {
     _op: {
-        default: '',
+        default: undefined,
         doc: 'Name of operation, , it must reflect the name of the file or folder',
-        format: 'required_String',
+        format: 'required_string',
     },
     _encoding: {
         doc: 'Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.',
@@ -428,20 +427,20 @@ export const opSchema: convict.Schema<any> = {
             'The API must be already be created by a operation before it can used.'
         ].join('\n'),
         default: 'throw',
-        format: 'optional_String',
+        format: 'optional_string',
     },
 };
 
 /**
  * This is the schema for a Teraslice API.
  */
-export const apiSchema: convict.Schema<any> = {
+export const apiSchema: Terafoundation.Schema<any> = {
     _name: {
-        default: '',
+        default: undefined,
         doc: `The _name property is required, and it is required to be unique
         but can be suffixed with a identifier by using the format "example:0",
         anything after the ":" is stripped out when searching for the file or folder.`,
-        format: 'required_String',
+        format: 'required_string',
     },
     _encoding: {
         doc: 'Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.',
@@ -467,6 +466,6 @@ export const apiSchema: convict.Schema<any> = {
             'The API must be already be created by a operation before it can used.'
         ].join('\n'),
         default: 'throw',
-        format: 'optional_String',
+        format: 'optional_string',
     },
 };

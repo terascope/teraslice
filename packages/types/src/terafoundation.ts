@@ -10,26 +10,46 @@ import {
 import type { Overwrite } from './utility.js';
 import type { Logger } from './logger.js';
 
-interface Format {
+export interface Format {
     name?: string | undefined;
     validate?(val: any, schema: SchemaObj): void;
     coerce?(val: any): any;
 }
 
-interface SchemaObj<T = any> {
+export interface SchemaObj<T = any> {
     default: T | null;
     doc?: string | undefined;
-    format?: any;
+    format?: ConvictFormat;
     env?: string | undefined;
     arg?: string | undefined;
-    sensitive?: boolean | undefined;
-    nullable?: boolean | undefined;
     [key: string]: any;
 }
 
 export type Schema<T> = {
     [P in keyof T]: Schema<T[P]> | SchemaObj<T[P]>;
 };
+
+export type ConvictFormat = any[] | PredefinedFormat | FormatFn | Format;
+
+type PredefinedFormat
+    = | '*'
+        | 'int'
+        | 'port'
+        | 'windows_named_pipe'
+        | 'port_or_windows_named_pipe'
+        | 'url'
+        | 'email'
+        | 'ipaddress'
+        | 'duration'
+        | 'timestamp'
+        | 'nat'
+        | string
+        | object
+        | number
+        | RegExp
+        | boolean;
+
+type FormatFn<T = any> = ((val: any) => asserts val is T) | ((val: any) => void);
 
 export type Initializers<S = Record<string, any>> = {
     schema: Schema<S>;
