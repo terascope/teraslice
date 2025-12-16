@@ -371,23 +371,19 @@ export class SchemaValidator<T = AnyObject> {
             finalFormat = this._getCustomFormatFromName(schemaObj.format) || schemaObj.format;
         }
 
-        if (Object.hasOwn(schemaObj, 'default')) {
-            try {
-                this._validateDefault(baseType, schemaObj.default);
-            } catch (err) {
-                throw new Error(`Invalid default value for key ${key.toString()}: ${schemaObj.default}`);
-            }
-
-            type = z.preprocess(
-                (val: unknown) => {
-                    // Only apply default for undefined, keep null as null
-                    return val === undefined ? schemaObj.default : val;
-                },
-                baseType.nullable()
-            );
-        } else {
-            type = baseType;
+        try {
+            this._validateDefault(baseType, schemaObj.default);
+        } catch (err) {
+            throw new Error(`Invalid default value for key ${key.toString()}: ${schemaObj.default}`);
         }
+
+        type = z.preprocess(
+            (val: unknown) => {
+                // Only apply default for undefined, keep null as null
+                return val === undefined ? schemaObj.default : val;
+            },
+            baseType
+        );
 
         if (schemaObj.default === undefined) {
             type = type.optional();
