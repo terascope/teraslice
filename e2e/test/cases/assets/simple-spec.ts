@@ -4,11 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import decompress from 'decompress';
 import archiver from 'archiver';
-import {
-    createS3Client,
-    getS3Object,
-    S3Client,
-} from '@terascope/file-asset-apis';
+import { createS3Client, getS3Object, S3Client } from '@terascope/file-asset-apis';
 import { Teraslice } from '@terascope/types';
 import { pWhile } from '@terascope/core-utils';
 import crypto from 'crypto';
@@ -37,17 +33,14 @@ describe('assets', () => {
             { blocking: true }
         );
 
-        // save the asset ID that was submitted to terslice
+        // save the asset ID that was submitted to teraslice
         const assetId = result.asset_id;
-        // TODO: remove this in teraslice V3
-        const oldAssetId = result._id;
 
         const response = await terasliceHarness.teraslice.assets.remove(assetId);
 
         // ensure the deleted asset's ID matches that of
         // the saved asset
         expect(assetId).toEqual(response.asset_id);
-        expect(oldAssetId).toEqual(response.asset_id);
     });
 
     // Test a bad asset
@@ -106,8 +99,6 @@ describe('assets', () => {
             blocking: true
         });
         const assetId = assetResponse.asset_id;
-        // TODO: remove this in teraslice V3
-        const oldAssetId = assetResponse._id;
 
         const ex = await terasliceHarness.submitAndStart(jobSpec);
 
@@ -121,7 +112,6 @@ describe('assets', () => {
         const execution = await ex.config();
 
         expect(execution.assets[0]).toEqual(assetId);
-        expect(execution.assets[0]).toEqual(oldAssetId);
 
         await ex.stop({ blocking: true });
     });

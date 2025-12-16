@@ -192,7 +192,6 @@ export class OperationLoader {
     async loadAPI(name: string, assetIds?: string[]): Promise<APIModule> {
         const { name: apiName, assetIdentifier: assetHash } = parseName(name, true);
         const assetPaths = assetHash ? [assetHash] : assetIds;
-
         const metadataList = await this.findOrThrow(apiName, assetPaths);
 
         if (metadataList.length > 1 && this.checkCollisions && !assetHash) {

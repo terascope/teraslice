@@ -195,7 +195,7 @@ describe('JobValidator', () => {
                 operations: [
                     {
                         _op: `reader-asset@${assetHash2}`,
-                        api_name: `api-asset@${assetHash2}`,
+                        _api_name: `api-asset@${assetHash2}`,
                         version: '1.4.0'
                     },
                     {
@@ -205,6 +205,86 @@ describe('JobValidator', () => {
             });
 
             const validJob = await testApi.validateConfig(jobSpec);
+
+            expect(validJob).toMatchObject(jobSpec);
+        });
+
+        it('expect to use apis when a connection is specified to prevent old auto api creation', async () => {
+            const testContext = new TestContext('teraslice-operations');
+
+            // TODO: figure out why we have fixtures, and no other test uses testContext
+            const newPath = `${dirname}/fixtures`;
+            testContext.sysconfig.teraslice.assets_directory = [newPath];
+
+            const testApi = new JobValidator(testContext);
+
+            const oldJobSpec: JobConfigParams = Object.freeze({
+                name: 'myJob',
+                assets: [assetHash1, assetHash2, assetHash3],
+                autorecover: true,
+                apis: [
+                    { _name: `api-asset@${assetHash2}`, version: '1.4.0' }
+                ],
+                operations: [
+                    {
+                        _op: `reader-asset@${assetHash2}`,
+                        _connection: 'default',
+                        version: '1.4.0'
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            });
+
+            // this is a legacy test
+            const oldJobSpec2: JobConfigParams = Object.freeze({
+                name: 'myJob',
+                assets: [assetHash1, assetHash2, assetHash3],
+                autorecover: true,
+                apis: [
+                    { _name: `api-asset@${assetHash2}`, version: '1.4.0' }
+                ],
+                operations: [
+                    {
+                        _op: `reader-asset@${assetHash2}`,
+                        connection: 'default',
+                        version: '1.4.0'
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            });
+
+            const jobSpec: JobConfigParams = Object.freeze({
+                name: 'myJob',
+                assets: [assetHash1, assetHash2, assetHash3],
+                autorecover: true,
+                apis: [
+                    { _name: `api-asset@${assetHash2}`, version: '1.4.0' }
+                ],
+                operations: [
+                    {
+                        _op: `reader-asset@${assetHash2}`,
+                        _api_name: `api-asset@${assetHash2}`,
+                        version: '1.4.0'
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            });
+
+            const validJob = await testApi.validateConfig(jobSpec);
+
+            await expect(
+                () => api.validateConfig(oldJobSpec)
+            ).rejects.toThrow();
+
+            await expect(
+                () => api.validateConfig(oldJobSpec2)
+            ).rejects.toThrow();
 
             expect(validJob).toMatchObject(jobSpec);
         });

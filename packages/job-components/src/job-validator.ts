@@ -1,4 +1,7 @@
-import { cloneDeep, pMap } from '@terascope/core-utils';
+import {
+    cloneDeep, pMap, get, isNil,
+    has
+} from '@terascope/core-utils';
 import { Teraslice, Terafoundation } from '@terascope/types';
 import { Context, OpConfig, ValidatedJobConfig } from './interfaces';
 import { validateJobConfig } from './config-validators.js';
@@ -33,6 +36,7 @@ export class JobValidator {
         type ValidateJobFn = (job: ValidatedJobConfig) => void;
         const validateJobFns: ValidateJobFn[] = [];
         const validateApisFns: ValidateJobFn[] = [];
+        const opAPIMapping = new Map<string, string>();
 
         const handleModule = (
             opConfig: OpConfig,
@@ -60,7 +64,21 @@ export class JobValidator {
                 job.operations[index]._op = originalName;
             });
 
-            return schema.validate(opConfig);
+            const validatedConfig = schema.validate(opConfig);
+
+            const needsAPI = has(validatedConfig, '_api_name') || has(validatedConfig, 'api_name');
+
+            if (needsAPI) {
+                const apiName = get(validatedConfig, '_api_name', null) ?? get(validatedConfig, 'api_name', null);
+
+                if (isNil(apiName)) {
+                    throw new Error('An operation with a _api_name keyword must link it to a valid api configuration on the job');
+                }
+
+                opAPIMapping.set(apiName, apiName);
+            }
+
+            return validatedConfig;
         };
 
         jobConfig.operations = await pMap(jobConfig.operations, async (opConfig, index) => {
@@ -77,13 +95,6 @@ export class JobValidator {
                 await this.opLoader.loadProcessor(opConfig._op, assetIds),
                 index
             );
-        });
-
-        // this needs to happen first because it can add apis to the job
-        // through usage of the ensureAPIFromConfig api that called inside
-        // many validateJob schema methods
-        validateJobFns.forEach((fn) => {
-            fn(jobConfig);
         });
 
         jobConfig.apis = await pMap(jobConfig.apis, async (apiConfig, index) => {
@@ -108,6 +119,18 @@ export class JobValidator {
 
         // this can mutate the job
         validateApisFns.forEach((fn) => {
+            fn(jobConfig);
+        });
+
+        const apiNames = jobConfig.apis.map((api) => api._name);
+
+        for (const [key] of opAPIMapping.entries()) {
+            if (!apiNames.includes(key)) {
+                throw new Error(`Could not find the associated api for ${key}`);
+            }
+        }
+
+        validateJobFns.forEach((fn) => {
             fn(jobConfig);
         });
 

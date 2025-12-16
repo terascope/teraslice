@@ -1,7 +1,7 @@
 {
     "name": "terafoundation",
     "displayName": "Terafoundation",
-    "version": "2.0.0-dev.12",
+    "version": "2.0.0-dev.13",
     "description": "A Clustering and Foundation tool for Terascope Tools",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terafoundation#readme",
     "bugs": {
@@ -28,10 +28,10 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../terafoundation --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.0-dev.10",
+        "@terascope/core-utils": "~2.0.0-dev.11",
         "@terascope/file-asset-apis": "~1.1.2",
-        "@terascope/opensearch-client": "~2.0.0-dev.10",
-        "@terascope/types": "~2.0.0-dev.8",
+        "@terascope/opensearch-client": "~2.0.0-dev.11",
+        "@terascope/types": "~2.0.0-dev.9",
         "bunyan": "~1.8.15",
         "elasticsearch": "~15.4.1",
         "express": "~5.1.0",

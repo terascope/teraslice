@@ -58,6 +58,7 @@ export class AssetLoader {
 
                 const { context, logger } = this;
                 const connectionType = getBackendConfig(context, logger).assetConnectionType;
+
                 if (connectionType === 's3') {
                     buff = assetRecord.blob as Buffer;
                 } else {

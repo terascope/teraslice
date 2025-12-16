@@ -95,8 +95,8 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
                     if (!op || !isPlainObject(op)) {
                         throw new Error(`Invalid Operation config in operations, got ${getTypeOf(op)}`);
                     }
-                    if (op.connection && !connections.includes(op.connection)) {
-                        throw new Error(`Operation ${op._op} refers to connection "${op.connection}" which is unavailable`);
+                    if (op._connection && !connections.includes(op._connection)) {
+                        throw new Error(`Operation ${op._op} refers to connection "${op._connection}" which is unavailable`);
                     }
                 }
             },
@@ -133,8 +133,11 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
                     }
 
                     names.push(api._name);
-                    if (api.connection && !connections.includes(api.connection)) {
-                        throw new Error(`API ${api._name} refers to connection "${api.connection}" which is unavailable`);
+                    // for backwards compatibility for e2e tests, api._connection is correct naming
+                    const connectionName = api._connection ? api._connection : api.connection;
+
+                    if (connectionName && !connections.includes(connectionName)) {
+                        throw new Error(`API ${api._name} refers to connection "${api._connection}" which is unavailable`);
                     }
                 }
             },

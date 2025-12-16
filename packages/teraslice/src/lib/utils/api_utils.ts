@@ -58,6 +58,7 @@ export function handleTerasliceRequest(
     return async (fn: () => Promise<string | Record<string, any>>) => {
         try {
             const result = await fn();
+
             if (isString(result)) {
                 res.status(successCode).send(result);
             } else {
