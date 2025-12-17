@@ -273,7 +273,7 @@ Each configuration property is assigned a format within its schema. Valid format
         - timestamp strings between 5 and 13 character (inclusive)
         - timestamp integers of any length
         - any valid [datemath-parser](https://github.com/randing89/datemath-parser) value
-    - `'elasticsearch_name'` - value must be a string of 255 characters or less, contain only lowercase letters (no uppercase A-Z), does not start with underscore, hyphen, or plus signs, does not equal "." or "..", and does not contain any of these invalid characters: #, *, ?, ", <, >, |, /, or \\.
+    - `'elasticsearch_name'` - value must be a string of 255 characters or less, contain only lowercase letters (no uppercase A-Z), does not start with underscore, hyphen, or plus signs, does not equal "." or "..", and does not contain any of these invalid characters: #, *, ?, ", `<`, `>`, |, /, or \\.
     - `'positive_int'` - must be valid integer greater than zero
     - `'optional_bool'` - must be either true, false, 'true', 'false', 1, 0, '1', '0', null, or undefined
     - `'optional_int'` - must be an integer, null, or undefined
