@@ -283,6 +283,7 @@ export class AssetSrc {
             target: this.bundleTarget,
             plugins: [wasmPlugin],
             keepNames: true,
+            external: ['dtrace-provider'],
             ...(isESM && { format: 'esm', inject: [injectPath] })
         });
 
