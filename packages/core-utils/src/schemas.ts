@@ -201,7 +201,7 @@ export const formats: TF.Format[] = [
         },
         validate: function (x) {
             const err_msg = 'If specified, must be a positive integer or human readable string containing a number and valid unit (e.g. 3000, "5 days")';
-            if (x == null) return x;
+            if (x == null) return;
 
             if (Number.isInteger(x)) {
                 assert(x >= 0, err_msg);
