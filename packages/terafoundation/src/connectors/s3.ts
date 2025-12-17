@@ -16,12 +16,12 @@ const connector: Terafoundation.Connector = {
             accessKeyId: {
                 doc: '',
                 default: null,
-                format: String
+                format: 'optional_string'
             },
             secretAccessKey: {
                 doc: '',
                 default: null,
-                format: String
+                format: 'optional_string'
             },
             region: {
                 doc: '',

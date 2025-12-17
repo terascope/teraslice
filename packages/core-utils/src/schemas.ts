@@ -5,9 +5,9 @@ import moment from 'moment';
 import { z, type ZodType, type RefinementCtx } from 'zod';
 import { AnyObject, Terafoundation as TF } from '@terascope/types';
 import { isBoolean, toBoolean } from './booleans.js';
-import { isValidDate } from './dates.js';
+import { isValidDate, makeISODate } from './dates.js';
 import { isFunction } from './functions.js';
-import { isInteger, toInteger, toIntegerOrThrow, toNumber } from './numbers.js';
+import { isInteger, toInteger, toNumber } from './numbers.js';
 import { isSimpleObject } from './objects.js';
 import { isString, startsWith } from './strings.js';
 
@@ -29,9 +29,8 @@ export const formats: TF.Format[] = [
     {
         name: 'optional_string',
         validate(val: unknown) {
-            if (!val) {
-                return;
-            }
+            if (val == null) return;
+
             if (isString(val)) {
                 return;
             }
@@ -41,30 +40,29 @@ export const formats: TF.Format[] = [
     {
         name: 'optional_date',
         validate(val: unknown) {
-            if (!val) {
-                return;
-            }
+            if (val == null) return;
+
             if (isString(val) || isInteger(val)) {
                 if (isValidDate(val)) {
                     return;
                 }
+                throw new Error(
+                    `value: ${JSON.stringify(val)} cannot be coerced into a proper date`
+                );
             } else {
                 throw new Error('parameter must be a string or number IF specified');
             }
         },
-        coerce(val: any) {
-            if (!val) {
+        coerce(val: unknown) {
+            if (val == null) return val;
+
+            try {
+                const parsed = dateMath.parse(val);
+                return makeISODate(parsed);
+            } catch (err) {
                 return val;
             }
-            try {
-                return dateMath.parse(`${val}`);
-            } catch (err) {
-                throw new Error(
-                    `value: ${JSON.stringify(val)} cannot be coerced into a proper date
-                        the error: ${err.stack}`
-                );
-            }
-        },
+        }
     },
     {
         name: 'elasticsearch_name',
@@ -107,13 +105,14 @@ export const formats: TF.Format[] = [
             }
         },
         coerce(val: any) {
-            return toInteger(val) || 0;
+            return toInteger(val) || val;
         },
     },
     {
         name: 'optional_bool',
         validate(val: unknown) {
-            if (!val) return;
+            if (val == null) return;
+
             if (!isBoolean(val)) {
                 throw new Error(`If specified, must be convertible to a boolean. Received: ${val}`);
             }
@@ -123,54 +122,99 @@ export const formats: TF.Format[] = [
     {
         name: 'optional_int',
         validate(val: unknown) {
-            if (!val) return;
+            if (val == null) return;
+
             if (!isInteger(val)) {
-                throw new Error(`If specified, must be a boolean, 'true', or 'false'. Received: ${val}`);
+                throw new Error(`If specified, must be an integer. Received: ${val}`);
             }
         },
         coerce(val: unknown) {
-            try {
-                toIntegerOrThrow(val);
-            } catch (err) {
-                return val;
-            }
+            return toInteger(val) || val;
         },
     },
     {
         name: 'duration',
-        coerce: (v: string | number) => {
+        coerce: (v: unknown) => {
             if (typeof v === 'number') {
                 return v;
             }
-            let val;
-            const split = v.split(' ');
-            if (split.length == 1) {
-                // It must be an integer in string form.
-                val = parseInt(v, 10);
-            } else {
-                let unitString = split[1];
-                // Add an "s" as the unit of measurement used in Moment
-                if (!unitString.match(/s$/)) {
-                    unitString += 's';
+            if (typeof v === 'string') {
+                const split = v.split(' ');
+                if (split.length == 1) {
+                    // It must be an integer in string form.
+                    return parseInt(v, 10);
+                } else {
+                    let unitString = split[1];
+                    // Add an "s" as the unit of measurement used in Moment
+                    if (!unitString.match(/s$/)) {
+                        unitString += 's';
+                    }
+                    if (isMomentUnitOfTime(unitString)) {
+                        return moment.duration(parseInt(split[0], 10), unitString).asMilliseconds();
+                    }
                 }
-
-                if (!isMomentUnitOfTime(unitString)) {
-                    throw new Error(`Invalid duration unit: ${unitString}`);
-                }
-                val = moment.duration(
-                    parseInt(split[0], 10),
-                    unitString
-                ).valueOf();
             }
-            return val;
+            return v;
         },
         validate: function (x) {
-            const err_msg = 'must be a positive integer or human readable string (e.g. 3000, "5 days")';
+            const err_msg = 'must be a positive integer or human readable string containing a number and valid unit (e.g. 3000, "5 days")';
 
             if (Number.isInteger(x)) {
                 assert(x >= 0, err_msg);
             } else {
-                assert(x.match(/^(\d)+ (.+)$/), err_msg);
+                if (isString(x)) {
+                    const unitString = x.split(' ')[1];
+                    if (!isMomentUnitOfTime(unitString)) {
+                        throw new Error(`Invalid duration unit: ${unitString}`);
+                    }
+                    assert(x.match(/^(\d)+ (.+)$/), err_msg);
+                } else {
+                    throw new Error(err_msg);
+                }
+            }
+        }
+    },
+    {
+        name: 'optional_duration',
+        coerce: (v) => {
+            if (v == null) return v;
+            if (typeof v === 'number') {
+                return v;
+            }
+            if (typeof v === 'string') {
+                const split = v.split(' ');
+                if (split.length == 1) {
+                    // It must be an integer in string form.
+                    return parseInt(v, 10);
+                } else {
+                    let unitString = split[1];
+                    // Add an "s" as the unit of measurement used in Moment
+                    if (!unitString.match(/s$/)) {
+                        unitString += 's';
+                    }
+                    if (isMomentUnitOfTime(unitString)) {
+                        return moment.duration(parseInt(split[0], 10), unitString).asMilliseconds();
+                    }
+                }
+            }
+            return v;
+        },
+        validate: function (x) {
+            const err_msg = 'If specified, must be a positive integer or human readable string containing a number and valid unit (e.g. 3000, "5 days")';
+            if (x == null) return;
+
+            if (Number.isInteger(x)) {
+                assert(x >= 0, err_msg);
+            } else {
+                if (isString(x)) {
+                    const unitString = x.split(' ')[1];
+                    if (!isMomentUnitOfTime(unitString)) {
+                        throw new Error(`Invalid duration unit: ${unitString}`);
+                    }
+                    assert(x.match(/^(\d)+ (.+)$/), err_msg);
+                } else {
+                    throw new Error(err_msg);
+                }
             }
         }
     },
@@ -371,23 +415,19 @@ export class SchemaValidator<T = AnyObject> {
             finalFormat = this._getCustomFormatFromName(schemaObj.format) || schemaObj.format;
         }
 
-        if (Object.hasOwn(schemaObj, 'default')) {
-            try {
-                this._validateDefault(baseType, schemaObj.default);
-            } catch (err) {
-                throw new Error(`Invalid default value for key ${key.toString()}: ${schemaObj.default}`);
-            }
-
-            type = z.preprocess(
-                (val: unknown) => {
-                    // Only apply default for undefined, keep null as null
-                    return val === undefined ? schemaObj.default : val;
-                },
-                baseType.nullable()
-            );
-        } else {
-            type = baseType;
+        try {
+            this._validateDefault(baseType, schemaObj.default);
+        } catch (err) {
+            throw new Error(`Invalid default value for key ${key.toString()}: ${schemaObj.default}`);
         }
+
+        type = z.preprocess(
+            (val: unknown) => {
+                // Only apply default for undefined, keep null as null
+                return val === undefined ? schemaObj.default : val;
+            },
+            baseType
+        );
 
         if (schemaObj.default === undefined) {
             type = type.optional();
