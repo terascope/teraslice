@@ -1,7 +1,7 @@
 {
     "name": "@terascope/core-utils",
     "displayName": "Core Utils",
-    "version": "2.0.0-dev.11",
+    "version": "2.0.0-dev.12",
     "description": "A collection of Teraslice Core Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/core-utils#readme",
     "bugs": {
