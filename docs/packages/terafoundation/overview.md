@@ -108,7 +108,7 @@ You may pass in multiple different type of child process that behave differently
 
 We use schemas loosely based on the [convict](https://github.com/mozilla/node-convict) library for configuration validations. These are converted to [Zod](https://github.com/colinhacks/zod) schemas by the SchemaValidator wrapper class. Any top level program can pass down its schema as the config_schema parameter when instantiating terafoundation
 
-You may reference `system_schema.js` at the root of terafoundation for references
+You may reference `terafoundation/src/schema.ts` for examples.
 
 #### Context
 
