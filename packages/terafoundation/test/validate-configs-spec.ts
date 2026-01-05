@@ -70,12 +70,6 @@ describe('Validate Configs', () => {
                     'elasticsearch-next': {
                         default: {}
                     },
-                    hdfs_ha: {
-                        default: {}
-                    },
-                    hdfs: {
-                        default: {}
-                    },
                     s3: {
                         default: {}
                     },
@@ -102,22 +96,6 @@ describe('Validate Configs', () => {
                                 sniffOnConnectionFault: false,
                                 requestTimeout: 120000,
                                 maxRetries: 3,
-                            }
-                        },
-                        hdfs_ha: {
-                            default: {
-                                namenode_host: null,
-                                namenode_port: 50070,
-                                path_prefix: '/webhdfs/v1',
-                                user: 'hdfs'
-                            }
-                        },
-                        hdfs: {
-                            default: {
-                                namenode_host: 'localhost',
-                                namenode_port: 50070,
-                                path_prefix: '/webhdfs/v1',
-                                user: 'webuser'
                             }
                         },
                         s3: {
