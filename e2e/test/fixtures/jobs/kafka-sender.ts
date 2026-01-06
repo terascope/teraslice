@@ -5,21 +5,30 @@ export default {
     analytics: true,
     assets: ['kafka', 'elasticsearch'],
     max_retries: 0,
-    operations: [
+    apis: [
         {
-            _op: 'elasticsearch_reader',
+            _name: 'elasticsearch_reader_api',
             index: 'replace-me-1000',
             size: 500,
             date_field_name: 'created',
-            preserve_id: true
         },
         {
-            _op: 'kafka_sender',
-            connection: 'default',
+            _name: 'kafka_sender_api',
+            _connection: 'default',
             topic: 'replace-me-1000',
             size: 100,
             timestamp_field: 'created',
             _encoding: 'json'
+        }
+    ],
+    operations: [
+        {
+            _op: 'elasticsearch_reader',
+            _api_name: 'elasticsearch_reader_api',
+        },
+        {
+            _op: 'kafka_sender',
+            _api_name: 'kafka_sender_api',
         }
     ]
 };

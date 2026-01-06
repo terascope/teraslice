@@ -15,6 +15,14 @@ describe('Node master', () => {
         lifecycle: 'persistent',
         workers: 1,
         assets: ['elasticsearch', 'standard'],
+        apis: [
+            {
+                _name: 'elasticsearch_sender_api',
+                index: 'example-logs',
+                type: 'events',
+                size: 5000
+            }
+        ],
         operations: [
             {
                 _op: 'data_generator',
@@ -22,9 +30,7 @@ describe('Node master', () => {
             },
             {
                 _op: 'elasticsearch_bulk',
-                index: 'example-logs',
-                type: 'events',
-                size: 5000
+                _api_name: 'elasticsearch_sender_api'
             }
         ]
     };

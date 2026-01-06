@@ -10,6 +10,14 @@ const exampleJob = {
     lifecycle: 'once',
     workers: 1,
     assets: ['elasticsearch', 'standard'],
+    apis: [
+        {
+            _name: 'elasticsearch_sender_api',
+            index: 'client-test-logs',
+            type: 'events',
+            size: 50
+        }
+    ],
     operations: [
         {
             _op: 'data_generator',
@@ -17,9 +25,7 @@ const exampleJob = {
         },
         {
             _op: 'elasticsearch_bulk',
-            index: 'client-test-logs',
-            type: 'events',
-            size: 50
+            _api_name: 'elasticsearch_sender_api'
         }
     ]
 };

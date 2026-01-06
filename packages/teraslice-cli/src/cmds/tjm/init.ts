@@ -26,6 +26,14 @@ export default {
                 lifecycle: 'persistent',
                 workers: 3,
                 assets: ['elasticsearch', 'standard'],
+                apis: [
+                    {
+                        _name: 'elasticsearch_sender_api',
+                        size: 5000,
+                        index: 'example-logs',
+                        type: 'events'
+                    }
+                ],
                 operations: [
                     {
                         _op: 'data_generator',
@@ -33,9 +41,8 @@ export default {
                     },
                     {
                         _op: 'elasticsearch_bulk',
-                        size: 5000,
-                        index: 'example-logs',
-                        type: 'events'
+                        _api_name: 'elasticsearch_sender_api'
+
                     }
                 ]
             };

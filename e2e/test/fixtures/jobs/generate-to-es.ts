@@ -6,6 +6,13 @@ export default {
     analytics: false,
     assets: ['elasticsearch', 'standard'],
     max_retries: 0,
+    apis: [
+        {
+            _name: 'elasticsearch_sender_api',
+            index: 'replace-me-1000',
+            size: 1000
+        }
+    ],
     operations: [
         {
             _op: 'data_generator',
@@ -13,8 +20,7 @@ export default {
         },
         {
             _op: 'elasticsearch_bulk',
-            index: 'replace-me-1000',
-            size: 1000
+            _api_name: 'elasticsearch_sender_api'
         }
     ]
 };

@@ -104,13 +104,9 @@ describe('cluster state', () => {
         jobSpec.name = 'cluster state with 1 worker';
         jobSpec.workers = 1;
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.operations[0].size = 100;
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        jobSpec.apis[0].size = 100;
+        jobSpec.apis[1].index = specIndex;
 
         const ex = await terasliceHarness.submitAndStart(jobSpec, 5000);
 
@@ -153,13 +149,9 @@ describe('cluster state', () => {
         jobSpec.name = 'cluster state with 4 workers';
         jobSpec.workers = 4;
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.operations[0].size = 20;
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        jobSpec.apis[0].size = 20;
+        jobSpec.apis[1].index = specIndex;
 
         const ex = await terasliceHarness.submitAndStart(jobSpec, 5000);
         await pDelay(1000);

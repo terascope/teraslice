@@ -173,308 +173,308 @@ jobs:
           name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar 
 
-  # e2e-k8s-v2-tests:
-  #   if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #   needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_K8S) }}
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
+  e2e-k8s-v2-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_K8S) }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Install and build packages
-  #       run: yarn && yarn setup
+      - name: Install and build packages
+        run: yarn && yarn setup
 
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
 
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-  #         restore-keys: |
-  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
-  #           docker-images-
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
-  #     - name: Download dev docker image artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-  #         path: ${{ runner.temp }}
+      - name: Download dev docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          path: ${{ runner.temp }}
 
-  #     - name: Load dev docker image
-  #       run: |
-  #         docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-  #         docker image ls -a
+      - name: Load dev docker image
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          docker image ls -a
 
-  #     - name: Compile e2e code
-  #       run: yarn build
-  #       working-directory: ./e2e
+      - name: Compile e2e code
+        run: yarn build
+        working-directory: ./e2e
 
-  #     - name: Get Asset Bundle List From Artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: asset-bundle-txt-file-list
-  #         path: ${{ github.workspace }}/e2e/scripts
+      - name: Get Asset Bundle List From Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asset-bundle-txt-file-list
+          path: ${{ github.workspace }}/e2e/scripts
 
-  #     - name: Restore asset bundle cache
-  #       id: asset-bundle-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: /tmp/teraslice_assets
-  #         key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
+      - name: Restore asset bundle cache
+        id: asset-bundle-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/teraslice_assets
+          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
-  #     - name: Install Kind and Kubectl
-  #       uses: helm/kind-action@v1.10.0
-  #       with:
-  #         install_only: "true"
+      - name: Install Kind and Kubectl
+        uses: helm/kind-action@v1.10.0
+        with:
+          install_only: "true"
 
-  #     - name: Install Helmfile
-  #       run: |
-  #         curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
-  #         tar -xzf helmfile.tgz
-  #         chmod +x helmfile
-  #         mv helmfile /usr/local/bin/helmfile
-  #         helm plugin install https://github.com/databus23/helm-diff
-  #         helmfile version
-  #         helm version
+      - name: Install Helmfile
+        run: |
+          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
+          tar -xzf helmfile.tgz
+          chmod +x helmfile
+          mv helmfile /usr/local/bin/helmfile
+          helm plugin install https://github.com/databus23/helm-diff
+          helmfile version
+          helm version
 
-  #     - name: Test CLI Commands
-  #       run: |
-  #         command -v kind
-  #         command -v kubectl
-  #         command -v helm
-  #         command -v helmfile
+      - name: Test CLI Commands
+        run: |
+          command -v kind
+          command -v kubectl
+          command -v helm
+          command -v helmfile
 
-  #     - name: Test k8s V2 opensearch2
-  #       run: |
-  #         export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
-  #         export KAFKA_PORT=$(../scripts/get-random-port.sh)
-  #         export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-  #         NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2Helmfile
-  #       working-directory: ./e2e
+      - name: Test k8s V2 opensearch2
+        run: |
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2Helmfile
+        working-directory: ./e2e
 
-  # e2e-k8s-v2-encrypted-tests:
-  #   if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
-  #   runs-on: ubuntu-latest
-  #   needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
+  e2e-k8s-v2-encrypted-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+    runs-on: ubuntu-latest
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Install and build packages
-  #       run: yarn && yarn setup
+      - name: Install and build packages
+        run: yarn && yarn setup
 
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
 
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-  #         restore-keys: |
-  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
-  #           docker-images-
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
-  #     - name: Download dev docker image artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-  #         path: ${{ runner.temp }}
+      - name: Download dev docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          path: ${{ runner.temp }}
 
-  #     - name: Load dev docker image
-  #       run: |
-  #         docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-  #         docker image ls -a
+      - name: Load dev docker image
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          docker image ls -a
           
-  #     - name: Install mkcert
-  #       run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
+      - name: Install mkcert
+        run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
 
-  #     - name: Install grep
-  #       run: sudo apt update && sudo apt install grep
+      - name: Install grep
+        run: sudo apt update && sudo apt install grep
 
-  #     - name: Check mkcert
-  #       run: command -v mkcert
+      - name: Check mkcert
+        run: command -v mkcert
 
-  #     - name: Check grep
-  #       run: command -v grep
+      - name: Check grep
+        run: command -v grep
 
-  #     - name: Compile e2e code
-  #       run: yarn build
-  #       working-directory: ./e2e
+      - name: Compile e2e code
+        run: yarn build
+        working-directory: ./e2e
 
-  #     - name: Get Asset Bundle List From Artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: asset-bundle-txt-file-list
-  #         path: ${{ github.workspace }}/e2e/scripts
+      - name: Get Asset Bundle List From Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asset-bundle-txt-file-list
+          path: ${{ github.workspace }}/e2e/scripts
 
-  #     - name: Restore asset bundle cache
-  #       id: asset-bundle-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: /tmp/teraslice_assets
-  #         key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
+      - name: Restore asset bundle cache
+        id: asset-bundle-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/teraslice_assets
+          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
-  #     - name: Install Kind and Kubectl
-  #       uses: helm/kind-action@v1.10.0
-  #       with:
-  #         install_only: "true"
+      - name: Install Kind and Kubectl
+        uses: helm/kind-action@v1.10.0
+        with:
+          install_only: "true"
 
-  #     - name: Install Helmfile
-  #       run: |
-  #         curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
-  #         tar -xzf helmfile.tgz
-  #         chmod +x helmfile
-  #         mv helmfile /usr/local/bin/helmfile
-  #         helm plugin install https://github.com/databus23/helm-diff
-  #         helmfile version
-  #         helm version
+      - name: Install Helmfile
+        run: |
+          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
+          tar -xzf helmfile.tgz
+          chmod +x helmfile
+          mv helmfile /usr/local/bin/helmfile
+          helm plugin install https://github.com/databus23/helm-diff
+          helmfile version
+          helm version
 
-  #     - name: Test CLI Commands
-  #       run: |
-  #         command -v kind
-  #         command -v kubectl
-  #         command -v helm
-  #         command -v helmfile
+      - name: Test CLI Commands
+        run: |
+          command -v kind
+          command -v kubectl
+          command -v helm
+          command -v helmfile
 
-  #     - name: Test k8s V2 opensearch2
-  #       run: |
-  #         export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
-  #         export KAFKA_PORT=$(../scripts/get-random-port.sh)
-  #         export MINIO_PORT=$(../scripts/get-random-port.sh)
-  #         export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-  #         NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2HelmfileEncrypted
-  #       working-directory: ./e2e
+      - name: Test k8s V2 opensearch2
+        run: |
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2HelmfileEncrypted
+        working-directory: ./e2e
 
-  # e2e-external-storage-tests:
-  #   if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
-  #   env:
-  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #   runs-on: ubuntu-latest
-  #   needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
+  e2e-external-storage-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Install and build packages
-  #       run: yarn && yarn setup
+      - name: Install and build packages
+        run: yarn && yarn setup
 
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
 
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-  #         restore-keys: |
-  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
-  #           docker-images-
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
-  #     - name: Download dev docker image artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-  #         path: ${{ runner.temp }}
+      - name: Download dev docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          path: ${{ runner.temp }}
 
-  #     - name: Load dev docker image
-  #       run: |
-  #         docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-  #         docker image ls -a
+      - name: Load dev docker image
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          docker image ls -a
           
-  #     - name: Compile e2e code
-  #       run: yarn build
-  #       working-directory: ./e2e
+      - name: Compile e2e code
+        run: yarn build
+        working-directory: ./e2e
 
-  #     - name: Get Asset Bundle List From Artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: asset-bundle-txt-file-list
-  #         path: ${{ github.workspace }}/e2e/scripts
+      - name: Get Asset Bundle List From Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asset-bundle-txt-file-list
+          path: ${{ github.workspace }}/e2e/scripts
 
-  #     - name: Restore asset bundle cache
-  #       id: asset-bundle-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: /tmp/teraslice_assets
-  #         key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
+      - name: Restore asset bundle cache
+        id: asset-bundle-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/teraslice_assets
+          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
-  #     - name: Test external Asset Storage opensearch2
-  #       run: |
-  #         export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
-  #         export KAFKA_PORT=$(../scripts/get-random-port.sh)
-  #         export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
-  #         export MINIO_PORT=$(../scripts/get-random-port.sh)
-  #         export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-  #         NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:s3AssetStorage
-  #       working-directory: ./e2e
+      - name: Test external Asset Storage opensearch2
+        run: |
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:s3AssetStorage
+        working-directory: ./e2e
 
   teraslice-elasticsearch-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
@@ -820,91 +820,91 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true # optional (default = false)
 
-  # e2e-tests:
-  #   if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #   needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
-  #       search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
+  e2e-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Install and build packages
-  #       run: yarn && yarn setup
+      - name: Install and build packages
+        run: yarn && yarn setup
 
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
 
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-  #         restore-keys: |
-  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
-  #           docker-images-
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
-  #     - name: Download dev docker image artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-  #         path: ${{ runner.temp }}
+      - name: Download dev docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          path: ${{ runner.temp }}
 
-  #     - name: Load dev docker image
-  #       run: |
-  #         docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-  #         docker image ls -a
+      - name: Load dev docker image
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          docker image ls -a
           
-  #     - name: Compile e2e code
-  #       run: yarn build
-  #       working-directory: ./e2e
+      - name: Compile e2e code
+        run: yarn build
+        working-directory: ./e2e
 
-  #     - name: Get Asset Bundle List From Artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: asset-bundle-txt-file-list
-  #         path: ${{ github.workspace }}/e2e/scripts
+      - name: Get Asset Bundle List From Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asset-bundle-txt-file-list
+          path: ${{ github.workspace }}/e2e/scripts
 
-  #     - name: Restore asset bundle cache
-  #       id: asset-bundle-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: /tmp/teraslice_assets
-  #         key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
+      - name: Restore asset bundle cache
+        id: asset-bundle-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/teraslice_assets
+          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
-  #     - name: Test ${{ matrix.search-version }}
-  #       run: |
-  #         export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
-  #         export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
-  #         export KAFKA_PORT=$(../scripts/get-random-port.sh)
-  #         export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
-  #         export MINIO_PORT=$(../scripts/get-random-port.sh)
-  #         export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-  #         NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:${{ matrix.search-version }}
-  #       working-directory: ./e2e
+      - name: Test ${{ matrix.search-version }}
+        run: |
+          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:${{ matrix.search-version }}
+        working-directory: ./e2e
 
   test-website:
     if: needs.determine-tests-based-off-commit.outputs.website == 'true'
@@ -928,10 +928,10 @@ jobs:
   check-docker-limit-after:
     needs: [
       build-dev-docker-images,
-      # e2e-k8s-v2-encrypted-tests,
-      # e2e-external-storage-tests,
-      # e2e-k8s-v2-tests,
-      # e2e-tests,
+      e2e-k8s-v2-encrypted-tests,
+      e2e-external-storage-tests,
+      e2e-k8s-v2-tests,
+      e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
@@ -942,10 +942,10 @@ jobs:
   check-github-api-limit-after:
     needs: [
       build-dev-docker-images,
-      # e2e-k8s-v2-encrypted-tests,
-      # e2e-external-storage-tests,
-      # e2e-k8s-v2-tests,
-      # e2e-tests,
+      e2e-k8s-v2-encrypted-tests,
+      e2e-external-storage-tests,
+      e2e-k8s-v2-tests,
+      e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
@@ -958,10 +958,10 @@ jobs:
       [
         linux-unit-tests,
         build-dev-docker-images,
-        # e2e-k8s-v2-encrypted-tests,
-        # e2e-external-storage-tests,
-        # e2e-k8s-v2-tests,
-        # e2e-tests,
+        e2e-k8s-v2-encrypted-tests,
+        e2e-external-storage-tests,
+        e2e-k8s-v2-tests,
+        e2e-tests,
         elasticsearch-api-tests,
         elasticsearch-store-tests,
         teraslice-elasticsearch-tests,

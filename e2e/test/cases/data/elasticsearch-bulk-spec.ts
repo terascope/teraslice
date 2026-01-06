@@ -21,12 +21,8 @@ describe('elasticsearch bulk', () => {
         }
         jobSpec.name = 'multisend';
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        jobSpec.apis[1].index = specIndex;
 
         const count = await terasliceHarness.runEsJob(jobSpec, specIndex);
         expect(count).toBe(1000);

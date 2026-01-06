@@ -4,20 +4,28 @@ export default {
     lifecycle: 'once',
     analytics: false,
     assets: ['elasticsearch'],
-    operations: [
+    apis: [
         {
-            _op: 'elasticsearch_reader',
+            _name: 'elasticsearch_reader_api',
             index: 'replace-me-1000',
-            preserve_id: true,
             date_field_name: 'created',
             size: 500
         },
         {
-            _op: 'elasticsearch_bulk',
+            _name: 'elasticsearch_sender_api',
             index: 'multisend-1000',
-            preserve_id: true,
-            multisend_index_append: false,
             size: 100,
+        }
+    ],
+    operations: [
+        {
+            _op: 'elasticsearch_reader',
+            _api_name: 'elasticsearch_reader_api'
+        },
+        {
+            _op: 'elasticsearch_bulk',
+            _api_name: 'elasticsearch_sender_api',
+            multisend_index_append: false,
             multisend: true,
             connection_map: {
                 A: 'default',

@@ -18,13 +18,9 @@ async function workersTest(
     }
     jobSpec.name = 'worker allocation';
 
-    if (!jobSpec.operations) {
-        jobSpec.operations = [];
-    }
-
-    jobSpec.operations[0].index = harness.getExampleIndex(records);
-    jobSpec.operations[0].size = 100;
-    jobSpec.operations[1].index = specIndex;
+    jobSpec.apis[0].index = harness.getExampleIndex(records);
+    jobSpec.apis[0].size = 100;
+    jobSpec.apis[1].index = specIndex;
     jobSpec.workers = workers;
 
     harness.injectDelay(jobSpec);
