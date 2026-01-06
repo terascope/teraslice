@@ -114,15 +114,13 @@ The first operation in the [operations](#operations) list, reads from a particul
             "_name": "elasticsearch_reader_api:foo",
             "index": "ts_test_example-1000",
             "size": 10000,
-            "date_field_name": "created",
-            "preserve_id": true
+            "date_field_name": "created"
         },
         {
             "_name": "elasticsearch_reader_api:bar",
             "index": "some_other_index",
             "size": 20000,
-            "date_field_name": "_ingest",
-            "preserve_id": false
+            "date_field_name": "_ingest"
         }
     ],
     "operations": [
@@ -131,8 +129,7 @@ The first operation in the [operations](#operations) list, reads from a particul
             "api_name": "elasticsearch_reader_api:foo",
             "index": "ts_test_example-1000",
             "size": 10000,
-            "date_field_name": "created",
-            "preserve_id": true
+            "date_field_name": "created"
         },
         {
             "_op": "example_op",
@@ -223,15 +220,13 @@ In this example job, we are using two assets that both have an operation with th
         {
             "_name": "elasticsearch_sender_api@elasticsearch:4.0.5",
             "index": "op_asset_version_test",
-            "preserve_id": true,
             "size": 10000
         },
         {
             "_name": "elasticsearch_reader_api@elasticsearch:4.0.2",
             "index": "ts_test_example-1000",
             "size": 10000,
-            "date_field_name": "created",
-            "preserve_id": true
+            "date_field_name": "created"
         }
     ],
     "operations": [
@@ -240,14 +235,12 @@ In this example job, we are using two assets that both have an operation with th
             "api_name": "elasticsearch_reader_api@elasticsearch:4.0.2",
             "index": "ts_test_example-1000",
             "size": 10000,
-            "date_field_name": "created",
-            "preserve_id": true
+            "date_field_name": "created"
         },
         {
             "_op": "elasticsearch_bulk@elasticsearch:4.0.5",
             "api_name": "elasticsearch_sender_api@elasticsearch:4.0.5",
             "index": "op_asset_version_test",
-            "preserve_id": true,
             "size": 10000
         }
     ]

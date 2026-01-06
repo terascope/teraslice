@@ -11,7 +11,6 @@ export default {
             index: 'replace-me-1000',
             size: 500,
             date_field_name: 'created',
-            preserve_id: true
         },
         {
             _op: 'kafka_sender',
