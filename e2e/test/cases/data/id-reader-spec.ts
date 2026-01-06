@@ -28,13 +28,9 @@ describe.skip('id reader', () => {
             jobSpec.resources_requests_cpu = 0.1;
         }
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
         jobSpec.name = 'reindex by id';
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        jobSpec.apis[1].index = specIndex;
 
         const count = await terasliceHarness.runEsJob(jobSpec, specIndex);
         expect(count).toBe(1000);
@@ -49,13 +45,9 @@ describe.skip('id reader', () => {
         }
         jobSpec.name = 'reindex by hex id';
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].key_type = 'hexadecimal';
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000); // add hex
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].key_type = 'hexadecimal';
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000); // add hex
+        jobSpec.apis[1].index = specIndex;
 
         const count = await terasliceHarness.runEsJob(jobSpec, specIndex);
         expect(count).toBe(1000);
@@ -70,15 +62,11 @@ describe.skip('id reader', () => {
         }
         jobSpec.name = 'reindex by hex id (range=a..e)';
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
+        jobSpec.apis[0].key_type = 'hexadecimal';
+        jobSpec.apis[0].key_range = ['a', 'b', 'c', 'd', 'e'];
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000); // add hex
 
-        jobSpec.operations[0].key_type = 'hexadecimal';
-        jobSpec.operations[0].key_range = ['a', 'b', 'c', 'd', 'e'];
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000); // add hex
-
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[1].index = specIndex;
 
         const count = await terasliceHarness.runEsJob(jobSpec, specIndex);
         expect(count).toBe(500);
@@ -94,12 +82,8 @@ describe.skip('id reader', () => {
         // Job needs to be able to run long enough to cycle
         jobSpec.name = 'id-reader (with recovery)';
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        jobSpec.apis[1].index = specIndex;
 
         await terasliceHarness.testJobLifeCycle(jobSpec);
 

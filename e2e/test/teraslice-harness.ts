@@ -577,6 +577,13 @@ export class TerasliceHarness {
             lifecycle: 'once',
             workers: 1,
             assets: requiredAssets,
+            apis: [
+                {
+                    _name: 'elasticsearch_sender_api',
+                    index: indexName,
+                    size: 1000
+                }
+            ],
             operations: [
                 {
                     _op: 'data_generator',
@@ -584,8 +591,7 @@ export class TerasliceHarness {
                 },
                 {
                     _op: 'elasticsearch_bulk',
-                    index: indexName,
-                    size: 1000
+                    _api_name: 'elasticsearch_sender_api',
                 }
             ]
         } as any;

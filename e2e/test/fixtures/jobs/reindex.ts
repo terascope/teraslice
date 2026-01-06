@@ -4,17 +4,28 @@ export default {
     workers: 1,
     analytics: true,
     assets: ['elasticsearch'],
-    operations: [
+    apis: [
         {
-            _op: 'elasticsearch_reader',
+            _name: 'elasticsearch_reader_api',
             index: 'replace-me-100',
             size: 100,
             date_field_name: 'created',
         },
         {
-            _op: 'elasticsearch_bulk',
+            _name: 'elasticsearch_sender_api',
             index: 'replace-me-1000',
             size: 50
+        }
+    ],
+    operations: [
+        {
+            _op: 'elasticsearch_reader',
+            _api_name: 'elasticsearch_reader_api'
+
+        },
+        {
+            _op: 'elasticsearch_bulk',
+            _api_name: 'elasticsearch_sender_api'
         }
     ]
 };

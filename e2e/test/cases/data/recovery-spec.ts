@@ -52,12 +52,8 @@ describe('recovery', () => {
         jobSpec.assets = await terasliceHarness.getBaseAssetIds();
         specIndex = terasliceHarness.newSpecIndex('test-recovery-job');
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        jobSpec.apis[1].index = specIndex;
 
         terasliceHarness.injectDelay(jobSpec);
 

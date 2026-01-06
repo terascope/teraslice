@@ -5,10 +5,10 @@ export default {
     analytics: true,
     assets: ['kafka', 'elasticsearch'],
     max_retries: 0,
-    operations: [
+    apis: [
         {
-            _op: 'kafka_reader',
-            connection: 'default',
+            _name: 'kafka_reader_api',
+            _connection: 'default',
             topic: 'replace-me-1000',
             group: 'example-kafka-group',
             size: 300,
@@ -16,9 +16,19 @@ export default {
             _encoding: 'json'
         },
         {
-            _op: 'elasticsearch_bulk',
+            _name: 'elasticsearch_sender_api',
             index: 'replace-me-1000',
             size: 500
+        }
+    ],
+    operations: [
+        {
+            _op: 'kafka_reader',
+            _api_name: 'kafka_reader_api',
+        },
+        {
+            _op: 'elasticsearch_bulk',
+            _api_name: 'elasticsearch_sender_api'
         }
     ]
 };

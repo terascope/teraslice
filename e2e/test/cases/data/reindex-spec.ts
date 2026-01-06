@@ -23,12 +23,8 @@ describe('reindex', () => {
         jobSpec.name = 'basic reindex';
         const specIndex = terasliceHarness.newSpecIndex('reindex');
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(100);
+        jobSpec.apis[1].index = specIndex;
 
         const count = await terasliceHarness.runEsJob(jobSpec, specIndex);
         expect(count).toBe(100);
@@ -44,13 +40,9 @@ describe('reindex', () => {
             jobSpec.cpu_execution_controller = 0.4;
         }
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].query = 'bytes:>=99999999';
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].query = 'bytes:>=99999999';
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(100);
+        jobSpec.apis[1].index = specIndex;
 
         const ex = await terasliceHarness.teraslice.executions.submit(jobSpec);
         await terasliceHarness.waitForExStatus(ex, 'completed');
@@ -89,13 +81,9 @@ describe('reindex', () => {
             jobSpec.cpu_execution_controller = 0.4;
         }
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
-        jobSpec.operations[0].interval = '1s';
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(100);
+        jobSpec.apis[0].interval = '1s';
+        jobSpec.apis[1].index = specIndex;
 
         const promises = times(iterations, async () => {
             const ex = await terasliceHarness.teraslice.executions.submit(jobSpec);
@@ -119,13 +107,9 @@ describe('reindex', () => {
             jobSpec.cpu_execution_controller = 0.4;
         }
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
         // Job needs to be able to run long enough to cycle
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.operations[1].index = index;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        jobSpec.apis[1].index = index;
 
         await terasliceHarness.testJobLifeCycle(jobSpec);
 

@@ -35,20 +35,12 @@ describe('kafka', () => {
             readerSpec.cpu_execution_controller = 0.4;
         }
 
-        if (!senderSpec.operations) {
-            senderSpec.operations = [];
-        }
+        senderSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        senderSpec.apis[1].topic = topic;
 
-        if (!readerSpec.operations) {
-            readerSpec.operations = [];
-        }
-
-        senderSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        senderSpec.operations[1].topic = topic;
-
-        readerSpec.operations[0].topic = topic;
-        readerSpec.operations[0].group = groupId;
-        readerSpec.operations[1].index = specIndex;
+        readerSpec.apis[0].topic = topic;
+        readerSpec.apis[0].group = groupId;
+        readerSpec.apis[1].index = specIndex;
 
         const sender = await terasliceHarness.teraslice.executions.submit(senderSpec);
 

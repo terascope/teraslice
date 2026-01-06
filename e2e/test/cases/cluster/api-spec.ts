@@ -72,12 +72,8 @@ describe('cluster api', () => {
             jobSpec.resources_requests_cpu = 0.05;
         }
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(100);
+        jobSpec.apis[1].index = specIndex;
 
         async function didError(p: Promise<void>) {
             try {

@@ -19,11 +19,7 @@ describe('job validation', () => {
             jobSpec.resources_requests_cpu = 0.1;
         }
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[1].index = ''; // index selector
+        jobSpec.apis[1].index = ''; // index selector
 
         return terasliceHarness.teraslice
             .jobs.submit(jobSpec)
@@ -40,11 +36,7 @@ describe('job validation', () => {
             jobSpec.resources_requests_cpu = 0.1;
         }
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = ''; // reader
+        jobSpec.apis[0].index = ''; // reader
 
         return terasliceHarness.teraslice
             .jobs.submit(jobSpec)
