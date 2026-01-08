@@ -1,5 +1,5 @@
 import BatchProcessor from './batch-processor.js';
-import BaseSchema from './convict-schema.js';
+import BaseSchema from './base-schema.js';
 import EachProcessor from './each-processor.js';
 import Fetcher from './fetcher.js';
 import FilterProcessor from './filter-processor.js';
