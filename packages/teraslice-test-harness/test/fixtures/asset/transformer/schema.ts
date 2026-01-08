@@ -1,7 +1,7 @@
-import { ConvictSchema } from '@terascope/job-components';
+import { BaseSchema } from '@terascope/job-components';
 import { TransformerConfig, actions } from './interfaces';
 
-export default class Schema extends ConvictSchema<TransformerConfig> {
+export default class Schema extends BaseSchema<TransformerConfig> {
     build(): Record<string, any> {
         return {
             action: {

@@ -1,10 +1,10 @@
-import { ConvictSchema } from '@terascope/job-components';
+import { BaseSchema } from '@terascope/job-components';
 
 export interface ExampleSchema {
     example: string;
 }
 
-export default class Schema extends ConvictSchema<ExampleSchema> {
+export default class Schema extends BaseSchema<ExampleSchema> {
     build() {
         return {
             example: {

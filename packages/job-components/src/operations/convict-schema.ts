@@ -9,7 +9,7 @@ import { validateOpConfig, validateAPIConfig } from '../config-validators.js';
 /**
  * A base class for supporting convict style "Schema" definitions
  */
-export default abstract class ConvictSchema<T extends Record<string, any>, S = any>
+export default abstract class BaseSchema<T extends Record<string, any>, S = any>
     extends SchemaCore<T> {
     // ...
     schema: Terafoundation.Schema<S>;

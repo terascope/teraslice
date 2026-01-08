@@ -1,10 +1,10 @@
-import { ConvictSchema } from '@terascope/job-components';
+import { BaseSchema } from '@terascope/job-components';
 
 const defaultResults = Array.from(Array(10)).map(() => ({ hi: true }));
 const defaultSlicerResults = [{ howdy: true }, null];
 const defaultSlicerQueueLength = '10';
 
-export default class Schema extends ConvictSchema<Record<string, any>> {
+export default class Schema extends BaseSchema<Record<string, any>> {
     build() {
         return {
             errorAt: {

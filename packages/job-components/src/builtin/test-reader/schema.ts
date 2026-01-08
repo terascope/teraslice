@@ -1,7 +1,7 @@
 import { TestReaderConfig } from './interfaces.js';
-import { ConvictSchema } from '../../operations/index.js';
+import { BaseSchema } from '../../operations/index.js';
 
-export default class Schema extends ConvictSchema<TestReaderConfig> {
+export default class Schema extends BaseSchema<TestReaderConfig> {
     build(): Record<string, any> {
         return {
             fetcher_data_file_path: {
