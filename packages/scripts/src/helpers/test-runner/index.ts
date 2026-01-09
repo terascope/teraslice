@@ -294,7 +294,8 @@ async function runE2ETest(
             if (options.useHelmfile) {
                 // Do not set up pod logging in CI
                 // TODO: We may want to archive CI logs in the future
-                const podLogs = !isCI && options.logs;
+                // const podLogs = !isCI && options.logs;
+                const podLogs = true;
                 const timeLabel = 'helmfile deployment';
                 await loadImagesForHelm(options.kindClusterName, options.skipImageDeletion);
                 signale.time(timeLabel);

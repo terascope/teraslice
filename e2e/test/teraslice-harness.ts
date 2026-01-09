@@ -646,6 +646,7 @@ export class TerasliceHarness {
      */
     async validateAssets(assetsArray: string[]): Promise<void> {
         const assets = await this.teraslice.assets.list();
+        signale.debug('assets list: ', JSON.stringify(assets));
 
         for (const requiredAsset of assetsArray) {
             let found = false;

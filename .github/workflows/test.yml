@@ -392,6 +392,9 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2HelmfileEncrypted
         working-directory: ./e2e
 
+      - name: Teraslice Errors
+        run: e2e/scripts/filter_log_errors.sh e2e/logs/teraslice.log
+
   e2e-external-storage-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     env:
