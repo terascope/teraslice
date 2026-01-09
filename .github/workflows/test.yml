@@ -394,7 +394,11 @@ jobs:
 
       - name: Teraslice Errors
         if: always()
-        run: e2e/scripts/filter_log_errors.sh e2e/logs/teraslice.log
+        run: |
+          echo 'Teraslice Logs:'
+          cat e2e/logs/teraslice.log
+          echo 'Service Logs:'
+          cat e2e/logs/services.log
 
   e2e-external-storage-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
