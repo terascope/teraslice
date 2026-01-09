@@ -393,6 +393,7 @@ jobs:
         working-directory: ./e2e
 
       - name: Teraslice Errors
+        if: always()
         run: e2e/scripts/filter_log_errors.sh e2e/logs/teraslice.log
 
   e2e-external-storage-tests:
