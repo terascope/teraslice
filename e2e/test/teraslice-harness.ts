@@ -484,16 +484,6 @@ export class TerasliceHarness {
         const endAt = Date.now() + timeoutMs;
 
         const _waitForClusterState = async (): Promise<number> => {
-                const [disk, mem] = await Promise.all([
-                execa("df", ["-h", "/"]),
-                execa("free", ["-h"])
-                ]);
-
-                console.log("=== DISK ===");
-                console.log(disk.stdout);
-
-                console.log("=== MEMORY ===");
-                console.log(mem.stdout);
             if (Date.now() > endAt) {
                 const [disk, mem] = await Promise.all([
                 execa("df", ["-h", "/"]),

@@ -562,8 +562,33 @@ export async function loadThenDeleteImageFromCache(
 }
 
 export async function deleteDockerImageCache() {
+        const [disk, mem, dirCache] = await Promise.all([
+        execa("df", ["-h", "/"]),
+        execa("free", ["-h"]),
+        execa("tree", ["-h", `${config.DOCKER_CACHE_PATH}`])
+        ]);
+
+        console.log("=== DISK ===");
+        console.log(disk.stdout);
+
+        console.log("=== MEMORY ===");
+        console.log(mem.stdout);
+
+        console.log("=== TREE ===");
+        console.log(dirCache.stdout);
     signale.info(`Deleting Docker image cache at ${config.DOCKER_CACHE_PATH}`);
     fse.removeSync(config.DOCKER_CACHE_PATH);
+        const [disk2, mem2] = await Promise.all([
+        execa("df", ["-h", "/"]),
+        execa("free", ["-h"])
+        ]);
+
+        console.log("=== DISK ===");
+        console.log(disk2.stdout);
+
+        console.log("=== MEMORY ===");
+        console.log(mem2.stdout);
+
 }
 
 export async function pgrep(name: string): Promise<string> {
