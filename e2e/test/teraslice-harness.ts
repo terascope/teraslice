@@ -1,4 +1,5 @@
 import ms from 'ms';
+import { execa } from 'execa';
 import {
     pDelay, uniq, toString,
     cloneDeep, isEmpty, castArray, pRetry
@@ -483,7 +484,28 @@ export class TerasliceHarness {
         const endAt = Date.now() + timeoutMs;
 
         const _waitForClusterState = async (): Promise<number> => {
+                const [disk, mem] = await Promise.all([
+                execa("df", ["-h", "/"]),
+                execa("free", ["-h"])
+                ]);
+
+                console.log("=== DISK ===");
+                console.log(disk.stdout);
+
+                console.log("=== MEMORY ===");
+                console.log(mem.stdout);
             if (Date.now() > endAt) {
+                const [disk, mem] = await Promise.all([
+                execa("df", ["-h", "/"]),
+                execa("free", ["-h"])
+                ]);
+
+                console.log("=== DISK ===");
+                console.log(disk.stdout);
+
+                console.log("=== MEMORY ===");
+                console.log(mem.stdout);
+
                 throw new Error(`Failure to communicate with the Cluster Master as ${timeoutMs}ms`);
             }
 
@@ -547,6 +569,7 @@ export class TerasliceHarness {
         const startTime = Date.now();
         signale.pending('Waiting for Teraslice...');
 
+
         const nodes = await this.waitForClusterState();
 
         if (TEST_PLATFORM === 'kubernetesV2') {
@@ -599,7 +622,7 @@ export class TerasliceHarness {
         signale.info(`Validating assets..`);
         await pRetry(async () => {
             await this.validateAssets(requiredAssets);
-        });
+        }, { retries: 10 });
         signale.success(`Assets validated successfully!`);
 
         try {
@@ -648,6 +671,7 @@ export class TerasliceHarness {
      */
     async validateAssets(assetsArray: string[]): Promise<void> {
         const assets = await this.teraslice.assets.list();
+        signale.info('@asset list: ', assets);
 
         for (const requiredAsset of assetsArray) {
             let found = false;

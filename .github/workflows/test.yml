@@ -306,10 +306,20 @@ jobs:
       - name: Install and build packages
         run: yarn && yarn setup
 
+      - name: check resources1
+        run: |
+          df -h /
+          free -h
+
       - name: Create Docker Image List
         run: |
           yarn docker:listImages
           cat ./images/image-list.txt
+
+      - name: check resources2
+        run: |
+          df -h /
+          free -h
 
       - name: Restore Docker image cache
         id: docker-cache
@@ -321,16 +331,31 @@ jobs:
             docker-images-${{ hashFiles('./images/image-list.txt') }}-
             docker-images-
 
+      - name: check resources3
+        run: |
+          df -h /
+          free -h
+
       - name: Download dev docker image artifact
         uses: actions/download-artifact@v4
         with:
           name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}
 
+      - name: check resources4
+        run: |
+          df -h /
+          free -h
+
       - name: Load dev docker image
         run: |
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
+
+      - name: check resources5
+        run: |
+          df -h /
+          free -h
           
       - name: Install mkcert
         run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
@@ -347,6 +372,11 @@ jobs:
       - name: Compile e2e code
         run: yarn build
         working-directory: ./e2e
+
+      - name: check resources6
+        run: |
+          df -h /
+          free -h
 
       - name: Get Asset Bundle List From Artifact
         uses: actions/download-artifact@v4
@@ -382,6 +412,11 @@ jobs:
           command -v kubectl
           command -v helm
           command -v helmfile
+
+      - name: check resources7
+        run: |
+          df -h /
+          free -h
 
       - name: Test k8s V2 opensearch2
         run: |
