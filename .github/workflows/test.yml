@@ -287,6 +287,11 @@ jobs:
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
     steps:
+
+      - name: check resources0
+        run: |
+          df -h /
+          free -h
       - name: Check out code
         uses: actions/checkout@v4
 

@@ -22,6 +22,8 @@ config:
 
         {{- end }}
 
+        cluster.routing.allocation.disk.watermark.high: "95%"
+
         ##@ Set all the security plugins when ssl is enabled
         ##@ The path to the pem files are hard-coded and rely on the "/cert" volume below
         {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
