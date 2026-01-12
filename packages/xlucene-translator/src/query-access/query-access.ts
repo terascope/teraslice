@@ -242,8 +242,8 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
         }
         const params = { ..._params };
 
-        // const parser = this._restrict(query, {}, _overrideParsedQuery);
         const parser = this._restrict(query, variables, _overrideParsedQuery);
+
         await pImmediate();
 
         const translator = this._translator.make(parser, {
