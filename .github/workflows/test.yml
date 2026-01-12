@@ -393,10 +393,9 @@ jobs:
           df -h
       - name: Free up space before tests
         run: |
-          # Clean everything EXCEPT node_modules
-          docker system prune -af --volumes
           rm -rf .yarn/cache  # Yarn 4 cache
           rm -rf dist/**/*.map
+          # Remove runner libraries we don't use
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
 
       - name: check resources2
