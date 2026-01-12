@@ -74,8 +74,8 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
      *
      * @returns a restricted xlucene query
      */
-    restrict(q: string): string {
-        return this._restrict(q).query;
+    restrict(q: string, variables?: xLuceneVariables): string {
+        return this._restrict(q, variables).query;
     }
 
     /**
@@ -83,12 +83,17 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
      *
      * @returns a restricted xlucene query
      */
-    private _restrict(q: string, _overrideParsedQuery?: Node): Parser {
+    private _restrict(
+        q: string,
+        variables?: xLuceneVariables,
+        _overrideParsedQuery?: Node
+    ): Parser {
         let parser: Parser;
 
+        const variablesMerged = Object.assign({}, this.variables, variables);
         const parserOptions: ParserOptions = {
             type_config: this.typeConfig,
-            variables: this.variables,
+            variables: variablesMerged,
             filterNilVariables: this.filterNilVariables
         };
 
@@ -237,8 +242,8 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
         }
         const params = { ..._params };
 
-        const parser = this._restrict(query, _overrideParsedQuery);
-
+        // const parser = this._restrict(query, {}, _overrideParsedQuery);
+        const parser = this._restrict(query, variables, _overrideParsedQuery);
         await pImmediate();
 
         const translator = this._translator.make(parser, {
