@@ -18,7 +18,6 @@ import generatorJob from './fixtures/jobs/generator.js';
 import idJob from './fixtures/jobs/id.js';
 import kafkaReaderJob from './fixtures/jobs/kafka-reader.js';
 import kafkaSenderJob from './fixtures/jobs/kafka-sender.js';
-import multisendJob from './fixtures/jobs/multisend.js';
 import reindexJob from './fixtures/jobs/reindex.js';
 import { defaultAssetBundles } from './download-assets.js';
 
@@ -37,7 +36,6 @@ const JobDict = Object.freeze({
     id: idJob,
     'kafka-reader': kafkaReaderJob,
     'kafka-sender': kafkaSenderJob,
-    multisend: multisendJob,
     reindex: reindexJob,
 });
 

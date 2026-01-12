@@ -1,6 +1,6 @@
-import { ConvictSchema } from '../../../../src/index.js';
+import { BaseSchema } from '../../../../src/index.js';
 
-export class AssetSchemaAPI extends ConvictSchema<any, any> {
+export class AssetSchemaAPI extends BaseSchema<any, any> {
     build(): Record<string, any> {
         return {
             'new-asset-example': {

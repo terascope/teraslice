@@ -373,7 +373,7 @@ export class SchemaValidator<T = AnyObject> {
         for (const key in schema) {
             const value = schema[key];
             if (isSchemaObj<T>(value)) {
-                fields[key] = this._convictSchemaObjToZod(value, key);
+                fields[key] = this._BaseSchemaObjToZod(value, key);
                 defaults[key] = value.default;
             } else {
                 fields[key] = this._convictStyleSchemaToZod(
@@ -394,7 +394,7 @@ export class SchemaValidator<T = AnyObject> {
      * @param { PropertyKey } key The name of the property that uses the schemaObj
      * @returns { ZodType } A Zod schema object
      */
-    _convictSchemaObjToZod(
+    _BaseSchemaObjToZod(
         schemaObj: TF.SchemaObj,
         key: PropertyKey
     ) {

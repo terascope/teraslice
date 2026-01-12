@@ -1,6 +1,6 @@
-import { ConvictSchema, ValidatedJobConfig } from '../../../../src/index.js';
+import { BaseSchema, ValidatedJobConfig } from '../../../../src/index.js';
 
-export default class Schema extends ConvictSchema<any, any> {
+export default class Schema extends BaseSchema<any, any> {
     validateJob(job: ValidatedJobConfig): void {
         const shouldFail = job.operations.find((op) => op.failCrossValidation);
         if (shouldFail) {

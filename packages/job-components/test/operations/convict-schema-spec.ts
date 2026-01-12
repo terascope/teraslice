@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { ConvictSchema, TestContext, OpConfig } from '../../src/index.js';
+import { BaseSchema, TestContext, OpConfig } from '../../src/index.js';
 
 describe('Convict Schema', () => {
     const context = new TestContext('job-components');
@@ -8,7 +8,7 @@ describe('Convict Schema', () => {
         example: string;
     }
 
-    class ExampleSchema extends ConvictSchema<ExampleOpConfig> {
+    class ExampleSchema extends BaseSchema<ExampleOpConfig> {
         build() {
             return {
                 example: {
@@ -56,7 +56,7 @@ describe('Convict Schema', () => {
 
     describe('#type', () => {
         it('should return convict', () => {
-            expect(ConvictSchema.type()).toEqual('convict');
+            expect(BaseSchema.type()).toEqual('convict');
         });
     });
 });

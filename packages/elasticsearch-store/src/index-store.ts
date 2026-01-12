@@ -923,8 +923,9 @@ export class IndexStore<T extends Record<string, any>> {
         queryAccess?: QueryAccess<T>
     ) {
         const _queryAccess = (queryAccess || this._defaultQueryAccess);
+
         const query = _queryAccess
-            ? _queryAccess.restrict(q)
+            ? _queryAccess.restrict(q, options?.variables)
             : q;
 
         const translator = this._translator.make(query, {

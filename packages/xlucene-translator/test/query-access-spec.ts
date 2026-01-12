@@ -910,6 +910,45 @@ describe('QueryAccess', () => {
                 _source_excludes: []
             });
         });
+
+        it('can work with numerical variables provided through restrictSearchQuery options', async () => {
+            const queryAccessVariables = new QueryAccess({
+                allow_implicit_queries: true,
+                filterNilVariables: false,
+                allow_empty_queries: false,
+                excludes: [],
+                includes: ['foo'],
+                type_config: {
+                    foo: xLuceneFieldType.Integer,
+                    bar: xLuceneFieldType.String,
+                }
+            });
+
+            const variables = {
+                foo1: 1,
+                foo2: ['some', 'thing'],
+                bar1: 'I am bar',
+            };
+
+            const q = 'foo:$foo1';
+            const result = await queryAccessVariables.restrictSearchQuery(q, { variables });
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                term: {
+                                    foo: 1
+                                }
+                            }
+                        }
+                    }
+                },
+                _source_includes: ['foo'],
+                _source_excludes: []
+            });
+        });
     });
 
     describe('can work with filterNilVariables set true', () => {
