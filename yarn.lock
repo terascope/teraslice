@@ -6427,7 +6427,7 @@ __metadata:
     ajv-formats: "npm:~3.0.1"
     setimmediate: "npm:~1.0.5"
     uuid: "npm:~13.0.0"
-    xlucene-translator: "npm:~2.0.0-rc.0"
+    xlucene-translator: "npm:~2.0.0-rc.1"
   languageName: unknown
   linkType: soft
 
@@ -14061,7 +14061,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"xlucene-translator@npm:~2.0.0-rc.0, xlucene-translator@workspace:packages/xlucene-translator":
+"xlucene-translator@npm:~2.0.0-rc.1, xlucene-translator@workspace:packages/xlucene-translator":
   version: 0.0.0-use.local
   resolution: "xlucene-translator@workspace:packages/xlucene-translator"
   dependencies:
