@@ -409,6 +409,10 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2HelmfileEncrypted
         working-directory: ./e2e
 
+      - name: check resources3
+        run: |
+          df -h
+
       - name: Teraslice Errors
         if: always()
         run: |
@@ -427,7 +431,7 @@ jobs:
         id: upload-logs-artifact
         uses: actions/upload-artifact@v4
         with:
-          name: stern-logs/${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}/$GITHUB_JOB/node-${{ matrix.node-version }}
+          name: stern-logs.commit-${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}.job-$GITHUB_JOB.node-${{ matrix.node-version }}
           path: e2e/logs/*.log
           retention-days: 14
 
