@@ -287,6 +287,9 @@ jobs:
       matrix:
         node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
     steps:
+      - name: check resources0
+        run: |
+          df -h
       - name: Check out code
         uses: actions/checkout@v4
 
@@ -370,6 +373,7 @@ jobs:
         run: |
           curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
           tar -xzf helmfile.tgz
+          rm helmfile.tgz
           chmod +x helmfile
           mv helmfile /usr/local/bin/helmfile
           helm plugin install https://github.com/databus23/helm-diff
@@ -382,6 +386,21 @@ jobs:
           command -v kubectl
           command -v helm
           command -v helmfile
+
+      - name: check resources1
+        run: |
+          df -h
+      - name: Free up space before tests
+        run: |
+          # Clean everything EXCEPT node_modules
+          docker system prune -af --volumes
+          rm -rf .yarn/cache  # Yarn 4 cache
+          rm -rf dist/**/*.map
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
+
+      - name: check resources2
+        run: |
+          df -h
 
       - name: Test k8s V2 opensearch2
         run: |
@@ -399,6 +418,20 @@ jobs:
           cat e2e/logs/teraslice.log
           echo 'Service Logs:'
           cat e2e/logs/k8s-services.log
+
+      - name: Get Commit Short SHA
+        id: get-short-sha
+        run: |
+          calculatedSha=$(git rev-parse --short ${{ github.event.pull_request.head.sha || github.sha }})
+          echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_OUTPUT
+
+      - name: upload logs artifact
+        id: upload-logs-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: stern-logs/${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}/$GITHUB_JOB/node-${{ matrix.node-version }}
+          path: e2e/logs/*.log
+          retention-days: 14
 
   # e2e-external-storage-tests:
   #   if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
