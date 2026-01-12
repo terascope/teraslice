@@ -394,7 +394,7 @@ jobs:
       - name: Free up space before tests
         run: |
           # Remove runner libraries we don't use
-          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost
 
       - name: check resources2
         run: |
