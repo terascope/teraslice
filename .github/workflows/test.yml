@@ -333,6 +333,7 @@ jobs:
       - name: Load dev docker image
         run: |
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
           
       - name: Install mkcert
