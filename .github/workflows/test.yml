@@ -269,6 +269,13 @@ jobs:
           command -v helm
           command -v helmfile
 
+      - name: Free up space before tests
+        run: |
+          df -h
+          # Remove Android, DotNet, Haskell, and C++ libraries we don't need
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost
+          df -h
+
       - name: Test k8s V2 opensearch2
         run: |
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
