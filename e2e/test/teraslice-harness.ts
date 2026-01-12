@@ -608,9 +608,9 @@ export class TerasliceHarness {
             }
 
             if (hex) {
-                jobSpec.operations[0].size = count / hex.length;
-                jobSpec.operations[0].set_id = 'hexadecimal';
-                jobSpec.operations[1].id_field = 'id';
+                jobSpec.apis[0].size = count / hex.length;
+                jobSpec.apis[0].set_id = 'hexadecimal';
+                jobSpec.apis[1].id_field = 'id';
 
                 const result = await Promise.all(hex.map((letter) => {
                     jobSpec.name = `Generate: ${indexName}[${letter}]`;
