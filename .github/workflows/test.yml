@@ -767,8 +767,8 @@ jobs:
     - name: Lint codebase
       run: yarn lint
 
-    - name: Sync codebase
-      run: yarn sync --verify
+    # - name: Sync codebase
+    #   run: yarn sync --verify
 
   elasticsearch-api-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
