@@ -3001,7 +3001,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/core-utils@npm:~2.0.0, @terascope/core-utils@npm:~2.0.0-dev.12, @terascope/core-utils@npm:~2.0.0-rc.0, @terascope/core-utils@workspace:packages/core-utils":
+"@terascope/core-utils@npm:~2.0.0, @terascope/core-utils@npm:~2.0.0-dev.12, @terascope/core-utils@workspace:packages/core-utils":
   version: 0.0.0-use.local
   resolution: "@terascope/core-utils@workspace:packages/core-utils"
   dependencies:
@@ -3084,7 +3084,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/elasticsearch-api@npm:~5.0.0, @terascope/elasticsearch-api@npm:~5.0.0-rc.0, @terascope/elasticsearch-api@workspace:packages/elasticsearch-api":
+"@terascope/elasticsearch-api@npm:~5.0.0, @terascope/elasticsearch-api@workspace:packages/elasticsearch-api":
   version: 0.0.0-use.local
   resolution: "@terascope/elasticsearch-api@workspace:packages/elasticsearch-api"
   dependencies:
@@ -3194,7 +3194,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/job-components@npm:~2.0.0, @terascope/job-components@npm:~2.0.0-rc.1, @terascope/job-components@workspace:packages/job-components":
+"@terascope/job-components@npm:~2.0.0, @terascope/job-components@workspace:packages/job-components":
   version: 0.0.0-use.local
   resolution: "@terascope/job-components@workspace:packages/job-components"
   dependencies:
@@ -3211,7 +3211,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/opensearch-client@npm:~2.0.0, @terascope/opensearch-client@npm:~2.0.0-rc.0, @terascope/opensearch-client@workspace:packages/opensearch-client":
+"@terascope/opensearch-client@npm:~2.0.0, @terascope/opensearch-client@workspace:packages/opensearch-client":
   version: 0.0.0-use.local
   resolution: "@terascope/opensearch-client@workspace:packages/opensearch-client"
   dependencies:
@@ -3273,7 +3273,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/teraslice-messaging@npm:~2.0.0-rc.0, @terascope/teraslice-messaging@workspace:packages/teraslice-messaging":
+"@terascope/teraslice-messaging@npm:~2.0.0, @terascope/teraslice-messaging@workspace:packages/teraslice-messaging":
   version: 0.0.0-use.local
   resolution: "@terascope/teraslice-messaging@workspace:packages/teraslice-messaging"
   dependencies:
@@ -3299,7 +3299,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/types@npm:~2.0.0, @terascope/types@npm:~2.0.0-rc.0, @terascope/types@workspace:packages/types":
+"@terascope/types@npm:~2.0.0, @terascope/types@workspace:packages/types":
   version: 0.0.0-use.local
   resolution: "@terascope/types@workspace:packages/types"
   dependencies:
@@ -12919,10 +12919,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "terafoundation@workspace:packages/terafoundation"
   dependencies:
-    "@terascope/core-utils": "npm:~2.0.0-rc.0"
+    "@terascope/core-utils": "npm:~2.0.0"
     "@terascope/file-asset-apis": "npm:~2.0.0-dev.0"
-    "@terascope/opensearch-client": "npm:~2.0.0-rc.0"
-    "@terascope/types": "npm:~2.0.0-rc.0"
+    "@terascope/opensearch-client": "npm:~2.0.0"
+    "@terascope/types": "npm:~2.0.0"
     "@types/bunyan": "npm:~1.8.11"
     "@types/elasticsearch": "npm:~5.0.43"
     "@types/express": "npm:~5.0.3"
@@ -13043,12 +13043,12 @@ __metadata:
   resolution: "teraslice@workspace:packages/teraslice"
   dependencies:
     "@kubernetes/client-node": "npm:~1.3.0"
-    "@terascope/core-utils": "npm:~2.0.0-rc.0"
-    "@terascope/elasticsearch-api": "npm:~5.0.0-rc.0"
-    "@terascope/job-components": "npm:~2.0.0-rc.1"
-    "@terascope/opensearch-client": "npm:~2.0.0-rc.0"
-    "@terascope/teraslice-messaging": "npm:~2.0.0-rc.0"
-    "@terascope/types": "npm:~2.0.0-rc.0"
+    "@terascope/core-utils": "npm:~2.0.0"
+    "@terascope/elasticsearch-api": "npm:~5.0.0"
+    "@terascope/job-components": "npm:~2.0.0"
+    "@terascope/opensearch-client": "npm:~2.0.0"
+    "@terascope/teraslice-messaging": "npm:~2.0.0"
+    "@terascope/types": "npm:~2.0.0"
     "@types/archiver": "npm:~6.0.3"
     "@types/body-parser": "npm:^1.19.6"
     "@types/decompress": "npm:^4.2.7"
