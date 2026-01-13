@@ -1,9 +1,11 @@
 import { createReadStream } from 'node:fs';
-import { cloneDeep, pDelay } from '@terascope/utils';
+import { cloneDeep, pDelay } from '@terascope/core-utils';
 import { JobConfig } from '@terascope/types';
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
 import { Ex, Job } from 'teraslice-client-js';
+
+const { TEST_PLATFORM } = config;
 
 describe('cluster api', () => {
     let terasliceHarness: TerasliceHarness;
@@ -19,7 +21,7 @@ describe('cluster api', () => {
         const testStream = createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.05;
         }
         await terasliceHarness.teraslice.assets.upload(testStream, {
@@ -36,7 +38,7 @@ describe('cluster api', () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         const { workers, slicers } = jobSpec;
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.05;
         }
         const alteredJob: Partial<JobConfig> = cloneDeep(jobSpec);
@@ -66,16 +68,12 @@ describe('cluster api', () => {
         const specIndex = terasliceHarness.newSpecIndex('api');
         jobSpec.name = 'basic reindex for lifecycle';
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.05;
         }
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(100);
+        jobSpec.apis[1].index = specIndex;
 
         async function didError(p: Promise<void>) {
             try {
@@ -167,7 +165,7 @@ describe('cluster api', () => {
         beforeAll(async () => {
             jobSpec = terasliceHarness.newJob('generator');
             // Set resource constraints on workers within CI
-            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+            if (TEST_PLATFORM === 'kubernetesV2') {
                 jobSpec.resources_requests_cpu = 0.05;
             }
 

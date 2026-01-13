@@ -1,13 +1,14 @@
 import {
     pDelay, times, random,
     isNotNil
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { ExecutionController as ExController } from '@terascope/teraslice-messaging';
 import { ExecutionConfig } from '@terascope/types';
 import { TestContext } from '../helpers/index.js';
 import { getTestCases } from '../helpers/execution-controller-helper.js';
 import { findPort } from '../../../src/lib/utils/port_utils.js';
 import { newId } from '../../../src/lib/utils/id_utils.js';
+import { getPackageJSON } from '../../../src/lib/utils/file_utils.js';
 import { ExecutionController } from '../../../src/lib/workers/execution-controller/index.js';
 import { ExecutionStorage, StateStorage } from '../../../src/lib/storage/index.js';
 
@@ -420,6 +421,11 @@ describe('ExecutionController Test Cases', () => {
         it('should update the execution metadata (from the context apis)', () => {
             const metadata = updateMetadata ? { slice_calls: count + 1 } : {};
             expect(executionRecord).toHaveProperty('metadata', metadata);
+        });
+
+        it('should have the correct teraslice version', () => {
+            const terasliceVersion = `v${getPackageJSON().version}`;
+            expect(executionRecord.teraslice_version).toBe(terasliceVersion);
         });
     });
 });

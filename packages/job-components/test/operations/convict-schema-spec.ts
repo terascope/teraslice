@@ -1,9 +1,5 @@
 import 'jest-extended';
-import { AnyObject } from '@terascope/utils';
-import {
-    ConvictSchema, TestContext, OpConfig,
-    ValidatedJobConfig, newTestJobConfig,
-} from '../../src/index.js';
+import { BaseSchema, TestContext, OpConfig } from '../../src/index.js';
 
 describe('Convict Schema', () => {
     const context = new TestContext('job-components');
@@ -12,7 +8,7 @@ describe('Convict Schema', () => {
         example: string;
     }
 
-    class ExampleSchema extends ConvictSchema<ExampleOpConfig> {
+    class ExampleSchema extends BaseSchema<ExampleOpConfig> {
         build() {
             return {
                 example: {
@@ -58,51 +54,9 @@ describe('Convict Schema', () => {
         });
     });
 
-    describe('->ensureAPIFromConfig', () => {
-        let job: ValidatedJobConfig;
-        let testSchema: AnyObject;
-
-        beforeEach(() => {
-            const apiContext = new TestContext('schema-api-tests');
-
-            job = newTestJobConfig({
-                operations: [
-                    { _op: 'test-reader' },
-                    { _op: 'noop' },
-                ]
-            });
-
-            testSchema = new ExampleSchema(apiContext);
-        });
-
-        it('will inject apiConfig if api does not exist', () => {
-            testSchema.ensureAPIFromConfig('someApi', job, { some: 'configs' });
-
-            expect(job.apis).toBeArrayOfSize(1);
-            expect(job.apis[0]).toMatchObject({ _name: 'someApi', some: 'configs' });
-        });
-
-        it('will not make new api if it already exists', () => {
-            if (!job.apis) job.apis = [];
-            job.apis.push({ _name: 'someApi', some: 'otherStuff' });
-
-            testSchema.ensureAPIFromConfig('someApi', job, { some: 'otherStuff' });
-
-            expect(job.apis).toBeArrayOfSize(1);
-            expect(job.apis[0]).toMatchObject({ _name: 'someApi', some: 'otherStuff' });
-        });
-
-        it('will throw if apiConfigs clash with opConfig', () => {
-            if (!job.apis) job.apis = [];
-            job.apis.push({ _name: 'someApi', some: 'otherStuff' });
-
-            expect(() => testSchema.ensureAPIFromConfig('someApi', job, { some: 'configs' })).toThrow();
-        });
-    });
-
     describe('#type', () => {
         it('should return convict', () => {
-            expect(ConvictSchema.type()).toEqual('convict');
+            expect(BaseSchema.type()).toEqual('convict');
         });
     });
 });

@@ -1,11 +1,13 @@
 import {
-    debugLogger, cloneDeep, DataEntity,
-    isEmpty, pDelay
-} from '@terascope/utils';
+    debugLogger, cloneDeep, isEmpty,
+    pDelay, unset, DataEntity
+} from '@terascope/core-utils';
+
 import esApi from '../src/index.js';
 
 describe('elasticsearch-api', () => {
     let recordsReturned: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let mgetQuery: any;
     let bulkData: any;
     let searchQuery: any;
@@ -75,7 +77,6 @@ describe('elasticsearch-api', () => {
     function postedData(action: string, id?: string) {
         const result: Record<string, any> = {
             _index: 'bigdata7',
-            _type: 'events',
             _id: id || 'AWKWOrWojTNwAyqyzq5l',
             _version: 1,
             result: action,
@@ -93,43 +94,39 @@ describe('elasticsearch-api', () => {
             'index.number_of_replicas': 1
         },
         mappings: {
-            state: {
-                _all: {
-                    enabled: true
+            dynamic: 'false',
+            properties: {
+                ip: {
+                    type: 'string',
+                    index: 'not_analyzed'
                 },
-                dynamic: 'false',
-                properties: {
-                    ip: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    userAgent: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    url: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    uuid: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    created: {
-                        type: 'date'
-                    },
-                    ipv6: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    location: {
-                        type: 'geo_point'
-                    },
-                    bytes: {
-                        type: 'integer'
-                    }
+                userAgent: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                url: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                uuid: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                created: {
+                    type: 'date'
+                },
+                ipv6: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                location: {
+                    type: 'geo_point'
+                },
+                bytes: {
+                    type: 'integer'
                 }
             }
+
         }
     };
 
@@ -140,43 +137,39 @@ describe('elasticsearch-api', () => {
             'index.number_of_replicas': 1
         },
         mappings: {
-            ex: {
-                _all: {
-                    enabled: true
+            dynamic: 'false',
+            properties: {
+                ip: {
+                    type: 'string',
+                    index: 'not_analyzed'
                 },
-                dynamic: 'false',
-                properties: {
-                    ip: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    userAgent: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    url: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    uuid: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    created: {
-                        type: 'date'
-                    },
-                    ipv6: {
-                        type: 'string',
-                        index: 'not_analyzed'
-                    },
-                    location: {
-                        type: 'geo_point'
-                    },
-                    bytes: {
-                        type: 'integer'
-                    }
+                userAgent: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                url: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                uuid: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                created: {
+                    type: 'date'
+                },
+                ipv6: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                location: {
+                    type: 'geo_point'
+                },
+                bytes: {
+                    type: 'integer'
                 }
             }
+
         }
     };
 
@@ -204,7 +197,6 @@ describe('elasticsearch-api', () => {
                 return [{
                     [key]: {
                         _index: value._index,
-                        _type: value._type,
                         _id: String(i),
                         _version: 1,
                         result: `${key}d`,
@@ -235,7 +227,6 @@ describe('elasticsearch-api', () => {
                 return [{
                     [key]: {
                         _index: value._index,
-                        _type: value._type,
                         _id: String(i),
                         _version: 1,
                         result: `${key}d`,
@@ -257,14 +248,13 @@ describe('elasticsearch-api', () => {
     function simulateTemplateResponse(
         originalMapping: Record<string, any>,
         index: string,
-        recordType: string
     ) {
         const results: Record<string, any> = {};
         results[index] = { mappings: JSON.parse(JSON.stringify(originalMapping.mappings)) };
         // simulate the 'false' to false issue
-        results[index].mappings[recordType].dynamic = 'false';
+        results[index].mappings.dynamic = 'false';
         if (changeMappings) {
-            results[index].mappings[recordType].properties.newKey = { type: 'keyword' };
+            results[index].mappings.properties.newKey = { type: 'keyword' };
         }
 
         return results;
@@ -350,15 +340,13 @@ describe('elasticsearch-api', () => {
             },
             getMapping: () => {
                 let index = 'teracluster__state';
-                let type = 'state';
                 let templateArg: Record<string, any> = template;
                 if (isExecutionTemplate) {
                     index = 'teracluster__ex';
-                    type = 'ex';
                     templateArg = template2;
                     indexAlreadyExists = false;
                 }
-                return Promise.resolve(simulateTemplateResponse(templateArg, index, type));
+                return Promise.resolve(simulateTemplateResponse(templateArg, index));
             }
         },
         nodes: {
@@ -487,7 +475,7 @@ describe('elasticsearch-api', () => {
     it('can call mget', async () => {
         const query = {
             index: 'someIndex',
-            type: 'someType',
+
             body: { ids: ['id1', 'id2'] }
         };
 
@@ -514,42 +502,6 @@ describe('elasticsearch-api', () => {
         expect(results[0].getMetadata()).toMatchObject({ _index: 'someIndex', _key: 'id1' });
     });
 
-    it('mget removes type for es7 indices', async () => {
-        const query = {
-            index: 'someIndex',
-            type: 'someType',
-            body: { ids: ['id1', 'id2'] }
-        };
-
-        const es7client = cloneDeep(client);
-
-        es7client.transport._config = { apiVersion: '7.0' };
-
-        const api = esApi(es7client, logger);
-
-        recordsReturned = [
-            {
-                _index: 'someIndex',
-                _id: 'id1',
-                found: true,
-                _source: { some: 'data' }
-            },
-            {
-                found: false,
-                _source: { some: 'notFounddata' }
-            }
-        ];
-
-        const results = await api.mget(query);
-
-        expect(mgetQuery).toEqual({
-            index: 'someIndex',
-            body: { ids: ['id1', 'id2'] }
-        });
-
-        expect(results.length).toEqual(1);
-    });
-
     it('can call get', async () => {
         const query = { body: 'someQuery' } as any;
         const api = esApi(client, logger);
@@ -561,7 +513,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can call index', async () => {
-        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
+        const query = { index: 'someIndex', body: 'someQuery' };
         const api = esApi(client, logger);
 
         const results = await api.index(query) as any;
@@ -569,7 +521,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('removes types in index request for es7', async () => {
-        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
+        const query = { index: 'someIndex', body: 'someQuery' };
 
         const es7client = cloneDeep(client);
 
@@ -586,7 +538,6 @@ describe('elasticsearch-api', () => {
         const query = {
             index: 'someIndex',
             id: 'someId',
-            type: 'sometype',
             body: 'someQuery'
         };
         const api = esApi(client, logger);
@@ -600,7 +551,7 @@ describe('elasticsearch-api', () => {
         const query = {
             index: 'someIndex',
             id: 'someId',
-            type: 'sometype',
+
             body: 'someQuery'
         };
 
@@ -620,7 +571,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can call create', async () => {
-        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' } as any;
+        const query = { index: 'someIndex', body: 'someQuery' } as any;
         const api = esApi(client, logger);
 
         const results = await api.create(query);
@@ -628,7 +579,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can remove type from create request for es7', async () => {
-        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' } as any;
+        const query = { index: 'someIndex', body: 'someQuery' } as any;
 
         const es7client = cloneDeep(client);
         es7client.transport._config = { apiVersion: '7.0' };
@@ -640,7 +591,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can call update', async () => {
-        const query = { index: 'someIndex', type: 'sometype', body: { doc: { some: 'data' } } } as any;
+        const query = { index: 'someIndex', body: { doc: { some: 'data' } } } as any;
         const api = esApi(client, logger);
 
         const results = await api.update(query);
@@ -648,7 +599,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can remove type from update requests on es7', async () => {
-        const query = { index: 'someIndex', type: 'sometype', body: { doc: { some: 'data' } } } as any;
+        const query = { index: 'someIndex', body: { doc: { some: 'data' } } } as any;
 
         const es7client = cloneDeep(client);
         es7client.transport._config = { apiVersion: '7.0' };
@@ -659,7 +610,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can call remove', async () => {
-        const query = { index: 'someIndex', type: 'sometype', id: 'someId' };
+        const query = { index: 'someIndex', id: 'someId' };
         const api = esApi(client, logger);
 
         const results = await api.remove(query);
@@ -667,7 +618,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can remove type from query on remove call on es7', async () => {
-        const query = { index: 'someIndex', type: 'sometype', id: 'someId' };
+        const query = { index: 'someIndex', id: 'someId' };
 
         const es7client = cloneDeep(client);
         es7client.transport._config = { apiVersion: '7.0' };
@@ -743,21 +694,21 @@ describe('elasticsearch-api', () => {
         const result = await api.bulkSend([
             {
                 action: {
-                    index: { _index: 'some_index', _type: 'events', _id: 1 }
+                    index: { _index: 'some_index', _id: 1 }
                 },
                 data: { title: 'foo' }
             },
             {
                 action: {
-                    delete: { _index: 'some_index', _type: 'events', _id: 5 }
+                    delete: { _index: 'some_index', _id: 5 }
                 }
             }
         ]);
         expect(bulkData).toEqual({
             body: [
-                { index: { _index: 'some_index', _type: 'events', _id: 1 } },
+                { index: { _index: 'some_index', _id: 1 } },
                 { title: 'foo' },
-                { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
+                { delete: { _index: 'some_index', _id: 5 } }
             ]
         });
         return expect(result).toBe(2);
@@ -772,13 +723,13 @@ describe('elasticsearch-api', () => {
 
         await api.bulkSend([{
             action: {
-                index: { _index: 'some_index', _type: 'events', _id: 1 }
+                index: { _index: 'some_index', _id: 1 }
             },
             data: { title: 'foo' }
         },
         {
             action: {
-                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+                delete: { _index: 'some_index', _id: 5 }
             }
         }]);
         expect(bulkData).toEqual({
@@ -799,20 +750,20 @@ describe('elasticsearch-api', () => {
 
         await api.bulkSend([{
             action: {
-                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+                delete: { _index: 'some_index', _id: 5 }
             },
         },
         {
             action: {
-                index: { _index: 'some_index', _type: 'events', _id: 1 }
+                index: { _index: 'some_index', _id: 1 }
             },
-            data: { title: 'foo', _type: 'doc', name: 'joe' }
+            data: { title: 'foo', name: 'joe' }
         }]);
         expect(bulkData).toEqual({
             body: [
                 { delete: { _index: 'some_index', _id: 5 } },
                 { index: { _index: 'some_index', _id: 1 } },
-                { title: 'foo', _type: 'doc', name: 'joe' }
+                { title: 'foo', name: 'joe' }
             ]
         });
     });
@@ -826,21 +777,21 @@ describe('elasticsearch-api', () => {
 
         await api.bulkSend([{
             action: {
-                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+                delete: { _index: 'some_index', _id: 5 }
             },
         },
         {
             action: {
-                index: { _index: 'some_index', _type: 'events', _id: 1 }
+                index: { _index: 'some_index', _id: 1 }
             },
-            data: { title: 'foo', _type: 'doc', name: 'joe' }
+            data: { title: 'foo', name: 'joe' }
         }]);
 
         expect(bulkData).toEqual({
             body: [
                 { delete: { _index: 'some_index', _id: 5 } },
                 { index: { _index: 'some_index', _id: 1 } },
-                { title: 'foo', _type: 'doc', name: 'joe' }
+                { title: 'foo', name: 'joe' }
             ]
         });
     });
@@ -849,13 +800,13 @@ describe('elasticsearch-api', () => {
         const api = esApi(client, logger);
         const myBulkData = [{
             action: {
-                index: { _index: 'some_index', _type: 'events', _id: 1 }
+                index: { _index: 'some_index', _id: 1 }
             },
             data: { title: 'foo' }
         },
         {
             action: {
-                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+                delete: { _index: 'some_index', _id: 5 }
             }
         }];
 
@@ -1155,7 +1106,6 @@ describe('elasticsearch-api', () => {
         const clusterName = 'teracluster';
         const newIndex = 'teracluster__state';
         const migrantIndexName = 'teracluster__state-v0.0.33';
-        const recordType = 'state';
         const clientName = 'default';
 
         await expect(api.indexSetup(
@@ -1163,7 +1113,6 @@ describe('elasticsearch-api', () => {
             newIndex,
             migrantIndexName,
             template,
-            recordType,
             clientName
         )).resolves.not.toThrow();
     });
@@ -1173,7 +1122,6 @@ describe('elasticsearch-api', () => {
         const clusterName = 'teracluster';
         const newIndex = 'teracluster__state';
         const migrantIndexName = 'teracluster__state-v0.0.33';
-        const recordType = 'state';
         const clientName = 'default';
 
         searchError = true;
@@ -1187,7 +1135,6 @@ describe('elasticsearch-api', () => {
                 newIndex,
                 migrantIndexName,
                 template,
-                recordType,
                 clientName
             )
         ])).resolves.not.toThrow();
@@ -1198,7 +1145,6 @@ describe('elasticsearch-api', () => {
         const clusterName = 'teracluster';
         const newIndex = 'teracluster__state';
         const migrantIndexName = 'teracluster__state-v0.0.33';
-        const recordType = 'state';
         const clientName = 'default';
         // this mimics an index not available to be searched as its not ready
         elasticDown = true;
@@ -1210,7 +1156,6 @@ describe('elasticsearch-api', () => {
                 newIndex,
                 migrantIndexName,
                 template,
-                recordType,
                 clientName,
                 1000
             ),
@@ -1228,7 +1173,6 @@ describe('elasticsearch-api', () => {
         const clusterName = 'teracluster';
         const newIndex = 'teracluster__state';
         const migrantIndexName = 'teracluster__state-v0.0.33';
-        const recordType = 'state';
         const clientName = 'default';
 
         changeMappings = true;
@@ -1238,7 +1182,6 @@ describe('elasticsearch-api', () => {
             newIndex,
             migrantIndexName,
             template,
-            recordType,
             clientName
         );
         expect(putTemplateCalled).toEqual(true);
@@ -1250,18 +1193,22 @@ describe('elasticsearch-api', () => {
         const clusterName = 'teracluster';
         const newIndex = 'teracluster__ex';
         const migrantIndexName = 'teracluster__ex-v0.0.33';
-        const recordType = 'ex';
         const clientName = 'default';
 
         changeMappings = true;
         isExecutionTemplate = true;
 
+        const mapping = {
+            ...template
+        };
+
+        unset(mapping, 'template');
+
         await api.indexSetup(
             clusterName,
             newIndex,
             migrantIndexName,
-            template,
-            recordType,
+            mapping,
             clientName
         );
         expect(reindexCalled).toEqual(true);

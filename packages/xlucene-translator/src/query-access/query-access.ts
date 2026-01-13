@@ -1,18 +1,24 @@
-import * as ts from '@terascope/utils';
-import * as p from 'xlucene-parser';
 import {
-    SortOrder,
-    GeoDistanceUnit,
-    xLuceneVariables,
-    xLuceneTypeConfig,
-    xLuceneFieldType,
+    isEmpty, castArray, TSError,
+    pImmediate, uniq, parseList,
+    matchWildcard, concat, isString,
+    getFirstChar
+} from '@terascope/core-utils';
+import {
+    CachedParser, Parser, ParserOptions,
+    isEmptyNode, Node, TermLikeNode,
+    isWildcard, getFieldValue, isRegexp,
+    NodeType
+} from 'xlucene-parser';
+import {
+    SortOrder, GeoDistanceUnit, xLuceneVariables,
+    xLuceneTypeConfig, xLuceneFieldType, ClientParams,
     ElasticsearchDistribution,
-    ClientParams
 } from '@terascope/types';
 import { CachedTranslator } from '../translator/index.js';
-import * as i from './interfaces.js';
+import { RestrictSearchQueryOptions, QueryAccessConfig } from './interfaces.js';
 
-export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
+export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
     readonly excludes: (keyof T)[];
     readonly includes: (keyof T)[];
     readonly constraints?: string[];
@@ -27,10 +33,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly variables: xLuceneVariables;
     readonly filterNilVariables: boolean;
 
-    private readonly _parser: p.CachedParser = new p.CachedParser();
+    private readonly _parser: CachedParser = new CachedParser();
     private readonly _translator: CachedTranslator = new CachedTranslator();
 
-    constructor(config: i.QueryAccessConfig<T> = {}, options: i.QueryAccessOptions = {}) {
+    constructor(config: QueryAccessConfig<T> = {}) {
         const {
             excludes = [],
             includes = [],
@@ -38,15 +44,15 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             allow_empty_queries: allowEmpty = true,
         } = config;
 
-        const typeConfig = config.type_config || options.type_config || {};
-        const variables = options.variables || {};
+        const typeConfig = config.type_config || {};
+        const variables = config.variables || {};
 
-        if (ts.isEmpty(typeConfig)) throw new Error('Configuration for type_config must be provided');
+        if (isEmpty(typeConfig)) throw new Error('Configuration for type_config must be provided');
         this.typeConfig = { ...typeConfig };
 
         this.excludes = excludes?.slice();
         this.includes = includes?.slice();
-        this.constraints = ts.castArray(constraint).filter(Boolean) as string[];
+        this.constraints = castArray(constraint).filter(Boolean) as string[];
         this.allowEmpty = Boolean(allowEmpty);
         this.preventPrefixWildcard = Boolean(config.prevent_prefix_wildcard);
         this.allowImplicitQueries = Boolean(config.allow_implicit_queries);
@@ -55,7 +61,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         this.defaultGeoSortUnit = config.default_geo_sort_unit;
         this.parsedTypeConfig = this._restrictTypeConfig();
         this.variables = variables;
-        this.filterNilVariables = !!options.filterNilVariables;
+        this.filterNilVariables = !!config.filterNilVariables;
     }
 
     clearCache(): void {
@@ -68,8 +74,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted xlucene query
      */
-    restrict(q: string): string {
-        return this._restrict(q).query;
+    restrict(q: string, variables?: xLuceneVariables): string {
+        return this._restrict(q, variables).query;
     }
 
     /**
@@ -77,19 +83,24 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted xlucene query
      */
-    private _restrict(q: string, _overrideParsedQuery?: p.Node): p.Parser {
-        let parser: p.Parser;
+    private _restrict(
+        q: string,
+        variables?: xLuceneVariables,
+        _overrideParsedQuery?: Node
+    ): Parser {
+        let parser: Parser;
 
-        const parserOptions: p.ParserOptions = {
+        const variablesMerged = Object.assign({}, this.variables, variables);
+        const parserOptions: ParserOptions = {
             type_config: this.typeConfig,
-            variables: this.variables,
+            variables: variablesMerged,
             filterNilVariables: this.filterNilVariables
         };
 
         try {
             parser = this._parser.make(q, parserOptions, _overrideParsedQuery);
         } catch (err) {
-            throw new ts.TSError(err, {
+            throw new TSError(err, {
                 reason: 'Query could not be parsed',
                 statusCode: 422,
                 context: {
@@ -99,9 +110,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             });
         }
 
-        if (p.isEmptyNode(parser.ast)) {
+        if (isEmptyNode(parser.ast)) {
             if (!this.allowEmpty) {
-                throw new ts.TSError('Empty queries are restricted', {
+                throw new TSError('Empty queries are restricted', {
                     statusCode: 403,
                     context: {
                         q,
@@ -112,12 +123,12 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             return this._addConstraints(parser, parserOptions);
         }
 
-        parser.forTermTypes((node: p.TermLikeNode) => {
+        parser.forTermTypes((node: TermLikeNode) => {
             // restrict when a term is specified without a field
             if (!node.field) {
                 if (this.allowImplicitQueries) return;
 
-                throw new ts.TSError('Implicit fields are restricted, please specify the field', {
+                throw new TSError('Implicit fields are restricted, please specify the field', {
                     statusCode: 403,
                     context: {
                         q,
@@ -127,7 +138,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             }
 
             if (this._isFieldRestricted(node.field)) {
-                throw new ts.TSError(`Field ${node.field} in query is restricted`, {
+                throw new TSError(`Field ${node.field} in query is restricted`, {
                     statusCode: 403,
                     context: {
                         q,
@@ -137,18 +148,18 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             }
 
             if (this.preventPrefixWildcard) {
-                const isWildcardNode = p.isWildcard(node);
-                const isRegexpNode = p.isRegexp(node);
+                const isWildcardNode = isWildcard(node);
+                const isRegexpNode = isRegexp(node);
 
                 if (isWildcardNode || isRegexpNode) {
-                    const value = p.getFieldValue(node.value, this.variables);
+                    const value = getFieldValue(node.value, this.variables);
 
                     if (startsWithWildcard(value, node.type)) {
-                        const errMessage = node.type === p.NodeType.Wildcard
+                        const errMessage = node.type === NodeType.Wildcard
                             ? 'Queries starting with wildcards in the form \'fieldname:*value\' or \'fieldname:?value\' are restricted'
                             : 'Regular expression queries starting with wildcards in the form \'fieldname:/.*value/\' or \'fieldname:/.?value/\' are restricted';
 
-                        throw new ts.TSError(errMessage, {
+                        throw new TSError(errMessage, {
                             statusCode: 403,
                             context: {
                                 q,
@@ -158,7 +169,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                     }
 
                     if (isRegexpNode && hasNonGuaranteedMatch(value)) {
-                        throw new ts.TSError('Regular expression queries with non-guaranteed matches in the form \'fieldname:/v*/\' or \'fieldname:/v{0,1}/\' are restricted', {
+                        throw new TSError('Regular expression queries with non-guaranteed matches in the form \'fieldname:/v*/\' or \'fieldname:/v{0,1}/\' are restricted', {
                             statusCode: 403,
                             context: {
                                 q,
@@ -204,15 +215,15 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      */
     async restrictSearchQuery(
         query: string,
-        opts?: i.RestrictSearchQueryOptions,
-        _overrideParsedQuery?: p.Node
+        opts?: RestrictSearchQueryOptions,
+        _overrideParsedQuery?: Node
     ): Promise<ClientParams.SearchParams> {
         const {
             params: _params = {},
-            majorVersion = 6,
-            minorVersion = 8,
-            distribution = ElasticsearchDistribution.elasticsearch,
-            version = '6.8.6',
+            majorVersion = 2,
+            minorVersion = 15,
+            distribution = ElasticsearchDistribution.opensearch,
+            version = '2.15.0',
             ...options
         } = opts ?? {};
 
@@ -227,13 +238,13 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         const variables = Object.assign({}, this.variables, opts?.variables ?? {});
 
         if (_params._source) {
-            throw new Error('Cannot include _source in params, use _sourceInclude or _sourceExclude');
+            throw new Error('Cannot include _source in params, use _source_includes or _source_excludes');
         }
         const params = { ..._params };
 
-        const parser = this._restrict(query, _overrideParsedQuery);
+        const parser = this._restrict(query, variables, _overrideParsedQuery);
 
-        await ts.pImmediate();
+        await pImmediate();
 
         const translator = this._translator.make(parser, {
             type_config: this.parsedTypeConfig,
@@ -246,31 +257,22 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         const translated = translator.toElasticsearchDSL(translateOptions);
 
-        // keep _sourceInclude && _sourceExclude for backward compatibility
         const {
-            _sourceInclude, _source_includes,
-            _sourceExclude, _source_excludes,
+            _source_includes: sourceIncludes,
+            _source_excludes: sourceExcludes,
             ...parsedParams
         } = params as any;
-
-        const sourceIncludes = _sourceInclude ?? _source_includes;
-        const sourceExcludes = _sourceExclude ?? _source_excludes;
 
         const { includes, excludes } = this.restrictSourceFields(
             sourceIncludes as (keyof T)[],
             sourceExcludes as (keyof T)[]
         );
 
-        // we can remove this logic when we can get rid of legacy client
-        const isLegacy = version === '6.5';
-        const excludesKey = isLegacy ? '_sourceExclude' : '_source_excludes';
-        const includesKey = isLegacy ? '_sourceInclude' : '_source_includes';
-
         const searchParams: ClientParams.SearchParams = {
             ...parsedParams,
             body: { ...parsedParams.body, ...translated },
-            [excludesKey]: excludes,
-            [includesKey]: includes,
+            _source_excludes: excludes,
+            _source_includes: includes,
         };
 
         if (searchParams != null) {
@@ -312,13 +314,13 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         all: (keyof T)[],
         override?: (keyof T)[] | boolean | (keyof T),
     ): (keyof T)[] | undefined {
-        const fields = ts.uniq(ts.parseList(override) as (keyof T)[]);
+        const fields = uniq(parseList(override) as (keyof T)[]);
 
         if (fields.length) {
             if (restricted.length) {
                 // combine already excluded fields with new ones
                 if (type === 'excludes') {
-                    return ts.uniq(restricted.concat(fields));
+                    return uniq(restricted.concat(fields));
                 }
                 // reduce already restricted includes to the overrides
                 return restricted.filter((field) => fields.includes(field));
@@ -349,9 +351,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         });
     }
 
-    private _addConstraints(parser: p.Parser, options: p.ParserOptions): p.Parser {
+    private _addConstraints(parser: Parser, options: ParserOptions): Parser {
         if (this.constraints?.length) {
-            const queries = ts.concat(this.constraints, [parser.query]).filter(Boolean) as string[];
+            const queries = concat(this.constraints, [parser.query]).filter(Boolean) as string[];
             if (queries.length === 1) return this._parser.make(queries[0], options);
             return this._parser.make(`(${queries.join(') AND (')})`, options);
         }
@@ -364,7 +366,7 @@ function matchFieldObject(typeField: string, field: string) {
     for (const part of typeField.split('.')) {
         s += part;
 
-        if (ts.matchWildcard(field, s)) {
+        if (matchWildcard(field, s)) {
             return true;
         }
 
@@ -378,7 +380,7 @@ function matchField(typeField: string, field: string) {
     for (const part of field.split('.')) {
         s += part;
 
-        if (ts.matchWildcard(s, typeField)) {
+        if (matchWildcard(s, typeField)) {
             return true;
         }
 
@@ -418,15 +420,15 @@ const optionalOperators = ['~', '#', '<', '&', '@'];
  */
 const regexWildcard = standardOperators.concat(optionalOperators);
 
-function startsWithWildcard(input?: string | number, nodeType = p.NodeType.Wildcard) {
+function startsWithWildcard(input?: string | number, nodeType = NodeType.Wildcard) {
     if (!input) return false;
-    if (!ts.isString(input)) return false;
+    if (!isString(input)) return false;
 
-    if (nodeType === p.NodeType.Regexp) {
-        return regexWildcard.includes(ts.getFirstChar(input));
+    if (nodeType === NodeType.Regexp) {
+        return regexWildcard.includes(getFirstChar(input));
     }
 
-    return ['*', '?'].includes(ts.getFirstChar(input));
+    return ['*', '?'].includes(getFirstChar(input));
 }
 
 /**
@@ -436,7 +438,7 @@ function startsWithWildcard(input?: string | number, nodeType = p.NodeType.Wildc
  */
 function hasNonGuaranteedMatch(input?: string | number) {
     if (!input) return false;
-    if (!ts.isString(input)) return false;
+    if (!isString(input)) return false;
 
     // get the second characters
     const trimmed = input.trim().charAt(1);

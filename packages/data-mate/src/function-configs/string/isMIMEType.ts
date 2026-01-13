@@ -1,4 +1,4 @@
-import { isMIMEType } from '@terascope/utils';
+import { isMIMEType } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionExample,

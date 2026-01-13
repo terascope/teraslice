@@ -1,8 +1,8 @@
 import {
     TSError, uniq, cloneDeep,
     isEmpty, getTypeOf, isString,
-    Logger, makeISODate, defaultsDeep
-} from '@terascope/utils';
+    Logger, defaultsDeep, makeISODate
+} from '@terascope/core-utils';
 import {
     JobConfigParams, JobValidator, RecoveryCleanupType,
     ValidatedJobConfig, parseName
@@ -76,6 +76,7 @@ export class JobsService {
         }
 
         this.addExternalPortsToJobSpec(jobSpec);
+
         const validJob = await this._validateJobSpec(jobSpec);
 
         // We don't create with the fully parsed validJob as it changes the asset names
@@ -147,13 +148,15 @@ export class JobsService {
             });
         }
 
-        let currentResources = await this.executionService.listResourcesForJobId(jobId);
+        const currentResources = await this.executionService.listResourcesForJobId(jobId);
 
         if (currentResources.length > 0) {
-            currentResources = currentResources.flat();
+            const flattenedResources = currentResources.flat();
             const exIdsSet = new Set<string>();
-            for (const resource of currentResources) {
-                exIdsSet.add(resource.metadata.labels['teraslice.terascope.io/exId']);
+            for (const resource of flattenedResources) {
+                if (resource.metadata.labels) {
+                    exIdsSet.add(resource.metadata.labels['teraslice.terascope.io/exId']);
+                }
             }
             const exIdsArr = Array.from(exIdsSet);
             const exIdsString = exIdsArr.join(', ');
@@ -257,13 +260,15 @@ export class JobsService {
 
         // This will return any orphaned resources in k8s clustering
         // or an empty array in native clustering
-        let currentResources = await this.executionService.listResourcesForJobId(jobId);
+        const currentResources = await this.executionService.listResourcesForJobId(jobId);
 
         if (currentResources.length > 0) {
-            currentResources = currentResources.flat();
+            const flattenedResources = currentResources.flat();
             const exIdsSet = new Set<string>();
-            for (const resource of currentResources) {
-                exIdsSet.add(resource.metadata.labels['teraslice.terascope.io/exId']);
+            for (const resource of flattenedResources) {
+                if (resource.metadata.labels) {
+                    exIdsSet.add(resource.metadata.labels['teraslice.terascope.io/exId']);
+                }
             }
             const exIdsArr = Array.from(exIdsSet);
             const exIdsString = exIdsArr.join(', ');
@@ -499,12 +504,12 @@ export class JobsService {
         dict: Map<string, string>
     ) {
         jobConfig.operations = jobConfig.operations.map((op) => {
-            if (op.api_name?.includes('@')) {
-                const { name, assetIdentifier, tag } = parseName(op.api_name);
+            if (op._api_name?.includes('@')) {
+                const { name, assetIdentifier, tag } = parseName(op._api_name);
                 const hashId = dict.get(assetIdentifier as string);
 
                 if (!hashId) {
-                    throw new Error(`Invalid operation api_name for _op: ${name}, could not find the hashID for asset identifier ${assetIdentifier}`);
+                    throw new Error(`Invalid operation _api_name for _op: ${name}, could not find the hashID for asset identifier ${assetIdentifier}`);
                 }
 
                 let hashedName = `${name}@${hashId}`;
@@ -513,7 +518,7 @@ export class JobsService {
                     hashedName = `${hashedName}:${tag}`;
                 }
 
-                op.api_name = hashedName;
+                op._api_name = hashedName;
             }
 
             if (op._op.includes('@')) {

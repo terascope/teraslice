@@ -9,14 +9,12 @@
             "index": "example-logs",
             "type": "logs",
             "size": 10000,
-            "date_field_name": "created",
-            "preserve_id": true
+            "date_field_name": "created"
         },
         {
             "_op": "elasticsearch_bulk",
             "type": "change",
             "index": "example-logs-new",
-            "preserve_id": true,
             "size": 10000
         }
     ]

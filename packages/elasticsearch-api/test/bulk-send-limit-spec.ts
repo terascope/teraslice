@@ -1,12 +1,13 @@
 import { jest } from '@jest/globals';
-import { debugLogger, chunk, pMap } from '@terascope/utils';
+import { debugLogger, chunk, pMap } from '@terascope/core-utils';
 import { ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import elasticsearchAPI, { Client as APIClient } from '../src/index.js';
 
 const {
     makeClient, cleanupIndex, waitForData,
-    EvenDateData, TEST_INDEX_PREFIX, formatUploadData
+    EvenDateData, envConfig, formatUploadData
 } = ElasticsearchTestHelpers;
+const { TEST_INDEX_PREFIX } = envConfig;
 
 const THREE_MINUTES = 3 * 60 * 1000;
 

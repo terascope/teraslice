@@ -1,10 +1,11 @@
-import { Logger } from '@terascope/utils';
+import { ManagerOptions, SocketOptions } from 'socket.io-client';
+import { Logger } from '@terascope/core-utils';
 import http from 'node:http';
 
 export interface ClientOptions {
     executionControllerUrl: string;
     workerId: string;
-    socketOptions: SocketIOClient.ConnectOpts;
+    socketOptions: Partial<ManagerOptions & SocketOptions>;
     workerDisconnectTimeout: number;
     networkLatencyBuffer?: number;
     actionTimeout: number;

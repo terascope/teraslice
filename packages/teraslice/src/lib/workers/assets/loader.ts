@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { get, isEmpty, Logger } from '@terascope/utils';
+import { get, isEmpty, Logger } from '@terascope/core-utils';
 import type { Context } from '@terascope/job-components';
 import { AssetsStorage } from '../../storage/index.js';
 import { makeLogger } from '../helpers/terafoundation.js';
@@ -58,6 +58,7 @@ export class AssetLoader {
 
                 const { context, logger } = this;
                 const connectionType = getBackendConfig(context, logger).assetConnectionType;
+
                 if (connectionType === 's3') {
                     buff = assetRecord.blob as Buffer;
                 } else {

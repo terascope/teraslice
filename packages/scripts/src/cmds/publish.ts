@@ -1,11 +1,11 @@
 import { CommandModule } from 'yargs';
-import { isCI } from '@terascope/utils';
+import { isCI } from '@terascope/core-utils';
 import { GlobalCMDOptions } from '../helpers/interfaces.js';
 import { PublishAction, PublishType } from '../helpers/publish/interfaces.js';
 import { publish } from '../helpers/publish/index.js';
 import { syncAll } from '../helpers/sync/index.js';
 import { getRootInfo } from '../helpers/misc.js';
-import { NODE_VERSION } from '../helpers/config.js';
+import config from '../helpers/config.js';
 
 interface Options {
     type: PublishType;
@@ -58,7 +58,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 alias: 'n',
                 description: 'Node version, there must be a Docker base image with this version (e.g. 18.18.2)',
                 type: 'string',
-                default: NODE_VERSION
+                default: config.NODE_VERSION
             })
             .positional('action', {
                 description: 'The publish action to take',

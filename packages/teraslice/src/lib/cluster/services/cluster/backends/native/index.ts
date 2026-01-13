@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import {
-    Queue, TSError, getFullErrorStack,
-    pDelay, cloneDeep, Logger, debounce,
-    pMap, orderBy, isInteger, get
-} from '@terascope/utils';
+    TSError, getFullErrorStack, debounce,
+    pDelay, cloneDeep, Logger,
+    pMap, orderBy, isInteger, get,
+    Queue
+} from '@terascope/core-utils';
 import type { EventEmitter } from 'node:events';
 import { ExecutionConfig } from '@terascope/types';
 import { Dispatch } from './dispatch.js';

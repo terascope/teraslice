@@ -1,12 +1,17 @@
-import {
-    ENCRYPT_OPENSEARCH, ROOT_CERT_PATH, OPENSEARCH_SSL_HOST,
-    TEST_OPENSEARCH
-} from '../../config.js';
+import { config } from '../../config.js';
 import { execa } from 'execa';
 
+const {
+    ENCRYPT_OPENSEARCH, ROOT_CERT_PATH,
+    OPENSEARCH_SSL_HOST, TEST_OPENSEARCH
+} = config;
+
 describe('encrypted opensearch', () => {
-    if (ENCRYPT_OPENSEARCH === 'true' && TEST_OPENSEARCH === 'true') {
+    if (ENCRYPT_OPENSEARCH === true && TEST_OPENSEARCH === true) {
         it('should have an encrypted connection', async () => {
+            if (!OPENSEARCH_SSL_HOST) {
+                throw new Error('OPENSEARCH_SSL_HOST is not defined');
+            }
             // Format string to be without protocol
             // The openssl s_client will throw if provided
             const opensearchURL
@@ -20,7 +25,7 @@ describe('encrypted opensearch', () => {
     } else {
         // Need this here because we need at lease one test in the test suite at all times
         it('should not be encrypted', () => {
-            expect(ENCRYPT_OPENSEARCH).toBe(false);
+            expect(ENCRYPT_OPENSEARCH).not.toBe(true);
         });
     }
 });

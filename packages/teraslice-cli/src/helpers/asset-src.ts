@@ -11,7 +11,7 @@ import {
     isCI, toInteger, TSError,
     toPascalCase, set, toUpperCase,
     toLowerCase,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 
 import reply from './reply.js';
 import { wasmPlugin, getPackage } from './utils.js';
@@ -283,6 +283,7 @@ export class AssetSrc {
             target: this.bundleTarget,
             plugins: [wasmPlugin],
             keepNames: true,
+            external: ['dtrace-provider'],
             ...(isESM && { format: 'esm', inject: [injectPath] })
         });
 

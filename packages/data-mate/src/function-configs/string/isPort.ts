@@ -1,4 +1,4 @@
-import { isPort } from '@terascope/utils';
+import { isPort } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 
 import {

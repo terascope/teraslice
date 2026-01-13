@@ -24,7 +24,6 @@
             "_op": "elasticsearch_index_selector",
             "index": "terak8s-example-data",
             "type": "events",
-            "preserve_id": false,
             "id_field": "",
             "timeseries": "",
             "index_prefix": "",

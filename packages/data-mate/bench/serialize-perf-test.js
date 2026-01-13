@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { pDelay, toHumanTime } from '@terascope/utils';
+import { pDelay, toHumanTime } from '@terascope/core-utils';
 import MultiMap from 'mnemonist/multi-map';
 import fs from 'node:fs';
 import path from 'node:path';

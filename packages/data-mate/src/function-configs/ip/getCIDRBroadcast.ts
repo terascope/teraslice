@@ -1,4 +1,4 @@
-import { getCIDRBroadcast } from '@terascope/utils';
+import { getCIDRBroadcast } from '@terascope/ip-utils';
 import { FieldType } from '@terascope/types';
 
 import {

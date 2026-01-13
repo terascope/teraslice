@@ -1,5 +1,5 @@
 import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
-import { TSError, toString, getTypeOf } from '@terascope/utils';
+import { TSError, toString, getTypeOf } from '@terascope/core-utils';
 import { freezeObject, ReadableData, WritableData } from '../core/index.js';
 import { ListVector, Vector, VectorType } from '../vector/index.js';
 

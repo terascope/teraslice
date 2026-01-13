@@ -3,7 +3,7 @@ import {
     toTitleCase, isEmpty, flatten,
     flattenDeep, firstToUpper, uniq,
     isPlainObject, trim, trimEnd,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { inspect } from 'node:util';
 import { functionConfigRepository } from '../dist/src/index.js';
 

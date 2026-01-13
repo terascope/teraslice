@@ -1,6 +1,6 @@
 import {
     TSError, toIntegerOrThrow, getLast, get
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { DataTypeFieldConfig, DataTypeFields, FieldType } from '@terascope/types';
 import { mapping } from './mapping.js';
 import { GroupedFields } from '../interfaces.js';

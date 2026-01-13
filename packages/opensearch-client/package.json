@@ -1,7 +1,7 @@
 {
     "name": "@terascope/opensearch-client",
     "displayName": "Opensearch Client",
-    "version": "1.1.4",
+    "version": "2.0.0",
     "description": "A Node.js facade client for opensearch & elasticsearch.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/opensearch-client#readme",
     "bugs": {
@@ -22,19 +22,17 @@
         "build:watch": "yarn build --watch",
         "test": "TEST_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test ../opensearch-client --",
         "test:debug": "TEST_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../opensearch-client --",
-        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='6.8.6' node ../scripts/bin/ts-scripts test ../opensearch-client --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' node ../scripts/bin/ts-scripts test ../opensearch-client --",
         "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' node ../scripts/bin/ts-scripts test ../opensearch-client --",
-        "test:opensearch1": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test ../opensearch-client --",
+        "test:opensearch1": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='1.3.11' node ../scripts/bin/ts-scripts test ../opensearch-client --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' node ../scripts/bin/ts-scripts test ../opensearch-client --",
         "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='3.1.0' node ../scripts/bin/ts-scripts test ../opensearch-client --",
         "test:watch": "ts-scripts yarn workspace @terascope/scripts test --watch ../opensearch-client --"
     },
     "dependencies": {
-        "@terascope/data-types": "~1.11.4",
-        "@terascope/types": "~1.4.4",
-        "@terascope/utils": "~1.10.4",
-        "elasticsearch6": "npm:@elastic/elasticsearch@~6.8.0",
+        "@terascope/core-utils": "~2.0.0",
+        "@terascope/data-types": "~2.0.0",
+        "@terascope/types": "~2.0.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@~8.15.0",
         "opensearch1": "npm:@opensearch-project/opensearch@~1.2.0",

@@ -1,4 +1,4 @@
-import { isString } from '@terascope/utils';
+import { isString } from '@terascope/core-utils';
 import { Parser } from 'xlucene-parser';
 import { TranslatorOptions } from './interfaces.js';
 import { Translator } from './translator.js';

@@ -11,11 +11,40 @@ repositories:
     url: https://opensearch-project.github.io/helm-charts/
   - name: minio
     url: https://charts.min.io/
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+  - name: kafka-ui
+    url: https://provectus.github.io/kafka-ui-charts/
+  - name: chaos-mesh
+    url: https://charts.chaos-mesh.org
 
 helmDefaults:
   wait: true
 
 releases:
+  - name: namespaces
+    namespace: default
+    chart: ./namespaces
+    version: 0.1.0
+
+  - name: stern
+    namespace: default
+    chart: ./stern
+    version: 0.1.0
+    needs:
+      - default/namespaces
+    installed: {{ .Values | get "stern.enabled" false }}
+
+  - name: minio-secret
+    namespace: default
+    chart: ./minio-secret
+    version: 0.1.0
+    needs:
+      - default/namespaces
+    installed: {{ and (.Values | get "minio.enabled" false) (.Values | get "minio.tls.enabled" false) }}
+    values:
+      - ./templates/minio-secret.yaml.gotmpl
+
   - name: opensearch1
     namespace: services-dev1
     chart: opensearch/opensearch
@@ -25,6 +54,11 @@ releases:
       - ./templates/os1.yaml.gotmpl
     labels:
       app: opensearch1
+    needs:
+      - default/namespaces
+    {{- if .Values | get "stern.enabled" false }}
+      - default/stern
+    {{- end }}
 
   - name: opensearch2
     namespace: services-dev1
@@ -35,6 +69,11 @@ releases:
       - ./templates/os2.yaml.gotmpl
     labels:
       app: opensearch2
+    needs:
+      - default/namespaces
+    {{- if .Values | get "stern.enabled" false }}
+      - default/stern
+    {{- end }}
 
   - name: opensearch3
     namespace: services-dev1
@@ -45,15 +84,11 @@ releases:
       - ./templates/os3.yaml.gotmpl
     labels:
       app: opensearch3
-
-  - name: elasticsearch6
-    namespace: services-dev1
-    chart: ./elasticsearch/elasticsearch-6.8.9.tgz
-    installed: {{ .Values | get "elasticsearch6.enabled" false }}
-    values:
-      - ./templates/es6.yaml.gotmpl
-    labels:
-      app: elasticsearch6
+    needs:
+      - default/namespaces
+    {{- if .Values | get "stern.enabled" false }}
+      - default/stern
+    {{- end }}
 
   - name: elasticsearch7
     namespace: services-dev1
@@ -63,6 +98,11 @@ releases:
       - ./templates/es7.yaml.gotmpl
     labels:
       app: elasticsearch7
+    needs:
+      - default/namespaces
+    {{- if .Values | get "stern.enabled" false }}
+      - default/stern
+    {{- end }}
 
   - name: minio
     namespace: services-dev1
@@ -71,6 +111,14 @@ releases:
     installed: {{ .Values | get "minio.enabled" false }}
     values:
       - ./templates/minio.yaml.gotmpl
+    needs:
+      - default/namespaces
+    {{- if .Values | get "stern.enabled" false }}
+      - default/stern
+    {{- end }}
+    {{- if .Values | get "minio.tls.enabled" false }}
+      - default/minio-secret
+    {{- end }}
 
   - name: kafka
     namespace: services-dev1
@@ -79,6 +127,22 @@ releases:
     installed: {{ .Values | get "kafka.enabled" true }}
     values:
       - ./templates/kafka.yaml.gotmpl
+    needs:
+      - default/namespaces
+    {{- if .Values | get "stern.enabled" false }}
+      - default/stern
+    {{- end }}
+
+  - name: kafka-ui
+    namespace: services-dev1
+    chart: kafka-ui/kafka-ui
+    needs:
+      - default/namespaces
+      - services-dev1/kafka
+    version: 0.7.6
+    installed: {{ .Values | get "kafka-ui.enabled" true }}
+    values:
+      - ./templates/kafka-ui.yaml.gotmpl
 
   - name: utility
     namespace: services-dev1
@@ -87,13 +151,57 @@ releases:
     installed: {{ .Values | get "utility.enabled" true }}
     values:
       - ./templates/utility.yaml.gotmpl
+    needs:
+      - default/namespaces
+    {{- if .Values | get "stern.enabled" false }}
+      - default/stern
+    {{- end }}
 
   - name: teraslice
     namespace: ts-dev1
     chart: ../../helm/teraslice
     needs:
+      - default/namespaces
       - services-dev1/{{ .Values | get "teraslice.stateCluster" "opensearch2" }}
     values:
       - ./templates/teraslice.yaml.gotmpl
     labels:
       app: teraslice
+
+  - name: prometheus-stack
+    namespace: services-dev1
+    version: 78.4.0
+    chart: prometheus-community/kube-prometheus-stack
+    installed: {{ .Values | get "prometheus_stack.enabled" false }}
+    values:
+      - ./templates/prometheus-stack.yaml.gotmpl
+    labels:
+      app: prom-grafana
+      group: skipDiff
+    needs:
+      - default/namespaces
+    {{- if .Values | get "stern.enabled" false }}
+      - default/stern
+    {{- end }}
+
+  - name: chaos-mesh
+    namespace: chaos-mesh
+    chart: chaos-mesh/chaos-mesh
+    version: 2.7.0
+    installed: {{ .Values | get "chaos_mesh.enabled" false }}
+    values:
+      - chaosDaemon:
+          runtime: containerd
+          socketPath: /run/containerd/containerd.sock
+        dashboard:
+          securityMode: false
+          service:
+            type: NodePort
+            nodePort: 30333
+        controllerManager:
+          replicaCount: 1
+    needs:
+      - default/namespaces
+    {{- if .Values | get "stern.enabled" false }}
+      - default/stern
+    {{- end }}

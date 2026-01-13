@@ -1,5 +1,4 @@
 terafoundation:
-    environment: 'development'
     log_level: debug
     connectors:
         elasticsearch-next:
@@ -12,7 +11,7 @@ teraslice:
     slicer_timeout: 60000
     shutdown_timeout: 30000
     assets_directory: '/app/assets/'
-    cluster_manager_type: "kubernetes"
+    cluster_manager_type: "kubernetesV2"
     master: false
     master_hostname: "teraslice-master"
     kubernetes_image: "teraslice-k8sdev"

@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
-import { isPlainObject, times } from '@terascope/utils';
-import type { Terafoundation } from '@terascope/types';
+import { isPlainObject, times } from '@terascope/core-utils';
+import type { Terafoundation, TerafoundationEnv } from '@terascope/types';
 import { createClient as createDBClient } from '../connector-utils.js';
 import { createRootLogger } from './utils.js';
 import { PromMetrics } from './prom-metrics/prom-metrics-api.js';
@@ -91,7 +91,7 @@ export default function registerApis(context: Terafoundation.Context): void {
             const env = {
                 assignment: 'worker',
                 service_context: JSON.stringify({ assignment: 'worker' })
-            };
+            } satisfies TerafoundationEnv;
 
             if (envOptions) {
                 Object.assign(env, envOptions);

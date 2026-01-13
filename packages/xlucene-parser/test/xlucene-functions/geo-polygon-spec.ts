@@ -1,7 +1,7 @@
 /* eslint-disable jest/no-commented-out-tests */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import 'jest-extended';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import {
     xLuceneFieldType,
     xLuceneTypeConfig,
@@ -118,7 +118,8 @@ describe('geoPolygon', () => {
 
                 const { ast } = new Parser(xQuery, {
                     type_config: typeConfig,
-                }).resolveVariables(variables);
+                    variables
+                });
 
                 const { toElasticsearchQuery } = initFunction({
                     node: ast as FunctionNode,
@@ -176,8 +177,9 @@ describe('geoPolygon', () => {
                 const xQuery = 'location: geoPolygon(points: $points1)';
 
                 const { ast } = new Parser(xQuery, {
-                    type_config: typeConfig
-                }).resolveVariables(variables);
+                    type_config: typeConfig,
+                    variables
+                });
 
                 const { toElasticsearchQuery } = initFunction({
                     node: ast as FunctionNode,
@@ -250,7 +252,8 @@ describe('geoPolygon', () => {
 
                 const { ast } = new Parser(xQuery, {
                     type_config: typeConfig,
-                }).resolveVariables(variables);
+                    variables
+                });
 
                 expect(() => {
                     initFunction({
@@ -279,7 +282,8 @@ describe('geoPolygon', () => {
 
                 const { ast } = new Parser(xQuery, {
                     type_config: typeConfig,
-                }).resolveVariables(variables);
+                    variables
+                });
 
                 const { toElasticsearchQuery } = initFunction({
                     node: ast as FunctionNode,
@@ -378,7 +382,8 @@ describe('geoPolygon', () => {
 
                 const { ast } = new Parser(xQuery, {
                     type_config: typeConfig,
-                }).resolveVariables(variables);
+                    variables
+                });
 
                 const { toElasticsearchQuery } = initFunction({
                     node: ast as FunctionNode,
@@ -491,7 +496,7 @@ describe('geoPolygon', () => {
 
                 const { ast } = new Parser(xQuery, {
                     type_config: typeConfig,
-                }).resolveVariables(variables);
+                });
 
                 expect(() => {
                     initFunction({

@@ -130,7 +130,7 @@ There are public asset bundles available for:
 
 - [elasticsearch](https://terascope.github.io/elasticsearch-assets)
 - [Kafka](https://terascope.github.io/kafka-assets)
-- [Files](https://terascope.github.io/file-assets) - Amazon S3, HDFS
+- [Files](https://terascope.github.io/file-assets) - Amazon S3, local filesystem
 - [Standard](https://terascope.github.io/standard-assets) - library of data transformation tools
 
 The example job below requires standard-assets and elasticsearch-assets to be available in the cluster for successful execution. Use the teraslice-cli tool to deploy these assets:

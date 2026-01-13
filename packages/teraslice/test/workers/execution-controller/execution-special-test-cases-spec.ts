@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { pDelay, times, random } from '@terascope/utils';
+import { pDelay, times, random } from '@terascope/core-utils';
 import { RecoveryCleanupType } from '@terascope/job-components';
 import { ExecutionController as ExController } from '@terascope/teraslice-messaging';
 import { ExecutionConfig } from '@terascope/types';
@@ -11,7 +11,6 @@ import { newId } from '../../../src/lib/utils/id_utils.js';
 import { ExecutionStorage, StateStorage } from '../../../src/lib/storage/index.js';
 
 const ExecutionControllerClient = ExController.Client;
-process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 
 describe('ExecutionController Special Tests', () => {
     // [ message, config ]

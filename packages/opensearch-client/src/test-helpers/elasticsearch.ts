@@ -1,22 +1,19 @@
 import {
-    DataEntity, pDelay, get, toNumber,
-    uniq, TSError
-} from '@terascope/utils';
+    pDelay, get, toNumber,
+    uniq, TSError, DataEntity
+} from '@terascope/core-utils';
 import { readFileSync } from 'node:fs';
 import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
 import { createClient, Client, Semver, ClientConfig } from '../client/index.js';
 import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
-import {
+import { envConfig } from './config.js';
+
+const {
     ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
-    OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST, OPENSEARCH_SSL_HOST,
-    OPENSEARCH_PASSWORD, OPENSEARCH_USER
-} from './config.js';
-
-const semver = ELASTICSEARCH_VERSION.split('.').map(toNumber);
-const isOpensearchTest = process.env.TEST_OPENSEARCH != null;
-export const removeTypeTest = isOpensearchTest || (semver[0] === 8);
-
+    OPENSEARCH_PASSWORD, OPENSEARCH_SSL_HOST, OPENSEARCH_USER,
+    OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST
+} = envConfig;
 export async function makeClient(rootCaPath?: string): Promise<Client> {
     let host: string;
     let esConfig: ClientConfig = {};
@@ -103,11 +100,10 @@ export async function upload(
 export function createMappingFromDatatype(
     client: Client,
     dataType: DataType,
-    type = '_doc',
     overrides = {}
 ) {
     const metaData = getClientMetadata(client);
-    const mapping = dataType.toESMapping({ typeName: type, overrides, ...metaData });
+    const mapping = dataType.toESMapping({ overrides, ...metaData });
 
     return fixMappingRequest(client, { body: mapping }, false);
 }
@@ -117,7 +113,6 @@ export async function populateIndex(
     index: string,
     dataType: DataType,
     records: any[],
-    type = '_doc'
 ): Promise<void> {
     const overrides = {
         settings: {
@@ -127,7 +122,7 @@ export async function populateIndex(
     };
 
     const mapping = createMappingFromDatatype(
-        client, dataType, type, overrides
+        client, dataType, overrides
     );
 
     await client.indices.create({
@@ -140,7 +135,6 @@ export async function populateIndex(
 
     const results = await client.bulk({
         index,
-        type,
         body,
         refresh: true
     });
@@ -174,10 +168,6 @@ export function formatUploadData(
 
     data.forEach((record) => {
         const meta: any = { _index: index };
-
-        if (!removeTypeTest) {
-            meta._type = '_doc';
-        }
 
         if (DataEntity.isDataEntity(record) && record.getKey()) {
             meta._id = record.getKey();
@@ -264,6 +254,7 @@ export function getTestENVClientInfo(): TestENVClientInfo {
             minorVersion
         };
     }
+
     const version = ELASTICSEARCH_VERSION;
     const [majorVersion, minorVersion] = parseVersion(version);
 

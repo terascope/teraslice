@@ -1,24 +1,26 @@
-import { cloneDeep } from '@terascope/utils';
+import { cloneDeep } from '@terascope/core-utils';
 import path from 'node:path';
 import fse from 'fs-extra';
-import {
+import { config } from './config.js';
+
+const {
     WORKERS_PER_NODE, KAFKA_BROKER,
     TEST_HOST, TERASLICE_PORT, CLUSTER_NAME,
     HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST,
-    ENCRYPT_MINIO, ROOT_CERT_PATH
-} from './config.js';
+    ENCRYPT_MINIO, ROOT_CERT_PATH, FILE_LOGGING,
+    ENCRYPT_KAFKA, DEBUG_LOG_LEVEL
+} = config;
 
 const baseConfig = {
     terafoundation: {
-        environment: 'development',
         log_level: [
             { console: 'warn' },
-            { file: process.env.DEBUG_LOG_LEVEL || 'info' }
+            { file: DEBUG_LOG_LEVEL || 'info' }
         ],
         logging: [
             'console',
-            'file'
+            ...(FILE_LOGGING ? ['file'] : [])
         ],
         log_path: '/app/logs',
         connectors: {
@@ -32,7 +34,9 @@ const baseConfig = {
             },
             kafka: {
                 default: {
-                    brokers: [KAFKA_BROKER]
+                    brokers: [KAFKA_BROKER],
+                    security_protocol: 'plaintext',
+                    caCertificate: ''
                 }
             },
             s3: {
@@ -101,10 +105,16 @@ export default async function setupTerasliceConfig() {
 async function writeMasterConfig() {
     const masterConfig = cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
-    if (ENCRYPT_MINIO === 'true') {
+    if (ENCRYPT_MINIO === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         masterConfig.terafoundation.connectors.s3.default.sslEnabled = true;
         masterConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
+    }
+
+    if (ENCRYPT_KAFKA === true) {
+        const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
+        masterConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
+        masterConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;
     }
 
     const masterConfigPath = path.join(CONFIG_PATH, 'teraslice-master.json');
@@ -116,10 +126,16 @@ async function writeMasterConfig() {
 async function writeWorkerConfig() {
     const workerConfig = cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
-    if (ENCRYPT_MINIO === 'true') {
+    if (ENCRYPT_MINIO === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         workerConfig.terafoundation.connectors.s3.default.sslEnabled = true;
         workerConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
+    }
+
+    if (ENCRYPT_KAFKA === true) {
+        const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
+        workerConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
+        workerConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;
     }
 
     const workerConfigPath = path.join(CONFIG_PATH, 'teraslice-worker.json');

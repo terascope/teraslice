@@ -1,15 +1,13 @@
-import type { AnyObject } from '@terascope/utils';
 import {
     SortOrder, ElasticsearchDSLOptions, xLuceneTypeConfig,
     xLuceneVariables, GeoDistanceUnit, ClientParams,
 } from '@terascope/types';
-import { ParserOptions } from 'xlucene-parser';
 
 export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
     variables?: xLuceneVariables;
     /**
      * Elasticsearch search parameters
-     * _sourceInclude and _sourceExclude will be filtered based
+     * _source_includes and _source_excludes will be filtered based
      * on the excludes and includes fields specified in the config
     */
     params?: Partial<ClientParams.SearchParams>;
@@ -19,7 +17,7 @@ export interface RestrictOptions {
     variables?: xLuceneVariables;
 }
 
-export interface QueryAccessConfig<T extends AnyObject = AnyObject> {
+export interface QueryAccessConfig<T extends Record<string, any> = Record<string, any>> {
     excludes?: (keyof T)[];
     includes?: (keyof T)[];
     constraint?: string | string[];
@@ -30,8 +28,6 @@ export interface QueryAccessConfig<T extends AnyObject = AnyObject> {
     default_geo_sort_order?: SortOrder;
     default_geo_sort_unit?: GeoDistanceUnit | string;
     type_config?: xLuceneTypeConfig;
-}
-
-export interface QueryAccessOptions extends ParserOptions {
     variables?: xLuceneVariables;
+    filterNilVariables?: boolean;
 }

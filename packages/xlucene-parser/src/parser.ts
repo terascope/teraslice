@@ -1,7 +1,7 @@
 import {
     TSError, trim, isRegExpLike,
     cloneDeep, unset, get
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine.js';
 import * as i from './interfaces.js';
@@ -28,8 +28,6 @@ const termTypes = new Set<i.NodeType>(utils.termTypes.filter((type) => (
  *   console.log(node.field, node.value);
  * });
  *
- * // Resolve variables
- * const resolved = parser.resolveVariables({ minAge: 25 });
  * ```
 */
 export class Parser {
@@ -37,6 +35,7 @@ export class Parser {
     readonly query: string;
     readonly typeConfig: xLuceneTypeConfig;
     readonly filterNilVariables: boolean;
+    readonly instantiateVariableValues: boolean;
 
     /**
      * Create a new Parser instance.
@@ -68,23 +67,24 @@ export class Parser {
     constructor(
         query: string,
         options?: i.ParserOptions,
-        _overrideNode?: i.Node
+        overrideAST?: i.Node
     ) {
         this.query = trim(query || '');
         this.filterNilVariables = !!options?.filterNilVariables;
-
+        this.instantiateVariableValues = options?.instantiateVariableValues ?? true;
         this.typeConfig = { ...options?.type_config };
-        if (_overrideNode) {
-            this.ast = _overrideNode;
-            return;
-        }
 
         const contextArg: i.ContextArg = {
             typeConfig: this.typeConfig,
+            variables: options?.variables
         };
 
         try {
-            this.ast = parse(this.query, { contextArg });
+            if (overrideAST) {
+                this.ast = overrideAST;
+            } else {
+                this.ast = parse(this.query, { contextArg });
+            }
 
             if (options?.filterNilVariables) {
                 if (!options.variables) {
@@ -113,6 +113,30 @@ export class Parser {
                         return false;
                     }
                     return keep(type, value);
+                });
+            }
+
+            if (this.instantiateVariableValues && options?.variables) {
+                const validatedVariables = utils.validateVariables(options.variables);
+                this.ast = this.mapNode((node, parent) => {
+                    const allowNil = parent?.type === i.NodeType.Conjunction;
+
+                    if (utils.isTermList(node)) {
+                        return coerceTermList(node, validatedVariables);
+                    }
+                    if ('value' in node) {
+                        return coerceNodeValue(
+                            node as i.Term | i.Regexp | i.Wildcard,
+                            validatedVariables,
+                            parent?.type === i.NodeType.Function,
+                            allowNil
+                        );
+                    }
+                    if (utils.isRange(node)) {
+                        coerceRange(node, validatedVariables, allowNil);
+                    }
+
+                    return node;
                 });
             }
 
@@ -535,62 +559,6 @@ export class Parser {
         };
 
         walkNode(this.ast);
-    }
-
-    /**
-     * Validate and resolve variables in the query, returning a new Parser instance.
-     *
-     * This method processes all variable references in the AST, replacing them with
-     * their actual values. Variable references use `$variableName` syntax, and scoped
-     * variables use `@variableName` syntax.
-     *
-     * @param variables - Object mapping variable names to their values
-     * @returns A new Parser instance with resolved variables
-     *
-     * @example
-     * ```typescript
-     * // Original query with variables
-     * const parser = new Parser('name:$username AND age:>=$minAge');
-     *
-     * // Resolve variables
-     * const resolved = parser.resolveVariables({
-     *   username: 'John',
-     *   minAge: 25
-     * });
-     *
-     * // Resolved query equivalent to: name:John AND age:>=25
-     * ```
-     *
-     * @throws {TSError} If variables object is invalid
-     */
-    resolveVariables(variables: xLuceneVariables): Parser {
-        const validatedVariables = utils.validateVariables(variables);
-
-        const ast = this.mapNode((node, parent) => {
-            const allowNil = parent?.type === i.NodeType.Conjunction;
-
-            if (utils.isTermList(node)) {
-                return coerceTermList(node, validatedVariables);
-            }
-            if ('value' in node) {
-                return coerceNodeValue(
-                    node as i.Term | i.Regexp | i.Wildcard,
-                    validatedVariables,
-                    parent?.type === i.NodeType.Function,
-                    allowNil
-                );
-            }
-            if (utils.isRange(node)) {
-                coerceRange(node, validatedVariables, allowNil);
-            }
-
-            return node;
-        });
-
-        return new Parser(this.query, {
-            type_config: this.typeConfig,
-            filterNilVariables: this.filterNilVariables
-        }, ast);
     }
 
     /**

@@ -1,7 +1,7 @@
 import { CollectConfig } from './interfaces.js';
-import { ConvictSchema } from '../../operations/index.js';
+import { BaseSchema } from '../../operations/index.js';
 
-export default class Schema extends ConvictSchema<CollectConfig> {
+export default class Schema extends BaseSchema<CollectConfig> {
     build(): Record<string, any> {
         return {
             size: {

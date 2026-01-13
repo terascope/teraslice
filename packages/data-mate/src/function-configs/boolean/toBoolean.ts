@@ -1,4 +1,4 @@
-import { toBoolean } from '@terascope/utils';
+import { toBoolean } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,

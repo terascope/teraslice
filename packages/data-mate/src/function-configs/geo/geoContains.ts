@@ -1,11 +1,8 @@
-import { geoContainsFP, toGeoJSON } from '@terascope/utils';
+import { geoContainsFP, toGeoJSON } from '@terascope/geo-utils';
 import { FieldType, GeoShapeType, GeoInput } from '@terascope/types';
 import {
-    FieldValidateConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    FunctionDefinitionExample,
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, FunctionDefinitionExample,
 } from '../interfaces.js';
 
 export interface GeoContainsArgs {

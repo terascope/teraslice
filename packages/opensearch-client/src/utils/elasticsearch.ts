@@ -1,4 +1,8 @@
-import * as ts from '@terascope/utils';
+import {
+    get, isString, toNumber,
+    cloneDeep, castArray, isEmpty,
+    sortKeys
+} from '@terascope/core-utils';
 import {
     ESFieldType, ESTypeMapping, ClientMetadata,
     ElasticsearchDistribution, ESMapping
@@ -6,23 +10,23 @@ import {
 import type { Client } from '../client/index.js';
 
 export function getClientVersion(client: Client): number {
-    const newClientVersion = ts.get(client, '__meta.version');
-    const version = newClientVersion || ts.get(client, 'transport._config.apiVersion', '6.5');
+    const newClientVersion = get(client, '__meta.version');
+    const version = newClientVersion || get(client, 'transport._config.apiVersion', '6.5');
 
-    if (version && ts.isString(version)) {
+    if (version && isString(version)) {
         const [majorVersion] = version.split('.', 1);
-        return ts.toNumber(majorVersion);
+        return toNumber(majorVersion);
     }
 
     return 6;
 }
 
 export function getClientMetadata(client: Client): ClientMetadata {
-    const newClientVersion = ts.get(client, '__meta.version');
-    const version = newClientVersion || ts.get(client, 'transport._config.apiVersion', '6.5');
-    const distribution = ts.get(client, '__meta.distribution', ElasticsearchDistribution.elasticsearch);
+    const newClientVersion = get(client, '__meta.version');
+    const version = newClientVersion || get(client, 'transport._config.apiVersion', '6.5');
+    const distribution = get(client, '__meta.distribution', ElasticsearchDistribution.elasticsearch);
     // lowest Elasticsearch we run is 6.8.6
-    const [majorVersion = 6, minorVersion = 8] = version.split('.').map(ts.toNumber);
+    const [majorVersion = 6, minorVersion = 8] = version.split('.').map(toNumber);
 
     return {
         distribution,
@@ -32,16 +36,9 @@ export function getClientMetadata(client: Client): ClientMetadata {
     };
 }
 
-export function isElasticsearch6(client: Client): boolean {
-    const { distribution, version: esVersion } = getClientMetadata(client);
-    const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);
-
-    return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 6;
-}
-
 export function isElasticsearch8(client: Client): boolean {
     const { distribution, version: esVersion } = getClientMetadata(client);
-    const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);
+    const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
 
     return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 8;
 }
@@ -53,20 +50,20 @@ export function isOpensearch(client: Client): boolean {
 
 export function isOpensearch1(client: Client): boolean {
     const { distribution, version: esVersion } = getClientMetadata(client);
-    const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);
+    const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
 
     return distribution === ElasticsearchDistribution.opensearch && parsedVersion === 1;
 }
 
 export function isOpensearch2(client: Client): boolean {
     const { distribution, version: esVersion } = getClientMetadata(client);
-    const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);
+    const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
 
     return distribution === ElasticsearchDistribution.opensearch && parsedVersion === 2;
 }
 export function isOpensearch3(client: Client): boolean {
     const { distribution, version: esVersion } = getClientMetadata(client);
-    const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);
+    const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
 
     return distribution === ElasticsearchDistribution.opensearch && parsedVersion === 3;
 }
@@ -78,14 +75,14 @@ export function fixMappingRequest(
     if (!_params || !_params.body) {
         throw new Error('Invalid mapping request');
     }
-    const params = ts.cloneDeep(_params);
+    const params = cloneDeep(_params);
     const defaultParams: any = {};
 
     const version = getClientVersion(client);
 
     if (params.body.template != null) {
         if (isTemplate && params.body.index_patterns == null) {
-            params.body.index_patterns = ts.castArray(params.body.template).slice();
+            params.body.index_patterns = castArray(params.body.template).slice();
         }
         delete params.body.template;
     }
@@ -143,15 +140,15 @@ export function getFlattenedNamesAndTypes(config: ESTypeMapping): FlattenPropert
     for (const field of Object.keys(config).sort()) {
         const {
             type: _type, properties, ...extra
-        } = config[field as keyof ESTypeMapping] as ts.AnyObject;
+        } = config[field as keyof ESTypeMapping] as Record<string, any>;
 
         // if there is no type, elasticsearch returns "undefined" for the type
         // but this will cause conflicts, we should set it to "object"
         const type: ESFieldType = _type == null ? 'object' : _type;
 
-        const extraSorted = ts.sortKeys(extra, { deep: true });
+        const extraSorted = sortKeys(extra, { deep: true });
 
-        output[field] = ts.isEmpty(extraSorted)
+        output[field] = isEmpty(extraSorted)
             ? [type]
             : [
                 type,

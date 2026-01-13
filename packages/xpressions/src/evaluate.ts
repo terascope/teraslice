@@ -1,4 +1,4 @@
-import { hasOwn, TSError } from '@terascope/utils';
+import { hasOwn, TSError } from '@terascope/core-utils';
 import {
     ExpressionNode, isVariableNode, Options,
     VariableNode

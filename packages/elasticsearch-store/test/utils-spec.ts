@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { TSError } from '@terascope/utils';
+import { TSError } from '@terascope/core-utils';
 import {
     isTemplatedIndex, isTimeSeriesIndex, validateIndexConfig,
     uniqueFieldQuery,

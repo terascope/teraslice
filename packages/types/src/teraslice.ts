@@ -1,6 +1,6 @@
 import { SysConfig as BaseSysconfig } from './terafoundation.js';
 
-export type ClusterManagerType = 'native' | 'kubernetes' | 'kubernetesV2';
+export type ClusterManagerType = 'native' | 'kubernetesV2';
 
 export interface AssetRecord {
     blob: SharedArrayBuffer | string | Buffer;
@@ -21,10 +21,6 @@ export interface AssetStatusResponse {
 
 export type AssetIDResponse = {
     asset_id: string;
-    /**
-        @deprecated Use asset_id instead, will be removed in teraslice v3
-    */
-    _id?: string;
 };
 
 // On asset upload
@@ -100,6 +96,7 @@ export interface ExecutionConfig extends ValidatedJobConfig {
     _failureReason?: string;
     slicer_port: number;
     slicer_hostname: string;
+    teraslice_version: string;
 }
 
 export interface StateRecord {
@@ -185,7 +182,7 @@ export interface Slice {
 export interface SliceRequest {
     /** A reserved key for sending work to a particular worker */
     request_worker?: string;
-    /** The slice request can contain any metdata */
+    /** The slice request can contain any metadata */
     [prop: string]: any;
 }
 
@@ -231,10 +228,10 @@ export interface OpConfig {
     _op: string;
 
     /** The name of the api used by this operation */
-    api_name?: string;
+    _api_name?: string;
 
     /** The name of connection, should match the same as listed in your sysconfigs.connectors */
-    connection?: string;
+    _connection?: string;
     /**
      * Used for specifying the data encoding type when using `DataEntity.fromBuffer`.
      *

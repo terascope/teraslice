@@ -4,15 +4,16 @@ import fse from 'fs-extra';
 import {
     isPlainObject, get, toTitleCase,
     defaultsDeep
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo, Service } from './interfaces.js';
-import {
-    NPM_DEFAULT_REGISTRY, DEV_TAG, DEV_DOCKER_IMAGE,
-    ENV_SERVICES
-} from './config.js';
+import config from './config.js';
 import signale from './signale.js';
 
+const {
+    NPM_DEFAULT_REGISTRY, DEV_TAG, DEV_DOCKER_IMAGE,
+    ENV_SERVICES
+} = config;
 let rootDir: string | undefined;
 
 export function getRootDir(cwd: string = process.cwd()): string {

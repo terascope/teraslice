@@ -14,7 +14,6 @@
             "type": "logs",
             "size": 10000,
             "date_field_name": "created",
-            "preserve_id": true,
             "query": "userAgent:FireFox"
         }
     ],

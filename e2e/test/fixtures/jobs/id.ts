@@ -5,19 +5,27 @@ export default {
     slicers: 2,
     workers: 4,
     assets: ['elasticsearch'],
-    operations: [
+    apis: [
         {
-            _op: 'id_reader',
+            _name: 'elasticsearch_reader_api',
             index: 'replace-me-1000',
-            type: 'events',
             size: 500,
             key_type: 'base64url'
         },
         {
-            _op: 'elasticsearch_bulk',
+            _name: 'elasticsearch_sender_api',
             index: 'test-id_reindex-1000',
-            type: 'events',
             size: 200
+        }
+    ],
+    operations: [
+        {
+            _op: 'id_reader',
+            _api_name: 'elasticsearch_reader_api',
+        },
+        {
+            _op: 'elasticsearch_bulk',
+            _api_name: 'elasticsearch_sender_api'
         }
     ]
 };

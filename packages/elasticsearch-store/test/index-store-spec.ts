@@ -1,10 +1,10 @@
 import 'jest-extended';
 import {
-    times, pDelay, DataEntity, Omit,
-    TSError, debugLogger, get
-} from '@terascope/utils';
+    times, pDelay, TSError,
+    debugLogger, get, DataEntity
+} from '@terascope/core-utils';
 import { Translator } from 'xlucene-translator';
-import { ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchDistribution, Omit } from '@terascope/types';
 import { type Client, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import {
     SimpleRecord, SimpleRecordInput, dataType, schema
@@ -14,21 +14,8 @@ import {
 } from '../src/index.js';
 import { cleanupIndexStore } from './helpers/utils.js';
 
-const { makeClient, TEST_INDEX_PREFIX, removeTypeTest } = ElasticsearchTestHelpers;
-
-function expectedStoreType(store: IndexStore<any>): undefined | string {
-    if (removeTypeTest) {
-        return undefined;
-    }
-
-    if (store.clientMetadata.majorVersion === 6) {
-        return store.config.name;
-    } else if (store.clientMetadata.majorVersion === 7) {
-        return '_doc';
-    }
-
-    return undefined;
-}
+const { makeClient, envConfig } = ElasticsearchTestHelpers;
+const { TEST_INDEX_PREFIX } = envConfig;
 
 describe('IndexStore', () => {
     const logger = debugLogger('index-store-spec');
@@ -291,7 +278,6 @@ describe('IndexStore', () => {
                 expect(metadata).toMatchObject({
                     _index: index,
                     _key: record.test_id,
-                    _type: expectedStoreType(indexStore)
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -457,7 +443,7 @@ describe('IndexStore', () => {
                 const q = '_exists_:test_number OR test_number:<0 OR test_number:100000 NOT test_keyword:other-keyword';
                 const realResult = await indexStore.searchRequest({
                     q,
-                    _sourceInclude: ['test_id', 'test_boolean'],
+                    _source_includes: ['test_id', 'test_boolean'],
                     sort: 'test_number:asc',
                     size: 200,
                 });
@@ -508,8 +494,9 @@ describe('IndexStore', () => {
                             },
                         },
                     },
-                    _sourceInclude: ['test_id', 'test_boolean'],
+                    _source_includes: ['test_id', 'test_boolean'],
                     sort: 'test_number:asc',
+                    foo: 'bar',
                     size: 200,
                 });
 
@@ -532,7 +519,7 @@ describe('IndexStore', () => {
                 const result = await indexStore.searchRequest({
                     q: '*rec?rd',
                     size: 200,
-                    _sourceInclude: ['test_id', 'test_number'],
+                    _source_includes: ['test_id', 'test_number'],
                     sort: 'test_number:asc',
                 });
                 // expect(result).toBeArrayOfSize(0);

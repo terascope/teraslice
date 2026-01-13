@@ -3,7 +3,7 @@ import {
     xLuceneFieldType, xLuceneTypeConfig, GeoShapeType,
     CoordinateTuple
 } from '@terascope/types';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import { Parser, initFunction } from '../../src/index.js';
 import { coordinateToXlucene } from '../../src/utils.js';
 import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces.js';
@@ -46,7 +46,8 @@ describe('geoContainsPoint', () => {
         const query = 'location:geoContainsPoint(point: $point1)';
         const { ast } = new Parser(query, {
             type_config: typeConfig,
-        }).resolveVariables(variables);
+            variables
+        });
 
         const {
             name, type, field
@@ -104,8 +105,7 @@ describe('geoContainsPoint', () => {
 
             const astResults = queries
                 .map((query) => (
-                    new Parser(query, { type_config: typeConfig })
-                        .resolveVariables(variables)
+                    new Parser(query, { type_config: typeConfig, variables })
                 ))
                 .map((parser) => initFunction({
                     node: (parser.ast as FunctionNode),
@@ -237,7 +237,8 @@ describe('geoContainsPoint', () => {
 
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
-            }).resolveVariables(variables);
+                variables
+            });
 
             const { match } = initFunction({
                 node: ast as FunctionNode,

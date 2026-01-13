@@ -1,4 +1,4 @@
-import { DataEntity, cloneDeep } from '@terascope/utils';
+import { cloneDeep, DataEntity } from '@terascope/core-utils';
 import crypto from 'crypto';
 import { Md5Encode } from '../../../src/operations';
 

@@ -1,7 +1,9 @@
 import {
     debugLogger, chunk, TSError,
     isCI, pMap
-} from '@terascope/utils';
+} from '@terascope/core-utils';
+import { TestEnv } from '@terascope/types';
+import fs from 'node:fs';
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
@@ -16,7 +18,7 @@ import {
     runJest, dockerTag, isKindInstalled, isKubectlInstalled,
     loadThenDeleteImageFromCache, deleteDockerImageCache,
     isHelmInstalled, isHelmfileInstalled, launchTerasliceWithHelmfile,
-    generateTestCaCerts, createMinioSecret
+    generateTestCaCerts
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
@@ -28,12 +30,13 @@ import { getE2EDir, readPackageInfo, listPackages } from '../packages.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
-import {
-    MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
-    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION, ENCRYPT_MINIO,
-    ATTACH_JEST_DEBUGGER
-} from '../config.js';
 import { K8s } from '../k8s-env/k8s.js';
+import config from '../config.js';
+
+const {
+    MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
+    K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH
+} = config;
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -70,6 +73,9 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions): P
 async function _runTests(
     pkgInfos: PackageInfo[], options: TestOptions, tracker: TestTracker
 ): Promise<void> {
+    // Dynamically generate any needed certs before any tests run
+    await generateTestCaCerts();
+
     if (options.suite?.includes('e2e')) {
         await runE2ETest(options, tracker);
         return;
@@ -207,10 +213,7 @@ async function runE2ETest(
         throw new Error('Missing e2e test directory');
     }
 
-    // Dynamically generate any needed certs before any tests run
-    await generateTestCaCerts();
-
-    if (options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2') {
+    if (options.clusteringType === 'kubernetesV2') {
         try {
             const kindInstalled = await isKindInstalled();
             if (!kindInstalled && !isCI) {
@@ -226,7 +229,7 @@ async function runE2ETest(
 
             const helmInstalled = await isHelmInstalled();
             if (!helmInstalled && !isCI) {
-                signale.error('Please install Helm before running k8s tests.https://helm.sh/docs/intro/install');
+                signale.error('Please install Helm before running k8s tests. https://helm.sh/docs/intro/install');
                 process.exit(1);
             }
 
@@ -248,8 +251,10 @@ async function runE2ETest(
                 process.exit(1);
             }
 
-            const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
-            await k8s.createNamespace('services-ns.yaml', 'services');
+            if (!options.useHelmfile) {
+                const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
+                await k8s.createNamespace('services-ns.yaml', 'services');
+            }
         } catch (err) {
             tracker.addError(err);
         }
@@ -262,11 +267,6 @@ async function runE2ETest(
         // load service if in native. In k8s services will be loaded directly to kind
         if (options.clusteringType === 'native') {
             await loadOrPullServiceImages(suite, options.skipImageDeletion);
-        }
-
-        // load the base docker image only if needed to build a dev image
-        if (!SKIP_DOCKER_BUILD_IN_E2E) {
-            await loadThenDeleteImageFromCache(`${BASE_DOCKER_IMAGE}:${NODE_VERSION}`, options.skipImageDeletion);
         }
     }
 
@@ -288,22 +288,17 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
-    if (kind && (options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2')) {
+    if (kind && options.clusteringType === 'kubernetesV2') {
         try {
             await kind.loadTerasliceImage(e2eImage);
             if (options.useHelmfile) {
+                // Do not set up pod logging in CI
+                // TODO: We may want to archive CI logs in the future
+                const podLogs = !isCI && options.logs;
                 const timeLabel = 'helmfile deployment';
                 await loadImagesForHelm(options.kindClusterName, options.skipImageDeletion);
                 signale.time(timeLabel);
-
-                // Created a minio secret if needed before helm sync
-                // but after the namespaces have been made
-                if (ENCRYPT_MINIO) {
-                    const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
-                    await createMinioSecret(k8s);
-                }
-
-                await launchTerasliceWithHelmfile(options.clusteringType);
+                await launchTerasliceWithHelmfile(options.clusteringType, false, podLogs);
                 signale.timeEnd(timeLabel);
             }
         } catch (err) {
@@ -366,13 +361,17 @@ async function runE2ETest(
         }
     }
 
-    if ((options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2')
-        && !options.keepOpen && kind) {
+    if (options.clusteringType === 'kubernetesV2' && !options.keepOpen && kind) {
         await kind.destroyCluster();
+    }
+
+    // Ensure the certs dir gets cleaned up
+    if (fs.existsSync(CERT_PATH)) {
+        fs.rmSync(CERT_PATH, { recursive: true, force: true });
     }
 }
 
-function printAndGetEnv(suite: string, options: TestOptions) {
+function printAndGetEnv(suite: string, options: TestOptions): TestEnv {
     const env = getEnv(options, suite);
     if (options.debug || options.trace || isCI) {
         const envStr = Object

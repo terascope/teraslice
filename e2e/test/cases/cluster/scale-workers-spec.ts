@@ -1,8 +1,10 @@
 import { Ex } from 'teraslice-client-js';
 import { WorkerNode } from '@terascope/types/dist/src/teraslice.js';
-import { pDelay } from '@terascope/utils';
+import { pDelay } from '@terascope/core-utils';
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { DEFAULT_WORKERS, TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
+
+const { DEFAULT_WORKERS, TEST_PLATFORM } = config;
 
 describe('scale execution', () => {
     let terasliceHarness: TerasliceHarness;
@@ -15,7 +17,7 @@ describe('scale execution', () => {
 
         const jobSpec = terasliceHarness.newJob('generator');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'scale execution';

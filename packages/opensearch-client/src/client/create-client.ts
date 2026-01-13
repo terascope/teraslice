@@ -1,10 +1,9 @@
 import {
     debugLogger, get, toNumber, Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import * as opensearch1 from 'opensearch1';
 import * as opensearch2 from 'opensearch2';
 import * as opensearch3 from 'opensearch3';
-import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution, ClientMetadata } from '@terascope/types';
@@ -13,7 +12,7 @@ import { logWrapper } from './log-wrapper.js';
 import { ClientConfig } from './interfaces.js';
 
 const clientList = [
-    opensearch1, opensearch2, opensearch3, elasticsearch7, elasticsearch6, elasticsearch8
+    opensearch1, opensearch2, opensearch3, elasticsearch7, elasticsearch8
 ];
 
 /** creates an opensearch or elasticsearch client depending on the configuration */
@@ -169,7 +168,6 @@ export async function getBaseClient(
 
         if (distribution === ElasticsearchDistribution.elasticsearch) {
             const model = {
-                6: elasticsearch6,
                 7: elasticsearch7,
                 8: elasticsearch8
             }[majorVersion];

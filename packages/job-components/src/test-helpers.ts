@@ -5,7 +5,7 @@ import {
     random, isString, getTypeOf,
     isFunction, debugLogger, Logger,
     makeISODate
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import promClient, {
     CollectFunction, Counter, Gauge, Histogram, Summary
 } from 'prom-client';
@@ -147,7 +147,6 @@ export class TestContext implements i.Context {
         const sysconfig: i.SysConfig = {
             terafoundation: {
                 workers: 8,
-                environment: 'test',
                 log_path: '',
                 log_level: { console: 'debug' } as any,
                 logging: ['console'],

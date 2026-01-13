@@ -1,5 +1,7 @@
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
+
+const { TEST_PLATFORM } = config;
 
 describe('job state', () => {
     let terasliceHarness: TerasliceHarness;
@@ -14,7 +16,7 @@ describe('job state', () => {
         const jobSpec1 = terasliceHarness.newJob('generator');
         const jobSpec2 = terasliceHarness.newJob('generator');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec1.resources_requests_cpu = 0.05;
             jobSpec1.cpu_execution_controller = 0.4;
             jobSpec2.resources_requests_cpu = 0.05;

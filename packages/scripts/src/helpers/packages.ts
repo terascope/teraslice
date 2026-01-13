@@ -5,10 +5,9 @@ import semver from 'semver';
 import { isDynamicPattern, globbySync } from 'globby';
 import {
     uniq, fastCloneDeep, get, trim,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import toposort from 'toposort';
 import { MultiMap } from 'mnemonist';
-
 import packageJson, { PackageNotFoundError, VersionNotFoundError } from 'package-json';
 import sortPackageJson from 'sort-package-json';
 import {

@@ -6,15 +6,11 @@ export class DocumentMatcher {
     private filterFn: BooleanCB;
 
     constructor(query: string, options: DocumentMatcherOptions = {}) {
-        let parser = new Parser(query, {
+        const parser = new Parser(query, {
             type_config: options.type_config,
             filterNilVariables: options.filterNilVariables,
             variables: options.variables
         });
-
-        if (options.variables) {
-            parser = parser.resolveVariables(options.variables);
-        }
 
         this.filterFn = logicBuilder(parser, options.type_config);
     }

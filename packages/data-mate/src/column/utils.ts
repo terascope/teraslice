@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { joinList, isArrayLike } from '@terascope/utils';
+import { joinList, isArrayLike } from '@terascope/core-utils';
 import {
     DataTypeFieldConfig, DataTypeFields, FieldType,
     Maybe, ReadonlyDataTypeFields

@@ -1,9 +1,7 @@
 import { deprecate } from 'util';
-
 import OperationBase from './lib/base.js';
 import TransformOpBase from './lib/transforms/base.js';
 import ValidationOpBase from './lib/validations/base.js';
-
 import Join from './lib/transforms/join.js';
 import Selector from './lib/transforms/selector.js';
 import Extraction from './lib/transforms/extraction.js';
@@ -22,7 +20,6 @@ import HexEncode from './lib/transforms/hexencode.js';
 import Md5Encode from './lib/transforms/md5encode.js';
 import Sha1Encode from './lib/transforms/sha1encode.js';
 import Sha2Encode from './lib/transforms/sha2encode.js';
-
 import Geolocation from './lib/validations/geolocation.js';
 import StringValidation from './lib/validations/string.js';
 import NumberValidation from './lib/validations/number.js';

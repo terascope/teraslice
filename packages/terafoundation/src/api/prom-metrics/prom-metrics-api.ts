@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import os from 'node:os';
 import {
     Gauge, Counter, Histogram, Summary,

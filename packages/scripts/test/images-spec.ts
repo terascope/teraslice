@@ -1,7 +1,7 @@
 import 'jest-extended';
 import fs from 'node:fs';
 import { createImageList } from '../src/helpers/images/index.js';
-import * as config from '../src/helpers/config.js';
+import config from '../src/helpers/config.js';
 
 describe('images command', () => {
     afterEach(() => {
@@ -16,11 +16,9 @@ describe('images command', () => {
             expect(fs.existsSync(config.DOCKER_IMAGE_LIST_PATH)).toBe(true);
             const fileContents = fs.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
             expect(fileContents).toBeString();
-            expect(fileContents).toContain(config.BASE_DOCKER_IMAGE);
             expect(fileContents).toContain(config.ELASTICSEARCH_DOCKER_IMAGE);
             expect(fileContents).toContain(config.OPENSEARCH_DOCKER_IMAGE);
             expect(fileContents).toContain(config.KAFKA_DOCKER_IMAGE);
-            expect(fileContents).toContain(config.ZOOKEEPER_DOCKER_IMAGE);
             expect(fileContents).toContain(config.MINIO_DOCKER_IMAGE);
             expect(fileContents).toContain(config.KIND_DOCKER_IMAGE);
         });

@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import { Parser, initFunction } from '../../src/index.js';
 import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces.js';
 
@@ -41,10 +41,8 @@ describe('knn', () => {
         };
         const { ast } = new Parser(query, {
             type_config: typeConfig,
-            variables: {
-                foo: [1, 2]
-            }
-        }).resolveVariables(variables);
+            variables
+        });
 
         const {
             name, type, field
@@ -70,10 +68,8 @@ describe('knn', () => {
         };
         const { ast } = new Parser(query, {
             type_config: typeConfig,
-            variables: {
-                foo: [1, 2]
-            }
-        }).resolveVariables(variables);
+            variables
+        });
 
         const instance = initFunction({
             node: ast as FunctionNode,
@@ -93,10 +89,8 @@ describe('knn', () => {
         };
         const { ast } = new Parser(query, {
             type_config: typeConfig,
-            variables: {
-                foo: [1, 2]
-            }
-        }).resolveVariables(variables);
+            variables
+        });
 
         const instance = initFunction({
             node: ast as FunctionNode,

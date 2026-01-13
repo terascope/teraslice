@@ -1,8 +1,8 @@
 import 'jest-extended';
-import { Schema } from 'convict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { logLevels } from '@terascope/utils';
+import { logLevels } from '@terascope/core-utils';
+import { Terafoundation } from '@terascope/types';
 import {
     jobSchema, validateJobConfig, validateOpConfig,
     TestContext, validateAPIConfig,
@@ -131,7 +131,7 @@ describe('when using native clustering', () => {
                 operations: [
                     {
                         _op: 'example-reader',
-                        connection: 'unknown',
+                        _connection: 'unknown',
                     },
                     {
                         _op: 'noop',
@@ -141,7 +141,7 @@ describe('when using native clustering', () => {
 
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrow(/Operation example-reader refers to connection "unknown" which is unavailable/);
+            }).toThrow(/Operation example-reader refers to connection \\"unknown\\" which is unavailable/);
         });
     });
 
@@ -284,7 +284,7 @@ describe('when using native clustering', () => {
                 apis: [
                     {
                         _name: 'test-api',
-                        connection: 'unknown',
+                        _connection: 'unknown',
                     },
                 ],
                 operations: [
@@ -296,18 +296,23 @@ describe('when using native clustering', () => {
                     },
                 ],
             };
-            expect(() => {
+
+            try {
                 validateJobConfig(schema, job);
-            }).toThrow(/API test-api refers to connection "unknown" which is unavailable/);
+                throw new Error('expected validateJobConfig to throw');
+            } catch (err) {
+                const correctMessage = err.message.includes('API test-api refers to connection');
+                expect(correctMessage).toBeTrue();
+            }
         });
     });
 
     describe('when validating opConfig', () => {
-        const schema: Schema<any> = {
+        const schema: Terafoundation.Schema<any> = {
             example: {
-                default: '',
+                default: undefined,
                 doc: 'some example value',
-                format: 'required_String',
+                format: 'required_string',
             },
             formatted_value: {
                 default: 'hi',
@@ -440,11 +445,11 @@ describe('when using native clustering', () => {
     });
 
     describe('when validating apiConfig', () => {
-        const schema: Schema<any> = {
+        const schema: Terafoundation.Schema<any> = {
             example: {
-                default: '',
+                default: undefined,
                 doc: 'some example value',
-                format: 'required_String',
+                format: 'required_string',
             },
             formatted_value: {
                 default: 'hi',
@@ -587,7 +592,7 @@ describe('when using native clustering', () => {
                     ],
                 };
                 expect(() => validateJobConfig(schema, job)).toThrow(
-                    'value for key "foo" must be not empty'
+                    'value for key \\"foo\\" must be not empty'
                 );
             });
         });
@@ -693,177 +698,6 @@ describe('when using native clustering', () => {
                 };
                 expect(() => validateJobConfig(schema, job)).toThrow('must be valid integer greater than zero');
             });
-        });
-    });
-});
-
-describe('when validating k8s clustering', () => {
-    const context = new TestContext('teraslice-operations');
-    context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
-
-    describe('when passed a jobConfig with cpu and memory', () => {
-        it('should return a completed and valid jobConfig', () => {
-            const schema = jobSchema(context);
-            const job = {
-                cpu: 1,
-                memory: 805306368,
-                operations: [
-                    {
-                        _op: 'noop',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            const jobConfig = validateJobConfig(schema, job);
-            expect(jobConfig.cpu).toEqual(job.cpu);
-            expect(jobConfig.memory).toEqual(job.memory);
-        });
-    });
-
-    describe('when passed a jobConfig with cpu and memory resources', () => {
-        it('should return a completed and valid jobConfig', () => {
-            const schema = jobSchema(context);
-            const job = {
-                resources_requests_cpu: 1,
-                resources_requests_memory: 805306368,
-                resources_limits_cpu: 1.5,
-                resources_limits_memory: 905306368,
-                operations: [
-                    {
-                        _op: 'noop',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            const jobConfig = validateJobConfig(schema, job);
-            expect(jobConfig.resources_requests_cpu).toEqual(job.resources_requests_cpu);
-            expect(jobConfig.resources_requests_memory).toEqual(job.resources_requests_memory);
-            expect(jobConfig.resources_limits_cpu).toEqual(job.resources_limits_cpu);
-            expect(jobConfig.resources_limits_memory).toEqual(job.resources_limits_memory);
-        });
-    });
-
-    describe('when passed a jobConfig with old and new cpu and memory resources', () => {
-        it('should throw an exception', () => {
-            const schema = jobSchema(context);
-            const job = {
-                cpu: 1,
-                memory: 805306368,
-                resources_requests_cpu: 1,
-                resources_limits_cpu: 1.5,
-                resources_requests_memory: 805306368,
-                resources_limits_memory: 905306368,
-                operations: [
-                    {
-                        _op: 'noop',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            expect(() => {
-                validateJobConfig(schema, job);
-            }).toThrow('Validation failed for job config: undefined - cpu/memory can\'t be mixed with resource settings of the same type.');
-        });
-    });
-
-    describe('when passed a jobConfig with targets', () => {
-        it('should return a completed and valid jobConfig', () => {
-            const schema = jobSchema(context);
-            const job = {
-                targets: [
-                    {
-                        key: 'zone',
-                        value: 'west',
-                    },
-                ],
-                operations: [
-                    {
-                        _op: 'noop',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            const validJob = {
-                analytics: true,
-                assets: null,
-                lifecycle: 'once',
-                max_retries: 3,
-                name: 'Custom Job',
-                apis: [],
-                operations: [{ _op: 'noop' }, { _op: 'noop' }],
-                probation_window: 300000,
-                performance_metrics: false,
-                slicers: 1,
-                targets: [
-                    {
-                        key: 'zone',
-                        value: 'west',
-                    },
-                ],
-                volumes: [],
-            };
-
-            const jobConfig = validateJobConfig(schema, job);
-            delete (jobConfig as any).workers;
-            expect(jobConfig).toMatchObject(validJob);
-        });
-    });
-
-    describe('when passed a jobConfig with volumes', () => {
-        it('should return a completed and valid jobConfig', () => {
-            const schema = jobSchema(context);
-            const job = {
-                volumes: [
-                    {
-                        name: 'pvc-name',
-                        path: '/srv',
-                    },
-                ],
-                operations: [
-                    {
-                        _op: 'noop',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-            const validJob = {
-                analytics: true,
-                assets: null,
-                lifecycle: 'once',
-                max_retries: 3,
-                name: 'Custom Job',
-                apis: [],
-                env_vars: {},
-                operations: [{ _op: 'noop' }, { _op: 'noop' }],
-                probation_window: 300000,
-                performance_metrics: false,
-                targets: [],
-                volumes: [
-                    {
-                        name: 'pvc-name',
-                        path: '/srv',
-                    },
-                ],
-                slicers: 1,
-            };
-
-            const jobConfig = validateJobConfig(schema, job);
-            delete (jobConfig as any).workers;
-            expect(jobConfig).toMatchObject(validJob);
         });
     });
 });

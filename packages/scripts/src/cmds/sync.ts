@@ -1,5 +1,5 @@
 import { CommandModule } from 'yargs';
-import { isCI } from '@terascope/utils';
+import { isCI } from '@terascope/core-utils';
 import { syncAll } from '../helpers/sync/index.js';
 import { GlobalCMDOptions } from '../helpers/interfaces.js';
 

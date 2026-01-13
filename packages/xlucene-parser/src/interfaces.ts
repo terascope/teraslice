@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import * as t from '@terascope/types';
 
 /**
@@ -7,10 +7,15 @@ import * as t from '@terascope/types';
  * @property filterNilVariables - If true, removes variable nodes with no value in `variables`.
  * CAUTION: Make sure to pass all needed variables or parts of the query may be dropped.
  * @property variables - Optional map of variable names to values for substitution.
+ * @property instantiateVariableValues - Optional, defaults to true, if set to false it will return
+ * a variable node and not a value node, this is used to make a cached ast to be used later
+ *  because the real value of the variable is not known at the current stage of execution
+
  */
 export interface ParserOptions {
     type_config?: t.xLuceneTypeConfig;
     filterNilVariables?: boolean;
+    instantiateVariableValues?: boolean;
     variables?: t.xLuceneVariables;
 }
 

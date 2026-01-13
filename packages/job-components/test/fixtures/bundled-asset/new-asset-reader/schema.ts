@@ -1,6 +1,6 @@
-import { ConvictSchema, ValidatedJobConfig } from '../../../../src/index.js';
+import { BaseSchema, ValidatedJobConfig } from '../../../../src/index.js';
 
-export class AssetReaderSchema extends ConvictSchema<any, any> {
+export class AssetReaderSchema extends BaseSchema<any, any> {
     validateJob(job: ValidatedJobConfig): void {
         const shouldFail = job.operations.find((op) => op.failCrossValidation);
         if (shouldFail) {

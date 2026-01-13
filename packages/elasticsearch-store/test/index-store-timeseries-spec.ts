@@ -1,8 +1,8 @@
 import 'jest-extended';
 import {
-    times, pDelay, DataEntity,
-    TSError, debugLogger, get
-} from '@terascope/utils';
+    times, pDelay, TSError,
+    debugLogger, get, DataEntity
+} from '@terascope/core-utils';
 import { fileURLToPath } from 'node:url';
 import { Translator } from 'xlucene-translator';
 import { type Client, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
@@ -16,21 +16,8 @@ import { cleanupIndexStore } from './helpers/utils.js';
 
 const filename = fileURLToPath(import.meta.url);
 
-const { makeClient, TEST_INDEX_PREFIX, removeTypeTest } = ElasticsearchTestHelpers;
-
-function expectedStoreType(store: IndexStore<any>): undefined | string {
-    if (removeTypeTest) {
-        return undefined;
-    }
-
-    if (store.clientMetadata.majorVersion === 6) {
-        return store.config.name;
-    } else if (store.clientMetadata.majorVersion === 7) {
-        return '_doc';
-    }
-
-    return undefined;
-}
+const { makeClient, envConfig } = ElasticsearchTestHelpers;
+const { TEST_INDEX_PREFIX } = envConfig;
 
 describe('IndexStore (timeseries)', () => {
     const logger = debugLogger(filename);
@@ -284,7 +271,6 @@ describe('IndexStore (timeseries)', () => {
                 expect(metadata).toMatchObject({
                     _index: indexStore.writeIndex,
                     _key: record.test_id,
-                    _type: expectedStoreType(indexStore),
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -450,7 +436,7 @@ describe('IndexStore (timeseries)', () => {
                 const q = '_exists_:test_number OR test_number:<0 OR test_number:100000 NOT test_keyword:other-keyword';
                 const realResult = await indexStore.searchRequest({
                     q,
-                    _sourceInclude: ['test_id', 'test_boolean'],
+                    _source_includes: ['test_id', 'test_boolean'],
                     sort: 'test_number:asc',
                     size: 200,
                 });
@@ -501,7 +487,7 @@ describe('IndexStore (timeseries)', () => {
                             },
                         },
                     },
-                    _sourceInclude: ['test_id', 'test_boolean'],
+                    _source_includes: ['test_id', 'test_boolean'],
                     sort: 'test_number:asc',
                     size: 200,
                 });
@@ -525,7 +511,7 @@ describe('IndexStore (timeseries)', () => {
                 const result = await indexStore.searchRequest({
                     q: '*rec?rd',
                     size: 200,
-                    _sourceInclude: ['test_id', 'test_number'],
+                    _source_includes: ['test_id', 'test_number'],
                     sort: 'test_number:asc',
                 });
                 // expect(result).toBeArrayOfSize(0);

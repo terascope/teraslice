@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { stringEntropy, StringEntropy } from '@terascope/utils';
+import { stringEntropy, StringEntropy } from '@terascope/core-utils';
 import {
     FieldTransformConfig,
     ProcessMode,

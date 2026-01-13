@@ -2,8 +2,10 @@ import path from 'node:path';
 import fse from 'fs-extra';
 import { v4 as uuidv4 } from 'uuid';
 import { initializeTestExecution, makeTerafoundationContext } from 'teraslice';
-import { ASSETS_PATH, CONFIG_PATH, TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
 import { TerasliceHarness } from '../../teraslice-harness.js';
+
+const { ASSETS_PATH, CONFIG_PATH, TEST_PLATFORM } = config;
 
 describe('recovery', () => {
     const stores = {};
@@ -42,7 +44,7 @@ describe('recovery', () => {
     beforeEach(async () => {
         const jobSpec = terasliceHarness.newJob('generate-to-es');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'test recovery job';
@@ -50,12 +52,8 @@ describe('recovery', () => {
         jobSpec.assets = await terasliceHarness.getBaseAssetIds();
         specIndex = terasliceHarness.newSpecIndex('test-recovery-job');
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        jobSpec.apis[1].index = specIndex;
 
         terasliceHarness.injectDelay(jobSpec);
 

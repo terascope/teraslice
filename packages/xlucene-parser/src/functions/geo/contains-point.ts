@@ -1,10 +1,8 @@
 import {
-    AnyQuery,
-    GeoShapeRelation,
-    ESGeoShapeType,
+    AnyQuery, GeoShapeRelation, ESGeoShapeType,
     xLuceneVariables
 } from '@terascope/types';
-import { parseGeoPoint, geoContainsFP } from '@terascope/utils';
+import { parseGeoPoint, geoContainsFP } from '@terascope/geo-utils';
 import { getFieldValue, logger } from '../../utils.js';
 import * as i from '../../interfaces.js';
 

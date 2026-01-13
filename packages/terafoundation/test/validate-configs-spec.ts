@@ -51,7 +51,6 @@ describe('Validate Configs', () => {
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {},
-                    environment: 'test',
                 },
                 other: {
                     test: 'custom'
@@ -69,12 +68,6 @@ describe('Validate Configs', () => {
                 ],
                 connectors: {
                     'elasticsearch-next': {
-                        default: {}
-                    },
-                    hdfs_ha: {
-                        default: {}
-                    },
-                    hdfs: {
                         default: {}
                     },
                     s3: {
@@ -105,22 +98,6 @@ describe('Validate Configs', () => {
                                 maxRetries: 3,
                             }
                         },
-                        hdfs_ha: {
-                            default: {
-                                namenode_host: null,
-                                namenode_port: 50070,
-                                path_prefix: '/webhdfs/v1',
-                                user: 'hdfs'
-                            }
-                        },
-                        hdfs: {
-                            default: {
-                                namenode_host: 'localhost',
-                                namenode_port: 50070,
-                                path_prefix: '/webhdfs/v1',
-                                user: 'webuser'
-                            }
-                        },
                         s3: {
                             default: {
                                 accessKeyId: null,
@@ -135,7 +112,6 @@ describe('Validate Configs', () => {
                             }
                         },
                     },
-                    environment: 'test',
                 },
                 _nodeName: os.hostname()
             });

@@ -1,5 +1,4 @@
 terafoundation:
-    environment: 'development'
     connectors:
         elasticsearch-next:
             default:
@@ -7,7 +6,7 @@ terafoundation:
                     - "<ELASTICSEARCH_HOST>:<ELASTICSEARCH_PORT>"
 teraslice:
     assets_directory: '/app/assets/'
-    cluster_manager_type: "kubernetes"
+    cluster_manager_type: "kubernetesV2"
     master: false
     master_hostname: "teraslice-master"
     name: "teracluster"

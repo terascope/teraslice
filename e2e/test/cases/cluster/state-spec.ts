@@ -1,8 +1,10 @@
 /* eslint-disable jest/expect-expect */
-import { pDelay, flatten } from '@terascope/utils';
+import { pDelay, flatten } from '@terascope/core-utils';
 import signale from '../../signale.js';
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { WORKERS_PER_NODE, DEFAULT_NODES, TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
+
+const { WORKERS_PER_NODE, DEFAULT_NODES, TEST_PLATFORM } = config;
 
 describe('cluster state', () => {
     let terasliceHarness: TerasliceHarness;
@@ -96,19 +98,15 @@ describe('cluster state', () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         const specIndex = terasliceHarness.newSpecIndex('state');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'cluster state with 1 worker';
         jobSpec.workers = 1;
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.operations[0].size = 100;
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        jobSpec.apis[0].size = 100;
+        jobSpec.apis[1].index = specIndex;
 
         const ex = await terasliceHarness.submitAndStart(jobSpec, 5000);
 
@@ -145,19 +143,15 @@ describe('cluster state', () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         const specIndex = terasliceHarness.newSpecIndex('state');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'cluster state with 4 workers';
         jobSpec.workers = 4;
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.operations[0].size = 20;
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        jobSpec.apis[0].size = 20;
+        jobSpec.apis[1].index = specIndex;
 
         const ex = await terasliceHarness.submitAndStart(jobSpec, 5000);
         await pDelay(1000);

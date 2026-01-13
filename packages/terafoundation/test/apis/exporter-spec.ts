@@ -1,7 +1,7 @@
 import 'jest-extended';
 import got from 'got';
 import { Counter } from 'prom-client';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import { Terafoundation as tf } from '@terascope/types';
 import Exporter from '../../src/api/prom-metrics/exporter.js';
 

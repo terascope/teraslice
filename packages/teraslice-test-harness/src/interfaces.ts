@@ -5,9 +5,9 @@ import {
     ProcessorConstructor,
     SlicerConstructor,
     Slice,
-    DataEntity,
     ClusterManagerType
 } from '@terascope/job-components';
+import { DataEntity } from '@terascope/core-utils';
 
 export type { Context } from '@terascope/job-components';
 

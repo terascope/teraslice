@@ -3,10 +3,9 @@
 
 import path from 'node:path';
 import fs from 'fs-extra';
-import { has, TSError } from '@terascope/utils';
+import { has, TSError } from '@terascope/core-utils';
 import { AssetSrc } from '../../helpers/asset-src.js';
 import GithubAsset from '../../helpers/github-asset.js';
-
 import { CMD, GithubAssetConfig } from '../../interfaces.js';
 import reply from '../../helpers/reply.js';
 import Config from '../../helpers/config.js';
@@ -198,7 +197,7 @@ export default {
                 const resp = await terasliceClient.assets.upload(assetZip, {
                     blocking: cliConfig.args.blocking
                 });
-                const assetID = resp.asset_id ?? resp._id;
+                const assetID = resp.asset_id;
                 reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${assetID}`);
             } catch (err) {
                 reply.fatal(`Error posting asset: ${err.message}`);

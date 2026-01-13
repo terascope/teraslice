@@ -1,6 +1,8 @@
-import { get, times } from '@terascope/utils';
+import { get, times } from '@terascope/core-utils';
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
+
+const { TEST_PLATFORM } = config;
 
 describe('reindex', () => {
     let terasliceHarness: TerasliceHarness;
@@ -14,19 +16,15 @@ describe('reindex', () => {
     it('should work for simple case', async () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         // Set resource constraints on workers and ex controllers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
             jobSpec.cpu_execution_controller = 0.4;
         }
         jobSpec.name = 'basic reindex';
         const specIndex = terasliceHarness.newSpecIndex('reindex');
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(100);
+        jobSpec.apis[1].index = specIndex;
 
         const count = await terasliceHarness.runEsJob(jobSpec, specIndex);
         expect(count).toBe(100);
@@ -37,18 +35,14 @@ describe('reindex', () => {
         jobSpec.name = 'basic reindex';
         const specIndex = terasliceHarness.newSpecIndex('reindex');
         // Set resource constraints on workers and ex controllers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
             jobSpec.cpu_execution_controller = 0.4;
         }
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].query = 'bytes:>=99999999';
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].query = 'bytes:>=99999999';
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(100);
+        jobSpec.apis[1].index = specIndex;
 
         const ex = await terasliceHarness.teraslice.executions.submit(jobSpec);
         await terasliceHarness.waitForExStatus(ex, 'completed');
@@ -82,18 +76,14 @@ describe('reindex', () => {
         const specIndex = terasliceHarness.newSpecIndex('reindex');
         jobSpec.name = `reindex ${iterations} times`;
         // Set resource constraints on workers and ex controllers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
             jobSpec.cpu_execution_controller = 0.4;
         }
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
-        jobSpec.operations[0].interval = '1s';
-        jobSpec.operations[1].index = specIndex;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(100);
+        jobSpec.apis[0].interval = '1s';
+        jobSpec.apis[1].index = specIndex;
 
         const promises = times(iterations, async () => {
             const ex = await terasliceHarness.teraslice.executions.submit(jobSpec);
@@ -112,18 +102,14 @@ describe('reindex', () => {
         const index = terasliceHarness.newSpecIndex('reindex');
         jobSpec.name = 'reindex (with recovery)';
         // Set resource constraints on workers and ex controllers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
             jobSpec.cpu_execution_controller = 0.4;
         }
 
-        if (!jobSpec.operations) {
-            jobSpec.operations = [];
-        }
-
         // Job needs to be able to run long enough to cycle
-        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.operations[1].index = index;
+        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        jobSpec.apis[1].index = index;
 
         await terasliceHarness.testJobLifeCycle(jobSpec);
 

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import {
     isString, uniq, parseError,
     castArray, get, has, joinList,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { resolve } from 'import-meta-resolve';
 import {
     OperationAPIConstructor, FetcherConstructor, SlicerConstructor,
@@ -192,7 +192,6 @@ export class OperationLoader {
     async loadAPI(name: string, assetIds?: string[]): Promise<APIModule> {
         const { name: apiName, assetIdentifier: assetHash } = parseName(name, true);
         const assetPaths = assetHash ? [assetHash] : assetIds;
-
         const metadataList = await this.findOrThrow(apiName, assetPaths);
 
         if (metadataList.length > 1 && this.checkCollisions && !assetHash) {

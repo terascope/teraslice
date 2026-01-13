@@ -1,10 +1,12 @@
 export interface K8sEnvOptions {
     skipBuild: boolean;
-    tsPort: string;
+    tsPort: number;
     kindClusterName: string;
     terasliceImage?: string;
     resetStore?: boolean;
-    clusteringType: 'kubernetes' | 'kubernetesV2';
+    clusteringType: 'kubernetesV2';
     keepOpen: boolean;
     dev: boolean;
+    configFile?: string;
+    logs: boolean;
 }

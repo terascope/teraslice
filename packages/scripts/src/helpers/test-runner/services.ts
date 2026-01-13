@@ -3,11 +3,12 @@ import got from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'node:path';
+import yaml from 'js-yaml';
 import { Kafka } from 'kafkajs';
 import {
     pWhile, TSError, debugLogger,
-    toHumanTime, getErrorStatusCode, isKey
-} from '@terascope/utils';
+    getErrorStatusCode, isKey, toHumanTime
+} from '@terascope/core-utils';
 import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo,
@@ -17,7 +18,7 @@ import {
 import { Kind } from '../kind.js';
 import { TestOptions } from './interfaces.js';
 import { Service } from '../interfaces.js';
-import * as config from '../config.js';
+import config from '../config.js';
 import signale from '../signale.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -73,8 +74,8 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'network.host': '0.0.0.0',
             'http.port': config.RESTRAINED_OPENSEARCH_PORT,
             'discovery.type': 'single-node',
-            DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            DISABLE_SECURITY_PLUGIN: 'true'
+            DISABLE_INSTALL_DEMO_CONFIG: true,
+            DISABLE_SECURITY_PLUGIN: true
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -90,8 +91,8 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'network.host': '0.0.0.0',
             'http.port': config.OPENSEARCH_PORT,
             'discovery.type': 'single-node',
-            DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            DISABLE_SECURITY_PLUGIN: 'true',
+            DISABLE_INSTALL_DEMO_CONFIG: true,
+            DISABLE_SECURITY_PLUGIN: true,
             DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI: 'true'
         },
         network: config.DOCKER_NETWORK_NAME
@@ -100,31 +101,36 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         image: config.KAFKA_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.KAFKA_NAME}`,
         tmpfs: config.SERVICES_USE_TMPFS
-            ? ['/tmp/kafka-logs']
+            ? ['/tmp/kafka-logs:uid=1000,gid=1000']
             : undefined,
+        mount: config.ENCRYPT_KAFKA
+            ? [`type=bind,source=${config.CERT_PATH},target=${config.KAFKA_SECRETS_DIR}`]
+            : [],
         ports: [`${config.KAFKA_PORT}:${config.KAFKA_PORT}`],
         env: {
-            KAFKA_BROKER_ID: config.KAFKA_BROKER_ID,
-            KAFKA_ADVERTISED_HOST_NAME: config.HOST_IP,
-            KAFKA_ZOOKEEPER_CONNECT: config.KAFKA_ZOOKEEPER_CONNECT,
+            KAFKA_NODE_ID: config.KAFKA_NODE_ID,
+            KAFKA_PROCESS_ROLES: config.KAFKA_PROCESS_ROLES,
             KAFKA_LISTENERS: config.KAFKA_LISTENERS,
             KAFKA_ADVERTISED_LISTENERS: config.KAFKA_ADVERTISED_LISTENERS,
+            KAFKA_CONTROLLER_LISTENER_NAMES: config.KAFKA_CONTROLLER_LISTENER_NAMES,
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP,
+            KAFKA_CONTROLLER_QUORUM_VOTERS: config.KAFKA_CONTROLLER_QUORUM_VOTERS,
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: config.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR,
             KAFKA_INTER_BROKER_LISTENER_NAME: config.KAFKA_INTER_BROKER_LISTENER_NAME,
-            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: config.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-        },
-        network: config.DOCKER_NETWORK_NAME
-    },
-    [Service.Zookeeper]: {
-        image: config.ZOOKEEPER_DOCKER_IMAGE,
-        name: `${config.TEST_NAMESPACE}_zookeeper`,
-        tmpfs: config.SERVICES_USE_TMPFS
-            ? ['/tmp/zookeeper-logs']
-            : undefined,
-        ports: [`${config.ZOOKEEPER_CLIENT_PORT}:${config.ZOOKEEPER_CLIENT_PORT}`],
-        env: {
-            ZOOKEEPER_CLIENT_PORT: config.ZOOKEEPER_CLIENT_PORT,
-            ZOOKEEPER_TICK_TIME: config.ZOOKEEPER_TICK_TIME
+            KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: `${config.KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR}`,
+            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: config.KAFKA_TRANSACTION_STATE_LOG_MIN_ISR,
+            KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: config.KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS,
+            // TLS related config
+            ...(config.ENCRYPT_KAFKA
+                ? {
+                    KAFKA_SECURITY_PROTOCOL: 'ssl',
+                    KAFKA_SSL_CLIENT_AUTH: 'none',
+                    KAFKA_SSL_KEYSTORE_LOCATION: '/etc/kafka/secrets/kafka-keypair.pem',
+                    KAFKA_SSL_KEYSTORE_TYPE: 'PEM',
+                    KAFKA_SSL_TRUSTSTORE_LOCATION: '/etc/kafka/secrets/CAs/rootCA.pem',
+                    KAFKA_SSL_TRUSTSTORE_TYPE: 'PEM',
+                }
+                : {}),
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -136,7 +142,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             : undefined,
         ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`, `${config.MINIO_UI_PORT}:${config.MINIO_UI_PORT}`],
         mount: config.ENCRYPT_MINIO
-            ? [`type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`]
+            ? [`type=bind,source=${config.CERT_PATH},target=/opt/certs`]
             : [],
         env: {
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
@@ -198,12 +204,7 @@ export async function loadOrPullServiceImages(
         }
 
         if (launchServices.includes(Service.Kafka)) {
-            const image = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}`;
-            images.push(image);
-        }
-
-        if (launchServices.includes(Service.Zookeeper)) {
-            const image = `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.ZOOKEEPER_VERSION}`;
+            const image = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}`;
             images.push(image);
         }
 
@@ -280,10 +281,6 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
         promises.push(ensureKafka(options));
     }
 
-    if (launchServices.includes(Service.Zookeeper)) {
-        promises.push(ensureZookeeper(options));
-    }
-
     if (launchServices.includes(Service.Minio)) {
         promises.push(ensureMinio(options));
     }
@@ -313,14 +310,6 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
     const startTime = Date.now();
     fn = await startService(options, Service.Kafka);
     await checkKafka(options, startTime);
-    return fn;
-}
-
-export async function ensureZookeeper(options: TestOptions): Promise<() => void> {
-    let fn = () => { };
-    const startTime = Date.now();
-    fn = await startService(options, Service.Zookeeper);
-    await checkZookeeper(options, startTime);
     return fn;
 }
 
@@ -677,7 +666,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
             }
 
             let statusCode: number;
-            const rootCaPath = path.join(getRootDir(), 'e2e/test/certs/CAs/rootCA.pem');
+            const rootCaPath = path.join(config.CERT_PATH, 'CAs/rootCA.pem');
             try {
                 ({ statusCode } = await got('minio/health/live', {
                     prefixUrl: host,
@@ -779,9 +768,10 @@ async function checkKafka(options: TestOptions, startTime: number) {
     const retryCount = 5;
     const retryTime = 10000;
     const totalTime = retryCount * retryTime;
+    const rootCaPath = path.join(config.CERT_PATH, 'CAs/rootCA.pem');
 
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
-    if (dockerGateways.includes(config.KAFKA_HOSTNAME)) return;
+    if (dockerGateways.includes(host)) return;
 
     if (options.trace) {
         signale.debug(`checking kafka at ${host}`);
@@ -798,26 +788,25 @@ async function checkKafka(options: TestOptions, startTime: number) {
             maxRetryTime: retryTime,
             factor: 0,
             retries: retryCount
-        }
+        },
+        ...(config.ENCRYPT_KAFKA
+            ? { ssl: { ca: fs.readFileSync(rootCaPath) } }
+            : {}
+        )
     });
     const producer = kafka.producer();
     const took = toHumanTime(Date.now() - startTime);
     try {
         await producer.connect();
     } catch (err) {
-        if (err.message.includes('ENOTFOUND') && err.message.includes(config.KAFKA_BROKER)) {
+        if (err.message.includes('ENOTFOUND') && err.message.includes(kafkaBroker)) {
             throw new Error(`Unable to connect to kafka broker after ${totalTime}ms at ${kafkaBroker}`);
-        } else if (err.message.includes('ECONNREFUSED') && err.message.includes(config.KAFKA_BROKER)) {
+        } else if (err.message.includes('ECONNREFUSED') && err.message.includes(kafkaBroker)) {
             throw new Error(`Unable to connect to kafka broker after ${totalTime}ms at ${kafkaBroker}`);
         }
         throw new Error(err.message);
     }
-    signale.success(`kafka@${config.KAFKA_VERSION} is running at ${config.KAFKA_BROKER}, took ${took}`);
-}
-
-async function checkZookeeper(options: TestOptions, startTime: number) {
-    const took = toHumanTime(Date.now() - startTime);
-    signale.success(` zookeeper*might* be running, took ${took}`);
+    signale.success(`kafka@${config.KAFKA_VERSION} is running at ${kafkaBroker}, took ${took}`);
 }
 
 async function checkUtility(options: TestOptions, startTime: number): Promise<void> {
@@ -837,7 +826,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     }
     let version: string;
     if (serviceName === 'kafka') {
-        const key = 'KAFKA_IMAGE_VERSION';
+        const key = 'KAFKA_VERSION';
         version = config[key];
         signale.pending(`starting ${service}@${config.KAFKA_VERSION} service...`);
     } else {
@@ -853,7 +842,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         return () => { };
     }
 
-    if (options.clusteringType === 'kubernetes' || options.clusteringType === 'kubernetesV2') {
+    if (options.clusteringType === 'kubernetesV2') {
         const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
         await kind.loadServiceImage(
             service,
@@ -932,5 +921,59 @@ export async function loadImagesForHelm(kindClusterName: string, skipImageDeleti
             ));
         }
     });
+    await Promise.all(promiseArray);
+}
+
+export async function loadImagesForHelmFromConfigFile(
+    kindClusterName: string,
+    configFilePath: string
+) {
+    const kind = new Kind(config.K8S_VERSION, kindClusterName);
+    const customConfig = yaml.load(fs.readFileSync(configFilePath, 'utf8')) as any;
+    const promiseArray: Promise<void>[] = [];
+
+    for (const service in customConfig) {
+        // Ensure the service is enabled
+        if (customConfig[service].enabled === true) {
+            // Handle all opensearch options
+            if (service.includes(Service.Opensearch)) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Opensearch,
+                    config.OPENSEARCH_DOCKER_IMAGE,
+                    customConfig[service].version,
+                    false
+                ));
+            // Handle all elasticsearch options
+            } else if (service.includes(Service.Elasticsearch)) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Elasticsearch,
+                    config.ELASTICSEARCH_DOCKER_IMAGE,
+                    customConfig[service].version,
+                    false
+                ));
+            } else if (service === Service.Minio) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Minio,
+                    config.MINIO_DOCKER_IMAGE,
+                    customConfig[service].version,
+                    false
+                ));
+            } else if (service === Service.Kafka) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Kafka,
+                    customConfig[service].image || config.KAFKA_DOCKER_IMAGE,
+                    customConfig[service].version,
+                    false
+                ));
+            } else if (service === Service.Utility) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Utility,
+                    customConfig[service].image.repository,
+                    customConfig[service].image.tag,
+                    false
+                ));
+            }
+        }
+    }
     await Promise.all(promiseArray);
 }

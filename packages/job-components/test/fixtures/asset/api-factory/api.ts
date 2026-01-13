@@ -1,7 +1,8 @@
-import { AnyObject } from '@terascope/utils';
 import { APIFactory } from '../../../../src/index.js';
 
-export default class ExampleAPIFactory extends APIFactory<AnyObject, AnyObject> {
+export default class ExampleAPIFactory extends APIFactory<
+    Record<string, any>, Record<string, any>
+> {
     _initialized = false;
     _shutdown = false;
     _removedWasCalled = false;
@@ -12,8 +13,8 @@ export default class ExampleAPIFactory extends APIFactory<AnyObject, AnyObject> 
     }
 
     async create(
-        name: string, config: AnyObject
-    ): Promise<{ client: AnyObject; config: AnyObject }> {
+        name: string, config: Record<string, any>
+    ): Promise<{ client: Record<string, any>; config: Record<string, any> }> {
         return { client: { name, config }, config };
     }
 

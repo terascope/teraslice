@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { EventEmitter } from 'node:events';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import {
     newTestJobConfig, newTestSlice, newTestExecutionConfig,
     TestContext,
@@ -134,7 +134,7 @@ describe('Test Helpers', () => {
 
     describe('MockPromMetrics', () => {
         const context = new TestContext('test-prom-metrics');
-        context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
+        context.sysconfig.teraslice.cluster_manager_type = 'kubernetesV2';
         const config = {
             terasliceName: context.sysconfig.teraslice.name,
             assignment: 'master',

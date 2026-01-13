@@ -1,0 +1,30 @@
+serviceAccount:
+  name: stern-sa
+
+clusterRole:
+  name: stern-reader
+
+clusterRoleBinding:
+  name: stern-reader-binding
+
+pod:
+  name: stern
+  restartPolicy: Always
+
+initContainer:
+  image: busybox:latest
+
+container:
+  image: busybox:latest
+
+stern:
+  downloadUrl: https://github.com/stern/stern/releases/download/v1.30.0/stern_1.30.0_linux_amd64.tar.gz
+  namespaces:
+    services: services-dev1
+    teraslice: ts-dev1
+  logs:
+    services: k8s-services.log
+    teraslice: teraslice.log
+
+volumes:
+  logPath: /mnt/logs

@@ -1,5 +1,4 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
-import { has } from '@terascope/utils';
 
 export function convertReIndexParams(
     params: ClientParams.ReindexParams,
@@ -18,8 +17,6 @@ export function convertReIndexParams(
                 ...parsedParams
             } = params;
 
-            delete body?.dest?.type;
-
             return {
                 source: body?.source,
                 dest: body?.dest,
@@ -30,25 +27,10 @@ export function convertReIndexParams(
         if (majorVersion === 7) {
             return params;
         }
-
-        if (majorVersion === 6) {
-            const {
-                scroll,
-                max_docs,
-                ...parsedParams
-            } = params;
-
-            if (parsedParams.body.dest.type == null) parsedParams.body.dest.type = '_doc';
-
-            return parsedParams;
-        }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
-            if (has(params, 'body.dest.type')) {
-                delete params.body.dest.type;
-            }
             return params;
         }
     }

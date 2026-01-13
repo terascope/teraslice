@@ -12,13 +12,13 @@ describe('Publish', () => {
     describe('->removeNodeSuffixFromTag', () => {
         it('should return a tag without the node version', async () => {
             const tagBefore = 'v0.91.0-nodev18.18.2';
-            const tagAfter = await removeNodeSuffixFromTag(tagBefore);
+            const tagAfter = removeNodeSuffixFromTag(tagBefore);
             expect(tagAfter).toEqual('v0.91.0');
         });
 
         it('should not modify a tag without -nodev', async () => {
             const tagBefore = 'v0.91.0-v18.18.2';
-            const tagAfter = await removeNodeSuffixFromTag(tagBefore);
+            const tagAfter = removeNodeSuffixFromTag(tagBefore);
             expect(tagAfter).toEqual('v0.91.0-v18.18.2');
         });
     });

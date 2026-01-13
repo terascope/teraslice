@@ -1,5 +1,5 @@
 import { QueryAccess } from './query-access.js';
-import { QueryAccessConfig, QueryAccessOptions } from './interfaces.js';
+import { QueryAccessConfig } from './interfaces.js';
 
 type Cached = { [key: string]: QueryAccess<any> };
 const _cache = new WeakMap<CachedQueryAccess, Cached>();
@@ -11,9 +11,8 @@ export class CachedQueryAccess {
 
     make<T extends Record<string, any>>(
         config: QueryAccessConfig<T>,
-        options?: QueryAccessOptions
     ): QueryAccess<T> {
-        return new QueryAccess(config, options);
+        return new QueryAccess(config);
     }
 
     reset(): void {

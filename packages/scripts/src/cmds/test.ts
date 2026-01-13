@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import { CommandModule } from 'yargs';
-import { toBoolean, castArray } from '@terascope/utils';
+import { toBoolean, castArray } from '@terascope/core-utils';
 import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces.js';
 import { getAvailableTestSuites } from '../helpers/misc.js';
-import * as config from '../helpers/config.js';
+import config from '../helpers/config.js';
 import { listPackages } from '../helpers/packages.js';
 import { runTests } from '../helpers/test-runner/index.js';
 import { coercePkgArg } from '../helpers/args.js';
@@ -23,6 +23,7 @@ type Options = {
     'test-platform': string;
     'skip-image-deletion': boolean;
     'use-helmfile': boolean;
+    logs: boolean;
 };
 
 const jestArgs = getExtraArgs();
@@ -95,7 +96,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 description: 'Clustering platform for e2e tests',
                 type: 'string',
                 default: config.TEST_PLATFORM,
-                choices: ['native', 'kubernetes', 'kubernetesV2']
+                choices: ['native', 'kubernetesV2']
             })
             .option('skip-image-deletion', {
                 description: 'Skip the deletion of docker images from cache after loading into docker.\n This is useful if a CI job calls `ts-scripts test` more than once.',
@@ -106,6 +107,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 description: 'If true k8s tests will launch using helmfile, if false tests use kubectl and @kubernetes/client-node',
                 type: 'boolean',
                 default: config.USE_HELMFILE,
+            })
+            .option('logs', {
+                description: 'Copy logs to local file during e2e testing',
+                type: 'boolean',
+                default: true,
             })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
@@ -129,10 +135,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const useExistingServices = hoistJestArg(argv, 'use-existing-services', 'boolean');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
-        const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native' | 'kubernetes' | 'kubernetesV2';
+        const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native' | 'kubernetesV2';
         const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
         const skipImageDeletion = hoistJestArg(argv, 'skip-image-deletion', 'boolean');
         const useHelmfile = hoistJestArg(argv, 'use-helmfile', 'boolean');
+        const logs = hoistJestArg(argv, 'logs', 'boolean');
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -154,7 +161,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             clusteringType: testPlatform,
             kindClusterName,
             skipImageDeletion,
-            useHelmfile
+            useHelmfile,
+            logs
         });
     },
 };

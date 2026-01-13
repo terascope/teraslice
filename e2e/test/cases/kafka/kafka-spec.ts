@@ -2,10 +2,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { exec } from '@terascope/scripts';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import signale from '../../signale.js';
-import {
+import { config } from '../../config.js';
+
+const {
     CERT_PATH, ENCRYPT_KAFKA, ROOT_CERT_PATH,
     TEST_PLATFORM, KAFKA_PORT
-} from '../../config.js';
+} = config;
 
 describe('kafka', () => {
     let terasliceHarness: TerasliceHarness;
@@ -26,27 +28,19 @@ describe('kafka', () => {
         const readerSpec = terasliceHarness.newJob('kafka-reader');
 
         // Set resource constraints on workers and ex controllers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             senderSpec.resources_requests_cpu = 0.05;
             senderSpec.cpu_execution_controller = 0.4;
             readerSpec.resources_requests_cpu = 0.05;
             readerSpec.cpu_execution_controller = 0.4;
         }
 
-        if (!senderSpec.operations) {
-            senderSpec.operations = [];
-        }
+        senderSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
+        senderSpec.apis[1].topic = topic;
 
-        if (!readerSpec.operations) {
-            readerSpec.operations = [];
-        }
-
-        senderSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
-        senderSpec.operations[1].topic = topic;
-
-        readerSpec.operations[0].topic = topic;
-        readerSpec.operations[0].group = groupId;
-        readerSpec.operations[1].index = specIndex;
+        readerSpec.apis[0].topic = topic;
+        readerSpec.apis[0].group = groupId;
+        readerSpec.apis[1].index = specIndex;
 
         const sender = await terasliceHarness.teraslice.executions.submit(senderSpec);
 
@@ -70,7 +64,7 @@ describe('kafka', () => {
         expect(count).toBe(total);
     });
 
-    if (ENCRYPT_KAFKA === 'true') {
+    if (ENCRYPT_KAFKA === true) {
         describe('encrypted kafka', () => {
             it('should have an encrypted connection', async () => {
                 const result = await exec({

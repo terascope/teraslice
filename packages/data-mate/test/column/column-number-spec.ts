@@ -1,6 +1,6 @@
 import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
-import { bigIntToJSON } from '@terascope/utils';
+import { bigIntToJSON } from '@terascope/core-utils';
 import {
     Column
 } from '../../src/index.js';

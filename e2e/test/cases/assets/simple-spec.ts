@@ -4,19 +4,17 @@ import os from 'node:os';
 import path from 'node:path';
 import decompress from 'decompress';
 import archiver from 'archiver';
-import {
-    createS3Client,
-    getS3Object,
-    S3Client,
-} from '@terascope/file-asset-apis';
+import { createS3Client, getS3Object, S3Client } from '@terascope/file-asset-apis';
 import { Teraslice } from '@terascope/types';
-import { pWhile } from '@terascope/utils';
+import { pWhile } from '@terascope/core-utils';
 import crypto from 'crypto';
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import {
+import { config } from '../../config.js';
+
+const {
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST,
-    MINIO_SECRET_KEY, TEST_PLATFORM, ENCRYPT_MINIO
-} from '../../config.js';
+    MINIO_SECRET_KEY, TEST_PLATFORM, ENCRYPT_MINIO, ROOT_CERT_PATH
+} = config;
 
 describe('assets', () => {
     let terasliceHarness: TerasliceHarness;
@@ -35,17 +33,14 @@ describe('assets', () => {
             { blocking: true }
         );
 
-        // save the asset ID that was submitted to terslice
+        // save the asset ID that was submitted to teraslice
         const assetId = result.asset_id;
-        // TODO: remove this in teraslice V3
-        const oldAssetId = result._id;
 
         const response = await terasliceHarness.teraslice.assets.remove(assetId);
 
         // ensure the deleted asset's ID matches that of
         // the saved asset
         expect(assetId).toEqual(response.asset_id);
-        expect(oldAssetId).toEqual(response.asset_id);
     });
 
     // Test a bad asset
@@ -95,7 +90,7 @@ describe('assets', () => {
         // the asset on this job already points to 'ex1' so it should use the latest available asset
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         const { workers } = jobSpec;
@@ -104,8 +99,6 @@ describe('assets', () => {
             blocking: true
         });
         const assetId = assetResponse.asset_id;
-        // TODO: remove this in teraslice V3
-        const oldAssetId = assetResponse._id;
 
         const ex = await terasliceHarness.submitAndStart(jobSpec);
 
@@ -119,7 +112,6 @@ describe('assets', () => {
         const execution = await ex.config();
 
         expect(execution.assets[0]).toEqual(assetId);
-        expect(execution.assets[0]).toEqual(oldAssetId);
 
         await ex.stop({ blocking: true });
     });
@@ -127,7 +119,7 @@ describe('assets', () => {
     it('can directly ask for a specific asset version to be used', async () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
 
@@ -155,7 +147,7 @@ describe('assets', () => {
     it('will throw if there are naming conflicts', async () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
 
@@ -167,7 +159,7 @@ describe('assets', () => {
     it('will not throw if there are naming conflicts but you use asset identifiers', async () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
 
@@ -212,15 +204,15 @@ describe('s3 asset storage', () => {
         let s3client: S3Client;
         let assetId: string;
         let bucketName: string;
-        const config = {
+        const clientConfig = {
             endpoint: MINIO_HOST,
             accessKeyId: MINIO_ACCESS_KEY,
             secretAccessKey: MINIO_SECRET_KEY,
             forcePathStyle: true,
-            sslEnabled: ENCRYPT_MINIO === 'true',
+            sslEnabled: ENCRYPT_MINIO === true,
             region: 'test-region',
-            caCertificate: ENCRYPT_MINIO === 'true'
-                ? fs.readFileSync('test/certs/CAs/rootCA.pem', 'utf8')
+            caCertificate: ENCRYPT_MINIO === true
+                ? fs.readFileSync(ROOT_CERT_PATH, 'utf8')
                 : ''
         };
 
@@ -229,7 +221,7 @@ describe('s3 asset storage', () => {
             await terasliceHarness.init();
             await terasliceHarness.resetState();
 
-            s3client = await createS3Client(config);
+            s3client = await createS3Client(clientConfig);
             terasliceInfo = await terasliceHarness.teraslice.cluster.info();
             bucketName = `ts-assets-${terasliceInfo.name}`.replaceAll('_', '-');
         });
@@ -344,7 +336,7 @@ describe('s3 asset storage', () => {
 
             const jobSpec = terasliceHarness.newJob('generator-large-asset');
             // // Set resource constraints on workers within CI
-            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+            if (TEST_PLATFORM === 'kubernetesV2') {
                 jobSpec.resources_requests_cpu = 0.1;
             }
 

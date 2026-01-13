@@ -2,12 +2,12 @@ import {
     TSError, type Logger, toNumber, get,
     isTest, parseError, isEmpty, cloneDeep,
     pRetry, debugLogger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type {
     ClientParams, ClientResponse, ClientMetadata, ESMapping
 } from '@terascope/types';
 import {
-    type Client, getClientMetadata, isElasticsearch6, isValidClient,
+    type Client, getClientMetadata, isValidClient,
     fixMappingRequest, getFlattenedNamesAndTypes
 } from '@terascope/opensearch-client';
 import * as utils from './utils/index.js';
@@ -113,7 +113,6 @@ export class IndexManager {
         logger.trace(`Using ${this.clientMetadata.distribution} version ${this.clientMetadata.version}`);
 
         const body = config.data_type.toESMapping({
-            typeName: config.name,
             overrides: { settings },
             ...this.clientMetadata,
             ...config._meta && { _meta: config._meta }
@@ -152,7 +151,7 @@ export class IndexManager {
             }
 
             logger.info(`Index for config ${config.name} already exists, updating the mappings`);
-            const updated = await this.updateMapping(indexName, config.name, body, logger);
+            const updated = await this.updateMapping(indexName, body, logger);
             await addOrUpdateTemplate(updated);
             return false;
         }
@@ -301,11 +300,10 @@ export class IndexManager {
     }
 
     async putMapping(
-        index: string, type: string, properties: Record<string, any>
+        index: string, properties: Record<string, any>
     ): Promise<ClientResponse.IndicesPutMappingResponse> {
         const params: ClientParams.IndicesPutMappingParams = {
             index,
-            type,
             body: {
                 properties,
             },
@@ -322,15 +320,11 @@ export class IndexManager {
      * @returns a boolean that indicates whether the mapping was updated
      */
     async updateMapping(
-        index: string, type: string, mapping: Record<string, any>, logger: Logger
+        index: string, mapping: Record<string, any>, logger: Logger
     ): Promise<boolean> {
         const result = await this.getMapping(index);
 
-        const propertiesPath = !isElasticsearch6(this.client)
-            ? [
-                'mappings', 'properties'
-            ]
-            : ['mappings', type, 'properties'];
+        const propertiesPath = ['mappings', 'properties'];
 
         const existing = get(result[index], propertiesPath, {});
         const current = get(mapping, propertiesPath, {});
@@ -371,19 +365,19 @@ export class IndexManager {
         const changesInfo = changesList.length ? ` CHANGES: ${changesList.join(', ')}` : '';
 
         if (breakingChange) {
-            throw new Error(`Index ${index} (${type}) has breaking change in the mapping, increment the schema version to fix this.${changesInfo}`);
+            throw new Error(`Index ${index} has breaking change in the mapping, increment the schema version to fix this.${changesInfo}`);
         }
 
         if (safeChange) {
-            logger.info(`Detected mapping changes for ${index} (${type}).${changesInfo}`);
-            await this.putMapping(index, type, current);
+            logger.info(`Detected mapping changes for ${index} ${changesInfo}`);
+            await this.putMapping(index, current);
             return true;
         }
 
         if (changesInfo) {
-            logger.info(`No major changes for ${index} (${type}).${changesInfo}`);
+            logger.info(`No major changes for ${index} ${changesInfo}`);
         } else {
-            logger.info(`No changes for ${index} (${type}).${changesInfo}`);
+            logger.info(`No changes for ${index} ${changesInfo}`);
         }
 
         return false;

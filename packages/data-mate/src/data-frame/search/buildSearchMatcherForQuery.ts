@@ -10,15 +10,11 @@ export function buildSearchMatcherForQuery(
     variables?: xLuceneVariables,
     _overrideParsedQuery?: p.Node
 ): (rowIndex: number) => boolean {
-    let parser = new p.Parser(
+    const parser = new p.Parser(
         query,
-        { type_config: frameToXluceneConfig(dataFrame) },
+        { type_config: frameToXluceneConfig(dataFrame), variables },
         _overrideParsedQuery
     );
-
-    if (variables) {
-        parser = parser.resolveVariables(variables);
-    }
 
     return buildMatcherForNode(dataFrame, parser.typeConfig, variables ?? {})(
         parser.ast

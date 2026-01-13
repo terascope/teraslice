@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { QueryAccess } from 'xlucene-translator';
 import { FieldType } from '@terascope/types';
-import { times, TSError, AnyObject } from '@terascope/utils';
+import { times, TSError } from '@terascope/core-utils';
 import { Client, ElasticsearchTestHelpers } from '@terascope/opensearch-client';
 import {
     IndexModel, IndexModelRecord, IndexModelConfig,
@@ -9,13 +9,14 @@ import {
 } from '../src/index.js';
 import { cleanupIndexStore } from './helpers/utils.js';
 
-const { makeClient, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
+const { makeClient, envConfig } = ElasticsearchTestHelpers;
+const { TEST_INDEX_PREFIX } = envConfig;
 
 describe('IndexModel', () => {
     interface ExampleRecord extends IndexModelRecord {
         name: string;
         type: string;
-        config: AnyObject;
+        config: Record<string, any>;
     }
 
     const dataType = makeRecordDataType({

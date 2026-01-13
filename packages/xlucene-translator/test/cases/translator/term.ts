@@ -1,4 +1,4 @@
-import { escapeString } from '@terascope/utils';
+import { escapeString } from '@terascope/core-utils';
 import { xLuceneFieldType } from '@terascope/types';
 import { TestCase } from './interfaces.js';
 

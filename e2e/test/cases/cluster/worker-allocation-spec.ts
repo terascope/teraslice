@@ -1,6 +1,8 @@
 /* eslint-disable jest/expect-expect */
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { TEST_PLATFORM } from '../../config.js';
+import { config } from '../../config.js';
+
+const { TEST_PLATFORM } = config;
 
 async function workersTest(
     harness: TerasliceHarness,
@@ -11,18 +13,14 @@ async function workersTest(
     const jobSpec = harness.newJob('reindex');
     const specIndex = harness.newSpecIndex('worker-allocation');
     // Set resource constraints on workers within CI
-    if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+    if (TEST_PLATFORM === 'kubernetesV2') {
         jobSpec.resources_requests_cpu = 0.1;
     }
     jobSpec.name = 'worker allocation';
 
-    if (!jobSpec.operations) {
-        jobSpec.operations = [];
-    }
-
-    jobSpec.operations[0].index = harness.getExampleIndex(records);
-    jobSpec.operations[0].size = 100;
-    jobSpec.operations[1].index = specIndex;
+    jobSpec.apis[0].index = harness.getExampleIndex(records);
+    jobSpec.apis[0].size = 100;
+    jobSpec.apis[1].index = specIndex;
     jobSpec.workers = workers;
 
     harness.injectDelay(jobSpec);

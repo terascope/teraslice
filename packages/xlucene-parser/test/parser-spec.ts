@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { TSError, times, toString } from '@terascope/utils';
+import { TSError, times, toString } from '@terascope/core-utils';
 import { xLuceneFieldType } from '@terascope/types';
 import allTestCases, { filterNilTestCases } from './cases/index.js';
 import {
@@ -15,7 +15,8 @@ describe('Parser', () => {
                         const now = new Date();
                         const parser = new Parser(query, {
                             type_config: typeConfig,
-                        }).resolveVariables(variables);
+                            variables
+                        });
 
                         if (testDatesFn) {
                             testDatesFn(now, parser.ast);
@@ -47,6 +48,7 @@ describe('Parser', () => {
                         const parser = new Parser(query, {
                             type_config: typeConfig,
                             filterNilVariables: true,
+                            instantiateVariableValues: false,
                             variables
                         });
 
@@ -59,7 +61,7 @@ describe('Parser', () => {
                                 type_config: typeConfig,
                                 filterNilVariables: true,
                                 variables
-                            }).resolveVariables(variables);
+                            });
 
                             expect(parser.ast).toMatchObject(resolved);
                         });
@@ -169,7 +171,8 @@ describe('Parser', () => {
         expect(() => {
             new Parser(query, {
                 type_config: typeConfig,
-            }).resolveVariables(variables);
+                variables
+            });
         }).toThrow();
     });
 });

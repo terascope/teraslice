@@ -1,13 +1,8 @@
-import {
-    parseGeoPoint,
-    setPrecisionFP,
-    setPrecision
-} from '@terascope/utils';
+import { setPrecisionFP, setPrecision } from '@terascope/core-utils';
+import { parseGeoPoint } from '@terascope/geo-utils';
 import { FieldType, GeoPointInput } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
 

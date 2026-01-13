@@ -11,30 +11,14 @@ export function convertIndicesPutMappingParams(
     } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        const {
-            include_type_name = true,
-            type = '_doc',
-            ...parsedParams
-        } = params;
-
         if (majorVersion === 8 || majorVersion === 7) {
-            return parsedParams;
-        }
-
-        if (majorVersion === 6) {
-            return {
-                type,
-                include_type_name,
-                ...parsedParams
-            };
+            return params;
         }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
             const {
-                include_type_name,
-                type,
                 master_timeout,
                 ...parsedParams
             } = params;

@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import { parseConfig } from './utils.js';
 import { OperationConfig, ValidationResults } from '../interfaces.js';
 import { OperationsManager } from '../index.js';

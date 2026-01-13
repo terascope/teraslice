@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import { createS3Client, S3ClientConfig } from '@terascope/file-asset-apis';
 import type { Terafoundation } from '@terascope/types';
 
@@ -16,12 +16,12 @@ const connector: Terafoundation.Connector = {
             accessKeyId: {
                 doc: '',
                 default: null,
-                format: String
+                format: 'optional_string'
             },
             secretAccessKey: {
                 doc: '',
                 default: null,
-                format: String
+                format: 'optional_string'
             },
             region: {
                 doc: '',

@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
-import { debugLogger } from '@terascope/utils';
-import Socket from 'socket.io';
+import { debugLogger } from '@terascope/core-utils';
+import { Server as SocketServer, Socket } from 'socket.io';
 import { nodeMaster } from '../src/lib/cluster/node_master.js';
 
 process.env.assignment = 'node_master';
@@ -15,6 +15,14 @@ describe('Node master', () => {
         lifecycle: 'persistent',
         workers: 1,
         assets: ['elasticsearch', 'standard'],
+        apis: [
+            {
+                _name: 'elasticsearch_sender_api',
+                index: 'example-logs',
+                type: 'events',
+                size: 5000
+            }
+        ],
         operations: [
             {
                 _op: 'data_generator',
@@ -22,9 +30,7 @@ describe('Node master', () => {
             },
             {
                 _op: 'elasticsearch_bulk',
-                index: 'example-logs',
-                type: 'events',
-                size: 5000
+                _api_name: 'elasticsearch_sender_api'
             }
         ]
     };
@@ -55,11 +61,11 @@ describe('Node master', () => {
         __test_assignment: 'worker'
     };
 
-    const fakeClusterMaster = Socket({
+    const fakeClusterMaster = new SocketServer({
         path: '/native-clustering'
     });
 
-    fakeClusterMaster.on('connection', (socket: Socket.Socket) => {
+    fakeClusterMaster.on('connection', (socket: Socket) => {
         socket.on('node:state', (data: Record<string, any>) => {
             eventEmitter.emit('node:state', data);
         });

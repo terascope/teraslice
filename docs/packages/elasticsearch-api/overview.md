@@ -253,13 +253,13 @@ const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, op
 elasticsearch.bulkSend([
      {
         action: {
-            index: { _index: 'some_index', _type: 'events', _id: 1 }
+            index: { _index: 'some_index', _id: 1 }
         },
         data: { title: 'foo' }
     },
     {
         action: {
-            delete: { _index: 'some_index', _type: 'events', _id: 5 }
+            delete: { _index: 'some_index', _id: 5 }
         }
     }
 ])

@@ -1,13 +1,14 @@
 import { jest } from '@jest/globals';
-import { debugLogger, cloneDeep, DataEntity } from '@terascope/utils';
+import { debugLogger, cloneDeep, DataEntity } from '@terascope/core-utils';
 import { ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import elasticsearchAPI, { Client as APIClient } from '../src/index.js';
 
 const {
     makeClient, cleanupIndex, EvenDateData,
-    TEST_INDEX_PREFIX, createMappingFromDatatype,
-    formatUploadData
+    createMappingFromDatatype, envConfig,
+    formatUploadData,
 } = ElasticsearchTestHelpers;
+const { TEST_INDEX_PREFIX } = envConfig;
 
 const THREE_MINUTES = 3 * 60 * 1000;
 
@@ -37,7 +38,7 @@ describe('bulkSend', () => {
             };
 
             const mapping = await createMappingFromDatatype(
-                client, EvenDateData.EvenDataType, '_doc', overrides
+                client, EvenDateData.EvenDataType, overrides
             );
 
             mapping.index = index;

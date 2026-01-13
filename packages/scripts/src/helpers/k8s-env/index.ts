@@ -1,11 +1,13 @@
-import os from 'node:os';
 import { execaCommandSync } from 'execa';
-import { isCI } from '@terascope/utils';
+import path from 'node:path';
+import fs from 'node:fs';
+import { isCI } from '@terascope/core-utils';
 import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
     isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
     helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
-    generateTestCaCerts, createMinioSecret, dockerBuild
+    generateTestCaCerts, dockerBuild, getConfigValueFromCustomYaml,
+    launchTerasliceWithCustomHelmfile, setConfigValuesForCustomYaml
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
@@ -13,20 +15,29 @@ import signale from '../signale.js';
 import { getDevDockerImage, getRootInfo } from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
-import * as config from '../config.js';
-import { K8s } from './k8s.js';
-import { loadImagesForHelm } from '../test-runner/services.js';
+import config from '../config.js';
+import { loadImagesForHelm, loadImagesForHelmFromConfigFile } from '../test-runner/services.js';
+import { getE2EDir } from '../../helpers/packages.js';
 
 const rootInfo = getRootInfo();
 const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
 
 export async function launchK8sEnv(options: K8sEnvOptions) {
-    if (process.env.TEST_ELASTICSEARCH && process.env.ELASTICSEARCH_VERSION?.charAt(0) === '6' && isArm()) {
-        signale.error('There is no compatible Elasticsearch6 image for arm based processors. Try a different elasticsearch version.');
-        process.exit(1);
+    let repo: string = '';
+    let tag: string = '';
+    let imageName: string = '';
+    let buildTerasliceImage: boolean = true;
+
+    if (options.configFile) {
+        signale.pending('Starting k8s environment with a config file..');
+        // set the repo and tag to whats in th custom config to use later
+        repo = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.repository');
+        tag = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.tag');
+        imageName = `${repo}:${tag}`;
+        buildTerasliceImage = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.build');
+    } else {
+        signale.pending('Starting k8s environment with the following options: ', options);
     }
-    signale.pending('Starting k8s environment with the following options: ', options);
-    const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
 
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
@@ -47,35 +58,30 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         process.exit(1);
     }
 
-    await generateTestCaCerts();
+    if (!options.configFile) {
+        await generateTestCaCerts();
+    }
 
     signale.pending('Creating kind cluster');
+    const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
     try {
-        await kind.createCluster(options.tsPort, options.dev);
+        await kind.createCluster(options.tsPort, options.dev, options.configFile);
     } catch (err) {
         signale.error(err);
         // Do not destroy existing cluster if that was the cause of failure
-        if (!err.stderr.includes('node(s) already exist for a cluster with the name')) {
+        if (!err.message.includes('node(s) already exist for a cluster with the name')) {
             await kind.destroyCluster();
         }
         process.exit(1);
     }
     signale.success('Kind cluster created');
 
-    const k8s = new K8s(options.tsPort, options.kindClusterName);
     try {
-        await k8s.createNamespace('services-ns.yaml', 'services');
-    } catch (err) {
-        signale.fatal(err);
-        if (!options.keepOpen) {
-            await kind.destroyCluster();
+        if (!options.configFile || (buildTerasliceImage)) {
+            await buildAndTagTerasliceImage(options);
         }
-        process.exit(1);
-    }
 
-    try {
-        await buildAndTagTerasliceImage(options);
-        if (process.env.ENABLE_UTILITY_SVC) {
+        if ((options.configFile && await getConfigValueFromCustomYaml(options.configFile, 'utility.enabled')) || process.env.ENABLE_UTILITY_SVC) {
             await buildUtilityImage();
         }
     } catch (err) {
@@ -91,7 +97,12 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     if (options.dev) {
         let imageVersion: string;
         try {
-            imageVersion = await getNodeVersionFromImage(e2eImage);
+            if (options.configFile) {
+                // Will grab the image name from the yaml config so it can validate node version
+                imageVersion = await getNodeVersionFromImage(imageName);
+            } else {
+                imageVersion = await getNodeVersionFromImage(e2eImage);
+            }
         } catch (err) {
             await kind.destroyCluster();
             throw new Error(`Problem running docker command to check node version: ${err}`);
@@ -113,21 +124,38 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     }
 
     signale.pending('Loading service images into kind cluster');
-    await loadImagesForHelm(options.kindClusterName, false);
+    if (options.configFile) {
+        await loadImagesForHelmFromConfigFile(options.kindClusterName, options.configFile);
+    } else {
+        await loadImagesForHelm(options.kindClusterName, false);
+    }
     signale.success('Service images loaded into kind cluster');
 
     signale.pending('Loading teraslice image into kind cluster');
-    await kind.loadTerasliceImage(e2eImage);
+    if (options.configFile) {
+        if (!buildTerasliceImage) {
+            await kind.loadTerasliceImage(imageName);
+        } else {
+            // We need to ensure the custom config has the image we are going to use set.
+            const imageArray = e2eImage.split(':');
+            await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
+            signale.info(`Overwrote teraslice.image.repository field in custom config to "${imageArray[0]}"`);
+            await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
+            signale.info(`Overwrote teraslice.image.tag field in custom config to "${imageArray[1]}"`);
+            await kind.loadTerasliceImage(e2eImage);
+        }
+    } else {
+        await kind.loadTerasliceImage(e2eImage);
+    }
     signale.success('Teraslice image loaded into kind cluster');
 
     try {
         signale.pending('Launching teraslice with helmfile');
-        // Create a minio secret if needed before helm sync
-        // but after the namespaces have been made
-        if (config.ENCRYPT_MINIO) {
-            await createMinioSecret(k8s);
+        if (options.configFile) {
+            await launchTerasliceWithCustomHelmfile(options.configFile);
+        } else {
+            await launchTerasliceWithHelmfile(options.clusteringType, options.dev, options.logs);
         }
-        await launchTerasliceWithHelmfile(options.clusteringType, options.dev);
         signale.pending('Teraslice launched with helmfile');
     } catch (err) {
         signale.fatal('Error deploying Teraslice: ', err);
@@ -175,12 +203,27 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
     }
 
     signale.pending('Loading Teraslice Docker image');
+    if (options.configFile) {
+        if (await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.build') === false) {
+            signale.warn(`Your teraslice configuration at "teraslice.image.build" is set to false but you passed in --rebuild. Your image configured will be replaced with the default built image.`);
+        }
+        // We need to ensure the custom config has the image we are going to use set.
+        const imageArray = e2eImage.split(':');
+        await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
+        signale.info(`Overwrote teraslice.image.repository field in custom config to "${imageArray[0]}"`);
+        await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
+        signale.info(`Overwrote teraslice.image.tag field in custom config to "${imageArray[1]}"`);
+    }
     await kind.loadTerasliceImage(e2eImage);
     signale.success('Teraslice Docker image loaded');
 
     try {
         signale.pending('Launching rebuilt teraslice with helmfile');
-        await launchTerasliceWithHelmfile(options.clusteringType, options.dev);
+        if (options.configFile) {
+            await launchTerasliceWithCustomHelmfile(options.configFile);
+        } else {
+            await launchTerasliceWithHelmfile(options.clusteringType, options.dev, options.logs);
+        }
         signale.pending('Rebuilt Teraslice launched with helmfile');
     } catch (err) {
         signale.error('Error re-deploying Teraslice: ', err);
@@ -227,6 +270,15 @@ async function buildUtilityImage() {
     }
 }
 
-function isArm() {
-    return os.machine() === 'arm' || os.machine() === 'arm64' || os.machine() === 'aarch64';
+export function generateTemplateConfig() {
+    const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
+    const newFilePath = path.join(getE2EDir() as string, '../', 'k8s-config.yaml');
+
+    if (fs.existsSync(newFilePath)) {
+        throw new Error(`A config file has already exists at ${newFilePath}. Either delete it or rename it to generate a new config.`);
+    }
+
+    const file = fs.readFileSync(e2eHelmfileValuesPath, 'utf-8');
+    fs.writeFileSync(newFilePath, file);
+    signale.success(`Generated new templated config file at ${newFilePath}`);
 }

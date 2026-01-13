@@ -48,9 +48,6 @@ describe('vector searches', () => {
         {
             prevent_prefix_wildcard: true,
             allow_empty_queries: true,
-            type_config: dataType.toXlucene()
-        },
-        {
             type_config: dataType.toXlucene(),
             filterNilVariables: true,
             variables: undefined

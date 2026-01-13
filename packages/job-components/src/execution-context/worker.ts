@@ -1,4 +1,5 @@
-import * as ts from '@terascope/utils';
+import * as ts from '@terascope/core-utils';
+
 import {
     ExecutionContextConfig, RunSliceResult, WorkerSliceState,
     WorkerStatus, SliceStatus, JobAPIInstances

@@ -34,10 +34,11 @@ teraslice:
 
 NOTE: All `asset_storage` related fields are deprecated. Please use the fields in the teraslice config instead. Also the `asset_storage` fields in the teraslice config will take precedence over the ones that are in terafoundation.
 
-|      Field      |    Type    |     Default     |                                      Description                                      |
+See 
+
+|      Field      |    [Type](#configuration-formats)    |     Default     |                                      Description                                      |
 | :-------------: | :--------: | :-------------: | :-----------------------------------------------------------------------------------: |
 | **connectors** |  `Object`  | none |       Required. An object whose keys are connection types and values are objects describing each connection of that type. See [Terafoundation Connectors](#terafoundation-connectors).        |
-| **environment** |  `String`  | `"development"` |       If set to `development` console logging will automatically be turned on.        |
 |  **log_level**  |  `String`  |    `"info"`     |                                Default logging levels                                 |
 |  **log_path**   |  `String`  |    `"$PWD"`     |          Directory where the logs will be stored if logging is set to `file`          |
 |   **logging**   | `String[]` |  `["console"]`  | Logging destinations. Expects an array of logging targets. options: `console`, `file` |
@@ -84,7 +85,7 @@ NOTE: All `asset_storage` related fields are deprecated. Please use the fields i
 |                   **master**                    |             `Boolean`              |          `false`           |                                     boolean for determining if cluster_master should live on this node                                      |
 |               **master_hostname**               |              `String`              |       `"localhost"`        |                         hostname where the cluster_master resides, used to notify all node_masters where to connect                         |
 |                   **memory**                    |              `Number`              |             -              |                                       memory, in bytes, to reserve per teraslice worker in kubernetes                                       |
-|                    **name**                     |        `elasticsearch_Name`        |      `"teracluster"`       |                                     Name for the cluster itself, its used for naming log files/indices                                      |
+|                    **name**                     |        `elasticsearch_name`        |      `"teracluster"`       |                                     Name for the cluster itself, its used for naming log files/indices                                      |
 |           **network_latency_buffer**            |             `duration`             |          `15000`           | time in milliseconds buffer which is combined with action_timeout to determine how long a network message will wait till it throws an error |
 |           **node_disconnect_timeout**           |             `duration`             |          `300000`          |      time in milliseconds that the cluster  will wait until it drops that node from state and attempts to provision the lost workers       |
 |             **node_state_interval**             |             `duration`             |           `5000`           |                         time in milliseconds that indicates when the cluster master will ping nodes for their state                         |
@@ -216,3 +217,66 @@ teraslice:
     master_hostname: 127.0.0.1
     name: teraslice
     hostname: 127.0.0.1
+```
+
+## Configuration Formats
+
+Each configuration property is assigned a format within its schema. Valid formats include:
+
+- javascript types - values will be evaluated against the type's javascript constructor
+    - `Boolean`
+    - `String`
+    - `Number`
+    - `Array`
+    - `Object`
+    - `RegExp`
+- `'int'` - an integer
+- `'port'` - a number, or string that can be coerced to a number, from 1 to 65535
+- `'nat'` - a natural number (integer >= 0)
+- `'url'` - a Zod url() compliant string
+- `'email'` - a Zod email() compliant string
+- `'ipaddress'` - a Zod ipv4() or ipv6() compliant string
+- `'*'` - any or no value
+- enums - an array of valid values, i.e, ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
+- inline format functions - validation functions written in javascript defined directly within a schema. The function should either return void or throw an error if validation fails. Coercing values is not supported.
+- predefined formats - these formats can contain both coerce and validate functions. If a coerce function is defined it will run first and validation will run on the coerced value to see that it meets the format requirements:
+    - `'required_string'` - must be a string
+    - `'optional_string'` - must be a string, null, or undefined
+    - `'optional_date'` - value will be coerced to an ISO8601 date if possible. Valid formats include:
+        - Year - 'YYYY'
+        - Year - 'YYYY[T]'
+        - Year_month - 'YYYYMM'
+        - basic_date - 'YYYYMMDD'
+        - basic_date_time - 'YYYYMMDD[T]HHmmss.SSSZ'
+        - basic_date_time_no_millis - 'YYYYMMDD[T]HHmmssZ'
+        - basic_time - 'HHmmss.SSSZ'
+        - basic_time_no_millis - 'HHmmssZ'
+        - basic_t_time - '[T]HHmmss.SSSZ'
+        - basic_t_time_no_millis - '[T]HHmmssZ'
+        - date - 'YYYY-MM'
+        - date - 'YYYY-MM-DD'
+        - date_hour - 'YYYY-MM-DD[T]HH'
+        - date_hour_minute - 'YYYY-MM-DD[T]HH:mm'
+        - date_hour_minute_second - 'YYYY-MM-DD[T]HH:mm:ss'
+        - date_hour_minute_second_fraction - 'YYYY-MM-DD[T]HH:mm:ss.SSS'
+        - date_time - 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ'
+        - date_time_no_millis - 'YYYY-MM-DD[T]HH:mm:ssZZ'
+        - date_time_no_second - 'YYYY-MM-DD[T]HH:mmZZ'
+        - hour - 'HH'
+        - hour_minute - 'HH:mm'
+        - hour_minute_second - 'HH:mm:ss'
+        - hour_minute_second_fraction - 'HH:mm:ss.SSS'
+        - time - 'HH:mm:ss.SSSZZ'
+        - time_no_millis - 'HH:mm:ssZZ'
+        - t_time - '[T]HH:mm:ss.SSSZZ'
+        - t_time_no_millis - '[T]HH:mm:ssZZ'
+        - timestamp strings between 5 and 13 character (inclusive)
+        - timestamp integers of any length
+        - any valid [datemath-parser](https://github.com/randing89/datemath-parser) value
+    - `'elasticsearch_name'` - value must be a string of 255 characters or less, contain only lowercase letters (no uppercase A-Z), does not start with underscore, hyphen, or plus signs, does not equal "." or "..", and does not contain any of these invalid characters: #, *, ?, ", `<`, `>`, |, /, or \\.
+    - `'positive_int'` - must be valid integer greater than zero
+    - `'optional_bool'` - must be either true, false, 'true', 'false', 1, 0, '1', '0', null, or undefined
+    - `'optional_int'` - must be an integer, null, or undefined
+    - `'duration'` - must be a positive integer or human readable string containing a number and valid unit (e.g. 3000, "5 days")
+    - `'optional_duration'` - must be null, undefined, a positive integer or human readable string containing a number and valid unit (e.g. 3000, "5 days")
+    - `'timestamp'` - must be a string or number that can be coerced to a valid unix timestamp

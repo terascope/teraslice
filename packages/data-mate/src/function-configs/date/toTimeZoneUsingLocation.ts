@@ -1,5 +1,6 @@
 import { DateFormat, FieldType, GeoInput } from '@terascope/types';
-import { toTimeZoneUsingLocationFP } from '@terascope/utils';
+import { toTimeZone } from '@terascope/core-utils';
+import { lookupTimezone } from '@terascope/geo-utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
@@ -7,6 +8,15 @@ import {
 
 export interface TimeZoneUsingLocationArgs {
     location: GeoInput;
+}
+
+function toTimeZoneUsingLocationFP(location: unknown) {
+    // location validation happens inside lookupTimezone
+    const timezone = lookupTimezone(location);
+
+    return function _toTimeZoneUsingLocation(val: unknown) {
+        return toTimeZone(val, timezone);
+    };
 }
 
 export const toTimeZoneUsingLocationConfig: FieldTransformConfig<TimeZoneUsingLocationArgs> = {

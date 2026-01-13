@@ -1,8 +1,7 @@
-import { AnyObject } from '@terascope/utils';
-import { ConvictSchema } from '../../../../src/index.js';
+import { BaseSchema } from '../../../../src/index.js';
 
-export default class Schema extends ConvictSchema<any, any> {
-    build(): AnyObject {
+export default class Schema extends BaseSchema<any, any> {
+    build(): Record<string, any> {
         return {
             example: {
                 default: 'examples are quick and easy',

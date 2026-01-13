@@ -3,7 +3,7 @@ import {
     parseErrorInfo, parseList, logError,
     isString, get, toInteger, Logger,
     TSError
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
 
 export function makeTable(
@@ -58,6 +58,7 @@ export function handleTerasliceRequest(
     return async (fn: () => Promise<string | Record<string, any>>) => {
         try {
             const result = await fn();
+
             if (isString(result)) {
                 res.status(successCode).send(result);
             } else {

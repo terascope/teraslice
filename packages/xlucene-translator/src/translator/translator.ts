@@ -1,6 +1,5 @@
-import {
-    debugLogger, isString, parseGeoDistanceUnit
-} from '@terascope/utils';
+import { debugLogger, isString } from '@terascope/core-utils';
+import { parseGeoDistanceUnit } from '@terascope/geo-utils';
 import {
     xLuceneVariables, xLuceneTypeConfig, GeoDistanceUnit,
     ElasticsearchDSLOptions, ElasticsearchDSLResult,
@@ -35,10 +34,6 @@ export class Translator {
             this._parser = input;
         }
 
-        if (options.variables) {
-            this._parser = this._parser.resolveVariables(options.variables);
-        }
-
         if (options.default_geo_field) {
             this._defaultGeoField = options.default_geo_field;
         }
@@ -55,10 +50,10 @@ export class Translator {
     toElasticsearchDSL(opts: ElasticsearchDSLOptions = {}): ElasticsearchDSLResult {
         const result = translateQuery(this._parser, {
             logger,
-            majorVersion: opts.majorVersion ?? 6,
-            minorVersion: opts.minorVersion ?? 8,
-            version: opts.version ?? '6.8.6',
-            distribution: opts.distribution ?? ElasticsearchDistribution.elasticsearch,
+            majorVersion: opts.majorVersion ?? 2,
+            minorVersion: opts.minorVersion ?? 15,
+            version: opts.version ?? '2.15.0',
+            distribution: opts.distribution ?? ElasticsearchDistribution.opensearch,
             type_config: this.typeConfig,
             default_geo_field: this._defaultGeoField,
             variables: this.variables ?? {},

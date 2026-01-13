@@ -7,7 +7,7 @@ import {
     parseErrorInfo, parseList, logError,
     TSError, startsWith, Logger, pWhile,
     isKey
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { ExecutionStatusEnum } from '@terascope/types';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
@@ -490,7 +490,7 @@ export class ApiService {
             requestHandler(async () => {
                 const stats = executionService.getClusterAnalytics();
 
-                // for backwards compatability
+                // for backwards compatibility
                 // @ts-expect-error
                 stats.slicer = stats.controllers;
                 return stats;
@@ -516,7 +516,7 @@ export class ApiService {
                 defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
             }
 
-            if (this.clusterType === 'kubernetes' || this.clusterType === 'kubernetesV2') {
+            if (this.clusterType === 'kubernetesV2') {
                 defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pod_name', 'image'];
             }
 
@@ -701,7 +701,7 @@ export class ApiService {
                                 name,
                                 node_version: process.version,
                                 platform: this.context.platform,
-                                teraslice_version: `v${getPackageJSON().version}`
+                                teraslice_version: `v${terasliceVersion}`
                             },
                             1
                         );
@@ -875,7 +875,8 @@ export class ApiService {
                             }
                         }
 
-                        const clusterState = this.clusterService.getClusterState();
+                        // TODO: removing native clustering will remove the need for any here
+                        const clusterState = this.clusterService.getClusterState() as any;
 
                         /// Filter out information about kubernetes ex pods
                         const filteredExecutions: Record<string, string> = {};

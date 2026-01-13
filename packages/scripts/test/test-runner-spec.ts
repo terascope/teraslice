@@ -22,7 +22,8 @@ describe('Test Runner Helpers', () => {
         clusteringType: 'native',
         kindClusterName: 'default',
         skipImageDeletion: false,
-        useHelmfile: false
+        useHelmfile: false,
+        logs: false
     };
 
     function makeTestOptions(input: Partial<TestOptions>): TestOptions {

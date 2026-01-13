@@ -1,6 +1,6 @@
-import 'socket.io-client';
+import { ManagerOptions, SocketOptions } from 'socket.io-client';
 import http from 'node:http';
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 
 export interface CoreOptions {
     networkLatencyBuffer?: number;
@@ -15,7 +15,7 @@ export interface ClientOptions extends CoreOptions {
     serverName: string;
     clientDisconnectTimeout: number;
     connectTimeout: number;
-    socketOptions?: SocketIOClient.ConnectOpts;
+    socketOptions?: Partial<ManagerOptions & SocketOptions>;
 }
 
 export interface ServerOptions extends CoreOptions {
@@ -119,4 +119,15 @@ export interface EventListener {
 export interface SocketEmitter {
     on(eventName: string, fn: (msg: Message) => void): void;
     emit(eventName: string, msg: Message): void;
+}
+
+export interface ClientToServerEvents {
+    'message:response': (msg: Message) => void;
+    [eventName: string]: (message: Message) => void;
+}
+
+export interface ServerToClientEvents {
+    'message:response': (msg: Message) => void;
+    shutdown: () => void;
+    [eventName: string]: (message: Message) => void;
 }

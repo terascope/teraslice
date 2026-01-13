@@ -3,11 +3,11 @@ import fs from 'node:fs';
 import ms from 'ms';
 import path from 'node:path';
 import { execaCommand } from 'execa';
-import { cloneDeep, debugLogger, pDelay, TSError } from '@terascope/utils';
+import { cloneDeep, debugLogger, pDelay, TSError } from '@terascope/core-utils';
 import { Terafoundation as TF, Teraslice as TS } from '@terascope/types';
 import { getE2eK8sDir } from '../../helpers/packages.js';
 import signale from '../signale.js';
-import * as config from '../config.js';
+import config from '../config.js';
 import { getVolumesFromDockerfile } from '../kind.js';
 
 const logger = debugLogger('ts-scripts:k8s-env');
@@ -19,10 +19,10 @@ export class K8s {
     k8sSchedulingV1Api: k8sClient.SchedulingV1Api;
     terasliceNamespace: string;
     servicesNamespace: string;
-    tsPort: string;
+    tsPort: number;
     kindClusterName: string;
 
-    constructor(tsPort: string, kindClusterName: string) {
+    constructor(tsPort: number, kindClusterName: string) {
         this.kc = new k8sClient.KubeConfig();
         this.kc.loadFromDefault();
 
@@ -90,7 +90,7 @@ export class K8s {
         }
     }
 
-    async deployK8sTeraslice(clustering: 'kubernetes' | 'kubernetesV2', wait: boolean, dev: boolean, assetStorage = 'elasticsearch-next') {
+    async deployK8sTeraslice(clustering: 'kubernetesV2', wait: boolean, dev: boolean, assetStorage = 'elasticsearch-next') {
         signale.pending('Begin teraslice deployment...');
         const e2eK8sDir = getE2eK8sDir();
         if (!e2eK8sDir) {
@@ -202,7 +202,7 @@ export class K8s {
                 // TODO: switch to a teraslice client
                 const tsResponse = await execaCommand(`curl http://${config.HOST_IP}:${this.tsPort}`);
                 response = JSON.parse(tsResponse.stdout);
-                if (response.clustering_type === 'kubernetes' || response.clustering_type === 'kubernetesV2') {
+                if (response.clustering_type === 'kubernetesV2') {
                     terasliceRunning = true;
                 }
             } catch (err) {

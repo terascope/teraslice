@@ -2,18 +2,13 @@ import ms from 'ms';
 import {
     pDelay, uniq, toString,
     cloneDeep, isEmpty, castArray, pRetry
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { showState } from '@terascope/scripts';
 import { JobConfig, Teraslice } from '@terascope/types';
 import { createClient, ElasticsearchTestHelpers, Client, ClientConfig } from '@terascope/opensearch-client';
 import { TerasliceClient } from 'teraslice-client-js';
 import fse from 'fs-extra';
-import {
-    TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
-    DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
-    EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT,
-    LOG_PATH, ENCRYPT_OPENSEARCH, OPENSEARCH_USER, OPENSEARCH_PASSWORD, ROOT_CERT_PATH
-} from './config.js';
+import { config } from './config.js';
 import { scaleWorkers, getElapsed } from './docker-helpers.js';
 import signale from './signale.js';
 import generatorToESJob from './fixtures/jobs/generate-to-es.js';
@@ -23,9 +18,15 @@ import generatorJob from './fixtures/jobs/generator.js';
 import idJob from './fixtures/jobs/id.js';
 import kafkaReaderJob from './fixtures/jobs/kafka-reader.js';
 import kafkaSenderJob from './fixtures/jobs/kafka-sender.js';
-import multisendJob from './fixtures/jobs/multisend.js';
 import reindexJob from './fixtures/jobs/reindex.js';
 import { defaultAssetBundles } from './download-assets.js';
+
+const {
+    TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
+    DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
+    EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT,
+    LOG_PATH, ENCRYPT_OPENSEARCH, OPENSEARCH_USER, OPENSEARCH_PASSWORD, ROOT_CERT_PATH
+} = config;
 
 const JobDict = Object.freeze({
     'generate-to-es': generatorToESJob,
@@ -35,7 +36,6 @@ const JobDict = Object.freeze({
     id: idJob,
     'kafka-reader': kafkaReaderJob,
     'kafka-sender': kafkaSenderJob,
-    multisend: multisendJob,
     reindex: reindexJob,
 });
 
@@ -100,8 +100,8 @@ export class TerasliceHarness {
     }
 
     async logExStatus(ex: any) {
-        const config = await ex.config();
-        this.warn('ex status', config);
+        const exConfig = await ex.config();
+        this.warn('ex status', exConfig);
     }
     // TODO: look at types here
 
@@ -145,7 +145,7 @@ export class TerasliceHarness {
     async resetState() {
         const startTime = Date.now();
 
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             try {
                 cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
                 await showState(TERASLICE_PORT); // adds logs at debug level
@@ -498,7 +498,7 @@ export class TerasliceHarness {
                 return _waitForClusterState();
             }
 
-            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+            if (TEST_PLATFORM === 'kubernetesV2') {
                 // A get request to 'cluster/state' will return an empty object in kubernetes.
                 // Therefore nodes will be 0.
                 if (nodes === 0) return nodes;
@@ -547,7 +547,7 @@ export class TerasliceHarness {
 
         const nodes = await this.waitForClusterState();
 
-        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+        if (TEST_PLATFORM === 'kubernetesV2') {
             signale.success(`Teraslice is ready to go at port ${TERASLICE_PORT}`, getElapsed(startTime));
         } else {
             signale.success(`Teraslice is ready to go at port ${TERASLICE_PORT} with ${nodes} nodes`, getElapsed(startTime));
@@ -575,6 +575,13 @@ export class TerasliceHarness {
             lifecycle: 'once',
             workers: 1,
             assets: requiredAssets,
+            apis: [
+                {
+                    _name: 'elasticsearch_sender_api',
+                    index: indexName,
+                    size: 1000
+                }
+            ],
             operations: [
                 {
                     _op: 'data_generator',
@@ -582,9 +589,7 @@ export class TerasliceHarness {
                 },
                 {
                     _op: 'elasticsearch_bulk',
-                    index: indexName,
-                    type: 'events',
-                    size: 1000
+                    _api_name: 'elasticsearch_sender_api',
                 }
             ]
         } as any;
@@ -596,7 +601,7 @@ export class TerasliceHarness {
         signale.success(`Assets validated successfully!`);
 
         try {
-            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
+            if (TEST_PLATFORM === 'kubernetesV2') {
                 // Set resource constraints on workers and ex controllers within CI
                 jobSpec.resources_requests_cpu = 0.05;
                 jobSpec.cpu_execution_controller = 0.4;

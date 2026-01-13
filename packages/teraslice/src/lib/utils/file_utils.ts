@@ -3,7 +3,7 @@ import path from 'node:path';
 import fse from 'fs-extra';
 import semver from 'semver';
 import { Mutex } from 'async-mutex';
-import { TSError, Logger } from '@terascope/utils';
+import { TSError, Logger } from '@terascope/core-utils';
 import decompress from 'decompress';
 import { getMajorVersion } from './asset_utils.js';
 

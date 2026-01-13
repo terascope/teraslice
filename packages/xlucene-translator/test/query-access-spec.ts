@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { xLuceneFieldType, ClientParams } from '@terascope/types';
-import { TSError } from '@terascope/utils';
+import { TSError } from '@terascope/core-utils';
 import { QueryAccess } from '../src/index.js';
 
 describe('QueryAccess', () => {
@@ -13,8 +13,7 @@ describe('QueryAccess', () => {
     describe('when constructed without exclude', () => {
         it('should set an empty array', () => {
             const queryAccess = new QueryAccess(
-                {},
-                { type_config: { foo: xLuceneFieldType.String } }
+                { type_config: { foo: xLuceneFieldType.String } },
             );
 
             expect(queryAccess.excludes).toBeArrayOfSize(0);
@@ -24,7 +23,6 @@ describe('QueryAccess', () => {
     describe('when constructed with exclusive fields', () => {
         const queryAccess = new QueryAccess({
             excludes: ['bar', 'moo', 'baa.maa', 'a.b'],
-        }, {
             type_config: {
                 foo: xLuceneFieldType.String,
                 bar: xLuceneFieldType.String,
@@ -140,7 +138,6 @@ describe('QueryAccess', () => {
     describe('when constructed with include fields', () => {
         const queryAccess = new QueryAccess({
             includes: ['bar', 'star', 'baz'],
-        }, {
             type_config: {
                 bar: xLuceneFieldType.Integer,
                 star: xLuceneFieldType.Integer,
@@ -192,7 +189,6 @@ describe('QueryAccess', () => {
 
             const result = new QueryAccess({
                 allow_implicit_queries: true,
-            }, {
                 type_config: {
                     bar: xLuceneFieldType.String,
                 }
@@ -210,7 +206,6 @@ describe('QueryAccess', () => {
         it('should throw if passed an empty query', () => {
             expect(() => new QueryAccess({
                 allow_empty_queries: false,
-            }, {
                 type_config: {
                     bar: xLuceneFieldType.String,
                 }
@@ -221,7 +216,6 @@ describe('QueryAccess', () => {
             expect(
                 new QueryAccess({
                     allow_empty_queries: true,
-                }, {
                     type_config: {
                         bar: xLuceneFieldType.String,
                     }
@@ -234,7 +228,6 @@ describe('QueryAccess', () => {
                 new QueryAccess({
                     allow_empty_queries: true,
                     constraint: 'foo:bar',
-                }, {
                     type_config: {
                         foo: xLuceneFieldType.String,
                         bar: xLuceneFieldType.Integer,
@@ -260,7 +253,6 @@ describe('QueryAccess', () => {
             it('should be able to default to constraint query', () => {
                 const result = new QueryAccess({
                     constraint: 'foo:bar',
-                }, {
                     type_config: {
                         foo: xLuceneFieldType.String,
                     }
@@ -276,7 +268,6 @@ describe('QueryAccess', () => {
 
                 const result = new QueryAccess({
                     constraint: 'foo:bar',
-                }, {
                     type_config: {
                         foo: xLuceneFieldType.String,
                     }
@@ -292,7 +283,6 @@ describe('QueryAccess', () => {
 
                 const result = new QueryAccess({
                     constraint: 'foo:bar',
-                }, {
                     type_config: {
                         foo: xLuceneFieldType.String,
                     }
@@ -306,7 +296,6 @@ describe('QueryAccess', () => {
         it('should not throw if includes matches field wildcard', () => {
             const queryAccess = new QueryAccess({
                 includes: ['field_one', 'field_two'],
-            }, {
                 type_config: {
                     field_one: xLuceneFieldType.String,
                     field_two: xLuceneFieldType.String,
@@ -320,7 +309,6 @@ describe('QueryAccess', () => {
         it('should throw if includes does not match all fields', () => {
             const queryAccess = new QueryAccess({
                 includes: ['field_one', 'field_two'],
-            }, {
                 type_config: {
                     field_one: xLuceneFieldType.String,
                     field_two: xLuceneFieldType.String,
@@ -335,7 +323,6 @@ describe('QueryAccess', () => {
         it('should not throw if type_config field has valid matching fields', () => {
             const queryAccess = new QueryAccess({
                 includes: ['field_one'],
-            }, {
                 type_config: {
                     field_one: xLuceneFieldType.String,
                     field_two: xLuceneFieldType.String,
@@ -349,7 +336,6 @@ describe('QueryAccess', () => {
         it('should throw if excludes matches all fields wildcard query', () => {
             const queryAccess = new QueryAccess({
                 excludes: ['field_one', 'field_two'],
-            }, {
                 type_config: {
                     field_one: xLuceneFieldType.String,
                     field_two: xLuceneFieldType.String,
@@ -363,7 +349,6 @@ describe('QueryAccess', () => {
         it('should not throw if field wildcard query is not restricted on all variants', () => {
             const queryAccess = new QueryAccess({
                 excludes: ['field_two'],
-            }, {
                 type_config: {
                     field_one: xLuceneFieldType.String,
                     field_two: xLuceneFieldType.String,
@@ -377,7 +362,6 @@ describe('QueryAccess', () => {
         it('should throw if excludes contains all variants for field wildcard query', () => {
             const queryAccess = new QueryAccess({
                 excludes: ['field_one', 'field_two'],
-            }, {
                 type_config: {
                     field_one: xLuceneFieldType.String,
                     field_two: xLuceneFieldType.String,
@@ -391,7 +375,6 @@ describe('QueryAccess', () => {
         it('should not throw if includes matches first path', () => {
             const queryAccess = new QueryAccess({
                 includes: ['foo'],
-            }, {
                 type_config: {
                     foo: xLuceneFieldType.Object,
                     'foo.a': xLuceneFieldType.String
@@ -405,7 +388,6 @@ describe('QueryAccess', () => {
         it('should throw if excludes matches first path', () => {
             const queryAccess = new QueryAccess({
                 excludes: ['foo.bar'],
-            }, {
                 type_config: {
                     foo: xLuceneFieldType.Object,
                     'foo.bar': xLuceneFieldType.String,
@@ -420,7 +402,6 @@ describe('QueryAccess', () => {
         it('should throw if it matches prefix in includes', () => {
             const queryAccess = new QueryAccess({
                 includes: ['field_'],
-            }, {
                 type_config: {
                     field_one: xLuceneFieldType.String,
                     field_two: xLuceneFieldType.String,
@@ -434,7 +415,6 @@ describe('QueryAccess', () => {
         it('should throw if it matches prefix in excludes', () => {
             const queryAccess = new QueryAccess({
                 excludes: ['field'],
-            }, {
                 type_config: {
                     field_one: xLuceneFieldType.String,
                     field_two: xLuceneFieldType.String,
@@ -450,7 +430,6 @@ describe('QueryAccess', () => {
         const constraint = 'foo:bar';
         const queryAccess = new QueryAccess({
             constraint,
-        }, {
             type_config: {
                 foo: xLuceneFieldType.String,
                 hello: xLuceneFieldType.String
@@ -468,7 +447,6 @@ describe('QueryAccess', () => {
         const queryAccess = new QueryAccess({
             constraint,
             excludes: ['hello'],
-        }, {
             type_config: {
                 foo: xLuceneFieldType.String,
                 hello: xLuceneFieldType.String,
@@ -485,7 +463,6 @@ describe('QueryAccess', () => {
     describe('when restricting prefix wildcards', () => {
         const queryAccess = new QueryAccess({
             prevent_prefix_wildcard: true,
-        }, {
             type_config: {
                 bar: xLuceneFieldType.String,
                 hello: xLuceneFieldType.String,
@@ -537,7 +514,6 @@ describe('QueryAccess', () => {
             const qa = new QueryAccess({
                 excludes: [],
                 includes: [],
-            }, {
                 type_config: {
                     foo: xLuceneFieldType.String,
                     bar: xLuceneFieldType.String,
@@ -564,7 +540,6 @@ describe('QueryAccess', () => {
             default_geo_sort_unit: 'mm',
             excludes: queryAccessExcludes,
             includes: queryAccessIncludes,
-        }, {
             type_config: {
                 moo: xLuceneFieldType.GeoPoint,
                 bar: xLuceneFieldType.String,
@@ -748,7 +723,6 @@ describe('QueryAccess', () => {
             allow_implicit_queries: true,
             excludes: [],
             includes: [],
-        }, {
             type_config: {
                 foo: xLuceneFieldType.String,
                 bar: xLuceneFieldType.String,
@@ -936,6 +910,45 @@ describe('QueryAccess', () => {
                 _source_excludes: []
             });
         });
+
+        it('can work with numerical variables provided through restrictSearchQuery options', async () => {
+            const queryAccessVariables = new QueryAccess({
+                allow_implicit_queries: true,
+                filterNilVariables: false,
+                allow_empty_queries: false,
+                excludes: [],
+                includes: ['foo'],
+                type_config: {
+                    foo: xLuceneFieldType.Integer,
+                    bar: xLuceneFieldType.String,
+                }
+            });
+
+            const variables = {
+                foo1: 1,
+                foo2: ['some', 'thing'],
+                bar1: 'I am bar',
+            };
+
+            const q = 'foo:$foo1';
+            const result = await queryAccessVariables.restrictSearchQuery(q, { variables });
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                term: {
+                                    foo: 1
+                                }
+                            }
+                        }
+                    }
+                },
+                _source_includes: ['foo'],
+                _source_excludes: []
+            });
+        });
     });
 
     describe('can work with filterNilVariables set true', () => {
@@ -944,7 +957,6 @@ describe('QueryAccess', () => {
                 allow_implicit_queries: true,
                 excludes: [],
                 includes: [],
-            }, {
                 type_config: {
                     name: xLuceneFieldType.String,
                     age: xLuceneFieldType.Integer,

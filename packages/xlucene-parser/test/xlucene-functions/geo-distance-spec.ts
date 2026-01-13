@@ -2,7 +2,7 @@ import 'jest-extended';
 import {
     xLuceneFieldType, xLuceneTypeConfig, GeoShapeType,
 } from '@terascope/types';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 import { Parser, initFunction } from '../../src/index.js';
 import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces.js';
 
@@ -49,8 +49,9 @@ describe('geoDistance', () => {
             const query = 'location:geoDistance(point:$point1 distance: $distance1)';
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
-                ...key === 'filterNil' && { filterNilVariables: true, variables }
-            }).resolveVariables(variables);
+                variables,
+                ...key === 'filterNil' && { filterNilVariables: true }
+            });
 
             const { name, type, field } = ast as FunctionNode;
 
@@ -167,8 +168,9 @@ describe('geoDistance', () => {
                 const query = 'location:geoDistance(point:$point1 distance: $distance1)';
                 const { ast } = new Parser(query, {
                     type_config: typeConfig,
+                    variables,
                     ...key === 'filterNil' && { filterNilVariables: true, variables }
-                }).resolveVariables(variables);
+                });
 
                 const { match } = initFunction({
                     node: ast as FunctionNode,

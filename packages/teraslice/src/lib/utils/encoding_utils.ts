@@ -1,9 +1,9 @@
 import {
-    AnyObject, isString, isObjectEntity,
-    getTypeOf, isArrayLike
-} from '@terascope/utils';
+    isString, isObjectEntity, getTypeOf,
+    isArrayLike
+} from '@terascope/core-utils';
 
-export function safeEncode(obj: string | AnyObject) {
+export function safeEncode(obj: string | Record<string, any>) {
     let str: string;
     if (isString(obj)) {
         str = obj;
@@ -16,7 +16,7 @@ export function safeEncode(obj: string | AnyObject) {
 }
 
 // TODO: proper types for this
-export function safeDecode(str: string | AnyObject) {
+export function safeDecode(str: string | Record<string, any>) {
     if (!isString(str) && isObjectEntity(str)) {
         return str;
     }

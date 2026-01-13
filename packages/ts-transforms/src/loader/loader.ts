@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import RulesLoader from './rules-loader.js';
 import RulesParser from './rules-parser.js';
 import RulesValidator from './rules-validator.js';

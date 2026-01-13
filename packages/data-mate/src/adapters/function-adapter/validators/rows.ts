@@ -1,4 +1,4 @@
-import { isObjectEntity, cloneDeep, isFunction } from '@terascope/utils';
+import { isObjectEntity, cloneDeep, isFunction } from '@terascope/core-utils';
 import { validateFunctionArgs } from '../../argument-validator/index.js';
 import { RecordValidationConfig, InitialFunctionContext, FunctionContext } from '../../../function-configs/interfaces.js';
 

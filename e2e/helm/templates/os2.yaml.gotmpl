@@ -12,7 +12,7 @@ image:
 service:
     type: NodePort
     port: 9200
-    nodePort: {{ .Values | get "opensearch2.nodePort" "30210" }}
+    nodePort: {{ .Values | get "opensearch2.nodePort" "30202" }}
 
 config:
     opensearch.yml:
@@ -70,8 +70,43 @@ resources:
         cpu: "1000m"
         memory: {{ .Values | get "opensearch2.memoryLimit" "1Gi" }}
 
+{{- if not (empty .Values.opensearch2.hostVolumePath) }}
+
+{{- $currentPath := (.Values | get "opensearch2.hostVolumePath" "") -}}
+
+{{ range $key, $service := .Values }}
+{{- if not (eq $key "opensearch2") }}
+{{- if eq ($service | get "enabled" false) true }}
+{{- if eq ($service | get "hostVolumePath" "") $currentPath }}
+
+{{- $error := (printf "%s.hostVolumePath is the same as opensearch2's hostVolumePath. These Must be unique or else data corruption will occur. Change %s.hostVolumePath to something other than %s" $key $key $service.hostVolumePath) -}}
+{{- fail $error -}}
+
+{{- end }}
+{{- end }}
+{{- end }}
+{{ end }}
+
+persistence:
+  enabled: false
+
+extraVolumes:
+    - name: searchdataos2
+      hostPath:
+        path: /searchdataos2
+        type: Directory
+
+extraVolumeMounts:
+    - name: searchdataos2
+      mountPath: /usr/share/opensearch/data
+      readOnly: false
+
+{{- else }}
+
 persistence:
     size: {{ .Values | get "opensearch2.persistentVolumeSize" "8Gi" }}
+
+{{- end }}
 
 ##@ Add all the lines below when ssl is enabled
 

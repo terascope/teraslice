@@ -1,9 +1,10 @@
 import {
-    Queue, TSError, getFullErrorStack,
-    logError, get, withoutNil, isEmpty,
+    TSError, getFullErrorStack, get,
+    logError, withoutNil, isEmpty,
     multiFieldSort, isString, flatten,
-    includes, cloneDeep, Logger
-} from '@terascope/utils';
+    includes, cloneDeep, Logger,
+    Queue
+} from '@terascope/core-utils';
 import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import { ExecutionConfig, JobConfig } from '@terascope/types';
@@ -491,7 +492,7 @@ export class ExecutionService {
                 }
 
                 const clusteringType = this.context.sysconfig.teraslice.cluster_manager_type;
-                if (clusteringType === 'kubernetes' || clusteringType === 'kubernetesV2'
+                if (clusteringType === 'kubernetesV2'
                 ) {
                     // Since this condition is only hit in cases where the pods
                     // are never scheduled, all this call to stopExecution
