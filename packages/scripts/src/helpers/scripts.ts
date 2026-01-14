@@ -15,8 +15,8 @@ import {
     pWhile, pDelay, TSError,
 } from '@terascope/core-utils';
 import {
-    TSCommands, PackageInfo, Service, OCIImageManifest,
-    OCIimageConfig, OCIindexManifest, ServiceObj
+    TSCommands, PackageInfo, Service,
+    ServiceObj
 } from './interfaces.js';
 import type { TestEnv } from '@terascope/types';
 import { getRootDir, getRootInfo } from './misc.js';
@@ -1229,35 +1229,19 @@ export function getDockerBaseImageInfo() {
         const dockerfileContent = fs.readFileSync(dockerFilePath, 'utf8');
         // Grab the "ARG NODE_VERSION" line in the Dockerfile
         const nodeVersionDefault = dockerfileContent.match(/^ARG NODE_VERSION=(\d+)/m);
-        // Search "FROM" line that includes "NODE_VERSION" in it
-        const dockerImageName = dockerfileContent.match(/^FROM (.+):\$\{NODE_VERSION\}/m);
 
-        if (nodeVersionDefault && dockerImageName) {
-            const nodeVersion = nodeVersionDefault[1];
-            const baseImage = dockerImageName[1];
-            // Regex to extract registry (if present) and keep the rest as `repo`
-            const imagePattern = /^(?:(.+?)\/)?([^/]+\/[^/]+)$/;
-            const match = baseImage.match(imagePattern);
-
-            if (!match) {
-                throw new TSError(`Unexpected image format: ${baseImage}`);
-            }
-            // Default to Docker Hub if no registry
-            const registry = match[1] || 'docker.io';
-            // Keep org and repo together
-            const repo = match[2];
-            signale.debug(`Base Image: ${baseImage}:${nodeVersion}`);
+        if (nodeVersionDefault) {
             return {
-                name: baseImage,
-                tag: nodeVersion,
-                registry,
-                repo
+                name: `node`,
+                tag: `${nodeVersionDefault[1]}-alpine`,
+                registry: 'docker.io',
+                repo: 'library'
             };
         } else {
             throw new TSError('Failed to parse Dockerfile for base image.');
         }
     } catch (err) {
-        throw new TSError('Failed to read top-level Dockerfile to get base image.\n${err}');
+        throw new TSError(`Failed to read top-level Dockerfile to get base image.\n${err}`);
     }
 }
 
@@ -1280,7 +1264,7 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
 
     // Request authentication token for accessing image manifests
     try {
-        const authUrl = `https://${baseImage.registry}/token?scope=repository:${baseImage.repo}:pull`;
+        const authUrl = 'https://auth.docker.io/token?service=registry.docker.io&scope=repository:library/node:pull';
         const authResponse = await got(authUrl);
         token = JSON.parse(authResponse.body).token;
     } catch (err) {
@@ -1290,18 +1274,18 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
     // Grab the manifest list to find the right architecture digest
     let manifestDigest: string;
     try {
-        const manifestUrl = `https://${baseImage.registry}/v2/${baseImage.repo}/manifests/${baseImage.tag}`;
+        const manifestUrl = `https://registry-1.docker.io/v2/library/node/manifests/${baseImage.tag}`;
         const response = await got(manifestUrl, {
             headers: {
                 Authorization: `Bearer ${token}`,
-                Accept: 'application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.v2+json'
             },
             responseType: 'json'
         });
 
-        const manifestList = response.body as OCIindexManifest;
-        const amd64Manifest = manifestList.manifests.find(
-            (manifest: OCIImageManifest) => manifest.platform.architecture === 'amd64'
+        const body = response.body as any;
+
+        const amd64Manifest = body.manifests.find(
+            (manifest: Record<string, any>) => manifest.platform.architecture === 'amd64'
         );
 
         if (!amd64Manifest) {
@@ -1313,41 +1297,38 @@ export async function grabCurrentTSNodeVersion(): Promise<string> {
         throw new TSError(`Unable to retrieve image manifest list from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}:\n${err}`);
     }
 
-    // Get the specific manifest using the digest
-    let configBlobSha: string;
+    let configManifest: string;
     try {
-        const manifestDetailUrl = `https://${baseImage.registry}/v2/${baseImage.repo}/manifests/${manifestDigest}`;
-        const response = await got(manifestDetailUrl, {
+        const manifestUrl = `https://registry-1.docker.io/v2/library/node/manifests/${manifestDigest}`;
+        const response = await got(manifestUrl, {
             headers: {
                 Authorization: `Bearer ${token}`,
-                Accept: 'application/vnd.oci.image.manifest.v1+json'
             },
             responseType: 'json'
         });
 
-        const amd64Manifest = response.body as OCIindexManifest;
-        if (!amd64Manifest.config?.digest) {
-            throw new TSError(`Manifest does not contain a config digest for ${baseImage.repo}:${baseImage.tag}`);
-        }
+        const manifestList = response.body as any;
+        configManifest = manifestList.config.digest;
 
-        configBlobSha = amd64Manifest.config.digest;
+        if (!configManifest) {
+            throw new TSError(`No config digest found for ${baseImage.repo}:${baseImage.tag}`);
+        }
     } catch (err) {
-        throw new TSError(`Unable to get manifest details from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}:\n${err}`);
+        throw new TSError(`Unable to retrieve image manifest list from ${baseImage.registry} for ${baseImage.repo}:${baseImage.tag}:\n${err}`);
     }
 
     // Retrieve the image configuration and extract the Node.js version label
     try {
-        const configUrl = `https://${baseImage.registry}/v2/${baseImage.repo}/blobs/${configBlobSha}`;
+        const configUrl = `https://registry-1.docker.io/v2/library/node/blobs/${configManifest}`;
         const response = await got(configUrl, {
             headers: {
                 Authorization: `Bearer ${token}`,
-                Accept: 'application/vnd.oci.image.config.v1+json'
             },
             responseType: 'json'
         });
 
-        const imageConfig = response.body as OCIimageConfig;
-        const nodeVersion = imageConfig.config?.Labels['io.terascope.image.node_version'];
+        const imageConfig = response.body as any;
+        const nodeVersion = imageConfig.config?.Env?.find((envVar: string) => envVar.startsWith('NODE_VERSION='))?.split('=')[1];
 
         if (!nodeVersion) {
             throw new TSError(`Node version label missing in config for ${baseImage.repo}:${baseImage.tag}`);
