@@ -1078,15 +1078,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@confluentinc/kafka-javascript@npm:~1.6.0":
-  version: 1.6.0
-  resolution: "@confluentinc/kafka-javascript@npm:1.6.0"
+"@confluentinc/kafka-javascript@npm:~1.8.0":
+  version: 1.8.0
+  resolution: "@confluentinc/kafka-javascript@npm:1.8.0"
   dependencies:
     "@mapbox/node-pre-gyp": "npm:^1.0.11"
     bindings: "npm:^1.3.1"
     nan: "npm:^2.22.0"
     node-gyp: "npm:latest"
-  checksum: 10c0/2c4f617cd03bc861f2b72d7e4de60ea3a56d000ae71a8466c376fb1d767c5b4e74b6b41c8e461114b54b79bbeee8f58c5fc63bb8690f1b9ccd9c24a1e313b7e8
+  checksum: 10c0/eb2eaa1256e67d7ed4512098e5706d50aa58d1d374044275c8265304decc66e9796671f4f1bf5819adeae05f38700e5ca9ba5535561cb42599ac645a6c217d09
   languageName: node
   linkType: hard
 
@@ -3001,7 +3001,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/core-utils@npm:~2.0.0, @terascope/core-utils@npm:~2.0.0-dev.12, @terascope/core-utils@workspace:packages/core-utils":
+"@terascope/core-utils@npm:~2.0.0, @terascope/core-utils@workspace:packages/core-utils":
   version: 0.0.0-use.local
   resolution: "@terascope/core-utils@workspace:packages/core-utils"
   dependencies:
@@ -3138,19 +3138,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/file-asset-apis@npm:~2.0.0-dev.0":
-  version: 2.0.0-dev.0
-  resolution: "@terascope/file-asset-apis@npm:2.0.0-dev.0"
+"@terascope/file-asset-apis@npm:~2.0.0":
+  version: 2.0.0
+  resolution: "@terascope/file-asset-apis@npm:2.0.0"
   dependencies:
     "@aws-sdk/client-s3": "npm:~3.946.0"
     "@smithy/node-http-handler": "npm:~4.4.5"
-    "@terascope/core-utils": "npm:~2.0.0-dev.12"
+    "@terascope/core-utils": "npm:~2.0.0"
     csvtojson: "npm:~2.0.14"
     fs-extra: "npm:~11.3.2"
     json2csv: "npm:5.0.7"
     lz4-asm: "npm:~0.4.2"
     node-gzip: "npm:~1.1.2"
-  checksum: 10c0/c28f201eb08b270a32d661ad73db471e119b00c3d00d556f0aae6d682288e39ab14639b582176e992722ae1e3919a71437453ea5533c9805b19e281a82ee92b4
+  checksum: 10c0/d922e02a8bc9e19df7c2ea2c5bacefbd4e673c3b3b3ce2f6d9e39a2e03cd63e67d5e4cc326e369853a9104a53d855072366e74a4e6434cc862472a82c88dc408
   languageName: node
   linkType: hard
 
@@ -6357,6 +6357,7 @@ __metadata:
   resolution: "e2e@workspace:e2e"
   dependencies:
     "@terascope/core-utils": "npm:~2.0.0"
+    "@terascope/file-asset-apis": "npm:~2.0.0"
     "@terascope/opensearch-client": "npm:~2.0.0"
     "@terascope/scripts": "npm:~2.0.0"
     "@terascope/types": "npm:~2.0.0"
@@ -12920,7 +12921,7 @@ __metadata:
   resolution: "terafoundation@workspace:packages/terafoundation"
   dependencies:
     "@terascope/core-utils": "npm:~2.0.0"
-    "@terascope/file-asset-apis": "npm:~2.0.0-dev.0"
+    "@terascope/file-asset-apis": "npm:~2.0.0"
     "@terascope/opensearch-client": "npm:~2.0.0"
     "@terascope/types": "npm:~2.0.0"
     "@types/bunyan": "npm:~1.8.11"
@@ -12935,17 +12936,17 @@ __metadata:
     js-yaml: "npm:~4.1.0"
     nanoid: "npm:~5.1.5"
     prom-client: "npm:~15.1.3"
-    terafoundation_kafka_connector: "npm:~2.0.0-rc.0"
+    terafoundation_kafka_connector: "npm:~2.0.0"
     yargs: "npm:~18.0.0"
   languageName: unknown
   linkType: soft
 
-"terafoundation_kafka_connector@npm:~2.0.0-rc.0":
-  version: 2.0.0-rc.0
-  resolution: "terafoundation_kafka_connector@npm:2.0.0-rc.0"
+"terafoundation_kafka_connector@npm:~2.0.0":
+  version: 2.0.0
+  resolution: "terafoundation_kafka_connector@npm:2.0.0"
   dependencies:
-    "@confluentinc/kafka-javascript": "npm:~1.6.0"
-  checksum: 10c0/ac6c54f08f7494bb1aa2ee6d9ac799a9c58eb19aa152ed310b8a0e5da5ecab0355615ec3cecc757df9dcd93bf0605fc85aba995cf7c15ff560acf5783aef2250
+    "@confluentinc/kafka-javascript": "npm:~1.8.0"
+  checksum: 10c0/da127c497dc75d0348cf2a1419aa92907a3e80ee590ff5b77ba1728c4511ffedc53b0364f6ded3ea7cfabbaf5402704cd5060e291db987890b9313d95df8b3a3
   languageName: node
   linkType: hard
 
@@ -13045,6 +13046,7 @@ __metadata:
     "@kubernetes/client-node": "npm:~1.3.0"
     "@terascope/core-utils": "npm:~2.0.0"
     "@terascope/elasticsearch-api": "npm:~5.0.0"
+    "@terascope/file-asset-apis": "npm:~2.0.0"
     "@terascope/job-components": "npm:~2.0.0"
     "@terascope/opensearch-client": "npm:~2.0.0"
     "@terascope/teraslice-messaging": "npm:~2.0.0"
