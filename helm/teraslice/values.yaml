@@ -11,7 +11,7 @@ image:
   pullPolicy: IfNotPresent
   # node version will be inserted into the image tag (which defaults to the chart version)
   # setting the image tag will ignore this value
-  nodeVersion: v22.21.1
+  nodeVersion: v22.22.0
 
 imagePullSecrets: []
 nameOverride: ""
