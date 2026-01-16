@@ -1,6 +1,6 @@
 # NODE_VERSION is set by default in the config.ts, the following value will only
 # be used if you build images by default with docker build
-ARG NODE_VERSION=22
+ARG NODE_VERSION=24
 FROM ghcr.io/terascope/node-base:${NODE_VERSION}
 
 ENV NODE_ENV=production
