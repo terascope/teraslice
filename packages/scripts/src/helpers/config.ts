@@ -18,7 +18,7 @@ const __DEFAULT_OPENSEARCH2_VERSION = '2.15.0';
 /** Default opensearch3 version used to populate the CI cache */
 const __DEFAULT_OPENSEARCH3_VERSION = '3.1.0';
 
-const __DEFAULT_NODE_VERSION = '22';
+const __DEFAULT_NODE_VERSION = '24';
 
 const { address } = ipPkg;
 

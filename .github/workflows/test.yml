@@ -7,9 +7,9 @@ on:
       - 'release/teraslice-v*'
 env:
   NODE_VERSIONS: '[22, 24]'
-  NODE_VERSION_MAIN: '22'
+  NODE_VERSION_MAIN: '24'
   NODE_VERSIONS_K8S: '[22, 24]'
-  NODE_VERSIONS_EXT_STORAGE: '[22]'
+  NODE_VERSIONS_EXT_STORAGE: '[24]'
 
 jobs:
   compute-node-version-vars:
@@ -933,7 +933,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           # NOTE: Hard Coded Node Version
-          node-version: '22'
+          node-version: '24'
       - name: Build documentation
         run: yarn && ./scripts/build-documentation.sh
       - name: Check Output
