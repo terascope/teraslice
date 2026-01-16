@@ -12916,7 +12916,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"terafoundation@npm:~2.0.0, terafoundation@workspace:packages/terafoundation":
+"terafoundation@npm:~2.0.1, terafoundation@workspace:packages/terafoundation":
   version: 0.0.0-use.local
   resolution: "terafoundation@workspace:packages/terafoundation"
   dependencies:
@@ -12936,7 +12936,6 @@ __metadata:
     js-yaml: "npm:~4.1.0"
     nanoid: "npm:~5.1.5"
     prom-client: "npm:~15.1.3"
-    terafoundation_kafka_connector: "npm:~2.0.0"
     yargs: "npm:~18.0.0"
   languageName: unknown
   linkType: soft
@@ -13083,7 +13082,8 @@ __metadata:
     semver: "npm:~7.7.2"
     socket.io: "npm:~4.8.1"
     socket.io-client: "npm:~4.8.1"
-    terafoundation: "npm:~2.0.0"
+    terafoundation: "npm:~2.0.1"
+    terafoundation_kafka_connector: "npm:~2.0.0"
     uuid: "npm:~13.0.0"
   languageName: unknown
   linkType: soft
