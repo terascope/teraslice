@@ -2396,7 +2396,7 @@ describe('Schema Object validation', () => {
 
                 expect(() => {
                     validator.validate(config);
-                }).toThrow('Key \'undeclaredKey\' is not declared in strict_test schema');
+                }).toThrow('The following keys are not declared in strict_test schema: \'undeclaredKey\'');
             });
 
             it('should not throw for declared keys only', () => {
