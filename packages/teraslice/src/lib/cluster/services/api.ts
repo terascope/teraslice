@@ -445,20 +445,26 @@ export class ApiService {
             '/ex/:exId/errors',
             '/ex/errors',
         ], (req, res) => {
-            const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
+            const { size, from, sort, filter } = getSearchOptions(req as TerasliceRequest);
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get errors for job');
             requestHandler(async () => {
                 const exId = await this._getExIdFromRequest(req as TerasliceRequest, true);
 
                 const query = `state:error AND ex_id:"${exId}"`;
+
+                if (filter.length) {
+                    const filteredQuery = `(${query}) AND (${filter})`;
+                    return this.executionStorage.search(filteredQuery, from, size, sort as string);
+                }
+
                 return this.stateStorage.search(query, from, size, sort as string);
             });
         });
 
         v1routes.get('/ex', (req, res) => {
             const { status = '', deleted = 'false' } = req.query;
-            const { size, from, sort } = getSearchOptions(req as TerasliceRequest);
+            const { size, from, sort, filter } = getSearchOptions(req as TerasliceRequest);
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of execution contexts');
             requestHandler(async () => {
@@ -473,6 +479,11 @@ export class ApiService {
                 }
 
                 const query = addDeletedToQuery(deleted as string, partialQuery);
+
+                if (filter.length) {
+                    const filteredQuery = `(${query}) AND (${filter})`;
+                    return this.executionStorage.search(filteredQuery, from, size, sort as string);
+                }
 
                 return this.executionStorage.search(query, from, size, sort as string);
             });

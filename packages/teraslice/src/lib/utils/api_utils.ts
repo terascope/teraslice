@@ -119,7 +119,8 @@ export function getSearchOptions(req: TerasliceRequest, defaultSort = '_updated:
     const sort = req.query.sort || defaultSort;
     const size = parseQueryInt(req, 'size', 100);
     const from = parseQueryInt(req, 'from', 0);
-    return { size, from, sort };
+    const filter = req.query.filter || '';
+    return { size, from, sort, filter };
 }
 
 export function logTerasliceRequest(req: TerasliceRequest) {
