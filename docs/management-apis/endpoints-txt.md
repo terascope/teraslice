@@ -94,6 +94,7 @@ Returns a text table of all job listings.
 - `fields: string`
 - `active: string = [true|false]`
 - `deleted: string = [true|false]`
+- `filter: string` - Lucene query to filter results (e.g., `job_id:abc123`)
 
 **Note:** When showing `deleted` records the `_deleted_on` field will be added to the default fields.
 
@@ -144,7 +145,8 @@ Returns a text table of all job execution contexts.
 **Query Options:**
 
 - `fields: string`
-- `deleted: string = [true|false]]`
+- `deleted: string = [true|false]`
+- `filter: string` - Lucene query to filter results (e.g., `job_id:abc123 AND _status:running`)
 
 **Note:** When showing `deleted` records the `_deleted_on` field will be added to the default fields.
 

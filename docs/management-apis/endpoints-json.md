@@ -233,6 +233,7 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
+- `filter: string` - Lucene query to filter results (e.g., `job_id:abc123`)
 - `ex: string = [execution controller field options]`
 
 Setting `active` to `true` will return only the jobs considered active, which
@@ -618,6 +619,7 @@ This endpoint will return an array of all errors from all executions from oldest
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
+- `filter: string` - Lucene query to filter results (e.g., `error:*timeout*`)
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
@@ -679,6 +681,7 @@ Returns all execution contexts (job invocations).
 - `sort: string = "_updated:desc"`
 - `status: string = "*"`
 - `deleted: string = [true|false]`
+- `filter: string` - Lucene query to filter results (e.g., `_status:running`)
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
@@ -792,6 +795,7 @@ Returns all execution errors.
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
+- `filter: string` - Lucene query to filter results (e.g., `error:*timeout*`)
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
@@ -814,7 +818,7 @@ $ curl 'localhost:5678/v1/ex/errors'
 ]
 ```
 
-## GET /v1/ex/\{jobId\}/errors/\{exId\}
+## GET /v1/ex/\{exId\}/errors
 
 This endpoint will return an array of all errors from the specified execution from oldest to newest.
 
@@ -825,6 +829,7 @@ This endpoint will return an array of all errors from the specified execution fr
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
+- `filter: string` - Lucene query to filter results (e.g., `error:*timeout*`)
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
