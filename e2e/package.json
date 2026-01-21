@@ -48,7 +48,7 @@
         "@terascope/core-utils": "~2.0.0",
         "@terascope/file-asset-apis": "~2.0.0",
         "@terascope/opensearch-client": "~2.0.0",
-        "@terascope/scripts": "~2.0.1",
+        "@terascope/scripts": "~2.0.2",
         "@terascope/types": "~2.0.0",
         "bunyan": "~1.8.15",
         "fs-extra": "~11.3.1",
