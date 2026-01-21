@@ -38,6 +38,17 @@ function validateGetDeletedOption(deletedOption: string) {
     }
 }
 
+/**
+ * Combines a base query from an endpoint with an optional filter using AND from lucene.
+ * @param query - The base Lucene query string
+ * @param filter - Optional filter query to append. getSearchOptions() will return an empty string
+ * if no filter is present.
+ * @returns The combined query, or original query if filter is empty
+ */
+function applyFilter(query: string, filter: string): string {
+    return filter ? `(${query}) AND (${filter})` : query;
+}
+
 export class ApiService {
     context: ClusterMasterContext;
     logger: Logger;
@@ -285,11 +296,10 @@ export class ApiService {
                 validateGetDeletedOption(deleted as string);
 
                 const partialQuery = createJobActiveQuery(active as string);
-                let query = addDeletedToQuery(deleted as string, partialQuery);
-
-                if (filter.length) {
-                    query = `(${query}) AND (${filter})`;
-                }
+                const query = applyFilter(
+                    addDeletedToQuery(deleted as string, partialQuery),
+                    filter as string
+                );
 
                 return typeof ex === 'string'
                     ? this.jobsService.getJobsWithExInfo(query, from, size, sort as string, ex.split(','))
@@ -455,14 +465,10 @@ export class ApiService {
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get errors for job');
             requestHandler(async () => {
                 const exId = await this._getExIdFromRequest(req as TerasliceRequest, true);
-
-                const query = `state:error AND ex_id:"${exId}"`;
-
-                if (filter.length) {
-                    const filteredQuery = `(${query}) AND (${filter})`;
-                    return this.stateStorage.search(filteredQuery, from, size, sort as string);
-                }
-
+                const query = applyFilter(
+                    `state:error AND ex_id:"${exId}"`,
+                    filter as string
+                );
                 return this.stateStorage.search(query, from, size, sort as string);
             });
         });
@@ -483,13 +489,10 @@ export class ApiService {
                     partialQuery += ` AND (${statusTerms})`;
                 }
 
-                const query = addDeletedToQuery(deleted as string, partialQuery);
-
-                if (filter.length) {
-                    const filteredQuery = `(${query}) AND (${filter})`;
-                    return this.executionStorage.search(filteredQuery, from, size, sort as string);
-                }
-
+                const query = applyFilter(
+                    addDeletedToQuery(deleted as string, partialQuery),
+                    filter as string
+                );
                 return this.executionStorage.search(query, from, size, sort as string);
             });
         });
@@ -578,11 +581,10 @@ export class ApiService {
                 }
 
                 const partialQuery = createJobActiveQuery(active as string);
-                let query = addDeletedToQuery(deleted as string, partialQuery);
-
-                if (filter.length) {
-                    query = `(${query}) AND (${filter})`;
-                }
+                const query = applyFilter(
+                    addDeletedToQuery(deleted as string, partialQuery),
+                    filter as string
+                );
 
                 const jobs = await this.jobsStorage.search(
                     query, from, size, sort as string
@@ -608,11 +610,10 @@ export class ApiService {
                 }
 
                 const partialQuery = 'ex_id:*';
-                let query = addDeletedToQuery(deleted as string, partialQuery);
-
-                if (filter.length) {
-                    query = `(${query}) AND (${filter})`;
-                }
+                const query = applyFilter(
+                    addDeletedToQuery(deleted as string, partialQuery),
+                    filter as string
+                );
 
                 const exs = await this.executionStorage.search(
                     query, from, size, sort as string
