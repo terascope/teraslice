@@ -41,9 +41,6 @@
         "uuid": "~13.0.0",
         "xlucene-translator": "~2.0.0"
     },
-    "devDependencies": {
-        "@types/uuid": "~10.0.0"
-    },
     "engines": {
         "node": ">=22.0.0",
         "yarn": ">=1.22.19"

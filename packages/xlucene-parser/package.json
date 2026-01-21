@@ -41,8 +41,8 @@
         "ts-pegjs": "~4.2.1"
     },
     "devDependencies": {
-        "@turf/invariant": "~7.2.0",
-        "@turf/random": "~7.2.0"
+        "@turf/invariant": "~7.3.2",
+        "@turf/random": "~7.3.2"
     },
     "engines": {
         "node": ">=22.0.0",

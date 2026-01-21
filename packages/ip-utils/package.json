@@ -35,11 +35,11 @@
         "ip-bigint": "~8.2.2",
         "ip-cidr": "~4.0.2",
         "ip6addr": "~0.2.5",
-        "ipaddr.js": "~2.2.0",
-        "is-cidr": "~6.0.0"
+        "ipaddr.js": "~2.3.0",
+        "is-cidr": "~6.0.1"
     },
     "devDependencies": {
-        "@types/ip6addr": "^0.2.6"
+        "@types/ip6addr": "~0.2.6"
     },
     "engines": {
         "node": ">=22.0.0",

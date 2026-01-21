@@ -70,7 +70,7 @@ export interface AnyObject {
  * A deep partial object
 */
 export type PartialDeep<T> = {
-    [ P in keyof T ]?: PartialDeep<T[ P ]>;
+    [ P in keyof T ]?: PartialDeep<T[P]>;
 };
 
 /**

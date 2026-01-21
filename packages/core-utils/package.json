@@ -30,7 +30,7 @@
     },
     "dependencies": {
         "@terascope/types": "~2.0.0",
-        "awesome-phonenumber": "~7.5.0",
+        "awesome-phonenumber": "~7.6.0",
         "bunyan": "~1.8.15",
         "date-fns": "~4.1.0",
         "date-fns-tz": "~3.2.0",
@@ -39,10 +39,10 @@
         "is-plain-object": "~5.0.0",
         "js-string-escape": "~1.0.1",
         "kind-of": "~6.0.3",
-        "lodash-es": "~4.17.21",
+        "lodash-es": "~4.17.22",
         "mnemonist": "0.40.3",
         "moment": "~2.30.1",
-        "p-map": "~7.0.3",
+        "p-map": "~7.0.4",
         "shallow-clone": "~3.0.1",
         "validator": "~13.12.0",
         "zod": "~4.1.12"
