@@ -81,7 +81,7 @@
         "bufferstreams": "~3.0.0",
         "chance": "~1.1.13",
         "jest-fixtures": "~0.6.0",
-        "js-yaml": "~4.1.0",
+        "js-yaml": "~4.1.1",
         "nock": "~13.5.6"
     },
     "engines": {
