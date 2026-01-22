@@ -233,8 +233,18 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
-- `filter: string` - Lucene query to filter results (e.g., `job_id:abc123`)
+- `filter: string` - Lucene query to filter results (e.g., `job_id:abc123`). See filterable fields below.
 - `ex: string = [execution controller field options]`
+
+**Filterable Fields:**
+
+| Field | Type |
+|-------|------|
+| `active` | boolean |
+| `job_id` | keyword |
+| `_context` | keyword |
+| `_created` | date |
+| `_updated` | date |
 
 Setting `active` to `true` will return only the jobs considered active, which
 includes the jobs that have `active` set to `true` as well as those that do not
@@ -619,7 +629,20 @@ This endpoint will return an array of all errors from all executions from oldest
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
-- `filter: string` - Lucene query to filter results (e.g., `error:*timeout*`)
+- `filter: string` - Lucene query to filter results (e.g., `error:*timeout*`). See filterable fields below.
+
+**Filterable Fields:**
+
+| Field | Type |
+|-------|------|
+| `ex_id` | keyword |
+| `slice_id` | keyword |
+| `slicer_id` | keyword |
+| `slicer_order` | integer |
+| `state` | keyword |
+| `_created` | date |
+| `_updated` | date |
+| `error` | keyword |
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
@@ -681,7 +704,25 @@ Returns all execution contexts (job invocations).
 - `sort: string = "_updated:desc"`
 - `status: string = "*"`
 - `deleted: string = [true|false]`
-- `filter: string` - Lucene query to filter results (e.g., `_status:running`)
+- `filter: string` - Lucene query to filter results (e.g., `_status:running`). See filterable fields below.
+
+**Filterable Fields:**
+
+| Field | Type |
+|-------|------|
+| `active` | boolean |
+| `job_id` | keyword |
+| `ex_id` | keyword |
+| `_context` | keyword |
+| `_status` | keyword |
+| `_has_errors` | keyword |
+| `slicer_hostname` | keyword |
+| `slicer_port` | keyword |
+| `recovered_execution` | keyword |
+| `recovered_slice_type` | keyword |
+| `_created` | date |
+| `_updated` | date |
+| `teraslice_version` | keyword |
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
@@ -795,7 +836,20 @@ Returns all execution errors.
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
-- `filter: string` - Lucene query to filter results (e.g., `error:*timeout*`)
+- `filter: string` - Lucene query to filter results (e.g., `error:*timeout*`). See filterable fields below.
+
+**Filterable Fields:**
+
+| Field | Type |
+|-------|------|
+| `ex_id` | keyword |
+| `slice_id` | keyword |
+| `slicer_id` | keyword |
+| `slicer_order` | integer |
+| `state` | keyword |
+| `_created` | date |
+| `_updated` | date |
+| `error` | keyword |
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
@@ -829,7 +883,20 @@ This endpoint will return an array of all errors from the specified execution fr
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
-- `filter: string` - Lucene query to filter results (e.g., `error:*timeout*`)
+- `filter: string` - Lucene query to filter results (e.g., `error:*timeout*`). See filterable fields below.
+
+**Filterable Fields:**
+
+| Field | Type |
+|-------|------|
+| `ex_id` | keyword |
+| `slice_id` | keyword |
+| `slicer_id` | keyword |
+| `slicer_order` | integer |
+| `state` | keyword |
+| `_created` | date |
+| `_updated` | date |
+| `error` | keyword |
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
