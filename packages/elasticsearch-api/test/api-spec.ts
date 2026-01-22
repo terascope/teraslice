@@ -439,6 +439,29 @@ describe('elasticsearch-api', () => {
         return expect(queryFailed).toEqual(true);
     });
 
+    it('search can handle rejection errors of later opensearch queue errors', async () => {
+        const query = { body: 'someQuery' } as any;
+        const api = esApi(client, logger);
+        let queryFailed = false;
+        searchError = { body: { error: { type: 'rejected_execution_exception' } } } as any;
+        recordsReturned = [{ _source: { some: 'data' } }];
+
+        const [results] = await Promise.all([
+            api.search(query),
+            waitFor(50, () => {
+                searchError = false;
+            })
+        ]);
+        expect(results).toEqual([recordsReturned[0]._source]);
+        searchError = { body: { error: { type: 'some_thing_else' } } };
+        try {
+            await api.search(query);
+        } catch (_err) {
+            queryFailed = true;
+        }
+        return expect(queryFailed).toEqual(true);
+    });
+
     it('search can handle shard errors', async () => {
         const query = { body: 'someQuery' } as any;
         const api = esApi(client, logger);
@@ -821,6 +844,18 @@ describe('elasticsearch-api', () => {
         const result = await api.bulkSend(myBulkData);
 
         expect(result).toBe(2);
+
+        bulkError = [
+            'rejected_execution_exception',
+            'rejected_execution_exception',
+        ];
+
+        waitFor(20, () => {
+            bulkError = false;
+        });
+        const result2 = await api.bulkSend(myBulkData);
+
+        expect(result2).toBe(2);
 
         bulkError = ['some_thing_else', 'some_thing_else'];
 

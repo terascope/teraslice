@@ -338,7 +338,7 @@ export default function elasticsearchApi(
                     continue;
                 }
 
-                if (item.status === TOO_MANY_REQUESTS || item.error.type === 'es_rejected_execution_exception') {
+                if (item.status === TOO_MANY_REQUESTS || isQueueOverflowError(item.error.type)) {
                     if (actionRecords[i] == null) {
                         // this error should not happen in production,
                         // only in tests where the bulk function is mocked
@@ -715,11 +715,11 @@ export default function elasticsearchApi(
 
                         const reasons = uniq(
                             flatten(failuresReasons.map((shard) => shard.reason.type))
-                        );
+                        ) as string[];
 
                         if (
                             reasons.length > 1
-                            || reasons[0] !== 'es_rejected_execution_exception'
+                            || !isQueueOverflowError(reasons[0])
                         ) {
                             const errorReason = reasons.join(' | ');
                             const error = new TSError(errorReason, {
@@ -830,7 +830,7 @@ export default function elasticsearchApi(
             return true;
         }
 
-        const isRejectedError = get(err, 'body.error.type') === 'es_rejected_execution_exception';
+        const isRejectedError = isQueueOverflowError(get(err, 'body.error.type', ''));
         const isConnectionError = isConnectionErrorMessage(err);
 
         if (isRejectedError || isConnectionError) {
@@ -1125,6 +1125,10 @@ export default function elasticsearchApi(
                 reason: `could not get mapping for query ${JSON.stringify(params)}`,
             });
         }
+    }
+
+    function isQueueOverflowError(errMsg: string) {
+        return errMsg === 'es_rejected_execution_exception' || errMsg === 'rejected_execution_exception';
     }
 
     function _areSameMappings(

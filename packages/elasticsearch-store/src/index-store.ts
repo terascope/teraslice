@@ -741,9 +741,9 @@ export class IndexStore<T extends Record<string, any>> {
 
         if (failed) {
             const failureTypes = failures.flatMap((shard: any) => shard.reason.type);
-            const reasons = uniq(failureTypes);
+            const reasons = uniq(failureTypes) as string[];
 
-            if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
+            if (reasons.length > 1 || !isQueueOverflowError(reasons[0])) {
                 const errorReason = reasons.join(' | ');
                 throw new TSError(errorReason, {
                     reason: 'Not all shards returned successful, shard errors: ',
@@ -983,3 +983,7 @@ export type UpdateBody<T> = ({ doc: Partial<T> })|({ script: any });
 
 export type WriteHook<T> = (doc: Partial<T>, critical: boolean) => T | Partial<T>;
 export type ReadHook<T> = (doc: T, critical: boolean) => T | false;
+
+function isQueueOverflowError(errMsg: string) {
+    return errMsg === 'es_rejected_execution_exception' || errMsg === 'rejected_execution_exception';
+}
