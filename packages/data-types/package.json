@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-types",
     "displayName": "Data Types",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "A library for defining the data structures and mapping",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-types#readme",
     "bugs": {
@@ -26,7 +26,7 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-types --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.0",
+        "@terascope/core-utils": "~2.0.1",
         "@terascope/types": "~2.0.0",
         "graphql": "~16.11.0"
     },
