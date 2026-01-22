@@ -27,6 +27,7 @@ const serviceUpTimeout = ms(config.SERVICE_UP_TIMEOUT);
 
 const rabbitConfigPath = path.join(getRootDir(), '/.ts-test-config/rabbitmq.conf');
 const restrainedElasticsearchConfigPath = path.join(getRootDir(), '/.ts-test-config/elasticsearch.yml');
+const restrainedOpensearchConfigPath = path.join(getRootDir(), '/.ts-test-config/opensearch.yml');
 
 const disableXPackSecurity = !config.ELASTICSEARCH_DOCKER_IMAGE.includes('blacktop');
 
@@ -68,6 +69,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.RestrainedOpensearch]: {
         image: config.OPENSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
+        mount: [`type=bind,source=${restrainedOpensearchConfigPath},target=/usr/share/opensearch/config/opensearch.yml`],
         ports: [`${config.RESTRAINED_OPENSEARCH_PORT}:${config.RESTRAINED_OPENSEARCH_PORT}`],
         env: {
             OPENSEARCH_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
@@ -266,9 +268,9 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
     }
 
     if (launchServices.includes(Service.RestrainedOpensearch)) {
-        // we create the elasticsearch.yml file for tests
+        // we create the opensearch.yml file for tests
         if (!options.ignoreMount) {
-            await fs.outputFile(restrainedElasticsearchConfigPath, 'network.host: 0.0.0.0\nthread_pool.write.queue_size: 2');
+            await fs.outputFile(restrainedOpensearchConfigPath, 'network.host: 0.0.0.0\nthread_pool.write.queue_size: 2');
         }
         promises.push(ensureRestrainedOpensearch(options));
     }
