@@ -15,7 +15,8 @@ import { ExecutionService, JobsService, ClusterServiceType } from '../services/i
 import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/index.js';
 import {
     makeTable, sendError, handleTerasliceRequest,
-    getSearchOptions, createJobActiveQuery, addDeletedToQuery
+    getSearchOptions, createJobActiveQuery, addDeletedToQuery,
+    addFilterToQuery
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
@@ -36,17 +37,6 @@ function validateGetDeletedOption(deletedOption: string) {
             statusCode: 400
         });
     }
-}
-
-/**
- * Combines a base query from an endpoint with an optional filter using AND from lucene.
- * @param query - The base Lucene query string
- * @param filter - Optional filter query to append. getSearchOptions() will return an empty string
- * if no filter is present.
- * @returns The combined query, or original query if filter is empty
- */
-function applyFilter(query: string, filter: string): string {
-    return filter ? `(${query}) AND (${filter})` : query;
 }
 
 export class ApiService {
@@ -295,11 +285,9 @@ export class ApiService {
             requestHandler(() => {
                 validateGetDeletedOption(deleted as string);
 
-                const partialQuery = createJobActiveQuery(active as string);
-                const query = applyFilter(
-                    addDeletedToQuery(deleted as string, partialQuery),
-                    filter as string
-                );
+                let partialQuery = createJobActiveQuery(active as string);
+                partialQuery = addDeletedToQuery(deleted as string, partialQuery);
+                const query = addFilterToQuery(partialQuery, filter as string);
 
                 return typeof ex === 'string'
                     ? this.jobsService.getJobsWithExInfo(query, from, size, sort as string, ex.split(','))
@@ -465,7 +453,7 @@ export class ApiService {
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get errors for job');
             requestHandler(async () => {
                 const exId = await this._getExIdFromRequest(req as TerasliceRequest, true);
-                const query = applyFilter(
+                const query = addFilterToQuery(
                     `state:error AND ex_id:"${exId}"`,
                     filter as string
                 );
@@ -489,10 +477,9 @@ export class ApiService {
                     partialQuery += ` AND (${statusTerms})`;
                 }
 
-                const query = applyFilter(
-                    addDeletedToQuery(deleted as string, partialQuery),
-                    filter as string
-                );
+                partialQuery = addDeletedToQuery(deleted as string, partialQuery);
+                const query = addFilterToQuery(partialQuery, filter as string);
+
                 return this.executionStorage.search(query, from, size, sort as string);
             });
         });
@@ -580,11 +567,9 @@ export class ApiService {
                     defaults.push('_deleted_on');
                 }
 
-                const partialQuery = createJobActiveQuery(active as string);
-                const query = applyFilter(
-                    addDeletedToQuery(deleted as string, partialQuery),
-                    filter as string
-                );
+                let partialQuery = createJobActiveQuery(active as string);
+                partialQuery = addDeletedToQuery(deleted as string, partialQuery);
+                const query = addFilterToQuery(partialQuery, filter as string);
 
                 const jobs = await this.jobsStorage.search(
                     query, from, size, sort as string
@@ -609,11 +594,9 @@ export class ApiService {
                     defaults.push('_deleted_on');
                 }
 
-                const partialQuery = 'ex_id:*';
-                const query = applyFilter(
-                    addDeletedToQuery(deleted as string, partialQuery),
-                    filter as string
-                );
+                let partialQuery = 'ex_id:*';
+                partialQuery = addDeletedToQuery(deleted as string, partialQuery);
+                const query = addFilterToQuery(partialQuery, filter as string);
 
                 const exs = await this.executionStorage.search(
                     query, from, size, sort as string
