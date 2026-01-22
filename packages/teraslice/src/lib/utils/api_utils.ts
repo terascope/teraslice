@@ -119,7 +119,8 @@ export function getSearchOptions(req: TerasliceRequest, defaultSort = '_updated:
     const sort = req.query.sort || defaultSort;
     const size = parseQueryInt(req, 'size', 100);
     const from = parseQueryInt(req, 'from', 0);
-    return { size, from, sort };
+    const filter = req.query.filter || '';
+    return { size, from, sort, filter };
 }
 
 export function logTerasliceRequest(req: TerasliceRequest) {
@@ -145,4 +146,15 @@ export function addDeletedToQuery(deleted: string, query: string) {
         return `${query} AND (_deleted:false OR (* AND -_deleted:*))`;
     }
     return `${query} AND _deleted:true`;
+}
+
+/**
+ * Combines a base query from an endpoint with an optional filter using AND from lucene.
+ * @param query - The base Lucene query string
+ * @param filter - Optional filter query to append. getSearchOptions() will return an empty string
+ * if no filter is present.
+ * @returns The combined query, or original query if filter is empty
+ */
+export function addFilterToQuery(query: string, filter: string): string {
+    return filter ? `(${query}) AND (${filter})` : query;
 }
