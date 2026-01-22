@@ -94,6 +94,17 @@ Returns a text table of all job listings.
 - `fields: string`
 - `active: string = [true|false]`
 - `deleted: string = [true|false]`
+- `filter: string` - Lucene query to filter results (e.g., `job_id:abc123`). See filterable fields below.
+
+**Filterable Fields:**
+
+| Field | Type |
+|-------|------|
+| `active` | boolean |
+| `job_id` | keyword |
+| `_context` | keyword |
+| `_created` | date |
+| `_updated` | date |
 
 **Note:** When showing `deleted` records the `_deleted_on` field will be added to the default fields.
 
@@ -144,7 +155,26 @@ Returns a text table of all job execution contexts.
 **Query Options:**
 
 - `fields: string`
-- `deleted: string = [true|false]]`
+- `deleted: string = [true|false]`
+- `filter: string` - Lucene query to filter results (e.g., `job_id:abc123 AND _status:running`). See filterable fields below.
+
+**Filterable Fields:**
+
+| Field | Type |
+|-------|------|
+| `active` | boolean |
+| `job_id` | keyword |
+| `ex_id` | keyword |
+| `_context` | keyword |
+| `_status` | keyword |
+| `_has_errors` | keyword |
+| `slicer_hostname` | keyword |
+| `slicer_port` | keyword |
+| `recovered_execution` | keyword |
+| `recovered_slice_type` | keyword |
+| `_created` | date |
+| `_updated` | date |
+| `teraslice_version` | keyword |
 
 **Note:** When showing `deleted` records the `_deleted_on` field will be added to the default fields.
 
