@@ -192,7 +192,7 @@ teraslice:
     repository: teraslice-workspace
     # Overrides the image tag whose default is the chart appVersion.
     # WILL be overwritten if build is true
-    tag: e2e-nodev22
+    tag: e2e-nodev24
   stateCluster: opensearch2
   asset_storage_connection_type: elasticsearch-next
   asset_storage_connection: default
