@@ -444,7 +444,6 @@ export class ApiService {
 
         v1routes.get([
             '/jobs/:jobId/errors',
-            '/jobs/:jobId/errors/:exId',
             '/ex/:exId/errors',
             '/ex/errors',
         ], (req, res) => {
