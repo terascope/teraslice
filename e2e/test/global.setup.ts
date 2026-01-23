@@ -11,7 +11,8 @@ import { teardown } from './teardown.js';
 
 const {
     CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM,
-    TERASLICE_PORT, KIND_CLUSTER, USE_HELMFILE
+    TERASLICE_PORT, KIND_CLUSTER, USE_HELMFILE,
+    STERN_LOGS
 } = config;
 
 export default async () => {
@@ -44,7 +45,7 @@ export default async () => {
     if (TEST_PLATFORM === 'kubernetesV2') {
         await downloadAssets();
         if (USE_HELMFILE) {
-            await helmfileCommand('sync', TEST_PLATFORM);
+            await helmfileCommand('sync', TEST_PLATFORM, false, STERN_LOGS);
         } else {
             const k8s = new K8s(TERASLICE_PORT, KIND_CLUSTER);
             await k8s.deployK8sTeraslice(TEST_PLATFORM, true, false);
