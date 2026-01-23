@@ -335,13 +335,18 @@ export class SchemaValidator<T = AnyObject> {
         if (this.checkUndeclaredKeys !== 'allow') {
             const schemaKeys = this.getSchemaObjectKeys(this.zodSchema);
             if (schemaKeys) {
+                const missingKeys: string[] = [];
                 for (const key in finalConfig) {
                     if (!schemaKeys.includes(key)) {
-                        if (this.checkUndeclaredKeys === 'warn') {
-                            this.logger.warn(`Key '${key}' is not declared in ${this.name} schema`);
-                        } else if (this.checkUndeclaredKeys === 'strict') {
-                            throw new Error(`Key '${key}' is not declared in ${this.name} schema`);
-                        }
+                        missingKeys.push(key);
+                    }
+                }
+                if (missingKeys.length > 0) {
+                    const msg = `The following keys are not declared in ${this.name} schema: '${missingKeys.join(', ')}'`;
+                    if (this.checkUndeclaredKeys === 'warn') {
+                        this.logger.warn(msg);
+                    } else if (this.checkUndeclaredKeys === 'strict') {
+                        throw new Error(msg);
                     }
                 }
             }

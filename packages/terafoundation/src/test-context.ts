@@ -191,10 +191,11 @@ export class TestContext<
         S extends Record<string, any>,
         A extends Record<string, any>,
         D extends string = string,
-    >(options: TestContextOptions<S> = {}) {
+    >(options: TestContextOptions<S> = {}, schema: any = {}) {
         const defaultSysconfig = getDefaultSysconfig(options);
         const config: Terafoundation.Config<S, A & TestContextAPIs, D> = {
             name: options.name || 'test-context',
+            config_schema: schema
         };
 
         const cluster: Terafoundation.Cluster = {
