@@ -113,6 +113,7 @@ export interface TestEnv {
     SKIP_E2E_OUTPUT_LOGS?: boolean;
     SKIP_GIT_COMMANDS?: boolean;
     SKIP_IMAGE_DELETION?: boolean;
+    STERN_LOGS?: boolean;
     TJM_TEST_MODE?: boolean;
     TERASLICE_IMAGE?: string;
     TERASLICE_PORT?: number;
@@ -171,8 +172,8 @@ export type RabbitMQTestEnv = RequireKeys<
 export type E2ETestEnv = RequireKeys<
     TestEnv,
     'CERT_PATH' | 'DEBUG_LOG_LEVEL' | 'FILE_LOGGING' | 'HOST_IP' | 'KAFKA_BROKER'
-    | 'KIND_CLUSTER' | 'NODE_VERSION' | 'SEARCH_TEST_HOST' | 'TERASLICE_PORT'
-    | 'TEST_INDEX_PREFIX' | 'TEST_PLATFORM' | 'USE_HELMFILE'
+    | 'KIND_CLUSTER' | 'NODE_VERSION' | 'SEARCH_TEST_HOST' | 'STERN_LOGS'
+    | 'TERASLICE_PORT' | 'TEST_INDEX_PREFIX' | 'TEST_PLATFORM' | 'USE_HELMFILE'
 >;
 
 export interface ScriptsConfigDefaults {

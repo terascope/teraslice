@@ -80,7 +80,7 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
         CERT_PATH: config.CERT_PATH,
         ASSET_STORAGE_CONNECTION: config.ASSET_STORAGE_CONNECTION,
         ASSET_STORAGE_CONNECTION_TYPE: config.ASSET_STORAGE_CONNECTION_TYPE,
-        MINIO_HOST: config.MINIO_HOST,
+        MINIO_HOST: config.MINIO_HOST
     };
 
     if (config.DOCKER_NETWORK_NAME) {
@@ -187,6 +187,10 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
             DEBUG,
             DEBUG_LOG_LEVEL
         });
+    }
+
+    if (options.logs) {
+        env.STERN_LOGS = true;
     }
 
     return env;

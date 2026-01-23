@@ -12,13 +12,14 @@ env:
   NODE_VERSIONS_EXT_STORAGE: '[24]'
 
 jobs:
-  compute-node-version-vars:
+  compute-vars:
     runs-on: ubuntu-latest
     outputs:
       NODE_VERSIONS: ${{ steps.step1.outputs.NODE_VERSIONS }}
       NODE_VERSION_MAIN: ${{ steps.step2.outputs.NODE_VERSION_MAIN }}
       NODE_VERSIONS_K8S: ${{ steps.step3.outputs.NODE_VERSIONS_K8S }}
       NODE_VERSIONS_EXT_STORAGE: ${{ steps.step4.outputs.NODE_VERSIONS_EXT_STORAGE }}
+      COMMIT_SHORT_SHA: ${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}
     steps:
       - id: step1
         run: echo "NODE_VERSIONS=${{ env.NODE_VERSIONS }}" >> $GITHUB_OUTPUT
@@ -28,10 +29,15 @@ jobs:
         run: echo "NODE_VERSIONS_K8S=${{ env.NODE_VERSIONS_K8S }}" >> $GITHUB_OUTPUT
       - id: step4
         run: echo "NODE_VERSIONS_EXT_STORAGE=${{ env.NODE_VERSIONS_EXT_STORAGE }}" >> $GITHUB_OUTPUT
+      - name: Get Commit Short SHA
+        id: get-short-sha
+        run: |
+          calculatedSha=$(git rev-parse --short ${{ github.event.pull_request.head.sha || github.sha }})
+          echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_OUTPUT
 
   verify-build:
     runs-on: ubuntu-latest
-    needs: compute-node-version-vars
+    needs: compute-vars
     steps:
     - name: Check out code
       uses: actions/checkout@v4
@@ -39,7 +45,7 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
         cache: 'yarn'
 
     - name: Install and build packages
@@ -65,7 +71,7 @@ jobs:
 
   determine-tests-based-off-commit:
     runs-on: ubuntu-latest
-    needs: compute-node-version-vars
+    needs: compute-vars
     outputs:
       unit: ${{ steps.determine.outputs.unit }}
       e2e: ${{ steps.determine.outputs.e2e }}
@@ -77,10 +83,10 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-      - name: Setup Node ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
+      - name: Setup Node ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
+          node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
           cache: 'yarn'
       - name: Install and build packages
         run: yarn && yarn setup
@@ -112,10 +118,10 @@ jobs:
   linux-unit-tests:
     if: needs.determine-tests-based-off-commit.outputs.unit == 'true'
     runs-on: ubuntu-latest
-    needs: [determine-tests-based-off-commit, compute-node-version-vars]
+    needs: [determine-tests-based-off-commit, compute-vars]
     strategy:
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -151,10 +157,10 @@ jobs:
 
   build-dev-docker-images:
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars]
+    needs: [compute-vars]
     strategy:
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -178,12 +184,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+    needs: [compute-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_K8S) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_K8S) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -228,6 +234,7 @@ jobs:
       - name: Load dev docker image
         run: |
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
 
       - name: Compile e2e code
@@ -256,6 +263,7 @@ jobs:
         run: |
           curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
           tar -xzf helmfile.tgz
+          rm helmfile.tgz
           chmod +x helmfile
           mv helmfile /usr/local/bin/helmfile
           helm plugin install https://github.com/databus23/helm-diff
@@ -284,15 +292,23 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2Helmfile
         working-directory: ./e2e
 
+      - name: upload logs artifact
+        id: upload-logs-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-$GITHUB_JOB.node-${{ matrix.node-version }}
+          path: e2e/logs/*.log
+          retention-days: 3
+
   e2e-k8s-v2-encrypted-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+    needs: [compute-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -337,6 +353,7 @@ jobs:
       - name: Load dev docker image
         run: |
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
           
       - name: Install mkcert
@@ -377,6 +394,7 @@ jobs:
         run: |
           curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
           tar -xzf helmfile.tgz
+          rm helmfile.tgz
           chmod +x helmfile
           mv helmfile /usr/local/bin/helmfile
           helm plugin install https://github.com/databus23/helm-diff
@@ -392,9 +410,11 @@ jobs:
 
       - name: Free up space before tests
         run: |
+          echo "Free space before:"
           df -h
           # Remove Android, DotNet, Haskell, and C++ libraries we don't need
           sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost
+          echo "Free space after:"
           df -h
 
       - name: Test k8s V2 opensearch2
@@ -406,17 +426,25 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2HelmfileEncrypted
         working-directory: ./e2e
 
+      - name: upload logs artifact
+        id: upload-logs-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-$GITHUB_JOB.node-${{ matrix.node-version }}
+          path: e2e/logs/*.log
+          retention-days: 3
+
   e2e-external-asset-storage-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+    needs: [compute-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -461,6 +489,7 @@ jobs:
       - name: Load dev docker image
         run: |
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
           
       - name: Compile e2e code
@@ -490,17 +519,25 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:s3AssetStorage
         working-directory: ./e2e
 
+      - name: upload logs artifact
+        id: upload-logs-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-$GITHUB_JOB.node-${{ matrix.node-version }}
+          path: e2e/logs/*.log
+          retention-days: 3
+
   e2e-external-asset-storage-tests-encrypted:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+    needs: [compute-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -545,6 +582,7 @@ jobs:
       - name: Load dev docker image
         run: |
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
 
       - name: Install mkcert
@@ -585,15 +623,23 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:s3AssetStorageEncrypted
         working-directory: ./e2e
 
+      - name: upload logs artifact
+        id: upload-logs-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-$GITHUB_JOB.node-${{ matrix.node-version }}
+          path: e2e/logs/*.log
+          retention-days: 3
+
   teraslice-elasticsearch-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+    needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
         search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
@@ -653,12 +699,12 @@ jobs:
   elasticsearch-store-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+    needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
         search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
@@ -717,12 +763,12 @@ jobs:
   xlucene-translator-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+    needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
         search-version: [opensearch2, opensearch3]
     steps:
       - name: Check out code
@@ -780,12 +826,12 @@ jobs:
   opensearch-client-tests:
       if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
       runs-on: ubuntu-latest
-      needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+      needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
       strategy:
         # opensearch is finiky, keep testing others if it fails
         fail-fast: false
         matrix:
-          node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+          node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
           search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
       steps:
         - name: Check out code
@@ -843,7 +889,7 @@ jobs:
 
   lint-and-sync:
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images]
+    needs: [compute-vars, verify-build, cache-docker-images]
     # will remove the checkout, build and setup when the artifact is made to just
     # test the linting and syncing of the codebase
     steps:
@@ -853,7 +899,7 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSION_MAIN) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
         cache: 'yarn'
 
     - name: Install and build packages
@@ -868,12 +914,12 @@ jobs:
   elasticsearch-api-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+    needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
         search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
@@ -934,12 +980,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-node-version-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+    needs: [compute-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute-node-version-vars.outputs.NODE_VERSIONS) }}
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
         search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
@@ -985,6 +1031,7 @@ jobs:
       - name: Load dev docker image
         run: |
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
           
       - name: Compile e2e code
@@ -1014,6 +1061,14 @@ jobs:
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:${{ matrix.search-version }}
         working-directory: ./e2e
+
+      - name: upload logs artifact
+        id: upload-logs-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-$GITHUB_JOB.node-${{ matrix.node-version }}
+          path: e2e/logs/*.log
+          retention-days: 3
 
   test-website:
     if: needs.determine-tests-based-off-commit.outputs.website == 'true'
@@ -1059,7 +1114,8 @@ jobs:
       e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
-      teraslice-elasticsearch-tests
+      teraslice-elasticsearch-tests,
+      xlucene-translator-tests,
     ]
     uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
     secrets: inherit
@@ -1093,7 +1149,8 @@ jobs:
           results["linux-unit-tests"]="${{ needs.linux-unit-tests.result }}"
           results["xlucene-translator-tests"]="${{ needs.xlucene-translator-tests.result }}"
           results["e2e-k8s-v2-encrypted-tests"]="${{ needs.e2e-k8s-v2-encrypted-tests.result }}"
-          results["e2e-external-storage-tests"]="${{ needs.e2e-external-storage-tests.result }}"
+          results["e2e-external-asset-storage-tests"]="${{ needs.e2e-external-asset-storage-tests.result }}"
+          results["e2e-external-asset-storage-tests-encrypted"]="${{ needs.e2e-external-asset-storage-tests-encrypted.result }}"
           results["e2e-k8s-v2-tests"]="${{ needs.e2e-k8s-v2-tests.result }}"
           results["e2e-tests"]="${{ needs.e2e-tests.result }}"
           results["elasticsearch-api-tests"]="${{ needs.elasticsearch-api-tests.result }}"
