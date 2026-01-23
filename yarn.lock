@@ -2965,7 +2965,7 @@ __metadata:
     "@types/is-plain-object": "npm:~2.0.4"
     "@types/js-string-escape": "npm:~1.0.3"
     "@types/lodash-es": "npm:~4.17.12"
-    "@types/validator": "npm:~13.12.3"
+    "@types/validator": "npm:~13.15.10"
     awesome-phonenumber: "npm:~7.6.0"
     benchmark: "npm:~2.1.4"
     bunyan: "npm:~1.8.15"
@@ -2981,7 +2981,7 @@ __metadata:
     moment: "npm:~2.30.1"
     p-map: "npm:~7.0.4"
     shallow-clone: "npm:~3.0.1"
-    validator: "npm:~13.12.0"
+    validator: "npm:~13.15.26"
     zod: "npm:~4.1.12"
   languageName: unknown
   linkType: soft
@@ -2999,7 +2999,7 @@ __metadata:
     "@types/ip6addr": "npm:~0.2.6"
     "@types/jexl": "npm:^2.3.4"
     "@types/valid-url": "npm:~1.0.7"
-    "@types/validator": "npm:~13.12.3"
+    "@types/validator": "npm:~13.15.10"
     awesome-phonenumber: "npm:~7.6.0"
     benchmark: "npm:~2.1.4"
     big-json: "npm:~3.2.0"
@@ -3013,7 +3013,7 @@ __metadata:
     mnemonist: "npm:~0.40.3"
     uuid: "npm:~13.0.0"
     valid-url: "npm:~1.0.9"
-    validator: "npm:~13.12.0"
+    validator: "npm:~13.15.26"
     xlucene-parser: "npm:~2.0.3"
   languageName: unknown
   linkType: soft
@@ -4129,10 +4129,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/validator@npm:~13.12.3":
-  version: 13.12.3
-  resolution: "@types/validator@npm:13.12.3"
-  checksum: 10c0/bc40191cd2e3c9b4b8d1f10611038ae3793462685366201940f2ef953b3229c02edcdb7c73cc5e6f762d5ecf1762a821afadaf97f71bd7fb06fae3aeb2729caf
+"@types/validator@npm:~13.15.10":
+  version: 13.15.10
+  resolution: "@types/validator@npm:13.15.10"
+  checksum: 10c0/3e2e65fcd37dd6961ca3fd0535293d0c42f5911dc3ca44b96f458835e6db2392b678ccbb0c9815d8c0a14e653439e6c62c7b8758a6cd1d6e390551c9e56618ac
   languageName: node
   linkType: hard
 
@@ -13148,7 +13148,7 @@ __metadata:
     "@types/graphlib": "npm:~2.1.12"
     "@types/jexl": "npm:~2.3.4"
     "@types/valid-url": "npm:~1.0.7"
-    "@types/validator": "npm:~13.12.3"
+    "@types/validator": "npm:~13.15.10"
     "@types/yargs": "npm:~17.0.35"
     awesome-phonenumber: "npm:~7.6.0"
     execa: "npm:~9.6.1"
@@ -13156,7 +13156,7 @@ __metadata:
     jexl: "npm:~2.3.0"
     nanoid: "npm:~5.1.6"
     valid-url: "npm:~1.0.9"
-    validator: "npm:~13.12.0"
+    validator: "npm:~13.15.26"
     yargs: "npm:~18.0.0"
   bin:
     ts-match: ./bin/ts-transform.js
@@ -13625,10 +13625,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"validator@npm:~13.12.0":
-  version: 13.12.0
-  resolution: "validator@npm:13.12.0"
-  checksum: 10c0/21d48a7947c9e8498790550f56cd7971e0e3d724c73388226b109c1bac2728f4f88caddfc2f7ed4b076f9b0d004316263ac786a17e9c4edf075741200718cd32
+"validator@npm:~13.15.26":
+  version: 13.15.26
+  resolution: "validator@npm:13.15.26"
+  checksum: 10c0/d66041685c531423f6b514d0481228503b96682fe30ed7925ad77ff3cd08c3983dc94f45e18457e44f62f89027b94a3342009d65421800ce65f6e0d2c6eaf7fc
   languageName: node
   linkType: hard
 
