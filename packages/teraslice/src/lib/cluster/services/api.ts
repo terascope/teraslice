@@ -107,7 +107,7 @@ export class ApiService {
         const { path } = req;
 
         if (startsWith(path, '/ex')) {
-            const { exId } = req.params;
+            const { exId } = req.params as { exId: string };
             if (exId) return exId;
 
             if (allowWildcard) {
@@ -119,7 +119,7 @@ export class ApiService {
         }
 
         if (startsWith(path, '/jobs')) {
-            const { jobId } = req.params;
+            const { jobId } = req.params as { jobId: string };
             const exId = await this.jobsService.getLatestExecutionId(jobId);
 
             if (!exId) {
