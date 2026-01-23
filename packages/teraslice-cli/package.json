@@ -42,7 +42,7 @@
         "esbuild": "~0.27.2"
     },
     "devDependencies": {
-        "@terascope/core-utils": "~2.0.1",
+        "@terascope/core-utils": "~2.0.2",
         "@terascope/fetch-github-release": "~2.2.1",
         "@terascope/types": "~2.0.0",
         "@types/decompress": "~4.2.7",
@@ -67,7 +67,7 @@
         "pretty-bytes": "~7.1.0",
         "prompts": "~2.4.2",
         "signale": "~1.4.0",
-        "teraslice-client-js": "~2.0.1",
+        "teraslice-client-js": "~2.0.2",
         "tmp": "~0.2.5",
         "tty-table": "~5.0.0",
         "yargs": "~18.0.0"
