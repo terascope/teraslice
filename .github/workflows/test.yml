@@ -298,7 +298,7 @@ jobs:
         id: upload-logs-artifact
         uses: actions/upload-artifact@v4
         with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-$GITHUB_JOB.node-${{ matrix.node-version }}
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
           path: e2e/logs/*.log
           retention-days: 3
 
@@ -432,7 +432,7 @@ jobs:
         id: upload-logs-artifact
         uses: actions/upload-artifact@v4
         with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-$GITHUB_JOB.node-${{ matrix.node-version }}
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
           path: e2e/logs/*.log
           retention-days: 3
 
@@ -525,7 +525,7 @@ jobs:
         id: upload-logs-artifact
         uses: actions/upload-artifact@v4
         with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-$GITHUB_JOB.node-${{ matrix.node-version }}
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
           path: e2e/logs/*.log
           retention-days: 3
 
@@ -629,7 +629,7 @@ jobs:
         id: upload-logs-artifact
         uses: actions/upload-artifact@v4
         with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-$GITHUB_JOB.node-${{ matrix.node-version }}
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
           path: e2e/logs/*.log
           retention-days: 3
 
@@ -1068,7 +1068,7 @@ jobs:
         id: upload-logs-artifact
         uses: actions/upload-artifact@v4
         with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-$GITHUB_JOB.node-${{ matrix.node-version }}
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
           path: e2e/logs/*.log
           retention-days: 3
 
