@@ -39,7 +39,7 @@
         "debug": "~4.4.3"
     },
     "devDependencies": {
-        "@types/debug": "^4.1.12"
+        "@types/debug": "~4.1.12"
     },
     "engines": {
         "node": ">=22.0.0",

@@ -1,7 +1,7 @@
 {
     "name": "@terascope/ip-utils",
     "displayName": "IP Utils",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "A collection of Teraslice IP Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ip-utils#readme",
     "bugs": {
@@ -30,16 +30,16 @@
     },
     "dependencies": {
         "@chainsafe/is-ip": "~2.1.0",
-        "@terascope/core-utils": "~2.0.0",
+        "@terascope/core-utils": "~2.0.1",
         "@terascope/types": "~2.0.0",
         "ip-bigint": "~8.2.2",
         "ip-cidr": "~4.0.2",
         "ip6addr": "~0.2.5",
-        "ipaddr.js": "~2.2.0",
-        "is-cidr": "~6.0.0"
+        "ipaddr.js": "~2.3.0",
+        "is-cidr": "~6.0.1"
     },
     "devDependencies": {
-        "@types/ip6addr": "^0.2.6"
+        "@types/ip6addr": "~0.2.6"
     },
     "engines": {
         "node": ">=22.0.0",

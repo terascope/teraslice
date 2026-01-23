@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "3.1.0",
+    "version": "3.1.1",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -44,29 +44,28 @@
         "test": "ts-scripts test"
     },
     "resolutions": {
-        "@types/lodash": "~4.17.20",
+        "@types/lodash": "~4.17.23",
         "debug": "~4.4.3",
         "ms": "~2.1.3",
         "nan": "~2.22.0"
     },
     "devDependencies": {
-        "@eslint/js": "~9.35.0",
-        "@swc/core": "1.13.5",
+        "@eslint/js": "~9.39.2",
+        "@swc/core": "1.15.10",
         "@swc/jest": "~0.2.39",
-        "@terascope/scripts": "~2.0.2",
+        "@terascope/scripts": "~2.0.3",
         "@types/elasticsearch": "~5.0.43",
         "@types/fs-extra": "~11.0.4",
         "@types/jest": "~30.0.0",
-        "@types/lodash": "~4.17.20",
+        "@types/lodash": "~4.17.23",
         "@types/node": "~24.4.0",
-        "@types/uuid": "~10.0.0",
-        "eslint": "~9.35.0",
-        "jest": "~30.1.3",
-        "jest-extended": "~6.0.0",
+        "eslint": "~9.39.2",
+        "jest": "~30.2.0",
+        "jest-extended": "~7.0.0",
         "jest-watch-typeahead": "~3.0.1",
         "node-notifier": "~10.0.1",
-        "ts-jest": "~29.4.1",
-        "typescript": "~5.9.2"
+        "ts-jest": "~29.4.6",
+        "typescript": "~5.9.3"
     },
     "packageManager": "yarn@4.6.0",
     "engines": {
