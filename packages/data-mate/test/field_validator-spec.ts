@@ -716,8 +716,8 @@ describe('field validators', () => {
     describe('isUUID', () => {
         it('should return true for valid UUIDs', () => {
             expect(FieldValidator.isUUID('95ecc380-afe9-11e4-9b6c-751b66dd541e')).toBe(true);
-            expect(FieldValidator.isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B')).toBe(true);
-            expect(FieldValidator.isUUID('123e4567-e89b-82d3-f456-426655440000')).toBe(true);
+            expect(FieldValidator.isUUID('0668CF8B-27F8-2F4D-AF2D-763AC7C8F68B')).toBe(true);
+            expect(FieldValidator.isUUID('123e4567-e89b-82d3-9456-426655440000')).toBe(true);
         });
 
         it('should return false for invalid UUIDs', () => {
@@ -725,6 +725,8 @@ describe('field validators', () => {
             expect(FieldValidator.isUUID('95ecc380:afe9:11e4:9b6c:751b66dd541e')).toBe(false);
             expect(FieldValidator.isUUID('123e4567-e89b-x2d3-0456-426655440000')).toBe(false);
             expect(FieldValidator.isUUID('123e4567-e89b-12d3-a456-42600')).toBe(false);
+            expect(FieldValidator.isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B')).toBe(false);
+            expect(FieldValidator.isUUID('123e4567-e89b-82d3-f456-426655440000')).toBe(false);
             expect(FieldValidator.isUUID(undefined)).toBe(false);
             expect(FieldValidator.isUUID('randomstring')).toBe(false);
             expect(FieldValidator.isUUID(true)).toBe(false);
@@ -732,7 +734,7 @@ describe('field validators', () => {
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isUUID(['123e4567-e89b-82d3-f456-426655440000', undefined])).toBe(true);
+            expect(FieldValidator.isUUID(['123e4567-e89b-82d3-a456-426655440000', undefined])).toBe(true);
         });
     });
 

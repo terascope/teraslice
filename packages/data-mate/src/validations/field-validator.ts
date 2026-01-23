@@ -874,11 +874,11 @@ export function isURL(input: unknown, _parentContext?: unknown): boolean {
  * Validates that input is a UUID or a list of UUID's
  *
  * @example
- * FieldValidator.isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'); // true
+ * FieldValidator.isUUID('0668CF8B-27F8-2F4D-AF2D-763AC7C8F68B'); // true
  * FieldValidator.isUUID('BAD-UUID'); // false
  * FieldValidator.isUUID([
- *   '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
- *   '123e4567-e89b-82d3-f456-426655440000'
+ *   '0668CF8B-27F8-2F4D-AF2D-763AC7C8F68B',
+ *   '123e4567-e89b-82d3-A456-426655440000'
  * ]); // true
  *
  * @param {*} input

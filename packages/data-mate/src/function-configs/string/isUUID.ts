@@ -17,8 +17,15 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
         args: {},
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
+        input: '123e4567-e89b-82d3-a456-426655440000',
+        output: '123e4567-e89b-82d3-a456-426655440000'
+    },
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
         input: '123e4567-e89b-82d3-f456-426655440000',
-        output: '123e4567-e89b-82d3-f456-426655440000'
+        output: null
     },
     {
         args: {},
