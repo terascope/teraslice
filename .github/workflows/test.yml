@@ -294,7 +294,7 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2Helmfile
         working-directory: ./e2e
 
-      - name: upload logs artifact
+      - name: Upload logs artifact
         if: always()
         id: upload-logs-artifact
         uses: actions/upload-artifact@v4
@@ -429,7 +429,7 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2HelmfileEncrypted
         working-directory: ./e2e
 
-      - name: upload logs artifact
+      - name: Upload logs artifact
         if: always()
         id: upload-logs-artifact
         uses: actions/upload-artifact@v4
@@ -523,7 +523,7 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:s3AssetStorage
         working-directory: ./e2e
 
-      - name: upload logs artifact
+      - name: Upload logs artifact
         if: always()
         id: upload-logs-artifact
         uses: actions/upload-artifact@v4
@@ -628,7 +628,7 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:s3AssetStorageEncrypted
         working-directory: ./e2e
 
-      - name: upload logs artifact
+      - name: Upload logs artifact
         if: always()
         id: upload-logs-artifact
         uses: actions/upload-artifact@v4
@@ -1068,7 +1068,7 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:${{ matrix.search-version }}
         working-directory: ./e2e
 
-      - name: upload logs artifact
+      - name: Upload logs artifact
         if: always()
         id: upload-logs-artifact
         uses: actions/upload-artifact@v4
