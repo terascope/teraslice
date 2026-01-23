@@ -1,7 +1,7 @@
 {
     "name": "@terascope/geo-utils",
     "displayName": "Geo Utils",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "description": "A collection of Teraslice Geo Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/geo-utils#readme",
     "bugs": {
@@ -25,8 +25,8 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../geo-utils --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.2",
-        "@terascope/types": "~2.0.0",
+        "@terascope/core-utils": "~2.0.3",
+        "@terascope/types": "~2.0.1",
         "@turf/bbox": "~7.3.2",
         "@turf/bbox-polygon": "~7.3.2",
         "@turf/boolean-contains": "~7.3.2",
