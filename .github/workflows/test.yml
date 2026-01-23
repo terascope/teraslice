@@ -21,6 +21,8 @@ jobs:
       NODE_VERSIONS_EXT_STORAGE: ${{ steps.step4.outputs.NODE_VERSIONS_EXT_STORAGE }}
       COMMIT_SHORT_SHA: ${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
       - id: step1
         run: echo "NODE_VERSIONS=${{ env.NODE_VERSIONS }}" >> $GITHUB_OUTPUT
       - id: step2
