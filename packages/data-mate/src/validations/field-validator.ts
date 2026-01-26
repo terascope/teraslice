@@ -80,11 +80,15 @@ export const repository: i.Repository = {
     },
     isString: { fn: isString, config: {}, primary_input_type: i.InputType.String },
     isURL: { fn: isURL, config: {}, primary_input_type: i.InputType.String },
-    isUUID: { fn: isUUID, config: {}, primary_input_type: i.InputType.String },
+    isUUID: {
+        fn: isUUID,
+        config: { version: { type: FieldType.String } },
+        primary_input_type: i.InputType.String
+    },
     contains: {
         fn: contains,
         config: {
-            value: { type: FieldType.String }
+            value: { type: FieldType.String },
         },
         primary_input_type: i.InputType.Array
     },
@@ -882,18 +886,21 @@ export function isURL(input: unknown, _parentContext?: unknown): boolean {
  * ]); // true
  *
  * @param {*} input
+ * @param {{ version: validator.UUIDVersion }} [args]
  * @returns {boolean} boolean
  */
 
-export function isUUID(input: unknown, _parentContext?: unknown): boolean {
+export function isUUID(input: unknown, _parentContext?: unknown, args?: { version: validator.UUIDVersion }): boolean {
     if (isNil(input)) return false;
+
+    const version: validator.UUIDVersion = args && args.version ? args.version : 'all';
 
     if (isArray(input)) {
         const fn = (data: any) => utilsIsString(data) && validator.isUUID(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return utilsIsString(input) && validator.isUUID(input);
+    return utilsIsString(input) && validator.isUUID(input, version);
 }
 
 /**

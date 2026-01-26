@@ -311,6 +311,26 @@ describe('String Utils', () => {
         });
     });
 
+    describe('isUUID with loose parameter', () => {
+        test.each([
+            ['95ecc380-afe9-11e4-9b6c-751b66dd541e', true],
+            ['0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B', true],
+            ['0668CF8B-27F8-2F4D-8F2D-763AC7C8F68B', true],
+            ['123e4567-e89b-82d3-f456-426655440000', true],
+            ['123e4567-e89b-82d3-A456-426655440000', true],
+            ['', false],
+            ['95ecc380:afe9:11e4:9b6c:751b66dd541e', false],
+            ['123e4567-e89b-x2d3-0456-426655440000', false],
+            ['123e4567-e89b-12d3-a456-42600', false],
+            [undefined, false],
+            ['randomstring', false],
+            [true, false],
+            [{}, false],
+        ])('input %s should return %s', (input, expected) => {
+            expect(isUUID(input, 'loose')).toEqual(expected);
+        });
+    });
+
     describe('isBase64', () => {
         test.each([
             ['ZnJpZW5kbHlOYW1lNw==', true],
