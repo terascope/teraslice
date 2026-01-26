@@ -388,7 +388,7 @@ describe('Teraslice Client', () => {
 
                 beforeEach(() => {
                     scope.delete('/hello')
-                        .reply(204, response);
+                        .reply(200, response);
                 });
 
                 it('should resolve with the response from the server', async () => {
@@ -403,7 +403,7 @@ describe('Teraslice Client', () => {
                 beforeEach(() => {
                     scope.delete('/hello')
                         .query({ hello: true })
-                        .reply(204, response);
+                        .reply(200, response);
                 });
 
                 it('should resolve with the response from the server', async () => {
