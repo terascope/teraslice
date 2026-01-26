@@ -112,7 +112,6 @@ describe('services', () => {
         clusteringType: 'native',
         kindClusterName: 'default',
         skipImageDeletion: false,
-        useHelmfile: false,
         logs: false
     };
     let services: any;

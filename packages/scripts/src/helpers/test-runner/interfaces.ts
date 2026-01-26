@@ -16,7 +16,6 @@ export type TestOptions = {
     clusteringType: 'native' | 'kubernetesV2';
     kindClusterName: string;
     skipImageDeletion: boolean;
-    useHelmfile: boolean;
     logs: boolean;
 };
 
