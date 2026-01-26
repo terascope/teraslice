@@ -890,7 +890,11 @@ export function isURL(input: unknown, _parentContext?: unknown): boolean {
  * @returns {boolean} boolean
  */
 
-export function isUUID(input: unknown, _parentContext?: unknown, args?: { version: validator.UUIDVersion }): boolean {
+export function isUUID(
+    input: unknown,
+    _parentContext?: unknown,
+    args?: { version: validator.UUIDVersion }
+): boolean {
     if (isNil(input)) return false;
 
     const version: validator.UUIDVersion = args && args.version ? args.version : 'all';

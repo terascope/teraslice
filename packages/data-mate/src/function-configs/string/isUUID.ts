@@ -6,11 +6,11 @@ import {
     FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces.js';
 
-export interface IsUUIDArgs{
+export interface IsUUIDArgs {
     version?: validator.UUIDVersion;
 }
 
-const validVersions = ['1','2','3','4','5','6','7','8','nil','max','loose','all',1,2,3,4,5,6,7,8]
+const validVersions = ['1', '2', '3', '4', '5', '6', '7', '8', 'nil', 'max', 'loose', 'all', 1, 2, 3, 4, 5, 6, 7, 8];
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {
