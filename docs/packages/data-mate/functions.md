@@ -12644,6 +12644,10 @@ null
 
 > Returns the input if it is a valid UUID, otherwise returns null
 
+#### Arguments
+
+ - **version**:  `String` - Specify version to check also accepts all or loose which check for a UUID-like string with hexadecimal values, ignoring RFC9565.
+
 #### Accepts
 
 - `String`
@@ -12689,6 +12693,24 @@ isUUID()
 **# Example (3)**
 
 ```ts
+isUUID({ version: 'loose' })
+```
+
+<small>Input:</small>
+
+```ts
+'123e4567-e89b-82d3-f456-426655440000'
+```
+
+<small>Output:</small>
+
+```ts
+'123e4567-e89b-82d3-f456-426655440000'
+```
+
+**# Example (4)**
+
+```ts
 isUUID()
 ```
 
@@ -12704,7 +12726,7 @@ isUUID()
 null
 ```
 
-**# Example (4)**
+**# Example (5)**
 
 ```ts
 isUUID()
@@ -12722,7 +12744,7 @@ isUUID()
 null
 ```
 
-**# Example (5)**
+**# Example (6)**
 
 ```ts
 isUUID()
