@@ -1,4 +1,4 @@
-import validator, { UUIDVersion } from 'validator';
+import validator from 'validator';
 import {
     trim as lTrim,
     trimStart as lTrimStart,
@@ -494,7 +494,7 @@ export function isURL(input: unknown): boolean {
     return isString(input) && validator.isURL(input);
 }
 
-export function isUUID(input: unknown, version: UUIDVersion = 'all'): boolean {
+export function isUUID(input: unknown, version: validator.UUIDVersion = 'all'): boolean {
     return isString(input) && validator.isUUID(input, version);
 }
 
