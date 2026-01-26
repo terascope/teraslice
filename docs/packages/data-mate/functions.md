@@ -12646,7 +12646,7 @@ null
 
 #### Arguments
 
- - **version**:  `String` - Specify version to check also accepts all or loose which check for a UUID-like string with hexadecimal values, ignoring RFC9565.
+ - **version**:  `String` - Specify version to check against, also accepts all or loose which checks for a UUID-like string with hexadecimal values, ignoring RFC9565.
 
 #### Accepts
 

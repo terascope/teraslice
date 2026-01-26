@@ -733,12 +733,15 @@ describe('field validators', () => {
             expect(FieldValidator.isUUID({})).toBe(false);
         });
 
-        it('should return true for valid UUIDs and version set to loose', () => {
+        it('should return true for UUID-like strings and version set to loose', () => {
             expect(FieldValidator.isUUID('95ecc380-afe9-11e4-9b6c-751b66dd541e', {}, { version: 'loose' })).toBe(true);
             expect(FieldValidator.isUUID('0668CF8B-27F8-2F4D-AF2D-763AC7C8F68B', {}, { version: 'loose' })).toBe(true);
             expect(FieldValidator.isUUID('123e4567-e89b-82d3-9456-426655440000', {}, { version: 'loose' })).toBe(true);
             expect(FieldValidator.isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B', {}, { version: 'loose' })).toBe(true);
             expect(FieldValidator.isUUID('123e4567-e89b-82d3-f456-426655440000', {}, { version: 'loose' })).toBe(true);
+            expect(FieldValidator.isUUID(undefined)).toBe(false);
+            expect(FieldValidator.isUUID('randomstring')).toBe(false);
+            expect(FieldValidator.isUUID(true)).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
