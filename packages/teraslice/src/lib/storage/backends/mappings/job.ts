@@ -1,32 +1,14 @@
-export default {
-    settings: {
-        'index.number_of_shards': 5,
-        'index.number_of_replicas': 1
-    },
-    mappings: {
-        dynamic: false,
-        properties: {
-            active: {
-                type: 'boolean'
-            },
-            job_id: {
-                type: 'keyword'
-            },
-            _context: {
-                type: 'keyword'
-            },
-            _created: {
-                type: 'date'
-            },
-            _updated: {
-                type: 'date'
-            },
-            _deleted: {
-                type: 'boolean'
-            },
-            _deleted_on: {
-                type: 'date'
-            }
-        }
+import { DataTypeConfig, FieldType } from '@terascope/types';
+
+export const jobDataTypeConfig: DataTypeConfig = {
+    version: 1,
+    fields: {
+        active: { type: FieldType.Boolean },
+        job_id: { type: FieldType.Keyword },
+        _context: { type: FieldType.Keyword },
+        _created: { type: FieldType.Date },
+        _updated: { type: FieldType.Date },
+        _deleted: { type: FieldType.Boolean },
+        _deleted_on: { type: FieldType.Date }
     }
 };

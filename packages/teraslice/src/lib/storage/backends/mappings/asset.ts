@@ -1,34 +1,30 @@
-export default {
+import { DataTypeConfig, FieldType } from '@terascope/types';
+
+export const assetDataTypeConfig: DataTypeConfig = {
+    version: 1,
+    fields: {
+        name: { type: FieldType.Keyword },
+        version: { type: FieldType.Keyword },
+        id: { type: FieldType.Keyword },
+        description: { type: FieldType.Keyword },
+        arch: { type: FieldType.Keyword },
+        platform: { type: FieldType.Keyword },
+        node_version: { type: FieldType.Integer },
+        _created: { type: FieldType.Date }
+    }
+};
+
+/**
+ * Override for the blob field which uses ES binary type.
+ * I could not find the datatype equivalent
+ * so we must add this field manually via mapping overrides.
+ */
+export const assetMappingOverrides = {
     mappings: {
-        dynamic: false,
         properties: {
             blob: {
                 type: 'binary',
                 doc_values: false
-            },
-            name: {
-                type: 'keyword'
-            },
-            version: {
-                type: 'keyword'
-            },
-            id: {
-                type: 'keyword'
-            },
-            description: {
-                type: 'keyword'
-            },
-            arch: {
-                type: 'keyword'
-            },
-            platform: {
-                type: 'keyword'
-            },
-            node_version: {
-                type: 'integer'
-            },
-            _created: {
-                type: 'date'
             }
         }
     }

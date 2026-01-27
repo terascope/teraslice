@@ -1,44 +1,21 @@
-export default {
-    template: '__analytics*',
-    mappings: {
-        dynamic: false,
-        properties: {
-            ex_id: {
-                type: 'keyword'
-            },
-            job_id: {
-                type: 'keyword'
-            },
-            worker_id: {
-                type: 'keyword'
-            },
-            slice_id: {
-                type: 'keyword'
-            },
-            slicer_id: {
-                type: 'keyword'
-            },
-            op: {
-                type: 'keyword'
-            },
-            order: {
-                type: 'integer'
-            },
-            count: {
-                type: 'integer'
-            },
-            state: {
-                type: 'keyword'
-            },
-            time: {
-                type: 'integer'
-            },
-            memory: {
-                type: 'long'
-            },
-            '@timestamp': {
-                type: 'date'
-            }
-        }
+import { DataTypeConfig, FieldType } from '@terascope/types';
+
+export const analyticsDataTypeConfig: DataTypeConfig = {
+    version: 1,
+    fields: {
+        ex_id: { type: FieldType.Keyword },
+        job_id: { type: FieldType.Keyword },
+        worker_id: { type: FieldType.Keyword },
+        slice_id: { type: FieldType.Keyword },
+        slicer_id: { type: FieldType.Keyword },
+        op: { type: FieldType.Keyword },
+        order: { type: FieldType.Integer },
+        count: { type: FieldType.Integer },
+        state: { type: FieldType.Keyword },
+        time: { type: FieldType.Integer },
+        memory: { type: FieldType.Long },
+        '@timestamp': { type: FieldType.Date }
     }
 };
+
+export const analyticsTemplate = '__analytics*';
