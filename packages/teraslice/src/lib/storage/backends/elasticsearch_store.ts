@@ -6,14 +6,15 @@ import {
 } from '@terascope/core-utils';
 import elasticsearchApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
 import { getClient, Context } from '@terascope/job-components';
-import { ClientParams } from '@terascope/types';
+import { ClientParams, DataTypeConfig, ESMapping } from '@terascope/types';
+import { DataType } from '@terascope/data-types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { timeseriesIndex } from '../../utils/date_utils.js';
-import analyticsSchema from './mappings/analytics.js';
-import assetSchema from './mappings/asset.js';
-import executionSchema from './mappings/ex.js';
-import jobsSchema from './mappings/job.js';
-import stateSchema from './mappings/state.js';
+import { analyticsDataTypeConfig, analyticsTemplate } from './mappings/analytics.js';
+import { assetDataTypeConfig, assetMappingOverrides } from './mappings/asset.js';
+import { executionDataTypeConfig } from './mappings/ex.js';
+import { jobDataTypeConfig } from './mappings/job.js';
+import { stateDataTypeConfig, stateTemplate } from './mappings/state.js';
 
 function validateId(recordId: string, recordType: string) {
     if (!recordId || !isString(recordId)) {
@@ -87,8 +88,9 @@ export class TerasliceElasticsearchStorage {
     private bulkQueue: any[] = [];
     private readonly idField: string;
     readonly options!: TerasliceStorageOptions;
-    readonly mapping: Record<string, any>;
+    mapping!: ESMapping;
     api!: Client;
+    private readonly indexSettings: { number_of_shards: number; number_of_replicas: number };
 
     constructor(backendConfig: TerasliceESStorageConfig) {
         const {
@@ -102,30 +104,18 @@ export class TerasliceElasticsearchStorage {
         this.storageName = storageName;
         this.logger = logger ?? makeLogger(context, 'elasticsearch_backend', { storageName });
         this.recordType = recordType;
-        if (recordType === 'analytics') {
-            this.mapping = analyticsSchema;
-        } else if (recordType === 'asset') {
-            this.mapping = assetSchema;
-        } else if (recordType === 'ex') {
-            this.mapping = executionSchema;
-        } else if (recordType === 'job') {
-            this.mapping = jobsSchema;
-        } else if (recordType === 'state') {
-            this.mapping = stateSchema;
-        } else {
+
+        // Validate recordType
+        const validRecordTypes = ['analytics', 'asset', 'ex', 'job', 'state'];
+        if (!validRecordTypes.includes(recordType)) {
             throw new Error(`Could not find mapping for recordType: ${recordType}`);
         }
 
         const config = this.context.sysconfig.teraslice;
-        const indexSettings = get(config, ['index_settings', this.storageName], {
+        this.indexSettings = get(config, ['index_settings', this.storageName], {
             number_of_shards: 5,
             number_of_replicas: 1,
         });
-
-        this.mapping.settings = {
-            'index.number_of_shards': indexSettings.number_of_shards,
-            'index.number_of_replicas': indexSettings.number_of_replicas,
-        };
 
         this.defaultIndexName = indexName;
         this.idField = idField;
@@ -175,6 +165,7 @@ export class TerasliceElasticsearchStorage {
                 const client = await getClient(this.context, connectionConfig, 'elasticsearch-next');
 
                 this.api = elasticsearchApi(client, this.logger, options);
+                this._generateMapping();
                 await this._createIndex(newIndex);
                 await this.api.isAvailable(newIndex);
 
@@ -545,6 +536,61 @@ export class TerasliceElasticsearchStorage {
         }
 
         return Promise.resolve(true);
+    }
+
+    private _getDataTypeConfig(): {
+        config: DataTypeConfig;
+        overrides?: Record<string, any>;
+        template?: string;
+    } {
+        switch (this.recordType) {
+            case 'analytics':
+                return {
+                    config: analyticsDataTypeConfig,
+                    template: analyticsTemplate
+                };
+            case 'asset':
+                return {
+                    config: assetDataTypeConfig,
+                    overrides: assetMappingOverrides
+                };
+            case 'ex':
+                return { config: executionDataTypeConfig };
+            case 'job':
+                return { config: jobDataTypeConfig };
+            case 'state':
+                return {
+                    config: stateDataTypeConfig,
+                    template: stateTemplate
+                };
+            default:
+                throw new Error(`Could not find DataType config for recordType: ${this.recordType}`);
+        }
+    }
+
+    private _generateMapping(): void {
+        const clientMetadata = this.api.getClientMetadata();
+        const { config, overrides, template } = this._getDataTypeConfig();
+
+        const dataType = new DataType(config);
+
+        // Generate the mapping using DataType with client metadata for version-specific mappings
+        this.mapping = dataType.toESMapping({
+            ...clientMetadata,
+            overrides: {
+                ...overrides,
+                settings: {
+                    'index.number_of_shards': this.indexSettings.number_of_shards,
+                    'index.number_of_replicas': this.indexSettings.number_of_replicas,
+                }
+            }
+        });
+
+        // Add template pattern if this is an index that
+        // adds time at the end of the index (analytics/state)
+        if (template) {
+            this.mapping.template = template;
+        }
     }
 
     private async _createIndex(index = this.defaultIndexName) {
