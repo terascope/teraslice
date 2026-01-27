@@ -80,11 +80,15 @@ export const repository: i.Repository = {
     },
     isString: { fn: isString, config: {}, primary_input_type: i.InputType.String },
     isURL: { fn: isURL, config: {}, primary_input_type: i.InputType.String },
-    isUUID: { fn: isUUID, config: {}, primary_input_type: i.InputType.String },
+    isUUID: {
+        fn: isUUID,
+        config: { version: { type: FieldType.String } },
+        primary_input_type: i.InputType.String
+    },
     contains: {
         fn: contains,
         config: {
-            value: { type: FieldType.String }
+            value: { type: FieldType.String },
         },
         primary_input_type: i.InputType.Array
     },
@@ -874,26 +878,33 @@ export function isURL(input: unknown, _parentContext?: unknown): boolean {
  * Validates that input is a UUID or a list of UUID's
  *
  * @example
- * FieldValidator.isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'); // true
+ * FieldValidator.isUUID('0668CF8B-27F8-2F4D-AF2D-763AC7C8F68B'); // true
  * FieldValidator.isUUID('BAD-UUID'); // false
  * FieldValidator.isUUID([
- *   '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
- *   '123e4567-e89b-82d3-f456-426655440000'
+ *   '0668CF8B-27F8-2F4D-AF2D-763AC7C8F68B',
+ *   '123e4567-e89b-82d3-A456-426655440000'
  * ]); // true
  *
  * @param {*} input
+ * @param {{ version: validator.UUIDVersion }} [args]
  * @returns {boolean} boolean
  */
 
-export function isUUID(input: unknown, _parentContext?: unknown): boolean {
+export function isUUID(
+    input: unknown,
+    _parentContext?: unknown,
+    args?: { version: validator.UUIDVersion }
+): boolean {
     if (isNil(input)) return false;
+
+    const version: validator.UUIDVersion = args && args.version ? args.version : 'all';
 
     if (isArray(input)) {
         const fn = (data: any) => utilsIsString(data) && validator.isUUID(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return utilsIsString(input) && validator.isUUID(input);
+    return utilsIsString(input) && validator.isUUID(input, version);
 }
 
 /**

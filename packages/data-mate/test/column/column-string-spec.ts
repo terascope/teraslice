@@ -87,14 +87,14 @@ describe('Column (String Types)', () => {
             const newCol = dataFrameAdapter(
                 functionConfigRepository.isUUID,
             ).column(Column.fromJSON(col.name, col.config, [
-                '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
+                '0668CF8B-27F8-2F4D-AF2D-763AC7C8F68B',
                 'BAD-UUID',
                 '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
                 undefined,
             ]));
 
             expect(newCol.toJSON()).toEqual([
-                '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
+                '0668CF8B-27F8-2F4D-AF2D-763AC7C8F68B',
                 undefined,
                 '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
                 undefined,
