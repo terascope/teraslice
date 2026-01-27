@@ -1,7 +1,7 @@
 {
     "name": "teraslice-test-harness",
     "displayName": "Teraslice Test Harness",
-    "version": "2.0.4",
+    "version": "2.0.5",
     "description": "A helpful library for testing teraslice jobs, operations, and other components.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-test-harness#readme",
     "bugs": {
@@ -32,7 +32,7 @@
     },
     "dependencies": {
         "@terascope/fetch-github-release": "~2.2.1",
-        "@terascope/job-components": "~2.0.4",
+        "@terascope/job-components": "~2.0.5",
         "decompress": "~4.2.1",
         "fs-extra": "~11.3.3"
     },

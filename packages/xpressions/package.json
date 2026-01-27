@@ -1,7 +1,7 @@
 {
     "name": "xpressions",
     "displayName": "Xpressions",
-    "version": "2.0.4",
+    "version": "2.0.5",
     "description": "Variable expressions with date-math support",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xpressions#readme",
     "bugs": {
@@ -24,10 +24,10 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../xpressions --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.4"
+        "@terascope/core-utils": "~2.0.5"
     },
     "devDependencies": {
-        "@terascope/types": "~2.0.1"
+        "@terascope/types": "~2.0.2"
     },
     "engines": {
         "node": ">=22.0.0",
