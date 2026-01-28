@@ -128,6 +128,10 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         default: undefined,
         format: String
     },
+    STERN_LOGS: {
+        default: undefined,
+        format: Boolean
+    },
     TERASLICE_PORT: {
         default: undefined,
         format: String

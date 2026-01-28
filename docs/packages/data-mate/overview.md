@@ -660,12 +660,18 @@ FieldValidator.isMACAddress(['001ff35b2b1f', '00:1f:f3:5b:2b:1f']); // true
 ### isUUID
 isUUID(input, context?) - Validates that input is a UUID or a list of UUID's
 
+arg: \{ version: 'ANY VERSION OPTION DEFINED BELOW'\}
+
+isUUID options: '1','2','3','4','5','6','7','8','nil','max','loose','all',1,2,3,4,5,6,7,8
+
 ```javascript
-FieldValidator.isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'); // true
+FieldValidator.isUUID('0668CF8B-27F8-2F4D-AF2D-763AC7C8F68B'); // true
+FieldValidator.isUUID('123e4567-e89b-82d3-f456-426655440000') // false
+FieldValidator.isUUID('123e4567-e89b-82d3-f456-426655440000', {}, { version: 'loose' }) // true
 FieldValidator.isUUID('BAD-UUID'); // false
 FieldValidator.isUUID([
-    '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
-    '123e4567-e89b-82d3-f456-426655440000'
+    '0668CF8B-27F8-2F4D-AF2D-763AC7C8F68B',
+    '123e4567-e89b-82d3-a456-426655440000'
 ]); // true
 
 ```

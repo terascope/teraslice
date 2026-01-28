@@ -83,6 +83,11 @@ export function foundationSchema() {
             doc: 'Value to display as url label for prometheus metrics',
             default: '',
             format: String
+        },
+        connectors: {
+            doc: 'An object whose keys are connection types and values are objects describing each connection of that type.',
+            default: {},
+            format: Object
         }
     };
 

@@ -327,7 +327,7 @@ describe('k8s', () => {
         it('can patch a deployment by name', async () => {
             nock(_url, { encodedQueryParams: true })
                 .patch('/apis/apps/v1/namespaces/default/deployments/test1')
-                .reply(204, { });
+                .reply(200, { });
 
             const response = await k8s.patch({ name: 'testName' }, 'test1');
             expect(response).toEqual({});
