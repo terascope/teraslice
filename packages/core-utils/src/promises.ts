@@ -100,7 +100,7 @@ export interface PRetryConfig {
     endWithFatal: boolean;
 
     /**
-     * Set a error message prefix
+     * You may set a custom error message if the pRetry fails
      */
     reason?: string;
 
@@ -110,9 +110,10 @@ export interface PRetryConfig {
     logError: (...args: any[]) => void;
 
     /**
-     * If this not specified or is empty, all errors will be treated as retryable.
-     * If any of the items in the array match the error message,
-     * it will be considered retryable
+     * Generally all errors will be treated as retryable, but if you want
+     * to limit which errors are retryable you can provide an array of
+     * strings or regex patterns to match against the error message
+     *  and only those that match are considered retryable
      */
     matches?: (string | RegExp)[];
 }
@@ -156,6 +157,7 @@ export async function pRetry<T = any>(
 
         if (config.matches?.length) {
             const rawErr = parseError(_err);
+
             matches = config.matches.some((match) => {
                 const reg = new RegExp(match);
                 return reg.test(rawErr);
@@ -168,7 +170,7 @@ export async function pRetry<T = any>(
         };
 
         const err = new TSError(_err, {
-            reason: config.reason,
+            reason: config.reason ?? _err.message,
             context,
         });
 

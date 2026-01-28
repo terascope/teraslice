@@ -114,6 +114,50 @@ describe('Utils', () => {
 
             expect(fn).toHaveBeenCalledTimes(1);
         });
+
+        it('if match is provided and error msg does match, it will not throws', async () => {
+            const fn = jest.fn<() => Promise<any>>();
+            fn.mockRejectedValueOnce(new Error('Uh oh'));
+            fn.mockRejectedValueOnce(new Error('Uh oh'));
+
+            fn.mockResolvedValue('howdy');
+
+            expect(await pRetry(fn, config)).toEqual('howdy');
+
+            expect(fn).toHaveBeenCalledTimes(3);
+        });
+
+        it('if match is provided and error msg does not match, it throws', async () => {
+            const fn = jest.fn<() => Promise<any>>();
+            fn.mockRejectedValueOnce(new Error('other error'));
+            fn.mockResolvedValue('howdy');
+
+            await expect(pRetry(fn, {
+                ...config,
+                matches: ['Uh oh']
+            })).rejects.toThrow('other error');
+
+            expect(fn).toHaveBeenCalledTimes(1);
+        });
+
+        it('if reason is provided, the error message uses that for the reason', async () => {
+            const fn = jest.fn<() => Promise<any>>();
+            const error = new TSError('Stop Error', {
+                retryable: false,
+            });
+
+            fn.mockRejectedValueOnce(error);
+            fn.mockResolvedValue('howdy');
+
+            try {
+                await pRetry(fn, {
+                    ...config,
+                    reason: 'Something bad happened'
+                });
+            } catch (err) {
+                expect((err as Error).message).toContain('Something bad happened');
+            }
+        });
     });
 
     describe('getBackoffDelay', () => {
