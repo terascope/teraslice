@@ -14,7 +14,6 @@ export const jobDataTypeConfig: DataTypeConfig = {
         active: { type: FieldType.Boolean },
         analytics: { type: FieldType.Boolean },
         assets: { type: FieldType.Keyword },
-        assetIds: { type: FieldType.Keyword },
         autorecover: { type: FieldType.Boolean },
         lifecycle: { type: FieldType.Keyword },
         max_retries: { type: FieldType.Integer },
@@ -35,7 +34,7 @@ export const jobDataTypeConfig: DataTypeConfig = {
         resources_requests_memory: { type: FieldType.Integer },
         resources_limits_cpu: { type: FieldType.Float },
         resources_limits_memory: { type: FieldType.Integer },
-        kubernetes_image: { type: FieldType.Text },
+        kubernetes_image: { type: FieldType.Keyword },
         prom_metrics_enabled: { type: FieldType.Boolean },
         prom_metrics_port: { type: FieldType.Integer },
         prom_metrics_add_default: { type: FieldType.Boolean }
