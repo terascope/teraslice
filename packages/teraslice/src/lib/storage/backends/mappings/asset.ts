@@ -18,6 +18,8 @@ export const assetDataTypeConfig: DataTypeConfig = {
  * Override for the blob field which uses ES binary type.
  * I could not find the datatype equivalent
  * so we must add this field manually via mapping overrides.
+ * Once the issue below is resolved we can remove this.
+ * https://github.com/terascope/teraslice/issues/4296
  */
 export const assetMappingOverrides = {
     mappings: {
