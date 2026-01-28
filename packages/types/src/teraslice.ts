@@ -257,8 +257,6 @@ export interface ValidatedJobConfig {
     active: boolean;
     analytics: boolean;
     assets: string[];
-    /** This may not exist until ran in an execution */
-    assetIds?: string[];
     autorecover?: boolean;
     lifecycle: LifeCycle;
     max_retries: number;
