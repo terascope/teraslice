@@ -205,19 +205,11 @@ terafoundation:
       default:
         node:
         - YOUR_ELASTICSEARCH_IP:9200
-        keepAlive: true
         maxRetries: 5
-        maxSockets: 20
       endpoint2:
-         node:
-         - 127.0.0.1:9215
-         keepAlive: true
-         maxRetries: 5
-         maxSockets: 20
-    mongo:
-      default:
-        host: 127.0.0.1
-        mock: false
+        node:
+        - 127.0.0.1:9215
+        maxRetries: 5
 ```
 
 #### Connectors
@@ -228,7 +220,7 @@ The values are once again objects with keys set to different endpoints within ea
 
 Each endpoint will have its own configuration which will then be used by the actual client of the library
 
-The `elasticsearch-next` connector dynamically queries the cluster to verify the version and distribution and returns the appropriate client. It can work with versions 6, 7, 8 and with opensearch.
+The `elasticsearch-next` connector dynamically queries the cluster to verify the version and distribution and returns the appropriate client. It can work with versions 7 and 8 and with opensearch.
 
 ### Configuration Settings
 

@@ -146,8 +146,7 @@ const newSysConfig = (options: SystemConfig) => {
                 'elasticsearch-next': {
                     default: {
                         node: [SEARCH_TEST_HOST],
-                        requestTimeout: timeout,
-                        deadTimeout: timeout
+                        requestTimeout: timeout
                     }
                 }
             }
