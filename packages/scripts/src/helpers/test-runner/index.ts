@@ -30,11 +30,10 @@ import { getE2EDir, readPackageInfo, listPackages } from '../packages.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
-import { K8s } from '../k8s-env/k8s.js';
 import config from '../config.js';
 
 const {
-    MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
+    MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E,
     K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH
 } = config;
 
@@ -250,11 +249,6 @@ async function runE2ETest(
                 await kind.destroyCluster();
                 process.exit(1);
             }
-
-            if (!options.useHelmfile) {
-                const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
-                await k8s.createNamespace('services-ns.yaml', 'services');
-            }
         } catch (err) {
             tracker.addError(err);
         }
@@ -288,22 +282,24 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
-    if (kind && options.clusteringType === 'kubernetesV2') {
+    if (options.clusteringType === 'kubernetesV2') {
         try {
-            await kind.loadTerasliceImage(e2eImage);
-            if (options.useHelmfile) {
-                const timeLabel = 'helmfile deployment';
-                await loadImagesForHelm(options.kindClusterName, options.skipImageDeletion);
-                signale.time(timeLabel);
-                await launchTerasliceWithHelmfile(options.clusteringType, false, options.logs);
-                signale.timeEnd(timeLabel);
+            if (!kind) {
+                signale.error('Kind class was not created properly.');
+                process.exit(1);
             }
+            await kind.loadTerasliceImage(e2eImage);
+            const timeLabel = 'helmfile deployment';
+            await loadImagesForHelm(options.kindClusterName, options.skipImageDeletion);
+            signale.time(timeLabel);
+            await launchTerasliceWithHelmfile(options.clusteringType, false, options.logs);
+            signale.timeEnd(timeLabel);
         } catch (err) {
             tracker.addError(err);
         }
     }
 
-    if (!options.useHelmfile) {
+    if (options.clusteringType === 'native') {
         try {
             tracker.addCleanup(
                 'e2e:services',
