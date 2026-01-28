@@ -9,7 +9,7 @@ import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution, ClientMetadata } from '@terascope/types';
 import { Client } from './client.js';
 import { logWrapper } from './log-wrapper.js';
-import { ClientConfig } from './interfaces.js';
+import { OpenSearch as OS } from '@terascope/types';
 
 const clientList = [
     opensearch1, opensearch2, opensearch3, elasticsearch7, elasticsearch8
@@ -17,7 +17,7 @@ const clientList = [
 
 /** creates an opensearch or elasticsearch client depending on the configuration */
 export async function createClient(
-    config: ClientConfig,
+    config: OS.ClientConfig,
     logger = debugLogger('opensearch-client')
 ): Promise<{ log: () => Logger; client: Client }> {
     const finalConfig = formatClientConfig(config);
@@ -44,10 +44,10 @@ export async function createClient(
  * - If `caCertificate` is set, `config.node` must use `https`.
  *
  * @param config - The original client configuration.
- * @returns A normalized and validated `ClientConfig`.
+ * @returns A normalized and validated OpenSearch `ClientConfig`.
  * @throws An error if configuration validation fails.
  */
-function formatClientConfig(config: ClientConfig): ClientConfig {
+function formatClientConfig(config: OS.ClientConfig): OS.ClientConfig {
     const updatedConfig = { ...config };
 
     // Ensure authentication credentials are both set or neither is set
@@ -143,7 +143,7 @@ async function getDBMetadata(
 
 export async function getBaseClient(
     clientMetadata: ClientMetadata,
-    config: ClientConfig,
+    config: OS.ClientConfig,
     logger = debugLogger('elasticsearch-client')
 ) {
     const {
