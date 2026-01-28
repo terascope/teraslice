@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-mate",
     "displayName": "Data-Mate",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "description": "Library of data validations/transformations",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-mate#readme",
     "repository": {
@@ -30,12 +30,12 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-mate --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.3",
-        "@terascope/data-types": "~2.0.3",
-        "@terascope/geo-utils": "~2.0.3",
-        "@terascope/ip-utils": "~2.0.3",
+        "@terascope/core-utils": "~2.0.4",
+        "@terascope/data-types": "~2.0.4",
+        "@terascope/geo-utils": "~2.0.4",
+        "@terascope/ip-utils": "~2.0.4",
         "@terascope/types": "~2.0.1",
-        "@types/validator": "~13.12.3",
+        "@types/validator": "~13.15.10",
         "awesome-phonenumber": "~7.6.0",
         "big-json": "~3.2.0",
         "date-fns": "~4.1.0",
@@ -47,8 +47,8 @@
         "mnemonist": "~0.40.3",
         "uuid": "~13.0.0",
         "valid-url": "~1.0.9",
-        "validator": "~13.12.0",
-        "xlucene-parser": "~2.0.3"
+        "validator": "~13.15.26",
+        "xlucene-parser": "~2.0.4"
     },
     "devDependencies": {
         "@types/big-json": "~3.2.5",
