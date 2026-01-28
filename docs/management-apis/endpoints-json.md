@@ -238,13 +238,25 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 
 **Filterable Fields:**
 
-| Field | Type |
-|-------|------|
-| `active` | boolean |
-| `job_id` | keyword |
-| `_context` | keyword |
-| `_created` | date |
-| `_updated` | date |
+| Field | Type | Description |
+|-------|------|-------------|
+| `job_id` | keyword | Job identifier |
+| `name` | keyword | Job name |
+| `active` | boolean | Whether job is active |
+| `lifecycle` | keyword | `once` or `persistent` |
+| `workers` | integer | Number of workers |
+| `slicers` | integer | Number of slicers |
+| `assets` | keyword | Asset names (array) |
+| `assetIds` | keyword | Asset IDs (array) |
+| `analytics` | boolean | Analytics enabled |
+| `autorecover` | boolean | Auto-recovery enabled |
+| `stateful` | boolean | Stateful job |
+| `max_retries` | integer | Max slice retries |
+| `probation_window` | integer | Probation window (ms) |
+| `performance_metrics` | boolean | Performance metrics enabled |
+| `_context` | keyword | Always `job` |
+| `_created` | date | Creation timestamp |
+| `_updated` | date | Last update timestamp |
 
 Setting `active` to `true` will return only the jobs considered active, which
 includes the jobs that have `active` set to `true` as well as those that do not
@@ -708,21 +720,34 @@ Returns all execution contexts (job invocations).
 
 **Filterable Fields:**
 
-| Field | Type |
-|-------|------|
-| `active` | boolean |
-| `job_id` | keyword |
-| `ex_id` | keyword |
-| `_context` | keyword |
-| `_status` | keyword |
-| `_has_errors` | keyword |
-| `slicer_hostname` | keyword |
-| `slicer_port` | keyword |
-| `recovered_execution` | keyword |
-| `recovered_slice_type` | keyword |
-| `_created` | date |
-| `_updated` | date |
-| `teraslice_version` | keyword |
+| Field | Type | Description |
+|-------|------|-------------|
+| `job_id` | keyword | Job identifier |
+| `ex_id` | keyword | Execution identifier |
+| `name` | text | Job name |
+| `_status` | keyword | Execution status |
+| `_has_errors` | boolean | Whether execution has errors |
+| `_failureReason` | text | Failure reason (if failed) |
+| `active` | boolean | Whether job is active |
+| `lifecycle` | keyword | `once` or `persistent` |
+| `workers` | integer | Number of workers |
+| `slicers` | integer | Number of slicers |
+| `assets` | keyword | Asset names (array) |
+| `assetIds` | keyword | Asset IDs (array) |
+| `analytics` | boolean | Analytics enabled |
+| `autorecover` | boolean | Auto-recovery enabled |
+| `stateful` | boolean | Stateful execution |
+| `max_retries` | integer | Max slice retries |
+| `probation_window` | integer | Probation window (ms) |
+| `performance_metrics` | boolean | Performance metrics enabled |
+| `slicer_hostname` | keyword | Slicer host |
+| `slicer_port` | integer | Slicer port number |
+| `recovered_execution` | keyword | Recovered execution ID |
+| `recovered_slice_type` | keyword | Recovery cleanup type |
+| `teraslice_version` | keyword | Teraslice version |
+| `_context` | keyword | Always `ex` |
+| `_created` | date | Creation timestamp |
+| `_updated` | date | Last update timestamp |
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
