@@ -1,7 +1,7 @@
 {
     "name": "@terascope/scripts",
     "displayName": "Scripts",
-    "version": "2.0.7",
+    "version": "2.0.8",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
