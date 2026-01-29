@@ -238,13 +238,40 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 
 **Filterable Fields:**
 
-| Field | Type |
-|-------|------|
-| `active` | boolean |
-| `job_id` | keyword |
-| `_context` | keyword |
-| `_created` | date |
-| `_updated` | date |
+| Field | Type | Description |
+|-------|------|-------------|
+| `job_id` | keyword | Job identifier |
+| `name` | text | Job name |
+| `active` | boolean | Whether job is active |
+| `lifecycle` | keyword | `once` or `persistent` |
+| `workers` | integer | Number of workers |
+| `slicers` | integer | Number of slicers |
+| `assets` | keyword | Asset names (array) |
+| `analytics` | boolean | Analytics enabled |
+| `autorecover` | boolean | Auto-recovery enabled |
+| `stateful` | boolean | Stateful job |
+| `max_retries` | integer | Max slice retries |
+| `probation_window` | integer | Probation window (ms) |
+| `performance_metrics` | boolean | Performance metrics enabled |
+| `log_level` | keyword | Log level setting |
+| `_context` | keyword | Always `job` |
+| `_created` | date | Creation timestamp |
+| `_updated` | date | Last update timestamp |
+| `_deleted` | boolean | Whether job is deleted |
+| `_deleted_on` | date | Deletion timestamp |
+| `cpu` | float | K8s CPU request |
+| `cpu_execution_controller` | float | K8s CPU for execution controller |
+| `memory` | integer | K8s memory request |
+| `memory_execution_controller` | integer | K8s memory for execution controller |
+| `ephemeral_storage` | boolean | K8s ephemeral storage enabled |
+| `resources_requests_cpu` | float | K8s resource requests CPU |
+| `resources_requests_memory` | integer | K8s resource requests memory |
+| `resources_limits_cpu` | float | K8s resource limits CPU |
+| `resources_limits_memory` | integer | K8s resource limits memory |
+| `kubernetes_image` | keyword | K8s image name |
+| `prom_metrics_enabled` | boolean | Prometheus metrics enabled |
+| `prom_metrics_port` | integer | Prometheus metrics port |
+| `prom_metrics_add_default` | boolean | Add default Prometheus metrics |
 
 Setting `active` to `true` will return only the jobs considered active, which
 includes the jobs that have `active` set to `true` as well as those that do not
@@ -708,21 +735,49 @@ Returns all execution contexts (job invocations).
 
 **Filterable Fields:**
 
-| Field | Type |
-|-------|------|
-| `active` | boolean |
-| `job_id` | keyword |
-| `ex_id` | keyword |
-| `_context` | keyword |
-| `_status` | keyword |
-| `_has_errors` | keyword |
-| `slicer_hostname` | keyword |
-| `slicer_port` | keyword |
-| `recovered_execution` | keyword |
-| `recovered_slice_type` | keyword |
-| `_created` | date |
-| `_updated` | date |
-| `teraslice_version` | keyword |
+| Field | Type | Description |
+|-------|------|-------------|
+| `job_id` | keyword | Job identifier |
+| `ex_id` | keyword | Execution identifier |
+| `name` | text | Job name |
+| `_status` | keyword | Execution status |
+| `_has_errors` | boolean | Whether execution has errors |
+| `_failureReason` | text | Failure reason (if failed) |
+| `active` | boolean | Whether job is active |
+| `lifecycle` | keyword | `once` or `persistent` |
+| `workers` | integer | Number of workers |
+| `slicers` | integer | Number of slicers |
+| `assets` | keyword | Asset names (array) |
+| `analytics` | boolean | Analytics enabled |
+| `autorecover` | boolean | Auto-recovery enabled |
+| `stateful` | boolean | Stateful execution |
+| `max_retries` | integer | Max slice retries |
+| `probation_window` | integer | Probation window (ms) |
+| `performance_metrics` | boolean | Performance metrics enabled |
+| `log_level` | keyword | Log level setting |
+| `slicer_hostname` | keyword | Slicer host |
+| `slicer_port` | integer | Slicer port number |
+| `recovered_execution` | keyword | Recovered execution ID |
+| `recovered_slice_type` | keyword | Recovery cleanup type |
+| `teraslice_version` | keyword | Teraslice version |
+| `_context` | keyword | Always `ex` |
+| `_created` | date | Creation timestamp |
+| `_updated` | date | Last update timestamp |
+| `_deleted` | boolean | Whether execution is deleted |
+| `_deleted_on` | date | Deletion timestamp |
+| `cpu` | float | K8s CPU request |
+| `cpu_execution_controller` | float | K8s CPU for execution controller |
+| `memory` | integer | K8s memory request |
+| `memory_execution_controller` | integer | K8s memory for execution controller |
+| `ephemeral_storage` | boolean | K8s ephemeral storage enabled |
+| `resources_requests_cpu` | float | K8s resource requests CPU |
+| `resources_requests_memory` | integer | K8s resource requests memory |
+| `resources_limits_cpu` | float | K8s resource limits CPU |
+| `resources_limits_memory` | integer | K8s resource limits memory |
+| `kubernetes_image` | keyword | K8s image name |
+| `prom_metrics_enabled` | boolean | Prometheus metrics enabled |
+| `prom_metrics_port` | integer | Prometheus metrics port |
+| `prom_metrics_add_default` | boolean | Add default Prometheus metrics |
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
