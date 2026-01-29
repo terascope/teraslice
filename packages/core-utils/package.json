@@ -25,9 +25,6 @@
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../core-utils --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../core-utils --"
     },
-    "resolutions": {
-        "debug": "~4.4.3"
-    },
     "dependencies": {
         "@terascope/types": "~2.2.0",
         "awesome-phonenumber": "~7.7.0",
