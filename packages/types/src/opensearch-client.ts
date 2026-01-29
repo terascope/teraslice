@@ -21,6 +21,8 @@ export interface NodeOptions {
 }
 
 interface ClientOptions {
+    // TODO: NodeOptions object is not constructed properly from es-next connector config.
+    // Currently node.url is a string and not of class URL, causing failure on client creation.
     node?: string | string[] | NodeOptions | NodeOptions[];
     nodes?: string | string[] | NodeOptions | NodeOptions[];
     maxRetries?: number;
