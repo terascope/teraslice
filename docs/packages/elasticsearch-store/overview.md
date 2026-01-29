@@ -37,7 +37,7 @@ The Elasticsearch-next connector configuration, in your Teraslice configuration 
 | pingTimeout | Max ping request timeout in milliseconds for each request. If undefined will use the client\'s default, usually `3000` | Number | optional, defaults to `undefined` |
 | sniffInterval | Perform a sniff operation every n milliseconds. If undefined will use the client\'s default, usually `false` | Number \| false | optional, defaults to `undefined` |
 | sniffEndpoint | Endpoint to ping during a sniff. If undefined will use the client\'s default, usually `_nodes/_all/http`. | String | optional, defaults to `undefined` |
-| auth | Your authentication data. Does not support "ApiKey" or "Bearer" token authentication.' | { username: string, password: string } | optional, defaults to `undefined` |
+| auth | Your authentication data. Does not support "ApiKey" or "Bearer" token authentication.' | `{ username: string, password: string }` | optional, defaults to `undefined` |
 
 **Terafoundation Elasticsearch-next configuration example:**
 
