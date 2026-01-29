@@ -20,7 +20,7 @@ export async function createClient(
     config: OS.ClientConfig,
     logger = debugLogger('opensearch-client')
 ): Promise<{ log: () => Logger; client: Client }> {
-    const finalConfig = formatClientConfig(config);
+    const finalConfig = formatClientConfig(config, logger);
 
     const distributionMetadata = await getDBMetadata(finalConfig, logger);
 
@@ -44,11 +44,16 @@ export async function createClient(
  * - If `caCertificate` is set, `config.node` must use `https`.
  *
  * @param config - The original client configuration.
+ * @param logger - A Bunyan logger.
  * @returns A normalized and validated OpenSearch `ClientConfig`.
  * @throws An error if configuration validation fails.
  */
-function formatClientConfig(config: OS.ClientConfig): OS.ClientConfig {
+function formatClientConfig(config: OS.ClientConfig, logger: Logger): OS.ClientConfig {
     const updatedConfig = { ...config };
+
+    if (updatedConfig.auth && (updatedConfig.username || updatedConfig.password)) {
+        throw new Error('"auth" can not be set at the same time as "username" or "password".');
+    }
 
     // Ensure authentication credentials are both set or neither is set
     if (updatedConfig.username || updatedConfig.password) {
@@ -63,31 +68,63 @@ function formatClientConfig(config: OS.ClientConfig): OS.ClientConfig {
         };
     }
 
-    // Ensure ssl settings if `caCertificate` is provided
-    if (updatedConfig.caCertificate) {
+    if (updatedConfig.ssl && updatedConfig.caCertificate) {
+        if (updatedConfig.ssl.ca) {
+            // only throw if using different CAs
+            if (updatedConfig.ssl?.ca !== updatedConfig.caCertificate) {
+                throw new Error(
+                    'Cannot set both "caCertificate" and "ssl.ca".'
+                );
+            }
+        } else {
+            // add CA cert to ssl if not already defined
+            updatedConfig.ssl.ca = updatedConfig.caCertificate;
+        }
+
+        warnNonTLSNodeUrls(updatedConfig, logger);
+    } else if (updatedConfig.caCertificate) {
+        // Ensure ssl settings if `caCertificate` is provided
         updatedConfig.ssl = { ca: updatedConfig.caCertificate };
 
-        // Validate that the node urls use `https` if ssl is enabled
-        if (updatedConfig.node) {
-            if (typeof updatedConfig.node === 'string') {
-                if (!updatedConfig.node.startsWith('https://')) {
-                    throw new Error(
-                        'Invalid configuration: "node" must use "https" when "caCertificate" is provided.'
-                    );
-                }
-            } else if (Array.isArray(updatedConfig.node)) {
-                const invalidNode = updatedConfig.node.find((node) => typeof node === 'string' && !node.startsWith('https://')
-                );
-                if (invalidNode) {
-                    throw new Error(
-                        `Invalid configuration: node "${invalidNode}" must use "https" when "caCertificate" is provided.`
-                    );
-                }
-            }
-        }
+        warnNonTLSNodeUrls(updatedConfig, logger);
     }
 
     return updatedConfig;
+}
+
+/**
+ * Validate that the node urls use `https` if ssl is enabled
+ * @param config - A client configuration
+ * @param logger - A Bunyan logger.
+ * @returns void
+ * @throws An error if configuration validation fails.
+ */
+function warnNonTLSNodeUrls(config: OS.ClientConfig, logger: Logger) {
+    if (config.node) {
+        if (Array.isArray(config.node)) {
+            const invalidNodes = config.node.filter((node) => {
+                return (typeof node === 'string' && !node.startsWith('https://'))
+                    || (typeof node === 'object' && !node.url.startsWith('https://'));
+            });
+            if (invalidNodes.length > 0) {
+                logger.warn(
+                    `"caCertificate" was provided, but not all "nodes" are https. TLS encryption will NOT be enabled for these nodes: ${invalidNodes.toString()}`
+                );
+            }
+        } else if (typeof config.node === 'string') {
+            if (!config.node.startsWith('https://')) {
+                logger.warn(
+                    '"caCertificate" was provided, but "node" is not https. TLS encryption will NOT be enabled.'
+                );
+            }
+        } else {
+            if (!config.node.url.startsWith('https://')) {
+                logger.warn(
+                    '"caCertificate" was provided, but "node.url" is not https. TLS encryption will NOT be enabled.'
+                );
+            }
+        }
+    }
 }
 
 async function getDBMetadata(
