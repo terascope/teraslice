@@ -81,7 +81,6 @@ describe('Teraslice Job', () => {
             active: true,
             analytics: false,
             assets: [],
-            assetIds: [],
             lifecycle: 'once',
             max_retries: 3,
             name: 'some_name',
