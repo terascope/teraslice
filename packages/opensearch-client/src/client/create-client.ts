@@ -81,12 +81,14 @@ function formatClientConfig(config: OS.ClientConfig, logger: Logger): OS.ClientC
             updatedConfig.ssl.ca = updatedConfig.caCertificate;
         }
 
-        warnNonTLSNodeUrls(updatedConfig, logger);
+        warnNonTLSNodeUrls(updatedConfig, ['ssl', 'caCerificate'], logger);
+    } else if (updatedConfig.ssl) {
+        warnNonTLSNodeUrls(updatedConfig, ['ssl'], logger);
     } else if (updatedConfig.caCertificate) {
         // Ensure ssl settings if `caCertificate` is provided
         updatedConfig.ssl = { ca: updatedConfig.caCertificate };
 
-        warnNonTLSNodeUrls(updatedConfig, logger);
+        warnNonTLSNodeUrls(updatedConfig, ['caCertificate'], logger);
     }
 
     return updatedConfig;
@@ -99,7 +101,7 @@ function formatClientConfig(config: OS.ClientConfig, logger: Logger): OS.ClientC
  * @returns void
  * @throws An error if configuration validation fails.
  */
-function warnNonTLSNodeUrls(config: OS.ClientConfig, logger: Logger) {
+function warnNonTLSNodeUrls(config: OS.ClientConfig, keys: string[], logger: Logger) {
     if (config.node) {
         if (Array.isArray(config.node)) {
             const invalidNodes = config.node.filter((node) => {
@@ -108,19 +110,19 @@ function warnNonTLSNodeUrls(config: OS.ClientConfig, logger: Logger) {
             });
             if (invalidNodes.length > 0) {
                 logger.warn(
-                    `"caCertificate" was provided, but not all "nodes" are https. TLS encryption will NOT be enabled for these nodes: ${invalidNodes.toString()}`
+                    `"${keys.join('", "')}" provided, but not all "nodes" are https. TLS encryption will NOT be enabled for these nodes: ${invalidNodes.toString()}`
                 );
             }
         } else if (typeof config.node === 'string') {
             if (!config.node.startsWith('https://')) {
                 logger.warn(
-                    '"caCertificate" was provided, but "node" is not https. TLS encryption will NOT be enabled.'
+                    `"${keys.join('", "')}" provided, but "node" is not https. TLS encryption will NOT be enabled.`
                 );
             }
         } else {
             if (!config.node.url.startsWith('https://')) {
                 logger.warn(
-                    '"caCertificate" was provided, but "node.url" is not https. TLS encryption will NOT be enabled.'
+                    `"${keys.join('", "')}" provided, but "node.url" is not https. TLS encryption will NOT be enabled.`
                 );
             }
         }
