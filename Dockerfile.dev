@@ -1,12 +1,12 @@
 # NODE_VERSION is set by default in the config.ts, the following value will only
 # be used if you build images by default with docker build
 ARG NODE_VERSION=24
-FROM ghcr.io/terascope/node-base:${NODE_VERSION}
+FROM node:${NODE_VERSION}-alpine
 
 ENV NODE_ENV=production
+WORKDIR /app/source
 
-# Check to see if distutils is installed because python 3.12 removed it
-RUN python3 -c "import distutils" || (apk update && apk add py3-setuptools)
+RUN apk --no-cache add tini ca-certificates bash
 
 # Install nodemon globally so we can use it with the CMD
 RUN yarn global add nodemon@3.1.4
@@ -17,4 +17,6 @@ EXPOSE 5678
 VOLUME /app/config /app/logs /app/assets
 ENV TERAFOUNDATION_CONFIG=/app/config/teraslice.yaml
 
+# Make tini PID 1, then exec your service
+ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["nodemon", "--exitcrash", "service.js"]
