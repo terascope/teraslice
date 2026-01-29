@@ -279,14 +279,15 @@ export function getVolumesFromDockerfile(
                 workDir = line.slice(8);
             }
             return false;
-        }).map((value) => value.slice(5).split(' ')).map((arr) => {
+        }).map((value) => value.slice(5).split(' '))
+            .map((arr) => {
             // This map will combine relative paths to absolute paths based
             // on the first "WORKDIR" line.
-            if (!path.isAbsolute(arr[arr.length - 1]) && workDir.length) {
-                arr[arr.length - 1] = path.join(workDir, arr[arr.length - 1]);
-            }
-            return arr;
-        });
+                if (!path.isAbsolute(arr[arr.length - 1]) && workDir.length) {
+                    arr[arr.length - 1] = path.join(workDir, arr[arr.length - 1]);
+                }
+                return arr;
+            });
 
         if (mountNodeModules) {
             copyLines.push(['node_modules', '/app/source/node_modules']);
