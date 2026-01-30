@@ -1,6 +1,6 @@
 /* eslint-disable @stylistic/array-element-newline */
 import { isPlainObject, Logger } from '@terascope/core-utils';
-import type { Terafoundation, OpenSearch as OS } from '@terascope/types';
+import type { Terafoundation, OpenSearch } from '@terascope/types';
 import { createClient as createSearchClient } from '@terascope/opensearch-client';
 
 const sslKeys = [
@@ -126,7 +126,7 @@ const connector: Terafoundation.Connector = {
         };
     },
     validate_config<S>(
-        config: OS.ClientConfig,
+        config: OpenSearch.ClientConfig,
         _sysconfig: Terafoundation.SysConfig<S>
     ): void {
         if (config.auth && (config.username || config.password)) {
