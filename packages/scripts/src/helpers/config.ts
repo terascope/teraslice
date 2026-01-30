@@ -249,11 +249,6 @@ const configSchema: Terafoundation.Schema<any> = {
         format: Boolean,
         env: 'USE_EXISTING_SERVICES'
     },
-    USE_HELMFILE: {
-        default: false,
-        format: Boolean,
-        env: 'USE_HELMFILE'
-    },
 
     // Elasticsearch config
     ELASTICSEARCH_DOCKER_IMAGE: {

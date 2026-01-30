@@ -22,7 +22,6 @@ describe('Test Runner Helpers', () => {
         clusteringType: 'native',
         kindClusterName: 'default',
         skipImageDeletion: false,
-        useHelmfile: false,
         logs: false
     };
 

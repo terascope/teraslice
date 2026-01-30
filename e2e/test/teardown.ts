@@ -1,5 +1,5 @@
 import { ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
-import { helmfileDestroy, K8s } from '@terascope/scripts';
+import { helmfileDestroy } from '@terascope/scripts';
 import fse from 'fs-extra';
 import { config } from './config.js';
 import { tearDown } from './docker-helpers.js';
@@ -7,8 +7,7 @@ import signale from './signale.js';
 
 const {
     KEEP_OPEN, CONFIG_PATH, ASSETS_PATH, TEST_INDEX_PREFIX,
-    TEST_PLATFORM, TERASLICE_PORT, KIND_CLUSTER, USE_HELMFILE,
-    ROOT_CERT_PATH
+    TEST_PLATFORM, ROOT_CERT_PATH
 } = config;
 
 const { cleanupIndex, makeClient } = ElasticsearchTestHelpers;
@@ -29,12 +28,7 @@ export async function teardown(testClient?: Client) {
 
     try {
         if (TEST_PLATFORM === 'kubernetesV2') {
-            if (USE_HELMFILE) {
-                await helmfileDestroy('teraslice');
-            } else {
-                const k8s = new K8s(TERASLICE_PORT, KIND_CLUSTER);
-                await k8s.deleteTerasliceNamespace('ts-ns.yaml');
-            }
+            await helmfileDestroy('teraslice');
             await cleanupIndex(client, 'ts-dev1_*');
         } else {
             await tearDown();

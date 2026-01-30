@@ -1,7 +1,7 @@
 {
     "name": "e2e",
     "displayName": "E2E Tests",
-    "version": "0.11.0",
+    "version": "0.12.0",
     "private": true,
     "description": "Teraslice integration test suite",
     "keywords": [
@@ -31,9 +31,8 @@
         "test": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:debug": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --debug --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' ts-scripts test --suite e2e --",
-        "test:k8sV2": "TEST_ELASTICSEARCH='true' OPENSEARCH_VERSION='2.15.0' TEST_KAFKA='true' TEST_PLATFORM='kubernetesV2' ts-scripts test --suite e2e --",
-        "test:k8sV2Helmfile": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' TEST_KAFKA='true' KAFKA_DOCKER_IMAGE='apache/kafka' TEST_PLATFORM='kubernetesV2' USE_HELMFILE='true' ts-scripts test --suite e2e --",
-        "test:k8sV2HelmfileEncrypted": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' ENCRYPT_OPENSEARCH='true' OPENSEARCH_PASSWORD='passwordsufhbivbU123%$' TEST_KAFKA='true' KAFKA_DOCKER_IMAGE='apache/kafka' ENCRYPT_KAFKA='true' TEST_PLATFORM='kubernetesV2' USE_HELMFILE='true' ts-scripts test --suite e2e --  --testPathPatterns='elasticsearch-bulk-spec.ts|elasticsearch-ssl-spec.ts|kafka-spec.ts|simple-spec.ts'",
+        "test:k8sV2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' TEST_KAFKA='true' TEST_PLATFORM='kubernetesV2' ts-scripts test --suite e2e --",
+        "test:k8sV2Encrypted": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' ENCRYPT_OPENSEARCH='true' OPENSEARCH_PASSWORD='passwordsufhbivbU123%$' TEST_KAFKA='true' ENCRYPT_KAFKA='true' TEST_PLATFORM='kubernetesV2' ts-scripts test --suite e2e --  --testPathPatterns='elasticsearch-bulk-spec.ts|elasticsearch-ssl-spec.ts|kafka-spec.ts|simple-spec.ts'",
         "test:k8sV2NoBuild": "SKIP_DOCKER_BUILD_IN_E2E='true' TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' TEST_PLATFORM='kubernetesV2' ts-scripts test --suite e2e --",
         "test:opensearch1": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='1.3.11' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' TEST_KAFKA='true' ts-scripts test --suite e2e --",
@@ -46,11 +45,11 @@
         "ms": "~2.1.3"
     },
     "devDependencies": {
-        "@terascope/core-utils": "~2.0.4",
+        "@terascope/core-utils": "~2.0.6",
         "@terascope/file-asset-apis": "~2.0.0",
-        "@terascope/opensearch-client": "~2.0.4",
-        "@terascope/scripts": "~2.0.6",
-        "@terascope/types": "~2.0.1",
+        "@terascope/opensearch-client": "~2.0.6",
+        "@terascope/scripts": "~2.0.8",
+        "@terascope/types": "~2.0.3",
         "bunyan": "~1.8.15",
         "fs-extra": "~11.3.3",
         "jest": "~30.2.0",

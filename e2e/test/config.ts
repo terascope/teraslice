@@ -152,10 +152,6 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         default: null,
         format: 'optional_bool'
     },
-    USE_HELMFILE: {
-        default: null,
-        format: 'optional_bool'
-    },
 };
 
 const validator = new SchemaValidator<E2ETestEnv>(E2EEnvSchema, 'E2EEnvSchema', undefined, 'allow');

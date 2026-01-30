@@ -22,7 +22,6 @@ type Options = {
     'ignore-mount': boolean;
     'test-platform': string;
     'skip-image-deletion': boolean;
-    'use-helmfile': boolean;
     logs: boolean;
 };
 
@@ -103,11 +102,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: config.SKIP_IMAGE_DELETION,
             })
-            .option('use-helmfile', {
-                description: 'If true k8s tests will launch using helmfile, if false tests use kubectl and @kubernetes/client-node',
-                type: 'boolean',
-                default: config.USE_HELMFILE,
-            })
             .option('logs', {
                 description: 'Copy logs to local file during e2e testing',
                 type: 'boolean',
@@ -138,7 +132,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native' | 'kubernetesV2';
         const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
         const skipImageDeletion = hoistJestArg(argv, 'skip-image-deletion', 'boolean');
-        const useHelmfile = hoistJestArg(argv, 'use-helmfile', 'boolean');
         const logs = hoistJestArg(argv, 'logs', 'boolean');
 
         if (debug && watch) {
@@ -161,7 +154,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             clusteringType: testPlatform,
             kindClusterName,
             skipImageDeletion,
-            useHelmfile,
             logs
         });
     },

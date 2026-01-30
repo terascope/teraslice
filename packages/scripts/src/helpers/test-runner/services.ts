@@ -11,8 +11,7 @@ import {
 } from '@terascope/core-utils';
 import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
-    dockerRun, DockerRunOptions, getContainerInfo,
-    dockerStop, k8sStartService, k8sStopService,
+    dockerRun, DockerRunOptions, getContainerInfo, dockerStop,
     loadThenDeleteImageFromCache, dockerPull, logTCPPorts
 } from '../scripts.js';
 import { Kind } from '../kind.js';
@@ -841,20 +840,6 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     }
     if (options.useExistingServices) {
         signale.warn(`expecting ${service}@${version} to be running (this can be dangerous)...`);
-        return () => { };
-    }
-
-    if (options.clusteringType === 'kubernetesV2') {
-        const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
-        await kind.loadServiceImage(
-            service,
-            services[service].image,
-            version,
-            options.skipImageDeletion
-        );
-        await k8sStopService(service);
-        await logTCPPorts(serviceName);
-        await k8sStartService(service, services[service].image, version, kind);
         return () => { };
     }
 

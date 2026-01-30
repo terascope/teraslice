@@ -9,7 +9,6 @@ import fse from 'fs-extra';
 import yaml from 'js-yaml';
 import got from 'got';
 import { parseDocument } from 'yaml';
-import type { V1Deployment, V1Service } from '@kubernetes/client-node';
 import {
     debugLogger, isString, get,
     pWhile, pDelay, TSError,
@@ -22,8 +21,8 @@ import type { TestEnv } from '@terascope/types';
 import { getRootDir, getRootInfo } from './misc.js';
 import signale from './signale.js';
 import config from './config.js';
-import { getE2EDir, getE2eK8sDir } from '../helpers/packages.js';
-import { getVolumesFromDockerfile, Kind } from './kind.js';
+import { getE2EDir } from '../helpers/packages.js';
+import { getVolumesFromDockerfile } from './kind.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 const filename = fileURLToPath(import.meta.url);
@@ -709,72 +708,6 @@ export async function isHelmfileInstalled(): Promise<boolean> {
         return !!subprocess.stdout;
     } catch (err) {
         return false;
-    }
-}
-
-export async function k8sStopService(serviceName: string): Promise<void> {
-    const e2eK8sDir = getE2eK8sDir();
-    if (!e2eK8sDir) {
-        throw new Error('Missing k8s e2e test directory');
-    }
-
-    try {
-        // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
-        const yamlFile = `${serviceName}Deployment.yaml`;
-        const subprocess = await execaCommand(`kubectl delete -n services-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
-        logger.debug(subprocess.stdout);
-    } catch (err) {
-        // Do nothing. This should fail because no services should be up yet.
-    }
-}
-
-export async function k8sStartService(
-    serviceName: string, image: string, version: string, kind: Kind
-): Promise<void> {
-    // services that have an available k8s deployment yaml file
-    const availableServices = [
-        'elasticsearch', 'kafka', 'minio' // 'opensearch', 'rabbitmq'
-    ];
-
-    if (!availableServices.includes(serviceName)) {
-        signale.error(`Service ${serviceName} is not available. No kubernetes deployment yaml file in 'e2e/k8s' directory.`);
-        signale.info(`Remove ${serviceName} from the services list by running 'unset TEST_${serviceName.toUpperCase()}' in your terminal.`);
-        await kind.destroyCluster();
-        process.exit(1);
-    }
-
-    // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
-    const yamlFile = `${serviceName}Deployment.yaml`;
-
-    const e2eK8sDir = getE2eK8sDir();
-    if (!e2eK8sDir) {
-        throw new Error('Missing k8s e2e test directory');
-    }
-
-    const imageString = `${image}:${version}`;
-
-    try {
-        const jsDoc = yaml.loadAll(fs.readFileSync(`${path.join(e2eK8sDir, yamlFile)}`, 'utf8')) as Array<V1Deployment | V1Service>;
-        const deployment = jsDoc[0] as V1Deployment;
-        if (deployment.spec && deployment.spec.template.spec) {
-            deployment.spec.template.spec.containers[0].image = imageString;
-        }
-        const updatedYaml = jsDoc.map((doc) => yaml.dump(doc)).join('---\n');
-        const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
-        fs.writeFileSync(path.join(tempDir, `${serviceName}Deployment.yaml`), updatedYaml);
-        const subprocess = await execaCommand(`kubectl create -n services-dev1 -f ${path.join(tempDir, `${serviceName}Deployment.yaml`)}`);
-        const { stdout, stderr } = subprocess;
-        if (stderr) {
-            throw new Error(stderr);
-        }
-        logger.debug(stdout);
-        fs.rmSync(tempDir, { recursive: true, force: true });
-    } catch (err) {
-        logger.error(`The service ${serviceName} could not be started: `, err);
-    }
-
-    if (serviceName === 'kafka') {
-        await waitForKafkaRunning('cpkafka');
     }
 }
 

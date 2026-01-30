@@ -74,7 +74,6 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
         TERASLICE_PORT: config.TERASLICE_PORT,
         TJM_TEST_MODE: suite !== 'e2e',
         NODE_OPTIONS: '--experimental-vm-modules',
-        USE_HELMFILE: options.useHelmfile,
         TEST_PLATFORM: options.clusteringType,
         FILE_LOGGING: options.logs,
         CERT_PATH: config.CERT_PATH,
