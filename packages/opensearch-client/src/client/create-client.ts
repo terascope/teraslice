@@ -9,7 +9,7 @@ import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution, ClientMetadata } from '@terascope/types';
 import { Client } from './client.js';
 import { logWrapper } from './log-wrapper.js';
-import { OpenSearch as OS } from '@terascope/types';
+import { OpenSearch } from '@terascope/types';
 
 const clientList = [
     opensearch1, opensearch2, opensearch3, elasticsearch7, elasticsearch8
@@ -17,7 +17,7 @@ const clientList = [
 
 /** creates an opensearch or elasticsearch client depending on the configuration */
 export async function createClient(
-    config: OS.ClientConfig,
+    config: OpenSearch.ClientConfig,
     logger = debugLogger('opensearch-client')
 ): Promise<{ log: () => Logger; client: Client }> {
     const finalConfig = formatClientConfig(config, logger);
@@ -48,7 +48,10 @@ export async function createClient(
  * @returns A normalized and validated OpenSearch `ClientConfig`.
  * @throws An error if configuration validation fails.
  */
-function formatClientConfig(config: OS.ClientConfig, logger: Logger): OS.ClientConfig {
+function formatClientConfig(
+    config: OpenSearch.ClientConfig,
+    logger: Logger
+): OpenSearch.ClientConfig {
     const updatedConfig = { ...config };
 
     if (updatedConfig.auth && (updatedConfig.username || updatedConfig.password)) {
@@ -101,7 +104,7 @@ function formatClientConfig(config: OS.ClientConfig, logger: Logger): OS.ClientC
  * @returns void
  * @throws An error if configuration validation fails.
  */
-function warnNonTLSNodeUrls(config: OS.ClientConfig, keys: string[], logger: Logger) {
+function warnNonTLSNodeUrls(config: OpenSearch.ClientConfig, keys: string[], logger: Logger) {
     if (config.node) {
         if (Array.isArray(config.node)) {
             const invalidNodes = config.node.filter((node) => {
@@ -182,7 +185,7 @@ async function getDBMetadata(
 
 export async function getBaseClient(
     clientMetadata: ClientMetadata,
-    config: OS.ClientConfig,
+    config: OpenSearch.ClientConfig,
     logger = debugLogger('elasticsearch-client')
 ) {
     const {
