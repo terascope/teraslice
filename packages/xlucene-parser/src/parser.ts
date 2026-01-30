@@ -145,7 +145,6 @@ export class Parser {
                 utils.logger.trace(`parsed ${this.query ? this.query : '\'\''} to `, astJSON);
             }
         } catch (err) {
-            console.log('what err', err)
             if (err && err.message.includes('Expected ,')) {
                 err.message = err.message.replace('Expected ,', 'Expected');
             }
