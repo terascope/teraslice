@@ -1,21 +1,6 @@
-/* eslint-disable @stylistic/array-element-newline */
 import { isPlainObject, Logger } from '@terascope/core-utils';
 import type { Terafoundation, OpenSearch } from '@terascope/types';
 import { createClient as createSearchClient } from '@terascope/opensearch-client';
-
-// list of valid keys for node:tls `ConnectionOptions` type
-// This list is was compiled from the types found here, but could be different across node versions
-// https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/node/v24/tls.d.ts#L607
-export const sslKeys = [
-    'host', 'port', 'path', 'socket', 'checkServerIdentity',
-    'servername', 'session', 'minDHSize', 'lookup', 'timeout',
-    'pskCallback', 'ALPNCallback', 'allowPartialTrustChain', 'ca', 'cert',
-    'sigalgs', 'ciphers', 'clientCertEngine', 'crl', 'dhparam',
-    'ecdhCurve', 'honorCipherOrder', 'key', 'privateKeyEngine', 'privateKeyIdentifier',
-    'maxVersion', 'minVersion', 'passphrase', 'pfx', 'secureOptions',
-    'secureProtocol', 'sessionIdContext', 'ticketKeys', 'sessionTimeout', 'secureContext',
-    'enableTrace', 'requestCert', 'ALPNProtocols', 'SNICallback', 'rejectUnauthorized'
-] as const;
 
 const connector: Terafoundation.Connector = {
     async createClient(customConfig: Record<string, any>, logger: Logger) {
@@ -89,27 +74,6 @@ const connector: Terafoundation.Connector = {
                 default: undefined,
                 format: String
             },
-            ssl: {
-                doc: 'Set the Node.js TLS(SSL) `ConnectionOptions` for clients using this connection.',
-                default: undefined,
-                format(obj: any) {
-                    if (obj == null) return;
-                    if (!isPlainObject(obj)) {
-                        throw new Error('must be object if specified');
-                    }
-                    const unrecognizedKeys: string[] = [];
-                    for (const key of Object.keys(obj)) {
-                        // TODO: it would be better to ensure all keys have valid values.
-                        // We could check this object against a zod schema.
-                        if (!(sslKeys as readonly string[]).includes(key)) {
-                            unrecognizedKeys.push(key);
-                        }
-                    }
-                    if (unrecognizedKeys.length > 0) {
-                        throw new Error(`Unrecognized keys on "ssl" object: ${unrecognizedKeys.toString()}`);
-                    }
-                }
-            },
             auth: {
                 doc: 'Your authentication data. Does not support "ApiKey" or "Bearer" token authentication.',
                 default: undefined,
@@ -139,14 +103,6 @@ const connector: Terafoundation.Connector = {
             if (!config.username || !config.password) {
                 throw new Error(
                     'Both "username" and "password" must be provided when one is set'
-                );
-            }
-        }
-        if (config.ssl?.ca && config.caCertificate) {
-            // only throw if using different CAs
-            if (config.ssl?.ca !== config.caCertificate) {
-                throw new Error(
-                    'Cannot set both "caCertificate" and "ssl.ca".'
                 );
             }
         }
