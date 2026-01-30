@@ -13,8 +13,6 @@ The xLucene Parser is a powerful query language parser that supports Lucene-like
 yarn add xlucene-parser
 ```
 
-Note: If importing this package into a repo that uses yarn PnP, `ts-pegjs` must also be declared as a dependency and then 'unplugged'. See https://github.com/terascope/teraslice/issues/3724
-
 ```bash
 yarn add xlucene-parser
 yarn add ts-pegjs
