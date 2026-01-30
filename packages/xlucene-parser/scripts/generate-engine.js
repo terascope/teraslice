@@ -7,8 +7,15 @@ import peg from 'peggy';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const injectionList = [
+    '// @ts-nocheck',
+    'import { xLuceneFieldType } from "@terascope/types";',
+    'import { makeContext } from "./context.js";',
+    'import * as i from "./interfaces.js";',
+];
+
 function injectNoCheck(node) {
-    node.code.children.unshift('// @ts-nocheck\n');
+    node.code.children.unshift(injectionList.join('\n'));
 }
 
 const injectionPlugin = {
