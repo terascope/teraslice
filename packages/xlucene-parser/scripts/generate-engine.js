@@ -4,9 +4,25 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import peg from 'peggy';
-import tspegjs from 'ts-pegjs';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const injectionList = [
+    '// @ts-nocheck',
+    'import { xLuceneFieldType } from "@terascope/types";',
+    'import { makeContext } from "./context.js";',
+    'import * as i from "./interfaces.js";',
+];
+
+function injectNoCheck(node) {
+    node.code.children.unshift(injectionList.join('\n'));
+}
+
+const injectionPlugin = {
+    use(config, _options) {
+        config.passes.generate.push(injectNoCheck);
+    }
+};
 
 export default function generate() {
     const input = path.join(dirname, '..', 'peg', 'lucene.pegjs');
@@ -17,13 +33,10 @@ export default function generate() {
     const updated = peg.generate(grammar, {
         output: 'source',
         optimize: 'speed',
-        plugins: [tspegjs],
+        plugins: [injectionPlugin],
         parser: {},
         format: 'es',
-        tspegjs: {
-            skipTypeComputation: true,
-            customHeader: 'import { xLuceneFieldType } from \'@terascope/types\';\nimport { makeContext } from \'./context.js\';\nimport * as i from \'./interfaces.js\';'
-        },
+        dts: true,
     });
 
     if (current === updated) return null;
