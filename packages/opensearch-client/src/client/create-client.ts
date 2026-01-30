@@ -48,7 +48,7 @@ export async function createClient(
  * @returns A normalized and validated OpenSearch `ClientConfig`.
  * @throws An error if configuration validation fails.
  */
-function formatClientConfig(
+export function formatClientConfig(
     config: OpenSearch.ClientConfig,
     logger: Logger
 ): OpenSearch.ClientConfig {
