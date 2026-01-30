@@ -4,8 +4,8 @@ import {
 } from '@terascope/core-utils';
 import { readFileSync } from 'node:fs';
 import { DataType } from '@terascope/data-types';
-import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
-import { createClient, Client, Semver, ClientConfig } from '../client/index.js';
+import { ClientMetadata, ElasticsearchDistribution, OpenSearch, Semver } from '@terascope/types';
+import { createClient, Client } from '../client/index.js';
 import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
 import { envConfig } from './config.js';
 
@@ -16,7 +16,7 @@ const {
 } = envConfig;
 export async function makeClient(rootCaPath?: string): Promise<Client> {
     let host: string;
-    let esConfig: ClientConfig = {};
+    let esConfig: OpenSearch.ClientConfig = {};
 
     // Figure out the right host
     if (process.env.TEST_RESTRAINED_OPENSEARCH) {
