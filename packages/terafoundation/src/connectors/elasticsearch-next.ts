@@ -3,7 +3,10 @@ import { isPlainObject, Logger } from '@terascope/core-utils';
 import type { Terafoundation, OpenSearch } from '@terascope/types';
 import { createClient as createSearchClient } from '@terascope/opensearch-client';
 
-const sslKeys = [
+// list of valid keys for node:tls `ConnectionOptions` type
+// This list is was compiled from the types found here, but could be different across node versions
+// https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/node/v24/tls.d.ts#L607
+export const sslKeys = [
     'host', 'port', 'path', 'socket', 'checkServerIdentity',
     'servername', 'session', 'minDHSize', 'lookup', 'timeout',
     'pskCallback', 'ALPNCallback', 'allowPartialTrustChain', 'ca', 'cert',
@@ -11,10 +14,8 @@ const sslKeys = [
     'ecdhCurve', 'honorCipherOrder', 'key', 'privateKeyEngine', 'privateKeyIdentifier',
     'maxVersion', 'minVersion', 'passphrase', 'pfx', 'secureOptions',
     'secureProtocol', 'sessionIdContext', 'ticketKeys', 'sessionTimeout', 'secureContext',
-    'enableTrace', 'requestCert', 'ALPNProtocols', 'SNICallback', 'rejectUnauthorized',
-    'allowHalfOpen', 'pauseOnConnect', 'noDelay', 'keepAlive', 'keepAliveInitialDelay',
-    'highWaterMark', 'blockList'
-];
+    'enableTrace', 'requestCert', 'ALPNProtocols', 'SNICallback', 'rejectUnauthorized'
+] as const;
 
 const connector: Terafoundation.Connector = {
     async createClient(customConfig: Record<string, any>, logger: Logger) {
@@ -98,7 +99,9 @@ const connector: Terafoundation.Connector = {
                     }
                     const unrecognizedKeys: string[] = [];
                     for (const key of Object.keys(obj)) {
-                        if (!sslKeys.includes(key)) {
+                        // TODO: it would be better to ensure all keys have valid values.
+                        // We could check this object against a zod schema.
+                        if (!(sslKeys as readonly string[]).includes(key)) {
                             unrecognizedKeys.push(key);
                         }
                     }
