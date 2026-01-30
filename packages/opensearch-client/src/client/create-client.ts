@@ -41,7 +41,8 @@ export async function createClient(
  *
  * Ensures that:
  * - Both `username` and `password` are set if defined
- * - If `caCertificate` is set, `config.node` must use `https`.
+ * - `auth` and `username`/`password` are not both set
+ * - If `caCertificate` is set, warns if `config.node` is not `https`.
  *
  * @param config - The original client configuration.
  * @param logger - A Bunyan logger.
@@ -71,25 +72,11 @@ export function formatClientConfig(
         };
     }
 
-    if (updatedConfig.ssl && updatedConfig.caCertificate) {
-        if (updatedConfig.ssl.ca) {
-            // only throw if using different CAs
-            if (updatedConfig.ssl?.ca !== updatedConfig.caCertificate) {
-                throw new Error(
-                    'Cannot set both "caCertificate" and "ssl.ca".'
-                );
-            }
-        } else {
-            // add CA cert to ssl if not already defined
-            updatedConfig.ssl.ca = updatedConfig.caCertificate;
-        }
-
-        warnNonTLSNodeUrls(updatedConfig, ['ssl', 'caCerificate'], logger);
-    } else if (updatedConfig.ssl) {
-        warnNonTLSNodeUrls(updatedConfig, ['ssl'], logger);
-    } else if (updatedConfig.caCertificate) {
+    if (updatedConfig.caCertificate) {
         // Ensure ssl settings if `caCertificate` is provided
-        updatedConfig.ssl = { ca: updatedConfig.caCertificate };
+        // This allows for ssl overrides to be passed in on the client config, even
+        // though the field is undocumented and not validated
+        updatedConfig.ssl = { ...updatedConfig.ssl, ca: updatedConfig.caCertificate };
 
         warnNonTLSNodeUrls(updatedConfig, ['caCertificate'], logger);
     }
@@ -99,7 +86,8 @@ export function formatClientConfig(
 
 /**
  * Validate that the node urls use `https` if ssl is enabled
- * @param config - A client configuration
+ * @param config - A client configuration.
+ * @param keys - Any fields that are used to modify an encrypted connection.
  * @param logger - A Bunyan logger.
  * @returns void
  * @throws An error if configuration validation fails.

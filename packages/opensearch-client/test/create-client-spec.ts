@@ -31,12 +31,21 @@ describe('create-client', () => {
             expect(majorVersion).toEqual(testMajorVersion);
             expect(minorVersion).toEqual(testMinorVersion);
         });
+
+        it('should not throw when config contains a field that does not exist', async () => {
+            const config = {
+                node: host,
+                nonExistentField: 'some-value'
+            } as OpenSearch.ClientConfig;
+
+            await expect(createClient(config, testLogger)).resolves.not.toThrow();
+        });
     });
 
     describe('formatClientConfig', () => {
         const logger = debugLogger('format-client-config-test');
 
-        it('should return config unchanged when no auth or ssl fields are set', () => {
+        it('should return config unchanged when no auth fields are set', () => {
             const config: OpenSearch.ClientConfig = {
                 node: 'http://localhost:9200'
             };
@@ -117,7 +126,7 @@ describe('create-client', () => {
             );
         });
 
-        it('should create ssl object from caCertificate when ssl is not set', () => {
+        it('should create ssl object from caCertificate', () => {
             const config: OpenSearch.ClientConfig = {
                 node: 'https://localhost:9200',
                 caCertificate: 'my-ca-cert'
@@ -126,45 +135,6 @@ describe('create-client', () => {
             const result = formatClientConfig(config, logger);
 
             expect(result.ssl).toEqual({ ca: 'my-ca-cert' });
-        });
-
-        it('should add caCertificate to existing ssl when ssl.ca is not set', () => {
-            const config: OpenSearch.ClientConfig = {
-                node: 'https://localhost:9200',
-                ssl: { rejectUnauthorized: false },
-                caCertificate: 'my-ca-cert'
-            };
-
-            const result = formatClientConfig(config, logger);
-
-            expect(result.ssl).toEqual({
-                rejectUnauthorized: false,
-                ca: 'my-ca-cert'
-            });
-        });
-
-        it('should not throw when ssl.ca and caCertificate are the same value', () => {
-            const config: OpenSearch.ClientConfig = {
-                node: 'https://localhost:9200',
-                ssl: { ca: 'same-cert' },
-                caCertificate: 'same-cert'
-            };
-
-            const result = formatClientConfig(config, logger);
-
-            expect(result.ssl).toEqual({ ca: 'same-cert' });
-        });
-
-        it('should throw when ssl.ca and caCertificate are different values', () => {
-            const config: OpenSearch.ClientConfig = {
-                node: 'https://localhost:9200',
-                ssl: { ca: 'cert-a' },
-                caCertificate: 'cert-b'
-            };
-
-            expect(() => formatClientConfig(config, logger)).toThrow(
-                'Cannot set both "caCertificate" and "ssl.ca".'
-            );
         });
 
         it('should warn when caCertificate is set but node is not https', () => {
@@ -184,44 +154,12 @@ describe('create-client', () => {
             warnSpy.mockRestore();
         });
 
-        it('should warn when ssl is set but node is not https', () => {
-            const warnSpy = jest.spyOn(logger, 'warn');
-
-            const config: OpenSearch.ClientConfig = {
-                node: 'http://localhost:9200',
-                ssl: { rejectUnauthorized: false }
-            };
-
-            formatClientConfig(config, logger);
-
-            expect(warnSpy).toHaveBeenCalledWith(
-                expect.stringContaining('ssl')
-            );
-
-            warnSpy.mockRestore();
-        });
-
-        it('should not warn when ssl is set and node uses https', () => {
-            const warnSpy = jest.spyOn(logger, 'warn');
-
-            const config: OpenSearch.ClientConfig = {
-                node: 'https://localhost:9200',
-                ssl: { rejectUnauthorized: false }
-            };
-
-            formatClientConfig(config, logger);
-
-            expect(warnSpy).not.toHaveBeenCalled();
-
-            warnSpy.mockRestore();
-        });
-
         it('should warn for non-https nodes in an array', () => {
             const warnSpy = jest.spyOn(logger, 'warn');
 
             const config: OpenSearch.ClientConfig = {
                 node: ['https://localhost:9200', 'http://localhost:9201'],
-                ssl: { rejectUnauthorized: false }
+                caCertificate: 'my-ca-cert'
             };
 
             formatClientConfig(config, logger);
@@ -238,7 +176,7 @@ describe('create-client', () => {
 
             const config: OpenSearch.ClientConfig = {
                 node: ['https://localhost:9200', 'https://localhost:9201'],
-                ssl: { rejectUnauthorized: false }
+                caCertificate: 'my-ca-cert'
             };
 
             formatClientConfig(config, logger);
@@ -253,7 +191,7 @@ describe('create-client', () => {
 
             const config: OpenSearch.ClientConfig = {
                 node: { url: 'http://localhost:9200' },
-                ssl: { rejectUnauthorized: false }
+                caCertificate: 'my-ca-cert'
             };
 
             formatClientConfig(config, logger);
