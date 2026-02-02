@@ -171,6 +171,12 @@ importers:
         specifier: ~4.1.12
         version: 4.1.13
     devDependencies:
+      '@jest/globals':
+        specifier: ^30.2.0
+        version: 30.2.0
+      '@types/bunyan':
+        specifier: ~1.8.11
+        version: 1.8.11
       '@types/debug':
         specifier: ~4.1.12
         version: 4.1.12
@@ -290,6 +296,9 @@ importers:
         specifier: ~4.4.3
         version: 4.4.3
     devDependencies:
+      '@jest/globals':
+        specifier: ^30.2.0
+        version: 30.2.0
       '@types/debug':
         specifier: ~4.1.12
         version: 4.1.12
@@ -306,6 +315,9 @@ importers:
         specifier: ~1.0.5
         version: 1.0.5
     devDependencies:
+      '@jest/globals':
+        specifier: ^30.2.0
+        version: 30.2.0
       '@opensearch-project/opensearch':
         specifier: ~1.2.0
         version: 1.2.0
@@ -516,6 +528,9 @@ importers:
         specifier: ~13.0.0
         version: 13.0.0
     devDependencies:
+      '@jest/globals':
+        specifier: ^30.2.0
+        version: 30.2.0
       '@types/semver':
         specifier: ~7.7.1
         version: 7.7.1
@@ -628,6 +643,9 @@ importers:
         specifier: ~18.0.0
         version: 18.0.0
     devDependencies:
+      '@jest/globals':
+        specifier: ^30.2.0
+        version: 30.2.0
       '@terascope/types':
         specifier: workspace:*
         version: link:../types
@@ -695,6 +713,9 @@ importers:
         specifier: ~18.0.0
         version: 18.0.0
     devDependencies:
+      '@jest/globals':
+        specifier: ^30.2.0
+        version: 30.2.0
       '@types/bunyan':
         specifier: ~1.8.11
         version: 1.8.11
@@ -722,6 +743,9 @@ importers:
       '@terascope/core-utils':
         specifier: workspace:*
         version: link:../core-utils
+      '@terascope/data-types':
+        specifier: workspace:*
+        version: link:../data-types
       '@terascope/elasticsearch-api':
         specifier: workspace:*
         version: link:../elasticsearch-api
@@ -798,6 +822,9 @@ importers:
         specifier: ~13.0.0
         version: 13.0.0
     devDependencies:
+      '@jest/globals':
+        specifier: ^30.2.0
+        version: 30.2.0
       '@terascope/opensearch-client':
         specifier: workspace:*
         version: link:../opensearch-client
@@ -853,6 +880,9 @@ importers:
         specifier: ~0.27.2
         version: 0.27.2
     devDependencies:
+      '@jest/globals':
+        specifier: ^30.2.0
+        version: 30.2.0
       '@terascope/core-utils':
         specifier: workspace:*
         version: link:../core-utils
@@ -937,6 +967,9 @@ importers:
       tty-table:
         specifier: ~5.0.0
         version: 5.0.0
+      uuid:
+        specifier: ~13.0.0
+        version: 13.0.0
       yargs:
         specifier: ~18.0.0
         version: 18.0.0
@@ -987,6 +1020,9 @@ importers:
         specifier: ~4.8.3
         version: 4.8.3
     devDependencies:
+      '@jest/globals':
+        specifier: ^30.2.0
+        version: 30.2.0
       '@types/ms':
         specifier: ~0.7.34
         version: 0.7.34
@@ -999,6 +1035,9 @@ importers:
       '@terascope/elasticsearch-api':
         specifier: workspace:*
         version: link:../elasticsearch-api
+      '@terascope/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       '@terascope/opensearch-client':
         specifier: workspace:*
@@ -1019,6 +1058,12 @@ importers:
         specifier: ~11.3.3
         version: 11.3.3
     devDependencies:
+      '@jest/globals':
+        specifier: ^30.2.0
+        version: 30.2.0
+      '@terascope/core-utils':
+        specifier: workspace:*
+        version: link:../core-utils
       '@types/decompress':
         specifier: ~4.2.7
         version: 4.2.7
@@ -1062,6 +1107,9 @@ importers:
         specifier: ~18.0.0
         version: 18.0.0
     devDependencies:
+      '@jest/globals':
+        specifier: ^30.2.0
+        version: 30.2.0
       '@types/graphlib':
         specifier: ~2.1.12
         version: 2.1.12
@@ -1114,6 +1162,9 @@ importers:
       '@turf/random':
         specifier: ~7.3.2
         version: 7.3.3
+      date-fns:
+        specifier: ~4.1.0
+        version: 4.1.0
 
   packages/xlucene-translator:
     dependencies:

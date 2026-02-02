@@ -40,6 +40,7 @@
         "uuid": "~13.0.0"
     },
     "devDependencies": {
+        "@jest/globals": "^30.2.0",
         "@types/semver": "~7.7.1",
         "benchmark": "~2.1.4",
         "fs-extra": "~11.3.3",
