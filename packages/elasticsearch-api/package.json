@@ -31,13 +31,17 @@
         "test:watch": "TEST_RESTRAINED_OPENSEARCH='true' node ../scripts/bin/ts-scripts test --watch ../elasticsearch-api --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.2.0",
-        "@terascope/types": "~2.2.0",
+        "@terascope/core-utils": "workspace:*",
+        "@terascope/types": "workspace:*",
         "setimmediate": "~1.0.5"
     },
     "devDependencies": {
         "@opensearch-project/opensearch": "~1.2.0",
-        "@terascope/opensearch-client": "~2.2.0"
+        "@terascope/opensearch-client": "workspace:*",
+        "@types/elasticsearch": "~5.0.43",
+        "elasticsearch": "~15.4.1",
+        "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
+        "elasticsearch8": "npm:@elastic/elasticsearch@~8.15.0"
     },
     "engines": {
         "node": ">=22.0.0",

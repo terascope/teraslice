@@ -25,8 +25,8 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../geo-utils --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.2.0",
-        "@terascope/types": "~2.2.0",
+        "@terascope/core-utils": "workspace:*",
+        "@terascope/types": "workspace:*",
         "@turf/bbox": "~7.3.3",
         "@turf/bbox-polygon": "~7.3.3",
         "@turf/boolean-contains": "~7.3.3",

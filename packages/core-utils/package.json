@@ -26,7 +26,7 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../core-utils --"
     },
     "dependencies": {
-        "@terascope/types": "~2.2.0",
+        "@terascope/types": "workspace:*",
         "awesome-phonenumber": "~7.7.0",
         "bunyan": "~1.8.15",
         "date-fns": "~4.1.0",
