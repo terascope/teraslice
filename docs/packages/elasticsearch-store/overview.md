@@ -29,7 +29,6 @@ The Elasticsearch-next connector configuration, in your Teraslice configuration 
 | caCertificate | A string containing a single or multiple ca certificates | String | optional, defaults to `undefined` |
 | username | Username for authenticating with cluster | String | optional, required if authentication is enabled, defaults to `undefined` |
 | password | Password for authenticating with cluster. | String | optional, required if used in conjunction with the username, defaults to `undefined` |
-| ssl | Set the Node.js TLS(SSL) `ConnectionOptions` for clients using this connector. | Object | optional, defaults to `undefined` |
 | sniffOnConnectionFault | Sniff hosts on connection failure | Boolean | optional, defaults to `false` |
 | requestTimeout | Request timeout | duration | optional, defaults to `120000` |
 | maxRetries | Maximum retries for a failed request | number | optional, defaults to `3` |
@@ -68,25 +67,5 @@ terafoundation:
                     ...
                     DXZDjC5Ty3zfDBeWUA==
                     -----END CERTIFICATE-----
-
-```
-
-```yaml
-terafoundation:
-    connectors:
-        elasticsearch-next:
-            default:
-                node:
-                    - "https://localhost:9200"
-                auth:
-                    username: admin
-                    password: mypassword
-                ssl:
-                    ca: |
-                        -----BEGIN CERTIFICATE-----
-                        MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQs
-                        ...
-                        DXZDjC5Ty3zfDBeWUA==
-                        -----END CERTIFICATE-----
 
 ```

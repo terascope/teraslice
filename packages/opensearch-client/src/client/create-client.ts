@@ -85,7 +85,7 @@ export function formatClientConfig(
 }
 
 /**
- * Validate that the node urls use `https` if ssl is enabled
+ * Validate that the node urls use `https` if fields that modify ssl have been supplied
  * @param config - A client configuration.
  * @param keys - Any fields that are used to modify an encrypted connection.
  * @param logger - A Bunyan logger.
