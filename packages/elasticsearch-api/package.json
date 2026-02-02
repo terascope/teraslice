@@ -1,7 +1,7 @@
 {
     "name": "@terascope/elasticsearch-api",
     "displayName": "Elasticsearch API",
-    "version": "5.0.6",
+    "version": "5.0.7",
     "description": "Elasticsearch client api used across multiple services, handles retries and exponential backoff",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-api#readme",
     "bugs": {
@@ -33,13 +33,13 @@
         "test:watch": "TEST_RESTRAINED_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --watch ../elasticsearch-api --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.6",
+        "@terascope/core-utils": "~2.0.7",
         "@terascope/types": "~2.0.3",
         "setimmediate": "~1.0.5"
     },
     "devDependencies": {
         "@opensearch-project/opensearch": "~1.2.0",
-        "@terascope/opensearch-client": "~2.0.6",
+        "@terascope/opensearch-client": "~2.0.7",
         "@types/elasticsearch": "~5.0.43",
         "elasticsearch": "~15.4.1",
         "elasticsearch7": "npm:@elastic/elasticsearch@~7.17.0",
