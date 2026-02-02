@@ -38,6 +38,8 @@ The Elasticsearch-next connector configuration, in your Teraslice configuration 
 | sniffEndpoint | Endpoint to ping during a sniff. If undefined will use the client\'s default, usually `_nodes/_all/http`. | String | optional, defaults to `undefined` |
 | auth | Your authentication data. Does not support "ApiKey" or "Bearer" token authentication.' | `{ username: string, password: string }` | optional, defaults to `undefined` |
 
+**Note:** The [Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/7.17/basic-config.html) and [OpenSearch](https://github.com/opensearch-project/opensearch-js/blob/main/lib/Client.d.ts#L66) clients have several more configuration options available, e.g., `ssl`. These fields can be added to the connector configuration and will be passed directly to the client. **Warning:** If an option is not listed in the table above it is untested, will not be validated, and may cause unexpected behavior.
+
 **Terafoundation Elasticsearch-next configuration example:**
 
 ```yaml
