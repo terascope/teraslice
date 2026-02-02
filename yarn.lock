@@ -2993,7 +2993,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/core-utils@npm:~2.0.0, @terascope/core-utils@npm:~2.0.7, @terascope/core-utils@workspace:packages/core-utils":
+"@terascope/core-utils@npm:~2.0.3, @terascope/core-utils@npm:~2.0.7, @terascope/core-utils@workspace:packages/core-utils":
   version: 0.0.0-use.local
   resolution: "@terascope/core-utils@workspace:packages/core-utils"
   dependencies:

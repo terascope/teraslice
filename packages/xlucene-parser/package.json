@@ -38,8 +38,8 @@
         "peggy": "~5.0.6"
     },
     "devDependencies": {
-        "@turf/invariant": "~7.3.2",
-        "@turf/random": "~7.3.2"
+        "@turf/invariant": "~7.3.3",
+        "@turf/random": "~7.3.3"
     },
     "engines": {
         "node": ">=22.0.0",

@@ -28,7 +28,7 @@
     "dependencies": {
         "@terascope/core-utils": "~2.0.7",
         "@terascope/types": "~2.0.3",
-        "graphql": "~16.11.0"
+        "graphql": "~16.12.0"
     },
     "engines": {
         "node": ">=22.0.0",

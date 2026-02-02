@@ -41,7 +41,7 @@
         "@kubernetes/client-node": "~1.4.0",
         "@terascope/core-utils": "~2.0.7",
         "@terascope/elasticsearch-api": "~5.0.7",
-        "@terascope/file-asset-apis": "~2.0.0",
+        "@terascope/file-asset-apis": "~2.0.1",
         "@terascope/job-components": "~2.0.7",
         "@terascope/teraslice-messaging": "~2.0.7",
         "@terascope/types": "~2.0.3",
@@ -63,7 +63,7 @@
         "socket.io": "~4.8.3",
         "socket.io-client": "~4.8.3",
         "terafoundation": "~2.0.8",
-        "terafoundation_kafka_connector": "~2.0.0",
+        "terafoundation_kafka_connector": "~2.0.1",
         "uuid": "~13.0.0"
     },
     "devDependencies": {

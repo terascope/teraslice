@@ -30,7 +30,7 @@
     },
     "dependencies": {
         "@terascope/types": "~2.0.3",
-        "awesome-phonenumber": "~7.6.0",
+        "awesome-phonenumber": "~7.7.0",
         "bunyan": "~1.8.15",
         "date-fns": "~4.1.0",
         "date-fns-tz": "~3.2.0",
