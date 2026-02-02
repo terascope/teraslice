@@ -7,6 +7,7 @@ import { objectRepository } from './object/index.js';
 import { stringRepository } from './string/index.js';
 import { ipRepository } from './ip/index.js';
 
+// @ts-expect-error TS2742 - inferred type leaks pnpm path; declarations not portable
 export const functionConfigRepository = {
     ...booleanRepository,
     ...geoRepository,
