@@ -45,7 +45,7 @@ describe('S3 backend test', () => {
                 bucket: 'Invalid-Bucket-Name@'
             });
 
-            await expect(s3Backend.initialize()).rejects.toThrow('Bucket name does not follow S3 naming rules: The specified bucket is not valid.');
+            await expect(s3Backend.initialize()).rejects.toThrow('Bucket name does not follow S3 naming rules: InvalidBucketName');
         });
     });
 
