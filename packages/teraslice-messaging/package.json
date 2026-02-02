@@ -41,6 +41,7 @@
         "socket.io-client": "~4.8.3"
     },
     "devDependencies": {
+        "@jest/globals": "^30.2.0",
         "@types/ms": "~0.7.34"
     },
     "engines": {

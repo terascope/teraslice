@@ -49,6 +49,7 @@
         "yargs": "~18.0.0"
     },
     "devDependencies": {
+        "@jest/globals": "^30.2.0",
         "@types/graphlib": "~2.1.12",
         "@types/jexl": "~2.3.4",
         "@types/valid-url": "~1.0.7",

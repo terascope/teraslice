@@ -40,7 +40,8 @@
     },
     "devDependencies": {
         "@turf/invariant": "~7.3.3",
-        "@turf/random": "~7.3.3"
+        "@turf/random": "~7.3.3",
+        "date-fns": "~4.1.0"
     },
     "engines": {
         "node": ">=22.0.0",

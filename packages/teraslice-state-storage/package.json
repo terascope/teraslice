@@ -25,7 +25,8 @@
     },
     "dependencies": {
         "@terascope/core-utils": "workspace:*",
-        "@terascope/elasticsearch-api": "workspace:*"
+        "@terascope/elasticsearch-api": "workspace:*",
+        "@terascope/types": "workspace:*"
     },
     "devDependencies": {
         "@terascope/opensearch-client": "workspace:*"

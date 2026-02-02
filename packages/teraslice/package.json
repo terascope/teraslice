@@ -35,6 +35,7 @@
     "dependencies": {
         "@kubernetes/client-node": "~1.4.0",
         "@terascope/core-utils": "workspace:*",
+        "@terascope/data-types": "workspace:*",
         "@terascope/elasticsearch-api": "workspace:*",
         "@terascope/file-asset-apis": "~2.0.1",
         "@terascope/job-components": "workspace:*",
@@ -62,6 +63,7 @@
         "uuid": "~13.0.0"
     },
     "devDependencies": {
+        "@jest/globals": "^30.2.0",
         "@terascope/opensearch-client": "workspace:*",
         "@types/archiver": "~7.0.0",
         "@types/body-parser": "~1.19.6",

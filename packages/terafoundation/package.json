@@ -41,6 +41,7 @@
         "yargs": "~18.0.0"
     },
     "devDependencies": {
+        "@jest/globals": "^30.2.0",
         "@types/bunyan": "~1.8.11",
         "@types/elasticsearch": "~5.0.43",
         "@types/express": "~5.0.6",
