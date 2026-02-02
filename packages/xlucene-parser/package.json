@@ -1,7 +1,7 @@
 {
     "name": "xlucene-parser",
     "displayName": "xLucene Parser",
-    "version": "2.0.6",
+    "version": "2.0.7",
     "description": "Flexible Lucene-like evaluator and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser#readme",
     "repository": {
@@ -19,26 +19,23 @@
         "test": "test"
     },
     "files": [
-        "dist/src/**/*",
-        "scripts/fix-deps.js"
+        "dist/src/**/*"
     ],
     "scripts": {
         "benchmark": "yarn build && node bench/index.js",
         "prebuild": "./scripts/generate-engine.js",
         "build": "yarn prebuild && tsc --build",
         "build:watch": "yarn build --watch",
-        "postinstall": "./scripts/fix-deps.js",
         "test": "node ../scripts/bin/ts-scripts test ../xlucene-parser --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../xlucene-parser --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../xlucene-parser --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.6",
-        "@terascope/geo-utils": "~2.0.6",
-        "@terascope/ip-utils": "~2.0.6",
+        "@terascope/core-utils": "~2.0.7",
+        "@terascope/geo-utils": "~2.0.7",
+        "@terascope/ip-utils": "~2.0.7",
         "@terascope/types": "~2.0.3",
-        "peggy": "~4.2.0",
-        "ts-pegjs": "~4.2.1"
+        "peggy": "~5.0.6"
     },
     "devDependencies": {
         "@turf/invariant": "~7.3.2",
@@ -50,9 +47,6 @@
     },
     "publishConfig": {
         "access": "public",
-        "executableFiles": [
-            "./scripts/fix-deps.js"
-        ],
         "registry": "https://registry.npmjs.org/"
     },
     "srcMain": "src/index.ts",
