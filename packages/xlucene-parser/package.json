@@ -31,11 +31,12 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../xlucene-parser --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.2.0",
-        "@terascope/geo-utils": "~2.2.0",
-        "@terascope/ip-utils": "~2.2.0",
-        "@terascope/types": "~2.2.0",
-        "peggy": "~5.0.6"
+        "@terascope/core-utils": "workspace:*",
+        "@terascope/geo-utils": "workspace:*",
+        "@terascope/ip-utils": "workspace:*",
+        "@terascope/types": "workspace:*",
+        "peggy": "~5.0.6",
+        "ts-pegjs": "~4.2.1"
     },
     "devDependencies": {
         "@turf/invariant": "~7.3.3",
