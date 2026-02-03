@@ -42,18 +42,14 @@ nodes:
     containerPath: /scripts
   - hostPath: ./types
     containerPath: /types
-  - hostPath: ./.yarn
-    containerPath: /.yarn
-  - hostPath: ./.yarnclean.ci
-    containerPath: /.yarnclean.ci
   - hostPath: ./package.json
     containerPath: /package.json
-  - hostPath: ./yarn.lock
-    containerPath: /yarn.lock
+  - hostPath: ./pnpm-lock.yaml
+    containerPath: /pnpm-lock.yaml
+  - hostPath: ./pnpm-workspace.yaml
+    containerPath: /pnpm-workspace.yaml
   - hostPath: ./tsconfig.json
     containerPath: /tsconfig.json
-  - hostPath: ./.yarnrc
-    containerPath: /.yarnrc
   - hostPath: ./service.js
     containerPath: /service.js
   - hostPath: ./node_modules

@@ -115,6 +115,15 @@ export function getAvailableTestSuites(): string[] {
     return Object.keys(getRootInfo().terascope.tests.suites);
 }
 
+/**
+ * Returns 'pnpm' if terascope.version is 1, otherwise 'yarn'.
+ * Version 1 represents teraslice, any other version represents other terafoundation apps.
+ */
+export function getPackageManager(): 'pnpm' | 'yarn' {
+    const rootInfo = getRootInfo();
+    return rootInfo.terascope.version === 1 ? 'pnpm' : 'yarn';
+}
+
 export function getServicesForSuite(suite: string): Service[] {
     const services = getRootInfo().terascope.tests.suites[suite] || [];
 
