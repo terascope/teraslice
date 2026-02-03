@@ -78,7 +78,7 @@ describe('Column (Boolean Types)', () => {
 
         it('should be able to transform the column using toString', () => {
             const newCol = dataFrameAdapter(
-                functionConfigRepository.toString,
+                functionConfigRepository['toString'],
             ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
