@@ -12,7 +12,7 @@ import {
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
 import signale from '../signale.js';
-import { getDevDockerImage, getRootInfo } from '../misc.js';
+import { getDevDockerImage, getRootInfo, getPackageManager } from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import config from '../config.js';
@@ -113,9 +113,10 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             await kind.destroyCluster();
             process.exit(1);
         }
-        signale.info(`Running yarn setup with node ${process.version}...`);
+        const pm = getPackageManager();
+        signale.info(`Running ${pm} setup with node ${process.version}...`);
         try {
-            execaCommandSync('yarn setup');
+            execaCommandSync(`${pm} run setup`);
         } catch (err) {
             signale.fatal(err);
             await kind.destroyCluster();
