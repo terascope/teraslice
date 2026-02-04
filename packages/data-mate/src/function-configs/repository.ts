@@ -13,8 +13,8 @@ type AnyFnConfig = FunctionDefinitionConfig<any> & {
     create: (...args: any[]) => any;
 };
 
-export const functionConfigRepository: Readonly<Record<string, AnyFnConfig>> =
-    Object.assign(Object.create(null), {
+export const functionConfigRepository: Readonly<Record<string, AnyFnConfig>>
+    = Object.assign(Object.create(null), {
         ...booleanRepository,
         ...geoRepository,
         ...jsonRepository,
@@ -23,4 +23,4 @@ export const functionConfigRepository: Readonly<Record<string, AnyFnConfig>> =
         ...objectRepository,
         ...stringRepository,
         ...ipRepository,
-});
+    });
