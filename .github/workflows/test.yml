@@ -108,7 +108,7 @@ jobs:
         run: |
           echo "Running determine-tests..."
 
-          JSON=$(pnpm run determine-tests)
+          JSON=$(pnpm -s run determine-tests)
           echo "$JSON"
 
           UNIT=$(echo "$JSON" | jq -r '.unit')
