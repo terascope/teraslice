@@ -11,3 +11,6 @@ onlyBuiltDependencies:
   - gc-stats
   - unrs-resolver
   - xlucene-parser
+
+publicHoistPattern:
+  - "terafoundation_kafka_connector"
