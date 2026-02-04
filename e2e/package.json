@@ -68,7 +68,8 @@
         "teraslice-client-js": "workspace:*",
         "ts-jest": "~29.4.6",
         "typescript": "~5.9.3",
-        "uuid": "~13.0.0"
+        "uuid": "~13.0.0",
+        "yaml": "~2.8.2"
     },
     "engines": {
         "node": ">=22.0.0",
