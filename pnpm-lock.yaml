@@ -65,6 +65,9 @@ importers:
       node-notifier:
         specifier: ~10.0.1
         version: 10.0.1
+      terafoundation_kafka_connector:
+        specifier: ~2.0.1
+        version: 2.0.1
       teraslice:
         specifier: workspace:*
         version: link:packages/teraslice
@@ -301,8 +304,8 @@ importers:
         specifier: ~13.15.26
         version: 13.15.26
       xlucene-parser:
-        specifier: ~2.1.0
-        version: 2.1.0
+        specifier: workspace:*
+        version: link:../xlucene-parser
     devDependencies:
       '@types/big-json':
         specifier: ~3.2.5
@@ -864,9 +867,6 @@ importers:
       terafoundation:
         specifier: workspace:*
         version: link:../terafoundation
-      terafoundation_kafka_connector:
-        specifier: ~2.0.1
-        version: 2.0.1
       uuid:
         specifier: ~13.0.0
         version: 13.0.0
@@ -2447,14 +2447,6 @@ packages:
   '@terascope/file-asset-apis@2.0.1':
     resolution: {integrity: sha512-GYXwBw2iPbrrs0ueObSbkdUM7FXawi7L7zf64+92A9/RS+39CqBpEeAYkoGZkyqB+s5WpJEZZJX/VNe3KPgZew==}
     engines: {node: '>=22.21.1', yarn: '>=1.22.19'}
-
-  '@terascope/geo-utils@2.1.0':
-    resolution: {integrity: sha512-TZOYrKDrYf1c6x+qcj1C3png+IzYh2gpL/P4cNvIEWdEUGT/OpE1o95AS4xV42fHbKyKfpIXzoD3pqXiku65MQ==}
-    engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
-
-  '@terascope/ip-utils@2.1.0':
-    resolution: {integrity: sha512-ekfPPnmfrEYsAmlHtWFGUu9c9JeUehe2G3rdoM96Nz1VTI7jbs1hmwcHb2G+Ticf6BuaC9gBs8pKUNko+FSc5Q==}
-    engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
   '@terascope/scripts@2.1.0':
     resolution: {integrity: sha512-00OzQ7pjj6hVTUi7basuc3LKWIo831/FrmjsOVNOGvt7q6TE86B+Tpp4sbwlRiDAOqHlkNrwd7OOXOmjwxcPgw==}
@@ -6451,10 +6443,6 @@ packages:
       utf-8-validate:
         optional: true
 
-  xlucene-parser@2.1.0:
-    resolution: {integrity: sha512-XjJYK4rkMxHUHl1ClqNtgaeMsF/88EDKqf6h0MqfGUo5rFgeQcNtzpnY0l8FSJ9cLW+KYG99SsmuxwSJ1G2txg==}
-    engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
-
   xmlhttprequest-ssl@2.1.2:
     resolution: {integrity: sha512-TEU+nJVUUnA4CYJFLvK5X9AOeH4KvDvhIfm0vV1GaQRtchnG0hgK5p8hw/xjv8cunWYCsiPCSDzObPyhEwq3KQ==}
     engines: {node: '>=0.4.0'}
@@ -8362,40 +8350,6 @@ snapshots:
       node-gzip: 1.1.2
     transitivePeerDependencies:
       - aws-crt
-      - supports-color
-
-  '@terascope/geo-utils@2.1.0':
-    dependencies:
-      '@terascope/core-utils': 2.1.0
-      '@terascope/types': 2.1.0
-      '@turf/bbox': 7.3.3
-      '@turf/bbox-polygon': 7.3.3
-      '@turf/boolean-contains': 7.3.3
-      '@turf/boolean-disjoint': 7.3.3
-      '@turf/boolean-equal': 7.3.3
-      '@turf/boolean-intersects': 7.3.3
-      '@turf/boolean-point-in-polygon': 7.3.3
-      '@turf/boolean-within': 7.3.3
-      '@turf/circle': 7.3.3
-      '@turf/helpers': 7.3.3
-      '@turf/invariant': 7.3.3
-      '@turf/line-to-polygon': 7.3.3
-      geo-tz: 8.1.5
-      latlon-geohash: 2.0.0
-    transitivePeerDependencies:
-      - supports-color
-
-  '@terascope/ip-utils@2.1.0':
-    dependencies:
-      '@chainsafe/is-ip': 2.1.0
-      '@terascope/core-utils': 2.1.0
-      '@terascope/types': 2.1.0
-      ip-bigint: 8.2.3
-      ip-cidr: 4.0.2
-      ip6addr: 0.2.5
-      ipaddr.js: 2.3.0
-      is-cidr: 6.0.2
-    transitivePeerDependencies:
       - supports-color
 
   '@terascope/scripts@2.1.0(typescript@5.9.3)':
@@ -13096,16 +13050,6 @@ snapshots:
   ws@8.18.3: {}
 
   ws@8.19.0: {}
-
-  xlucene-parser@2.1.0:
-    dependencies:
-      '@terascope/core-utils': 2.1.0
-      '@terascope/geo-utils': 2.1.0
-      '@terascope/ip-utils': 2.1.0
-      '@terascope/types': 2.1.0
-      peggy: 5.0.6
-    transitivePeerDependencies:
-      - supports-color
 
   xmlhttprequest-ssl@2.1.2: {}
 
