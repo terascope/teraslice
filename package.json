@@ -9,9 +9,8 @@
     },
     "type": "module",
     "scripts": {
-        "prebuild": "./packages/xlucene-parser/scripts/generate-engine.js",
-        "build": "pnpm prebuild && tsc --build --force --verbose && pnpm postbuild",
-        "postbuild": "pnpm --filter teraslice-cli postbuild",
+        "build": "pnpm prebuild && tsc --build --verbose && pnpm postbuild",
+        "build:force": "pnpm prebuild && tsc --build --force --verbose && pnpm postbuild",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:doctor": "./scripts/build-doctor.sh",
         "build:fix": "echo '[DEPRECATED], use pnpm run build:doctor instead'",
@@ -32,6 +31,8 @@
         "k8s:utility": "ENABLE_UTILITY_SVC=true TEST_OPENSEARCH=true OPENSEARCH_VERSION='2.15.0' ts-scripts k8s-env",
         "lint": "eslint",
         "lint:fix": "pnpm lint --fix && pnpm sync",
+        "postbuild": "pnpm --filter teraslice-cli postbuild",
+        "prebuild": "./packages/xlucene-parser/scripts/generate-engine.js",
         "setup": "pnpm install && pnpm run build",
         "start": "node service.js",
         "start:dev": "pnpm build && env NODE_ENV=development node service.js",
@@ -62,6 +63,7 @@
         "jest-extended": "~7.0.0",
         "jest-watch-typeahead": "~3.0.1",
         "node-notifier": "~10.0.1",
+        "terafoundation_kafka_connector": "~2.0.1",
         "teraslice": "workspace:*",
         "ts-jest": "~29.4.6",
         "typescript": "~5.9.3"
