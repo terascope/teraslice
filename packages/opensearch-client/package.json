@@ -48,5 +48,8 @@
     "terascope": {
         "enableTypedoc": true,
         "testSuite": "search"
+    },
+    "devDependencies": {
+        "@jest/globals": "^30.2.0"
     }
 }
