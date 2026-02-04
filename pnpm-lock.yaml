@@ -23,6 +23,12 @@ importers:
       '@swc/jest':
         specifier: ~0.2.39
         version: 0.2.39(@swc/core@1.15.11)
+      '@terascope/core-utils':
+        specifier: workspace:*
+        version: link:packages/core-utils
+      '@terascope/eslint-config':
+        specifier: workspace:*
+        version: link:packages/eslint-config
       '@terascope/scripts':
         specifier: ~2.1.0
         version: 2.1.0(typescript@5.9.3)
