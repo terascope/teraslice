@@ -24,7 +24,7 @@ The Elasticsearch-next connector configuration, in your Teraslice configuration 
 
 | Configuration | Description | Type |  Notes |
 | --------- | -------- | ------ | ------ |
-| node | A list of hosts to connect to. | String[] | optional, defaults to `['http://127.0.0.1:9200']` |
+| node | A list of hosts to connect to. | String \| String[] | optional, defaults to `['http://127.0.0.1:9200']` |
 | sniffOnStart | Sniff hosts on start up | Boolean | optional, defaults to `false` |
 | caCertificate | A string containing a single or multiple ca certificates | String | optional, defaults to `undefined` |
 | username | Username for authenticating with cluster | String | optional, required if authentication is enabled, defaults to `undefined` |
@@ -32,6 +32,13 @@ The Elasticsearch-next connector configuration, in your Teraslice configuration 
 | sniffOnConnectionFault | Sniff hosts on connection failure | Boolean | optional, defaults to `false` |
 | requestTimeout | Request timeout | duration | optional, defaults to `120000` |
 | maxRetries | Maximum retries for a failed request | number | optional, defaults to `3` |
+| suggestCompression | Adds `accept-encoding: \'gzip,deflate\'` header to every request. This enables HTTP compression for responses from the OpenSearch cluster to reduce network bandwidth usage. | Boolean | optional, defaults to `false` |
+| pingTimeout | Max ping request timeout in milliseconds for each request. If undefined will use the client\'s default, usually `3000` | Number | optional, defaults to `undefined` |
+| sniffInterval | Perform a sniff operation every n milliseconds. If undefined will use the client\'s default, usually `false` | Number \| false | optional, defaults to `undefined` |
+| sniffEndpoint | Endpoint to ping during a sniff. If undefined will use the client\'s default, usually `_nodes/_all/http`. | String | optional, defaults to `undefined` |
+| auth | Your authentication data. Does not support "ApiKey" or "Bearer" token authentication.' | `{ username: string, password: string }` | optional, defaults to `undefined` |
+
+**Note:** The [Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/7.17/basic-config.html) and [OpenSearch](https://github.com/opensearch-project/opensearch-js/blob/main/lib/Client.d.ts#L66) clients have several more configuration options available, e.g., `ssl`. These fields can be added to the connector configuration and will be passed directly to the client. **Warning:** If an option is not listed in the table above it is untested, will not be validated, and may cause unexpected behavior.
 
 **Terafoundation Elasticsearch-next configuration example:**
 
@@ -45,7 +52,7 @@ terafoundation:
 
 ```
 
-**Terafoundation Elasticsearch-next ssl configuration example:**
+**Terafoundation Elasticsearch-next ssl configuration examples:**
 
 ```yaml
 terafoundation:

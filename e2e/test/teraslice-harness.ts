@@ -4,8 +4,8 @@ import {
     cloneDeep, isEmpty, castArray, pRetry
 } from '@terascope/core-utils';
 import { showState } from '@terascope/scripts';
-import { JobConfig, Teraslice } from '@terascope/types';
-import { createClient, ElasticsearchTestHelpers, Client, ClientConfig } from '@terascope/opensearch-client';
+import { JobConfig, Teraslice, OpenSearch } from '@terascope/types';
+import { createClient, ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import { TerasliceClient } from 'teraslice-client-js';
 import fse from 'fs-extra';
 import { config } from './config.js';
@@ -65,7 +65,7 @@ export class TerasliceHarness {
     teraslice!: TerasliceClient;
 
     async init() {
-        const esConfig: ClientConfig = { node: TEST_HOST };
+        const esConfig: OpenSearch.ClientConfig = { node: TEST_HOST };
         if (ENCRYPT_OPENSEARCH) {
             esConfig.username = OPENSEARCH_USER;
             esConfig.password = OPENSEARCH_PASSWORD;

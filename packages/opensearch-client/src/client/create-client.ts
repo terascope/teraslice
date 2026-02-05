@@ -7,7 +7,7 @@ import * as opensearch3 from 'opensearch3';
 import { ElasticsearchDistribution, ClientMetadata } from '@terascope/types';
 import { Client } from './client.js';
 import { logWrapper } from './log-wrapper.js';
-import { ClientConfig } from './interfaces.js';
+import { OpenSearch } from '@terascope/types';
 
 const clientList = [
     opensearch2, opensearch3, opensearch1
@@ -15,10 +15,10 @@ const clientList = [
 
 /** creates an opensearch or elasticsearch client depending on the configuration */
 export async function createClient(
-    config: ClientConfig,
+    config: OpenSearch.ClientConfig,
     logger = debugLogger('opensearch-client')
 ): Promise<{ log: () => Logger; client: Client }> {
-    const finalConfig = formatClientConfig(config);
+    const finalConfig = formatClientConfig(config, logger);
 
     const distributionMetadata = await getDBMetadata(finalConfig, logger);
 
@@ -39,14 +39,23 @@ export async function createClient(
  *
  * Ensures that:
  * - Both `username` and `password` are set if defined
- * - If `caCertificate` is set, `config.node` must use `https`.
+ * - `auth` and `username`/`password` are not both set
+ * - If `caCertificate` is set, warns if `config.node` is not `https`.
  *
  * @param config - The original client configuration.
- * @returns A normalized and validated `ClientConfig`.
+ * @param logger - A Bunyan logger.
+ * @returns A normalized and validated OpenSearch `ClientConfig`.
  * @throws An error if configuration validation fails.
  */
-function formatClientConfig(config: ClientConfig): ClientConfig {
+export function formatClientConfig(
+    config: OpenSearch.ClientConfig,
+    logger: Logger
+): OpenSearch.ClientConfig {
     const updatedConfig = { ...config };
+
+    if (updatedConfig.auth && (updatedConfig.username || updatedConfig.password)) {
+        throw new Error('"auth" can not be set at the same time as "username" or "password".');
+    }
 
     // Ensure authentication credentials are both set or neither is set
     if (updatedConfig.username || updatedConfig.password) {
@@ -61,31 +70,52 @@ function formatClientConfig(config: ClientConfig): ClientConfig {
         };
     }
 
-    // Ensure ssl settings if `caCertificate` is provided
     if (updatedConfig.caCertificate) {
-        updatedConfig.ssl = { ca: updatedConfig.caCertificate };
+        // Ensure ssl settings if `caCertificate` is provided
+        // This allows for ssl overrides to be passed in on the client config, even
+        // though the field is undocumented and not validated
+        updatedConfig.ssl = { ...updatedConfig.ssl, ca: updatedConfig.caCertificate };
 
-        // Validate that the node urls use `https` if ssl is enabled
-        if (updatedConfig.node) {
-            if (typeof updatedConfig.node === 'string') {
-                if (!updatedConfig.node.startsWith('https://')) {
-                    throw new Error(
-                        'Invalid configuration: "node" must use "https" when "caCertificate" is provided.'
-                    );
-                }
-            } else if (Array.isArray(updatedConfig.node)) {
-                const invalidNode = updatedConfig.node.find((node) => typeof node === 'string' && !node.startsWith('https://')
-                );
-                if (invalidNode) {
-                    throw new Error(
-                        `Invalid configuration: node "${invalidNode}" must use "https" when "caCertificate" is provided.`
-                    );
-                }
-            }
-        }
+        warnNonTLSNodeUrls(updatedConfig, ['caCertificate'], logger);
     }
 
     return updatedConfig;
+}
+
+/**
+ * Validate that the node urls use `https` if fields that modify ssl have been supplied
+ * @param config - A client configuration.
+ * @param keys - Any fields that are used to modify an encrypted connection.
+ * @param logger - A Bunyan logger.
+ * @returns void
+ * @throws An error if configuration validation fails.
+ */
+function warnNonTLSNodeUrls(config: OpenSearch.ClientConfig, keys: string[], logger: Logger) {
+    if (config.node) {
+        if (Array.isArray(config.node)) {
+            const invalidNodes = config.node.filter((node) => {
+                return (typeof node === 'string' && !node.startsWith('https://'))
+                    || (typeof node === 'object' && !node.url.startsWith('https://'));
+            });
+            if (invalidNodes.length > 0) {
+                logger.warn(
+                    `"${keys.join('", "')}" provided, but not all "nodes" are https. TLS encryption will NOT be enabled for these nodes: ${invalidNodes.toString()}`
+                );
+            }
+        } else if (typeof config.node === 'string') {
+            if (!config.node.startsWith('https://')) {
+                logger.warn(
+                    `"${keys.join('", "')}" provided, but "node" is not https. TLS encryption will NOT be enabled.`
+                );
+            }
+        } else {
+            if (!config.node.url.startsWith('https://')) {
+                logger.warn(
+                    `"${keys.join('", "')}" provided, but "node.url" is not https. TLS encryption will NOT be enabled.`
+                );
+            }
+        }
+    }
 }
 
 async function getDBMetadata(
@@ -141,7 +171,7 @@ async function getDBMetadata(
 
 export async function getBaseClient(
     clientMetadata: ClientMetadata,
-    config: ClientConfig,
+    config: OpenSearch.ClientConfig,
     logger = debugLogger('elasticsearch-client')
 ) {
     const {
