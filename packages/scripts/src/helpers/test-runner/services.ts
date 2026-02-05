@@ -25,46 +25,9 @@ const logger = debugLogger('ts-scripts:cmd:test');
 const serviceUpTimeout = ms(config.SERVICE_UP_TIMEOUT);
 
 const rabbitConfigPath = path.join(getRootDir(), '/.ts-test-config/rabbitmq.conf');
-const restrainedElasticsearchConfigPath = path.join(getRootDir(), '/.ts-test-config/elasticsearch.yml');
 const restrainedOpensearchConfigPath = path.join(getRootDir(), '/.ts-test-config/opensearch.yml');
 
-const disableXPackSecurity = !config.ELASTICSEARCH_DOCKER_IMAGE.includes('blacktop');
-
 const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
-    [Service.Elasticsearch]: {
-        image: config.ELASTICSEARCH_DOCKER_IMAGE,
-        name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
-        tmpfs: config.SERVICES_USE_TMPFS
-            ? ['/usr/share/elasticsearch/data']
-            : undefined,
-        ports: [`${config.ELASTICSEARCH_PORT}:${config.ELASTICSEARCH_PORT}`],
-        env: {
-            ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
-            'network.host': '0.0.0.0',
-            'http.port': config.ELASTICSEARCH_PORT,
-            'discovery.type': 'single-node',
-            ...disableXPackSecurity && {
-                'xpack.security.enabled': 'false'
-            }
-        },
-        network: config.DOCKER_NETWORK_NAME
-    },
-    [Service.RestrainedElasticsearch]: {
-        image: config.ELASTICSEARCH_DOCKER_IMAGE,
-        name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
-        mount: [`type=bind,source=${restrainedElasticsearchConfigPath},target=/usr/share/elasticsearch/config/elasticsearch.yml`],
-        ports: [`${config.RESTRAINED_ELASTICSEARCH_PORT}:${config.RESTRAINED_ELASTICSEARCH_PORT}`],
-        env: {
-            ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
-            'network.host': '0.0.0.0',
-            'http.port': config.RESTRAINED_ELASTICSEARCH_PORT,
-            'discovery.type': 'single-node',
-            ...disableXPackSecurity && {
-                'xpack.security.enabled': 'false'
-            }
-        },
-        network: config.DOCKER_NETWORK_NAME
-    },
     [Service.RestrainedOpensearch]: {
         image: config.OPENSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
@@ -184,11 +147,6 @@ export async function loadOrPullServiceImages(
         const images: string[] = [];
         const loadFailedList: string[] = [];
 
-        if (launchServices.includes(Service.Elasticsearch)) {
-            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH_VERSION}`;
-            images.push(image);
-        }
-
         if (launchServices.includes(Service.Opensearch)) {
             const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.OPENSEARCH_VERSION}`;
             images.push(image);
@@ -196,11 +154,6 @@ export async function loadOrPullServiceImages(
 
         if (launchServices.includes(Service.RestrainedOpensearch)) {
             const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.OPENSEARCH_VERSION}`;
-            images.push(image);
-        }
-
-        if (launchServices.includes(Service.RestrainedElasticsearch)) {
-            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH_VERSION}`;
             images.push(image);
         }
 
@@ -253,18 +206,6 @@ export async function loadOrPullServiceImages(
 export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
     const launchServices = getServicesForSuite(suite);
     const promises: Promise<(() => void)>[] = [];
-
-    if (launchServices.includes(Service.Elasticsearch)) {
-        promises.push(ensureElasticsearch(options));
-    }
-
-    if (launchServices.includes(Service.RestrainedElasticsearch)) {
-        // we create the elasticsearch.yml file for tests
-        if (!options.ignoreMount) {
-            await fs.outputFile(restrainedElasticsearchConfigPath, 'network.host: 0.0.0.0\nthread_pool.write.queue_size: 2');
-        }
-        promises.push(ensureRestrainedElasticsearch(options));
-    }
 
     if (launchServices.includes(Service.RestrainedOpensearch)) {
         // we create the opensearch.yml file for tests
@@ -319,22 +260,6 @@ export async function ensureMinio(options: TestOptions): Promise<() => void> {
     const startTime = Date.now();
     fn = await startService(options, Service.Minio);
     await checkMinio(options, startTime);
-    return fn;
-}
-
-export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
-    let fn = () => { };
-    const startTime = Date.now();
-    fn = await startService(options, Service.Elasticsearch);
-    await checkElasticsearch(options, startTime);
-    return fn;
-}
-
-export async function ensureRestrainedElasticsearch(options: TestOptions): Promise<() => void> {
-    let fn = () => { };
-    const startTime = Date.now();
-    fn = await startService(options, Service.RestrainedElasticsearch);
-    await checkRestrainedElasticsearch(options, startTime);
     return fn;
 }
 
@@ -521,136 +446,6 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
     );
 }
 
-async function checkRestrainedElasticsearch(
-    options: TestOptions, startTime: number
-): Promise<void> {
-    const host = config.RESTRAINED_ELASTICSEARCH_HOST;
-
-    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
-    if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
-
-    let error = '';
-    await pWhile(
-        async () => {
-            if (options.trace) {
-                signale.debug(`checking restrained elasticsearch at ${host}`);
-            } else {
-                logger.debug(`checking restrained elasticsearch at ${host}`);
-            }
-
-            let body: any;
-            try {
-                ({ body } = await got(host, {
-                    responseType: 'json',
-                    throwHttpErrors: true,
-                    retry: {
-                        limit: 0
-                    }
-                }));
-            } catch (err) {
-                error = err.message;
-                return false;
-            }
-
-            if (options.trace) {
-                signale.debug('got response from restrained elasticsearch service', body);
-            } else {
-                logger.debug('got response from restrained elasticsearch service', body);
-            }
-
-            if (!body?.version?.number) {
-                return false;
-            }
-
-            const actual: string = body.version.number;
-            const expected = config.ELASTICSEARCH_VERSION;
-
-            if (semver.satisfies(actual, `~${expected}`)) {
-                const took = toHumanTime(Date.now() - startTime);
-                signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
-                return true;
-            }
-
-            throw new TSError(
-                `Restrained Elasticsearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
-                {
-                    retryable: false,
-                }
-            );
-        },
-        {
-            name: `Restrained Elasticsearch service (${host})`,
-            timeoutMs: serviceUpTimeout,
-            enabledJitter: true,
-            error
-        }
-    );
-}
-
-async function checkElasticsearch(options: TestOptions, startTime: number): Promise<void> {
-    const host = config.ELASTICSEARCH_HOST;
-
-    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
-    if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
-
-    let error = '';
-    await pWhile(
-        async () => {
-            if (options.trace) {
-                signale.debug(`checking elasticsearch at ${host}`);
-            } else {
-                logger.debug(`checking elasticsearch at ${host}`);
-            }
-
-            let body: any;
-            try {
-                ({ body } = await got(host, {
-                    responseType: 'json',
-                    throwHttpErrors: true,
-                    retry: {
-                        limit: 0
-                    }
-                }));
-            } catch (err) {
-                error = err.message;
-                return false;
-            }
-
-            if (options.trace) {
-                signale.debug('got response from elasticsearch service', body);
-            } else {
-                logger.debug('got response from elasticsearch service', body);
-            }
-
-            if (!body?.version?.number) {
-                return false;
-            }
-
-            const actual: string = body.version.number;
-            const expected = config.ELASTICSEARCH_VERSION;
-
-            if (semver.satisfies(actual, `~${expected}`)) {
-                const took = toHumanTime(Date.now() - startTime);
-                signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
-                return true;
-            }
-
-            throw new TSError(
-                `Elasticsearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
-                {
-                    retryable: false,
-                }
-            );
-        },
-        {
-            name: `Elasticsearch service (${host})`,
-            timeoutMs: serviceUpTimeout,
-            enabledJitter: true,
-            error
-        }
-    );
-}
-
 async function checkMinio(options: TestOptions, startTime: number): Promise<void> {
     const host = config.MINIO_HOST;
 
@@ -818,14 +613,12 @@ async function checkUtility(options: TestOptions, startTime: number): Promise<vo
 async function startService(options: TestOptions, service: Service): Promise<() => void> {
     let serviceName = service;
 
-    if (serviceName === 'restrained_elasticsearch') {
-        serviceName = Service.Elasticsearch;
-    }
-
     if (serviceName === 'restrained_opensearch') {
         serviceName = Service.Opensearch;
     }
+
     let version: string;
+
     if (serviceName === 'kafka') {
         const key = 'KAFKA_VERSION';
         version = config[key];
@@ -870,19 +663,13 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 export async function loadImagesForHelm(kindClusterName: string, skipImageDeletion: boolean) {
     const kind = new Kind(config.K8S_VERSION, kindClusterName);
     const promiseArray: Promise<void>[] = [];
+
     config.ENV_SERVICES.forEach(async (service: Service) => {
         if (service === Service.Opensearch) {
             promiseArray.push(kind.loadServiceImage(
                 service,
                 config.OPENSEARCH_DOCKER_IMAGE,
                 config.OPENSEARCH_VERSION,
-                skipImageDeletion
-            ));
-        } else if (service === Service.Elasticsearch) {
-            promiseArray.push(kind.loadServiceImage(
-                service,
-                config.ELASTICSEARCH_DOCKER_IMAGE,
-                config.ELASTICSEARCH_VERSION,
                 skipImageDeletion
             ));
         } else if (service === Service.Minio) {
@@ -908,6 +695,7 @@ export async function loadImagesForHelm(kindClusterName: string, skipImageDeleti
             ));
         }
     });
+
     await Promise.all(promiseArray);
 }
 
@@ -927,14 +715,6 @@ export async function loadImagesForHelmFromConfigFile(
                 promiseArray.push(kind.loadServiceImage(
                     Service.Opensearch,
                     config.OPENSEARCH_DOCKER_IMAGE,
-                    customConfig[service].version,
-                    false
-                ));
-            // Handle all elasticsearch options
-            } else if (service.includes(Service.Elasticsearch)) {
-                promiseArray.push(kind.loadServiceImage(
-                    Service.Elasticsearch,
-                    config.ELASTICSEARCH_DOCKER_IMAGE,
                     customConfig[service].version,
                     false
                 ));

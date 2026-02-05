@@ -10,9 +10,8 @@ import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
 import { envConfig } from './config.js';
 
 const {
-    ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
-    OPENSEARCH_PASSWORD, OPENSEARCH_SSL_HOST, OPENSEARCH_USER,
-    OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST
+    OPENSEARCH_HOST, OPENSEARCH_PASSWORD, OPENSEARCH_SSL_HOST,
+    OPENSEARCH_USER, OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST
 } = envConfig;
 export async function makeClient(rootCaPath?: string): Promise<Client> {
     let host: string;
@@ -24,7 +23,7 @@ export async function makeClient(rootCaPath?: string): Promise<Client> {
     } else if (process.env.TEST_OPENSEARCH) {
         host = process.env.ENCRYPT_OPENSEARCH ? OPENSEARCH_SSL_HOST : OPENSEARCH_HOST;
     } else {
-        host = ELASTICSEARCH_HOST;
+        throw new Error('No TEST_OPENSEARCH or TEST_RESTRAINED_OPENSEARCH env var set');
     }
 
     // Add SSL settings if encryption is enabled
@@ -255,16 +254,7 @@ export function getTestENVClientInfo(): TestENVClientInfo {
         };
     }
 
-    const version = ELASTICSEARCH_VERSION;
-    const [majorVersion, minorVersion] = parseVersion(version);
-
-    return {
-        host: ELASTICSEARCH_HOST,
-        distribution: ElasticsearchDistribution.elasticsearch,
-        version,
-        majorVersion,
-        minorVersion
-    };
+    throw new Error('No TEST_OPENSEARCH or TEST_RESTRAINED_OPENSEARCH env var set');
 }
 
 export function getTotalFormat(distribution: string, majorVersion: number, n: number) {

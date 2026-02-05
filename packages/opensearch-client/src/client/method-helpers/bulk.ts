@@ -6,24 +6,6 @@ export function convertBulkParams(
 ) {
     const { majorVersion, distribution, version } = distributionMeta;
 
-    if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            const {
-                body,
-                ...parsedParams
-            } = params;
-
-            return {
-                operations: body,
-                ...parsedParams
-            };
-        }
-
-        if (majorVersion === 7) {
-            return params;
-        }
-    }
-
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
             return params;

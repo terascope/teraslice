@@ -10,27 +10,6 @@ export function convertIndicesCreateParams(
         version
     } = distributionMeta;
 
-    if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            const {
-                body,
-                ...parsedParams
-            } = params;
-
-            return {
-                aliases: body?.aliases,
-                // ensure no type in mapping
-                mappings: body?.mappings,
-                settings: body?.settings,
-                ...parsedParams
-            };
-        }
-
-        if (majorVersion === 7) {
-            return params;
-        }
-    }
-
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
             return params;

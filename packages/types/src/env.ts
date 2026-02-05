@@ -18,12 +18,6 @@ export interface TestEnv {
     DOCKER_IMAGE_LIST_PATH?: string;
     DOCKER_IMAGES_PATH?: string;
     DOCKER_NETWORK_NAME?: string;
-    ELASTICSEARCH_DOCKER_IMAGE?: string;
-    ELASTICSEARCH_HOST?: string;
-    ELASTICSEARCH_HOSTNAME?: string;
-    ELASTICSEARCH_NAME?: string;
-    ELASTICSEARCH_PORT?: number;
-    ELASTICSEARCH_VERSION?: string;
     ENCRYPT_KAFKA?: boolean;
     ENCRYPT_MINIO?: boolean;
     ENCRYPT_OPENSEARCH?: boolean;
@@ -125,7 +119,6 @@ export interface TestEnv {
     TEST_OPENSEARCH?: boolean;
     TEST_PLATFORM?: 'native' | 'kubernetesV2';
     TEST_RABBITMQ?: boolean;
-    TEST_RESTRAINED_ELASTICSEARCH?: boolean;
     TEST_RESTRAINED_OPENSEARCH?: boolean;
     TESTING_LOG_LEVEL?: Logger.LogLevelString;
     TZ?: string;
@@ -279,11 +272,9 @@ export interface TerafoundationEnv {
 
 export enum Service {
     Kafka = 'kafka',
-    Elasticsearch = 'elasticsearch',
     Minio = 'minio',
     RabbitMQ = 'rabbitmq',
     Opensearch = 'opensearch',
-    RestrainedElasticsearch = 'restrained_elasticsearch',
     RestrainedOpensearch = 'restrained_opensearch',
     Utility = 'utility'
 }

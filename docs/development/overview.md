@@ -72,6 +72,7 @@ docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml terasli
 
 If you want to get a simple cluster going, use the example docker-compose file. This will provide a teraslice cluster master, one teraslice worker and the following services:
 
+// TODO: review this
 - elasticsearch7
 - kafka
 - zookeeper
