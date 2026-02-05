@@ -6,7 +6,8 @@ ARG NODE_VERSION=24
 FROM node:${NODE_VERSION}-alpine AS builder
 
 ENV NODE_ENV=development \
-    NPM_CONFIG_LOGLEVEL=error
+    NPM_CONFIG_LOGLEVEL=error \
+    CI=true
 
 RUN apk --no-cache add \
       ca-certificates \
@@ -30,19 +31,19 @@ WORKDIR /app/source
 RUN corepack enable
 
 # Copy the minimum required to resolve deps (better cache)
-COPY package.json yarn.lock tsconfig.json .yarnrc.yml ./
-COPY .yarn ./.yarn
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
 
 COPY packages ./packages
 COPY scripts ./scripts
 COPY types ./types
 
 # Install, build, then prune to production deps
-RUN yarn --version && node --version && npm --version && \
-    yarn workspaces focus --all && \
-    yarn build && \
-    yarn workspaces focus --production --all && \
-    yarn cache clean
+RUN pnpm --version && node --version && npm --version && \
+    pnpm install --frozen-lockfile && \
+    pnpm run build
+    # pnpm run build && \
+    # pnpm prune --prod && \
+    # pnpm store prune
 
 # verify teraslice is installed right
 RUN node -e "import('teraslice')"
@@ -76,17 +77,22 @@ COPY service.js /app/source/
 RUN node -e "import('teraslice')"
 
 # verify what version of librdkafka is installed
-RUN node -e "console.log('librdkafka:', require('@confluentinc/kafka-javascript').librdkafkaVersion)"
+# pnpm stores packages in node_modules/.pnpm, so we find the actual path
+RUN KAFKA_PATH=$(find node_modules/.pnpm -path '*/@confluentinc/kafka-javascript/package.json' | head -1 | xargs dirname) && \
+    node -e "console.log('librdkafka:', require('./$KAFKA_PATH').librdkafkaVersion)"
 
 # Verify what binary confluent client downloaded
 # confluent kafka uses 'node-pre-gyp' which has a binary feature in the package.json
 # https://nodejs.github.io/node-addon-examples/build-tools/node-pre-gyp/#the-code-classlanguage-textbinarycode-property
 # I pull values similar to how node-pre-gyp does:
 # https://github.com/mapbox/node-pre-gyp/blob/aa397bd49702c24bfa2110d23307ec1c9a158d59/lib/util/versioning.js#L283-L311
-RUN node - <<'EOF'
-const pkg = require('@confluentinc/kafka-javascript/package.json');
-const os = require('os');
-const detect_libc = require('detect-libc');
+RUN KAFKA_PATH=$(find node_modules/.pnpm -path '*/@confluentinc/kafka-javascript/package.json' | head -1 | xargs dirname) && \
+    LIBC_PATH=$(find node_modules/.pnpm -path '*/detect-libc/lib/detect-libc.js' | head -1) && \
+    node - "$KAFKA_PATH" "$LIBC_PATH" <<'EOF'
+const kafkaPath = process.argv[2];
+const libcPath = process.argv[3];
+const pkg = require(`./${kafkaPath}/package.json`);
+const detect_libc = require(`./${libcPath}`);
 
 const version = pkg.version;
 const node_abi = process.versions.modules;

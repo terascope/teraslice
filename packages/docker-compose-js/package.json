@@ -32,13 +32,11 @@
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../docker-compose-js --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../docker-compose-js --"
     },
-    "resolutions": {
-        "debug": "~4.4.3"
-    },
     "dependencies": {
         "debug": "~4.4.3"
     },
     "devDependencies": {
+        "@jest/globals": "^30.2.0",
         "@types/debug": "~4.1.12"
     },
     "engines": {

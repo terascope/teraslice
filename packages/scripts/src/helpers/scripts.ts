@@ -18,7 +18,7 @@ import {
     ServiceObj
 } from './interfaces.js';
 import type { TestEnv } from '@terascope/types';
-import { getRootDir, getRootInfo } from './misc.js';
+import { getRootDir, getRootInfo, getPackageManager } from './misc.js';
 import signale from './signale.js';
 import config from './config.js';
 import { getE2EDir } from '../helpers/packages.js';
@@ -152,12 +152,13 @@ export async function yarnRun(
     const hasScript = Boolean(get(pkgJSON, ['scripts', script]));
     if (!hasScript) return;
 
+    const pm = getPackageManager();
     const _args = ['run', script, ...(args ?? [])];
     if (log) {
-        signale.info(`running yarn ${_args.join(' ')}...`);
+        signale.info(`running ${pm} ${_args.join(' ')}...`);
     }
     await fork({
-        cmd: 'yarn', args: _args, cwd: dir, env
+        cmd: pm, args: _args, cwd: dir, env
     });
 }
 
@@ -169,8 +170,9 @@ export async function runJest(
     debug?: boolean,
     attachJestDebugger?: boolean
 ): Promise<void> {
+    const pm = getPackageManager();
     // When running jest in yarn3 PnP with ESM we must call 'yarn jest <...args>'
-    // to prevent module not found errors. Therefore we will call fork with the yarn
+    // to prevent module not found errors. Therefore we will call fork with the yarn/pnpm
     // command and set jest to the first argument.
     let args = ['jest'];
 
@@ -181,13 +183,13 @@ export async function runJest(
 
         if (nodeLinkerConfig === 'node-modules') {
             // Grab jest bin file
-            const jestBinCall = await execa('yarn', ['bin', 'jest'], {
+            const jestBinCall = await execa(pm, ['bin', 'jest'], {
                 cwd: getRootDir()
             });
 
             if (jestBinCall.stderr.length) {
                 throw new Error(
-                    `Unable to find jest bin directory when calling "yarn bin jest": ${jestBinCall.stderr}`
+                    `Unable to find jest bin directory when calling "${pm} bin jest": ${jestBinCall.stderr}`
                 );
             }
 
@@ -225,7 +227,7 @@ export async function runJest(
     }
 
     await fork({
-        cmd: 'yarn',
+        cmd: pm,
         cwd,
         args,
         env,
@@ -233,6 +235,12 @@ export async function runJest(
 }
 
 async function getNodeLinkerConfig(): Promise<string> {
+    const pm = getPackageManager();
+    // pnpm always uses node-modules (with symlinks)
+    if (pm === 'pnpm') {
+        return 'node-modules';
+    }
+
     try {
         const { stdout: nodeLinkerconfig, stderr } = await execa('yarn', ['config', 'get', 'nodeLinker'], {
             cwd: getRootDir()
@@ -654,20 +662,20 @@ export function mapToArgs(input: ArgsMap): string[] {
 }
 
 /**
- * Yarn publish for yarn versions 2, 3, and 4
+ * Publish package using yarn (versions 2, 3, 4) or pnpm
 */
 export async function yarnPublish(
     pkgInfo: PackageInfo,
     tag = 'latest',
 ): Promise<void> {
+    const pm = getPackageManager();
+    const args = pm === 'pnpm'
+        ? ['publish', '--tag', tag, '--no-git-checks']
+        : ['npm', 'publish', '--tag', tag];
+
     await fork({
-        cmd: 'yarn',
-        args: [
-            'npm',
-            'publish',
-            '--tag',
-            tag
-        ],
+        cmd: pm,
+        args,
         cwd: pkgInfo.dir,
         env: {
             NODE_ENV: 'production'
