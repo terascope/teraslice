@@ -106,7 +106,7 @@ describe('ts-transforms cli', () => {
         expect(output).toEqual(teraserverResults);
     });
 
-    it('can read elasticsearch input from file', async () => {
+    it('can read opensearch input from file', async () => {
         const rulesPath = path.join(cwd, './test/fixtures/transformRules35.txt');
         const dataPath = path.join(cwd, './test/fixtures/data/elasticsearch.txt');
 
@@ -116,7 +116,7 @@ describe('ts-transforms cli', () => {
         expect(output).toEqual(elasticsearchResults);
     });
 
-    it('can pipe elasticsearch input into cli', async () => {
+    it('can pipe opensearch input into cli', async () => {
         const rulesPath = path.join(cwd, './test/fixtures/transformRules35.txt');
         const dataPath = path.join(cwd, './test/fixtures/data/elasticsearch.txt');
 

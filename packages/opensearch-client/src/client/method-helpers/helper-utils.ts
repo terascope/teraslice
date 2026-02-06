@@ -18,11 +18,8 @@ function validDistributionAndVersion(
     distribution: ElasticsearchDistribution,
     majorVersion: number
 ): boolean {
-    const supportedEsVersions = [7, 8];
     const supportedOpenVersions = [1, 2, 3];
 
-    return (distribution === ElasticsearchDistribution.elasticsearch
-        && supportedEsVersions.includes(majorVersion))
-    || (distribution === ElasticsearchDistribution.opensearch
-        && supportedOpenVersions.includes(majorVersion));
+    return distribution === ElasticsearchDistribution.opensearch
+        && supportedOpenVersions.includes(majorVersion);
 }

@@ -10,23 +10,21 @@ import {
 import type { Client } from '../client/index.js';
 
 export function getClientVersion(client: Client): number {
-    const newClientVersion = get(client, '__meta.version');
-    const version = newClientVersion || get(client, 'transport._config.apiVersion', '6.5');
+    const version = get(client, '__meta.version');
 
     if (version && isString(version)) {
         const [majorVersion] = version.split('.', 1);
         return toNumber(majorVersion);
     }
 
-    return 6;
+    return 2;
 }
 
 export function getClientMetadata(client: Client): ClientMetadata {
-    const newClientVersion = get(client, '__meta.version');
-    const version = newClientVersion || get(client, 'transport._config.apiVersion', '6.5');
-    const distribution = get(client, '__meta.distribution', ElasticsearchDistribution.elasticsearch);
+    const version = get(client, '__meta.version');
+    const distribution = get(client, '__meta.distribution', ElasticsearchDistribution.opensearch);
     // lowest Elasticsearch we run is 6.8.6
-    const [majorVersion = 6, minorVersion = 8] = version.split('.').map(toNumber);
+    const [majorVersion = 2, minorVersion = 15] = version.split('.').map(toNumber);
 
     return {
         distribution,
@@ -34,13 +32,6 @@ export function getClientMetadata(client: Client): ClientMetadata {
         majorVersion,
         minorVersion
     };
-}
-
-export function isElasticsearch8(client: Client): boolean {
-    const { distribution, version: esVersion } = getClientMetadata(client);
-    const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
-
-    return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 8;
 }
 
 export function isOpensearch(client: Client): boolean {
@@ -109,7 +100,7 @@ export function fixMappingRequest(
         }
 
         // _all deprecated in esV6, esV8 & osV2 seems to strip automatically but esV7/osV1 don't
-        if (version === 7 || version === 1) {
+        if (version === 1) {
             if (mappings.include_type_name) {
                 Object.values(mappings).forEach((typeMapping) => {
                     if (typeMapping && typeMapping._all) {

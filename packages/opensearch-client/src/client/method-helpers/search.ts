@@ -24,15 +24,6 @@ export function convertSearchParams(
         trackTotal = true;
     }
 
-    if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8 || majorVersion === 7) {
-            return {
-                ...parsedParams,
-                track_total_hits: trackTotal,
-            };
-        }
-    }
-
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
             return {

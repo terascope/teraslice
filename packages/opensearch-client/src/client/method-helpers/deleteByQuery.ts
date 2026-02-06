@@ -17,15 +17,6 @@ export function convertDeleteByQueryParams(
         ...parsedParams
     } = params;
 
-    if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8 || majorVersion === 7) {
-            return {
-                body,
-                ...parsedParams
-            };
-        }
-    }
-
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
             return {

@@ -62,8 +62,8 @@ describe('geoBox', () => {
         expect(instance.toElasticsearchQuery).toBeFunction();
     });
 
-    describe('elasticsearch dsl', () => {
-        it('can produce proper elasticsearch DSL (variable queries included)', () => {
+    describe('opensearch dsl', () => {
+        it('can produce proper opensearch DSL (variable queries included)', () => {
             expect.hasAssertions();
             const variables = {
                 point1: { lat: 32.813646, lon: -111.058902 },

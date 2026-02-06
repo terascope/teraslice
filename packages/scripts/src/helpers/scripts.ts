@@ -894,7 +894,7 @@ export async function launchTerasliceWithCustomHelmfile(
 }
 
 export async function determineSearchHost() {
-    const possible = ['elasticsearch7', 'opensearch1', 'opensearch2', 'opensearch3'];
+    const possible = ['opensearch1', 'opensearch2', 'opensearch3'];
     const subprocess = await execaCommand('helm list -n services-dev1 -o json');
 
     logger.debug(`helmfile list:\n${subprocess.stdout}`);
@@ -982,7 +982,7 @@ function getAdminDnFromCert(): string {
  * The function:
  * - Loads a base `values.yaml` template from `e2e/helm/values.yaml`.
  * - Enables services specified in `ENV_SERVICES`, setting their versions when needed
- * - Configures OpenSearch and Elasticsearch to align with versioning conventions.
+ * - Configures OpenSearch to align with versioning conventions.
  * - Handles OpenSearch, Minio and Kafka SSL settings if encryption is enabled.
  * - Adds extraVolumes, extraVolumeMounts and env values if running in dev mode.
  * - Generates a temporary directory to store the modified `values.yaml`.
@@ -1006,11 +1006,9 @@ function generateHelmValuesFromServices(
     // Map services to versions used for the image tag
     const versionMap: Record<Service, string> = {
         [Service.Opensearch]: config.OPENSEARCH_VERSION,
-        [Service.Elasticsearch]: config.ELASTICSEARCH_VERSION,
         [Service.Kafka]: config.KAFKA_VERSION,
         [Service.Minio]: config.MINIO_VERSION,
         [Service.RabbitMQ]: config.RABBITMQ_VERSION,
-        [Service.RestrainedElasticsearch]: config.ELASTICSEARCH_VERSION,
         [Service.RestrainedOpensearch]: config.OPENSEARCH_VERSION,
         [Service.Utility]: config.UTILITY_SVC_VERSION,
     };
@@ -1048,11 +1046,6 @@ function generateHelmValuesFromServices(
                 values.setIn([serviceString, 'ssl', 'caCert'], caCert);
                 values.setIn([serviceString, 'ssl', 'admin_dn'], admin_dn);
             }
-        } else if (service === Service.Elasticsearch) {
-            serviceString += config.ELASTICSEARCH_VERSION.charAt(0);
-            // This assumes there is only one search service enabled. If both ES and OS services
-            // are present the state cluster will be set to elasticsearch here.
-            stateCluster = serviceString;
         }
 
         if (service === Service.Kafka) {

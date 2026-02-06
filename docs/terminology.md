@@ -39,7 +39,7 @@ The Cluster Master provides APIs to retrieve information about all running Execu
 
 ## Execution State
 
-As a Job executes each Slice has a state record created and stored in Elasticsearch. This state record provides information for the worker to retrieve the data, serves as a record of whether or not the slice was successfully processed and will contain any errors related to Slice failures. This information is stored even after an Execution has ended so you can look at a historical record of Slice states.
+As a Job executes each Slice has a state record created and stored in Opensearch. This state record provides information for the worker to retrieve the data, serves as a record of whether or not the slice was successfully processed and will contain any errors related to Slice failures. This information is stored even after an Execution has ended so you can look at a historical record of Slice states.
 
 ## Fetcher
 
@@ -53,7 +53,7 @@ The Job itself is not the unit of execution but serves as a template for the cre
 
 ## Job - Once - Batch Processing
 
-A Once Job is a job that runs through to completion and then stops. This would be used for something like copying an Elasticsearch index from one cluster to another. 
+A Once Job is a job that runs through to completion and then stops. This would be used for something like copying an Opensearch index from one cluster to another. 
 
 Not every Reader will support Once Jobs.
 
@@ -67,7 +67,7 @@ A Job Component is a JavaScript object that is used by a job to perform some ope
 
 ## Job Execution Analytics
 
-As a Job runs the system tracks analytics about the Processors that the jobs uses. This includes the number of records processed, the time consumed and memory usage. These analytics records are stored in Elasticsearch and can be monitored in real time. They will also exist after a Job has been stopped so that it's performance can be evaluated at any time.
+As a Job runs the system tracks analytics about the Processors that the jobs uses. This includes the number of records processed, the time consumed and memory usage. These analytics records are stored in Opensearch and can be monitored in real time. They will also exist after a Job has been stopped so that it's performance can be evaluated at any time.
 
 ## Kubernetes Clustering
 
@@ -105,7 +105,7 @@ There are several variations on Per Record Processors: Each, Map, Filter with th
 
 A Reader bundles together a Slicer with a Fetcher to provide a Job Component that can be used to process data from a data source. It's configured as a single component on the Job.
 
-The details of how a Reader works will vary widely depending on the data source and the data processing approach the reader wants to provide. This means it's possible to have multiple readers for the same data source using different algorithms. For example there is an Elasticsearch reader that uses a date slicing algorithm as well as one that uses a string key slicing algorithm.
+The details of how a Reader works will vary widely depending on the data source and the data processing approach the reader wants to provide. This means it's possible to have multiple readers for the same data source using different algorithms. For example there is an Opensearch reader that uses a date slicing algorithm as well as one that uses a string key slicing algorithm.
 
 Custom Reader's can implement whatever approach makes sense for a particular need.
 
@@ -121,7 +121,7 @@ A Slice is the unit of work in Teraslice. The Slicer determines the slices that 
 
 ## State Cluster
 
-The Teraslice State Cluster is the underlying Elasticsearch cluster that is used by the system to store all metadata for Jobs, Executions, Assets and Analytics used by the cluster. 
+The Teraslice State Cluster is the underlying Opensearch cluster that is used by the system to store all metadata for Jobs, Executions, Assets and Analytics used by the cluster. 
 
 ## Test Harness
 

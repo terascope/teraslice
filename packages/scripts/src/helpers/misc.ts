@@ -123,11 +123,13 @@ export function getServicesForSuite(suite: string): Service[] {
     }
 
     const invalidServices = services.filter((name) => !Object.values(Service).includes(name));
+
     if (invalidServices.length) {
         const actual = invalidServices.join(', ');
         const expected = Object.values(Service).join(', ');
         throw new Error(`Unsupported service(s) ${actual}, expected ${expected}`);
     }
+
     return services;
 }
 

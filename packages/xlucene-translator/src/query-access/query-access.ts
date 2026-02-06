@@ -209,9 +209,9 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
     }
 
     /**
-     * Converts a restricted xlucene query to an elasticsearch search query
+     * Converts a restricted xlucene query to an opensearch search query
      *
-     * @returns a restricted elasticsearch search query
+     * @returns a restricted opensearch search query
      */
     async restrictSearchQuery(
         query: string,

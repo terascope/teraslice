@@ -94,7 +94,7 @@ See
 |         **slicer_allocation_attempts**          |              `Number`              |            `3`             |                                    The number of times a slicer will try to be allocated before failing                                     |
 |              **slicer_port_range**              |              `String`              |      `"45679:46678"`       |                                                range of ports that slicers will use per node                                                |
 |               **slicer_timeout**                |             `duration`             |          `180000`          |                       time in milliseconds that the slicer will wait for worker connection before terminating the job                       |
-|                    **state**                    |              `Object`              | `{"connection":"default"}` |                                    Elasticsearch cluster where job state, analytics and logs are stored                                     |
+|                    **state**                    |              `Object`              | `{"connection":"default"}` |                                    Opensearch cluster where job state, analytics and logs are stored                                     |
 |                  **env_vars**                   |              `Object`              |    `{"EXAMPLE":"test"}`    |                                      default environment variables to set on each the teraslice worker                                      |
 |          **worker_disconnect_timeout**          |             `duration`             |          `300000`          |                time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job                |
 |                   **workers**                   |              `Number`              |            `4`             |                                                        Number of workers per server                                                         |
@@ -153,7 +153,7 @@ terafoundation:
         elasticsearch-next:
             default:
                 node:
-                    - YOUR_ELASTICSEARCH_IP:9200"
+                    - YOUR_OPENSEARCH_IP:9200"
 ```
 
 ## Configuration Native Clustering - Worker Node
@@ -174,12 +174,12 @@ terafoundation:
         elasticsearch-next:
             default:
                 node:
-                    - YOUR_ELASTICSEARCH_IP:9200"
+                    - YOUR_OPENSEARCH_IP:9200"
 ```
 
 ## Configuration Asset Storage
 
-By default asset bundles are stored in Elasticsearch when uploaded. Defining the `asset_storage_connection_type` will allow Teraslice to store assets in an external storage medium. If using a connection besides `default`, specify it with the `asset_storage_connection` field.
+By default asset bundles are stored in opensearch when uploaded. Defining the `asset_storage_connection_type` will allow Teraslice to store assets in an external storage medium. If using a connection besides `default`, specify it with the `asset_storage_connection` field.
 
 Currently S3 is the only external asset storage type enabled. Use the `asset_storage_bucket` field to specify the S3 bucket where assets will be stored. Assets will be stored in S3 as `<AssetID>.zip` where AssetID is a hash of the zipped asset.
 

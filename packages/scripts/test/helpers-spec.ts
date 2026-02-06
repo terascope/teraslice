@@ -11,7 +11,7 @@ describe('Helpers', () => {
 
     it('should be able to have a config', () => {
         expect(config).toHaveProperty('HOST_IP');
-        expect(config).toHaveProperty('ELASTICSEARCH_HOST');
+        expect(config).toHaveProperty('OPENSEARCH_HOST');
         expect(config).toHaveProperty('KAFKA_BROKER');
     });
 

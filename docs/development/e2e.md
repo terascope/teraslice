@@ -54,4 +54,4 @@ yarn logs-follow
 
 - Teraslice will attempt to listen on port `45678`, make sure to stop an local instance to prevent port collisions
 
-- The port for docker's elasticsearch instance listens on `49200`, so you can check it at `localhost:49200`
+- The port for docker's opensearch instance listens on `49200`, so you can check it at `localhost:49200`

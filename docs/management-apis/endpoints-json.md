@@ -164,7 +164,7 @@ $ curl -XPOST -H 'Content-Type: application/octet-stream' 'localhost:5678/v1/ass
 }
 ```
 
-The `_id` returned is the id of elasticsearch document where the zip file has been saved
+The `_id` returned is the id of opensearch document where the zip file has been saved
 
 The zip file must contain an asset.json containing a name for the asset bundle and a version number which can be used to query the asset besides using the `_id`.
 
@@ -200,7 +200,7 @@ $ curl -XDELETE 'localhost:5678/assets/ec2d5465609571590fdfe5b371ed7f98a04db5cb'
 }
 ```
 
-The `_id` returned is the id of elasticsearch document that was deleted.
+The `_id` returned is the id of opensearch document that was deleted.
 
 ## POST /v1/jobs
 
@@ -649,7 +649,7 @@ $ curl 'localhost:5678/v1/jobs/a8e2be53-fe17-4727-9336-c9f09db9485f/controller'
 
 This endpoint will return an array of all errors from all executions from oldest to newest.
 
-**Note:** Elasticsearch has a window size limit of 10000, please use from to get more if needed
+**Note:** opensearch has a window size limit of 10000, please use from to get more if needed
 
 **Query Options:**
 
@@ -1098,4 +1098,3 @@ $ curl 'localhost:5678/v1/ex/1cb20d4c-520a-44fe-a802-313f41dd5b05/controller'
     }
 ]
 ```
-

@@ -1,5 +1,4 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
-import { get, isNumber } from '@terascope/core-utils';
 
 export function convertIndicesPutTemplateParams(
     params: ClientParams.IndicesPutTemplateParams,
@@ -10,30 +9,6 @@ export function convertIndicesPutTemplateParams(
         distribution,
         version,
     } = distributionMeta;
-
-    if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            const {
-                body,
-                ...parsedParams
-            } = params;
-
-            const indexSchemaVersion = get(body, 'version');
-
-            return {
-                index_patterns: body?.index_patterns,
-                aliases: body?.aliases,
-                mappings: body?.mappings,
-                settings: body?.settings,
-                ...isNumber(indexSchemaVersion) && { version: indexSchemaVersion },
-                ...parsedParams
-            };
-        }
-
-        if (majorVersion === 7) {
-            return params;
-        }
-    }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {

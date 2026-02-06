@@ -646,7 +646,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
+        search-version: [opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -686,7 +686,6 @@ jobs:
         env:
           REPORT_COVERAGE: true
         run: |
-          export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
           export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
           export MINIO_PORT=$(../../scripts/get-random-port.sh)
           yarn test:${{ matrix.search-version }}
@@ -711,7 +710,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
+        search-version: [opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -751,7 +750,6 @@ jobs:
         env:
           REPORT_COVERAGE: true
         run: |
-          export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
           export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
           yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
@@ -838,7 +836,7 @@ jobs:
         fail-fast: false
         matrix:
           node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-          search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
+          search-version: [opensearch1, opensearch2, opensearch3]
       steps:
         - name: Check out code
           uses: actions/checkout@v4
@@ -878,7 +876,6 @@ jobs:
           env:
             REPORT_COVERAGE: true
           run: |
-            export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
             export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
             yarn test:${{ matrix.search-version }}
           working-directory: ./packages/opensearch-client
@@ -926,7 +923,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
+        search-version: [opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -966,7 +963,6 @@ jobs:
         env:
           REPORT_COVERAGE: true
         run: |
-          export ELASTICSEARCH_PORT=$(../../scripts/get-random-port.sh)
           export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
           yarn test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-api
@@ -992,7 +988,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-        search-version: [elasticsearch7, opensearch1, opensearch2, opensearch3]
+        search-version: [opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -1059,7 +1055,6 @@ jobs:
 
       - name: Test ${{ matrix.search-version }}
         run: |
-          export ELASTICSEARCH_PORT=$(../scripts/get-random-port.sh)
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)

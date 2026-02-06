@@ -6,7 +6,7 @@ Teraslice is a distributed data processing platform designed to run in kubernete
 
 ## Setup Teraslice
 
-Teraslice requires a connection to an elasticsearch or opensearch cluster in order to run correctly. Below is a quick guide to launch a functional local teraslice instance with opensearch1 using helmfile. See the [helm examples directory](https://github.com/terascope/teraslice/tree/master/examples/helm) or the [e2e helm directory](https://github.com/terascope/teraslice/tree/master/e2e/helm) for more comprehensive helmfile examples.
+Teraslice requires a connection to an opensearch cluster in order to run correctly. Below is a quick guide to launch a functional local teraslice instance with opensearch1 using helmfile. See the [helm examples directory](https://github.com/terascope/teraslice/tree/master/examples/helm) or the [e2e helm directory](https://github.com/terascope/teraslice/tree/master/e2e/helm) for more comprehensive helmfile examples.
 
 ### Required dependencies
 

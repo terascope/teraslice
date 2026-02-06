@@ -2,9 +2,9 @@ import 'jest-extended';
 import { DataTypeConfig, ElasticsearchDistribution, FieldType } from '@terascope/types';
 import { DataType, LATEST_VERSION, ESMappingOptions } from '../src/index.js';
 
-describe('DataType (elasticsearch)', () => {
+describe('DataType (opensearch)', () => {
     describe('->toESMapping', () => {
-        it('elasticsearch mapping requires providing a type name', () => {
+        it('opensearch mapping requires providing a type name', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
@@ -21,39 +21,6 @@ describe('DataType (elasticsearch)', () => {
             } catch (err) {
                 expect(err.message).toInclude('Cannot destructure property `typeName` of \'undefined\' or \'null\'.');
             }
-        });
-
-        it('can create a elasticsearch 7 mapping', () => {
-            const typeConfig: DataTypeConfig = {
-                version: LATEST_VERSION,
-                fields: {
-                    foo: { type: FieldType.String },
-                    bar: { type: FieldType.String },
-                },
-            };
-
-            const results = {
-                mappings: {
-                    dynamic: false,
-                    properties: {
-                        foo: { type: 'keyword' },
-                        bar: { type: 'keyword' },
-                    },
-                    _meta: { foo: 'foo' },
-                },
-                settings: {},
-            };
-
-            const dataType = new DataType(typeConfig);
-            const mappingConfig: ESMappingOptions = {
-                distribution: ElasticsearchDistribution.elasticsearch,
-                minorVersion: 3,
-                majorVersion: 7,
-                version: '7.3.1',
-                _meta: { foo: 'foo' },
-            };
-
-            expect(dataType.toESMapping(mappingConfig)).toEqual(results);
         });
 
         it('can create a opensearch v3 vector mapping', () => {
@@ -106,7 +73,7 @@ describe('DataType (elasticsearch)', () => {
             expect(dataType.toESMapping(mappingConfig)).toEqual(results);
         });
 
-        it('can create an elasticsearch mapping with nested objects', () => {
+        it('can create an opensearch mapping with nested objects', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
@@ -159,7 +126,7 @@ describe('DataType (elasticsearch)', () => {
             });
         });
 
-        it('can add additional settings to a elasticsearch mapping', () => {
+        it('can add additional settings to a opensearch mapping', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {

@@ -1,15 +1,7 @@
 import { SchemaValidator } from '@terascope/core-utils';
-import { ElasticsearchTestEnv, OpenSearchTestEnv, Terafoundation } from '@terascope/types';
+import { OpenSearchTestEnv, Terafoundation } from '@terascope/types';
 
 const opensearchEnvSchema: Terafoundation.Schema<any> = {
-    ELASTICSEARCH_HOST: {
-        default: null,
-        format: 'optional_string',
-    },
-    ELASTICSEARCH_VERSION: {
-        default: null,
-        format: 'optional_string',
-    },
     OPENSEARCH_HOST: {
         default: null,
         format: 'optional_string',
@@ -44,7 +36,7 @@ const opensearchEnvSchema: Terafoundation.Schema<any> = {
     },
 };
 
-const validator = new SchemaValidator<OpenSearchTestEnv | ElasticsearchTestEnv>(
+const validator = new SchemaValidator<OpenSearchTestEnv>(
     opensearchEnvSchema,
     'opensearchEnvSchema',
     undefined,

@@ -48,7 +48,7 @@ describe('geoPolygon', () => {
             expect(instance.toElasticsearchQuery).toBeFunction();
         });
 
-        describe('elasticsearch dsl', () => {
+        describe('opensearch dsl', () => {
             it('can be produced with array of points', () => {
                 expect.hasAssertions();
                 // validation of points makes sure that it is enclosed
@@ -649,8 +649,8 @@ describe('geoPolygon', () => {
             expect(instance.toElasticsearchQuery).toBeFunction();
         });
 
-        describe('elasticsearch dsl', () => {
-            it('can produce default elasticsearch DSL', () => {
+        describe('opensearch dsl', () => {
+            it('can produce default opensearch DSL', () => {
                 expect.hasAssertions();
 
                 const results = {

@@ -4,7 +4,6 @@ import { TSError } from '@terascope/core-utils';
 import { TestOptions } from '../src/helpers/test-runner/interfaces.js';
 
 const mockConfig = {
-    ELASTICSEARCH_VERSION: 'bad-version',
     KAFKA_VERSION: 'very-bad-version',
     MINIO_VERSION: 'very-bad-version',
     RABBITMQ_VERSION: 'very-bad-version',
@@ -16,7 +15,6 @@ const mockConfig = {
     DOCKER_CACHE_PATH: '',
     FORCE_COLOR: '',
     SERVICE_UP_TIMEOUT: '1000',
-    DEFAULT_ELASTICSEARCH7_VERSION: '',
     DEFAULT_OPENSEARCH1_VERSION: '',
     DEFAULT_OPENSEARCH2_VERSION: '',
     DEFAULT_OPENSEARCH3_VERSION: '',
@@ -27,13 +25,6 @@ const mockConfig = {
     SERVICE_HEAP_OPTS: '',
     DOCKER_NETWORK_NAME: '',
     TEST_NAMESPACE: '',
-    ELASTICSEARCH_NAME: '',
-    ELASTICSEARCH_HOSTNAME: '',
-    ELASTICSEARCH_PORT: '',
-    ELASTICSEARCH_HOST: '',
-    ELASTICSEARCH_DOCKER_IMAGE: '',
-    RESTRAINED_ELASTICSEARCH_PORT: '',
-    RESTRAINED_ELASTICSEARCH_HOST: '',
     KAFKA_NAME: '',
     KAFKA_HOSTNAME: '',
     KAFKA_PORT: '',
@@ -135,11 +126,6 @@ describe('services', () => {
 
         it('should log error from ensureKafka if bad options', async () => {
             await expect(services.ensureKafka(options))
-                .rejects.toThrow();
-        });
-
-        it('should log error from ensureElasticsearch if bad options', async () => {
-            await expect(services.ensureElasticsearch(options))
                 .rejects.toThrow();
         });
 

@@ -6,22 +6,16 @@ import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
 export default class GeoJSON extends BaseType {
-    toESMapping(clientMetaData: ClientMetadata): TypeESMapping {
+    toESMapping(_clientMetaData: ClientMetadata): TypeESMapping {
         this._validateESMapping();
-        // we need to used deprecated quadtree and strategy because CONTAINS is
-        // not yet supported in 6.X or 7.X as of now
+
         return {
             mapping: {
                 [this.field]: {
                     type: 'geo_shape' as ESFieldType,
-                    ...((clientMetaData.distribution === 'opensearch')
-                        || (clientMetaData.distribution === 'elasticsearch'
-                            && clientMetaData.majorVersion < 8)) && {
-                        tree: 'quadtree',
-                        strategy: 'recursive'
-                    }
                 }
             }
+
         };
     }
 

@@ -1046,7 +1046,7 @@ export class ExecutionController {
 
             if (paused) {
                 this.logger.info(
-                    'elasticsearch stores are now in a valid state, resumming scheduler...'
+                    'opensearch stores are now in a valid state, resumming scheduler...'
                 );
                 paused = false;
                 this.scheduler.start();

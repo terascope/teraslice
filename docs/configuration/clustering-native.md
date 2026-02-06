@@ -27,7 +27,7 @@ terafoundation:
         elasticsearch-next:
             default:
                 node:
-                    - YOUR_ELASTICSEARCH_IP:9200"
+                    - YOUR_OPENSEARCH_IP:9200"
 ```
 
 ## Configuration Native Clustering - Worker Node
@@ -48,5 +48,5 @@ terafoundation:
         elasticsearch-next:
             default:
                 node:
-                    - YOUR_ELASTICSEARCH_IP:9200
+                    - YOUR_OPENSEARCH_IP:9200
 ```

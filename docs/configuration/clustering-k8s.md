@@ -22,7 +22,7 @@ versions, so the newest version listed above is likely to be the best choice.
 
 ## Setup
 
-You need Elasticsearch running and listening on a port accessible by the
+You need Opensearch running and listening on a port accessible by the
 Teraslice master and worker nodes.  In the case of minikube based deployments
 (dev/test only) you'll need to make ES listen on your VirtualBox interface.  The
 IP address of that interface is what you need to set as:
@@ -542,14 +542,14 @@ make setup-all
 make show
 ```
 
-Confirm that both teraslice-master and elasticsearch are ready and available.  You may have to repeat the `make show` command periodically until you see that everything is up and running.
-At this point the curl commands to elasticsearch and teraslice-master should have failed. We need to open tunnels from our local machine to these ports within minikube.
+Confirm that both teraslice-master and opensearch are ready and available.  You may have to repeat the `make show` command periodically until you see that everything is up and running.
+At this point the curl commands to opensearch and teraslice-master should have failed. We need to open tunnels from our local machine to these ports within minikube.
 
 In two new terminal windows run the following commands. These must be left open to communicate with either service within minikube.
 
-Terminal 2 - Open tunnel to elasticsearch:
+Terminal 2 - Open tunnel to opensearch:
 ```bash
-minikube -n ts-dev1 service elasticsearch --url
+minikube -n ts-dev1 service opensearch --url
 ```
 Terminal 3 - Open tunnel to teraslice-master:
 ```bash
@@ -558,7 +558,7 @@ minikube -n ts-dev1 service teraslice-master --url
 Return to the original terminal.
 
 ```bash
-export ES_URL=http://path/to/elasticsearch/tunnel # copy the URL returned in terminal 2
+export ES_URL=http://path/to/opensearch/tunnel # copy the URL returned in terminal 2
 export TERASLICE_MASTER_URL=http://path/to/teraslice-master/tunnel # copy the URL returned in terminal 3
 
 earl aliases remove ts-minikube-dev1
@@ -589,13 +589,13 @@ Or using `ts-top`:
 ts-top -p <port listed in terminal 3> localhost
 ```
 
-And Elasticsearch should be accessible using the tunnel in terminal 2:
+And opensearch should be accessible using the tunnel in terminal 2:
 
 ```bash
 curl -Ss $ES_URL
 {
   "name" : "0iE0zM1",
-  "cluster_name" : "elasticsearch",
+  "cluster_name" : "opensearch",
   "cluster_uuid" : "_Ba0EHSLSCmN_ebEfc4eGg",
   "version" : {
     "number" : "5.6.10",
@@ -643,13 +643,13 @@ Or using `ts-top`:
 ts-top -p 30678 $(minikube ip)
 ```
 
-And Elasticsearch should be accessible on port 30200:
+And opensearch should be accessible on port 30200:
 
 ```bash
 curl -Ss $(minikube ip):30200
 {
   "name" : "0iE0zM1",
-  "cluster_name" : "elasticsearch",
+  "cluster_name" : "opensearch",
   "cluster_uuid" : "_Ba0EHSLSCmN_ebEfc4eGg",
   "version" : {
     "number" : "5.6.10",
@@ -724,14 +724,14 @@ Or using `ts-top`:
 ts-top
 ```
 
-And Elasticsearch should be accessible on port 30200, just like in the minikube
+And opensearch should be accessible on port 30200, just like in the minikube
 case:
 
 ```bash
 curl -Ss $(minikube ip):30200
 {
   "name" : "0iE0zM1",
-  "cluster_name" : "elasticsearch",
+  "cluster_name" : "opensearch",
   "cluster_uuid" : "_Ba0EHSLSCmN_ebEfc4eGg",
   "version" : {
     "number" : "5.6.10",

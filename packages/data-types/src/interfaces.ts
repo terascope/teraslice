@@ -99,7 +99,7 @@ export interface TypeESMapping {
 
 export interface ESMappingOptions extends ClientMetadata {
     /**
-     * Any elasticsearch mapping overrides,
+     * Any opensearch mapping overrides,
      * uses a deep assignment so nested fields can be overwritten.
      */
     overrides?: Partial<ESMapping>;

@@ -36,10 +36,6 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         default: undefined,
         format: logLevels
     },
-    ELASTICSEARCH_HOST: {
-        default: null,
-        format: 'optional_string'
-    },
     ENCRYPT_KAFKA: {
         default: null,
         format: 'optional_bool'
@@ -174,11 +170,9 @@ export const config: E2ETestEnv & E2EConstants & E2EConfig = {
     newId,
     ROOT_CERT_PATH: path.join(envConfig.CERT_PATH, 'CAs/rootCA.pem'),
     SPEC_INDEX_PREFIX: `${envConfig.TEST_INDEX_PREFIX}spec`,
-    TEST_HOST: toBoolean(envConfig.TEST_OPENSEARCH)
-        ? toBoolean(envConfig.ENCRYPT_OPENSEARCH)
-            ? envConfig.OPENSEARCH_SSL_HOST
-            : envConfig.OPENSEARCH_HOST
-        : envConfig.ELASTICSEARCH_HOST,
+    TEST_HOST: toBoolean(envConfig.ENCRYPT_OPENSEARCH)
+        ? envConfig.OPENSEARCH_SSL_HOST
+        : envConfig.OPENSEARCH_HOST,
     USE_DEV_ASSETS,
     WORKERS_PER_NODE,
 };

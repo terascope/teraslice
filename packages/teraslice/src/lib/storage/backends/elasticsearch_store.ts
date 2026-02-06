@@ -272,7 +272,7 @@ export class TerasliceElasticsearchStorage {
     }
 
     /*
-     * index saves a record to elasticsearch with a specified ID.
+     * index saves a record to opensearch with a specified ID.
      * If the document is already there it will be replaced.
      */
     async indexWithId(
@@ -297,7 +297,7 @@ export class TerasliceElasticsearchStorage {
     }
 
     /*
-     * Create saves a record to elasticsearch under the provided id.
+     * Create saves a record to opensearch under the provided id.
      * If the record already exists it will not be inserted.
      */
     async create(record: Record<string, any>, index = this.defaultIndexName) {

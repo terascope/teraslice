@@ -1,11 +1,9 @@
 import {
     isTest, TSError, isFatalError,
     parseError, getBackoffDelay, isRetryableError,
-    get, toNumber, isString, Logger,
-    castArray, flatten, toBoolean,
-    uniq, random, cloneDeep,
-    isDeepEqual, getTypeOf, isProd,
-    DataEntity
+    get, Logger, castArray, flatten, toBoolean,
+    uniq, random, cloneDeep, isDeepEqual,
+    getTypeOf, isProd, DataEntity
 } from '@terascope/core-utils';
 import { Client as OpenClient } from '@terascope/opensearch-client';
 import {
@@ -942,45 +940,13 @@ export default function elasticsearchApi(
 
         return true;
     }
-    /** This is deprecated as an external api,
-     * please use getClientMetadata
-     * */
-    function getESVersion() {
-        const newClientVersion = get(client, '__meta.majorVersion');
-
-        if (newClientVersion) return newClientVersion;
-
-        // legacy
-        const esVersion = get(client, 'transport._config.apiVersion', '6.5');
-
-        if (esVersion && isString(esVersion)) {
-            const [majorVersion] = esVersion.split('.');
-            return toNumber(majorVersion);
-        }
-
-        return 6;
-    }
 
     function getClientMetadata() {
         if (client.__meta) {
             return client.__meta;
         }
 
-        const esVersion = get(client, 'transport._config.apiVersion', '6.5');
-        const distribution = ElasticsearchDistribution.elasticsearch;
-        const [majorVersion = 6, minorVersion = 5] = esVersion.split('.').map(toNumber);
-
-        return {
-            distribution,
-            version: esVersion,
-            majorVersion,
-            minorVersion
-        };
-    }
-
-    function isElasticsearch8() {
-        const { distribution, majorVersion } = getClientMetadata();
-        return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 8;
+        throw new Error('Opensearch client metadata is not defined');
     }
 
     function isOpensearch2() {
@@ -1301,7 +1267,6 @@ export default function elasticsearchApi(
         verifyClient,
         validateGeoParameters,
         getClientMetadata,
-        isElasticsearch8,
         isOpensearch2,
         isOpensearch3,
         // The APIs below are deprecated and should be removed.
@@ -1309,7 +1274,6 @@ export default function elasticsearchApi(
         index_create: indexCreate,
         index_refresh: indexRefresh,
         index_recovery: indexRecovery,
-        getESVersion,
         isErrorRetryable
     };
 }

@@ -17,10 +17,6 @@ export default class VectorType extends BaseType {
         const { distribution, majorVersion, minorVersion } = config;
         const { dimension, space_type = 'l2', name = 'hnsw', engine = 'faiss' } = this.config;
 
-        if (distribution === ElasticsearchDistribution.elasticsearch) {
-            throw new Error('Vector datatypes are not supported with Elasticsearch distribution');
-        }
-
         if (distribution === ElasticsearchDistribution.opensearch) {
             if (majorVersion === 1 || (majorVersion === 2 && minorVersion < 10)) {
                 throw new Error('Vector datatypes are not supported with Opensearch versions < 2.10');

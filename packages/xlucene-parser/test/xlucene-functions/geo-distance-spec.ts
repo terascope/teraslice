@@ -69,9 +69,9 @@ describe('geoDistance', () => {
         });
     });
 
-    describe('elasticsearch dsl', () => {
+    describe('opensearch dsl', () => {
         describe.each(modes)('%s mode', (key) => {
-            it('can produce proper elasticsearch DSL (variable queries included)', () => {
+            it('can produce proper opensearch DSL (variable queries included)', () => {
                 expect.hasAssertions();
 
                 const variables = {

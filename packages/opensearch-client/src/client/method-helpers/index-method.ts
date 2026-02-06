@@ -10,24 +10,6 @@ export function convertIndexParams(
         version
     } = distributionMeta;
 
-    if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            // make sure to remove type
-            const {
-                body, ...parsedParams
-            } = params;
-            // ES8 does not have body
-            return {
-                document: body,
-                ...parsedParams
-            };
-        }
-
-        if (majorVersion === 7) {
-            return params;
-        }
-    }
-
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
             return params;

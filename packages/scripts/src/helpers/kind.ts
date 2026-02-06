@@ -12,9 +12,9 @@ import config from './config.js';
 
 const {
     DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
-    ELASTICSEARCH_PORT, OPENSEARCH_PORT, MINIO_PORT,
-    MINIO_UI_PORT, KAFKA_PORT, OPENSEARCH_VERSION,
-    ENCRYPTION_ENABLED, CERT_PATH
+    OPENSEARCH_PORT, MINIO_PORT, MINIO_UI_PORT,
+    KAFKA_PORT, OPENSEARCH_VERSION, ENCRYPTION_ENABLED,
+    CERT_PATH
 } = config;
 
 export class Kind {
@@ -64,12 +64,7 @@ export class Kind {
         // Map external ports from kind to the host machine based off of config variables
         if (!customConfigPath) {
             for (const service of ENV_SERVICES) {
-                if (service === 'elasticsearch') {
-                    configFile.nodes[0].extraPortMappings.push({
-                        containerPort: 30207,
-                        hostPort: ELASTICSEARCH_PORT
-                    });
-                } else if (service === 'opensearch') {
+                if (service === 'opensearch') {
                     if (OPENSEARCH_VERSION.startsWith('1')) {
                         configFile.nodes[0].extraPortMappings.push({
                             containerPort: 30201,
@@ -123,11 +118,6 @@ export class Kind {
                     containerPorts: [30203],
                     hostPorts: [9203],
                     hostPath: '/searchdataos3'
-                },
-                elasticsearch7: {
-                    containerPorts: [30207],
-                    hostPorts: [9207],
-                    hostPath: '/searchdataes7'
                 },
                 kafka: {
                     containerPorts: [30094, 30084],

@@ -76,7 +76,7 @@ export const schema = {
         format: 'elasticsearch_name'
     },
     state: {
-        doc: 'Elasticsearch cluster where job state, analytics and logs are stored',
+        doc: 'Opensearch cluster where job state, analytics and logs are stored',
         default: { connection: 'default' },
         format(val: Record<string, any>) {
             if (!val.connection) {

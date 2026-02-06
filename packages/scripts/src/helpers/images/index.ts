@@ -24,8 +24,7 @@ export async function createImageList(): Promise<void> {
     const repo = getRootInfo().name;
     let list;
     if (repo === 'elasticsearch-asset-bundle') {
-        list = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.DEFAULT_ELASTICSEARCH7_VERSION}\n`
-            + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH1_VERSION}\n`
+        list = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH1_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH3_VERSION}`;
     } else if (repo === 'kafka-asset-bundle') {
@@ -37,8 +36,7 @@ export async function createImageList(): Promise<void> {
     } else if (repo === 'chaos-assets-bundle') {
         list = '';
     } else if (repo === 'teraslice-workspace') {
-        list = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.DEFAULT_ELASTICSEARCH7_VERSION}\n`
-            + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH1_VERSION}\n`
+        list = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH1_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH3_VERSION}\n`
             + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}\n`

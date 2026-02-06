@@ -9,8 +9,6 @@ import {
 import { TestEnv, Terafoundation, ScriptsTestEnv } from '@terascope/types';
 import { Service } from './interfaces.js';
 
-/** Default elasticsearch7 version used to populate the CI cache */
-const __DEFAULT_ELASTICSEARCH7_VERSION = '7.9.3';
 /** Default opensearch1 version used to populate the CI cache */
 const __DEFAULT_OPENSEARCH1_VERSION = '1.3.11';
 /** Default opensearch2 version used to populate the CI cache */
@@ -28,11 +26,6 @@ let validatedConfig: ScriptsTestEnv;
 // Any var computed by config or used by config to compute another var should not set
 // an env value within 'configSchema' and should set the default to undefined
 const configSchema: Terafoundation.Schema<any> = {
-    // Services
-    DEFAULT_ELASTICSEARCH7_VERSION: {
-        default: __DEFAULT_ELASTICSEARCH7_VERSION,
-        format: String,
-    },
     DEFAULT_OPENSEARCH1_VERSION: {
         default: __DEFAULT_OPENSEARCH1_VERSION,
         format: String,
@@ -75,11 +68,6 @@ const configSchema: Terafoundation.Schema<any> = {
         format: Boolean,
         env: 'TEST_OPENSEARCH'
     },
-    TEST_ELASTICSEARCH: {
-        default: false,
-        format: Boolean,
-        env: 'TEST_ELASTICSEARCH'
-    },
     TEST_KAFKA: {
         default: false,
         format: Boolean,
@@ -94,11 +82,6 @@ const configSchema: Terafoundation.Schema<any> = {
         default: false,
         format: Boolean,
         env: 'TEST_RESTRAINED_OPENSEARCH'
-    },
-    TEST_RESTRAINED_ELASTICSEARCH: {
-        default: false,
-        format: Boolean,
-        env: 'TEST_RESTRAINED_ELASTICSEARCH'
     },
     TEST_RABBITMQ: {
         default: false,
@@ -249,44 +232,6 @@ const configSchema: Terafoundation.Schema<any> = {
         format: Boolean,
         env: 'USE_EXISTING_SERVICES'
     },
-
-    // Elasticsearch config
-    ELASTICSEARCH_DOCKER_IMAGE: {
-        default: 'elasticsearch',
-        format: String,
-        env: 'ELASTICSEARCH_DOCKER_IMAGE'
-    },
-    ELASTICSEARCH_HOST: {
-        default: undefined,
-        format: String,
-    },
-    ELASTICSEARCH_HOSTNAME: {
-        default: undefined,
-        format: String,
-    },
-    ELASTICSEARCH_NAME: {
-        default: 'elasticsearch',
-        format: String,
-        env: 'ELASTICSEARCH_NAME'
-    },
-    ELASTICSEARCH_PORT: {
-        default: undefined,
-        format: Number,
-    },
-    ELASTICSEARCH_VERSION: {
-        default: __DEFAULT_ELASTICSEARCH7_VERSION,
-        format: String,
-        env: 'ELASTICSEARCH_VERSION'
-    },
-    RESTRAINED_ELASTICSEARCH_HOST: {
-        default: undefined,
-        format: String,
-    },
-    RESTRAINED_ELASTICSEARCH_PORT: {
-        default: undefined,
-        format: Number,
-    },
-
     // Kafka config
     ENCRYPT_KAFKA: {
         default: undefined,
@@ -615,14 +560,6 @@ config.FORCE_COLOR = toBoolean(forceColor)
 
 config.HOST_IP = process.env.HOST_IP || address();
 
-config.ELASTICSEARCH_HOSTNAME = process.env.ELASTICSEARCH_HOSTNAME || config.HOST_IP;
-config.ELASTICSEARCH_PORT = Number(process.env.ELASTICSEARCH_PORT) || 49200;
-
-config.ELASTICSEARCH_HOST = `http://${config.ELASTICSEARCH_HOSTNAME}:${config.ELASTICSEARCH_PORT}`;
-
-config.RESTRAINED_ELASTICSEARCH_PORT = Number(process.env.RESTRAINED_ELASTICSEARCH_PORT) || 49202;
-config.RESTRAINED_ELASTICSEARCH_HOST = `http://${config.ELASTICSEARCH_HOSTNAME}:${config.RESTRAINED_ELASTICSEARCH_PORT}`;
-
 config.ENCRYPT_KAFKA = toBoolean(process.env.ENCRYPT_KAFKA) || false;
 config.KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || config.HOST_IP;
 config.KAFKA_PORT = Number(process.env.KAFKA_PORT) || 49094;
@@ -681,17 +618,13 @@ config.CERT_PATH = process.env.CERT_PATH
         : 'tmp/ts-certs');
 
 const testOpensearch = toBoolean(process.env.TEST_OPENSEARCH);
-const testElasticsearch = toBoolean(process.env.TEST_ELASTICSEARCH);
 const testRestrainedOpensearch = toBoolean(process.env.TEST_RESTRAINED_OPENSEARCH);
-const testRestrainedElasticsearch = toBoolean(process.env.TEST_RESTRAINED_ELASTICSEARCH);
 
 config.ENV_SERVICES = [
     testOpensearch ? Service.Opensearch : undefined,
-    testElasticsearch ? Service.Elasticsearch : undefined,
     toBoolean(process.env.TEST_KAFKA) ? Service.Kafka : undefined,
     toBoolean(process.env.TEST_MINIO) ? Service.Minio : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
-    testRestrainedElasticsearch ? Service.RestrainedElasticsearch : undefined,
     toBoolean(process.env.TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
     toBoolean(process.env.ENABLE_UTILITY_SVC) ? Service.Utility : undefined,
 ]
@@ -700,14 +633,10 @@ config.ENV_SERVICES = [
 const __DEFAULT_TEST_HOST = config.OPENSEARCH_HOST;
 let testHost = __DEFAULT_TEST_HOST;
 
-if (testElasticsearch) {
-    testHost = config.ELASTICSEARCH_HOST;
-} else if (testOpensearch) {
+if (testOpensearch) {
     testHost = config.OPENSEARCH_HOST;
 } else if (testRestrainedOpensearch) {
     testHost = config.RESTRAINED_OPENSEARCH_HOST;
-} else if (testRestrainedElasticsearch) {
-    testHost = config.RESTRAINED_ELASTICSEARCH_HOST;
 }
 
 config.SEARCH_TEST_HOST = process.env.SEARCH_TEST_HOST || testHost;

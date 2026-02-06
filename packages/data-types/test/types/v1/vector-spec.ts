@@ -94,19 +94,6 @@ describe('Vector V1', () => {
 
     it('should throw with elasticsearch and opensearch <2.10', () => {
         const type = new Vector(field, typeConfig);
-        const esConfig7: ClientMetadata = {
-            distribution: ElasticsearchDistribution.elasticsearch,
-            version: '7.10.0',
-            majorVersion: 7,
-            minorVersion: 10
-        };
-
-        const esConfig8: ClientMetadata = {
-            distribution: ElasticsearchDistribution.elasticsearch,
-            version: '8.10.0',
-            majorVersion: 8,
-            minorVersion: 10
-        };
 
         const openConfig1: ClientMetadata = {
             distribution: ElasticsearchDistribution.opensearch,
@@ -122,8 +109,6 @@ describe('Vector V1', () => {
             minorVersion: 3
         };
 
-        expect(() => type.toESMapping(esConfig7)).toThrow();
-        expect(() => type.toESMapping(esConfig8)).toThrow();
         expect(() => type.toESMapping(openConfig1)).toThrow();
         expect(() => type.toESMapping(openConfig2)).toThrow();
     });
