@@ -34,7 +34,7 @@ console.log(results);
 
 ## Configuration
 
-The `@terascope/elasticsearch-api` module must be passed in an elasticsearch client and a bunyan based logger. You may also optional pass in an object as the third argument.
+The `@terascope/elasticsearch-api` module must be passed in an opensearch client and a bunyan based logger. You may also optional pass in an object as the third argument.
 
 | Configuration |                                      Description                                      |  Type   |                               Notes                               |
 | :-----------: | :-----------------------------------------------------------------------------------: | :-----: | :---------------------------------------------------------------: |
@@ -246,7 +246,7 @@ Uses the client bulk functionality with exponential back-off retries
 
 Query requires:
 
-- data  (formatted to work with elasticsearch bulk queries)
+- data  (formatted to work with opensearch bulk queries)
 
 ```js
 const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
@@ -270,11 +270,11 @@ elasticsearch.bulkSend([
 
 ### nodeInfo
 
-directly calls elasticsearch client.nodes.info()
+directly calls opensearch client.nodes.info()
 
 ### nodeStats
 
-directly calls elasticsearch `client.nodes.stats()`
+directly calls opensearch `client.nodes.stats()`
 
 ### index_exists
 

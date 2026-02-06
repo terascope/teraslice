@@ -22,7 +22,7 @@ Kubernetes.  These tools are available via `yarn run` or by using the
 
 - Running End-to-End Testing
 - Launching a Development Kubernetes Environment
-- Manages required and optional services.  (e.g. Elasticsearch, Kafka)
+- Manages required and optional services.  (e.g. Opensearch, Kafka)
 
 ## Kubernetes End-to-End Tests
 
@@ -58,21 +58,21 @@ job with the following commands (NOTE: `earl` is an alternative name for the
 `teraslice-cli`).
 
 ```bash
-# build teraslice from local repository and launch teraslice and elasticsearch
+# build teraslice from local repository and launch teraslice and opensearch
 # from the teraslice root directory:
 yarn k8s
 
 # from any other directory:
-TEST_ELASTICSEARCH='true' ELASTICSEARCH_PORT='9200' yarn run ts-scripts k8s-env
+TEST_OPENSEARCH='true' OPENSEARCH_PORT='9200' yarn run ts-scripts k8s-env
 ```
 
 ```bash
-# launch with a specific OPENSEARCH_VERSION or ELASTICSEARCH_VERSION; defaults to Opensearch 2.15.0
+# launch with a specific OPENSEARCH_VERSION or OPENSEARCH_VERSION; defaults to Opensearch 2.15.0
 # from the teraslice root directory:
 OPENSEARCH_VERSION='3.0.0' yarn k8s
 
 # from any other directory:
-ELASTICSEARCH_VERSION=7.9.3 TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 yarn run ts-scripts k8s-env
+OPENSEARCH_VERSION=2.15.0 TEST_OPENSEARCH=true OPENSEARCH_PORT=9200 yarn run ts-scripts k8s-env
 ```
 
 If you want to run a specific teraslice docker image, instead of building from your local repository:
@@ -82,21 +82,21 @@ If you want to run a specific teraslice docker image, instead of building from y
 yarn k8s --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2
 
 # from any other directory:
-TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2
+TEST_OPENSEARCH=\'true\' OPENSEARCH_PORT=\'9200\' $0 k8s-env --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2
 ```
 
-If you want to run additional services you must set the appropriate environmental variables. Currently only minio, elasticsearch and kafka are supported (see issue [#3530](https://github.com/terascope/teraslice/issues/3530)).
+If you want to run additional services you must set the appropriate environmental variables. Currently only minio, opensearch and kafka are supported (see issue [#3530](https://github.com/terascope/teraslice/issues/3530)).
 
 ```bash
 # from the teraslice root directory:
 yarn k8s:kafka
 
 # from any other directory:
-TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 TEST_KAFKA=true KAFKA_PORT=9092 ts-scripts k8s-env
+TEST_OPENSEARCH=true OPENSEARCH_PORT=9200 TEST_KAFKA=true KAFKA_PORT=9092 ts-scripts k8s-env
 ```
 
 After about 5 minutes, Teraslice will be running and listening on port `5678`
-and elasticsearch will be running on `9200`.  You can configure an `alias`
+and opensearch will be running on `9200`.  You can configure an `alias`
 called `local` as follows.
 
 ```bash
@@ -169,27 +169,27 @@ ts-dev1              Active   5m12s
 
 these namespaces have the following roles:
 
-- `services-dev1` - supporting services like Elasticsearch or Kafka run here
+- `services-dev1` - supporting services like Opensearch or Kafka run here
 - `ts-dev1` - The teraslice Master and job components will run in here
 
-You can see the Elasticsearch Kubernetes Pod and associated resources like this,
+You can see the Opensearch Kubernetes Pod and associated resources like this,
 other supporting services would appear here too if they were running.  In the
-example below we see there is only an Elasticsearch Pod:
+example below we see there is only an Opensearch Pod:
 
 ```text
 kubectl -n services-dev1 get all
 
 NAME                                 READY   STATUS    RESTARTS   AGE
-pod/elasticsearch-56b7b58bc8-rttf9   1/1     Running   0          23h
+pod/opensearch-56b7b58bc8-rttf9   1/1     Running   0          23h
 
 NAME                    TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
-service/elasticsearch   NodePort   10.96.85.233   <none>        9200:30200/TCP   23h
+service/opensearch   NodePort   10.96.85.233   <none>        9200:30200/TCP   23h
 
 NAME                            READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/elasticsearch   1/1     1            1           23h
+deployment.apps/opensearch   1/1     1            1           23h
 
 NAME                                       DESIRED   CURRENT   READY   AGE
-replicaset.apps/elasticsearch-56b7b58bc8   1         1         1       23h
+replicaset.apps/opensearch-56b7b58bc8   1         1         1       23h
 ```
 
 You can see the Teraslice master and any running job related resources like
@@ -303,7 +303,7 @@ git checkout examples/jobs/data_generator.json
 If you are iterating on development changes to Teraslice itself and need to
 rebuild and redeploy the Teraslice master, you can use the following command:
 
-NOTE: this does not reset state in the elasticsearch store
+NOTE: this does not reset state in the opensearch store
 
 ```bash
 # from the teraslice root directory:
@@ -313,7 +313,7 @@ yarn k8s:rebuild
 yarn run ts-scripts k8s-env --rebuild
 ```
 
-If you would like to reset the elasticsearch store at the same time:
+If you would like to reset the opensearch store at the same time:
 
 ```bash
 # from the teraslice root directory:
@@ -325,7 +325,7 @@ yarn run ts-scripts k8s-env --rebuild --reset-store
 
 If you need to restart Teraslice without rebuilding you can use the following command:
 
-NOTE: this does not reset state in the elasticsearch store
+NOTE: this does not reset state in the opensearch store
 
 ```bash
 # from the teraslice root directory:
@@ -335,7 +335,7 @@ yarn k8s:restart
 yarn run ts-scripts k8s-env --rebuild --skip-build
 ```
 
-If you would like to reset the elasticsearch store at the same time:
+If you would like to reset the opensearch store at the same time:
 
 ```bash
 # from the teraslice root directory:

@@ -254,7 +254,7 @@ export function getTestENVClientInfo(): TestENVClientInfo {
         };
     }
 
-    throw new Error('No TEST_OPENSEARCH or TEST_RESTRAINED_OPENSEARCH env var set');
+    throw new Error('Incorrect test environment variables, no TEST_OPENSEARCH or TEST_RESTRAINED_OPENSEARCH env var set');
 }
 
 export function getTotalFormat(distribution: string, majorVersion: number, n: number) {

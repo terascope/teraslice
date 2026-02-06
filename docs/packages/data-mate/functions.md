@@ -2078,7 +2078,7 @@ toGeoPoint()
 
  - **locale**:  `String` - Specify the locale for the field (only compatible with some field types).  Must be a BCP 47 Language Tag
 
- - **indexed**:  `Boolean` - Specifies whether the field is indexed in elasticsearch (Only type Object currently support this)
+ - **indexed**:  `Boolean` - Specifies whether the field is indexed in opensearch (Only type Object currently support this)
 
  - **format**:  `String` - The format for the field. Currently only supported by Date fields
 

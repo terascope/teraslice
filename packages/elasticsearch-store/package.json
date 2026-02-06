@@ -20,8 +20,8 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "TEST_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
-        "test:debug": "TEST_ELASTICSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-store --",
+        "test": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
+        "test:debug": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-store --",
         "test:opensearch1": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='1.3.11' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
         "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='3.1.0' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",

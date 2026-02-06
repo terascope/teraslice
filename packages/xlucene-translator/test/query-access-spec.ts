@@ -530,7 +530,7 @@ describe('QueryAccess', () => {
         });
     });
 
-    describe('when converting to an elasticsearch search query', () => {
+    describe('when converting to an opensearch search query', () => {
         const queryAccessExcludes = ['bar', 'baz'];
         const queryAccessIncludes = ['foo', 'moo'];
         const queryAccess = new QueryAccess({
@@ -734,7 +734,7 @@ describe('QueryAccess', () => {
             }
         });
 
-        it('should be able to return string variable elasticsearch dsl', async () => {
+        it('should be able to return string variable opensearch dsl', async () => {
             const q = 'foo:$foo1';
             const result = await queryAccess.restrictSearchQuery(q);
 
@@ -758,7 +758,7 @@ describe('QueryAccess', () => {
             });
         });
 
-        it('should be able to return array string variable elasticsearch dsl', async () => {
+        it('should be able to return array string variable opensearch dsl', async () => {
             const q = 'foo:$foo2';
             const result = await queryAccess.restrictSearchQuery(q);
 
