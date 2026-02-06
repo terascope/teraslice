@@ -94,6 +94,6 @@
     "terascope": {
         "main": true,
         "enableTypedoc": false,
-        "testSuite": "elasticsearch"
+        "testSuite": "opensearch"
     }
 }

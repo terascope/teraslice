@@ -84,14 +84,14 @@
             "suites": {
                 "e2e": [],
                 "k8s-e2e": [],
-                "elasticsearch": [
+                "opensearch": [
                     "minio"
                 ],
                 "search": [],
                 "restrained": [],
                 "unit": [],
                 "_for_testing_": [
-                    "elasticsearch"
+                    "opensearch"
                 ],
                 "k8s-env": []
             }
