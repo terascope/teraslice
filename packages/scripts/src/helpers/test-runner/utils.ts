@@ -178,8 +178,10 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
 }
 
 export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): PackageInfo[] {
-    if (!options.suite?.length) return pkgInfos.slice();
+    console.log('in filter1', pkgInfos, options)
 
+    if (!options.suite?.length) return pkgInfos.slice();
+    console.log('in filter', options)
     return pkgInfos.filter((pkgInfo) => {
         const suite = pkgInfo.terascope.testSuite;
         if (!suite) {
@@ -225,7 +227,7 @@ export function groupBySuite(
     const isWatchAll = !options.suite && options.watch;
     const isNotAll = !options.all;
 
-    const bundleSuite = Object.keys(groups)[0];
+    const bundleSuite = 'elasticsearch' in groups ? 'elasticsearch' : Object.keys(groups)[0];
 
     if ((isNotAll || isWatchAll) && bundleSuite && groups[bundleSuite].length) {
         groups[bundleSuite] = flatten(Object.values(groups));

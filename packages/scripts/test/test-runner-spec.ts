@@ -8,7 +8,7 @@ import { TestOptions } from '../src/helpers/test-runner/interfaces';
 describe('Test Runner Helpers', () => {
     const availableSuites = getAvailableTestSuites();
     const packages = listPackages();
-
+    console.log('top level packages', packages)
     const defaultsOptions: TestOptions = {
         bail: false,
         debug: false,
@@ -40,6 +40,21 @@ describe('Test Runner Helpers', () => {
 
             expect(suites).not.toContain('e2e');
             expect(suites).not.toContain('elasticsearch');
+            expect(suites).not.toContain('disabled');
+            expect(suites).not.toContain('kafka');
+        });
+
+        it('should be able to filter by a suite elasticsearch', () => {
+            const options = makeTestOptions({
+                all: false,
+                suite: ['elasticsearch'],
+            });
+
+            const filtered = filterBySuite(packages, options);
+            const suites = filtered.map((pkgInfo) => pkgInfo.terascope.testSuite);
+
+            expect(suites).not.toContain('e2e');
+            expect(suites).not.toContain('unit');
             expect(suites).not.toContain('disabled');
             expect(suites).not.toContain('kafka');
         });
