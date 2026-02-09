@@ -47,13 +47,6 @@ releases:
     values:
       - ../../e2e/helm/templates/os3.yaml.gotmpl
 
-  - name: elasticsearch7
-    namespace: services-dev1
-    chart: ../../e2e/helm/elasticsearch/elasticsearch-7.9.3.tgz
-    installed: {{ .Values | get "elasticsearch7.enabled" false }}
-    values:
-      - ../../e2e/helm/templates/es7.yaml.gotmpl
-
   - name: minio
     namespace: services-dev1
     chart: minio/minio

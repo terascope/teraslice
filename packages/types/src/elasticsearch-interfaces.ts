@@ -275,7 +275,6 @@ export interface ESIndexSettings {
 
 export enum ElasticsearchDistribution {
     opensearch = 'opensearch',
-    elasticsearch = 'elasticsearch'
 }
 
 export interface ClientMetadata {

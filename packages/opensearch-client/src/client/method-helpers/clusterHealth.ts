@@ -6,14 +6,6 @@ export function convertClusterHealthParams(
 ) {
     const { majorVersion, distribution, version } = distributionMeta;
 
-    if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 7 || majorVersion === 8) {
-            return params;
-        }
-
-        throw new Error(`Unsupported elasticsearch version: ${version}`);
-    }
-
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
             const {

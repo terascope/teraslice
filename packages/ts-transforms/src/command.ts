@@ -98,7 +98,7 @@ function getPipedData(): Promise<string> {
     return new Promise((resolve, reject) => {
         let strResults = '';
         if (process.stdin.isTTY) {
-            reject(new Error('Please pipe an elasticsearch response or provide the data parameter -d with path to data file'));
+            reject(new Error('Please pipe an opensearch response or provide the data parameter -d with path to data file'));
             return;
         }
         process.stdin.resume();
@@ -163,7 +163,7 @@ async function getData(dataFilePath?: string) {
     const rawData = dataFilePath ? await dataFileLoader(dataFilePath) : await getPipedData();
     const parsedData = parseData(rawData);
     if (!parsedData) {
-        throw new Error('Could not get data, please provide a data file or pipe an elasticsearch request');
+        throw new Error('Could not get data, please provide a data file or pipe an opensearch request');
     }
 
     return handleParsedData(parsedData);

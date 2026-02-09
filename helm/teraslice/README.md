@@ -4,9 +4,9 @@
 This Helm chart installs Teraslice with configurable prometheus rules, RBAC and other configurations. This chart caters a number of different use cases and setups.
 
 - [Teraslice Helm Chart](#teraslice-helm-chart)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Configuration](#configuration)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
 
 ## Requirements
 
@@ -36,7 +36,7 @@ View the `values.yaml` for charts configuration settings.
 | `fullnameOverride`                | Override for the full chart name                     | `""`                      |
 | `extraContainers`                 | Additional sidecar containers                        | `[]`                      |
 | `env`                             | Environment variables for Teraslice master           | `{}`                      |
-| `stateConnection`                 | Teraslice Elasticsearch/Opensearch state connection                          | `default`                 |
+| `stateConnection`                 | Teraslice Opensearch state connection                          | `default`                 |
 | `priorityClass.create`            | Whether to create a priority class                  | `false`                   |
 | `priorityClass.preemptionPolicy`  | Preemption policy for the priority class            | `Never`                   |
 | `priorityClass.value`             | Priority class value                                | `9999`                    |

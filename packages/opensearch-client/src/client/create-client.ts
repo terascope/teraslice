@@ -4,15 +4,13 @@ import {
 import * as opensearch1 from 'opensearch1';
 import * as opensearch2 from 'opensearch2';
 import * as opensearch3 from 'opensearch3';
-import * as elasticsearch7 from 'elasticsearch7';
-import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution, ClientMetadata } from '@terascope/types';
 import { Client } from './client.js';
 import { logWrapper } from './log-wrapper.js';
 import { OpenSearch } from '@terascope/types';
 
 const clientList = [
-    opensearch1, opensearch2, opensearch3, elasticsearch7, elasticsearch8
+    opensearch2, opensearch3, opensearch1
 ];
 
 /** creates an opensearch or elasticsearch client depending on the configuration */
@@ -133,7 +131,7 @@ async function getDBMetadata(
             if (response) {
                 const info = response.body || response;
                 const version: string = get(info, 'version.number');
-                const responseDistribution = get(info, 'version.distribution', 'elasticsearch');
+                const responseDistribution = get(info, 'version.distribution', 'opensearch');
                 let distribution: ElasticsearchDistribution;
 
                 if (logger.level() === 10) {
@@ -144,10 +142,10 @@ async function getDBMetadata(
                     throw new Error(`Got invalid response from api: ${JSON.stringify(info)}`);
                 }
 
-                if (responseDistribution === 'elasticsearch') {
-                    distribution = ElasticsearchDistribution.elasticsearch;
-                } else {
+                if (responseDistribution === 'opensearch') {
                     distribution = ElasticsearchDistribution.opensearch;
+                } else {
+                    throw new Error('Unsupported distribution');
                 }
 
                 const [majorVersion, minorVersion] = version.split('.').map(toNumber);
@@ -179,7 +177,6 @@ export async function getBaseClient(
     const {
         distribution,
         majorVersion,
-        minorVersion
     } = clientMetadata;
 
     try {
@@ -192,25 +189,6 @@ export async function getBaseClient(
 
             if (model) {
                 logger.debug(`Creating an opensearch v${majorVersion} client`);
-                return new model.Client(config as any);
-            }
-        }
-
-        if (distribution === ElasticsearchDistribution.elasticsearch) {
-            const model = {
-                7: elasticsearch7,
-                8: elasticsearch8
-            }[majorVersion];
-
-            // 7.13 & lower needs to use opensearch for now as it is backwards compatible,
-            // past this version the newer client will throw if not their proprietary client
-            if (majorVersion === 7 && minorVersion <= 13) {
-                logger.debug('Creating an opensearch client for elasticsearch v7 for backwards compatibility');
-                return new opensearch1.Client(config as any);
-            }
-
-            if (model) {
-                logger.debug(`Creating an elasticsearch v${majorVersion} client`);
                 return new model.Client(config as any);
             }
         }

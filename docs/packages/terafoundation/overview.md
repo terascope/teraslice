@@ -204,7 +204,7 @@ terafoundation:
     elasticsearch-next:
       default:
         node:
-        - YOUR_ELASTICSEARCH_IP:9200
+        - YOUR_OPENSEARCH_IP:9200
         maxRetries: 5
       endpoint2:
         node:
@@ -216,7 +216,7 @@ terafoundation:
 
 This is where client config used to set up database connections lives. It is an object with keys set to the different clients and must match the names of the clients listed in connectors/node-modules.
 
-The values are once again objects with keys set to different endpoints within each client. For example in the config above, elasticsearch database has two endpoints listed. The first one is called default which listens to an elasticsearch database on port 9200, and by what its name implies is the endpoint that's used when making a client without specifying an endpoint. The other is endpoint2 which connects to an elasticsearch database on port 9215
+The values are once again objects with keys set to different endpoints within each client. For example in the config above, opensearch database has two endpoints listed. The first one is called default which listens to an opensearch database on port 9200, and by what its name implies is the endpoint that's used when making a client without specifying an endpoint. The other is endpoint2 which connects to an opensearch database on port 9215
 
 Each endpoint will have its own configuration which will then be used by the actual client of the library
 

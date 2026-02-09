@@ -91,28 +91,6 @@ opensearch3:
   # Example -->   hostVolumePath: /Users/local-volumes/es7
   hostVolumePath: null
 
-elasticsearch7:
-  # If false, elasticsearch7 will be excluded on helmfile sync
-  enabled: false
-
-  # Port that the service will resolve to on the host
-  # Default is 9207
-  hostPort: null
-
-  # It's not recommended to deviate from es versions 7.9. The chart is tied to this specific version.
-  version: 7.9.3
-  # The number of replicas
-  instances: 1
-  esJavaOpts: -Xms512m -Xmx512m
-  memoryLimit: 1Gi
-  memoryRequest: 512Mi
-  persistentVolumeSize: 8Gi
-  # The absolute path to an es data directory on the host machine to use
-  # NOTE: This overrides 'persistentVolumeSize'. It's also preferred to backup said directory before using
-  # This path MUST be unique and cannot be the same path for other "hostVolumePath" options used within this file.
-  # Example -->   hostVolumePath: /Users/local-volumes/es7
-  hostVolumePath: null
-
 minio:
   # If false, minio will be excluded on helmfile sync
   enabled: false

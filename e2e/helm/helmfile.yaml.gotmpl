@@ -90,20 +90,6 @@ releases:
       - default/stern
     {{- end }}
 
-  - name: elasticsearch7
-    namespace: services-dev1
-    chart: ./elasticsearch/elasticsearch-7.9.3.tgz
-    installed: {{ .Values | get "elasticsearch7.enabled" false }}
-    values:
-      - ./templates/es7.yaml.gotmpl
-    labels:
-      app: elasticsearch7
-    needs:
-      - default/namespaces
-    {{- if .Values | get "stern.enabled" false }}
-      - default/stern
-    {{- end }}
-
   - name: minio
     namespace: services-dev1
     chart: minio/minio

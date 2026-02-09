@@ -13,8 +13,8 @@ import { getServicesForSuite } from '../misc.js';
 import config from '../config.js';
 import signale from '../signale.js';
 import type {
-    TestEnv, ElasticsearchTestEnv, KafkaTestEnv,
-    MinioTestEnv, OpenSearchTestEnv, RabbitMQTestEnv
+    TestEnv, KafkaTestEnv, MinioTestEnv,
+    OpenSearchTestEnv, RabbitMQTestEnv
 } from '@terascope/types';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -89,24 +89,6 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
     }
 
     const launchServices: Service[] = suite ? getServicesForSuite(suite) : [];
-
-    if (launchServices.includes(Service.Elasticsearch)) {
-        Object.assign(env, {
-            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
-            ELASTICSEARCH_HOST: config.ELASTICSEARCH_HOST,
-            ELASTICSEARCH_VERSION: config.ELASTICSEARCH_VERSION,
-            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
-        } satisfies ElasticsearchTestEnv);
-    }
-
-    if (launchServices.includes(Service.RestrainedElasticsearch)) {
-        Object.assign(env, {
-            ELASTICSEARCH_HOST: config.RESTRAINED_ELASTICSEARCH_HOST,
-            ELASTICSEARCH_VERSION: config.ELASTICSEARCH_VERSION,
-            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`,
-            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
-        } satisfies ElasticsearchTestEnv);
-    }
 
     if (launchServices.includes(Service.Minio)) {
         Object.assign(env, {
@@ -243,9 +225,7 @@ export function groupBySuite(
     const isWatchAll = !options.suite && options.watch;
     const isNotAll = !options.all;
 
-    const bundleSuite = groups[Service.Elasticsearch]
-        ? Service.Elasticsearch
-        : Object.keys(groups)[0];
+    const bundleSuite = 'opensearch' in groups ? 'opensearch' : Object.keys(groups)[0];
 
     if ((isNotAll || isWatchAll) && bundleSuite && groups[bundleSuite].length) {
         groups[bundleSuite] = flatten(Object.values(groups));

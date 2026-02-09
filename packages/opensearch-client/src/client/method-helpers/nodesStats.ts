@@ -10,12 +10,6 @@ export function convertNodesStatsParams(
         version
     } = distributionMeta;
 
-    if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 7 || majorVersion === 8) {
-            return params;
-        }
-    }
-
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
             const {

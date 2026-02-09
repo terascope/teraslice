@@ -63,7 +63,7 @@ export class AssetLoader {
                     buff = assetRecord.blob as Buffer;
                 } else {
                     if (!assetRecord.blob) {
-                        throw new Error(`No asset blob found in elasticsearch index for asset identifier: ${assetIdentifier}.\n`
+                        throw new Error(`No asset blob found in opensearch index for asset identifier: ${assetIdentifier}.\n`
                             + `Confirm that "teraslice.ASSET_STORAGE_CONNECTION_TYPE" should be ${connectionType}.\n`
                             + 'Then try deleting and redeploying the asset.'
                         );

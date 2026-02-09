@@ -153,9 +153,8 @@ Add the state storage api to the job with the elasticsearch settings
      "apis": [
         {
             "_name": "elasticsearch_state_storage",
-            "connection": "ELASTICSEARCH_CLUSTER_URL",
+            "connection": "OPENSEARCH_CLUSTER_URL",
             "index": "INDEX_NAME",
-            "type": "ELASTICSEARCH_TYPE",
             "cache_size": 1000000
         }
     ],

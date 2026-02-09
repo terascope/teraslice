@@ -14,8 +14,6 @@ nodes:
   # teraslice port mapping needs to be at index 0 in this array
   # - containerPort: 30678 # Map internal teraslice service to host port
   #   hostPort: 45678
-  # - containerPort: 30200 # Map internal elasticsearch service to host port
-  #   hostPort: 49200
   # - containerPort: 30210 # Map internal opensearch service to host port
   #   hostPort: 49210
   # - containerPort: 30092 # Map internal kafka service to host port

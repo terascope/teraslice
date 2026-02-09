@@ -46,9 +46,6 @@ terafoundation:
                     {{- else if eq (.Values | get "teraslice.stateCluster" "none") "opensearch1" }}
                     - "http://opensearch1.services-dev1:9200"
 
-                    ##@ In the case the "stateCluster" is elasticsearch7
-                    {{- else if eq (.Values | get "teraslice.stateCluster" "none") "elasticsearch7" }}
-                    - "http://elasticsearch7-master.services-dev1:9200"
 
                     {{- end }}
 
@@ -161,16 +158,6 @@ terafoundation:
                 {{- end }}"
 
                 {{- end }}
-            {{- end }}
-
-            ##@ /////////
-            ##@ elasticsearch-next Elasticsearch7 connector
-            ##@ /////////
-
-            {{- if eq (.Values | get "elasticsearch7.enabled" false) true }}
-            es7:
-                node:
-                    - "http://elasticsearch7-master.services-dev1:9200"
             {{- end }}
 
 

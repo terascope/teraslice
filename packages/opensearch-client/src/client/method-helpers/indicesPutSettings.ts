@@ -10,24 +10,6 @@ export function convertIndicesPutSettingsParams(
         version
     } = distributionMeta;
 
-    if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            const {
-                body,
-                ...parsedParams
-            } = params;
-
-            return {
-                settings: body,
-                ...parsedParams
-            };
-        }
-
-        if (majorVersion === 7) {
-            return params;
-        }
-    }
-
     if (distribution === ElasticsearchDistribution.opensearch) {
         if ([1, 2, 3].includes(majorVersion)) {
             const {

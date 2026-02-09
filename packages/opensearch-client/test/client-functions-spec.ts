@@ -51,10 +51,6 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('should return info about the cluster', async () => {
             const resp = await client.info();
 
-            if (clientMetadata.distribution === 'elasticsearch') {
-                expect(resp.cluster_name).toBe('docker-cluster');
-            }
-
             if (clientMetadata.distribution === 'opensearch') {
                 expect(resp.cluster_name).toBe('docker-cluster');
                 expect(resp.version.distribution).toBe('opensearch');
@@ -884,10 +880,8 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             const resp = await client.reindex(params) as ClientResponse.ReindexCompletedResponse;
 
-            if (clientMetadata.distribution === 'elasticsearch') {
-                expect(resp.total).toBe(5);
-                expect(resp.created).toBe(5);
-            }
+            expect(resp.total).toBe(5);
+            expect(resp.created).toBe(5);
         });
     });
 

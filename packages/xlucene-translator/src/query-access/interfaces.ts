@@ -6,7 +6,7 @@ import {
 export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
     variables?: xLuceneVariables;
     /**
-     * Elasticsearch search parameters
+     * opensearch search parameters
      * _source_includes and _source_excludes will be filtered based
      * on the excludes and includes fields specified in the config
     */
