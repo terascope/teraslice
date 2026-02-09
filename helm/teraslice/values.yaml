@@ -57,15 +57,6 @@ terafoundation:
   # logging:
   #   - file
   connectors: {}
-  #  elasticsearch:
-  #    default:
-  #      host:
-  #        - example.local:9200
-  #      suggestCompression: true
-  #      sniffOnStart: true
-  #      sniffOnConnectionFault: false
-  #      # 1m in milliseconds
-  #      sniffInterval: 60000
   #  elasticsearch-next:
   #     default:
   #       node:

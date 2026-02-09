@@ -35,19 +35,6 @@ opensearch3:
   nodePort: 30203
 
 
-elasticsearch7:
-  # If false, elasticsearch7 will be excluded on helmfile sync
-  enabled: false
-  # It's not recommended to deviate from es versions 7.9. The chart is tied to this specific version.
-  version: 7.9.3
-  # The number of replicas
-  instances: 1
-  esJavaOpts: -Xms512m -Xmx512m
-  memoryLimit: 1Gi
-  memoryRequest: 512Mi
-  persistentVolumeSize: 8Gi
-  nodePort: 30207
-
 minio:
   # If false, minio will be excluded on helmfile sync
   enabled: true

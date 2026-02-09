@@ -33,7 +33,7 @@ All defaults and variables that are used can be found at `/packages/scripts/src/
 Multiple databases can be setup at the same time by using the correct environmental variables
 
 ```
-"test": "OPENSEARCH_VERSION='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
+"test": "TEST_OPENSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
 ```
 
 In the above scenario, both opensearch and kafka are setup before the tests are run

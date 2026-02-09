@@ -23,7 +23,6 @@ export function getClientVersion(client: Client): number {
 export function getClientMetadata(client: Client): ClientMetadata {
     const version = get(client, '__meta.version');
     const distribution = get(client, '__meta.distribution', ElasticsearchDistribution.opensearch);
-    // lowest Elasticsearch we run is 6.8.6
     const [majorVersion = 2, minorVersion = 15] = version.split('.').map(toNumber);
 
     return {

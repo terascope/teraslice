@@ -858,33 +858,31 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             expect(resp.created).toBe(1);
             expect(resp.failures.length).toBe(0);
         });
-        // TODO: what is this doing?
-        // it('should handle additional reindex params', async () => {
-        // const params: ClientParams.ReindexParams = {
-        //     refresh: true,
-        //     max_docs: 5,
-        //     wait_for_active_shards: 1,
-        //     requests_per_second: 100,
-        //     body: {
-        //         conflicts: 'proceed',
-        //         source: {
-        //             index: reindexIndex,
-        //             _source: ['url', 'ip', 'created', 'userAgent']
-        //         },
-        //         dest: {
-        //             index: 'test-reindex5',
-        //             op_type: 'create'
-        //         }
-        //     }
-        // };
 
-        // const resp = await client.reindex(params) as ClientResponse.ReindexCompletedResponse;
+        it('should handle additional reindex params', async () => {
+            const params: ClientParams.ReindexParams = {
+                refresh: true,
+                max_docs: 5,
+                wait_for_active_shards: 1,
+                requests_per_second: 100,
+                body: {
+                    conflicts: 'proceed',
+                    source: {
+                        index: reindexIndex,
+                        _source: ['url', 'ip', 'created', 'userAgent']
+                    },
+                    dest: {
+                        index: 'test-reindex5',
+                        op_type: 'create'
+                    }
+                }
+            };
 
-        // if (clientMetadata.distribution === 'elasticsearch') {
-        //     expect(resp.total).toBe(5);
-        //     expect(resp.created).toBe(5);
-        // }
-        // });
+            const resp = await client.reindex(params) as ClientResponse.ReindexCompletedResponse;
+
+            expect(resp.total).toBe(5);
+            expect(resp.created).toBe(5);
+        });
     });
 
     describe('cluster.getSettings', () => {
