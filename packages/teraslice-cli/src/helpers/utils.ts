@@ -10,6 +10,7 @@ import { TerasliceClient } from 'teraslice-client-js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { PackageManager } from '../interfaces.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -76,6 +77,28 @@ export function handleWrapper(fn: (argv: any) => any) {
             }
         }
     };
+}
+
+/**
+ * Detects the package manager from the packageManager field in package.json
+ * or by checking for lock files in the given directory.
+ * @param packageJson - Parsed package.json object
+ * @param dir - Directory to check for lock files as a fallback
+ * @returns The detected package manager name
+ */
+export function detectPackageManager(packageJson: any, dir: string): PackageManager {
+    if (packageJson?.packageManager) {
+        const name = packageJson.packageManager.split('@')[0];
+        if (name === 'yarn' || name === 'npm' || name === 'pnpm') {
+            return name;
+        }
+    }
+
+    if (fs.existsSync(path.join(dir, 'yarn.lock'))) return 'yarn';
+    if (fs.existsSync(path.join(dir, 'pnpm-lock.yaml'))) return 'pnpm';
+    if (fs.existsSync(path.join(dir, 'package-lock.json'))) return 'npm';
+
+    return 'npm';
 }
 
 export const wasmPlugin = {
