@@ -31,12 +31,12 @@
         "dist/src/helpers/esm-shims.js"
     ],
     "scripts": {
-        "build": "tsc --build && yarn postbuild",
+        "build": "tsc --build && pnpm postbuild",
         "postbuild": "node build.js",
         "build:watch": "tsc --build --watch & node build.js --watch",
         "test": "node ../scripts/bin/ts-scripts test ../teraslice-cli --",
-        "test:debug": "yarn workspace @terascope/scripts test --debug ../teraslice-cli --",
-        "test:watch": "yarn workspace @terascope/scripts test --watch ../teraslice-cli --"
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "esbuild": "~0.27.2"
@@ -76,7 +76,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

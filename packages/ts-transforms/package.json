@@ -30,7 +30,7 @@
     ],
     "scripts": {
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../ts-transforms --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../ts-transforms --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../ts-transforms --"
@@ -59,7 +59,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

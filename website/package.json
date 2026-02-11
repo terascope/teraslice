@@ -20,14 +20,16 @@
     "@docusaurus/core": "^3.9.2",
     "@docusaurus/mdx-loader": "^3.9.2",
     "@docusaurus/preset-classic": "^3.9.2",
+    "@docusaurus/theme-common": "^3.9.2",
     "@docusaurus/theme-mermaid": "^3.9.2",
     "@mdx-js/react": "^3.1.1",
     "clsx": "^2.1.1",
+    "prism-react-renderer": "^2.4.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-markdown": "10.1.0"
   },
-  "packageManager": "yarn@4.6.0",
+  "packageManager": "pnpm@10.25.0",
   "watch": {
     "start": {
       "patterns": [

@@ -22,10 +22,10 @@
         "dist/src/**/*"
     ],
     "scripts": {
-        "benchmark": "yarn build && node bench/index.js",
+        "benchmark": "pnpm build && node bench/index.js",
         "prebuild": "./scripts/generate-engine.js",
-        "build": "yarn prebuild && tsc --build",
-        "build:watch": "yarn build --watch",
+        "build": "pnpm prebuild && tsc --build",
+        "build:watch": "pnpm build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../xlucene-parser --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../xlucene-parser --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../xlucene-parser --"
@@ -45,7 +45,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

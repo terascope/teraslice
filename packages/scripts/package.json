@@ -22,7 +22,7 @@
     ],
     "scripts": {
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
@@ -74,7 +74,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

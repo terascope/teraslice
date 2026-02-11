@@ -23,7 +23,7 @@
     ],
     "scripts": {
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
         "test:debug": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test --debug ../xlucene-translator --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
@@ -44,7 +44,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",
