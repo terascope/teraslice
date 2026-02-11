@@ -20,7 +20,7 @@
     ],
     "scripts": {
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../data-types --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../data-types --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-types --"
@@ -32,7 +32,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

@@ -22,7 +22,7 @@
     ],
     "scripts": {
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "TEST_RESTRAINED_OPENSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-api --",
         "test:debug": "TEST_RESTRAINED_OPENSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
         "test:opensearch1": "TEST_RESTRAINED_OPENSEARCH='true' OPENSEARCH_VERSION='1.3.11' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-api --",
@@ -46,7 +46,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",
