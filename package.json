@@ -48,10 +48,10 @@
     },
     "devDependencies": {
         "@eslint/js": "~9.39.2",
-        "@terascope/core-utils": "workspace:*",
-        "@terascope/eslint-config": "workspace:*",
         "@swc/core": "1.15.11",
         "@swc/jest": "~0.2.39",
+        "@terascope/core-utils": "workspace:*",
+        "@terascope/eslint-config": "workspace:*",
         "@terascope/scripts": "workspace:*",
         "@types/elasticsearch": "~5.0.43",
         "@types/fs-extra": "~11.0.4",
@@ -64,7 +64,7 @@
         "jest-extended": "~7.0.0",
         "jest-watch-typeahead": "~3.0.1",
         "node-notifier": "~10.0.1",
-        "terafoundation_kafka_connector": "~2.0.1",
+        "terafoundation_kafka_connector": "~2.0.2",
         "teraslice": "workspace:*",
         "ts-jest": "~29.4.6",
         "typescript": "~5.9.3"
