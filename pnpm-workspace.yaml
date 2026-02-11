@@ -14,3 +14,4 @@ onlyBuiltDependencies:
 
 publicHoistPattern:
   - "terafoundation_kafka_connector"
+  - "@terascope/scripts"
