@@ -90,7 +90,7 @@ importers:
         specifier: ~2.2.1
         version: 2.2.1
       '@terascope/file-asset-apis':
-        specifier: ~2.0.0
+        specifier: ~2.0.1
         version: 2.0.1
       '@terascope/opensearch-client':
         specifier: workspace:*
@@ -606,12 +606,6 @@ importers:
       '@terascope/types':
         specifier: workspace:*
         version: link:../types
-      elasticsearch7:
-        specifier: npm:@elastic/elasticsearch@~7.17.0
-        version: '@elastic/elasticsearch@7.17.14'
-      elasticsearch8:
-        specifier: npm:@elastic/elasticsearch@~8.15.0
-        version: '@elastic/elasticsearch@8.15.3'
       opensearch1:
         specifier: npm:@opensearch-project/opensearch@~1.2.0
         version: '@opensearch-project/opensearch@1.2.0'
