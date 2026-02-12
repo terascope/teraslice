@@ -45,7 +45,7 @@
     },
     "devDependencies": {
         "@terascope/core-utils": "~2.2.0",
-        "@terascope/file-asset-apis": "~2.0.1",
+        "@terascope/file-asset-apis": "~2.0.2",
         "@terascope/opensearch-client": "~2.2.0",
         "@terascope/scripts": "~2.2.0",
         "@terascope/types": "~2.2.0",

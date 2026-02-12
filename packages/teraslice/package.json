@@ -40,7 +40,7 @@
         "@kubernetes/client-node": "~1.4.0",
         "@terascope/core-utils": "~2.2.0",
         "@terascope/elasticsearch-api": "~5.2.0",
-        "@terascope/file-asset-apis": "~2.0.1",
+        "@terascope/file-asset-apis": "~2.0.2",
         "@terascope/job-components": "~2.2.0",
         "@terascope/teraslice-messaging": "~2.2.0",
         "@terascope/types": "~2.2.0",

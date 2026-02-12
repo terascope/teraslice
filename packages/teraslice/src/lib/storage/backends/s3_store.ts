@@ -67,6 +67,7 @@ export class S3Store {
                 const isReady = await this.verifyClient();
                 return isReady;
             } catch (err) {
+                console.log('@@ErrorYarn: ', err);
                 if (err.Code === 'InvalidAccessKeyId') {
                     throw new TSError(`accessKeyId ${this.terafoundation.connectors.s3[this.connection].accessKeyId} specified in S3 ${this.connection} does not exit: ${err.message}`);
                 }
