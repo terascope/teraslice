@@ -37,7 +37,7 @@
         "@terascope/core-utils": "workspace:*",
         "@terascope/data-types": "workspace:*",
         "@terascope/elasticsearch-api": "workspace:*",
-        "@terascope/file-asset-apis": "~2.0.1",
+        "@terascope/file-asset-apis": "~2.0.2",
         "@terascope/job-components": "workspace:*",
         "@terascope/teraslice-messaging": "workspace:*",
         "@terascope/types": "workspace:*",
