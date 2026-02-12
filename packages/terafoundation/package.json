@@ -29,7 +29,7 @@
     },
     "dependencies": {
         "@terascope/core-utils": "workspace:*",
-        "@terascope/file-asset-apis": "~2.0.1",
+        "@terascope/file-asset-apis": "~2.0.2",
         "@terascope/opensearch-client": "workspace:*",
         "@terascope/types": "workspace:*",
         "bunyan": "~1.8.15",
