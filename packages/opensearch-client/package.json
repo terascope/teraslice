@@ -36,6 +36,9 @@
         "opensearch3": "npm:@opensearch-project/opensearch@~3.5.1",
         "setimmediate": "~1.0.5"
     },
+    "devDependencies": {
+        "@jest/globals": "^30.2.0"
+    },
     "engines": {
         "node": ">=22.0.0",
         "pnpm": ">=10.25.0"
@@ -48,8 +51,5 @@
     "terascope": {
         "enableTypedoc": true,
         "testSuite": "search"
-    },
-    "devDependencies": {
-        "@jest/globals": "^30.2.0"
     }
 }
