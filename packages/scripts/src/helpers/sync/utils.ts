@@ -19,7 +19,7 @@ import signale from '../signale.js';
 const topLevelFiles: readonly string[] = [
     'tsconfig.json',
     'package.json',
-    'yarn.lock'
+    'pnpm-lock.yaml'
 ];
 let prevChanged: string[] = [];
 
@@ -74,7 +74,7 @@ ${formatList(diff)}
 `);
 
     if (!options.quiet) {
-        signale.warn('Make sure to run yarn and commit your changes');
+        signale.warn('Make sure to run pnpm install and commit your changes');
         if (isCI) {
             await gitDiff(changed);
         }
