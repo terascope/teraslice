@@ -122,7 +122,7 @@ describe('Bump Utils', () => {
                             'package-dep-2': '~2.0.0'
                         },
                         dependencies: {
-                            'package-dep-1': '~2.1.0'
+                            'package-dep-1': '~2.0.0'
                         },
                         terascope: {
                             main: true
@@ -132,7 +132,7 @@ describe('Bump Utils', () => {
                         name: 'package-dep-1',
                         version: '2.1.0',
                         dependencies: {
-                            'package-util-1': '~3.1.0'
+                            'package-util-1': '~3.0.0'
                         },
                         devDependencies: {
                         },
@@ -143,7 +143,7 @@ describe('Bump Utils', () => {
                         dependencies: {
                         },
                         devDependencies: {
-                            'package-util-1': '~3.1.0',
+                            'package-util-1': '~3.0.0',
                             'package-util-2': '~3.0.0'
                         },
                     },
@@ -228,7 +228,7 @@ describe('Bump Utils', () => {
                         name: 'package-dep-1',
                         version: '2.0.0',
                         dependencies: {
-                            'package-util-1': '~3.0.1'
+                            'package-util-1': '~3.0.0'
                         },
                         devDependencies: {
                         },
@@ -239,7 +239,7 @@ describe('Bump Utils', () => {
                         dependencies: {
                         },
                         devDependencies: {
-                            'package-util-1': '~3.0.1',
+                            'package-util-1': '~3.0.0',
                             'package-util-2': '~3.0.0'
                         },
                     },
@@ -318,7 +318,7 @@ describe('Bump Utils', () => {
                     name: 'package-main',
                     version: '1.1.0-rc.0',
                     resolutions: {
-                        'package-dep-2': '~2.1.0-rc.0'
+                        'package-dep-2': '~2.0.0'
                     },
                     dependencies: {
                         'package-dep-1': '~2.0.0'
@@ -494,7 +494,7 @@ describe('Bump Assets', () => {
                         name: 'package-2',
                         version: '1.0.1',
                         dependencies: {
-                            'package-1': '~2.1.1'
+                            'package-1': '~2.1.0'
                         },
                         devDependencies: {
                         },
