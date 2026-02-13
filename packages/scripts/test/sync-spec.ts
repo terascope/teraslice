@@ -79,7 +79,7 @@ describe('Sync Helpers', () => {
                     version: '2.0.0',
                     dependencies: {
                         'ex-1': '~3.0.0',
-                        'package-1': '~1.0.0',
+                        'package-1': 'workspace:*',
                         'ex-3': '~5.5.5-beta.3',
                         'star-1': '*',
                     },
@@ -96,12 +96,12 @@ describe('Sync Helpers', () => {
                     name: 'package-3',
                     version: '3.0.0',
                     dependencies: {
-                        'package-1': '~1.0.0',
+                        'package-1': 'workspace:*',
                         'ex-2': '~2.0.0'
                     },
                     devDependencies: {
                         'ex-1': '~3.0.0',
-                        'package-2': '~2.0.0',
+                        'package-2': 'workspace:*',
                         'ex-3': '~5.5.5-beta.3',
                     }
                 });
