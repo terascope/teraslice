@@ -18,6 +18,7 @@ jobs:
       npm_prerelease_version: ${{ steps.npm-version.outputs.npm_prerelease_version }}
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - name: Register npm token
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
@@ -37,28 +38,27 @@ jobs:
       - name: Retrieve NPM Teraslice prerelease version
         id: npm-version
         run: |
-          NPM_PRERELEASE_VERSION=$(yarn npm info teraslice --json | jq -r '.["dist-tags"].prerelease')
+          NPM_PRERELEASE_VERSION=$(npm view teraslice dist-tags.prerelease)
           echo "npm_prerelease_version=$NPM_PRERELEASE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install --frozen-lockfile && pnpm run setup
 
-      - name: Verify npm authentication within yarn
-        env:
-          CI_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn npm whoami
+      - name: Verify npm authentication
+        run: npm whoami
 
       - name: Publish to npm
-        env:
-          CI_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn ts-scripts publish -t prerelease npm
+        run: pnpm ts-scripts publish -t prerelease npm
 
   build-docker:
     if: github.event.pull_request.merged == true
@@ -70,15 +70,18 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install --frozen-lockfile && pnpm run setup
 
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub
@@ -89,7 +92,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to docker
-        run: yarn ts-scripts publish -t prerelease -n ${{ matrix.node-version }} docker
+        run: pnpm ts-scripts publish -t prerelease -n ${{ matrix.node-version }} docker
 
   create-release-on-teraslice-bump:
     if: github.event.pull_request.merged == true
@@ -111,7 +114,7 @@ jobs:
         # rc.0 > dev.2 > dev.1 > beta.5 > alpha.12
         run: |
           LOCAL_TERASLICE_VERSION=${{ needs.build-npm.outputs.local_teraslice_version }}
-          NPM_PRERELEASE_VERSION=${{ needs.build-npm.outputs.npm_prerelease_version }} 
+          NPM_PRERELEASE_VERSION=${{ needs.build-npm.outputs.npm_prerelease_version }}
           echo "current version:" $LOCAL_TERASLICE_VERSION
           echo "npm version:" $NPM_PRERELEASE_VERSION
 
