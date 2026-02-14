@@ -8,8 +8,8 @@ sidebar_label: Overview
 ## Installation
 
 ```bash
-# Using yarn
-yarn add @terascope/job-components
+# Using pnpm
+pnpm add @terascope/job-components
 # Using npm
 npm install --save @terascope/job-components
 ```

@@ -12,8 +12,8 @@ A larger example of the API used in this way is available in the [integration te
 ## Installation
 
 ```bash
-# Using yarn
-yarn add @terascope/docker-compose-js
+# Using pnpm
+pnpm add @terascope/docker-compose-js
 # Using npm
 npm install --save  @terascope/docker-compose-js
 ```

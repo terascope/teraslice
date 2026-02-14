@@ -8,8 +8,8 @@ sidebar_label: Overview
 ## Installation
 
 ```bash
-# Using yarn
-yarn global add @terascope/scripts
+# Using pnpm
+pnpm add -g @terascope/scripts
 # Using npm
 npm install --global @terascope/scripts
 ```

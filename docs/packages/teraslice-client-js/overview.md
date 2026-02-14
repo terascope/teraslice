@@ -8,8 +8,8 @@ sidebar_label: Overview
 ## Installation
 
 ```bash
-# Using yarn
-yarn add teraslice-client-js
+# Using pnpm
+pnpm add teraslice-client-js
 # Using npm
 npm install --save teraslice-client-js
 ```
