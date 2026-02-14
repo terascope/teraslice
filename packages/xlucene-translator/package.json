@@ -31,15 +31,15 @@
         "test:watch": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test --watch ../xlucene-translator --"
     },
     "dependencies": {
-        "@terascope/core-utils": "workspace:*",
-        "@terascope/geo-utils": "workspace:*",
-        "@terascope/types": "workspace:*",
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/geo-utils": "workspace:~",
+        "@terascope/types": "workspace:~",
         "@types/elasticsearch": "~5.0.43",
-        "xlucene-parser": "workspace:*"
+        "xlucene-parser": "workspace:~"
     },
     "devDependencies": {
-        "@terascope/data-types": "workspace:*",
-        "@terascope/opensearch-client": "workspace:*",
+        "@terascope/data-types": "workspace:~",
+        "@terascope/opensearch-client": "workspace:~",
         "elasticsearch": "~15.4.1"
     },
     "engines": {

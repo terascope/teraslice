@@ -28,16 +28,16 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/core-utils": "workspace:*",
-        "@terascope/data-mate": "workspace:*",
-        "@terascope/data-types": "workspace:*",
-        "@terascope/opensearch-client": "workspace:*",
-        "@terascope/types": "workspace:*",
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/data-mate": "workspace:~",
+        "@terascope/data-types": "workspace:~",
+        "@terascope/opensearch-client": "workspace:~",
+        "@terascope/types": "workspace:~",
         "ajv": "~8.17.1",
         "ajv-formats": "~3.0.1",
         "setimmediate": "~1.0.5",
         "uuid": "~13.0.0",
-        "xlucene-translator": "workspace:*"
+        "xlucene-translator": "workspace:~"
     },
     "engines": {
         "node": ">=22.0.0",
