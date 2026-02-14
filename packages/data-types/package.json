@@ -26,8 +26,8 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-types --"
     },
     "dependencies": {
-        "@terascope/core-utils": "workspace:*",
-        "@terascope/types": "workspace:*",
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/types": "workspace:~",
         "graphql": "~16.12.0"
     },
     "engines": {

@@ -24,12 +24,12 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../teraslice-state-storage --"
     },
     "dependencies": {
-        "@terascope/core-utils": "workspace:*",
-        "@terascope/elasticsearch-api": "workspace:*",
-        "@terascope/types": "workspace:*"
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/elasticsearch-api": "workspace:~",
+        "@terascope/types": "workspace:~"
     },
     "devDependencies": {
-        "@terascope/opensearch-client": "workspace:*"
+        "@terascope/opensearch-client": "workspace:~"
     },
     "engines": {
         "node": ">=22.0.0",
