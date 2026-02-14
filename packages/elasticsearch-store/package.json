@@ -19,29 +19,29 @@
     ],
     "scripts": {
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
         "test:debug": "TEST_OPENSEARCH='true' node ../scripts/bin/ts-scripts test --debug ../elasticsearch-store --",
         "test:opensearch1": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='1.3.11' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
         "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='3.1.0' node ../scripts/bin/ts-scripts test ../elasticsearch-store --",
-        "test:watch": "ts-scripts yarn workspace @terascope/scripts test --watch ../elasticsearch-store --"
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.2.0",
-        "@terascope/data-mate": "~2.2.0",
-        "@terascope/data-types": "~2.2.0",
-        "@terascope/opensearch-client": "~2.2.0",
-        "@terascope/types": "~2.2.0",
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/data-mate": "workspace:~",
+        "@terascope/data-types": "workspace:~",
+        "@terascope/opensearch-client": "workspace:~",
+        "@terascope/types": "workspace:~",
         "ajv": "~8.17.1",
         "ajv-formats": "~3.0.1",
         "setimmediate": "~1.0.5",
         "uuid": "~13.0.0",
-        "xlucene-translator": "~2.2.0"
+        "xlucene-translator": "workspace:~"
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

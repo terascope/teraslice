@@ -8,19 +8,16 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "type": "module",
-    "workspaces": [
-        "e2e",
-        "packages/*"
-    ],
     "scripts": {
         "prebuild": "./packages/xlucene-parser/scripts/generate-engine.js",
-        "build": "yarn prebuild && tsc --build --verbose && yarn postbuild",
-        "postbuild": "yarn workspace teraslice-cli postbuild",
+        "build": "pnpm prebuild && tsc --build --verbose && pnpm postbuild",
+        "postbuild": "pnpm --filter teraslice-cli postbuild",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:doctor": "./scripts/build-doctor.sh",
-        "build:fix": "echo '[DEPRECATED], use yarn run build:doctor instead'",
+        "build:fix": "echo '[DEPRECATED], use pnpm run build:doctor instead'",
+        "build:force": "pnpm prebuild && tsc --build --force --verbose && pnpm postbuild",
         "build:pkg": "./scripts/build-pkg.sh",
-        "build:watch": "yarn prebuild && tsc --build --watch & yarn workspace teraslice-cli node build.js --watch",
+        "build:watch": "pnpm prebuild && tsc --build --watch & pnpm --filter teraslice-cli exec node build.js --watch",
         "bump": "ts-scripts bump",
         "determine-tests": "node ./scripts/determine-tests.js",
         "docker:limit": "./scripts/docker-limit-check.sh",
@@ -35,10 +32,10 @@
         "k8s:restart": "ts-scripts k8s-env --rebuild --skip-build",
         "k8s:utility": "ENABLE_UTILITY_SVC=true TEST_OPENSEARCH=true OPENSEARCH_VERSION='2.15.0' ts-scripts k8s-env",
         "lint": "eslint",
-        "lint:fix": "yarn lint --fix && yarn sync",
-        "setup": "yarn ${YARN_SETUP_ARGS:-''} && yarn run build --force",
+        "lint:fix": "pnpm lint --fix && pnpm sync",
+        "setup": "pnpm install && pnpm run build",
         "start": "node service.js",
-        "start:dev": "yarn build && env NODE_ENV=development node service.js",
+        "start:dev": "pnpm build && env NODE_ENV=development node service.js",
         "start:nodemon": "nodemon --exitcrash service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
@@ -53,23 +50,29 @@
         "@eslint/js": "~9.39.2",
         "@swc/core": "1.15.11",
         "@swc/jest": "~0.2.39",
-        "@terascope/scripts": "~2.2.0",
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/eslint-config": "workspace:~",
+        "@terascope/scripts": "workspace:~",
+        "@types/elasticsearch": "~5.0.43",
         "@types/fs-extra": "~11.0.4",
         "@types/jest": "~30.0.0",
         "@types/lodash": "~4.17.23",
         "@types/node": "~24.4.0",
         "eslint": "~9.39.2",
+        "got": "~14.6.6",
         "jest": "~30.2.0",
         "jest-extended": "~7.0.0",
         "jest-watch-typeahead": "~3.0.1",
         "node-notifier": "~10.0.1",
+        "terafoundation_kafka_connector": "~2.0.2",
+        "teraslice": "workspace:~",
         "ts-jest": "~29.4.6",
         "typescript": "~5.9.3"
     },
-    "packageManager": "yarn@4.6.0",
+    "packageManager": "pnpm@10.25.0",
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "os": [
         "darwin",
@@ -106,7 +109,7 @@
         },
         "engines": {
             "node": ">=22.0.0",
-            "yarn": ">=1.22.19"
+            "pnpm": ">=10.25.0"
         },
         "version": 1
     }

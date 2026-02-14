@@ -22,19 +22,19 @@
         "dist/src/**/*"
     ],
     "scripts": {
-        "benchmark": "yarn build && node bench/index.js",
+        "benchmark": "pnpm build && node bench/index.js",
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../data-mate --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../data-mate --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-mate --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.2.0",
-        "@terascope/data-types": "~2.2.0",
-        "@terascope/geo-utils": "~2.2.0",
-        "@terascope/ip-utils": "~2.2.0",
-        "@terascope/types": "~2.2.0",
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/data-types": "workspace:~",
+        "@terascope/geo-utils": "workspace:~",
+        "@terascope/ip-utils": "workspace:~",
+        "@terascope/types": "workspace:~",
         "@types/validator": "~13.15.10",
         "awesome-phonenumber": "~7.7.0",
         "big-json": "~3.2.0",
@@ -48,7 +48,7 @@
         "uuid": "~13.0.0",
         "valid-url": "~1.0.9",
         "validator": "~13.15.26",
-        "xlucene-parser": "~2.2.0"
+        "xlucene-parser": "workspace:~"
     },
     "devDependencies": {
         "@types/big-json": "~3.2.5",
@@ -60,7 +60,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

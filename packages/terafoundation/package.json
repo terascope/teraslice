@@ -22,16 +22,16 @@
     ],
     "scripts": {
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../terafoundation --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../terafoundation --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../terafoundation --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.2.0",
-        "@terascope/file-asset-apis": "~2.0.1",
-        "@terascope/opensearch-client": "~2.2.0",
-        "@terascope/types": "~2.2.0",
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/file-asset-apis": "~2.0.2",
+        "@terascope/opensearch-client": "workspace:~",
+        "@terascope/types": "workspace:~",
         "bunyan": "~1.8.15",
         "elasticsearch": "~15.4.1",
         "express": "~5.2.1",
@@ -41,6 +41,7 @@
         "yargs": "~18.0.0"
     },
     "devDependencies": {
+        "@jest/globals": "^30.2.0",
         "@types/bunyan": "~1.8.11",
         "@types/elasticsearch": "~5.0.43",
         "@types/express": "~5.0.6",
@@ -50,7 +51,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

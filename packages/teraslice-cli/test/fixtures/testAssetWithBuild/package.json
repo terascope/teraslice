@@ -7,5 +7,5 @@
     "workspaces": [
         "asset"
     ],
-    "packageManager": "yarn@4.6.0"
+    "packageManager": "pnpm@10.25.0"
 }

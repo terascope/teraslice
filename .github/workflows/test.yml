@@ -44,31 +44,34 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v4
 
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
-        cache: 'yarn'
+        cache: 'pnpm'
 
     - name: Install and build packages
-      run: YARN_ENABLE_HARDENED_MODE=1 yarn && yarn setup
+      run: pnpm install --frozen-lockfile && pnpm run setup
 
   check-docker-limit-before:
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@main
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@df1e2a66bdf09a74610b8ff521f8e607ee4c725a
     secrets: inherit
 
   check-github-api-limit-before:
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@df1e2a66bdf09a74610b8ff521f8e607ee4c725a
     secrets: inherit
 
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@main
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@df1e2a66bdf09a74610b8ff521f8e607ee4c725a
     secrets: inherit
 
   cache-asset-bundles:
     needs: check-github-api-limit-before
-    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@main
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@df1e2a66bdf09a74610b8ff521f8e607ee4c725a
     secrets: inherit
 
   determine-tests-based-off-commit:
@@ -85,13 +88,15 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
       - name: Setup Node ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install && pnpm run setup
       - name: Determine tests to run
         id: determine
         # The output of determine-tests would be a json object that looks like this:
@@ -103,7 +108,7 @@ jobs:
         run: |
           echo "Running determine-tests..."
 
-          JSON=$(yarn determine-tests)
+          JSON=$(pnpm -s run determine-tests)
           echo "$JSON"
 
           UNIT=$(echo "$JSON" | jq -r '.unit')
@@ -128,14 +133,17 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install && pnpm run setup
 
       - name: Test
         env:
@@ -144,7 +152,7 @@ jobs:
           # coverage for the first package in the batch
           # https://github.com/jestjs/jest/issues/4255
           MAX_PROJECTS_PER_BATCH: 1
-        run: yarn test --suite unit --
+        run: pnpm run test --suite unit --
 
       - name: Upload Node ${{ matrix.node-version }} unit test coverage
         uses: codecov/codecov-action@v5
@@ -196,11 +204,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -210,11 +221,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
         run: |
-          yarn docker:listImages
+          pnpm run docker:listImages
           cat ./images/image-list.txt
 
       - name: Restore Docker image cache
@@ -240,7 +251,7 @@ jobs:
           docker image ls -a
 
       - name: Compile e2e code
-        run: yarn build
+        run: pnpm run build
         working-directory: ./e2e
 
       - name: Get Asset Bundle List From Artifact
@@ -291,7 +302,7 @@ jobs:
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:k8sV2
         working-directory: ./e2e
 
       - name: Upload logs artifact
@@ -316,11 +327,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -330,11 +344,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
         run: |
-          yarn docker:listImages
+          pnpm run docker:listImages
           cat ./images/image-list.txt
 
       - name: Restore Docker image cache
@@ -358,7 +372,7 @@ jobs:
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
-          
+
       - name: Install mkcert
         run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
 
@@ -372,7 +386,7 @@ jobs:
         run: command -v grep
 
       - name: Compile e2e code
-        run: yarn build
+        run: pnpm run build
         working-directory: ./e2e
 
       - name: Get Asset Bundle List From Artifact
@@ -426,7 +440,7 @@ jobs:
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:k8sV2Encrypted
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:k8sV2Encrypted
         working-directory: ./e2e
 
       - name: Upload logs artifact
@@ -453,11 +467,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -467,11 +484,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
         run: |
-          yarn docker:listImages
+          pnpm run docker:listImages
           cat ./images/image-list.txt
 
       - name: Restore Docker image cache
@@ -495,9 +512,9 @@ jobs:
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
-          
+
       - name: Compile e2e code
-        run: yarn build
+        run: pnpm run build
         working-directory: ./e2e
 
       - name: Get Asset Bundle List From Artifact
@@ -520,7 +537,7 @@ jobs:
           export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:s3AssetStorage
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:s3AssetStorage
         working-directory: ./e2e
 
       - name: Upload logs artifact
@@ -547,11 +564,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -561,11 +581,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
         run: |
-          yarn docker:listImages
+          pnpm run docker:listImages
           cat ./images/image-list.txt
 
       - name: Restore Docker image cache
@@ -601,9 +621,9 @@ jobs:
 
       - name: Check grep
         run: command -v grep
-          
+
       - name: Compile e2e code
-        run: yarn build
+        run: pnpm run build
         working-directory: ./e2e
 
       - name: Get Asset Bundle List From Artifact
@@ -625,7 +645,7 @@ jobs:
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:s3AssetStorageEncrypted
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:s3AssetStorageEncrypted
         working-directory: ./e2e
 
       - name: Upload logs artifact
@@ -651,11 +671,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -665,11 +688,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
         run: |
-          yarn docker:listImages
+          pnpm run docker:listImages
           cat ./images/image-list.txt
 
       - name: Restore Docker image cache
@@ -688,7 +711,7 @@ jobs:
         run: |
           export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
           export MINIO_PORT=$(../../scripts/get-random-port.sh)
-          yarn test:${{ matrix.search-version }}
+          pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/teraslice
 
       - name: Upload teraslice node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
@@ -715,11 +738,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -729,11 +755,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
         run: |
-          yarn docker:listImages
+          pnpm run docker:listImages
           cat ./images/image-list.txt
 
       - name: Restore Docker image cache
@@ -751,7 +777,7 @@ jobs:
           REPORT_COVERAGE: true
         run: |
           export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
-          yarn test:${{ matrix.search-version }}
+          pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
 
       - name: Upload elasticsearch-store node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
@@ -778,11 +804,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -792,11 +821,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
         run: |
-          yarn docker:listImages
+          pnpm run docker:listImages
           cat ./images/image-list.txt
 
       - name: Restore Docker image cache
@@ -814,7 +843,7 @@ jobs:
           REPORT_COVERAGE: true
         run: |
           export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
-          yarn test:${{ matrix.search-version }}
+          pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/xlucene-translator
 
       - name: Upload xlucene-translator node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
@@ -841,11 +870,14 @@ jobs:
         - name: Check out code
           uses: actions/checkout@v4
 
+        - name: Install pnpm
+          uses: pnpm/action-setup@v4
+
         - name: Setup Node ${{ matrix.node-version }}
           uses: actions/setup-node@v4
           with:
             node-version: ${{ matrix.node-version }}
-            cache: 'yarn'
+            cache: 'pnpm'
 
         # we login to docker to avoid docker pull limit rates
         - name: Login to Docker Hub
@@ -855,11 +887,11 @@ jobs:
             password: ${{ secrets.DOCKER_PASSWORD }}
 
         - name: Install and build packages
-          run: yarn && yarn setup
+          run: pnpm install && pnpm run setup
 
         - name: Create Docker Image List
           run: |
-            yarn docker:listImages
+            pnpm run docker:listImages
             cat ./images/image-list.txt
 
         - name: Restore Docker image cache
@@ -877,7 +909,7 @@ jobs:
             REPORT_COVERAGE: true
           run: |
             export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
-            yarn test:${{ matrix.search-version }}
+            pnpm run test:${{ matrix.search-version }}
           working-directory: ./packages/opensearch-client
 
         - name: Upload opensearch-client node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
@@ -899,20 +931,23 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v4
 
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
-        cache: 'yarn'
+        cache: 'pnpm'
 
     - name: Install and build packages
-      run: yarn && yarn setup
+      run: pnpm install && pnpm run setup
 
     - name: Lint codebase
-      run: yarn lint
+      run: pnpm run lint
 
     - name: Sync codebase
-      run: yarn sync --verify
+      run: pnpm run sync --verify
 
   elasticsearch-api-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
@@ -928,11 +963,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -942,11 +980,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
         run: |
-          yarn docker:listImages
+          pnpm run docker:listImages
           cat ./images/image-list.txt
 
       - name: Restore Docker image cache
@@ -964,7 +1002,7 @@ jobs:
           REPORT_COVERAGE: true
         run: |
           export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
-          yarn test:${{ matrix.search-version }}
+          pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-api
 
       - name: Upload es-api node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
@@ -993,11 +1031,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
@@ -1007,11 +1048,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
         run: |
-          yarn docker:listImages
+          pnpm run docker:listImages
           cat ./images/image-list.txt
 
       - name: Restore Docker image cache
@@ -1035,9 +1076,9 @@ jobs:
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           docker image ls -a
-          
+
       - name: Compile e2e code
-        run: yarn build
+        run: pnpm run build
         working-directory: ./e2e
 
       - name: Get Asset Bundle List From Artifact
@@ -1060,7 +1101,7 @@ jobs:
           export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' yarn test:${{ matrix.search-version }}
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:${{ matrix.search-version }}
         working-directory: ./e2e
 
       - name: Upload logs artifact
@@ -1081,13 +1122,16 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           # NOTE: Hard Coded Node Version
           node-version: '24'
+          cache: 'pnpm'
       - name: Build documentation
-        run: yarn && ./scripts/build-documentation.sh
+        run: pnpm install && ./scripts/build-documentation.sh
       - name: Check Output
         run: find ./website/build
 
@@ -1103,7 +1147,7 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@main
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@df1e2a66bdf09a74610b8ff521f8e607ee4c725a
     secrets: inherit
 
   check-github-api-limit-after:
@@ -1119,7 +1163,7 @@ jobs:
       teraslice-elasticsearch-tests,
       xlucene-translator-tests,
     ]
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@df1e2a66bdf09a74610b8ff521f8e607ee4c725a
     secrets: inherit
 
   all-tests-passed:

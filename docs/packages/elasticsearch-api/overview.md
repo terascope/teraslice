@@ -8,8 +8,8 @@ sidebar_label: Overview
 ## Installation
 
 ```bash
-# Using yarn
-yarn add @terascope/elasticsearch-api
+# Using pnpm
+pnpm add @terascope/elasticsearch-api
 # Using npm
 npm install --save @terascope/elasticsearch-api
 ```

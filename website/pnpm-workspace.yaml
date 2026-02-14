@@ -1,0 +1,10 @@
+packages:
+  - ./
+
+onlyBuiltDependencies:
+  # Used by a package within @docusaurus/core
+  - 'core-js-pure'
+  # Used by @docusaurus/core
+  - 'core-js'
+
+# publicHoistPattern:

@@ -27,23 +27,21 @@
     ],
     "scripts": {
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../docker-compose-js --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../docker-compose-js --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../docker-compose-js --"
-    },
-    "resolutions": {
-        "debug": "~4.4.3"
     },
     "dependencies": {
         "debug": "~4.4.3"
     },
     "devDependencies": {
+        "@jest/globals": "^30.2.0",
         "@types/debug": "~4.1.12"
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

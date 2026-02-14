@@ -18,20 +18,17 @@
         "dist/src/**/*"
     ],
     "scripts": {
-        "benchmark": "yarn build && node bench/index.js",
+        "benchmark": "pnpm build && node bench/index.js",
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../ip-utils --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../ip-utils --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../ip-utils --"
     },
-    "resolutions": {
-        "debug": "~4.4.3"
-    },
     "dependencies": {
         "@chainsafe/is-ip": "~2.1.0",
-        "@terascope/core-utils": "~2.2.0",
-        "@terascope/types": "~2.2.0",
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/types": "workspace:~",
         "ip-bigint": "~8.2.3",
         "ip-cidr": "~4.0.2",
         "ip6addr": "~0.2.5",
@@ -43,7 +40,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

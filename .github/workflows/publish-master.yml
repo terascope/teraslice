@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - name: Register npm token
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
@@ -33,28 +34,27 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version:  24
           registry-url: 'https://registry.npmjs.org'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install --frozen-lockfile && pnpm run setup
 
-      - name: Verify npm authentication within yarn
-        env:
-          CI_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn npm whoami
+      - name: Verify npm authentication
+        run: npm whoami
 
       - name: Publish to npm
-        env:
-          CI_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn ts-scripts publish -t latest npm
+        run: pnpm ts-scripts publish -t latest npm
 
       - name: Publish to docker
-        run: yarn ts-scripts publish -t dev docker
+        run: pnpm ts-scripts publish -t dev docker
 
   create-release-on-teraslice-bump:
     if: github.event.pull_request.merged == true
@@ -63,14 +63,14 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-       
+
       - name: Check for teraslice version update
         id: version_check
         run: |
           CURRENT_VERSION=$(jq -r .version package.json)
           echo "current version:" $CURRENT_VERSION
 
-          NPM_VERSION=$(yarn npm info teraslice --json | jq -r '.["dist-tags"].latest')
+          NPM_VERSION=$(npm view teraslice dist-tags.latest)
           echo "npm version:" $NPM_VERSION
 
           COMP_OUTPUT=$(./scripts/semver-tool.sh compare $CURRENT_VERSION $NPM_VERSION)
@@ -208,15 +208,18 @@ jobs:
         with:
           ref: master
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version:  24
           registry-url: 'https://registry.npmjs.org'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Build documentation
-        run: yarn && ./scripts/build-documentation.sh  # output in website/build
+        run: pnpm install && ./scripts/build-documentation.sh  # output in website/build
       - name: Check Output
         run: find ./website/build
       - name: Prepare chart directory for Website Build
@@ -257,7 +260,7 @@ jobs:
           private-key: ${{ secrets.GH_CROSS_REPO_ACTIONS_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: helm-charts
-      - 
+      -
         name: Send workflow dispatch event to terascope/helm-charts
         run: |
           curl -X POST -H "Accept: application/vnd.github+json" \

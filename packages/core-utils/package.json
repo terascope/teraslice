@@ -18,18 +18,15 @@
         "dist/src/**/*"
     ],
     "scripts": {
-        "benchmark": "yarn build && node bench/index.js",
+        "benchmark": "pnpm build && node bench/index.js",
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../core-utils --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../core-utils --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../core-utils --"
     },
-    "resolutions": {
-        "debug": "~4.4.3"
-    },
     "dependencies": {
-        "@terascope/types": "~2.2.0",
+        "@terascope/types": "workspace:~",
         "awesome-phonenumber": "~7.7.0",
         "bunyan": "~1.8.15",
         "date-fns": "~4.1.0",
@@ -48,6 +45,8 @@
         "zod": "~4.1.12"
     },
     "devDependencies": {
+        "@jest/globals": "^30.2.0",
+        "@types/bunyan": "~1.8.11",
         "@types/debug": "~4.1.12",
         "@types/geojson": "~7946.0.16",
         "@types/is-plain-object": "~2.0.4",
@@ -58,7 +57,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

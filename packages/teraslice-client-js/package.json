@@ -26,14 +26,14 @@
     },
     "scripts": {
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../teraslice-client-js --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../teraslice-client-js --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../teraslice-client-js --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.2.0",
-        "@terascope/types": "~2.2.0",
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/types": "workspace:~",
         "auto-bind": "~5.0.1",
         "got": "~14.6.6"
     },
@@ -42,7 +42,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

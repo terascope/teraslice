@@ -30,16 +30,16 @@
     ],
     "scripts": {
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../ts-transforms --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../ts-transforms --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../ts-transforms --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.2.0",
-        "@terascope/data-mate": "~2.2.0",
-        "@terascope/ip-utils": "~2.2.0",
-        "@terascope/types": "~2.2.0",
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/data-mate": "workspace:~",
+        "@terascope/ip-utils": "workspace:~",
+        "@terascope/types": "workspace:~",
         "awesome-phonenumber": "~7.7.0",
         "graphlib": "~2.1.8",
         "jexl": "~2.3.0",
@@ -49,6 +49,7 @@
         "yargs": "~18.0.0"
     },
     "devDependencies": {
+        "@jest/globals": "^30.2.0",
         "@types/graphlib": "~2.1.12",
         "@types/jexl": "~2.3.4",
         "@types/valid-url": "~1.0.7",
@@ -58,7 +59,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

@@ -8,8 +8,8 @@ sidebar_label: Overview
 ## Installation
 
 ```sh
-# Using yarn
-yarn add @terascope/teraslice-messaging
+# Using pnpm
+pnpm add @terascope/teraslice-messaging
 # Using npm
 npm install --save @terascope/teraslice-messaging
 ```

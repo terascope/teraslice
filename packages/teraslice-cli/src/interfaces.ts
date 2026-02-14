@@ -68,3 +68,5 @@ export const OP_TYPES = ['API', 'Fetcher', 'Processor', 'Schema', 'Slicer', 'Obs
 
 export type OpTypeTuple = typeof OP_TYPES;
 export type OpType = OpTypeTuple[number];
+
+export type PackageManager = 'yarn' | 'npm' | 'pnpm';
