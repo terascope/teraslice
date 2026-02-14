@@ -10,13 +10,12 @@ The xLucene Parser is a powerful query language parser that supports Lucene-like
 ## Installation
 
 ```bash
-yarn add xlucene-parser
+pnpm add xlucene-parser
 ```
 
 ```bash
-yarn add xlucene-parser
-yarn add ts-pegjs
-yarn unplug ts-pegjs
+pnpm add xlucene-parser
+pnpm add ts-pegjs
 ```
 
 The -A or -R flags may be needed with `unplug` depending on your workspace structure.

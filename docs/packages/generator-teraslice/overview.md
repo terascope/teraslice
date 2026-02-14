@@ -10,8 +10,8 @@ sidebar_label: Overview
 ### Install Yeoman
 
 ```bash
-# Using yarn
-yarn global add yo
+# Using pnpm
+pnpm add -g yo
 # Using npm
 npm install --global yo
 ```
@@ -21,8 +21,8 @@ npm install --global yo
 **NOTE:** This will use version lock the generator and you'll have to update it manually to get the latest.
 
 ```bash
-# Using yarn
-yarn global add generator-teraslice
+# Using pnpm
+pnpm add -g generator-teraslice
 # Using npm
 npm install --global generator-teraslice
 ```
@@ -36,8 +36,8 @@ npm install --global generator-teraslice
 cd ./packages/generator-teraslice
 
 # Link the generator so the command is available to you
-# Using yarn
-yarn link
+# Using pnpm
+pnpm link --global
 # Using npm
 npm link
 ```

@@ -14,22 +14,22 @@ title: End-to-End Tests
 Unless specified, all commands are assumed to be run from this e2e tests
 directory - utils like `docker-compose` look for files in current dir.
 
-You can run `yarn test` from the directory to run the tests.
+You can run `pnpm test` from the directory to run the tests.
 
 ## Development
 
 When in dev mode, the teraslice project root will be built in a docker container, including any uncommitted changes. Currently this e2e tests do not support symlinked directories. The recommended workflow is:
 
-1. From the teraslice project root, `yarn setup` and it will link the teraslice packages together
+1. From the teraslice project root, `pnpm run setup` and it will link the teraslice packages together
 
-2. From the e2e directory, `yarn test` will run
+2. From the e2e directory, `pnpm test` will run
    the test suite against latest stable versions.
 
-3. Repeat as needed. When done, run `yarn clean` from this directory.
+3. Repeat as needed. When done, run `pnpm clean` from this directory.
 
 ## CI Tests
 
-When in CI, the teraslice tests will run until a failure happens then bail, output the logs, and cleanup the docker stack. To run in CI tests, use `yarn test:ci` from inside the e2e directory from inside the project root. Running the CI tests will also force downloading assets.
+When in CI, the teraslice tests will run until a failure happens then bail, output the logs, and cleanup the docker stack. To run in CI tests, use `pnpm test:ci` from inside the e2e directory from inside the project root. Running the CI tests will also force downloading assets.
 
 ## Assets
 
@@ -45,9 +45,9 @@ prettify the teraslice logs:
 
 ```sh
 # from this directory
-yarn logs
+pnpm logs
 # if you want to follow the logs use:
-yarn logs-follow
+pnpm logs-follow
 ```
 
 ## Notes

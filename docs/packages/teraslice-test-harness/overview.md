@@ -10,8 +10,8 @@ sidebar_label: Overview
 ## Installation
 
 ```bash
-# Using yarn
-yarn add --dev teraslice-test-harness
+# Using pnpm
+pnpm add -D teraslice-test-harness
 # Using npm
 npm install --save-dev teraslice-test-harness
 ```

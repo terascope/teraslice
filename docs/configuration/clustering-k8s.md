@@ -772,7 +772,7 @@ How to run just the unit tests on kubernetes backend:
 
 ```bash
 # make sure dependencies are installed and typescript compiled
-yarn setup
+pnpm run setup
 # run tests
 DEBUG=True npx jest --detectOpenHandles packages/teraslice/test/lib/cluster/services/cluster/backends/kubernetes/
 ```
