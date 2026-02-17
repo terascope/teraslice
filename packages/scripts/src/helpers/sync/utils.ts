@@ -19,7 +19,8 @@ import signale from '../signale.js';
 const topLevelFiles: readonly string[] = [
     'tsconfig.json',
     'package.json',
-    'pnpm-lock.yaml'
+    'pnpm-lock.yaml',
+    'yarn.lock'
 ];
 let prevChanged: string[] = [];
 
