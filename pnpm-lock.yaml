@@ -24,13 +24,13 @@ importers:
         specifier: ~0.2.39
         version: 0.2.39(@swc/core@1.15.11)
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:packages/core-utils
       '@terascope/eslint-config':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:packages/eslint-config
       '@terascope/scripts':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:packages/scripts
       '@types/elasticsearch':
         specifier: ~5.0.43
@@ -69,7 +69,7 @@ importers:
         specifier: ~2.0.2
         version: 2.0.2
       teraslice:
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:packages/teraslice
       ts-jest:
         specifier: ~29.4.6
@@ -81,10 +81,10 @@ importers:
   e2e:
     devDependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../packages/core-utils
       '@terascope/docker-compose-js':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../packages/docker-compose-js
       '@terascope/fetch-github-release':
         specifier: ~2.2.1
@@ -93,13 +93,13 @@ importers:
         specifier: ~2.0.2
         version: 2.0.2
       '@terascope/opensearch-client':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../packages/opensearch-client
       '@terascope/scripts':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../packages/scripts
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../packages/types
       '@types/archiver':
         specifier: ~7.0.0
@@ -153,10 +153,10 @@ importers:
         specifier: ~1.4.0
         version: 1.4.0
       teraslice-cli:
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../packages/teraslice-cli
       teraslice-client-js:
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../packages/teraslice-client-js
       ts-jest:
         specifier: ~29.4.6
@@ -174,7 +174,7 @@ importers:
   packages/core-utils:
     dependencies:
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       awesome-phonenumber:
         specifier: ~7.7.0
@@ -256,19 +256,19 @@ importers:
   packages/data-mate:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/data-types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../data-types
       '@terascope/geo-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../geo-utils
       '@terascope/ip-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../ip-utils
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       '@types/validator':
         specifier: ~13.15.10
@@ -310,7 +310,7 @@ importers:
         specifier: ~13.15.26
         version: 13.15.26
       xlucene-parser:
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../xlucene-parser
     devDependencies:
       '@types/big-json':
@@ -335,10 +335,10 @@ importers:
   packages/data-types:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       graphql:
         specifier: ~16.12.0
@@ -360,10 +360,10 @@ importers:
   packages/elasticsearch-api:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       setimmediate:
         specifier: ~1.0.5
@@ -376,7 +376,7 @@ importers:
         specifier: ~1.2.0
         version: 1.2.0
       '@terascope/opensearch-client':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../opensearch-client
       '@types/elasticsearch':
         specifier: ~5.0.43
@@ -394,19 +394,19 @@ importers:
   packages/elasticsearch-store:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/data-mate':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../data-mate
       '@terascope/data-types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../data-types
       '@terascope/opensearch-client':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../opensearch-client
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       ajv:
         specifier: ~8.17.1
@@ -421,7 +421,7 @@ importers:
         specifier: ~13.0.0
         version: 13.0.0
       xlucene-translator:
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../xlucene-translator
 
   packages/eslint-config:
@@ -478,10 +478,10 @@ importers:
   packages/geo-utils:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       '@turf/bbox':
         specifier: ~7.3.3
@@ -536,10 +536,10 @@ importers:
         specifier: ~2.1.0
         version: 2.1.0
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       ip-bigint:
         specifier: ~8.2.3
@@ -564,10 +564,10 @@ importers:
   packages/job-components:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       import-meta-resolve:
         specifier: ~4.2.0
@@ -601,13 +601,13 @@ importers:
   packages/opensearch-client:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/data-types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../data-types
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       opensearch1:
         specifier: npm:@opensearch-project/opensearch@~1.2.0
@@ -632,7 +632,7 @@ importers:
         specifier: ~1.4.0
         version: 1.4.0
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       execa:
         specifier: ~9.6.1
@@ -699,7 +699,7 @@ importers:
         specifier: ^30.2.0
         version: 30.2.0
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       '@types/ip':
         specifier: ~1.1.3
@@ -732,16 +732,16 @@ importers:
   packages/terafoundation:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/file-asset-apis':
         specifier: ~2.0.2
         version: 2.0.2
       '@terascope/opensearch-client':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../opensearch-client
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       bunyan:
         specifier: ~1.8.15
@@ -793,25 +793,25 @@ importers:
         specifier: ~1.4.0
         version: 1.4.0
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/data-types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../data-types
       '@terascope/elasticsearch-api':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../elasticsearch-api
       '@terascope/file-asset-apis':
         specifier: ~2.0.2
         version: 2.0.2
       '@terascope/job-components':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../job-components
       '@terascope/teraslice-messaging':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../teraslice-messaging
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       async-mutex:
         specifier: ~0.5.0
@@ -865,7 +865,7 @@ importers:
         specifier: ~4.8.3
         version: 4.8.3
       terafoundation:
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../terafoundation
       uuid:
         specifier: ~13.0.0
@@ -875,7 +875,7 @@ importers:
         specifier: ^30.2.0
         version: 30.2.0
       '@terascope/opensearch-client':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../opensearch-client
       '@types/archiver':
         specifier: ~7.0.0
@@ -933,13 +933,13 @@ importers:
         specifier: ^30.2.0
         version: 30.2.0
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/fetch-github-release':
         specifier: ~2.2.1
         version: 2.2.1
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       '@types/decompress':
         specifier: ~4.2.7
@@ -1008,7 +1008,7 @@ importers:
         specifier: ~1.4.0
         version: 1.4.0
       teraslice-client-js:
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../teraslice-client-js
       tmp:
         specifier: ~0.2.5
@@ -1026,10 +1026,10 @@ importers:
   packages/teraslice-client-js:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       auto-bind:
         specifier: ~5.0.1
@@ -1045,10 +1045,10 @@ importers:
   packages/teraslice-messaging:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       get-port:
         specifier: ~7.1.0
@@ -1079,17 +1079,17 @@ importers:
   packages/teraslice-state-storage:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/elasticsearch-api':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../elasticsearch-api
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
     devDependencies:
       '@terascope/opensearch-client':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../opensearch-client
 
   packages/teraslice-test-harness:
@@ -1098,7 +1098,7 @@ importers:
         specifier: ~2.2.1
         version: 2.2.1
       '@terascope/job-components':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../job-components
       decompress:
         specifier: ~4.2.1
@@ -1111,7 +1111,7 @@ importers:
         specifier: ^30.2.0
         version: 30.2.0
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@types/decompress':
         specifier: ~4.2.7
@@ -1123,16 +1123,16 @@ importers:
   packages/ts-transforms:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/data-mate':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../data-mate
       '@terascope/ip-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../ip-utils
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       awesome-phonenumber:
         specifier: ~7.7.0
@@ -1187,16 +1187,16 @@ importers:
   packages/xlucene-parser:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/geo-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../geo-utils
       '@terascope/ip-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../ip-utils
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       peggy:
         specifier: ~5.0.6
@@ -1218,26 +1218,26 @@ importers:
   packages/xlucene-translator:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
       '@terascope/geo-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../geo-utils
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
       '@types/elasticsearch':
         specifier: ~5.0.43
         version: 5.0.43
       xlucene-parser:
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../xlucene-parser
     devDependencies:
       '@terascope/data-types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../data-types
       '@terascope/opensearch-client':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../opensearch-client
       elasticsearch:
         specifier: ~15.4.1
@@ -1246,11 +1246,11 @@ importers:
   packages/xpressions:
     dependencies:
       '@terascope/core-utils':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-utils
     devDependencies:
       '@terascope/types':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../types
 
 packages:
