@@ -123,7 +123,7 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
         const internal = internalVersions[name];
         const external = externalVersions[name];
         if (internal != null) {
-            return 'workspace:*';
+            return rootInfo.terascope.version === 1 ? 'workspace:~' : 'workspace:*';
         }
 
         if (external == null) {
