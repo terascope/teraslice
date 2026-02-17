@@ -41,9 +41,6 @@ COPY types ./types
 RUN pnpm --version && node --version && npm --version && \
     pnpm install --frozen-lockfile && \
     pnpm run build
-    # pnpm run build && \
-    # pnpm prune --prod && \
-    # pnpm store prune
 
 # verify teraslice is installed right
 RUN node -e "import('teraslice')"
