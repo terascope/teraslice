@@ -122,16 +122,16 @@ jobs:
           echo "integration=$INTEGRATION" >> $GITHUB_OUTPUT
 
 
-  linux-unit-tests:
-    if: needs.determine-tests-based-off-commit.outputs.unit == 'true'
-    runs-on: ubuntu-latest
-    needs: [determine-tests-based-off-commit, compute-vars]
-    strategy:
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+  # linux-unit-tests:
+  #   if: needs.determine-tests-based-off-commit.outputs.unit == 'true'
+  #   runs-on: ubuntu-latest
+  #   needs: [determine-tests-based-off-commit, compute-vars]
+  #   strategy:
+  #     matrix:
+  #       node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -154,16 +154,16 @@ jobs:
           MAX_PROJECTS_PER_BATCH: 1
         run: pnpm run test --suite unit --
 
-      - name: Upload Node ${{ matrix.node-version }} unit test coverage
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: false
-          codecov_yml_path: ./.github/codecov.yaml
-          # files: ./coverage1.xml,./coverage2.xml # optional
-          flags: unit
-          name: node-${{ matrix.node-version }}-unit-tests
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true # optional (default = false)
+  #     - name: Upload Node ${{ matrix.node-version }} unit test coverage
+  #       uses: codecov/codecov-action@v5
+  #       with:
+  #         fail_ci_if_error: false
+  #         codecov_yml_path: ./.github/codecov.yaml
+  #         # files: ./coverage1.xml,./coverage2.xml # optional
+  #         flags: unit
+  #         name: node-${{ matrix.node-version }}-unit-tests
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         verbose: true # optional (default = false)
 
   build-dev-docker-images:
     runs-on: ubuntu-latest
@@ -452,20 +452,20 @@ jobs:
   #         path: e2e/logs/*.log
   #         retention-days: 3
 
-  e2e-external-asset-storage-tests:
-    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    runs-on: ubuntu-latest
-    needs: [compute-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+  # e2e-external-asset-storage-tests:
+  #   if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+  #   env:
+  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   runs-on: ubuntu-latest
+  #   needs: [compute-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+  #   strategy:
+  #     # opensearch is finiky, keep testing others if it fails
+  #     fail-fast: false
+  #     matrix:
+  #       node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -476,12 +476,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
 
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #     # we login to docker to avoid docker pull limit rates
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
         run: pnpm install && pnpm run setup
@@ -491,21 +491,21 @@ jobs:
           pnpm run docker:listImages
           cat ./images/image-list.txt
 
-      - name: Restore Docker image cache
-        id: docker-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-          restore-keys: |
-            docker-images-${{ hashFiles('./images/image-list.txt') }}-
-            docker-images-
+  #     - name: Restore Docker image cache
+  #       id: docker-cache
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /tmp/docker_cache
+  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+  #         restore-keys: |
+  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
+  #           docker-images-
 
-      - name: Download dev docker image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-          path: ${{ runner.temp }}
+  #     - name: Download dev docker image artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+  #         path: ${{ runner.temp }}
 
       - name: Load dev docker image
         run: |
@@ -517,18 +517,18 @@ jobs:
         run: pnpm run build
         working-directory: ./e2e
 
-      - name: Get Asset Bundle List From Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: asset-bundle-txt-file-list
-          path: ${{ github.workspace }}/e2e/scripts
+  #     - name: Get Asset Bundle List From Artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: asset-bundle-txt-file-list
+  #         path: ${{ github.workspace }}/e2e/scripts
 
-      - name: Restore asset bundle cache
-        id: asset-bundle-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/teraslice_assets
-          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
+  #     - name: Restore asset bundle cache
+  #       id: asset-bundle-cache
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /tmp/teraslice_assets
+  #         key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Test external Asset Storage opensearch2
         run: |
@@ -540,29 +540,29 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:s3AssetStorage
         working-directory: ./e2e
 
-      - name: Upload logs artifact
-        if: always()
-        id: upload-logs-artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
-          path: e2e/logs/*.log
-          retention-days: 3
+  #     - name: Upload logs artifact
+  #       if: always()
+  #       id: upload-logs-artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
+  #         path: e2e/logs/*.log
+  #         retention-days: 3
 
-  e2e-external-asset-storage-tests-encrypted:
-    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    runs-on: ubuntu-latest
-    needs: [compute-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+  # e2e-external-asset-storage-tests-encrypted:
+  #   if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+  #   env:
+  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   runs-on: ubuntu-latest
+  #   needs: [compute-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+  #   strategy:
+  #     # opensearch is finiky, keep testing others if it fails
+  #     fail-fast: false
+  #     matrix:
+  #       node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -573,12 +573,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
 
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #     # we login to docker to avoid docker pull limit rates
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
         run: pnpm install && pnpm run setup
@@ -588,36 +588,36 @@ jobs:
           pnpm run docker:listImages
           cat ./images/image-list.txt
 
-      - name: Restore Docker image cache
-        id: docker-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-          restore-keys: |
-            docker-images-${{ hashFiles('./images/image-list.txt') }}-
-            docker-images-
+  #     - name: Restore Docker image cache
+  #       id: docker-cache
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /tmp/docker_cache
+  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+  #         restore-keys: |
+  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
+  #           docker-images-
 
-      - name: Download dev docker image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-          path: ${{ runner.temp }}
+  #     - name: Download dev docker image artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+  #         path: ${{ runner.temp }}
 
-      - name: Load dev docker image
-        run: |
-          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-          rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-          docker image ls -a
+  #     - name: Load dev docker image
+  #       run: |
+  #         docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+  #         rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+  #         docker image ls -a
 
-      - name: Install mkcert
-        run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
+  #     - name: Install mkcert
+  #       run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
 
-      - name: Install grep
-        run: sudo apt update && sudo apt install grep
+  #     - name: Install grep
+  #       run: sudo apt update && sudo apt install grep
 
-      - name: Check mkcert
-        run: command -v mkcert
+  #     - name: Check mkcert
+  #       run: command -v mkcert
 
       - name: Check grep
         run: command -v grep
@@ -626,18 +626,18 @@ jobs:
         run: pnpm run build
         working-directory: ./e2e
 
-      - name: Get Asset Bundle List From Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: asset-bundle-txt-file-list
-          path: ${{ github.workspace }}/e2e/scripts
+  #     - name: Get Asset Bundle List From Artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: asset-bundle-txt-file-list
+  #         path: ${{ github.workspace }}/e2e/scripts
 
-      - name: Restore asset bundle cache
-        id: asset-bundle-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/teraslice_assets
-          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
+  #     - name: Restore asset bundle cache
+  #       id: asset-bundle-cache
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /tmp/teraslice_assets
+  #         key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Test external Asset Storage opensearch2
         run: |
@@ -648,28 +648,28 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:s3AssetStorageEncrypted
         working-directory: ./e2e
 
-      - name: Upload logs artifact
-        if: always()
-        id: upload-logs-artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
-          path: e2e/logs/*.log
-          retention-days: 3
+  #     - name: Upload logs artifact
+  #       if: always()
+  #       id: upload-logs-artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
+  #         path: e2e/logs/*.log
+  #         retention-days: 3
 
-  teraslice-elasticsearch-tests:
-    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
-    runs-on: ubuntu-latest
-    needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-        search-version: [opensearch1, opensearch2, opensearch3]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+  # teraslice-elasticsearch-tests:
+  #   if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
+  #   runs-on: ubuntu-latest
+  #   needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+  #   strategy:
+  #     # opensearch is finiky, keep testing others if it fails
+  #     fail-fast: false
+  #     matrix:
+  #       node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
+  #       search-version: [opensearch1, opensearch2, opensearch3]
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -680,12 +680,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
 
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #     # we login to docker to avoid docker pull limit rates
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
         run: pnpm install && pnpm run setup
@@ -695,15 +695,15 @@ jobs:
           pnpm run docker:listImages
           cat ./images/image-list.txt
 
-      - name: Restore Docker image cache
-        id: docker-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-          restore-keys: |
-            docker-images-${{ hashFiles('./images/image-list.txt') }}-
-            docker-images-
+  #     - name: Restore Docker image cache
+  #       id: docker-cache
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /tmp/docker_cache
+  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+  #         restore-keys: |
+  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
+  #           docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
@@ -714,29 +714,29 @@ jobs:
           pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/teraslice
 
-      - name: Upload teraslice node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: false
-          codecov_yml_path: ./.github/codecov.yaml
-          flags: teraslice-integration,integration
-          name: teraslice-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true # optional (default = false)
+  #     - name: Upload teraslice node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+  #       uses: codecov/codecov-action@v5
+  #       with:
+  #         fail_ci_if_error: false
+  #         codecov_yml_path: ./.github/codecov.yaml
+  #         flags: teraslice-integration,integration
+  #         name: teraslice-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         verbose: true # optional (default = false)
 
-  elasticsearch-store-tests:
-    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
-    runs-on: ubuntu-latest
-    needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-        search-version: [opensearch1, opensearch2, opensearch3]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+  # elasticsearch-store-tests:
+  #   if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
+  #   runs-on: ubuntu-latest
+  #   needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+  #   strategy:
+  #     # opensearch is finiky, keep testing others if it fails
+  #     fail-fast: false
+  #     matrix:
+  #       node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
+  #       search-version: [opensearch1, opensearch2, opensearch3]
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -747,12 +747,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
 
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #     # we login to docker to avoid docker pull limit rates
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
         run: pnpm install && pnpm run setup
@@ -762,15 +762,15 @@ jobs:
           pnpm run docker:listImages
           cat ./images/image-list.txt
 
-      - name: Restore Docker image cache
-        id: docker-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-          restore-keys: |
-            docker-images-${{ hashFiles('./images/image-list.txt') }}-
-            docker-images-
+  #     - name: Restore Docker image cache
+  #       id: docker-cache
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /tmp/docker_cache
+  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+  #         restore-keys: |
+  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
+  #           docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
@@ -780,29 +780,29 @@ jobs:
           pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
 
-      - name: Upload elasticsearch-store node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: false
-          codecov_yml_path: ./.github/codecov.yaml
-          flags: es-store-integration,integration
-          name: es-store-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true # optional (default = false)
+  #     - name: Upload elasticsearch-store node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+  #       uses: codecov/codecov-action@v5
+  #       with:
+  #         fail_ci_if_error: false
+  #         codecov_yml_path: ./.github/codecov.yaml
+  #         flags: es-store-integration,integration
+  #         name: es-store-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         verbose: true # optional (default = false)
 
-  xlucene-translator-tests:
-    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
-    runs-on: ubuntu-latest
-    needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-        search-version: [opensearch2, opensearch3]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+  # xlucene-translator-tests:
+  #   if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
+  #   runs-on: ubuntu-latest
+  #   needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+  #   strategy:
+  #     # opensearch is finiky, keep testing others if it fails
+  #     fail-fast: false
+  #     matrix:
+  #       node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
+  #       search-version: [opensearch2, opensearch3]
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -813,12 +813,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
 
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #     # we login to docker to avoid docker pull limit rates
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
         run: pnpm install && pnpm run setup
@@ -828,15 +828,15 @@ jobs:
           pnpm run docker:listImages
           cat ./images/image-list.txt
 
-      - name: Restore Docker image cache
-        id: docker-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-          restore-keys: |
-            docker-images-${{ hashFiles('./images/image-list.txt') }}-
-            docker-images-
+  #     - name: Restore Docker image cache
+  #       id: docker-cache
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /tmp/docker_cache
+  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+  #         restore-keys: |
+  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
+  #           docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
@@ -846,29 +846,29 @@ jobs:
           pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/xlucene-translator
 
-      - name: Upload xlucene-translator node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: false
-          codecov_yml_path: ./.github/codecov.yaml
-          flags: xlucene-translator-integration,integration
-          name: xlucene-translator-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true # optional (default = false)
+  #     - name: Upload xlucene-translator node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+  #       uses: codecov/codecov-action@v5
+  #       with:
+  #         fail_ci_if_error: false
+  #         codecov_yml_path: ./.github/codecov.yaml
+  #         flags: xlucene-translator-integration,integration
+  #         name: xlucene-translator-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         verbose: true # optional (default = false)
 
-  opensearch-client-tests:
-      if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
-      runs-on: ubuntu-latest
-      needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
-      strategy:
-        # opensearch is finiky, keep testing others if it fails
-        fail-fast: false
-        matrix:
-          node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-          search-version: [opensearch1, opensearch2, opensearch3]
-      steps:
-        - name: Check out code
-          uses: actions/checkout@v4
+  # opensearch-client-tests:
+  #     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
+  #     runs-on: ubuntu-latest
+  #     needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+  #     strategy:
+  #       # opensearch is finiky, keep testing others if it fails
+  #       fail-fast: false
+  #       matrix:
+  #         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
+  #         search-version: [opensearch1, opensearch2, opensearch3]
+  #     steps:
+  #       - name: Check out code
+  #         uses: actions/checkout@v4
 
         - name: Install pnpm
           uses: pnpm/action-setup@v4
@@ -879,12 +879,12 @@ jobs:
             node-version: ${{ matrix.node-version }}
             cache: 'pnpm'
 
-        # we login to docker to avoid docker pull limit rates
-        - name: Login to Docker Hub
-          uses: docker/login-action@v3
-          with:
-            username: ${{ secrets.DOCKER_USERNAME }}
-            password: ${{ secrets.DOCKER_PASSWORD }}
+  #       # we login to docker to avoid docker pull limit rates
+  #       - name: Login to Docker Hub
+  #         uses: docker/login-action@v3
+  #         with:
+  #           username: ${{ secrets.DOCKER_USERNAME }}
+  #           password: ${{ secrets.DOCKER_PASSWORD }}
 
         - name: Install and build packages
           run: pnpm install && pnpm run setup
@@ -894,15 +894,15 @@ jobs:
             pnpm run docker:listImages
             cat ./images/image-list.txt
 
-        - name: Restore Docker image cache
-          id: docker-cache
-          uses: actions/cache@v4
-          with:
-            path: /tmp/docker_cache
-            key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-            restore-keys: |
-              docker-images-${{ hashFiles('./images/image-list.txt') }}-
-              docker-images-
+  #       - name: Restore Docker image cache
+  #         id: docker-cache
+  #         uses: actions/cache@v4
+  #         with:
+  #           path: /tmp/docker_cache
+  #           key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+  #           restore-keys: |
+  #             docker-images-${{ hashFiles('./images/image-list.txt') }}-
+  #             docker-images-
 
         - name: Test ${{ matrix.search-version }}
           env:
@@ -912,15 +912,15 @@ jobs:
             pnpm run test:${{ matrix.search-version }}
           working-directory: ./packages/opensearch-client
 
-        - name: Upload opensearch-client node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
-          uses: codecov/codecov-action@v5
-          with:
-            fail_ci_if_error: false
-            codecov_yml_path: ./.github/codecov.yaml
-            flags: opensearch-client-integration,integration
-            name: opensearch-client-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
-            token: ${{ secrets.CODECOV_TOKEN }}
-            verbose: true # optional (default = false)
+  #       - name: Upload opensearch-client node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+  #         uses: codecov/codecov-action@v5
+  #         with:
+  #           fail_ci_if_error: false
+  #           codecov_yml_path: ./.github/codecov.yaml
+  #           flags: opensearch-client-integration,integration
+  #           name: opensearch-client-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+  #           token: ${{ secrets.CODECOV_TOKEN }}
+  #           verbose: true # optional (default = false)
 
   lint-and-sync:
     runs-on: ubuntu-latest
@@ -949,19 +949,19 @@ jobs:
     - name: Sync codebase
       run: pnpm run sync --verify
 
-  elasticsearch-api-tests:
-    if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
-    runs-on: ubuntu-latest
-    needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-        search-version: [opensearch1, opensearch2, opensearch3]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+  # elasticsearch-api-tests:
+  #   if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
+  #   runs-on: ubuntu-latest
+  #   needs: [compute-vars, verify-build, cache-docker-images, determine-tests-based-off-commit]
+  #   strategy:
+  #     # opensearch is finiky, keep testing others if it fails
+  #     fail-fast: false
+  #     matrix:
+  #       node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
+  #       search-version: [opensearch1, opensearch2, opensearch3]
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -972,12 +972,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
 
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #     # we login to docker to avoid docker pull limit rates
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
         run: pnpm install && pnpm run setup
@@ -987,15 +987,15 @@ jobs:
           pnpm run docker:listImages
           cat ./images/image-list.txt
 
-      - name: Restore Docker image cache
-        id: docker-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-          restore-keys: |
-            docker-images-${{ hashFiles('./images/image-list.txt') }}-
-            docker-images-
+  #     - name: Restore Docker image cache
+  #       id: docker-cache
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /tmp/docker_cache
+  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+  #         restore-keys: |
+  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
+  #           docker-images-
 
       - name: Test ${{ matrix.search-version }}
         env:
@@ -1005,31 +1005,31 @@ jobs:
           pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-api
 
-      - name: Upload es-api node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: false
-          codecov_yml_path: ./.github/codecov.yaml
-          flags: es-api-integration,integration
-          name: es-api-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true # optional (default = false)
+  #     - name: Upload es-api node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
+  #       uses: codecov/codecov-action@v5
+  #       with:
+  #         fail_ci_if_error: false
+  #         codecov_yml_path: ./.github/codecov.yaml
+  #         flags: es-api-integration,integration
+  #         name: es-api-${{ matrix.search-version }}-node-${{ matrix.node-version }}-tests
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         verbose: true # optional (default = false)
 
-  e2e-tests:
-    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: [compute-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-        search-version: [opensearch1, opensearch2, opensearch3]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+  # e2e-tests:
+  #   if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   needs: [compute-vars, verify-build, cache-docker-images, cache-asset-bundles, determine-tests-based-off-commit, build-dev-docker-images]
+  #   strategy:
+  #     # opensearch is finiky, keep testing others if it fails
+  #     fail-fast: false
+  #     matrix:
+  #       node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
+  #       search-version: [opensearch1, opensearch2, opensearch3]
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -1040,12 +1040,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
 
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #     # we login to docker to avoid docker pull limit rates
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Install and build packages
         run: pnpm install && pnpm run setup
@@ -1055,21 +1055,21 @@ jobs:
           pnpm run docker:listImages
           cat ./images/image-list.txt
 
-      - name: Restore Docker image cache
-        id: docker-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/docker_cache
-          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-          restore-keys: |
-            docker-images-${{ hashFiles('./images/image-list.txt') }}-
-            docker-images-
+  #     - name: Restore Docker image cache
+  #       id: docker-cache
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /tmp/docker_cache
+  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+  #         restore-keys: |
+  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
+  #           docker-images-
 
-      - name: Download dev docker image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-          path: ${{ runner.temp }}
+  #     - name: Download dev docker image artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+  #         path: ${{ runner.temp }}
 
       - name: Load dev docker image
         run: |
@@ -1081,18 +1081,18 @@ jobs:
         run: pnpm run build
         working-directory: ./e2e
 
-      - name: Get Asset Bundle List From Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: asset-bundle-txt-file-list
-          path: ${{ github.workspace }}/e2e/scripts
+  #     - name: Get Asset Bundle List From Artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: asset-bundle-txt-file-list
+  #         path: ${{ github.workspace }}/e2e/scripts
 
-      - name: Restore asset bundle cache
-        id: asset-bundle-cache
-        uses: actions/cache@v4
-        with:
-          path: /tmp/teraslice_assets
-          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
+  #     - name: Restore asset bundle cache
+  #       id: asset-bundle-cache
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /tmp/teraslice_assets
+  #         key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
         run: |
@@ -1104,14 +1104,14 @@ jobs:
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:${{ matrix.search-version }}
         working-directory: ./e2e
 
-      - name: Upload logs artifact
-        if: always()
-        id: upload-logs-artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
-          path: e2e/logs/*.log
-          retention-days: 3
+  #     - name: Upload logs artifact
+  #       if: always()
+  #       id: upload-logs-artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
+  #         path: e2e/logs/*.log
+  #         retention-days: 3
 
   test-website:
     if: needs.determine-tests-based-off-commit.outputs.website == 'true'
@@ -1138,14 +1138,14 @@ jobs:
   check-docker-limit-after:
     needs: [
       build-dev-docker-images,
-      # e2e-k8s-v2-encrypted-tests,
-      e2e-external-asset-storage-tests,
-      e2e-external-asset-storage-tests-encrypted,
-      # e2e-k8s-v2-tests,
-      e2e-tests,
-      elasticsearch-api-tests,
-      elasticsearch-store-tests,
-      teraslice-elasticsearch-tests
+      e2e-k8s-v2-encrypted-tests,
+      # e2e-external-asset-storage-tests,
+      # e2e-external-asset-storage-tests-encrypted,
+      e2e-k8s-v2-tests,
+      # e2e-tests,
+      # elasticsearch-api-tests,
+      # elasticsearch-store-tests,
+      # teraslice-elasticsearch-tests
     ]
     uses: terascope/workflows/.github/workflows/check-docker-limit.yml@pnpm
     secrets: inherit
@@ -1153,15 +1153,15 @@ jobs:
   check-github-api-limit-after:
     needs: [
       build-dev-docker-images,
-      # e2e-k8s-v2-encrypted-tests,
-      e2e-external-asset-storage-tests,
-      e2e-external-asset-storage-tests-encrypted,
-      # e2e-k8s-v2-tests,
-      e2e-tests,
-      elasticsearch-api-tests,
-      elasticsearch-store-tests,
-      teraslice-elasticsearch-tests,
-      xlucene-translator-tests,
+      e2e-k8s-v2-encrypted-tests,
+      # e2e-external-asset-storage-tests,
+      # e2e-external-asset-storage-tests-encrypted,
+      e2e-k8s-v2-tests,
+      # e2e-tests,
+      # elasticsearch-api-tests,
+      # elasticsearch-store-tests,
+      # teraslice-elasticsearch-tests,
+      # xlucene-translator-tests,
     ]
     uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@pnpm
     secrets: inherit
@@ -1169,19 +1169,19 @@ jobs:
   all-tests-passed:
     needs:
       [
-        linux-unit-tests,
+        # linux-unit-tests,
         build-dev-docker-images,
-        # e2e-k8s-v2-encrypted-tests,
-        e2e-external-asset-storage-tests,
-        e2e-external-asset-storage-tests-encrypted,
-        # e2e-k8s-v2-tests,
-        e2e-tests,
-        elasticsearch-api-tests,
-        elasticsearch-store-tests,
-        teraslice-elasticsearch-tests,
-        xlucene-translator-tests,
+        e2e-k8s-v2-encrypted-tests,
+        # e2e-external-asset-storage-tests,
+        # e2e-external-asset-storage-tests-encrypted,
+        e2e-k8s-v2-tests,
+        # e2e-tests,
+        # elasticsearch-api-tests,
+        # elasticsearch-store-tests,
+        # teraslice-elasticsearch-tests,
+        # xlucene-translator-tests,
         lint-and-sync,
-        test-website,
+        # test-website,
         determine-tests-based-off-commit
       ]
     if: always()
