@@ -847,7 +847,7 @@ export default function elasticsearchApi(
         const retry = _retryFn(fn, data, reject);
 
         return function _errorHandlerFn(err: Error) {
-            console.log('@@@ERROR es_api: ', err);
+            console.log('@@@ERROR es_api: ', JSON.stringify(err, null, 2));
             const retryable = isErrorRetryable(err);
 
             if (retryable) {
