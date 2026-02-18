@@ -222,6 +222,8 @@ export class Kind {
                 signale.info(`${subprocess.command}: successful`);
                 subprocess = await execaCommand(`ls -la ${DOCKER_CACHE_PATH}`);
                 signale.info(`Docker cache contents: ${subprocess.stdout}`);
+                subprocess = await execaCommand('docker images --digests');
+                signale.info(`docker images --digests: ${subprocess.stdout}`);
                 subprocess = await execaCommand(`kind load --name ${this.clusterName} image-archive ${tarPath}`);
                 if (!skipDelete) {
                     fs.rmSync(tarPath);
@@ -273,8 +275,8 @@ export function getVolumesFromDockerfile(
             return false;
         }).map((value) => value.slice(5).split(' '))
             .map((arr) => {
-            // This map will combine relative paths to absolute paths based
-            // on the first "WORKDIR" line.
+                // This map will combine relative paths to absolute paths based
+                // on the first "WORKDIR" line.
                 if (!path.isAbsolute(arr[arr.length - 1]) && workDir.length) {
                     arr[arr.length - 1] = path.join(workDir, arr[arr.length - 1]);
                 }
