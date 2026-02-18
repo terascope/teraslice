@@ -220,7 +220,7 @@ export class Kind {
                 }
                 subprocess = await execaCommand(`gunzip -d ${filePath}`);
                 signale.info(`${subprocess.command}: successful`);
-                subprocess = await execaCommand(`ls -la ${filePath}`);
+                subprocess = await execaCommand(`ls -la ${DOCKER_CACHE_PATH}`);
                 signale.info(`Docker cache contents: ${subprocess.stdout}`);
                 subprocess = await execaCommand(`kind load --name ${this.clusterName} image-archive ${tarPath}`);
                 if (!skipDelete) {
