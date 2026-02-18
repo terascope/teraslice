@@ -19,21 +19,24 @@ import signale from '../signale.js';
 const topLevelFiles: readonly string[] = [
     'tsconfig.json',
     'package.json',
-    'pnpm-lock.yaml',
-    'yarn.lock'
 ];
+// At least one lockfile must exist, but not necessarily both
+const lockFiles: readonly string[] = ['pnpm-lock.yaml', 'yarn.lock'];
 let prevChanged: string[] = [];
 
 export async function verifyCommitted(options: SyncOptions): Promise<void> {
     const pkgDirs: string[] = listPackages().map((pkg) => pkg.relativeDir);
     const missingFiles = topLevelFiles.filter((fileName: string) => !fs.existsSync(`${getRootDir()}/${fileName}`));
-    if (missingFiles.length) {
-        signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n${formatList(missingFiles)}
+    const hasLockFile = lockFiles.some((fileName: string) => fs.existsSync(`${getRootDir()}/${fileName}`));
+    if (missingFiles.length || !hasLockFile) {
+        const missing = [...missingFiles, ...(!hasLockFile ? [`one of: ${lockFiles.join(', ')}`] : [])];
+        signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n${formatList(missing)}
         \nAdd these files to the root and try again.\n`);
         process.exit(1);
     }
     const changed = await getChangedFiles(
         ...topLevelFiles,
+        ...lockFiles,
         ...pkgDirs,
         'docs',
     );
