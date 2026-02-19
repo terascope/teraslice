@@ -14,8 +14,8 @@ import {
 } from '@terascope/core-utils';
 
 import reply from './reply.js';
-import { wasmPlugin, getPackage } from './utils.js';
-import { OP_TYPES, OpType } from '../interfaces.js';
+import { wasmPlugin, getPackage, detectPackageManager } from './utils.js';
+import { OP_TYPES, OpType, PackageManager } from '../interfaces.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -47,6 +47,7 @@ export class AssetSrc {
     outputFileName: string;
     debug: boolean;
     overwrite: boolean;
+    packageManager: PackageManager;
     isESM = false;
     devMode = false;
 
@@ -71,6 +72,7 @@ export class AssetSrc {
         this.assetFile = path.join(this.srcDir, 'asset', 'asset.json');
         this.packageJson = getPackage(path.join(this.srcDir, 'package.json'));
         this.assetPackageJson = getPackage(path.join(this.srcDir, 'asset', 'package.json'));
+        this.packageManager = detectPackageManager(this.packageJson, this.srcDir);
 
         if (!this.assetFile || !fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);
@@ -99,16 +101,14 @@ export class AssetSrc {
         return zipName;
     }
 
-    // TODO: This has a dependency on the external executable `yarn`,
-    //       we should test that this exists earlier than this and also
-    //       support `npm`.
     /**
-     * runs yarn command
+     * Runs a package manager command (yarn, npm, or pnpm) based on what is
+     * detected in the project's package.json.
      * @param {string} dir - Path to directory containing package.json
-     * @param {Array} yarnArgs - Array of arguments or options to be passed to yarn command
+     * @param {Array} args - Array of arguments or options to be passed to the package manager
      */
-    private async _yarnCmd(dir: string, yarnArgs: string[]) {
-        return execa('yarn', yarnArgs, { cwd: dir });
+    async _packageCmd(dir: string, args: string[]) {
+        return execa(this.packageManager, args, { cwd: dir });
     }
 
     /**
@@ -251,9 +251,8 @@ export class AssetSrc {
             spaces: 4,
         });
 
-        // run npm --cwd srcDir/asset
-        reply.info('* running yarn install');
-        await this._yarnCmd(path.join(tmpDir.name, 'asset'), []);
+        reply.info(`* running ${this.packageManager} install`);
+        await this._packageCmd(path.join(tmpDir.name, 'asset'), ['install']);
 
         // Since we now require bundled assets to implement a registry, we
         // require that Javascript assets place it at `asset/index.js` and

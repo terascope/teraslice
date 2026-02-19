@@ -17,7 +17,7 @@ title: Kubernetes
 ## General Notes
 
 The `ts-scripts` package provides a set of tools for working with Teraslice in
-Kubernetes.  These tools are available via `yarn run` or by using the
+Kubernetes.  These tools are available via `pnpm run` or by using the
 `ts-scripts` script directly.  It supports the following functionality:
 
 - Running End-to-End Testing
@@ -34,18 +34,18 @@ following things will happen:
 - Build a Teraslice Docker image from the current working directory
 - Copy image into Kind and run Teraslice master
 
-NOTE: These `yarn` commands must be run from the `e2e` subdirectory:
+NOTE: These `pnpm` commands must be run from the `e2e` subdirectory:
 
 ```bash
 # change into the e2e subdirectory
 cd e2e
 # use the default version of nodejs
-yarn test:k8sV2
+pnpm test:k8sV2
 # test against a specific version of nodejs
-NODE_VERSION=18.18.2 yarn test:k8sV2
+NODE_VERSION=18.18.2 pnpm test:k8sV2
 # run the tests using an existing dev Teraslice image (handy for working on
 # ts-scripts)
-yarn test:k8sV2NoBuild
+pnpm test:k8sV2NoBuild
 ```
 
 Some of the Kubernetes End-to-End tests are shared with the standard End-to-End
@@ -60,26 +60,26 @@ job with the following commands (NOTE: `earl` is an alternative name for the
 ```bash
 # build teraslice from local repository and launch teraslice and opensearch
 # from the teraslice root directory:
-yarn k8s
+pnpm k8s
 
 # from any other directory:
-TEST_OPENSEARCH='true' OPENSEARCH_PORT='9200' yarn run ts-scripts k8s-env
+TEST_OPENSEARCH='true' OPENSEARCH_PORT='9200' pnpm run ts-scripts k8s-env
 ```
 
 ```bash
 # launch with a specific OPENSEARCH_VERSION or OPENSEARCH_VERSION; defaults to Opensearch 2.15.0
 # from the teraslice root directory:
-OPENSEARCH_VERSION='3.0.0' yarn k8s
+OPENSEARCH_VERSION='3.0.0' pnpm k8s
 
 # from any other directory:
-OPENSEARCH_VERSION=2.15.0 TEST_OPENSEARCH=true OPENSEARCH_PORT=9200 yarn run ts-scripts k8s-env
+OPENSEARCH_VERSION=2.15.0 TEST_OPENSEARCH=true OPENSEARCH_PORT=9200 pnpm run ts-scripts k8s-env
 ```
 
 If you want to run a specific teraslice docker image, instead of building from your local repository:
 
 ```bash
 # from the teraslice root directory:
-yarn k8s --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2
+pnpm k8s --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2
 
 # from any other directory:
 TEST_OPENSEARCH=\'true\' OPENSEARCH_PORT=\'9200\' $0 k8s-env --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2
@@ -89,7 +89,7 @@ If you want to run additional services you must set the appropriate environmenta
 
 ```bash
 # from the teraslice root directory:
-yarn k8s:kafka
+pnpm k8s:kafka
 
 # from any other directory:
 TEST_OPENSEARCH=true OPENSEARCH_PORT=9200 TEST_KAFKA=true KAFKA_PORT=9092 ts-scripts k8s-env
@@ -307,20 +307,20 @@ NOTE: this does not reset state in the opensearch store
 
 ```bash
 # from the teraslice root directory:
-yarn k8s:rebuild
+pnpm k8s:rebuild
 
 # from any other directory:
-yarn run ts-scripts k8s-env --rebuild
+pnpm run ts-scripts k8s-env --rebuild
 ```
 
 If you would like to reset the opensearch store at the same time:
 
 ```bash
 # from the teraslice root directory:
-yarn k8s:rebuild --reset-store
+pnpm k8s:rebuild --reset-store
 
 # from any other directory:
-yarn run ts-scripts k8s-env --rebuild --reset-store
+pnpm run ts-scripts k8s-env --rebuild --reset-store
 ```
 
 If you need to restart Teraslice without rebuilding you can use the following command:
@@ -329,20 +329,20 @@ NOTE: this does not reset state in the opensearch store
 
 ```bash
 # from the teraslice root directory:
-yarn k8s:restart
+pnpm k8s:restart
 
 # from any other directory:
-yarn run ts-scripts k8s-env --rebuild --skip-build
+pnpm run ts-scripts k8s-env --rebuild --skip-build
 ```
 
 If you would like to reset the opensearch store at the same time:
 
 ```bash
 # from the teraslice root directory:
-yarn k8s:restart --reset-store
+pnpm k8s:restart --reset-store
 
 # from any other directory:
-yarn run ts-scripts k8s-env --rebuild --skip-build --reset-store
+pnpm run ts-scripts k8s-env --rebuild --skip-build --reset-store
 ```
 
 ## Prometheus Metrics API

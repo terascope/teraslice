@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import fse from 'fs-extra';
 import semver from 'semver';
+import yaml from 'js-yaml';
 import { isDynamicPattern, globbySync } from 'globby';
 import {
     uniq, fastCloneDeep, get, trim,
@@ -76,17 +77,30 @@ export function listPackages(
     if (!ignoreCache && _packages && _packages.length) return _packages.slice();
 
     const rootPkg = getRootInfo();
-    if (!rootPkg.workspaces) return [];
+    const pnpmWorkspacePath = path.join(getRootDir(), 'pnpm-workspace.yaml');
+    let workspaces;
+    if (fs.existsSync(pnpmWorkspacePath)) {
+        const values = yaml.load(fs.readFileSync(pnpmWorkspacePath, 'utf8')) as any;
+        const workspaceArray = values.packages;
 
-    const workspaces = (
-        Array.isArray(rootPkg.workspaces)
-            ? rootPkg.workspaces
-            : rootPkg.workspaces.packages
-    ).slice();
+        if (!Array.isArray(workspaceArray)) {
+            throw new Error(`The 'packages' key in ${pnpmWorkspacePath} should be an array.`);
+        }
+
+        workspaces = workspaceArray.slice();
+    } else if (!rootPkg.workspaces) {
+        return [];
+    } else {
+        workspaces = (
+            Array.isArray(rootPkg.workspaces)
+                ? rootPkg.workspaces
+                : rootPkg.workspaces.packages
+        ).slice();
+    }
 
     if (!workspaces) return [];
 
-    const hasE2E = workspaces.find((workspacePath) => workspacePath.includes('e2e'));
+    const hasE2E = workspaces.find((workspacePath: string) => workspacePath.includes('e2e'));
     if (!hasE2E) {
         workspaces.push('e2e');
     }

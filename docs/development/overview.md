@@ -9,7 +9,7 @@ sidebar_label: Overview
 # Clone the package
 git clone https://github.com/terascope/teraslice.git && cd teraslice
 # Install, link and compile packages together
-yarn setup
+pnpm run setup
 ```
 
 ### Running Teraslice Natively
@@ -23,7 +23,7 @@ Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
 #### Dependencies
 
 - Node.js (24 or above)
-- Yarn (4.6 or above)
+- pnpm (10.25 or above)
 - At least one opensearch 1.x, 2.x or 3.x
 
 #### Running
@@ -96,7 +96,7 @@ docker-compose up --build
     "editor.insertSpaces": true,
     "editor.tabSize": 4,
     "eslint.autoFixOnSave": true,
-    "eslint.packageManager": "yarn",
+    "eslint.packageManager": "pnpm",
     "eslint.validate": [
         "javascript",
         "javascriptreact",
@@ -141,7 +141,7 @@ docker-compose up --build
     "javascript.format.enable": false,
     "javascript.preferences.quoteStyle": "single",
     "json.format.enable": false,
-    "npm.packageManager": "yarn",
+    "npm.packageManager": "pnpm",
     "search.exclude": {
         "**/node_modules/**": true,
         "**/bower_components/**": true,

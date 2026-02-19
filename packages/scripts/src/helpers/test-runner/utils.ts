@@ -9,7 +9,7 @@ import {
 } from '../scripts.js';
 import { TestOptions, GroupedPackages } from './interfaces.js';
 import { PackageInfo, Service } from '../interfaces.js';
-import { getServicesForSuite } from '../misc.js';
+import { getServicesForSuite, getPackageManager } from '../misc.js';
 import config from '../config.js';
 import signale from '../signale.js';
 import type {
@@ -246,7 +246,7 @@ async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {
     if (hasLogsScript) {
         const result = await exec(
             {
-                cmd: 'yarn',
+                cmd: getPackageManager(),
                 args: ['run', 'logs', '-n', '2000'],
                 cwd: dir,
                 env,

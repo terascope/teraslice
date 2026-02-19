@@ -7,8 +7,8 @@ sidebar_label: Data-Mate
 
 ## Installation
 ```javascript
-# Using yarn
-yarn add @terascope/data-mate
+# Using pnpm
+pnpm add @terascope/data-mate
 # Using npm
 npm install --save @terascope/data-mate
 ```

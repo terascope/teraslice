@@ -12,7 +12,6 @@ import {
     bumpVersion
 } from './utils.js';
 import signale from '../signale.js';
-import { syncVersions } from '../sync/utils.js';
 import { setup } from '../scripts.js';
 
 export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean): Promise<void> {
@@ -32,10 +31,6 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
 
     if (bumpedMain) {
         signale.note(`IMPORTANT: make sure to update release notes for automated release of v${mainInfo!.version} after merging`);
-    }
-
-    if (rootInfo.terascope.version !== 2) {
-        syncVersions(_packages, rootInfo);
     }
 
     for (const pkgInfo of packages) {

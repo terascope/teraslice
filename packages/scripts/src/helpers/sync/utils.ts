@@ -19,20 +19,23 @@ import signale from '../signale.js';
 const topLevelFiles: readonly string[] = [
     'tsconfig.json',
     'package.json',
-    'yarn.lock'
 ];
+const lockFiles: readonly string[] = ['pnpm-lock.yaml', 'yarn.lock'];
 let prevChanged: string[] = [];
 
 export async function verifyCommitted(options: SyncOptions): Promise<void> {
     const pkgDirs: string[] = listPackages().map((pkg) => pkg.relativeDir);
     const missingFiles = topLevelFiles.filter((fileName: string) => !fs.existsSync(`${getRootDir()}/${fileName}`));
-    if (missingFiles.length) {
-        signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n${formatList(missingFiles)}
+    const existingLockFiles = lockFiles.filter((fileName) => fs.existsSync(`${getRootDir()}/${fileName}`));
+    if (missingFiles.length || !existingLockFiles.length) {
+        const missing = [...missingFiles, ...(!existingLockFiles.length ? [`one of: ${lockFiles.join(', ')}`] : [])];
+        signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n${formatList(missing)}
         \nAdd these files to the root and try again.\n`);
         process.exit(1);
     }
     const changed = await getChangedFiles(
         ...topLevelFiles,
+        ...existingLockFiles,
         ...pkgDirs,
         'docs',
     );
@@ -74,7 +77,7 @@ ${formatList(diff)}
 `);
 
     if (!options.quiet) {
-        signale.warn('Make sure to run yarn and commit your changes');
+        signale.warn('Make sure to run pnpm install and commit your changes');
         if (isCI) {
             await gitDiff(changed);
         }
@@ -123,9 +126,8 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
         const internal = internalVersions[name];
         const external = externalVersions[name];
         if (internal != null) {
-            if (rootInfo.terascope.version === 2) {
-                return 'workspace:*';
-            }
+            if (rootInfo.terascope.version === 1) return 'workspace:~';
+            if (rootInfo.terascope.version === 2) return 'workspace:*';
             return internal;
         }
 

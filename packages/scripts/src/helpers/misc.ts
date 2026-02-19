@@ -57,7 +57,8 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             displayName: getName(pkg.name),
             engines: {
                 node: '>=16.0.0',
-                yarn: '>=1.22.19'
+                // TODO: re-enable once all repos are fully migrated to pnpm
+                // pnpm: '>=10.25.0'
             },
             terascope: {
                 root: true,
@@ -81,7 +82,8 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             },
             engines: {
                 node: '>=16.0.0',
-                yarn: '>=1.22.19'
+                // TODO: re-enable once all repos are fully migrated to pnpm
+                // pnpm: '>=10.25.0'
             },
             terascope: {
                 root: true,
@@ -113,6 +115,15 @@ export function getRootInfo(): RootPackageInfo {
 
 export function getAvailableTestSuites(): string[] {
     return Object.keys(getRootInfo().terascope.tests.suites);
+}
+
+/**
+ * Returns 'pnpm' if terascope.version is 1, otherwise 'yarn'.
+ * Version 1 represents teraslice, any other version represents other terafoundation apps.
+ */
+export function getPackageManager(): 'pnpm' | 'yarn' {
+    const rootInfo = getRootInfo();
+    return rootInfo.terascope.version === 1 ? 'pnpm' : 'yarn';
 }
 
 export function getServicesForSuite(suite: string): Service[] {

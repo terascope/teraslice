@@ -8,8 +8,8 @@ sidebar_label: Overview
 ## Installation
 
 ```bash
-# Using yarn
-yarn global add teraslice-cli
+# Using pnpm
+pnpm add -g teraslice-cli
 # Using npm
 npm install --global teraslice-cli
 ```
