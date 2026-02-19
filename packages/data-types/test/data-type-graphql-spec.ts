@@ -32,6 +32,7 @@ describe('DataType (graphql)', () => {
 
                     """
                     My test data type
+
                     some extra desc
                     """
                     type myType {
@@ -40,6 +41,7 @@ describe('DataType (graphql)', () => {
                         example_obj: JSONObject
                         """
                         ## hello
+                        
                         # test
                         """
                         hello: String

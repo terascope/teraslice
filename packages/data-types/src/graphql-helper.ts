@@ -25,7 +25,7 @@ export function formatGQLDescription(desc?: string, prefix?: string): string {
         .map((str) => `${str}`);
 
     if (trimmedLines.length > 1) {
-        return `"""${trimmedLines.join('\n')}"""`;
+        return `"""\n\r${trimmedLines.join('\n\r')}\n\r"""`;
     }
     return `""" ${trimmedLines[0]} """`;
 }

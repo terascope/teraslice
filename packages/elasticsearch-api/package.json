@@ -37,7 +37,7 @@
     },
     "devDependencies": {
         "@opensearch-project/opensearch": "~1.2.0",
-        "@terascope/opensearch-client": "~2.2.0"
+        "@terascope/opensearch-client": "~2.2.1"
     },
     "engines": {
         "node": ">=22.0.0",
