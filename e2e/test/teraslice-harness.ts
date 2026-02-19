@@ -147,6 +147,7 @@ export class TerasliceHarness {
 
         if (TEST_PLATFORM === 'kubernetesV2') {
             try {
+                console.log(`Cleaning up index ${SPEC_INDEX_PREFIX}*`);
                 cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
                 await showState(TERASLICE_PORT); // adds logs at debug level
             } catch (err) {
