@@ -129,6 +129,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     } else {
         await loadImagesForHelm(options.kindClusterName, false);
     }
+    // this prints even if image loads fail
     signale.success('Service images loaded into kind cluster');
 
     signale.pending('Loading teraslice image into kind cluster');
