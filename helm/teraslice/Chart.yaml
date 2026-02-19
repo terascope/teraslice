@@ -5,7 +5,7 @@ home: https://github.com/terascope/teraslice
 icon: https://terascope.github.io/teraslice/img/logo.png
 type: application
 version: 3.7.0
-appVersion: v3.3.0
+appVersion: v3.3.1
 sources:
   - https://github.com/terascope/teraslice
 keywords:
