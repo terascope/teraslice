@@ -49,6 +49,14 @@
         "@types/yargs": "~17.0.35",
         "got": "~14.6.6"
     },
+    "peerDependencies": {
+        "terafoundation_kafka_connector": "~2.1.0"
+    },
+    "peerDependenciesMeta": {
+        "terafoundation_kafka_connector": {
+            "optional": true
+        }
+    },
     "engines": {
         "node": ">=22.0.0",
         "pnpm": ">=10.25.0"

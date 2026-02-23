@@ -64,7 +64,6 @@
         "jest-extended": "~7.0.0",
         "jest-watch-typeahead": "~3.0.1",
         "node-notifier": "~10.0.1",
-        "terafoundation_kafka_connector": "~2.1.0",
         "teraslice": "workspace:~",
         "ts-jest": "~29.4.6",
         "typescript": "~5.9.3"
