@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@types/lodash': ~4.17.23
+  '@types/lodash': ~4.17.24
   debug: ~4.4.3
   ms: ~2.1.3
   nan: ~2.22.0
@@ -42,7 +42,7 @@ importers:
         specifier: ~30.0.0
         version: 30.0.0
       '@types/lodash':
-        specifier: ~4.17.23
+        specifier: ~4.17.24
         version: 4.17.24
       '@types/node':
         specifier: ~24.4.0
@@ -434,7 +434,7 @@ importers:
         version: 2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)
       eslint-plugin-jest:
         specifier: ~29.12.1
-        version: 29.12.2(@typescript-eslint/eslint-plugin@8.54.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(jest@30.2.0(@types/node@24.4.0)(node-notifier@10.0.1))(typescript@5.9.3)
+        version: 29.12.2(@typescript-eslint/eslint-plugin@8.54.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(jest@30.2.0(@types/node@25.3.0)(node-notifier@10.0.1))(typescript@5.9.3)
       eslint-plugin-jest-dom:
         specifier: ~5.5.0
         version: 5.5.0(eslint@9.39.3)
@@ -10043,13 +10043,13 @@ snapshots:
       eslint: 9.39.3
       requireindex: 1.2.0
 
-  eslint-plugin-jest@29.12.2(@typescript-eslint/eslint-plugin@8.54.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(jest@30.2.0(@types/node@24.4.0)(node-notifier@10.0.1))(typescript@5.9.3):
+  eslint-plugin-jest@29.12.2(@typescript-eslint/eslint-plugin@8.54.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(jest@30.2.0(@types/node@25.3.0)(node-notifier@10.0.1))(typescript@5.9.3):
     dependencies:
       '@typescript-eslint/utils': 8.56.0(eslint@9.39.3)(typescript@5.9.3)
       eslint: 9.39.3
     optionalDependencies:
       '@typescript-eslint/eslint-plugin': 8.54.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(typescript@5.9.3)
-      jest: 30.2.0(@types/node@24.4.0)(node-notifier@10.0.1)
+      jest: 30.2.0(@types/node@25.3.0)(node-notifier@10.0.1)
       typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
@@ -11031,6 +11031,28 @@ snapshots:
       - supports-color
       - ts-node
 
+  jest-cli@30.2.0(@types/node@25.3.0)(node-notifier@10.0.1):
+    dependencies:
+      '@jest/core': 30.2.0(node-notifier@10.0.1)
+      '@jest/test-result': 30.2.0
+      '@jest/types': 30.2.0
+      chalk: 4.1.2
+      exit-x: 0.2.2
+      import-local: 3.2.0
+      jest-config: 30.2.0(@types/node@25.3.0)
+      jest-util: 30.2.0
+      jest-validate: 30.2.0
+      yargs: 17.7.2
+    optionalDependencies:
+      node-notifier: 10.0.1
+    transitivePeerDependencies:
+      - '@types/node'
+      - babel-plugin-macros
+      - esbuild-register
+      - supports-color
+      - ts-node
+    optional: true
+
   jest-config@30.2.0(@types/node@24.4.0):
     dependencies:
       '@babel/core': 7.29.0
@@ -11062,6 +11084,39 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
+
+  jest-config@30.2.0(@types/node@25.3.0):
+    dependencies:
+      '@babel/core': 7.29.0
+      '@jest/get-type': 30.1.0
+      '@jest/pattern': 30.0.1
+      '@jest/test-sequencer': 30.2.0
+      '@jest/types': 30.2.0
+      babel-jest: 30.2.0(@babel/core@7.29.0)
+      chalk: 4.1.2
+      ci-info: 4.4.0
+      deepmerge: 4.3.1
+      glob: 10.5.0
+      graceful-fs: 4.2.11
+      jest-circus: 30.2.0
+      jest-docblock: 30.2.0
+      jest-environment-node: 30.2.0
+      jest-regex-util: 30.0.1
+      jest-resolve: 30.2.0
+      jest-runner: 30.2.0
+      jest-util: 30.2.0
+      jest-validate: 30.2.0
+      micromatch: 4.0.8
+      parse-json: 5.2.0
+      pretty-format: 30.2.0
+      slash: 3.0.0
+      strip-json-comments: 3.1.1
+    optionalDependencies:
+      '@types/node': 25.3.0
+    transitivePeerDependencies:
+      - babel-plugin-macros
+      - supports-color
+    optional: true
 
   jest-diff@30.2.0:
     dependencies:
@@ -11318,6 +11373,22 @@ snapshots:
       - esbuild-register
       - supports-color
       - ts-node
+
+  jest@30.2.0(@types/node@25.3.0)(node-notifier@10.0.1):
+    dependencies:
+      '@jest/core': 30.2.0(node-notifier@10.0.1)
+      '@jest/types': 30.2.0
+      import-local: 3.2.0
+      jest-cli: 30.2.0(@types/node@25.3.0)(node-notifier@10.0.1)
+    optionalDependencies:
+      node-notifier: 10.0.1
+    transitivePeerDependencies:
+      - '@types/node'
+      - babel-plugin-macros
+      - esbuild-register
+      - supports-color
+      - ts-node
+    optional: true
 
   jexl@2.3.0:
     dependencies:
