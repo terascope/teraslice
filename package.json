@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "3.3.2",
+    "version": "3.3.3",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -41,14 +41,14 @@
         "test": "ts-scripts test"
     },
     "resolutions": {
-        "@types/lodash": "~4.17.23",
+        "@types/lodash": "~4.17.24",
         "debug": "~4.4.3",
         "ms": "~2.1.3",
         "nan": "~2.22.0"
     },
     "devDependencies": {
         "@eslint/js": "~9.39.2",
-        "@swc/core": "1.15.11",
+        "@swc/core": "1.15.13",
         "@swc/jest": "~0.2.39",
         "@terascope/core-utils": "workspace:~",
         "@terascope/eslint-config": "workspace:~",
@@ -56,7 +56,7 @@
         "@types/elasticsearch": "~5.0.43",
         "@types/fs-extra": "~11.0.4",
         "@types/jest": "~30.0.0",
-        "@types/lodash": "~4.17.23",
+        "@types/lodash": "~4.17.24",
         "@types/node": "~24.4.0",
         "eslint": "~9.39.2",
         "got": "~14.6.6",
@@ -64,7 +64,6 @@
         "jest-extended": "~7.0.0",
         "jest-watch-typeahead": "~3.0.1",
         "node-notifier": "~10.0.1",
-        "terafoundation_kafka_connector": "~2.0.2",
         "teraslice": "workspace:~",
         "ts-jest": "~29.4.6",
         "typescript": "~5.9.3"

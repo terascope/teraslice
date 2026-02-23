@@ -15,7 +15,6 @@ pnpm add xlucene-parser
 
 ```bash
 pnpm add xlucene-parser
-pnpm add ts-pegjs
 ```
 
 The -A or -R flags may be needed with `unplug` depending on your workspace structure.
