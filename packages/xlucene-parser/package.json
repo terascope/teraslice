@@ -35,12 +35,11 @@
         "@terascope/geo-utils": "workspace:~",
         "@terascope/ip-utils": "workspace:~",
         "@terascope/types": "workspace:~",
-        "peggy": "~5.0.6",
-        "ts-pegjs": "~4.2.1"
+        "peggy": "~5.0.6"
     },
     "devDependencies": {
-        "@turf/invariant": "~7.3.3",
-        "@turf/random": "~7.3.3",
+        "@turf/invariant": "~7.3.4",
+        "@turf/random": "~7.3.4",
         "date-fns": "~4.1.0"
     },
     "engines": {

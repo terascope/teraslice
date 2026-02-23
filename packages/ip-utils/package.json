@@ -29,11 +29,11 @@
         "@chainsafe/is-ip": "~2.1.0",
         "@terascope/core-utils": "workspace:~",
         "@terascope/types": "workspace:~",
-        "ip-bigint": "~8.2.3",
+        "ip-bigint": "~8.2.6",
         "ip-cidr": "~4.0.2",
         "ip6addr": "~0.2.5",
         "ipaddr.js": "~2.3.0",
-        "is-cidr": "~6.0.2"
+        "is-cidr": "~6.0.3"
     },
     "devDependencies": {
         "@types/ip6addr": "~0.2.6"
