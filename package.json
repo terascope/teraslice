@@ -41,7 +41,7 @@
         "test": "ts-scripts test"
     },
     "resolutions": {
-        "@types/lodash": "~4.17.23",
+        "@types/lodash": "~4.17.24",
         "debug": "~4.4.3",
         "ms": "~2.1.3",
         "nan": "~2.22.0"
