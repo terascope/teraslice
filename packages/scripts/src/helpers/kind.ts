@@ -7,7 +7,7 @@ import { Logger, debugLogger, isCI } from '@terascope/core-utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale.js';
 import { getE2eK8sDir } from '../helpers/packages.js';
-import { KindCluster, TsVolumeSet, CustomKindDefaultPorts, CustomKindService } from './interfaces.js';
+import { KindCluster, TsVolumeSet, CustomKindDefaultPorts, CustomKindService, DeployedServicePorts } from './interfaces.js';
 import config from './config.js';
 
 const {
@@ -16,6 +16,11 @@ const {
     KAFKA_PORT, OPENSEARCH_VERSION, ENCRYPTION_ENABLED,
     CERT_PATH
 } = config;
+
+async function localDockerImageExists(image: string): Promise<boolean> {
+    const result = await execaCommand(`docker image inspect ${image}`, { reject: false });
+    return result.exitCode === 0;
+}
 
 export class Kind {
     clusterName: string;
@@ -198,13 +203,22 @@ export class Kind {
         this.logger.debug(subprocess.stderr);
     }
 
-    // TODO: check that image is loaded before we continue
     async loadTerasliceImage(terasliceImage: string): Promise<void> {
+        const exists = await localDockerImageExists(terasliceImage);
+        if (!exists) {
+            throw new Error(
+                `Teraslice image "${terasliceImage}" was not found in local Docker.\n`
+                + 'This can happen when:\n'
+                + '  - --skip-build was used but the dev image has not been built yet. Remove --skip-build to build it from source.\n'
+                + '  - --teraslice-image was used but the specified image does not exist locally. Build or pull the image first.\n'
+                + '  - A config file with "teraslice.image.build: false" was used but the configured image has not been built or pulled locally.\n'
+                + 'To build the image from source, run without --skip-build and without --teraslice-image.'
+            );
+        }
         const subprocess = await execaCommand(`kind load docker-image ${terasliceImage} --name ${this.clusterName}`);
         this.logger.debug(subprocess.stderr);
     }
 
-    // TODO: check that image is loaded before we continue
     async loadServiceImage(
         serviceName: string, serviceImage: string, version: string, skipDelete: boolean
     ): Promise<void> {
@@ -225,12 +239,17 @@ export class Kind {
                     fs.rmSync(tarPath);
                 }
             } else {
+                const exists = await localDockerImageExists(`${serviceImage}:${version}`);
+                if (!exists) {
+                    signale.warn(`The ${serviceName} image ${serviceImage}:${version} is not present locally and will be pulled by Kubernetes when deploying.`);
+                    return;
+                }
                 subprocess = await execaCommand(`kind load --name ${this.clusterName} docker-image ${serviceImage}:${version}`);
             }
             signale.info(`${subprocess.command}: successful`);
         } catch (err) {
-            signale.info(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded. It may not be present locally.`);
-            signale.info('Error: ', err);
+            signale.warn(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded.`);
+            signale.warn('Error: ', err);
         }
     }
 
