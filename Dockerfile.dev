@@ -9,7 +9,7 @@ WORKDIR /app/source
 RUN apk --no-cache add tini ca-certificates bash
 
 # Install nodemon globally so we can use it with the CMD
-RUN yarn global add nodemon@3.1.4
+RUN corepack enable && pnpm add -g nodemon@3.1.4
 
 EXPOSE 5678
 

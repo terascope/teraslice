@@ -8,8 +8,8 @@ sidebar_label: Overview
 ## Installation
 
 ```bash
-# Using yarn
-yarn add @terascope/data-types
+# Using pnpm
+pnpm add @terascope/data-types
 # Using npm
 npm install --save @terascope/data-types
 ```

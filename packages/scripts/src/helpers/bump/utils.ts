@@ -128,35 +128,6 @@ export function getBumpCommitMessages(
     return messages;
 }
 
-/** This mutates the packages param */
-export function bumpPackagesList(
-    result: Record<string, BumpPkgInfo>,
-    packages: PackageInfo[],
-): void {
-    const rootInfo = getRootInfo();
-    for (const [name, bumpInfo] of Object.entries(result)) {
-        const pkgInfo = findPackageByName(packages, name);
-        signale.info(`=> Updated ${name} from version ${bumpInfo.from} to ${bumpInfo.to}`);
-
-        pkgInfo.version = bumpInfo.to;
-        if (rootInfo.terascope.version === 2) continue;
-
-        for (const depBumpInfo of bumpInfo.deps) {
-            const depPkgInfo = findPackageByName(packages, depBumpInfo.name);
-            const key = getDepKeyFromType(depBumpInfo.type);
-
-            if (!depPkgInfo[key]) continue;
-
-            signale.log(`---> Updating ${depBumpInfo.type} dependency ${pkgInfo.name}'s version of ${name} to ${bumpInfo.to}`);
-            if (depBumpInfo.type === BumpType.Peer) {
-                depPkgInfo[key][name] = `>=${bumpInfo.to}`;
-            } else {
-                depPkgInfo[key][name] = `~${bumpInfo.to}`;
-            }
-        }
-    }
-}
-
 enum DepKeys {
     dependencies = 'dependencies',
     devDependencies = 'devDependencies',
@@ -170,6 +141,37 @@ function getDepKeyFromType(type: BumpType): DepKeys {
     if (type === BumpType.Peer) return DepKeys.peerDependencies;
     if (type === BumpType.Resolution) return DepKeys.resolutions;
     throw new Error(`Unknown BumpType ${type} given`);
+}
+
+/** This mutates the packages param */
+export function bumpPackagesList(
+    result: Record<string, BumpPkgInfo>,
+    packages: PackageInfo[],
+): void {
+    const rootInfo = getRootInfo();
+    for (const [name, bumpInfo] of Object.entries(result)) {
+        const pkgInfo = findPackageByName(packages, name);
+        signale.info(`=> Updated ${name} from version ${bumpInfo.from} to ${bumpInfo.to}`);
+
+        pkgInfo.version = bumpInfo.to;
+        // If we are in an asset which does not have terascope.version defined. It will
+        // still bump deps
+        if (rootInfo.terascope.version === 1 || rootInfo.terascope.version === 2) continue;
+
+        for (const depBumpInfo of bumpInfo.deps) {
+            const depPkgInfo = findPackageByName(packages, depBumpInfo.name);
+            const key = getDepKeyFromType(depBumpInfo.type);
+
+            if (!depPkgInfo[key]) continue;
+
+            signale.log(`---> Updating ${depBumpInfo.type} dependency ${depPkgInfo.name}'s version of ${name} to ${bumpInfo.to}`);
+            if (depBumpInfo.type === BumpType.Peer) {
+                depPkgInfo[key][name] = `>=${bumpInfo.to}`;
+            } else {
+                depPkgInfo[key][name] = `~${bumpInfo.to}`;
+            }
+        }
+    }
 }
 
 export function bumpVersion(pkgInfo: PackageInfo, release: ReleaseType, preId?: string) {

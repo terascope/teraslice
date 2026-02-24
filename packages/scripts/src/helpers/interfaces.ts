@@ -33,6 +33,7 @@ export type PackageInfo = {
     engines?: {
         node?: string;
         yarn?: string;
+        pnpm?: string;
     };
 };
 
@@ -90,7 +91,8 @@ export type RootPackageInfo = {
     };
     engines: {
         node: string;
-        yarn: string;
+        yarn?: string;
+        pnpm?: string;
     };
     resolutions: {
         [pattern: string]: string;

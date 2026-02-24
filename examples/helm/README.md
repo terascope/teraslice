@@ -23,7 +23,7 @@ The following dependencies are required to successfully deploy a basic instance 
 
 ## Notice of Deprecation
 
-As of right now we are moving on from updating this helm repo. This can now all be achieved by using the `yarn k8s` command on the root directory for Teraslice. Usage can be found by running `yarn k8s --help`. The functionality and stability of the docs below may or may not work moving forward.
+As of right now we are moving on from updating this helm repo. This can now all be achieved by using the `pnpm k8s` command on the root directory for Teraslice. Usage can be found by running `pnpm k8s --help`. The functionality and stability of the docs below may or may not work moving forward.
 
 ## Quick Start
 

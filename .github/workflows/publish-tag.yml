@@ -29,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - name: Register npm token
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
@@ -39,25 +40,24 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version:  24
           registry-url: 'https://registry.npmjs.org'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install --frozen-lockfile && pnpm run setup
 
-      - name: Verify npm authentication within yarn
-        env:
-          CI_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn npm whoami
+      - name: Verify npm authentication
+        run: npm whoami
 
       - name: Publish to npm
-        env:
-          CI_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn ts-scripts publish -t tag npm
+        run: pnpm ts-scripts publish -t tag npm
 
   docker-build-publish:
     needs: ensure-non-pre-release
@@ -78,17 +78,20 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install and build packages
-        run: yarn && yarn setup
+        run: pnpm install --frozen-lockfile && pnpm run setup
 
       - name: Publish to docker
-        run: yarn ts-scripts publish -t tag -n ${{ matrix.node-version }} docker
+        run: pnpm ts-scripts publish -t tag -n ${{ matrix.node-version }} docker
 
   slack-announcement:
     needs: [ensure-non-pre-release, build-release, docker-build-publish]

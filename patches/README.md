@@ -9,7 +9,7 @@ The `patches` directory is used to store patches made using [patch-package](http
 First make changes to the files of a particular package in your node_modules folder, then run
 
 ```bash
-yarn patch-package package-name
+pnpm patch package-name
 ```
 
 ### Nested packages

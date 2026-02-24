@@ -10,8 +10,8 @@ sidebar_label: Overview
 ## Dependency Installation
 
 ```bash
-# Using yarn
-yarn add ts-transforms
+# Using pnpm
+pnpm add ts-transforms
 # Using npm
 npm install --save ts-transforms
 ```
@@ -19,8 +19,8 @@ npm install --save ts-transforms
 ## CLI Installation
 
 ```bash
-# Using yarn
-yarn global add ts-transforms
+# Using pnpm
+pnpm add -g ts-transforms
 # Using npm
 npm install --global ts-transforms
 ```

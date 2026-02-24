@@ -22,35 +22,35 @@
         "dist/src/**/*"
     ],
     "scripts": {
-        "benchmark": "yarn build && node bench/index.js",
+        "benchmark": "pnpm build && node bench/index.js",
         "build": "tsc --build",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "node ../scripts/bin/ts-scripts test ../data-mate --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../data-mate --",
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-mate --"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.2.0",
-        "@terascope/data-types": "~2.2.0",
-        "@terascope/geo-utils": "~2.2.0",
-        "@terascope/ip-utils": "~2.2.3",
-        "@terascope/types": "~2.2.0",
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/data-types": "workspace:~",
+        "@terascope/geo-utils": "workspace:~",
+        "@terascope/ip-utils": "workspace:~",
+        "@terascope/types": "workspace:~",
         "@types/validator": "~13.15.10",
-        "awesome-phonenumber": "~7.7.0",
+        "awesome-phonenumber": "~7.8.0",
         "big-json": "~3.2.0",
         "cidr-calc": "^1.0.4",
         "date-fns": "~4.1.0",
-        "ip-bigint": "~8.2.3",
+        "ip-bigint": "~8.2.6",
         "ip-cidr": "~4.0.2",
         "ip6addr": "~0.2.5",
         "ipaddr.js": "~2.3.0",
-        "is-cidr": "~6.0.2",
+        "is-cidr": "~6.0.3",
         "jexl": "~2.3.0",
         "mnemonist": "~0.40.3",
         "uuid": "~13.0.0",
         "valid-url": "~1.0.9",
         "validator": "~13.15.26",
-        "xlucene-parser": "~2.2.3"
+        "xlucene-parser": "workspace:~"
     },
     "devDependencies": {
         "@types/big-json": "~3.2.5",
@@ -62,7 +62,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "publishConfig": {
         "access": "public",

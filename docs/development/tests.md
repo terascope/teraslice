@@ -7,44 +7,44 @@ title: Tests
 #### Test all of the packages
 
 ```sh
-yarn test
+pnpm test
 ```
 
 #### Test a single package
 
 ```sh
 cd packages/[package-name];
-yarn test
+pnpm test
 ```
 
 #### Test a single file
 
 ```sh
 cd packages/[package-name];
-yarn test --testPathPatterns 'example-spec'
+pnpm test --testPathPatterns 'example-spec'
 ```
 
 #### Test a single file expectation
 
 ```sh
 cd packages/[package-name];
-yarn test --testPathPatterns 'example-spec' -t 'should output hello world'
+pnpm test --testPathPatterns 'example-spec' -t 'should output hello world'
 ```
 
 #### Test a single package in debug mode
 
 ```sh
 cd packages/[package-name];
-yarn test:debug
+pnpm test:debug
 # or with a different debug scope
-env DEBUG='*execution-controller*' yarn test:debug
+env DEBUG='*execution-controller*' pnpm test:debug
 ```
 
 #### Test a single package in watch mode
 
 ```sh
 cd packages/[package-name];
-yarn test:watch
+pnpm test:watch
 ```
 
 ### Attaching a Debugger to Jest within `ts-scripts`
@@ -56,7 +56,7 @@ To debug Jest tests launched through `ts-scripts`, set the `ATTACH_JEST_DEBUGGER
 Run your test command with the debugger flag:
 
 ```bash
-ATTACH_JEST_DEBUGGER=true yarn test
+ATTACH_JEST_DEBUGGER=true pnpm test
 ```
 
 ---

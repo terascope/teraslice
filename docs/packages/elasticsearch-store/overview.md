@@ -8,8 +8,8 @@ sidebar_label: Overview
 ## Installation
 
 ```bash
-# Using yarn
-yarn add elasticsearch-store
+# Using pnpm
+pnpm add elasticsearch-store
 # Using npm
 npm install --save elasticsearch-store
 ```
