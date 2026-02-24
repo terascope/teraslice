@@ -408,6 +408,25 @@ export default ([
         } as Range,
         { ip_range: xLuceneFieldType.IPRange },
     ],
+    [
+        'ip_range:"0:0:0:0:0:FFFF/96"',
+        'ip range',
+        {
+            type: NodeType.Range,
+            field: 'ip_range',
+            left: {
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '2001:db8::64' },
+                operator: 'gte'
+            },
+            right: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '2001:db8::64' }
+            }
+        } as Range,
+        { ip_range: xLuceneFieldType.IPRange },
+    ],
     ['val:[$foo TO *]',
         'resolving variables when range includes infinity',
         {

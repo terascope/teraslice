@@ -8,10 +8,10 @@ import arrays from './arrays.js';
 export * from './interfaces.js';
 
 export default {
-    term_level: termLevel,
-    geo,
-    field_group: fieldGroup,
-    logical_group: logicalGroup,
+    // term_level: termLevel,
+    // geo,
+    // field_group: fieldGroup,
+    // logical_group: logicalGroup,
     ip_range: ipRange,
-    arrays
+    // arrays
 };

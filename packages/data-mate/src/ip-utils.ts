@@ -1,5 +1,7 @@
 import isCidr from 'is-cidr';
 import ip6addr from 'ip6addr';
+import IPCIDR from 'ip-cidr';
+import { IpAddress } from 'cidr-calc';
 import { isIP, isIPv6, isNonZeroCidr } from '@terascope/ip-utils';
 import { isInfiniteMin, isInfiniteMax, ParsedRange } from 'xlucene-parser';
 import { getTypeOf, isString } from '@terascope/core-utils';
@@ -31,7 +33,7 @@ export function ipTermOrThrow(value: unknown) {
     const argCidr = isString(value) ? isCidr(value) : false;
 
     if (argCidr) {
-        const range = ip6addr.createCIDR(`${value}`);
+        const range = new IPCIDR(`${value}`);
         return pRangeTerm(range, true);
     }
 
@@ -42,11 +44,27 @@ export function ipTerm(value: unknown): MatchValueFn {
     const argCidr = isString(value) ? isCidr(value) : false;
 
     if (argCidr) {
-        const range = ip6addr.createCIDR(`${value}`);
+        const range = new IPCIDR(`${value}`);
         return pRangeTerm(range, false);
     }
 
     return isIPTerm(value, false);
+}
+
+export function ipInRange(value: unknown) {
+    if (value == null || !isIP(value)) {
+        return () => false;
+    }
+
+    const addr = IpAddress.of(value).toString();
+
+    return (input: unknown) => {
+        if (isString(input) && isCidr(input)) {
+            return new IPCIDR(input).contains(addr);
+        }
+
+        return false;
+    };
 }
 
 function isIPTerm(value: unknown, shouldThrow: boolean) {
@@ -60,11 +78,12 @@ function isIPTerm(value: unknown, shouldThrow: boolean) {
         }
 
         if (isNonZeroCidr(ip as any)) {
-            const argRange = ip6addr.createCIDR(ip as any);
+            const argRange = new IPCIDR(`${ip}`);
             return argRange.contains(`${value}`);
         }
 
-        return ip === value;
+        // @ts-expect-error due to need for type narrowing
+        return IpAddress.of(ip).toString() === IpAddress.of(value).toString();
     };
 }
 
@@ -104,17 +123,33 @@ function validateIPRange(rangeQuery: ParsedRange) {
     return { minValue, maxValue };
 }
 
-function checkCidr(ip: string, range: ip6addr.AddrRange) {
-    const argRange = ip6addr.createCIDR(ip);
+function checkCidr(ip: string, range: ip6addr.AddrRange & IPCIDR) {
+    const argRange = new IPCIDR(`${ip}`);
+    const { first, last } = getFirstAndLastIp(range);
+
     return (
-        range.contains(argRange.first().toString())
-        || range.contains(argRange.last().toString())
-        || argRange.contains(range.first().toString())
-        || argRange.contains(range.last().toString())
+        range.contains(argRange.start())
+        || range.contains(argRange.end())
+        || argRange.contains(first)
+        || argRange.contains(last)
     );
 }
 
-function pRangeTerm(range: ip6addr.AddrRange, shouldThrow: boolean): MatchValueFn {
+function getFirstAndLastIp(range: ip6addr.AddrRange & IPCIDR) {
+    if (range instanceof IPCIDR) {
+        const [first, last] = range.toRange();
+        return { first, last };
+    }
+
+    return {
+        // @ts-expect-error
+        first: range.first ? range.first().toString() : range._begin.toString(),
+        // @ts-expect-error
+        last: range.end ? range.end().toString() : range._end.toString()
+    };
+}
+
+function pRangeTerm(range: ip6addr.AddrRange | IPCIDR, shouldThrow: boolean): MatchValueFn {
     return function checkIP(ip) {
         if (ip == null) {
             return false;
@@ -125,11 +160,12 @@ function pRangeTerm(range: ip6addr.AddrRange, shouldThrow: boolean): MatchValueF
         }
 
         if (isNonZeroCidr(ip as any)) {
-            return checkCidr(ip as any, range);
+            return checkCidr(ip as any, range as any);
         }
 
-        if (isIP(ip as any)) {
-            return range.contains(ip as any);
+        if (isString(ip) && isIP(ip)) {
+            const ipData = IpAddress.of(ip).toString();
+            return range.contains(ipData);
         }
 
         return false;
@@ -138,7 +174,11 @@ function pRangeTerm(range: ip6addr.AddrRange, shouldThrow: boolean): MatchValueF
 
 function createRange(rangeQuery: ParsedRange) {
     const { minValue, maxValue } = validateIPRange(rangeQuery);
-    return ip6addr.createAddrRange(minValue, maxValue);
+
+    const min = IpAddress.of(minValue).toString();
+    const max = IpAddress.of(maxValue).toString();
+
+    return ip6addr.createAddrRange(min, max);
 }
 
 export function ipRange(rangeQuery: ParsedRange): MatchValueFn {

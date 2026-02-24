@@ -11,6 +11,7 @@ import isCidr from 'is-cidr';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
 import { parseIp, stringifyIp } from 'ip-bigint';
 import ip6addr from 'ip6addr';
+import { IpAddress } from 'cidr-calc';
 
 export function isIP(input: unknown): input is string {
     return isString(input) && _isIP(input);
@@ -69,22 +70,30 @@ export function inIPRange(
     args: { min?: string; max?: string; cidr?: string }
 ): boolean {
     if (!isIP(input)) return false;
+    const data = IpAddress.of(input).toString();
 
     if (args.cidr != null) {
-        return isCIDR(args.cidr) && ip6addr.createCIDR(args.cidr).contains(input as string);
+        return isCIDR(args.cidr) && new IPCIDR(args.cidr).contains(data);
     }
 
     const ipType = _ipVersion(input as string);
 
-    const min = args.min || _assignMin(ipType as number);
-    const max = args.max || _assignMax(ipType as number);
+    // this should be refactored
+    const minValue = args.min || _assignMin(ipType as number);
+    const maxValue = args.max || _assignMax(ipType as number);
 
-    return _validMinAndMax(min, max)
-        && ip6addr.createAddrRange(min, max).contains(input as string);
+    if (_validMinAndMax(minValue, maxValue)) {
+        const min = IpAddress.of(minValue).toString();
+        const max = IpAddress.of(maxValue).toString();
+
+        return ip6addr.createAddrRange(min, max).contains(data);
+    }
+
+    return false;
 }
 
 function _assignMin(ipType: number, min?: string): string {
-    if (min) return min;
+    if (min) return IpAddress.of(min).toString();
 
     if (ipType === 4) return '0.0.0.0';
 
@@ -92,7 +101,7 @@ function _assignMin(ipType: number, min?: string): string {
 }
 
 function _assignMax(ipType: number, max?: string): string {
-    if (max) return max;
+    if (max) return IpAddress.of(max).toString();
 
     if (ipType === 4) return '255.255.255.255';
 
@@ -256,7 +265,7 @@ export function getLastUsableIPInCIDR(input: unknown) {
  */
 export function shortenIPv6Address(input: unknown) {
     if (isIP(input)) {
-        return ip6addr.parse(input).toString();
+        return ipaddr.parse(input).toString();
     }
 
     throw Error('input must be a valid address');

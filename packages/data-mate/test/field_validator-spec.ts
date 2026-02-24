@@ -414,6 +414,8 @@ describe('field validators', () => {
     describe('inIPRange', () => {
         it('return true for ip addresses in a given range using cidr notation', () => {
             expect(FieldValidator.inIPRange('8.8.8.8', {}, { cidr: '8.8.8.0/24' })).toBe(true);
+            expect(FieldValidator.inIPRange('::0.0.0.1', {}, { cidr: '::1/128' })).toBe(true);
+            expect(FieldValidator.inIPRange('::1', {}, { cidr: '::1/128' })).toBe(true);
             expect(FieldValidator.inIPRange('2001:0db8:0123:4567:89ab:cdef:1234:5678', {}, { cidr: '2001:0db8:0123:4567:89ab:cdef:1234:0/112' })).toBe(true);
         });
 

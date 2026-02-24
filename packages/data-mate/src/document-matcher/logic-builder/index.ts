@@ -8,7 +8,7 @@ import {
 import { compareTermDates, dateRange } from './dates.js';
 import { regexp, wildcard, findWildcardField } from './string.js';
 import { BooleanCB } from '../interfaces.js';
-import { ipTerm, ipRange } from '../../ip-utils.js';
+import { ipTerm, ipRange, ipInRange } from '../../ip-utils.js';
 
 export default function buildLogicFn(
     parser: p.Parser,
@@ -197,11 +197,27 @@ function typeFunctions(
         }
 
         const value = p.getFieldValue(node.value, variables);
+
         if (value === undefined) {
             return () => false;
         }
 
         return ipTerm(value);
+    }
+
+    if (type === xLuceneFieldType.IPRange) {
+        if (p.isRange(node)) {
+            const rangeQuery = p.parseRange(node, variables);
+            return ipRange(rangeQuery);
+        }
+
+        const value = p.getFieldValue(node.value, variables);
+
+        if (value === undefined) {
+            return () => false;
+        }
+
+        return ipInRange(value);
     }
 
     if (type === xLuceneFieldType.Boolean) {

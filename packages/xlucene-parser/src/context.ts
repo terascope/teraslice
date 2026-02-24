@@ -1,5 +1,6 @@
 import { isKey } from '@terascope/core-utils';
 import { parseGeoDistance, parseGeoPoint } from '@terascope/geo-utils';
+import { isCIDR } from '@terascope/ip-utils';
 import { GeoPoint, xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import * as i from './interfaces.js';
 import * as utils from './utils.js';
@@ -144,7 +145,11 @@ export function makeContext(arg: i.ContextArg) {
             `coercing field "${field}":${value} type of ${node.field_type} to ${fieldType}`
         );
 
-        if (node.type === i.NodeType.Term && fieldType === xLuceneFieldType.IPRange) {
+        if (
+            node.type === i.NodeType.Term
+            && fieldType === xLuceneFieldType.IPRange
+            && isCIDR(value)
+        ) {
             Object.assign(node, utils.createIPRangeFromTerm(node, value));
             return;
         }

@@ -21,8 +21,7 @@ import {
 } from '@terascope/geo-utils';
 import {
     isIPv6, isNonZeroCidr,
-    isIP as utilsIsIP
-
+    isIP as utilsIsIP,
 } from '@terascope/ip-utils';
 // TODO: should this be comming from ip utils?
 import ipaddr from 'ipaddr.js';
@@ -33,7 +32,9 @@ import { parsePhoneNumber } from 'awesome-phonenumber';
 // TODO: should this be comming from utils?
 import validator from 'validator';
 import url from 'valid-url';
+import IPCIDR from 'ip-cidr';
 import { FieldType, GeoShapePoint, MACDelimiter } from '@terascope/types';
+import { IpAddress } from 'cidr-calc';
 import {
     FQDNOptions, HashConfig, LengthConfig,
     PostalCodeLocale, ArgsISSNOptions,
@@ -668,10 +669,10 @@ function _inIPRange(input: unknown, args: { min?: string; max?: string; cidr?: s
 
     if (!isIP(input)) return false;
 
-    // assign min/max IP range values
+    const data = IpAddress.of(input).toString();
     if (args.cidr) {
         if (!isCIDR(args.cidr)) return false;
-        return ip6addr.createCIDR(args.cidr).contains(input);
+        return new IPCIDR(args.cidr).contains(data);
     }
 
     // assign upper/lower bound even if min or max is missing
@@ -685,7 +686,7 @@ function _inIPRange(input: unknown, args: { min?: string; max?: string; cidr?: s
         return false;
     }
 
-    return ip6addr.createAddrRange(min, max).contains(input);
+    return ip6addr.createAddrRange(min, max).contains(data);
 }
 
 /**

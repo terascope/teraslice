@@ -3208,8 +3208,10 @@ __metadata:
     benchmark: "npm:~2.1.4"
     big-json: "npm:~3.2.0"
     chance: "npm:~1.1.13"
+    cidr-calc: "npm:^1.0.4"
     date-fns: "npm:~4.1.0"
     ip-bigint: "npm:~8.2.3"
+    ip-cidr: "npm:~4.0.2"
     ip6addr: "npm:~0.2.5"
     ipaddr.js: "npm:~2.3.0"
     is-cidr: "npm:~6.0.2"
@@ -3339,11 +3341,11 @@ __metadata:
     "@terascope/core-utils": "npm:~2.2.0"
     "@terascope/types": "npm:~2.2.0"
     "@types/ip6addr": "npm:~0.2.6"
+    cidr-calc: "npm:^1.0.4"
     ip-bigint: "npm:~8.2.3"
     ip-cidr: "npm:~4.0.2"
     ip6addr: "npm:~0.2.5"
     ipaddr.js: "npm:~2.3.0"
-    is-cidr: "npm:~6.0.2"
   languageName: unknown
   linkType: soft
 
@@ -5919,6 +5921,13 @@ __metadata:
   version: 4.3.1
   resolution: "ci-info@npm:4.3.1"
   checksum: 10c0/7dd82000f514d76ddfe7775e4cb0d66e5c638f5fa0e2a3be29557e898da0d32ac04f231217d414d07fb968b1fbc6d980ee17ddde0d2c516f23da9cfff608f6c1
+  languageName: node
+  linkType: hard
+
+"cidr-calc@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "cidr-calc@npm:1.0.4"
+  checksum: 10c0/82f073c4be1e983eab2187d57da8083f4488c2ae57fbe657b91860e7910c7e85bb1ebd48a5f17bcf7f40824a36e5e55b317d58aedd4407799f81946415eca6d9
   languageName: node
   linkType: hard
 
