@@ -7,12 +7,18 @@ title: Kubernetes
 ## Dependencies
 
 - Docker
-- [Kubectl](https://kubernetes.io/docs/reference/kubectl/)
+- [Kubectl](https://kubernetes.io/docs/reference/kubectl/) v1.34.2
     - `brew install kubectl`
-- [Kind](https://kind.sigs.k8s.io/) - Kubernetes in Docker
+- [Kind](https://kind.sigs.k8s.io/) v0.30.0 - Kubernetes in Docker
     - `brew install kind`
+- [Helm](https://helm.sh/docs/intro/install/) v4 - The package manager for Kubernetes
+- [helm-diff](https://github.com/databus23/helm-diff) - Helm plugin required by helmfile
+    - `helm plugin install https://github.com/databus23/helm-diff`
+- [helmfile](https://helmfile.readthedocs.io/en/latest/#installation) v1.2.2 - Deploy Kubernetes Helm Charts
 - `teraslice-cli` (aka `earl`)
     - `npm i -g teraslice-cli`
+
+> **Note:** Helm and helmfile introduce breaking changes between major/minor versions. If you encounter issues, verify you are using the versions listed above.
 
 ## General Notes
 

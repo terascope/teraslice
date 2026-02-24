@@ -6,102 +6,54 @@ Teraslice is a distributed data processing platform designed to run in kubernete
 
 ## Setup Teraslice
 
-Teraslice requires a connection to an opensearch cluster in order to run correctly. Below is a quick guide to launch a functional local teraslice instance with opensearch1 using helmfile. See the [helm examples directory](https://github.com/terascope/teraslice/tree/master/examples/helm) or the [e2e helm directory](https://github.com/terascope/teraslice/tree/master/e2e/helm) for more comprehensive helmfile examples.
+The quickest way to launch Teraslice locally is with the `k8s` command, which uses [Kind](https://kind.sigs.k8s.io/) to run a full Kubernetes environment in Docker. This command handles cluster creation, deploys OpenSearch, builds a Teraslice Docker image, and starts the Teraslice master automatically.
 
-### Required dependencies
+### Required Dependencies
 
 - [Docker](https://www.docker.com/get-started/) - Application Containerization Platform
-- [Helm](https://helm.sh/docs/intro/install/) - The package manager for Kubernetes
-- [helmfile](https://helmfile.readthedocs.io/en/latest/#installation) - Deploy Kubernetes Helm Charts
-- [Kind](https://kind.sigs.k8s.io/) - Kubernetes in Docker
+- [Kubectl](https://kubernetes.io/docs/reference/kubectl/) v1.34.2 - Kubernetes command-line tool (`brew install kubectl`)
+- [Kind](https://kind.sigs.k8s.io/) v0.30.0 - Kubernetes in Docker (`brew install kind`)
+- [Helm](https://helm.sh/docs/intro/install/) v4 - The package manager for Kubernetes
+- [helm-diff](https://github.com/databus23/helm-diff) - Helm plugin required by helmfile (`helm plugin install https://github.com/databus23/helm-diff`)
+- [helmfile](https://helmfile.readthedocs.io/en/latest/#installation) v1.2.2 - Deploy Kubernetes Helm Charts
+- [Node.js](https://nodejs.org/) >= 22.0.0
+- [pnpm](https://pnpm.io/) >= 10.25.0 — install via [Corepack](./development/pnpm.md#installing-pnpm) (`corepack enable`)
 - [curl](https://curl.se/download.html) - Command-line tool for making HTTP requests
-- [teraslice-cli](https://www.npmjs.com/package/teraslice-cli) - A CLI tool for managing Teraslice
+- [teraslice-cli](https://www.npmjs.com/package/teraslice-cli) - A CLI tool for managing Teraslice (`npm i -g teraslice-cli`)
 
-Create a new file called `kindConfig.yaml` and paste the following code snippet in it and save.
+> **Note:** Helm and helmfile introduce breaking changes between major/minor versions. If you encounter issues, verify you are using the versions listed above.
 
-```yaml
-kind: Cluster
-name: k8s-env
-apiVersion: kind.x-k8s.io/v1alpha4
-nodes:
-- role: control-plane
-  extraPortMappings:
-  - containerPort: 30678 # Map internal teraslice api service to host port
-    hostPort: 5678
-  - containerPort: 30921 # Map internal opensearch1 service to host port
-    hostPort: 9200
-```
-
-Next run the kind command below to launch a kind cluster.
+### Clone and Build Teraslice
 
 ```sh
-kind create cluster --config kindConfig.yaml
+git clone https://github.com/terascope/teraslice.git
+cd teraslice
+pnpm run setup
 ```
 
-Next create a file called `helmfile.yaml` and paste the code below in it and save.
+### Launch Teraslice
 
-```yaml
-repositories:
-  - name: opensearch
-    url: https://opensearch-project.github.io/helm-charts/
-  - name: terascope
-    url: https://terascope.github.io/helm-charts/
-
-helmDefaults:
-  wait: true
-
-releases:
-  - name: opensearch1
-    namespace: ts-dev1
-    version: 2.17.1
-    chart: opensearch/opensearch
-    values:
-      - replicas: 1
-        singleNode: true
-        image:
-          tag: 1.3.14
-        service:
-          type: NodePort
-          nodePort: 30921
-        config:
-          opensearch.yml:
-            plugins:
-              security:
-                disabled: true
-        masterService: opensearch1
-
-  - name: teraslice
-    namespace: ts-dev1
-    version: 2.3.0
-    chart: terascope/teraslice-chart
-    needs:
-      - ts-dev1/opensearch1
-    values:
-      - terafoundation:
-          connectors:
-            elasticsearch-next:
-              default:
-                node:
-                  - "http://opensearch1.ts-dev1:9200"
-        service:
-          nodePort: 30678
-          type: NodePort
-        master:
-          teraslice:
-            kubernetes_namespace: ts-dev1
-            cluster_manager_type: kubernetesV2
-            asset_storage_connection_type: elasticsearch-next
-        worker:
-          teraslice:
-            kubernetes_namespace: ts-dev1
-            cluster_manager_type: kubernetesV2
-            asset_storage_connection_type: elasticsearch-next
-```
-
-Run the following command to submit it to the local dev cluster:
+From the teraslice root directory, run:
 
 ```sh
-helmfile sync
+pnpm k8s
+```
+
+This will take a few minutes. It will:
+
+- Create a Kind Kubernetes cluster
+- Deploy OpenSearch
+- Build and load a Teraslice Docker image from your local repository
+- Start the Teraslice master
+
+After the command completes, Teraslice will be running on port `5678` and OpenSearch on port `9200`.
+
+> For additional options such as using a specific Teraslice image, adding Kafka, or rebuilding after code changes, see the [Kubernetes Development Environment](./development/k8s.md) docs.
+
+Configure a `local` alias for use with the CLI:
+
+```sh
+earl aliases add local http://localhost:5678
 ```
 
 ## Using Teraslice
