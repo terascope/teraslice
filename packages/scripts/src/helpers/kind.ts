@@ -7,7 +7,9 @@ import { Logger, debugLogger, isCI } from '@terascope/core-utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale.js';
 import { getE2eK8sDir } from '../helpers/packages.js';
-import { KindCluster, TsVolumeSet, CustomKindDefaultPorts, CustomKindService, DeployedServicePorts } from './interfaces.js';
+import {
+    KindCluster, TsVolumeSet, CustomKindDefaultPorts, CustomKindService, DeployedServicePorts
+} from './interfaces.js';
 import config from './config.js';
 
 const {
@@ -27,12 +29,14 @@ export class Kind {
     logger: Logger;
     kindVersion: string | undefined;
     k8sVersion: string | undefined;
+    deployedPorts: DeployedServicePorts;
 
     constructor(k8sVersion: string | undefined, clusterName: string) {
         this.clusterName = clusterName;
         this.logger = debugLogger('ts-scripts:Kind');
         this.kindVersion = undefined;
         this.k8sVersion = k8sVersion;
+        this.deployedPorts = { teraslice: TERASLICE_PORT };
     }
 
     async createCluster(
@@ -75,16 +79,19 @@ export class Kind {
                             containerPort: 30201,
                             hostPort: OPENSEARCH_PORT
                         });
+                        this.deployedPorts.opensearch1 = OPENSEARCH_PORT;
                     } else if (OPENSEARCH_VERSION.startsWith('2')) {
                         configFile.nodes[0].extraPortMappings.push({
                             containerPort: 30202,
                             hostPort: OPENSEARCH_PORT
                         });
+                        this.deployedPorts.opensearch2 = OPENSEARCH_PORT;
                     } else if (OPENSEARCH_VERSION.startsWith('3')) {
                         configFile.nodes[0].extraPortMappings.push({
                             containerPort: 30203,
                             hostPort: OPENSEARCH_PORT
                         });
+                        this.deployedPorts.opensearch3 = OPENSEARCH_PORT;
                     } else {
                         throw new Error(`The OPENSEARCH_VERSION provided is unsupported.`);
                     }
@@ -97,12 +104,15 @@ export class Kind {
                         containerPort: 30901,
                         hostPort: MINIO_UI_PORT
                     });
+                    this.deployedPorts.minioApi = MINIO_PORT;
+                    this.deployedPorts.minioUi = MINIO_UI_PORT;
                 } else if (service === 'kafka') {
                     // map only the external kafka port so it can resolve with the host machine
                     configFile.nodes[0].extraPortMappings.push({
                         containerPort: 30094,
                         hostPort: KAFKA_PORT
                     });
+                    this.deployedPorts.kafka = KAFKA_PORT;
                 }
             }
         } else {
@@ -156,6 +166,32 @@ export class Kind {
                         });
                     }
 
+                    if (service === 'opensearch1') {
+                        this.deployedPorts.opensearch1
+                            = customConfig[service].hostPort
+                                ?? defs.hostPorts[0];
+                    } else if (service === 'opensearch2') {
+                        this.deployedPorts.opensearch2
+                            = customConfig[service].hostPort
+                                ?? defs.hostPorts[0];
+                    } else if (service === 'opensearch3') {
+                        this.deployedPorts.opensearch3
+                            = customConfig[service].hostPort
+                                ?? defs.hostPorts[0];
+                    } else if (service === 'minio') {
+                        this.deployedPorts.minioApi
+                            = customConfig[service].hostPort
+                                ?? defs.hostPorts[0];
+                        this.deployedPorts.minioUi
+                            = customConfig[service].hostPort
+                                ?? defs.hostPorts[1];
+                    } else if (service === 'kafka') {
+                        this.deployedPorts.kafka
+                            = customConfig[service].hostPort
+                                ?? defs.hostPorts[0];
+                        this.deployedPorts.kafkaUi = defs.hostPorts[1];
+                    }
+
                     if (customConfig[service].hostVolumePath) {
                         if (configFile.nodes[0].extraMounts) {
                             configFile.nodes[0].extraMounts.push({
@@ -185,6 +221,7 @@ export class Kind {
             });
         }
         configFile.nodes[0].extraPortMappings[0].hostPort = teraslicePort;
+        this.deployedPorts.teraslice = teraslicePort;
         const updatedYaml = yaml.dump(configFile);
         signale.debug(`Final kind config yaml: ${updatedYaml}`);
 

@@ -174,7 +174,53 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         }
         process.exit(1);
     }
-    signale.success('k8s environment ready.\nNext steps:\n\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:5678\n\t\tExample: teraslice-cli aliases add cluster1 http://localhost:5678\n\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>\n\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets\n\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON\n\tStart a job: teraslice-cli tjm start <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm start JOB.JSON\n\tDelete the kind k8s cluster: kind delete cluster --name <clusterName>\n\t\tExample: kind delete cluster --name k8s-env\n\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview');
+    signale.success(buildNextStepsMessage(kind, options));
+}
+
+function buildNextStepsMessage(kind: Kind, options: K8sEnvOptions): string {
+    const { deployedPorts } = kind;
+    const tsPort = deployedPorts.teraslice;
+    const { kindClusterName } = options;
+
+    const lines: string[] = [
+        'k8s environment ready.',
+        'Next steps:',
+        `\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:${tsPort}`,
+        `\t\tExample: teraslice-cli aliases add cluster1 http://localhost:${tsPort}`,
+        '\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>',
+        '\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets',
+        '\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>',
+        '\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON',
+        '\tStart a job: teraslice-cli tjm start <path/to/job/file.json>',
+        '\t\tExample: teraslice-cli tjm start JOB.JSON',
+        '\tDelete the kind k8s cluster: kind delete cluster --name <clusterName>',
+        `\t\tExample: kind delete cluster --name ${kindClusterName}`,
+        '\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview',
+        'Deployed service endpoints:',
+        `\tTeraslice: http://localhost:${tsPort}`,
+    ];
+
+    if (deployedPorts.opensearch1 !== undefined) {
+        lines.push(`\tOpenSearch 1: http://localhost:${deployedPorts.opensearch1}`);
+    }
+    if (deployedPorts.opensearch2 !== undefined) {
+        lines.push(`\tOpenSearch 2: http://localhost:${deployedPorts.opensearch2}`);
+    }
+    if (deployedPorts.opensearch3 !== undefined) {
+        lines.push(`\tOpenSearch 3: http://localhost:${deployedPorts.opensearch3}`);
+    }
+    if (deployedPorts.minioApi !== undefined) {
+        lines.push(`\tMinio API: http://localhost:${deployedPorts.minioApi}`);
+        lines.push(`\tMinio UI: http://localhost:${deployedPorts.minioUi}`);
+    }
+    if (deployedPorts.kafka !== undefined) {
+        lines.push(`\tKafka Broker: localhost:${deployedPorts.kafka}`);
+    }
+    if (deployedPorts.kafkaUi !== undefined) {
+        lines.push(`\tKafka UI: http://localhost:${deployedPorts.kafkaUi}`);
+    }
+
+    return lines.join('\n');
 }
 
 export async function rebuildTeraslice(options: K8sEnvOptions) {
