@@ -858,6 +858,7 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
     try {
         subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} ${command} -f ${helmfilePath}`);
     } catch (err) {
+        // TSError truncates to 3000 characters which is an issue here
         throw new Error(`Helmfile ${command} command failed:\n${err}`);
     } finally {
         fs.rmSync(valuesDir, { recursive: true, force: true });
@@ -897,6 +898,7 @@ export async function launchTerasliceWithCustomHelmfile(
         syncProcess = await execaCommand(`helmfile ${syncSelector} --state-values-file ${configFilePath} sync -f ${helmfilePath}`);
         logger.debug(`helmfile sync:\n${syncProcess.stdout}`);
     } catch (err) {
+        // TSError truncates to 3000 characters which is an issue here
         throw new Error(`Helmfile command failed:\n${err}`);
     }
 }
