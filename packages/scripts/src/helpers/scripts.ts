@@ -787,6 +787,10 @@ export async function showState(tsPort: number) {
         logger.warn(`Search indices: ${await showESIndices()}`);
         logger.warn(`Search Events: ${await showESEvents()}`);
         logger.warn(`Assets: ${await showAssets(tsPort)}`);
+        signale.warn(`kubectl get output: ${subprocess.stdout}`);
+        signale.warn(`Search indices: ${await showESIndices()}`);
+        signale.warn(`Search Events: ${await showESEvents()}`);
+        signale.warn(`Assets: ${await showAssets(tsPort)}`);
     } catch (err) {
         signale.error(`Failed to get k8s resources: ${err}`);
     }
