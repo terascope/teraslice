@@ -33,7 +33,7 @@ Theres an issue when updating from helm v3 to helm v4 where the diff plugin get 
 git clone https://github.com/terascope/teraslice.git
 cd teraslice
 # You only need to enable corepack once
-corpack enable
+corepack enable
 pnpm run setup
 ```
 
