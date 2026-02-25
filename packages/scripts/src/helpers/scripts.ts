@@ -783,9 +783,10 @@ export async function setAlias(tsPort: number) {
 export async function showState(tsPort: number) {
     try {
         const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
-        logger.debug(subprocess.stdout);
-        logger.debug(await showESIndices());
-        logger.debug(await showAssets(tsPort));
+        logger.warn(subprocess.stdout);
+        logger.warn(await showESIndices());
+        logger.warn(await showESEvents());
+        logger.warn(await showAssets(tsPort));
     } catch (err) {
         signale.error(`Failed to get k8s resources: ${err}`);
     }
@@ -793,6 +794,13 @@ export async function showState(tsPort: number) {
 
 async function showESIndices() {
     const subprocess = await execaCommand(`curl -k ${config.SEARCH_TEST_HOST}/_cat/indices?v`);
+    return subprocess.stdout;
+}
+
+async function showESEvents() {
+    const searchHost = determineSearchHost();
+    console.log('@@@@ searchHost: ', searchHost);
+    const subprocess = await execaCommand(`kubectl get events -A --field-selector involvedObject.name=${searchHost}`);
     return subprocess.stdout;
 }
 
