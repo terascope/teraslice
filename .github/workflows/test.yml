@@ -6,10 +6,10 @@ on:
       - master
       - 'release/teraslice-v*'
 env:
-  NODE_VERSIONS: '[22, 24.13.1]'
-  NODE_VERSION_MAIN: '24.13.1'
-  NODE_VERSIONS_K8S: '[22, 24.13.1]'
-  NODE_VERSIONS_EXT_STORAGE: '[24.13.1]'
+  NODE_VERSIONS: '[22, 24]'
+  NODE_VERSION_MAIN: '24'
+  NODE_VERSIONS_K8S: '[22, 24]'
+  NODE_VERSIONS_EXT_STORAGE: '[24]'
 
 jobs:
   compute-vars:
@@ -169,6 +169,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [compute-vars]
     strategy:
+      fail-fast: false  # Let all matrix jobs complete
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
     steps:
