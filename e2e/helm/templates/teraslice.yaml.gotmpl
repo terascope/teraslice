@@ -230,6 +230,17 @@ master:
         asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
         name: "ts-dev1"
         autoload_directory: /app/autoload
+        index_settings:
+            analytics:
+                number_of_replicas: 0
+            assets:
+                number_of_replicas: 0
+            execution:
+                number_of_replicas: 0
+            jobs:
+                number_of_replicas: 0
+            state:
+                number_of_replicas: 0
 
 
 worker:
@@ -240,6 +251,17 @@ worker:
         asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
         name: "ts-dev1"
         autoload_directory: /app/autoload
+        index_settings:
+            analytics:
+                number_of_replicas: 0
+            assets:
+                number_of_replicas: 0
+            execution:
+                number_of_replicas: 0
+            jobs:
+                number_of_replicas: 0
+            state:
+                number_of_replicas: 0
 
 extraVolumes: |
     {{- $customVolumes := .Values.teraslice.extraVolumes | default list }}
