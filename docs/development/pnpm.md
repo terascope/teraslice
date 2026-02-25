@@ -21,17 +21,6 @@ pnpm --version
 
 > **Note:** If you have pnpm installed via another method (e.g. `npm i -g pnpm`), Corepack may conflict with it. It is recommended to uninstall any globally installed pnpm and rely solely on Corepack.
 
-### Using nvm
-
-If you manage Node.js with [nvm](https://github.com/nvm-sh/nvm), Corepack may not be available globally since each Node version has its own isolated environment. You can install Corepack via npm for your current Node version:
-
-```bash
-npm install -g corepack
-corepack enable
-```
-
-You will need to repeat this after switching to a new Node version with nvm. It is a good idea to add these lines to your `.nvmrc` post-install hook or shell profile so Corepack is always enabled for the Node version in use.
-
 ## Updating pnpm
 
 To update the pnpm version, follow these steps:

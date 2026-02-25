@@ -23,11 +23,17 @@ The quickest way to launch Teraslice locally is with the `k8s` command, which us
 
 > **Note:** Helm and helmfile introduce breaking changes between major/minor versions. If you encounter issues, verify you are using the versions listed above.
 
+### Migrating from helm v3 to v4 diff plugin bug
+
+Theres an issue when updating from helm v3 to helm v4 where the diff plugin get corrupted. Delete and reinstall the plugin to ensure things are correct.
+
 ### Clone and Build Teraslice
 
 ```sh
 git clone https://github.com/terascope/teraslice.git
 cd teraslice
+# You only need to enable corepack once
+corpack enable
 pnpm run setup
 ```
 

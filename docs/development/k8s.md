@@ -20,6 +20,10 @@ title: Kubernetes
 
 > **Note:** Helm and helmfile introduce breaking changes between major/minor versions. If you encounter issues, verify you are using the versions listed above.
 
+## Migrating from helm v3 to v4 diff plugin bug
+
+Theres an issue when updating from helm v3 to helm v4 where the diff plugin get corrupted. Delete and reinstall the plugin to ensure things are correct.
+
 ## General Notes
 
 The `ts-scripts` package provides a set of tools for working with Teraslice in
