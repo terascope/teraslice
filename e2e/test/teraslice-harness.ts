@@ -135,7 +135,8 @@ export class TerasliceHarness {
             await Promise.all([
                 this.logExErrors(ex, exId),
                 this.logExStatus(ex),
-                this.logClusterState()
+                this.logClusterState(),
+                showState(TERASLICE_PORT)
             ]).catch((e) => signale.warn(e));
 
             throw err;
