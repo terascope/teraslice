@@ -800,7 +800,7 @@ async function showESIndices() {
 async function showESEvents() {
     const searchHost = await determineSearchHost();
     console.log('@@@@ searchHost: ', searchHost);
-    const subprocess = await execaCommand(`kubectl get events -A --field-selector involvedObject.name=${searchHost}`);
+    const subprocess = await execaCommand(`kubectl get events -A --field-selector involvedObject.name=${searchHost}-cluster-master-0`);
     return subprocess.stdout;
 }
 
