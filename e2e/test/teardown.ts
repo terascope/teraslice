@@ -4,10 +4,11 @@ import fse from 'fs-extra';
 import { config } from './config.js';
 import { tearDown } from './docker-helpers.js';
 import signale from './signale.js';
+import { showState } from '@terascope/scripts';
 
 const {
     KEEP_OPEN, CONFIG_PATH, ASSETS_PATH, TEST_INDEX_PREFIX,
-    TEST_PLATFORM, ROOT_CERT_PATH
+    TEST_PLATFORM, ROOT_CERT_PATH, TERASLICE_PORT
 } = config;
 
 const { cleanupIndex, makeClient } = ElasticsearchTestHelpers;
@@ -21,6 +22,8 @@ export async function teardown(testClient?: Client) {
     if (KEEP_OPEN) {
         return;
     }
+
+    await showState(TERASLICE_PORT, true);
 
     const client = await getClient(testClient);
 

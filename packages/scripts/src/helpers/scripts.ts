@@ -780,8 +780,12 @@ export async function setAlias(tsPort: number) {
     }
 }
 
-export async function showState(tsPort: number) {
+export async function showState(tsPort: number, isLast: boolean = false) {
     try {
+        if (isLast) {
+            console.log('@@@@@@ Last check before teardown!!!!!');
+            signale.warn('LASSST ERROR....');
+        }
         const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
         logger.debug(subprocess.stdout);
         logger.debug(await showESIndices());
