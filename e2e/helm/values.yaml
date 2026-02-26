@@ -43,8 +43,8 @@ opensearch2:
     admin_dn: ""
   version: 2.15.0
   esJavaOpts: -Xmx512M -Xms512M
-  memoryLimit: 1Gi
-  memoryRequest: 512Mi
+  memoryLimit: 2Gi
+  memoryRequest: 1Gi
   persistentVolumeSize: 8Gi
   # The number of replicas
   instances: 1
