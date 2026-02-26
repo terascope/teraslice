@@ -785,8 +785,10 @@ export async function showState(tsPort: number, isLast: boolean = false) {
         if (isLast) {
             console.log('@@@@@@ Last check before teardown!!!!!');
             signale.warn('LASSST ERROR....');
+            const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
+            logger.debug(subprocess.stdout);
         }
-        const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
+        const subprocess = await execaCommand('kubectl -n services-dev1 describe pod opensearch2-cluster-master-0');
         logger.debug(subprocess.stdout);
         logger.debug(await showESIndices());
         logger.debug(await showAssets(tsPort));
