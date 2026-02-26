@@ -796,6 +796,7 @@ export async function showState(tsPort: number) {
         console.log(`Search Events:\n${await showESEvents()}\n`);
         console.log(`Assets:\n${await showAssets(tsPort)}\n`);
         await showESShardInfo();
+        await kindNodeLogs();
     } catch (err) {
         signale.error(`Failed to get k8s resources: ${err}`);
     }
@@ -814,17 +815,23 @@ async function showESEvents() {
 
 async function showESShardInfo() {
     const searchHost = await determineSearchHost();
+    const protocol = config.ENCRYPT_OPENSEARCH ? 'https' : 'http';
     const subprocess1 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
-    curl -sk ${config.SEARCH_TEST_HOST}/_cluster/health?pretty || true`);
+    curl -sk ${protocol}://localhost:9200/_cluster/health?pretty || true`);
     console.log(`@@@@ Cluster Health:\n${subprocess1}\n`);
 
     const subprocess2 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
-    curl -sk ${config.SEARCH_TEST_HOST}/_cat/shards?v || true`);
+    curl -sk ${protocol}://localhost:9200/_cat/shards?v || true`);
     console.log(`@@@@ Shard Allocation:\n${subprocess2}\n`);
 
     const subprocess3 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
-    curl -sk ${config.SEARCH_TEST_HOST}/_cluster/allocation/explain?pretty || true`);
+    curl -sk ${protocol}://localhost:9200/_cluster/allocation/explain?pretty || true`);
     console.log(`@@@@ Allocation Explain:\n${subprocess3}\n`);
+}
+
+async function kindNodeLogs() {
+    const subprocess = await execaCommand(`docker logs -f k8s-e2e-control-plane 2>&1 | grep -i "opensearch|oom|evict"`);
+    console.log(`@@@@ Kind Node logs:\n${subprocess}\n`);
 }
 
 async function showAssets(tsPort: number) {

@@ -18,7 +18,8 @@ import {
     runJest, dockerTag, isKindInstalled, isKubectlInstalled,
     loadThenDeleteImageFromCache, deleteDockerImageCache,
     isHelmInstalled, isHelmfileInstalled, launchTerasliceWithHelmfile,
-    generateTestCaCerts
+    generateTestCaCerts,
+    showState
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
@@ -34,7 +35,8 @@ import config from '../config.js';
 
 const {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E,
-    K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH
+    K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH,
+    TERASLICE_PORT
 } = config;
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -355,6 +357,7 @@ async function runE2ETest(
     }
 
     if (options.clusteringType === 'kubernetesV2' && !options.keepOpen && kind) {
+        await showState(TERASLICE_PORT);
         await kind.destroyCluster();
     }
 
