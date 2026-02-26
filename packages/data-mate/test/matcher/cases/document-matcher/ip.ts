@@ -32,6 +32,19 @@ const complexIpData = [
     { ipField: '127.0.0.1', some: 'value', duration: 1234 },
 ];
 
+const searchData = [
+    { ip: '192.168.1.1', ipRange: '192.168.1.0/29', num: 1 },
+    { ip: '192.168.1.4', ipRange: '192.168.2.0/32', num: 2 },
+    // this ip below is a deprecated ipv4 masked ipv6 format, needs to be tested, bug found
+    { ip: '::0.0.0.1', ipRange: '::1/128', num: 3 },
+    { ip: '::1', ipRange: '172.16.0.0/12', num: 4 },
+    { ip: '2001:0db8:0123:4567:89ab:cdef:1234:5678', ipRange: '2001:0db8:0123:4567:89ab:cdef:1234:0/112', num: 5 },
+    { ip: '8.8.8.8', ipRange: '8.8.8.0/24', num: 6 },
+    { ip: '192.168.2.1', ipRange: '8.8.2.0/23', num: 7 },
+    { ip: '8.8.1.12', ipRange: '192.168.2.0/32', num: 8 },
+    { ip: '2001:0db8:0123:4567:89ab:cdef:1234:0001', ipRange: '2001:0db8:0123:4567:89ab:cdef:1234:0000/113', num: 9 },
+];
+
 export default [
     [
         'can do exact matches, no type changes',
@@ -330,5 +343,107 @@ export default [
             false,
         ],
         { ipField: xLuceneFieldType.IP }
+    ],
+    [
+        'can match ipv4 addresses with searchData',
+        'ip:192.168.2.1',
+        searchData,
+        [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false,
+        ],
+        { ip: xLuceneFieldType.IP, ipRange: xLuceneFieldType.IPRange }
+    ],
+    [
+        'can match ipv6 addresses',
+        'ip:2001:0db8:0123:4567:89ab:cdef:1234:5678',
+        searchData,
+        [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false,
+            false,
+            false,
+        ],
+        { ip: xLuceneFieldType.IP, ipRange: xLuceneFieldType.IPRange }
+    ],
+    [
+        'should be able to handle masked ipv4 addresses',
+        'ip:"::0.0.0.1"',
+        searchData,
+        [
+            false,
+            false,
+            true,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+        ],
+        { ip: xLuceneFieldType.IP, ipRange: xLuceneFieldType.IPRange }
+    ],
+    [
+        'ip field should be able to take CIDR notation and match appropriately',
+        'ip:"192.168.1.0/29"',
+        searchData,
+        [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+        ],
+        { ip: xLuceneFieldType.IP, ipRange: xLuceneFieldType.IPRange }
+    ],
+    [
+        'ip range field should be able to take CIDR notation and match appropriately',
+        'ipRange:"2001:0db8:0123:4567:89ab:cdef:1234:0/112"',
+        searchData,
+        [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false,
+            false,
+            true,
+        ],
+        { ip: xLuceneFieldType.IP, ipRange: xLuceneFieldType.IPRange }
+    ],
+    [
+        'ip range field should be able to take an ip and match appropriately',
+        'ipRange:"::0.0.0.1"',
+        searchData,
+        [
+            false,
+            false,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+        ],
+        { ip: xLuceneFieldType.IP, ipRange: xLuceneFieldType.IPRange }
     ],
 ] as TestCase[];

@@ -237,6 +237,7 @@ export function parseRange(
     const results: Partial<ParsedRange> = {};
 
     const leftValue = getFieldValue(node.left.value, variables);
+
     if (!excludeInfinite || !isInfiniteValue(leftValue)) {
         results[node.left.operator] = leftValue;
     }
@@ -247,6 +248,7 @@ export function parseRange(
             results[node.right.operator] = rightValue;
         }
     }
+
     return results;
 }
 

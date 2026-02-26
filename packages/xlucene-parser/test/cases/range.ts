@@ -355,19 +355,11 @@ export default ([
         'ip_range:"1.2.3.5"',
         'ip range',
         {
-            type: NodeType.Range,
-            field: 'ip_range',
-            left: {
-                field_type: xLuceneFieldType.IP,
-                value: { type: 'value', value: '1.2.3.5' },
-                operator: 'gte'
-            },
-            right: {
-                operator: 'lte',
-                field_type: xLuceneFieldType.IP,
-                value: { type: 'value', value: '1.2.3.5' }
-            }
-        } as Range,
+            type: 'term',
+            field_type: 'ip_range',
+            value: { type: 'value', value: '1.2.3.5' },
+            field: 'ip_range'
+        },
         { ip_range: xLuceneFieldType.IPRange },
     ],
     [
@@ -393,17 +385,28 @@ export default ([
         'ip_range:"2001:DB8::64"',
         'ip range',
         {
+            type: 'term',
+            field_type: 'ip_range',
+            value: { type: 'value', value: '2001:DB8::64' },
+            field: 'ip_range'
+        },
+        { ip_range: xLuceneFieldType.IPRange },
+    ],
+    [
+        'ip_range:"0:0:0:0:0:ffff::/96"',
+        'ip range',
+        {
             type: NodeType.Range,
             field: 'ip_range',
             left: {
                 field_type: xLuceneFieldType.IP,
-                value: { type: 'value', value: '2001:db8::64' },
+                value: { type: 'value', value: '::ffff:0:0' },
                 operator: 'gte'
             },
             right: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.IP,
-                value: { type: 'value', value: '2001:db8::64' }
+                value: { type: 'value', value: '::ffff:ffff:ffff' }
             }
         } as Range,
         { ip_range: xLuceneFieldType.IPRange },

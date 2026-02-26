@@ -38,7 +38,8 @@ describe('IP Utils', () => {
             ['fc00:db8::1', true],
             ['FC00:DB8::1', true],
             ['::192.168.1.18', true],
-            ['::FFFF:12.155.166.101', true]
+            ['::FFFF:12.155.166.101', true],
+            ['::0.0.0.1', true],
         ])('should return true for valid ip address', (input, expected) => {
             expect(isIP(input)).toEqual(expected);
         });
@@ -71,7 +72,8 @@ describe('IP Utils', () => {
             ['fc00:db8::1', true],
             ['FC00:DB8::1', true],
             ['::192.168.1.18', true],
-            ['::FFFF:12.155.166.101', true]
+            ['::FFFF:12.155.166.101', true],
+            ['::0.0.0.1', true]
         ])('should return true for valid ipv6 address', (input, expected) => {
             expect(isIPv6(input)).toEqual(expected);
         });
@@ -139,6 +141,9 @@ describe('IP Utils', () => {
 
     describe('inIPRange', () => {
         test.each([
+            ['::0.0.0.1', '::1/128', true],
+            ['::1', '::1/128', true],
+            ['::0.0.0.1', '0.0.0.0/8', true],
             ['8.8.8.8', '8.8.8.0/24', true],
             ['2001:0db8:0123:4567:89ab:cdef:1234:5678', '2001:0db8:0123:4567:89ab:cdef:1234:0/112', true],
             ['8.8.10.8', '8.8.8.0/24', false],
@@ -363,6 +368,7 @@ describe('IP Utils', () => {
             ['::FFFF:192.52.193.1', true],
             ['::122.168.5.18', true],
             ['::ffff:10.2.1.18', true],
+            ['::0.0.0.1', true],
             ['10.16.32.210', false],
             ['2607:f8b0:4009:816::200e', false],
             ['bad ip address', false],

@@ -21,11 +21,13 @@ describe('Parser', () => {
                         if (testDatesFn) {
                             testDatesFn(now, parser.ast);
                         }
+
                         expect(parser.ast).toMatchObject(ast);
                     });
                 } else {
                     it(`should be able to parse ${msg}`, () => {
                         const now = new Date();
+
                         const parser = new Parser(query, {
                             type_config: typeConfig,
                         });
@@ -33,6 +35,7 @@ describe('Parser', () => {
                         if (testDatesFn) {
                             testDatesFn(now, parser.ast);
                         }
+
                         expect(parser.ast).toMatchObject(ast);
                     });
                 }

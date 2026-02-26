@@ -276,12 +276,18 @@ importers:
       big-json:
         specifier: ~3.2.0
         version: 3.2.0
+      cidr-calc:
+        specifier: ^1.0.4
+        version: 1.0.4
       date-fns:
         specifier: ~4.1.0
         version: 4.1.0
       ip-bigint:
         specifier: ~8.2.6
         version: 8.2.6
+      ip-cidr:
+        specifier: ~4.0.2
+        version: 4.0.2
       ip6addr:
         specifier: ~0.2.5
         version: 0.2.5
@@ -434,7 +440,7 @@ importers:
         version: 2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)
       eslint-plugin-jest:
         specifier: ~29.12.1
-        version: 29.12.2(@typescript-eslint/eslint-plugin@8.54.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(jest@30.2.0(@types/node@25.3.0)(node-notifier@10.0.1))(typescript@5.9.3)
+        version: 29.12.2(@typescript-eslint/eslint-plugin@8.54.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(jest@30.2.0(@types/node@24.4.0)(node-notifier@10.0.1))(typescript@5.9.3)
       eslint-plugin-jest-dom:
         specifier: ~5.5.0
         version: 5.5.0(eslint@9.39.3)
@@ -526,6 +532,9 @@ importers:
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
+      cidr-calc:
+        specifier: ^1.0.4
+        version: 1.0.4
       ip-bigint:
         specifier: ~8.2.6
         version: 8.2.6
@@ -3344,6 +3353,9 @@ packages:
   ci-info@4.4.0:
     resolution: {integrity: sha512-77PSwercCZU2Fc4sX94eF8k8Pxte6JAwL4/ICZLFjJLqegs7kCuAsqqj/70NQF6TvDpgFjkubQB2FW2ZZddvQg==}
     engines: {node: '>=8'}
+
+  cidr-calc@1.0.4:
+    resolution: {integrity: sha512-SZcjmxxNkaCVcsFAuT+Xo9YLG9vbkrdFrspC9IVG+3kfSC84hfMzVEHttNrr0C9u7gTNf7OUYwb1WnM5pZtLZg==}
 
   cidr-regex@5.0.3:
     resolution: {integrity: sha512-zfPT2uurEroxXqefaL2L7/fT5ED2XTutC6UwFbSZfqSOk1vk5VFY6xa6/R6pBxB4Uc8MNPbRW5ykqutFG5P5ww==}
@@ -9504,6 +9516,8 @@ snapshots:
 
   ci-info@4.4.0: {}
 
+  cidr-calc@1.0.4: {}
+
   cidr-regex@5.0.3: {}
 
   cjs-module-lexer@2.2.0: {}
@@ -10043,13 +10057,13 @@ snapshots:
       eslint: 9.39.3
       requireindex: 1.2.0
 
-  eslint-plugin-jest@29.12.2(@typescript-eslint/eslint-plugin@8.54.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(jest@30.2.0(@types/node@25.3.0)(node-notifier@10.0.1))(typescript@5.9.3):
+  eslint-plugin-jest@29.12.2(@typescript-eslint/eslint-plugin@8.54.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(jest@30.2.0(@types/node@24.4.0)(node-notifier@10.0.1))(typescript@5.9.3):
     dependencies:
       '@typescript-eslint/utils': 8.56.0(eslint@9.39.3)(typescript@5.9.3)
       eslint: 9.39.3
     optionalDependencies:
       '@typescript-eslint/eslint-plugin': 8.54.0(@typescript-eslint/parser@8.54.0(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(typescript@5.9.3)
-      jest: 30.2.0(@types/node@25.3.0)(node-notifier@10.0.1)
+      jest: 30.2.0(@types/node@24.4.0)(node-notifier@10.0.1)
       typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
@@ -11031,28 +11045,6 @@ snapshots:
       - supports-color
       - ts-node
 
-  jest-cli@30.2.0(@types/node@25.3.0)(node-notifier@10.0.1):
-    dependencies:
-      '@jest/core': 30.2.0(node-notifier@10.0.1)
-      '@jest/test-result': 30.2.0
-      '@jest/types': 30.2.0
-      chalk: 4.1.2
-      exit-x: 0.2.2
-      import-local: 3.2.0
-      jest-config: 30.2.0(@types/node@25.3.0)
-      jest-util: 30.2.0
-      jest-validate: 30.2.0
-      yargs: 17.7.2
-    optionalDependencies:
-      node-notifier: 10.0.1
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - esbuild-register
-      - supports-color
-      - ts-node
-    optional: true
-
   jest-config@30.2.0(@types/node@24.4.0):
     dependencies:
       '@babel/core': 7.29.0
@@ -11084,39 +11076,6 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
-
-  jest-config@30.2.0(@types/node@25.3.0):
-    dependencies:
-      '@babel/core': 7.29.0
-      '@jest/get-type': 30.1.0
-      '@jest/pattern': 30.0.1
-      '@jest/test-sequencer': 30.2.0
-      '@jest/types': 30.2.0
-      babel-jest: 30.2.0(@babel/core@7.29.0)
-      chalk: 4.1.2
-      ci-info: 4.4.0
-      deepmerge: 4.3.1
-      glob: 10.5.0
-      graceful-fs: 4.2.11
-      jest-circus: 30.2.0
-      jest-docblock: 30.2.0
-      jest-environment-node: 30.2.0
-      jest-regex-util: 30.0.1
-      jest-resolve: 30.2.0
-      jest-runner: 30.2.0
-      jest-util: 30.2.0
-      jest-validate: 30.2.0
-      micromatch: 4.0.8
-      parse-json: 5.2.0
-      pretty-format: 30.2.0
-      slash: 3.0.0
-      strip-json-comments: 3.1.1
-    optionalDependencies:
-      '@types/node': 25.3.0
-    transitivePeerDependencies:
-      - babel-plugin-macros
-      - supports-color
-    optional: true
 
   jest-diff@30.2.0:
     dependencies:
@@ -11373,22 +11332,6 @@ snapshots:
       - esbuild-register
       - supports-color
       - ts-node
-
-  jest@30.2.0(@types/node@25.3.0)(node-notifier@10.0.1):
-    dependencies:
-      '@jest/core': 30.2.0(node-notifier@10.0.1)
-      '@jest/types': 30.2.0
-      import-local: 3.2.0
-      jest-cli: 30.2.0(@types/node@25.3.0)(node-notifier@10.0.1)
-    optionalDependencies:
-      node-notifier: 10.0.1
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - esbuild-register
-      - supports-color
-      - ts-node
-    optional: true
 
   jexl@2.3.0:
     dependencies:

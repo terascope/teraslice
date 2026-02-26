@@ -2,6 +2,7 @@ import {
     TSError, trim, isRegExpLike,
     cloneDeep, unset, get
 } from '@terascope/core-utils';
+import { isCIDR } from '@terascope/ip-utils';
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine.js';
 import * as i from './interfaces.js';
@@ -714,7 +715,7 @@ function coerceNodeValue(
         } as i.Regexp;
     }
 
-    if (node.field_type === xLuceneFieldType.IPRange) {
+    if (node.field_type === xLuceneFieldType.IPRange && isCIDR(value)) {
         return utils.createIPRangeFromTerm(node, value);
     }
 
