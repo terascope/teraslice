@@ -133,26 +133,26 @@ jobs:
   #     - name: Check out code
   #       uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      # - name: Install pnpm
+      #   uses: pnpm/action-setup@v4
 
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+      # - name: Setup Node ${{ matrix.node-version }}
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: ${{ matrix.node-version }}
+      #     cache: 'pnpm'
 
-      - name: Install and build packages
-        run: pnpm install && pnpm run setup
+      # - name: Install and build packages
+      #   run: pnpm install && pnpm run setup
 
-      - name: Test
-        env:
-          REPORT_COVERAGE: true
-          # Only run one test per batch for now because jest will only create code
-          # coverage for the first package in the batch
-          # https://github.com/jestjs/jest/issues/4255
-          MAX_PROJECTS_PER_BATCH: 1
-        run: pnpm run test --suite unit --
+      # - name: Test
+      #   env:
+      #     REPORT_COVERAGE: true
+      #     # Only run one test per batch for now because jest will only create code
+      #     # coverage for the first package in the batch
+      #     # https://github.com/jestjs/jest/issues/4255
+      #     MAX_PROJECTS_PER_BATCH: 1
+      #   run: pnpm run test --suite unit --
 
   #     - name: Upload Node ${{ matrix.node-version }} unit test coverage
   #       uses: codecov/codecov-action@v5

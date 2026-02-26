@@ -846,8 +846,10 @@ export default function elasticsearchApi(
     ) {
         const retry = _retryFn(fn, data, reject);
 
-        return function _errorHandlerFn(err: Error) {
+        return async function _errorHandlerFn(err: Error) {
             console.log('@@@ERROR es_api: ', JSON.stringify(err, null, 2));
+            console.log('@@Checking if ts-dev1__ex is available: ', await isAvailable('ts-dev1__ex'));
+            console.log('@@@ verify client: ', verifyClient());
             const retryable = isErrorRetryable(err);
 
             if (retryable) {
