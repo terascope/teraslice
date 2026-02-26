@@ -795,8 +795,6 @@ export async function showState(tsPort: number) {
         console.log(`Search indices:\n${await showESIndices()}\n`);
         console.log(`Search Events:\n${await showESEvents()}\n`);
         console.log(`Assets:\n${await showAssets(tsPort)}\n`);
-        await kindNodeLogs();
-        await showDockerResources();
         await showESShardInfo();
     } catch (err) {
         signale.error(`Failed to get k8s resources: ${err}`);
@@ -815,23 +813,26 @@ async function showESEvents() {
 }
 
 async function showESShardInfo() {
-    const searchHost = await determineSearchHost();
-    const protocol = config.ENCRYPT_OPENSEARCH ? 'https' : 'http';
-    const login = config.ENCRYPT_OPENSEARCH ? '-u admin:passwordsufhbivbU123%$ ' : '';
-    const subprocess1 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
-    curl -sk ${login}${protocol}://localhost:9200/_cluster/health?pretty`);
-    console.log(`@@@@ Cluster Health:\n${subprocess1}\n`);
+    const subprocess1 = await execaCommand(`curl -sk ${config.SEARCH_TEST_HOST}/_cluster/health?pretty`);
+    console.log(`@@@@ _cluster/health:\n${JSON.stringify(subprocess1)}\n`);
 
-    const subprocess2 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
-    curl -sk ${login}${protocol}://localhost:9200/_cat/shards?v`);
-    console.log(`@@@@ Shard Allocation:\n${subprocess2}\n`);
+    const subprocess2 = await execaCommand(`curl -sk ${config.SEARCH_TEST_HOST}/_cat/shards?v`);
+    console.log(`@@@@ _cat/shards:\n${JSON.stringify(subprocess2)}\n`);
 
-    const subprocess3 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
-    curl -sk ${login}${protocol}://localhost:9200/_cluster/allocation/explain?pretty`);
-    console.log(`@@@@ Allocation Explain:\n${subprocess3}\n`);
+    const subprocess3 = await execaCommand(`curl -sk ${config.SEARCH_TEST_HOST}/_cluster/allocation/explain?pretty`);
+    console.log(`@@@@ _cluster/allocation/explain:\n${JSON.stringify(subprocess3)}\n`);
+
+    const subprocess4 = await execaCommand(`curl -sk ${config.SEARCH_TEST_HOST}/_nodes/stats/http?pretty`);
+    console.log(`@@@@ _nodes/stats/http:\n${JSON.stringify(subprocess4)}\n`);
+
+    const subprocess5 = await execaCommand(`curl -sk ${config.SEARCH_TEST_HOST}/_nodes/stats/indexing_pressure?pretty`);
+    console.log(`@@@@ _nodes/stats/indexing_pressure:\n${JSON.stringify(subprocess5)}\n`);
+
+    const subprocess6 = await execaCommand(`curl -sk ${config.SEARCH_TEST_HOST}/_cluster/stats?pretty`);
+    console.log(`@@@@ _cluster/stats:\n${JSON.stringify(subprocess6)}\n`);
 }
 
-async function showDockerResources() {
+export async function showDockerResources() {
     const subprocess1 = await execaCommand(`docker info`);
     console.log(`@@@@ docker info:\n${subprocess1}\n`);
 
@@ -842,11 +843,15 @@ async function showDockerResources() {
     console.log(`@@@@ docker stats --no-stream:\n${subprocess3}\n`);
 
     const subprocess4 = await execaCommand(`docker system info | grep -E 'CPUs|Total Memory|Server Version'`);
-    console.log(`@@@@ docker system info | grep -E 'CPUs|Total Memory|Server Version':\n${subprocess4}\n`);
+    console.log(`@@@@ docker system info | grep -E 'CPUs|Total Memory|Server Version':\n${subprocess4}\n`,
+        { shell: true }
+    );
 }
 
-async function kindNodeLogs() {
-    const subprocess = await execaCommand(`docker logs -f k8s-e2e-control-plane 2>&1 | grep -i "opensearch|oom|evict"`);
+export async function kindNodeLogs() {
+    const subprocess = await execaCommand(`docker logs -f k8s-e2e-control-plane 2>&1 | grep -i "opensearch|oom|evict"`,
+        { shell: true }
+    );
     console.log(`@@@@ Kind Node logs:\n${subprocess}\n`);
 }
 

@@ -19,7 +19,9 @@ import {
     loadThenDeleteImageFromCache, deleteDockerImageCache,
     isHelmInstalled, isHelmfileInstalled, launchTerasliceWithHelmfile,
     generateTestCaCerts,
-    showState
+    showState,
+    kindNodeLogs,
+    showDockerResources
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
@@ -323,6 +325,9 @@ async function runE2ETest(
 
         const env = printAndGetEnv(suite, options);
 
+        await kindNodeLogs();
+        await showDockerResources();
+
         tracker.started++;
         try {
             await runJest(
@@ -340,6 +345,9 @@ async function runE2ETest(
         }
 
         signale.timeEnd(timeLabel);
+
+        await kindNodeLogs();
+        await showDockerResources();
     }
 
     if (!startedTest) return;
