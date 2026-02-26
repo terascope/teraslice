@@ -848,8 +848,9 @@ export default function elasticsearchApi(
 
         return async function _errorHandlerFn(err: Error) {
             console.log('@@@ERROR es_api: ', JSON.stringify(err, null, 2));
-            console.log('@@Checking if ts-dev1__ex is available: ', await isAvailable('ts-dev1__ex'));
-            console.log('@@@ verify client: ', verifyClient());
+            const err2 = err as any;
+            const index = err2.meta.body._index as any;
+            console.log(`@@Checking if ${index} is available: `, await isAvailable(index));
             const retryable = isErrorRetryable(err);
 
             if (retryable) {
