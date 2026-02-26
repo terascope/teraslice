@@ -23,7 +23,9 @@ export async function teardown(testClient?: Client) {
         return;
     }
 
+    console.log('Before final showstate');
     await showState(TERASLICE_PORT, true);
+    console.log('After final showstate');
 
     const client = await getClient(testClient);
 
