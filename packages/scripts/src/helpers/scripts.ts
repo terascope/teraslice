@@ -783,20 +783,21 @@ export async function setAlias(tsPort: number) {
 export async function showState(tsPort: number) {
     try {
         const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
-        logger.warn(`kubectl get output: ${subprocess.stdout}`);
-        logger.warn(`Search indices: ${await showESIndices()}`);
-        logger.warn(`Search Events: ${await showESEvents()}`);
-        logger.warn(`Assets: ${await showAssets(tsPort)}`);
-        signale.warn(`kubectl get output: ${subprocess.stdout}`);
-        signale.warn(`Search indices: ${await showESIndices()}`);
-        signale.warn(`Search Events: ${await showESEvents()}`);
-        signale.warn(`Assets: ${await showAssets(tsPort)}`);
+        // logger.warn(`kubectl get output: ${subprocess.stdout}`);
+        // logger.warn(`Search indices: ${await showESIndices()}`);
+        // logger.warn(`Search Events: ${await showESEvents()}`);
+        // logger.warn(`Assets: ${await showAssets(tsPort)}`);
+        // signale.warn(`kubectl get output: ${subprocess.stdout}`);
+        // signale.warn(`Search indices: ${await showESIndices()}`);
+        // signale.warn(`Search Events: ${await showESEvents()}`);
+        // signale.warn(`Assets: ${await showAssets(tsPort)}`);
         console.log(`kubectl get output:\n${subprocess.stdout}\n`);
         console.log(`Search indices:\n${await showESIndices()}\n`);
         console.log(`Search Events:\n${await showESEvents()}\n`);
         console.log(`Assets:\n${await showAssets(tsPort)}\n`);
         await showESShardInfo();
         await kindNodeLogs();
+        await showDockerResources();
     } catch (err) {
         signale.error(`Failed to get k8s resources: ${err}`);
     }
@@ -828,6 +829,20 @@ async function showESShardInfo() {
     const subprocess3 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
     curl -sk ${login}${protocol}://localhost:9200/_cluster/allocation/explain?pretty || true`);
     console.log(`@@@@ Allocation Explain:\n${subprocess3}\n`);
+}
+
+async function showDockerResources() {
+    const subprocess1 = await execaCommand(`docker info`);
+    console.log(`@@@@ docker info:\n${subprocess1}\n`);
+
+    const subprocess2 = await execaCommand(`docker system df`);
+    console.log(`@@@@ Docker system df:\n${subprocess2}\n`);
+
+    const subprocess3 = await execaCommand(`docker stats --no-stream`);
+    console.log(`@@@@ docker stats --no-stream:\n${subprocess3}\n`);
+
+    const subprocess4 = await execaCommand(`docker system info | grep -E 'CPUs|Total Memory|Server Version'`);
+    console.log(`@@@@ docker system info | grep -E 'CPUs|Total Memory|Server Version':\n${subprocess4}\n`);
 }
 
 async function kindNodeLogs() {
@@ -897,7 +912,7 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
     try {
         subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} ${command} -f ${helmfilePath}`);
     } catch (err) {
-        throw new TSError(`Helmfile ${command} command failed:\n${err}`);
+        throw new Error(`Helmfile ${command} command failed:\n${err}`);
     } finally {
         fs.rmSync(valuesDir, { recursive: true, force: true });
     }
@@ -936,7 +951,7 @@ export async function launchTerasliceWithCustomHelmfile(
         syncProcess = await execaCommand(`helmfile ${syncSelector} --state-values-file ${configFilePath} sync -f ${helmfilePath}`);
         logger.debug(`helmfile sync:\n${syncProcess.stdout}`);
     } catch (err) {
-        throw new TSError(`Helmfile command failed:\n${err}`);
+        throw new Error(`Helmfile command failed:\n${err}`);
     }
 }
 
