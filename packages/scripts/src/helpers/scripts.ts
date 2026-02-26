@@ -788,8 +788,8 @@ export async function showState(tsPort: number, isLast: boolean = false) {
             const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
             logger.debug(subprocess.stdout);
 
-            const subprocess = await execaCommand('docker stats --no-stream');
-            logger.debug(subprocess.stdout);
+            const subprocess1 = await execaCommand('docker stats --no-stream');
+            logger.debug(subprocess1.stdout);
         }
         const subprocess = await execaCommand('kubectl -n services-dev1 describe pod opensearch2-cluster-master-0');
         logger.debug(subprocess.stdout);
