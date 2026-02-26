@@ -816,16 +816,17 @@ async function showESEvents() {
 async function showESShardInfo() {
     const searchHost = await determineSearchHost();
     const protocol = config.ENCRYPT_OPENSEARCH ? 'https' : 'http';
+    const login = config.ENCRYPT_OPENSEARCH ? '-u admin:passwordsufhbivbU123%$ ' : '';
     const subprocess1 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
-    curl -sk ${protocol}://localhost:9200/_cluster/health?pretty || true`);
+    curl -sk ${login}${protocol}://localhost:9200/_cluster/health?pretty || true`);
     console.log(`@@@@ Cluster Health:\n${subprocess1}\n`);
 
     const subprocess2 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
-    curl -sk ${protocol}://localhost:9200/_cat/shards?v || true`);
+    curl -sk ${login}${protocol}://localhost:9200/_cat/shards?v || true`);
     console.log(`@@@@ Shard Allocation:\n${subprocess2}\n`);
 
     const subprocess3 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
-    curl -sk ${protocol}://localhost:9200/_cluster/allocation/explain?pretty || true`);
+    curl -sk ${login}${protocol}://localhost:9200/_cluster/allocation/explain?pretty || true`);
     console.log(`@@@@ Allocation Explain:\n${subprocess3}\n`);
 }
 

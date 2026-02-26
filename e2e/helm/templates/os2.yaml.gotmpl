@@ -76,7 +76,7 @@ readinessProbe:
             - sh
             - -c
             - |
-              curl -k -s -u admin:admin https://localhost:9200/_cluster/health?local=true | grep -q '"status":"green\|yellow"'
+              curl -k -s -u admin:passwordsufhbivbU123%$ https://localhost:9200/_cluster/health?local=true | grep -q '"status":"green\|yellow"'
     initialDelaySeconds: 30
     periodSeconds: 10
     timeoutSeconds: 5
