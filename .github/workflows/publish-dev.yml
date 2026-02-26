@@ -47,7 +47,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 24.13
           registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 
@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22, 24]
+        node-version: [22, 24.13]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
