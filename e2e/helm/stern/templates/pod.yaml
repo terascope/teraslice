@@ -90,11 +90,11 @@ spec:
       args:
         - |
           /shared/stern ".*" \
-            --namespace={{ .Values.stern.namespaces.kube-system }} \
+            --namespace={{ .Values.stern.namespaces.kubeSystem }} \
             --tail=-1 \
             --template '{{ $terasliceTemplate }}
           ' \
-            | tee /logs/{{ .Values.stern.logs.kube-system }}
+            | tee /logs/{{ .Values.stern.logs.kubeSystem }}
       volumeMounts:
         - name: log-storage
           mountPath: /logs
