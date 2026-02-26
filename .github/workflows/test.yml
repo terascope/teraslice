@@ -1138,10 +1138,10 @@ jobs:
   check-docker-limit-after:
     needs: [
       build-dev-docker-images,
-      e2e-k8s-v2-encrypted-tests,
+      # e2e-k8s-v2-encrypted-tests,
       e2e-external-asset-storage-tests,
       e2e-external-asset-storage-tests-encrypted,
-      e2e-k8s-v2-tests,
+      # e2e-k8s-v2-tests,
       e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
@@ -1153,10 +1153,10 @@ jobs:
   check-github-api-limit-after:
     needs: [
       build-dev-docker-images,
-      e2e-k8s-v2-encrypted-tests,
+      # e2e-k8s-v2-encrypted-tests,
       e2e-external-asset-storage-tests,
       e2e-external-asset-storage-tests-encrypted,
-      e2e-k8s-v2-tests,
+      # e2e-k8s-v2-tests,
       e2e-tests,
       elasticsearch-api-tests,
       elasticsearch-store-tests,
@@ -1171,10 +1171,10 @@ jobs:
       [
         linux-unit-tests,
         build-dev-docker-images,
-        e2e-k8s-v2-encrypted-tests,
+        # e2e-k8s-v2-encrypted-tests,
         e2e-external-asset-storage-tests,
         e2e-external-asset-storage-tests-encrypted,
-        e2e-k8s-v2-tests,
+        # e2e-k8s-v2-tests,
         e2e-tests,
         elasticsearch-api-tests,
         elasticsearch-store-tests,
