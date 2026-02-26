@@ -77,6 +77,35 @@ spec:
         initialDelaySeconds: 5
         periodSeconds: 5
 
+    - name: stern-log-kube-system
+      image: {{ .Values.container.image }}
+      resources:
+        requests:
+          memory: "128Mi"
+          cpu: "100m"
+        limits:
+          memory: "512Mi"
+          cpu: "500m"
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          /shared/stern ".*" \
+            --namespace={{ .Values.stern.namespaces.kube-system }} \
+            --tail=-1 \
+            --template '{{ $terasliceTemplate }}
+          ' \
+            | tee /logs/{{ .Values.stern.logs.kube-system }}
+      volumeMounts:
+        - name: log-storage
+          mountPath: /logs
+        - name: shared-bin
+          mountPath: /shared
+      readinessProbe:
+        exec:
+          command: ["true"]
+        initialDelaySeconds: 5
+        periodSeconds: 5
+
   volumes:
     - name: log-storage
       hostPath:

@@ -791,10 +791,11 @@ export async function showState(tsPort: number) {
         signale.warn(`Search indices: ${await showESIndices()}`);
         signale.warn(`Search Events: ${await showESEvents()}`);
         signale.warn(`Assets: ${await showAssets(tsPort)}`);
-        console.log(`kubectl get output: ${subprocess.stdout}`);
-        console.log(`Search indices: ${await showESIndices()}`);
-        console.log(`Search Events: ${await showESEvents()}`);
-        console.log(`Assets: ${await showAssets(tsPort)}`);
+        console.log(`kubectl get output:\n${subprocess.stdout}\n`);
+        console.log(`Search indices:\n${await showESIndices()}\n`);
+        console.log(`Search Events:\n${await showESEvents()}\n`);
+        console.log(`Assets:\n${await showAssets(tsPort)}\n`);
+        await showESShardInfo();
     } catch (err) {
         signale.error(`Failed to get k8s resources: ${err}`);
     }
@@ -809,6 +810,21 @@ async function showESEvents() {
     const searchHost = await determineSearchHost();
     const subprocess = await execaCommand(`kubectl get events -A --field-selector involvedObject.name=${searchHost}-cluster-master-0`);
     return subprocess.stdout;
+}
+
+async function showESShardInfo() {
+    const searchHost = await determineSearchHost();
+    const subprocess1 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
+    curl -sk ${config.SEARCH_TEST_HOST}/_cluster/health?pretty || true`);
+    console.log(`@@@@ Cluster Health:\n${subprocess1}\n`);
+
+    const subprocess2 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
+    curl -sk ${config.SEARCH_TEST_HOST}/_cat/shards?v || true`);
+    console.log(`@@@@ Shard Allocation:\n${subprocess2}\n`);
+
+    const subprocess3 = await execaCommand(`kubectl exec ${searchHost}-cluster-master-0 -n services-dev1 -- \
+    curl -sk ${config.SEARCH_TEST_HOST}/_cluster/allocation/explain?pretty || true`);
+    console.log(`@@@@ Allocation Explain:\n${subprocess3}\n`);
 }
 
 async function showAssets(tsPort: number) {

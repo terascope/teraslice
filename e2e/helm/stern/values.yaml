@@ -22,9 +22,11 @@ stern:
   namespaces:
     services: services-dev1
     teraslice: ts-dev1
+    kube-system: kube-system
   logs:
     services: k8s-services.log
     teraslice: teraslice.log
+    kube-system: kube-system.log
 
 volumes:
   logPath: /mnt/logs
