@@ -63,12 +63,24 @@ masterService: "opensearch2"
 opensearchJavaOpts: {{ .Values | get "opensearch2.esJavaOpts" "-Xmx512M -Xms512M" }}
 
 startupProbe:
-          tcpSocket:
-            port: 9200
-          initialDelaySeconds: 90  # Don't check until 90s (after security-admin finishes)
-          periodSeconds: 10
-          timeoutSeconds: 3
-          failureThreshold: 30
+    tcpSocket:
+        port: 9200
+    initialDelaySeconds: 90  # Don't check until 90s (after security-admin finishes)
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 30
+
+readinessProbe:
+    exec:
+        command:
+            - sh
+            - -c
+            - |
+              curl -k -s -u admin:admin https://localhost:9200/_cluster/health?local=true | grep -q '"status":"green\|yellow"'
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
 
 resources:
     requests:
