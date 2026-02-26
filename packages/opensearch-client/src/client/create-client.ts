@@ -10,8 +10,7 @@ import { logWrapper } from './log-wrapper.js';
 import { OpenSearch } from '@terascope/types';
 
 const clientList = [
-    // opensearch2, opensearch3, opensearch1
-    opensearch1
+    opensearch2, opensearch3, opensearch1
 ];
 
 /** creates an opensearch or elasticsearch client depending on the configuration */

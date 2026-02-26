@@ -325,8 +325,8 @@ async function runE2ETest(
 
         const env = printAndGetEnv(suite, options);
 
-        await kindNodeLogs();
-        await showDockerResources();
+        // await kindNodeLogs();
+        // await showDockerResources();
 
         tracker.started++;
         try {
@@ -346,8 +346,8 @@ async function runE2ETest(
 
         signale.timeEnd(timeLabel);
 
-        await kindNodeLogs();
-        await showDockerResources();
+        // await kindNodeLogs();
+        // await showDockerResources();
     }
 
     if (!startedTest) return;
