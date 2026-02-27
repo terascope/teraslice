@@ -292,7 +292,9 @@ async function runE2ETest(
             const timeLabel = 'helmfile deployment';
             await loadImagesForHelm(options.kindClusterName, options.skipImageDeletion);
             signale.time(timeLabel);
-            await launchTerasliceWithHelmfile(options.clusteringType, false, options.logs);
+            await launchTerasliceWithHelmfile(
+                options.clusteringType, false, options.logs, options.debug
+            );
             signale.timeEnd(timeLabel);
         } catch (err) {
             tracker.addError(err);

@@ -161,7 +161,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     try {
         signale.pending('Launching teraslice with helmfile');
         if (options.configFile) {
-            await launchTerasliceWithCustomHelmfile(options.configFile);
+            await launchTerasliceWithCustomHelmfile(options.configFile, options.debug);
         } else {
             await launchTerasliceWithHelmfile(options.clusteringType, options.dev, options.logs);
         }
