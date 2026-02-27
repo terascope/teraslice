@@ -285,7 +285,7 @@ export class Kind {
             }
             signale.info(`${subprocess.command}: successful`);
         } catch (err) {
-            signale.warn(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded.`);
+            signale.warn(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded and will be pulled by kubernetes.`);
             signale.warn('Error: ', err);
         }
     }
