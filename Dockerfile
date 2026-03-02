@@ -38,9 +38,9 @@ COPY scripts ./scripts
 COPY types ./types
 
 # Install, build, then prune to production deps
-RUN pnpm --version && node --version && npm --version && \
-    pnpm install --frozen-lockfile && \
-    pnpm run build
+RUN pnpm --version && node --version && npm --version
+RUN pnpm install --frozen-lockfile
+RUN pnpm run build
 
 # verify teraslice is installed right
 RUN node -e "import('teraslice')"
