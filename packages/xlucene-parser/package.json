@@ -35,7 +35,7 @@
         "@terascope/geo-utils": "workspace:~",
         "@terascope/ip-utils": "workspace:~",
         "@terascope/types": "workspace:~",
-        "peggy": "~5.0.6"
+        "peggy": "~5.1.0"
     },
     "devDependencies": {
         "@turf/invariant": "~7.3.4",
