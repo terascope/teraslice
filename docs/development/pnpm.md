@@ -1,7 +1,25 @@
 ---
-title: Updating pnpm
+title: pnpm
 sidebar_label: pnpm
 ---
+
+## Installing pnpm
+
+pnpm is managed via [Corepack](https://nodejs.org/api/corepack.html), which ships with Node.js >= 16.13.0. Corepack reads the `packageManager` field in the root `package.json` and automatically uses the correct pnpm version — no manual pnpm installation required.
+
+To enable Corepack, run:
+
+```bash
+corepack enable
+```
+
+After that, `pnpm` will be available and pinned to the version declared in `package.json`. You can verify it is working with:
+
+```bash
+pnpm --version
+```
+
+> **Note:** If you have pnpm installed via another method (e.g. `npm i -g pnpm`), Corepack may conflict with it. It is recommended to uninstall any globally installed pnpm and rely solely on Corepack.
 
 ## Updating pnpm
 

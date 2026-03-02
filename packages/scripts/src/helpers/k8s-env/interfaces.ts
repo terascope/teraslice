@@ -1,4 +1,5 @@
 export interface K8sEnvOptions {
+    debug: boolean;
     skipBuild: boolean;
     tsPort: number;
     kindClusterName: string;

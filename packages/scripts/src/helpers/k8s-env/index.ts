@@ -133,27 +133,35 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     signale.success('Service images loaded into kind cluster');
 
     signale.pending('Loading teraslice image into kind cluster');
-    if (options.configFile) {
-        if (!buildTerasliceImage) {
-            await kind.loadTerasliceImage(imageName);
+    try {
+        if (options.configFile) {
+            if (!buildTerasliceImage) {
+                await kind.loadTerasliceImage(imageName);
+            } else {
+                // We need to ensure the custom config has the image we are going to use set.
+                const imageArray = e2eImage.split(':');
+                await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
+                signale.info(`Overwrote teraslice.image.repository field in custom config to "${imageArray[0]}"`);
+                await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
+                signale.info(`Overwrote teraslice.image.tag field in custom config to "${imageArray[1]}"`);
+                await kind.loadTerasliceImage(e2eImage);
+            }
         } else {
-            // We need to ensure the custom config has the image we are going to use set.
-            const imageArray = e2eImage.split(':');
-            await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
-            signale.info(`Overwrote teraslice.image.repository field in custom config to "${imageArray[0]}"`);
-            await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
-            signale.info(`Overwrote teraslice.image.tag field in custom config to "${imageArray[1]}"`);
             await kind.loadTerasliceImage(e2eImage);
         }
-    } else {
-        await kind.loadTerasliceImage(e2eImage);
+    } catch (err) {
+        signale.fatal(err);
+        if (!options.keepOpen) {
+            await kind.destroyCluster();
+        }
+        process.exit(1);
     }
     signale.success('Teraslice image loaded into kind cluster');
 
     try {
         signale.pending('Launching teraslice with helmfile');
         if (options.configFile) {
-            await launchTerasliceWithCustomHelmfile(options.configFile);
+            await launchTerasliceWithCustomHelmfile(options.configFile, options.debug);
         } else {
             await launchTerasliceWithHelmfile(options.clusteringType, options.dev, options.logs);
         }
@@ -166,7 +174,53 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         }
         process.exit(1);
     }
-    signale.success('k8s environment ready.\nNext steps:\n\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:5678\n\t\tExample: teraslice-cli aliases add cluster1 http://localhost:5678\n\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>\n\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets\n\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON\n\tStart a job: teraslice-cli tjm start <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm start JOB.JSON\n\tDelete the kind k8s cluster: kind delete cluster --name <clusterName>\n\t\tExample: kind delete cluster --name k8s-env\n\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview');
+    signale.success(buildNextStepsMessage(kind, options));
+}
+
+function buildNextStepsMessage(kind: Kind, options: K8sEnvOptions): string {
+    const { deployedPorts } = kind;
+    const tsPort = deployedPorts.teraslice;
+    const { kindClusterName } = options;
+
+    const lines: string[] = [
+        'k8s environment ready.',
+        'Next steps:',
+        `\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:${tsPort}`,
+        `\t\tExample: teraslice-cli aliases add cluster1 http://localhost:${tsPort}`,
+        '\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>',
+        '\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets',
+        '\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>',
+        '\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON',
+        '\tStart a job: teraslice-cli tjm start <path/to/job/file.json>',
+        '\t\tExample: teraslice-cli tjm start JOB.JSON',
+        '\tDelete the kind k8s cluster: kind delete cluster --name <clusterName>',
+        `\t\tExample: kind delete cluster --name ${kindClusterName}`,
+        '\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview',
+        'Deployed service endpoints:',
+        `\tTeraslice: http://localhost:${tsPort}`,
+    ];
+
+    if (deployedPorts.opensearch1 !== undefined) {
+        lines.push(`\tOpenSearch 1: http://localhost:${deployedPorts.opensearch1}`);
+    }
+    if (deployedPorts.opensearch2 !== undefined) {
+        lines.push(`\tOpenSearch 2: http://localhost:${deployedPorts.opensearch2}`);
+    }
+    if (deployedPorts.opensearch3 !== undefined) {
+        lines.push(`\tOpenSearch 3: http://localhost:${deployedPorts.opensearch3}`);
+    }
+    if (deployedPorts.minioApi !== undefined) {
+        lines.push(`\tMinio API: http://localhost:${deployedPorts.minioApi}`);
+        lines.push(`\tMinio UI: http://localhost:${deployedPorts.minioUi}`);
+    }
+    if (deployedPorts.kafka !== undefined) {
+        lines.push(`\tKafka Broker: localhost:${deployedPorts.kafka}`);
+    }
+    if (deployedPorts.kafkaUi !== undefined) {
+        lines.push(`\tKafka UI: http://localhost:${deployedPorts.kafkaUi}`);
+    }
+
+    return lines.join('\n');
 }
 
 export async function rebuildTeraslice(options: K8sEnvOptions) {
@@ -204,18 +258,23 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
     }
 
     signale.pending('Loading Teraslice Docker image');
-    if (options.configFile) {
-        if (await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.build') === false) {
-            signale.warn(`Your teraslice configuration at "teraslice.image.build" is set to false but you passed in --rebuild. Your image configured will be replaced with the default built image.`);
+    try {
+        if (options.configFile) {
+            if (await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.build') === false) {
+                signale.warn(`Your teraslice configuration at "teraslice.image.build" is set to false but you passed in --rebuild. Your image configured will be replaced with the default built image.`);
+            }
+            // We need to ensure the custom config has the image we are going to use set.
+            const imageArray = e2eImage.split(':');
+            await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
+            signale.info(`Overwrote teraslice.image.repository field in custom config to "${imageArray[0]}"`);
+            await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
+            signale.info(`Overwrote teraslice.image.tag field in custom config to "${imageArray[1]}"`);
         }
-        // We need to ensure the custom config has the image we are going to use set.
-        const imageArray = e2eImage.split(':');
-        await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.repository', imageArray[0]);
-        signale.info(`Overwrote teraslice.image.repository field in custom config to "${imageArray[0]}"`);
-        await setConfigValuesForCustomYaml(options.configFile, 'teraslice.image.tag', imageArray[1]);
-        signale.info(`Overwrote teraslice.image.tag field in custom config to "${imageArray[1]}"`);
+        await kind.loadTerasliceImage(e2eImage);
+    } catch (err) {
+        signale.error(err);
+        process.exit(1);
     }
-    await kind.loadTerasliceImage(e2eImage);
     signale.success('Teraslice Docker image loaded');
 
     try {

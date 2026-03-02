@@ -206,3 +206,14 @@ export interface CustomKindDefaultPort {
 }
 
 export type CustomKindDefaultPorts = Record<CustomKindService, CustomKindDefaultPort>;
+
+export interface DeployedServicePorts {
+    teraslice: number;
+    opensearch1?: number;
+    opensearch2?: number;
+    opensearch3?: number;
+    minioApi?: number;
+    minioUi?: number;
+    kafka?: number;
+    kafkaUi?: number;
+}

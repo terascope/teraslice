@@ -858,7 +858,8 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
     try {
         subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} ${command} -f ${helmfilePath}`);
     } catch (err) {
-        throw new TSError(`Helmfile ${command} command failed:\n${err}`);
+        // TSError truncates to 3000 characters which is an issue here
+        throw new Error(`Helmfile ${command} command failed:\n${err}`);
     } finally {
         fs.rmSync(valuesDir, { recursive: true, force: true });
     }
@@ -866,8 +867,10 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
     logger.debug(`helmfile ${command}:\n${subprocess.stdout}`);
 }
 
-export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2', devMode = false, logs = false) {
-    await helmfileCommand('diff', clusteringType, devMode, logs);
+export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2', devMode = false, logs = false, debug = false) {
+    if (debug) {
+        await helmfileCommand('diff', clusteringType, devMode, logs);
+    }
     await helmfileCommand('sync', clusteringType, devMode, logs);
 
     if (config.ENV_SERVICES.includes(Service.Kafka)) {
@@ -877,7 +880,8 @@ export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2'
 
 export async function launchTerasliceWithCustomHelmfile(
     configFilePath: string,
-    selector?: { diff: string; sync: string }
+    debug: boolean = false,
+    selector?: { diff: string; sync: string },
 ) {
     let diffProcess;
     let syncProcess;
@@ -892,12 +896,15 @@ export async function launchTerasliceWithCustomHelmfile(
     try {
         // We want to exclude certain charts from the diff command because
         //  they may require crds that aren't installed
-        diffProcess = await execaCommand(`helmfile ${diffSelector} --state-values-file ${configFilePath} diff -f ${helmfilePath}`);
-        logger.debug(`helmfile diff:\n${diffProcess.stdout}`);
+        if (debug) {
+            diffProcess = await execaCommand(`helmfile ${diffSelector} --state-values-file ${configFilePath} diff -f ${helmfilePath}`);
+            logger.debug(`helmfile diff:\n${diffProcess.stdout}`);
+        }
         syncProcess = await execaCommand(`helmfile ${syncSelector} --state-values-file ${configFilePath} sync -f ${helmfilePath}`);
         logger.debug(`helmfile sync:\n${syncProcess.stdout}`);
     } catch (err) {
-        throw new TSError(`Helmfile command failed:\n${err}`);
+        // TSError truncates to 3000 characters which is an issue here
+        throw new Error(`Helmfile command failed:\n${err}`);
     }
 }
 

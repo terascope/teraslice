@@ -19,6 +19,12 @@ const cmd: CommandModule = {
             .example('TEST_OPENSEARCH=\'true\' OPENSEARCH_PORT=\'9200\' $0 k8s-env --rebuild --reset-store', 'Rebuild and also clear the opensearch store.')
             .example('TEST_OPENSEARCH=\'true\' OPENSEARCH_PORT=\'9200\' $0 k8s-env --rebuild --skip-build', 'Restart teraslice without rebuilding docker image.')
             .example('$0 k8s-env --rebuild', 'Rebuild teraslice and redeploy to k8s cluster. ES store data is retained.')
+            .option('debug', {
+                alias: 'd',
+                description: 'This will enabling debug logging and run helmfile diff',
+                type: 'boolean',
+                default: false,
+            })
             .option('skip-build', {
                 description: 'Skip building the teraslice docker image',
                 type: 'boolean',
@@ -90,6 +96,7 @@ const cmd: CommandModule = {
     },
     handler(argv) {
         const k8sOptions: K8sEnvOptions = {
+            debug: Boolean(argv['debug']),
             skipBuild: Boolean(argv['skip-build']),
             tsPort: argv['ts-port'] as number,
             kindClusterName: argv['cluster-name'] as string,
