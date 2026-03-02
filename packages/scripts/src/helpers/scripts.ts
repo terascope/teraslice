@@ -780,12 +780,28 @@ export async function setAlias(tsPort: number) {
     }
 }
 
-export async function showState(tsPort: number) {
+export async function showState(tsPort: number, isTeardown: boolean = false) {
     try {
+        if (isTeardown) {
+            signale.debug('=== k8s cluster state ===');
+            const clusterState = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
+            signale.debug(clusterState.stdout);
+
+            signale.debug('=== docker stats ===');
+            const dockerStats = await execaCommand('docker stats --no-stream');
+            signale.debug(dockerStats.stdout);
+
+            signale.debug('=== opensearch2 pod description ===');
+            const os2Desc = await execaCommand('kubectl -n services-dev1 describe pod opensearch2-cluster-master-0');
+            signale.debug(os2Desc.stdout);
+
+            // TODO: consider adding describe for kafka and minio pods
+        }
+
         const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
-        logger.debug(subprocess.stdout);
-        logger.debug(await showESIndices());
-        logger.debug(await showAssets(tsPort));
+        signale.debug(subprocess.stdout);
+        signale.debug(await showESIndices());
+        signale.debug(await showAssets(tsPort));
     } catch (err) {
         signale.error(`Failed to get k8s resources: ${err}`);
     }
