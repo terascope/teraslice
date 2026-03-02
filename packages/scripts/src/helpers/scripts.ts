@@ -792,7 +792,8 @@ export async function showState(tsPort: number, isTeardown: boolean = false) {
             signale.debug(dockerStats.stdout);
 
             signale.debug('=== opensearch2 pod description ===');
-            const os2Desc = await execaCommand('kubectl -n services-dev1 describe pod opensearch2-cluster-master-0');
+            const searchHost = await determineSearchHost();
+            const os2Desc = await execaCommand(`kubectl -n services-dev1 describe pod ${searchHost}-cluster-master-0`);
             signale.debug(os2Desc.stdout);
 
             // TODO: consider adding describe for kafka and minio pods
