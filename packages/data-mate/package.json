@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-mate",
     "displayName": "Data-Mate",
-    "version": "2.2.5",
+    "version": "2.2.6",
     "description": "Library of data validations/transformations",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-mate#readme",
     "repository": {
@@ -40,7 +40,7 @@
         "big-json": "~3.2.0",
         "cidr-calc": "^1.0.4",
         "date-fns": "~4.1.0",
-        "ip-bigint": "~8.2.6",
+        "ip-bigint": "~8.2.7",
         "ip-cidr": "~4.0.2",
         "ip6addr": "~0.2.5",
         "ipaddr.js": "~2.3.0",

@@ -10,8 +10,8 @@ import yaml from 'js-yaml';
 import got from 'got';
 import { parseDocument } from 'yaml';
 import {
-    debugLogger, isString, get,
-    pWhile, pDelay, TSError,
+    debugLogger, isString, get, pWhile,
+    pDelay, TSError, isCI,
 } from '@terascope/core-utils';
 import {
     TSCommands, PackageInfo, Service,
@@ -885,7 +885,7 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
 }
 
 export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2', devMode = false, logs = false, debug = false) {
-    if (debug) {
+    if (debug && !isCI) {
         await helmfileCommand('diff', clusteringType, devMode, logs);
     }
     await helmfileCommand('sync', clusteringType, devMode, logs);
