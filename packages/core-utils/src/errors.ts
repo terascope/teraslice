@@ -401,6 +401,15 @@ export function isElasticsearchError(err: unknown): err is ElasticsearchError {
     // - could add some meta to opensearch client if none of those work as well
     //   as graphql meta data kinda like opensearch
 
+    // researched - the toJSON is from the legacy elasticsearch client
+    // https://github.com/elastic/elasticsearch-js-legacy/blob/16.x/src/lib/errors.js
+
+    // the newer @elastic/elasticsearch and opensearch don't have it
+    // https://github.com/elastic/elasticsearch-js ->
+    // i.e. v5 - https://github.com/elastic/elasticsearch-js/blob/5.x/lib/errors.js
+    // i.e. v9 - https://github.com/elastic/elastic-transport-js/blob/main/src/errors.ts
+    // i.e. OS - https://github.com/opensearch-project/opensearch-js/blob/main/lib/errors.js
+
     return !!(err && isFunction((err as any).toJSON));
 }
 
