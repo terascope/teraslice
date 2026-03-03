@@ -34,13 +34,11 @@
         "@terascope/core-utils": "workspace:~",
         "@terascope/geo-utils": "workspace:~",
         "@terascope/types": "workspace:~",
-        "@types/elasticsearch": "~5.0.43",
         "xlucene-parser": "workspace:~"
     },
     "devDependencies": {
         "@terascope/data-types": "workspace:~",
-        "@terascope/opensearch-client": "workspace:~",
-        "elasticsearch": "~15.4.1"
+        "@terascope/opensearch-client": "workspace:~"
     },
     "engines": {
         "node": ">=22.0.0",
