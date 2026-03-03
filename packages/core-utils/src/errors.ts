@@ -391,6 +391,16 @@ export function isTSError(err: unknown): err is TSError {
 
 /** Check is a elasticsearch error */
 export function isElasticsearchError(err: unknown): err is ElasticsearchError {
+    // rough test - don't think this function for opensearch anymore -
+    // but will test a bit more
+
+    // notes from meeting w/Jared
+    // - look into typeof / instance of / proto / object keys etc to see
+    //   if can differentiate errs
+    // - try not to add more dependencies
+    // - could add some meta to opensearch client if none of those work as well
+    //   as graphql meta data kinda like opensearch
+
     return !!(err && isFunction((err as any).toJSON));
 }
 
