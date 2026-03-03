@@ -884,7 +884,7 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
     logger.debug(`helmfile ${command}:\n${subprocess.stdout}`);
 }
 
-export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2', devMode = false, logs = false, debug = false) {
+export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2', devMode = false, logs = false) {
     if (!isCI) {
         await helmfileCommand('diff', clusteringType, devMode, logs);
     }
