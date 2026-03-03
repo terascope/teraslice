@@ -780,8 +780,25 @@ export async function setAlias(tsPort: number) {
     }
 }
 
-export async function showState(tsPort: number) {
+export async function showState(tsPort: number, isTeardown: boolean = false) {
     try {
+        if (isTeardown) {
+            logger.debug('=== k8s cluster state ===');
+            const clusterState = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
+            logger.debug(clusterState.stdout);
+
+            logger.debug('=== docker stats ===');
+            const dockerStats = await execaCommand('docker stats --no-stream');
+            logger.debug(dockerStats.stdout);
+
+            logger.debug('=== opensearch2 pod description ===');
+            const searchHost = await determineSearchHost();
+            const os2Desc = await execaCommand(`kubectl -n services-dev1 describe pod ${searchHost}-cluster-master-0`);
+            logger.debug(os2Desc.stdout);
+
+            // TODO: consider adding describe for kafka and minio pods
+        }
+
         const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
         logger.debug(subprocess.stdout);
         logger.debug(await showESIndices());
