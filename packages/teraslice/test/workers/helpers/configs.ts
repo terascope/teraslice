@@ -105,7 +105,6 @@ const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {
         max_retries: maxRetries,
         operations,
         autorecover,
-        performance_metrics: false,
         recovered_execution: recoveredExecution,
         recovered_slice_type: recoveredSliceType,
         ex_id: newId('ex-id', true),
