@@ -14,7 +14,6 @@ export function getJobExecution(jobId: string) {
     return {
         active: true,
         analytics: true,
-        performance_metrics: false,
         assets: [
             '35c4b4a3ae68c422d8fd98f1228cd461d2087c1c',
             '4bb1c4e6fa29c74de2a97b5b9d0f20a7ce6745b2'

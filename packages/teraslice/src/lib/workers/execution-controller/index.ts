@@ -19,7 +19,6 @@ import { makeLogger, generateWorkerId } from '../helpers/terafoundation.js';
 import { ExecutionAnalytics } from './execution-analytics.js';
 import { SliceAnalytics } from './slice-analytics.js';
 import { Scheduler } from './scheduler.js';
-import { Metrics } from '../metrics/index.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
 export class ExecutionController {
@@ -46,7 +45,6 @@ export class ExecutionController {
     private _handlers = new Map<string, ((arg: any) => void) | null>();
     executionAnalytics: ExecutionAnalytics;
     readonly scheduler: Scheduler;
-    private metrics: Metrics | null;
     readonly workerId: string;
     readonly exId: string;
     private readonly shutdownTimeout: number;
@@ -73,7 +71,6 @@ export class ExecutionController {
         const logger = makeLogger(context, 'execution_controller');
         const events = context.apis.foundation.getSystemEvents();
         const slicerPort = executionContext.config.slicer_port;
-        const performanceMetrics = executionContext.config.performance_metrics;
         const config = context.sysconfig.teraslice;
         const networkLatencyBuffer = get(config, 'network_latency_buffer');
         const actionTimeout = get(config, 'action_timeout');
@@ -105,11 +102,6 @@ export class ExecutionController {
         this.executionAnalytics = new ExecutionAnalytics(context, executionContext, this.client);
 
         this.scheduler = new Scheduler(context, executionContext);
-        this.metrics = performanceMetrics
-            ? new Metrics({
-                logger
-            })
-            : null;
 
         this.exId = executionContext.exId;
         this.workerId = workerId;
@@ -200,9 +192,6 @@ export class ExecutionController {
 
         await this.server.start();
 
-        if (this.metrics != null) {
-            await this.metrics.initialize();
-        }
         /// We set this to true later down the line. Not sure why
         this.isInitialized = true;
 
@@ -529,10 +518,6 @@ export class ExecutionController {
                     })()
                 ]);
             })(),
-            (async () => {
-                if (this.metrics == null) return;
-                await this.metrics.shutdown().catch(pushError);
-            })()
         ]);
 
         this.logger.warn(`execution controller ${this.exId} is shutdown`);

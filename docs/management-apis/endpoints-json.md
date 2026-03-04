@@ -252,7 +252,6 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 | `stateful` | boolean | Stateful job |
 | `max_retries` | integer | Max slice retries |
 | `probation_window` | integer | Probation window (ms) |
-| `performance_metrics` | boolean | Performance metrics enabled |
 | `log_level` | keyword | Log level setting |
 | `_context` | keyword | Always `job` |
 | `_created` | date | Creation timestamp |
@@ -753,7 +752,6 @@ Returns all execution contexts (job invocations).
 | `stateful` | boolean | Stateful execution |
 | `max_retries` | integer | Max slice retries |
 | `probation_window` | integer | Probation window (ms) |
-| `performance_metrics` | boolean | Performance metrics enabled |
 | `log_level` | keyword | Log level setting |
 | `slicer_hostname` | keyword | Slicer host |
 | `slicer_port` | integer | Slicer port number |
