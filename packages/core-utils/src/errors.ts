@@ -410,6 +410,19 @@ export function isElasticsearchError(err: unknown): err is ElasticsearchError {
     // i.e. v9 - https://github.com/elastic/elastic-transport-js/blob/main/src/errors.ts
     // i.e. OS - https://github.com/opensearch-project/opensearch-js/blob/main/lib/errors.js
 
+    /**
+     * - - - - - - - - W I P - - - - - - - -
+     */
+    // Object.getPrototypeOf - comes in like this
+    // [Error [GraphQLError]]
+    // [OpenSearchClientError]
+    // so could do something like that if can figure out how to convert to string
+    // and then add a test in the client to ensure doesn't break in future
+
+    // other ideas don't think would work - most but not all opensearch errs have a meta property
+    // w/a nested meta.name = opensearch-js - but don't want to rely on that since it's
+    // not on all err types
+
     return !!(err && isFunction((err as any).toJSON));
 }
 
