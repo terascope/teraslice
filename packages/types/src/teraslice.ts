@@ -264,7 +264,6 @@ export interface ValidatedJobConfig {
     apis: APIConfig[];
     operations: OpConfig[];
     probation_window: number;
-    performance_metrics?: boolean;
     env_vars: { [key: string]: string };
     log_level?: string;
     slicers: number;
