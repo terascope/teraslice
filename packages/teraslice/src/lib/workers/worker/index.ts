@@ -11,7 +11,6 @@ import type { SliceCompletePayload } from '@terascope/types';
 import { StateStorage, AnalyticsStorage } from '../../storage/index.js';
 import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
 import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
-import { Metrics } from '../metrics/index.js';
 import { SliceExecution } from './slice.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
@@ -19,7 +18,6 @@ export class Worker {
     stateStorage: StateStorage;
     analyticsStorage: AnalyticsStorage;
     client: ExecutionController.Client;
-    metrics: Metrics | null;
     readonly executionContext: WorkerExecutionContext;
     readonly shutdownTimeout: number;
     readonly context: Context;
@@ -48,7 +46,6 @@ export class Worker {
         const {
             slicer_port: slicerPort,
             slicer_hostname: slicerHostname,
-            performance_metrics: performanceMetrics
         } = executionContext.config;
 
         const config = context.sysconfig.teraslice;
@@ -72,12 +69,6 @@ export class Worker {
             actionTimeout,
             logger
         } as any);
-
-        this.metrics = performanceMetrics
-            ? new Metrics({
-                logger
-            })
-            : null;
 
         this.executionContext = executionContext;
         this.shutdownTimeout = shutdownTimeout;
@@ -139,10 +130,6 @@ export class Worker {
 
         // initialize the execution context next
         await this.executionContext.initialize();
-
-        if (this.metrics != null) {
-            await this.metrics.initialize();
-        }
 
         const { exId } = this.executionContext;
         this.logger.info(`execution: ${exId} initialized worker`);
@@ -317,10 +304,6 @@ export class Worker {
             (async () => {
                 await this.client.shutdown().catch(pushError);
             })(),
-            (async () => {
-                if (this.metrics == null) return;
-                await this.metrics.shutdown().catch(pushError);
-            })()
         ]);
 
         const n = this.slicesProcessed;
