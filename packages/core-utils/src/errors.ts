@@ -177,7 +177,7 @@ export function parseErrorInfo(input: unknown, config: TSErrorConfig = {}): Erro
 
     const statusCode = getErrorStatusCode(input, config, defaultStatusCode);
 
-    const searchType = getErrorSuite(input);
+    const searchType = getSearchErrorType(input);
 
     if (searchType) {
         const searchInfo = _parseSearchErrorInfo(
@@ -261,7 +261,7 @@ function createErrorContext(input: any, config: TSErrorConfig = {}) {
         },
     });
 
-    // don't propogate safe
+    // don't propagate safe
     if (context.safe && !(config.context && config.context.safe)) {
         context.safe = false;
     }
@@ -291,72 +291,87 @@ function _parseSearchErrorInfo(
     const bodyError = input?.meta?.body?.error;
     const rootCause = bodyError?.root_cause && getFirst(bodyError.root_cause);
 
-    let type: string | undefined;
-    let reason: string | undefined;
-    let index: string | undefined;
+    const context: Record<string, any> = {};
 
     [input, bodyError, rootCause].forEach((obj: any) => {
         if (obj == null) return;
         if (!isPlainObject(obj)) return;
 
-        if (obj.type) type = obj.type;
-        if (obj.reason) reason = obj.reason;
-        if (obj.index) index = obj.index;
+        if (obj.type) context.type = obj.type;
+        if (obj.reason) context.reason = obj.reason;
+        if (obj.index) context.index = obj.index;
+        if (obj.status) context.status = obj.status;
+        if (obj.shard) context.shard = obj.shard;
     });
 
-    const metadata = input?.meta?.body;
-
-    const normalized = _normalizeSearchError(
-        input.message, searchType
-    );
+    const normalized = _normalizeSearchError(input.message, searchType);
     const message = normalized
         ? `${searchType} Error: ${normalized}`
         : `${searchType} Error`;
 
-    const code = toStatusErrorCode(reason ? `${name} ${reason}` : name);
+    const code = toStatusErrorCode(context.reason
+        ? `${name} ${context.reason}`
+        : name);
 
     return {
         message,
-        context: {
-            metadata,
-            type,
-            reason,
-            index,
-        },
+        context,
         code
     };
 }
 
 export function toStatusErrorCode(input: string | undefined): string {
     if (!s.isString(input)) return 'UNKNOWN_ERROR';
+
     return input
         .trim()
+        .replace(/([a-z])([A-Z])/g, '$1_$2') // add underscores to pascal case - i.e. ResponseError to Response_Error
         .toUpperCase()
-        .replace(/\W+/g, '_');
+        .replace(/\W+/g, '_')
+        .replace(/_$/, '');
 }
 
 function _normalizeSearchError(message?: string, instance = 'Elasticsearch') {
     if (!message) return '';
 
-    const msg = message.toLowerCase();
+    // i.e. a lot of msgs come in like index_not_found_exception: [index_not_found_exception]
+    // so simplify to just index_not_found_exception
+    const split = message.split(' ');
+    const msg = split
+        .filter((el, i) => {
+            if (i === 0) return true;
+            if (el.startsWith('[') && el.endsWith(']')) {
+                const parsed = el.slice(1, el.length - 1);
+                const previousWord = split[i - 1].replace(':', '');
+                if (previousWord === parsed) return false;
+            }
+            return true;
+        })
+        .join(' ')
+        .replace(/_exception/gi, '')
+        .replaceAll('_', ' ');
 
-    if (msg.includes('document missing')) {
+    const lowercased = msg.toLowerCase();
+
+    if (lowercased.includes('document missing')) {
         return 'Not Found';
     }
 
-    if (msg.includes('document already exists')) {
+    if (lowercased.includes('document already exists')) {
         return 'Document Already Exists (version conflict)';
     }
 
-    if (msg.includes('version conflict')) {
+    if (lowercased.includes('version conflict')) {
         return 'Document Out-of-Date (version conflict)';
     }
 
-    if (msg.indexOf('unknown error') === 0) {
+    if (lowercased.indexOf('unknown error') === 0) {
         return `Unknown ${instance} Error, Cluster may be Unavailable`;
     }
 
-    return message;
+    return msg.split(' ')
+        .map((word) => s.firstToUpper(word))
+        .join(' ');
 }
 
 export function prefixErrorMsg(
@@ -396,7 +411,7 @@ export function isTSError(err: unknown): err is TSError {
  * Check if it's an Elasticsearch or OpenSearch error,
  * @returns "Elasticsearch" | "OpenSearch" | undefined
  */
-export function getErrorSuite(err: unknown): 'Elasticsearch' | 'OpenSearch' | undefined {
+export function getSearchErrorType(err: unknown): 'Elasticsearch' | 'OpenSearch' | undefined {
     const errTypes: Record<string, true> = {};
 
     function walkPrototypes(obj: unknown) {
@@ -465,72 +480,6 @@ export interface SearchErrorMetadata {
     };
 }
 
-// export function isElasticsearchError(err: unknown): err is ElasticsearchError {
-//     // rough test - don't think this function for opensearch anymore -
-//     // but will test a bit more
-
-//     // notes from meeting w/Jared
-//     // - look into typeof / instance of / proto / object keys etc to see
-//     //   if can differentiate errs
-//     // - try not to add more dependencies
-//     // - could add some meta to opensearch client if none of those work as well
-//     //   as graphql meta data kinda like opensearch
-
-//     // researched - the toJSON is from the legacy elasticsearch client
-//     // https://github.com/elastic/elasticsearch-js-legacy/blob/16.x/src/lib/errors.js
-
-//     // the newer @elastic/elasticsearch and opensearch don't have it
-//     // https://github.com/elastic/elasticsearch-js ->
-//     // i.e. v5 - https://github.com/elastic/elasticsearch-js/blob/5.x/lib/errors.js
-//     // i.e. v9 - https://github.com/elastic/elastic-transport-js/blob/main/src/errors.ts
-//     // i.e. OS - https://github.com/opensearch-project/opensearch-js/blob/main/lib/errors.js
-
-//     /**
-//      * - - - - - - - - W I P - - - - - - - -
-//      */
-//     // Object.getPrototypeOf - comes in like this
-//     // [Error [GraphQLError]]
-//     // [OpenSearchClientError]
-//     // so could do something like that if can figure out how to convert to string
-//     // and then add a test in the client to ensure doesn't break in future
-
-//     // other ideas don't think would work - most but not all opensearch errs have a meta property
-//     // w/a nested meta.name = opensearch-js - but don't want to rely on that since it's
-//     // not on all err types
-
-//     return !!(err && isFunction((err as any).toJSON));
-// }
-
-// TODO if keep - add actual opensearch tests cuz this could change and we wouldn't know it
-// since we make our own types
-// export interface ElasticsearchError extends Error {
-//     body?: {
-//         error?: {
-//             type?: string;
-//             reason?: string;
-//             index?: string;
-//             root_cause?: [
-//                 {
-//                     type?: string;
-//                     reason?: string;
-//                     index?: string;
-//                 }
-//             ];
-//         };
-//     };
-
-//     status?: number;
-//     type?: string;
-//     reason?: string;
-//     index?: string;
-
-//     toJSON(): {
-//         msg?: string;
-//         statusCode?: number;
-//         response?: string;
-//     };
-// }
-
 function coerceStatusCode(input: any): number | null {
     return isKey(STATUS_CODES, input) ? input : null;
 }
@@ -540,7 +489,6 @@ export function getErrorStatusCode(
     config: TSErrorConfig = {},
     defaultCode = DEFAULT_STATUS_CODE
 ): number {
-    // const metadata = isElasticOrOpensearchError(err) ? err?.meta : {};
     let metadata: AnyObject = {};
     if (err && typeof err === 'object' && 'meta' in err) {
         metadata = err.meta as SearchErrorMetadata;
