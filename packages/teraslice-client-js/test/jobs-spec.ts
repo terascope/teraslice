@@ -34,7 +34,6 @@ describe('Teraslice Jobs', () => {
             apis: [],
             operations: [{ _op: 'someOp' }],
             probation_window: 3,
-            performance_metrics: false,
             env_vars: {},
             slicers: 1,
             workers: 1,

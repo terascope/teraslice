@@ -30,7 +30,6 @@ export const executionDataTypeConfig: DataTypeConfig = {
         max_retries: { type: FieldType.Integer },
         name: { type: FieldType.Text },
         probation_window: { type: FieldType.Integer },
-        performance_metrics: { type: FieldType.Boolean },
         log_level: { type: FieldType.Keyword },
         slicers: { type: FieldType.Integer },
         workers: { type: FieldType.Integer },

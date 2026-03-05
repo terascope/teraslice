@@ -32,11 +32,6 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
             ].join(' '),
             format: Boolean,
         },
-        performance_metrics: {
-            default: false,
-            doc: 'logs performance metrics, including gc, loop and usage metrics for nodejs',
-            format: Boolean,
-        },
         assets: {
             default: null,
             doc:

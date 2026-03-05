@@ -34,7 +34,6 @@ describe('when using native clustering', () => {
                 apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
-                performance_metrics: false,
                 slicers: 1,
             };
 
@@ -809,7 +808,6 @@ describe('when validating k8s v2 clustering', () => {
                 apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
-                performance_metrics: false,
                 slicers: 1,
                 targets: [
                     {
@@ -855,7 +853,6 @@ describe('when validating k8s v2 clustering', () => {
                 env_vars: {},
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
-                performance_metrics: false,
                 targets: [],
                 volumes: [
                     {
