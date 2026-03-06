@@ -4,6 +4,10 @@ on:
   release:
     types: [published]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   ensure-non-pre-release:
     runs-on: ubuntu-latest
