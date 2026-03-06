@@ -444,13 +444,19 @@ export declare class EstimatedElasticOpenSearchError extends Error {
 export interface SearchErrorMetadata {
     body?: {
         error?: {
-            type?: string;
             root_cause?: {
                 type?: string;
                 reason?: string;
                 index?: string;
-                // others
+                shard?: string;
+                // others depending on err type
+                [key: string]: any;
             }[];
+            type?: string;
+            reason?: string;
+            index?: string;
+            shard?: string;
+            // others depending on err type
             [key: string]: any;
         };
         status?: number;
