@@ -495,7 +495,7 @@ export function getErrorStatusCode(
     config: TSErrorConfig = {},
     defaultCode = DEFAULT_STATUS_CODE
 ): number {
-    let metadata: AnyObject = {};
+    let metadata: SearchErrorMetadata = {};
     if (err && typeof err === 'object' && 'meta' in err) {
         metadata = err.meta as SearchErrorMetadata;
     }
