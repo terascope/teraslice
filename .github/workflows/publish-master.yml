@@ -1,13 +1,7 @@
 name: Publish Teraslice NPM Packages, Documents and Docker Image, Create Release
 
 on:
-  pull_request:
-    branches:
-      - master
-    types:
-      - closed
-    paths-ignore:
-      - 'helm/helm-repo-site/index.yaml'
+  workflow_call:
 
 jobs:
   build-release:
