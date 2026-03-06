@@ -1,4 +1,4 @@
-import type { AnyObject, Logger } from '@terascope/types';
+import type { Logger } from '@terascope/types';
 import STATUS_CODES from './status-codes.js';
 import { getFirst } from './arrays.js';
 import { isFunction } from './functions.js';
