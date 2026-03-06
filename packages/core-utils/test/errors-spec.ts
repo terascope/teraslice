@@ -1,10 +1,32 @@
 import 'jest-extended';
 import {
-    TSError, ElasticsearchError, isFatalError,
-    isRetryableError, parseError, isTSError,
-    stripErrorMessage, formatAggregateError
+    TSError, isFatalError, isRetryableError, isTSError,
+    formatAggregateError, parseError, stripErrorMessage
 } from '../src/errors.js';
 import { times } from '../src/index.js';
+
+import type { EstimatedElasticOpenSearchError, SearchErrorMetadata } from '../src/errors';
+
+class TestOpenSearchClientError extends Error implements EstimatedElasticOpenSearchError {
+    meta?: SearchErrorMetadata;
+
+    constructor(
+        err: Partial<Error>,
+        meta?: SearchErrorMetadata
+    ) {
+        super();
+        Object.assign(this, err);
+        this.meta = meta;
+
+        // rename constructor prototype name
+        Object.defineProperty(
+            TestOpenSearchClientError,
+            'name',
+            // real err would work w/ElasticsearchClientError too
+            { value: 'OpenSearchClientError' }
+        );
+    }
+}
 
 describe('Error Utils', () => {
     describe('TSError', () => {
@@ -100,122 +122,102 @@ describe('Error Utils', () => {
             ],
             [null, { reason: 'Failure' }, { message: 'Failure, caused by Unknown Error' }],
             [
-                newESError(
+                new TestOpenSearchClientError(
+                    {
+                        message: 'Some OS Error',
+                        name: 'OpenSearchClientError'
+                    },
                     {
                         body: {
                             error: {
-                                type: 'some_es_type',
-                                reason: 'some_es_reason',
+                                type: 'some_os_type',
+                                root_cause: [
+                                    {
+                                        reason: 'some_os_reason',
+                                        type: 'some_os_type'
+                                    }
+                                ],
                                 index: 'some_index',
                             },
                         },
-                    },
-                    {
-                        msg: 'Some ES Error',
-                        status: 502,
+                        statusCode: 502
                     }
                 ),
                 {},
                 {
-                    message: 'Elasticsearch Error: Some ES Error',
+                    message: 'OpenSearch Error: Some OS Error',
                     statusCode: 502,
                 },
             ],
             [
-                newESError(
+                new TestOpenSearchClientError(
+                    {
+                        message: 'Another OS Error',
+                        name: 'OpenSearchClientError'
+                    },
                     {
                         body: {
                             error: {
                                 root_cause: [
                                     {
-                                        type: 'another_es_type',
-                                        reason: 'another_es_reason',
+                                        type: 'another_os_type',
+                                        reason: 'another_os_reason',
                                         index: 'another_index',
                                     },
                                 ],
                             },
                         },
-                    },
-                    {
-                        msg: 'Another ES Error',
                     }
                 ),
                 {},
                 {
-                    message: 'Elasticsearch Error: Another ES Error',
+                    message: 'OpenSearch Error: Another OS Error',
                 },
             ],
             [
-                newESError(
+                new TestOpenSearchClientError(
                     {
-                        body: {
-                            error: {
-                                root_cause: null,
-                            },
-                        },
+                        message: 'Invalid OS Error',
                     },
                     {
-                        msg: 'Invalid ES Error',
+                        body: { error: {} },
                     }
                 ),
                 { reason: 'Failure' },
                 {
-                    message: 'Failure, caused by Elasticsearch Error: Invalid ES Error',
+                    message: 'Failure, caused by OpenSearch Error: Invalid OS Error',
                 },
             ],
             [
-                newESError(
-                    {},
-                    {
-                        response: JSON.stringify({
-                            _index: 'hello',
-                        }),
-                        msg: 'Response ES Error',
-                    }
-                ),
-                { reason: 'Failure' },
-                {
-                    message: 'Failure, caused by Elasticsearch Error: Response ES Error',
-                },
-            ],
-            [
-                newESError(
-                    {},
-                    {
-                        msg: 'document missing',
-                        status: 404,
-                    }
+                new TestOpenSearchClientError(
+                    { message: 'document missing' },
+                    { body: { status: 404 } }
                 ),
                 {},
                 {
-                    message: 'Elasticsearch Error: Not Found',
+                    message: 'OpenSearch Error: Not Found',
                     statusCode: 404,
                 },
             ],
             [
-                newESError(
-                    {},
-                    {
-                        msg: 'document already exists',
-                        status: 409,
-                    }
+                new TestOpenSearchClientError(
+                    { message: 'document already exists' },
+                    { statusCode: 409 }
                 ),
                 {},
                 {
-                    message: 'Elasticsearch Error: Document Already Exists (version conflict)',
+                    message: 'OpenSearch Error: Document Already Exists (version conflict)',
                     statusCode: 409,
                 },
             ],
             [
-                newESError(
-                    {},
-                    {
-                        msg: 'unknown error',
-                    }
+                new TestOpenSearchClientError(
+                    { message: 'unknown error' },
+                    {}
                 ),
                 { statusCode: 502 },
                 {
-                    message: 'Elasticsearch Error: Unknown Elasticsearch Error, Cluster may be Unavailable',
+                    message: 'OpenSearch Error: Unknown OpenSearch Error, Cluster may be Unavailable',
                     statusCode: 502,
                 },
             ],
@@ -240,7 +242,7 @@ describe('Error Utils', () => {
                 }
             }
 
-            it('should have the default context proprerties', () => {
+            it('should have the default context properties', () => {
                 if (input && !isTSError(input)) {
                     expect(tsError.context._cause).toEqual(input);
                 }
@@ -403,11 +405,3 @@ describe('Error Utils', () => {
         });
     });
 });
-
-function newESError(obj: unknown, metadata: any = {}) {
-    const error = new Error() as ElasticsearchError;
-    error.name = 'ESError';
-    Object.assign(error, obj);
-    error.toJSON = () => metadata;
-    return error;
-}
