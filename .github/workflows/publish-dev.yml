@@ -9,14 +9,13 @@ on:
     paths-ignore:
       - 'helm/helm-repo-site/index.yaml'
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   build-npm:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     outputs:
       local_teraslice_version: ${{ steps.teraslice-version.outputs.local_teraslice_version }}
       npm_prerelease_version: ${{ steps.npm-version.outputs.npm_prerelease_version }}

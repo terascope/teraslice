@@ -9,14 +9,13 @@ on:
     paths-ignore:
       - 'helm/helm-repo-site/index.yaml'
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   build-release:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub
