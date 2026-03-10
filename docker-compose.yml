@@ -54,10 +54,8 @@ services:
       - "http.port=9200"
       - "transport.tcp.port=9300"
       - "discovery.type=single-node"
-      - "xpack.security.enabled=false"
-      - "xpack.ml.enabled=false"
-      - "xpack.watcher.enabled=false"
       - "bootstrap.memory_lock=true"
+      - "DISABLE_SECURITY_PLUGIN=true"
     volumes:
       - opensearch-data:/usr/share/opensearch/data
     networks:
