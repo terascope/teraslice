@@ -437,8 +437,8 @@ export class TerasliceHarness {
         await pDelay(500);
 
         const state = await this.teraslice.cluster.state();
-        // TODO: this seems wrong
-        if (Object.keys(state).length === workerCount) {
+
+        if (Object.keys(state).length === workerCount + 1) {
             return state;
         }
 
