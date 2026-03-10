@@ -23,7 +23,7 @@ import { defaultAssetBundles } from './download-assets.js';
 
 const {
     TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
-    DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
+    NATIVE_DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
     EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT,
     LOG_PATH, ENCRYPT_OPENSEARCH, OPENSEARCH_USER, OPENSEARCH_PASSWORD, ROOT_CERT_PATH
 } = config;
@@ -185,7 +185,7 @@ export class TerasliceHarness {
                 })(),
                 (async () => {
                     const count = Object.keys(state).length;
-                    if (count !== DEFAULT_NODES) {
+                    if (count !== NATIVE_DEFAULT_NODES) {
                         signale.warn(`resetting cluster state of ${count} nodes`);
                         await scaleWorkers();
                         await this.forWorkers();
@@ -396,7 +396,7 @@ export class TerasliceHarness {
     /*
  * Wait for 'node_count' nodes to be available.
  */
-    forNodes(nodeCount = DEFAULT_NODES) {
+    forNodes(nodeCount = NATIVE_DEFAULT_NODES) {
         const _forNodes = async () => {
             const state = await this.teraslice.cluster.state();
             return Object.keys(state);
@@ -503,7 +503,7 @@ export class TerasliceHarness {
                 // Therefore nodes will be 0.
                 if (nodes === 0) return nodes;
             }
-            if (nodes >= DEFAULT_NODES) return nodes;
+            if (nodes >= NATIVE_DEFAULT_NODES) return nodes;
             return _waitForClusterState();
         };
 

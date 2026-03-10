@@ -7,12 +7,12 @@ import {
     AUTOLOAD_PATH,
     BASE_PATH,
     CONFIG_PATH,
-    DEFAULT_NODES,
     DEFAULT_WORKERS,
     EXAMPLE_INDEX_SIZES,
     LOG_PATH,
     USE_DEV_ASSETS,
-    WORKERS_PER_NODE,
+    NATIVE_DEFAULT_NODES,
+    NATIVE_WORKERS_PER_NODE,
     newId,
     E2EConstants
 } from './constants.js';
@@ -162,7 +162,7 @@ export const config: E2ETestEnv & E2EConstants & E2EConfig = {
     // the uniq cluster name
     CLUSTER_NAME: newId(`${envConfig.TEST_INDEX_PREFIX}teracluster`, true, 2),
     CONFIG_PATH,
-    DEFAULT_NODES,
+    NATIVE_DEFAULT_NODES,
     DEFAULT_WORKERS,
     EXAMPLE_INDEX_PREFIX: `${envConfig.TEST_INDEX_PREFIX}example`,
     EXAMPLE_INDEX_SIZES,
@@ -174,7 +174,7 @@ export const config: E2ETestEnv & E2EConstants & E2EConfig = {
         ? envConfig.OPENSEARCH_SSL_HOST
         : envConfig.OPENSEARCH_HOST,
     USE_DEV_ASSETS,
-    WORKERS_PER_NODE,
+    NATIVE_WORKERS_PER_NODE,
 };
 
 interface E2EConfig {
