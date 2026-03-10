@@ -10,6 +10,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      packages: write
     steps:
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub
