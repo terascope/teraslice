@@ -55,7 +55,6 @@ services:
       - "transport.tcp.port=9300"
       - "discovery.type=single-node"
       - "bootstrap.memory_lock=true"
-      - "OPENSEARCH_INITIAL_ADMIN_PASSWORD=passwordsufhbivbU123%$"
       - "DISABLE_SECURITY_PLUGIN=true"
     volumes:
       - opensearch-data:/usr/share/opensearch/data
