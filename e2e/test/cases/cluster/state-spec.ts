@@ -4,7 +4,7 @@ import signale from '../../signale.js';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { config } from '../../config.js';
 
-const { WORKERS_PER_NODE, DEFAULT_NODES, TEST_PLATFORM } = config;
+const { NATIVE_WORKERS_PER_NODE, NATIVE_DEFAULT_NODES, TEST_PLATFORM } = config;
 
 describe('cluster state', () => {
     let terasliceHarness: TerasliceHarness;
@@ -57,15 +57,15 @@ describe('cluster state', () => {
     }
 
     function verifyClusterState(state: any[], workersAdded = 0) {
-        expect(Object.values(state)).toBeArrayOfSize(DEFAULT_NODES + workersAdded);
+        expect(Object.values(state)).toBeArrayOfSize(NATIVE_DEFAULT_NODES + workersAdded);
 
         // verify each node TODO: fix types here
         Object.values(state).forEach((node) => {
-            expect(node.total).toBe(WORKERS_PER_NODE);
+            expect(node.total).toBe(NATIVE_WORKERS_PER_NODE);
             expect(node.node_id).toBeDefined();
             expect(node.hostname).toBeDefined();
 
-            expect(node.available).toBeWithin(0, WORKERS_PER_NODE + 1);
+            expect(node.available).toBeWithin(0, NATIVE_WORKERS_PER_NODE + 1);
 
             const expectActiveLength = node.total - node.available;
             const actualLength = node.active.length;
@@ -120,9 +120,9 @@ describe('cluster state', () => {
         const nodes = Object.keys(state) as any[];
 
         nodes.forEach((node) => {
-            expect(state[node].total).toBe(WORKERS_PER_NODE);
+            expect(state[node].total).toBe(NATIVE_WORKERS_PER_NODE);
 
-            expect(state[node].available).toBeWithin(0, WORKERS_PER_NODE + 1);
+            expect(state[node].available).toBeWithin(0, NATIVE_WORKERS_PER_NODE + 1);
 
             // The node with more than one worker should have the actual worker
             // and there should only be one.
@@ -163,9 +163,9 @@ describe('cluster state', () => {
         const complete = terasliceHarness.waitForExStatus(ex, 'completed');
 
         nodes.forEach((node) => {
-            expect(state[node].total).toBe(WORKERS_PER_NODE);
+            expect(state[node].total).toBe(NATIVE_WORKERS_PER_NODE);
 
-            expect(state[node].available).toBeWithin(0, WORKERS_PER_NODE + 1);
+            expect(state[node].available).toBeWithin(0, NATIVE_WORKERS_PER_NODE + 1);
 
             // Both nodes should have at least one worker.
             expect(findWorkers(state[node].active, 'worker', exId).length).toBeGreaterThan(0);
