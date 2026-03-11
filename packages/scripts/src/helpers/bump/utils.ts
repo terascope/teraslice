@@ -6,7 +6,6 @@ import { BumpPackageOptions, BumpPkgInfo, BumpType } from './interfaces.js';
 import { isMainPackage, findPackageByName, getRemotePackageVersion } from '../packages.js';
 import { PackageInfo } from '../interfaces.js';
 import signale from '../signale.js';
-import { getRootInfo } from '../misc.js';
 
 export async function getPackagesToBump(
     packages: PackageInfo[],
@@ -128,49 +127,16 @@ export function getBumpCommitMessages(
     return messages;
 }
 
-enum DepKeys {
-    dependencies = 'dependencies',
-    devDependencies = 'devDependencies',
-    peerDependencies = 'peerDependencies',
-    resolutions = 'resolutions'
-}
-
-function getDepKeyFromType(type: BumpType): DepKeys {
-    if (type === BumpType.Prod) return DepKeys.dependencies;
-    if (type === BumpType.Dev) return DepKeys.devDependencies;
-    if (type === BumpType.Peer) return DepKeys.peerDependencies;
-    if (type === BumpType.Resolution) return DepKeys.resolutions;
-    throw new Error(`Unknown BumpType ${type} given`);
-}
-
 /** This mutates the packages param */
 export function bumpPackagesList(
     result: Record<string, BumpPkgInfo>,
     packages: PackageInfo[],
 ): void {
-    const rootInfo = getRootInfo();
     for (const [name, bumpInfo] of Object.entries(result)) {
         const pkgInfo = findPackageByName(packages, name);
         signale.info(`=> Updated ${name} from version ${bumpInfo.from} to ${bumpInfo.to}`);
 
         pkgInfo.version = bumpInfo.to;
-        // If we are in an asset which does not have terascope.version defined. It will
-        // still bump deps
-        if (rootInfo.terascope.version === 1 || rootInfo.terascope.version === 2) continue;
-
-        for (const depBumpInfo of bumpInfo.deps) {
-            const depPkgInfo = findPackageByName(packages, depBumpInfo.name);
-            const key = getDepKeyFromType(depBumpInfo.type);
-
-            if (!depPkgInfo[key]) continue;
-
-            signale.log(`---> Updating ${depBumpInfo.type} dependency ${depPkgInfo.name}'s version of ${name} to ${bumpInfo.to}`);
-            if (depBumpInfo.type === BumpType.Peer) {
-                depPkgInfo[key][name] = `>=${bumpInfo.to}`;
-            } else {
-                depPkgInfo[key][name] = `~${bumpInfo.to}`;
-            }
-        }
     }
 }
 
