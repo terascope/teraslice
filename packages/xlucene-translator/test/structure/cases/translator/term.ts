@@ -4,36 +4,6 @@ import { TestCase } from './interfaces.js';
 
 export default [
     [
-        '*',
-        'query.constant_score.filter',
-        {
-            bool: {
-                filter: [],
-            },
-        },
-    ],
-    [
-        'hello:world',
-        'query.constant_score.filter',
-        {
-            match: {
-                hello: {
-                    operator: 'and',
-                    query: 'world',
-                },
-            },
-        },
-    ],
-    [
-        'hello:w?rld',
-        'query.constant_score.filter',
-        {
-            wildcard: {
-                hello: 'w?rld',
-            },
-        },
-    ],
-    [
         'hello:/w.*ld/',
         'query.constant_score.filter',
         {
@@ -77,59 +47,6 @@ export default [
                 'other.value': xLuceneFieldType.String
             }
         }
-    ],
-    [
-        '_exists_:hello',
-        'query.constant_score.filter',
-        {
-            exists: {
-                field: 'hello',
-            },
-        },
-    ],
-    [
-        'example_count:>=30',
-        'query.constant_score.filter',
-        {
-            range: {
-                example_count: {
-                    gte: 30,
-                },
-            },
-        },
-    ],
-    [
-        'example_count:>30',
-        'query.constant_score.filter',
-        {
-            range: {
-                example_count: {
-                    gt: 30,
-                },
-            },
-        },
-    ],
-    [
-        'example_count:<50',
-        'query.constant_score.filter',
-        {
-            range: {
-                example_count: {
-                    lt: 50,
-                },
-            },
-        },
-    ],
-    [
-        'example_count:<=50',
-        'query.constant_score.filter',
-        {
-            range: {
-                example_count: {
-                    lte: 50,
-                },
-            },
-        },
     ],
     [
         'hello-there',

@@ -377,6 +377,7 @@ function matchFieldObject(typeField: string, field: string) {
 
 function matchField(typeField: string, field: string) {
     let s = '';
+
     for (const part of field.split('.')) {
         s += part;
 
