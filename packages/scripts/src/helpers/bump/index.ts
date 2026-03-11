@@ -31,6 +31,10 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
 
     if (bumpedMain) {
         signale.note(`IMPORTANT: make sure to update release notes for automated release of v${mainInfo!.version} after merging`);
+        if (rootInfo.version !== mainInfo!.version) {
+            signale.info(`=> Updated root package from version ${rootInfo.version} to ${mainInfo!.version}`);
+            rootInfo.version = mainInfo!.version;
+        }
     }
 
     for (const pkgInfo of packages) {
