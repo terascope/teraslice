@@ -2,8 +2,8 @@ import 'jest-extended';
 import { debugLogger, get, times } from '@terascope/core-utils';
 import { ElasticsearchDistribution, xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import { Parser } from 'xlucene-parser';
-import { translateQuery } from '../src/translator/utils.js';
-import { Translator } from '../src/index.js';
+import { translateQuery } from '../../src/translator/utils.js';
+import { Translator } from '../../src/index.js';
 import allTestCases from './cases/translator/index.js';
 
 const logger = debugLogger('translator-spec');
@@ -26,7 +26,7 @@ describe('Translator', () => {
             variables: {},
             geo_sort_order: 'asc',
             geo_sort_unit: 'meters',
-            majorVersion: 6,
+            majorVersion: 2,
             distribution: ElasticsearchDistribution.opensearch
         })).toEqual({
             query: {

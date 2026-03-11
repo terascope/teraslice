@@ -1,7 +1,7 @@
 import { type Client, ElasticsearchTestHelpers, getClientMetadata } from '@terascope/opensearch-client';
 import { FieldType, type ClientMetadata } from '@terascope/types';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
-import { QueryAccess } from '../src/query-access/index.js';
+import { QueryAccess } from '../../src/query-access/index.js';
 
 const { makeClient, populateIndex, cleanupIndex } = ElasticsearchTestHelpers;
 
