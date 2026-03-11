@@ -118,12 +118,12 @@ export function getAvailableTestSuites(): string[] {
 }
 
 /**
- * Returns 'pnpm' if terascope.version is 1, otherwise 'yarn'.
- * Version 1 represents teraslice, any other version represents other terafoundation apps.
+ * Returns the package manager by reading the `packageManager` field from the
+ * root package.json (e.g. "pnpm@10.25.0" → "pnpm"). Defaults to 'pnpm' if not set.
  */
-export function getPackageManager(): 'pnpm' | 'yarn' {
+export function getPackageManager(): string {
     const rootInfo = getRootInfo();
-    return rootInfo.terascope.version === 1 ? 'pnpm' : 'yarn';
+    return rootInfo.packageManager?.split('@')[0] ?? 'pnpm';
 }
 
 export function getServicesForSuite(suite: string): Service[] {

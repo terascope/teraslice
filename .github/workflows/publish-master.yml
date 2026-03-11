@@ -1,28 +1,17 @@
 name: Publish Teraslice NPM Packages, Documents and Docker Image, Create Release
 
 on:
-  pull_request:
-    branches:
-      - master
-    types:
-      - closed
-    paths-ignore:
-      - 'helm/helm-repo-site/index.yaml'
+  workflow_call:
 
 jobs:
   build-release:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
     steps:
-      - name: Register npm token
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-
-      - name: Verify npm authentication
-        run: npm whoami
-
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -40,15 +29,12 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version:  24.13
+          node-version:  24
           registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 
       - name: Install and build packages
         run: pnpm install --frozen-lockfile && pnpm run setup
-
-      - name: Verify npm authentication
-        run: npm whoami
 
       - name: Publish to npm
         run: pnpm ts-scripts publish -t latest npm
@@ -214,7 +200,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version:  24.13
+          node-version:  24
           registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 

@@ -89,6 +89,7 @@ export type RootPackageInfo = {
             registry: string;
         };
     };
+    packageManager?: string;
     engines: {
         node: string;
         yarn?: string;

@@ -3,7 +3,6 @@ import STATUS_CODES from './status-codes.js';
 import { getFirst } from './arrays.js';
 import { isFunction } from './functions.js';
 import { getTypeOf, isPlainObject } from './deps.js';
-import { tryParseJSON } from './json.js';
 import * as s from './strings.js';
 import { isKey } from './objects.js';
 
@@ -178,20 +177,25 @@ export function parseErrorInfo(input: unknown, config: TSErrorConfig = {}): Erro
 
     const statusCode = getErrorStatusCode(input, config, defaultStatusCode);
 
-    if (isElasticsearchError(input)) {
-        const esErrorInfo = _parseESErrorInfo(input);
-        if (esErrorInfo) {
-            const updatedContext = Object.assign({}, esErrorInfo.context, config.context);
+    const searchType = getSearchErrorType(input);
+
+    if (searchType) {
+        const searchInfo = _parseSearchErrorInfo(
+            input as EstimatedElasticOpenSearchError,
+            searchType
+        );
+        if (searchInfo) {
+            const updatedContext = Object.assign({}, searchInfo.context, config.context);
             return {
                 message: config.message
                     || prefixErrorMsg(
-                        esErrorInfo.message,
+                        searchInfo.message,
                         config.reason,
                         defaultErrorMsg
                     ),
                 context: createErrorContext(input, { ...config, context: updatedContext }),
                 statusCode,
-                code: esErrorInfo.code,
+                code: searchInfo.code,
             };
         }
     }
@@ -257,7 +261,7 @@ function createErrorContext(input: any, config: TSErrorConfig = {}) {
         },
     });
 
-    // don't propogate safe
+    // don't propagate safe
     if (context.safe && !(config.context && config.context.safe)) {
         context.safe = false;
     }
@@ -276,84 +280,98 @@ function _cleanErrorMsg(input: string): string {
     return s.truncate(input.trim(), 3000);
 }
 
-function _parseESErrorInfo(
-    input: ElasticsearchError
-): { message: string; context: Record<string, any>; code: string } | null {
-    const bodyError = input && input.body && input.body.error;
-    const name = (input && input.name) || 'ElasticSearchError';
+function _parseSearchErrorInfo(
+    input: EstimatedElasticOpenSearchError, searchType: string
+): (
+    { message: string; context: Record<string, any>; code: string }
+    | null
+) {
+    const name = (input && input.name) || `${searchType}Error`;
 
-    const rootCause = bodyError && bodyError.root_cause && getFirst(bodyError.root_cause);
+    const bodyError = input?.meta?.body?.error;
+    const rootCause = bodyError?.root_cause && getFirst(bodyError.root_cause);
 
-    let type: string | undefined;
-    let reason: string | undefined;
-    let index: string | undefined;
+    const context: Record<string, any> = {};
 
-    [input, bodyError, rootCause].forEach((obj) => {
+    [input, bodyError, rootCause].forEach((obj: any) => {
         if (obj == null) return;
         if (!isPlainObject(obj)) return;
-        if (obj.type) type = obj.type;
-        if (obj.reason) reason = obj.reason;
-        if (obj.index) index = obj.index;
+
+        if (obj.type) context.type = obj.type;
+        if (obj.reason) context.reason = obj.reason;
+        if (obj.index) context.index = obj.index;
+        if (obj.status) context.status = obj.status;
+        if (obj.shard) context.shard = obj.shard;
     });
 
-    const metadata = input.toJSON();
-    if (metadata.response) {
-        const response = tryParseJSON(metadata.response);
-        metadata.response = response;
-    } else if (input.body) {
-        metadata.response = input.body as any;
-    }
+    const normalized = _normalizeSearchError(input.message, searchType);
+    const message = normalized
+        ? `${searchType} Error: ${normalized}`
+        : `${searchType} Error`;
 
-    if (!index && metadata.response) {
-        index = (metadata.response as any).index || (metadata.response as any)._index;
-    }
-
-    const message = `Elasticsearch Error: ${_normalizeESError(metadata.msg)}`;
-
-    const code = toStatusErrorCode(reason ? `${name} ${reason}` : name);
+    const code = toStatusErrorCode(context.reason
+        ? `${name} ${context.reason}`
+        : name);
 
     return {
         message,
-        context: {
-            metadata,
-            type,
-            reason,
-            index,
-        },
-        code,
+        context,
+        code
     };
 }
 
 export function toStatusErrorCode(input: string | undefined): string {
     if (!s.isString(input)) return 'UNKNOWN_ERROR';
+
     return input
         .trim()
+        .replace(/([a-z])([A-Z])/g, '$1_$2') // add underscores to pascal case - i.e. ResponseError to Response_Error
         .toUpperCase()
-        .replace(/\W+/g, '_');
+        .replace(/\W+/g, '_')
+        .replace(/_$/, '');
 }
 
-function _normalizeESError(message?: string) {
+function _normalizeSearchError(message?: string, instance = 'Elasticsearch') {
     if (!message) return '';
 
-    const msg = message.toLowerCase();
+    // i.e. a lot of msgs come in like index_not_found_exception: [index_not_found_exception]
+    // so simplify to just index_not_found_exception
+    const split = message.split(' ');
+    const msg = split
+        .filter((el, i) => {
+            if (i === 0) return true;
+            if (el.startsWith('[') && el.endsWith(']')) {
+                const parsed = el.slice(1, el.length - 1);
+                const previousWord = split[i - 1].replace(':', '');
+                if (previousWord === parsed) return false;
+            }
+            return true;
+        })
+        .join(' ')
+        .replace(/_exception/gi, '')
+        .replaceAll('_', ' ');
 
-    if (msg.includes('document missing')) {
+    const lowercased = msg.toLowerCase();
+
+    if (lowercased.includes('document missing')) {
         return 'Not Found';
     }
 
-    if (msg.includes('document already exists')) {
+    if (lowercased.includes('document already exists')) {
         return 'Document Already Exists (version conflict)';
     }
 
-    if (msg.includes('version conflict')) {
+    if (lowercased.includes('version conflict')) {
         return 'Document Out-of-Date (version conflict)';
     }
 
-    if (msg.indexOf('unknown error') === 0) {
-        return 'Unknown Elasticsearch Error, Cluster may be Unavailable';
+    if (lowercased.indexOf('unknown error') === 0) {
+        return `Unknown ${instance} Error, Cluster may be Unavailable`;
     }
 
-    return message;
+    return msg.split(' ')
+        .map((word) => s.firstToUpper(word))
+        .join(' ');
 }
 
 export function prefixErrorMsg(
@@ -389,36 +407,82 @@ export function isTSError(err: unknown): err is TSError {
     return (err as any).statusCode != null;
 }
 
-/** Check is a elasticsearch error */
-export function isElasticsearchError(err: unknown): err is ElasticsearchError {
-    return !!(err && isFunction((err as any).toJSON));
+/**
+ * Check if it's an Elasticsearch or OpenSearch error,
+ * @returns "Elasticsearch" | "OpenSearch" | undefined
+ */
+export function getSearchErrorType(err: unknown): 'Elasticsearch' | 'OpenSearch' | undefined {
+    const errTypes: Record<string, true> = {};
+
+    function walkPrototypes(obj: unknown) {
+        if (!obj) return;
+
+        const prototype = Object.getPrototypeOf(obj);
+
+        const name = prototype?.constructor?.name;
+        if (!name) return;
+
+        if (name === 'OpenSearchClientError') return 'OpenSearch';
+        if (name === 'ElasticsearchClientError') return 'Elasticsearch';
+
+        // break out to avoid infinite loop
+        if (errTypes[name]) return;
+
+        // add name, then check if there's an
+        // err class this extends from
+        if (name) errTypes[name] = true;
+        return walkPrototypes(prototype);
+    }
+
+    return walkPrototypes(err);
 }
 
-export interface ElasticsearchError extends Error {
+export declare class EstimatedElasticOpenSearchError extends Error {
+    meta?: SearchErrorMetadata;
+}
+
+export interface SearchErrorMetadata {
     body?: {
         error?: {
+            root_cause?: {
+                type?: string;
+                reason?: string;
+                index?: string;
+                shard?: string;
+                // others depending on err type
+                [key: string]: any;
+            }[];
             type?: string;
             reason?: string;
             index?: string;
-            root_cause?: [
-                {
-                    type?: string;
-                    reason?: string;
-                    index?: string;
-                }
-            ];
+            shard?: string;
+            // others depending on err type
+            [key: string]: any;
+        };
+        status?: number;
+    };
+    statusCode?: number;
+    headers?: Record<string, any>;
+    warnings?: string[];
+    meta?: {
+        context?: unknown;
+        name?: string | symbol;
+        request?: {
+            params: any;
+            options: any;
+            id: any;
+        };
+        connection?: any;
+        attempts?: number;
+        aborted?: boolean;
+        sniff?: {
+            hosts: any[];
+            reason: string;
         };
     };
-
-    status?: number;
-    type?: string;
-    reason?: string;
-    index?: string;
-
-    toJSON(): {
-        msg?: string;
-        statusCode?: number;
-        response?: string;
+    response?: {
+        error?: any;
+        status?: number;
     };
 }
 
@@ -431,10 +495,13 @@ export function getErrorStatusCode(
     config: TSErrorConfig = {},
     defaultCode = DEFAULT_STATUS_CODE
 ): number {
-    const metadata = isElasticsearchError(err) ? err.toJSON() : {};
+    let metadata: SearchErrorMetadata = {};
+    if (err && typeof err === 'object' && 'meta' in err) {
+        metadata = err.meta as SearchErrorMetadata;
+    }
 
     for (const key of ['statusCode', 'status', 'code']) {
-        for (const obj of [config, err, metadata]) {
+        for (const obj of [config, err, metadata, metadata?.body]) {
             if (!obj || s.isString(obj)) continue;
 
             const statusCode = coerceStatusCode((obj as any)[key]);

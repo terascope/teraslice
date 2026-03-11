@@ -6,10 +6,10 @@ on:
       - master
       - 'release/teraslice-v*'
 env:
-  NODE_VERSIONS: '[22, 24.13]'
-  NODE_VERSION_MAIN: '24.13'
-  NODE_VERSIONS_K8S: '[22, 24.13]'
-  NODE_VERSIONS_EXT_STORAGE: '[24.13]'
+  NODE_VERSIONS: '[22, 24]'
+  NODE_VERSION_MAIN: '24'
+  NODE_VERSIONS_K8S: '[22, 24]'
+  NODE_VERSIONS_EXT_STORAGE: '[24]'
 
 jobs:
   compute-vars:
@@ -57,21 +57,21 @@ jobs:
       run: pnpm install --frozen-lockfile && pnpm run setup
 
   check-docker-limit-before:
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@pnpm
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@main
     secrets: inherit
 
   check-github-api-limit-before:
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@pnpm
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
     secrets: inherit
 
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@pnpm
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@main
     secrets: inherit
 
   cache-asset-bundles:
     needs: check-github-api-limit-before
-    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@pnpm
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@main
     secrets: inherit
 
   determine-tests-based-off-commit:
@@ -303,7 +303,7 @@ jobs:
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:k8sV2
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:k8sV2 --debug
         working-directory: ./e2e
 
       - name: Upload logs artifact
@@ -441,7 +441,7 @@ jobs:
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:k8sV2Encrypted
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:k8sV2Encrypted --debug
         working-directory: ./e2e
 
       - name: Upload logs artifact
@@ -1116,7 +1116,7 @@ jobs:
 
   test-website:
     if: needs.determine-tests-based-off-commit.outputs.website == 'true'
-    needs: [verify-build, determine-tests-based-off-commit]
+    needs: [verify-build, determine-tests-based-off-commit, compute-vars]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -1128,8 +1128,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          # NOTE: Hard Coded Node Version
-          node-version: '24.13'
+          node-version: ${{ needs.compute-vars.outputs.NODE_VERSION_MAIN }}
           cache: 'pnpm'
       - name: Build documentation
         run: pnpm install && ./scripts/build-documentation.sh
@@ -1148,7 +1147,7 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@pnpm
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@main
     secrets: inherit
 
   check-github-api-limit-after:
@@ -1164,7 +1163,7 @@ jobs:
       teraslice-elasticsearch-tests,
       xlucene-translator-tests,
     ]
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@pnpm
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
     secrets: inherit
 
   all-tests-passed:

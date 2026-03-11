@@ -1,8 +1,7 @@
 name: Publish Release Teraslice NPM Packages and Docker Image
 
 on:
-  release:
-    types: [published]
+  workflow_call:
 
 jobs:
   ensure-non-pre-release:
@@ -27,16 +26,10 @@ jobs:
     needs: ensure-non-pre-release
     if: needs.ensure-non-pre-release.outputs.is_dev_release == 'false'
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - name: Register npm token
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-
-      - name: Verify npm authentication
-        run: npm whoami
-
       - name: Check out code
         uses: actions/checkout@v4
 
@@ -46,15 +39,12 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version:  24.13
+          node-version:  24
           registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 
       - name: Install and build packages
         run: pnpm install --frozen-lockfile && pnpm run setup
-
-      - name: Verify npm authentication
-        run: npm whoami
 
       - name: Publish to npm
         run: pnpm ts-scripts publish -t tag npm
@@ -65,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22, 24.13]
+        node-version: [22, 24]
     steps:
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub

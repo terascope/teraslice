@@ -1,4 +1,4 @@
-import { BoolQuery } from 'packages/types/dist/src/elasticsearch-interfaces.js';
+import { BoolQuery } from '@terascope/types';
 import { TestCase } from './interfaces.js';
 
 const variables = {
