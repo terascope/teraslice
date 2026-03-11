@@ -2,8 +2,6 @@ name: Publish Release Teraslice NPM Packages and Docker Image
 
 on:
   workflow_call:
-  release:
-    types: [published]
 
 jobs:
   ensure-non-pre-release:
