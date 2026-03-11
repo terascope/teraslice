@@ -26,6 +26,7 @@
         "build:watch": "pnpm build --watch",
         "test": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
         "test:debug": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test --debug ../xlucene-translator --",
+        "test:opensearch1": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=1.3.11 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
         "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=3.1.0 node ../scripts/bin/ts-scripts test ../xlucene-translator --",
         "test:watch": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION=2.15.0 node ../scripts/bin/ts-scripts test --watch ../xlucene-translator --"

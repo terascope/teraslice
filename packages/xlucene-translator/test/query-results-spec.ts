@@ -92,8 +92,9 @@ describe('Queries', () => {
                 it(`${title}`, async () => {
                     const searchParams = await access.restrictSearchQuery(
                         query,
-                        { ...options, ...clientMetadata, ...defaultParams }
+                        { ...options, ...clientMetadata, ...defaultParams, params: { index } }
                     );
+
                     const results = await client.search(searchParams);
                     expect(mapResults(results)).toEqual(expectedResults);
                 });

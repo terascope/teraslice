@@ -9,7 +9,8 @@ import {
 } from '@terascope/types';
 import {
     geoRelationFP, validateListCoords, isGeoShapeMultiPolygon,
-    polyHasHoles, isGeoShapePolygon, parseGeoPoint
+    polyHasHoles, isGeoShapePolygon, parseGeoPoint,
+    isGeoShapePoint
 } from '@terascope/geo-utils';
 import * as i from '../../interfaces.js';
 import { getFieldValue, logger } from '../../utils.js';
@@ -17,6 +18,7 @@ import { getFieldValue, logger } from '../../utils.js';
 const compatMapping = {
     [GeoShapeType.Polygon]: ESGeoShapeType.Polygon,
     [GeoShapeType.MultiPolygon]: ESGeoShapeType.MultiPolygon,
+    [GeoShapeType.Point]: ESGeoShapeType.Point
 } as const;
 
 interface Holes {
@@ -63,7 +65,11 @@ function validate(
 
     const geoPointsValue = getFieldValue(geoPointsParam.value, variables);
 
-    if (isGeoShapePolygon(geoPointsValue) || isGeoShapeMultiPolygon(geoPointsValue)) {
+    if (
+        isGeoShapePolygon(geoPointsValue)
+        || isGeoShapeMultiPolygon(geoPointsValue)
+        || isGeoShapePoint(geoPointsValue)
+    ) {
         polygonShape = geoPointsValue;
     } else {
         if (!Array.isArray(geoPointsValue)) {
