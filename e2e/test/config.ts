@@ -128,6 +128,10 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         default: undefined,
         format: Boolean
     },
+    TERASLICE_CLUSTER_NAME: {
+        default: undefined,
+        format: String
+    },
     TERASLICE_PORT: {
         default: undefined,
         format: String
@@ -159,8 +163,6 @@ export const config: E2ETestEnv & E2EConstants & E2EConfig = {
     ASSETS_PATH,
     AUTOLOAD_PATH,
     BASE_PATH,
-    // the uniq cluster name
-    CLUSTER_NAME: newId(`${envConfig.TEST_INDEX_PREFIX}teracluster`, true, 2),
     CONFIG_PATH,
     NATIVE_DEFAULT_NODES,
     DEFAULT_WORKERS,
@@ -178,7 +180,6 @@ export const config: E2ETestEnv & E2EConstants & E2EConfig = {
 };
 
 interface E2EConfig {
-    CLUSTER_NAME: string;
     EXAMPLE_INDEX_PREFIX: string;
     ROOT_CERT_PATH: string;
     SPEC_INDEX_PREFIX: string;

@@ -59,7 +59,7 @@ export function newId(prefix?: string, lowerCase = false, length = 15) {
 export const BASE_PATH = getBasePath();
 export const ASSET_BUNDLES_PATH = '/tmp/teraslice_assets';
 export const AUTOLOAD_PATH = path.join(BASE_PATH, 'autoload');
-export const ASSETS_PATH = path.join(BASE_PATH, '../assets');
+export const ASSETS_PATH = path.join(BASE_PATH, 'assets');
 export const CONFIG_PATH = path.join(BASE_PATH, '.config');
 export const LOG_PATH = path.join(BASE_PATH, 'logs/teraslice.log');
 

@@ -228,7 +228,8 @@ master:
         cluster_manager_type: {{ .Values | get "teraslice.cluster_manager_type" "kubernetesV2" }}
         asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
         asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
-        name: "ts-dev1"
+        name: {{ .Values | get "teraslice.name" "ts-dev1" }}
+        assets_directory: {{ .Values | get "teraslice.assets_directory" "/app/assets" }}
         autoload_directory: /app/autoload
         index_settings:
             analytics:
@@ -248,7 +249,8 @@ worker:
         cluster_manager_type: {{ .Values | get "teraslice.cluster_manager_type" "kubernetesV2" }}
         asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
         asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
-        name: "ts-dev1"
+        name: {{ .Values | get "teraslice.name" "ts-dev1" }}
+        assets_directory: {{ .Values | get "teraslice.assets_directory" "/app/assets" }}
         autoload_directory: /app/autoload
         index_settings:
             analytics:
@@ -272,7 +274,20 @@ extraVolumes: |
           )
         ) 
     }}
-    {{- $mergedVolumes := concat $autoloadVolume $customVolumes }}
+
+    {{- $assetsVolume := list }}
+    {{- if eq (.Values | get "teraslice.e2e" false) true }}
+    {{- $assetsVolume = list (dict 
+          "name" "e2e-assets" 
+          "hostPath" (dict 
+            "path" "/e2e-assets"
+            "type" "Directory"
+          )
+        ) 
+    }}
+    {{- end }}
+
+    {{- $mergedVolumes := concat $assetsVolume $autoloadVolume $customVolumes }}
     {{- toYaml $mergedVolumes | nindent 4 }}
 
 extraVolumeMounts: |
@@ -283,7 +298,17 @@ extraVolumeMounts: |
           "readOnly" true
         )
     }}
-    {{- $mergedVolumeMounts := concat $autoloadVolumeMount $customVolumeMounts }}
+
+    {{- $assetsVolumeMount := list }}
+    {{- if eq (.Values | get "teraslice.e2e" false) true }}
+    {{- $assetsVolumeMount = list (dict
+          "name" "e2e-assets"
+          "mountPath" "/app/e2e-assets"
+        )
+    }}
+    {{- end }}
+
+    {{- $mergedVolumeMounts := concat $assetsVolumeMount $autoloadVolumeMount $customVolumeMounts }}
     {{- toYaml $mergedVolumeMounts | nindent 4 }}
 
 ##@ Extra checks to ensure correct config */

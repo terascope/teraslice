@@ -470,6 +470,7 @@ export interface Config {
     asset_storage_connection: string;
     asset_storage_bucket: string;
     assets_volume: string;
+    autoload_directory: string;
     cluster_manager_type: ClusterManagerType;
     /** This will only be available in the context of k8s */
     cpu?: number;

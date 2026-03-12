@@ -5,7 +5,7 @@ import { config } from './config.js';
 
 const {
     WORKERS_PER_NODE, KAFKA_BROKER,
-    TEST_HOST, TERASLICE_PORT, CLUSTER_NAME,
+    TEST_HOST, TERASLICE_PORT, TERASLICE_CLUSTER_NAME,
     HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST,
     ENCRYPT_MINIO, ROOT_CERT_PATH, FILE_LOGGING,
@@ -65,7 +65,7 @@ const baseConfig = {
         autoload_directory: '/app/autoload',
         workers: WORKERS_PER_NODE,
         port: TERASLICE_PORT,
-        name: CLUSTER_NAME,
+        name: TERASLICE_CLUSTER_NAME,
         master: true,
         master_hostname: HOST_IP,
         asset_storage_connection_type: ASSET_STORAGE_CONNECTION_TYPE,

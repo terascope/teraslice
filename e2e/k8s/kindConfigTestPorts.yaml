@@ -29,4 +29,7 @@ nodes:
   - hostPath: ./autoload
     containerPath: /autoload
   - hostPath: ./logs
-    containerPath: /mnt/logs    
+    containerPath: /mnt/logs  
+    # recovery-spec needs visibility into assets from jest environment   
+  - hostPath: ./assets
+    containerPath: /e2e-assets

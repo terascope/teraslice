@@ -44,7 +44,12 @@ export async function teardown(testClient?: Client) {
         await fse.remove(CONFIG_PATH).catch((err) => errors.push(err));
     }
     if (fse.existsSync(ASSETS_PATH)) {
-        await fse.remove(ASSETS_PATH).catch((err) => errors.push(err));
+        const entries = await fse.readdir(ASSETS_PATH);
+        await Promise.all(
+            entries
+                .filter((entry) => entry !== 'README.md')
+                .map((entry) => fse.remove(`${ASSETS_PATH}/${entry}`).catch((err) => errors.push(err)))
+        );
     }
 
     if (errors.length) {
