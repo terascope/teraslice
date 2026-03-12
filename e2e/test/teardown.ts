@@ -7,7 +7,7 @@ import signale from './signale.js';
 
 const {
     KEEP_OPEN, CONFIG_PATH, ASSETS_PATH, TEST_INDEX_PREFIX,
-    TEST_PLATFORM, ROOT_CERT_PATH, TERASLICE_CLUSTER_NAME, TERASLICE_PORT
+    TEST_PLATFORM, ROOT_CERT_PATH, CLUSTER_NAME, TERASLICE_PORT
 } = config;
 
 const { cleanupIndex, makeClient } = ElasticsearchTestHelpers;
@@ -30,7 +30,7 @@ export async function teardown(testClient?: Client) {
         if (TEST_PLATFORM === 'kubernetesV2') {
             await showState(TERASLICE_PORT, true);
             await helmfileDestroy('teraslice');
-            await cleanupIndex(client, `${TERASLICE_CLUSTER_NAME}_*`);
+            await cleanupIndex(client, `${CLUSTER_NAME}_*`);
         } else {
             await tearDown();
         }
@@ -39,7 +39,7 @@ export async function teardown(testClient?: Client) {
     }
 
     await cleanupIndex(client, `${TEST_INDEX_PREFIX}*`);
-    await cleanupIndex(client, `${TERASLICE_CLUSTER_NAME}_*`);
+    await cleanupIndex(client, `${CLUSTER_NAME}_*`);
 
     if (fse.existsSync(CONFIG_PATH)) {
         await fse.remove(CONFIG_PATH).catch((err) => errors.push(err));

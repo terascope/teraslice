@@ -128,7 +128,7 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         default: undefined,
         format: Boolean
     },
-    TERASLICE_CLUSTER_NAME: {
+    CLUSTER_NAME: {
         default: undefined,
         format: String
     },

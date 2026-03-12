@@ -654,7 +654,7 @@ config.DOCKER_IMAGES_PATH = process.env.DOCKER_IMAGES_PATH || './images';
 config.DOCKER_IMAGE_LIST_PATH = process.env.DOCKER_IMAGE_LIST_PATH || `${config.DOCKER_IMAGES_PATH}/image-list.txt`;
 
 config.TEST_NAMESPACE = process.env.TEST_NAMESPACE || 'ts_test';
-config.TERASLICE_CLUSTER_NAME = process.env.TERASLICE_CLUSTER_NAME
+config.CLUSTER_NAME = process.env.CLUSTER_NAME
     || newId(`${config.TEST_NAMESPACE}`, true, 2);
 
 try {

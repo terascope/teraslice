@@ -80,7 +80,7 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
         ASSET_STORAGE_CONNECTION: config.ASSET_STORAGE_CONNECTION,
         ASSET_STORAGE_CONNECTION_TYPE: config.ASSET_STORAGE_CONNECTION_TYPE,
         MINIO_HOST: config.MINIO_HOST,
-        TERASLICE_CLUSTER_NAME: config.TERASLICE_CLUSTER_NAME
+        CLUSTER_NAME: config.CLUSTER_NAME
     };
 
     if (config.DOCKER_NETWORK_NAME) {
