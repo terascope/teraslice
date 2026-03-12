@@ -240,6 +240,10 @@ const configSchema: Terafoundation.Schema<any> = {
         format: 'optional_string',
         env: 'TERASLICE_IMAGE'
     },
+    TEST_NAMESPACE: {
+        default: undefined,
+        format: String
+    },
     USE_EXISTING_SERVICES: {
         default: false,
         format: Boolean,
@@ -531,10 +535,6 @@ const configSchema: Terafoundation.Schema<any> = {
     SEARCH_TEST_HOST: {
         default: undefined,
         format: String,
-    },
-    TEST_NAMESPACE: {
-        default: undefined,
-        format: String
     },
     TERASLICE_PORT: {
         default: 45678,
