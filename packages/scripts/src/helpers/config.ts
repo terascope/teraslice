@@ -128,6 +128,10 @@ const configSchema: Terafoundation.Schema<any> = {
         default: null,
         format: 'optional_string',
     },
+    CLUSTER_NAME: {
+        default: undefined,
+        format: String
+    },
     DOCKER_CACHE_PATH: {
         default: '/tmp/docker_cache',
         format: String,
@@ -527,6 +531,10 @@ const configSchema: Terafoundation.Schema<any> = {
     SEARCH_TEST_HOST: {
         default: undefined,
         format: String,
+    },
+    TEST_NAMESPACE: {
+        default: undefined,
+        format: String
     },
     TERASLICE_PORT: {
         default: 45678,
