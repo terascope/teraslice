@@ -2,13 +2,26 @@ import ipPkg from 'ip';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { customAlphabet } from 'nanoid';
 import {
     toSafeString, isCI, toIntegerOrThrow,
-    SchemaValidator, toBoolean
+    SchemaValidator, toBoolean, trim, padEnd
 } from '@terascope/core-utils';
 import { TestEnv, Terafoundation, ScriptsTestEnv } from '@terascope/types';
 import { Service } from './interfaces.js';
-import { newId } from './misc.js';
+
+function newId(prefix?: string, lowerCase = false, length = 15): string {
+    let characters = '-0123456789abcdefghijklmnopqrstuvwxyz';
+    if (!lowerCase) {
+        characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    }
+    let id = trim(customAlphabet(characters, length)(), '-');
+    id = padEnd(id, length, 'abcdefghijklmnopqrstuvwxyz');
+    if (prefix) {
+        return `${prefix}-${id}`;
+    }
+    return id;
+}
 
 /** Default opensearch1 version used to populate the CI cache */
 const __DEFAULT_OPENSEARCH1_VERSION = '1.3.11';
