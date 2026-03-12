@@ -8,6 +8,7 @@ import {
 } from '@terascope/core-utils';
 import { TestEnv, Terafoundation, ScriptsTestEnv } from '@terascope/types';
 import { Service } from './interfaces.js';
+import { newId } from './misc.js';
 
 /** Default opensearch1 version used to populate the CI cache */
 const __DEFAULT_OPENSEARCH1_VERSION = '1.3.11';
@@ -221,11 +222,6 @@ const configSchema: Terafoundation.Schema<any> = {
         default: null,
         format: 'optional_string',
         env: 'TERASLICE_IMAGE'
-    },
-    TEST_NAMESPACE: {
-        default: 'ts_test',
-        format: String,
-        env: 'TEST_NAMESPACE'
     },
     USE_EXISTING_SERVICES: {
         default: false,
@@ -643,6 +639,10 @@ config.SEARCH_TEST_HOST = process.env.SEARCH_TEST_HOST || testHost;
 
 config.DOCKER_IMAGES_PATH = process.env.DOCKER_IMAGES_PATH || './images';
 config.DOCKER_IMAGE_LIST_PATH = process.env.DOCKER_IMAGE_LIST_PATH || `${config.DOCKER_IMAGES_PATH}/image-list.txt`;
+
+config.TEST_NAMESPACE = process.env.TEST_NAMESPACE || 'ts_test';
+config.TERASLICE_CLUSTER_NAME = process.env.TERASLICE_CLUSTER_NAME
+    || newId(`${config.TEST_NAMESPACE}`, true, 2);
 
 try {
     const configValidator = new SchemaValidator<ScriptsTestEnv>(configSchema, 'scriptsConfigSchema');
