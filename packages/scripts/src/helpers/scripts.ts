@@ -1137,7 +1137,7 @@ function generateHelmValuesFromServices(
     values.setIn(['teraslice', 'asset_storage_connection_type'], config.ASSET_STORAGE_CONNECTION_TYPE);
     values.setIn(['teraslice', 'asset_storage_connection'], config.ASSET_STORAGE_CONNECTION);
     values.setIn(['teraslice', 'cluster_manager_type'], clusteringType);
-    values.setIn(['teraslice', 'name'], config.TERASLICE_CLUSTER_NAME);
+    values.setIn(['teraslice', 'name'], config.CLUSTER_NAME);
     values.setIn(['teraslice', 'assets_directory'], e2e ? '/app/e2e-assets' : '/app/assets');
     values.setIn(['teraslice', 'e2e'], e2e);
 
