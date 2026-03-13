@@ -59,7 +59,7 @@ export function newId(prefix?: string, lowerCase = false, length = 15) {
 export const BASE_PATH = getBasePath();
 export const ASSET_BUNDLES_PATH = '/tmp/teraslice_assets';
 export const AUTOLOAD_PATH = path.join(BASE_PATH, 'autoload');
-export const ASSETS_PATH = path.join(BASE_PATH, '../assets');
+export const ASSETS_PATH = path.join(BASE_PATH, 'assets');
 export const CONFIG_PATH = path.join(BASE_PATH, '.config');
 export const LOG_PATH = path.join(BASE_PATH, 'logs/teraslice.log');
 
@@ -68,10 +68,10 @@ export const LOG_PATH = path.join(BASE_PATH, 'logs/teraslice.log');
 export const DEFAULT_WORKERS = 2;
 
 /** The teraslice-master + the number of teraslice-worker instances */
-export const DEFAULT_NODES = DEFAULT_WORKERS + 1;
+export const NATIVE_DEFAULT_NODES = DEFAULT_WORKERS + 1;
 
 /** The number of workers per node (see the process-master.yaml and process-worker.yaml) */
-export const WORKERS_PER_NODE = 8;
+export const NATIVE_WORKERS_PER_NODE = 8;
 
 // Test Data Constants
 /** Example index sizes for test data */
@@ -87,11 +87,11 @@ export interface E2EConstants {
     AUTOLOAD_PATH: string;
     BASE_PATH: string;
     CONFIG_PATH: string;
-    DEFAULT_NODES: number;
+    NATIVE_DEFAULT_NODES: number;
     DEFAULT_WORKERS: number;
     EXAMPLE_INDEX_SIZES: number[];
     LOG_PATH: string;
     USE_DEV_ASSETS: boolean;
-    WORKERS_PER_NODE: number;
+    NATIVE_WORKERS_PER_NODE: number;
     newId: typeof newId;
 }

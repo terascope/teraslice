@@ -434,7 +434,6 @@ export class AssetsStorage {
     }
 
     async autoload() {
-        // @ts-expect-error TODO: verify this parameter
         const autoloadDir = this.context.sysconfig.teraslice.autoload_directory;
         if (!autoloadDir || !fse.existsSync(autoloadDir)) return;
 

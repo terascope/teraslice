@@ -863,13 +863,21 @@ export async function helmfileDestroy(selector: string) {
     }
 }
 
-export async function helmfileCommand(command: string, clusteringType: 'kubernetesV2', devMode = false, logs = false) {
+export async function helmfileCommand(
+    command: string,
+    clusteringType: 'kubernetesV2',
+    devMode = false,
+    logs = false,
+    e2e = true
+) {
     const e2eDir = getE2EDir();
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
     }
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
-    const { valuesPath, valuesDir } = generateHelmValuesFromServices(clusteringType, devMode, logs);
+    const { valuesPath, valuesDir } = generateHelmValuesFromServices(
+        clusteringType, devMode, logs, e2e
+    );
 
     let subprocess;
     try {
@@ -884,11 +892,17 @@ export async function helmfileCommand(command: string, clusteringType: 'kubernet
     logger.debug(`helmfile ${command}:\n${subprocess.stdout}`);
 }
 
-export async function launchTerasliceWithHelmfile(clusteringType: 'kubernetesV2', devMode = false, logs = false, debug = false) {
+export async function launchTerasliceWithHelmfile(
+    clusteringType: 'kubernetesV2',
+    devMode = false,
+    logs = false,
+    debug = false,
+    e2e = true
+) {
     if (debug && !isCI) {
-        await helmfileCommand('diff', clusteringType, devMode, logs);
+        await helmfileCommand('diff', clusteringType, devMode, logs, e2e);
     }
-    await helmfileCommand('sync', clusteringType, devMode, logs);
+    await helmfileCommand('sync', clusteringType, devMode, logs, e2e);
 
     if (config.ENV_SERVICES.includes(Service.Kafka)) {
         await waitForKafkaRunning('kafka');
@@ -911,9 +925,9 @@ export async function launchTerasliceWithCustomHelmfile(
     const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
 
     try {
-        // We want to exclude certain charts from the diff command because
-        //  they may require crds that aren't installed
-        if (debug) {
+        if (debug && !isCI) {
+            // We want to exclude certain charts from the diff command because
+            //  they may require crds that aren't installed
             diffProcess = await execaCommand(`helmfile ${diffSelector} --state-values-file ${configFilePath} diff -f ${helmfilePath}`);
             logger.debug(`helmfile diff:\n${diffProcess.stdout}`);
         }
@@ -1022,6 +1036,7 @@ function getAdminDnFromCert(): string {
  * @param { 'kubernetesV2' } clusteringType - backend cluster manager type
  * @param { boolean } devMode - Mount local teraslice to k8s resources for faster development.
  * @param { boolean } logs - Copy teraslice and service logs from k8s pods to local filesystem.
+ * @param { boolean } e2e - Specify e2e tests or k8s env mode.
  * @returns An object containing:
  * - `valuesPath` - Path to the generated `values.yaml` file.
  * - `valuesDir` - Path to the temporary directory containing the file.
@@ -1029,7 +1044,8 @@ function getAdminDnFromCert(): string {
 function generateHelmValuesFromServices(
     clusteringType: 'kubernetesV2',
     devMode: boolean,
-    logs: boolean
+    logs: boolean,
+    e2e: boolean
 ): { valuesPath: string; valuesDir: string } {
     // Grab default values from the e2e/helm/values.yaml
     const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
@@ -1121,6 +1137,9 @@ function generateHelmValuesFromServices(
     values.setIn(['teraslice', 'asset_storage_connection_type'], config.ASSET_STORAGE_CONNECTION_TYPE);
     values.setIn(['teraslice', 'asset_storage_connection'], config.ASSET_STORAGE_CONNECTION);
     values.setIn(['teraslice', 'cluster_manager_type'], clusteringType);
+    values.setIn(['teraslice', 'name'], config.CLUSTER_NAME);
+    values.setIn(['teraslice', 'assets_directory'], e2e ? '/app/e2e-assets' : '/app/assets');
+    values.setIn(['teraslice', 'e2e'], e2e);
 
     if (devMode) {
         const dockerfileMounts = getVolumesFromDockerfile(true, logger);

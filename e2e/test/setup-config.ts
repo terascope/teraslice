@@ -4,7 +4,7 @@ import fse from 'fs-extra';
 import { config } from './config.js';
 
 const {
-    WORKERS_PER_NODE, KAFKA_BROKER,
+    NATIVE_WORKERS_PER_NODE, KAFKA_BROKER,
     TEST_HOST, TERASLICE_PORT, CLUSTER_NAME,
     HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST,
@@ -63,7 +63,7 @@ const baseConfig = {
         slicer_allocation_attempts: 0,
         assets_directory: '/app/assets',
         autoload_directory: '/app/autoload',
-        workers: WORKERS_PER_NODE,
+        workers: NATIVE_WORKERS_PER_NODE,
         port: TERASLICE_PORT,
         name: CLUSTER_NAME,
         master: true,

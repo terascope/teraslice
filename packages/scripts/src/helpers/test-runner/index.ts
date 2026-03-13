@@ -293,7 +293,7 @@ async function runE2ETest(
             await loadImagesForHelm(options.kindClusterName, options.skipImageDeletion);
             signale.time(timeLabel);
             await launchTerasliceWithHelmfile(
-                options.clusteringType, false, options.logs, options.debug
+                options.clusteringType, false, options.logs, options.debug, true
             );
             signale.timeEnd(timeLabel);
         } catch (err) {

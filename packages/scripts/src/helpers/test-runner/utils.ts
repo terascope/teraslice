@@ -79,7 +79,8 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
         CERT_PATH: config.CERT_PATH,
         ASSET_STORAGE_CONNECTION: config.ASSET_STORAGE_CONNECTION,
         ASSET_STORAGE_CONNECTION_TYPE: config.ASSET_STORAGE_CONNECTION_TYPE,
-        MINIO_HOST: config.MINIO_HOST
+        MINIO_HOST: config.MINIO_HOST,
+        CLUSTER_NAME: config.CLUSTER_NAME
     };
 
     if (config.DOCKER_NETWORK_NAME) {

@@ -169,6 +169,7 @@ export class TestContext implements i.Context {
                 asset_storage_connection_type: 'elasticsearch-next',
                 asset_storage_connection: 'default',
                 asset_storage_bucket: '',
+                autoload_directory: path.join(process.cwd(), './autoload'),
                 cluster_manager_type: options.cluster_manager_type || 'native',
                 cpu_execution_controller: 0.5,
                 ephemeral_storage: false,

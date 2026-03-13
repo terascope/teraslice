@@ -7,6 +7,7 @@ export interface TestEnv {
     CERT_PATH?: string;
     CI?: boolean;
     CI_COMMIT_REF_SLUG?: string;
+    CLUSTER_NAME?: string;
     CLUSTERING_TYPE?: 'kubernetesV2';
     DEBUG?: string;
     DEBUG_LOG_LEVEL?: Logger.LogLevelString;
@@ -107,6 +108,7 @@ export interface TestEnv {
     SKIP_IMAGE_DELETION?: boolean;
     STERN_LOGS?: boolean;
     TJM_TEST_MODE?: boolean;
+    TERASLICE_CLUSTER_NAME?: string;
     TERASLICE_IMAGE?: string;
     TERASLICE_PORT?: number;
     TEST_INDEX_PREFIX?: string;
@@ -157,7 +159,7 @@ export type E2ETestEnv = RequireKeys<
     TestEnv,
     'CERT_PATH' | 'DEBUG_LOG_LEVEL' | 'FILE_LOGGING' | 'HOST_IP' | 'KAFKA_BROKER'
     | 'KIND_CLUSTER' | 'NODE_VERSION' | 'SEARCH_TEST_HOST' | 'STERN_LOGS'
-    | 'TERASLICE_PORT' | 'TEST_INDEX_PREFIX' | 'TEST_PLATFORM'
+    | 'CLUSTER_NAME' | 'TERASLICE_PORT' | 'TEST_INDEX_PREFIX' | 'TEST_PLATFORM'
 >;
 
 export interface ScriptsConfigDefaults {
@@ -173,7 +175,7 @@ type ScriptsConfig = TestEnv & ScriptsConfigDefaults;
 export type ScriptsTestEnv = RequireKeys<
     ScriptsConfig,
     'ASSET_STORAGE_CONNECTION' | 'ASSET_STORAGE_CONNECTION_TYPE' | 'ATTACH_JEST_DEBUGGER'
-    | 'CERT_PATH' | 'CLUSTERING_TYPE' | 'TEST_PLATFORM'
+    | 'CERT_PATH' | 'CLUSTER_NAME' | 'CLUSTERING_TYPE' | 'TEST_PLATFORM'
     | 'DEFAULT_OPENSEARCH1_VERSION' | 'DEFAULT_OPENSEARCH2_VERSION'
     | 'DEFAULT_OPENSEARCH3_VERSION' | 'DEV_DOCKER_IMAGE' | 'DEV_TAG' | 'DOCKER_CACHE_PATH'
     | 'DOCKER_IMAGE_LIST_PATH' | 'DOCKER_IMAGES_PATH' | 'DOCKER_NETWORK_NAME'
