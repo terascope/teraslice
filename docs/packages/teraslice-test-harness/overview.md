@@ -377,6 +377,7 @@ Since this is downloading additional files to the asset be sure to add `./test/.
 To use this functionality add DownloadExternalAssets to a global setup file, ./test/global.setup.js.
 
 global.setup.js example:
+
 ```js
 const { DownloadExternalAsset } = require('teraslice-test-harness');
 
@@ -410,8 +411,15 @@ module.exports = {
 
 ```
 
-If set up properly the test will start by downloading the asset specified by the global setup file then proceed onto the tests.
+To download newer teraslice bundled assets that are architecture and os agnostic:
 
+```js
+const externalAssets = new DownloadExternalAsset(bundle);
+await externalAssets.downloadExternalAsset('terascope/elasticsearch-assets@v5.0.0'); 
+// downloads elasticsearch-v5.0.0-node-24-bundle.zip 
+```
+
+If set up properly the test will start by downloading the asset specified by the global setup file then proceed onto the tests.
 
 ## Builtin Operations
 
