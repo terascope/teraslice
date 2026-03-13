@@ -258,7 +258,6 @@ describe('cluster state', () => {
 
                 expect(state[nodes[0]].available).toBe('N/A');
 
-                // Both nodes should have at least one worker.
                 expect(findWorkers(state[nodes[0]].active, 'worker', exId).length).toBeGreaterThan(0);
                 // @ts-expect-error
                 expect(checkState(state, null, exId)).toBe(5);
