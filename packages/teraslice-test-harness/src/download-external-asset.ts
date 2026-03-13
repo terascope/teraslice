@@ -11,10 +11,12 @@ export class DownloadExternalAsset {
     unzipped_path: string;
     build: string;
 
-    constructor() {
+    constructor(bundle = false) {
         this.zipped_path = path.join(path.resolve('./test/.cache'), 'downloads');
         this.unzipped_path = path.join(path.resolve('./test/.cache'), 'assets');
-        this.build = `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch()}.zip`;
+        this.build = bundle
+            ? `node-${this._majorNodeVersion()}-bundle.zip`
+            : `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch()}.zip`;
     }
 
     async downloadExternalAsset(assetString: string): Promise<void> {
