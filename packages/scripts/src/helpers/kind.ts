@@ -210,7 +210,7 @@ export class Kind {
         if (configFile.nodes[0].extraMounts) {
             configFile.nodes[0].extraMounts[0].hostPath = path.join(e2eK8sDir, '..', 'autoload');
             if (devMode) {
-                const dockerFileMounts = getVolumesFromDockerfile(true, this.logger).extraMounts;
+                const dockerFileMounts = getVolumesFromDockerfile(false, this.logger).extraMounts;
                 configFile.nodes[0].extraMounts.push(...dockerFileMounts);
             }
         }
