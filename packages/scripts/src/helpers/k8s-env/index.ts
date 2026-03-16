@@ -1,10 +1,9 @@
-import { execaCommandSync } from 'execa';
 import path from 'node:path';
 import fs from 'node:fs';
 import { isCI } from '@terascope/core-utils';
 import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
-    isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
+    isKubectlInstalled, launchTerasliceWithHelmfile,
     helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
     generateTestCaCerts, dockerBuild, getConfigValueFromCustomYaml,
     launchTerasliceWithCustomHelmfile, setConfigValuesForCustomYaml
@@ -12,7 +11,7 @@ import {
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
 import signale from '../signale.js';
-import { getDevDockerImage, getRootInfo, getPackageManager } from '../misc.js';
+import { getDevDockerImage, getRootInfo } from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import config from '../config.js';
@@ -90,38 +89,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             await kind.destroyCluster();
         }
         process.exit(1);
-    }
-
-    // If --dev is true, we must run yarn setup before creating resources
-    // We need a local node_modules folder built to add it as a volume
-    if (options.dev) {
-        let imageVersion: string;
-        try {
-            if (options.configFile) {
-                // Will grab the image name from the yaml config so it can validate node version
-                imageVersion = await getNodeVersionFromImage(imageName);
-            } else {
-                imageVersion = await getNodeVersionFromImage(e2eImage);
-            }
-        } catch (err) {
-            await kind.destroyCluster();
-            throw new Error(`Problem running docker command to check node version: ${err}`);
-        }
-        if (process.version !== imageVersion) {
-            signale.fatal(`The node version this process is running on (${process.version}) does not match
-            the version set in k8s-env image (${imageVersion}). Check your version by running "node -v"`);
-            await kind.destroyCluster();
-            process.exit(1);
-        }
-        const pm = getPackageManager();
-        signale.info(`Running ${pm} setup with node ${process.version}...`);
-        try {
-            execaCommandSync(`${pm} run setup`);
-        } catch (err) {
-            signale.fatal(err);
-            await kind.destroyCluster();
-            process.exit(1);
-        }
     }
 
     signale.pending('Loading service images into kind cluster');
