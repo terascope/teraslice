@@ -1,6 +1,23 @@
 import { TestCase } from './interfaces.js';
+import { italy } from '../../fixtures/italy.js';
+import { xLuceneFieldType } from '@terascope/types';
 
 export default [
+    [
+        'can match a geo point of Rome to polygon italy',
+        'geometry:geoContainsPoint(point:"41.902782,12.496365")',
+        [italy],
+        [true],
+        { geometry: xLuceneFieldType.GeoJSON }
+    ],
+    [
+        'can match a geo shape polygon italy to point of rome',
+        'location:geoPolygon(points:$points)',
+        [{ location: '41.902782,12.496365' }],
+        [true],
+        { location: xLuceneFieldType.GeoPoint },
+        { points: italy.geometry }
+    ],
     [
         'can do basic geoDistance function call matches',
         'location:geoDistance(point:"33.435518,-111.873616" distance:5000m)',
