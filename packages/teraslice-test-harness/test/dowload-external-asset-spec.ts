@@ -202,7 +202,7 @@ describe('bundled assets', () => {
         const externalAsset = new DownloadExternalAsset(true);
         await externalAsset.downloadExternalAsset('terascope/standard-assets@v2.0.0');
 
-        expect(fs.pathExistsSync(path.join(externalPathLocation, 'downloads', `standard-v2.0.0-node-24-bundle.zip`))).toBe(true);
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'downloads', `standard-v2.0.0-node-${process.version.split('.', 1)[0].slice(1)}-bundle.zip`))).toBe(true);
         expect(fs.pathExistsSync(path.join(externalPathLocation, 'assets', 'standard-assets'))).toBe(true);
         expect(fs.pathExistsSync(path.join(externalPathLocation, 'assets', 'standard-assets', 'asset.json'))).toBe(true);
     });
