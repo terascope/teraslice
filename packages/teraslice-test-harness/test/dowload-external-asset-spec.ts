@@ -84,6 +84,10 @@ describe('download-external-asset', () => {
         nock.cleanAll();
     });
 
+    afterAll(() => {
+        nock.restore();
+    });
+
     it('should download an asset.zip from github and unzip the asset', async () => {
         gitHub
             .get('/repos/quantum/jungle/releases')
@@ -179,5 +183,27 @@ describe('download-external-asset', () => {
         expect(results[0].getMetadata('external')).toBeTrue();
 
         await harness.shutdown();
+    });
+});
+
+describe('bundled assets', () => {
+    const externalPathLocation = path.resolve('./test/.cache');
+
+    beforeEach(async () => {
+        await fs.remove(externalPathLocation);
+        await fs.ensureDir(externalPathLocation);
+    });
+
+    afterEach(async () => {
+        await fs.remove(externalPathLocation);
+    });
+
+    it('should download a teraslice bundled asset from github and unzip the asset', async () => {
+        const externalAsset = new DownloadExternalAsset(true);
+        await externalAsset.downloadExternalAsset('terascope/standard-assets@v2.0.0');
+
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'downloads', `standard-v2.0.0-node-${process.version.split('.', 1)[0].slice(1)}-bundle.zip`))).toBe(true);
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'assets', 'standard-assets'))).toBe(true);
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'assets', 'standard-assets', 'asset.json'))).toBe(true);
     });
 });
