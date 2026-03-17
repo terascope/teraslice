@@ -52,8 +52,7 @@ describe('recovery', () => {
         jobSpec.assets = await terasliceHarness.getBaseAssetIds();
         specIndex = terasliceHarness.newSpecIndex('test-recovery-job');
 
-        jobSpec.apis[0].index = terasliceHarness.getExampleIndex(1000);
-        jobSpec.apis[1].index = specIndex;
+        jobSpec.apis[0].index = specIndex;
 
         terasliceHarness.injectDelay(jobSpec);
 
@@ -151,10 +150,6 @@ describe('recovery', () => {
         recoverFromId = exConfig.ex_id;
         recoverFromEx = terasliceHarness.teraslice.executions.wrap(recoverFromId);
         job = terasliceHarness.teraslice.jobs.wrap(exConfig.job_id);
-    });
-
-    it('tests are disabled', () => {
-        expect(true).toEqual(true);
     });
 
     it('can support different recovery mode cleanup=errors', async () => {

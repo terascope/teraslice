@@ -163,7 +163,9 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         if (options.configFile) {
             await launchTerasliceWithCustomHelmfile(options.configFile, options.debug);
         } else {
-            await launchTerasliceWithHelmfile(options.clusteringType, options.dev, options.logs);
+            await launchTerasliceWithHelmfile(
+                options.clusteringType, options.dev, options.logs, options.debug, false
+            );
         }
         signale.pending('Teraslice launched with helmfile');
     } catch (err) {
@@ -280,9 +282,11 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
     try {
         signale.pending('Launching rebuilt teraslice with helmfile');
         if (options.configFile) {
-            await launchTerasliceWithCustomHelmfile(options.configFile);
+            await launchTerasliceWithCustomHelmfile(options.configFile, options.debug);
         } else {
-            await launchTerasliceWithHelmfile(options.clusteringType, options.dev, options.logs);
+            await launchTerasliceWithHelmfile(
+                options.clusteringType, options.dev, options.logs, options.debug, false
+            );
         }
         signale.pending('Rebuilt Teraslice launched with helmfile');
     } catch (err) {
