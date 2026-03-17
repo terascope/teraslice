@@ -22,4 +22,7 @@ ENV TERAFOUNDATION_CONFIG=/app/config/teraslice.yaml
 ENTRYPOINT ["/sbin/tini", "--"]
 # Install node_modules inside the container so native binaries (e.g. confluent kafka)
 # are built for Linux, then start nodemon for hot-reloading.
-CMD ["pnpm install --frozen-lockfile && nodemon --exitcrash service.js"]
+# We ignore changes from dist files and node_modules and only look at src dirs. 
+# On every change/restart we want to run "pnpm build:force" as the service.js file only links to dist
+# We need to run build force because the dist directory is on the host and could conflict with the containers environment
+CMD ["bash", "-c", "pnpm install --frozen-lockfile && nodemon --watch src --watch packages --ext ts,js,json --ignore '**/node_modules/**' --ignore '**/dist/**' --exec \"pnpm build:force && node service.js\""]
