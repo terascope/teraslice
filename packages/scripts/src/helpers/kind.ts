@@ -40,7 +40,6 @@ export class Kind {
     }
 
     async createCluster(
-        teraslicePort = TERASLICE_PORT,
         devMode: boolean = false,
         customConfigPath?: string
     ): Promise<void> {
@@ -220,8 +219,6 @@ export class Kind {
                 containerPath: '/certs'
             });
         }
-        configFile.nodes[0].extraPortMappings[0].hostPort = teraslicePort;
-        this.deployedPorts.teraslice = teraslicePort;
         const updatedYaml = yaml.dump(configFile);
         signale.debug(`Final kind config yaml: ${updatedYaml}`);
 
