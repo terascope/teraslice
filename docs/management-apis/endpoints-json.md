@@ -117,7 +117,7 @@ $ curl 'http://localhost:5678/v1/cluster/stats'
 
 ## GET /v1/assets
 
-Retreives a list of assets
+Retrieves a list of assets
 
 **Query Options:**
 
@@ -239,7 +239,7 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 **Filterable Fields:**
 
 | Field | Type | Description |
-|-------|------|-------------|
+| ------- | ------ | ------------- |
 | `job_id` | keyword | Job identifier |
 | `name` | text | Job name |
 | `active` | boolean | Whether job is active |
@@ -285,7 +285,7 @@ Setting `deleted` to `true` will return all `_deleted: true` jobs.
 The parameter `size` is the number of documents returned, `from` is how many
 documents in and `sort` is a lucene query.
 
-Refer to the returned object in [GET v1/ex](#get-v1ex) for valid `ex` parameter fields. This option is also used [here](#get-v1jobsjobid) and described in more detail.
+Refer to the returned object in [GET v1/ex](#get-v1ex) for valid `ex` parameter fields. This option is also used for [GET /v1/jobs/\{jobId\}](#get-v1jobsjobid) and described in more detail.
 
 **Usage:**
 
@@ -309,7 +309,7 @@ $ curl 'localhost:5678/v1/jobs'
 ]
 ```
 
-## GET /v1/jobs/\{jobId\};
+## GET /v1/jobs/\{jobId\}
 
 Returns the job that matches given job id.
 
@@ -317,10 +317,9 @@ Returns the job that matches given job id.
 
 - `ex: string = [execution controller field options]`
 
-You can pass in a query using `ex` which takes field options for what you want returned in the `ex` object. This gives information on the current execution accociated with the specified job. If no execution is present, it will return the `ex` field with an empty object. If no fields are passed in, it will return all fields. Fields MUST be separated with commas. Example: `localhost:5678/v1/jobs/<job_id>?ex=_status,assets`
+You can pass in a query using `ex` which takes field options for what you want returned in the `ex` object. This gives information on the current execution associated with the specified job. If no execution is present, it will return the `ex` field with an empty object. If no fields are passed in, it will return all fields. Fields MUST be separated with commas. Example: `localhost:5678/v1/jobs/<job_id>?ex=_status,assets`
 
 Look at the returned object in [GET v1/ex](#get-v1ex) for valid field names.
-
 
 **Usage:**
 
@@ -341,7 +340,9 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd'
     "_context": "job"
 }
 ```
+
 When getting a job with current execution info:
+
 ```sh
 $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd?ex=assets,_status'
 {
@@ -479,6 +480,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_stop
 ```
 
 Remove orphaned pods from a failed job:
+
 ```sh
 $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_stop?force=true'
 {
@@ -515,7 +517,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_resu
 
 ## POST /v1/jobs/\{jobId\}/_recover
 
-**IMPORTANT** When recovering an job, the last execution ran will be recovered but any changes applied to the job since the recovery will be applied.
+**IMPORTANT** When recovering a job, the last execution ran will be recovered but any changes applied to the job since the recovery will be applied.
 
 Issues a recover command, this can only be run if current execution is in a terminated status, the job will attempt to retry failed slices and to resume where it previously left off. If `cleanup_type` parameter is specified it will NOT resume where it left off and exit after recovery completes. If the `cleanup_type` parameter is set to `all`, then it will attempt to reprocess all slices left in error or started status, if it is set to  `errors` then it will only reprocess state records that are marked as error. If it is set to `pending` only the slices that haven't been `completed`, or marked as `failed`, will be ran.
 
@@ -660,7 +662,7 @@ This endpoint will return an array of all errors from all executions from oldest
 **Filterable Fields:**
 
 | Field | Type |
-|-------|------|
+| ------- | ------ |
 | `ex_id` | keyword |
 | `slice_id` | keyword |
 | `slicer_id` | keyword |
@@ -691,10 +693,9 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/errors'
 ]
 ```
 
-## DELETE /v1/jobs/\{jobId\};
+## DELETE /v1/jobs/\{jobId\}
 
 Issues a delete command, deleting the job and all related execution contexts. Deletion is PERMANENT. Once a job is deleted it cannot be started, updated, or recovered. The job must have a terminal status to be deleted. Any orphaned K8s resources associated with the job will also be deleted. The `active` field will automatically be set to `false`.
-
 
 **Usage:**
 
@@ -735,7 +736,7 @@ Returns all execution contexts (job invocations).
 **Filterable Fields:**
 
 | Field | Type | Description |
-|-------|------|-------------|
+| ------- | ------ | ------------- |
 | `job_id` | keyword | Job identifier |
 | `ex_id` | keyword | Execution identifier |
 | `name` | text | Job name |
@@ -894,7 +895,7 @@ Returns all execution errors.
 **Filterable Fields:**
 
 | Field | Type |
-|-------|------|
+| ------- | ------ |
 | `ex_id` | keyword |
 | `slice_id` | keyword |
 | `slicer_id` | keyword |
@@ -941,7 +942,7 @@ This endpoint will return an array of all errors from the specified execution fr
 **Filterable Fields:**
 
 | Field | Type |
-|-------|------|
+| ------- | ------ |
 | `ex_id` | keyword |
 | `slice_id` | keyword |
 | `slicer_id` | keyword |
@@ -994,6 +995,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_stop'
 ```
 
 Remove orphaned pods from a failed job:
+
 ```sh
 $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_stop?force=true'
 {
@@ -1030,7 +1032,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_resume
 
 ## POST /v1/ex/\{exId\}/_recover
 
-**IMPORTANT** When recovering an execution, the configuration from is copied from that execution and any changes added to the job will not be applied. Additionally, recovering an execution that is not the last ran execution for a job should be used with caution. For these reasons it is recommended to [recover a job](#post-v1jobsjobid_recover) unless you need the above recommendations.
+**IMPORTANT** When recovering an execution, the configuration is copied from that execution and any changes added to the job will not be applied. Additionally, recovering an execution that is not the last ran execution for a job should be used with caution. For these reasons it is recommended to [recover a job](#post-v1jobsjobid_recover) unless you need the above recommendations.
 
 Issues a recover command, this can only be run if the execution is stopped, the job will attempt to retry failed slices and to resume where it previously left off. If `cleanup_type` parameter is specified it will NOT resume where it left off and exit after recovery completes. If the `cleanup_type` parameter is set to `all`, then it will attempt to reprocess all slices left in error or started status, if it is set to  `errors` then it will only reprocess state records that are marked as error. If it is set to `pending` only the slices that haven't been `completed`, or marked as `failed`, will be ran.
 
