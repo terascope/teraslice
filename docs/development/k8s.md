@@ -113,6 +113,89 @@ called `local` as follows.
 earl aliases add local http://localhost:5678
 ```
 
+### Dev Mode (`--dev`)
+
+Dev mode enables a faster iteration cycle when actively developing Teraslice itself. Instead of rebuilding and reloading a Docker image on every change, it mounts your local repository directly into the Kind cluster and uses [nodemon](https://nodemon.io/) to watch for file changes and hot-reload.
+
+```bash
+# from the teraslice root directory:
+pnpm k8s --dev
+
+# from any other directory:
+TEST_OPENSEARCH=true OPENSEARCH_PORT=9200 pnpm run ts-scripts k8s-env --dev
+```
+
+#### How It Works
+
+When `--dev` is passed, two things change:
+
+**1. A different Docker image is used (`Dockerfile.dev`)**
+
+Instead of the standard production image, a lightweight image is built that:
+- Installs nodemon globally
+- On startup, runs `pnpm install --frozen-lockfile` inside the container (so native binaries are built for Linux)
+- Then launches nodemon, watching `src/` and `packages/` for `.ts`, `.js`, and `.json` changes
+- On any detected change, runs `pnpm build:force && node service.js`
+
+This means the container picks up your source edits without needing a Docker rebuild.
+
+**2. Your local repo is mounted into the Kind cluster node**
+
+A different Kind config (`kindConfigDefaultPortsDev.yaml`) is used that bind-mounts the following from your host into the Kind node:
+
+| Host path | Kind node path |
+|---|---|
+| `./packages` | `/packages` |
+| `./scripts` | `/scripts` |
+| `./types` | `/types` |
+| `./package.json` | `/package.json` |
+| `./pnpm-lock.yaml` | `/pnpm-lock.yaml` |
+| `./pnpm-workspace.yaml` | `/pnpm-workspace.yaml` |
+| `./tsconfig.json` | `/tsconfig.json` |
+| `./service.js` | `/service.js` |
+
+These are then mounted into the Teraslice pods, so the running container sees your live source files.
+
+#### Workflow
+
+1. Run `pnpm k8s --dev` — this builds the dev image and spins up the cluster (~5 min first time)
+2. Edit TypeScript source files in `packages/` on your host
+3. nodemon detects the change inside the container, runs `pnpm build:force`, and restarts the Teraslice master automatically
+4. Stop and restart any running jobs to pick up the changes (see below)
+
+> **Note:** `pnpm install` runs inside the container on startup (not on the host) so that native binaries like the Confluent Kafka client are built for Linux. Subsequent restarts triggered by nodemon skip the install step.
+
+#### Applying Changes to Running Jobs
+
+nodemon only restarts the **master** process. Changes to source files are **not** automatically applied to running execution controller or worker pods. This is intentional — Teraslice's execution controller has its own internal restart tracking that monitors pod restarts and will fail a job if too many unexpected restarts occur. Triggering container-level restarts via nodemon on worker pods would interfere with that logic.
+
+To apply your changes to a running job:
+
+1. Make your source code changes
+2. Wait for nodemon to rebuild and restart the master (watch the master pod logs)
+3. Stop the job: `earl tjm stop <job-file>`
+4. Start the job again: `earl tjm start <job-file>`
+
+The new execution controller and worker pods that spin up will use the updated code.
+
+#### What Triggers a Restart
+
+nodemon watches only for changes inside `src/` directories. Changes to `package.json` files do **not** trigger a restart.
+
+#### Known Limitation: Dependency Changes
+
+If you make a change that would modify `pnpm-lock.yaml` — for example, adding, bumping, or removing a dependency in a `package.json` — the cluster will break and workers will fail to start. This happens because the lock file mounted into the cluster no longer matches the installed `node_modules`.
+
+The recommended workaround is to tear down and rebuild from scratch:
+
+```bash
+kind delete cluster -n k8s-env
+pnpm install          # apply the dependency change on the host
+pnpm k8s --dev        # redeploy the dev environment
+```
+
+This is an accepted limitation since dependency changes are infrequent and not a typical tight iteration loop.
+
 ### Launching a Teraslice Job
 
 After setting up a `local` alias, you can prepare and launch an example
