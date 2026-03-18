@@ -1,10 +1,9 @@
-import { execaCommandSync } from 'execa';
 import path from 'node:path';
 import fs from 'node:fs';
-import { isCI } from '@terascope/core-utils';
+import { isCI, pRetry } from '@terascope/core-utils';
 import {
     dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
-    isKubectlInstalled, getNodeVersionFromImage, launchTerasliceWithHelmfile,
+    isKubectlInstalled, launchTerasliceWithHelmfile,
     helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
     generateTestCaCerts, dockerBuild, getConfigValueFromCustomYaml,
     launchTerasliceWithCustomHelmfile, setConfigValuesForCustomYaml
@@ -12,7 +11,7 @@ import {
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
 import signale from '../signale.js';
-import { getDevDockerImage, getRootInfo, getPackageManager } from '../misc.js';
+import { getDevDockerImage, getRootInfo } from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import config from '../config.js';
@@ -65,7 +64,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     signale.pending('Creating kind cluster');
     const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
     try {
-        await kind.createCluster(options.tsPort, options.dev, options.configFile);
+        await kind.createCluster(options.dev, options.configFile);
     } catch (err) {
         signale.error(err);
         // Do not destroy existing cluster if that was the cause of failure
@@ -90,38 +89,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             await kind.destroyCluster();
         }
         process.exit(1);
-    }
-
-    // If --dev is true, we must run yarn setup before creating resources
-    // We need a local node_modules folder built to add it as a volume
-    if (options.dev) {
-        let imageVersion: string;
-        try {
-            if (options.configFile) {
-                // Will grab the image name from the yaml config so it can validate node version
-                imageVersion = await getNodeVersionFromImage(imageName);
-            } else {
-                imageVersion = await getNodeVersionFromImage(e2eImage);
-            }
-        } catch (err) {
-            await kind.destroyCluster();
-            throw new Error(`Problem running docker command to check node version: ${err}`);
-        }
-        if (process.version !== imageVersion) {
-            signale.fatal(`The node version this process is running on (${process.version}) does not match
-            the version set in k8s-env image (${imageVersion}). Check your version by running "node -v"`);
-            await kind.destroyCluster();
-            process.exit(1);
-        }
-        const pm = getPackageManager();
-        signale.info(`Running ${pm} setup with node ${process.version}...`);
-        try {
-            execaCommandSync(`${pm} run setup`);
-        } catch (err) {
-            signale.fatal(err);
-            await kind.destroyCluster();
-            process.exit(1);
-        }
     }
 
     signale.pending('Loading service images into kind cluster');
@@ -167,7 +134,10 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
                 options.clusteringType, options.dev, options.logs, options.debug, false
             );
         }
-        signale.pending('Teraslice launched with helmfile');
+        signale.success('Teraslice launched with helmfile');
+        signale.pending('Ensuring Teraslice api is up...');
+        await ensureTeraslice();
+        signale.success('Teraslice api is up and running!');
     } catch (err) {
         signale.fatal('Error deploying Teraslice: ', err);
         if (!options.keepOpen) {
@@ -223,6 +193,30 @@ function buildNextStepsMessage(kind: Kind, options: K8sEnvOptions): string {
     }
 
     return lines.join('\n');
+}
+
+/**
+ * Hits the Teraslice API endpoint until it responds with a valid response
+ * containing `teraslice_version`. Retries up to 7 times with exponential backoff.
+ * Throws if the endpoint never becomes healthy.
+ */
+async function ensureTeraslice(): Promise<void> {
+    await pRetry(async () => {
+        const res = await fetch(`http://localhost:${config.TERASLICE_PORT}`);
+
+        if (!res.ok) {
+            throw new Error(`Failed to hit teraslice endpoint: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        // Checking to see if it has 'teraslice_version key which it should always have.
+        if (Object.keys(data).includes('teraslice_version')) {
+            return;
+        } else {
+            throw new Error(`Teraslice endpoint returned an object that didn't have 'teraslice_version' as a key: ${data}`);
+        }
+    }, { retries: 7, delay: 1000, backoff: 1.5, maxDelay: 12000 });
 }
 
 export async function rebuildTeraslice(options: K8sEnvOptions) {

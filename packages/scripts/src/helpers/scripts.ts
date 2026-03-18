@@ -1142,7 +1142,19 @@ function generateHelmValuesFromServices(
     values.setIn(['teraslice', 'e2e'], e2e);
 
     if (devMode) {
-        const dockerfileMounts = getVolumesFromDockerfile(true, logger);
+        const dockerfileMounts = getVolumesFromDockerfile(false, logger);
+
+        // Shared node_modules volume: lives on the Kind node
+        // mounted into all pods so only the master runs pnpm install once.
+        dockerfileMounts.volumes.push({
+            name: 'dev-node-modules',
+            hostPath: { path: '/dev-node-modules', type: 'DirectoryOrCreate' }
+        });
+        dockerfileMounts.volumeMounts.push({
+            name: 'dev-node-modules',
+            mountPath: '/app/source/node_modules'
+        });
+
         values.setIn(['teraslice', 'extraVolumeMounts'], dockerfileMounts.volumeMounts);
         values.setIn(['teraslice', 'extraVolumes'], dockerfileMounts.volumes);
 

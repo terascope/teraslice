@@ -9,6 +9,7 @@ WORKDIR /app/source
 RUN apk --no-cache add tini ca-certificates bash
 
 # Install nodemon globally so we can use it with the CMD
+ENV PNPM_HOME=/usr/local/bin
 RUN corepack enable && pnpm add -g nodemon@3.1.4
 
 EXPOSE 5678
@@ -19,4 +20,9 @@ ENV TERAFOUNDATION_CONFIG=/app/config/teraslice.yaml
 
 # Make tini PID 1, then exec your service
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["nodemon", "--exitcrash", "service.js"]
+# Install node_modules inside the container so native binaries (e.g. confluent kafka)
+# are built for Linux, then start nodemon for hot-reloading.
+# We ignore changes from dist files and node_modules and only look at src dirs. 
+# On every change/restart we want to run "pnpm build:force" as the service.js file only links to dist
+# We need to run build force because the dist directory is on the host and could conflict with the containers environment
+CMD ["bash", "-c", "pnpm install --frozen-lockfile && nodemon --watch src --watch packages --ext ts,js,json --ignore '**/node_modules/**' --ignore '**/dist/**' --exec \"pnpm build:force && node service.js\""]
