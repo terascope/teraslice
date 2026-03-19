@@ -74,7 +74,7 @@ export default class ExampleFetcher extends Fetcher {
 
 ## Building Your Own
 
-You can build a custom dead letter queue similar to how you develop an [Operation API](./development.md#operation-api), the main difference is that the API returned via (`createAPI`) is a synchronous `function` that takes the invalid record as the first argument and error as the second argument.
+You can build a custom dead letter queue similar to how you develop an [Operation API](./types-of-operations.md#operation-api), the main difference is that the API returned via (`createAPI`) is a synchronous `function` that takes the invalid record as the first argument and error as the second argument.
 
 **IMPORTANT:** Since this is a generic dead letter queue API, the arguments for invalid record and the error may vary in data structure or type, so make sure to handle any edge cases.
 

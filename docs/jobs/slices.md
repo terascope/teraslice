@@ -4,7 +4,7 @@ title: Slices
 
 Slices are like heartbeats within teraslice, each heartbeat tracks metadata around the work being down.
 
-A Slice request is created by the [Slicer](./types-of-operations.md#Slicers) and the Execution Controller wraps the request with [Slice Metadata](#slice-metadata) stored in the state store in Teraslice and distributes the slice to the available Workers.
+A Slice request is created by the [Slicer](./types-of-operations.md#slicers) and the Execution Controller wraps the request with [Slice Metadata](#slice-metadata) stored in the state store in Teraslice and distributes the slice to the available Workers.
 
 ## Slice Metadata
 
@@ -23,7 +23,7 @@ A Slice request is created by the [Slicer](./types-of-operations.md#Slicers) and
 
 ## Slicer Lifecycle Events
 
-A [Slicer](./types-of-operations.md#Slicers) can handle the following events:
+A [Slicer](./types-of-operations.md#slicers) can handle the following events:
 
 ### `->onSliceEnqueued`
 
@@ -98,7 +98,7 @@ See [WorkerOperationLifeCycle](../packages/job-components/api/interfaces/operati
 
 ## Flushing
 
-A "flush" is an event used to persist any in-memory state or to push any additional data through the pipeline. This is currently only done on shutdown but that may change. Before a "flush" starts the [onFlushStart](#-onFlushStart) is called. Then the previously known "slice" is passed through the pipeline, at that time the processors should persist or pass-along their in-memory state. When the "flush" completes, [onFlushEnd](#-onFlushEnd) is called. The flush always happens before `shutdown` is called.
+A "flush" is an event used to persist any in-memory state or to push any additional data through the pipeline. This is currently only done on shutdown but that may change. Before a "flush" starts the [onFlushStart](#-onflushstart) is called. Then the previously known "slice" is passed through the pipeline, at that time the processors should persist or pass-along their in-memory state. When the "flush" completes, [onFlushEnd](#-onflushend) is called. The flush always happens before `shutdown` is called.
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--TypeScript-->
