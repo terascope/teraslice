@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import ms from 'ms';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { X509Certificate } from 'node:crypto';
 import { execa, execaCommand, type Options } from 'execa';
 import fse from 'fs-extra';
@@ -25,8 +24,6 @@ import { getE2EDir } from '../helpers/packages.js';
 import { getVolumesFromDockerfile } from './kind.js';
 
 const logger = debugLogger('ts-scripts:cmd');
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
 
 export type ExecEnv<T extends TestEnv = TestEnv>
     = T & { [name: string]: any };
