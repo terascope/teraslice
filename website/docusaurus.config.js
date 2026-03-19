@@ -25,7 +25,6 @@ module.exports = {
     },
     trailingSlash: true,
     onBrokenLinks: 'log',
-    onBrokenMarkdownLinks: 'log',
     presets: [
         [
             '@docusaurus/preset-classic',
@@ -47,6 +46,9 @@ module.exports = {
     ],
     plugins: [],
     markdown: {
+        hooks: {
+            onBrokenMarkdownLinks: 'log',
+        },
         mermaid: true,
         parseFrontMatter: async (params) => {
             // Wrap title value in double quotes if it has illegal character ':'
