@@ -343,6 +343,19 @@ importers:
       graphql:
         specifier: ~16.12.0
         version: 16.12.0
+    devDependencies:
+      '@terascope/ip-utils':
+        specifier: ^2.3.2
+        version: 2.3.2
+      '@turf/random':
+        specifier: ~7.3.4
+        version: 7.3.4
+      '@types/chance':
+        specifier: ^1.1.7
+        version: 1.1.7
+      chance:
+        specifier: ~1.1.13
+        version: 1.1.13
 
   packages/docker-compose-js:
     dependencies:
@@ -2390,6 +2403,10 @@ packages:
     resolution: {integrity: sha512-YS+lPYICczrs2JUXJ3l0T4xwMpEXvKezgTwTks7kn39WJqCO5a8ZZQ9iBY4fccxZnv5qf5zcoYp4KFydSem8Yg==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
+  '@terascope/core-utils@2.3.2':
+    resolution: {integrity: sha512-eNjXVvUvcnxYLdngZH7rF/bzx0NOPBPsHJGfuKiFAXU50qmz1MPJvsHG7V/qcQp1k4Mda223I6b4mMtILA+RYQ==}
+    engines: {node: '>=22.0.0', pnpm: '>=10.25.0'}
+
   '@terascope/fetch-github-release@2.2.2':
     resolution: {integrity: sha512-xpo2N0qD3ggfRI2Iw2SZdGM7OgqIgxMTc0SE0X2aEzumKjFzIqWfOSqip6un7wlEl0qso18DPcnTESmoP6m5WA==}
     engines: {node: '>=22.0.0'}
@@ -2399,9 +2416,17 @@ packages:
     resolution: {integrity: sha512-eC0O18P0xcpe2jnG3uNLzsR8njjR59SGSDopS0uVopsHt5sJ4d+yNg/NvdeWTLnHZy4aQVOKUzO3vBt+4fVFtg==}
     engines: {node: '>=22.21.1', yarn: '>=1.22.19'}
 
+  '@terascope/ip-utils@2.3.2':
+    resolution: {integrity: sha512-LplPqD0FfUzGQjVOpVzBeC1tGKKNXkB/s1Kr5/9Ryv3QThjwbneDxCOp6uPIvyZHQzAutrBRiO6OGIcyv2izLQ==}
+    engines: {node: '>=22.0.0', pnpm: '>=10.25.0'}
+
   '@terascope/types@2.2.0':
     resolution: {integrity: sha512-YIWJ0PALbFbGe3HqzyasEzXuD5E9jnJTEH0fsyM0zXi/z+OrunT1HacEpdwE1s5OOjM8mYMsB95yRfRwz75BXQ==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
+
+  '@terascope/types@2.3.1':
+    resolution: {integrity: sha512-5R+O3OK7T4GVvvmGBAdwsuTtm4pOLUB5hdkxobcGq1DAP5e4bpkXQ1PrAbPm0Nu+1TGvhBZb2JYqTrIIEHVPBg==}
+    engines: {node: '>=22.0.0', pnpm: '>=10.25.0'}
 
   '@turf/bbox-polygon@7.3.4':
     resolution: {integrity: sha512-XCDYQwCA41Bum3R1xX0Na1nR4ozoe/pCYy5bxqrzyMs87kPJUIfBrD5IWxjnZyLqFpfEpolMHJz5ed1uA2PanQ==}
@@ -2510,6 +2535,9 @@ packages:
 
   '@types/bunyan@1.8.11':
     resolution: {integrity: sha512-758fRH7umIMk5qt5ELmRMff4mLDlN+xyYzC+dkPTdKwbSkJFvz6xwyScrytPU0QIBbRRwbiE8/BIg8bpajerNQ==}
+
+  '@types/chance@1.1.7':
+    resolution: {integrity: sha512-40you9610GTQPJyvjMBgmj9wiDO6qXhbfjizNYod/fmvLSfUUxURAJMTD8tjmbcZSsyYE5iEUox61AAcCjW/wQ==}
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
@@ -8226,6 +8254,28 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@terascope/core-utils@2.3.2':
+    dependencies:
+      '@terascope/types': 2.3.1
+      awesome-phonenumber: 7.8.0
+      bunyan: 1.8.15
+      date-fns: 4.1.0
+      date-fns-tz: 3.2.0(date-fns@4.1.0)
+      datemath-parser: 1.0.6
+      debug: 4.4.3
+      is-plain-object: 5.0.0
+      js-string-escape: 1.0.1
+      kind-of: 6.0.3
+      lodash-es: 4.17.23
+      mnemonist: 0.40.3
+      moment: 2.30.1
+      p-map: 7.0.4
+      shallow-clone: 3.0.1
+      validator: 13.15.26
+      zod: 4.1.13
+    transitivePeerDependencies:
+      - supports-color
+
   '@terascope/fetch-github-release@2.2.2':
     dependencies:
       extract-zip: 2.0.1
@@ -8250,7 +8300,25 @@ snapshots:
       - aws-crt
       - supports-color
 
+  '@terascope/ip-utils@2.3.2':
+    dependencies:
+      '@chainsafe/is-ip': 2.1.0
+      '@terascope/core-utils': 2.3.2
+      '@terascope/types': 2.3.1
+      cidr-calc: 1.0.4
+      ip-bigint: 8.2.7
+      ip-cidr: 4.0.2
+      ip6addr: 0.2.5
+      ipaddr.js: 2.3.0
+      is-cidr: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@terascope/types@2.2.0':
+    dependencies:
+      prom-client: 15.1.3
+
+  '@terascope/types@2.3.1':
     dependencies:
       prom-client: 15.1.3
 
@@ -8503,6 +8571,8 @@ snapshots:
   '@types/bunyan@1.8.11':
     dependencies:
       '@types/node': 24.4.0
+
+  '@types/chance@1.1.7': {}
 
   '@types/connect@3.4.38':
     dependencies:
