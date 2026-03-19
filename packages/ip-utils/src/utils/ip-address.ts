@@ -33,13 +33,6 @@ function intToIPv4String(n: bigint): string {
         .join('.');
 }
 
-/**
- * Parse IPv6 string → 128-bit BigInt.
- * Handles: compressed (::), embedded IPv4 (::a.b.c.d and ::ffff:a.b.c.d),
- * scope IDs (%zone), uppercase.
- * Per ipaddr.js behaviour: ::a.b.c.d is rewritten as ::ffff:a.b.c.d.
- * Returns null on failure.
- */
 function parseIPv6Int(raw: string): bigint | null {
     // Strip scope ID
     const scopeIdx = raw.indexOf('%');

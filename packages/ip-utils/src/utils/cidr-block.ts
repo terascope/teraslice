@@ -110,11 +110,6 @@ export class CIDRBlock {
         return CIDRBlock._parse(input) !== null;
     }
 
-    /**
-     * Returns 4 if IPv4 CIDR, 6 if IPv6 CIDR, 0 if invalid.
-     * Replaces is-cidr's isCidr().
-     * Only accepts CIDR with prefix > 0.
-     */
     static isCidr(input: string): 4 | 6 | 0 {
         if (typeof input !== 'string') return 0;
 
