@@ -1163,6 +1163,12 @@ function generateHelmValuesFromServices(
 
     if (logs) {
         values.setIn(['stern', 'enabled'], true);
+        const arch = os.arch() === 'x64' ? 'amd64' : 'arm64';
+        const sternVersion = '1.30.0';
+        values.setIn(
+            ['stern', 'downloadUrl'],
+            `https://github.com/stern/stern/releases/download/v${sternVersion}/stern_${sternVersion}_linux_${arch}.tar.gz`
+        );
     }
 
     logger.debug('helmfile command values: ', JSON.stringify(values));
