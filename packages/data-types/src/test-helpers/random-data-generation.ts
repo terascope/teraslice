@@ -12,7 +12,7 @@ const chance = new Chance();
  */
 export function makeRandomDataForField(config: DataTypeFieldConfig, field: string) {
     const {
-        type, array, dimension: vectorSize = 4 // TODO locale & format
+        type, array, dimension: vectorSize = 4, // TODO locale & format
     } = config;
 
     const dataFnForFieldType: Record<FieldType, () => any> = {
@@ -31,10 +31,10 @@ export function makeRandomDataForField(config: DataTypeFieldConfig, field: strin
         [FieldType.Domain]: () => chance.domain(),
         [FieldType.Double]: () => chance.floating(), // 64-bit IEEE 754 finite
         [FieldType.Float]: () => chance.floating(), // 32-bit IEEE 754 finite
-        [FieldType.Geo]: () => ({
-            latitude: chance.latitude(),
-            longitude: chance.longitude()
-        }),
+        [FieldType.Geo]: () => {
+            const [longitude, latitude] = randomPoint().features[0].geometry.coordinates;
+            return { latitude, longitude };
+        },
         [FieldType.GeoJSON]: () => {
             const geoType = chance.pickone([
                 GeoShapeType.MultiPolygon,
@@ -58,7 +58,6 @@ export function makeRandomDataForField(config: DataTypeFieldConfig, field: strin
                 multiCoords.push(feat.geometry.coordinates);
             });
 
-            // same as @turf/helpers-multiPolygon(multi).geometry.coordinates[0]
             return {
                 type: GeoShapeType.MultiPolygon,
                 coordinates: multiCoords
@@ -143,8 +142,9 @@ export function makeRandomDataForField(config: DataTypeFieldConfig, field: strin
         const things: (keyof Chance.Chance)[] = [
             'first',
             'last',
-            'name', // only if no first/last
-            // try keep alphabetical
+            // NAME - if no first/last
+            'name',
+            // try keep alphabetical except for name/hash
             'address',
             'animal',
             'areacode',
@@ -156,7 +156,8 @@ export function makeRandomDataForField(config: DataTypeFieldConfig, field: strin
             'email',
             'gender',
             'hashtag',
-            'hash', // only if no hashtag
+            // HASH - if no hashtag
+            'hash',
             'locale',
             'month',
             'phone',
