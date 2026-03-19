@@ -41,13 +41,13 @@ export default async () => {
     // Try to load in the cache before trying to download
     loadAssetCache();
 
+    await Promise.all([setupTerasliceConfig(), downloadAssets()]);
+
     if (TEST_PLATFORM === 'kubernetesV2') {
-        await downloadAssets();
         await helmfileCommand('sync', TEST_PLATFORM, undefined, STERN_LOGS);
         await teraslice.waitForTeraslice();
         await setAlias(TERASLICE_PORT);
     } else {
-        await Promise.all([setupTerasliceConfig(), downloadAssets()]);
         await dockerUp();
         await teraslice.waitForTeraslice();
     }

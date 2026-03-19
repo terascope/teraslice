@@ -113,6 +113,89 @@ called `local` as follows.
 earl aliases add local http://localhost:5678
 ```
 
+### Dev Mode (`--dev`)
+
+Dev mode enables a faster iteration cycle when actively developing Teraslice itself. Instead of rebuilding and reloading a Docker image on every change, it mounts your local repository directly into the Kind cluster and uses [nodemon](https://nodemon.io/) to watch for file changes and hot-reload.
+
+```bash
+# from the teraslice root directory:
+pnpm k8s --dev
+
+# from any other directory:
+TEST_OPENSEARCH=true OPENSEARCH_PORT=9200 pnpm run ts-scripts k8s-env --dev
+```
+
+#### How It Works
+
+When `--dev` is passed, two things change:
+
+**1. A different Docker image is used (`Dockerfile.dev`)**
+
+Instead of the standard production image, a lightweight image is built that:
+- Installs nodemon globally
+- On startup, runs `pnpm install --frozen-lockfile` inside the container (so native binaries are built for Linux)
+- Then launches nodemon, watching `src/` and `packages/` for `.ts`, `.js`, and `.json` changes
+- On any detected change, runs `pnpm build:force && node service.js`
+
+This means the container picks up your source edits without needing a Docker rebuild.
+
+**2. Your local repo is mounted into the Kind cluster node**
+
+A different Kind config (`kindConfigDefaultPortsDev.yaml`) is used that bind-mounts the following from your host into the Kind node:
+
+| Host path | Kind node path |
+|---|---|
+| `./packages` | `/packages` |
+| `./scripts` | `/scripts` |
+| `./types` | `/types` |
+| `./package.json` | `/package.json` |
+| `./pnpm-lock.yaml` | `/pnpm-lock.yaml` |
+| `./pnpm-workspace.yaml` | `/pnpm-workspace.yaml` |
+| `./tsconfig.json` | `/tsconfig.json` |
+| `./service.js` | `/service.js` |
+
+These are then mounted into the Teraslice pods, so the running container sees your live source files.
+
+#### Workflow
+
+1. Run `pnpm k8s --dev` — this builds the dev image and spins up the cluster (~5 min first time)
+2. Edit TypeScript source files in `packages/` on your host
+3. nodemon detects the change inside the container, runs `pnpm build:force`, and restarts the Teraslice master automatically
+4. Stop and restart any running jobs to pick up the changes (see below)
+
+> **Note:** `pnpm install` runs inside the container on startup (not on the host) so that native binaries like the Confluent Kafka client are built for Linux. Subsequent restarts triggered by nodemon skip the install step.
+
+#### Applying Changes to Running Jobs
+
+nodemon only restarts the **master** process. Changes to source files are **not** automatically applied to running execution controller or worker pods. This is intentional — Teraslice's execution controller has its own internal restart tracking that monitors pod restarts and will fail a job if too many unexpected restarts occur. Triggering container-level restarts via nodemon on worker pods would interfere with that logic.
+
+To apply your changes to a running job:
+
+1. Make your source code changes
+2. Wait for nodemon to rebuild and restart the master (watch the master pod logs)
+3. Stop the job: `earl tjm stop <job-file>`
+4. Start the job again: `earl tjm start <job-file>`
+
+The new execution controller and worker pods that spin up will use the updated code.
+
+#### What Triggers a Restart
+
+nodemon watches only for changes inside `src/` directories. Changes to `package.json` files do **not** trigger a restart.
+
+#### Known Limitation: Dependency Changes
+
+If you make a change that would modify `pnpm-lock.yaml` — for example, adding, bumping, or removing a dependency in a `package.json` — the cluster will break and workers will fail to start. This happens because the lock file mounted into the cluster no longer matches the installed `node_modules`.
+
+The recommended workaround is to tear down and rebuild from scratch:
+
+```bash
+kind delete cluster -n k8s-env
+pnpm install          # apply the dependency change on the host
+pnpm k8s --dev        # redeploy the dev environment
+```
+
+This is an accepted limitation since dependency changes are infrequent and not a typical tight iteration loop.
+
 ### Launching a Teraslice Job
 
 After setting up a `local` alias, you can prepare and launch an example
@@ -354,93 +437,6 @@ pnpm k8s:restart --reset-store
 # from any other directory:
 pnpm run ts-scripts k8s-env --rebuild --skip-build --reset-store
 ```
-
-## Prometheus Metrics API
-
-The `PromMetrics` class lives within `packages/terafoundation/src/api/prom-metrics` package. Use of its API can be enabled using `prom_metrics_enabled` in the terafoundation config and overwritten in the job config. The `init` function can be found at `context.apis.foundation.promMetrics.init`. It is called on startup of the Teraslice master, execution_controller, and worker, but only creates the API if `prom_metrics_enabled` is true.
-
-### Functions
-
-
-| Name             | Description                                                                                                                             | Type                                                                                               |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| init | initialize the API and create exporter server | `(config: PromMetricsInitConfig) => Promise<boolean>` |
-| set | set the value of a gauge | `(name: string, labels: Record<string, string>, value: number) => void` |
-| inc | increment the value of a counter or gauge | `(name: string, labelValues: Record<string, string>, value: number) => void` |
-| dec | decrement the value of a gauge | `(name: string, labelValues: Record<string, string>, value: number) => void` |
-| observe | observe a histogram or summary | `(name: string, labelValues: Record<string, string>, value: number) => void` |
-| addGauge | add a gauge metric | `(name: string, help: string, labelNames: Array<string>, collectFn?: CollectFunction<Gauge>) => Promise<void>` |
-| addCounter | add a counter metric | `(name: string, help: string, labelNames: Array<string>, collectFn?: CollectFunction<Counter>) => Promise<void>` |
-| addHistogram | add a histogram metric | `(name: string, help: string, labelNames: Array<string>, collectFn?: CollectFunction<Histogram>, buckets?: Array<number>) => Promise<void>` |
-| addSummary | add a summary metric | `(name: string, help: string, labelNames: Array<string>,       collectFn?: CollectFunction<Summary>, maxAgeSeconds?: number, ageBuckets?: number, percentiles?: Array<number>) => Promise<void>` |
-| hasMetric | check if a metric exists | `(name: string) => boolean` |
-| deleteMetric | delete a metric from the metric list | `(name: string) => Promise<boolean>` |
-| verifyAPI | verfiy that the API is running | `() => boolean` |
-| resetMetrics | reset the values of all metrics | `() => void` |
-| shutdown | disable API and shutdown exporter server | `() => Promise<void>` |
-| getDefaultLabels | retrieve the default labels set at init | `() => Record<string, string>` |
-
-Example init:
-```typescript
-await config.context.apis.foundation.promMetrics.init({
-    terasliceName: context.sysconfig.teraslice.name,
-    assignment: 'execution_controller',
-    logger: this.logger,
-    tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
-    tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
-    tf_prom_metrics_port: terafoundation.prom_metrics_port,
-    job_prom_metrics_add_default: config.executionConfig.prom_metrics_add_default, // optional job override
-    job_prom_metrics_enabled: config.executionConfig.prom_metrics_enabled, // optional job override
-    job_prom_metrics_port: config.executionConfig.prom_metrics_port, // optional job override
-    labels: { // optional default labels on all metrics for this teraslice process
-        ex_id: this.exId,
-        job_id: this.jobId,
-        job_name: this.config.name,
-        assignment: 'execution_controller',
-    }
-});
-```
-
-Once initialized all of the other functions under `context.apis.foundation.promMetrics` will be enabled. Any calls to promMetricsAPI functions should be wrapped in a check using the `job-components` utility function `isPromAvailable()`.
-
-Example Counter:
-```typescript
-if (isPromAvailable(this.context)) {
-    await this.context.apis.foundation.promMetrics.addCounter(
-        'slices_dispatched', // name
-        'number of slices a slicer has dispatched', // help or description
-        ['class'], // label names specific to this metric
-    );
-    // now we can increment the counter anywhere else in the code
-    this.context.apis.foundation.promMetrics.inc(
-        'slices_dispatched', // name
-        { class: 'ExecutionController' }, // label names and values
-        1 // amount to increment by
-    );
-}
-```
-
-Example Gauge using collect() callback:
-```typescript
-const self = this;
-if (isPromAvailable(this.context)) {
-    await this.context.apis.foundation.promMetrics.addGauge(
-        'slices_dispatched', // name
-        'number of slices a slicer has dispatched', // help or description
-        ['class'], // label names specific to this metric
-        function collect() { // callback fn updates value only when '/metrics' endpoint is hit
-            const slicesFinished = self.getSlicesDispatched(); // get current value from local momory
-            const labels = { // 'set()' needs both default labels and labels specific to metric to match the correct gauge
-                ...self.context.apis.foundation.promMetrics.getDefaultLabels(),
-                class: 'SlicerExecutionContext'
-            };
-            this.set(labels, slicesFinished); // 'this' refers to the Gauge
-        }
-    );
-}
-```
-
-The label names as well as the metric name must match when using `inc`, `dec`, `set`, or `observe` to modify a metric.
 
 ## Extras
 

@@ -52,6 +52,8 @@ autoload/*
 !autoload/.gitkeep
 
 # e2e files
+e2e/assets/*
+!e2e/assets/README.md
 e2e/autoload/*
 !e2e/autoload/.gitkeep
 e2e/logs/*

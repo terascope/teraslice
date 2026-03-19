@@ -40,11 +40,6 @@ const cmd: CommandModule = {
                 type: 'boolean',
                 default: false
             })
-            .option('ts-port', {
-                description: 'Port where teraslice api will be exposed.',
-                type: 'number',
-                default: 5678
-            })
             .option('cluster-name', {
                 description: 'Name of the kind kubernetes cluster.',
                 type: 'string',
@@ -98,7 +93,6 @@ const cmd: CommandModule = {
         const k8sOptions: K8sEnvOptions = {
             debug: Boolean(argv['debug']),
             skipBuild: Boolean(argv['skip-build']),
-            tsPort: argv['ts-port'] as number,
             kindClusterName: argv['cluster-name'] as string,
             terasliceImage: argv['teraslice-image'] as string,
             dev: Boolean(argv.dev),

@@ -109,7 +109,7 @@ export default class ExampleSlicer extends Fetcher {
 
 A Job is required to contain a least one Processor. The duty of a processor is to transform or write data to an external service.
 
-To develop a processor, see the [docs](./development.md#processor).
+To develop a processor, see the [docs](../asset-bundles/development.md).
 
 ### Batch Processor
 
@@ -222,8 +222,6 @@ Check out the [API docs](../packages/job-components/api/operations/filter-proces
 ## APIs
 
 A Job can specify an Operation API which can expose an utility API, a [Dead Letter Queue](./dead-letter-queue.md) or can be used to monitor/track data going through the pipeline. APIs are [configured](./configuration.md#apis) separately and are attached to the [Operation Lifecycle](./slices.md#worker-lifecycle-events) on startup.
-
-To develop a processor, see the [docs](./development.md#api).
 
 ### Operation API
 

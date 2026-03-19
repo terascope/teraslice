@@ -248,6 +248,7 @@ export class KubernetesClusterBackendV2 {
     }
 
     async initialize() {
+        this._getClusterState();
         this.logger.info('kubernetesV2 clustering initializing');
 
         // Periodically update cluster state, update period controlled by:

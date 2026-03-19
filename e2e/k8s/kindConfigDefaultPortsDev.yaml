@@ -52,6 +52,4 @@ nodes:
     containerPath: /tsconfig.json
   - hostPath: ./service.js
     containerPath: /service.js
-  - hostPath: ./node_modules
-    containerPath: /node_modules
   ###

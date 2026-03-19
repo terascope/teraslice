@@ -1,7 +1,6 @@
 export interface K8sEnvOptions {
     debug: boolean;
     skipBuild: boolean;
-    tsPort: number;
     kindClusterName: string;
     terasliceImage?: string;
     resetStore?: boolean;
