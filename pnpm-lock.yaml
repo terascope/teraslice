@@ -325,6 +325,9 @@ importers:
       '@terascope/core-utils':
         specifier: workspace:~
         version: link:../core-utils
+      '@terascope/ip-utils':
+        specifier: workspace:~
+        version: link:../ip-utils
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
@@ -338,9 +341,6 @@ importers:
         specifier: ~16.12.0
         version: 16.12.0
     devDependencies:
-      '@terascope/ip-utils':
-        specifier: ^2.3.2
-        version: 2.3.2
       '@types/chance':
         specifier: ^1.1.7
         version: 1.1.7
@@ -1568,9 +1568,6 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@chainsafe/is-ip@2.1.0':
-    resolution: {integrity: sha512-KIjt+6IfysQ4GCv66xihEitBjvhU/bixbbbFxdJ1sqCp4uJ0wuZiYBPhksZoy4lfaF0k9cwNzY5upEW/VWdw3w==}
-
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
@@ -2366,10 +2363,6 @@ packages:
     resolution: {integrity: sha512-YS+lPYICczrs2JUXJ3l0T4xwMpEXvKezgTwTks7kn39WJqCO5a8ZZQ9iBY4fccxZnv5qf5zcoYp4KFydSem8Yg==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
 
-  '@terascope/core-utils@2.3.2':
-    resolution: {integrity: sha512-eNjXVvUvcnxYLdngZH7rF/bzx0NOPBPsHJGfuKiFAXU50qmz1MPJvsHG7V/qcQp1k4Mda223I6b4mMtILA+RYQ==}
-    engines: {node: '>=22.0.0', pnpm: '>=10.25.0'}
-
   '@terascope/fetch-github-release@2.2.2':
     resolution: {integrity: sha512-xpo2N0qD3ggfRI2Iw2SZdGM7OgqIgxMTc0SE0X2aEzumKjFzIqWfOSqip6un7wlEl0qso18DPcnTESmoP6m5WA==}
     engines: {node: '>=22.0.0'}
@@ -2379,17 +2372,9 @@ packages:
     resolution: {integrity: sha512-eC0O18P0xcpe2jnG3uNLzsR8njjR59SGSDopS0uVopsHt5sJ4d+yNg/NvdeWTLnHZy4aQVOKUzO3vBt+4fVFtg==}
     engines: {node: '>=22.21.1', yarn: '>=1.22.19'}
 
-  '@terascope/ip-utils@2.3.2':
-    resolution: {integrity: sha512-LplPqD0FfUzGQjVOpVzBeC1tGKKNXkB/s1Kr5/9Ryv3QThjwbneDxCOp6uPIvyZHQzAutrBRiO6OGIcyv2izLQ==}
-    engines: {node: '>=22.0.0', pnpm: '>=10.25.0'}
-
   '@terascope/types@2.2.0':
     resolution: {integrity: sha512-YIWJ0PALbFbGe3HqzyasEzXuD5E9jnJTEH0fsyM0zXi/z+OrunT1HacEpdwE1s5OOjM8mYMsB95yRfRwz75BXQ==}
     engines: {node: '>=22.0.0', yarn: '>=1.22.19'}
-
-  '@terascope/types@2.3.1':
-    resolution: {integrity: sha512-5R+O3OK7T4GVvvmGBAdwsuTtm4pOLUB5hdkxobcGq1DAP5e4bpkXQ1PrAbPm0Nu+1TGvhBZb2JYqTrIIEHVPBg==}
-    engines: {node: '>=22.0.0', pnpm: '>=10.25.0'}
 
   '@turf/bbox-polygon@7.3.4':
     resolution: {integrity: sha512-XCDYQwCA41Bum3R1xX0Na1nR4ozoe/pCYy5bxqrzyMs87kPJUIfBrD5IWxjnZyLqFpfEpolMHJz5ed1uA2PanQ==}
@@ -3295,13 +3280,6 @@ packages:
     resolution: {integrity: sha512-77PSwercCZU2Fc4sX94eF8k8Pxte6JAwL4/ICZLFjJLqegs7kCuAsqqj/70NQF6TvDpgFjkubQB2FW2ZZddvQg==}
     engines: {node: '>=8'}
 
-  cidr-calc@1.0.4:
-    resolution: {integrity: sha512-SZcjmxxNkaCVcsFAuT+Xo9YLG9vbkrdFrspC9IVG+3kfSC84hfMzVEHttNrr0C9u7gTNf7OUYwb1WnM5pZtLZg==}
-
-  cidr-regex@5.0.3:
-    resolution: {integrity: sha512-zfPT2uurEroxXqefaL2L7/fT5ED2XTutC6UwFbSZfqSOk1vk5VFY6xa6/R6pBxB4Uc8MNPbRW5ykqutFG5P5ww==}
-    engines: {node: '>=20'}
-
   cjs-module-lexer@2.2.0:
     resolution: {integrity: sha512-4bHTS2YuzUvtoLjdy+98ykbNB5jS0+07EvFNXerqZQJ89F7DI6ET7OQo/HJuW6K0aVsKA9hj9/RVb2kQVOrPDQ==}
 
@@ -3405,9 +3383,6 @@ packages:
   cookie@0.7.2:
     resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
     engines: {node: '>= 0.6'}
-
-  core-util-is@1.0.2:
-    resolution: {integrity: sha512-3lqz5YjWTYnW6dlDa5TLaTCcShfar1e40rmcJVwCBJC6mWlFuj0eCHIElmG1g5kyuJ/GD+8Wn4FFCcz4gJPfaQ==}
 
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
@@ -3873,10 +3848,6 @@ packages:
     engines: {node: '>= 10.17.0'}
     hasBin: true
 
-  extsprintf@1.3.0:
-    resolution: {integrity: sha512-11Ndz7Nv+mvAC1j0ktTa7fAb0vLyGGX+rMHNBYQviQDGU0Hw7lhctJANqbPhu9nV9/izT/IntTgZ7Im/9LJs9g==}
-    engines: {'0': node >=0.6.0}
-
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
@@ -4308,20 +4279,9 @@ packages:
     resolution: {integrity: sha512-XXADHxXmvT9+CRxhXg56LJovE+bmWnEWB78LB83VZTprKTmaC5QfruXocxzTZ2Kl0DNwKuBdlIhjL8LeY8Sf8Q==}
     engines: {node: '>= 12'}
 
-  ip-address@9.0.5:
-    resolution: {integrity: sha512-zHtQzGojZXTwZTHQqra+ETKd4Sn3vgi7uBmlPoXVWZqYvuKmtI0l/VZTjqGmJY9x88GGOaZ9+G9ES8hC4T4X8g==}
-    engines: {node: '>= 12'}
-
   ip-bigint@8.2.7:
     resolution: {integrity: sha512-NKYLjXIaZ7Q3jhsp6H3aYE0Gv7ImiGDyqeNI8YB6RBdT2SjrbchzGoVTSGzNDw2TE6xYtamYEDlomNbTg+C4jA==}
     engines: {node: '>=18'}
-
-  ip-cidr@4.0.2:
-    resolution: {integrity: sha512-KifhLKBjdS/hB3TD4UUOalVp1BpzPFvRpgJvXcP0Ya98tuSQTUQ71iI7EW7CKddkBJTYB3GfTWl5eJwpLOXj2A==}
-    engines: {node: '>=16.14.0'}
-
-  ip6addr@0.2.5:
-    resolution: {integrity: sha512-9RGGSB6Zc9Ox5DpDGFnJdIeF0AsqXzdH+FspCfPPaU/L/4tI6P+5lIoFUFm9JXs9IrJv1boqAaNCQmoDADTSKQ==}
 
   ip@2.0.1:
     resolution: {integrity: sha512-lJUL9imLTNi1ZfXT+DU6rBBdbiKGBuay9B6xGSPVjUeQwaH1RIGqef8RZkUtHioLmSNpPR5M4HVKJGm1j8FWVQ==}
@@ -4329,10 +4289,6 @@ packages:
   ipaddr.js@1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
     engines: {node: '>= 0.10'}
-
-  ipaddr.js@2.3.0:
-    resolution: {integrity: sha512-Zv/pA+ciVFbCSBBjGfaKUya/CcGmUHzTydLMaTwrUUEM2DIEO3iZvueGxmacvmN50fGpGVKeTXpb2LcYQxeVdg==}
-    engines: {node: '>= 10'}
 
   is-array-buffer@3.0.5:
     resolution: {integrity: sha512-DDfANUiiG2wC1qawP66qlTugJeL5HyzMpfr8lLK+jMQirGzNod0B12cFB/9q838Ru27sBwfw78/rdoU7RERz6A==}
@@ -4356,10 +4312,6 @@ packages:
   is-callable@1.2.7:
     resolution: {integrity: sha512-1BC0BVFhS/p0qtw6enp8e+8OD0UrK0oFLztSjNzhcKA3WDuJxxAPXzPuPtKkjEY9UUoEWlX/8fgKeu2S8i9JTA==}
     engines: {node: '>= 0.4'}
-
-  is-cidr@6.0.3:
-    resolution: {integrity: sha512-tPdsizbDiISrc4PoII6ZfpmAokx0oDKeYqAUp5bXOfznauOFXfEeosKBRrl0o0SriE4xoRR05Czn4YPCFMjSHA==}
-    engines: {node: '>=20'}
 
   is-core-module@2.16.1:
     resolution: {integrity: sha512-UfoeMA6fIJ8wTYFEUjelnaGI67v6+N7qXJEvQuIGa99l4xsCruSYOVSQ0uPANn4dAzm8lkYPaKLrrijLq7x23w==}
@@ -4716,9 +4668,6 @@ packages:
     resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
     hasBin: true
 
-  jsbn@1.1.0:
-    resolution: {integrity: sha512-4bYVV3aAMtDTTu4+xsDYa6sy9GyJ69/amsu9sYF2zqjiEoZA5xJi3BrfX3uY+/IekIu7MwdObdbDWpoZdBv3/A==}
-
   jsep@1.4.0:
     resolution: {integrity: sha512-B7qPcEVE3NVkmSJbaYxvv4cHkVW7DQsZz13pUMrfS8z8Q/BuShN+gcTXrUlPiGqM2/t/EEaI030bpxMqY8gMlw==}
     engines: {node: '>= 10.16.0'}
@@ -4742,9 +4691,6 @@ packages:
 
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
-
-  json-schema@0.4.0:
-    resolution: {integrity: sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA==}
 
   json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
@@ -4795,10 +4741,6 @@ packages:
     resolution: {integrity: sha512-8TNmfeTCk2Le33A3vRRwtuworG/L5RrgMvdjhKZxvyShO+mBu2fP50OWUjRLNtvw344DdDarFh9buFAZs5ujeA==}
     engines: {node: '>=18.0.0'}
     hasBin: true
-
-  jsprim@2.0.2:
-    resolution: {integrity: sha512-gqXddjPqQ6G40VdnI6T6yObEC+pDNvyP95wdQhkWkg7crHH3km5qP1FsOXEkzEQwnz6gz5qGTn1c2Y52wP3OyQ==}
-    engines: {'0': node >=0.6.0}
 
   jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
@@ -5775,9 +5717,6 @@ packages:
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
-  sprintf-js@1.1.3:
-    resolution: {integrity: sha512-Oo+0REFV59/rz3gfJNKQiBlwfHaSESl1pcGyABQsnnIfWOFt6JNj5gCog2U6MLZ//IGYD+nA8nI+mTShREReaA==}
-
   stack-utils@2.0.6:
     resolution: {integrity: sha512-XlkWvfIm6RmsWtNJx+uqtKLS8eqFbxUg0ZzLXqY0caEy9l7hruX8IpiDnjsLavoBgqCCR71TqWO8MaXYheJ3RQ==}
     engines: {node: '>=10'}
@@ -6187,10 +6126,6 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
-
-  verror@1.10.0:
-    resolution: {integrity: sha512-ZZKSmDAEFOijERBLkmYfJ+vmk3w+7hOLYDNkRCuRuMJGEmqYNCNLyBBFwWKVMhfwaEF3WOd0Zlw86U/WC/+nYw==}
-    engines: {'0': node >=0.6.0}
 
   walker@1.0.8:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
@@ -7192,8 +7127,6 @@ snapshots:
       '@babel/helper-validator-identifier': 7.28.5
 
   '@bcoe/v8-coverage@0.2.3': {}
-
-  '@chainsafe/is-ip@2.1.0': {}
 
   '@colors/colors@1.5.0':
     optional: true
@@ -8214,28 +8147,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@terascope/core-utils@2.3.2':
-    dependencies:
-      '@terascope/types': 2.3.1
-      awesome-phonenumber: 7.8.0
-      bunyan: 1.8.15
-      date-fns: 4.1.0
-      date-fns-tz: 3.2.0(date-fns@4.1.0)
-      datemath-parser: 1.0.6
-      debug: 4.4.3
-      is-plain-object: 5.0.0
-      js-string-escape: 1.0.1
-      kind-of: 6.0.3
-      lodash-es: 4.17.23
-      mnemonist: 0.40.3
-      moment: 2.30.1
-      p-map: 7.0.4
-      shallow-clone: 3.0.1
-      validator: 13.15.26
-      zod: 4.1.13
-    transitivePeerDependencies:
-      - supports-color
-
   '@terascope/fetch-github-release@2.2.2':
     dependencies:
       extract-zip: 2.0.1
@@ -8260,25 +8171,7 @@ snapshots:
       - aws-crt
       - supports-color
 
-  '@terascope/ip-utils@2.3.2':
-    dependencies:
-      '@chainsafe/is-ip': 2.1.0
-      '@terascope/core-utils': 2.3.2
-      '@terascope/types': 2.3.1
-      cidr-calc: 1.0.4
-      ip-bigint: 8.2.7
-      ip-cidr: 4.0.2
-      ip6addr: 0.2.5
-      ipaddr.js: 2.3.0
-      is-cidr: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
-
   '@terascope/types@2.2.0':
-    dependencies:
-      prom-client: 15.1.3
-
-  '@terascope/types@2.3.1':
     dependencies:
       prom-client: 15.1.3
 
@@ -9426,10 +9319,6 @@ snapshots:
 
   ci-info@4.4.0: {}
 
-  cidr-calc@1.0.4: {}
-
-  cidr-regex@5.0.3: {}
-
   cjs-module-lexer@2.2.0: {}
 
   cli-table3@0.6.5:
@@ -9527,8 +9416,6 @@ snapshots:
   cookie-signature@1.2.2: {}
 
   cookie@0.7.2: {}
-
-  core-util-is@1.0.2: {}
 
   core-util-is@1.0.3: {}
 
@@ -10189,8 +10076,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  extsprintf@1.3.0: {}
-
   fast-deep-equal@3.1.3: {}
 
   fast-fifo@1.3.2: {}
@@ -10645,27 +10530,11 @@ snapshots:
 
   ip-address@10.1.0: {}
 
-  ip-address@9.0.5:
-    dependencies:
-      jsbn: 1.1.0
-      sprintf-js: 1.1.3
-
   ip-bigint@8.2.7: {}
-
-  ip-cidr@4.0.2:
-    dependencies:
-      ip-address: 9.0.5
-
-  ip6addr@0.2.5:
-    dependencies:
-      assert-plus: 1.0.0
-      jsprim: 2.0.2
 
   ip@2.0.1: {}
 
   ipaddr.js@1.9.1: {}
-
-  ipaddr.js@2.3.0: {}
 
   is-array-buffer@3.0.5:
     dependencies:
@@ -10693,10 +10562,6 @@ snapshots:
       has-tostringtag: 1.0.2
 
   is-callable@1.2.7: {}
-
-  is-cidr@6.0.3:
-    dependencies:
-      cidr-regex: 5.0.3
 
   is-core-module@2.16.1:
     dependencies:
@@ -11239,8 +11104,6 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  jsbn@1.1.0: {}
-
   jsep@1.4.0: {}
 
   jsesc@3.1.0: {}
@@ -11254,8 +11117,6 @@ snapshots:
   json-schema-traverse@0.4.1: {}
 
   json-schema-traverse@1.0.0: {}
-
-  json-schema@0.4.0: {}
 
   json-stable-stringify-without-jsonify@1.0.1: {}
 
@@ -11298,13 +11159,6 @@ snapshots:
       '@jsep-plugin/assignment': 1.3.0(jsep@1.4.0)
       '@jsep-plugin/regex': 1.0.4(jsep@1.4.0)
       jsep: 1.4.0
-
-  jsprim@2.0.2:
-    dependencies:
-      assert-plus: 1.0.0
-      extsprintf: 1.3.0
-      json-schema: 0.4.0
-      verror: 1.10.0
 
   jsx-ast-utils@3.3.5:
     dependencies:
@@ -12289,8 +12143,6 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sprintf-js@1.1.3: {}
-
   stack-utils@2.0.6:
     dependencies:
       escape-string-regexp: 2.0.0
@@ -12774,12 +12626,6 @@ snapshots:
   validator@13.15.26: {}
 
   vary@1.1.2: {}
-
-  verror@1.10.0:
-    dependencies:
-      assert-plus: 1.0.0
-      core-util-is: 1.0.2
-      extsprintf: 1.3.0
 
   walker@1.0.8:
     dependencies:

@@ -8,7 +8,7 @@ const chance = new Chance();
 
 /**
  * Generates a random record for a data type
- * NOTE: "format"/"locale" not implemented
+ * NOTE: implement "format"/"locale" if needed
  */
 export function makeRandomDataForField(config: DataTypeFieldConfig, field: string) {
     const {
