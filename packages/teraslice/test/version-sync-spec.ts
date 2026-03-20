@@ -5,7 +5,7 @@ import { getRootInfo } from '@terascope/scripts';
 
 describe('Ensure teraslice and root versions are in sync', () => {
     it('Versions are equal', () => {
-        const pathToTeraslicePkgJson = path.join(process.cwd(), '../packages/teraslice/package.json');
+        const pathToTeraslicePkgJson = path.join(process.cwd(), '../teraslice/package.json');
         const terasliceVersion = fse.readJSONSync(pathToTeraslicePkgJson).version;
         const rootVersion = getRootInfo().version;
 

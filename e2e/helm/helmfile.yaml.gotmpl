@@ -34,6 +34,8 @@ releases:
     needs:
       - default/namespaces
     installed: {{ .Values | get "stern.enabled" false }}
+    values:
+      - ./templates/stern.yaml.gotmpl
 
   - name: minio-secret
     namespace: default

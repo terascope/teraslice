@@ -8,6 +8,7 @@ on:
 env:
   NODE_VERSIONS: '[22, 24]'
   NODE_VERSION_MAIN: '24'
+  NODE_VERSIONS_OTHER: '[22]'
   NODE_VERSIONS_K8S: '[22, 24]'
   NODE_VERSIONS_EXT_STORAGE: '[24]'
 
@@ -19,6 +20,7 @@ jobs:
       NODE_VERSION_MAIN: ${{ steps.step2.outputs.NODE_VERSION_MAIN }}
       NODE_VERSIONS_K8S: ${{ steps.step3.outputs.NODE_VERSIONS_K8S }}
       NODE_VERSIONS_EXT_STORAGE: ${{ steps.step4.outputs.NODE_VERSIONS_EXT_STORAGE }}
+      NATIVE_E2E_MATRIX: ${{ steps.native-e2e-matrix.outputs.NATIVE_E2E_MATRIX }}
       COMMIT_SHORT_SHA: ${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}
     steps:
       - name: Check out code
@@ -31,6 +33,17 @@ jobs:
         run: echo "NODE_VERSIONS_K8S=${{ env.NODE_VERSIONS_K8S }}" >> $GITHUB_OUTPUT
       - id: step4
         run: echo "NODE_VERSIONS_EXT_STORAGE=${{ env.NODE_VERSIONS_EXT_STORAGE }}" >> $GITHUB_OUTPUT
+      - name: Compute native e2e test matrix
+        id: native-e2e-matrix
+        run: |
+          MATRIX=$(jq -cn \
+            --argjson main '${{ env.NODE_VERSION_MAIN }}' \
+            --argjson others '${{ env.NODE_VERSIONS_OTHER }}' \
+            '{include: [
+              (["opensearch1","opensearch2","opensearch3"][] | {"node-version": $main, "search-version": .}),
+              ($others[] | {"node-version": ., "search-version": "opensearch3"})
+            ]}')
+          echo "NATIVE_E2E_MATRIX=$MATRIX" >> $GITHUB_OUTPUT
       - name: Get Commit Short SHA
         id: get-short-sha
         run: |
@@ -1025,9 +1038,7 @@ jobs:
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
-      matrix:
-        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
-        search-version: [opensearch1, opensearch2, opensearch3]
+      matrix: ${{ fromJSON(needs.compute-vars.outputs.NATIVE_E2E_MATRIX) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
