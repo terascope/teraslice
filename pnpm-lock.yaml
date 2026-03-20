@@ -328,6 +328,12 @@ importers:
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
+      '@turf/random':
+        specifier: ~7.3.4
+        version: 7.3.4
+      chance:
+        specifier: ~1.1.13
+        version: 1.1.13
       graphql:
         specifier: ~16.12.0
         version: 16.12.0
@@ -335,15 +341,9 @@ importers:
       '@terascope/ip-utils':
         specifier: ^2.3.2
         version: 2.3.2
-      '@turf/random':
-        specifier: ~7.3.4
-        version: 7.3.4
       '@types/chance':
         specifier: ^1.1.7
         version: 1.1.7
-      chance:
-        specifier: ~1.1.13
-        version: 1.1.13
 
   packages/docker-compose-js:
     dependencies:
