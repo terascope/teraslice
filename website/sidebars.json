@@ -239,13 +239,6 @@
             },
             {
                 "type": "category",
-                "label": "generator-teraslice",
-                "items": [
-                    "packages/generator-teraslice/overview"
-                ]
-            },
-            {
-                "type": "category",
                 "label": "teraslice-messaging",
                 "items": [
                     "packages/teraslice-messaging/overview",

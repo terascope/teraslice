@@ -1,26 +1,23 @@
 import {
     toInteger, isNumberLike, toBigIntOrThrow,
-    isNumber, isString, getTypeOf, isBoolean
+    isString, getTypeOf, isBoolean,
 } from '@terascope/core-utils';
-import {
-    isIP as _isIP, isIPv4 as _isIPv4,
-    isIPv6 as _isIPv6, ipVersion as _ipVersion
-} from '@chainsafe/is-ip';
-import IPCIDR from 'ip-cidr';
-import isCidr from 'is-cidr';
-import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
-import { parseIp, stringifyIp } from 'ip-bigint';
-import ip6addr from 'ip6addr';
-import { IpAddress } from 'cidr-calc';
+import { IPAddress } from './utils/ip-address.js';
+import { CIDRBlock } from './utils/cidr-block.js';
+import { IPRange } from './utils/ip-range.js';
+
+export { IPAddress, CIDRBlock, IPRange };
 
 export function isIP(input: unknown): input is string {
-    return isString(input) && _isIP(input);
+    return isString(input) && IPAddress.isValid(input);
 }
 
 /** Will throw if input is not a valid CIDR */
 export function isIPRangeOrThrow(input: unknown): string {
     if (!isCIDR(input)) {
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a valid IP range`);
+        throw new TypeError(
+            `Expected ${input} (${getTypeOf(input)}) to be a valid IP range`,
+        );
     }
 
     return input;
@@ -29,37 +26,32 @@ export function isIPRangeOrThrow(input: unknown): string {
 /** Will throw if input is not a valid IP */
 export function isIPOrThrow(input: unknown): string {
     if (!isString(input) || !isIP(input)) {
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a valid IP`);
+        throw new TypeError(
+            `Expected ${input} (${getTypeOf(input)}) to be a valid IP`,
+        );
     }
 
     return input;
 }
 
 export function isIPv6(input: unknown): boolean {
-    return isString(input) && _isIPv6(input);
+    return isString(input) && IPAddress.isIPv6(input);
 }
 
 export function isIPv4(input: unknown): boolean {
-    return isString(input) && _isIPv4(input);
+    return isString(input) && IPAddress.isIPv4(input);
 }
 
 export function isMappedIPv4(input: unknown): boolean {
-    if (isIPv6(input)) {
-        const parsed = ipaddr.parse(input as string) as IPv6;
-
-        return parsed.isIPv4MappedAddress();
-    }
-
-    return false;
+    if (!isIPv6(input)) return false;
+    return IPAddress.of(input as string).isMappedIPv4();
 }
 
 export function extractMappedIPv4(input: unknown): string {
     if (isIPv6(input) && isMappedIPv4(input)) {
-        const parsed = ipaddr.parse(input as string) as IPv6;
-
-        const ipv4 = parsed.toIPv4Address();
-
-        return ipv4.octets.join('.');
+        return IPAddress.of(input as string)
+            .toMappedIPv4()
+            .toString();
     }
 
     throw Error('input must be an IPv4 address mapped to an IPv6 address');
@@ -67,124 +59,64 @@ export function extractMappedIPv4(input: unknown): string {
 
 export function inIPRange(
     input: unknown,
-    args: { min?: string; max?: string; cidr?: string }
+    args: { min?: string; max?: string; cidr?: string },
 ): boolean {
     if (!isIP(input)) return false;
-    const data = IpAddress.of(input).toString();
+
+    const ip = IPAddress.of(input as string);
 
     if (args.cidr != null) {
-        return isCIDR(args.cidr) && new IPCIDR(args.cidr).contains(data);
+        if (!isCIDR(args.cidr)) return false;
+        return CIDRBlock.of(args.cidr).contains(ip);
     }
 
-    const ipType = _ipVersion(input as string);
+    const ipVersion = ip.version;
+    const minStr = args.min ?? _assignMin(ipVersion);
+    const maxStr = args.max ?? _assignMax(ipVersion);
 
-    // this should be refactored
-    const minValue = args.min || _assignMin(ipType as number);
-    const maxValue = args.max || _assignMax(ipType as number);
+    if (!_validMinAndMax(minStr, maxStr)) return false;
 
-    if (_validMinAndMax(minValue, maxValue)) {
-        const min = IpAddress.of(minValue).toString();
-        const max = IpAddress.of(maxValue).toString();
+    const min = IPAddress.of(minStr);
+    const max = IPAddress.of(maxStr);
 
-        return ip6addr.createAddrRange(min, max).contains(data);
-    }
-
-    return false;
+    return ip.compare(min) >= 0 && ip.compare(max) <= 0;
 }
 
-function _assignMin(ipType: number, min?: string): string {
-    if (min) return IpAddress.of(min).toString();
-
-    if (ipType === 4) return '0.0.0.0';
-
-    return '::';
+function _assignMin(version: 4 | 6): string {
+    return version === 4 ? '0.0.0.0' : '::';
 }
 
-function _assignMax(ipType: number, max?: string): string {
-    if (max) return IpAddress.of(max).toString();
-
-    if (ipType === 4) return '255.255.255.255';
-
-    return 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff';
+function _assignMax(version: 4 | 6): string {
+    return version === 4
+        ? '255.255.255.255'
+        : 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff';
 }
 
 function _validMinAndMax(min: string, max: string): boolean {
-    return isIP(min) && isIP(max)
-        && _ipVersion(min) === _ipVersion(max)
-        && ip6addr.compare(min, max) === -1;
+    if (!IPAddress.isValid(min) || !IPAddress.isValid(max)) return false;
+
+    const minIP = IPAddress.of(min);
+    const maxIP = IPAddress.of(max);
+
+    if (minIP.version !== maxIP.version) return false;
+    return minIP.compare(maxIP) <= 0;
 }
 
 export function isRoutableIP(input: unknown): boolean {
     if (!isIP(input)) return false;
-
-    return !_isPrivateIP(input as string);
+    return IPAddress.of(input as string).isRoutable();
 }
 
 export function isNonRoutableIP(input: unknown): boolean {
     if (!isIP(input)) return false;
-
-    return _isPrivateIP(input as string);
-}
-
-function _isPrivateIP(input: string): boolean {
-    const parsedIp = _parseIpAddress(input);
-
-    return _inPrivateIPRange(parsedIp.range()) || _inRestrictedIPRange(parsedIp);
-}
-
-function _parseIpAddress(input: string): ipaddr.IPv4 | ipaddr.IPv6 {
-    if (isMappedIPv4(input)) {
-        return ipaddr.parse(extractMappedIPv4(input));
-    }
-
-    return ipaddr.parse(input);
-}
-
-function _inPrivateIPRange(ipRange: string): boolean {
-    return [
-        'private',
-        'uniqueLocal',
-        'loopback',
-        'unspecified',
-        'carrierGradeNat',
-        'linkLocal',
-        'reserved',
-        'rfc6052',
-        'teredo',
-        '6to4',
-        'broadcast'
-    ].includes(ipRange);
-}
-
-// parse the ranges here
-// to avoid having to parse every time the function is called
-const ipv4RestrictedRanges = [
-    ipaddr.parseCIDR('192.31.196.0/24'),
-    ipaddr.parseCIDR('192.52.193.0/24'),
-    ipaddr.parseCIDR('192.175.48.0/24'),
-    ipaddr.parseCIDR('198.18.0.0/15'),
-    ipaddr.parseCIDR('224.0.0.0/8')
-];
-
-const ipv6RestrictedRanges = [
-    ipaddr.parseCIDR('64:ff9b:1::/48'),
-    ipaddr.parseCIDR('100::/64'),
-    ipaddr.parseCIDR('2001::/23'),
-    ipaddr.parseCIDR('2620:4f:8000::/48')
-];
-
-function _inRestrictedIPRange(parsedIp: ipaddr.IPv4 | ipaddr.IPv6): boolean {
-    const rangesToCheck = parsedIp.kind() === 'ipv4' ? ipv4RestrictedRanges : ipv6RestrictedRanges;
-
-    return rangesToCheck.some((ipRange) => parsedIp.match(ipRange));
+    return !IPAddress.of(input as string).isRoutable();
 }
 
 export function isCIDR(input: unknown): input is string {
-    return isString(input) && IPCIDR.isValidCIDR(input);
+    return isString(input) && CIDRBlock.isValid(input);
 }
 
 /**
- *
  * @param input ip address block in CIDR notation
  * @returns first IP address in the block
  * @deprecated use getFirstUsableIPInCIDR
@@ -194,7 +126,6 @@ export function getCIDRMin(input: unknown): string {
 }
 
 /**
- *
  * @param input ip address block in CIDR notation
  * @returns last ip address in the block
  * @deprecated use getLastUsableIPInCIDR
@@ -204,39 +135,41 @@ export function getCIDRMax(input: unknown): string {
 }
 
 /**
- *
  * @param input ip address block in CIDR notation, inclusive
  * @returns first IP address in the block
  */
 export function getFirstIPInCIDR(input: unknown): string {
     if (isCIDR(input)) {
-        return shortenIPv6Address(new IPCIDR(input as string).start());
+        return CIDRBlock.of(input as string)
+            .first()
+            .toString();
     }
 
     throw Error('input must be a valid IP address in CIDR notation');
 }
 
 /**
- *
  * @param input ip address block in CIDR notation
  * @returns last ip address in the block, inclusive
  */
 export function getLastIPInCIDR(input: unknown): string {
     if (isCIDR(input)) {
-        return shortenIPv6Address(new IPCIDR(input as string).end());
+        return CIDRBlock.of(input as string)
+            .last()
+            .toString();
     }
 
     throw Error('input must be a valid IP address in CIDR notation');
 }
 
 /**
- *
  * @param input ip address block in CIDR notation
  * @returns first usable ip address of the CIDR block
  */
-export function getFirstUsableIPInCIDR(input: unknown) {
+export function getFirstUsableIPInCIDR(input: unknown): string {
     if (isCIDR(input)) {
-        return createCIDR(input).first()
+        return CIDRBlock.of(input as string)
+            .firstUsable()
             .toString();
     }
 
@@ -244,13 +177,13 @@ export function getFirstUsableIPInCIDR(input: unknown) {
 }
 
 /**
- *
  * @param input ip address block in CIDR notation
  * @returns last usable ip address of the CIDR block
  */
-export function getLastUsableIPInCIDR(input: unknown) {
+export function getLastUsableIPInCIDR(input: unknown): string {
     if (isCIDR(input)) {
-        return createCIDR(input).last()
+        return CIDRBlock.of(input as string)
+            .lastUsable()
             .toString();
     }
 
@@ -258,14 +191,13 @@ export function getLastUsableIPInCIDR(input: unknown) {
 }
 
 /**
- *
  * @param input ip address
- * @returns IPv6 addresses are returned without leading 0's in a group or empty groups
+ * @returns IPv6 addresses are returned without leading 0's in a group or empty groups;
  *  ipv4 addresses are simply returned
  */
-export function shortenIPv6Address(input: unknown) {
+export function shortenIPv6Address(input: unknown): string {
     if (isIP(input)) {
-        return ipaddr.parse(input).toString();
+        return IPAddress.of(input as string).toString();
     }
 
     throw Error('input must be a valid address');
@@ -273,10 +205,9 @@ export function shortenIPv6Address(input: unknown) {
 
 export function getCIDRBroadcast(input: unknown): string {
     if (isCIDR(input)) {
-        const asCIDR = createCIDR(input as string);
-
-        if (isIPv4(asCIDR.address().toString())) {
-            return asCIDR.broadcast().toString();
+        const block = CIDRBlock.of(input as string);
+        if (block.version === 4) {
+            return block.broadcast().toString();
         }
     }
 
@@ -285,12 +216,9 @@ export function getCIDRBroadcast(input: unknown): string {
 
 export function getCIDRNetwork(input: unknown): string {
     if (isCIDR(input)) {
-        const asCIDR = createCIDR(input as string);
-
-        const address = asCIDR.address().toString();
-
-        if (isIPv4(address)) {
-            return ipaddr.IPv4.networkAddressFromCIDR(input as string).octets.join('.');
+        const block = CIDRBlock.of(input as string);
+        if (block.version === 4) {
+            return block.network().toString();
         }
     }
 
@@ -298,14 +226,23 @@ export function getCIDRNetwork(input: unknown): string {
 }
 
 export function toCIDR(input: unknown, suffix: string | number): string {
-    if (isIP(input) && _validSuffix(_ipVersion(input as string), suffix)) {
-        return createCIDR(input as string, toInteger(suffix) as number).toString();
+    if (
+        isIP(input)
+        && _validSuffix(IPAddress.ipVersion(input as string), suffix)
+    ) {
+        const ip = IPAddress.of(input as string);
+        return CIDRBlock.from(ip, toInteger(suffix) as number).toString();
     }
 
-    throw Error('input must be a valid IP address and suffix must be a value <= 32 for IPv4 or <= 128 for IPv6');
+    throw Error(
+        'input must be a valid IP address and suffix must be a value <= 32 for IPv4 or <= 128 for IPv6',
+    );
 }
 
-function _validSuffix(ipVersion: number | undefined, suffix: number | string): boolean {
+function _validSuffix(
+    ipVersion: number | undefined,
+    suffix: number | string,
+): boolean {
     if (isNumberLike(suffix)) {
         const asInt = toInteger(suffix);
 
@@ -318,23 +255,13 @@ function _validSuffix(ipVersion: number | undefined, suffix: number | string): b
     return false;
 }
 
-function createCIDR(input: string, suffix?: number): ip6addr.CIDR {
-    if (suffix != null) {
-        return ip6addr.createCIDR(input, suffix);
-    }
-
-    return ip6addr.createCIDR(input);
-}
-
 export function isNonZeroCidr(input: string): boolean {
-    const cidrValue = isCidr(input);
-    if (isNumber(cidrValue) && cidrValue > 0) return true;
-    return false;
+    return CIDRBlock.isCidr(input) > 0;
 }
 
 export function ipToInt(input: unknown): bigint {
     if (isIP(input)) {
-        return toBigIntOrThrow(parseIp(input as string).number);
+        return toBigIntOrThrow(IPAddress.of(input as string).toInt());
     }
 
     throw Error('input must be a valid ip address');
@@ -347,51 +274,31 @@ export function intToIP(input: unknown, ipVersion: string | number): string {
         const bigInt = BigInt(input as string | number | bigint);
         const maxIpV4 = 2n ** 32n - 1n;
         const maxIpV6 = 2n ** 128n - 1n;
+
         if (bigInt < 0n || bigInt > (versionAsInt === 4 ? maxIpV4 : maxIpV6)) {
             throw new Error(`Invalid IP input: ${bigInt}`);
         }
-        return stringifyIp({
-            number: bigInt,
-            version: versionAsInt,
-            ipv4mapped: false,
-            scopeid: undefined
-        });
+        return IPAddress.fromInt(bigInt, versionAsInt as 4 | 6).toString();
     }
 
-    throw Error('input should be a big int or string for large numbers. Version must be 4 or 6');
+    throw Error(
+        'input should be a big int or string for large numbers. Version must be 4 or 6',
+    );
 }
 
 export function reverseIP(input: unknown): string {
     if (!isIP(input)) throw Error('input must be a valid ip address');
 
-    const parsedIp = ipaddr.parse(input as string);
-
-    if (parsedIp.kind() === 'ipv4') {
-        return (parsedIp as IPv4).octets.reverse().join('.');
-    }
-
-    return _reverseIPv6(parsedIp as IPv6);
+    return IPAddress.of(input as string).reverse();
 }
 
-function _reverseIPv6(ip: ipaddr.IPv6): string {
-    return ip.toNormalizedString().split(':')
-        .reduce((parts: string[], part: string) => {
-            parts.push(_expandIPv6Part(part));
+/**
+ * Returns the smallest CIDR block that encloses both IP addresses.
+ * Both IPs must be the same version (both IPv4 or both IPv6).
+ */
+export function ipsToCIDR(ip1: unknown, ip2: unknown): string {
+    const a = IPAddress.of(isIPOrThrow(ip1));
+    const b = IPAddress.of(isIPOrThrow(ip2));
 
-            return parts;
-        }, [])
-        .join('')
-        .split('')
-        .reverse()
-        .join('.');
-}
-
-function _expandIPv6Part(part: string) {
-    let expandedPart = part;
-
-    while (expandedPart.length < 4) {
-        expandedPart = `0${expandedPart}`;
-    }
-
-    return expandedPart;
+    return CIDRBlock.enclosing(a, b).toString();
 }

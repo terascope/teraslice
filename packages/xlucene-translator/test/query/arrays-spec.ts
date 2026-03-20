@@ -239,9 +239,12 @@ describe('Queries', () => {
     });
 
     it('should have populated the index', async () => {
-        const searchParams = await access.restrictSearchQuery('', clientMetadata);
+        const searchParams = await access.restrictSearchQuery(
+            '',
+            { ...clientMetadata, params: { index } }
+        );
         const results = await client.search(searchParams);
-        // console.dir({ searchParams, results }, { depth: 40 })
+
         expect(mapResults(results)).toEqual(searchData);
     });
 

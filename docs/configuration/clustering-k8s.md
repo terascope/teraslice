@@ -489,6 +489,7 @@ job author, so it is off by default.  It can be enabled by setting
 
 If using Prometheus for metrics gathering, you can start an exporter that will serve metrics at the following url: <br/>`http://localhost:<port>/metrics`.<br/>
 The following properties will override the matching property set within the `terafoundation` configuration.
+
 * `prom_metrics_enabled` - start a Prometheus exporter server
 * `prom_metrics_port` - port the server will listen on
 * `prom_metrics_add_default` - collect default metrics recommended by Prometheus as well as Node.js-specific metrics
@@ -531,6 +532,7 @@ Minikube now uses the Docker driver by default. If your Minikube is using a diff
 **If you are using the Docker Minikube Driver**
 
 Terminal 1:
+
 ```bash
 cd examples/k8s
 export NAMESPACE=ts-dev1
@@ -548,13 +550,17 @@ At this point the curl commands to opensearch and teraslice-master should have f
 In two new terminal windows run the following commands. These must be left open to communicate with either service within minikube.
 
 Terminal 2 - Open tunnel to opensearch:
+
 ```bash
 minikube -n ts-dev1 service opensearch --url
 ```
+
 Terminal 3 - Open tunnel to teraslice-master:
+
 ```bash
 minikube -n ts-dev1 service teraslice-master --url
 ```
+
 Return to the original terminal.
 
 ```bash
@@ -607,8 +613,9 @@ curl -Ss $ES_URL
   "tagline" : "You Know, for Search"
 }
 ```
----
-**Using a VM Minikube Driver:**
+
+## Using a VM Minikube Driver
+
 ```bash
 cd examples/k8s
 export NAMESPACE=ts-dev1
@@ -661,6 +668,7 @@ curl -Ss $(minikube ip):30200
   "tagline" : "You Know, for Search"
 }
 ```
+
 ---
 **Modifying Teraslice**
 

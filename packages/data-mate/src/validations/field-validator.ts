@@ -20,21 +20,18 @@ import {
     isGeoShapeMultiPolygon as utilsIsGeoShapeMultiPolygon,
 } from '@terascope/geo-utils';
 import {
-    isIPv6, isNonZeroCidr,
     isIP as utilsIsIP,
+    inIPRange as utilsInIPRange,
+    isNonRoutableIP as utilsIsNonRoutableIP,
+    isRoutableIP as utilsIsRoutableIP,
+    isNonZeroCidr
 } from '@terascope/ip-utils';
-// TODO: should this be comming from ip utils?
-import ipaddr from 'ipaddr.js';
-// TODO: should this be comming from ip utils?
-import ip6addr from 'ip6addr';
 // TODO: should this be comming from utils?
 import { parsePhoneNumber } from 'awesome-phonenumber';
 // TODO: should this be comming from utils?
 import validator from 'validator';
 import url from 'valid-url';
-import IPCIDR from 'ip-cidr';
 import { FieldType, GeoShapePoint, MACDelimiter } from '@terascope/types';
-import { IpAddress } from 'cidr-calc';
 import {
     FQDNOptions, HashConfig, LengthConfig,
     PostalCodeLocale, ArgsISSNOptions,
@@ -504,15 +501,9 @@ function isValidIP(input: unknown, _parentContext?: unknown) {
 
 export function isRoutableIP(input: unknown, _parentContext?: unknown): boolean {
     if (isNil(input)) return false;
-    if (isArray(input)) return _lift(_isRoutableIP, input, _parentContext);
+    if (isArray(input)) return _lift(utilsIsRoutableIP, input, _parentContext);
 
-    return _isRoutableIP(input);
-}
-
-function _isRoutableIP(input: unknown, _parentContext?: unknown): boolean {
-    if (!isIP(input)) return false;
-
-    return !_privateIP(input);
+    return utilsIsRoutableIP(input);
 }
 
 /**
@@ -538,77 +529,9 @@ function _isRoutableIP(input: unknown, _parentContext?: unknown): boolean {
 
 export function isNonRoutableIP(input: unknown, _parentContext?: unknown): boolean {
     if (isNil(input)) return false;
-    if (isArray(input)) return _lift(_isNonRoutableIP, input, _parentContext);
+    if (isArray(input)) return _lift(utilsIsNonRoutableIP, input, _parentContext);
 
-    return _isNonRoutableIP(input);
-}
-
-function _isNonRoutableIP(input: unknown, _parentContext?: unknown): boolean {
-    if (!isIP(input)) return false;
-
-    return _privateIP(input);
-}
-
-function _privateIP(input: string): boolean {
-    const parsedIp = _parseIpAddress(input);
-
-    const ipRangeName = parsedIp.range();
-
-    return _inPrivateIPRange(ipRangeName) || _inRestrictedIPRange(parsedIp);
-}
-
-function _parseIpAddress(input: string) {
-    const ipv4Regex = /\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b/;
-
-    const parsed = ipaddr.parse(input);
-
-    // if ipv6 mapped v4 then need to return the parsed ipv4 address
-    if (parsed.kind() === 'ipv6') {
-        const ipv4 = input.match(ipv4Regex);
-
-        if (ipv4 != null && Array.isArray(ipv4)) {
-            return ipaddr.parse(ipv4[0]);
-        }
-    }
-
-    return parsed;
-}
-
-function _inPrivateIPRange(ipRange: string) {
-    return [
-        'private',
-        'uniqueLocal',
-        'loopback',
-        'unspecified',
-        'carrierGradeNat',
-        'linkLocal',
-        'reserved',
-        'rfc6052',
-        'teredo',
-        '6to4',
-        'broadcast'
-    ].includes(ipRange);
-}
-
-const ipv4RestrictedRanges = [
-    ipaddr.parseCIDR('192.31.196.0/24'),
-    ipaddr.parseCIDR('192.52.193.0/24'),
-    ipaddr.parseCIDR('192.175.48.0/24'),
-    ipaddr.parseCIDR('198.18.0.0/15'),
-    ipaddr.parseCIDR('224.0.0.0/8')
-];
-
-const ipv6RestrictedRanges = [
-    ipaddr.parseCIDR('64:ff9b:1::/48'),
-    ipaddr.parseCIDR('100::/64'),
-    ipaddr.parseCIDR('2001::/23'),
-    ipaddr.parseCIDR('2620:4f:8000::/48')
-];
-
-function _inRestrictedIPRange(parsedIp: ipaddr.IPv4 | ipaddr.IPv6) {
-    const rangesToCheck = parsedIp.kind() === 'ipv4' ? ipv4RestrictedRanges : ipv6RestrictedRanges;
-
-    return rangesToCheck.some((ipRange) => parsedIp.match(ipRange));
+    return utilsIsNonRoutableIP(input);
 }
 
 /**
@@ -656,37 +579,9 @@ export function inIPRange(
     input: unknown, _parentContext: unknown, args: { min?: string; max?: string; cidr?: string }
 ): boolean {
     if (isNil(input)) return false;
-    if (isArray(input)) return _lift(_inIPRange, input, _parentContext, args);
+    if (isArray(input)) return _lift(utilsInIPRange, input, _parentContext, args);
 
-    return _inIPRange(input, args);
-}
-
-function _inIPRange(input: unknown, args: { min?: string; max?: string; cidr?: string }) {
-    const MIN_IPV4_IP = '0.0.0.0';
-    const MAX_IPV4_IP = '255.255.255.255';
-    const MIN_IPV6_IP = '::';
-    const MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
-
-    if (!isIP(input)) return false;
-
-    const data = IpAddress.of(input).toString();
-    if (args.cidr) {
-        if (!isCIDR(args.cidr)) return false;
-        return new IPCIDR(args.cidr).contains(data);
-    }
-
-    // assign upper/lower bound even if min or max is missing
-    let { min, max } = args;
-    if (!min) min = isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
-    if (!max) max = isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
-
-    // min and max must be valid ips, same IP type, and min < max
-    if (!isIP(min) || !isIP(max) || isIPv6(min) !== isIPv6(max)
-        || ip6addr.compare(max, min) === -1) {
-        return false;
-    }
-
-    return ip6addr.createAddrRange(min, max).contains(data);
+    return utilsInIPRange(input, args);
 }
 
 /**
