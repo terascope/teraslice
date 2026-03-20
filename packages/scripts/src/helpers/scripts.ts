@@ -1171,7 +1171,7 @@ function generateHelmValuesFromServices(
         );
     }
 
-    logger.debug('helmfile command values: ', JSON.stringify(values));
+    signale.debug('helmfile command values: ', JSON.stringify(values));
 
     // Write the values to a temporary file
     const valuesDir = fs.mkdtempSync(path.join(os.tmpdir(), 'generated-yaml'));
