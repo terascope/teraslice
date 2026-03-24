@@ -240,6 +240,20 @@ const configSchema: Terafoundation.Schema<any> = {
         format: 'optional_string',
         env: 'TERASLICE_IMAGE'
     },
+    TERASLICE_DOCKER_IMAGE: {
+        default: 'ghcr.io/terascope/teraslice',
+        format: String,
+        env: 'TERASLICE_DOCKER_IMAGE'
+    },
+    TERASLICE_HOST: {
+        default: undefined,
+        format: String,
+    },
+    ASSET_ZIP_PATH: {
+        default: null,
+        format: 'optional_string',
+        env: 'ASSET_ZIP_PATH'
+    },
     TEST_NAMESPACE: {
         default: undefined,
         format: String
@@ -636,14 +650,18 @@ config.CERT_PATH = process.env.CERT_PATH
 
 const testOpensearch = toBoolean(process.env.TEST_OPENSEARCH);
 const testRestrainedOpensearch = toBoolean(process.env.TEST_RESTRAINED_OPENSEARCH);
+const testTeraslice = toBoolean(process.env.TEST_TERASLICE);
+
+config.TERASLICE_HOST = `http://${config.HOST_IP}:${config.TERASLICE_PORT}`;
 
 config.ENV_SERVICES = [
-    testOpensearch ? Service.Opensearch : undefined,
+    testOpensearch || testTeraslice ? Service.Opensearch : undefined,
     toBoolean(process.env.TEST_KAFKA) ? Service.Kafka : undefined,
     toBoolean(process.env.TEST_MINIO) ? Service.Minio : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
     toBoolean(process.env.TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
     toBoolean(process.env.ENABLE_UTILITY_SVC) ? Service.Utility : undefined,
+    testTeraslice ? Service.Teraslice : undefined,
 ]
     .filter(Boolean) as Service[];
 
