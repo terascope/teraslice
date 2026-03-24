@@ -1056,6 +1056,7 @@ function generateHelmValuesFromServices(
         [Service.RabbitMQ]: config.RABBITMQ_VERSION,
         [Service.RestrainedOpensearch]: config.OPENSEARCH_VERSION,
         [Service.Utility]: config.UTILITY_SVC_VERSION,
+        [Service.Teraslice]: config.TERASLICE_DOCKER_IMAGE,
     };
 
     let stateCluster: string | undefined;
