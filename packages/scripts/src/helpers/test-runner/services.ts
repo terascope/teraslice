@@ -334,7 +334,9 @@ export async function ensureTeraslice(options: TestOptions): Promise<() => void>
     };
 
     const startTime = Date.now();
-    const fn = await dockerRun(dockerOpts, version, options.ignoreMount, options.debug || options.trace);
+    const fn = await dockerRun(
+        dockerOpts, version, options.ignoreMount, options.debug || options.trace
+    );
     await checkTeraslice(options, startTime);
 
     return () => {
