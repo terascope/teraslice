@@ -652,6 +652,7 @@ const testOpensearch = toBoolean(process.env.TEST_OPENSEARCH);
 const testRestrainedOpensearch = toBoolean(process.env.TEST_RESTRAINED_OPENSEARCH);
 const testTeraslice = toBoolean(process.env.TEST_TERASLICE);
 
+config.TERASLICE_PORT = Number(process.env.TERASLICE_PORT) || 45678;
 config.TERASLICE_HOST = `http://${config.HOST_IP}:${config.TERASLICE_PORT}`;
 
 config.ENV_SERVICES = [

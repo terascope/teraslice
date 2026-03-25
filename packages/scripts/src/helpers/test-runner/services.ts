@@ -247,7 +247,7 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
     // Teraslice depends on OpenSearch being up, so start it after the parallel services
     let terasliceFn = () => { };
     if (launchServices.includes(Service.Teraslice)) {
-        terasliceFn = await ensureTeraslice(options);
+        terasliceFn = await ensureTeraslice(options, launchServices);
     }
 
     return () => {
@@ -304,7 +304,9 @@ export async function ensureUtility(options: TestOptions): Promise<() => void> {
     return fn;
 }
 
-export async function ensureTeraslice(options: TestOptions): Promise<() => void> {
+export async function ensureTeraslice(
+    options: TestOptions, launchServices: Service[]
+): Promise<() => void> {
     const version = config.TERASLICE_IMAGE
         ? config.TERASLICE_IMAGE.split(':')[1]
         : await getLatestTerasliceImageTag();
@@ -323,7 +325,7 @@ export async function ensureTeraslice(options: TestOptions): Promise<() => void>
 
     await logTCPPorts('teraslice');
 
-    const configPath = writeTerasliceConfig();
+    const configPath = writeTerasliceConfig(launchServices);
 
     const dockerOpts: DockerRunOptions = {
         image: config.TERASLICE_DOCKER_IMAGE,
@@ -352,20 +354,44 @@ export async function ensureTeraslice(options: TestOptions): Promise<() => void>
     };
 }
 
-function writeTerasliceConfig(): string {
+function writeTerasliceConfig(launchServices: Service[]): string {
     const opensearchNode = `${config.OPENSEARCH_PROTOCOL}://${config.OPENSEARCH_HOSTNAME}:${config.OPENSEARCH_PORT}`;
+
+    const connectors: Record<string, any> = {
+        'elasticsearch-next': {
+            default: {
+                node: [opensearchNode],
+            }
+        }
+    };
+
+    if (launchServices.includes(Service.Kafka)) {
+        connectors.kafka = {
+            default: {
+                brokers: [config.KAFKA_BROKER],
+                security_protocol: 'plaintext',
+            }
+        };
+    }
+
+    if (launchServices.includes(Service.Minio)) {
+        connectors.s3 = {
+            default: {
+                endpoint: config.MINIO_HOST,
+                accessKeyId: config.MINIO_ACCESS_KEY,
+                secretAccessKey: config.MINIO_SECRET_KEY,
+                forcePathStyle: true,
+                sslEnabled: false,
+                region: 'us-east-1',
+            }
+        };
+    }
 
     const cfg = {
         terafoundation: {
             log_level: 'info',
             workers: 1,
-            connectors: {
-                'elasticsearch-next': {
-                    default: {
-                        node: [opensearchNode],
-                    }
-                }
-            }
+            connectors,
         },
         teraslice: {
             master: true,
@@ -373,8 +399,8 @@ function writeTerasliceConfig(): string {
             port: 5678,
             name: `${config.TEST_NAMESPACE}_teraslice`,
             cluster_manager_type: 'native',
-            asset_storage_connection_type: 'elasticsearch-next',
-            asset_storage_connection: 'default',
+            asset_storage_connection_type: config.ASSET_STORAGE_CONNECTION_TYPE,
+            asset_storage_connection: config.ASSET_STORAGE_CONNECTION,
             assets_directory: '/app/assets',
             index_settings: {
                 analytics: { number_of_replicas: 0 },
@@ -388,7 +414,9 @@ function writeTerasliceConfig(): string {
 
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ts-teraslice-'));
     const configPath = path.join(tmpDir, 'teraslice.yaml');
-    fs.outputFileSync(configPath, yaml.dump(cfg));
+    const yamlContent = yaml.dump(cfg);
+    fs.outputFileSync(configPath, yamlContent);
+    signale.debug(`teraslice.yaml:\n${yamlContent}`);
     return configPath;
 }
 
@@ -409,7 +437,8 @@ async function checkTeraslice(options: TestOptions, startTime: number): Promise<
                 ({ body } = await got(host, {
                     responseType: 'json',
                     throwHttpErrors: true,
-                    retry: { limit: 0 }
+                    retry: { limit: 0 },
+                    timeout: { request: 5000 }
                 }));
             } catch (err) {
                 error = err.message;
