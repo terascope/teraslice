@@ -1,4 +1,4 @@
-import { pMap, isString, toHumanTime } from '@terascope/core-utils';
+import { pMap, isString, toHumanTime, isCI } from '@terascope/core-utils';
 import { PackageInfo } from '../interfaces.js';
 import { listPackages, getMainPackageInfo, getPublishTag } from '../packages.js';
 import { PublishAction, PublishOptions, PublishType } from './interfaces.js';
@@ -144,6 +144,13 @@ async function publishToDocker(options: PublishOptions) {
         }
 
         signale.success(`built docker image ${imageToBuild}, took ${toHumanTime(Date.now() - startTime)}`);
+    }
+
+    if (isCI) {
+        process.stdout.write('docker image for release notes\n');
+        for (const img of imagesToPush) {
+            process.stdout.write(`- ${img}\n`);
+        }
     }
 
     if (err) {
