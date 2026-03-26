@@ -1198,13 +1198,10 @@ jobs:
           BODY=$'### Docker Images\n\n'
           for dir in artifacts/test-docker-tags-node*/; do
             [ -d "$dir" ] || continue
-            NODE=$(basename "$dir" | sed 's/test-docker-tags-node//')
-            BODY+="**Node ${NODE}:**"$'\n'
             while IFS= read -r img; do
               [ -z "$img" ] && continue
-              BODY+="\`${img}\`"$'\n'
+              BODY+="  - \`${img}\`"$'\n'
             done < "$dir/docker-tags.txt"
-            BODY+=$'\n'
           done
           echo "=== Release body appendix preview ==="
           printf '%s\n' "$BODY"
