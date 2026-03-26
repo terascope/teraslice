@@ -1,5 +1,6 @@
 import { DataTypeMapping } from '../interfaces.js';
 import BooleanV1 from './v1/boolean.js';
+import BinaryV1 from './v1/binary.js';
 import DateV1 from './v1/date.js';
 import GeoV1 from './v1/geo.js';
 import GeoPointV1 from './v1/geo-point.js';
@@ -31,6 +32,7 @@ import VectorV1 from './v1/vector.js';
 export const mapping: DataTypeMapping = {
     1: {
         Boolean: BooleanV1,
+        Binary: BinaryV1,
         Date: DateV1,
         Geo: GeoV1,
         GeoPoint: GeoPointV1,
