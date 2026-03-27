@@ -9,6 +9,7 @@ import {
 } from '@terascope/core-utils';
 import { TestEnv, Terafoundation, ScriptsTestEnv } from '@terascope/types';
 import { Service } from './interfaces.js';
+import { getLatestTerasliceImageTag } from './github.js';
 
 function newId(prefix?: string, lowerCase = false, length = 15): string {
     let characters = '-0123456789abcdefghijklmnopqrstuvwxyz';
@@ -239,6 +240,10 @@ const configSchema: Terafoundation.Schema<any> = {
         default: null,
         format: 'optional_string',
         env: 'TERASLICE_IMAGE'
+    },
+    TERASLICE_VERSION: {
+        default: null,
+        format: 'optional_string',
     },
     TERASLICE_DOCKER_IMAGE: {
         default: 'ghcr.io/terascope/teraslice',
@@ -692,3 +697,11 @@ try {
 }
 
 export default validatedConfig;
+
+export async function resolveTerasliceVersion(): Promise<void> {
+    if (validatedConfig.TERASLICE_IMAGE) {
+        validatedConfig.TERASLICE_VERSION = validatedConfig.TERASLICE_IMAGE.split(':')[1];
+    } else {
+        validatedConfig.TERASLICE_VERSION = await getLatestTerasliceImageTag();
+    }
+}

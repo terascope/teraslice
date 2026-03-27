@@ -18,9 +18,8 @@ import {
 import { Kind } from '../kind.js';
 import { TestOptions } from './interfaces.js';
 import { Service } from '../interfaces.js';
-import config from '../config.js';
+import config, { resolveTerasliceVersion } from '../config.js';
 import signale from '../signale.js';
-import { getLatestTerasliceImageTag } from '../github.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -29,7 +28,7 @@ const serviceUpTimeout = ms(config.SERVICE_UP_TIMEOUT);
 const rabbitConfigPath = path.join(getRootDir(), '/.ts-test-config/rabbitmq.conf');
 const restrainedOpensearchConfigPath = path.join(getRootDir(), '/.ts-test-config/opensearch.yml');
 
-const services: Readonly<Partial<Record<Service, Readonly<DockerRunOptions>>>> = {
+const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.RestrainedOpensearch]: {
         image: config.OPENSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
@@ -135,6 +134,12 @@ const services: Readonly<Partial<Record<Service, Readonly<DockerRunOptions>>>> =
     [Service.Utility]: {
         image: config.UTILITY_SVC_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.UTILITY_SVC_NAME}`,
+        network: config.DOCKER_NETWORK_NAME,
+    },
+    [Service.Teraslice]: {
+        image: config.TERASLICE_DOCKER_IMAGE,
+        name: `${config.TEST_NAMESPACE}_teraslice`,
+        ports: [`${config.TERASLICE_PORT}:5678`],
         network: config.DOCKER_NETWORK_NAME,
     }
 };
@@ -307,51 +312,15 @@ export async function ensureUtility(options: TestOptions): Promise<() => void> {
 export async function ensureTeraslice(
     options: TestOptions, launchServices: Service[]
 ): Promise<() => void> {
-    const version = config.TERASLICE_IMAGE
-        ? config.TERASLICE_IMAGE.split(':')[1]
-        : await getLatestTerasliceImageTag();
-
-    signale.pending(`starting teraslice@${version} service...`);
-
-    if (options.useExistingServices) {
-        signale.warn(`expecting teraslice@${version} to be running (this can be dangerous)...`);
-        return () => { };
-    }
-
-    const containerName = `${config.TEST_NAMESPACE}_teraslice`;
-
-    const existing = await getContainerInfo(containerName);
-    if (existing) await dockerStop(containerName);
-
-    await logTCPPorts('teraslice');
+    await resolveTerasliceVersion();
 
     const configPath = writeTerasliceConfig(launchServices);
-
-    const dockerOpts: DockerRunOptions = {
-        image: config.TERASLICE_DOCKER_IMAGE,
-        name: containerName,
-        ports: [`${config.TERASLICE_PORT}:5678`],
-        mount: [`type=bind,source=${configPath},target=/app/config/teraslice.yaml`],
-        network: config.DOCKER_NETWORK_NAME,
-    };
-
     const startTime = Date.now();
-    const fn = await dockerRun(
-        dockerOpts, version, options.ignoreMount, options.debug || options.trace
-    );
+    const fn = await startService(options, Service.Teraslice, {
+        mount: [`type=bind,source=${configPath},target=/app/config/teraslice.yaml`],
+    });
     await checkTeraslice(options, startTime);
-
-    return () => {
-        try {
-            fn();
-        } catch (err) {
-            signale.error(
-                new TSError(err, {
-                    reason: `Failed to stop teraslice@${version} service`,
-                })
-            );
-        }
-    };
+    return fn;
 }
 
 function writeTerasliceConfig(launchServices: Service[]): string {
@@ -777,7 +746,11 @@ async function checkUtility(options: TestOptions, startTime: number): Promise<vo
     signale.success(`Utility Service **might** be running, took ${took}`);
 }
 
-async function startService(options: TestOptions, service: Service): Promise<() => void> {
+async function startService(
+    options: TestOptions,
+    service: Service,
+    extraDockerOpts?: Partial<DockerRunOptions>
+): Promise<() => void> {
     let serviceName = service;
 
     if (serviceName === 'restrained_opensearch') {
@@ -808,7 +781,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     await logTCPPorts(serviceName);
 
     const fn = await dockerRun(
-        services[service]!,
+        { ...services[service]!, ...extraDockerOpts },
         version,
         options.ignoreMount,
         options.debug || options.trace
