@@ -45,3 +45,30 @@ List of environmental variables to setup a database:
 - "TEST_MINIO"
 - "TEST_RESTRAINED_OPENSEARCH" (this contains bulk queue limits to test api bulk overflows)
 - "TEST_RABBITMQ"
+- "TEST_TERASLICE"
+
+## Asset E2E Testing with Teraslice
+
+Setting `TEST_TERASLICE=true` enables e2e testing of assets against a live Teraslice instance. When enabled, the test harness will:
+
+1. Start an OpenSearch instance (required by Teraslice)
+2. Fetch the latest Teraslice image from GHCR for the current Node.js major version (or use a pinned image via `TERASLICE_IMAGE`)
+3. Start a Teraslice container configured to connect to the OpenSearch and any other services in the test suite
+4. Wait for the Teraslice API to become healthy before running tests
+
+The `TERASLICE_HOST` environment variable is set automatically and made available to tests for connecting to the Teraslice API.
+
+Example `package.json` test script for an asset:
+
+```json
+"test:e2e": "ASSET_ZIP_PATH=$(ls ./build/*.zip | head -1) TEST_TERASLICE=true ts-scripts test -- --testPathPatterns=test/e2e"
+```
+
+### Environment Variables
+
+| Variable | Description | Default |
+|---|---|---|
+| `TEST_TERASLICE` | Start a Teraslice instance for testing | `false` |
+| `TERASLICE_IMAGE` | Pin a specific Teraslice Docker image (e.g. `ghcr.io/terascope/teraslice:v3.4.2-nodev24.14.0`). If not set, the latest release is fetched from GitHub. | `null` |
+| `TERASLICE_PORT` | Port to expose Teraslice on the host | `45678` |
+| `ASSET_ZIP_PATH` | Path to the built asset `.zip` file to upload during tests | `null` |

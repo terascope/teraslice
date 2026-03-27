@@ -108,10 +108,14 @@ export interface TestEnv {
     SKIP_IMAGE_DELETION?: boolean;
     STERN_LOGS?: boolean;
     TJM_TEST_MODE?: boolean;
+    ASSET_ZIP_PATH?: string;
     TERASLICE_CLUSTER_NAME?: string;
+    TERASLICE_HOST?: string;
     TERASLICE_IMAGE?: string;
     TERASLICE_PORT?: number;
+    TERASLICE_VERSION?: string;
     TEST_INDEX_PREFIX?: string;
+    TEST_TERASLICE?: boolean;
     TEST_KAFKA?: boolean;
     TEST_MINIO?: boolean;
     TEST_NAMESPACE?: string;
@@ -153,6 +157,11 @@ export type RabbitMQTestEnv = RequireKeys<
     TestEnv,
     'RABBITMQ_HOSTNAME' | 'RABBITMQ_USER' | 'RABBITMQ_VERSION' | 'RABBITMQ_PORT'
     | 'RABBITMQ_MANAGEMENT_PORT' | 'RABBITMQ_PASSWORD'
+>;
+
+export type TerasliceServiceTestEnv = RequireKeys<
+    TestEnv,
+    'TEST_TERASLICE' | 'TERASLICE_HOST' | 'ASSET_ZIP_PATH'
 >;
 
 export type E2ETestEnv = RequireKeys<
@@ -201,9 +210,11 @@ export type ScriptsTestEnv = RequireKeys<
     | 'RESTRAINED_OPENSEARCH_HOST' | 'RESTRAINED_OPENSEARCH_PORT' | 'SEARCH_TEST_HOST'
     | 'SERVICE_HEAP_OPTS' | 'SERVICE_UP_TIMEOUT' | 'SERVICES_USE_TMPFS'
     | 'SKIP_DOCKER_BUILD_IN_E2E' | 'SKIP_DOCKER_BUILD_IN_K8S' | 'SKIP_E2E_OUTPUT_LOGS'
-    | 'SKIP_GIT_COMMANDS' | 'SKIP_IMAGE_DELETION' | 'TERASLICE_IMAGE' | 'TERASLICE_PORT'
-    | 'TEST_NAMESPACE' | 'USE_EXISTING_SERVICES' | 'UTILITY_SVC_DOCKER_IMAGE'
-    | 'UTILITY_SVC_DOCKER_PROJECT_PATH' | 'UTILITY_SVC_NAME' | 'UTILITY_SVC_VERSION'
+    | 'SKIP_GIT_COMMANDS' | 'SKIP_IMAGE_DELETION' | 'TERASLICE_DOCKER_IMAGE'
+    | 'TERASLICE_HOST' | 'TERASLICE_IMAGE' | 'TERASLICE_PORT' | 'TERASLICE_VERSION'
+    | 'TEST_NAMESPACE' | 'TEST_TERASLICE' | 'USE_EXISTING_SERVICES'
+    | 'UTILITY_SVC_DOCKER_IMAGE' | 'UTILITY_SVC_DOCKER_PROJECT_PATH'
+    | 'UTILITY_SVC_NAME' | 'UTILITY_SVC_VERSION'
 >;
 export interface TerasliceEnv {
     ASSETS?: string;
@@ -266,5 +277,6 @@ export enum Service {
     RabbitMQ = 'rabbitmq',
     Opensearch = 'opensearch',
     RestrainedOpensearch = 'restrained_opensearch',
-    Utility = 'utility'
+    Utility = 'utility',
+    Teraslice = 'teraslice'
 }

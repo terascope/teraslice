@@ -86,7 +86,8 @@ const mockConfig = {
 
 jest.unstable_mockModule('../src/helpers/config.js', () => ({
     __esModule: true,
-    default: mockConfig
+    default: mockConfig,
+    resolveTerasliceVersion: jest.fn()
 }));
 
 describe('services', () => {
