@@ -432,7 +432,7 @@ async function checkTeraslice(options: TestOptions, startTime: number): Promise<
 }
 
 async function stopService(service: Service) {
-    const { name } = services[service]!;
+    const { name } = services[service];
     const info = await getContainerInfo(name);
     if (!info) return;
 
@@ -781,7 +781,7 @@ async function startService(
     await logTCPPorts(serviceName);
 
     const fn = await dockerRun(
-        { ...services[service]!, ...extraDockerOpts },
+        { ...services[service], ...extraDockerOpts },
         version,
         options.ignoreMount,
         options.debug || options.trace
