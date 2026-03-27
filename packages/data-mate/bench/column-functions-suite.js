@@ -1,3 +1,4 @@
+/* eslint-disable @stylistic/max-len */
 import { isEmpty, isExecutedFile } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import { Suite } from './helpers.js';
@@ -57,11 +58,13 @@ const run = async () => {
                 return true;
             })
             .forEach(([name, fnDef]) => {
-                suite.add(`${fieldInfo} ${name}`, {
-                    fn() {
-                        dataFrameAdapter(fnDef).column(column);
-                    }
-                });
+                if (name === 'inIPRange') {
+                    suite.add(`${fieldInfo} ${name}`, {
+                        fn() {
+                            dataFrameAdapter(fnDef).column(column);
+                        }
+                    });
+                }
             });
     }
 
