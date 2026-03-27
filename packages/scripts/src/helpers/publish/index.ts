@@ -7,7 +7,7 @@ import {
     removeNodeSuffixFromTag
 } from './utils.js';
 import {
-    yarnPublish, yarnRun, remoteDockerImageExists,
+    packageMngrPublish, packageMngrRun, remoteDockerImageExists,
     dockerBuild, dockerPush,
     getNodeVersionFromImage
 } from '../scripts.js';
@@ -58,7 +58,7 @@ async function npmPublish(
 
     const tag = getPublishTag(pkgInfo.version);
 
-    await yarnRun('build', [], pkgInfo.dir, {
+    await packageMngrRun('build', [], pkgInfo.dir, {
         NODE_ENV: 'production'
     }, true);
 
@@ -67,7 +67,7 @@ async function npmPublish(
         return pkgInfo.name;
     }
 
-    await yarnPublish(pkgInfo, tag);
+    await packageMngrPublish(pkgInfo, tag);
     return pkgInfo.name;
 }
 

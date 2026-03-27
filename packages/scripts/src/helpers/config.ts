@@ -572,7 +572,7 @@ const configSchema: Terafoundation.Schema<any> = {
         env: 'UTILITY_SVC_DOCKER_IMAGE'
     },
     UTILITY_SVC_DOCKER_PROJECT_PATH: {
-        default: 'e2e/helm/utility',
+        default: 'packages/scripts/helm/utility',
         format: String,
         env: 'UTILITY_SVC_DOCKER_PROJECT_PATH'
     },

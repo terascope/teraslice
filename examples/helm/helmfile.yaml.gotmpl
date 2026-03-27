@@ -29,7 +29,7 @@ releases:
     version: 2.17.1
     installed: {{ .Values | get "opensearch1.enabled" false }}
     values:
-      - ../../e2e/helm/templates/os1.yaml.gotmpl
+      - ../../packages/scripts/helm/templates/os1.yaml.gotmpl
 
   - name: opensearch2
     namespace: services-dev1
@@ -37,7 +37,7 @@ releases:
     version: 2.17.1
     installed: {{ .Values | get "opensearch2.enabled" true }}
     values:
-      - ../../e2e/helm/templates/os2.yaml.gotmpl
+      - ../../packages/scripts/helm/templates/os2.yaml.gotmpl
 
   - name: opensearch3
     namespace: services-dev1
@@ -45,7 +45,7 @@ releases:
     version: 3.1.0
     installed: {{ .Values | get "opensearch3.enabled" false }}
     values:
-      - ../../e2e/helm/templates/os3.yaml.gotmpl
+      - ../../packages/scripts/helm/templates/os3.yaml.gotmpl
 
   - name: minio
     namespace: services-dev1
@@ -53,7 +53,7 @@ releases:
     version: 5.3.0
     installed: {{ .Values | get "minio.enabled" false }}
     values:
-      - ../../e2e/helm/templates/minio.yaml.gotmpl
+      - ../../packages/scripts/helm/templates/minio.yaml.gotmpl
 
   - name: kafka
     namespace: services-dev1
@@ -61,7 +61,7 @@ releases:
     version: 1.2.0
     installed: {{ .Values | get "kafka.enabled" true }}
     values:
-      - ../../e2e/helm/templates/kafka.yaml.gotmpl
+      - ../../packages/scripts/helm/templates/kafka.yaml.gotmpl
 
   - name: kafka-ui
     namespace: services-dev1
@@ -92,7 +92,7 @@ releases:
     needs:
       - services-dev1/{{ .Values | get "teraslice.stateCluster" "opensearch2" }}
     values:
-      - ../../e2e/helm/templates/teraslice.yaml.gotmpl
+      - ../../packages/scripts/helm/templates/teraslice.yaml.gotmpl
     labels:
       app: teraslice
 
@@ -112,8 +112,8 @@ releases:
 
   - name: utility
     namespace: services-dev1
-    chart: ../../e2e/helm/utility
+    chart: ../../packages/scripts/helm/utility
     version: 0.0.1
     installed: {{ .Values | get "utility.enabled" true }}
     values:
-      - ../../e2e/helm/templates/utility.yaml.gotmpl
+      - ../../packages/scripts/helm/templates/utility.yaml.gotmpl

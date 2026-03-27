@@ -1,5 +1,5 @@
 kind: Cluster
-name: k8s-env
+name: k8s-e2e
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
@@ -13,21 +13,24 @@ nodes:
   #
   # teraslice port mapping needs to be at index 0 in this array
   # - containerPort: 30678 # Map internal teraslice service to host port
-  #   hostPort: 5678
+  #   hostPort: 45678
   # - containerPort: 30210 # Map internal opensearch service to host port
-  #   hostPort: 9210
+  #   hostPort: 49210
   # - containerPort: 30092 # Map internal kafka service to host port
-  #   hostPort: 9092
+  #   hostPort: 49092
   # - containerPort: 30094 # Map external kafka service to host port
-    # hostPort: 9094
+  #   hostPort: 49094
   # - containerPort: 30900 # Map internal minio service to host port
-  #   hostPort: 9000
+  #   hostPort: 49000
   # - containerPort: 30901 # Map internal minio-ui service to host port
-  #   hostPort: 9001
+  #   hostPort: 49001
+
   extraMounts:
-  - hostPath: ./e2e/autoload
+  # hostPaths are relative to node process.cwd() - e2e directory in this case
+  - hostPath: ./autoload
     containerPath: /autoload
-  - hostPath: ./e2e/helm/utility/data
-    containerPath: /data
   - hostPath: ./logs
-    containerPath: /mnt/logs
+    containerPath: /mnt/logs  
+    # recovery-spec needs visibility into assets from jest environment   
+  - hostPath: ./assets
+    containerPath: /e2e-assets
