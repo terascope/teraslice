@@ -556,9 +556,8 @@ const configSchema: Terafoundation.Schema<any> = {
         format: String,
     },
     TERASLICE_PORT: {
-        default: 45678,
+        default: undefined,
         format: Number,
-        env: 'TERASLICE_PORT'
     },
     TEST_PLATFORM: {
         default: 'native',
