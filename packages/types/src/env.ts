@@ -158,7 +158,7 @@ export type RabbitMQTestEnv = RequireKeys<
     | 'RABBITMQ_MANAGEMENT_PORT' | 'RABBITMQ_PASSWORD'
 >;
 
-export type TerasliceTestEnv = RequireKeys<
+export type TerasliceServiceTestEnv = RequireKeys<
     TestEnv,
     'TEST_TERASLICE' | 'TERASLICE_HOST' | 'ASSET_ZIP_PATH'
 >;

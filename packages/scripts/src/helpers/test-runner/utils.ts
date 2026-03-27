@@ -14,7 +14,7 @@ import config from '../config.js';
 import signale from '../signale.js';
 import type {
     TestEnv, KafkaTestEnv, MinioTestEnv,
-    OpenSearchTestEnv, RabbitMQTestEnv, TerasliceTestEnv
+    OpenSearchTestEnv, RabbitMQTestEnv, TerasliceServiceTestEnv
 } from '@terascope/types';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -156,7 +156,7 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
             TEST_TERASLICE: true,
             TERASLICE_HOST: config.TERASLICE_HOST,
             ASSET_ZIP_PATH: config.ASSET_ZIP_PATH,
-        } satisfies TerasliceTestEnv);
+        } satisfies TerasliceServiceTestEnv);
     }
 
     if (options.keepOpen) {
