@@ -81,10 +81,59 @@ jobs:
         run: pnpm install --frozen-lockfile && pnpm run setup
 
       - name: Publish to docker
-        run: pnpm ts-scripts publish -t tag -n ${{ matrix.node-version }} docker
+        id: docker-publish
+        run: |
+          pnpm ts-scripts publish -t tag -n ${{ matrix.node-version }} docker 2>/dev/null | tee /tmp/docker-output.txt
+          grep "^- " /tmp/docker-output.txt | sed 's/^- //' > /tmp/docker-tags.txt
+          echo "images=$(grep "^- " /tmp/docker-output.txt | sed 's/^- //' | paste -sd ',' -)" >> $GITHUB_OUTPUT
+
+      - name: Upload docker tags artifact
+        if: steps.docker-publish.outputs.images != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-tags-node${{ matrix.node-version }}
+          path: /tmp/docker-tags.txt
+
+  append-docker-tags-to-release:
+    needs: [ensure-non-pre-release, docker-build-publish]
+    if: needs.ensure-non-pre-release.outputs.is_dev_release == 'false'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download docker tags artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: docker-tags-node*
+          merge-multiple: false
+          path: artifacts
+
+      - name: Build release body appendix
+        id: build-body
+        run: |
+          BODY=$'### Docker Images\n\n'
+          for dir in artifacts/docker-tags-node*/; do
+            [ -d "$dir" ] || continue
+            while IFS= read -r img; do
+              [ -z "$img" ] && continue
+              BODY+="  - \`${img}\`"$'\n'
+            done < "$dir/docker-tags.txt"
+          done
+          {
+            echo "body<<EOF"
+            printf '%s' "$BODY"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Append docker tags to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.ensure-non-pre-release.outputs.teraslice_version }}
+          append_body: true
+          body: ${{ steps.build-body.outputs.body }}
 
   slack-announcement:
-    needs: [ensure-non-pre-release, build-release, docker-build-publish]
+    needs: [ensure-non-pre-release, build-release, docker-build-publish, append-docker-tags-to-release]
     runs-on: ubuntu-latest
     steps:
       - name: Announce release in Slack releases channel
