@@ -147,7 +147,7 @@ releases:
 
   - name: teraslice
     namespace: ts-dev1
-    chart: ../../helm/teraslice
+    chart: ../../../helm/teraslice
     needs:
       - default/namespaces
       - services-dev1/{{ .Values | get "teraslice.stateCluster" "opensearch2" }}
