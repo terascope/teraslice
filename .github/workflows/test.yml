@@ -143,6 +143,11 @@ jobs:
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
     steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Check out code
         uses: actions/checkout@v4
 
@@ -186,6 +191,12 @@ jobs:
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
     steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -1157,6 +1168,7 @@ jobs:
       elasticsearch-store-tests,
       teraslice-elasticsearch-tests
     ]
+    if: always()
     uses: terascope/workflows/.github/workflows/check-docker-limit.yml@main
     secrets: inherit
 
@@ -1173,6 +1185,7 @@ jobs:
       teraslice-elasticsearch-tests,
       xlucene-translator-tests,
     ]
+    if: always()
     uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
     secrets: inherit
 
