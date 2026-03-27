@@ -64,4 +64,4 @@ To set a new default version make changes to the following:
 - .github/workflows/test.yml - set `NODE_VERSION_MAIN` and `NODE_VERSION_EXT_STORAGE` variables (used by verify-build, lint-and-sync , and e2e-external-storage-tests jobs)
 - packages/scripts/src/helpers/config.ts - `__DEFAULT_NODE_VERSION` variable
 - packages/teraslice-cli/src/helpers/asset-src.ts - `bundleTarget` default in the constructor
-- e2e/helm/values.yaml - `teraslice.image.tag` property
+- packages/scripts/helm/values.yaml - `teraslice.image.tag` property

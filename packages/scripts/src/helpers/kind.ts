@@ -6,11 +6,12 @@ import yaml from 'js-yaml';
 import { Logger, debugLogger, isCI } from '@terascope/core-utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale.js';
-import { getE2eK8sDir } from '../helpers/packages.js';
 import {
     KindCluster, TsVolumeSet, CustomKindDefaultPorts, CustomKindService, DeployedServicePorts
 } from './interfaces.js';
 import config from './config.js';
+import { getRootDir } from './misc.js';
+import { getE2EDir } from './packages.js';
 
 const {
     DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
@@ -44,19 +45,13 @@ export class Kind {
         customConfigPath?: string
     ): Promise<void> {
         this.kindVersion = await this.getKindVersion();
-
-        const e2eK8sDir = getE2eK8sDir();
-        if (!e2eK8sDir) {
-            throw new Error('Missing k8s e2e test directory');
-        }
-
         let configPath: string;
 
         // clusterName must match 'name' in kind config yaml file
         if (this.clusterName === 'k8s-e2e') {
-            configPath = path.join(e2eK8sDir, 'kindConfigTestPorts.yaml');
+            configPath = path.join(getRootDir(), 'packages/scripts/k8s/kindConfigTestPorts.yaml');
         } else if (this.clusterName === 'k8s-env') {
-            configPath = path.join(e2eK8sDir, 'kindConfigDefaultPorts.yaml');
+            configPath = path.join(getRootDir(), 'packages/scripts/k8s/kindConfigDefaultPorts.yaml');
         } else {
             signale.error(`No config file for cluster with name ${this.clusterName}`);
             process.exit(1);
@@ -207,7 +202,11 @@ export class Kind {
             configFile.nodes[0].image = kindToK8sImageMap(this.kindVersion, this.k8sVersion);
         }
         if (configFile.nodes[0].extraMounts) {
-            configFile.nodes[0].extraMounts[0].hostPath = path.join(e2eK8sDir, '..', 'autoload');
+            const e2eDir = getE2EDir();
+            if (!e2eDir) {
+                throw new Error('Missing e2e test directory');
+            }
+            configFile.nodes[0].extraMounts[0].hostPath = path.join(e2eDir, 'autoload');
             if (devMode) {
                 const dockerFileMounts = getVolumesFromDockerfile(false, this.logger).extraMounts;
                 configFile.nodes[0].extraMounts.push(...dockerFileMounts);
