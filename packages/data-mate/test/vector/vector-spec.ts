@@ -1,6 +1,7 @@
 import 'jest-extended';
 import {
-    toString, bigIntToJSON, isNotNil, times
+    toString, bigIntToJSON, isNotNil, times,
+    bufferToString
 } from '@terascope/core-utils';
 import {
     DataTypeFields,
@@ -24,6 +25,8 @@ describe('Vector', () => {
     ];
     const nowDate = new Date();
     const now = nowDate.getTime();
+    const binaryString = Buffer.from('bazz').toString('base64url');
+
     const testCases: Case[] = [
         [
             FieldType.Any,
@@ -35,6 +38,24 @@ describe('Vector', () => {
             undefined,
             ['foo', 'bar', 'true', '1', '2', null, null],
             [{ foo: 'bar' }]
+        ],
+        [
+            FieldType.Binary,
+            [
+                Buffer.from('foo'),
+                Buffer.from('bar'),
+                binaryString,
+                null,
+                undefined
+            ],
+            undefined,
+            [
+                bufferToString(Buffer.from('foo')),
+                bufferToString(Buffer.from('bar')),
+                binaryString,
+                null,
+                null
+            ],
         ],
         [
             FieldType.Float,

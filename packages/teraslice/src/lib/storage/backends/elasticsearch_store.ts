@@ -11,7 +11,7 @@ import { DataType } from '@terascope/data-types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { timeseriesIndex } from '../../utils/date_utils.js';
 import { analyticsDataTypeConfig, analyticsTemplate } from './mappings/analytics.js';
-import { assetDataTypeConfig, assetMappingOverrides } from './mappings/asset.js';
+import { assetDataTypeConfig } from './mappings/asset.js';
 import { executionDataTypeConfig } from './mappings/ex.js';
 import { jobDataTypeConfig } from './mappings/job.js';
 import { stateDataTypeConfig, stateTemplate } from './mappings/state.js';
@@ -552,7 +552,6 @@ export class TerasliceElasticsearchStorage {
             case 'asset':
                 return {
                     config: assetDataTypeConfig,
-                    overrides: assetMappingOverrides
                 };
             case 'ex':
                 return { config: executionDataTypeConfig };

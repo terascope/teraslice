@@ -9,7 +9,8 @@ import {
     isValidateNumberType, toBigIntOrThrow, toNumberOrThrow,
     toIntegerOrThrow, toFloatOrThrow, hasOwn, isKey,
     isArrayLike, castArray, getTypeOf, isPlainObject,
-    noop, isNotNil, isIterator, toEpochMSOrThrow
+    noop, isNotNil, isIterator, toEpochMSOrThrow,
+    bufferToString
 } from '@terascope/core-utils';
 import { isIPRangeOrThrow, isIPOrThrow } from '@terascope/ip-utils';
 import { toGeoJSONOrThrow, parseGeoPoint } from '@terascope/geo-utils';
@@ -313,6 +314,8 @@ function getTransformerForFieldType<T = unknown>(
             return callIfNotNil(coerceToTuple(argFieldType, childConfig)) as CoerceFN<any>;
         case FieldType.Any:
             return callIfNotNil(noop);
+        case FieldType.Binary:
+            return callIfNotNil((value: unknown) => bufferToString(value)) as CoerceFN<any>;
         default:
             throw new Error(`Invalid FieldType ${argFieldType.type}, was pulled from the type field of input ${JSON.stringify(argFieldType, null, 2)}`);
     }

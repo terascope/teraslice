@@ -12,3 +12,4 @@ export * from './IPRangeVector.js';
 export * from './ObjectVector.js';
 export * from './StringVector.js';
 export * from './TupleVector.js';
+export * from './BinaryVector.js';

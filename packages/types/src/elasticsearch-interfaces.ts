@@ -182,6 +182,7 @@ export type ESFieldType
         | 'integer'
         | 'short'
         | 'byte'
+        | 'binary'
         | 'double'
         | 'float'
         | 'keyword'
