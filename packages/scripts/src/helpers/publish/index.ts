@@ -1,4 +1,4 @@
-import { pMap, isString, toHumanTime } from '@terascope/core-utils';
+import { pMap, isString, toHumanTime, isCI } from '@terascope/core-utils';
 import { PackageInfo } from '../interfaces.js';
 import { listPackages, getMainPackageInfo, getPublishTag } from '../packages.js';
 import { PublishAction, PublishOptions, PublishType } from './interfaces.js';
@@ -7,7 +7,7 @@ import {
     removeNodeSuffixFromTag
 } from './utils.js';
 import {
-    yarnPublish, yarnRun, remoteDockerImageExists,
+    packageMngrPublish, packageMngrRun, remoteDockerImageExists,
     dockerBuild, dockerPush,
     getNodeVersionFromImage
 } from '../scripts.js';
@@ -58,7 +58,7 @@ async function npmPublish(
 
     const tag = getPublishTag(pkgInfo.version);
 
-    await yarnRun('build', [], pkgInfo.dir, {
+    await packageMngrRun('build', [], pkgInfo.dir, {
         NODE_ENV: 'production'
     }, true);
 
@@ -67,7 +67,7 @@ async function npmPublish(
         return pkgInfo.name;
     }
 
-    await yarnPublish(pkgInfo, tag);
+    await packageMngrPublish(pkgInfo, tag);
     return pkgInfo.name;
 }
 
@@ -144,6 +144,13 @@ async function publishToDocker(options: PublishOptions) {
         }
 
         signale.success(`built docker image ${imageToBuild}, took ${toHumanTime(Date.now() - startTime)}`);
+    }
+
+    if (isCI) {
+        process.stdout.write('docker image for release notes\n');
+        for (const img of imagesToPush) {
+            process.stdout.write(`- ${img}\n`);
+        }
     }
 
     if (err) {

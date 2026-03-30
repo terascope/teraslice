@@ -29,11 +29,12 @@ nodes:
   # - containerPort: 30901 # Map internal minio-ui service to host port
   #   hostPort: 9001
   extraMounts:
+  # hostPaths are relative to node process.cwd() - root directory in this case
   - hostPath: ./e2e/autoload
     containerPath: /autoload
   - hostPath: ./logs
     containerPath: /mnt/logs   
-  - hostPath: ./e2e/helm/utility/data
+  - hostPath: ./packages/scripts/helm/utility/data
     containerPath: /data
   ### All extra mounts that the Dockerfile.dev image needs to run teraslice
   - hostPath: ./packages

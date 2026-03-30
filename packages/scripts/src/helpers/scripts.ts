@@ -20,7 +20,6 @@ import type { TestEnv } from '@terascope/types';
 import { getRootDir, getRootInfo, getPackageManager } from './misc.js';
 import signale from './signale.js';
 import config from './config.js';
-import { getE2EDir } from '../helpers/packages.js';
 import { getVolumesFromDockerfile } from './kind.js';
 
 const logger = debugLogger('ts-scripts:cmd');
@@ -127,17 +126,17 @@ export async function build(pkgInfo?: PackageInfo): Promise<void> {
         if (fse.existsSync(distDir)) {
             await fse.emptyDir(distDir);
         }
-        await yarnRun('build', [], pkgInfo.dir);
+        await packageMngrRun('build', [], pkgInfo.dir);
         return;
     }
-    await yarnRun('build');
+    await packageMngrRun('build');
 }
 
 export async function setup(): Promise<void> {
-    await yarnRun('setup');
+    await packageMngrRun('setup');
 }
 
-export async function yarnRun(
+export async function packageMngrRun(
     script: string,
     args?: string[],
     cwd?: string,
@@ -659,9 +658,9 @@ export function mapToArgs(input: ArgsMap): string[] {
 }
 
 /**
- * Publish package using yarn (versions 2, 3, 4) or pnpm
+ * Publish package to NPM using yarn (versions 2, 3, 4) or pnpm
 */
-export async function yarnPublish(
+export async function packageMngrPublish(
     pkgInfo: PackageInfo,
     tag = 'latest',
 ): Promise<void> {
@@ -846,11 +845,7 @@ export async function deletePersistentVolumeClaim(searchHost: string) {
 }
 
 export async function helmfileDestroy(selector: string) {
-    const e2eDir = getE2EDir();
-    if (!e2eDir) {
-        throw new Error('Missing e2e test directory');
-    }
-    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
+    const helmfilePath = path.join(getRootDir(), 'packages/scripts/helm/helmfile.yaml.gotmpl');
 
     try {
         const subprocess = await execaCommand(`helmfile destroy -f ${helmfilePath} --selector app=${selector}`);
@@ -867,11 +862,7 @@ export async function helmfileCommand(
     logs = false,
     e2e = true
 ) {
-    const e2eDir = getE2EDir();
-    if (!e2eDir) {
-        throw new Error('Missing e2e test directory');
-    }
-    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
+    const helmfilePath = path.join(getRootDir(), 'packages/scripts/helm/helmfile.yaml.gotmpl');
     const { valuesPath, valuesDir } = generateHelmValuesFromServices(
         clusteringType, devMode, logs, e2e
     );
@@ -915,11 +906,7 @@ export async function launchTerasliceWithCustomHelmfile(
     let syncProcess;
     const diffSelector = selector && selector.diff ? `-l group!=skipDiff,${selector.diff}` : '-l group!=skipDiff';
     const syncSelector = selector && selector.sync ? `-l ${selector.sync}` : '';
-    const e2eDir = getE2EDir();
-    if (!e2eDir) {
-        throw new Error('Missing e2e test directory');
-    }
-    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
+    const helmfilePath = path.join(getRootDir(), 'packages/scripts/helm/helmfile.yaml.gotmpl');
 
     try {
         if (debug && !isCI) {
@@ -1023,7 +1010,7 @@ function getAdminDnFromCert(): string {
  * This file is used to configure Helmfile when launching the k8sEnv or test environment.
  *
  * The function:
- * - Loads a base `values.yaml` template from `e2e/helm/values.yaml`.
+ * - Loads a base `values.yaml` template from `packages/scripts/helm/values.yaml`.
  * - Enables services specified in `ENV_SERVICES`, setting their versions when needed
  * - Configures OpenSearch to align with versioning conventions.
  * - Handles OpenSearch, Minio and Kafka SSL settings if encryption is enabled.
@@ -1044,9 +1031,9 @@ function generateHelmValuesFromServices(
     logs: boolean,
     e2e: boolean
 ): { valuesPath: string; valuesDir: string } {
-    // Grab default values from the e2e/helm/values.yaml
-    const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
-    const values = parseDocument(fs.readFileSync(e2eHelmfileValuesPath, 'utf8'));
+    // Grab default values from the packages/scripts/helm/values.yaml
+    const helmfileValuesPath = path.join(getRootDir(), 'packages/scripts/helm/values.yaml');
+    const values = parseDocument(fs.readFileSync(helmfileValuesPath, 'utf8'));
 
     // Map services to versions used for the image tag
     const versionMap: Record<Service, string> = {
@@ -1056,6 +1043,7 @@ function generateHelmValuesFromServices(
         [Service.RabbitMQ]: config.RABBITMQ_VERSION,
         [Service.RestrainedOpensearch]: config.OPENSEARCH_VERSION,
         [Service.Utility]: config.UTILITY_SVC_VERSION,
+        [Service.Teraslice]: config.TERASLICE_DOCKER_IMAGE,
     };
 
     let stateCluster: string | undefined;

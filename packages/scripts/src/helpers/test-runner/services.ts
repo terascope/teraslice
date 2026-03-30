@@ -1,4 +1,5 @@
 import ms from 'ms';
+import os from 'node:os';
 import got from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
@@ -17,7 +18,7 @@ import {
 import { Kind } from '../kind.js';
 import { TestOptions } from './interfaces.js';
 import { Service } from '../interfaces.js';
-import config from '../config.js';
+import config, { resolveTerasliceVersion } from '../config.js';
 import signale from '../signale.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -134,6 +135,12 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         image: config.UTILITY_SVC_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.UTILITY_SVC_NAME}`,
         network: config.DOCKER_NETWORK_NAME,
+    },
+    [Service.Teraslice]: {
+        image: config.TERASLICE_DOCKER_IMAGE,
+        name: `${config.TEST_NAMESPACE}_teraslice`,
+        ports: [`${config.TERASLICE_PORT}:5678`],
+        network: config.DOCKER_NETWORK_NAME,
     }
 };
 
@@ -242,8 +249,15 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
 
     const fns = await Promise.all(promises);
 
+    // Teraslice depends on OpenSearch being up, so start it after the parallel services
+    let terasliceFn = () => { };
+    if (launchServices.includes(Service.Teraslice)) {
+        terasliceFn = await ensureTeraslice(options, launchServices);
+    }
+
     return () => {
         fns.forEach((fn) => fn());
+        terasliceFn();
     };
 }
 
@@ -293,6 +307,128 @@ export async function ensureUtility(options: TestOptions): Promise<() => void> {
     fn = await startService(options, Service.Utility);
     await checkUtility(options, startTime);
     return fn;
+}
+
+export async function ensureTeraslice(
+    options: TestOptions, launchServices: Service[]
+): Promise<() => void> {
+    await resolveTerasliceVersion();
+
+    const configPath = writeTerasliceConfig(launchServices);
+    const startTime = Date.now();
+    const fn = await startService(options, Service.Teraslice, {
+        mount: [`type=bind,source=${configPath},target=/app/config/teraslice.yaml`],
+    });
+    await checkTeraslice(options, startTime);
+    return fn;
+}
+
+function writeTerasliceConfig(launchServices: Service[]): string {
+    const opensearchNode = `${config.OPENSEARCH_PROTOCOL}://${config.OPENSEARCH_HOSTNAME}:${config.OPENSEARCH_PORT}`;
+
+    const connectors: Record<string, any> = {
+        'elasticsearch-next': {
+            default: {
+                node: [opensearchNode],
+            }
+        }
+    };
+
+    if (launchServices.includes(Service.Kafka)) {
+        connectors.kafka = {
+            default: {
+                brokers: [config.KAFKA_BROKER],
+                security_protocol: 'plaintext',
+            }
+        };
+    }
+
+    if (launchServices.includes(Service.Minio)) {
+        connectors.s3 = {
+            default: {
+                endpoint: config.MINIO_HOST,
+                accessKeyId: config.MINIO_ACCESS_KEY,
+                secretAccessKey: config.MINIO_SECRET_KEY,
+                forcePathStyle: true,
+                sslEnabled: false,
+                region: 'us-east-1',
+            }
+        };
+    }
+
+    const cfg = {
+        terafoundation: {
+            log_level: 'info',
+            workers: 1,
+            connectors,
+        },
+        teraslice: {
+            master: true,
+            master_hostname: '127.0.0.1',
+            port: 5678,
+            name: `${config.TEST_NAMESPACE}_teraslice`,
+            cluster_manager_type: 'native',
+            asset_storage_connection_type: config.ASSET_STORAGE_CONNECTION_TYPE,
+            asset_storage_connection: config.ASSET_STORAGE_CONNECTION,
+            assets_directory: '/app/assets',
+            index_settings: {
+                analytics: { number_of_replicas: 0 },
+                assets: { number_of_replicas: 0 },
+                execution: { number_of_replicas: 0 },
+                jobs: { number_of_replicas: 0 },
+                state: { number_of_replicas: 0 },
+            }
+        }
+    };
+
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ts-teraslice-'));
+    const configPath = path.join(tmpDir, 'teraslice.yaml');
+    const yamlContent = yaml.dump(cfg);
+    fs.outputFileSync(configPath, yamlContent);
+    signale.debug(`teraslice.yaml:\n${yamlContent}`);
+    return configPath;
+}
+
+async function checkTeraslice(options: TestOptions, startTime: number): Promise<void> {
+    const host = config.TERASLICE_HOST;
+
+    let error = '';
+    await pWhile(
+        async () => {
+            if (options.trace) {
+                signale.debug(`checking teraslice at ${host}`);
+            } else {
+                logger.debug(`checking teraslice at ${host}`);
+            }
+
+            let body: any;
+            try {
+                ({ body } = await got(host, {
+                    responseType: 'json',
+                    throwHttpErrors: true,
+                    retry: { limit: 0 },
+                    timeout: { request: 5000 }
+                }));
+            } catch (err) {
+                error = err.message;
+                return false;
+            }
+
+            if (body?.teraslice_version) {
+                const took = toHumanTime(Date.now() - startTime);
+                signale.success(`teraslice@${body.teraslice_version} is running at ${host}, took ${took}`);
+                return true;
+            }
+
+            return false;
+        },
+        {
+            name: `Teraslice service (${host})`,
+            timeoutMs: serviceUpTimeout,
+            enabledJitter: true,
+            error
+        }
+    );
 }
 
 async function stopService(service: Service) {
@@ -610,7 +746,11 @@ async function checkUtility(options: TestOptions, startTime: number): Promise<vo
     signale.success(`Utility Service **might** be running, took ${took}`);
 }
 
-async function startService(options: TestOptions, service: Service): Promise<() => void> {
+async function startService(
+    options: TestOptions,
+    service: Service,
+    extraDockerOpts?: Partial<DockerRunOptions>
+): Promise<() => void> {
     let serviceName = service;
 
     if (serviceName === 'restrained_opensearch') {
@@ -641,7 +781,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     await logTCPPorts(serviceName);
 
     const fn = await dockerRun(
-        services[service],
+        { ...services[service], ...extraDockerOpts },
         version,
         options.ignoreMount,
         options.debug || options.trace

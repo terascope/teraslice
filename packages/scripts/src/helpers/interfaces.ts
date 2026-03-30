@@ -43,7 +43,8 @@ export enum Service {
     RabbitMQ = 'rabbitmq',
     Opensearch = 'opensearch',
     RestrainedOpensearch = 'restrained_opensearch',
-    Utility = 'utility'
+    Utility = 'utility',
+    Teraslice = 'teraslice'
 }
 
 export type PackageConfig = {
@@ -160,6 +161,17 @@ export interface TsVolumeSet {
     extraMounts: any[];
     volumes: V1Volume[];
     volumeMounts: V1VolumeMount[];
+}
+
+export interface GhcrPackageVersion {
+    id: number;
+    name: string;
+    created_at: string;
+    metadata: {
+        container: {
+            tags: string[];
+        };
+    };
 }
 
 export interface OCIImageManifest {

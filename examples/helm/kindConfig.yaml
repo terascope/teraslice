@@ -28,7 +28,7 @@ nodes:
   extraMounts:
   - hostPath: ../../e2e/autoload
     containerPath: /autoload
-  - hostPath: ../../e2e/helm/utility/data
+  - hostPath: ../../packages/scripts/helm/utility/data
     containerPath: /data
 
 ###
