@@ -1,4 +1,7 @@
-import { DataTypeFields, DataTypeFieldConfig, FieldType, GeoShapeType } from '@terascope/types';
+import {
+    DataTypeFields, DataTypeFieldConfig, DateFormat,
+    FieldType, GeoShapeType
+} from '@terascope/types';
 import { hasOwn, isEmpty } from '@terascope/core-utils';
 import { toCIDR } from '@terascope/ip-utils';
 import { Chance } from 'chance';
@@ -7,14 +10,22 @@ import { randomPoint, randomPolygon } from '@turf/random';
 const chance = new Chance();
 
 /**
- * Generates a random record for a data type
+ * Returns a function that can be called to create a data type field
  * NOTE: implement "format"/"locale" if needed
  */
-export function makeRandomDataForField(config: DataTypeFieldConfig, field: string) {
-    const {
-        type, array, dimension: vectorSize = 4, // TODO locale & format
-    } = config;
+export function makeRandomDataFunctionForField(
+    config: DataTypeFieldConfig, field: string
+): () => any {
+    const { type, array, dimension: vectorSize = 4 } = config;
 
+    if (config.locale && config.locale !== 'en-US') {
+        console.error(`Locale may not be supported`);
+    }
+    if (config.format && config.format !== DateFormat.iso_8601) {
+        console.error(`Format may not be supported`);
+    }
+
+    // NOTE: arrow fn to avoid losing chance binding
     const dataFnForFieldType: Record<FieldType, () => any> = {
         [FieldType.Any]: () => chance.pickone([
             chance.word(),
@@ -116,7 +127,8 @@ export function makeRandomDataForField(config: DataTypeFieldConfig, field: strin
         }
     };
 
-    let data = dataFnForFieldType[type]?.() ?? 'UNKNOWN';
+    let fn = dataFnForFieldType[type];
+    if (!fn) return () => 'UNKNOWN';
 
     const isNumber = [
         FieldType.Short,
@@ -177,31 +189,31 @@ export function makeRandomDataForField(config: DataTypeFieldConfig, field: strin
         ];
         const found = things.find((thing) => field.includes(thing));
         if (found) {
-            data = (chance[found] as (opts?: any) => any)();
+            fn = () => (chance[found] as (opts?: any) => any)();
         } else {
             if (field.includes('country')) {
                 const opts = field.includes('code')
                     ? undefined
                     : { full: true };
-                data = chance.country(opts);
+                fn = () => chance.country(opts);
             }
             if (field === 'cost' || field === 'amount') {
-                data = chance.dollar();
+                fn = () => chance.dollar();
             }
             if (field.includes('credit')) {
-                data = chance.cc_type();
+                fn = () => chance.cc_type();
             }
             if (field.includes('description')) {
-                data = chance.paragraph();
+                fn = () => chance.paragraph();
             }
             if (field.includes('job')) {
-                data = chance.profession();
+                fn = () => chance.profession();
             }
-            if (['key', '_key', 'id', '_id'].includes(field)) {
-                data = chance.guid();
+            if (['key', '_key', 'id', '_id', 'uuid', 'guid'].includes(field)) {
+                fn = () => chance.guid();
             }
             if (field.includes('timezone')) {
-                data = chance.timezone().name;
+                fn = () => (chance.timezone().name);
             }
         }
     }
@@ -220,16 +232,25 @@ export function makeRandomDataForField(config: DataTypeFieldConfig, field: strin
         ];
         const found = things.find((thing) => field.includes(thing));
         if (found) {
-            data = (chance[found] as (opts?: any) => any)();
+            fn = (chance[found] as (opts?: any) => any);
         } else {
             if (field.includes('year')) {
-                data = Number(chance.year());
+                fn = () => Number(chance.year());
             }
         }
     }
 
-    if (array && type !== FieldType.Vector) return [data];
-    return data;
+    if (array && type !== FieldType.Vector) {
+        return () => {
+            const count = chance.integer({ max: 10, min: 1 });
+            const results: any[] = [];
+            for (let i = 0; i < count; i++) {
+                results.push(fn());
+            }
+            return results;
+        };
+    }
+    return fn;
 }
 
 /**
@@ -238,22 +259,36 @@ export function makeRandomDataForField(config: DataTypeFieldConfig, field: strin
  */
 export function makeRandomDataSet(
     fields: DataTypeFields,
-    total = 3
+    total = 3,
+    isStressTest = false
 ): Record<string, any>[] | undefined {
     if (isEmpty(fields)) return;
 
-    const records: Record<string, any>[] = [];
-    for (let i = 0; i < total; i++) {
-        records.push({});
-    }
+    const fns: Record<string, () => any> = {};
 
     for (const field in fields) {
         if (hasOwn(fields, field)) {
             const config = fields[field];
-            records.forEach((record) => {
-                record[field] = makeRandomDataForField(config, field);
-            });
+            fns[field] = makeRandomDataFunctionForField(config, field);
         }
+    }
+
+    const makeField = () => {
+        const record: any = {};
+        for (const key in fns) {
+            if (!Object.hasOwn(fns, key)) continue;
+            record[key] = fns[key]();
+        }
+        return record;
+    };
+
+    const stressTestRecord = isStressTest
+        ? makeField()
+        : undefined;
+
+    const records: Record<string, any>[] = [];
+    for (let i = 0; i < total; i++) {
+        records.push(stressTestRecord || makeField());
     }
 
     return records;
