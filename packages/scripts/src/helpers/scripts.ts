@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import ms from 'ms';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { X509Certificate } from 'node:crypto';
 import { execa, execaCommand, type Options } from 'execa';
 import fse from 'fs-extra';
@@ -21,12 +20,9 @@ import type { TestEnv } from '@terascope/types';
 import { getRootDir, getRootInfo, getPackageManager } from './misc.js';
 import signale from './signale.js';
 import config from './config.js';
-import { getE2EDir } from '../helpers/packages.js';
 import { getVolumesFromDockerfile } from './kind.js';
 
 const logger = debugLogger('ts-scripts:cmd');
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
 
 export type ExecEnv<T extends TestEnv = TestEnv>
     = T & { [name: string]: any };
@@ -130,17 +126,17 @@ export async function build(pkgInfo?: PackageInfo): Promise<void> {
         if (fse.existsSync(distDir)) {
             await fse.emptyDir(distDir);
         }
-        await yarnRun('build', [], pkgInfo.dir);
+        await packageMngrRun('build', [], pkgInfo.dir);
         return;
     }
-    await yarnRun('build');
+    await packageMngrRun('build');
 }
 
 export async function setup(): Promise<void> {
-    await yarnRun('setup');
+    await packageMngrRun('setup');
 }
 
-export async function yarnRun(
+export async function packageMngrRun(
     script: string,
     args?: string[],
     cwd?: string,
@@ -662,9 +658,9 @@ export function mapToArgs(input: ArgsMap): string[] {
 }
 
 /**
- * Publish package using yarn (versions 2, 3, 4) or pnpm
+ * Publish package to NPM using yarn (versions 2, 3, 4) or pnpm
 */
-export async function yarnPublish(
+export async function packageMngrPublish(
     pkgInfo: PackageInfo,
     tag = 'latest',
 ): Promise<void> {
@@ -849,11 +845,7 @@ export async function deletePersistentVolumeClaim(searchHost: string) {
 }
 
 export async function helmfileDestroy(selector: string) {
-    const e2eDir = getE2EDir();
-    if (!e2eDir) {
-        throw new Error('Missing e2e test directory');
-    }
-    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
+    const helmfilePath = path.join(getRootDir(), 'packages/scripts/helm/helmfile.yaml.gotmpl');
 
     try {
         const subprocess = await execaCommand(`helmfile destroy -f ${helmfilePath} --selector app=${selector}`);
@@ -870,11 +862,7 @@ export async function helmfileCommand(
     logs = false,
     e2e = true
 ) {
-    const e2eDir = getE2EDir();
-    if (!e2eDir) {
-        throw new Error('Missing e2e test directory');
-    }
-    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
+    const helmfilePath = path.join(getRootDir(), 'packages/scripts/helm/helmfile.yaml.gotmpl');
     const { valuesPath, valuesDir } = generateHelmValuesFromServices(
         clusteringType, devMode, logs, e2e
     );
@@ -918,11 +906,7 @@ export async function launchTerasliceWithCustomHelmfile(
     let syncProcess;
     const diffSelector = selector && selector.diff ? `-l group!=skipDiff,${selector.diff}` : '-l group!=skipDiff';
     const syncSelector = selector && selector.sync ? `-l ${selector.sync}` : '';
-    const e2eDir = getE2EDir();
-    if (!e2eDir) {
-        throw new Error('Missing e2e test directory');
-    }
-    const helmfilePath = path.join(e2eDir, 'helm/helmfile.yaml.gotmpl');
+    const helmfilePath = path.join(getRootDir(), 'packages/scripts/helm/helmfile.yaml.gotmpl');
 
     try {
         if (debug && !isCI) {
@@ -1026,7 +1010,7 @@ function getAdminDnFromCert(): string {
  * This file is used to configure Helmfile when launching the k8sEnv or test environment.
  *
  * The function:
- * - Loads a base `values.yaml` template from `e2e/helm/values.yaml`.
+ * - Loads a base `values.yaml` template from `packages/scripts/helm/values.yaml`.
  * - Enables services specified in `ENV_SERVICES`, setting their versions when needed
  * - Configures OpenSearch to align with versioning conventions.
  * - Handles OpenSearch, Minio and Kafka SSL settings if encryption is enabled.
@@ -1047,9 +1031,9 @@ function generateHelmValuesFromServices(
     logs: boolean,
     e2e: boolean
 ): { valuesPath: string; valuesDir: string } {
-    // Grab default values from the e2e/helm/values.yaml
-    const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
-    const values = parseDocument(fs.readFileSync(e2eHelmfileValuesPath, 'utf8'));
+    // Grab default values from the packages/scripts/helm/values.yaml
+    const helmfileValuesPath = path.join(getRootDir(), 'packages/scripts/helm/values.yaml');
+    const values = parseDocument(fs.readFileSync(helmfileValuesPath, 'utf8'));
 
     // Map services to versions used for the image tag
     const versionMap: Record<Service, string> = {
@@ -1059,6 +1043,7 @@ function generateHelmValuesFromServices(
         [Service.RabbitMQ]: config.RABBITMQ_VERSION,
         [Service.RestrainedOpensearch]: config.OPENSEARCH_VERSION,
         [Service.Utility]: config.UTILITY_SVC_VERSION,
+        [Service.Teraslice]: config.TERASLICE_DOCKER_IMAGE,
     };
 
     let stateCluster: string | undefined;
@@ -1166,9 +1151,15 @@ function generateHelmValuesFromServices(
 
     if (logs) {
         values.setIn(['stern', 'enabled'], true);
+        const arch = os.arch() === 'x64' ? 'amd64' : 'arm64';
+        const sternVersion = '1.30.0';
+        values.setIn(
+            ['stern', 'downloadUrl'],
+            `https://github.com/stern/stern/releases/download/v${sternVersion}/stern_${sternVersion}_linux_${arch}.tar.gz`
+        );
     }
 
-    logger.debug('helmfile command values: ', JSON.stringify(values));
+    signale.debug('helmfile command values: ', JSON.stringify(values));
 
     // Write the values to a temporary file
     const valuesDir = fs.mkdtempSync(path.join(os.tmpdir(), 'generated-yaml'));
@@ -1368,6 +1359,186 @@ export async function updateHelmChart(newChartVersion: string | null): Promise<v
 }
 
 /**
+ * Writes the Opensearch internal_users.yml file with demo user credentials
+ * to the specified certificate directory. This file is required by Opensearch
+ * security configuration to define local user accounts.
+ *
+ * @param certDir - Absolute path to the directory where the file will be written
+ */
+function createInternalUsersFile(certDir: string): void {
+    const content = `# This is the internal user database
+# The hash value is a bcrypt hash and can be generated with plugin/tools/hash.sh
+
+_meta:
+  type: "internalusers"
+  config_version: 2
+
+# Define your internal users here
+
+## Demo users
+# This hash password is passwordsufhbivbU123%$
+admin:
+  hash: "$2y$12$Z234bambHnVJMAXiccuMluNgGhNNdOFIY6pFT2/lk3ZC.RDoDIFme"
+  reserved: true
+  backend_roles:
+  - "admin"
+  description: "Demo admin user"
+anomalyadmin:
+  hash: "$2y$12$TRwAAJgnNo67w3rVUz4FIeLx9Dy/llB79zf9I15CKJ9vkM4ZzAd3."
+  reserved: false
+  opendistro_security_roles:
+  - "anomaly_full_access"
+  description: "Demo anomaly admin user, using internal role"
+kibanaserver:
+  hash: "$2a$12$4AcgAt3xwOWadA5s5blL6ev39OXDNhmOesEoo33eZtrq2N0YrU3H."
+  reserved: true
+  description: "Demo OpenSearch Dashboards user"
+kibanaro:
+  hash: "$2a$12$JJSXNfTowz7Uu5ttXfeYpeYE0arACvcwlPBStB1F.MI7f0U9Z4DGC"
+  reserved: false
+  backend_roles:
+  - "kibanauser"
+  - "readall"
+  attributes:
+    attribute1: "value1"
+    attribute2: "value2"
+    attribute3: "value3"
+  description: "Demo OpenSearch Dashboards read only user, using external role mapping"
+logstash:
+  hash: "$2a$12$u1ShR4l4uBS3Uv59Pa2y5.1uQuZBrZtmNfqB3iM/.jL0XoV9sghS2"
+  reserved: false
+  backend_roles:
+  - "logstash"
+  description: "Demo logstash user, using external role mapping"
+readall:
+  hash: "$2a$12$ae4ycwzwvLtZxwZ82RmiEunBbIPiAmGZduBAjKN0TXdwQFtCwARz2"
+  reserved: false
+  backend_roles:
+  - "readall"
+  description: "Demo readall user, using external role mapping"
+snapshotrestore:
+  hash: "$2y$12$DpwmetHKwgYnorbgdvORCenv4NAK8cPUg8AI6pxLCuWf/ALc0.v7W"
+  reserved: false
+  backend_roles:
+  - "snapshotrestore"
+  description: "Demo snapshotrestore user, using external role mapping"
+`;
+    fs.writeFileSync(path.join(certDir, 'internal_users.yml'), content, 'utf8');
+}
+
+/**
+ * Generates TLS certs using mkcert and organizes the output files
+ * into the layout expected by each service format.
+ *
+ * mkcert creates a locally-trusted CA and issues certificates signed by it.
+ * This function handles the full lifecycle:
+ *   1. Runs mkcert to produce a key + certificate for the given DNS names
+ *   2. Copies the root CA certificate into a CAs/ subdirectory
+ *   3. Renames/copies files into the structure each service expects
+ *   4. Cleans up the raw mkcert output files
+ *
+ * Supported formats:
+ *   - `minio`      → private.key, public.crt
+ *   - `opensearch` → opensearch-key.pem, opensearch-cert.pem, internal_users.yml
+ *   - `kafka`      → kafka-keypair.pem (key + cert concatenated)
+ *
+ * @param formats  - List of service formats to produce (e.g. ['minio', 'opensearch'])
+ * @param dirPath  - Absolute path to the output directory (recreated if it already exists)
+ * @param dnsNames - DNS names / IPs the certificate should be valid for
+ * @throws {Error} If mkcert is not installed, dirPath is relative, or cert files cannot be found
+ */
+async function generateCerts(
+    formats: string[],
+    dirPath: string,
+    dnsNames: string[]
+): Promise<void> {
+    // mkcert must be installed
+    try {
+        await execa('mkcert', ['--version']);
+    } catch {
+        throw new Error('mkcert is not installed. Please install mkcert and try again.');
+    }
+
+    if (!path.isAbsolute(dirPath)) {
+        throw new Error('dirPath must be an absolute path');
+    }
+
+    if (dnsNames.length === 0) {
+        throw new Error('At least one DNS name is required');
+    }
+
+    // Always start with a clean dir in the case there is stuff here
+    if (fse.existsSync(dirPath)) {
+        await fse.remove(dirPath);
+    }
+    await fse.mkdirp(dirPath);
+
+    // Run mkcert in the output directory — it writes the key and cert files there
+    await execa('mkcert', ['--client', ...dnsNames], { cwd: dirPath });
+
+    // mkcert stores its root CA in a system dir. copy it into our cert dir
+    const { stdout: caRoot } = await execa('mkcert', ['-CAROOT']);
+    fse.copySync(path.join(caRoot.trim(), 'rootCA.pem'), path.join(dirPath, 'rootCA.pem'));
+
+    // Move the root CA into a CAs/ subdirectory. Keeps it organized
+    await fse.mkdirp(path.join(dirPath, 'CAs'));
+    fse.moveSync(
+        path.join(dirPath, 'rootCA.pem'),
+        path.join(dirPath, 'CAs', 'rootCA.pem')
+    );
+
+    // mkcert names its output files based on the DNS names, so we locate them by pattern
+    const files = fs.readdirSync(dirPath);
+    const privateKeyName = files.find((f) => f.toLowerCase().includes('key.pem'));
+    const publicCertName = files.find((f) => f.toLowerCase().endsWith('.pem') && !f.toLowerCase().includes('key.pem'));
+
+    if (!privateKeyName || !publicCertName) {
+        throw new Error(`Could not locate key.pem or public cert in ${dirPath}`);
+    }
+
+    const privateKeyPath = path.join(dirPath, privateKeyName);
+    const publicCertPath = path.join(dirPath, publicCertName);
+
+    // Copy/rename files into the layout each service expects. Each service like it in
+    // a specific format.
+    for (const format of formats) {
+        switch (format) {
+            case 'minio':
+                // https://min.io/docs/minio/linux/operations/network-encryption.html
+                fse.copySync(privateKeyPath, path.join(dirPath, 'private.key'));
+                fse.copySync(publicCertPath, path.join(dirPath, 'public.crt'));
+                break;
+            case 'opensearch':
+                // https://opensearch.org/docs/latest/security/configuration/tls/#x509-pem-certificates-and-pkcs-8-keys
+                fse.copySync(privateKeyPath, path.join(dirPath, 'opensearch-key.pem'));
+                fse.copySync(publicCertPath, path.join(dirPath, 'opensearch-cert.pem'));
+                // Opensearch also needs a user database file alongside the certs
+                createInternalUsersFile(dirPath);
+                break;
+            case 'kafka': {
+                // https://kafka.apache.org/42/security/encryption-and-authentication-using-ssl/
+                // Kafka expects key and cert in a single PEM file
+                const keyContent = fs.readFileSync(privateKeyPath, 'utf8');
+                const certContent = fs.readFileSync(publicCertPath, 'utf8');
+                fs.writeFileSync(path.join(dirPath, 'kafka-keypair.pem'), keyContent + certContent, 'utf8');
+                break;
+            }
+            default:
+                signale.warn(`Unknown format '${format}' ignored.`);
+        }
+    }
+
+    // Remove the original mkcert files now that we've copied and renamed them
+    if (formats.length > 0) {
+        fs.unlinkSync(privateKeyPath);
+        fs.unlinkSync(publicCertPath);
+    }
+
+    // Make sure all cert files are readable
+    await execa('chmod', ['-R', 'a+rX', dirPath]);
+}
+
+/**
  * Generates CA certificates for encrypted services in the test environment if needed
  *
  * @throws {Error} If certificate generation fails.
@@ -1416,21 +1587,8 @@ export async function generateTestCaCerts(): Promise<void> {
 
         try {
             signale.pending(`Generating new ca-certificates for ${serviceList}...`);
-            const scriptLocation = path.join(dirname, '../../../src/scripts/generate-cert.sh');
-
-            // create a format array for each service
-            const formatCommands: string[] = [];
-            encryptedServices.forEach((service) => {
-                formatCommands.push('--format');
-                formatCommands.push(service);
-            });
-
-            // Ensure we pass in the cert path at the end
-            formatCommands.push('--dirPath');
-            formatCommands.push(config.CERT_PATH);
-
-            signale.debug('Generate certs command: ', `${scriptLocation} ${formatCommands.concat(hostNames)}`);
-            await execa(scriptLocation, formatCommands.concat(hostNames));
+            signale.debug('Generating certs: ', { formats: encryptedServices, dirPath: config.CERT_PATH, dnsNames: hostNames });
+            await generateCerts(encryptedServices, config.CERT_PATH, hostNames);
             signale.success(`Created certs in ${config.CERT_PATH}`);
         } catch (err) {
             throw new Error(`Error generating ca-certificates for ${serviceList}: ${err.message}`);

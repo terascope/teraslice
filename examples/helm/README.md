@@ -35,13 +35,13 @@ cd ./examples/helm
 
 Quickly build and launch teraslice with `opensearch2` as the state cluster, minio, utility pod, and kafka with the script below:
 
-**NOTE:** _Ensure the directory at `teraslice/e2e/helm/utility/data` doesn't have large files in it or else the utility pod will fail to deploy running the script below. It's okay to move large files in the directory after the command below completes. More info about the [utility pod](#utility-pod-usage) is discussed below._
+**NOTE:** _Ensure the directory at `teraslice/packages/scripts/helm/utility/data` doesn't have large files in it or else the utility pod will fail to deploy running the script below. It's okay to move large files in the directory after the command below completes. More info about the [utility pod](#utility-pod-usage) is discussed below._
 
 ```bash
 kind create cluster --config kindConfig.yaml
 # If these images already exist they can be skipped to stand up teraslice faster
 docker build -t terascope/teraslice:dev ../../.
-docker build -t teraslice-utility:0.0.1 ../../e2e/helm/utility/.
+docker build -t teraslice-utility:0.0.1 ../../packages/scripts/helm/utility/.
 # If instead you'd rather pull a teraslice image you can pull it and retag it like below
 # docker pull ghcr.io/terascope/teraslice:v2.16.4-nodev22.16.0
 # docker tag ghcr.io/terascope/teraslice:v2.16.4-nodev22.16.0 terascope/teraslice:dev
@@ -84,7 +84,7 @@ We can open a bash shell into the utility container to use these tools with the 
 kubectl -n services-dev1 exec -it $(kubectl -n services-dev1 get pod -l app=teraslice-utility -o jsonpath="{.items[0].metadata.name}") -- bash
 ```
 
-The utility pod has a shared volume on the host machine to make moving files into the kind cluster easier. For example, a large ldjson file can be moved into the directory `teraslice/e2e/helm/utility/data` on the host machine. Then opening a shell with the command above and going to the `/app/data` directory, the file will now exist in the pod. If we wanted to quickly write this ldjson file into a kafka topic called `test-v1`, we could run:
+The utility pod has a shared volume on the host machine to make moving files into the kind cluster easier. For example, a large ldjson file can be moved into the directory `teraslice/packages/scripts/helm/utility/data` on the host machine. Then opening a shell with the command above and going to the `/app/data` directory, the file will now exist in the pod. If we wanted to quickly write this ldjson file into a kafka topic called `test-v1`, we could run:
 
 ```bash
 kcat -b kafka-headless.services-dev1.svc.cluster.local:9092 -t test-v1 -P -l /app/data/<ldjson file name>
@@ -112,7 +112,7 @@ Build the teraslice and utility pod docker images using the following command:
 
 ```bash
 docker build -t terascope/teraslice:dev ../../.
-docker build -t teraslice-utility:0.0.1 ../../e2e/helm/utility/.
+docker build -t teraslice-utility:0.0.1 ../../packages/scripts/helm/utility/.
 ```
 
 ### Step 3: Loading the Teraslice and Utility Docker Images into the Kind Cluster
@@ -227,7 +227,7 @@ helmfile -e custom sync
 
 If you have a locally running service that you wish to use with teraslice running in kubernetes you can do the following:
 
-- Add your connector to `../../e2e/helm/templates/teraslice.yaml.gotmpl`. If you wish to add an ElasticSearch/Opensearch service put the following under `terafoundation.connectors.elasticsearch-next`.
+- Add your connector to `../../packages/scripts/helm/templates/teraslice.yaml.gotmpl`. If you wish to add an ElasticSearch/Opensearch service put the following under `terafoundation.connectors.elasticsearch-next`.
 
 ```yaml
             <connector-name>:

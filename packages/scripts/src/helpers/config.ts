@@ -9,6 +9,7 @@ import {
 } from '@terascope/core-utils';
 import { TestEnv, Terafoundation, ScriptsTestEnv } from '@terascope/types';
 import { Service } from './interfaces.js';
+import { getLatestTerasliceImageTag } from './github.js';
 
 function newId(prefix?: string, lowerCase = false, length = 15): string {
     let characters = '-0123456789abcdefghijklmnopqrstuvwxyz';
@@ -239,6 +240,24 @@ const configSchema: Terafoundation.Schema<any> = {
         default: null,
         format: 'optional_string',
         env: 'TERASLICE_IMAGE'
+    },
+    TERASLICE_VERSION: {
+        default: null,
+        format: 'optional_string',
+    },
+    TERASLICE_DOCKER_IMAGE: {
+        default: 'ghcr.io/terascope/teraslice',
+        format: String,
+        env: 'TERASLICE_DOCKER_IMAGE'
+    },
+    TERASLICE_HOST: {
+        default: undefined,
+        format: String,
+    },
+    ASSET_ZIP_PATH: {
+        default: null,
+        format: 'optional_string',
+        env: 'ASSET_ZIP_PATH'
     },
     TEST_NAMESPACE: {
         default: undefined,
@@ -537,9 +556,8 @@ const configSchema: Terafoundation.Schema<any> = {
         format: String,
     },
     TERASLICE_PORT: {
-        default: 45678,
+        default: undefined,
         format: Number,
-        env: 'TERASLICE_PORT'
     },
     TEST_PLATFORM: {
         default: 'native',
@@ -554,7 +572,7 @@ const configSchema: Terafoundation.Schema<any> = {
         env: 'UTILITY_SVC_DOCKER_IMAGE'
     },
     UTILITY_SVC_DOCKER_PROJECT_PATH: {
-        default: 'e2e/helm/utility',
+        default: 'packages/scripts/helm/utility',
         format: String,
         env: 'UTILITY_SVC_DOCKER_PROJECT_PATH'
     },
@@ -636,14 +654,19 @@ config.CERT_PATH = process.env.CERT_PATH
 
 const testOpensearch = toBoolean(process.env.TEST_OPENSEARCH);
 const testRestrainedOpensearch = toBoolean(process.env.TEST_RESTRAINED_OPENSEARCH);
+const testTeraslice = toBoolean(process.env.TEST_TERASLICE);
+
+config.TERASLICE_PORT = Number(process.env.TERASLICE_PORT) || 45678;
+config.TERASLICE_HOST = `http://${config.HOST_IP}:${config.TERASLICE_PORT}`;
 
 config.ENV_SERVICES = [
-    testOpensearch ? Service.Opensearch : undefined,
+    testOpensearch || testTeraslice ? Service.Opensearch : undefined,
     toBoolean(process.env.TEST_KAFKA) ? Service.Kafka : undefined,
     toBoolean(process.env.TEST_MINIO) ? Service.Minio : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
     toBoolean(process.env.TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
     toBoolean(process.env.ENABLE_UTILITY_SVC) ? Service.Utility : undefined,
+    testTeraslice ? Service.Teraslice : undefined,
 ]
     .filter(Boolean) as Service[];
 
@@ -673,3 +696,11 @@ try {
 }
 
 export default validatedConfig;
+
+export async function resolveTerasliceVersion(): Promise<void> {
+    if (validatedConfig.TERASLICE_IMAGE) {
+        validatedConfig.TERASLICE_VERSION = validatedConfig.TERASLICE_IMAGE.split(':')[1];
+    } else {
+        validatedConfig.TERASLICE_VERSION = await getLatestTerasliceImageTag();
+    }
+}

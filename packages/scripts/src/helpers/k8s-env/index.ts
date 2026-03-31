@@ -11,12 +11,11 @@ import {
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
 import signale from '../signale.js';
-import { getDevDockerImage, getRootInfo } from '../misc.js';
+import { getDevDockerImage, getRootDir, getRootInfo } from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import config from '../config.js';
 import { loadImagesForHelm, loadImagesForHelmFromConfigFile } from '../test-runner/services.js';
-import { getE2EDir } from '../../helpers/packages.js';
 
 const rootInfo = getRootInfo();
 const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
@@ -50,7 +49,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         process.exit(1);
     }
 
-    // TODO: Remove once all kubectl commands are converted to k8s client
     const kubectlInstalled = await isKubectlInstalled();
     if (!kubectlInstalled) {
         signale.error('Please install kubectl before launching a k8s dev environment. https://kubernetes.io/docs/tasks/tools/');
@@ -329,8 +327,8 @@ async function buildUtilityImage() {
 }
 
 export function generateTemplateConfig() {
-    const e2eHelmfileValuesPath = path.join(getE2EDir() as string, 'helm/values.yaml');
-    const newFilePath = path.join(getE2EDir() as string, '../', 'k8s-config.yaml');
+    const e2eHelmfileValuesPath = path.join(getRootDir(), 'packages/scripts/helm/values.yaml');
+    const newFilePath = path.join(getRootDir(), 'k8s-config.yaml');
 
     if (fs.existsSync(newFilePath)) {
         throw new Error(`A config file has already exists at ${newFilePath}. Either delete it or rename it to generate a new config.`);

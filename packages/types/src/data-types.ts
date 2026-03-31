@@ -6,6 +6,7 @@ import { Overwrite } from './utility.js';
 export enum FieldType {
     Boolean = 'Boolean',
     Boundary = 'Boundary',
+    Binary = 'Binary',
     Byte = 'Byte',
     Date = 'Date',
     Domain = 'Domain',
@@ -137,6 +138,14 @@ export interface DataTypeFieldConfig {
      * @default true
     */
     indexed?: boolean;
+
+    /**
+     *  Doc values are enabled by default on nearly all field types, except for text fields.
+     *  If you know that a field won’t be used for sorting, aggregations, or scripting,
+     *  you can disable doc values in order to reduce disk usage.
+     * @default true
+    */
+    doc_values?: boolean;
 
     /**
      * Specify the locale for the field (not compatible with all fields)
