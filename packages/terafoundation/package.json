@@ -29,18 +29,18 @@
     },
     "dependencies": {
         "@terascope/core-utils": "workspace:~",
-        "@terascope/file-asset-apis": "~2.0.2",
+        "@terascope/file-asset-apis": "~2.1.0",
         "@terascope/opensearch-client": "workspace:~",
         "@terascope/types": "workspace:~",
         "bunyan": "~1.8.15",
         "express": "~5.2.1",
         "js-yaml": "~4.1.1",
-        "nanoid": "~5.1.6",
+        "nanoid": "~5.1.7",
         "prom-client": "~15.1.3",
         "yargs": "~18.0.0"
     },
     "devDependencies": {
-        "@jest/globals": "^30.2.0",
+        "@jest/globals": "^30.3.0",
         "@types/bunyan": "~1.8.11",
         "@types/express": "~5.0.6",
         "@types/js-yaml": "~4.0.9",
