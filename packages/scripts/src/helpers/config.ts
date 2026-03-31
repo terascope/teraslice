@@ -254,11 +254,6 @@ const configSchema: Terafoundation.Schema<any> = {
         default: undefined,
         format: String,
     },
-    ASSET_ZIP_PATH: {
-        default: null,
-        format: 'optional_string',
-        env: 'ASSET_ZIP_PATH'
-    },
     TEST_NAMESPACE: {
         default: undefined,
         format: String

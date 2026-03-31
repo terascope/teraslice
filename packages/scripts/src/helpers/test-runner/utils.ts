@@ -155,7 +155,6 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
         Object.assign(env, {
             TEST_TERASLICE: true,
             TERASLICE_HOST: config.TERASLICE_HOST,
-            ASSET_ZIP_PATH: config.ASSET_ZIP_PATH,
         } satisfies TerasliceServiceTestEnv);
     }
 
