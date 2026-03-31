@@ -1,7 +1,7 @@
 {
     "name": "@terascope/geo-utils",
     "displayName": "Geo Utils",
-    "version": "2.4.0",
+    "version": "2.4.1",
     "description": "A collection of Teraslice Geo Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/geo-utils#readme",
     "bugs": {
@@ -39,7 +39,7 @@
         "@turf/helpers": "~7.3.4",
         "@turf/invariant": "~7.3.4",
         "@turf/line-to-polygon": "~7.3.4",
-        "geo-tz": "~8.1.5",
+        "geo-tz": "~8.1.6",
         "latlon-geohash": "~2.0.0"
     },
     "devDependencies": {
