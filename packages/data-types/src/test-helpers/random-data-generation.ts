@@ -1,8 +1,7 @@
 import {
-    DataTypeFields, DataTypeFieldConfig, DateFormat,
-    FieldType, GeoShapeType
+    DataTypeFields, DataTypeFieldConfig, FieldType, GeoShapeType
 } from '@terascope/types';
-import { hasOwn, isEmpty } from '@terascope/core-utils';
+import { formatDateValue, hasOwn, isEmpty } from '@terascope/core-utils';
 import { toCIDR } from '@terascope/ip-utils';
 import { Chance } from 'chance';
 import { randomPoint, randomPolygon } from '@turf/random';
@@ -11,18 +10,18 @@ const chance = new Chance();
 
 /**
  * Returns a function that can be called to create a data type field
- * NOTE: implement "format"/"locale" if needed
+ * NOTE: implement "locale" if needed
  */
 export function makeRandomDataFunctionForField(
     config: DataTypeFieldConfig, field: string
 ): () => any {
     const { type, array, dimension: vectorSize = 4 } = config;
 
-    if (config.locale && config.locale !== 'en-US') {
+    if (config.locale) {
         console.error(`Locale may not be supported`);
     }
-    if (config.format && config.format !== DateFormat.iso_8601) {
-        console.error(`Format may not be supported`);
+    if (config.format && config.type !== FieldType.Date) {
+        console.error(`Format currently only supported for date fields`);
     }
 
     // NOTE: arrow fn to avoid losing chance binding
@@ -32,13 +31,20 @@ export function makeRandomDataFunctionForField(
             chance.bool(),
             { animal: chance.animal(), name: chance.name() }
         ]),
+        [FieldType.Binary]: () => Buffer.from(chance.word()),
         [FieldType.Boolean]: () => chance.bool(),
         [FieldType.Boundary]: () => ([ // topLeft, bottomRight
             { lat: chance.latitude(), lon: chance.longitude() },
             { lat: chance.latitude(), lon: chance.longitude() }
         ]),
         [FieldType.Byte]: () => chance.integer({ min: -128, max: 127 }),
-        [FieldType.Date]: () => chance.birthday().toISOString(),
+        [FieldType.Date]: () => {
+            const date = chance.birthday();
+            if (config.format) {
+                return formatDateValue(date, config.format);
+            }
+            return date.toISOString();
+        },
         [FieldType.Domain]: () => chance.domain(),
         [FieldType.Double]: () => chance.floating(), // 64-bit IEEE 754 finite
         [FieldType.Float]: () => chance.floating(), // 32-bit IEEE 754 finite
@@ -255,7 +261,7 @@ export function makeRandomDataFunctionForField(
 
 /**
  * Generates an array of records based on the data type field config of count
- * NOTE: "format"/"locale" not implemented
+ * NOTE: "locale" not implemented
  */
 export function makeRandomDataSet(
     fields: DataTypeFields,
