@@ -121,6 +121,7 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
 
     if (launchServices.includes(Service.Opensearch)) {
         Object.assign(env, {
+            CERT_PATH: config.CERT_PATH,
             DISABLE_INSTALL_DEMO_CONFIG: 'true',
             DISABLE_SECURITY_PLUGIN: 'true',
             OPENSEARCH_HOST: config.OPENSEARCH_HOST,
@@ -137,6 +138,7 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
 
     if (launchServices.includes(Service.RestrainedOpensearch)) {
         Object.assign(env, {
+            CERT_PATH: config.CERT_PATH,
             DISABLE_INSTALL_DEMO_CONFIG: 'true',
             DISABLE_SECURITY_PLUGIN: 'true',
             OPENSEARCH_HOSTNAME: config.OPENSEARCH_HOSTNAME,

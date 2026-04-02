@@ -139,7 +139,8 @@ type RequireKeys<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
 
 export type OpenSearchTestEnv = RequireKeys<
     TestEnv,
-    'TEST_INDEX_PREFIX' | 'SEARCH_TEST_HOST' | 'OPENSEARCH_VERSION' | 'OPENSEARCH_USER' | 'OPENSEARCH_PASSWORD'
+    'TEST_INDEX_PREFIX' | 'SEARCH_TEST_HOST' | 'OPENSEARCH_VERSION'
+    | 'OPENSEARCH_USER' | 'OPENSEARCH_PASSWORD' | 'CERT_PATH'
 >;
 
 export type MinioTestEnv = RequireKeys<

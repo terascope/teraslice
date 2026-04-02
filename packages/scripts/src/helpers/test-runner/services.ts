@@ -1,6 +1,6 @@
 import ms from 'ms';
 import os from 'node:os';
-import got from 'got';
+import got, { Response } from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'node:path';
@@ -13,10 +13,12 @@ import {
 import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo, dockerStop,
-    loadThenDeleteImageFromCache, dockerPull, logTCPPorts
+    loadThenDeleteImageFromCache, dockerPull, logTCPPorts,
+    getAdminDnFromCert,
+    dockerExec
 } from '../scripts.js';
 import { Kind } from '../kind.js';
-import { TestOptions } from './interfaces.js';
+import { isOpenSearchInfo, TestOptions } from './interfaces.js';
 import { Service } from '../interfaces.js';
 import config, { resolveTerasliceVersion } from '../config.js';
 import signale from '../signale.js';
@@ -26,13 +28,18 @@ const logger = debugLogger('ts-scripts:cmd:test');
 const serviceUpTimeout = ms(config.SERVICE_UP_TIMEOUT);
 
 const rabbitConfigPath = path.join(getRootDir(), '/.ts-test-config/rabbitmq.conf');
-const restrainedOpensearchConfigPath = path.join(getRootDir(), '/.ts-test-config/opensearch.yml');
+const opensearchConfigPath = path.join(getRootDir(), '/.ts-test-config/opensearch.yml');
 
 const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.RestrainedOpensearch]: {
         image: config.OPENSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
-        mount: [`type=bind,source=${restrainedOpensearchConfigPath},target=/usr/share/opensearch/config/opensearch.yml`],
+        mount: config.ENCRYPT_OPENSEARCH
+            ? [
+                `type=bind,source=${config.CERT_PATH},target=/usr/share/opensearch/config/certs`,
+                `type=bind,source=${opensearchConfigPath},target=/usr/share/opensearch/config/opensearch.yml`
+            ]
+            : [`type=bind,source=${opensearchConfigPath},target=/usr/share/opensearch/config/opensearch.yml`],
         ports: [`${config.RESTRAINED_OPENSEARCH_PORT}:${config.RESTRAINED_OPENSEARCH_PORT}`],
         env: {
             OPENSEARCH_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
@@ -40,7 +47,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'http.port': config.RESTRAINED_OPENSEARCH_PORT,
             'discovery.type': 'single-node',
             DISABLE_INSTALL_DEMO_CONFIG: true,
-            DISABLE_SECURITY_PLUGIN: true
+            DISABLE_SECURITY_PLUGIN: !config.ENCRYPT_OPENSEARCH,
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -50,6 +57,12 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         tmpfs: config.SERVICES_USE_TMPFS
             ? ['/usr/share/opensearch/data:uid=1000,gid=1000']
             : undefined,
+        mount: config.ENCRYPT_OPENSEARCH
+            ? [
+                `type=bind,source=${config.CERT_PATH},target=/usr/share/opensearch/config/certs`,
+                `type=bind,source=${opensearchConfigPath},target=/usr/share/opensearch/config/opensearch.yml`
+            ]
+            : [],
         ports: [`${config.OPENSEARCH_PORT}:${config.OPENSEARCH_PORT}`],
         env: {
             OPENSEARCH_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
@@ -57,7 +70,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'http.port': config.OPENSEARCH_PORT,
             'discovery.type': 'single-node',
             DISABLE_INSTALL_DEMO_CONFIG: true,
-            DISABLE_SECURITY_PLUGIN: true,
+            DISABLE_SECURITY_PLUGIN: !config.ENCRYPT_OPENSEARCH,
             DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI: 'true'
         },
         network: config.DOCKER_NETWORK_NAME
@@ -215,14 +228,33 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
     const promises: Promise<(() => void)>[] = [];
 
     if (launchServices.includes(Service.RestrainedOpensearch)) {
+        if (config.ENCRYPT_OPENSEARCH) {
+            throw new Error('Restrained Opensearch is not compatible with an encrypted opensearch');
+        }
+
         // we create the opensearch.yml file for tests
         if (!options.ignoreMount) {
-            await fs.outputFile(restrainedOpensearchConfigPath, 'network.host: 0.0.0.0\nthread_pool.write.queue_size: 2');
+            await fs.outputFile(opensearchConfigPath, 'network.host: 0.0.0.0\nthread_pool.write.queue_size: 2');
         }
         promises.push(ensureRestrainedOpensearch(options));
     }
 
     if (launchServices.includes(Service.Opensearch)) {
+        // we create the opensearch.yml file for tests
+        if (!options.ignoreMount && config.ENCRYPT_OPENSEARCH) {
+            const encryptedOpensearchConfigProps = [
+                'plugins.security.ssl.transport.pemcert_filepath: certs/opensearch-cert.pem',
+                'plugins.security.ssl.transport.pemkey_filepath: certs/opensearch-key.pem',
+                'plugins.security.ssl.transport.pemtrustedcas_filepath: certs/CAs/rootCA.pem',
+                'plugins.security.ssl.http.enabled: true',
+                'plugins.security.ssl.http.pemcert_filepath: certs/opensearch-cert.pem',
+                'plugins.security.ssl.http.pemkey_filepath: certs/opensearch-key.pem',
+                'plugins.security.ssl.http.pemtrustedcas_filepath: certs/CAs/rootCA.pem',
+                `plugins.security.authcz.admin_dn:`,
+                `  - ${getAdminDnFromCert()}`
+            ];
+            await fs.outputFile(opensearchConfigPath, encryptedOpensearchConfigProps.join('\n'));
+        }
         promises.push(ensureOpensearch(options));
     }
 
@@ -289,6 +321,10 @@ export async function ensureOpensearch(options: TestOptions): Promise<() => void
     let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.Opensearch);
+    if (config.ENCRYPT_OPENSEARCH) {
+        await checkOpensearch(options, startTime, true);
+        await securityAdminSetup(config.OPENSEARCH_PORT);
+    }
     await checkOpensearch(options, startTime);
     return fn;
 }
@@ -513,7 +549,11 @@ async function checkRestrainedOpensearch(
     );
 }
 
-async function checkOpensearch(options: TestOptions, startTime: number): Promise<void> {
+async function checkOpensearch(
+    options: TestOptions,
+    startTime: number,
+    needsSecurityInit = false
+): Promise<void> {
     const host = config.OPENSEARCH_HOST;
     const username = config.OPENSEARCH_USER;
     const password = config.OPENSEARCH_PASSWORD;
@@ -529,49 +569,56 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             } else {
                 logger.debug(`checking opensearch at ${host}`);
             }
-            let body: any;
+            let response: Response;
 
             try {
-                ({ body } = await got(host, {
+                response = await got(host, {
                     username,
                     password,
                     https: { rejectUnauthorized: false },
                     responseType: 'json',
-                    throwHttpErrors: true,
+                    throwHttpErrors: false,
                     retry: {
                         limit: 0
                     }
-                }));
+                });
             } catch (err) {
                 error = err.message;
                 return false;
             }
 
             if (options.trace) {
-                signale.debug('got response from opensearch service', body);
+                signale.debug('got response from opensearch service: ', response.body);
             } else {
-                logger.debug('got response from opensearch service', body);
+                logger.debug('got response from opensearch service: ', response.body);
             }
 
-            if (!body?.version?.number) {
-                return false;
+            if (needsSecurityInit) {
+                // ready for securityadmin container to run
+                return response.statusCode === 503 && typeof response.body === 'string' && response.body.includes('OpenSearch Security not initialized');
             }
 
-            const actual: string = body.version.number;
-            const expected = config.OPENSEARCH_VERSION;
-
-            if (semver.satisfies(actual, `~${expected}`)) {
-                const took = toHumanTime(Date.now() - startTime);
-                signale.success(`opensearch@${actual} is running at ${host}, took ${took}`);
-                return true;
-            }
-
-            throw new TSError(
-                `Opensearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
-                {
-                    retryable: false,
+            if (response.statusCode === 200 && isOpenSearchInfo(response.body)) {
+                if (!response.body?.version?.number) {
+                    return false;
                 }
-            );
+
+                const actual: string = response.body.version.number;
+                const expected = config.OPENSEARCH_VERSION;
+
+                if (semver.satisfies(actual, `~${expected}`)) {
+                    const took = toHumanTime(Date.now() - startTime);
+                    signale.success(`opensearch@${actual} is running at ${host}, took ${took}`);
+                    return true;
+                }
+
+                throw new TSError(
+                    `Opensearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
+                    {
+                        retryable: false,
+                    }
+                );
+            }
         },
         {
             name: `Opensearch service (${host})`,
@@ -883,4 +930,26 @@ export async function loadImagesForHelmFromConfigFile(
         }
     }
     await Promise.all(promiseArray);
+}
+
+async function securityAdminSetup(port: number) {
+    await dockerExec(
+        `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
+        [
+            'bash',
+            '-c',
+            [
+                'cp /usr/share/opensearch/config/certs/internal_users.yml /usr/share/opensearch/config/opensearch-security/internal_users.yml',
+                '&&',
+                'bash /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh',
+                '-cd /usr/share/opensearch/config/opensearch-security',
+                '-icl -nhnv',
+                '-cacert /usr/share/opensearch/config/certs/CAs/rootCA.pem',
+                '-cert /usr/share/opensearch/config/certs/opensearch-cert.pem',
+                '-key /usr/share/opensearch/config/certs/opensearch-key.pem',
+                `-h localhost`,
+                `-p ${port.toString()}`,
+            ].join(' ')
+        ]
+    );
 }

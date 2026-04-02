@@ -7,13 +7,14 @@ import { DataType } from '@terascope/data-types';
 import { ClientMetadata, ElasticsearchDistribution, OpenSearch, Semver } from '@terascope/types';
 import { createClient, Client } from '../client/index.js';
 import { getClientMetadata, fixMappingRequest } from '../utils/index.js';
-import { envConfig } from './config.js';
+import { config } from './config.js';
 
 const {
     OPENSEARCH_HOST, OPENSEARCH_PASSWORD, OPENSEARCH_SSL_HOST,
-    OPENSEARCH_USER, OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST
-} = envConfig;
-export async function makeClient(rootCaPath?: string): Promise<Client> {
+    OPENSEARCH_USER, OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST,
+    ROOT_CERT_PATH
+} = config;
+export async function makeClient(): Promise<Client> {
     let host: string;
     let esConfig: OpenSearch.ClientConfig = {};
 
@@ -28,7 +29,7 @@ export async function makeClient(rootCaPath?: string): Promise<Client> {
 
     // Add SSL settings if encryption is enabled
     if (process.env.TEST_OPENSEARCH && process.env.ENCRYPT_OPENSEARCH) {
-        if (!rootCaPath || typeof rootCaPath !== 'string') {
+        if (!ROOT_CERT_PATH || typeof ROOT_CERT_PATH !== 'string') {
             throw new TSError(`No rootCA path provided, but ENCRYPT_OPENSEARCH is enabled`);
         }
 
@@ -37,7 +38,7 @@ export async function makeClient(rootCaPath?: string): Promise<Client> {
                 node: host,
                 username: OPENSEARCH_USER,
                 password: OPENSEARCH_PASSWORD,
-                caCertificate: readFileSync(rootCaPath, 'utf8')
+                caCertificate: readFileSync(ROOT_CERT_PATH, 'utf8')
             };
         } catch (err) {
             throw new TSError(`Unable to read root CA file when creating ES/OS client`, err);
