@@ -8,8 +8,8 @@ import {
 } from '../src/index.js';
 import { cleanupIndexStore } from './helpers/utils.js';
 
-const { makeClient, envConfig } = ElasticsearchTestHelpers;
-const { TEST_INDEX_PREFIX } = envConfig;
+const { makeClient, config } = ElasticsearchTestHelpers;
+const { TEST_INDEX_PREFIX } = config;
 
 describe('IndexSearchCompatability', () => {
     interface SearchRecord extends IndexModelRecord {

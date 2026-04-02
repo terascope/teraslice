@@ -108,7 +108,6 @@ export interface TestEnv {
     SKIP_IMAGE_DELETION?: boolean;
     STERN_LOGS?: boolean;
     TJM_TEST_MODE?: boolean;
-    ASSET_ZIP_PATH?: string;
     TERASLICE_CLUSTER_NAME?: string;
     TERASLICE_HOST?: string;
     TERASLICE_IMAGE?: string;
@@ -140,7 +139,8 @@ type RequireKeys<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
 
 export type OpenSearchTestEnv = RequireKeys<
     TestEnv,
-    'TEST_INDEX_PREFIX' | 'SEARCH_TEST_HOST' | 'OPENSEARCH_VERSION' | 'OPENSEARCH_USER' | 'OPENSEARCH_PASSWORD'
+    'TEST_INDEX_PREFIX' | 'SEARCH_TEST_HOST' | 'OPENSEARCH_VERSION'
+    | 'OPENSEARCH_USER' | 'OPENSEARCH_PASSWORD' | 'CERT_PATH'
 >;
 
 export type MinioTestEnv = RequireKeys<
@@ -161,7 +161,7 @@ export type RabbitMQTestEnv = RequireKeys<
 
 export type TerasliceServiceTestEnv = RequireKeys<
     TestEnv,
-    'TEST_TERASLICE' | 'TERASLICE_HOST' | 'ASSET_ZIP_PATH'
+    'TEST_TERASLICE' | 'TERASLICE_HOST'
 >;
 
 export type E2ETestEnv = RequireKeys<
