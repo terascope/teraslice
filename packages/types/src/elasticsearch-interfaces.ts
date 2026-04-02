@@ -205,6 +205,8 @@ export type ESTypeMapping
 
 type BasicESTypeMapping = {
     type: ESFieldType;
+    index?: boolean;
+    doc_values?: boolean;
     [prop: string]: any;
 };
 
