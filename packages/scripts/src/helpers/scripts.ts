@@ -515,6 +515,17 @@ export async function dockerPush(image: string): Promise<void> {
     }
 }
 
+export async function dockerExec(containerName: string, command: string[]): Promise<void> {
+    const args = ['exec', containerName, ...command];
+    signale.debug(`executing: docker ${args.join(' ')}`);
+
+    const subprocess = await execa('docker', args, { stdio: 'pipe' });
+
+    if (subprocess.exitCode !== 0) {
+        throw new Error(`Docker exec to container ${containerName} failed, ${subprocess.stderr}`);
+    }
+}
+
 async function dockerImageRm(image: string): Promise<void> {
     const subprocess = await execaCommand(
         `docker image rm ${image}`,
@@ -970,7 +981,7 @@ function readCertFromPath(certPath: string): string {
  * // Output: "OU=anon@anon-MBP (Anon User),O=mkcert development certificate"
  * ```
  */
-function getAdminDnFromCert(): string {
+export function getAdminDnFromCert(): string {
     let ca: string;
     let organization: string | undefined;
     let organizationalUnit: string | undefined;

@@ -9,7 +9,7 @@ const {
     HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST,
     ENCRYPT_MINIO, ROOT_CERT_PATH, FILE_LOGGING,
-    ENCRYPT_KAFKA, DEBUG_LOG_LEVEL
+    ENCRYPT_KAFKA, DEBUG_LOG_LEVEL, ENCRYPT_OPENSEARCH
 } = config;
 
 const baseConfig = {
@@ -30,6 +30,9 @@ const baseConfig = {
                     requestTimeout: '1 minute',
                     sniffOnStart: false,
                     sniffOnConnectionFault: false,
+                    username: '',
+                    password: '',
+                    caCertificate: ''
                 }
             },
             kafka: {
@@ -117,6 +120,13 @@ async function writeMasterConfig() {
         masterConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;
     }
 
+    if (ENCRYPT_OPENSEARCH === true) {
+        const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
+        masterConfig.terafoundation.connectors['elasticsearch-next'].default.username = 'admin';
+        masterConfig.terafoundation.connectors['elasticsearch-next'].default.password = 'passwordsufhbivbU123%$';
+        masterConfig.terafoundation.connectors['elasticsearch-next'].default.caCertificate = rootCA;
+    }
+
     const masterConfigPath = path.join(CONFIG_PATH, 'teraslice-master.json');
     await fse.writeJSON(masterConfigPath, masterConfig, {
         spaces: 4
@@ -136,6 +146,13 @@ async function writeWorkerConfig() {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         workerConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
         workerConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;
+    }
+
+    if (ENCRYPT_OPENSEARCH === true) {
+        const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
+        workerConfig.terafoundation.connectors['elasticsearch-next'].default.username = 'admin';
+        workerConfig.terafoundation.connectors['elasticsearch-next'].default.password = 'passwordsufhbivbU123%$';
+        workerConfig.terafoundation.connectors['elasticsearch-next'].default.caCertificate = rootCA;
     }
 
     const workerConfigPath = path.join(CONFIG_PATH, 'teraslice-worker.json');

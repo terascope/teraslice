@@ -28,11 +28,13 @@ export async function createImageList(): Promise<void> {
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH3_VERSION}`;
     } else if (repo === 'kafka-asset-bundle') {
-        list = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}`;
+        list = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}\n`
+            + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`;
     } else if (repo === 'file-assets-bundle') {
-        list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}`;
+        list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
+            + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`;
     } else if (repo === 'standard-assets-bundle') {
-        list = '';
+        list = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}`;
     } else if (repo === 'chaos-assets-bundle') {
         list = '';
     } else if (repo === 'teraslice-workspace') {

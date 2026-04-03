@@ -9,10 +9,10 @@ import {
 } from '../src/index.js';
 
 const {
-    makeClient, cleanupIndex, getTestENVClientInfo, envConfig
+    makeClient, cleanupIndex, getTestENVClientInfo
 } = ElasticsearchTestHelpers;
 
-const { TEST_INDEX_PREFIX } = envConfig;
+const { TEST_INDEX_PREFIX } = ElasticsearchTestHelpers.config;
 
 const { host, ...clientMetadata } = getTestENVClientInfo();
 
