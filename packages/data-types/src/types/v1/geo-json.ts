@@ -1,6 +1,6 @@
 import {
     xLuceneFieldType, ESFieldType, xLuceneTypeConfig,
-    ClientMetadata
+    ClientMetadata, ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
@@ -9,13 +9,14 @@ export default class GeoJSON extends BaseType {
     toESMapping(_clientMetaData: ClientMetadata): TypeESMapping {
         this._validateESMapping();
 
+        const config: ESTypeMapping = { type: 'geo_shape' as ESFieldType };
+
+        if (this.config.doc_values === false) config.doc_values = false;
+
         return {
             mapping: {
-                [this.field]: {
-                    type: 'geo_shape' as ESFieldType,
-                }
+                [this.field]: config
             }
-
         };
     }
 

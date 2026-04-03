@@ -47,6 +47,10 @@ export default class VectorType extends BaseType {
             [key: string]: ESTypeMapping;
         };
 
+        const mappingConfig: Partial<ESTypeMapping> = {};
+
+        if (this.config.doc_values === false) mappingConfig.doc_values = false;
+
         if (majorVersion >= 3) {
             mapping = {
                 [this.field]: {
@@ -56,7 +60,8 @@ export default class VectorType extends BaseType {
                     method: {
                         name,
                         engine
-                    }
+                    },
+                    ...mappingConfig
                 }
             };
         } else {
@@ -68,7 +73,8 @@ export default class VectorType extends BaseType {
                         space_type,
                         name,
                         engine
-                    }
+                    },
+                    ...mappingConfig
                 }
             };
         }

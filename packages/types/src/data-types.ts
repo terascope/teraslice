@@ -147,6 +147,14 @@ export interface DataTypeFieldConfig {
     */
     doc_values?: boolean;
 
+    /** Completely skips parsing and indexing of the field contents. The data is only stored
+     * in the _source field, making it retrievable but entirely invisible to any search,
+     *  aggregation, or sorting logic.
+     *  * (Not supported by some field types...
+     * see indexedRequiredFieldTypes for types that cannot be false)
+     */
+    enabled?: boolean;
+
     /**
      * Specify the locale for the field (not compatible with all fields)
      * Must be represented in a Language Tags (BCP 47)

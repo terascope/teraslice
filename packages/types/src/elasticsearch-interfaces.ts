@@ -201,39 +201,52 @@ export type ESTypeMapping
     = | PropertyESTypeMapping
         | FieldsESTypeMapping
         | BasicESTypeMapping
-        | IgnoredESTypeMapping;
+        | ESFieldMapping
+        | AnyFieldMapping;
 
-type BasicESTypeMapping = {
+interface BasicESTypeMapping {
     type: ESFieldType;
+    /** Disables the inverted index, which is the primary structure for searching.
+     *  The field is still parsed and stored. If doc_values is still true (default for most types),
+     *  OpenSearch can still perform slow searches by scanning doc values, but you cannot
+     * perform full-text search on text fields if they are not indexed.
+    */
     index?: boolean;
+    /** Disables the column-oriented storage used for sorting, aggregations, and script access.
+     * The field remains searchable via the inverted index if index is true,
+     *  Reduces disk usage significantly for high-cardinality fields that are only filtered.
+     */
     doc_values?: boolean;
+    /** Completely skips parsing and indexing of the field contents. The data is only stored
+     * in the _source field, making it retrievable but entirely invisible to any search,
+     *  aggregation, or sorting logic.
+     */
+    enabled?: boolean;
     [prop: string]: any;
+}
+
+export type TypeLessMapping = Omit<BasicESTypeMapping, 'type'>;
+
+export interface AnyFieldMapping extends TypeLessMapping {}
+
+type ESFieldMapping = Omit<BasicESTypeMapping, 'enabled'> & {
+    analyzer?: string;
 };
 
-type IgnoredESTypeMapping = {
-    enabled: boolean;
-    [prop: string]: any;
-};
-
-type FieldsESTypeMapping = {
-    type: ESFieldType | string;
+interface FieldsESTypeMapping extends BasicESTypeMapping {
     fields: {
-        [key: string]: {
-            type: ESFieldType | string;
-            index?: boolean | string;
-            analyzer?: string;
-        };
+        [key: string]: ESFieldMapping;
     };
-    [prop: string]: any;
-};
+}
 
 export type PropertyESTypes = FieldsESTypeMapping | BasicESTypeMapping;
-export type PropertyESTypeMapping = {
-    type?: 'nested' | 'object';
+
+export interface PropertyESTypeMapping extends BasicESTypeMapping {
+    type: 'nested' | 'object';
     properties: {
         [key: string]: PropertyESTypes;
     };
-};
+}
 
 export interface ESTypeMappings {
     [prop: string]: any;

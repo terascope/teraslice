@@ -1,6 +1,6 @@
 import {
     xLuceneFieldType, ESFieldType, xLuceneTypeConfig,
-    DateFormat
+    DateFormat, ESTypeMapping
 } from '@terascope/types';
 import { withoutNil } from '@terascope/core-utils';
 import BaseType from '../base-type.js';
@@ -30,13 +30,18 @@ export default class DateType extends BaseType {
             format = DateFormat.epoch;
         }
 
+        const config: ESTypeMapping = withoutNil({
+            type: 'date' as ESFieldType,
+            format,
+        });
+
+        if (this.config.indexed === false) config.index = false;
+        if (this.config.doc_values === false) config.doc_values = false;
+        if (this.config.enabled === false) config.enabled = false;
+
         return {
             mapping: {
-                [this.field]: withoutNil({
-                    type: 'date' as ESFieldType,
-                    format,
-                    index: this.config.indexed === false ? false : undefined
-                })
+                [this.field]: config
             }
         };
     }
