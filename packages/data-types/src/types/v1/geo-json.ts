@@ -11,8 +11,6 @@ export default class GeoJSON extends BaseType {
 
         const config: ESTypeMapping = { type: 'geo_shape' as ESFieldType };
 
-        if (this.config.doc_values === false) config.doc_values = false;
-
         return {
             mapping: {
                 [this.field]: config

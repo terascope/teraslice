@@ -12,8 +12,6 @@ export default class Byte extends BaseType {
         const config: ESTypeMapping = { type: 'byte' as ESFieldType };
 
         if (this.config.indexed === false) config.index = false;
-        if (this.config.doc_values === false) config.doc_values = false;
-        if (this.config.enabled === false) config.enabled = false;
 
         return {
             mapping: {

@@ -9,10 +9,6 @@ export default class ObjectType extends BaseType {
         const type = this.config.array ? 'nested' : 'object';
         const typeConfig: ESTypeMapping = { type };
 
-        if (this.config.indexed === false) typeConfig.index = false;
-        if (this.config.doc_values === false) typeConfig.doc_values = false;
-        if (this.config.enabled === false) typeConfig.enabled = false;
-
         if (this.config.indexed === false) {
             typeConfig.enabled = false;
         }

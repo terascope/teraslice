@@ -8,9 +8,6 @@ export default class AnyType extends BaseType {
 
         const config: AnyFieldMapping = { enabled: false };
 
-        if (this.config.indexed === false) config.index = false;
-        if (this.config.doc_values === false) config.doc_values = false;
-
         return {
             mapping: { [this.field]: config }
         };

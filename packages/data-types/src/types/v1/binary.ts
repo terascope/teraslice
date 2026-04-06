@@ -12,8 +12,9 @@ export default class BinaryType extends BaseType {
         const config: ESTypeMapping = { type: 'binary' as ESFieldType };
 
         if (this.config.indexed === false) config.index = false;
-        if (this.config.doc_values === false) config.doc_values = false;
-        if (this.config.enabled === false) config.enabled = false;
+        // we never want to store doc values for binary fields as
+        //  they are not searchable and can be very large
+        config.doc_values = false;
 
         return {
             mapping: {
