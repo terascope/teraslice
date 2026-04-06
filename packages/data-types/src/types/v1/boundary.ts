@@ -17,7 +17,7 @@ export default class Boundary extends BaseType {
             },
         };
 
-        if (this.config.indexed === false) config.index = false;
+        if (this.config.indexed === false) config.enabled = false;
 
         return {
             mapping: {
