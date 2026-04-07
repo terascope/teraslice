@@ -10,7 +10,6 @@ export default class Boundary extends BaseType {
         this._validateESMapping();
 
         const config: ESTypeMapping = {
-            type: 'object' as ESFieldType,
             properties: {
                 lat: { type: 'float' as ESFieldType },
                 lon: { type: 'float' as ESFieldType },
