@@ -10,7 +10,7 @@ export const assetDataTypeConfig: DataTypeConfig = {
         arch: { type: FieldType.Keyword },
         platform: { type: FieldType.Keyword },
         node_version: { type: FieldType.Integer },
-        blob: { type: FieldType.Binary, doc_values: false },
+        blob: { type: FieldType.Binary },
         _created: { type: FieldType.Date }
     }
 };

@@ -140,14 +140,6 @@ export interface DataTypeFieldConfig {
     indexed?: boolean;
 
     /**
-     *  Doc values are enabled by default on nearly all field types, except for text fields.
-     *  If you know that a field won’t be used for sorting, aggregations, or scripting,
-     *  you can disable doc values in order to reduce disk usage.
-     * @default true
-    */
-    doc_values?: boolean;
-
-    /**
      * Specify the locale for the field (not compatible with all fields)
      * Must be represented in a Language Tags (BCP 47)
     */

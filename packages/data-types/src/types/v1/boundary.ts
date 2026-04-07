@@ -1,27 +1,27 @@
-import { xLuceneFieldType, ESFieldType, xLuceneTypeConfig } from '@terascope/types';
+import {
+    xLuceneFieldType, ESFieldType, xLuceneTypeConfig,
+    ESTypeMapping
+} from '@terascope/types';
 import BaseType, { ToGraphQLOptions } from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
 export default class Boundary extends BaseType {
     toESMapping(): TypeESMapping {
         this._validateESMapping();
+
+        const config: ESTypeMapping = {
+            properties: {
+                lat: { type: 'float' as ESFieldType },
+                lon: { type: 'float' as ESFieldType },
+            },
+        };
+
+        if (this.config.indexed === false) config.enabled = false;
+
         return {
             mapping: {
-                [this.field]: this.config.indexed === false
-                    ? {
-                        properties: {
-                            lat: { type: 'float' as ESFieldType },
-                            lon: { type: 'float' as ESFieldType },
-                        },
-                        enabled: false
-                    }
-                    : {
-                        properties: {
-                            lat: { type: 'float' as ESFieldType },
-                            lon: { type: 'float' as ESFieldType },
-                        },
-                    },
-            },
+                [this.field]: config
+            }
         };
     }
 

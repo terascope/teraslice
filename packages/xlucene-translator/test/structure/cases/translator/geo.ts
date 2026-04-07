@@ -2,7 +2,7 @@ import { TestCase } from './interfaces.js';
 
 export default [
     [
-        'location:geoBox(top_left:"10.5234,70.42345" bottom_right:"50.5234,60.3456")',
+        'location:geoBox(top_left:"50.5234,60.3456" bottom_right:"10.5234,70.42345")',
         '.',
         {
             query: {
@@ -11,12 +11,12 @@ export default [
                         geo_bounding_box: {
                             location: {
                                 top_left: {
-                                    lat: 10.5234,
-                                    lon: 70.42345,
-                                },
-                                bottom_right: {
                                     lat: 50.5234,
                                     lon: 60.3456
+                                },
+                                bottom_right: {
+                                    lat: 10.5234,
+                                    lon: 70.42345,
                                 }
                             }
                         }

@@ -56,7 +56,7 @@ export default class VectorType extends BaseType {
                     method: {
                         name,
                         engine
-                    }
+                    },
                 }
             };
         } else {
@@ -68,7 +68,7 @@ export default class VectorType extends BaseType {
                         space_type,
                         name,
                         engine
-                    }
+                    },
                 }
             };
         }

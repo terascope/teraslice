@@ -1,20 +1,21 @@
-import { xLuceneFieldType, ESFieldType, xLuceneTypeConfig } from '@terascope/types';
+import {
+    xLuceneFieldType, ESFieldType, xLuceneTypeConfig,
+    ESTypeMapping
+} from '@terascope/types';
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
 export default class Short extends BaseType {
     toESMapping(): TypeESMapping {
         this._validateESMapping();
+
+        const config: ESTypeMapping = { type: 'short' as ESFieldType };
+
+        if (this.config.indexed === false) config.index = false;
+
         return {
             mapping: {
-                [this.field]: this.config.indexed === false
-                    ? {
-                        type: 'short' as ESFieldType,
-                        index: false
-                    }
-                    : {
-                        type: 'short' as ESFieldType
-                    }
+                [this.field]: config
             }
         };
     }
