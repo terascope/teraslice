@@ -94,11 +94,11 @@ There are public asset bundles available for:
 The example job below requires standard-assets and elasticsearch-assets to be available in the cluster for successful execution. Use the teraslice-cli tool to deploy these assets:
 
 ```sh
-teraslice-cli assets deploy localhost terascope/standard-assets
+teraslice-cli assets deploy local terascope/standard-assets
 ```
 
 ```sh
-teraslice-cli assets deploy localhost terascope/elasticsearch-assets
+teraslice-cli assets deploy local terascope/elasticsearch-assets
 ```
 
 ### Submitting and Starting a Test Job
