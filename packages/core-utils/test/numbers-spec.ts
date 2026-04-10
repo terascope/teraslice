@@ -200,7 +200,16 @@ describe('Numbers', () => {
             [10.125, 2, true, 10.12],
             [Math.PI, 0, true, 3],
             [1000, 10, true, 1000],
-            [0.0000034543543435, 6, true, 0.000003],
+            [0.00000012777405852461998, 8, true, 0.00000012],
+            [0.00000012777405852461998, 2, true, 0],
+            [-0.00000012777405852461998, 8, true, -0.00000012],
+            [1.9999999, 2, true, 1.99],
+            [1.9999999, 2, false, 2],
+            [90, 6, true, 90],
+            [0.000001, 2, true, 0],
+            [-1.2999994343243, 4, true, -1.2999],
+            [0.30000000000000004, 4, true, 0.3],
+            [342342343345.01123432234, 2, true, 342342343345.01]
         ])('should convert %p with (digits: %p, truncate: %p) to %p', (input, digits, truncate, expected) => {
             expect(setPrecision(input, digits, truncate)).toEqual(expected);
         });
