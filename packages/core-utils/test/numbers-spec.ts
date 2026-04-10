@@ -200,6 +200,7 @@ describe('Numbers', () => {
             [10.125, 2, true, 10.12],
             [Math.PI, 0, true, 3],
             [1000, 10, true, 1000],
+            [0.0000034543543435, 6, true, 0.000003],
         ])('should convert %p with (digits: %p, truncate: %p) to %p', (input, digits, truncate, expected) => {
             expect(setPrecision(input, digits, truncate)).toEqual(expected);
         });
