@@ -295,7 +295,7 @@ export function setPrecision(
         return parseFloat(num.toFixed(fractionDigits));
     }
     return parseFloat(
-        setPrecisionFromString(num, fractionDigits)
+        truncateNumber(num, fractionDigits)
     );
 }
 
@@ -318,12 +318,12 @@ export function setPrecisionFP(
  * this will always truncate (not round)
  * numbers over 2^53 - 1 (over 9 Quadrillion) cannot be truncated with this function
 */
-function setPrecisionFromString(
+function truncateNumber(
     input: number,
     fractionDigits: number,
 ): string {
     const str = input.toFixed(fractionDigits + 5)
-    const [int, points] = str.toString().split('.');
+    const [int, points] = str.split('.');
     if (!points) return int || '0';
 
     const remainingPoints = points.slice(0, fractionDigits);
