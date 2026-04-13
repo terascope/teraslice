@@ -322,7 +322,7 @@ function truncateNumber(
     input: number,
     fractionDigits: number,
 ): string {
-    const str = input.toFixed(fractionDigits + 5)
+    const str = input.toFixed(fractionDigits + 5);
     const [int, points] = str.split('.');
     if (!points) return int || '0';
 

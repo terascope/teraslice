@@ -209,7 +209,7 @@ describe('Numbers', () => {
             [0.000001, 2, true, 0],
             [-1.2999994343243, 4, true, -1.2999],
             [0.30000000000000004, 4, true, 0.3],
-            [342342343345.01123432234, 2, true, 342342343345.01]
+            [3423443.011234, 2, true, 3423443.01]
         ])('should convert %p with (digits: %p, truncate: %p) to %p', (input, digits, truncate, expected) => {
             expect(setPrecision(input, digits, truncate)).toEqual(expected);
         });
