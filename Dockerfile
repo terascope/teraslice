@@ -60,7 +60,7 @@ ENV NODE_ENV=production \
     NPM_CONFIG_LOGLEVEL=error
 
 # Minimal for runtime: tini for PID1, certs for HTTPS; and bash for exec
-RUN apk --no-cache add tini ca-certificates bash
+RUN apk --no-cache add tini ca-certificates bash curl
 
 WORKDIR /app/source
 RUN corepack enable
