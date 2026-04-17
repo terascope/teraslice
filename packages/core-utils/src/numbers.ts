@@ -1,6 +1,7 @@
 import { FieldType } from '@terascope/types';
 import { isArrayLike } from './arrays.js';
 import { getTypeOf } from './deps.js';
+import { isEmpty } from './empty.js';
 import { isKey } from './objects.js';
 
 let supportsBigInt = true;
@@ -113,16 +114,21 @@ export function bigIntToJSON(int: bigint): string | number {
 }
 
 /**
- * A stricter check for verifying a number string
- * @todo this needs to be smarter
+ * return true if value could be a number
 */
 export function isNumberLike(input: unknown): boolean {
     if (typeof input === 'number') return true;
-    if (typeof input === 'object') return false;
-    if (typeof input === 'boolean') return false;
+    if (typeof input !== 'string') return false;
 
-    // https://regexr.com/5cljt
-    return /^\s*[+-]{0,1}[\d,]+(\.[\d]+){0,1}\s*$/.test(String(input));
+    if (isEmpty((input as string).trim())) {
+        return false;
+    }
+
+    const sanitized = (input as string).replace(/,|_/g, '');
+
+    const num = Number(sanitized);
+
+    return !isNaN(num) && isFinite(num);
 }
 
 /** A simplified implementation of lodash isInteger */
