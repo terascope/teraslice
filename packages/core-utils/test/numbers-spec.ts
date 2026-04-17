@@ -35,14 +35,14 @@ describe('Numbers', () => {
             ['1234', true],
             ['234.3434', true],
             [1234, true],
-            ["    ", false],
+            ['    ', false],
             ['', false],
             [true, false],
             [false, false],
             [null, false],
             ['not a number', false],
             [['1234'], false],
-            [{foo: 'bar'}, false],
+            [{ foo: 'bar' }, false],
             [Infinity, true],
             [3.234333e-8, true],
             ['3.234333e-8', true],
@@ -50,7 +50,7 @@ describe('Numbers', () => {
             ['324EE8', false],
             ['1,000', true],
             ['1_000', true]
-        ]) ('should return true if value can be converted to a number', (input, expected) => {
+        ])('should return true if value can be converted to a number', (input, expected) => {
             expect(isNumberLike(input)).toBe(expected);
         });
     });

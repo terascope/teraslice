@@ -128,7 +128,7 @@ export function isNumberLike(input: unknown): boolean {
 
     const num = Number(sanitized);
 
-    return !isNaN(num) && isFinite(num);
+    return !isNaN(num) && Number.isFinite(num);
 }
 
 /** A simplified implementation of lodash isInteger */
