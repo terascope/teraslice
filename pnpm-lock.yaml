@@ -710,8 +710,8 @@ importers:
         specifier: ~15.1.3
         version: 15.1.3
       terafoundation_kafka_connector:
-        specifier: ~2.1.1
-        version: 2.1.1
+        specifier: ~2.2.0
+        version: 2.2.0
       yargs:
         specifier: ~18.0.0
         version: 18.0.0
@@ -810,8 +810,8 @@ importers:
         specifier: workspace:~
         version: link:../terafoundation
       terafoundation_kafka_connector:
-        specifier: ~2.1.1
-        version: 2.1.1
+        specifier: ~2.2.0
+        version: 2.2.0
       uuid:
         specifier: ~13.0.0
         version: 13.0.0
@@ -1520,8 +1520,8 @@ packages:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
 
-  '@confluentinc/kafka-javascript@1.8.2':
-    resolution: {integrity: sha512-sH607B4S00IO8omtpnUlcHeHsZ7hR2C441E4erZyFb+yXNVTl++8+BjIfIcflzW07iGHE5r5McD3oO3vxHi+ww==}
+  '@confluentinc/kafka-javascript@1.9.0':
+    resolution: {integrity: sha512-bIH0IEkpgTAiU7h+MBg7aDhS8+hxVVO5LA3XdlP28aNNIWauI31z50Y5LWjkwbWbH/1i2UBE8H5qvA7gLcttWg==}
     engines: {node: '>=18.0.0'}
 
   '@emnapi/core@1.9.1':
@@ -5853,8 +5853,8 @@ packages:
   tdigest@0.1.2:
     resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
 
-  terafoundation_kafka_connector@2.1.1:
-    resolution: {integrity: sha512-hzelhbBgTvAP9zEvSlMe29OLhzs4xoyFqzdZ141axj7tgtECOKZyfJq9dtE2A0pkEGXeYcfcg3HWlnRcZRXeyA==}
+  terafoundation_kafka_connector@2.2.0:
+    resolution: {integrity: sha512-GOXqJ+D6+L159Sqc5BUraAmXYgNlSlCi/WeEGgoR8sMOtPNdzSaU18OZasR+DUXJDgGamBKgjN2/Jx3aV5HZNQ==}
     engines: {node: '>=22.0.0', pnpm: '>=10.25.0'}
 
   test-exclude@6.0.0:
@@ -6913,7 +6913,7 @@ snapshots:
   '@colors/colors@1.5.0':
     optional: true
 
-  '@confluentinc/kafka-javascript@1.8.2':
+  '@confluentinc/kafka-javascript@1.9.0':
     dependencies:
       '@mapbox/node-pre-gyp': 2.0.3
       bindings: 1.5.0
@@ -12173,9 +12173,9 @@ snapshots:
     dependencies:
       bintrees: 1.0.2
 
-  terafoundation_kafka_connector@2.1.1:
+  terafoundation_kafka_connector@2.2.0:
     dependencies:
-      '@confluentinc/kafka-javascript': 1.8.2
+      '@confluentinc/kafka-javascript': 1.9.0
     transitivePeerDependencies:
       - encoding
       - supports-color
