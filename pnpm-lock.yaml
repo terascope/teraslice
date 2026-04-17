@@ -810,8 +810,8 @@ importers:
         specifier: workspace:~
         version: link:../terafoundation
       terafoundation_kafka_connector:
-        specifier: ~2.1.1
-        version: 2.1.1
+        specifier: ~2.2.0
+        version: 2.2.0
       uuid:
         specifier: ~13.0.0
         version: 13.0.0
@@ -1522,6 +1522,10 @@ packages:
 
   '@confluentinc/kafka-javascript@1.8.2':
     resolution: {integrity: sha512-sH607B4S00IO8omtpnUlcHeHsZ7hR2C441E4erZyFb+yXNVTl++8+BjIfIcflzW07iGHE5r5McD3oO3vxHi+ww==}
+    engines: {node: '>=18.0.0'}
+
+  '@confluentinc/kafka-javascript@1.9.0':
+    resolution: {integrity: sha512-bIH0IEkpgTAiU7h+MBg7aDhS8+hxVVO5LA3XdlP28aNNIWauI31z50Y5LWjkwbWbH/1i2UBE8H5qvA7gLcttWg==}
     engines: {node: '>=18.0.0'}
 
   '@emnapi/core@1.9.1':
@@ -5857,6 +5861,10 @@ packages:
     resolution: {integrity: sha512-hzelhbBgTvAP9zEvSlMe29OLhzs4xoyFqzdZ141axj7tgtECOKZyfJq9dtE2A0pkEGXeYcfcg3HWlnRcZRXeyA==}
     engines: {node: '>=22.0.0', pnpm: '>=10.25.0'}
 
+  terafoundation_kafka_connector@2.2.0:
+    resolution: {integrity: sha512-GOXqJ+D6+L159Sqc5BUraAmXYgNlSlCi/WeEGgoR8sMOtPNdzSaU18OZasR+DUXJDgGamBKgjN2/Jx3aV5HZNQ==}
+    engines: {node: '>=22.0.0', pnpm: '>=10.25.0'}
+
   test-exclude@6.0.0:
     resolution: {integrity: sha512-cAGWPIyOHU6zlmg88jwm7VRyXnMN7iV68OGAbYDk/Mh/xC/pzVPlQtY6ngoIH/5/tciuhGfvESU8GrHrcxD56w==}
     engines: {node: '>=8'}
@@ -6914,6 +6922,15 @@ snapshots:
     optional: true
 
   '@confluentinc/kafka-javascript@1.8.2':
+    dependencies:
+      '@mapbox/node-pre-gyp': 2.0.3
+      bindings: 1.5.0
+      nan: 2.22.2
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@confluentinc/kafka-javascript@1.9.0':
     dependencies:
       '@mapbox/node-pre-gyp': 2.0.3
       bindings: 1.5.0
@@ -12176,6 +12193,13 @@ snapshots:
   terafoundation_kafka_connector@2.1.1:
     dependencies:
       '@confluentinc/kafka-javascript': 1.8.2
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  terafoundation_kafka_connector@2.2.0:
+    dependencies:
+      '@confluentinc/kafka-javascript': 1.9.0
     transitivePeerDependencies:
       - encoding
       - supports-color
