@@ -130,7 +130,7 @@ export function isNumberLike(input: unknown): boolean {
     // but only if a single character surrounded by digits
     const sanitized = Number(
         (input as string)
-        .replace(/(?<=\d)[,_](?=\d)/g, '')
+            .replace(/(?<=\d)[,_](?=\d)/g, '')
     );
 
     return !isNaN(sanitized) && Number.isFinite(sanitized);
