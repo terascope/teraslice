@@ -117,18 +117,23 @@ export function bigIntToJSON(int: bigint): string | number {
  * return true if value could be a number
 */
 export function isNumberLike(input: unknown): boolean {
-    if (typeof input === 'number') return true;
-    if (typeof input !== 'string') return false;
+    const inputType = typeof input;
+
+    if (['bigint', 'number'].includes(inputType)) return true;
+    if (inputType !== 'string') return false;
 
     if (isEmpty((input as string).trim())) {
         return false;
     }
 
-    const sanitized = (input as string).replace(/,|_/g, '');
+    // remove commas and numeric separator,
+    // but only if a single character surrounded by digits
+    const sanitized = Number(
+        (input as string)
+        .replace(/(?<=\d)[,_](?=\d)/g, '')
+    );
 
-    const num = Number(sanitized);
-
-    return !isNaN(num) && Number.isFinite(num);
+    return !isNaN(sanitized) && Number.isFinite(sanitized);
 }
 
 /** A simplified implementation of lodash isInteger */

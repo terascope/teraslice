@@ -49,7 +49,12 @@ describe('Numbers', () => {
             ['324E8 street', false],
             ['324EE8', false],
             ['1,000', true],
-            ['1_000', true]
+            ['1_000', true],
+            ['1_000_000_000_000', true],
+            [BigInt('42540488320432167789079031612388147200'), true],
+            ['1_000__000', false],
+            ['1,,000', false],
+            [',100', false]
         ])('should return true if value can be converted to a number', (input, expected) => {
             expect(isNumberLike(input)).toBe(expected);
         });
