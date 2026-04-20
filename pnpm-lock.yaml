@@ -159,8 +159,8 @@ importers:
         specifier: ~5.9.3
         version: 5.9.3
       uuid:
-        specifier: ~13.0.0
-        version: 13.0.0
+        specifier: ~14.0.0
+        version: 14.0.0
       yaml:
         specifier: ~2.8.3
         version: 2.8.3
@@ -198,8 +198,8 @@ importers:
         specifier: ~6.0.3
         version: 6.0.3
       lodash-es:
-        specifier: ~4.17.23
-        version: 4.17.23
+        specifier: ~4.18.1
+        version: 4.18.1
       mnemonist:
         specifier: 0.40.3
         version: 0.40.3
@@ -286,8 +286,8 @@ importers:
         specifier: ~0.40.3
         version: 0.40.3
       uuid:
-        specifier: ~13.0.0
-        version: 13.0.0
+        specifier: ~14.0.0
+        version: 14.0.0
       valid-url:
         specifier: ~1.0.9
         version: 1.0.9
@@ -388,8 +388,8 @@ importers:
         specifier: ~1.0.5
         version: 1.0.5
       uuid:
-        specifier: ~13.0.0
-        version: 13.0.0
+        specifier: ~14.0.0
+        version: 14.0.0
       xlucene-translator:
         specifier: workspace:~
         version: link:../xlucene-translator
@@ -436,8 +436,8 @@ importers:
         specifier: ~7.8.0
         version: 7.8.1(eslint@9.39.3)(typescript@5.9.3)
       globals:
-        specifier: ~17.4.0
-        version: 17.4.0
+        specifier: ~17.5.0
+        version: 17.5.0
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
@@ -527,8 +527,8 @@ importers:
         specifier: ~7.7.4
         version: 7.7.4
       uuid:
-        specifier: ~13.0.0
-        version: 13.0.0
+        specifier: ~14.0.0
+        version: 14.0.0
     devDependencies:
       '@jest/globals':
         specifier: ^30.3.0
@@ -813,8 +813,8 @@ importers:
         specifier: ~2.2.0
         version: 2.2.0
       uuid:
-        specifier: ~13.0.0
-        version: 13.0.0
+        specifier: ~14.0.0
+        version: 14.0.0
     devDependencies:
       '@jest/globals':
         specifier: ^30.3.0
@@ -959,8 +959,8 @@ importers:
         specifier: ~5.0.0
         version: 5.0.0
       uuid:
-        specifier: ~13.0.0
-        version: 13.0.0
+        specifier: ~14.0.0
+        version: 14.0.0
       yargs:
         specifier: ~18.0.0
         version: 18.0.0
@@ -4075,8 +4075,8 @@ packages:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
     engines: {node: '>=18'}
 
-  globals@17.4.0:
-    resolution: {integrity: sha512-hjrNztw/VajQwOLsMNT1cbJiH2muO3OROCHnbehc8eY5JyD2gqz4AcMHPqgaOR59DjgUjYAYLeH699g/eWi2jw==}
+  globals@17.5.0:
+    resolution: {integrity: sha512-qoV+HK2yFl/366t2/Cb3+xxPUo5BuMynomoDmiaZBIdbs+0pYbjfZU+twLhGKp4uCZ/+NbtpVepH5bGCxRyy2g==}
     engines: {node: '>=18'}
 
   globalthis@1.0.4:
@@ -4802,6 +4802,9 @@ packages:
 
   lodash-es@4.17.23:
     resolution: {integrity: sha512-kVI48u3PZr38HdYz98UmfPnXl2DXrpdctLrFLCd3kOx1xUkOmpFPx7gCWWM5MPkL/fD8zb+Ph0QzjGFs4+hHWg==}
+
+  lodash-es@4.18.1:
+    resolution: {integrity: sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==}
 
   lodash.get@4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
@@ -6076,8 +6079,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  uuid@13.0.0:
-    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
+  uuid@14.0.0:
+    resolution: {integrity: sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==}
     hasBin: true
 
   uuid@8.3.2:
@@ -10144,7 +10147,7 @@ snapshots:
 
   globals@14.0.0: {}
 
-  globals@17.4.0: {}
+  globals@17.5.0: {}
 
   globalthis@1.0.4:
     dependencies:
@@ -11054,6 +11057,8 @@ snapshots:
       p-locate: 5.0.0
 
   lodash-es@4.17.23: {}
+
+  lodash-es@4.18.1: {}
 
   lodash.get@4.4.2: {}
 
@@ -12423,7 +12428,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  uuid@13.0.0: {}
+  uuid@14.0.0: {}
 
   uuid@8.3.2: {}
 

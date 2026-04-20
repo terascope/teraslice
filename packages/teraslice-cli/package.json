@@ -71,7 +71,7 @@
         "teraslice-client-js": "workspace:~",
         "tmp": "~0.2.5",
         "tty-table": "~5.0.0",
-        "uuid": "~13.0.0",
+        "uuid": "~14.0.0",
         "yargs": "~18.0.0"
     },
     "engines": {

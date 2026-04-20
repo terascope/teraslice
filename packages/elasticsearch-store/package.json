@@ -36,7 +36,7 @@
         "ajv": "~8.18.0",
         "ajv-formats": "~3.0.1",
         "setimmediate": "~1.0.5",
-        "uuid": "~13.0.0",
+        "uuid": "~14.0.0",
         "xlucene-translator": "workspace:~"
     },
     "engines": {

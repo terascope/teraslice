@@ -42,7 +42,7 @@
         "ip-bigint": "~8.3.4",
         "jexl": "~2.3.0",
         "mnemonist": "~0.40.3",
-        "uuid": "~13.0.0",
+        "uuid": "~14.0.0",
         "valid-url": "~1.0.9",
         "validator": "~13.15.35",
         "xlucene-parser": "workspace:~"
