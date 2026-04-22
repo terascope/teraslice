@@ -303,6 +303,14 @@ async function runE2ETest(
         }
     }
 
+    // 'native' is the default clusteringType. This block starts and logs docker services
+    // via dockerRun. 'native' is a teraslice-specific clustering concept, and other
+    // terafoundation apps that use ts-scripts don't have or may not have that concept.
+    // so relying on it to mean "services are started via dockerRun" is not accurate for
+    // all cases. The opposite is kubernetesV2, where services are deployed through helm
+    // charts into a kind cluster and dockerRun is not used.
+    // TODO: revisit this condition to more directly check whether services will be
+    // started via dockerRun, rather than relying on the clustering type to imply it.
     if (options.clusteringType === 'native') {
         try {
             tracker.addCleanup(
