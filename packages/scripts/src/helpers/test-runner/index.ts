@@ -4,13 +4,15 @@ import {
 } from '@terascope/core-utils';
 import { TestEnv } from '@terascope/types';
 import fs from 'node:fs';
+import path from 'node:path';
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
+    getServicesForSuite,
 } from '../misc.js';
 import {
     ensureServices, loadOrPullServiceImages,
-    loadImagesForHelm
+    loadImagesForHelm, startServiceLogging
 } from './services.js';
 import { PackageInfo } from '../interfaces.js';
 import { TestOptions } from './interfaces.js';
@@ -306,6 +308,13 @@ async function runE2ETest(
             tracker.addCleanup(
                 'e2e:services',
                 await ensureServices(suite, options)
+            );
+            tracker.addCleanup(
+                'e2e:service-logs',
+                startServiceLogging(
+                    getServicesForSuite(suite),
+                    path.join(e2eDir, 'logs')
+                )
             );
         } catch (err) {
             tracker.addError(err);
