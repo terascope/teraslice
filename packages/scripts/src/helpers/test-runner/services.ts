@@ -180,11 +180,15 @@ export function startServiceLogging(launchServices: Service[], logsDir: string):
 
         subprocesses.push(subprocess);
     }
-
-    return () => {
-        for (const subprocess of subprocesses) {
-            subprocess.kill();
-        }
+    // Wait up to 10s for docker logs to flush before force-killing.
+    return async () => {
+        await Promise.all(
+            subprocesses.map(async (subprocess) => {
+                const timeout = new Promise<void>((resolve) => setTimeout(resolve, ms('10s')));
+                await Promise.race([subprocess.catch(() => {}), timeout]);
+                subprocess.kill();
+            })
+        );
     };
 }
 
