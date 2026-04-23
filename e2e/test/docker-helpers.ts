@@ -6,7 +6,13 @@ import signale from './signale.js';
 import { pRetry } from '@terascope/core-utils';
 
 const { DEFAULT_WORKERS, NODE_VERSION } = config;
-const compose = new Compose('docker-compose.yml');
+
+// docker-compose.logs.yml is a conditional override that mounts ./logs:/app/logs
+// into the teraslice containers. It is only included when FILE_LOGGING is enabled
+// since docker-compose has no way to conditionally omit a volume via env var alone.
+const composeFiles: string[] = ['docker-compose.yml'];
+if (config.FILE_LOGGING) composeFiles.push('docker-compose.logs.yml');
+const compose = new Compose(composeFiles);
 
 export async function scaleWorkers(workerToAdd = 0) {
     const count = DEFAULT_WORKERS + workerToAdd;
