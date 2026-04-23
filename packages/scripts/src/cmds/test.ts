@@ -105,7 +105,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('logs', {
                 description: 'Copy logs to local file during e2e testing',
                 type: 'boolean',
-                default: true,
+                default: config.SERVICE_LOGGING,
             })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
