@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { jest } from '@jest/globals';
 import fs from 'node:fs';
 import api from '../../src/api/index.js';
 
