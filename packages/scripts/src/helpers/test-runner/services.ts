@@ -258,7 +258,7 @@ export async function loadOrPullServiceImages(
     }
 }
 
-export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
+export async function ensureServices(suite: string, options: TestOptions, logsDir?: string): Promise<() => void> {
     const launchServices = getServicesForSuite(suite);
     const promises: Promise<(() => void)>[] = [];
 
@@ -322,9 +322,14 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
         terasliceFn = await ensureTeraslice(options, launchServices);
     }
 
-    return () => {
+    const stopLogging = (options.logs && logsDir)
+        ? startServiceLogging(launchServices, logsDir)
+        : () => {};
+
+    return async () => {
         fns.forEach((fn) => fn());
         terasliceFn();
+        await stopLogging();
     };
 }
 

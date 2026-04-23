@@ -8,11 +8,10 @@ import path from 'node:path';
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
-    getServicesForSuite,
 } from '../misc.js';
 import {
     ensureServices, loadOrPullServiceImages,
-    loadImagesForHelm, startServiceLogging
+    loadImagesForHelm,
 } from './services.js';
 import { PackageInfo } from '../interfaces.js';
 import { TestOptions } from './interfaces.js';
@@ -141,7 +140,7 @@ async function runTestSuite(
 
     tracker.addCleanup(
         `${suite}:services`,
-        await ensureServices(options.forceSuite || suite, options)
+        await ensureServices(options.forceSuite || suite, options, path.join(process.cwd(), 'logs'))
     );
 
     const timeLabel = `test suite "${suite}"`;
@@ -315,14 +314,7 @@ async function runE2ETest(
         try {
             tracker.addCleanup(
                 'e2e:services',
-                await ensureServices(suite, options)
-            );
-            tracker.addCleanup(
-                'e2e:service-logs',
-                startServiceLogging(
-                    getServicesForSuite(suite),
-                    path.join(e2eDir, 'logs')
-                )
+                await ensureServices(suite, options, path.join(e2eDir, 'logs'))
             );
         } catch (err) {
             tracker.addError(err);
