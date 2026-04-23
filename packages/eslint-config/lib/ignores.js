@@ -20,6 +20,7 @@ export default [
     'node_modules/',
     '.vscode/',
     'assets/**',
+    'e2e/assets/**',
     'examples/assets/**',
     'packages/teraslice/assets/**',
     'autoload',
