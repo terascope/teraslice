@@ -258,7 +258,9 @@ export async function loadOrPullServiceImages(
     }
 }
 
-export async function ensureServices(suite: string, options: TestOptions, logsDir?: string): Promise<() => void> {
+export async function ensureServices(
+    suite: string, options: TestOptions, logsDir?: string
+): Promise<() => void> {
     const launchServices = getServicesForSuite(suite);
     const promises: Promise<(() => void)>[] = [];
 
