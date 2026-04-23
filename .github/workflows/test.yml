@@ -739,6 +739,14 @@ jobs:
           pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/teraslice
 
+      - name: Upload logs artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
+          path: packages/teraslice/logs/*.log
+          retention-days: 3
+
       - name: Upload teraslice node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
         uses: codecov/codecov-action@v5
         with:
@@ -804,6 +812,14 @@ jobs:
           export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
           pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
+
+      - name: Upload logs artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
+          path: packages/elasticsearch-store/logs/*.log
+          retention-days: 3
 
       - name: Upload elasticsearch-store node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
         uses: codecov/codecov-action@v5
@@ -871,6 +887,14 @@ jobs:
           pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/xlucene-translator
 
+      - name: Upload logs artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
+          path: packages/xlucene-translator/logs/*.log
+          retention-days: 3
+
       - name: Upload xlucene-translator node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
         uses: codecov/codecov-action@v5
         with:
@@ -936,6 +960,14 @@ jobs:
             export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
             pnpm run test:${{ matrix.search-version }}
           working-directory: ./packages/opensearch-client
+
+        - name: Upload logs artifact
+          if: always()
+          uses: actions/upload-artifact@v4
+          with:
+            name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
+            path: packages/opensearch-client/logs/*.log
+            retention-days: 3
 
         - name: Upload opensearch-client node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
           uses: codecov/codecov-action@v5
@@ -1029,6 +1061,14 @@ jobs:
           export OPENSEARCH_PORT=$(../../scripts/get-random-port.sh)
           pnpm run test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-api
+
+      - name: Upload logs artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
+          path: packages/elasticsearch-api/logs/*.log
+          retention-days: 3
 
       - name: Upload es-api node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
         uses: codecov/codecov-action@v5
