@@ -1,4 +1,5 @@
 import 'jest-extended';
+import fs from 'node:fs';
 import api from '../../src/api/index.js';
 
 process.env.USE_DEBUG_LOGGER = 'false';
@@ -27,6 +28,10 @@ describe('makeLogger foundation API', () => {
     });
 
     it('setting logging to file with no log_path should fail', () => {
+        jest.spyOn(fs, 'realpathSync').mockImplementationOnce(() => {
+            throw Object.assign(new Error('ENOENT: no such file or directory, realpath \'./logs\''), { code: 'ENOENT' });
+        });
+
         const context = {
             sysconfig: {
                 terafoundation: {
