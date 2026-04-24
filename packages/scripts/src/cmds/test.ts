@@ -103,9 +103,9 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 default: config.SKIP_IMAGE_DELETION,
             })
             .option('logs', {
-                description: 'Copy logs to local file during e2e testing',
+                description: 'Enable file logging for all Docker service containers during test runs.\n Each service writes to ./logs/<service>.log relative to the working directory.\n For e2e tests, Teraslice also writes structured Bunyan logs to e2e/logs/teraslice.log\n (viewable via `pnpm logs` in the e2e directory).\n Combine with --debug to capture debug-level entries.',
                 type: 'boolean',
-                default: true,
+                default: config.FILE_LOGGING,
             })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',

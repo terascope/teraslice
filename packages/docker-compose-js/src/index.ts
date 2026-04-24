@@ -9,10 +9,34 @@ export type RunOptions = {
 };
 type Services = string[] | string;
 
+/**
+ * Wrapper around `docker compose` (with fallback to `docker-compose`) for
+ * programmatically managing Docker Compose services.
+ *
+ * Accepts one or more compose files. When multiple files are provided they are
+ * passed to the CLI with repeated `-f` flags, which causes docker-compose to
+ * merge them in order — later files override earlier ones. This is useful for
+ * conditionally applying overrides (e.g. a logs-volume override) without
+ * modifying the base compose file.
+ *
+ * @example
+ * // Single file
+ * const compose = new Compose('docker-compose.yml');
+ *
+ * @example
+ * // Base + conditional override
+ * // docker-compose.logs.yml adds a ./logs volume mount to teraslice-master
+ * // and teraslice-worker so file-based log output is captured on the host.
+ * const files = ['docker-compose.yml'];
+ * if (FILE_LOGGING) files.push('docker-compose.logs.yml');
+ * const compose = new Compose(files);
+ *
+ * @see https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/
+ */
 export class Compose {
-    composeFile: string;
-    constructor(composeFile: string) {
-        this.composeFile = composeFile;
+    composeFiles: string[];
+    constructor(composeFile: string | string[]) {
+        this.composeFiles = Array.isArray(composeFile) ? composeFile : [composeFile];
     }
 
     runCmd(
@@ -25,7 +49,7 @@ export class Compose {
             let stdout = '';
             let stderr = '';
 
-            let args = ['-f', this.composeFile, command];
+            let args = [...this.composeFiles.flatMap((f) => ['-f', f]), command];
 
             // parse the options and append the -- or - if missing
             Object.entries(options ?? {}).forEach(([option, value]) => {

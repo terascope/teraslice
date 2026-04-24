@@ -197,6 +197,11 @@ const configSchema: Terafoundation.Schema<any> = {
         format: String,
         env: 'SERVICE_HEAP_OPTS'
     },
+    FILE_LOGGING: {
+        default: true,
+        format: Boolean,
+        env: 'FILE_LOGGING'
+    },
     SERVICE_UP_TIMEOUT: {
         doc: 'The timeout for how long a service has to stand up',
         default: '2m',

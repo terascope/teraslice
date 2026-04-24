@@ -1,0 +1,15 @@
+# Override file that adds a host-mounted log volume to teraslice services.
+# Conditionally included when the FILE_LOGGING env var is set (e.g. via the
+# --logs flag of ts-scripts test), since docker-compose has no built-in way
+# to omit a volume mount via env var alone.
+# Pass alongside the base compose file via repeated -f flags; docker-compose
+# deep-merges them so only the fields defined here are overridden.
+# See: https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/
+version: '2.4'
+services:
+    teraslice-master:
+        volumes:
+            - ./logs:/app/logs:delegated
+    teraslice-worker:
+        volumes:
+            - ./logs:/app/logs:delegated

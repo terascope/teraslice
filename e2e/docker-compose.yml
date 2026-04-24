@@ -12,7 +12,6 @@ services:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.json
             - NODE_OPTIONS=--max-old-space-size=256
         volumes:
-            - ./logs:/app/logs:delegated
             - ./autoload:/app/autoload:ro
             - ./.config:/app/config:ro
             - ./assets:/app/assets:delegated
@@ -28,7 +27,6 @@ services:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.json
             - NODE_OPTIONS=--max-old-space-size=256
         volumes:
-            - ./logs:/app/logs:delegated
             - ./autoload:/app/autoload:ro
             - ./.config:/app/config:ro
             - ./assets:/app/assets:delegated

@@ -6,6 +6,7 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import yaml from 'js-yaml';
 import { Kafka } from 'kafkajs';
+import { execa } from 'execa';
 import {
     pWhile, TSError, debugLogger,
     getErrorStatusCode, isKey, toHumanTime
@@ -157,6 +158,40 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     }
 };
 
+export function startServiceLogging(launchServices: Service[], logsDir: string): () => void {
+    fs.mkdirSync(logsDir, { recursive: true });
+
+    const subprocesses: ReturnType<typeof execa>[] = [];
+    const loggedContainers = new Set<string>();
+
+    for (const service of launchServices) {
+        const containerName = services[service]?.name;
+        if (!containerName || loggedContainers.has(containerName)) continue;
+        loggedContainers.add(containerName);
+
+        const logFilePath = path.join(logsDir, `${service}.log`);
+        signale.info(`Piping ${containerName} docker logs to ${logFilePath}`);
+
+        const logStream = fs.createWriteStream(logFilePath);
+        const subprocess = execa('docker', ['logs', '-f', containerName], { all: true });
+
+        subprocess.all?.pipe(logStream);
+        subprocess.catch(() => {});
+
+        subprocesses.push(subprocess);
+    }
+    // Wait up to 10s for docker logs to flush before force-killing.
+    return async () => {
+        await Promise.all(
+            subprocesses.map(async (subprocess) => {
+                const timeout = new Promise<void>((resolve) => setTimeout(resolve, ms('10s')));
+                await Promise.race([subprocess.catch(() => {}), timeout]);
+                subprocess.kill();
+            })
+        );
+    };
+}
+
 export async function loadOrPullServiceImages(
     suite: string,
     skipImageDeletion: boolean
@@ -223,7 +258,9 @@ export async function loadOrPullServiceImages(
     }
 }
 
-export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
+export async function ensureServices(
+    suite: string, options: TestOptions, logsDir?: string
+): Promise<() => void> {
     const launchServices = getServicesForSuite(suite);
     const promises: Promise<(() => void)>[] = [];
 
@@ -287,9 +324,14 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
         terasliceFn = await ensureTeraslice(options, launchServices);
     }
 
-    return () => {
+    const stopLogging = (options.logs && logsDir)
+        ? startServiceLogging(launchServices, logsDir)
+        : () => {};
+
+    return async () => {
         fns.forEach((fn) => fn());
         terasliceFn();
+        await stopLogging();
     };
 }
 
