@@ -22,7 +22,8 @@ describe('Test Runner Helpers', () => {
         clusteringType: 'native',
         kindClusterName: 'default',
         skipImageDeletion: false,
-        logs: false
+        logs: false,
+        framework: 'jest'
     };
 
     function makeTestOptions(input: Partial<TestOptions>): TestOptions {

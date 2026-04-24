@@ -11,7 +11,8 @@ export type TestOptions = {
     forceSuite?: string;
     suite?: string[];
     useExistingServices: boolean;
-    jestArgs?: string[];
+    frameworkArgs?: string[];
+    framework: TestFramework;
     ignoreMount: boolean;
     clusteringType: 'native' | 'kubernetesV2';
     kindClusterName: string;
@@ -50,3 +51,18 @@ export interface OpenSearchInfo {
 export function isOpenSearchInfo(body: unknown): body is OpenSearchInfo {
     return typeof body === 'object' && body !== null;
 }
+
+export enum TestFrameworks {
+    jest = 'jest',
+    playwright = 'playwright'
+    // TODO: maybe experimental vitest support
+}
+export type TestFramework = keyof typeof TestFrameworks;
+export enum PlaywrightOptions {
+    debug = 'debug',
+    ui = 'ui',
+    projects = 'projects',
+    pattern = 'pattern',
+    isMonorepo = 'isMonorepo'
+}
+export type PlaywrightOption = keyof typeof PlaywrightOptions;

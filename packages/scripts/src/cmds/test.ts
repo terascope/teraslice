@@ -5,6 +5,7 @@ import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces.js';
 import { getAvailableTestSuites } from '../helpers/misc.js';
 import config from '../helpers/config.js';
 import { listPackages } from '../helpers/packages.js';
+import { PlaywrightOptions, TestFramework, TestFrameworks } from '../helpers/test-runner/interfaces.js';
 import { runTests } from '../helpers/test-runner/index.js';
 import { coercePkgArg } from '../helpers/args.js';
 
@@ -23,6 +24,8 @@ type Options = {
     'test-platform': string;
     'skip-image-deletion': boolean;
     logs: boolean;
+    framework?: string;
+    'framework-opts'?: string[];
 };
 
 const jestArgs = getExtraArgs();
@@ -107,6 +110,20 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: true,
             })
+            .option('framework', {
+                description: 'The test framework to use',
+                type: 'string',
+                default: TestFrameworks.jest,
+                choices: Object.keys(TestFrameworks) as TestFramework[]
+            })
+            .option('framework-opts', {
+                alias: 'fr-opts',
+                // FIXME see what jestArgs does or improve
+                description: 'Non-Jest options... Playwright (ui, projects, debug (can also use --debug option), isMonorepo (use root package))',
+                type: 'string',
+                array: true,
+                choices: Object.keys(PlaywrightOptions),
+            })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
                 coerce(arg) {
@@ -133,6 +150,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
         const skipImageDeletion = hoistJestArg(argv, 'skip-image-deletion', 'boolean');
         const logs = hoistJestArg(argv, 'logs', 'boolean');
+        const framework = hoistJestArg(argv, 'framework', 'string') as TestFramework;
+        const frameworkOpts = hoistJestArg(argv, ['fr-opts', 'framework-opts'], 'string') as string;
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -149,7 +168,10 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             useExistingServices,
             all: !argv.packages || !argv.packages.length,
             reportCoverage,
-            jestArgs,
+            framework,
+            frameworkArgs: framework === TestFrameworks.playwright
+                ? [...frameworkOpts]
+                : jestArgs,
             ignoreMount,
             clusteringType: testPlatform,
             kindClusterName,

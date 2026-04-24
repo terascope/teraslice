@@ -13,12 +13,12 @@ import {
     loadImagesForHelm
 } from './services.js';
 import { PackageInfo } from '../interfaces.js';
-import { TestOptions } from './interfaces.js';
+import { TestFramework, TestFrameworks, TestOptions } from './interfaces.js';
 import {
-    runJest, dockerTag, isKindInstalled, isKubectlInstalled,
+    dockerTag, isKindInstalled, isKubectlInstalled,
     loadThenDeleteImageFromCache, deleteDockerImageCache,
     isHelmInstalled, isHelmfileInstalled, launchTerasliceWithHelmfile,
-    generateTestCaCerts
+    generateTestCaCerts, runJest, runPlaywright
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
@@ -38,6 +38,11 @@ const {
 } = config;
 
 const logger = debugLogger('ts-scripts:cmd:test');
+
+const runFn: Record<TestFramework, (...args: any) => any> = {
+    [TestFrameworks.jest]: runJest,
+    [TestFrameworks.playwright]: runPlaywright,
+};
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<void> {
     const tracker = new TestTracker(options);
@@ -168,11 +173,11 @@ async function runTestSuite(
 
         tracker.started += pkgs.length;
         try {
-            await runJest(
+            await runFn[options.framework](
                 getRootDir(),
                 args,
                 env,
-                options.jestArgs,
+                options.frameworkArgs,
                 options.debug,
                 ATTACH_JEST_DEBUGGER
             );
@@ -323,13 +328,15 @@ async function runE2ETest(
 
         const env = printAndGetEnv(suite, options);
 
+        console.error('===rot', rootInfo);
+
         tracker.started++;
         try {
-            await runJest(
-                e2eDir,
+            await runFn[options.framework](
+                options.framework === 'jest' ? e2eDir : rootInfo.folderName,
                 getArgs(options),
                 env,
-                options.jestArgs,
+                options.frameworkArgs,
                 options.debug,
                 ATTACH_JEST_DEBUGGER
             );

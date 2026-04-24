@@ -104,7 +104,8 @@ describe('services', () => {
         clusteringType: 'native',
         kindClusterName: 'default',
         skipImageDeletion: false,
-        logs: false
+        logs: false,
+        framework: 'jest'
     };
     let services: any;
 
