@@ -58,11 +58,13 @@ export enum TestFrameworks {
     // TODO: maybe experimental vitest support
 }
 export type TestFramework = keyof typeof TestFrameworks;
+
+// NOTE: don't think we need this, i was stupid and didn't
+// understand what -- at end of script does so that should work instead
 export enum PlaywrightOptions {
     debug = 'debug',
     ui = 'ui',
     projects = 'projects',
-    pattern = 'pattern',
-    isMonorepo = 'isMonorepo'
+    pattern = 'pattern'
 }
 export type PlaywrightOption = keyof typeof PlaywrightOptions;

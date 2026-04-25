@@ -41,32 +41,32 @@ const logger = debugLogger('ts-scripts:cmd:test');
 
 const runFn: Record<TestFramework, (...args: any) => any> = {
     [TestFrameworks.jest]: runJest,
-    [TestFrameworks.playwright]: runPlaywright,
+    [TestFrameworks.playwright]: runPlaywright
 };
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<void> {
     const tracker = new TestTracker(options);
-    const rootpkg = getRootInfo();
-    let allpkgInfos: PackageInfo[] = pkgInfos;
+    const rootPkg = getRootInfo();
+    let allPkgInfos: PackageInfo[] = pkgInfos;
 
     /// swap asset/package.json with top level package.json to support running asset tests
     /// TODO: This might be better to use jest.config within asset folder
     let runAssetTests = false;
-    allpkgInfos.map((pkg) => {
+    allPkgInfos.map((pkg) => {
         if (pkg.relativeDir === 'asset') {
             runAssetTests = true;
         }
         return;
     });
-    if (rootpkg.terascope.asset && (listPackages() === allpkgInfos || runAssetTests)) {
-        allpkgInfos = allpkgInfos.filter((pkg) => pkg.relativeDir !== 'asset');
-        allpkgInfos = [...allpkgInfos, readPackageInfo(rootpkg.dir)];
+    if (rootPkg.terascope.asset && (listPackages() === allPkgInfos || runAssetTests)) {
+        allPkgInfos = allPkgInfos.filter((pkg) => pkg.relativeDir !== 'asset');
+        allPkgInfos = [...allPkgInfos, readPackageInfo(rootPkg.dir)];
     }
 
     logger.info('running tests with options', options);
 
     try {
-        await _runTests(allpkgInfos, options, tracker);
+        await _runTests(allPkgInfos, options, tracker);
     } catch (err) {
         tracker.addError(err);
     } finally {
@@ -121,7 +121,7 @@ async function runTestSuite(
 
     if (isCI) {
         // load the services from cache in CI
-        await loadOrPullServiceImages(suite, options.skipImageDeletion);
+        await loadOrPullServiceImages(options.forceSuite || suite, options.skipImageDeletion);
     }
 
     const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
@@ -333,7 +333,7 @@ async function runE2ETest(
         tracker.started++;
         try {
             await runFn[options.framework](
-                options.framework === 'jest' ? e2eDir : rootInfo.folderName,
+                e2eDir,
                 getArgs(options),
                 env,
                 options.frameworkArgs,

@@ -7,7 +7,7 @@ import {
 import {
     ArgsMap, ExecEnv, exec
 } from '../scripts.js';
-import { TestOptions, GroupedPackages } from './interfaces.js';
+import { TestOptions, GroupedPackages, TestFrameworks } from './interfaces.js';
 import { PackageInfo, Service } from '../interfaces.js';
 import { getServicesForSuite, getPackageManager } from '../misc.js';
 import config from '../config.js';
@@ -19,44 +19,69 @@ import type {
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
+// FIXME - getting messy
+// maybe either a separate function per framework,
+// or like a map to map the options somehow
 export function getArgs(options: TestOptions): ArgsMap {
     const args: ArgsMap = {};
-    args.forceExit = '';
-    args.coverage = toString(options.reportCoverage);
+    const isPlaywright = options.framework === 'playwright';
 
-    if (config.FORCE_COLOR === '1') {
-        args.color = '';
-    }
+    // const map: Record<TestFrameworks, Partial<Record<keyof TestOptions, any>>> = {
+    //     jest: {
+    //         bail: 'x', // or max-failures
+    //     },
+    //     playwright: {
+    //         bail: 'bail',
+    //         debug: 'debug'
+    //     }
+    // };
 
-    if (options.bail) {
-        args.bail = '';
-    }
-
-    if (options.debug || options.trace) {
-        args.detectOpenHandles = options.trace ? 'true' : 'false';
-        args.runInBand = '';
-    } else {
-        args.silent = '';
-        if (config.JEST_MAX_WORKERS != null) {
-            args.maxWorkers = String(config.JEST_MAX_WORKERS);
+    if (!isPlaywright) {
+        args.forceExit = '';
+        args.coverage = toString(options.reportCoverage);
+        if (config.FORCE_COLOR === '1') {
+            // TODO test - jest website says it's colors not color
+            args.color = '';
         }
     }
 
-    if (isCI) {
+    if (options.bail) {
+        args[isPlaywright ? 'x' : 'bail'] = '';
+    }
+
+    if (options.debug || options.trace) {
+        if (!isPlaywright) {
+            args.detectOpenHandles = options.trace ? 'true' : 'false';
+            args.runInBand = '';
+        }
+    } else {
+        args[isPlaywright ? 'quiet' : 'silent'] = '';
+        if (!isPlaywright) {
+            if (config.JEST_MAX_WORKERS != null) {
+                args.maxWorkers = String(config.JEST_MAX_WORKERS);
+            }
+        }
+    }
+
+    if (isCI && !isPlaywright) {
         args.verbose = 'false';
     }
 
     if (options.watch) {
-        args.watch = '';
-        args.coverage = 'false';
-        args.onlyChanged = '';
-        args.notify = '';
+        args[isPlaywright ? 'ui' : 'watch'] = '';
+        if (!isPlaywright) {
+            args.coverage = 'false';
+            args.notify = '';
+        }
+        args[isPlaywright ? 'only-changed' : 'onlyChanged'] = '';
     }
 
     if (options.suite?.includes('e2e')) {
-        args.runInBand = '';
-        args.coverage = 'false';
-        args.bail = '';
+        if (!isPlaywright) {
+            args.runInBand = '';
+            args.coverage = 'false';
+        }
+        args[isPlaywright ? 'x' : 'bail'] = '';
     }
 
     return args;

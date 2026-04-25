@@ -257,35 +257,49 @@ export async function runPlaywright(
     const pm = getPackageManager();
     const args = ['playwright', 'test'];
 
+    // FIXME think can get working just using the runJest code
+
+    // args.push(...mapToArgs(argsMap));
+    // if (extraArgs) {
+    //     extraArgs.forEach((extraArg) => {
+    //         if (extraArg.startsWith('-') && args.includes(extraArg)) {
+    //             if (debug) {
+    //                 logger.debug(`* skipping duplicate jest arg ${extraArg}`);
+    //             }
+    //             return;
+    //         }
+    //         args.push(extraArg);
+    //     });
+    // }
+
     if (debug) {
         args.push('--debug');
     }
 
-    if (extraArgs?.length) {
-        extraArgs.forEach((arg) => {
-            if (arg in PlaywrightOptions) { // i.e. debug/ui/projects
-                if (arg === PlaywrightOptions.isMonorepo) return;
-                if (arg.startsWith(PlaywrightOptions.pattern)) return;
-                if (args.includes(`--${arg}`)) return;
-                args.push(`--${arg}`);
-            } else if (
-                arg.startsWith(PlaywrightOptions.pattern)
-            ) {
-                // pattern:foo,bar
-                const files = arg
-                    .split(/pattern[:|=]?/g)
-                    .filter(Boolean);
-                files[0]
-                    .split(',')
-                    .forEach((el) => {
-                        if (el) args.push(el);
-                    });
-                return;
-            } else {
-                console.error(`Invalid playwright argument ${arg}`);
-            }
-        });
-    }
+    // if (extraArgs?.length) {
+    //     extraArgs.forEach((arg) => {
+    //         if (arg in PlaywrightOptions) { // i.e. debug/ui/projects
+    //             if (arg.startsWith(PlaywrightOptions.pattern)) return;
+    //             if (args.includes(`--${arg}`)) return;
+    //             args.push(`--${arg}`);
+    //         } else if (
+    //             arg.startsWith(PlaywrightOptions.pattern)
+    //         ) {
+    //             // pattern:foo,bar
+    //             const files = arg
+    //                 .split(/pattern[:|=]?/g)
+    //                 .filter(Boolean);
+    //             files[0]
+    //                 .split(',')
+    //                 .forEach((el) => {
+    //                     if (el) args.push(el);
+    //                 });
+    //             return;
+    //         } else {
+    //             console.error(`Invalid playwright argument ${arg}`);
+    //         }
+    //     });
+    // }
 
     await fork({
         cmd: pm,
