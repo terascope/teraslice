@@ -7,7 +7,7 @@ import {
 import {
     ArgsMap, ExecEnv, exec
 } from '../scripts.js';
-import { TestOptions, GroupedPackages, TestFrameworks } from './interfaces.js';
+import { TestOptions, GroupedPackages } from './interfaces.js';
 import { PackageInfo, Service } from '../interfaces.js';
 import { getServicesForSuite, getPackageManager } from '../misc.js';
 import config from '../config.js';
@@ -19,69 +19,58 @@ import type {
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
-// FIXME - getting messy
-// maybe either a separate function per framework,
-// or like a map to map the options somehow
-export function getArgs(options: TestOptions): ArgsMap {
+function getPlaywrightArgs(options: TestOptions): ArgsMap {
     const args: ArgsMap = {};
-    const isPlaywright = options.framework === 'playwright';
+    if (options.bail) {
+        args.x = '';
+    }
+    if (options.watch) {
+        args[isCI ? 'only-changed' : 'ui'] = '';
+    }
+    return args;
+}
 
-    // const map: Record<TestFrameworks, Partial<Record<keyof TestOptions, any>>> = {
-    //     jest: {
-    //         bail: 'x', // or max-failures
-    //     },
-    //     playwright: {
-    //         bail: 'bail',
-    //         debug: 'debug'
-    //     }
-    // };
+export function getArgs(options: TestOptions): ArgsMap {
+    if (options.framework === 'playwright') {
+        return getPlaywrightArgs(options);
+    }
+    const args: ArgsMap = {};
+    args.forceExit = '';
+    args.coverage = toString(options.reportCoverage);
 
-    if (!isPlaywright) {
-        args.forceExit = '';
-        args.coverage = toString(options.reportCoverage);
-        if (config.FORCE_COLOR === '1') {
-            // TODO test - jest website says it's colors not color
-            args.color = '';
-        }
+    if (config.FORCE_COLOR === '1') {
+        args.color = '';
     }
 
     if (options.bail) {
-        args[isPlaywright ? 'x' : 'bail'] = '';
+        args.bail = '';
     }
 
     if (options.debug || options.trace) {
-        if (!isPlaywright) {
-            args.detectOpenHandles = options.trace ? 'true' : 'false';
-            args.runInBand = '';
-        }
+        args.detectOpenHandles = options.trace ? 'true' : 'false';
+        args.runInBand = '';
     } else {
-        args[isPlaywright ? 'quiet' : 'silent'] = '';
-        if (!isPlaywright) {
-            if (config.JEST_MAX_WORKERS != null) {
-                args.maxWorkers = String(config.JEST_MAX_WORKERS);
-            }
+        args.silent = '';
+        if (config.JEST_MAX_WORKERS != null) {
+            args.maxWorkers = String(config.JEST_MAX_WORKERS);
         }
     }
 
-    if (isCI && !isPlaywright) {
+    if (isCI) {
         args.verbose = 'false';
     }
 
     if (options.watch) {
-        args[isPlaywright ? 'ui' : 'watch'] = '';
-        if (!isPlaywright) {
-            args.coverage = 'false';
-            args.notify = '';
-        }
-        args[isPlaywright ? 'only-changed' : 'onlyChanged'] = '';
+        args.watch = '';
+        args.coverage = 'false';
+        args.onlyChanged = '';
+        args.notify = '';
     }
 
     if (options.suite?.includes('e2e')) {
-        if (!isPlaywright) {
-            args.runInBand = '';
-            args.coverage = 'false';
-        }
-        args[isPlaywright ? 'x' : 'bail'] = '';
+        args.runInBand = '';
+        args.coverage = 'false';
+        args.bail = '';
     }
 
     return args;
