@@ -13,12 +13,12 @@ import {
     loadImagesForHelm
 } from './services.js';
 import { PackageInfo } from '../interfaces.js';
-import { TestFramework, TestFrameworks, TestOptions } from './interfaces.js';
+import { TestOptions } from './interfaces.js';
 import {
     dockerTag, isKindInstalled, isKubectlInstalled,
     loadThenDeleteImageFromCache, deleteDockerImageCache,
     isHelmInstalled, isHelmfileInstalled, launchTerasliceWithHelmfile,
-    generateTestCaCerts, runJest, runPlaywright
+    generateTestCaCerts, runTestFramework
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
@@ -38,11 +38,6 @@ const {
 } = config;
 
 const logger = debugLogger('ts-scripts:cmd:test');
-
-const runFn: Record<TestFramework, (...args: any) => any> = {
-    [TestFrameworks.jest]: runJest,
-    [TestFrameworks.playwright]: runPlaywright
-};
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<void> {
     const tracker = new TestTracker(options);
@@ -173,13 +168,14 @@ async function runTestSuite(
 
         tracker.started += pkgs.length;
         try {
-            await runFn[options.framework](
+            await runTestFramework(
                 getRootDir(),
                 args,
                 env,
                 options.frameworkArgs,
                 options.debug,
-                ATTACH_JEST_DEBUGGER
+                ATTACH_JEST_DEBUGGER,
+                options.framework
             );
             tracker.ended += pkgs.length;
         } catch (err) {
@@ -332,13 +328,14 @@ async function runE2ETest(
 
         tracker.started++;
         try {
-            await runFn[options.framework](
+            await runTestFramework(
                 e2eDir,
                 getArgs(options),
                 env,
                 options.frameworkArgs,
                 options.debug,
-                ATTACH_JEST_DEBUGGER
+                ATTACH_JEST_DEBUGGER,
+                options.framework
             );
             tracker.ended++;
         } catch (err) {

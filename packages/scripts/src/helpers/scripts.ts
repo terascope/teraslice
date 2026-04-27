@@ -21,7 +21,7 @@ import { getRootDir, getRootInfo, getPackageManager } from './misc.js';
 import signale from './signale.js';
 import config from './config.js';
 import { getVolumesFromDockerfile } from './kind.js';
-import { PlaywrightOptions } from './test-runner/interfaces.js';
+import { TestFramework, TestFrameworks } from './test-runner/interfaces.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -159,23 +159,28 @@ export async function packageMngrRun(
     });
 }
 
-export async function runJest(
+export async function runTestFramework(
     cwd: string,
     argsMap: ArgsMap,
     env?: ExecEnv,
     extraArgs?: string[],
     debug?: boolean,
-    attachJestDebugger?: boolean
+    attachJestDebugger?: boolean,
+    framework: TestFramework = TestFrameworks.jest
 ): Promise<void> {
     const pm = getPackageManager();
     // When running jest in yarn3 PnP with ESM we must call 'yarn jest <...args>'
     // to prevent module not found errors. Therefore we will call fork with the yarn/pnpm
     // command and set jest to the first argument.
-    let args = ['jest'];
+    const frameworkArgs: Record<TestFrameworks, string[]> = {
+        jest: ['jest'],
+        playwright: ['playwright', 'test']
+    };
+    let args = frameworkArgs[framework];
 
     // Set with ATTACH_JEST_DEBUGGER env variable
     // Does not work with repos with pnp
-    if (attachJestDebugger) {
+    if (attachJestDebugger && framework === TestFrameworks.jest) {
         const nodeLinkerConfig = await getNodeLinkerConfig();
 
         if (nodeLinkerConfig === 'node-modules') {
@@ -228,84 +233,6 @@ export async function runJest(
         cwd,
         args,
         env,
-    });
-}
-
-/**
- * Run tests
- * - yarn playwright test
- *
- * Start interactive UI mode
- * - yarn playwright test --ui
- *
- * Narrow projects
- * - yarn playwright test --project=Chromium
- *
- * Run specific test file
- * - yarn playwright test example1 example2
- *
- * Run in debug mode
- * - yarn playwright test --debug
- */
-export async function runPlaywright(
-    cwd: string,
-    argsMap: ArgsMap,
-    env?: ExecEnv,
-    extraArgs?: string[],
-    debug?: boolean
-): Promise<void> {
-    const pm = getPackageManager();
-    const args = ['playwright', 'test'];
-
-    // FIXME think can get working just using the runJest code
-
-    // args.push(...mapToArgs(argsMap));
-    // if (extraArgs) {
-    //     extraArgs.forEach((extraArg) => {
-    //         if (extraArg.startsWith('-') && args.includes(extraArg)) {
-    //             if (debug) {
-    //                 logger.debug(`* skipping duplicate jest arg ${extraArg}`);
-    //             }
-    //             return;
-    //         }
-    //         args.push(extraArg);
-    //     });
-    // }
-
-    if (debug) {
-        args.push('--debug');
-    }
-
-    // if (extraArgs?.length) {
-    //     extraArgs.forEach((arg) => {
-    //         if (arg in PlaywrightOptions) { // i.e. debug/ui/projects
-    //             if (arg.startsWith(PlaywrightOptions.pattern)) return;
-    //             if (args.includes(`--${arg}`)) return;
-    //             args.push(`--${arg}`);
-    //         } else if (
-    //             arg.startsWith(PlaywrightOptions.pattern)
-    //         ) {
-    //             // pattern:foo,bar
-    //             const files = arg
-    //                 .split(/pattern[:|=]?/g)
-    //                 .filter(Boolean);
-    //             files[0]
-    //                 .split(',')
-    //                 .forEach((el) => {
-    //                     if (el) args.push(el);
-    //                 });
-    //             return;
-    //         } else {
-    //             console.error(`Invalid playwright argument ${arg}`);
-    //         }
-    //     });
-    // }
-
-    await fork({
-        cmd: pm,
-        cwd,
-        args,
-        env
     });
 }
 
