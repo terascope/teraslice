@@ -12,7 +12,7 @@ export type TestOptions = {
     suite?: string[];
     useExistingServices: boolean;
     frameworkArgs?: string[];
-    framework: TestFramework;
+    framework?: TestFramework;
     ignoreMount: boolean;
     clusteringType: 'native' | 'kubernetesV2';
     kindClusterName: string;
@@ -58,13 +58,3 @@ export enum TestFrameworks {
     // TODO: maybe experimental vitest support
 }
 export type TestFramework = keyof typeof TestFrameworks;
-
-// NOTE: don't think we need this, i was stupid and didn't
-// understand what -- at end of script does so that should work instead
-export enum PlaywrightOptions {
-    debug = 'debug',
-    ui = 'ui',
-    projects = 'projects',
-    pattern = 'pattern'
-}
-export type PlaywrightOption = keyof typeof PlaywrightOptions;
