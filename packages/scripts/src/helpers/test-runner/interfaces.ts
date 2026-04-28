@@ -54,6 +54,5 @@ export function isOpenSearchInfo(body: unknown): body is OpenSearchInfo {
 export enum TestFrameworks {
     jest = 'jest',
     playwright = 'playwright'
-    // TODO: maybe experimental vitest support
 }
 export type TestFramework = keyof typeof TestFrameworks;

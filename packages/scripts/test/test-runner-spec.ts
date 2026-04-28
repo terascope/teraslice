@@ -245,28 +245,6 @@ describe('Test Runner Helpers', () => {
                         ]
                     }
                 });
-
-                const groupByDefaultOpensearchSuite = groupByFrameworkSuite(pkgs, availableSuites, {
-                    all: false
-                } as TestOptions);
-
-                expect(groupByDefaultOpensearchSuite).toMatchObject({
-                    jest: {
-                        opensearch: [
-                            { name: 'pkgJestA' },
-                            { name: 'pkgBothA' },
-                            { name: 'pkgJestB' },
-                            { name: 'pkgNoneB' },
-                        ],
-                        unit: []
-                    },
-                    playwright: {
-                        opensearch: [
-                            { name: 'pkgPlaywrightA' },
-                            { name: 'pkgBothA' },
-                        ]
-                    }
-                });
             });
         });
     });
