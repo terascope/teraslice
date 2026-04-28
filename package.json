@@ -83,6 +83,9 @@
         "target": "ES2019",
         "tests": {
             "suites": {
+                "cache": [
+                    "valkey"
+                ],
                 "e2e": [],
                 "k8s-e2e": [],
                 "opensearch": [

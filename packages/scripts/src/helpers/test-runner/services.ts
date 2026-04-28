@@ -6,11 +6,13 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import yaml from 'js-yaml';
 import { Kafka } from 'kafkajs';
+import Valkey from 'iovalkey';
 import { execa } from 'execa';
 import {
     pWhile, TSError, debugLogger,
     getErrorStatusCode, isKey, toHumanTime
 } from '@terascope/core-utils';
+import { Service } from '@terascope/types';
 import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo, dockerStop,
@@ -20,7 +22,6 @@ import {
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import { isOpenSearchInfo, TestOptions } from './interfaces.js';
-import { Service } from '../interfaces.js';
 import config, { resolveTerasliceVersion } from '../config.js';
 import signale from '../signale.js';
 
@@ -150,6 +151,13 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         name: `${config.TEST_NAMESPACE}_${config.UTILITY_SVC_NAME}`,
         network: config.DOCKER_NETWORK_NAME,
     },
+    [Service.Valkey]: {
+        image: config.VALKEY_DOCKER_IMAGE,
+        name: `${config.TEST_NAMESPACE}_${config.VALKEY_NAME}`,
+        ports: [`${config.VALKEY_PORT}:${config.VALKEY_PORT}`],
+        network: config.DOCKER_NETWORK_NAME,
+        args: ['--port', config.VALKEY_PORT.toString(), '--save', ''],
+    },
     [Service.Teraslice]: {
         image: config.TERASLICE_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_teraslice`,
@@ -176,7 +184,7 @@ export function startServiceLogging(launchServices: Service[], logsDir: string):
         const subprocess = execa('docker', ['logs', '-f', containerName], { all: true });
 
         subprocess.all?.pipe(logStream);
-        subprocess.catch(() => {});
+        subprocess.catch(() => { });
 
         subprocesses.push(subprocess);
     }
@@ -185,7 +193,7 @@ export function startServiceLogging(launchServices: Service[], logsDir: string):
         await Promise.all(
             subprocesses.map(async (subprocess) => {
                 const timeout = new Promise<void>((resolve) => setTimeout(resolve, ms('10s')));
-                await Promise.race([subprocess.catch(() => {}), timeout]);
+                await Promise.race([subprocess.catch(() => { }), timeout]);
                 subprocess.kill();
             })
         );
@@ -316,6 +324,10 @@ export async function ensureServices(
         promises.push(ensureUtility(options));
     }
 
+    if (launchServices.includes(Service.Valkey)) {
+        promises.push(ensureValkey(options));
+    }
+
     const fns = await Promise.all(promises);
 
     // Teraslice depends on OpenSearch being up, so start it after the parallel services
@@ -326,7 +338,7 @@ export async function ensureServices(
 
     const stopLogging = (options.logs && logsDir)
         ? startServiceLogging(launchServices, logsDir)
-        : () => {};
+        : () => { };
 
     return async () => {
         fns.forEach((fn) => fn());
@@ -387,6 +399,14 @@ export async function ensureUtility(options: TestOptions): Promise<() => void> {
     return fn;
 }
 
+export async function ensureValkey(options: TestOptions): Promise<() => void> {
+    let fn = () => { };
+    const startTime = Date.now();
+    fn = await startService(options, Service.Valkey);
+    await checkValkey(options, startTime);
+    return fn;
+}
+
 export async function ensureTeraslice(
     options: TestOptions, launchServices: Service[]
 ): Promise<() => void> {
@@ -430,6 +450,14 @@ function writeTerasliceConfig(launchServices: Service[]): string {
                 forcePathStyle: true,
                 sslEnabled: false,
                 region: 'us-east-1',
+            }
+        };
+    }
+
+    if (launchServices.includes(Service.Valkey)) {
+        connectors.valkey = {
+            default: {
+                addresses: [{ host: config.VALKEY_HOST, port: config.VALKEY_PORT }]
             }
         };
     }
@@ -835,6 +863,59 @@ async function checkUtility(options: TestOptions, startTime: number): Promise<vo
     signale.success(`Utility Service **might** be running, took ${took}`);
 }
 
+async function checkValkey(options: TestOptions, startTime: number): Promise<void> {
+    const host = config.VALKEY_HOSTNAME;
+    const port = config.VALKEY_PORT;
+
+    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
+    if (dockerGateways.includes(config.VALKEY_HOSTNAME)) return;
+
+    let error = '';
+    await pWhile(
+        async () => {
+            if (options.trace) {
+                signale.debug(`checking Valkey at ${host}`);
+            } else {
+                logger.debug(`checking Valkey at ${host}`);
+            }
+
+            let response: string;
+
+            // remove when tls supported
+            if (config.ENCRYPT_VALKEY) {
+                throw new Error('Valkey encryption not supported');
+            }
+
+            const valkey = new Valkey(port, host);
+            try {
+                response = await valkey.ping();
+            } catch (err) {
+                error = err.message;
+                response = err.message;
+            }
+
+            if (options.trace) {
+                signale.debug('response from Valkey service: ', response);
+            } else {
+                logger.debug('response from Valkey service: ', response);
+            }
+
+            if (response === 'PONG') {
+                const took = toHumanTime(Date.now() - startTime);
+                signale.success(`Valkey is running at ${host}, took ${took}`);
+                return true;
+            }
+            return false;
+        },
+        {
+            name: `Valkey service (${host})`,
+            timeoutMs: serviceUpTimeout,
+            enabledJitter: true,
+            error
+        }
+    );
+}
+
 async function startService(
     options: TestOptions,
     service: Service,
@@ -922,6 +1003,13 @@ export async function loadImagesForHelm(kindClusterName: string, skipImageDeleti
                 config.UTILITY_SVC_VERSION,
                 skipImageDeletion
             ));
+        } else if (service === Service.Valkey) {
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.VALKEY_DOCKER_IMAGE,
+                config.VALKEY_VERSION,
+                skipImageDeletion
+            ));
         }
     });
 
@@ -964,6 +1052,13 @@ export async function loadImagesForHelmFromConfigFile(
             } else if (service === Service.Utility) {
                 promiseArray.push(kind.loadServiceImage(
                     Service.Utility,
+                    customConfig[service].image.repository,
+                    customConfig[service].image.tag,
+                    false
+                ));
+            } else if (service === Service.Valkey) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Valkey,
                     customConfig[service].image.repository,
                     customConfig[service].image.tag,
                     false

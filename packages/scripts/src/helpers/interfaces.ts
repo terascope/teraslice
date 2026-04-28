@@ -1,4 +1,4 @@
-import { EmptyObject } from '@terascope/types';
+import { EmptyObject, Service } from '@terascope/types';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import type { TestFramework } from './test-runner/interfaces';
 
@@ -37,16 +37,6 @@ export type PackageInfo = {
         pnpm?: string;
     };
 };
-
-export enum Service {
-    Kafka = 'kafka',
-    Minio = 'minio',
-    RabbitMQ = 'rabbitmq',
-    Opensearch = 'opensearch',
-    RestrainedOpensearch = 'restrained_opensearch',
-    Utility = 'utility',
-    Teraslice = 'teraslice'
-}
 
 export type PackageConfig = {
     main?: boolean;
