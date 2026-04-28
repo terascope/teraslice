@@ -48,9 +48,13 @@
         "got": "~14.6.6"
     },
     "peerDependencies": {
+        "@terascope/valkey": "workspace:~",
         "terafoundation_kafka_connector": "~2.2.0"
     },
     "peerDependenciesMeta": {
+        "@terascope/valkey": {
+            "optional": true
+        },
         "terafoundation_kafka_connector": {
             "optional": true
         }
