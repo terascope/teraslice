@@ -4,10 +4,9 @@ import {
     debugLogger, get, flatten,
     isCI, toString
 } from '@terascope/core-utils';
-import {
-    ArgsMap, ExecEnv, exec
-} from '../scripts.js';
-import { TestOptions, GroupedPackages } from './interfaces.js';
+import { ArgsMap, ExecEnv, exec } from '../scripts.js';
+import { readPackageInfo } from '../packages.js';
+import { TestOptions, GroupedPackages, TestFramework, TestFrameworks } from './interfaces.js';
 import { PackageInfo, Service } from '../interfaces.js';
 import { getServicesForSuite, getPackageManager } from '../misc.js';
 import config from '../config.js';
@@ -19,7 +18,27 @@ import type {
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
-export function getArgs(options: TestOptions): ArgsMap {
+function getPlaywrightArgs(options: TestOptions): ArgsMap {
+    const args: ArgsMap = {};
+    if (options.bail) {
+        args.x = '';
+    }
+    if (options.debug) {
+        args['debug'] = '';
+    }
+    if (options.watch) {
+        args[isCI ? 'only-changed' : 'ui'] = '';
+    }
+    return args;
+}
+
+export function getArgs(
+    options: TestOptions,
+    framework: TestFramework = TestFrameworks.jest
+): ArgsMap {
+    if (framework === 'playwright') {
+        return getPlaywrightArgs(options);
+    }
     const args: ArgsMap = {};
     args.forceExit = '';
     args.coverage = toString(options.reportCoverage);
@@ -196,7 +215,7 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
             throw new Error(`Package ${pkgInfo.name} missing required "terascope.testSuite" configuration`);
         }
 
-        if (options.suite!.includes(suite)) {
+        if (options.suite?.includes(suite)) {
             logger.info(`* found ${pkgInfo.name} for suite ${suite} to test`);
             return true;
         }
@@ -213,12 +232,16 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
     });
 }
 
-export function groupBySuite(
+export function groupByFrameworkSuite(
     pkgInfos: PackageInfo[],
     availableSuites: string[],
     options: TestOptions
-): GroupedPackages {
-    const groups: GroupedPackages = {};
+): Partial<
+    Record<
+        TestFramework, GroupedPackages
+    >
+> {
+    const testGroups: Partial<Record<TestFramework, GroupedPackages>> = {};
 
     for (const pkgInfo of pkgInfos) {
         const suite = pkgInfo.terascope.testSuite;
@@ -228,26 +251,46 @@ export function groupBySuite(
             signale.warn(`${pkgInfo.name} is using ${suite} which is not known, add it to the root package.json`);
         }
 
-        if (!groups[suite]) groups[suite] = [];
-        groups[suite].push(pkgInfo);
+        let frameworks: TestFramework[] = [TestFrameworks.jest];
+        if (pkgInfo.terascope.testFrameworks?.length) {
+            frameworks = pkgInfo.terascope.testFrameworks;
+            validateTestFrameworks(frameworks, pkgInfo.name);
+        }
+
+        frameworks.forEach((framework) => {
+            testGroups[framework] ??= {};
+            testGroups[framework][suite] ??= [];
+            testGroups[framework][suite].push(pkgInfo);
+        });
     }
 
     const isWatchAll = !options.suite && options.watch;
     const isNotAll = !options.all;
 
-    const bundleSuite = 'opensearch' in groups ? 'opensearch' : Object.keys(groups)[0];
+    if (isNotAll || isWatchAll) {
+        for (const framework in testGroups) {
+            if (!Object.hasOwn(testGroups, framework)) continue;
 
-    if ((isNotAll || isWatchAll) && bundleSuite && groups[bundleSuite].length) {
-        groups[bundleSuite] = flatten(Object.values(groups));
+            const groups = testGroups[framework as TestFramework];
+            if (!groups) continue;
 
-        for (const suite of Object.keys(groups)) {
-            if (suite !== bundleSuite) {
-                groups[suite] = [];
+            const bundleSuite = 'opensearch' in groups
+                ? 'opensearch'
+                : Object.keys(groups)[0];
+
+            if (bundleSuite && groups[bundleSuite]?.length) {
+                groups[bundleSuite] = flatten(Object.values(groups));
+
+                for (const suite of Object.keys(groups)) {
+                    if (suite !== bundleSuite) {
+                        groups[suite] = [];
+                    }
+                }
             }
         }
     }
 
-    return groups;
+    return testGroups;
 }
 
 async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {
@@ -278,4 +321,20 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
         FORCE_COLOR: isCI ? '0' : '1',
     });
     process.stderr.write(`${errLogs}\n`);
+}
+
+export function getTestFramework(dir?: string): string[] {
+    const pkgInfo = dir ? readPackageInfo(dir) : undefined;
+    if (pkgInfo?.terascope?.testFrameworks) {
+        validateTestFrameworks(pkgInfo?.terascope?.testFrameworks, pkgInfo.name);
+    }
+
+    return pkgInfo?.terascope?.testFrameworks || [TestFrameworks.jest];
+}
+
+export function validateTestFrameworks(frameworks: string[], pkgName: string) {
+    const invalid = frameworks.filter((el) => !(el in TestFrameworks));
+    if (invalid.length) {
+        throw new Error(`Received unsupported test framework(s) "${invalid.join('", "')}" for "${pkgName}"`);
+    }
 }

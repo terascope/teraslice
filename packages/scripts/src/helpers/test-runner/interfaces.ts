@@ -11,7 +11,7 @@ export type TestOptions = {
     forceSuite?: string;
     suite?: string[];
     useExistingServices: boolean;
-    jestArgs?: string[];
+    frameworkArgs?: string[];
     ignoreMount: boolean;
     clusteringType: 'native' | 'kubernetesV2';
     kindClusterName: string;
@@ -50,3 +50,9 @@ export interface OpenSearchInfo {
 export function isOpenSearchInfo(body: unknown): body is OpenSearchInfo {
     return typeof body === 'object' && body !== null;
 }
+
+export enum TestFrameworks {
+    jest = 'jest',
+    playwright = 'playwright'
+}
+export type TestFramework = keyof typeof TestFrameworks;

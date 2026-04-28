@@ -14,17 +14,17 @@ import {
     loadImagesForHelm,
 } from './services.js';
 import { PackageInfo } from '../interfaces.js';
-import { TestOptions } from './interfaces.js';
+import { TestFramework, TestOptions } from './interfaces.js';
 import {
-    runJest, dockerTag, isKindInstalled, isKubectlInstalled,
+    dockerTag, isKindInstalled, isKubectlInstalled,
     loadThenDeleteImageFromCache, deleteDockerImageCache,
     isHelmInstalled, isHelmfileInstalled, launchTerasliceWithHelmfile,
-    generateTestCaCerts
+    generateTestCaCerts, runTestFramework
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
-    getArgs, filterBySuite,
-    logE2E, getEnv, groupBySuite
+    filterBySuite, getArgs, getEnv, getTestFramework,
+    groupByFrameworkSuite, logE2E
 } from './utils.js';
 import signale from '../signale.js';
 import { getE2EDir, readPackageInfo, listPackages } from '../packages.js';
@@ -42,27 +42,27 @@ const logger = debugLogger('ts-scripts:cmd:test');
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<void> {
     const tracker = new TestTracker(options);
-    const rootpkg = getRootInfo();
-    let allpkgInfos: PackageInfo[] = pkgInfos;
+    const rootPkg = getRootInfo();
+    let allPkgInfos: PackageInfo[] = pkgInfos;
 
     /// swap asset/package.json with top level package.json to support running asset tests
     /// TODO: This might be better to use jest.config within asset folder
     let runAssetTests = false;
-    allpkgInfos.map((pkg) => {
+    allPkgInfos.map((pkg) => {
         if (pkg.relativeDir === 'asset') {
             runAssetTests = true;
         }
         return;
     });
-    if (rootpkg.terascope.asset && (listPackages() === allpkgInfos || runAssetTests)) {
-        allpkgInfos = allpkgInfos.filter((pkg) => pkg.relativeDir !== 'asset');
-        allpkgInfos = [...allpkgInfos, readPackageInfo(rootpkg.dir)];
+    if (rootPkg.terascope.asset && (listPackages() === allPkgInfos || runAssetTests)) {
+        allPkgInfos = allPkgInfos.filter((pkg) => pkg.relativeDir !== 'asset');
+        allPkgInfos = [...allPkgInfos, readPackageInfo(rootPkg.dir)];
     }
 
     logger.info('running tests with options', options);
 
     try {
-        await _runTests(allpkgInfos, options, tracker);
+        await _runTests(allPkgInfos, options, tracker);
     } catch (err) {
         tracker.addError(err);
     } finally {
@@ -88,21 +88,29 @@ async function _runTests(
     }
 
     const availableSuites = getAvailableTestSuites();
-    const grouped = groupBySuite(filtered, availableSuites, options);
+    const frameworkGroups = groupByFrameworkSuite(filtered, availableSuites, options);
 
-    for (const [suite, pkgs] of Object.entries(grouped)) {
-        if (!pkgs.length || suite === 'e2e') continue;
+    for (const key in frameworkGroups) {
+        const framework = key as TestFramework;
+        if (!Object.hasOwn(frameworkGroups, framework)) continue;
 
-        try {
-            await runTestSuite(suite, pkgs, options, tracker);
-            if (tracker.hasErrors()) {
-                if (options.bail || isCI) {
-                    break;
+        const grouped = frameworkGroups[framework];
+        if (!grouped) continue;
+
+        for (const [suite, pkgs] of Object.entries(grouped)) {
+            if (!pkgs.length || suite === 'e2e') continue;
+
+            try {
+                await runTestSuite(suite, pkgs, options, tracker, framework);
+                if (tracker.hasErrors()) {
+                    if (options.bail || isCI) {
+                        break;
+                    }
                 }
+            } catch (err) {
+                tracker.addError(err);
+                break;
             }
-        } catch (err) {
-            tracker.addError(err);
-            break;
         }
     }
 }
@@ -112,12 +120,13 @@ async function runTestSuite(
     pkgInfos: PackageInfo[],
     options: TestOptions,
     tracker: TestTracker,
+    framework: TestFramework
 ): Promise<void> {
     if (suite === 'e2e') return;
 
     if (isCI) {
         // load the services from cache in CI
-        await loadOrPullServiceImages(suite, options.skipImageDeletion);
+        await loadOrPullServiceImages(options.forceSuite || suite, options.skipImageDeletion);
     }
 
     const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
@@ -156,7 +165,7 @@ async function runTestSuite(
             writeHeader(`Running batch of ${pkgs.length} tests`, false);
         }
 
-        const args = getArgs(options);
+        const args = getArgs(options, framework);
 
         args.projects = pkgs.map(
             (pkgInfo) => {
@@ -168,14 +177,16 @@ async function runTestSuite(
         );
 
         tracker.started += pkgs.length;
+
         try {
-            await runJest(
+            await runTestFramework(
                 getRootDir(),
                 args,
                 env,
-                options.jestArgs,
+                options.frameworkArgs,
                 options.debug,
-                ATTACH_JEST_DEBUGGER
+                ATTACH_JEST_DEBUGGER,
+                framework
             );
             tracker.ended += pkgs.length;
         } catch (err) {
@@ -209,6 +220,7 @@ async function runE2ETest(
     let kind;
 
     const e2eDir = getE2EDir();
+    const frameworks = getTestFramework(e2eDir);
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
     }
@@ -333,19 +345,23 @@ async function runE2ETest(
         const env = printAndGetEnv(suite, options);
 
         tracker.started++;
-        try {
-            await runJest(
-                e2eDir,
-                getArgs(options),
-                env,
-                options.jestArgs,
-                options.debug,
-                ATTACH_JEST_DEBUGGER
-            );
-            tracker.ended++;
-        } catch (err) {
-            tracker.ended++;
-            tracker.addError(err.message);
+        for (const key of frameworks) {
+            const framework = key as TestFramework;
+            try {
+                await runTestFramework(
+                    e2eDir,
+                    getArgs(options, framework),
+                    env,
+                    options.frameworkArgs,
+                    options.debug,
+                    ATTACH_JEST_DEBUGGER,
+                    framework
+                );
+                tracker.ended++;
+            } catch (err) {
+                tracker.ended++;
+                tracker.addError(err.message);
+            }
         }
 
         signale.timeEnd(timeLabel);

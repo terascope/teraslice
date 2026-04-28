@@ -21,6 +21,7 @@ import { getRootDir, getRootInfo, getPackageManager } from './misc.js';
 import signale from './signale.js';
 import config from './config.js';
 import { getVolumesFromDockerfile } from './kind.js';
+import { TestFramework, TestFrameworks } from './test-runner/interfaces.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -158,23 +159,28 @@ export async function packageMngrRun(
     });
 }
 
-export async function runJest(
+export async function runTestFramework(
     cwd: string,
     argsMap: ArgsMap,
     env?: ExecEnv,
     extraArgs?: string[],
     debug?: boolean,
-    attachJestDebugger?: boolean
+    attachJestDebugger?: boolean,
+    framework: TestFramework = TestFrameworks.jest
 ): Promise<void> {
     const pm = getPackageManager();
     // When running jest in yarn3 PnP with ESM we must call 'yarn jest <...args>'
     // to prevent module not found errors. Therefore we will call fork with the yarn/pnpm
     // command and set jest to the first argument.
-    let args = ['jest'];
+    const frameworkArgs: Record<TestFrameworks, string[]> = {
+        jest: ['jest'],
+        playwright: ['playwright', 'test']
+    };
+    let args = frameworkArgs[framework];
 
     // Set with ATTACH_JEST_DEBUGGER env variable
     // Does not work with repos with pnp
-    if (attachJestDebugger) {
+    if (attachJestDebugger && framework === TestFrameworks.jest) {
         const nodeLinkerConfig = await getNodeLinkerConfig();
 
         if (nodeLinkerConfig === 'node-modules') {
@@ -219,7 +225,7 @@ export async function runJest(
     }
 
     if (debug) {
-        signale.debug(`executing: jest ${args.join(' ')}`);
+        signale.debug(`executing ${framework}: ${args.join(' ')}`);
     }
 
     await fork({
