@@ -5,7 +5,6 @@ import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces.js';
 import { getAvailableTestSuites } from '../helpers/misc.js';
 import config from '../helpers/config.js';
 import { listPackages } from '../helpers/packages.js';
-import { TestFramework, TestFrameworks } from '../helpers/test-runner/interfaces.js';
 import { runTests } from '../helpers/test-runner/index.js';
 import { coercePkgArg } from '../helpers/args.js';
 
@@ -24,8 +23,21 @@ type Options = {
     'test-platform': string;
     'skip-image-deletion': boolean;
     logs: boolean;
-    framework?: string;
 };
+
+/**
+         * notes from talking w/Jared
+         *
+         * 1 - non-related but see if we can get rid of individual package jest.configs
+         * or write a separate issue
+         *
+         * 2 - see if possible to put framework option in pkg.json's instead of
+         * conflating the script flags more
+         *
+         * 3 - unless it works out easy, we decided maybe just support 1 testing framework
+         * per package for now as after talking we probably won't don't need this feature
+         *
+         */
 
 const frameworkArgs = getExtraArgs();
 const testSuites = getAvailableTestSuites();
@@ -109,25 +121,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: true,
             })
-        /**
-         * notes from talking w/Jared
-         *
-         * 1 - non-related but see if we can get rid of individual package jest.configs
-         * or write a separate issue
-         *
-         * 2 - see if possible to put framework option in pkg.json's instead of
-         * conflating the script flags more
-         *
-         * 3 - unless it works out easy, we decided maybe just support 1 testing framework
-         * per package for now as after talking we probably won't don't need this feature
-         *
-         */
-            .option('framework', {
-                description: 'The test framework to use',
-                type: 'string',
-                default: TestFrameworks.jest,
-                choices: Object.keys(TestFrameworks) as TestFramework[]
-            })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
                 coerce(arg) {
@@ -154,7 +147,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
         const skipImageDeletion = hoistArg(argv, 'skip-image-deletion', 'boolean');
         const logs = hoistArg(argv, 'logs', 'boolean');
-        const framework = hoistArg(argv, 'framework', 'string') as TestFramework;
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -171,7 +163,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             useExistingServices,
             all: !argv.packages || !argv.packages.length,
             reportCoverage,
-            framework,
             frameworkArgs,
             ignoreMount,
             clusteringType: testPlatform,

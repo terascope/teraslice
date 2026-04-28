@@ -12,7 +12,6 @@ export type TestOptions = {
     suite?: string[];
     useExistingServices: boolean;
     frameworkArgs?: string[];
-    framework?: TestFramework;
     ignoreMount: boolean;
     clusteringType: 'native' | 'kubernetesV2';
     kindClusterName: string;

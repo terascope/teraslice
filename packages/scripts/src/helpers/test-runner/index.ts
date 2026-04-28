@@ -13,7 +13,7 @@ import {
     loadImagesForHelm
 } from './services.js';
 import { PackageInfo } from '../interfaces.js';
-import { TestOptions } from './interfaces.js';
+import { TestFramework, TestOptions } from './interfaces.js';
 import {
     dockerTag, isKindInstalled, isKubectlInstalled,
     loadThenDeleteImageFromCache, deleteDockerImageCache,
@@ -22,8 +22,8 @@ import {
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import {
-    getArgs, filterBySuite,
-    logE2E, getEnv, groupBySuite
+    filterBySuite, getArgs, getEnv, getTestFramework,
+    groupByFrameworkSuite, logE2E
 } from './utils.js';
 import signale from '../signale.js';
 import { getE2EDir, readPackageInfo, listPackages } from '../packages.js';
@@ -87,21 +87,29 @@ async function _runTests(
     }
 
     const availableSuites = getAvailableTestSuites();
-    const grouped = groupBySuite(filtered, availableSuites, options);
+    const frameworkGroups = groupByFrameworkSuite(filtered, availableSuites, options);
 
-    for (const [suite, pkgs] of Object.entries(grouped)) {
-        if (!pkgs.length || suite === 'e2e') continue;
+    for (const key in frameworkGroups) {
+        const framework = key as TestFramework;
+        if (!Object.hasOwn(frameworkGroups, framework)) continue;
 
-        try {
-            await runTestSuite(suite, pkgs, options, tracker);
-            if (tracker.hasErrors()) {
-                if (options.bail || isCI) {
-                    break;
+        const grouped = frameworkGroups[framework];
+        if (!grouped) continue;
+
+        for (const [suite, pkgs] of Object.entries(grouped)) {
+            if (!pkgs.length || suite === 'e2e') continue;
+
+            try {
+                await runTestSuite(suite, pkgs, options, tracker, framework);
+                if (tracker.hasErrors()) {
+                    if (options.bail || isCI) {
+                        break;
+                    }
                 }
+            } catch (err) {
+                tracker.addError(err);
+                break;
             }
-        } catch (err) {
-            tracker.addError(err);
-            break;
         }
     }
 }
@@ -111,6 +119,7 @@ async function runTestSuite(
     pkgInfos: PackageInfo[],
     options: TestOptions,
     tracker: TestTracker,
+    framework: TestFramework
 ): Promise<void> {
     if (suite === 'e2e') return;
 
@@ -155,7 +164,7 @@ async function runTestSuite(
             writeHeader(`Running batch of ${pkgs.length} tests`, false);
         }
 
-        const args = getArgs(options);
+        const args = getArgs(options, framework);
 
         args.projects = pkgs.map(
             (pkgInfo) => {
@@ -167,6 +176,7 @@ async function runTestSuite(
         );
 
         tracker.started += pkgs.length;
+
         try {
             await runTestFramework(
                 getRootDir(),
@@ -175,7 +185,7 @@ async function runTestSuite(
                 options.frameworkArgs,
                 options.debug,
                 ATTACH_JEST_DEBUGGER,
-                options.framework
+                framework
             );
             tracker.ended += pkgs.length;
         } catch (err) {
@@ -209,6 +219,7 @@ async function runE2ETest(
     let kind;
 
     const e2eDir = getE2EDir();
+    const e2eFramework = getTestFramework(e2eDir);
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
     }
@@ -327,20 +338,23 @@ async function runE2ETest(
         console.error('===rot', rootInfo);
 
         tracker.started++;
-        try {
-            await runTestFramework(
-                e2eDir,
-                getArgs(options),
-                env,
-                options.frameworkArgs,
-                options.debug,
-                ATTACH_JEST_DEBUGGER,
-                options.framework
-            );
-            tracker.ended++;
-        } catch (err) {
-            tracker.ended++;
-            tracker.addError(err.message);
+        for (const key in e2eFramework) {
+            const framework = key as TestFramework;
+            try {
+                await runTestFramework(
+                    e2eDir,
+                    getArgs(options, framework),
+                    env,
+                    options.frameworkArgs,
+                    options.debug,
+                    ATTACH_JEST_DEBUGGER,
+                    framework
+                );
+                tracker.ended++;
+            } catch (err) {
+                tracker.ended++;
+                tracker.addError(err.message);
+            }
         }
 
         signale.timeEnd(timeLabel);

@@ -225,7 +225,7 @@ export async function runTestFramework(
     }
 
     if (debug) {
-        signale.debug(`executing: jest ${args.join(' ')}`);
+        signale.debug(`executing ${framework}: ${args.join(' ')}`);
     }
 
     await fork({

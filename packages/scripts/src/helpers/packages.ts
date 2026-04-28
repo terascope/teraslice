@@ -5,7 +5,7 @@ import semver from 'semver';
 import yaml from 'js-yaml';
 import { isDynamicPattern, globbySync } from 'globby';
 import {
-    uniq, fastCloneDeep, get, trim,
+    uniq, fastCloneDeep, get, trim
 } from '@terascope/core-utils';
 import toposort from 'toposort';
 import { MultiMap } from 'mnemonist';
@@ -33,7 +33,7 @@ export function getE2EDir(): string | undefined {
         return _e2eDir;
     }
 
-    return undefined;
+    return;
 }
 
 function _loadPackage(packagePath: string): i.PackageInfo | undefined {

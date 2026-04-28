@@ -1,5 +1,6 @@
 import { EmptyObject } from '@terascope/types';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
+import type { TestFramework } from './test-runner/interfaces';
 
 export type PackageInfo = {
     dir: string;
@@ -51,6 +52,7 @@ export type PackageConfig = {
     main?: boolean;
     enableTypedoc?: boolean;
     testSuite?: string;
+    testFrameworks?: TestFramework[];
     allowBumpWhenPrivate?: boolean;
     linkToMain?: boolean;
     root?: boolean;
