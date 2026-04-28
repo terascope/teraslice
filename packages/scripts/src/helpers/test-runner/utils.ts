@@ -23,6 +23,9 @@ function getPlaywrightArgs(options: TestOptions): ArgsMap {
     if (options.bail) {
         args.x = '';
     }
+    if (options.debug) {
+        args['debug'] = '';
+    }
     if (options.watch) {
         args[isCI ? 'only-changed' : 'ui'] = '';
     }

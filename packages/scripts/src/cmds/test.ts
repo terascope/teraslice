@@ -25,20 +25,6 @@ type Options = {
     logs: boolean;
 };
 
-/**
-         * notes from talking w/Jared
-         *
-         * 1 - non-related but see if we can get rid of individual package jest.configs
-         * or write a separate issue
-         *
-         * 2 - see if possible to put framework option in pkg.json's instead of
-         * conflating the script flags more
-         *
-         * 3 - unless it works out easy, we decided maybe just support 1 testing framework
-         * per package for now as after talking we probably won't don't need this feature
-         *
-         */
-
 const frameworkArgs = getExtraArgs();
 const testSuites = getAvailableTestSuites();
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
