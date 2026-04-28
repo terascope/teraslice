@@ -219,7 +219,7 @@ async function runE2ETest(
     let kind;
 
     const e2eDir = getE2EDir();
-    const e2eFramework = getTestFramework(e2eDir);
+    const frameworks = getTestFramework(e2eDir);
     if (!e2eDir) {
         throw new Error('Missing e2e test directory');
     }
@@ -335,10 +335,8 @@ async function runE2ETest(
 
         const env = printAndGetEnv(suite, options);
 
-        console.error('===rot', rootInfo);
-
         tracker.started++;
-        for (const key in e2eFramework) {
+        for (const key of frameworks) {
             const framework = key as TestFramework;
             try {
                 await runTestFramework(
