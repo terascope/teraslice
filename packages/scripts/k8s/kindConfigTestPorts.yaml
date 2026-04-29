@@ -20,6 +20,8 @@ nodes:
   #   hostPort: 49092
   # - containerPort: 30094 # Map external kafka service to host port
   #   hostPort: 49094
+  # - containerPort: 30379 # Map internal valkey service to host port
+  #   hostPort: 46379
   # - containerPort: 30900 # Map internal minio service to host port
   #   hostPort: 49000
   # - containerPort: 30901 # Map internal minio-ui service to host port

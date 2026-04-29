@@ -1059,7 +1059,7 @@ export async function loadImagesForHelmFromConfigFile(
             } else if (service === Service.Valkey) {
                 promiseArray.push(kind.loadServiceImage(
                     Service.Valkey,
-                    customConfig[service].image.repository,
+                    config.VALKEY_DOCKER_IMAGE,
                     customConfig[service].image.tag,
                     false
                 ));
