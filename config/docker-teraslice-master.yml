@@ -17,6 +17,11 @@ terafoundation:
                 forcePathStyle: true
                 sslEnabled: false
                 region: "us-east-1"
+        valkey:
+            default:
+                addresses:
+                    - host: "valkey"
+                      port: 6379
 
 teraslice:
     assets_directory: '/app/assets'
