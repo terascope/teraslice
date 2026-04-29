@@ -767,6 +767,9 @@ importers:
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
+      '@terascope/valkey':
+        specifier: workspace:~
+        version: link:../valkey
       async-mutex:
         specifier: ~0.5.0
         version: 0.5.0
