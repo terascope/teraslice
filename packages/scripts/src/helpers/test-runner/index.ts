@@ -140,8 +140,22 @@ async function runTestSuite(
         );
     }
 
+    const dynamicConfigPkgs: (PackageInfo & { configType: 'dynamic' | 'custom' })[] = [];
+    const customConfigPkgs: (PackageInfo & { configType: 'dynamic' | 'custom' })[] = [];
+    pkgInfos.forEach((_pkgInfo) => {
+        const exists = fs.existsSync(`${_pkgInfo.dir}/${framework}.config.js`);
+
+        const pkgInfo = _pkgInfo as PackageInfo & { configType: 'dynamic' | 'custom' };
+        pkgInfo.configType = exists ? 'dynamic' : 'custom';
+
+        const group = exists ? customConfigPkgs : dynamicConfigPkgs;
+        group.push(pkgInfo);
+    });
+
     tracker.expected += pkgInfos.length;
-    const chunked = chunk(pkgInfos, CHUNK_SIZE);
+    const chunkedDynamic = chunk(dynamicConfigPkgs, CHUNK_SIZE);
+    const chunkedCustom = chunk(customConfigPkgs, CHUNK_SIZE);
+    const chunked = chunkedDynamic.concat(chunkedCustom);
 
     // don't log unless this useful information (more than one package)
     if (chunked.length > 1 && chunked[0].length > 1) {
