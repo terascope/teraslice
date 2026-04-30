@@ -107,7 +107,7 @@ export class StateStorage {
     }
 
     // TODO: type this better
-    async updateState(slice: Slice, state: string, error?: Error) {
+    async updateState(slice: Slice, state: string, error?: Error, retryCount?: number) {
         if (!isKey(SliceState, state)) {
             throw new Error(`Unknown slice state "${state}" on update`);
         }
@@ -129,6 +129,10 @@ export class StateStorage {
             } else {
                 record.error = new Error('Unknown slice error').stack;
             }
+        }
+
+        if (retryCount != null && retryCount > 0) {
+            record.retry_count = retryCount;
         }
 
         let notFoundErrCount = 0;
