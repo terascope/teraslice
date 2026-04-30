@@ -222,6 +222,23 @@ terafoundation:
                 region: "us-east-1"
         {{- end }}
 
+        ##@ valkey connector
+        {{- if eq (.Values | get "valkey.enabled" false) true }}
+        valkey:
+            default:
+                {{- if eq (.Values | get "valkey.tls.enabled" false) true }}
+
+                {{ fail "encrypted valkey not supported" }}
+
+                {{- else}}
+
+                addresses:
+                    - host: "valkey.services-dev1"
+                      port: 6379
+
+                {{- end }}
+        {{- end }}
+
 master:
     teraslice:
         kubernetes_namespace: ts-dev1

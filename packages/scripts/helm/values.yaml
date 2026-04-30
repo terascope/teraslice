@@ -161,6 +161,14 @@ utility:
     tag: 0.0.1
   instances: 1
 
+valkey:
+  # If false, valkey will be excluded on helmfile sync
+  enabled: false
+  image:
+    tag: 9.0.3
+  tls:
+    enabled: false
+
 teraslice:
   image:
     # Only relates to pnpm k8s command. Will overwrite/override repo and tag fields and build a teraslice image.

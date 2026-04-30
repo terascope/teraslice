@@ -81,6 +81,11 @@ describe('Test Runner Helpers', () => {
 
         describe('when running all tests in watch mode', () => {
             it('should be able group opensearch and unit together', () => {
+                const cacheTests = filterBySuite(packages, makeTestOptions({
+                    all: true,
+                    suite: ['cache']
+                }));
+
                 const elasticsearchTests = filterBySuite(packages, makeTestOptions({
                     all: true,
                     suite: ['opensearch'],
@@ -105,7 +110,8 @@ describe('Test Runner Helpers', () => {
                     ...unitTests,
                     ...restrainedTests,
                     ...opensearchTests,
-                    ...elasticsearchTests
+                    ...elasticsearchTests,
+                    ...cacheTests
                 ];
 
                 const grouped = groupByFrameworkSuite(

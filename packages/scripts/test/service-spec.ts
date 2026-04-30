@@ -81,7 +81,8 @@ const mockConfig = {
     DOCKER_IMAGES_PATH: '',
     DOCKER_IMAGE_LIST_PATH: '',
     CERT_PATH: '',
-    ENCRYPTION_ENABLED: ''
+    ENCRYPTION_ENABLED: '',
+    VALKEY_PORT: ''
 };
 
 jest.unstable_mockModule('../src/helpers/config.js', () => ({

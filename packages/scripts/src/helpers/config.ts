@@ -7,8 +7,7 @@ import {
     toSafeString, isCI, toIntegerOrThrow,
     SchemaValidator, toBoolean, trim, padEnd
 } from '@terascope/core-utils';
-import { TestEnv, Terafoundation, ScriptsTestEnv } from '@terascope/types';
-import { Service } from './interfaces.js';
+import { TestEnv, Terafoundation, ScriptsTestEnv, Service } from '@terascope/types';
 import { getLatestTerasliceImageTag } from './github.js';
 
 function newId(prefix?: string, lowerCase = false, length = 15): string {
@@ -102,6 +101,11 @@ const configSchema: Terafoundation.Schema<any> = {
         default: false,
         format: Boolean,
         env: 'TEST_RABBITMQ'
+    },
+    TEST_VALKEY: {
+        default: false,
+        format: Boolean,
+        env: 'TEST_VALKEY'
     },
 
     // General config
@@ -586,6 +590,39 @@ const configSchema: Terafoundation.Schema<any> = {
         format: String,
         env: 'UTILITY_SVC_VERSION'
     },
+
+    // Valkey Config
+    ENCRYPT_VALKEY: {
+        default: undefined,
+        format: Boolean
+    },
+    VALKEY_DOCKER_IMAGE: {
+        default: 'valkey/valkey',
+        format: String,
+        env: 'VALKEY_DOCKER_IMAGE'
+    },
+    VALKEY_HOST: {
+        default: undefined,
+        format: String
+    },
+    VALKEY_HOSTNAME: {
+        default: undefined,
+        format: String
+    },
+    VALKEY_NAME: {
+        default: 'valkey',
+        format: String,
+        env: 'VALKEY_NAME'
+    },
+    VALKEY_PORT: {
+        default: undefined,
+        format: Number
+    },
+    VALKEY_VERSION: {
+        default: '9.0.3',
+        format: String,
+        env: 'VALKEY_VERSION'
+    },
 };
 
 const forceColor = process.env.FORCE_COLOR || '1';
@@ -628,6 +665,11 @@ config.OPENSEARCH_SSL_HOST = `https://${config.OPENSEARCH_HOSTNAME}:${config.OPE
 config.RESTRAINED_OPENSEARCH_PORT = Number(process.env.RESTRAINED_OPENSEARCH_PORT) || 49206;
 config.RESTRAINED_OPENSEARCH_HOST = `http://${config.OPENSEARCH_USER}:${config.OPENSEARCH_PASSWORD}@${config.OPENSEARCH_HOSTNAME}:${config.RESTRAINED_OPENSEARCH_PORT}`;
 
+config.ENCRYPT_VALKEY = toBoolean(process.env.ENCRYPT_VALKEY) || false;
+config.VALKEY_HOSTNAME = process.env.VALKEY_HOSTNAME || config.HOST_IP;
+config.VALKEY_PORT = Number(process.env.VALKEY_PORT) | 46379;
+config.VALKEY_HOST = `${config.VALKEY_HOSTNAME}:${config.VALKEY_PORT}`;
+
 // make sure the string doesn't contain unwanted characters
 config.DEV_TAG = toSafeString((
     process.env.DEV_TAG
@@ -665,6 +707,7 @@ config.ENV_SERVICES = [
     toBoolean(process.env.TEST_MINIO) ? Service.Minio : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
     toBoolean(process.env.TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
+    toBoolean(process.env.TEST_VALKEY) ? Service.Valkey : undefined,
     toBoolean(process.env.ENABLE_UTILITY_SVC) ? Service.Utility : undefined,
     testTeraslice ? Service.Teraslice : undefined,
 ]
