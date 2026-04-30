@@ -1,4 +1,5 @@
 import ms from 'ms';
+import net from 'node:net';
 import os from 'node:os';
 import got, { Response } from 'got';
 import semver from 'semver';
@@ -6,7 +7,6 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import yaml from 'js-yaml';
 import { Kafka } from 'kafkajs';
-import Valkey from 'iovalkey';
 import { execa } from 'execa';
 import {
     pWhile, TSError, debugLogger,
@@ -184,7 +184,7 @@ export function startServiceLogging(launchServices: Service[], logsDir: string):
         const subprocess = execa('docker', ['logs', '-f', containerName], { all: true });
 
         subprocess.all?.pipe(logStream);
-        subprocess.catch(() => { });
+        subprocess.catch(() => {});
 
         subprocesses.push(subprocess);
     }
@@ -193,7 +193,7 @@ export function startServiceLogging(launchServices: Service[], logsDir: string):
         await Promise.all(
             subprocesses.map(async (subprocess) => {
                 const timeout = new Promise<void>((resolve) => setTimeout(resolve, ms('10s')));
-                await Promise.race([subprocess.catch(() => { }), timeout]);
+                await Promise.race([subprocess.catch(() => {}), timeout]);
                 subprocess.kill();
             })
         );
@@ -338,7 +338,7 @@ export async function ensureServices(
 
     const stopLogging = (options.logs && logsDir)
         ? startServiceLogging(launchServices, logsDir)
-        : () => { };
+        : () => {};
 
     return async () => {
         fns.forEach((fn) => fn());
@@ -879,20 +879,33 @@ async function checkValkey(options: TestOptions, startTime: number): Promise<voi
                 logger.debug(`checking Valkey at ${host}`);
             }
 
-            let response: string;
-
-            // remove when tls supported
+            // remove when encryption supported
             if (config.ENCRYPT_VALKEY) {
                 throw new Error('Valkey encryption not supported');
             }
 
-            const valkey = new Valkey(port, host);
-            try {
-                response = await valkey.ping();
-            } catch (err) {
-                error = err.message;
-                response = err.message;
-            }
+            const response = await new Promise<string>((resolve) => {
+                const socket = net.createConnection(port, host, () => {
+                    socket.write('*1\r\n$4\r\nPING\r\n');
+                });
+                socket.setTimeout(5000);
+                socket.once('data', (data) => {
+                    socket.destroy();
+                    // response: "+PONG\r\n" → "PONG"
+                    resolve(data.toString().replace(/^\+/, '')
+                        .trim());
+                });
+                socket.once('error', (err) => {
+                    socket.destroy();
+                    error = err.message;
+                    resolve(err.message);
+                });
+                socket.once('timeout', () => {
+                    socket.destroy();
+                    error = 'Connection timed out';
+                    resolve('Connection timed out');
+                });
+            });
 
             if (options.trace) {
                 signale.debug('response from Valkey service: ', response);

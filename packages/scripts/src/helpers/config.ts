@@ -618,10 +618,6 @@ const configSchema: Terafoundation.Schema<any> = {
         default: undefined,
         format: Number
     },
-    VALKEY_PROTOCOL: {
-        default: undefined,
-        format: ['http', 'https']
-    },
     VALKEY_VERSION: {
         default: '9.0.3',
         format: String,
@@ -670,10 +666,9 @@ config.RESTRAINED_OPENSEARCH_PORT = Number(process.env.RESTRAINED_OPENSEARCH_POR
 config.RESTRAINED_OPENSEARCH_HOST = `http://${config.OPENSEARCH_USER}:${config.OPENSEARCH_PASSWORD}@${config.OPENSEARCH_HOSTNAME}:${config.RESTRAINED_OPENSEARCH_PORT}`;
 
 config.ENCRYPT_VALKEY = toBoolean(process.env.ENCRYPT_VALKEY) || false;
-config.VALKEY_PROTOCOL = config.ENCRYPT_VALKEY ? 'https' : 'http';
 config.VALKEY_HOSTNAME = process.env.VALKEY_HOSTNAME || config.HOST_IP;
 config.VALKEY_PORT = Number(process.env.VALKEY_PORT) | 46379;
-config.VALKEY_HOST = `${config.VALKEY_PROTOCOL}://${config.VALKEY_HOSTNAME}:${config.VALKEY_PORT}`;
+config.VALKEY_HOST = `${config.VALKEY_HOSTNAME}:${config.VALKEY_PORT}`;
 
 // make sure the string doesn't contain unwanted characters
 config.DEV_TAG = toSafeString((

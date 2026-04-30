@@ -137,7 +137,6 @@ export interface TestEnv {
     VALKEY_HOSTNAME?: string;
     VALKEY_NAME?: string;
     VALKEY_PORT?: number;
-    VALKEY_PROTOCOL?: string;
     VALKEY_VERSION?: string;
     [key: string]: any;
 }
@@ -224,8 +223,7 @@ export type ScriptsTestEnv = RequireKeys<
     | 'TEST_NAMESPACE' | 'TEST_TERASLICE' | 'USE_EXISTING_SERVICES'
     | 'UTILITY_SVC_DOCKER_IMAGE' | 'UTILITY_SVC_DOCKER_PROJECT_PATH'
     | 'UTILITY_SVC_NAME' | 'UTILITY_SVC_VERSION' | 'VALKEY_DOCKER_IMAGE' | 'VALKEY_HOST'
-    | 'VALKEY_HOSTNAME' | 'VALKEY_NAME' | 'VALKEY_PORT' | 'VALKEY_PROTOCOL'
-    | 'VALKEY_VERSION'
+    | 'VALKEY_HOSTNAME' | 'VALKEY_NAME' | 'VALKEY_PORT' | 'VALKEY_VERSION'
 >;
 
 export interface TerasliceEnv {

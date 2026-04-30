@@ -114,9 +114,10 @@ console.log('Download URL:', url);
 console.log('-------------------------------------');
 EOF
 
-# Verify what binary repo Valkey GLIDE client downloaded
+# Verify what binary repo(s) Valkey GLIDE client downloaded and which it will require 
 # Valkey GLIDE uses NAPI-RS to run an architecture specific binary built from rust.
-# Each binary has an NPM repo that will be 'required' at build time.
+# Each binary has its own NPM repo. Repos will be installed based on arch and platform (could be multiple)
+# A single repo will be 'required' at run time.
 SHELL ["/bin/bash", "-c"]
 RUN VALKEY_GLIDE_PATH=$(find node_modules/.pnpm -path '*/@valkey/valkey-glide/package.json' | head -1 | xargs dirname) && \
     VALKEY_NATIVE_PATHS=$(find node_modules/.pnpm -maxdepth 1 -type d -name '@valkey+valkey-glide-*-*@*') && \
