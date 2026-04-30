@@ -195,38 +195,43 @@ async function runTestSuite(
             }
         );
 
-        // FIXME - we would need to do this at the chunk level instead, as we'd
-        // have to separate pkgs that have a custom config to their own chunk,
-        // and combine pkgs that don't into the jest config directories
-        // FIXME - after researching, this may not work - I don't think
-        // Playwright or Vitest accept a json string config like Jest does
-        const rootDir = getRootDir();
         let testConfig: string | undefined;
-        await pMap(dirs, async (dir) => {
-            const exists = fs.existsSync(`${dir}/${framework}.config.js`);
-            if (exists) return;
+        const rootDir = getRootDir();
 
-            const rootExists = fs.existsSync(`${rootDir}/${framework}.config.base.js`);
-            if (!rootExists) return;
+        if (pkgs[0].configType === 'dynamic') {
+            // FIXME better name - it's not a config - it's a function that returns a config
+            // root/frameworks.makeFrameworkConfigForDirectories.js
+            // FIXME - make config file accept array (dirList)
 
-            function getModule(module: any) {
-                if ('default' in module) return getModule(module.default);
-                return module;
+            const configFnPath = `${rootDir}/${framework}.config.base.js`;
+            const rootExists = fs.existsSync(configFnPath);
+            if (!rootExists) {
+                const files = pkgs.length > 1 ? 'files' : 'file';
+                const dirList = `"${dirs.join('", "')}"`;
+                signale.error(`
+                    Unable to find file "${configFnPath}". 
+                    Recommend creating one to dynamically create the config OR 
+                    adding individual config ${files} in each of these directories ${dirList}
+                `);
+            } else {
+                function getModule(module: any) {
+                    if ('default' in module) return getModule(module.default);
+                    return module;
+                }
+                try {
+                    const makeConfig = getModule(require(configFnPath));
+                    const configObject = makeConfig(dirs);
+                    testConfig = JSON.stringify(configObject);
+                    // FIXME - vitest/playwright don't support stringify like
+                    // jest does, but they all support a file path so
+                    // write a file, const wrote = fs.writeFile()
+                    // then delete at end of test
+                    // add whatever called to gitignore
+                } catch (error) {
+                    console.error(`Error creating ${framework} config.`, error);
+                }
             }
-
-            try {
-                // const configFnPath = import.meta.url.includes('dist')
-                //     ? '../../../../../../jest.config.base.js'
-                //     : '../../../../../jest.config.base.js';
-                const configFnPath = `${rootDir}/${framework}.config.base.js`;
-                const makeConfig = getModule(require(configFnPath));
-                const configObject = makeConfig(dir);
-                testConfig = JSON.stringify(configObject);
-            } catch (error) {
-                console.error(`Error creating ${framework} config.`, error);
-            }
-        });
-        console.error('==tra', testConfig);
+        }
 
         tracker.started += pkgs.length;
 
