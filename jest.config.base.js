@@ -38,7 +38,7 @@ export default (projectDir) => {
     }
 
     const config = {
-        rootDir,
+        rootDir: import.meta.dirname,
         displayName: name,
         testEnvironment: 'node',
         testTimeout: 60 * 1000,

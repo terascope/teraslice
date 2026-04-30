@@ -166,7 +166,8 @@ export async function runTestFramework(
     extraArgs?: string[],
     debug?: boolean,
     attachJestDebugger?: boolean,
-    framework: TestFramework = TestFrameworks.jest
+    framework: TestFramework = TestFrameworks.jest,
+    frameworkConfig?: string
 ): Promise<void> {
     const pm = getPackageManager();
     // When running jest in yarn3 PnP with ESM we must call 'yarn jest <...args>'
@@ -222,6 +223,11 @@ export async function runTestFramework(
             }
             args.push(extraArg);
         });
+    }
+
+    if (frameworkConfig) {
+        args.push(`--config`);
+        args.push(frameworkConfig);
     }
 
     if (debug) {

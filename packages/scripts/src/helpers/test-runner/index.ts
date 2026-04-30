@@ -1,10 +1,11 @@
+import path from 'node:path';
+import { createRequire } from 'node:module';
 import {
     debugLogger, chunk, TSError,
     isCI, pMap
 } from '@terascope/core-utils';
 import { TestEnv } from '@terascope/types';
 import fs from 'node:fs';
-import path from 'node:path';
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
@@ -32,6 +33,8 @@ import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
 import config from '../config.js';
+
+const require = createRequire(import.meta.url);
 
 const {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E,
@@ -167,8 +170,10 @@ async function runTestSuite(
 
         const args = getArgs(options, framework);
 
+        const dirs: string[] = [];
         args.projects = pkgs.map(
             (pkgInfo) => {
+                dirs.push(pkgInfo.dir);
                 if (pkgInfo.relativeDir.length) {
                     return pkgInfo.relativeDir;
                 }
@@ -176,17 +181,51 @@ async function runTestSuite(
             }
         );
 
+        // FIXME - we would need to do this at the chunk level instead, as we'd
+        // have to separate pkgs that have a custom config to their own chunk,
+        // and combine pkgs that don't into the jest config directories
+        // FIXME - after researching, this may not work - I don't think
+        // Playwright or Vitest accept a json string config like Jest does
+        const rootDir = getRootDir();
+        let testConfig: string | undefined;
+        await pMap(dirs, async (dir) => {
+            const exists = fs.existsSync(`${dir}/${framework}.config.js`);
+            if (exists) return;
+
+            const rootExists = fs.existsSync(`${rootDir}/${framework}.config.base.js`);
+            if (!rootExists) return;
+
+            function getModule(module: any) {
+                if ('default' in module) return getModule(module.default);
+                return module;
+            }
+
+            try {
+                // const configFnPath = import.meta.url.includes('dist')
+                //     ? '../../../../../../jest.config.base.js'
+                //     : '../../../../../jest.config.base.js';
+                const configFnPath = `${rootDir}/${framework}.config.base.js`;
+                const makeConfig = getModule(require(configFnPath));
+                const configObject = makeConfig(dir);
+                testConfig = JSON.stringify(configObject);
+            } catch (error) {
+                console.error(`Error creating ${framework} config.`, error);
+            }
+        });
+        console.error('==tra', testConfig);
+
         tracker.started += pkgs.length;
 
         try {
             await runTestFramework(
-                getRootDir(),
+                rootDir,
                 args,
                 env,
                 options.frameworkArgs,
                 options.debug,
                 ATTACH_JEST_DEBUGGER,
-                framework
+                framework,
+                testConfig
             );
             tracker.ended += pkgs.length;
         } catch (err) {
