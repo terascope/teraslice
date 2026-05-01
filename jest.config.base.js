@@ -28,7 +28,7 @@ export default (projectDir) => {
         parentFolder = 'packages';
         workspaceName = `packages/${name}`;
         packageRoot = `<rootDir>/${workspaceName}`;
-        rootDir = '../../';
+        rootDir = import.meta.dirname; // '../../';
     }
 
     const coverageReporters = ['lcov'];
@@ -38,7 +38,7 @@ export default (projectDir) => {
     }
 
     const config = {
-        rootDir: import.meta.dirname,
+        rootDir,
         displayName: name,
         testEnvironment: 'node',
         testTimeout: 60 * 1000,

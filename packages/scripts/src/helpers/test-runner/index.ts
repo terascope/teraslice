@@ -198,12 +198,38 @@ async function runTestSuite(
         let testConfig: string | undefined;
         const rootDir = getRootDir();
 
-        if (pkgs[0].configType === 'dynamic') {
-            // FIXME better name - it's not a config - it's a function that returns a config
-            // root/frameworks.makeFrameworkConfigForDirectories.js
-            // FIXME - make config file accept array (dirList)
+        /**
+         * STATUS
+         *
+         * thought could work w/one config,
+         * then after converting, realized the coverageDir
+         * wouldn't work and seems like writing files for all the configs,
+         * would suck but could do that, researching jest thought could restructure
+         * the "projects" config setting to be individual objects
+         * w/their own coverage dirs instead of strings, but it was
+         * throwing errors and not working so something was off with
+         * that way of doing the config
+         *
+         * never actually ran coverage, so switched back to master to see
+         * how it actually works, and realized it doesn't even work
+         * per individual directory - it chunks all the packages
+         * in the suite into the same folder, so if chunk has 4 -
+         * xlucene-parser, data-mate, job-components, and teraslice-messaging -
+         * it will put coverage for all of those inside xlucene-parser
+         * instead of individual folders.
+         *
+         * Thinking can keep it as one config and maybe just put
+         * the coverage in the root under a coverage-${suiteName}
+         * or coverage-${suiteName}-pkg if only one chunk,
+         * folder instead to be more clear where the coverage actually
+         * is but will talk w/Joseph/Peter tomorrow to make sure ok w/them
+         *
+         */
 
-            const configFnPath = `${rootDir}/${framework}.config.base.js`;
+        if (pkgs[0].configType === 'dynamic') {
+            // const configFnPath = `${rootDir}/${framework}.make-config.js`;
+            // const configFnPath = `${rootDir}/${framework}-make-configs.js`;
+            const configFnPath = `${rootDir}/${framework}.make-config.js`;
             const rootExists = fs.existsSync(configFnPath);
             if (!rootExists) {
                 const files = pkgs.length > 1 ? 'files' : 'file';
@@ -232,6 +258,8 @@ async function runTestSuite(
                 }
             }
         }
+
+        console.error('===testConfigs', testConfig);
 
         tracker.started += pkgs.length;
 
