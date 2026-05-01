@@ -61,14 +61,14 @@ export class SliceExecution {
             result = await this.executionContext.runSlice();
 
             sliceSuccess = true;
-            await this._markCompleted();
+            await this._markCompleted(result.retry_count);
         } catch (err) {
             const error = err || new Error(`Unknown slice error, got ${getTypeOf(err)} error`);
             // avoid incorrectly marking
             // the slice as failed when it fails
             // to mark it as "complete"
             if (!sliceSuccess) {
-                await this._markFailed(error);
+                await this._markFailed(error, this.executionContext.sliceState?.retry_count);
             }
             throw error;
         } finally {
@@ -143,19 +143,19 @@ export class SliceExecution {
         }
     }
 
-    private async _markCompleted() {
+    private async _markCompleted(retryCount?: number) {
         const { slice } = this;
 
-        await this.stateStorage.updateState(slice, SliceState.completed);
+        await this.stateStorage.updateState(slice, SliceState.completed, undefined, retryCount);
 
         this.logger.trace(`completed slice for execution: ${this.executionContext.exId}`, slice);
         this.events.emit('slice:success', slice);
     }
 
-    private async _markFailed(err: Error) {
+    private async _markFailed(err: Error, retryCount?: number) {
         const { stateStorage, slice } = this;
 
-        await stateStorage.updateState(slice, SliceState.error, err);
+        await stateStorage.updateState(slice, SliceState.error, err, retryCount);
 
         logError(this.logger, err, `slice state for ${this.executionContext.exId} has been marked as error`);
 

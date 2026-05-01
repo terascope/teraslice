@@ -260,6 +260,86 @@ describe('WorkerExecutionContext', () => {
         });
     });
 
+    describe('retry_count tracking', () => {
+        /**
+         * Helper that creates a WorkerExecutionContext using the flaky-reader fixture.
+         *
+         * @param failTimes  - how many times the fetcher throws before succeeding
+         * @param maxRetries - how many retries the execution config allows (default 3)
+         */
+        async function makeFlakeyContext(failTimes: number, maxRetries = 3) {
+            const executionConfig = newTestExecutionConfig({
+                max_retries: maxRetries,
+                operations: [
+                    { _op: 'flaky-reader', fail_times: failTimes },
+                    { _op: 'noop' },
+                ],
+            });
+
+            const ctx = await WorkerExecutionContext.createContext({
+                context,
+                executionConfig,
+                assetIds,
+            });
+
+            await ctx.initialize();
+            return ctx;
+        }
+
+        it('no retries — retry_count is absent when a slice succeeds on the first try', async () => {
+            const ctx = await makeFlakeyContext(0); // never fails
+            const result = await ctx.runSlice(newTestSlice());
+
+            expect(result.status).toEqual('completed');
+            // retry_count must be undefined — we don't want this field on clean slices
+            expect(result.retry_count).toBeUndefined();
+
+            await ctx.shutdown();
+        });
+
+        it('1 retry — retry_count is 1 when the slice fails once then succeeds', async () => {
+            const ctx = await makeFlakeyContext(1); // fails on attempt 1, succeeds on attempt 2
+            const result = await ctx.runSlice(newTestSlice());
+
+            expect(result.status).toEqual('completed');
+            expect(result.retry_count).toEqual(1);
+
+            await ctx.shutdown();
+        });
+
+        it('2 retries — retry_count is 2 when the slice fails twice then succeeds', async () => {
+            const ctx = await makeFlakeyContext(2); // fails on attempts 1-2, succeeds on attempt 3
+            const result = await ctx.runSlice(newTestSlice());
+
+            expect(result.status).toEqual('completed');
+            expect(result.retry_count).toEqual(2);
+
+            await ctx.shutdown();
+        });
+
+        it('3 retries — retry_count is 3 when the slice fails three times then succeeds', async () => {
+            const ctx = await makeFlakeyContext(3); // fails on attempts 1-3, succeeds on attempt 4
+            const result = await ctx.runSlice(newTestSlice());
+
+            expect(result.status).toEqual('completed');
+            expect(result.retry_count).toEqual(3);
+
+            await ctx.shutdown();
+        });
+
+        it('all retries exhausted — retry_count is still tracked on sliceState even when the slice never succeeds', async () => {
+            // fail_times(5) > max_retries(2), so all attempts throw and the slice is marked failed
+            const ctx = await makeFlakeyContext(5, 2);
+
+            await expect(ctx.runSlice(newTestSlice())).rejects.toThrow('intentional failure');
+
+            // Even though the slice failed, we still recorded how many retries were attempted
+            expect(ctx.sliceState?.retry_count).toEqual(2);
+
+            await ctx.shutdown();
+        });
+    });
+
     describe('when testing edge cases', () => {
         const executionConfig = newTestExecutionConfig();
         executionConfig.operations = [
