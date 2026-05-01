@@ -5,7 +5,7 @@ import { isCI } from '@terascope/core-utils';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default (projectDirs, coverageDir) => {
+export default (projectDirs, _coverageDir) => {
     let rootDir;
     const displayName = '';
     const parentFolders = new Set();
@@ -35,6 +35,8 @@ export default (projectDirs, coverageDir) => {
     if (!isCI) {
         coverageReporters.push('text-summary');
     }
+
+    console.error('===conf-projDirsWithPkgRoots', projDirsWithPkgRoots);
 
     const config = {
         rootDir,
@@ -71,7 +73,8 @@ export default (projectDirs, coverageDir) => {
         // so in CI we were just running 1 package at a time due to an old issue in jest,
         // seeing if will work to rename it to a root level coverage to be more
         // clear which pkgs are in the coverage folders
-        coverageDirectory: `<rootDir>/coverage/${coverageDir}`,
+        // coverageDirectory: `<rootDir>/coverage/${coverageDir}`,
+        coverageDirectory: `${projDirsWithPkgRoots[0][1]}/coverage`,
         //  coverageDirectory: projDirsWithPkgRoots.length > 1
         //     ? '<rootDir>/coverage'
         //     : `${projDirsWithPkgRoots[0][1]}/coverage`,
