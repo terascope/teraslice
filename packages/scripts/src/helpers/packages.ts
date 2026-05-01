@@ -344,7 +344,10 @@ export async function getRemotePackageVersion(
             return pkgInfo.version;
         }
         if (err instanceof PackageNotFoundError) {
-            return '0.1.0';
+            // In the case a package doesn't exist, like making a new package
+            // this will ensure it gets pushed to npm
+            // We let npm handle any issues with publishing from there
+            return '0.0.0';
         }
         throw err;
     }
