@@ -1,15 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { castArray, isCI } from '@terascope/core-utils';
+import { isCI } from '@terascope/core-utils';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default (_projectDir) => {
-    const projectDirs = castArray(_projectDir);
-
-    console.error('===!!!!', process.env);
-
+export default (projectDirs, coverageDir) => {
     let rootDir;
     const displayName = '';
     const parentFolders = new Set();
@@ -70,12 +66,15 @@ export default (_projectDir) => {
         extensionsToTreatAsEsm: ['.ts'],
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
-        // FIXME - realized this might break how coverage looks
-        // but not familiar so see what looks like in CI & break
-        // configs into individual files if needed
-        coverageDirectory: projDirsWithPkgRoots.length > 1
-            ? '<rootDir>/coverage'
-            : `${projDirsWithPkgRoots[0][1]}/coverage`,
+        // running locally multiple projects at a time w/individual jest configs
+        // the coverage doesn't go to each package - all goes to 1 of the packages,
+        // so in CI we were just running 1 package at a time due to an old issue in jest,
+        // seeing if will work to rename it to a root level coverage to be more
+        // clear which pkgs are in the coverage folders
+        coverageDirectory: `<rootDir>/coverage/${coverageDir}`,
+        //  coverageDirectory: projDirsWithPkgRoots.length > 1
+        //     ? '<rootDir>/coverage'
+        //     : `${projDirsWithPkgRoots[0][1]}/coverage`,
         workerIdleMemoryLimit: '200MB',
         globals: {
             availableExtensions: ['.js', '.ts', '.mjs', 'cjs'],
