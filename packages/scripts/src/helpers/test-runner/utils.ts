@@ -7,13 +7,14 @@ import {
 import { ArgsMap, ExecEnv, exec } from '../scripts.js';
 import { readPackageInfo } from '../packages.js';
 import { TestOptions, GroupedPackages, TestFramework, TestFrameworks } from './interfaces.js';
-import { PackageInfo, Service } from '../interfaces.js';
+import { PackageInfo } from '../interfaces.js';
 import { getServicesForSuite, getPackageManager } from '../misc.js';
 import config from '../config.js';
 import signale from '../signale.js';
-import type {
-    TestEnv, KafkaTestEnv, MinioTestEnv,
-    OpenSearchTestEnv, RabbitMQTestEnv, TerasliceServiceTestEnv
+import {
+    TestEnv, KafkaTestEnv, MinioTestEnv, Service,
+    OpenSearchTestEnv, RabbitMQTestEnv, TerasliceServiceTestEnv,
+    ValkeyTestEnv
 } from '@terascope/types';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -177,6 +178,14 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
             TEST_TERASLICE: true,
             TERASLICE_HOST: config.TERASLICE_HOST,
         } satisfies TerasliceServiceTestEnv);
+    }
+
+    if (launchServices.includes(Service.Valkey)) {
+        Object.assign(env, {
+            TEST_VALKEY: true,
+            VALKEY_HOSTNAME: config.VALKEY_HOSTNAME,
+            VALKEY_PORT: config.VALKEY_PORT,
+        } satisfies ValkeyTestEnv);
     }
 
     if (options.keepOpen) {

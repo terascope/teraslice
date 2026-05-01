@@ -22,6 +22,7 @@ export interface TestEnv {
     ENCRYPT_KAFKA?: boolean;
     ENCRYPT_MINIO?: boolean;
     ENCRYPT_OPENSEARCH?: boolean;
+    ENCRYPT_VALKEY?: boolean;
     ENCRYPTION_ENABLED?: boolean;
     ENV_SERVICES?: Service[];
     FILE_LOGGING?: boolean;
@@ -122,6 +123,7 @@ export interface TestEnv {
     TEST_PLATFORM?: 'native' | 'kubernetesV2';
     TEST_RABBITMQ?: boolean;
     TEST_RESTRAINED_OPENSEARCH?: boolean;
+    TEST_VALKEY?: boolean;
     TESTING_LOG_LEVEL?: Logger.LogLevelString;
     TZ?: string;
     USE_DEV_ASSETS?: boolean;
@@ -130,6 +132,12 @@ export interface TestEnv {
     UTILITY_SVC_VERSION?: string;
     UTILITY_SVC_DOCKER_IMAGE?: string;
     UTILITY_SVC_DOCKER_PROJECT_PATH?: string;
+    VALKEY_DOCKER_IMAGE?: string;
+    VALKEY_HOST?: string;
+    VALKEY_HOSTNAME?: string;
+    VALKEY_NAME?: string;
+    VALKEY_PORT?: number;
+    VALKEY_VERSION?: string;
     [key: string]: any;
 }
 
@@ -188,9 +196,9 @@ export type ScriptsTestEnv = RequireKeys<
     | 'DEFAULT_OPENSEARCH1_VERSION' | 'DEFAULT_OPENSEARCH2_VERSION'
     | 'DEFAULT_OPENSEARCH3_VERSION' | 'DEV_DOCKER_IMAGE' | 'DEV_TAG' | 'DOCKER_CACHE_PATH'
     | 'DOCKER_IMAGE_LIST_PATH' | 'DOCKER_IMAGES_PATH' | 'DOCKER_NETWORK_NAME'
-    | 'ENCRYPT_KAFKA' | 'ENCRYPT_MINIO' | 'ENCRYPT_OPENSEARCH' | 'ENCRYPTION_ENABLED'
-    | 'ENV_SERVICES' | 'FORCE_COLOR' | 'HOST_IP' | 'JEST_MAX_WORKERS' | 'K8S_VERSION'
-    | 'KAFKA_ADVERTISED_LISTENERS' | 'KAFKA_BROKER' | 'KAFKA_CONTROLLER_LISTENER_NAMES'
+    | 'ENCRYPT_KAFKA' | 'ENCRYPT_MINIO' | 'ENCRYPT_OPENSEARCH' | 'ENCRYPT_VALKEY'
+    | 'ENCRYPTION_ENABLED' | 'ENV_SERVICES' | 'FORCE_COLOR' | 'HOST_IP' | 'JEST_MAX_WORKERS'
+    | 'K8S_VERSION' | 'KAFKA_ADVERTISED_LISTENERS' | 'KAFKA_BROKER' | 'KAFKA_CONTROLLER_LISTENER_NAMES'
     | 'KAFKA_CONTROLLER_QUORUM_VOTERS' | 'KAFKA_DOCKER_IMAGE'
     | 'KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS' | 'KAFKA_HOSTNAME'
     | 'KAFKA_INTER_BROKER_LISTENER_NAME' | 'KAFKA_LISTENERS'
@@ -214,8 +222,10 @@ export type ScriptsTestEnv = RequireKeys<
     | 'TERASLICE_HOST' | 'TERASLICE_IMAGE' | 'TERASLICE_PORT' | 'TERASLICE_VERSION'
     | 'TEST_NAMESPACE' | 'TEST_TERASLICE' | 'USE_EXISTING_SERVICES'
     | 'UTILITY_SVC_DOCKER_IMAGE' | 'UTILITY_SVC_DOCKER_PROJECT_PATH'
-    | 'UTILITY_SVC_NAME' | 'UTILITY_SVC_VERSION'
+    | 'UTILITY_SVC_NAME' | 'UTILITY_SVC_VERSION' | 'VALKEY_DOCKER_IMAGE' | 'VALKEY_HOST'
+    | 'VALKEY_HOSTNAME' | 'VALKEY_NAME' | 'VALKEY_PORT' | 'VALKEY_VERSION'
 >;
+
 export interface TerasliceEnv {
     ASSETS?: string;
     assets_port?: number;
@@ -271,6 +281,11 @@ export interface TerafoundationEnv {
     [key: string]: any;
 }
 
+export type ValkeyTestEnv = RequireKeys<
+    TestEnv,
+    'VALKEY_HOSTNAME' | 'VALKEY_PORT'
+>;
+
 export enum Service {
     Kafka = 'kafka',
     Minio = 'minio',
@@ -278,5 +293,6 @@ export enum Service {
     Opensearch = 'opensearch',
     RestrainedOpensearch = 'restrained_opensearch',
     Utility = 'utility',
-    Teraslice = 'teraslice'
+    Teraslice = 'teraslice',
+    Valkey = 'valkey'
 }

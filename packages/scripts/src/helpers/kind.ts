@@ -17,7 +17,7 @@ const {
     DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
     OPENSEARCH_PORT, MINIO_PORT, MINIO_UI_PORT,
     KAFKA_PORT, OPENSEARCH_VERSION, ENCRYPTION_ENABLED,
-    CERT_PATH
+    CERT_PATH, VALKEY_PORT
 } = config;
 
 async function localDockerImageExists(image: string): Promise<boolean> {
@@ -107,6 +107,11 @@ export class Kind {
                         hostPort: KAFKA_PORT
                     });
                     this.deployedPorts.kafka = KAFKA_PORT;
+                } else if (service === 'valkey') {
+                    configFile.nodes[0].extraPortMappings.push({
+                        containerPort: 30379,
+                        hostPort: VALKEY_PORT
+                    });
                 }
             }
         } else {
@@ -147,6 +152,11 @@ export class Kind {
                     containerPorts: [30333],
                     hostPorts: [2333],
                     hostPath: ''
+                },
+                valkey: {
+                    containerPorts: [30379],
+                    hostPorts: [6379],
+                    hostPath: ''
                 }
             };
 
@@ -184,6 +194,10 @@ export class Kind {
                             = customConfig[service].hostPort
                                 ?? defs.hostPorts[0];
                         this.deployedPorts.kafkaUi = defs.hostPorts[1];
+                    } else if (service === 'valkey') {
+                        this.deployedPorts.valkey
+                            = customConfig[service].hostPort
+                                ?? defs.hostPorts[0];
                     }
 
                     if (customConfig[service].hostVolumePath) {

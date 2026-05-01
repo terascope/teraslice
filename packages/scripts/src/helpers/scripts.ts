@@ -13,10 +13,9 @@ import {
     pDelay, TSError, isCI,
 } from '@terascope/core-utils';
 import {
-    TSCommands, PackageInfo, Service,
-    ServiceObj
+    TSCommands, PackageInfo, ServiceObj
 } from './interfaces.js';
-import type { TestEnv } from '@terascope/types';
+import { Service, TestEnv } from '@terascope/types';
 import { getRootDir, getRootInfo, getPackageManager } from './misc.js';
 import signale from './signale.js';
 import config from './config.js';
@@ -1066,6 +1065,7 @@ function generateHelmValuesFromServices(
         [Service.RabbitMQ]: config.RABBITMQ_VERSION,
         [Service.RestrainedOpensearch]: config.OPENSEARCH_VERSION,
         [Service.Utility]: config.UTILITY_SVC_VERSION,
+        [Service.Valkey]: config.VALKEY_VERSION,
         [Service.Teraslice]: config.TERASLICE_DOCKER_IMAGE,
     };
 
@@ -1127,6 +1127,12 @@ function generateHelmValuesFromServices(
                 values.setIn(['minio', 'tls', 'publicCert'], publicCert);
                 values.setIn(['minio', 'tls', 'privateKey'], privateKey);
                 values.setIn(['minio', 'tls', 'certSecret'], 'tls-ssl-minio');
+            }
+        }
+
+        if (service === Service.Valkey) {
+            if (config.ENCRYPT_VALKEY) {
+                throw new Error('Valkey encryption not supported');
             }
         }
 

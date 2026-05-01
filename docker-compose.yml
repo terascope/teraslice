@@ -103,6 +103,15 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
     command: server --console-address ":9001" /data
 
+  valkey:
+    image: valkey/valkey:9.0.3
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+     - cluster
+    command: --port 6379 --save ''
+
 volumes:
   teraslice-assets:
     driver: local

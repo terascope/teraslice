@@ -114,7 +114,7 @@ export async function getConnectorModule<S = Record<string, any>>(
         mod = await guardedRequire(`terafoundation-${name}-connector`, errors);
     }
 
-    // Stil not found check for the @terascope namespace
+    // Still not found check for the @terascope namespace
     if (!mod) {
         mod = await guardedRequire(`@terascope/${name}`, errors);
     }
