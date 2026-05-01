@@ -146,7 +146,7 @@ async function runTestSuite(
         const exists = fs.existsSync(`${_pkgInfo.dir}/${framework}.config.js`);
 
         const pkgInfo = _pkgInfo as PackageInfo & { configType: 'dynamic' | 'custom' };
-        pkgInfo.configType = exists ? 'dynamic' : 'custom';
+        pkgInfo.configType = exists ? 'custom' : 'dynamic';
 
         const group = exists ? customConfigPkgs : dynamicConfigPkgs;
         group.push(pkgInfo);
