@@ -5,7 +5,7 @@ import {
     isCI, pMap, toCamelCase
 } from '@terascope/core-utils';
 import { TestEnv } from '@terascope/types';
-import fs from 'node:fs';
+import fs from 'fs-extra';
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
@@ -174,6 +174,7 @@ async function runTestSuite(
 
     const env = printAndGetEnv(suite, options);
 
+    let configFile: string | undefined;
     for (const pkgs of chunked) {
         if (!pkgs.length) continue;
         if (pkgs.length === 1) {
@@ -185,7 +186,10 @@ async function runTestSuite(
         const args = getArgs(options, framework);
 
         const dirs: string[] = [];
-        args.projects = pkgs.map(
+
+        // doesn't work
+        // args.projects =
+        pkgs.map(
             (pkgInfo) => {
                 dirs.push(pkgInfo.dir);
                 if (pkgInfo.relativeDir.length) {
@@ -195,7 +199,6 @@ async function runTestSuite(
             }
         );
 
-        let testConfig: string | undefined;
         const rootDir = getRootDir();
 
         if (pkgs[0].configType === 'dynamic') {
@@ -222,7 +225,14 @@ async function runTestSuite(
                     const configObject = makeConfig(
                         dirs, `${suite}-${pkgList.join('-')}`
                     );
-                    testConfig = JSON.stringify(configObject);
+
+                    // eslint-disable-next-line @stylistic/max-len
+                    // configFile = `${rootDir}/test-configs/${framework}/${suite}/${pkgList.join('-')}.js`;
+                    // configFile = `${rootDir}/${pkgList.join('-')}.js`;
+                    configFile = `${rootDir}/jest.custom.config.js`;
+                    // testConfig = `${rootDir}/packages/scripts/jest.config.js`;
+                    fs.outputFileSync(configFile, `export default ${JSON.stringify(configObject, null, 2)};`);
+                    // testConfig = JSON.stringify(configObject);
                 } catch (error) {
                     console.error(`Error creating ${framework} config.`, error);
                 }
@@ -240,7 +250,7 @@ async function runTestSuite(
                 options.debug,
                 ATTACH_JEST_DEBUGGER,
                 framework,
-                testConfig
+                configFile
             );
             tracker.ended += pkgs.length;
         } catch (err) {
@@ -255,6 +265,9 @@ async function runTestSuite(
                 break;
             }
         }
+    }
+    if (configFile) {
+        fs.removeSync(configFile);
     }
 
     if (!options.keepOpen) {

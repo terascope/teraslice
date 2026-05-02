@@ -22,12 +22,13 @@ export default (projectDirs, _coverageDir) => {
                     return [projectDir, '<rootDir>'];
                 } else {
                     rootDir = '../';
-                    return [projectDir, `<rootDir>/${name}`];
+                    return [projectDir, `<rootDir>${name}`];
                 }
             }
             parentFolders.add('packages');
-            rootDir = import.meta.dirname; // '../../';
-            return [projectDir, `<rootDir>/${`packages/${name}`}`];
+            rootDir = import.meta.dirname;
+            if (!rootDir.endsWith('/')) rootDir += '/';
+            return [projectDir, `<rootDir>packages/${name}`];
         });
 
     const coverageReporters = ['lcov'];
@@ -52,11 +53,11 @@ export default (projectDirs, _coverageDir) => {
         ),
         testPathIgnorePatterns: [...parentFolders].flatMap(
             (parentFolder) => [
-                `<rootDir>/${parentFolder}/*/node_modules`,
-                `<rootDir>/${parentFolder}/*/dist`,
-                `<rootDir>/${parentFolder}/teraslice-cli/test/fixtures/`
+                `<rootDir>${parentFolder}/*/node_modules`,
+                `<rootDir>${parentFolder}/*/dist`,
+                `<rootDir>${parentFolder}/teraslice-cli/test/fixtures/`
             ]
-        ).concat(['<rootDir>/assets']),
+        ).concat(['<rootDir>assets']),
         // do not run transforms on node_modules or pnp files
         transformIgnorePatterns: [
             '/node_modules/',
@@ -73,11 +74,7 @@ export default (projectDirs, _coverageDir) => {
         // so in CI we were just running 1 package at a time due to an old issue in jest,
         // seeing if will work to rename it to a root level coverage to be more
         // clear which pkgs are in the coverage folders
-        // coverageDirectory: `<rootDir>/coverage/${coverageDir}`,
         coverageDirectory: `${projDirsWithPkgRoots[0][1]}/coverage`,
-        //  coverageDirectory: projDirsWithPkgRoots.length > 1
-        //     ? '<rootDir>/coverage'
-        //     : `${projDirsWithPkgRoots[0][1]}/coverage`,
         workerIdleMemoryLimit: '200MB',
         globals: {
             availableExtensions: ['.js', '.ts', '.mjs', 'cjs'],
