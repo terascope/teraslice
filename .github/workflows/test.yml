@@ -166,9 +166,9 @@ jobs:
       - name: Test
         env:
           REPORT_COVERAGE: true
-          # Only run one test per batch for now because jest will only create code
-          # coverage for the first package in the batch
-          # https://github.com/jestjs/jest/issues/4255
+          # We used to only run one test per batch because jest only creates code coverage
+          # for the first package in the batch https://github.com/jestjs/jest/issues/4255,
+          # think this is fixed, but if issues arrise just reduce back down to 1
           MAX_PROJECTS_PER_BATCH: 5
         run: pnpm run test --suite unit --
 

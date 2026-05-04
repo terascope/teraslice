@@ -58,7 +58,6 @@ export default (projectDirs, _coverageDir) => {
                 `<rootDir>${parentFolder}/teraslice-cli/test/fixtures/`
             ]
         ).concat(['<rootDir>assets']),
-        // do not run transforms on node_modules or pnp files
         transformIgnorePatterns: [
             '/node_modules/',
             '\\.pnp\\.[^\\/]+$'],
@@ -72,9 +71,7 @@ export default (projectDirs, _coverageDir) => {
         // running locally multiple projects at a time w/individual jest configs
         // the coverage doesn't go to each package - all goes to 1 of the packages,
         // so in CI we were just running 1 package at a time due to an old issue in jest,
-        // seeing if will work to rename it to a root level coverage to be more
-        // clear which pkgs are in the coverage folders
-        coverageDirectory: `${projDirsWithPkgRoots[0][1]}/coverage`,
+        coverageDirectory: 'coverage',
         workerIdleMemoryLimit: '200MB',
         globals: {
             availableExtensions: ['.js', '.ts', '.mjs', 'cjs'],
