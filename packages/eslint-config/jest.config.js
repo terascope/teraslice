@@ -1,9 +1,9 @@
 import { fileURLToPath } from 'node:url';
-import baseConfig from '../../jest.config.base.js';
+import makeConfig from '../../jest.make-config.js';
 
 const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
-const config = baseConfig(dirPath);
+const config = makeConfig([dirPath]);
 
 config.globals.window = {};
 

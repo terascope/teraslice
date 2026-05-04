@@ -127,43 +127,28 @@ async function runTestSuite(
 ): Promise<void> {
     if (suite === 'e2e') return;
 
-    if (isCI) {
-        // load the services from cache in CI
-        await loadOrPullServiceImages(options.forceSuite || suite, options.skipImageDeletion);
-    }
-
-    const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
-
     if (options.watch && pkgInfos.length > MAX_PROJECTS_PER_BATCH) {
         throw new Error(
             `Running more than ${MAX_PROJECTS_PER_BATCH} packages will cause memory leaks`
         );
     }
 
-    const dynamicConfigPkgs: (PackageInfo & { configType: 'dynamic' | 'custom' })[] = [];
-    const customConfigPkgs: (PackageInfo & { configType: 'dynamic' | 'custom' })[] = [];
-    pkgInfos.forEach((_pkgInfo) => {
-        const exists = fs.existsSync(`${_pkgInfo.dir}/${framework}.config.js`);
+    if (isCI) {
+        // load the services from cache in CI
+        await loadOrPullServiceImages(options.forceSuite || suite, options.skipImageDeletion);
+    }
 
-        const pkgInfo = _pkgInfo as PackageInfo & { configType: 'dynamic' | 'custom' };
-        pkgInfo.configType = exists ? 'custom' : 'dynamic';
+    const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
+    const chunked = getTestChunks(pkgInfos, framework, CHUNK_SIZE);
 
-        const group = exists ? customConfigPkgs : dynamicConfigPkgs;
-        group.push(pkgInfo);
-    });
-
-    tracker.expected += pkgInfos.length;
-    const chunkedDynamic = chunk(dynamicConfigPkgs, CHUNK_SIZE);
-    const chunkedCustom = chunk(customConfigPkgs, CHUNK_SIZE);
-    const chunked = chunkedDynamic.concat(chunkedCustom);
-
-    // don't log unless this useful information (more than one package)
+    // don't log unless useful (more than one package)
     if (chunked.length > 1 && chunked[0].length > 1) {
         writeHeader(`Running test suite "${suite}"`, false);
     }
 
     const cleanupKeys: string[] = [`${suite}:services`];
 
+    tracker.expected += pkgInfos.length;
     tracker.addCleanup(
         `${suite}:services`,
         await ensureServices(options.forceSuite || suite, options, path.join(process.cwd(), 'logs'))
@@ -185,11 +170,9 @@ async function runTestSuite(
 
         const args = getArgs(options, framework);
 
+        const rootDir = getRootDir();
         const dirs: string[] = [];
-
-        // doesn't work
-        // args.projects =
-        pkgs.map(
+        const projects = pkgs.map(
             (pkgInfo) => {
                 dirs.push(pkgInfo.dir);
                 if (pkgInfo.relativeDir.length) {
@@ -199,43 +182,17 @@ async function runTestSuite(
             }
         );
 
-        const rootDir = getRootDir();
-
         if (pkgs[0].configType === 'dynamic') {
-            const configFnPath = `${rootDir}/${framework}.make-config.js`;
-            const rootExists = fs.existsSync(configFnPath);
-            if (!rootExists) {
-                const files = pkgs.length > 1 ? 'files' : 'file';
-                const dirList = `"${dirs.join('", "')}"`;
-                signale.error(`
-                    Unable to find file "${configFnPath}". 
-                    Recommend creating one to dynamically create the config OR 
-                    adding individual config ${files} in each of these directories ${dirList}
-                `);
-            } else {
-                function getModule(module: any) {
-                    if ('default' in module) return getModule(module.default);
-                    return module;
-                }
-                try {
-                    const makeConfig = getModule(require(configFnPath));
-                    const pkgList = pkgs.map(
-                        ({ name }) => toCamelCase(name.replace('@terascope/', '')).trim()
-                    );
-                    const configObject = makeConfig(
-                        dirs, `${suite}-${pkgList.join('-')}`
-                    );
-
-                    // eslint-disable-next-line @stylistic/max-len
-                    // configFile = `${rootDir}/test-configs/${framework}/${suite}/${pkgList.join('-')}.js`;
-                    // configFile = `${rootDir}/${pkgList.join('-')}.js`;
-                    configFile = `${rootDir}/jest.custom.config.js`;
-                    // testConfig = `${rootDir}/packages/scripts/jest.config.js`;
-                    fs.outputFileSync(configFile, `export default ${JSON.stringify(configObject, null, 2)};`);
-                    // testConfig = JSON.stringify(configObject);
-                } catch (error) {
-                    console.error(`Error creating ${framework} config.`, error);
-                }
+            configFile = ensureConfigFile(suite, rootDir, framework, dirs, pkgs);
+        } else {
+            /**
+             * Jest's --projects requires specified project(s) to contain a jest.config file, if
+             * configType is 'dynamic' we don't want --projects as we have a shared config file
+             * at root instead of project level, that will dynamically be created/deleted as the
+             * test runs passed to jest with the --config flag
+             */
+            if (framework === 'jest') {
+                args.projects = projects;
             }
         }
 
@@ -275,6 +232,69 @@ async function runTestSuite(
     }
 
     signale.timeEnd(timeLabel);
+}
+
+function getTestChunks(pkgInfos: PackageInfo[], framework: TestFramework, CHUNK_SIZE: number) {
+    const dynamicConfigPkgs: (PackageInfo & { configType: 'dynamic' | 'custom' })[] = [];
+    const customConfigPkgs: (PackageInfo & { configType: 'dynamic' | 'custom' })[] = [];
+    pkgInfos.forEach((_pkgInfo) => {
+        const exists = fs.existsSync(`${_pkgInfo.dir}/${framework}.config.js`);
+
+        const pkgInfo = _pkgInfo as PackageInfo & { configType: 'dynamic' | 'custom' };
+        pkgInfo.configType = exists ? 'custom' : 'dynamic';
+
+        const group = exists ? customConfigPkgs : dynamicConfigPkgs;
+        group.push(pkgInfo);
+    });
+
+    const chunkedDynamic = chunk(dynamicConfigPkgs, CHUNK_SIZE);
+    const chunkedCustom = chunk(customConfigPkgs, CHUNK_SIZE);
+    return chunkedDynamic.concat(chunkedCustom);
+}
+
+/**
+ * looks for framework.make-config.js, and if it finds it will
+ * write a config file at rootDir/framework.custom.config.js,
+ * returning that path
+ *
+ */
+function ensureConfigFile(
+    suite: string, rootDir: string, framework: string, dirs: string[], pkgs: PackageInfo[]
+) {
+    let configFile: string | undefined;
+
+    const configFnPath = `${rootDir}/${framework}.make-config.js`;
+    const rootExists = fs.existsSync(configFnPath);
+    if (!rootExists) {
+        const files = pkgs.length > 1 ? 'files' : 'file';
+        const dirList = `"${dirs.join('", "')}"`;
+        signale.error(`
+            Unable to find file "${configFnPath}". 
+            Recommend creating one to dynamically create the config OR 
+            adding individual config ${files} in each of these directories ${dirList}
+        `);
+    } else {
+        function getModule(module: any) {
+            if ('default' in module) return getModule(module.default);
+            return module;
+        }
+        try {
+            const makeConfig = getModule(require(configFnPath));
+            const pkgList = pkgs.map(
+                ({ name }) => toCamelCase(name.replace('@terascope/', '')).trim()
+            );
+            const configObject = makeConfig(
+                dirs, `${suite}-${pkgList.join('-')}`
+            );
+
+            configFile = `${rootDir}/${framework}.custom.config.js`;
+            fs.outputFileSync(configFile, `export default ${JSON.stringify(configObject, null, 2)};`);
+        } catch (error) {
+            console.error(`Error creating ${framework} config.`, error);
+        }
+    }
+
+    return configFile;
 }
 
 async function runE2ETest(
