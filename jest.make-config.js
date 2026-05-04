@@ -12,17 +12,17 @@ export default (projectDirs) => {
 
     const runInDir = process.cwd() !== dirname;
 
-    const projDirsWithPkgRoots = projectDirs.map(
+    const projDirsWithPkgRootsCoverage = projectDirs.map(
         (projectDir) => {
             const name = path.basename(projectDir);
             if (name === 'e2e') {
                 parentFolders.add(name);
                 if (runInDir) {
                     rootDir = './';
-                    return [projectDir, '<rootDir>'];
+                    return [projectDir, '<rootDir>', '<rootDir'];
                 } else {
                     rootDir = '../';
-                    return [projectDir, `<rootDir>${name}`];
+                    return [projectDir, `<rootDir>${name}`, `<rootDir>coverage/packages/${name}`];
                 }
             }
             parentFolders.add('packages');
@@ -43,8 +43,8 @@ export default (projectDirs) => {
         testEnvironment: 'node',
         testTimeout: 60 * 1000,
         setupFilesAfterEnv: ['jest-extended/all'],
-        testMatch: projDirsWithPkgRoots.flatMap(
-            ([_, packageRoot]) => [
+        testMatch: projDirsWithPkgRootsCoverage.flatMap(
+            ([_dir, packageRoot, _cov]) => [
                 `${packageRoot}/test/**/*-spec.{ts,js}`,
                 `${packageRoot}/test/*-spec.{ts,js}`
             ]
@@ -68,7 +68,7 @@ export default (projectDirs) => {
         watchPathIgnorePatterns: [],
         // collect in first package's folder, CI combines them altogether,
         // I tried collecting in a root coverage folder but didn't quite work
-        coverageDirectory: `<rootDir>coverage/${projDirsWithPkgRoots[0][1]}`,
+        coverageDirectory: projDirsWithPkgRootsCoverage[0][2],
         workerIdleMemoryLimit: '200MB',
         globals: {
             availableExtensions: ['.js', '.ts', '.mjs', 'cjs'],
@@ -97,12 +97,12 @@ export default (projectDirs) => {
                     }
                 }]
         },
-        roots: projDirsWithPkgRoots.map(([_, packageRoot]) => `${packageRoot}/test`),
+        roots: projDirsWithPkgRootsCoverage.map(([_dir, packageRoot, _cov]) => `${packageRoot}/test`),
         collectCoverage: true,
         coverageReporters: coverageReporters
     };
 
-    projDirsWithPkgRoots.forEach(([projectDir, packageRoot]) => {
+    projDirsWithPkgRootsCoverage.forEach(([projectDir, packageRoot, _cov]) => {
         if (fs.existsSync(path.join(projectDir, 'test/global.setup.js'))) {
             config.globalSetup = `${packageRoot}/test/global.setup.js`;
         } else if (fs.existsSync(path.join(projectDir, 'test/global.setup.ts'))) {
