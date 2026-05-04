@@ -5,7 +5,7 @@ import { isCI } from '@terascope/core-utils';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default (projectDirs, _coverageDir) => {
+export default (projectDirs, coverageDir) => {
     let rootDir;
     const displayName = '';
     const parentFolders = new Set();
@@ -68,10 +68,9 @@ export default (projectDirs, _coverageDir) => {
         extensionsToTreatAsEsm: ['.ts'],
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
-        // running locally multiple projects at a time w/individual jest configs
-        // the coverage doesn't go to each package - all goes to 1 of the packages,
-        // so in CI we were just running 1 package at a time due to an old issue in jest,
-        coverageDirectory: 'coverage',
+        // collect in first package's folder, CI combines them altogether,
+        // I tried collecting in a root coverage folder but didn't quite work
+        coverageDirectory: coverageDir ? `<rootDir>coverage/${coverageDir}` : `<rootDir>coverage/${projDirsWithPkgRoots[0][1]}`,
         workerIdleMemoryLimit: '200MB',
         globals: {
             availableExtensions: ['.js', '.ts', '.mjs', 'cjs'],
