@@ -229,9 +229,9 @@ export async function runTestFramework(
         args.push(frameworkConfig);
     }
 
-    // if (debug) {
-    signale.debug(`executing ${framework}: ${args.join(' ')}`);
-    // }
+    if (debug) {
+        signale.debug(`executing ${framework}: ${args.join(' ')}`);
+    }
 
     await fork({
         cmd: pm,

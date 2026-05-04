@@ -5,7 +5,7 @@ import { isCI } from '@terascope/core-utils';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default (projectDirs, coverageDir) => {
+export default (projectDirs) => {
     let rootDir;
     const displayName = '';
     const parentFolders = new Set();
@@ -36,8 +36,6 @@ export default (projectDirs, coverageDir) => {
     if (!isCI) {
         coverageReporters.push('text-summary');
     }
-
-    console.error('===conf-projDirsWithPkgRoots', projDirsWithPkgRoots);
 
     const config = {
         rootDir,
@@ -70,7 +68,7 @@ export default (projectDirs, coverageDir) => {
         watchPathIgnorePatterns: [],
         // collect in first package's folder, CI combines them altogether,
         // I tried collecting in a root coverage folder but didn't quite work
-        coverageDirectory: coverageDir ? `<rootDir>coverage/${coverageDir}` : `<rootDir>coverage/${projDirsWithPkgRoots[0][1]}`,
+        coverageDirectory: `<rootDir>coverage/${projDirsWithPkgRoots[0][1]}`,
         workerIdleMemoryLimit: '200MB',
         globals: {
             availableExtensions: ['.js', '.ts', '.mjs', 'cjs'],

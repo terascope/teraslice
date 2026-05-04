@@ -2,7 +2,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import {
     debugLogger, chunk, TSError,
-    isCI, pMap, toCamelCase
+    isCI, pMap
 } from '@terascope/core-utils';
 import { TestEnv } from '@terascope/types';
 import fs from 'fs-extra';
@@ -35,6 +35,10 @@ import { TestTracker } from './tracker.js';
 import config from '../config.js';
 
 const require = createRequire(import.meta.url);
+function getModule(module: any) {
+    if ('default' in module) return getModule(module.default);
+    return module;
+}
 
 const {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E,
@@ -274,23 +278,13 @@ function ensureConfigFile(
             adding individual config ${files} in each of these directories ${dirList}
         `);
     } else {
-        function getModule(module: any) {
-            if ('default' in module) return getModule(module.default);
-            return module;
-        }
         try {
             const makeConfig = getModule(require(configFnPath));
-            const pkgList = pkgs.map(
-                ({ name }) => toCamelCase(name.replace('@terascope/', '')).trim()
-            );
-            const configObject = makeConfig(
-                dirs, `${suite}-${pkgList.join('-')}`
-            );
-
+            const configObject = makeConfig(dirs);
             configFile = `${rootDir}/${framework}.custom.config.js`;
             fs.outputFileSync(configFile, `export default ${JSON.stringify(configObject, null, 2)};`);
         } catch (error) {
-            console.error(`Error creating ${framework} config.`, error);
+            signale.error(`Error creating ${framework} config.`, error);
         }
     }
 
