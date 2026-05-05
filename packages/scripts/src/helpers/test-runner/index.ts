@@ -227,13 +227,14 @@ async function runTestSuite(
             }
         }
     }
-    if (configFile) {
-        fs.removeSync(configFile);
-    }
 
     if (!options.keepOpen) {
         await pMap(cleanupKeys, (key) => tracker.runCleanupByKey(key));
     }
+
+    // if (configFile) {
+    //     fs.removeSync(configFile);
+    // }
 
     signale.timeEnd(timeLabel);
 }
