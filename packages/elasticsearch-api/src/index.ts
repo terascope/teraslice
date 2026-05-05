@@ -359,7 +359,13 @@ export default function elasticsearchApi(
                         // only in tests where the bulk function is mocked
                         throw new Error(`Invalid item index (${i}), not found in bulk send records (length: ${actionRecords.length})`);
                     }
-                    logger.debug({ index: item._index, id: item._id, status: item.status, errorType: item.error.type, itemIndex: i }, 'bulk item queued for retry: queue overflow or 429');
+                    logger.debug({
+                        index: item._index,
+                        id: item._id,
+                        status: item.status,
+                        errorType: item.error.type,
+                        itemIndex: i,
+                    }, 'bulk item queued for retry: queue overflow or 429');
                     // the index in the item list will match the index in the
                     // input records
                     retry.push(actionRecords[i]);
@@ -451,14 +457,14 @@ export default function elasticsearchApi(
         const results = response.body ? response.body : response;
 
         if (!results.errors) {
-            const count = results.items.reduce((c: number, item: Record<string, any>) => {
+            const successCount = results.items.reduce((c: number, item: Record<string, any>) => {
                 const [value] = Object.values(item);
                 // ignore non-successful status codes
                 if (value.status != null && value.status >= 400) return c;
                 return c + 1;
             }, 0);
-            logger.trace({ successful: count, total: results.items.length }, 'bulk send completed with no errors');
-            return count;
+            logger.trace({ successful: successCount, total: results.items.length }, 'bulk send completed with no errors');
+            return successCount;
         }
 
         logger.debug({ itemCount: results.items.length }, 'bulk response contains errors, filtering retry records');
@@ -753,10 +759,15 @@ export default function elasticsearchApi(
                     .then((data: Record<string, any>) => {
                         const failuresReasons = [];
                         const results = data.body ? data.body : data;
-                        const { failures, failed, total, successful: shardsSuccessful } = results._shards;
+                        const {
+                            failures, failed, total, successful: shardsSuccessful
+                        } = results._shards;
 
                         if (!failed) {
-                            logger.trace({ shards: { total, successful: shardsSuccessful }, hits: get(results, 'hits.total.value', get(results, 'hits.total')) }, 'search succeeded');
+                            logger.trace({
+                                shards: { total, successful: shardsSuccessful },
+                                hits: get(results, 'hits.total.value', get(results, 'hits.total')),
+                            }, 'search succeeded');
                             resolve(results);
                             return;
                         }
@@ -768,7 +779,7 @@ export default function elasticsearchApi(
                             flatten(failuresReasons.map((shard) => shard.reason.type))
                         ) as string[];
 
-                        // Build a human-readable summary that includes the reason text and any nested caused_by
+                        // Build a human-readable summary including reason text and nested caused_by
                         const reasonSummaries = failuresReasons.map((shard: any) => ({
                             shard: shard.shard,
                             index: shard.index,
@@ -962,9 +973,9 @@ export default function elasticsearchApi(
                             fnName,
                             connection,
                             statusCode,
-                            // TODO: same concern as the logger above — responseBody can be
-                            // large and may reflect request data. rootCauses/causedBy are
-                            // the actionable parts. Enable if full body is needed in the error chain.
+                            // TODO: same concern as the logger above — responseBody can be large
+                            // and may reflect request data. rootCauses/causedBy are the
+                            // actionable parts. Enable if full body is needed in the error chain.
                             // responseBody,
                             rootCauses,
                             causedBy,
@@ -1345,7 +1356,9 @@ export default function elasticsearchApi(
                             },
                         });
 
-                        logger.error({ err: error, newIndex, migrantIndexName, clusterName, connection }, 'failure to create index, will retry');
+                        logger.error({
+                            err: error, newIndex, migrantIndexName, clusterName, connection
+                        }, 'failure to create index, will retry');
                         logger.info({ clientName }, 'attempting to connect to elasticsearch');
 
                         return _createIndex(
