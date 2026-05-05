@@ -169,7 +169,7 @@ jobs:
            # We used to do 1 at a time - possibly due to this old issue https://github.com/jestjs/jest/issues/4255
           # but coverage % looks the same running 1 or 5 so switched to 5, and if becomes an
           # issue we can go back to 1
-          MAX_PROJECTS_PER_BATCH: 5
+          MAX_PROJECTS_PER_BATCH: 1
         run: pnpm run test --suite unit --
 
       - name: Upload Node ${{ matrix.node-version }} unit test coverage
