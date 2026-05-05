@@ -5,7 +5,7 @@ import { isCI } from '@terascope/core-utils';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default (projectDirs, collectCoverageFromPkgs = true) => {
+export default (projectDirs) => {
     let rootDir;
     const displayName = '';
     const parentFolders = new Set();
@@ -103,11 +103,6 @@ export default (projectDirs, collectCoverageFromPkgs = true) => {
                 }]
         }
     };
-
-    // --projects flag can conflict
-    if (collectCoverageFromPkgs) {
-        config.collectCoverageFrom = ['packages/*/src/**/*.ts'];
-    }
 
     projDirsPkgRootsCovDirs.forEach(([projectDir, packageRoot, _cov]) => {
         if (fs.existsSync(path.join(projectDir, 'test/global.setup.js'))) {
