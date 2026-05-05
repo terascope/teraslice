@@ -79,6 +79,7 @@ export default function elasticsearchApi(
     const { connection = 'unknown' } = config;
 
     async function count(query: ClientParams.CountParams) {
+        logger.trace({ query }, 'count called');
         const countQuery = {
             ...query,
             size: 0
@@ -86,6 +87,7 @@ export default function elasticsearchApi(
         const response = await _searchES(countQuery);
 
         const data = get(response, 'hits.total.value', get(response, 'hits.total'));
+        logger.trace({ index: query.index, count: data }, 'count result');
 
         return data as number;
     }
@@ -115,17 +117,22 @@ export default function elasticsearchApi(
     async function search(
         query: ClientParams.SearchParams
     ): Promise<ClientResponse.SearchResponse | any[]> {
+        logger.trace({ query }, 'search called');
         const data = await _searchES(query);
 
         if (config.full_response) {
+            logger.trace({ total: get(data, 'hits.total.value', get(data, 'hits.total')) }, 'search returning full response');
             return data;
         }
 
-        if (!data.hits.hits) return [] as unknown as ClientResponse.SearchResponse;
+        if (!data.hits.hits) {
+            logger.debug({ query }, 'search returned no hits');
+            return [] as unknown as ClientResponse.SearchResponse;
+        }
 
-        return data.hits.hits.map(
-            convertDocToDataEntity
-        ) as unknown as ClientResponse.SearchResponse;
+        const hits = data.hits.hits.map(convertDocToDataEntity);
+        logger.trace({ index: query.index, count: hits.length, total: get(data, 'hits.total.value', get(data, 'hits.total')) }, 'search result');
+        return hits as unknown as ClientResponse.SearchResponse;
     }
 
     function _makeRequest(
@@ -139,9 +146,11 @@ export default function elasticsearchApi(
             const errHandler = _errorHandler(_runRequest, query, reject, fnName);
 
             function _runRequest() {
+                logger.trace({ fnName, query }, `making request to ${fnName}`);
                 clientBase[endpoint](query)
                     .then((rawResponse: ClientResponse.SearchResponse) => {
                         const response = get(rawResponse, 'body', rawResponse);
+                        logger.trace({ fnName }, `request to ${fnName} succeeded`);
                         resolve(response);
                     })
                     .catch(errHandler);
@@ -160,20 +169,22 @@ export default function elasticsearchApi(
     }
 
     async function mget(query: ClientParams.MGetParams, fullResponse = false) {
+        logger.trace({ query, fullResponse }, 'mget called');
         const results: any = await _clientRequest('mget', query);
 
         if (fullResponse) return results;
-        return results.docs
-            .filter((doc: any) => doc.found)
-            .map(convertDocToDataEntity);
+        const docs = results.docs.filter((doc: any) => doc.found);
+        logger.trace({ requested: results.docs.length, found: docs.length }, 'mget result');
+        return docs.map(convertDocToDataEntity);
     }
 
     async function getFn(query: ClientParams.GetParams, fullResponse = false): Promise<any> {
+        logger.trace({ query, fullResponse }, 'get called');
         if (fullResponse) {
             return _clientRequest('get', query);
         }
         const records = await _clientRequest('get', query) as SearchResult;
-
+        logger.trace({ index: query.index, id: query.id }, 'get result found');
         return convertDocToDataEntity(records);
     }
 
@@ -283,6 +294,7 @@ export default function elasticsearchApi(
             .then((results) => {
                 const settingsData = results.body && results.meta ? results.body : results;
                 const resultIndex = _verifyIndex(settingsData, config.index as string);
+                logger.debug({ index: config.index, found: resultIndex.found, windowSizes: resultIndex.indexWindowSize }, 'index settings retrieved');
 
                 if (resultIndex.found) {
                     resultIndex.indexWindowSize.forEach((ind) => {
@@ -291,6 +303,7 @@ export default function elasticsearchApi(
                         );
                     });
                 } else {
+                    logger.error({ index: config.index, connection }, 'index specified in reader does not exist');
                     const error = new TSError('index specified in reader does not exist', {
                         statusCode: 404,
                     });
@@ -299,7 +312,10 @@ export default function elasticsearchApi(
 
                 return Promise.resolve();
             })
-            .catch((err) => Promise.reject(new TSError(err)));
+            .catch((err) => {
+                logger.error({ err, index: config.index, connection }, 'failed to get index settings');
+                return Promise.reject(new TSError(err));
+            });
     }
 
     async function putTemplate(template: Record<string, any>, name: string): Promise<any> {
@@ -333,6 +349,7 @@ export default function elasticsearchApi(
                 // On a create request if a document exists it's not an error.
                 // are there cases where this is incorrect?
                 if (item.status === DOCUMENT_EXISTS) {
+                    logger.trace({ index: item._index, id: item._id }, 'bulk item skipped: document already exists (409)');
                     continue;
                 }
 
@@ -342,6 +359,13 @@ export default function elasticsearchApi(
                         // only in tests where the bulk function is mocked
                         throw new Error(`Invalid item index (${i}), not found in bulk send records (length: ${actionRecords.length})`);
                     }
+                    logger.debug({
+                        index: item._index,
+                        id: item._id,
+                        status: item.status,
+                        errorType: item.error.type,
+                        itemIndex: i,
+                    }, 'bulk item queued for retry: queue overflow or 429');
                     // the index in the item list will match the index in the
                     // input records
                     retry.push(actionRecords[i]);
@@ -351,19 +375,39 @@ export default function elasticsearchApi(
                 ) {
                     nonRetriableError = true;
                     reason = `${item.error.type}--${item.error.reason}`;
+                    logger.error({
+                        index: item._index,
+                        id: item._id,
+                        status: item.status,
+                        errorType: item.error.type,
+                        errorReason: item.error.reason,
+                        causedBy: item.error.caused_by,
+                        itemIndex: i,
+                    }, 'bulk item non-retriable error');
 
                     if (config._dead_letter_action === 'kafka_dead_letter') {
+                        logger.debug({ index: item._index, id: item._id, reason }, 'bulk item routed to dead letter queue');
                         // @ts-expect-error
                         actionRecords[i].data.setMetadata('_bulk_sender_rejection', reason);
                         continue;
                     }
 
                     break;
+                } else {
+                    logger.trace({ index: item._index, id: item._id, errorType: item.error.type }, 'bulk item skipped: benign error type');
                 }
             } else if (item.status == null || item.status < 400) {
                 successful++;
             }
         }
+
+        logger.debug({
+            total: items.length,
+            successful,
+            retryCount: retry.length,
+            nonRetriableError,
+            reason: nonRetriableError ? reason : undefined,
+        }, 'bulk filter complete');
 
         if (nonRetriableError) {
             // if dlq active still attempt the retries
@@ -387,6 +431,8 @@ export default function elasticsearchApi(
         previousRetryDelay = 0
         // TODO: why are we returning a number?
     ): Promise<number> {
+        logger.trace({ recordCount: actionRecords.length, previousCount, previousRetryDelay }, 'bulk send starting');
+
         const body = actionRecords.flatMap((record: Record<string, any>, index) => {
             if (record.action == null) {
                 let dbg = '';
@@ -411,26 +457,33 @@ export default function elasticsearchApi(
         const results = response.body ? response.body : response;
 
         if (!results.errors) {
-            return results.items.reduce((c: number, item: Record<string, any>) => {
+            const successCount = results.items.reduce((c: number, item: Record<string, any>) => {
                 const [value] = Object.values(item);
                 // ignore non-successful status codes
                 if (value.status != null && value.status >= 400) return c;
                 return c + 1;
             }, 0);
+            logger.trace({ successful: successCount, total: results.items.length }, 'bulk send completed with no errors');
+            return successCount;
         }
+
+        logger.debug({ itemCount: results.items.length }, 'bulk response contains errors, filtering retry records');
 
         const {
             retry, successful, error, reason
         } = _filterRetryRecords(actionRecords, results);
 
         if (error && config._dead_letter_action !== 'kafka_dead_letter') {
+            logger.error({ reason, recordCount: actionRecords.length }, 'bulk send failed with non-retriable error');
             throw new Error(`bulk send error: ${reason}`);
         }
 
         if (retry.length === 0) {
+            logger.debug({ successful: previousCount + successful }, 'bulk send complete, no retries needed');
             return previousCount + successful;
         }
 
+        logger.debug({ retryCount: retry.length, successful, previousCount }, 'bulk send scheduling retries');
         return _handleRetries(retry, previousCount + successful, previousRetryDelay);
     }
 
@@ -439,9 +492,11 @@ export default function elasticsearchApi(
         affectedCount: number,
         previousRetryDelay: number
     ) {
+        logger.debug({ retryCount: retry.length, affectedCount, previousRetryDelay }, 'bulk retrying overloaded records');
         warning();
 
         const nextRetryDelay = await _awaitRetry(previousRetryDelay);
+        logger.debug({ nextRetryDelay, retryCount: retry.length }, 'bulk retry delay complete, resubmitting');
         return _bulkSend(retry, affectedCount, nextRetryDelay);
     }
 
@@ -454,6 +509,7 @@ export default function elasticsearchApi(
         if (!Array.isArray(data)) {
             throw new Error(`Expected bulkSend to receive an array, got ${data} (${getTypeOf(data)})`);
         }
+        logger.trace({ recordCount: data.length }, 'bulkSend called');
         return _bulkSend(data as any);
     }
 
@@ -697,37 +753,66 @@ export default function elasticsearchApi(
             const retry = _retryFn(_performSearch, query, reject);
 
             function _performSearch(queryParam: Record<string, any>) {
+                logger.trace({ query: queryParam }, 'executing search');
                 client
                     .search(queryParam)
                     .then((data: Record<string, any>) => {
                         const failuresReasons = [];
                         const results = data.body ? data.body : data;
-                        const { failures, failed } = results._shards;
+                        const {
+                            failures, failed, total, successful: shardsSuccessful
+                        } = results._shards;
 
                         if (!failed) {
+                            logger.trace({
+                                shards: { total, successful: shardsSuccessful },
+                                hits: get(results, 'hits.total.value', get(results, 'hits.total')),
+                            }, 'search succeeded');
                             resolve(results);
                             return;
                         }
 
                         failuresReasons.push(...failures);
+                        logger.debug({ shardFailures: failuresReasons, shardsTotal: total, shardsSuccessful }, 'search had shard failures');
 
                         const reasons = uniq(
                             flatten(failuresReasons.map((shard) => shard.reason.type))
                         ) as string[];
+
+                        // Build a human-readable summary including reason text and nested caused_by
+                        const reasonSummaries = failuresReasons.map((shard: any) => ({
+                            shard: shard.shard,
+                            index: shard.index,
+                            type: get(shard, 'reason.type'),
+                            reason: get(shard, 'reason.reason'),
+                            causedBy: get(shard, 'reason.caused_by'),
+                        }));
 
                         if (
                             reasons.length > 1
                             || !isQueueOverflowError(reasons[0])
                         ) {
                             const errorReason = reasons.join(' | ');
+                            logger.error({
+                                reasons,
+                                reasonSummaries,
+                                shardFailures: failuresReasons,
+                                // TODO: query can contain sensitive data or be very large — decide
+                                // whether to include it before enabling. reasonSummaries above
+                                // should be sufficient to diagnose shard failures without it.
+                                // query: queryParam,
+                                connection,
+                            }, 'search shard failure is not retriable');
                             const error = new TSError(errorReason, {
                                 reason: 'Not all shards returned successful',
                                 context: {
                                     connection,
+                                    reasonSummaries,
                                 },
                             });
                             reject(error);
                         } else {
+                            logger.debug({ reasons, reasonSummaries, connection }, 'search shard failure is queue overflow, retrying');
                             retry();
                         }
                     })
@@ -787,13 +872,17 @@ export default function elasticsearchApi(
         reject: any
     ) {
         let delay = 0;
+        let retryCount = 0;
 
         return (_data?: any) => {
             const args = _data || data;
+            retryCount++;
+            logger.debug({ retryCount, currentDelay: delay, connection }, 'scheduling retry after backoff');
 
             _awaitRetry(delay)
                 .then((newDelay) => {
                     delay = newDelay;
+                    logger.debug({ retryCount, newDelay, connection }, 'executing retry');
                     fn(args);
                 })
                 .catch(reject);
@@ -848,15 +937,48 @@ export default function elasticsearchApi(
 
         return function _errorHandlerFn(err: Error) {
             const retryable = isErrorRetryable(err);
+            // ResponseError from the OpenSearch client carries the full response body
+            // in err.body / err.meta — extract it so it survives TSError wrapping
+            const responseBody = get(err, 'body', get(err, 'meta.body', undefined));
+            const statusCode = get(err, 'statusCode', get(err, 'meta.statusCode', undefined));
+            const rootCauses = get(responseBody, 'error.root_cause', undefined);
+            const causedBy = get(responseBody, 'error.caused_by', undefined);
 
             if (retryable) {
+                logger.debug({
+                    err,
+                    fnName,
+                    connection,
+                    statusCode,
+                    // TODO: same concern as non-retriable path — responseBody can be large.
+                    // responseBody,
+                }, `retryable error in ${fnName}, will retry`);
                 retry();
             } else {
+                logger.error({
+                    err,
+                    fnName,
+                    connection,
+                    statusCode,
+                    // TODO: responseBody can be large and may reflect back parts of the
+                    // original request — decide whether the full body is safe to log here.
+                    // rootCauses and causedBy extracted below are usually enough to diagnose.
+                    // responseBody,
+                    rootCauses,
+                    causedBy,
+                }, `non-retriable error in ${fnName}, rejecting`);
                 reject(
                     new TSError(err, {
                         context: {
                             fnName,
                             connection,
+                            statusCode,
+                            // TODO: same concern as the logger above — responseBody can be large
+                            // and may reflect request data. rootCauses/causedBy are the
+                            // actionable parts. Enable if full body is needed in the error chain.
+                            // responseBody,
+                            rootCauses,
+                            causedBy,
                         },
                     })
                 );
@@ -877,10 +999,11 @@ export default function elasticsearchApi(
             client
                 .search(query)
                 .then((results) => {
-                    logger.trace(`index ${index} is now available`);
+                    logger.trace({ index }, 'index is now available');
                     resolve(results);
                 })
-                .catch(() => {
+                .catch((initialErr: Error) => {
+                    logger.debug({ err: initialErr, index }, 'initial availability check failed, polling until available');
                     let running = false;
                     const checkInterval = setInterval(() => {
                         if (running) return;
@@ -889,12 +1012,17 @@ export default function elasticsearchApi(
                         try {
                             const valid = verifyClient();
                             if (!valid) {
-                                logger.debug(`index ${index} is in an invalid state`);
+                                // BUG FIX: original code did not reset `running` here, causing
+                                // the interval to permanently short-circuit once the client had
+                                // no alive connections — the node could never recover.
+                                running = false;
+                                logger.debug({ index }, 'client has no alive connections, waiting');
                                 return;
                             }
                         } catch (err) {
                             running = false;
                             clearInterval(checkInterval);
+                            logger.error({ err, index }, 'client entered fatal state while waiting for index availability');
                             reject(err);
                             return;
                         }
@@ -903,14 +1031,13 @@ export default function elasticsearchApi(
                             .search(query)
                             .then((results) => {
                                 running = false;
-
+                                logger.trace({ index }, 'index is now available after polling');
                                 clearInterval(checkInterval);
                                 resolve(results);
                             })
-                            .catch(() => {
+                            .catch((pollErr: Error) => {
                                 running = false;
-
-                                logger.warn(`verifying index ${index} is open`);
+                                logger.warn({ err: pollErr, index }, 'polling: index not yet available, retrying');
                             });
                     }, 200);
                 });
@@ -926,6 +1053,7 @@ export default function elasticsearchApi(
     function verifyClient() {
         const closed = get(client, 'transport.closed', false);
         if (closed) {
+            logger.error({ connection }, 'elasticsearch client transport is closed');
             throw new TSError('Elasticsearch Client is closed', {
                 fatalError: true
             });
@@ -935,9 +1063,11 @@ export default function elasticsearchApi(
         // so we don't break existing tests with mocked clients, we will default to 1
         const aliveCount = alive && Array.isArray(alive) ? alive.length : 1;
         if (!aliveCount) {
+            logger.debug({ connection }, 'elasticsearch client has no alive connections');
             return false;
         }
 
+        logger.trace({ aliveCount, connection }, 'elasticsearch client verified');
         return true;
     }
 
@@ -996,6 +1126,8 @@ export default function elasticsearchApi(
             },
         };
 
+        logger.info({ index, migrantIndexName, clusterName, connection }, 'starting index migration');
+
         try {
             const [docCount] = await Promise.all([
                 count({ index }),
@@ -1003,15 +1135,30 @@ export default function elasticsearchApi(
                 _createIndex(migrantIndexName, '', mapping, clusterName),
             ]);
 
+            logger.debug({ index, migrantIndexName, docCount }, 'reindexing documents');
             await _clientRequest('reindex', reindexQuery);
 
             const newDocCount = await count({ index: migrantIndexName });
+            logger.debug({ index, migrantIndexName, originalDocCount: docCount, newDocCount }, 'reindex complete, verifying doc count');
 
             if (docCount !== newDocCount) {
-                const errMsg = `reindex error, index: ${migrantIndexName} only has ${docCount} docs, expected ${docCount} from index: ${index}`;
+                // BUG FIX: original used `docCount` for both values in the message, making the
+                // error unreadable — "only has X docs, expected X docs" with the same number.
+                // Changed second reference to `newDocCount` (the actual post-reindex count).
+                const errMsg = `reindex error, index: ${migrantIndexName} only has ${newDocCount} docs, expected ${docCount} from index: ${index}`;
                 throw new Error(errMsg);
             }
         } catch (err: any) {
+            logger.error({
+                err,
+                index,
+                migrantIndexName,
+                // TODO: reindexQuery contains the source/dest index names which are already
+                // logged above — including the full object may be redundant. Enable if
+                // additional reindex config details (slices, refresh, etc.) are needed.
+                // reindexQuery,
+                connection,
+            }, 'reindex failed');
             throw new TSError(
                 err,
                 {
@@ -1022,9 +1169,12 @@ export default function elasticsearchApi(
         }
 
         try {
+            logger.debug({ index, migrantIndexName }, 'deleting old index and creating alias');
             await _clientIndicesRequest('delete', { index });
             await _clientIndicesRequest('putAlias', { index: migrantIndexName, name: index });
+            logger.info({ index, migrantIndexName }, 'index migration complete');
         } catch (err: any) {
+            logger.error({ err, index, migrantIndexName, connection }, 'failed to delete old index or create alias after reindex');
             const error = new TSError(err, {
                 reason: `could not put alias for index: ${migrantIndexName}, name: ${index}`,
             });
@@ -1040,6 +1190,7 @@ export default function elasticsearchApi(
     ) {
         const existQuery: ClientParams.IndicesExistsParams = { index };
         const exists = await indexExists(existQuery);
+        logger.debug({ index, exists, clusterName }, 'createIndex: checked index existence');
 
         if (!exists) {
             // Make sure the index exists before we do anything else.
@@ -1049,20 +1200,24 @@ export default function elasticsearchApi(
             };
 
             try {
+                logger.debug({ index, clusterName }, 'index does not exist, sending template and creating index');
                 await _sendTemplate(mapping, clusterName);
                 return indexCreate(createQuery);
             } catch (err: any) {
                 // It's not really an error if it's just that the index is already there
                 const errStr = parseError(err, true);
                 if (!errStr.includes('already_exists_exception')) {
+                    logger.error({ err, index, clusterName }, 'failed to create index');
                     throw new TSError(err, {
                         reason: `Could not create index: ${index}`,
                     });
                 }
+                logger.debug({ index }, 'index creation raced, already exists');
             }
         }
 
         try {
+            logger.debug({ index, migrantIndexName, clusterName }, 'index exists, checking and updating mapping');
             await _checkAndUpdateMapping(
                 clusterName,
                 index,
@@ -1070,6 +1225,7 @@ export default function elasticsearchApi(
                 mapping,
             );
         } catch (err) {
+            logger.error({ err, index, migrantIndexName, clusterName }, 'mapping check/migration failed');
             throw new TSError(err, {
                 reason: `error while migrating index: ${existQuery.index}`,
                 fatalError: true,
@@ -1082,11 +1238,15 @@ export default function elasticsearchApi(
         configMapping: Record<string, any>,
     ) {
         const params = Object.assign({}, query);
+        logger.debug({ params }, 'fetching current index mapping for comparison');
 
         try {
             const mapping = await _clientIndicesRequest('getMapping', params) as Record<string, any>;
-            return _areSameMappings(configMapping, mapping);
+            const result = _areSameMappings(configMapping, mapping);
+            logger.debug({ index: params.index, areEqual: result.areEqual }, 'mapping comparison result');
+            return result;
         } catch (err) {
+            logger.error({ err, params }, 'failed to get index mapping');
             throw new TSError(err, {
                 reason: `could not get mapping for query ${JSON.stringify(params)}`,
             });
@@ -1131,13 +1291,21 @@ export default function elasticsearchApi(
         const query = { index };
         const results = await _verifyMapping(query, mapping);
 
-        if (results.areEqual) return true;
+        if (results.areEqual) {
+            logger.debug({ index }, 'mapping is up to date, no migration needed');
+            return true;
+        }
+
+        logger.info({ index, migrantIndexName, hasTemplate: !!mapping.template }, 'mapping differs from config, update required');
+
         // For state and analytics, we will not _migrate, but will post template so that
         // the next index will have them
         if (mapping.template) {
+            logger.debug({ index, clusterName }, 'mapping has template, sending updated template without full migration');
             return _sendTemplate(mapping, clusterName);
         }
 
+        logger.info({ index, migrantIndexName }, 'triggering full index migration due to mapping change');
         return _migrate(index, migrantIndexName, mapping, clusterName);
     }
 
@@ -1188,9 +1356,11 @@ export default function elasticsearchApi(
                             },
                         });
 
-                        logger.error(error);
+                        logger.error({
+                            err: error, newIndex, migrantIndexName, clusterName, connection
+                        }, 'failure to create index, will retry');
+                        logger.info({ clientName }, 'attempting to connect to elasticsearch');
 
-                        logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
                         return _createIndex(
                             newIndex,
                             migrantIndexName,
@@ -1209,14 +1379,16 @@ export default function elasticsearchApi(
                                     );
                                     bool = isPrimary.every((shard: any) => shard.stage === 'DONE');
                                 }
+                                logger.debug({ newIndex, shardsReady: bool, recoveryResults: results }, 'index recovery check');
                                 if (bool) {
-                                    logger.info('connection to elasticsearch has been established');
+                                    logger.info({ clientName, newIndex }, 'connection to elasticsearch established, index shards ready');
                                     return isAvailable(newIndex);
                                 }
                                 return Promise.resolve();
                             })
                             .catch((_checkingError: Error) => {
                                 if (Date.now() > giveupAfter) {
+                                    logger.error({ err: _checkingError, newIndex, clientName }, 'timed out waiting to create index');
                                     const timeoutError = new TSError(
                                         `Unable to create index ${newIndex}`
                                     );
@@ -1225,8 +1397,8 @@ export default function elasticsearchApi(
 
                                 const checkingError = new TSError(_checkingError);
                                 logger.info(
-                                    checkingError,
-                                    `Attempting to connect to elasticsearch: ${clientName}`
+                                    { err: checkingError, clientName },
+                                    `attempting to connect to elasticsearch: ${clientName}`
                                 );
 
                                 return Promise.resolve();
