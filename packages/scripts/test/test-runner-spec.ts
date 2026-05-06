@@ -103,7 +103,7 @@ describe('Test Runner Helpers', () => {
 
                 const unitTests = filterBySuite(packages, makeTestOptions({
                     all: true,
-                    suite: ['unit']
+                    suite: ['unit', 'unit-slow']
                 }));
 
                 const unitAndESPackages = [
