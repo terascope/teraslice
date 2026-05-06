@@ -163,7 +163,7 @@ async function runTestSuite(
 
     const env = printAndGetEnv(suite, options);
 
-    let configFile: string | undefined;
+    let configFiles: string[] = [];
     for (const pkgs of chunked) {
         if (!pkgs.length) continue;
         if (pkgs.length === 1) {
@@ -186,18 +186,24 @@ async function runTestSuite(
             }
         );
 
+        let useConfigFlag: boolean | undefined;
+        let batchConfig: string[] = [];
+
         if (pkgs[0].configType === 'dynamic') {
-            configFile = ensureConfigFile(suite, rootDir, framework, dirs, pkgs);
-        } else {
-            /**
-             * Jest's --projects requires specified project(s) to contain a jest.config file, if
-             * configType is 'dynamic' we don't want --projects as we have a shared config file
-             * at root instead of project level, that will dynamically be created/deleted as the
-             * test runs passed to jest with the --config flag
-             */
-            if (framework === 'jest') {
-                args.projects = projects;
-            }
+            const res = ensureConfigs(rootDir, framework, dirs, pkgs);
+            useConfigFlag = res.useConfigFlag;
+            batchConfig = res.configFiles;
+            configFiles = configFiles.concat(batchConfig);
+        }
+
+        /**
+         * Jest's --projects requires specified project(s) to contain a jest.config file, if
+         * configType is 'dynamic' and we're using a root config, we don't want --projects as
+         * we have a shared config file at root instead of project level, that will dynamically
+         * be created/deleted as the test runs passed to jest with the --config flag
+         */
+        if (framework === 'jest' && !useConfigFlag) {
+            args.projects = projects;
         }
 
         tracker.started += pkgs.length;
@@ -211,7 +217,7 @@ async function runTestSuite(
                 options.debug,
                 ATTACH_JEST_DEBUGGER,
                 framework,
-                configFile
+                useConfigFlag ? batchConfig?.[0] : undefined
             );
             tracker.ended += pkgs.length;
         } catch (err) {
@@ -232,9 +238,11 @@ async function runTestSuite(
         await pMap(cleanupKeys, (key) => tracker.runCleanupByKey(key));
     }
 
-    // if (configFile) {
-    //     fs.removeSync(configFile);
-    // }
+    if (configFiles.length) {
+        configFiles.forEach((configFile) => {
+            fs.removeSync(configFile);
+        });
+    }
 
     signale.timeEnd(timeLabel);
 }
@@ -258,38 +266,64 @@ function getTestChunks(pkgInfos: PackageInfo[], framework: TestFramework, CHUNK_
 }
 
 /**
- * looks for framework.make-config.js, and if it finds it will
- * write a config file at rootDir/framework.custom.config.js,
- * returning that path
+ * looks for make-config files, writing file(s) if found
  *
- */
-function ensureConfigFile(
-    suite: string, rootDir: string, framework: string, dirs: string[], pkgs: PackageInfo[]
-) {
-    let configFile: string | undefined;
+ * framework.root.make-config.js
+ * - FOR: sharing 1 config for multiple packages (i.e. projects setting)
+ * - FLAG: passes --config
+ * - WRITES: file to rootDir/framework.custom.config.js,
 
-    const configFnPath = `${rootDir}/${framework}.make-config.js`;
-    const rootExists = fs.existsSync(configFnPath);
-    if (!rootExists) {
+ * framework.pkgs.make-config.js
+ * - FOR: creating a file in each package's directory
+ * - WRITES: files to pkgDir/framework.config.js
+ */
+function ensureConfigs(
+    rootDir: string, framework: TestFramework, dirs: string[], pkgs: PackageInfo[]
+) {
+    const configFiles: string[] = [];
+
+    // jest - was going to do a root config w/projects option in TS, but used pkg level due to
+    // coverage behavior, but left root option for outside repos and other test frameworks
+    const configPaths = [
+        `${rootDir}/${framework}.root.make-config.js`,
+        `${rootDir}/${framework}.pkgs.make-config.js`
+    ];
+    const configFnPath = configPaths.find((el) => fs.existsSync(el));
+    const writeAtRoot = configFnPath === configPaths[0];
+
+    if (!configFnPath) {
         const files = pkgs.length > 1 ? 'files' : 'file';
         const dirList = `"${dirs.join('", "')}"`;
         signale.error(`
-            Unable to find file "${configFnPath}". 
+            Unable to find file (options: "${configPaths.join('", "')})". 
             Recommend creating one to dynamically create the config OR 
             adding individual config ${files} in each of these directories ${dirList}
         `);
     } else {
         try {
             const makeConfig = getModule(require(configFnPath));
-            const configObject = makeConfig(dirs);
-            configFile = `${rootDir}/${framework}.custom.config.js`;
-            fs.outputFileSync(configFile, `export default ${JSON.stringify(configObject, null, 2)};`);
+
+            const writeConfig = (configDir: string | string[]) => {
+                const testConfig = makeConfig(configDir);
+                const contents = `export default ${JSON.stringify(testConfig, null, 2)};`;
+                const file = writeAtRoot
+                    ? `${rootDir}/${framework}.custom.config.js`
+                    : `${configDir}/${framework}.config.js`;
+                fs.outputFileSync(file, contents);
+                configFiles.push(file);
+            };
+
+            if (writeAtRoot) {
+                writeConfig(dirs);
+            } else {
+                dirs.forEach((dir) => writeConfig(dir));
+            }
         } catch (error) {
             signale.error(`Error creating ${framework} config.`, error);
         }
     }
 
-    return configFile;
+    return { configFiles, useConfigFlag: writeAtRoot };
 }
 
 async function runE2ETest(
