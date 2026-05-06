@@ -167,6 +167,7 @@ jobs:
         env:
           REPORT_COVERAGE: true
           MAX_PROJECTS_PER_BATCH: 5
+          JEST_MAX_WORKERS: 2
         run: pnpm run test --suite unit --
 
       - name: Upload Node ${{ matrix.node-version }} unit test coverage
