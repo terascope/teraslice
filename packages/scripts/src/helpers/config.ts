@@ -169,7 +169,7 @@ const configSchema: Terafoundation.Schema<any> = {
     },
     JEST_MAX_WORKERS: {
         default: null,
-        format: 'optional_number',
+        format: 'optional_int',
         env: 'JEST_MAX_WORKERS'
     },
     K8S_VERSION: {
