@@ -266,15 +266,16 @@ function getTestChunks(pkgInfos: PackageInfo[], framework: TestFramework, CHUNK_
 }
 
 /**
- * looks for make-config files, writing file(s) if found
+ * looks for make-[root|pkg]-config files, writing file(s) if found
  *
- * framework.root.make-config.js
+ * framework.make-root-config.js
  * - FOR: sharing 1 config for multiple packages (i.e. projects setting)
  * - FLAG: passes --config
  * - WRITES: file to rootDir/framework.custom.config.js,
 
- * framework.pkgs.make-config.js
+ * framework.make-pkg-config.js
  * - FOR: creating a file in each package's directory
+ * - FLAG: passes --projects for jest
  * - WRITES: files to pkgDir/framework.config.js
  */
 function ensureConfigs(
@@ -285,8 +286,8 @@ function ensureConfigs(
     // jest - was going to do a root config w/projects option in TS, but used pkg level due to
     // coverage behavior, but left root option for outside repos and other test frameworks
     const configPaths = [
-        `${rootDir}/${framework}.root.make-config.js`,
-        `${rootDir}/${framework}.pkg.make-config.js`
+        `${rootDir}/${framework}.make-root-config.js`,
+        `${rootDir}/${framework}.make-pkg-config.js`
     ];
     const configFnPath = configPaths.find((el) => fs.existsSync(el));
     const writeAtRoot = configFnPath === configPaths[0];

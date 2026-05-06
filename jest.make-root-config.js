@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isCI } from '@terascope/core-utils';
+import { isCI, castArray } from '@terascope/core-utils';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -12,7 +12,7 @@ export default (projectDirs, collectCoverageFromPkgs = true) => {
 
     const runInDir = process.cwd() !== dirname;
 
-    const projDirsPkgRootsCovDirs = projectDirs.map(
+    const projDirsPkgRootsCovDirs = castArray(projectDirs).map(
         (projectDir) => {
             const name = path.basename(projectDir);
             if (name === 'e2e') {

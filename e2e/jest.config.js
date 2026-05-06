@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import makeConfig from '../jest.pkgs.make-config.js';
+import makeConfig from '../jest.make-pkg-config.js';
 import { URL } from 'node:url';
 
 const dirPath = fileURLToPath(new URL('.', import.meta.url));

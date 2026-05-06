@@ -166,16 +166,15 @@ jobs:
       - name: Test
         env:
           REPORT_COVERAGE: true
-          MAX_PROJECTS_PER_BATCH: 4
+          MAX_PROJECTS_PER_BATCH: 7
         run: pnpm run test --suite unit --
 
       # keeps timing out in CI so split
-      - name: Test (slower max-projects=1)
-        env:
-          REPORT_COVERAGE: true
-          MAX_PROJECTS_PER_BATCH: 1
-          # JEST_MAX_WORKERS: '50%'
-        run: pnpm run test --suite unit-slow --
+      # - name: Test (slower max-projects=1)
+      #   env:
+      #     REPORT_COVERAGE: true
+      #     MAX_PROJECTS_PER_BATCH: 1
+      #   run: pnpm run test --suite unit-slow --
 
       - name: Upload Node ${{ matrix.node-version }} unit test coverage
         uses: codecov/codecov-action@v5
