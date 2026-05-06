@@ -167,7 +167,7 @@ jobs:
         env:
           REPORT_COVERAGE: true
           MAX_PROJECTS_PER_BATCH: 10
-          # JEST_MAX_WORKERS: '50%'
+          JEST_MAX_WORKERS: '50%'
         run: pnpm run test --suite unit --
 
       # keeps timing out in CI so split
