@@ -286,7 +286,7 @@ function ensureConfigs(
     // coverage behavior, but left root option for outside repos and other test frameworks
     const configPaths = [
         `${rootDir}/${framework}.root.make-config.js`,
-        `${rootDir}/${framework}.pkgs.make-config.js`
+        `${rootDir}/${framework}.pkg.make-config.js`
     ];
     const configFnPath = configPaths.find((el) => fs.existsSync(el));
     const writeAtRoot = configFnPath === configPaths[0];
