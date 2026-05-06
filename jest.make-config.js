@@ -71,7 +71,8 @@ export default (projectDirs) => {
         watchPathIgnorePatterns: [],
         // collect in first package's folder, CI combines them altogether,
         // I tried collecting in a root coverage folder but didn't quite work
-        coverageDirectory: '<rootDir>coverage', // projDirsPkgRootsCovDirs[0][2],
+        coverageDirectory: projDirsPkgRootsCovDirs[0][2],
+        coverageProvider: 'v8',
         collectCoverage: true,
         coverageReporters: coverageReporters,
         workerIdleMemoryLimit: '200MB',
