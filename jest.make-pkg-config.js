@@ -5,6 +5,11 @@ import { isCI } from '@terascope/core-utils';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
+/**
+ * NOTE: left in case needed but not currently using -
+ * was able to get make-root-config working for all -
+ * delete end of 2027 if still not in use
+ */
 export default (projectDir) => {
     let parentFolder;
     let packageRoot;
