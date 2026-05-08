@@ -75,6 +75,16 @@ export class Client extends core.Client {
                 payload: msg.payload,
             });
         });
+
+        // Handles 'worker:loglevel' broadcast from ExecutionController.Server.sendLogLevelToAll
+        this.handleResponse(this.socket, 'worker:loglevel', (msg: core.Message) => {
+            this.emit('worker:loglevel', { payload: msg.payload });
+        });
+    }
+
+    // Subscribes to 'worker:loglevel', registered in workers/worker/index.ts
+    onLogLevel(fn: (level: string) => void) {
+        this.on('worker:loglevel', (msg) => fn(msg.payload.level));
     }
 
     onExecutionFinished(fn: () => void) {
