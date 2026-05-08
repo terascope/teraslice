@@ -893,6 +893,32 @@ export default function elasticsearchApi(
         return false;
     }
 
+    function _errorHandler(
+        fn: any,
+        data: any,
+        reject: (args?: any) => void,
+        fnName = '->unknown()'
+    ) {
+        const retry = _retryFn(fn, data, reject);
+
+        return function _errorHandlerFn(err: Error) {
+            const retryable = isErrorRetryable(err);
+
+            if (retryable) {
+                retry();
+            } else {
+                reject(
+                    new TSError(err, {
+                        context: {
+                            fnName,
+                            connection,
+                        },
+                    })
+                );
+            }
+        };
+    }
+
     function getErrorCauses(
         body: OpenSearchErrorBody
     ): ESTypes.ErrorCause[] {
