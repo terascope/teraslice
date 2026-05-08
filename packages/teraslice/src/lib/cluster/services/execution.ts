@@ -316,6 +316,28 @@ export class ExecutionService {
         return { status };
     }
 
+    // Sends 'execution:loglevel' to the ExecutionController via ClusterMaster socket
+    // TODO: rename to setDynamicSetting or similar as more settings are added
+    async setLogLevel(exId: string, level: string) {
+        // Add additional setting validations here as dynamic settings are expanded
+        const valid = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
+        if (!level || !valid.includes(level)) {
+            throw new TSError(`Invalid log level "${level}", must be one of: ${valid.join(', ')}`, {
+                statusCode: 400
+            });
+        }
+
+        const execution = await this.executionStorage.getActiveExecution(exId);
+
+        if (!this.clusterMasterServer.isClientReady(execution.ex_id)) {
+            throw new TSError(`Execution ${exId} is not available`, { statusCode: 404 });
+        }
+
+        await this.clusterMasterServer.sendExecutionLogLevel(exId, level);
+
+        return { exId, level };
+    }
+
     async resumeExecution(exId: string) {
         const status = 'running';
         const execution = await this.executionStorage.getActiveExecution(exId);
