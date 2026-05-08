@@ -126,6 +126,12 @@ export class Worker {
             this.shouldShutdown = true;
         });
 
+        // Receives 'worker:loglevel' from the ExecutionController
+        this.client.onLogLevel((level) => {
+            this.logger.level(level as Logger.LogLevel);
+            this.logger.debug(`log level updated to ${level}`);
+        });
+
         await this.client.start();
 
         // initialize the execution context next
