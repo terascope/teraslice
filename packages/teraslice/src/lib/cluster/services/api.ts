@@ -418,6 +418,15 @@ export class ApiService {
             });
         });
 
+        v1routes.post(['/jobs/:jobId/_settings', '/ex/:exId/_settings'], (req, res) => {
+            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not update dynamic job settings');
+            requestHandler(async () => {
+                const exId = await this._getExIdFromRequest(req as TerasliceRequest);
+                const { log_level } = req.query;
+                return executionService.setLogLevel(exId, log_level as string);
+            });
+        });
+
         v1routes.post(['/jobs/:jobId/_workers', '/ex/:exId/_workers'], (req, res) => {
             const { query } = req;
 
