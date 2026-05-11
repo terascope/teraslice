@@ -2864,13 +2864,13 @@ export interface IndicesStatsShardCommit {
 
 export interface OpenSearchErrorBody {
     error: ErrorCause;
-    status: number;
+    status?: number;
 }
 
 interface ResponseError {
-    name: string;
-    message: string;
-    statusCode: number;
+    name?: string;
+    message?: string;
+    statusCode?: number;
     body: OpenSearchErrorBody;
 }
 
@@ -2878,8 +2878,9 @@ export function isResponseError(err: unknown): err is ResponseError {
     return (
         typeof err === 'object'
         && err !== null
-        && 'statusCode' in err
         && 'body' in err
-        && typeof (err as any).statusCode === 'number'
+        && typeof (err as any).body === 'object'
+        && (err as any).body !== null
+        && 'error' in (err as any).body
     );
 }
