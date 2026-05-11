@@ -172,6 +172,11 @@ export interface Slice {
     slicer_order: number;
     request: SliceRequest;
     _created: string;
+    /**
+     * Optional log level override for workers processing this slice.
+     * When set, the worker will apply this log level before running the slice.
+     */
+    log_level?: string;
 }
 
 /**
