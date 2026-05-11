@@ -8,7 +8,7 @@ import {
 import { Client as OpenClient } from '@terascope/opensearch-client';
 import {
     ElasticsearchDistribution, SearchResult, ClientParams,
-    ClientResponse, isStructuredErrorResponse, ESTypes, OpenSearchErrorBody
+    ClientResponse, ESTypes
 } from '@terascope/types';
 // @ts-expect-error  TODO: do we still need this after getting rid of es6?
 import('setimmediate');
@@ -864,9 +864,9 @@ export default function elasticsearchApi(
             return true;
         }
 
-        if (isStructuredErrorResponse(err)) {
+        if (ESTypes.isStructuredErrorResponse(err)) {
             const shouldRetry: boolean[] = [];
-            const body = err.body as OpenSearchErrorBody;
+            const body = err.body as ESTypes.OpenSearchErrorBody;
             const errList: ESTypes.ErrorCause[] = getErrorCauses(body);
 
             errList.forEach((cause) => {
@@ -920,7 +920,7 @@ export default function elasticsearchApi(
     }
 
     function getErrorCauses(
-        body: OpenSearchErrorBody
+        body: ESTypes.OpenSearchErrorBody
     ): ESTypes.ErrorCause[] {
         const causes: ESTypes.ErrorCause[] = [];
         causes.push(...findNestedErrors(body.error));

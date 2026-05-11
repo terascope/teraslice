@@ -334,11 +334,6 @@ export interface ErrorCauseKeys {
     caused_by?: ErrorCause;
     root_cause?: ErrorCause[];
     suppressed?: ErrorCause[];
-    phase?: string;
-    grouped?: boolean;
-    bytes_wanted?: number;
-    bytes_limit?: number;
-    durability?: 'TRANSIENT' | 'PERMANENT';
     failed_shards?: ShardFailure[];
 }
 
@@ -2860,27 +2855,4 @@ export interface IndicesStatsShardCommit {
     id: string;
     num_docs: number;
     user_data: Record<string, string>;
-}
-
-export interface OpenSearchErrorBody {
-    error: ErrorCause;
-    status?: number;
-}
-
-interface ResponseError {
-    name?: string;
-    message?: string;
-    statusCode?: number;
-    body: OpenSearchErrorBody;
-}
-
-export function isStructuredErrorResponse(err: unknown): err is ResponseError {
-    return (
-        typeof err === 'object'
-        && err !== null
-        && 'body' in err
-        && typeof (err as any).body === 'object'
-        && (err as any).body !== null
-        && 'error' in (err as any).body
-    );
 }

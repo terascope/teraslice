@@ -32,11 +32,6 @@ export interface ErrorCauseKeys {
     caused_by?: ErrorCause;
     root_cause?: ErrorCause[];
     suppressed?: ErrorCause[];
-    phase?: string;
-    grouped?: boolean;
-    bytes_wanted?: number;
-    bytes_limit?: number;
-    durability?: 'TRANSIENT' | 'PERMANENT';
     failed_shards?: ShardFailure[];
 }
 
