@@ -859,30 +859,39 @@ export default function elasticsearchApi(
             return true;
         }
 
+        // Check this ASAP since it is the most likely error type
+        if (isQueueOverflowError(get(err, 'body.error.type', ''))) {
+            logger.debug('Client error isRejectedError, will retry');
+            return true;
+        }
+
         if (isConnectionErrorMessage(err)) {
             logger.debug('Client error isConnectionErrorMessage, will retry');
             return true;
         }
 
+        // Errors are often wrapped by search_phase_execution_exception when occurring on
+        // a data node. We need to parse the error for the underlying cause.
         if (ESTypes.isStructuredErrorResponse(err)) {
             const shouldRetry: boolean[] = [];
             const body = err.body as ESTypes.OpenSearchErrorBody;
             const errList: ESTypes.ErrorCause[] = getErrorCauses(body);
 
-            errList.forEach((cause) => {
+            for (const cause of errList) {
                 const isRejectedError = isQueueOverflowError(cause.type);
-                const isRetryableCircuitBreaker = isRetryableCircuitBreakerError(cause);
-
                 if (isRejectedError) {
                     logger.debug('Client error isRejectedError, will retry');
                     shouldRetry.push(true);
+                    continue;
                 }
 
+                const isRetryableCircuitBreaker = isRetryableCircuitBreakerError(cause);
                 if (isRetryableCircuitBreaker) {
                     logger.debug('Client error isRetryableCircuitBreaker, will retry');
                     shouldRetry.push(true);
+                    continue;
                 }
-            });
+            }
 
             // TODO: this assumes that having any retryable error in the list means we should retry
             // It may be necessary to have a list of errors that, if present, we never retry

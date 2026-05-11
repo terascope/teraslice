@@ -126,8 +126,8 @@ describe('isErrorRetryable', () => {
                             type: 'some_wrapper_exception',
                             reason: 'wrapper',
                             caused_by: {
-                                type: 'es_rejected_execution_exception',
-                                reason: 'rejected execution of coordinating operation'
+                                type: 'circuit_breaking_exception',
+                                reason: '[parent] Data too large'
                             }
                         }]
                     },
@@ -152,8 +152,8 @@ describe('isErrorRetryable', () => {
                                 index: 'my-index',
                                 node: 'node1',
                                 reason: {
-                                    type: 'es_rejected_execution_exception',
-                                    reason: 'rejected execution of coordinating operation'
+                                    type: 'circuit_breaking_exception',
+                                    reason: '[parent] Data too large'
                                 }
                             }]
                         }]
@@ -249,8 +249,8 @@ describe('isErrorRetryable', () => {
                         type: 'search_phase_execution_exception',
                         reason: 'all shards failed',
                         caused_by: {
-                            type: 'es_rejected_execution_exception',
-                            reason: 'rejected execution of coordinating operation'
+                            type: 'circuit_breaking_exception',
+                            reason: '[parent] Data too large'
                         }
                     },
                     status: 429
@@ -271,8 +271,8 @@ describe('isErrorRetryable', () => {
                             index: 'my-index',
                             node: 'node1',
                             reason: {
-                                type: 'es_rejected_execution_exception',
-                                reason: 'rejected execution of coordinating operation'
+                                type: 'circuit_breaking_exception',
+                                reason: '[parent] Data too large'
                             }
                         }]
                     },
