@@ -2874,7 +2874,7 @@ interface ResponseError {
     body: OpenSearchErrorBody;
 }
 
-export function isResponseError(err: unknown): err is ResponseError {
+export function isStructuredErrorResponse(err: unknown): err is ResponseError {
     return (
         typeof err === 'object'
         && err !== null

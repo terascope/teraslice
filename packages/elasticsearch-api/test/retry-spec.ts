@@ -205,6 +205,39 @@ describe('isErrorRetryable', () => {
             );
             expect(isErrorRetryable(err)).toBe(false);
         });
+
+        it('returns false for a 404 document-not-found ResponseError (body has no error field)', () => {
+            // Real OpenSearch ResponseError when a document is not found:
+            // body contains found: false instead of an error object,
+            // so isResponseError returns false and the error is non-retryable
+            const err = Object.assign(new Error('Response Error'), {
+                statusCode: 404,
+                body: {
+                    _index: 'ts_test',
+                    _id: '15598b6369e0913845e1bbfb806cc98f8a8d0ec0',
+                    found: false
+                },
+                meta: {
+                    body: {
+                        _index: 'ts_test',
+                        _id: '15598b6369e0913845e1bbfb806cc98f8a8d0ec0',
+                        found: false
+                    },
+                    statusCode: 404,
+                    headers: {
+                        'content-type': 'application/json; charset=UTF-8',
+                        'content-length': '111'
+                    },
+                    meta: {
+                        context: null,
+                        name: 'opensearch-js',
+                        attempts: 0,
+                        aborted: false
+                    }
+                }
+            });
+            expect(isErrorRetryable(err)).toBe(false);
+        });
     });
 
     describe('caused_by and failed_shards on body.error', () => {

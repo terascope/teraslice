@@ -8,7 +8,7 @@ import {
 import { Client as OpenClient } from '@terascope/opensearch-client';
 import {
     ElasticsearchDistribution, SearchResult, ClientParams,
-    ClientResponse, isResponseError, ESTypes, OpenSearchErrorBody
+    ClientResponse, isStructuredErrorResponse, ESTypes, OpenSearchErrorBody
 } from '@terascope/types';
 // @ts-expect-error  TODO: do we still need this after getting rid of es6?
 import('setimmediate');
@@ -864,7 +864,7 @@ export default function elasticsearchApi(
             return true;
         }
 
-        if (isResponseError(err)) {
+        if (isStructuredErrorResponse(err)) {
             const shouldRetry: boolean[] = [];
             const body = err.body as OpenSearchErrorBody;
             const errList: ESTypes.ErrorCause[] = getErrorCauses(body);
@@ -885,7 +885,7 @@ export default function elasticsearchApi(
             });
 
             // TODO: this assumes that having any retryable error in the list means we should retry
-            // It may be necessary to have a list of errors that if present we never retry
+            // It may be necessary to have a list of errors that, if present, we never retry
             if (shouldRetry.includes(true)) return true;
         }
 
