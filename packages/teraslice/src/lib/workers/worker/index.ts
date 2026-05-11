@@ -195,6 +195,16 @@ export class Worker {
         try {
             await this.slice.initialize(msg);
 
+            // After we init the slice we check for log level on the slice
+            // We update in the case it differs from what the worker has
+            if (msg.log_level) {
+                const prevLevel = this.logger.level();
+                this.logger.level(msg.log_level as Logger.LogLevel);
+                if (this.logger.level() !== prevLevel) {
+                    this.logger.info(`log level updated to ${msg.log_level} for slice ${sliceId}`);
+                }
+            }
+
             await this.slice.run();
 
             this.logger.info(`slice ${sliceId} completed`);
