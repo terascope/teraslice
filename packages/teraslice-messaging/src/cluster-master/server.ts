@@ -67,6 +67,10 @@ export class Server extends _Server {
         return this.send(exId, 'execution:resume');
     }
 
+    sendExecutionLogLevel(exId: string, level: string): Promise<Message | null> {
+        return this.send(exId, 'execution:loglevel', { level });
+    }
+
     sendExecutionAnalyticsRequest(exId: string): Promise<Message | null> {
         return this.send(exId, 'execution:analytics');
     }
