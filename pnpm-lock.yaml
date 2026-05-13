@@ -1134,6 +1134,9 @@ importers:
 
   packages/valkey:
     dependencies:
+      '@terascope/core-utils':
+        specifier: workspace:~
+        version: link:../core-utils
       '@valkey/valkey-glide':
         specifier: ~2.3.1
         version: 2.3.1
