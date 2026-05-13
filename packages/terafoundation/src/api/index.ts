@@ -23,7 +23,7 @@ export default function registerApis(
     const childLoggers = new Set<WeakRef<ChildLogger>>();
     const childLoggerRegistry = new FinalizationRegistry((ref: WeakRef<ChildLogger>) => {
         childLoggers.delete(ref);
-        context.logger.debug('child logger GC\'d and pruned from registry');
+        context.logger.debug('child logger collected and removed from logger registry');
     });
 
     // connection cache
@@ -113,7 +113,7 @@ export default function registerApis(
                     const currentLevel = Object.keys(logLevels).find(
                         (key) => logLevels[key as keyof typeof logLevels] === logger.level());
                     logger.level(level);
-                    logger.info(`child logger "${name}" log level is set from ${currentLevel} to ${level}`);
+                    logger.info(`child logger "${name}" log level changed from ${currentLevel} to ${level}`);
                 }
             }
         },
