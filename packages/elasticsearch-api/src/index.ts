@@ -715,28 +715,28 @@ export default function elasticsearchApi(
 
                         failuresReasons.push(...failures);
 
-                        const reasonType = uniq(
+                        const reasonTypes = uniq(
                             flatten(failuresReasons.map((shard) => shard.reason.type))
                         ) as string[];
 
-                        const reasonReason = uniq(
+                        const reasonReasons = uniq(
                             flatten(failuresReasons.map((shard) => shard.reason.reason))
                         ) as string[];
 
                         if (
-                            reasonType.length === 1
-                            && isQueueOverflowError(reasonType[0])
+                            reasonTypes.length === 1
+                            && isQueueOverflowError(reasonTypes[0])
                         ) {
-                            logger.debug(`Search shard failure is retryable: ${reasonType[0]}`);
+                            logger.debug(`Shard failure during search - retryable: ${reasonTypes[0]}`);
                             retry();
                         } else if (
-                            reasonReason.length === 1
+                            reasonReasons.length === 1
                             && isRetryableCircuitBreakerError(failuresReasons[0].reason)
                         ) {
-                            logger.debug(`Search shard failure is retryable: ${reasonReason[0]}`);
+                            logger.debug(`Shard failure during search - retryable: ${reasonReasons[0]}`);
                             retry();
                         } else {
-                            const errorReason = reasonType.join(' | ');
+                            const errorReason = reasonTypes.join(' | ');
                             const error = new TSError(errorReason, {
                                 reason: 'Not all shards returned successful',
                                 context: {
