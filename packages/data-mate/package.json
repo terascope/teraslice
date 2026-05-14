@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-mate",
     "displayName": "Data-Mate",
-    "version": "2.7.0",
+    "version": "2.8.0",
     "description": "Library of data validations/transformations",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-mate#readme",
     "repository": {
@@ -30,18 +30,22 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-mate --"
     },
     "dependencies": {
+        "@faker-js/faker": "^10.4.0",
         "@terascope/core-utils": "workspace:~",
         "@terascope/data-types": "workspace:~",
         "@terascope/geo-utils": "workspace:~",
         "@terascope/ip-utils": "workspace:~",
         "@terascope/types": "workspace:~",
+        "@turf/random": "~7.3.5",
         "@types/validator": "~13.15.10",
         "awesome-phonenumber": "~7.8.0",
         "big-json": "~3.2.0",
+        "chance": "~1.1.13",
         "date-fns": "~4.1.0",
         "ip-bigint": "~8.3.4",
         "jexl": "~2.3.0",
         "mnemonist": "~0.40.3",
+        "randexp": "^0.5.3",
         "uuid": "~14.0.0",
         "valid-url": "~1.0.9",
         "validator": "~13.15.35",
@@ -49,10 +53,10 @@
     },
     "devDependencies": {
         "@types/big-json": "~3.2.5",
+        "@types/chance": "^1.1.7",
         "@types/jexl": "^2.3.4",
         "@types/valid-url": "~1.0.7",
-        "benchmark": "~2.1.4",
-        "chance": "~1.1.13"
+        "benchmark": "~2.1.4"
     },
     "engines": {
         "node": ">=22.0.0",
