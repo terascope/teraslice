@@ -60,7 +60,7 @@ ENV NODE_ENV=production \
     NPM_CONFIG_LOGLEVEL=error
 
 # Minimal for runtime: tini for PID1, certs for HTTPS; and bash for exec
-RUN apk --no-cache add tini ca-certificates bash
+RUN apk --no-cache add tini ca-certificates bash curl
 
 WORKDIR /app/source
 RUN corepack enable
@@ -114,7 +114,43 @@ console.log('Download URL:', url);
 console.log('-------------------------------------');
 EOF
 
+# Verify what binary repo(s) Valkey GLIDE client downloaded and which it will require 
+# Valkey GLIDE uses NAPI-RS to run an architecture specific binary built from rust.
+# Each binary has its own NPM repo. Repos will be installed based on arch and platform (could be multiple)
+# A single repo will be 'required' at run time.
+SHELL ["/bin/bash", "-c"]
+RUN VALKEY_GLIDE_PATH=$(find node_modules/.pnpm -path '*/@valkey/valkey-glide/package.json' | head -1 | xargs dirname) && \
+    VALKEY_NATIVE_PATHS=$(find node_modules/.pnpm -maxdepth 1 -type d -name '@valkey+valkey-glide-*-*@*') && \
+    LIBC_PATH=$(find node_modules/.pnpm -path '*/detect-libc/lib/detect-libc.js' | head -1) && \
+    node - "$VALKEY_GLIDE_PATH" "$VALKEY_NATIVE_PATHS" "$LIBC_PATH" <<'EOF'
+const valkeyGlidePath = process.argv[2];
+const valkeyNativePaths = process.argv[3].split('\n').filter(Boolean);
+const libcPath = process.argv[4];
 
+const pkg = require(`./${valkeyGlidePath}/package.json`);
+const detect_libc = require(`./${libcPath}`);
+
+const version = pkg.version;
+const platform = process.platform;
+const arch = process.arch;
+const libc = detect_libc.familySync() || 'unknown';
+
+const binaryPackageNames = valkeyNativePaths.map(p => p.split('/').pop());
+
+require(`./${valkeyGlidePath}`);
+const loadedNative = Object.keys(require.cache)
+  .filter(k => k.endsWith('.node') && k.includes('valkey'))
+  .map(k => k.split('/').pop());
+
+console.log('---- Valkey GLIDE Binary Package Info ----');
+console.log('Client version:', version);
+console.log('Platform:', platform);
+console.log('Arch:', arch);
+console.log('Family:', libc);
+console.log('Binary Packages Installed:', binaryPackageNames);
+console.log('Runtime Binary:', loadedNative);
+console.log('-------------------------------------');
+EOF
 
 EXPOSE 5678
 # set up the volumes

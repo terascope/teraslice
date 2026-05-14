@@ -25,7 +25,8 @@ const {
     TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
     NATIVE_DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
     EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT,
-    LOG_PATH, ENCRYPT_OPENSEARCH, OPENSEARCH_USER, OPENSEARCH_PASSWORD, ROOT_CERT_PATH
+    LOG_PATH, ENCRYPT_OPENSEARCH, OPENSEARCH_USER, OPENSEARCH_PASSWORD, ROOT_CERT_PATH,
+    FILE_LOGGING
 } = config;
 
 const JobDict = Object.freeze({
@@ -538,7 +539,10 @@ export class TerasliceHarness {
     }
 
     async resetLogs() {
-        return fse.writeFile(LOG_PATH, '');
+        if (FILE_LOGGING) {
+            return fse.writeFile(LOG_PATH, '');
+        }
+        return;
     }
 
     async waitForTeraslice() {

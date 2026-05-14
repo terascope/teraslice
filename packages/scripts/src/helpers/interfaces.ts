@@ -1,5 +1,6 @@
-import { EmptyObject } from '@terascope/types';
+import { EmptyObject, Service } from '@terascope/types';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
+import type { TestFramework } from './test-runner/interfaces';
 
 export type PackageInfo = {
     dir: string;
@@ -37,20 +38,11 @@ export type PackageInfo = {
     };
 };
 
-export enum Service {
-    Kafka = 'kafka',
-    Minio = 'minio',
-    RabbitMQ = 'rabbitmq',
-    Opensearch = 'opensearch',
-    RestrainedOpensearch = 'restrained_opensearch',
-    Utility = 'utility',
-    Teraslice = 'teraslice'
-}
-
 export type PackageConfig = {
     main?: boolean;
     enableTypedoc?: boolean;
     testSuite?: string;
+    testFrameworks?: TestFramework[];
     allowBumpWhenPrivate?: boolean;
     linkToMain?: boolean;
     root?: boolean;
@@ -210,7 +202,7 @@ export interface ServiceObj {
 }
 
 export type CustomKindService = | 'opensearch1' | 'opensearch2' | 'opensearch3'
-    | 'kafka' | 'minio' | 'prometheus_stack' | 'chaos_mesh';
+    | 'kafka' | 'minio' | 'prometheus_stack' | 'chaos_mesh' | 'valkey';
 
 export interface CustomKindDefaultPort {
     containerPorts: number[];
@@ -229,4 +221,5 @@ export interface DeployedServicePorts {
     minioUi?: number;
     kafka?: number;
     kafkaUi?: number;
+    valkey?: number;
 }

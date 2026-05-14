@@ -38,6 +38,7 @@ export interface RunSliceResult {
     status: SliceStatus;
     analytics?: SliceAnalyticsData;
     results: DataEntity[];
+    retry_count?: number;
 }
 
 export type WorkerSliceState = {
@@ -46,4 +47,5 @@ export type WorkerSliceState = {
     position: number;
     slice: Slice;
     analytics?: SliceAnalyticsData;
+    retry_count?: number;
 };

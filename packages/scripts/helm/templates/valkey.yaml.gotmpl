@@ -1,0 +1,16 @@
+image.tag: {{ .Values | get "valkey.image.tag" "9.0.3" }}
+
+service:
+  type: NodePort
+  port: 6379
+  nodePort: {{ .Values | get "valkey.nodePort" "30379" }}
+
+resources: {}
+
+valkeyConfig: ""
+
+replica:
+  enabled: false
+
+tls:
+  enabled: {{ .Values | get "valkey.tls.enabled" false }}

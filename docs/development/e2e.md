@@ -44,11 +44,18 @@ sub-commands to diagnose potential issues in the containers. Here is a recipe to
 prettify the teraslice logs:
 
 ```sh
-# from this directory
-pnpm logs
-# if you want to follow the logs use:
-pnpm logs-follow
+# from the e2e directory
+pnpm logs                              # view Teraslice logs (bunyan-formatted)
+pnpm logs-follow                       # follow in real-time
+pnpm logs -- --hostname worker-1       # filter by container hostname
+pnpm logs -- -c "this.ex_id == 'abc'"  # filter by execution ID
+pnpm logs -- -n 200                    # show last 200 lines
+LOG_LEVEL=warn pnpm logs               # show only warn+ entries
+RAW_LOGS=true pnpm logs                # raw JSON without bunyan formatting
 ```
+
+> **Note:** `pnpm logs` reads `e2e/logs/teraslice.log`, which is only written when `--logs` was passed to the test run.
+> Other services (opensearch, kafka, minio, etc.) write raw Docker logs to `e2e/logs/<service>.log`.
 
 ## Logging
 
@@ -103,15 +110,11 @@ log_level: [
 
 - **Console output** from containers is always at `'warn'` level — only warnings and errors appear in container stdout/stderr.
 - **File output** defaults to `'info'`. When `--debug` is passed, `DEBUG_LOG_LEVEL='debug'` is forwarded into the container environment and file logs become `'debug'`-level.
-- File logging is only active when `FILE_LOGGING=true`, which ts-scripts sets via the `--logs` flag.
+- **`--logs` flag** enables two mechanisms simultaneously:
+  1. **All services** — each Docker container's stdout/stderr is piped to `e2e/logs/<service>.log` (opensearch, kafka, minio, etc.) via `docker logs -f`.
+  2. **Teraslice containers only** — the `docker-compose.logs.yml` override mounts `e2e/logs/` into the master and worker containers so Teraslice's internal Bunyan logger also writes to `e2e/logs/teraslice.log`. This is the structured file that `pnpm logs` reads.
 
-To view file logs from a running e2e run, use:
-
-```sh
-# from the e2e directory
-pnpm logs
-pnpm logs-follow
-```
+See [Trouble-Shooting](#trouble-shooting) for `pnpm logs` usage and filtering options.
 
 ### Adding new log calls in e2e code
 

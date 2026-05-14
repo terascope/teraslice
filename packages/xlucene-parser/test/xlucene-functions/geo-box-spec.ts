@@ -62,6 +62,25 @@ describe('geoBox', () => {
         expect(instance.toElasticsearchQuery).toBeFunction();
     });
 
+    it('will throw if top_left or bottom_right make an invalid bounding box', () => {
+        const variables = {
+            point1: { lat: 32.813646, lon: -111.058902 },
+            point2: '33.906320,-112.758421'
+        };
+        const query = 'location:geoBox(bottom_right: $point2 top_left: $point1)';
+
+        const { ast } = new Parser(query, {
+            type_config: typeConfig,
+            variables
+        });
+
+        expect(() => initFunction({
+            node: ast as FunctionNode,
+            variables,
+            type_config: typeConfig
+        })).toThrow();
+    });
+
     describe('opensearch dsl', () => {
         it('can produce proper opensearch DSL (variable queries included)', () => {
             expect.hasAssertions();

@@ -15,7 +15,6 @@ import {
     GeoShapeRelation,
     GeoInput
 } from '@terascope/types';
-import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 import equal from '@turf/boolean-equal';
 import createCircle from '@turf/circle';
@@ -33,7 +32,6 @@ import {
 import type {
     MultiPolygon,
     Feature,
-    GeoJsonProperties,
     Polygon,
     Position,
 } from 'geojson';
@@ -198,45 +196,57 @@ export function isGeoPoint(input: unknown): boolean {
     return parseGeoPoint(input as GeoPointInput, false) != null;
 }
 
-export function makeGeoBBox(
-    point1: GeoPoint,
-    point2: GeoPoint
-): Feature<Polygon, GeoJsonProperties> {
-    const line = lineString([
-        makeCoordinatesFromGeoPoint(point1),
-        makeCoordinatesFromGeoPoint(point2)
-    ]);
-    const box = bbox(line);
+export function createValidGeoBox(topLeft: GeoPoint, bottomRight: GeoPoint) {
+    const { lon: tlLng, lat: tlLat } = topLeft;
+    const { lon: brLng, lat: brLat } = bottomRight;
 
-    return bboxPolygon(box);
+    // Validate: upper-left must be north of lower-right
+    if (tlLat <= brLat) {
+        throw new Error(
+            `top_left latitude (${tlLat}) must be greater than bottom_right latitude (${brLat})`
+        );
+    }
+
+    // Validate: upper-left must be west of lower-right
+    if (tlLng >= brLng) {
+        throw new Error(
+            `top_left longitude (${tlLng}) must be less than bottom_right longitude (${brLng})`
+        );
+    }
+
+    // Build bbox as [west, south, east, north] — Turf's expected order
+    const bboxCoordinates = [tlLng, brLat, brLng, tlLat] as [number, number, number, number];
+
+    return bboxPolygon(bboxCoordinates);
 }
 
 export function inGeoBoundingBox(
     top_left: GeoPointInput, bottom_right: GeoPointInput, point: GeoPointInput
 ): boolean {
-    const topLeft = parseGeoPoint(top_left);
-    const bottomRight = parseGeoPoint(bottom_right);
-
-    const polygon = makeGeoBBox(topLeft, bottomRight);
-    if (polygon == null) {
-        throw new Error(`Invalid bounding box created from topLeft: ${topLeft}, bottomRight: ${bottomRight}`);
-    }
-
+    const { polygon } = validateBoundingBox(top_left, bottom_right);
     return geoPolyHasPoint(polygon)(point);
 }
 
 export function inGeoBoundingBoxFP(
     top_left: GeoPointInput, bottom_right: GeoPointInput
 ): (input: unknown) => boolean {
+    const { polygon } = validateBoundingBox(top_left, bottom_right);
+    return geoPolyHasPoint(polygon);
+}
+
+export function validateBoundingBox(
+    top_left: GeoPointInput, bottom_right: GeoPointInput
+) {
     const topLeft = parseGeoPoint(top_left);
     const bottomRight = parseGeoPoint(bottom_right);
 
-    const polygon = makeGeoBBox(topLeft, bottomRight);
+    const polygon = createValidGeoBox(topLeft, bottomRight);
+
     if (polygon == null) {
         throw new Error(`Invalid bounding box created from topLeft: ${topLeft}, bottomRight: ${bottomRight}`);
     }
 
-    return geoPolyHasPoint(polygon);
+    return { polygon, topLeft, bottomRight };
 }
 
 export function makeCoordinatesFromGeoPoint(point: GeoPoint): CoordinateTuple {

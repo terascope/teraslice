@@ -7,6 +7,7 @@ import {
     toBigInt,
     bigIntToJSON,
     isBigInt,
+    isNumberLike,
     inNumberRange,
     setPrecision,
     toFahrenheit,
@@ -22,10 +23,40 @@ describe('Numbers', () => {
             [[33.435518, -111.873616], [33.435518, -111.873616]],
             [['33.435518 ', -111.873616], [33.435518, -111.873616]],
             [[Infinity, 0, 'c ', '', null, 10], [Infinity, 0, 10]],
-            [[Infinity, 0, 'c ', '', null, 10], [Infinity, 0, 10]],
+            [[Infinity, 0, 'c ', '', null, -2.4e22, 10], [Infinity, 0, -2.4e22, 10]],
             [null, []]
         ])('should parse %j to be %j', (input, expected) => {
             expect(parseNumberList(input)).toEqual(expected);
+        });
+    });
+
+    describe('isNumberLike', () => {
+        test.each([
+            ['1234', true],
+            ['234.3434', true],
+            [1234, true],
+            ['    ', false],
+            ['', false],
+            [true, false],
+            [false, false],
+            [null, false],
+            ['not a number', false],
+            [['1234'], false],
+            [{ foo: 'bar' }, false],
+            [Infinity, true],
+            [3.234333e-8, true],
+            ['3.234333e-8', true],
+            ['324E8 street', false],
+            ['324EE8', false],
+            ['1,000', true],
+            ['1_000', true],
+            ['1_000_000_000_000', true],
+            [BigInt('42540488320432167789079031612388147200'), true],
+            ['1_000__000', false],
+            ['1,,000', false],
+            [',100', false]
+        ])('should return true if value can be converted to a number', (input, expected) => {
+            expect(isNumberLike(input)).toBe(expected);
         });
     });
 
@@ -51,6 +82,7 @@ describe('Numbers', () => {
             [{ }, Number.NaN],
             [[], 0],
             [[1], 1],
+            ['3.34343e14', 334343000000000],
         ])('should convert %p to be %p', (input, expected) => {
             expect(toNumber(input)).toEqual(expected);
         });
@@ -84,6 +116,7 @@ describe('Numbers', () => {
             [{ }, false],
             [[], false],
             [[1], false],
+            [3.343e-5, 0.00003343]
         ])('should convert %p to be %p', (input, expected) => {
             expect(toFloat(input)).toEqual(expected);
         });
@@ -118,6 +151,7 @@ describe('Numbers', () => {
             [{ }, false],
             [[], false],
             [[1], false],
+            ['11e10', 11]
         ])('should convert %p to be %p', (input, expected) => {
             expect(toInteger(input)).toEqual(expected);
         });
@@ -187,6 +221,7 @@ describe('Numbers', () => {
             [5, { min: -10, max: 0, inclusive: true }, false],
             [5, { min: -10, max: 5, inclusive: true }, true],
             [10.09373, { min: 10, max: 20.234 }, true],
+            [10.09373, { min: 1e-3, max: 3e4 }, true],
         ])('should convert %p to be %p', (input, args, expected) => {
             expect(inNumberRange(input, args)).toEqual(expected);
         });
@@ -200,6 +235,17 @@ describe('Numbers', () => {
             [10.125, 2, true, 10.12],
             [Math.PI, 0, true, 3],
             [1000, 10, true, 1000],
+            [0.00000012777405852461998, 8, true, 0.00000012],
+            [0.00000012777405852461998, 2, true, 0],
+            [-0.00000012777405852461998, 8, true, -0.00000012],
+            [1.9999999, 2, true, 1.99],
+            [1.9999999, 2, false, 2],
+            [90, 6, true, 90],
+            [0.000001, 2, true, 0],
+            [-1.2999994343243, 4, true, -1.2999],
+            [0.30000000000000004, 4, true, 0.3],
+            [3423443.011234, 2, true, 3423443.01],
+            [3.1234e-7, 8, true, 0.00000031]
         ])('should convert %p with (digits: %p, truncate: %p) to %p', (input, digits, truncate, expected) => {
             expect(setPrecision(input, digits, truncate)).toEqual(expected);
         });

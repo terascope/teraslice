@@ -1,5 +1,5 @@
 import { AnyQuery, xLuceneVariables } from '@terascope/types';
-import { parseGeoPoint, inGeoBoundingBoxFP } from '@terascope/geo-utils';
+import { inGeoBoundingBoxFP, validateBoundingBox } from '@terascope/geo-utils';
 import * as i from '../../interfaces.js';
 import { getFieldValue, logger } from '../../utils.js';
 
@@ -17,9 +17,11 @@ function validate(params: i.Term[], variables: xLuceneVariables) {
     const topLeftValue = getFieldValue<string>(topLeftParam.value, variables);
     const bottomRightValue = getFieldValue<string>(bottomRightParam.value, variables);
 
+    const { topLeft, bottomRight } = validateBoundingBox(topLeftValue, bottomRightValue);
+
     return {
-        top_left: parseGeoPoint(topLeftValue),
-        bottom_right: parseGeoPoint(bottomRightValue)
+        top_left: topLeft,
+        bottom_right: bottomRight
     };
 }
 

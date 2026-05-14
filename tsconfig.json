@@ -108,6 +108,9 @@
             "path": "packages/ts-transforms"
         },
         {
+            "path": "packages/valkey"
+        },
+        {
             "path": "packages/xpressions"
         }
     ]

@@ -9,6 +9,7 @@ onlyBuiltDependencies:
   - esbuild
   - event-loop-stats
   - gc-stats
+  - protobufjs
   - unrs-resolver
   - xlucene-parser
 

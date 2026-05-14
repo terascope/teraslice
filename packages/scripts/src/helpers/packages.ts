@@ -5,7 +5,7 @@ import semver from 'semver';
 import yaml from 'js-yaml';
 import { isDynamicPattern, globbySync } from 'globby';
 import {
-    uniq, fastCloneDeep, get, trim,
+    uniq, fastCloneDeep, get, trim
 } from '@terascope/core-utils';
 import toposort from 'toposort';
 import { MultiMap } from 'mnemonist';
@@ -33,7 +33,7 @@ export function getE2EDir(): string | undefined {
         return _e2eDir;
     }
 
-    return undefined;
+    return;
 }
 
 function _loadPackage(packagePath: string): i.PackageInfo | undefined {
@@ -344,7 +344,10 @@ export async function getRemotePackageVersion(
             return pkgInfo.version;
         }
         if (err instanceof PackageNotFoundError) {
-            return '0.1.0';
+            // In the case a package doesn't exist, like making a new package
+            // this will ensure it gets pushed to npm
+            // We let npm handle any issues with publishing from there
+            return '0.0.0';
         }
         throw err;
     }

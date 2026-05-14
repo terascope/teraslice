@@ -7,14 +7,14 @@ import signale from './signale.js';
 
 const {
     KEEP_OPEN, CONFIG_PATH, ASSETS_PATH, TEST_INDEX_PREFIX,
-    TEST_PLATFORM, ROOT_CERT_PATH, CLUSTER_NAME, TERASLICE_PORT
+    TEST_PLATFORM, CLUSTER_NAME, TERASLICE_PORT
 } = config;
 
 const { cleanupIndex, makeClient } = ElasticsearchTestHelpers;
 
 async function getClient(client?: Client) {
     if (client) return client;
-    return makeClient(ROOT_CERT_PATH);
+    return makeClient();
 }
 
 export async function teardown(testClient?: Client) {

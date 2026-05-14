@@ -6,7 +6,7 @@ import {
 import {
     isGeoPoint, parseGeoPoint, inGeoBoundingBox,
     inGeoBoundingBoxFP, geoPointWithinRange, geoPointWithinRangeFP,
-    toGeoJSON, lookupTimezone, tzCacheLoaded, // toTimeZoneUsingLocationFP
+    toGeoJSON, lookupTimezone, tzCacheLoaded, createValidGeoBox
 } from '../src/index.js';
 
 describe('geo utils', () => {
@@ -153,6 +153,38 @@ describe('geo utils', () => {
             false
         ],
     ];
+
+    describe('->createValidGeoBox', () => {
+        it('should create a valid geo box', () => {
+            const topLeft = { lat: 33.906320, lon: -112.758421 };
+            const bottomRight = { lat: 32.813646, lon: -111.058902 };
+
+            const geoBox = createValidGeoBox(topLeft, bottomRight);
+
+            expect(geoBox).toBeDefined();
+            expect(geoBox).toHaveProperty('type', 'Feature');
+            expect(geoBox).toHaveProperty('geometry.type', 'Polygon');
+            expect(geoBox).toHaveProperty('geometry.coordinates');
+        });
+
+        it('should throw an error if top_left is south of bottom_right', () => {
+            const topLeft = { lat: 32.813646, lon: -112.758421 };
+            const bottomRight = { lat: 33.906320, lon: -111.058902 };
+
+            expect(() => createValidGeoBox(topLeft, bottomRight)).toThrow(
+                `top_left latitude (${topLeft.lat}) must be greater than bottom_right latitude (${bottomRight.lat})`
+            );
+        });
+
+        it('should throw an error if top_left is east of bottom_right', () => {
+            const topLeft = { lat: 33.906320, lon: -111.058902 };
+            const bottomRight = { lat: 32.813646, lon: -112.758421 };
+
+            expect(() => createValidGeoBox(topLeft, bottomRight)).toThrow(
+                `top_left longitude (${topLeft.lon}) must be less than bottom_right longitude (${bottomRight.lon})`
+            );
+        });
+    });
 
     describe('->pointInBoundingBox', () => {
         test.each(bbTestCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {

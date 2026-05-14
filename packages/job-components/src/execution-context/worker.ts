@@ -369,11 +369,14 @@ export class WorkerExecutionContext
                 results,
                 status: this.sliceState.status,
                 analytics: this.sliceState.analytics,
+                retry_count: this.sliceState.retry_count,
             };
         } catch (err) {
             this.logger.error(err, 'A slice error occurred', { slice: this.sliceState.slice });
 
             if (shouldRetry) {
+                this.sliceState.retry_count = (this.sliceState.retry_count ?? 0) + 1;
+
                 try {
                     await this.onSliceRetry();
                 } catch (retryErr) {

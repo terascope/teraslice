@@ -13,14 +13,14 @@ import {
     pDelay, TSError, isCI,
 } from '@terascope/core-utils';
 import {
-    TSCommands, PackageInfo, Service,
-    ServiceObj
+    TSCommands, PackageInfo, ServiceObj
 } from './interfaces.js';
-import type { TestEnv } from '@terascope/types';
+import { Service, TestEnv } from '@terascope/types';
 import { getRootDir, getRootInfo, getPackageManager } from './misc.js';
 import signale from './signale.js';
 import config from './config.js';
 import { getVolumesFromDockerfile } from './kind.js';
+import { TestFramework, TestFrameworks } from './test-runner/interfaces.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -158,23 +158,28 @@ export async function packageMngrRun(
     });
 }
 
-export async function runJest(
+export async function runTestFramework(
     cwd: string,
     argsMap: ArgsMap,
     env?: ExecEnv,
     extraArgs?: string[],
     debug?: boolean,
-    attachJestDebugger?: boolean
+    attachJestDebugger?: boolean,
+    framework: TestFramework = TestFrameworks.jest
 ): Promise<void> {
     const pm = getPackageManager();
     // When running jest in yarn3 PnP with ESM we must call 'yarn jest <...args>'
     // to prevent module not found errors. Therefore we will call fork with the yarn/pnpm
     // command and set jest to the first argument.
-    let args = ['jest'];
+    const frameworkArgs: Record<TestFrameworks, string[]> = {
+        jest: ['jest'],
+        playwright: ['playwright', 'test']
+    };
+    let args = frameworkArgs[framework];
 
     // Set with ATTACH_JEST_DEBUGGER env variable
     // Does not work with repos with pnp
-    if (attachJestDebugger) {
+    if (attachJestDebugger && framework === TestFrameworks.jest) {
         const nodeLinkerConfig = await getNodeLinkerConfig();
 
         if (nodeLinkerConfig === 'node-modules') {
@@ -219,7 +224,7 @@ export async function runJest(
     }
 
     if (debug) {
-        signale.debug(`executing: jest ${args.join(' ')}`);
+        signale.debug(`executing ${framework}: ${args.join(' ')}`);
     }
 
     await fork({
@@ -512,6 +517,17 @@ export async function dockerPush(image: string): Promise<void> {
 
     if (subprocess.exitCode !== 0) {
         throw new Error(`Unable to push docker image ${image}, ${subprocess.stderr}`);
+    }
+}
+
+export async function dockerExec(containerName: string, command: string[]): Promise<void> {
+    const args = ['exec', containerName, ...command];
+    signale.debug(`executing: docker ${args.join(' ')}`);
+
+    const subprocess = await execa('docker', args, { stdio: 'pipe' });
+
+    if (subprocess.exitCode !== 0) {
+        throw new Error(`Docker exec to container ${containerName} failed, ${subprocess.stderr}`);
     }
 }
 
@@ -970,7 +986,7 @@ function readCertFromPath(certPath: string): string {
  * // Output: "OU=anon@anon-MBP (Anon User),O=mkcert development certificate"
  * ```
  */
-function getAdminDnFromCert(): string {
+export function getAdminDnFromCert(): string {
     let ca: string;
     let organization: string | undefined;
     let organizationalUnit: string | undefined;
@@ -1043,6 +1059,7 @@ function generateHelmValuesFromServices(
         [Service.RabbitMQ]: config.RABBITMQ_VERSION,
         [Service.RestrainedOpensearch]: config.OPENSEARCH_VERSION,
         [Service.Utility]: config.UTILITY_SVC_VERSION,
+        [Service.Valkey]: config.VALKEY_VERSION,
         [Service.Teraslice]: config.TERASLICE_DOCKER_IMAGE,
     };
 
@@ -1104,6 +1121,12 @@ function generateHelmValuesFromServices(
                 values.setIn(['minio', 'tls', 'publicCert'], publicCert);
                 values.setIn(['minio', 'tls', 'privateKey'], privateKey);
                 values.setIn(['minio', 'tls', 'certSecret'], 'tls-ssl-minio');
+            }
+        }
+
+        if (service === Service.Valkey) {
+            if (config.ENCRYPT_VALKEY) {
+                throw new Error('Valkey encryption not supported');
             }
         }
 

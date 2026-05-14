@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { listPackages } from '../src/helpers/packages';
-import { filterBySuite, groupBySuite } from '../src/helpers/test-runner/utils';
+import { filterBySuite, groupByFrameworkSuite } from '../src/helpers/test-runner/utils';
 import { PackageInfo } from '../src/helpers/interfaces';
 import { getAvailableTestSuites } from '../src/helpers/misc';
 import { TestOptions } from '../src/helpers/test-runner/interfaces';
@@ -63,11 +63,12 @@ describe('Test Runner Helpers', () => {
     describe('->groupBySuite', () => {
         describe('when running all tests', () => {
             it('should be able to group by suite', () => {
-                const grouped = groupBySuite(packages, availableSuites, {
-                    all: true,
-                } as any);
+                const opts = { all: true } as TestOptions;
+                const grouped = groupByFrameworkSuite(packages, availableSuites, opts).jest;
 
-                for (const [suite, group] of Object.entries(grouped)) {
+                expect(grouped).toBeDefined();
+
+                for (const [suite, group] of Object.entries(grouped!)) {
                     const filtered = filterBySuite(packages, makeTestOptions({
                         all: false,
                         suite: [suite],
@@ -80,6 +81,11 @@ describe('Test Runner Helpers', () => {
 
         describe('when running all tests in watch mode', () => {
             it('should be able group opensearch and unit together', () => {
+                const cacheTests = filterBySuite(packages, makeTestOptions({
+                    all: true,
+                    suite: ['cache']
+                }));
+
                 const elasticsearchTests = filterBySuite(packages, makeTestOptions({
                     all: true,
                     suite: ['opensearch'],
@@ -104,16 +110,23 @@ describe('Test Runner Helpers', () => {
                     ...unitTests,
                     ...restrainedTests,
                     ...opensearchTests,
-                    ...elasticsearchTests
+                    ...elasticsearchTests,
+                    ...cacheTests
                 ];
 
-                const grouped = groupBySuite(packages, availableSuites, makeTestOptions({
-                    all: true,
-                    watch: true
-                }));
+                const grouped = groupByFrameworkSuite(
+                    packages,
+                    availableSuites,
+                    makeTestOptions({
+                        all: true,
+                        watch: true
+                    })
+                ).jest;
 
-                expect(mapInfo(grouped.unit)).toBeArrayOfSize(0);
-                expect(mapInfo(grouped.opensearch).length).toEqual(
+                expect(grouped).toBeDefined();
+
+                expect(mapInfo(grouped?.unit)).toBeArrayOfSize(0);
+                expect(mapInfo(grouped?.opensearch).length).toEqual(
                     mapInfo(unitAndESPackages).length
                 );
             });
@@ -136,14 +149,108 @@ describe('Test Runner Helpers', () => {
                     ...opensearchTests
                 ];
 
-                const grouped = groupBySuite(unitAndESPackages, availableSuites, makeTestOptions({
-                    all: false,
-                }));
+                const grouped = groupByFrameworkSuite(
+                    unitAndESPackages,
+                    availableSuites,
+                    makeTestOptions({ all: false })
+                ).jest;
 
-                expect(mapInfo(grouped.unit)).toBeArrayOfSize(0);
-                expect(mapInfo(grouped.opensearch)).toEqual(
+                expect(grouped).toBeDefined();
+                expect(mapInfo(grouped?.opensearch)).toEqual(
                     mapInfo(unitAndESPackages)
                 );
+            });
+        });
+
+        describe('framework', () => {
+            it('should default to jest when no framework is specified', () => {
+                const grouped = groupByFrameworkSuite(packages, availableSuites, {
+                    all: true
+                } as TestOptions);
+
+                expect(Object.keys(grouped)).toStrictEqual(['jest']);
+            });
+
+            it('should throw if given invalid framework', () => {
+                expect.hasAssertions();
+
+                const pkgs = [{
+                    name: 'myPkg',
+                    terascope: {
+                        testSuite: 'foo',
+                        testFrameworks: ['invalidFramework'] as any
+                    }
+                }] as PackageInfo[];
+
+                try {
+                    groupByFrameworkSuite(pkgs, availableSuites, {
+                        all: true
+                    } as TestOptions);
+                } catch (error) {
+                    expect(error.message).toBe(`Received unsupported test framework(s) "invalidFramework" for "myPkg"`);
+                }
+            });
+
+            it('should properly group framework suites', () => {
+                const pkgs = [
+                    {
+                        name: 'pkgJestA',
+                        terascope: {
+                            testSuite: 'opensearch',
+                            testFrameworks: ['jest']
+                        }
+                    },
+                    {
+                        name: 'pkgPlaywrightA',
+                        terascope: {
+                            testSuite: 'opensearch',
+                            testFrameworks: ['playwright']
+                        }
+                    },
+                    {
+                        name: 'pkgJestB',
+                        terascope: {
+                            testSuite: 'unit',
+                            testFrameworks: ['jest']
+                        }
+                    },
+                    {
+                        name: 'pkgBothA',
+                        terascope: {
+                            testSuite: 'opensearch',
+                            testFrameworks: ['jest', 'playwright']
+                        }
+                    },
+                    {
+                        name: 'pkgNoneB',
+                        terascope: {
+                            testSuite: 'unit'
+                        }
+                    },
+                ] as PackageInfo[];
+
+                const grouped = groupByFrameworkSuite(pkgs, availableSuites, {
+                    all: true
+                } as TestOptions);
+
+                expect(grouped).toMatchObject({
+                    jest: {
+                        opensearch: [
+                            { name: 'pkgJestA' },
+                            { name: 'pkgBothA' },
+                        ],
+                        unit: [
+                            { name: 'pkgJestB' },
+                            { name: 'pkgNoneB' },
+                        ]
+                    },
+                    playwright: {
+                        opensearch: [
+                            { name: 'pkgPlaywrightA' },
+                            { name: 'pkgBothA' },
+                        ]
+                    }
+                });
             });
         });
     });

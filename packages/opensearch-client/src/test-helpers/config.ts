@@ -1,7 +1,12 @@
+import path from 'node:path';
 import { SchemaValidator } from '@terascope/core-utils';
 import { OpenSearchTestEnv, Terafoundation } from '@terascope/types';
 
 const opensearchEnvSchema: Terafoundation.Schema<any> = {
+    CERT_PATH: {
+        default: undefined,
+        format: String
+    },
     OPENSEARCH_HOST: {
         default: null,
         format: 'optional_string',
@@ -44,6 +49,11 @@ const validator = new SchemaValidator<OpenSearchTestEnv>(
 );
 const envConfig = validator.validate(process.env);
 
-export {
-    envConfig
+const rootCertPath = envConfig.CERT_PATH ? path.join(envConfig.CERT_PATH, 'CAs/rootCA.pem') : '';
+
+export const config: OpensearchTestConfig = {
+    ...envConfig,
+    ROOT_CERT_PATH: rootCertPath,
 };
+
+type OpensearchTestConfig = OpenSearchTestEnv & { ROOT_CERT_PATH: string };

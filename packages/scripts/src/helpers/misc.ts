@@ -1,12 +1,13 @@
 import path from 'node:path';
-import { packageUpSync } from 'package-up';
 import fse from 'fs-extra';
+import { packageUpSync } from 'package-up';
+import sortPackageJson from 'sort-package-json';
 import {
     isPlainObject, get, toTitleCase,
     defaultsDeep
 } from '@terascope/core-utils';
-import sortPackageJson from 'sort-package-json';
-import { PackageInfo, RootPackageInfo, Service } from './interfaces.js';
+import { Service } from '@terascope/types';
+import { PackageInfo, RootPackageInfo } from './interfaces.js';
 import config from './config.js';
 import signale from './signale.js';
 

@@ -61,8 +61,10 @@ The `TERASLICE_HOST` environment variable is set automatically and made availabl
 Example `package.json` test script for an asset:
 
 ```json
-"test:e2e": "ASSET_ZIP_PATH=$(ls ./build/*.zip | head -1) TEST_TERASLICE=true ts-scripts test -- --testPathPatterns=test/e2e"
+"test:e2e": "earl assets build --overwrite && ASSET_ZIP_PATH=$(./scripts/asset-zip-path.sh) TEST_TERASLICE=true ts-scripts test -- --testPathPatterns=test/e2e"
 ```
+
+`./scripts/asset_zip_path.sh` provides the path to the zipped asset within `./build` that matches the asset version and node version of the terminal running the script.
 
 ### Environment Variables
 

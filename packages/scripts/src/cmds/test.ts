@@ -25,7 +25,7 @@ type Options = {
     logs: boolean;
 };
 
-const jestArgs = getExtraArgs();
+const frameworkArgs = getExtraArgs();
 const testSuites = getAvailableTestSuites();
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
     command: 'test [packages..]',
@@ -103,16 +103,16 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 default: config.SKIP_IMAGE_DELETION,
             })
             .option('logs', {
-                description: 'Copy logs to local file during e2e testing',
+                description: 'Enable file logging for all Docker service containers during test runs.\n Each service writes to ./logs/<service>.log relative to the working directory.\n For e2e tests, Teraslice also writes structured Bunyan logs to e2e/logs/teraslice.log\n (viewable via `pnpm logs` in the e2e directory).\n Combine with --debug to capture debug-level entries.',
                 type: 'boolean',
-                default: true,
+                default: config.FILE_LOGGING,
             })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
                 coerce(arg) {
                     let args = castArray(arg);
                     args = args.filter((a) => {
-                        if (!jestArgs.includes(a)) return true;
+                        if (!frameworkArgs.includes(a)) return true;
                         return false;
                     });
                     return coercePkgArg(args);
@@ -120,19 +120,19 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             });
     },
     handler(argv) {
-        const debug = hoistJestArg(argv, ['d', 'debug'], 'boolean');
-        const watch = hoistJestArg(argv, ['w', 'watch'], 'boolean');
-        const bail = hoistJestArg(argv, 'bail', 'boolean');
-        const trace = hoistJestArg(argv, 'trace', 'boolean');
-        const keepOpen = hoistJestArg(argv, 'keep-open', 'boolean');
-        const reportCoverage = hoistJestArg(argv, 'report-coverage', 'boolean');
-        const useExistingServices = hoistJestArg(argv, 'use-existing-services', 'boolean');
-        const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
-        const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
-        const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native' | 'kubernetesV2';
+        const debug = hoistArg(argv, ['d', 'debug'], 'boolean');
+        const watch = hoistArg(argv, ['w', 'watch'], 'boolean');
+        const bail = hoistArg(argv, 'bail', 'boolean');
+        const trace = hoistArg(argv, 'trace', 'boolean');
+        const keepOpen = hoistArg(argv, 'keep-open', 'boolean');
+        const reportCoverage = hoistArg(argv, 'report-coverage', 'boolean');
+        const useExistingServices = hoistArg(argv, 'use-existing-services', 'boolean');
+        const forceSuite = hoistArg(argv, 'force-suite', 'string');
+        const ignoreMount = hoistArg(argv, 'ignore-mount', 'boolean');
+        const testPlatform = hoistArg(argv, 'test-platform', 'string') as 'native' | 'kubernetesV2';
         const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
-        const skipImageDeletion = hoistJestArg(argv, 'skip-image-deletion', 'boolean');
-        const logs = hoistJestArg(argv, 'logs', 'boolean');
+        const skipImageDeletion = hoistArg(argv, 'skip-image-deletion', 'boolean');
+        const logs = hoistArg(argv, 'logs', 'boolean');
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -149,7 +149,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             useExistingServices,
             all: !argv.packages || !argv.packages.length,
             reportCoverage,
-            jestArgs,
+            frameworkArgs,
             ignoreMount,
             clusteringType: testPlatform,
             kindClusterName,
@@ -161,30 +161,30 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
 
 type Arg = keyof Options;
 // this only works with booleans for now
-function hoistJestArg(argv: any, keys: Arg|((Arg | string)[]), type: 'string'): string;
-function hoistJestArg(argv: any, keys: Arg|((Arg | string)[]), type: 'boolean'): boolean;
-function hoistJestArg(argv: any, keys: Arg|((Arg | string)[]), type: 'boolean' | 'string'): boolean | string {
+function hoistArg(argv: any, keys: Arg|((Arg | string)[]), type: 'string'): string;
+function hoistArg(argv: any, keys: Arg|((Arg | string)[]), type: 'boolean'): boolean;
+function hoistArg(argv: any, keys: Arg|((Arg | string)[]), type: 'boolean' | 'string'): boolean | string {
     let val: any;
 
     castArray(keys).forEach((key) => {
         val = argv[key];
 
-        const index = jestArgs.indexOf(
+        const index = frameworkArgs.indexOf(
             key.length === 1 ? `-${key}` : `--${key}`
         );
         if (index > -1) {
-            const nextVal = jestArgs[index + 1];
+            const nextVal = frameworkArgs[index + 1];
 
             if (type === 'boolean') {
                 if (nextVal && ['true', true, 'false', false].includes(nextVal)) {
-                    jestArgs.splice(index, 2);
+                    frameworkArgs.splice(index, 2);
                     val = toBoolean(nextVal);
                 } else {
-                    jestArgs.splice(index, 1);
+                    frameworkArgs.splice(index, 1);
                     val = true;
                 }
             } else if (type === 'string') {
-                jestArgs.splice(index, 2);
+                frameworkArgs.splice(index, 2);
                 val = nextVal;
             }
         }
@@ -200,14 +200,14 @@ function getExtraArgs(): string[] {
     let extra = false;
     process.argv.forEach((arg) => {
         if (extra) {
-            args.push(...resolveJestArg(arg));
+            args.push(...resolveArg(arg));
         }
         if (arg === '--') extra = true;
     });
     return args;
 }
 
-function resolveJestArg(arg: string): string[] {
+function resolveArg(arg: string): string[] {
     if (arg == null || arg === '') return [];
     if (fs.existsSync(arg)) {
         // for outside projects that haven't upgraded to jest 30 yet

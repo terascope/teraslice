@@ -2,6 +2,108 @@ apiVersion: v1
 entries:
   teraslice-chart:
   - apiVersion: v2
+    appVersion: v3.8.0
+    created: "2026-05-01T16:30:40.807385925Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: dce32e74b3b780c013b095f4e9044a70f985b82235d859ddb865a01e53bad936
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - opensearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:3.20.0
+    version: 3.20.0
+  - apiVersion: v2
+    appVersion: v3.7.0
+    created: "2026-04-30T22:51:44.55920488Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: 380d9f3d21d871c70b9250aaa209cde7b5cc7bb97d6cb7fca98fbd58ebbc5c25
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - opensearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:3.19.0
+    version: 3.19.0
+  - apiVersion: v2
+    appVersion: v3.6.1
+    created: "2026-04-21T17:33:12.222751202Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: 47a256738eba9324e52e6c11cb5e6d24942bf2baab24609b5f55a6ca4c145764
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - opensearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:3.18.0
+    version: 3.18.0
+  - apiVersion: v2
+    appVersion: v3.6.0
+    created: "2026-04-17T18:39:13.003806177Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: b9dc676a708b0d48410487f0357c7c384ab07115e10bc6c34aa631ad16c478b8
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - opensearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:3.17.0
+    version: 3.17.0
+  - apiVersion: v2
+    appVersion: v3.5.3
+    created: "2026-04-15T15:13:20.711128809Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: ddaf9347cd8ef6d1e927ff4161fe094c3a8cf5c3218001100c11c9b62a5d0d69
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - opensearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:3.16.0
+    version: 3.16.0
+  - apiVersion: v2
+    appVersion: v3.5.2
+    created: "2026-04-07T16:50:31.142417411Z"
+    description: Teraslice -  Distributed computing platform for processing JSON data
+    digest: cd319ddb26fc8c69139acf81cf64bafdaee9e11a8be66474398ee0ed81618d44
+    home: https://github.com/terascope/teraslice
+    icon: https://terascope.github.io/teraslice/img/logo.png
+    keywords:
+    - teraslice
+    - opensearch
+    name: teraslice-chart
+    sources:
+    - https://github.com/terascope/teraslice
+    type: application
+    urls:
+    - oci://ghcr.io/terascope/teraslice-chart:3.15.0
+    version: 3.15.0
+  - apiVersion: v2
     appVersion: v3.5.1
     created: "2026-03-31T17:32:49.251778704Z"
     description: Teraslice -  Distributed computing platform for processing JSON data
@@ -639,4 +741,4 @@ entries:
     urls:
     - oci://ghcr.io/terascope/teraslice-chart:2.0.0
     version: 2.0.0
-generated: "2026-03-31T17:32:49.250745924Z"
+generated: "2026-05-01T16:30:40.806597252Z"

@@ -1,6 +1,6 @@
 import {
-    cloneDeep, pMap, get, isNil,
-    has
+    cloneDeep, pMap, get, isNil, has,
+    isTest
 } from '@terascope/core-utils';
 import { Teraslice, Terafoundation } from '@terascope/types';
 import { Context, OpConfig, ValidatedJobConfig } from './interfaces';
@@ -8,7 +8,10 @@ import { validateJobConfig } from './config-validators.js';
 import { jobSchema } from './job-schemas.js';
 import { OperationLoader, parseName } from './operation-loader/index.js';
 import { registerApis } from './register-apis.js';
-import { OperationAPIConstructor, OperationModule } from './operations/index.js';
+import {
+    OperationAPIConstructor,
+    OperationModule,
+} from './operations/index.js';
 
 export class JobValidator {
     public schema: Terafoundation.Schema<any>;
@@ -19,14 +22,14 @@ export class JobValidator {
         this.context = context;
         this.opLoader = new OperationLoader({
             assetPath: context.sysconfig.teraslice.assets_directory,
-            validate_name_collisions: true
+            validate_name_collisions: true,
         });
         this.schema = jobSchema(context);
     }
 
     /** Validate the job configuration, including the Operations and APIs configuration */
     async validateConfig(
-        jobSpec: Partial<Teraslice.JobConfig | Teraslice.JobConfigParams>
+        jobSpec: Partial<Teraslice.JobConfig | Teraslice.JobConfigParams>,
     ): Promise<ValidatedJobConfig> {
         // top level job validation occurs, but not operations
         const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec));
@@ -41,7 +44,7 @@ export class JobValidator {
         const handleModule = (
             opConfig: OpConfig,
             op: OperationModule,
-            index: number
+            index: number,
         ) => {
             const { Schema: OpSchema, API } = op;
 
@@ -81,6 +84,12 @@ export class JobValidator {
             return validatedConfig;
         };
 
+        // jest has an issues with dynamic imports using node experimental vm
+        // so we need to load the operations sequentially in test mode to avoid that issue
+        // https://github.com/terascope/standard-assets/issues/861
+        const concurrency = isTest ? 1 : jobConfig.operations.length;
+        const apiConcurrency = isTest ? 1 : jobConfig.apis.length;
+
         jobConfig.operations = await pMap(jobConfig.operations, async (opConfig, index) => {
             if (index === 0) {
                 return handleModule(
@@ -93,9 +102,10 @@ export class JobValidator {
             return handleModule(
                 opConfig,
                 await this.opLoader.loadProcessor(opConfig._op, assetIds),
-                index
+                index,
             );
-        });
+        }, { concurrency },
+        );
 
         jobConfig.apis = await pMap(jobConfig.apis, async (apiConfig, index) => {
             const { Schema: ApiSchema } = await this.opLoader.loadAPI(apiConfig._name, assetIds);
@@ -120,7 +130,7 @@ export class JobValidator {
         // this can mutate the job
         validateApisFns.forEach((fn) => {
             fn(jobConfig);
-        });
+        }, { concurrency: apiConcurrency });
 
         const apiNames = jobConfig.apis.map((api) => api._name);
 

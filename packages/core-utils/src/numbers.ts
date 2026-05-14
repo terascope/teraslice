@@ -1,6 +1,7 @@
 import { FieldType } from '@terascope/types';
 import { isArrayLike } from './arrays.js';
 import { getTypeOf } from './deps.js';
+import { isEmpty } from './empty.js';
 import { isKey } from './objects.js';
 
 let supportsBigInt = true;
@@ -113,16 +114,26 @@ export function bigIntToJSON(int: bigint): string | number {
 }
 
 /**
- * A stricter check for verifying a number string
- * @todo this needs to be smarter
+ * return true if value could be a number
 */
 export function isNumberLike(input: unknown): boolean {
-    if (typeof input === 'number') return true;
-    if (typeof input === 'object') return false;
-    if (typeof input === 'boolean') return false;
+    const inputType = typeof input;
 
-    // https://regexr.com/5cljt
-    return /^\s*[+-]{0,1}[\d,]+(\.[\d]+){0,1}\s*$/.test(String(input));
+    if (['bigint', 'number'].includes(inputType)) return true;
+    if (inputType !== 'string') return false;
+
+    if (isEmpty((input as string).trim())) {
+        return false;
+    }
+
+    // remove commas and numeric separator,
+    // but only if a single character surrounded by digits
+    const sanitized = Number(
+        (input as string)
+            .replace(/(?<=\d)[,_](?=\d)/g, '')
+    );
+
+    return !isNaN(sanitized) && Number.isFinite(sanitized);
 }
 
 /** A simplified implementation of lodash isInteger */
@@ -295,7 +306,7 @@ export function setPrecision(
         return parseFloat(num.toFixed(fractionDigits));
     }
     return parseFloat(
-        setPrecisionFromString(num.toString(), fractionDigits)
+        truncateNumber(num, fractionDigits)
     );
 }
 
@@ -316,12 +327,14 @@ export function setPrecisionFP(
 
 /**
  * this will always truncate (not round)
+ * numbers over 2^53 - 1 (over 9 Quadrillion) cannot be truncated with this function
 */
-function setPrecisionFromString(
-    input: string,
+function truncateNumber(
+    input: number,
     fractionDigits: number,
 ): string {
-    const [int, points] = input.toString().split('.');
+    const str = input.toFixed(fractionDigits + 5);
+    const [int, points] = str.split('.');
     if (!points) return int || '0';
 
     const remainingPoints = points.slice(0, fractionDigits);

@@ -17,6 +17,8 @@ repositories:
     url: https://provectus.github.io/kafka-ui-charts/
   - name: chaos-mesh
     url: https://charts.chaos-mesh.org
+  - name: valkey
+    url: https://valkey.io/valkey-helm/
 
 helmDefaults:
   wait: true
@@ -139,6 +141,19 @@ releases:
     installed: {{ .Values | get "utility.enabled" true }}
     values:
       - ./templates/utility.yaml.gotmpl
+    needs:
+      - default/namespaces
+    {{- if .Values | get "stern.enabled" false }}
+      - default/stern
+    {{- end }}
+
+  - name: valkey
+    namespace: services-dev1
+    chart: valkey/valkey
+    version: 0.9.4
+    installed: {{ .Values | get "valkey.enabled" true }}
+    values:
+      - ./templates/valkey.yaml.gotmpl
     needs:
       - default/namespaces
     {{- if .Values | get "stern.enabled" false }}

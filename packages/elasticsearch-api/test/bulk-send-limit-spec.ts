@@ -5,9 +5,9 @@ import elasticsearchAPI, { Client as APIClient } from '../src/index.js';
 
 const {
     makeClient, cleanupIndex, waitForData,
-    EvenDateData, envConfig, formatUploadData
+    EvenDateData, config, formatUploadData
 } = ElasticsearchTestHelpers;
-const { TEST_INDEX_PREFIX } = envConfig;
+const { TEST_INDEX_PREFIX } = config;
 
 const THREE_MINUTES = 3 * 60 * 1000;
 

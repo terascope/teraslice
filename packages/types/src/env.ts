@@ -22,6 +22,7 @@ export interface TestEnv {
     ENCRYPT_KAFKA?: boolean;
     ENCRYPT_MINIO?: boolean;
     ENCRYPT_OPENSEARCH?: boolean;
+    ENCRYPT_VALKEY?: boolean;
     ENCRYPTION_ENABLED?: boolean;
     ENV_SERVICES?: Service[];
     FILE_LOGGING?: boolean;
@@ -108,7 +109,6 @@ export interface TestEnv {
     SKIP_IMAGE_DELETION?: boolean;
     STERN_LOGS?: boolean;
     TJM_TEST_MODE?: boolean;
-    ASSET_ZIP_PATH?: string;
     TERASLICE_CLUSTER_NAME?: string;
     TERASLICE_HOST?: string;
     TERASLICE_IMAGE?: string;
@@ -123,6 +123,7 @@ export interface TestEnv {
     TEST_PLATFORM?: 'native' | 'kubernetesV2';
     TEST_RABBITMQ?: boolean;
     TEST_RESTRAINED_OPENSEARCH?: boolean;
+    TEST_VALKEY?: boolean;
     TESTING_LOG_LEVEL?: Logger.LogLevelString;
     TZ?: string;
     USE_DEV_ASSETS?: boolean;
@@ -131,6 +132,12 @@ export interface TestEnv {
     UTILITY_SVC_VERSION?: string;
     UTILITY_SVC_DOCKER_IMAGE?: string;
     UTILITY_SVC_DOCKER_PROJECT_PATH?: string;
+    VALKEY_DOCKER_IMAGE?: string;
+    VALKEY_HOST?: string;
+    VALKEY_HOSTNAME?: string;
+    VALKEY_NAME?: string;
+    VALKEY_PORT?: number;
+    VALKEY_VERSION?: string;
     [key: string]: any;
 }
 
@@ -140,7 +147,8 @@ type RequireKeys<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
 
 export type OpenSearchTestEnv = RequireKeys<
     TestEnv,
-    'TEST_INDEX_PREFIX' | 'SEARCH_TEST_HOST' | 'OPENSEARCH_VERSION' | 'OPENSEARCH_USER' | 'OPENSEARCH_PASSWORD'
+    'TEST_INDEX_PREFIX' | 'SEARCH_TEST_HOST' | 'OPENSEARCH_VERSION'
+    | 'OPENSEARCH_USER' | 'OPENSEARCH_PASSWORD' | 'CERT_PATH'
 >;
 
 export type MinioTestEnv = RequireKeys<
@@ -161,7 +169,7 @@ export type RabbitMQTestEnv = RequireKeys<
 
 export type TerasliceServiceTestEnv = RequireKeys<
     TestEnv,
-    'TEST_TERASLICE' | 'TERASLICE_HOST' | 'ASSET_ZIP_PATH'
+    'TEST_TERASLICE' | 'TERASLICE_HOST'
 >;
 
 export type E2ETestEnv = RequireKeys<
@@ -188,9 +196,9 @@ export type ScriptsTestEnv = RequireKeys<
     | 'DEFAULT_OPENSEARCH1_VERSION' | 'DEFAULT_OPENSEARCH2_VERSION'
     | 'DEFAULT_OPENSEARCH3_VERSION' | 'DEV_DOCKER_IMAGE' | 'DEV_TAG' | 'DOCKER_CACHE_PATH'
     | 'DOCKER_IMAGE_LIST_PATH' | 'DOCKER_IMAGES_PATH' | 'DOCKER_NETWORK_NAME'
-    | 'ENCRYPT_KAFKA' | 'ENCRYPT_MINIO' | 'ENCRYPT_OPENSEARCH' | 'ENCRYPTION_ENABLED'
-    | 'ENV_SERVICES' | 'FORCE_COLOR' | 'HOST_IP' | 'JEST_MAX_WORKERS' | 'K8S_VERSION'
-    | 'KAFKA_ADVERTISED_LISTENERS' | 'KAFKA_BROKER' | 'KAFKA_CONTROLLER_LISTENER_NAMES'
+    | 'ENCRYPT_KAFKA' | 'ENCRYPT_MINIO' | 'ENCRYPT_OPENSEARCH' | 'ENCRYPT_VALKEY'
+    | 'ENCRYPTION_ENABLED' | 'ENV_SERVICES' | 'FORCE_COLOR' | 'HOST_IP' | 'JEST_MAX_WORKERS'
+    | 'K8S_VERSION' | 'KAFKA_ADVERTISED_LISTENERS' | 'KAFKA_BROKER' | 'KAFKA_CONTROLLER_LISTENER_NAMES'
     | 'KAFKA_CONTROLLER_QUORUM_VOTERS' | 'KAFKA_DOCKER_IMAGE'
     | 'KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS' | 'KAFKA_HOSTNAME'
     | 'KAFKA_INTER_BROKER_LISTENER_NAME' | 'KAFKA_LISTENERS'
@@ -208,14 +216,16 @@ export type ScriptsTestEnv = RequireKeys<
     | 'RABBITMQ_MANAGEMENT_PORT' | 'RABBITMQ_NAME' | 'RABBITMQ_PASSWORD' | 'RABBITMQ_PORT'
     | 'RABBITMQ_USER' | 'RABBITMQ_VERSION' | 'REPORT_COVERAGE'
     | 'RESTRAINED_OPENSEARCH_HOST' | 'RESTRAINED_OPENSEARCH_PORT' | 'SEARCH_TEST_HOST'
-    | 'SERVICE_HEAP_OPTS' | 'SERVICE_UP_TIMEOUT' | 'SERVICES_USE_TMPFS'
+    | 'FILE_LOGGING' | 'SERVICE_HEAP_OPTS' | 'SERVICE_UP_TIMEOUT' | 'SERVICES_USE_TMPFS'
     | 'SKIP_DOCKER_BUILD_IN_E2E' | 'SKIP_DOCKER_BUILD_IN_K8S' | 'SKIP_E2E_OUTPUT_LOGS'
     | 'SKIP_GIT_COMMANDS' | 'SKIP_IMAGE_DELETION' | 'TERASLICE_DOCKER_IMAGE'
     | 'TERASLICE_HOST' | 'TERASLICE_IMAGE' | 'TERASLICE_PORT' | 'TERASLICE_VERSION'
     | 'TEST_NAMESPACE' | 'TEST_TERASLICE' | 'USE_EXISTING_SERVICES'
     | 'UTILITY_SVC_DOCKER_IMAGE' | 'UTILITY_SVC_DOCKER_PROJECT_PATH'
-    | 'UTILITY_SVC_NAME' | 'UTILITY_SVC_VERSION'
+    | 'UTILITY_SVC_NAME' | 'UTILITY_SVC_VERSION' | 'VALKEY_DOCKER_IMAGE' | 'VALKEY_HOST'
+    | 'VALKEY_HOSTNAME' | 'VALKEY_NAME' | 'VALKEY_PORT' | 'VALKEY_VERSION'
 >;
+
 export interface TerasliceEnv {
     ASSETS?: string;
     assets_port?: number;
@@ -271,6 +281,11 @@ export interface TerafoundationEnv {
     [key: string]: any;
 }
 
+export type ValkeyTestEnv = RequireKeys<
+    TestEnv,
+    'VALKEY_HOSTNAME' | 'VALKEY_PORT'
+>;
+
 export enum Service {
     Kafka = 'kafka',
     Minio = 'minio',
@@ -278,5 +293,6 @@ export enum Service {
     Opensearch = 'opensearch',
     RestrainedOpensearch = 'restrained_opensearch',
     Utility = 'utility',
-    Teraslice = 'teraslice'
+    Teraslice = 'teraslice',
+    Valkey = 'valkey'
 }

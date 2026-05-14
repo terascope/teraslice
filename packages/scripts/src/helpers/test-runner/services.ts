@@ -1,23 +1,27 @@
 import ms from 'ms';
+import net from 'node:net';
 import os from 'node:os';
-import got from 'got';
+import got, { Response } from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'node:path';
 import yaml from 'js-yaml';
 import { Kafka } from 'kafkajs';
+import { execa } from 'execa';
 import {
     pWhile, TSError, debugLogger,
     getErrorStatusCode, isKey, toHumanTime
 } from '@terascope/core-utils';
+import { Service } from '@terascope/types';
 import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo, dockerStop,
-    loadThenDeleteImageFromCache, dockerPull, logTCPPorts
+    loadThenDeleteImageFromCache, dockerPull, logTCPPorts,
+    getAdminDnFromCert,
+    dockerExec
 } from '../scripts.js';
 import { Kind } from '../kind.js';
-import { TestOptions } from './interfaces.js';
-import { Service } from '../interfaces.js';
+import { isOpenSearchInfo, TestOptions } from './interfaces.js';
 import config, { resolveTerasliceVersion } from '../config.js';
 import signale from '../signale.js';
 
@@ -26,13 +30,18 @@ const logger = debugLogger('ts-scripts:cmd:test');
 const serviceUpTimeout = ms(config.SERVICE_UP_TIMEOUT);
 
 const rabbitConfigPath = path.join(getRootDir(), '/.ts-test-config/rabbitmq.conf');
-const restrainedOpensearchConfigPath = path.join(getRootDir(), '/.ts-test-config/opensearch.yml');
+const opensearchConfigPath = path.join(getRootDir(), '/.ts-test-config/opensearch.yml');
 
 const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.RestrainedOpensearch]: {
         image: config.OPENSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
-        mount: [`type=bind,source=${restrainedOpensearchConfigPath},target=/usr/share/opensearch/config/opensearch.yml`],
+        mount: config.ENCRYPT_OPENSEARCH
+            ? [
+                `type=bind,source=${config.CERT_PATH},target=/usr/share/opensearch/config/certs`,
+                `type=bind,source=${opensearchConfigPath},target=/usr/share/opensearch/config/opensearch.yml`
+            ]
+            : [`type=bind,source=${opensearchConfigPath},target=/usr/share/opensearch/config/opensearch.yml`],
         ports: [`${config.RESTRAINED_OPENSEARCH_PORT}:${config.RESTRAINED_OPENSEARCH_PORT}`],
         env: {
             OPENSEARCH_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
@@ -40,7 +49,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'http.port': config.RESTRAINED_OPENSEARCH_PORT,
             'discovery.type': 'single-node',
             DISABLE_INSTALL_DEMO_CONFIG: true,
-            DISABLE_SECURITY_PLUGIN: true
+            DISABLE_SECURITY_PLUGIN: !config.ENCRYPT_OPENSEARCH,
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -50,6 +59,12 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         tmpfs: config.SERVICES_USE_TMPFS
             ? ['/usr/share/opensearch/data:uid=1000,gid=1000']
             : undefined,
+        mount: config.ENCRYPT_OPENSEARCH
+            ? [
+                `type=bind,source=${config.CERT_PATH},target=/usr/share/opensearch/config/certs`,
+                `type=bind,source=${opensearchConfigPath},target=/usr/share/opensearch/config/opensearch.yml`
+            ]
+            : [],
         ports: [`${config.OPENSEARCH_PORT}:${config.OPENSEARCH_PORT}`],
         env: {
             OPENSEARCH_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
@@ -57,7 +72,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'http.port': config.OPENSEARCH_PORT,
             'discovery.type': 'single-node',
             DISABLE_INSTALL_DEMO_CONFIG: true,
-            DISABLE_SECURITY_PLUGIN: true,
+            DISABLE_SECURITY_PLUGIN: !config.ENCRYPT_OPENSEARCH,
             DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI: 'true'
         },
         network: config.DOCKER_NETWORK_NAME
@@ -136,6 +151,13 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         name: `${config.TEST_NAMESPACE}_${config.UTILITY_SVC_NAME}`,
         network: config.DOCKER_NETWORK_NAME,
     },
+    [Service.Valkey]: {
+        image: config.VALKEY_DOCKER_IMAGE,
+        name: `${config.TEST_NAMESPACE}_${config.VALKEY_NAME}`,
+        ports: [`${config.VALKEY_PORT}:${config.VALKEY_PORT}`],
+        network: config.DOCKER_NETWORK_NAME,
+        args: ['--port', config.VALKEY_PORT.toString(), '--save', ''],
+    },
     [Service.Teraslice]: {
         image: config.TERASLICE_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_teraslice`,
@@ -143,6 +165,40 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         network: config.DOCKER_NETWORK_NAME,
     }
 };
+
+export function startServiceLogging(launchServices: Service[], logsDir: string): () => void {
+    fs.mkdirSync(logsDir, { recursive: true });
+
+    const subprocesses: ReturnType<typeof execa>[] = [];
+    const loggedContainers = new Set<string>();
+
+    for (const service of launchServices) {
+        const containerName = services[service]?.name;
+        if (!containerName || loggedContainers.has(containerName)) continue;
+        loggedContainers.add(containerName);
+
+        const logFilePath = path.join(logsDir, `${service}.log`);
+        signale.info(`Piping ${containerName} docker logs to ${logFilePath}`);
+
+        const logStream = fs.createWriteStream(logFilePath);
+        const subprocess = execa('docker', ['logs', '-f', containerName], { all: true });
+
+        subprocess.all?.pipe(logStream);
+        subprocess.catch(() => {});
+
+        subprocesses.push(subprocess);
+    }
+    // Wait up to 10s for docker logs to flush before force-killing.
+    return async () => {
+        await Promise.all(
+            subprocesses.map(async (subprocess) => {
+                const timeout = new Promise<void>((resolve) => setTimeout(resolve, ms('10s')));
+                await Promise.race([subprocess.catch(() => {}), timeout]);
+                subprocess.kill();
+            })
+        );
+    };
+}
 
 export async function loadOrPullServiceImages(
     suite: string,
@@ -210,19 +266,40 @@ export async function loadOrPullServiceImages(
     }
 }
 
-export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
+export async function ensureServices(
+    suite: string, options: TestOptions, logsDir?: string
+): Promise<() => void> {
     const launchServices = getServicesForSuite(suite);
     const promises: Promise<(() => void)>[] = [];
 
     if (launchServices.includes(Service.RestrainedOpensearch)) {
+        if (config.ENCRYPT_OPENSEARCH) {
+            throw new Error('Restrained Opensearch is not compatible with an encrypted opensearch');
+        }
+
         // we create the opensearch.yml file for tests
         if (!options.ignoreMount) {
-            await fs.outputFile(restrainedOpensearchConfigPath, 'network.host: 0.0.0.0\nthread_pool.write.queue_size: 2');
+            await fs.outputFile(opensearchConfigPath, 'network.host: 0.0.0.0\nthread_pool.write.queue_size: 2');
         }
         promises.push(ensureRestrainedOpensearch(options));
     }
 
     if (launchServices.includes(Service.Opensearch)) {
+        // we create the opensearch.yml file for tests
+        if (!options.ignoreMount && config.ENCRYPT_OPENSEARCH) {
+            const encryptedOpensearchConfigProps = [
+                'plugins.security.ssl.transport.pemcert_filepath: certs/opensearch-cert.pem',
+                'plugins.security.ssl.transport.pemkey_filepath: certs/opensearch-key.pem',
+                'plugins.security.ssl.transport.pemtrustedcas_filepath: certs/CAs/rootCA.pem',
+                'plugins.security.ssl.http.enabled: true',
+                'plugins.security.ssl.http.pemcert_filepath: certs/opensearch-cert.pem',
+                'plugins.security.ssl.http.pemkey_filepath: certs/opensearch-key.pem',
+                'plugins.security.ssl.http.pemtrustedcas_filepath: certs/CAs/rootCA.pem',
+                `plugins.security.authcz.admin_dn:`,
+                `  - ${getAdminDnFromCert()}`
+            ];
+            await fs.outputFile(opensearchConfigPath, encryptedOpensearchConfigProps.join('\n'));
+        }
         promises.push(ensureOpensearch(options));
     }
 
@@ -247,6 +324,10 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
         promises.push(ensureUtility(options));
     }
 
+    if (launchServices.includes(Service.Valkey)) {
+        promises.push(ensureValkey(options));
+    }
+
     const fns = await Promise.all(promises);
 
     // Teraslice depends on OpenSearch being up, so start it after the parallel services
@@ -255,9 +336,14 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
         terasliceFn = await ensureTeraslice(options, launchServices);
     }
 
-    return () => {
+    const stopLogging = (options.logs && logsDir)
+        ? startServiceLogging(launchServices, logsDir)
+        : () => {};
+
+    return async () => {
         fns.forEach((fn) => fn());
         terasliceFn();
+        await stopLogging();
     };
 }
 
@@ -289,6 +375,10 @@ export async function ensureOpensearch(options: TestOptions): Promise<() => void
     let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.Opensearch);
+    if (config.ENCRYPT_OPENSEARCH) {
+        await checkOpensearch(options, startTime, true);
+        await securityAdminSetup(config.OPENSEARCH_PORT);
+    }
     await checkOpensearch(options, startTime);
     return fn;
 }
@@ -306,6 +396,14 @@ export async function ensureUtility(options: TestOptions): Promise<() => void> {
     const startTime = Date.now();
     fn = await startService(options, Service.Utility);
     await checkUtility(options, startTime);
+    return fn;
+}
+
+export async function ensureValkey(options: TestOptions): Promise<() => void> {
+    let fn = () => { };
+    const startTime = Date.now();
+    fn = await startService(options, Service.Valkey);
+    await checkValkey(options, startTime);
     return fn;
 }
 
@@ -352,6 +450,14 @@ function writeTerasliceConfig(launchServices: Service[]): string {
                 forcePathStyle: true,
                 sslEnabled: false,
                 region: 'us-east-1',
+            }
+        };
+    }
+
+    if (launchServices.includes(Service.Valkey)) {
+        connectors.valkey = {
+            default: {
+                addresses: [{ host: config.VALKEY_HOST, port: config.VALKEY_PORT }]
             }
         };
     }
@@ -513,7 +619,11 @@ async function checkRestrainedOpensearch(
     );
 }
 
-async function checkOpensearch(options: TestOptions, startTime: number): Promise<void> {
+async function checkOpensearch(
+    options: TestOptions,
+    startTime: number,
+    needsSecurityInit = false
+): Promise<void> {
     const host = config.OPENSEARCH_HOST;
     const username = config.OPENSEARCH_USER;
     const password = config.OPENSEARCH_PASSWORD;
@@ -529,49 +639,56 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             } else {
                 logger.debug(`checking opensearch at ${host}`);
             }
-            let body: any;
+            let response: Response;
 
             try {
-                ({ body } = await got(host, {
+                response = await got(host, {
                     username,
                     password,
                     https: { rejectUnauthorized: false },
                     responseType: 'json',
-                    throwHttpErrors: true,
+                    throwHttpErrors: false,
                     retry: {
                         limit: 0
                     }
-                }));
+                });
             } catch (err) {
                 error = err.message;
                 return false;
             }
 
             if (options.trace) {
-                signale.debug('got response from opensearch service', body);
+                signale.debug('got response from opensearch service: ', response.body);
             } else {
-                logger.debug('got response from opensearch service', body);
+                logger.debug('got response from opensearch service: ', response.body);
             }
 
-            if (!body?.version?.number) {
-                return false;
+            if (needsSecurityInit) {
+                // ready for securityadmin container to run
+                return response.statusCode === 503 && typeof response.body === 'string' && response.body.includes('OpenSearch Security not initialized');
             }
 
-            const actual: string = body.version.number;
-            const expected = config.OPENSEARCH_VERSION;
-
-            if (semver.satisfies(actual, `~${expected}`)) {
-                const took = toHumanTime(Date.now() - startTime);
-                signale.success(`opensearch@${actual} is running at ${host}, took ${took}`);
-                return true;
-            }
-
-            throw new TSError(
-                `Opensearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
-                {
-                    retryable: false,
+            if (response.statusCode === 200 && isOpenSearchInfo(response.body)) {
+                if (!response.body?.version?.number) {
+                    return false;
                 }
-            );
+
+                const actual: string = response.body.version.number;
+                const expected = config.OPENSEARCH_VERSION;
+
+                if (semver.satisfies(actual, `~${expected}`)) {
+                    const took = toHumanTime(Date.now() - startTime);
+                    signale.success(`opensearch@${actual} is running at ${host}, took ${took}`);
+                    return true;
+                }
+
+                throw new TSError(
+                    `Opensearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
+                    {
+                        retryable: false,
+                    }
+                );
+            }
         },
         {
             name: `Opensearch service (${host})`,
@@ -746,6 +863,72 @@ async function checkUtility(options: TestOptions, startTime: number): Promise<vo
     signale.success(`Utility Service **might** be running, took ${took}`);
 }
 
+async function checkValkey(options: TestOptions, startTime: number): Promise<void> {
+    const host = config.VALKEY_HOSTNAME;
+    const port = config.VALKEY_PORT;
+
+    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
+    if (dockerGateways.includes(config.VALKEY_HOSTNAME)) return;
+
+    let error = '';
+    await pWhile(
+        async () => {
+            if (options.trace) {
+                signale.debug(`checking Valkey at ${host}`);
+            } else {
+                logger.debug(`checking Valkey at ${host}`);
+            }
+
+            // remove when encryption supported
+            if (config.ENCRYPT_VALKEY) {
+                throw new Error('Valkey encryption not supported');
+            }
+
+            const response = await new Promise<string>((resolve) => {
+                const socket = net.createConnection(port, host, () => {
+                    socket.write('*1\r\n$4\r\nPING\r\n');
+                });
+                socket.setTimeout(5000);
+                socket.once('data', (data) => {
+                    socket.destroy();
+                    // response: "+PONG\r\n" → "PONG"
+                    resolve(data.toString().replace(/^\+/, '')
+                        .trim());
+                });
+                socket.once('error', (err) => {
+                    socket.destroy();
+                    error = err.message;
+                    resolve(err.message);
+                });
+                socket.once('timeout', () => {
+                    socket.destroy();
+                    error = 'Connection timed out';
+                    resolve('Connection timed out');
+                });
+            });
+
+            if (options.trace) {
+                signale.debug('response from Valkey service: ', response);
+            } else {
+                logger.debug('response from Valkey service: ', response);
+            }
+
+            if (response === 'PONG') {
+                const took = toHumanTime(Date.now() - startTime);
+                signale.success(`Valkey is running at ${host}, took ${took}`);
+                return true;
+            }
+            return false;
+        },
+        {
+            name: `Valkey service (${host})`,
+            timeoutMs: serviceUpTimeout,
+            enabledJitter: true,
+            error
+        }
+    );
+}
+
 async function startService(
     options: TestOptions,
     service: Service,
@@ -833,6 +1016,13 @@ export async function loadImagesForHelm(kindClusterName: string, skipImageDeleti
                 config.UTILITY_SVC_VERSION,
                 skipImageDeletion
             ));
+        } else if (service === Service.Valkey) {
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.VALKEY_DOCKER_IMAGE,
+                config.VALKEY_VERSION,
+                skipImageDeletion
+            ));
         }
     });
 
@@ -879,8 +1069,37 @@ export async function loadImagesForHelmFromConfigFile(
                     customConfig[service].image.tag,
                     false
                 ));
+            } else if (service === Service.Valkey) {
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Valkey,
+                    config.VALKEY_DOCKER_IMAGE,
+                    customConfig[service].image.tag,
+                    false
+                ));
             }
         }
     }
     await Promise.all(promiseArray);
+}
+
+async function securityAdminSetup(port: number) {
+    await dockerExec(
+        `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
+        [
+            'bash',
+            '-c',
+            [
+                'cp /usr/share/opensearch/config/certs/internal_users.yml /usr/share/opensearch/config/opensearch-security/internal_users.yml',
+                '&&',
+                'bash /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh',
+                '-cd /usr/share/opensearch/config/opensearch-security',
+                '-icl -nhnv',
+                '-cacert /usr/share/opensearch/config/certs/CAs/rootCA.pem',
+                '-cert /usr/share/opensearch/config/certs/opensearch-cert.pem',
+                '-key /usr/share/opensearch/config/certs/opensearch-key.pem',
+                `-h localhost`,
+                `-p ${port.toString()}`,
+            ].join(' ')
+        ]
+    );
 }
