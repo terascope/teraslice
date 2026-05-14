@@ -731,7 +731,7 @@ export default function elasticsearchApi(
                             retry();
                         } else if (
                             reasonReason.length === 1
-                            && isRetryableCircuitBreakerError(failuresReasons[0])
+                            && isRetryableCircuitBreakerError(failuresReasons[0].reason)
                         ) {
                             logger.debug(`Search shard failure is retryable: ${reasonReason[0]}`);
                             retry();
