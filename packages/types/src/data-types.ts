@@ -1,3 +1,4 @@
+import { GeoShapeType } from './geo-interfaces.js';
 import { Overwrite } from './utility.js';
 
 /**
@@ -224,4 +225,50 @@ export const indexedRequiredFieldTypes = {
     [FieldType.KeywordTokens]: true,
     [FieldType.NgramTokens]: true,
     [FieldType.Vector]: true
+};
+
+const _categories = [
+    'aircraft', 'animal', 'book', 'commerce', 'company', 'file', 'finance', 'food', 'job', 'music', 'person', 'pet', 'vehicle'
+] as const;
+export type RandomDataCategory = typeof _categories[number];
+
+type RandomDataFieldOptions = {
+    // options for fine tuning text fields in a small amount of cases
+    // - category - i.e. if field name contains "name" the category may help
+    // - library - i.e. if field name is "animal" - these libraries return different animal types
+    text?: {
+        category?: RandomDataCategory;
+        library?: 'chance' | 'faker';
+    };
+    // options for narrowing numeric fields where appropriate
+    numbers?: {
+        min?: number;
+        max?: number;
+        precision?: number;
+    };
+    // for narrowing the ip data to only 1 type
+    ipType?: 'v6' | 'v4';
+    // for narrowing geo data
+    geo?: {
+        type?: GeoShapeType;
+        geometryCount?: number;
+        boundingBox?: [number, number, number, number]
+            | [number, number, number, number, number, number];
+        maxRadius?: number;
+        vertices?: number;
+    };
+    // overrides default data by field type - so type-correctness is unknown
+    customize?: {
+        fn?: () => any;
+        randomExpression?: string;
+        randomExpressionPrefix?: string;
+    };
+};
+
+export type DTFieldConfigWithDataGenOpts = DataTypeFieldConfig & RandomDataFieldOptions;
+
+export type DTConfigWithDataGenOpts = Omit<DataTypeConfig, 'fields'> & {
+    fields: {
+        [key: string]: DTFieldConfigWithDataGenOpts;
+    };
 };

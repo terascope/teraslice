@@ -255,6 +255,9 @@ importers:
 
   packages/data-mate:
     dependencies:
+      '@faker-js/faker':
+        specifier: ^10.4.0
+        version: 10.4.0
       '@terascope/core-utils':
         specifier: workspace:~
         version: link:../core-utils
@@ -270,6 +273,9 @@ importers:
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
+      '@turf/random':
+        specifier: ~7.3.4
+        version: 7.3.4
       '@types/validator':
         specifier: ~13.15.10
         version: 13.15.10
@@ -279,6 +285,9 @@ importers:
       big-json:
         specifier: ~3.2.0
         version: 3.2.0
+      chance:
+        specifier: ~1.1.13
+        version: 1.1.13
       date-fns:
         specifier: ~4.1.0
         version: 4.1.0
@@ -291,6 +300,9 @@ importers:
       mnemonist:
         specifier: ~0.40.3
         version: 0.40.3
+      randexp:
+        specifier: ^0.5.3
+        version: 0.5.3
       uuid:
         specifier: ~13.0.0
         version: 13.0.0
@@ -307,6 +319,9 @@ importers:
       '@types/big-json':
         specifier: ~3.2.5
         version: 3.2.5
+      '@types/chance':
+        specifier: ^1.1.7
+        version: 1.1.7
       '@types/jexl':
         specifier: ^2.3.4
         version: 2.3.4
@@ -316,34 +331,18 @@ importers:
       benchmark:
         specifier: ~2.1.4
         version: 2.1.4
-      chance:
-        specifier: ~1.1.13
-        version: 1.1.13
 
   packages/data-types:
     dependencies:
       '@terascope/core-utils':
         specifier: workspace:~
         version: link:../core-utils
-      '@terascope/ip-utils':
-        specifier: workspace:~
-        version: link:../ip-utils
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
-      '@turf/random':
-        specifier: ~7.3.4
-        version: 7.3.4
-      chance:
-        specifier: ~1.1.13
-        version: 1.1.13
       graphql:
         specifier: ~16.12.0
         version: 16.12.0
-    devDependencies:
-      '@types/chance':
-        specifier: ^1.1.7
-        version: 1.1.7
 
   packages/docker-compose-js:
     dependencies:
@@ -1759,6 +1758,10 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
+  '@faker-js/faker@10.4.0':
+    resolution: {integrity: sha512-sDBWI3yLy8EcDzgobvJTWq1MJYzAkQdpjXuPukga9wXonhpMRvd1Izuo2Qgwey2OiEoRIBr35RMU9HJRoOHzpw==}
+    engines: {node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: '>=10'}
+
   '@gerrit0/mini-shiki@3.23.0':
     resolution: {integrity: sha512-bEMORlG0cqdjVyCEuU0cDQbORWX+kYCeo0kV1lbxF5bt4r7SID2l9bqsxJEM0zndaxpOUT7riCyIVEuqq/Ynxg==}
 
@@ -2742,6 +2745,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     resolution: {integrity: sha512-ppLRUgHVaGRWUx0R0Ut06Mjo9gBaBkg3v/8AxusGLhsIotbBLuRk51rAzqLC8gq6NyyAojEXglNjzf6R948DNw==}
@@ -3540,6 +3544,10 @@ packages:
   doctrine@2.1.0:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
+
+  drange@1.1.1:
+    resolution: {integrity: sha512-pYxfDYpued//QpnLIm4Avk7rsNtAtQkUES2cwAYSvD/wd2pKD71gN2Ebj3e7klzXwjocvE8c5vx/1fxwpqmSxA==}
+    engines: {node: '>=4'}
 
   dtrace-provider@0.8.8:
     resolution: {integrity: sha512-b7Z7cNtHPhH9EJhNNbbeqTcXB8LGFFZhq1PGgEvpeHlzd36bhbdTWoE/Ba/YguqpBSlAPKnARWhVlhunCMwfxg==}
@@ -5402,6 +5410,10 @@ packages:
   quickselect@2.0.0:
     resolution: {integrity: sha512-RKJ22hX8mHe3Y6wH/N3wCM6BWtjaxIyyUIkpHOvfFnxdI4yD4tBXEBKSbriGujF6jnSVkJrffuo6vxACiSSxIw==}
 
+  randexp@0.5.3:
+    resolution: {integrity: sha512-U+5l2KrcMNOUPYvazA3h5ekF80FHTUG+87SEAmHZmolh1M+i/WyTCxVzmi+tidIa1tM4BSe8g2Y/D3loWDjj+w==}
+    engines: {node: '>=4'}
+
   range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
@@ -5501,6 +5513,10 @@ packages:
   responselike@4.0.2:
     resolution: {integrity: sha512-cGk8IbWEAnaCpdAt1BHzJ3Ahz5ewDJa0KseTsE3qIRMJ3C698W8psM7byCeWVpd/Ha7FUYzuRVzXoKoM6nRUbA==}
     engines: {node: '>=20'}
+
+  ret@0.2.2:
+    resolution: {integrity: sha512-M0b3YWQs7R3Z917WRQy1HHA7Ba7D8hvZg6UE5mLykJxQVE2ju0IXbGlaHPPlkY+WN7wFP+wUMXmBFA0aV6vYGQ==}
+    engines: {node: '>=4'}
 
   reusify@1.1.0:
     resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
@@ -6104,6 +6120,7 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-to-istanbul@9.3.0:
@@ -7093,6 +7110,8 @@ snapshots:
     dependencies:
       '@eslint/core': 0.17.0
       levn: 0.4.1
+
+  '@faker-js/faker@10.4.0': {}
 
   '@gerrit0/mini-shiki@3.23.0':
     dependencies:
@@ -9383,6 +9402,8 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
+  drange@1.1.1: {}
+
   dtrace-provider@0.8.8:
     dependencies:
       nan: 2.22.2
@@ -11586,6 +11607,11 @@ snapshots:
 
   quickselect@2.0.0: {}
 
+  randexp@0.5.3:
+    dependencies:
+      drange: 1.1.1
+      ret: 0.2.2
+
   range-parser@1.2.1: {}
 
   raw-body@3.0.2:
@@ -11705,6 +11731,8 @@ snapshots:
   responselike@4.0.2:
     dependencies:
       lowercase-keys: 3.0.0
+
+  ret@0.2.2: {}
 
   reusify@1.1.0: {}
 

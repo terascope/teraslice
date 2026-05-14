@@ -87,3 +87,6 @@ export {
 
 export * from './adapters/index.js';
 export * from './function-configs/index.js';
+
+export { makeRandomDataSet } from './radom-DT-data-generator/make-dt-data-set.js';
+export { makeRandomDataFunctionForField } from './radom-DT-data-generator/make-dt-field-fn.js';
