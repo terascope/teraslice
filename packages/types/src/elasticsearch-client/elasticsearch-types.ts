@@ -2560,20 +2560,9 @@ export interface OpenSearchErrorBody {
     status?: number;
 }
 
-interface ResponseError {
+export interface ResponseError {
     name?: string;
     message?: string;
     statusCode?: number;
     body: OpenSearchErrorBody;
-}
-
-export function isStructuredErrorResponse(err: unknown): err is ResponseError {
-    return (
-        typeof err === 'object'
-        && err !== null
-        && 'body' in err
-        && typeof (err as any).body === 'object'
-        && (err as any).body !== null
-        && 'error' in (err as any).body
-    );
 }
