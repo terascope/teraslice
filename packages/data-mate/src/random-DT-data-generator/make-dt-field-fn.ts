@@ -8,7 +8,7 @@ import Randexp from 'randexp';
 import {
     fineTuneNumericField, fineTuneTextField, isNonStringFieldType,
     isNumericFieldType, isTextFieldType
-} from './utils';
+} from './utils.js';
 
 const chance = new Chance();
 
