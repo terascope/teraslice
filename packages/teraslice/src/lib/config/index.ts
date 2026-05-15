@@ -10,7 +10,7 @@ export function clusterName(configFile: TerasliceConfig) {
     return get(configFile, 'teraslice.name', null);
 }
 
-export function getTerasliceConfig(sysconfig?: Terafoundation.Config): Terafoundation.Config {
+export function getTerasliceConfig(sysconfig?: Partial<Terafoundation.Config>): Terafoundation.Config {
     return Object.assign({
         name: 'teraslice',
         default_config_file: path.join(filePath, 'default-sysconfig.js'),
