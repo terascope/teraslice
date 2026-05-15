@@ -127,10 +127,10 @@ The context is an object with the following keys:
 
 The api is located at `context.apis.foundation`:
 
-- `getConnection` which is used to get a database client.
+- `createClient` which is used to get a database client.
 
 ```js
-const client = context.apis.foundation.getConnection({
+const client = context.apis.foundation.createClient({
     type: 'elasticsearch-next',
     endpoint: default,
     cached: true
@@ -173,6 +173,22 @@ events.on('event', function() {
 ```
 
 This allows listening to and emitting events on the system events bus.
+
+- `promMetrics` which is used to manage Prometheus Metrics
+
+```js
+const { terafoundation } = context.sysconfig;
+context.apis.foundation.promMetrics.init({
+    terasliceName: context.sysconfig.teraslice.name,
+    tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
+    tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+    tf_prom_metrics_port: terafoundation.prom_metrics_port,
+    logger: logger,
+    assignment: 'master',
+    prefix: 'teraslice_',
+    prom_metrics_display_url: terafoundation.prom_metrics_display_url
+});
+```
 
 ## terafoundation configuration
 
