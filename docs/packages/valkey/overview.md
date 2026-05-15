@@ -29,6 +29,28 @@ terafoundation:
                       port: 6379
 ```
 
+
+## Configuration Parameters
+
+| Parameter | Description | Type | Default |
+| --------- | ----------- | ---- | ------- |
+| `addresses` | DNS addresses and ports of known nodes. Required. In cluster mode the list can be partial; in standalone mode only provided addresses are used. | `Array<{host: string, port?: number}>` | `null` |
+| `advancedConfiguration` | Advanced client configuration. Supports `connectionTimeout` (ms), `pubsubReconciliationIntervalMs`, `tcpNoDelay`, and `tlsAdvancedConfiguration` (`{insecure?, rootCertificates?}`). | Object | `undefined` |
+| `clientAz` | Availability Zone of the client, used with `AZAffinity` and `AZAffinityReplicasAndPrimary` `readFrom` strategies. | String | `undefined` |
+| `clientName` | Client name sent via `CLIENT SETNAME` during connection establishment. | String | `undefined` |
+| `connectionBackoff` | Reconnection strategy on connection failure. Requires `numberOfRetries`, `factor`, and `exponentBase` (all non-negative integers); optional `jitterPercent`. | Object | `undefined` |
+| `credentials` | Authentication credentials. Password auth: `{username?, password}`. IAM auth: `{username, iamConfig: {clusterName, service, region, refreshIntervalSeconds?}}`. `service` must be `"Elasticache"` or `"MemoryDB"`. | Object | `undefined` |
+| `databaseId` | Index of the logical database to connect to. | Integer (≥ 0) | `undefined` (0) |
+| `defaultDecoder` | Default response decoder when not set per command. One of: `"Bytes"`, `"String"`. | String | `undefined` (`"String"`) |
+| `inflightRequestsLimit` | Maximum number of concurrent in-flight requests. | Integer (> 0) | `undefined` (1000) |
+| `lazyConnect` | When `true`, defers physical connections until the first command is sent. | Boolean | `false` |
+| `protocol` | Serialization protocol. One of: `"RESP2"`, `"RESP3"`. | String | `undefined` (`"RESP3"`) |
+| `pubsubSubscriptions` | PubSub subscriptions applied on connection. `channelsAndPatterns` is keyed by mode (`0`=Exact, `1`=Pattern) with Sets of channel name strings. Optional `callback(msg, context)` and arbitrary `context`. | Object | `undefined` |
+| `readFrom` | Read strategy. One of: `"primary"`, `"preferReplica"`, `"AZAffinity"`, `"AZAffinityReplicasAndPrimary"`. | String | `undefined` (`"primary"`) |
+| `readOnly` | When `true`, enables read-only mode — write commands are blocked and all connected nodes are treated as valid read targets. | Boolean | `false` |
+| `requestTimeout` | Duration in milliseconds the client waits for a request to complete. | Integer (> 0) | `undefined` (250) |
+| `useTLS` | When `true`, communication with the server uses Transport Level Security. | Boolean | `false` |
+
 ## Create a Valkey client using the terafoundation API
 
 See the [terafoundation docs](../terafoundation/overview#api) for API details.
@@ -43,7 +65,7 @@ const { client } = context.apis.foundation.createClient({
 
 ## Commands
 
-A full list of commands can be found in the [server docs](https://valkey.io/commands). Some may not be fully supported by the GLIDE client.
+A full list of commands can be found in the [client](https://glide.valkey.io/languages/nodejs/api/) and [server](https://valkey.io/commands) docs.
 
 ### Get / Set a Key
 
@@ -69,6 +91,15 @@ console.log(await client.get('counter')); // "10"
 
 #### Add Geo Points to a Key
 
+`client.geoadd(key, membersToGeospatialData, options?)` adds geospatial members to a key.
+
+| Parameter | Description |
+| --------- | ----------- |
+| `key` | The key to store the geospatial data in. |
+| `membersToGeospatialData` | A `Map` of member name strings to `{ longitude, latitude }` objects. |
+| `options.updateMode` | Controls which members are updated. `OnlyIfExists` updates only existing members; `OnlyIfDoesNotExist` adds only new members. Omit to update all. |
+| `options.changed` | When `true`, returns the count of members whose position was changed rather than the count of newly added members. |
+
 ```typescript
 await client.geoadd(
     'Sicily',
@@ -80,6 +111,13 @@ await client.geoadd(
 ```
 
 #### Get positions (lon/lat) of Geo Points
+
+`client.geopos(key, members)` returns the longitude/latitude of one or more members stored in a key.
+
+| Parameter | Description |
+| --------- | ----------- |
+| `key` | The key holding the geospatial data. |
+| `members` | An array of member name strings to look up. |
 
 ```typescript
 console.log(await client.geopos('Sicily', ['Palermo', 'Catania']));
@@ -93,6 +131,15 @@ console.log(await client.geopos('Sicily', ['Palermo', 'Catania']));
 
 #### Get distance between two points
 
+`client.geodist(key, member1, member2, options?)` returns the distance between two members stored in a key.
+
+| Parameter | Description |
+| --------- | ----------- |
+| `key` | The key holding the geospatial data. |
+| `member1` | Name of the first member. |
+| `member2` | Name of the second member. |
+| `options.unit` | Unit for the returned distance. A `GeoUnit` enum value: `METERS`, `KILOMETERS`, `MILES`, or `FEET`. Defaults to `METERS`. |
+
 ```typescript
 console.log(await client.geodist(
     'Sicily',
@@ -103,6 +150,19 @@ console.log(await client.geodist(
 ```
 
 #### Geo Search
+
+`client.geosearch(key, searchFrom, searchBy, options?)` searches for members within a key by shape and origin. For [polygon](#bypolygon-query) searches, use `client.customCommand` with the raw `GEOSEARCH` command.
+
+| Parameter | Description |
+| --------- | ----------- |
+| `key` | The key holding the geospatial data. |
+| `searchFrom` | Origin of the search. Use `{ position: { longitude, latitude } }` for a coordinate origin (`FROMLONLAT`) or `{ member: string }` for a stored member origin (`FROMMEMBER`). |
+| `searchBy` | Shape of the search area. Use `{ radius, unit }` for a circle (`BYRADIUS`) or `{ width, height, unit }` for a bounding box (`BYBOX`). `unit` is a `GeoUnit` enum value: `METERS`, `KILOMETERS`, `MILES`, or `FEET`. |
+| `options.sortOrder` | Order results by distance: `SortOrder.ASC` (nearest first) or `SortOrder.DESC` (farthest first). |
+| `options.count` | Limit the number of results returned. |
+| `options.withDist` | When `true`, include the distance from the origin in each result. |
+| `options.withCoord` | When `true`, include the longitude/latitude of each result. |
+| `options.withHash` | When `true`, include the raw geohash integer for each result. |
 
 ##### `BYRADIUS` query with `FROMLONLAT` origin
 
@@ -146,7 +206,21 @@ console.dir(await client.geosearch(
  */ 
 ```
 
-##### `BYPOLYGON` query using GlideJson
+##### `BYPOLYGON` query
+
+`BYPOLYGON` is not yet supported by the GLIDE client's typed API and must be issued via `client.customCommand`. The command arguments are positional:
+
+| Argument | Description |
+| -------- | ----------- |
+| `"GEOSEARCH"` | The command name. |
+| `key` | The key holding the geospatial data. |
+| `"BYPOLYGON"` | Selects polygon search mode. |
+| `numVertices` | Number of polygon vertices as a string (e.g. `coords.length.toString()`). |
+| `lon1, lat1, ...` | Flattened lon/lat string pairs for each vertex. The closing vertex (repeating the first) is optional. |
+| `"WITHCOORD"` | _(optional)_ Include the longitude/latitude of each result. |
+| `"WITHHASH"` | _(optional)_ Include the raw geohash integer for each result. |
+| `"COUNT"`, `n` | _(optional)_ Limit results to `n` members. Pass as two separate string arguments. |
+| `"ASC"` / `"DESC"` | _(optional)_ Sort results by distance ascending or descending. |
 
 The `GlideJson` class requires the [Valkey JSON](https://github.com/valkey-io/valkey-json) server module.
 
@@ -188,7 +262,7 @@ if (searchAreaStr) {
 }
 ```
 
-##### `BYPOLYGON` query without GlideJson
+If the [Valkey JSON](https://github.com/valkey-io/valkey-json) server module is not present on you server you can save the polygon as raw JSON. This has the disadvantage of not allowing you to query/update individual fields without deserializing the whole document.
 
 ```typescript
 // Store a polygon as a plain string (no JSON module required)
@@ -225,24 +299,3 @@ if (searchAreaPlainStr) {
 await client.del(['key1', 'key2', 'counter', 'Sicily', 'searchAreaPlain', 'searchArea'])
 client.close();
 ```
-
-## Configuration Parameters
-
-| Parameter | Description | Type | Default |
-| --------- | ----------- | ---- | ------- |
-| `addresses` | DNS addresses and ports of known nodes. Required. In cluster mode the list can be partial; in standalone mode only provided addresses are used. | `Array<{host: string, port?: number}>` | `null` |
-| `advancedConfiguration` | Advanced client configuration. Supports `connectionTimeout` (ms), `pubsubReconciliationIntervalMs`, `tcpNoDelay`, and `tlsAdvancedConfiguration` (`{insecure?, rootCertificates?}`). | Object | `undefined` |
-| `clientAz` | Availability Zone of the client, used with `AZAffinity` and `AZAffinityReplicasAndPrimary` `readFrom` strategies. | String | `undefined` |
-| `clientName` | Client name sent via `CLIENT SETNAME` during connection establishment. | String | `undefined` |
-| `connectionBackoff` | Reconnection strategy on connection failure. Requires `numberOfRetries`, `factor`, and `exponentBase` (all non-negative integers); optional `jitterPercent`. | Object | `undefined` |
-| `credentials` | Authentication credentials. Password auth: `{username?, password}`. IAM auth: `{username, iamConfig: {clusterName, service, region, refreshIntervalSeconds?}}`. `service` must be `"Elasticache"` or `"MemoryDB"`. | Object | `undefined` |
-| `databaseId` | Index of the logical database to connect to. | Integer (≥ 0) | `undefined` (0) |
-| `defaultDecoder` | Default response decoder when not set per command. One of: `"Bytes"`, `"String"`. | String | `undefined` (`"String"`) |
-| `inflightRequestsLimit` | Maximum number of concurrent in-flight requests. | Integer (> 0) | `undefined` (1000) |
-| `lazyConnect` | When `true`, defers physical connections until the first command is sent. | Boolean | `false` |
-| `protocol` | Serialization protocol. One of: `"RESP2"`, `"RESP3"`. | String | `undefined` (`"RESP3"`) |
-| `pubsubSubscriptions` | PubSub subscriptions applied on connection. `channelsAndPatterns` is keyed by mode (`0`=Exact, `1`=Pattern) with Sets of channel name strings. Optional `callback(msg, context)` and arbitrary `context`. | Object | `undefined` |
-| `readFrom` | Read strategy. One of: `"primary"`, `"preferReplica"`, `"AZAffinity"`, `"AZAffinityReplicasAndPrimary"`. | String | `undefined` (`"primary"`) |
-| `readOnly` | When `true`, enables read-only mode — write commands are blocked and all connected nodes are treated as valid read targets. | Boolean | `false` |
-| `requestTimeout` | Duration in milliseconds the client waits for a request to complete. | Integer (> 0) | `undefined` (250) |
-| `useTLS` | When `true`, communication with the server uses Transport Level Security. | Boolean | `false` |
