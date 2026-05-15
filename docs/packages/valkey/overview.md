@@ -15,29 +15,40 @@ pnpm add @terascope/valkey
 
 ### Terafoundation Configuration
 
+To make this connector available from a terafoundation based application, a connector must be added to the `terafoundation.yml` file:
+
 ```yaml
 terafoundation:
     connectors:
         valkey:
-            default:
+            valkey-1:
                 addresses:
                     - host: localhost
                       port: 6379
+            valkey-2:
+                addresses:
+                    - host: 10.0.1.2
+                      port: 6379
 ```
 
-### Client Configuration
+### Create a Valkey client using the terafoundation API
+
+See the [terafoundation docs](../terafoundation/overview#api) for API details.
 
 ```typescript
-const config: GlideClientConfiguration = {
-    addresses: [{ host: 'localhost', port: 6379 }]
-};
+const { client } = context.apis.foundation.createClient({
+    type: 'valkey',
+    endpoint: 'valkey-1',
+    cached: true
+});
 
-const { client } = await connector.createClient(config, logger);
+await client.set('foo', 'bar');
+console.log(await client.get('foo')) // bar
+
+client.close();
 ```
 
-### Key Configuration Parameters
-
-**Terafoundation Level:**
+### Configuration Parameters
 
 | Parameter | Description | Type | Default |
 | --------- | ----------- | ---- | ------- |
