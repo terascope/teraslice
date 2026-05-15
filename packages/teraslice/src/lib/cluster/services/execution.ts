@@ -302,6 +302,25 @@ export class ExecutionService {
         this.waitForExecutionStatus(exId);
     }
 
+    async setLogLevel(exId: string, level: string) {
+        const valid = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
+        if (!level || !valid.includes(level)) {
+            throw new TSError(`Invalid log level "${level}", must be one of: ${valid.join(', ')}`, {
+                statusCode: 400
+            });
+        }
+
+        const execution = await this.executionStorage.getActiveExecution(exId);
+
+        if (!this.clusterMasterServer.isClientReady(execution.ex_id)) {
+            throw new TSError(`Execution ${exId} is not available`, { statusCode: 404 });
+        }
+
+        await this.clusterMasterServer.sendExecutionLogLevel(exId, level);
+
+        return { exId, level };
+    }
+
     async pauseExecution(exId: string) {
         const status = 'paused';
         const execution = await this.executionStorage.getActiveExecution(exId);
