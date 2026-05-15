@@ -15,7 +15,7 @@ pnpm add @terascope/valkey
 
 ### Terafoundation Configuration
 
-To make this connector available from a terafoundation based application, a connector must be added to the `terafoundation.yml` file:
+To make this connector available from a terafoundation based application, a connector named `valkey` must be added to the `terafoundation.yml` file. Within the valkey connector multiple endpoints can be named and configured. Only the `addresses` field is required, but all configuration fields specified in the Valkey GLIDE client are acceptable.
 
 ```yaml
 terafoundation:
@@ -42,9 +42,11 @@ const { client } = context.apis.foundation.createClient({
     cached: true
 });
 
+// Use the client
 await client.set('foo', 'bar');
 console.log(await client.get('foo')) // bar
 
+// close the connection when finished
 client.close();
 ```
 
