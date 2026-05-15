@@ -11,9 +11,7 @@ The Valkey Connector facilitates a connection between a [terafoundation](https:/
 pnpm add @terascope/valkey
 ```
 
-## Quick Reference
-
-### Terafoundation Configuration
+## Terafoundation Configuration
 
 To make this connector available from a terafoundation based application, a connector named `valkey` must be added to the `terafoundation.yml` file. Within the valkey connector multiple endpoints can be named and configured. Only the `addresses` field is required, but all configuration fields specified in the Valkey GLIDE client are acceptable.
 
@@ -31,7 +29,7 @@ terafoundation:
                       port: 6379
 ```
 
-### Create a Valkey client using the terafoundation API
+## Create a Valkey client using the terafoundation API
 
 See the [terafoundation docs](../terafoundation/overview#api) for API details.
 
@@ -41,16 +39,194 @@ const { client } = context.apis.foundation.createClient({
     endpoint: 'valkey-1',
     cached: true
 });
+```
 
-// Use the client
-await client.set('foo', 'bar');
-console.log(await client.get('foo')) // bar
+## Commands
 
-// close the connection when finished
+A full list of commands can be found in the [server docs](https://valkey.io/commands). Some may not be fully supported by the GLIDE client.
+
+### Get / Set a Key
+
+```typescript
+await client.set('key1', 'hello');
+console.log(await client.get('key1')) // "hello"
+
+await client.mset({ 'key1': 'goodbye', 'key2': 'Bob' });
+console.log(await client.mget(['key1', 'key2'])); // [ 'goodbye', 'Bob' ]
+```
+
+### Increment / Decrement
+
+```typescript
+await client.set('counter', '10');
+console.log(await client.incr('counter')); // 11
+console.log(await client.get('counter')); // "11"
+console.log(await client.decr('counter')); // 10
+console.log(await client.get('counter')); // "10"
+```
+
+### Geo Functions
+
+#### Add Geo Points to a Key
+
+```typescript
+await client.geoadd(
+    'Sicily',
+    new Map([
+        ['Palermo', { longitude: 13.361389, latitude: 38.115556 }],
+        ['Catania', { longitude: 15.087269, latitude: 37.502669 }]
+    ])
+);
+```
+
+#### Get positions (lon/lat) of Geo Points
+
+```typescript
+console.log(await client.geopos('Sicily', ['Palermo', 'Catania']));
+/**
+ * [
+ *   [ 13.361389338970184, 38.1155563954963 ],
+ *   [ 15.087267458438873, 37.50266842333162 ]
+ * ]
+*/
+```
+
+#### Get distance between two points
+
+```typescript
+console.log(await client.geodist(
+    'Sicily',
+    'Palermo',
+    'Catania',
+    { unit: GeoUnit.KILOMETERS }
+)) // 166.2742
+```
+
+#### Geo Search
+
+##### `BYRADIUS` query with `FROMLONLAT` origin
+
+```typescript
+console.dir(await client.geosearch(
+    'Sicily',
+    { position: { longitude: 13.36, latitude: 38.1 } }, // Search from Coordinate Origin
+    { radius: 300, unit: GeoUnit.KILOMETERS }, // GeoCircleShape
+    {
+        sortOrder: SortOrder.ASC,
+        withDist: true,
+        withCoord: true,
+    }
+), { depth: null }); 
+/**
+ * [
+ *   [ 'Palermo', [ 1.7345, [ 13.361389338970184, 38.1155563954963 ] ] ],
+ *   [ 'Catania', [ 165.6989, [ 15.087267458438873, 37.50266842333162 ] ] ]
+ * ]
+*/
+```
+
+##### `BYBOX` query with `FROMMEMBER` origin
+
+```typescript
+console.dir(await client.geosearch(
+    'Sicily',
+    { member: 'Palermo' }, // Search from Member Origin
+    { width: 500, height: 500, unit: GeoUnit.KILOMETERS }, // GeoBoxShape
+    {
+        sortOrder: SortOrder.DESC,
+        withDist: true,
+        count: 3
+    }
+), { depth: null });
+/**
+ * [
+ *   [ 'Catania', [ 166.2742 ] ],
+ *   [ 'Palermo', [ 0 ] ]
+ * ]
+ */ 
+```
+
+##### `BYPOLYGON` query using GlideJson
+
+The `GlideJson` class requires the [Valkey JSON](https://github.com/valkey-io/valkey-json) server module.
+
+```typescript
+// Store a GeoJSON polygon
+await GlideJson.set(client, "searchArea", "$", JSON.stringify({
+    type: "Polygon",
+    coordinates: [[
+        ['13', '36'],
+        ['14', '36'],
+        ['14', '39'],
+        ['13', '39'],
+        ['13', '36']  // closing coordinates optional
+    ]]
+}));
+
+const searchAreaStr = await GlideJson.get(client, 'searchArea');
+if (searchAreaStr) {
+    const coords: [string, string][] = JSON
+        .parse(searchAreaStr as string)
+        .coordinates[0];
+
+    // We flatten all coordinates into a single array so we can use
+    // the spread operator to insert each as an argument within `customCommand`
+    const polygonArgs = coords.flatMap(([lon, lat]) => [lon, lat]);
+    // ['13', '36', '14', '36', '14', '39', '13', '39', '13', '36']
+
+    console.dir(await client.customCommand([
+        "GEOSEARCH",
+        'Sicily',
+        "BYPOLYGON",
+        coords.length.toString(),
+        ...polygonArgs,
+        "WITHCOORD"
+    ]), { depth: null });
+    /**
+     * [[ 'Palermo', [ [ 13.361389338970184, 38.1155563954963 ] ] ]]
+     */
+}
+```
+
+##### `BYPOLYGON` query without GlideJson
+
+```typescript
+// Store a polygon as a plain string (no JSON module required)
+await client.set('searchAreaPlain', JSON.stringify([
+    ['13', '36'],
+    ['14', '36'],
+    ['14', '39'],
+    ['13', '39'],
+    ['13', '36'],
+]));
+
+const searchAreaPlainStr = await client.get('searchAreaPlain');
+if (searchAreaPlainStr) {
+    const coords: [string, string][] = JSON.parse(searchAreaPlainStr as string);
+    const polygonArgs = coords.flatMap(([lon, lat]) => [lon, lat]);
+
+    console.dir(await client.customCommand([
+        "GEOSEARCH",
+        'Sicily',
+        "BYPOLYGON",
+        coords.length.toString(),
+        ...polygonArgs,
+        "WITHCOORD"
+    ]), { depth: null });
+    /**
+     * [[ 'Palermo', [ [ 13.361389338970184, 38.1155563954963 ] ] ]]
+     */
+}
+```
+
+### Delete and close client
+
+```typescript
+await client.del(['key1', 'key2', 'counter', 'Sicily', 'searchAreaPlain', 'searchArea'])
 client.close();
 ```
 
-### Configuration Parameters
+## Configuration Parameters
 
 | Parameter | Description | Type | Default |
 | --------- | ----------- | ---- | ------- |
