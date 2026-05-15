@@ -3,7 +3,7 @@ import path from 'node:path';
 import bunyan from 'bunyan';
 import {
     toBoolean, debugLogger, isTest,
-    Logger, includes
+    Logger, includes, get
 } from '@terascope/core-utils';
 import { Terafoundation } from '@terascope/types';
 
@@ -40,7 +40,10 @@ export function createRootLogger(
 
     if (useDebugLogger) {
         const logger = debugLogger(`${filename}:${name}`);
-        Object.assign(logger.fields, extraFields);
+        Object.assign(logger.fields, {
+            worker_id: get(context, 'cluster.worker.id'),
+            ...extraFields,
+        });
         return logger;
     }
 
@@ -78,6 +81,7 @@ export function createRootLogger(
         name: filename,
         streams: streamConfig,
         assignment: context.assignment,
+        worker_id: get(context, 'cluster.worker.id'),
         ...extraFields,
     };
 
