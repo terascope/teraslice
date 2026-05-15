@@ -28,7 +28,8 @@ function getLogLevel(level: Terafoundation.LogLevelConfig): LogLevelObj {
 }
 
 export function createRootLogger(
-    context: Terafoundation.Context<Record<string, any>>
+    context: Terafoundation.Context<Record<string, any>>,
+    extraFields: Record<string, any> = {}
 ): Logger {
     const useDebugLogger = (toBoolean(process.env.USE_DEBUG_LOGGER || isTest))
         && !toBoolean(process.env.TESTING_LOG_LEVEL);
@@ -38,7 +39,9 @@ export function createRootLogger(
     const logLevel = getLogLevel(foundationConfig.log_level);
 
     if (useDebugLogger) {
-        return debugLogger(`${filename}:${name}`);
+        const logger = debugLogger(`${filename}:${name}`);
+        Object.assign(logger.fields, extraFields);
+        return logger;
     }
 
     const streamConfig: bunyan.Stream[] = [];
@@ -75,6 +78,7 @@ export function createRootLogger(
         name: filename,
         streams: streamConfig,
         assignment: context.assignment,
+        ...extraFields,
     };
 
     const logger = bunyan.createLogger(loggerConfig) as Logger;
