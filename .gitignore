@@ -14,6 +14,7 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+coverage-*
 .nyc_output
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
@@ -97,3 +98,6 @@ e2e/scripts/ci_asset_bundle_list.txt
 
 # A generated file when running yarn k8s --generate-config
 k8s-config.yaml
+
+# dynamically generated jest config
+jest.custom.config.js

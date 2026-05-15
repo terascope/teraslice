@@ -1,10 +1,11 @@
+import path from 'node:path';
+import { createRequire } from 'node:module';
 import {
     debugLogger, chunk, TSError,
     isCI, pMap
 } from '@terascope/core-utils';
 import { TestEnv } from '@terascope/types';
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from 'fs-extra';
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
@@ -32,6 +33,12 @@ import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
 import config from '../config.js';
+
+const require = createRequire(import.meta.url);
+function getModule(module: any) {
+    if ('default' in module) return getModule(module.default);
+    return module;
+}
 
 const {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E,
@@ -124,29 +131,28 @@ async function runTestSuite(
 ): Promise<void> {
     if (suite === 'e2e') return;
 
-    if (isCI) {
-        // load the services from cache in CI
-        await loadOrPullServiceImages(options.forceSuite || suite, options.skipImageDeletion);
-    }
-
-    const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
-
     if (options.watch && pkgInfos.length > MAX_PROJECTS_PER_BATCH) {
         throw new Error(
             `Running more than ${MAX_PROJECTS_PER_BATCH} packages will cause memory leaks`
         );
     }
 
-    tracker.expected += pkgInfos.length;
-    const chunked = chunk(pkgInfos, CHUNK_SIZE);
+    if (isCI) {
+        // load the services from cache in CI
+        await loadOrPullServiceImages(options.forceSuite || suite, options.skipImageDeletion);
+    }
 
-    // don't log unless this useful information (more than one package)
+    const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
+    const chunked = getTestChunks(pkgInfos, framework, CHUNK_SIZE);
+
+    // don't log unless useful (more than one package)
     if (chunked.length > 1 && chunked[0].length > 1) {
         writeHeader(`Running test suite "${suite}"`, false);
     }
 
     const cleanupKeys: string[] = [`${suite}:services`];
 
+    tracker.expected += pkgInfos.length;
     tracker.addCleanup(
         `${suite}:services`,
         await ensureServices(options.forceSuite || suite, options, path.join(process.cwd(), 'logs'))
@@ -157,6 +163,7 @@ async function runTestSuite(
 
     const env = printAndGetEnv(suite, options);
 
+    let configFiles: string[] = [];
     for (const pkgs of chunked) {
         if (!pkgs.length) continue;
         if (pkgs.length === 1) {
@@ -167,8 +174,11 @@ async function runTestSuite(
 
         const args = getArgs(options, framework);
 
-        args.projects = pkgs.map(
+        const rootDir = getRootDir();
+        const dirs: string[] = [];
+        const projects = pkgs.map(
             (pkgInfo) => {
+                dirs.push(pkgInfo.dir);
                 if (pkgInfo.relativeDir.length) {
                     return pkgInfo.relativeDir;
                 }
@@ -176,17 +186,38 @@ async function runTestSuite(
             }
         );
 
+        let useConfigFlag: boolean | undefined;
+        let batchConfig: string[] = [];
+
+        if (pkgs[0].configType === 'dynamic') {
+            const res = ensureConfigs(rootDir, framework, dirs, pkgs);
+            useConfigFlag = res.useConfigFlag;
+            batchConfig = res.configFiles;
+            configFiles = configFiles.concat(batchConfig);
+        }
+
+        /**
+         * Jest's --projects requires specified project(s) to contain a jest.config file, if
+         * configType is 'dynamic' and we're using a root config, we don't want --projects as
+         * we have a shared config file at root instead of project level, that will dynamically
+         * be created/deleted as the test runs passed to jest with the --config flag
+         */
+        if (framework === 'jest' && !useConfigFlag) {
+            args.projects = projects;
+        }
+
         tracker.started += pkgs.length;
 
         try {
             await runTestFramework(
-                getRootDir(),
+                rootDir,
                 args,
                 env,
                 options.frameworkArgs,
                 options.debug,
                 ATTACH_JEST_DEBUGGER,
-                framework
+                framework,
+                useConfigFlag ? batchConfig?.[0] : undefined
             );
             tracker.ended += pkgs.length;
         } catch (err) {
@@ -207,7 +238,93 @@ async function runTestSuite(
         await pMap(cleanupKeys, (key) => tracker.runCleanupByKey(key));
     }
 
+    if (configFiles.length) {
+        configFiles.forEach((configFile) => {
+            fs.removeSync(configFile);
+        });
+    }
+
     signale.timeEnd(timeLabel);
+}
+
+function getTestChunks(pkgInfos: PackageInfo[], framework: TestFramework, CHUNK_SIZE: number) {
+    const dynamicConfigPkgs: (PackageInfo & { configType: 'dynamic' | 'custom' })[] = [];
+    const customConfigPkgs: (PackageInfo & { configType: 'dynamic' | 'custom' })[] = [];
+    pkgInfos.forEach((_pkgInfo) => {
+        const exists = fs.existsSync(`${_pkgInfo.dir}/${framework}.config.js`);
+
+        const pkgInfo = _pkgInfo as PackageInfo & { configType: 'dynamic' | 'custom' };
+        pkgInfo.configType = exists ? 'custom' : 'dynamic';
+
+        const group = exists ? customConfigPkgs : dynamicConfigPkgs;
+        group.push(pkgInfo);
+    });
+
+    const chunkedDynamic = chunk(dynamicConfigPkgs, CHUNK_SIZE);
+    const chunkedCustom = chunk(customConfigPkgs, CHUNK_SIZE);
+    return chunkedDynamic.concat(chunkedCustom);
+}
+
+/**
+ * looks for make-[root|pkg]-config files, writing file(s) if found
+ *
+ * framework.make-root-config.js
+ * - FOR: sharing 1 config for multiple packages (i.e. projects setting)
+ * - FLAG: passes --config
+ * - WRITES: file to rootDir/framework.custom.config.js,
+
+ * framework.make-pkg-config.js
+ * - FOR: creating a file in each package's directory
+ * - FLAG: passes --projects for jest
+ * - WRITES: files to pkgDir/framework.config.js
+ */
+function ensureConfigs(
+    rootDir: string, framework: TestFramework, dirs: string[], pkgs: PackageInfo[]
+) {
+    const configFiles: string[] = [];
+
+    // jest - was going to do a root config w/projects option in TS, but used pkg level due to
+    // coverage behavior, but left root option for outside repos and other test frameworks
+    const configPaths = [
+        `${rootDir}/${framework}.make-root-config.js`,
+        `${rootDir}/${framework}.make-pkg-config.js`
+    ];
+    const configFnPath = configPaths.find((el) => fs.existsSync(el));
+    const writeAtRoot = configFnPath === configPaths[0];
+
+    if (!configFnPath) {
+        const files = pkgs.length > 1 ? 'files' : 'file';
+        const dirList = `"${dirs.join('", "')}"`;
+        signale.error(`
+            Unable to find file (options: "${configPaths.join('", "')})". 
+            Recommend creating one to dynamically create the config OR 
+            adding individual config ${files} in each of these directories ${dirList}
+        `);
+    } else {
+        try {
+            const makeConfig = getModule(require(configFnPath));
+
+            const writeConfig = (configDir: string | string[]) => {
+                const testConfig = makeConfig(configDir);
+                const contents = `export default ${JSON.stringify(testConfig, null, 2)};`;
+                const file = writeAtRoot
+                    ? `${rootDir}/${framework}.custom.config.js`
+                    : `${configDir}/${framework}.config.js`;
+                fs.outputFileSync(file, contents);
+                configFiles.push(file);
+            };
+
+            if (writeAtRoot) {
+                writeConfig(dirs);
+            } else {
+                dirs.forEach((dir) => writeConfig(dir));
+            }
+        } catch (error) {
+            signale.error(`Error creating ${framework} config.`, error);
+        }
+    }
+
+    return { configFiles, useConfigFlag: writeAtRoot };
 }
 
 async function runE2ETest(
