@@ -104,7 +104,7 @@ services:
     command: server --console-address ":9001" /data
 
   valkey:
-    image: valkey/valkey:9.0.3
+    image: valkey/valkey-bundle:9.0.2
     ports:
       - "6379:6379"
     restart: unless-stopped

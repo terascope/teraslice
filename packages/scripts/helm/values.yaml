@@ -165,7 +165,8 @@ valkey:
   # If false, valkey will be excluded on helmfile sync
   enabled: false
   image:
-    tag: 9.0.3
+    repository: valkey/valkey-bundle
+    tag: 9.0.2
   tls:
     enabled: false
 
