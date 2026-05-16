@@ -53,7 +53,7 @@ terafoundation:
 
 ## Create a Valkey client using the terafoundation API
 
-See the [terafoundation docs](../terafoundation/overview#api) for API details.
+See the [terafoundation docs](../terafoundation/overview.md#api) for API details.
 
 ```typescript
 const { client } = context.apis.foundation.createClient({
