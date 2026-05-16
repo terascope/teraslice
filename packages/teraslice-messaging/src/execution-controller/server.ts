@@ -122,6 +122,16 @@ export class Server extends core.Server {
         });
     }
 
+    // Broadcasts 'worker:loglevel' to all connected workers
+    // received by ExecutionController.Client.onLogLevel
+    sendLogLevelToAll(level: string): Promise<(core.Message | null)[]> {
+        return this.sendToAll(
+            'worker:loglevel',
+            { level },
+            { response: false, volatile: false }
+        );
+    }
+
     sendExecutionFinishedToAll(exId: string): Promise<(core.Message | null)[]> {
         return this.sendToAll(
             'execution:finished',

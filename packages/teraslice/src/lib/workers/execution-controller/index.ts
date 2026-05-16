@@ -238,6 +238,14 @@ export class ExecutionController {
 
         this.client.onExecutionPause(() => this.pause());
         this.client.onExecutionResume(() => this.resume());
+        // Receives 'execution:loglevel', applies locally
+        // then broadcasts 'worker:loglevel' to all workers
+        this.client.onExecutionLogLevel((msg) => {
+            const { level } = msg.payload as { level: Logger.LogLevel };
+            this.logger.level(level);
+            this.logger.debug(`log level updated to ${level}`);
+            this.server.sendLogLevelToAll(level as string);
+        });
 
         this.server.onSliceSuccess((workerId, response) => {
             process.nextTick(() => {

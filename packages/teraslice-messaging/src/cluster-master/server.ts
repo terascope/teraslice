@@ -67,6 +67,12 @@ export class Server extends _Server {
         return this.send(exId, 'execution:resume');
     }
 
+    // Emits 'execution:loglevel' to the ExecutionController
+    // received by ClusterMaster.Client.onExecutionLogLevel
+    sendExecutionLogLevel(exId: string, level: string): Promise<Message | null> {
+        return this.send(exId, 'execution:loglevel', { level });
+    }
+
     sendExecutionAnalyticsRequest(exId: string): Promise<Message | null> {
         return this.send(exId, 'execution:analytics');
     }

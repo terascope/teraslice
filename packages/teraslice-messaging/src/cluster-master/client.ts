@@ -88,4 +88,10 @@ export class Client extends core.Client {
     onExecutionResume(fn: core.MessageHandler) {
         this.handleResponse(this.socket, 'execution:resume', fn);
     }
+
+    // Handles 'execution:loglevel' sent by ClusterMaster.Server
+    // registered in workers/execution-controller/index.ts
+    onExecutionLogLevel(fn: core.MessageHandler) {
+        this.handleResponse(this.socket, 'execution:loglevel', fn);
+    }
 }
