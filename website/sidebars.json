@@ -226,6 +226,14 @@
                     "packages/opensearch-client/overview",
                     "packages/opensearch-client/api/overview"
                 ]
+            },
+            {
+                "type": "category",
+                "label": "valkey",
+                "items": [
+                    "packages/valkey/overview",
+                    "packages/valkey/api/overview"
+                ]
             }
         ],
         "Internal": [

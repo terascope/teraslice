@@ -334,6 +334,7 @@ export interface ErrorCauseKeys {
     caused_by?: ErrorCause;
     root_cause?: ErrorCause[];
     suppressed?: ErrorCause[];
+    failed_shards?: ShardFailure[];
 }
 
 export declare type ErrorCause = ErrorCauseKeys & {
@@ -1720,12 +1721,7 @@ export interface SearchRecordResponse<T = Record<string, unknown>> {
     max_score?: number;
     fields?: Record<string, any>;
     aggregations?: SearchAggregations;
-    _shards: {
-        total: number;
-        successful: number;
-        skipped: number;
-        failed: number;
-    };
+    _shards: ShardStatistics;
     hits: {
         total: number | HitsTotal;
         max_score: number;

@@ -8,7 +8,7 @@ import {
 import { Client as OpenClient } from '@terascope/opensearch-client';
 import {
     ElasticsearchDistribution, SearchResult, ClientParams,
-    ClientResponse,
+    ClientResponse, ESTypes
 } from '@terascope/types';
 // @ts-expect-error  TODO: do we still need this after getting rid of es6?
 import('setimmediate');
@@ -336,7 +336,11 @@ export default function elasticsearchApi(
                     continue;
                 }
 
-                if (item.status === TOO_MANY_REQUESTS || isQueueOverflowError(item.error.type)) {
+                if (
+                    item.status === TOO_MANY_REQUESTS
+                    || isQueueOverflowError(item.error.type)
+                    || containsRetryableCircuitBreaker(item.error)
+                ) {
                     if (actionRecords[i] == null) {
                         // this error should not happen in production,
                         // only in tests where the bulk function is mocked
@@ -711,15 +715,28 @@ export default function elasticsearchApi(
 
                         failuresReasons.push(...failures);
 
-                        const reasons = uniq(
+                        const reasonTypes = uniq(
                             flatten(failuresReasons.map((shard) => shard.reason.type))
                         ) as string[];
 
+                        const reasonReasons = uniq(
+                            flatten(failuresReasons.map((shard) => shard.reason.reason))
+                        ) as string[];
+
                         if (
-                            reasons.length > 1
-                            || !isQueueOverflowError(reasons[0])
+                            reasonTypes.length === 1
+                            && isQueueOverflowError(reasonTypes[0])
                         ) {
-                            const errorReason = reasons.join(' | ');
+                            logger.debug(`Shard failure during search - retryable: ${reasonTypes[0]}`);
+                            retry();
+                        } else if (
+                            reasonReasons.length === 1
+                            && isRetryableCircuitBreakerError(failuresReasons[0].reason)
+                        ) {
+                            logger.debug(`Shard failure during search - retryable: ${reasonReasons[0]}`);
+                            retry();
+                        } else {
+                            const errorReason = reasonTypes.join(' | ');
                             const error = new TSError(errorReason, {
                                 reason: 'Not all shards returned successful',
                                 context: {
@@ -727,8 +744,6 @@ export default function elasticsearchApi(
                                 },
                             });
                             reject(error);
-                        } else {
-                            retry();
                         }
                     })
                     .catch(errHandler);
@@ -821,20 +836,85 @@ export default function elasticsearchApi(
         return msg.includes('No Living connections') || msg.includes('ECONNREFUSED');
     }
 
+    function isRetryableCircuitBreakerError(cause: ESTypes.ErrorCause) {
+        let reason = '';
+        if (cause.type === 'circuit_breaking_exception') {
+            reason = cause.reason.toLowerCase();
+
+            /**
+             * Non-retryable circuit breakers. These are unlikely to change between retries.
+             * [fielddata] - field data cache loading - cache would need to be evicted
+             * [accounting] - already-loaded memory - would need segments merged or index deletion
+             * [request] — request-level memory (aggregations, etc.)
+            */
+            if (reason.includes('[fielddata]') || reason.includes('[accounting]')) return false;
+
+            /**
+             * Retryable circuit breakers. These are more likely to change between retries.
+             * [in_flight_requests] - concurrent in-flight HTTP/transport requests
+             * [parent] - total memory usage - will drop with GC and other requests finishing
+            */
+            if (reason.includes('[parent]') || reason.includes('[in_flight_requests]')) return true;
+
+            /**
+             * Circuit breakers we should never see will default to false
+             * [model_inference] — ML model memory (if ML plugin is enabled)
+             * [eql_sequence] — EQL sequence queries consuming too much memory
+             * **NOTE**: Opensearch plugins can also define their own circuit breaker exceptions
+            */
+        }
+        return false;
+    }
+
     function isErrorRetryable(err: Error) {
         const checkErrorMsg = isRetryableError(err);
 
         if (checkErrorMsg) {
+            logger.debug(`Client error is retryable: isRetryableError - ${err.name}: ${err.message}`);
             return true;
         }
 
-        const isRejectedError = isQueueOverflowError(get(err, 'body.error.type', ''));
-        const isConnectionError = isConnectionErrorMessage(err);
-
-        if (isRejectedError || isConnectionError) {
+        // Check this ASAP since it is the most likely error type
+        if (isQueueOverflowError(get(err, 'body.error.type', ''))) {
+            logger.debug(`Client error is retryable: isRejectedError - ${err.name}: ${err.message}`);
             return true;
         }
 
+        if (isConnectionErrorMessage(err)) {
+            logger.debug(`Client error is retryable: isConnectionErrorMessage - ${err.name}: ${err.message}`);
+            return true;
+        }
+
+        // Errors are often wrapped by other errors (like search_phase_execution_exception)
+        // when occurring on a data node. We need to parse the error for the underlying cause.
+        if (isStructuredErrorResponse(err)) {
+            const retryableList: string[] = [];
+            const body = err.body as ESTypes.OpenSearchErrorBody;
+            const errList: ESTypes.ErrorCause[] = getErrorCauses(body);
+
+            for (const cause of errList) {
+                const isRejectedError = isQueueOverflowError(cause.type);
+                if (isRejectedError) {
+                    retryableList.push('isRejectedError');
+                    continue;
+                }
+
+                const isRetryableCircuitBreaker = isRetryableCircuitBreakerError(cause);
+                if (isRetryableCircuitBreaker) {
+                    retryableList.push('isRetryableCircuitBreaker');
+                    continue;
+                }
+            }
+
+            // TODO: this assumes that having any retryable error in the list means we should retry
+            // It may be necessary to have a list of errors that, if present, we never retry
+            if (retryableList.length > 0) {
+                logger.debug(`Client error is retryable: ${retryableList.toString()} - ${err.name}: ${err.message}`);
+                return true;
+            }
+        }
+
+        logger.debug(`Client error is not retryable - ${err.name}: ${err.message}`);
         return false;
     }
 
@@ -862,6 +942,50 @@ export default function elasticsearchApi(
                 );
             }
         };
+    }
+
+    function getErrorCauses(
+        body: ESTypes.OpenSearchErrorBody
+    ): ESTypes.ErrorCause[] {
+        const causes: ESTypes.ErrorCause[] = [];
+        causes.push(...findNestedErrors(body.error));
+        if (body.error.root_cause) {
+            body.error.root_cause.forEach((cause) => causes.push(...findNestedErrors(cause)));
+        }
+        return causes;
+    }
+
+    function containsRetryableCircuitBreaker(errorCause: ESTypes.ErrorCause): boolean {
+        return findNestedErrors(errorCause)
+            .map((cause) => isRetryableCircuitBreakerError(cause))
+            .filter(Boolean)
+            .length > 0;
+    }
+
+    function findNestedErrors(
+        cause: ESTypes.ErrorCause
+    ): ESTypes.ErrorCause[] {
+        const causes: ESTypes.ErrorCause[] = [];
+        causes.push({ type: cause.type, reason: cause.reason });
+        if (cause.caused_by) {
+            causes.push(...findNestedErrors(cause.caused_by));
+        }
+        if (cause.failed_shards) {
+            cause.failed_shards.forEach((shard) => causes.push(...findNestedErrors(shard.reason)));
+        }
+
+        return causes;
+    }
+
+    function isStructuredErrorResponse(err: unknown): err is ESTypes.ResponseError {
+        return (
+            typeof err === 'object'
+            && err !== null
+            && 'body' in err
+            && typeof (err as any).body === 'object'
+            && (err as any).body !== null
+            && 'error' in (err as any).body
+        );
     }
 
     async function isAvailable(index: string) {

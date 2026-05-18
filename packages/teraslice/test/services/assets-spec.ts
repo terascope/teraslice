@@ -149,7 +149,7 @@ describe('Assets Service', () => {
         });
     });
 
-    describe('Testing /txt/assets enpoint', () => {
+    describe('Testing /txt/assets endpoint', () => {
         it('Should return proper table with specific format', async () => {
             const filePathOne = 'packages/teraslice/test/fixtures/assets/asset-with-long-description.zip';
             const filePathOneStream = fs.readFileSync(filePathOne);
