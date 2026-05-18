@@ -10,11 +10,11 @@ import { PromMetrics } from './prom-metrics/prom-metrics-api.js';
  */
 export default function registerApis(
     context: Terafoundation.Context,
-    extraLoggerFields: Record<string, any> = {}
+    loggerMetadataFields: Record<string, any> = {}
 ): void {
     const foundationConfig = context.sysconfig.terafoundation;
     const events = new EventEmitter();
-    context.logger = createRootLogger(context, extraLoggerFields);
+    context.logger = createRootLogger(context, loggerMetadataFields);
 
     // connection cache
     const connections = Object.create(null);
