@@ -107,9 +107,9 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: config.FILE_LOGGING,
             })
-            .option('clean-config-cache', {
-                alias: 'clean',
-                description: 'Create a new test config file to replace any cached ones.',
+            .option('rewrite-configs', {
+                alias: 'rewrite',
+                description: 'Deletes the test config directory so a new test config file will be written.',
                 type: 'boolean',
                 default: false
             })
