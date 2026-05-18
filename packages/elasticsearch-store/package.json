@@ -33,7 +33,7 @@
         "@terascope/data-types": "workspace:~",
         "@terascope/opensearch-client": "workspace:~",
         "@terascope/types": "workspace:~",
-        "ajv": "~8.18.0",
+        "ajv": "~8.20.0",
         "ajv-formats": "~3.0.1",
         "setimmediate": "~1.0.5",
         "uuid": "~14.0.0",

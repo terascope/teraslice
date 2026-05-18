@@ -26,7 +26,7 @@
     },
     "dependencies": {
         "@terascope/core-utils": "workspace:~",
-        "@valkey/valkey-glide": "~2.3.1"
+        "@valkey/valkey-glide": "~2.4.0"
     },
     "devDependencies": {
         "@terascope/scripts": "workspace:~",
