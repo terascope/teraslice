@@ -88,6 +88,8 @@ export type Config<
     ) => void | Promise<void>;
     start_workers?: boolean;
     shutdownMessaging?: boolean;
+    // Extra fields to include in the root logger at creation time
+    extraLoggerFields?: Record<string, any>;
 };
 
 export interface ConnectionConfig {
