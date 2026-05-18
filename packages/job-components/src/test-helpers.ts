@@ -252,6 +252,7 @@ export class TestContext implements i.Context {
 
                     return client;
                 },
+                setLogLevel(_level: Logger.LogLevel) { /* no-op in tests */ },
                 getSystemEvents(): EventEmitter {
                     return events;
                 },

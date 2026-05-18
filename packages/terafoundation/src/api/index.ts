@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
-import { isPlainObject, times } from '@terascope/core-utils';
-import type { Terafoundation, TerafoundationEnv } from '@terascope/types';
+import { isPlainObject, times, logLevels } from '@terascope/core-utils';
+import type { Terafoundation, TerafoundationEnv, Logger } from '@terascope/types';
 import { createClient as createDBClient } from '../connector-utils.js';
 import { createRootLogger } from './utils.js';
 import { PromMetrics } from './prom-metrics/prom-metrics-api.js';
@@ -12,6 +12,16 @@ export default function registerApis(context: Terafoundation.Context): void {
     const foundationConfig = context.sysconfig.terafoundation;
     const events = new EventEmitter();
     context.logger = createRootLogger(context);
+
+    // Tracks all child loggers so setLogLevel can update them all.
+    // WeakRefs allow GC'd loggers to be collected, and FinalizationRegistry
+    // removes their dead references from the Set to prevent unbounded growth.
+    type ChildLogger = ReturnType<typeof context.logger.child>;
+    const childLoggers = new Set<WeakRef<ChildLogger>>();
+    const childLoggerRegistry = new FinalizationRegistry((ref: WeakRef<ChildLogger>) => {
+        childLoggers.delete(ref);
+        context.logger.debug('child logger collected and removed from logger registry');
+    });
 
     // connection cache
     const connections = Object.create(null);
@@ -78,7 +88,31 @@ export default function registerApis(context: Terafoundation.Context): void {
             // add flush fn to the new logger
             childLogger.flush = context.logger.flush;
 
+            const childRef = new WeakRef(childLogger);
+            childLoggers.add(childRef);
+            childLoggerRegistry.register(childLogger, childRef);
+
             return childLogger;
+        },
+        /**
+         * Sets the log level for the root logger and all registered child loggers simultaneously.
+         * Use this instead of setting log levels on individual loggers to ensure consistent
+         * log level across the entire application.
+         */
+        setLogLevel(level: Logger.LogLevel) {
+            context.logger.level(level);
+            context.logger.info(`root logger level set to ${level}`);
+            for (const ref of childLoggers) {
+                const logger = ref.deref();
+                if (logger) {
+                    const name = logger.fields?.module ?? logger.fields?.name ?? '(unnamed)';
+                    // converts numeric log level to string so we can use it in our info log
+                    const currentLevel = Object.keys(logLevels).find(
+                        (key) => logLevels[key as keyof typeof logLevels] === logger.level());
+                    logger.level(level);
+                    logger.info(`child logger "${name}" log level changed from ${currentLevel} to ${level}`);
+                }
+            }
         },
         getSystemEvents() {
             return events;
