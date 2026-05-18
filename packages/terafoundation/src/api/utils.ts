@@ -40,7 +40,8 @@ export function createRootLogger(
 
     if (useDebugLogger) {
         const logger = debugLogger(`${filename}:${name}`);
-        Object.assign(logger.fields, {
+        // We add a fields object as we mainly use bunyan
+        logger.fields = Object.assign(logger.fields ?? {}, {
             worker_id: get(context, 'cluster.worker.id'),
             ...extraFields,
         });
