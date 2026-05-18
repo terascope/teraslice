@@ -24,6 +24,8 @@ import { TestFramework, TestFrameworks } from './test-runner/interfaces.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
+export const TEST_CONFIGS = 'test-configs';
+
 export type ExecEnv<T extends TestEnv = TestEnv>
     = T & { [name: string]: any };
 type ExecOpts<T extends TestEnv = TestEnv> = {

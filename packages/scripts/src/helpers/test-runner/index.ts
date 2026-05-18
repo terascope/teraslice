@@ -1,4 +1,5 @@
 import path from 'node:path';
+import os from 'node:os';
 import { createRequire } from 'node:module';
 import {
     debugLogger, chunk, TSError,
@@ -163,7 +164,6 @@ async function runTestSuite(
 
     const env = printAndGetEnv(suite, options);
 
-    let configFiles: string[] = [];
     for (const pkgs of chunked) {
         if (!pkgs.length) continue;
         if (pkgs.length === 1) {
@@ -186,14 +186,10 @@ async function runTestSuite(
             }
         );
 
-        let useConfigFlag: boolean | undefined;
-        let batchConfig: string[] = [];
+        let configFile: string | undefined;
 
         if (pkgs[0].configType === 'dynamic') {
-            const res = ensureConfigs(rootDir, framework, dirs, pkgs);
-            useConfigFlag = res.useConfigFlag;
-            batchConfig = res.configFiles;
-            configFiles = configFiles.concat(batchConfig);
+            configFile = ensureConfigs(rootDir, framework, dirs, pkgs, options);
         }
 
         /**
@@ -202,7 +198,7 @@ async function runTestSuite(
          * we have a shared config file at root instead of project level, that will dynamically
          * be created/deleted as the test runs passed to jest with the --config flag
          */
-        if (framework === 'jest' && !useConfigFlag) {
+        if (framework === 'jest' && !configFile) {
             args.projects = projects;
         }
 
@@ -217,7 +213,7 @@ async function runTestSuite(
                 options.debug,
                 ATTACH_JEST_DEBUGGER,
                 framework,
-                useConfigFlag ? batchConfig?.[0] : undefined
+                configFile
             );
             tracker.ended += pkgs.length;
         } catch (err) {
@@ -236,12 +232,6 @@ async function runTestSuite(
 
     if (!options.keepOpen) {
         await pMap(cleanupKeys, (key) => tracker.runCleanupByKey(key));
-    }
-
-    if (configFiles.length) {
-        configFiles.forEach((configFile) => {
-            fs.removeSync(configFile);
-        });
     }
 
     signale.timeEnd(timeLabel);
@@ -266,37 +256,38 @@ function getTestChunks(pkgInfos: PackageInfo[], framework: TestFramework, CHUNK_
 }
 
 /**
- * looks for make-[root|pkg]-config files, writing file(s) if found
- *
- * framework.make-root-config.js
- * - FOR: sharing 1 config for multiple packages (i.e. projects setting)
- * - FLAG: passes --config
- * - WRITES: file to rootDir/framework.custom.config.js,
-
- * framework.make-pkg-config.js
- * - FOR: creating a file in each package's directory
- * - FLAG: passes --projects for jest
- * - WRITES: files to pkgDir/framework.config.js
+ * Looks for framework.make-config files in tmp folder, writing
+ * file if not found. NOTE: to make a fresh test config pass
+ * --clean to the test cli, or call pnpm test:cleanup
+ * from TS root
  */
 function ensureConfigs(
-    rootDir: string, framework: TestFramework, dirs: string[], pkgs: PackageInfo[]
+    rootDir: string,
+    framework: TestFramework,
+    dirs: string[],
+    pkgs: PackageInfo[],
+    options: TestOptions
 ) {
+    const fileName = pkgs.map((el) => el.name.replace('@terascope/', '')).join('_');
+    const filePath = `${os.tmpdir()}/test-configs/${framework}/${fileName}.js`;
+
+    if (!options.cleanConfigCache && fs.existsSync(filePath)) {
+        if (options.debug) signale.debug(`Using existing config file ${filePath}. Pass --clean to override.`);
+        return filePath;
+    }
+
     const configFiles: string[] = [];
 
-    // jest - was going to do a root config w/projects option in TS, but used pkg level due to
-    // coverage behavior, but left root option for outside repos and other test frameworks
-    const configPaths = [
-        `${rootDir}/${framework}.make-root-config.js`,
-        `${rootDir}/${framework}.make-pkg-config.js`
+    const configFnPaths = [
+        `${rootDir}/${framework}.make-config.js`
     ];
-    const configFnPath = configPaths.find((el) => fs.existsSync(el));
-    const writeAtRoot = configFnPath === configPaths[0];
+    const configFnPath = configFnPaths.find((el) => fs.existsSync(el));
 
     if (!configFnPath) {
         const files = pkgs.length > 1 ? 'files' : 'file';
         const dirList = `"${dirs.join('", "')}"`;
         signale.error(`
-            Unable to find file (options: "${configPaths.join('", "')})". 
+            Unable to find file (options: "${configFnPaths.join('", "')})". 
             Recommend creating one to dynamically create the config OR 
             adding individual config ${files} in each of these directories ${dirList}
         `);
@@ -307,24 +298,18 @@ function ensureConfigs(
             const writeConfig = (configDir: string | string[]) => {
                 const testConfig = makeConfig(configDir);
                 const contents = `export default ${JSON.stringify(testConfig, null, 2)};`;
-                const file = writeAtRoot
-                    ? `${rootDir}/${framework}.custom.config.js`
-                    : `${configDir}/${framework}.config.js`;
+                const file = filePath;
                 fs.outputFileSync(file, contents);
                 configFiles.push(file);
             };
 
-            if (writeAtRoot) {
-                writeConfig(dirs);
-            } else {
-                dirs.forEach((dir) => writeConfig(dir));
-            }
+            writeConfig(dirs);
         } catch (error) {
             signale.error(`Error creating ${framework} config.`, error);
         }
     }
 
-    return { configFiles, useConfigFlag: writeAtRoot };
+    return filePath;
 }
 
 async function runE2ETest(

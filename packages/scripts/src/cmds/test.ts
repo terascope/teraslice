@@ -107,6 +107,12 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: config.FILE_LOGGING,
             })
+            .option('clean-config-cache', {
+                alias: 'clean',
+                description: 'Create a new test config file to replace any cached ones.',
+                type: 'boolean',
+                default: false
+            })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
                 coerce(arg) {
@@ -133,6 +139,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
         const skipImageDeletion = hoistArg(argv, 'skip-image-deletion', 'boolean');
         const logs = hoistArg(argv, 'logs', 'boolean');
+        const cleanConfigCache = hoistArg(argv, ['clean', 'clean-config-cache'], 'boolean');
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -154,7 +161,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             clusteringType: testPlatform,
             kindClusterName,
             skipImageDeletion,
-            logs
+            logs,
+            cleanConfigCache
         });
     },
 };

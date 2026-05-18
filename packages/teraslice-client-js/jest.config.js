@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import baseConfig from '../../jest.make-root-config.js';
+import baseConfig from '../../jest.make-config.js';
 
 const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
