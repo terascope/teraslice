@@ -97,7 +97,7 @@ class ExampleDeadLetterQueue extends OperationAPI {
             endpoint: 'default',
         };
 
-        const { client } = this.context.foundation.getConnection(clientConfig);
+        const { client } = this.context.foundation.createClient(clientConfig);
         this.client = client;
 
         this.collector = new Collector({
@@ -180,7 +180,7 @@ export default class ExampleDeadLetterQueue extends OperationAPI {
             endpoint: 'default',
         };
 
-        const { client } = this.context.foundation.getConnection(clientConfig);
+        const { client } = this.context.foundation.createClient(clientConfig);
         this.client = client;
 
         this.collector = new Collector({

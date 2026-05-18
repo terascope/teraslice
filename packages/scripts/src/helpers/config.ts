@@ -597,7 +597,7 @@ const configSchema: Terafoundation.Schema<any> = {
         format: Boolean
     },
     VALKEY_DOCKER_IMAGE: {
-        default: 'valkey/valkey',
+        default: 'valkey/valkey-bundle',
         format: String,
         env: 'VALKEY_DOCKER_IMAGE'
     },
@@ -619,7 +619,7 @@ const configSchema: Terafoundation.Schema<any> = {
         format: Number
     },
     VALKEY_VERSION: {
-        default: '9.0.3',
+        default: '9.0.2',
         format: String,
         env: 'VALKEY_VERSION'
     },

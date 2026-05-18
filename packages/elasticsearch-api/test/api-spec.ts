@@ -420,7 +420,7 @@ describe('elasticsearch-api', () => {
         const query = { body: 'someQuery' } as any;
         const api = esApi(client, logger);
         let queryFailed = false;
-        searchError = { body: { error: { type: 'es_rejected_execution_exception' } } } as any;
+        searchError = { statusCode: 429, body: { error: { type: 'es_rejected_execution_exception' }, status: 429 } } as any;
         recordsReturned = [{ _source: { some: 'data' } }];
 
         const [results] = await Promise.all([
@@ -443,7 +443,7 @@ describe('elasticsearch-api', () => {
         const query = { body: 'someQuery' } as any;
         const api = esApi(client, logger);
         let queryFailed = false;
-        searchError = { body: { error: { type: 'rejected_execution_exception' } } } as any;
+        searchError = { statusCode: 429, body: { error: { type: 'rejected_execution_exception' }, status: 429 } } as any;
         recordsReturned = [{ _source: { some: 'data' } }];
 
         const [results] = await Promise.all([

@@ -1,4 +1,5 @@
-image.tag: {{ .Values | get "valkey.image.tag" "9.0.3" }}
+image.repository: {{ .Values | get "valkey.image.repository" "valkey/valkey-bundle" }}
+image.tag: {{ .Values | get "valkey.image.tag" "9.0.2" }}
 
 service:
   type: NodePort
