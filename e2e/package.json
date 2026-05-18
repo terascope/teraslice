@@ -54,7 +54,7 @@
         "@types/ms": "~0.7.34",
         "@types/semver": "~7.7.1",
         "@types/signale": "~1.4.7",
-        "archiver": "~8.0.0",
+        "archiver": "~7.0.1",
         "bunyan": "~1.8.15",
         "decompress": "~4.2.1",
         "execa": "~9.6.1",
