@@ -8,10 +8,13 @@ import { PromMetrics } from './prom-metrics/prom-metrics-api.js';
 /*
  * This module controls the API endpoints that are exposed under context.apis.
  */
-export default function registerApis(context: Terafoundation.Context): void {
+export default function registerApis(
+    context: Terafoundation.Context,
+    loggerMetadataFields: Record<string, any> = {}
+): void {
     const foundationConfig = context.sysconfig.terafoundation;
     const events = new EventEmitter();
-    context.logger = createRootLogger(context);
+    context.logger = createRootLogger(context, loggerMetadataFields);
 
     // connection cache
     const connections = Object.create(null);

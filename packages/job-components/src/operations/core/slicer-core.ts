@@ -7,7 +7,6 @@ import {
     OpAPI
 } from '../../interfaces/index.js';
 import Core from './core.js';
-import { makeExContextLogger } from '../../utils.js';
 
 /**
  * A base class for supporting "Slicers" that run on a "Execution Controller",
@@ -28,9 +27,7 @@ export default abstract class SlicerCore<T = OpConfig>
     private readonly queue: Queue<Slice>;
 
     constructor(context: Context, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
-        const logger = makeExContextLogger(context, executionConfig, 'slicer', {
-            opName: opConfig._op,
-        });
+        const logger = context.apis.foundation.makeLogger({ module: 'slicer', opName: opConfig._op });
 
         super(context, executionConfig, logger);
         this.opConfig = opConfig;
