@@ -51,7 +51,7 @@ export class CoreContext<
             this.cluster_name = config.cluster_name;
         }
 
-        registerApis(this);
+        registerApis(this, config.loggerMetadataFields ?? {});
     }
 }
 

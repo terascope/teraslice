@@ -3,7 +3,7 @@ import path from 'node:path';
 import bunyan from 'bunyan';
 import {
     toBoolean, debugLogger, isTest,
-    Logger, includes
+    Logger, includes, get
 } from '@terascope/core-utils';
 import { Terafoundation } from '@terascope/types';
 
@@ -28,7 +28,8 @@ function getLogLevel(level: Terafoundation.LogLevelConfig): LogLevelObj {
 }
 
 export function createRootLogger(
-    context: Terafoundation.Context<Record<string, any>>
+    context: Terafoundation.Context<Record<string, any>>,
+    extraFields: Record<string, any> = {}
 ): Logger {
     const useDebugLogger = (toBoolean(process.env.USE_DEBUG_LOGGER || isTest))
         && !toBoolean(process.env.TESTING_LOG_LEVEL);
@@ -38,7 +39,13 @@ export function createRootLogger(
     const logLevel = getLogLevel(foundationConfig.log_level);
 
     if (useDebugLogger) {
-        return debugLogger(`${filename}:${name}`);
+        const logger = debugLogger(`${filename}:${name}`);
+        // We add a fields object as we mainly use bunyan
+        logger.fields = Object.assign(logger.fields ?? {}, {
+            worker_id: get(context, 'cluster.worker.id'),
+            ...extraFields,
+        });
+        return logger;
     }
 
     const streamConfig: bunyan.Stream[] = [];
@@ -75,6 +82,8 @@ export function createRootLogger(
         name: filename,
         streams: streamConfig,
         assignment: context.assignment,
+        worker_id: get(context, 'cluster.worker.id'),
+        ...extraFields,
     };
 
     const logger = bunyan.createLogger(loggerConfig) as Logger;
