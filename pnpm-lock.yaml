@@ -856,8 +856,8 @@ importers:
         specifier: ~7.0.1
         version: 7.0.1
       bufferstreams:
-        specifier: ~3.0.0
-        version: 3.0.0
+        specifier: ~6.0.1
+        version: 6.0.1
       chance:
         specifier: ~1.1.13
         version: 1.1.13
@@ -3322,9 +3322,9 @@ packages:
   buffer@6.0.3:
     resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
 
-  bufferstreams@3.0.0:
-    resolution: {integrity: sha512-Qg0ggJUWJq90vtg4lDsGN9CDWvzBMQxhiEkSOD/sJfYt6BLect3eV1/S6K7SCSKJ34n60rf6U5eUPmQENVE4UA==}
-    engines: {node: '>=8.12.0'}
+  bufferstreams@6.0.1:
+    resolution: {integrity: sha512-6A5J+YIXLxMl3P23lpsE4BWp4aaXusDkYR63i70CuLwgZc4F64THO2XE8dKfaxjGAcPlmuF7mWg/aMtqwI6hrg==}
+    engines: {node: '>=24.14.0'}
 
   bunyan@1.8.15:
     resolution: {integrity: sha512-0tECWShh6wUysgucJcBAoYegf3JJoZWibxdqhTm7OHPeT42qdjkZ29QCMcKwbgU1kiH+auSIasNRXMLWXafXig==}
@@ -6477,6 +6477,10 @@ packages:
   yauzl@2.10.0:
     resolution: {integrity: sha512-p4a9I6X6nu6IhoGmBqAcbJy1mlC4j27vEPZX9F4L4/vZT3Lyq1VkFHw/V/PUcB9Buo+DG3iHkT0x3Qya58zc3g==}
 
+  yerror@11.0.0:
+    resolution: {integrity: sha512-ZarH0yAHBjfiRJMC2eL8Fhv/l5GqnS2c1wo5V6vH7k4ehfHcKd6R1ahcyBZYORMH1cqPmOT1dANkoRjR2/pzrw==}
+    engines: {node: '>=24.14.0'}
+
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
@@ -9351,9 +9355,9 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  bufferstreams@3.0.0:
+  bufferstreams@6.0.1:
     dependencies:
-      readable-stream: 3.6.2
+      yerror: 11.0.0
 
   bunyan@1.8.15:
     optionalDependencies:
@@ -13046,6 +13050,8 @@ snapshots:
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0
+
+  yerror@11.0.0: {}
 
   yocto-queue@0.1.0: {}
 
