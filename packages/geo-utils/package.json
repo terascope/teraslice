@@ -39,7 +39,7 @@
         "@turf/helpers": "~7.3.5",
         "@turf/invariant": "~7.3.5",
         "@turf/line-to-polygon": "~7.3.5",
-        "geo-tz": "~8.1.6",
+        "geo-tz": "~8.1.7",
         "latlon-geohash": "~2.0.0"
     },
     "devDependencies": {

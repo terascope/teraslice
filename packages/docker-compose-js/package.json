@@ -36,7 +36,7 @@
         "debug": "~4.4.3"
     },
     "devDependencies": {
-        "@jest/globals": "^30.3.0",
+        "@jest/globals": "^30.4.1",
         "@types/debug": "~4.1.13"
     },
     "engines": {
