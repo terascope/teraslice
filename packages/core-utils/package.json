@@ -42,7 +42,7 @@
         "p-map": "~7.0.4",
         "shallow-clone": "~3.0.1",
         "validator": "~13.15.35",
-        "zod": "~4.1.12"
+        "zod": "~4.4.3"
     },
     "devDependencies": {
         "@jest/globals": "^30.4.1",

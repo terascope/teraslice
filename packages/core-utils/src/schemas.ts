@@ -434,7 +434,7 @@ export class SchemaValidator<T = AnyObject> {
             baseType
         );
 
-        if (schemaObj.default === undefined) {
+        if (schemaObj.default === undefined && !(baseType instanceof z.ZodAny)) {
             type = type.optional();
         }
 

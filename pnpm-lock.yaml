@@ -216,8 +216,8 @@ importers:
         specifier: ~13.15.35
         version: 13.15.35
       zod:
-        specifier: ~4.1.12
-        version: 4.1.13
+        specifier: ~4.4.3
+        version: 4.4.3
     devDependencies:
       '@jest/globals':
         specifier: ^30.4.1
@@ -6495,6 +6495,9 @@ packages:
 
   zod@4.1.13:
     resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
+
+  zod@4.4.3:
+    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
 snapshots:
 
@@ -13064,3 +13067,5 @@ snapshots:
       readable-stream: 4.7.0
 
   zod@4.1.13: {}
+
+  zod@4.4.3: {}
