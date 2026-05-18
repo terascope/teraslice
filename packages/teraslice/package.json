@@ -72,7 +72,7 @@
         "@types/js-yaml": "~4.0.9",
         "@types/ms": "~0.7.34",
         "@types/semver": "~7.7.1",
-        "archiver": "~8.0.0",
+        "archiver": "~7.0.1",
         "bufferstreams": "~3.0.0",
         "chance": "~1.1.13",
         "jest-fixtures": "~0.6.0",
