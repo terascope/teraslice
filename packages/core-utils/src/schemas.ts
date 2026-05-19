@@ -434,7 +434,12 @@ export class SchemaValidator<T = AnyObject> {
             baseType
         );
 
-        if (schemaObj.default === undefined) {
+        // We want to keep the convict behavior of an undefined default meaning a key
+        // is optional, but we exclude ZodAny types as those will be custom or inline
+        // functions (or '*', which doesn't need `optional()`), which if optional and
+        // passed undefined will skip the `transform()` `or superRefine()` validation
+        // functions. See https://github.com/terascope/teraslice/issues/4286
+        if (schemaObj.default === undefined && !(baseType instanceof z.ZodAny)) {
             type = type.optional();
         }
 
