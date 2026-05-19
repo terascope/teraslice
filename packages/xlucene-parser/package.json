@@ -1,7 +1,7 @@
 {
     "name": "xlucene-parser",
     "displayName": "xLucene Parser",
-    "version": "2.9.0",
+    "version": "2.9.1",
     "description": "Flexible Lucene-like evaluator and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser#readme",
     "repository": {
@@ -40,7 +40,7 @@
     "devDependencies": {
         "@turf/invariant": "~7.3.5",
         "@turf/random": "~7.3.5",
-        "date-fns": "~4.1.0"
+        "date-fns": "~4.2.1"
     },
     "engines": {
         "node": ">=22.0.0",

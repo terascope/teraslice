@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { random } from '@terascope/core-utils';
-// @ts-expect-error
-import BufferStreams from 'bufferstreams';
+import { BufferStream } from 'bufferstreams';
 import archiver from 'archiver';
 import { newId } from '../../../src/lib/utils/id_utils.js';
 
@@ -13,7 +12,7 @@ export function zipDirectory(dir: string): Promise<Buffer> {
             version: `${random(0, 100)}.${random(0, 100)}.${random(0, 100)}`,
             someProp: newId()
         }, null, 4), { name: 'asset.json' });
-        archive.pipe(new BufferStreams((err: Error, buf: Buffer) => {
+        archive.pipe(new BufferStream((err: Error | null, buf: Buffer) => {
             if (err) {
                 reject(err);
                 return;
