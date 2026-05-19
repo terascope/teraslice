@@ -23,7 +23,12 @@ export default {
             ignoreDestructuring: true,
         }],
     'handle-callback-err': ['error', 'error'],
-    'import/no-extraneous-dependencies': 'off',
+    'import/no-extraneous-dependencies': ['error',
+        {
+            devDependencies: true,
+            optionalDependencies: false,
+            peerDependencies: false,
+        }],
     'class-methods-use-this': 'off',
     'no-restricted-syntax': 'off',
     'no-await-in-loop': 'off',

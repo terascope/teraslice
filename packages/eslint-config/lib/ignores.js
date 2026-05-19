@@ -29,8 +29,6 @@ export default [
     'e2e/dist/',
     'packages/**/dist',
     'packages/**/build',
-    'packages/teraslice-cli/generator-templates/**',
-    'packages/generator-teraslice/generators/*/templates/**/*.ts',
     'packages/xlucene-parser/src/peg-engine.ts',
     'packages/job-components/examples/**',
     'website/',
