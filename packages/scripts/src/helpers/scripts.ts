@@ -231,7 +231,15 @@ export async function runTestFramework(
         args.push(frameworkConfig);
     }
 
-    signale.info(`executing ${framework}: ${args.join(' ')}`);
+    let logArgs = args;
+    if (framework === 'jest') {
+        logArgs = [...args];
+        const configIdx = args.findIndex((el) => el === '--config');
+        if (configIdx > -1 && args[configIdx + 1]?.startsWith('{')) {
+            logArgs[configIdx + 1] = '<STRINGIFIED_CONFIG>';
+        }
+    }
+    signale.info(`executing ${framework}: ${logArgs.join(' ')}`);
 
     await fork({
         cmd: pm,

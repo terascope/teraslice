@@ -256,10 +256,10 @@ function getTestChunks(pkgInfos: PackageInfo[], framework: TestFramework, CHUNK_
 }
 
 /**
- * Looks for framework.make-config files in tmp folder, writing
- * file if not found. NOTE: to make a fresh test config pass
- * --clean to the test cli, or call pnpm test:cleanup
- * from TS root
+ * Looks for framework.make-config files in tmp folder, if framework supports JSON
+ * in --config it will return the stringified config, otherwise it writes config file
+ * if not found. NOTE: if framework doesn't support JSON then to make a fresh test config
+ * pass --rewrite to the test cli
  */
 function ensureConfigs(
     rootDir: string,
@@ -267,49 +267,48 @@ function ensureConfigs(
     dirs: string[],
     pkgs: PackageInfo[],
     options: TestOptions
-) {
-    const fileName = pkgs.map((el) => el.name.replace('@terascope/', '')).join('_');
-    const filePath = `${os.tmpdir()}/test-configs/${framework}/${fileName}.js`;
+): string | undefined {
+    let filePath: string | undefined;
+    let testConfig: string | undefined;
 
-    if (!options.cleanConfigCache && fs.existsSync(filePath)) {
-        if (options.debug) signale.debug(`Using existing config file ${filePath}. Pass --clean to override.`);
-        return filePath;
+    // if test framework only supports --config as file path then check if file exists
+    if (framework !== 'jest') {
+        const fileName = pkgs.map((el) => el.name.replace('@terascope/', '')).join('_');
+        filePath = `${os.tmpdir()}/test-configs/${framework}/${fileName}.js`;
+
+        if (!options.cleanConfigCache && fs.existsSync(filePath)) {
+            if (options.debug) {
+                signale.debug(`Using existing config file ${filePath}. Pass --rewrite to override.`);
+            }
+            return filePath;
+        }
     }
 
-    const configFiles: string[] = [];
-
-    const configFnPaths = [
-        `${rootDir}/${framework}.make-config.js`
-    ];
-    const configFnPath = configFnPaths.find((el) => fs.existsSync(el));
-
-    if (!configFnPath) {
+    const configFnPath = `${rootDir}/${framework}.make-config.js`;
+    const exists = fs.existsSync(configFnPath);
+    if (!exists) {
         const files = pkgs.length > 1 ? 'files' : 'file';
         const dirList = `"${dirs.join('", "')}"`;
         signale.error(`
-            Unable to find file (options: "${configFnPaths.join('", "')})". 
+            Unable to find file "${configFnPath}". 
             Recommend creating one to dynamically create the config OR 
             adding individual config ${files} in each of these directories ${dirList}
         `);
     } else {
         try {
             const makeConfig = getModule(require(configFnPath));
+            testConfig = JSON.stringify(makeConfig(dirs), null, 2);
 
-            const writeConfig = (configDir: string | string[]) => {
-                const testConfig = makeConfig(configDir);
-                const contents = `export default ${JSON.stringify(testConfig, null, 2)};`;
-                const file = filePath;
-                fs.outputFileSync(file, contents);
-                configFiles.push(file);
-            };
-
-            writeConfig(dirs);
+            if (filePath) {
+                const contents = `export default ${testConfig};`;
+                fs.outputFileSync(filePath, contents);
+            }
         } catch (error) {
             signale.error(`Error creating ${framework} config.`, error);
         }
     }
 
-    return filePath;
+    return filePath || testConfig;
 }
 
 async function runE2ETest(
