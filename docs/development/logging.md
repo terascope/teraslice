@@ -4,17 +4,15 @@ title: Logging
 
 ## Overview
 
-Use **child loggers** for structured logging. All code — both teraslice internals and assets — should use `makeExContextLogger` as the primary way to create a logger. Assets always run inside a worker or execution controller and always have access to `context` and `executionConfig`.
+Use **child loggers** for structured logging. All code — both teraslice internals and assets — should create loggers via `context.apis.foundation.makeLogger()`. The fields `ex_id`, `job_id`, `worker_id`, and `assignment` are inherited automatically from the root logger, so callers only need to supply a `module` name and any operation-specific fields.
 
 ## Example
 
 ```ts
-import { makeExContextLogger } from '@terascope/job-components';
-
-const logger = makeExContextLogger(this.context, this.executionConfig, 'my-reader');
+const logger = context.apis.foundation.makeLogger({ module: 'my-reader' });
 ```
 
-This automatically attaches `module`, `ex_id`, `job_id`, `worker_id`, and `assignment` to every log line.
+This automatically attaches `ex_id`, `job_id`, `worker_id`, and `assignment` to every log line via the root logger.
 
 ## Teraslice example
 
@@ -63,29 +61,24 @@ Do **not** call `.level()` directly on individual loggers — child loggers chan
 ## Bunyan child logger pitfalls
 
 - **Level changes don't propagate automatically.** In Bunyan, setting a level on a parent logger does not update existing child loggers. This is why `setLogLevel` exists — always use it instead of setting levels directly.
-- **Child loggers created outside of `makeLogger` are not tracked.** Only loggers created via `context.apis.foundation.makeLogger()` (or the helper functions below) are registered and updated by `setLogLevel`. Loggers created directly via `context.logger.child()` will be missed.
+- **Child loggers created outside of `makeLogger` are not tracked.** Only loggers created via `context.apis.foundation.makeLogger()` are registered and updated by `setLogLevel`. Loggers created directly via `context.logger.child()` will be missed.
 - **Child logger references are held via `WeakRef`.** The registry stores each child logger as a `WeakRef` so that loggers which are no longer referenced elsewhere can be garbage collected normally — the registry won't keep them alive. A `FinalizationRegistry` callback cleans up the dead `WeakRef` from the set after GC runs, so the set doesn't grow unboundedly over the lifetime of the process.
 
-## Preferred logger helpers
+## Creating loggers
 
-For most teraslice internal code, prefer `makeExContextLogger` over calling `makeLogger` directly. It automatically attaches execution context fields (`ex_id`, `job_id`, `worker_id`, `assignment`) along with your module name:
-
-```ts
-import { makeExContextLogger } from '@terascope/job-components';
-
-// Inside a class that has access to context and executionConfig
-const logger: Logger = makeExContextLogger(this.context, this.executionConfig, 'my-module');
-```
-
-If you're outside of an execution context (no `ExecutionConfig`), use `makeContextLogger` instead:
+Use `context.apis.foundation.makeLogger()` directly in all cases — whether inside an execution context or not. The fields `ex_id`, `job_id`, `worker_id`, and `assignment` are set on the root logger at process startup and inherited by every child logger automatically.
 
 ```ts
-import { makeContextLogger } from '@terascope/job-components';
-
-const logger: Logger = makeContextLogger(context, 'my-module');
+const logger: Logger = context.apis.foundation.makeLogger({ module: 'my-module' });
 ```
 
-Assets always run inside a worker or execution controller, so they always have an `ExecutionConfig` available. Asset operations extend from `OperationCore`, which sets up a base logger via `makeExContextLogger` automatically. When an asset needs an additional child logger for a sub-component, use `makeExContextLogger` the same way internal teraslice code does.
+Pass any additional operation-specific fields alongside `module`:
+
+```ts
+const logger: Logger = context.apis.foundation.makeLogger({ module: 'operation', opName: opConfig._op });
+```
+
+Asset operations extend from `OperationCore`, which sets up a base logger via `makeLogger` automatically. When an asset needs an additional child logger for a sub-component, call `context.apis.foundation.makeLogger()` the same way.
 
 ## Logger field conventions
 
@@ -94,10 +87,10 @@ Child loggers are structured with fields that appear on every log line. Use the 
 | Field | Type | Description |
 |---|---|---|
 | `module` | `string` | The component or sub-module producing the log. Use `snake_case`. Required on all child loggers. |
-| `ex_id` | `string` | Execution ID. Added automatically by `makeExContextLogger`. |
-| `job_id` | `string` | Job ID. Added automatically by `makeExContextLogger`. |
-| `worker_id` | `number` | Cluster worker ID. Added automatically by `makeContextLogger` and `makeExContextLogger`. |
-| `assignment` | `string` | Process role (e.g. `worker`, `execution_controller`). Added automatically. |
+| `ex_id` | `string` | Execution ID. Inherited from the root logger when running inside a worker or execution controller. |
+| `job_id` | `string` | Job ID. Inherited from the root logger when running inside a worker or execution controller. |
+| `worker_id` | `number` | Cluster worker ID. Inherited from the root logger. |
+| `assignment` | `string` | Process role (e.g. `worker`, `execution_controller`). Inherited from the root logger. |
 | `slice_id` | `string` | ID of the current slice being processed. Added at the slice level when relevant. |
 
 For the `module` field, follow the naming pattern already used throughout the codebase: short, descriptive, `snake_case` names that reflect the component — for example `asset_loader`, `execution_scheduler`, `prom_metrics`. Avoid generic names like `handler` or `util` without a qualifying prefix.
