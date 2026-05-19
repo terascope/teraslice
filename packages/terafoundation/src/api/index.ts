@@ -23,7 +23,7 @@ export default function registerApis(
     const childLoggers = new Set<WeakRef<ChildLogger>>();
     const childLoggerRegistry = new FinalizationRegistry((ref: WeakRef<ChildLogger>) => {
         childLoggers.delete(ref);
-        context.logger.debug('child logger collected and removed from logger registry');
+        context.logger.debug('child logger garbage collected and removed from logger registry');
     });
 
     // connection cache
