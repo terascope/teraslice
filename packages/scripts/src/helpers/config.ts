@@ -281,6 +281,11 @@ const configSchema: Terafoundation.Schema<any> = {
         default: undefined,
         format: String,
     },
+    KAFKA_AUTO_CREATE_TOPICS_ENABLE: {
+        default: 'true',
+        format: String,
+        env: 'KAFKA_AUTO_CREATE_TOPICS_ENABLE'
+    },
     KAFKA_BROKER: {
         default: undefined,
         format: String,
