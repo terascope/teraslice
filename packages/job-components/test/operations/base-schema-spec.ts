@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { BaseSchema, TestContext, OpConfig } from '../../src/index.js';
 
-describe('Convict Schema', () => {
+describe('Base Schema', () => {
     const context = new TestContext('job-components');
 
     interface ExampleOpConfig extends OpConfig {

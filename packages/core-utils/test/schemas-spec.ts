@@ -600,7 +600,7 @@ describe('Schema Object validation', () => {
                         ];
 
                         expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Input not instance of RegExp');
+                        failedValidation(testValues, schema, () => 'Invalid input: expected RegExp, received null');
                     });
                 });
             });
@@ -806,7 +806,7 @@ describe('Schema Object validation', () => {
                         ];
 
                         expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Input not instance of RegExp');
+                        failedValidation(testValues, schema, () => 'Invalid input: expected RegExp, received null');
                     });
 
                     it('should use valid or null defaults', async () => {
@@ -975,7 +975,7 @@ describe('Schema Object validation', () => {
                         ];
 
                         expect.hasAssertions();
-                        failedValidation(testValues, schema, () => 'Input not instance of RegExp');
+                        failedValidation(testValues, schema, () => 'Invalid input: expected RegExp, received string');
                     });
 
                     it('will throw on bad default', () => {
