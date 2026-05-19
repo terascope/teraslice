@@ -17,7 +17,6 @@ export type TestOptions = {
     kindClusterName: string;
     skipImageDeletion: boolean;
     logs: boolean;
-    cleanConfigCache?: boolean;
 };
 
 export type GroupedPackages = {
