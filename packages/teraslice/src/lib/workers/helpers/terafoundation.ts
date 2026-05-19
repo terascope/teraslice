@@ -2,8 +2,7 @@ import {
     Logger, get, isFunction,
     isString
 } from '@terascope/core-utils';
-import { makeContextLogger, Context } from '@terascope/job-components';
-import { safeDecode } from '../../utils/encoding_utils.js';
+import { Context } from '@terascope/job-components';
 
 export function generateWorkerId(context: Context) {
     const { hostname } = context.sysconfig.teraslice;
@@ -27,18 +26,5 @@ export function makeLogger(
         return exAPI.makeLogger(moduleName, extra);
     }
 
-    const defaultContext: Record<string, any> = {};
-    if (process.env.EX) {
-        const ex = safeDecode(process.env.EX);
-        const exId = get(ex, 'ex_id');
-        const jobId = get(ex, 'job_id');
-        if (exId) {
-            defaultContext.ex_id = exId;
-        }
-        if (jobId) {
-            defaultContext.job_id = jobId;
-        }
-    }
-
-    return makeContextLogger(context, moduleName, Object.assign(defaultContext, extra));
+    return context.apis.foundation.makeLogger({ module: moduleName, ...extra });
 }

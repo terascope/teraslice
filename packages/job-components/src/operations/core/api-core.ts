@@ -8,7 +8,6 @@ import {
     DeadLetterAction,
     DeadLetterAPIFn
 } from '../../interfaces/index.js';
-import { makeExContextLogger } from '../../utils.js';
 
 /**
  * A base class for supporting APIs that run within an Execution Context.
@@ -25,9 +24,7 @@ export default abstract class APICore<T = APIConfig>
         apiConfig: APIConfig & T,
         executionConfig: ExecutionConfig
     ) {
-        const logger = makeExContextLogger(context, executionConfig, 'operation-api', {
-            apiName: apiConfig._name,
-        });
+        const logger = context.apis.foundation.makeLogger({ module: 'operation-api', apiName: apiConfig._name });
 
         super(context, executionConfig, logger);
         this.apiConfig = apiConfig;

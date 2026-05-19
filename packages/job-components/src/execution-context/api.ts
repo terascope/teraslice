@@ -10,7 +10,6 @@ import {
 import { isOperationAPI, getOperationAPIType } from './utils.js';
 import { Observer, APIConstructor } from '../operations/index.js';
 import { JobAPIInstances } from './interfaces.js';
-import { makeExContextLogger } from '../utils.js';
 
 export interface MetadataFns {
     update: (exId: string, metadata: Record<string, any>) => Promise<void>;
@@ -150,11 +149,8 @@ export class ExecutionContextAPI {
         return api.opAPI as T;
     }
 
-    /**
-     * Make a logger with a the job_id and ex_id in the logger context
-     */
     makeLogger(moduleName: string, extra: Record<string, any> = {}): Logger {
-        return makeExContextLogger(this._context, this._executionConfig, moduleName, extra);
+        return this._context.apis.foundation.makeLogger({ module: moduleName, ...extra });
     }
 
     /**

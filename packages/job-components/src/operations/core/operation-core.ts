@@ -4,7 +4,6 @@ import {
     OpConfig, Context, DeadLetterAction,
     DeadLetterAPIFn,
 } from '../../interfaces/index.js';
-import { makeExContextLogger } from '../../utils.js';
 
 /**
  * A base class for supporting operations that run on a "Worker",
@@ -23,9 +22,7 @@ export default class OperationCore<T = OpConfig>
     deadLetterAction: DeadLetterAction;
 
     constructor(context: Context, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
-        const logger = makeExContextLogger(context, executionConfig, 'operation', {
-            opName: opConfig._op,
-        });
+        const logger = context.apis.foundation.makeLogger({ module: 'operation', opName: opConfig._op });
         super(context, executionConfig, logger);
 
         this.deadLetterAction = opConfig._dead_letter_action || 'throw';
