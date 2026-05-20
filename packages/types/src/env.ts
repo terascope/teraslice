@@ -36,6 +36,7 @@ export interface TestEnv {
     HOST_IP?: string;
     K8S_VERSION?: string;
     KAFKA_ADVERTISED_LISTENERS?: string;
+    KAFKA_AUTO_CREATE_TOPICS_ENABLE?: string;
     KAFKA_BROKER?: string;
     KAFKA_CONTROLLER_LISTENER_NAMES?: string;
     KAFKA_CONTROLLER_QUORUM_VOTERS?: string;
