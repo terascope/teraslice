@@ -24,6 +24,8 @@ import { TestFramework, TestFrameworks } from './test-runner/interfaces.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 
+export const TEST_CONFIGS = 'test-configs';
+
 export type ExecEnv<T extends TestEnv = TestEnv>
     = T & { [name: string]: any };
 type ExecOpts<T extends TestEnv = TestEnv> = {
@@ -165,7 +167,8 @@ export async function runTestFramework(
     extraArgs?: string[],
     debug?: boolean,
     attachJestDebugger?: boolean,
-    framework: TestFramework = TestFrameworks.jest
+    framework: TestFramework = TestFrameworks.jest,
+    frameworkConfig?: string
 ): Promise<void> {
     const pm = getPackageManager();
     // When running jest in yarn3 PnP with ESM we must call 'yarn jest <...args>'
@@ -223,9 +226,20 @@ export async function runTestFramework(
         });
     }
 
-    if (debug) {
-        signale.debug(`executing ${framework}: ${args.join(' ')}`);
+    if (frameworkConfig) {
+        args.push(`--config`);
+        args.push(frameworkConfig);
     }
+
+    let logArgs = args;
+    if (framework === 'jest') {
+        logArgs = [...args];
+        const configIdx = args.findIndex((el) => el === '--config');
+        if (configIdx > -1 && args[configIdx + 1]?.startsWith('{')) {
+            logArgs[configIdx + 1] = '<STRINGIFIED_CONFIG>';
+        }
+    }
+    signale.info(`executing ${framework}: ${logArgs.join(' ')}`);
 
     await fork({
         cmd: pm,
