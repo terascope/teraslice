@@ -100,6 +100,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: `${config.KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR}`,
             KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: config.KAFKA_TRANSACTION_STATE_LOG_MIN_ISR,
             KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: config.KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS,
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: config.KAFKA_AUTO_CREATE_TOPICS_ENABLE,
             // TLS related config
             ...(config.ENCRYPT_KAFKA
                 ? {

@@ -114,6 +114,8 @@ export interface FoundationAPIs {
     makeLogger(metadata?: Record<string, string>): Logger;
     /** Create the root logger (usually done automatically) */
     makeLogger(name: string, filename: string): Logger;
+    /** Set log level on the root logger and all child loggers created via makeLogger */
+    setLogLevel(level: Logger.LogLevel): void;
     getSystemEvents(): EventEmitter;
     createClient(config: ConnectionConfig): Promise<ConnectorOutput>;
     startWorkers(num: number, envOptions: Record<string, any>): FoundationWorker[];

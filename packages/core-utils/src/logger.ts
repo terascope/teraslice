@@ -54,6 +54,7 @@ export function debugLogger(testName: string, param?: DebugParam, otherName?: st
 
     const name = parts.join(':');
 
+    logger.fields = {};
     logger.streams = [];
 
     logger.addStream = () => {};

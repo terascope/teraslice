@@ -18,7 +18,7 @@ export class SliceExecution {
     readonly stateStorage: StateStorage;
     readonly analyticsStorage: AnalyticsStorage;
     events: events.EventEmitter;
-    private logger!: Logger;
+    private logger: Logger;
     private isShutdown!: boolean;
     slice!: Slice;
     analyticsData!: SliceAnalyticsData;
@@ -34,6 +34,7 @@ export class SliceExecution {
         this.executionContext = executionContext;
         this.stateStorage = stateStorage;
         this.analyticsStorage = analyticsStorage;
+        this.logger = makeLogger(this.context, 'slice');
     }
 
     async initialize(slice: Slice) {
@@ -42,10 +43,7 @@ export class SliceExecution {
         await this.stateStorage.updateState(slice, SliceState.start);
 
         this.slice = slice;
-        this.logger = makeLogger(this.context, 'slice', {
-            slice_id: sliceId
-        });
-
+        this.logger.fields.slice_id = sliceId;
         await this.executionContext.initializeSlice(slice);
     }
 

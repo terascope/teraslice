@@ -1,10 +1,12 @@
+import path from 'node:path';
+import os from 'node:os';
+import { createRequire } from 'node:module';
 import {
     debugLogger, chunk, TSError,
     isCI, pMap
 } from '@terascope/core-utils';
 import { TestEnv } from '@terascope/types';
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from 'fs-extra';
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
@@ -32,6 +34,12 @@ import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
 import config from '../config.js';
+
+const require = createRequire(import.meta.url);
+function getModule(module: any) {
+    if ('default' in module) return getModule(module.default);
+    return module;
+}
 
 const {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E,
@@ -124,29 +132,28 @@ async function runTestSuite(
 ): Promise<void> {
     if (suite === 'e2e') return;
 
-    if (isCI) {
-        // load the services from cache in CI
-        await loadOrPullServiceImages(options.forceSuite || suite, options.skipImageDeletion);
-    }
-
-    const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
-
     if (options.watch && pkgInfos.length > MAX_PROJECTS_PER_BATCH) {
         throw new Error(
             `Running more than ${MAX_PROJECTS_PER_BATCH} packages will cause memory leaks`
         );
     }
 
-    tracker.expected += pkgInfos.length;
-    const chunked = chunk(pkgInfos, CHUNK_SIZE);
+    if (isCI) {
+        // load the services from cache in CI
+        await loadOrPullServiceImages(options.forceSuite || suite, options.skipImageDeletion);
+    }
 
-    // don't log unless this useful information (more than one package)
+    const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
+    const chunked = getTestChunks(pkgInfos, framework, CHUNK_SIZE);
+
+    // don't log unless useful (more than one package)
     if (chunked.length > 1 && chunked[0].length > 1) {
         writeHeader(`Running test suite "${suite}"`, false);
     }
 
     const cleanupKeys: string[] = [`${suite}:services`];
 
+    tracker.expected += pkgInfos.length;
     tracker.addCleanup(
         `${suite}:services`,
         await ensureServices(options.forceSuite || suite, options, path.join(process.cwd(), 'logs'))
@@ -167,8 +174,11 @@ async function runTestSuite(
 
         const args = getArgs(options, framework);
 
-        args.projects = pkgs.map(
+        const rootDir = getRootDir();
+        const dirs: string[] = [];
+        const projects = pkgs.map(
             (pkgInfo) => {
+                dirs.push(pkgInfo.dir);
                 if (pkgInfo.relativeDir.length) {
                     return pkgInfo.relativeDir;
                 }
@@ -176,17 +186,34 @@ async function runTestSuite(
             }
         );
 
+        let configFile: string | undefined;
+
+        if (pkgs[0].configType === 'dynamic') {
+            configFile = ensureConfigs(rootDir, framework, dirs, pkgs);
+        }
+
+        /**
+         * Jest's --projects requires specified project(s) to contain a jest.config file, if
+         * configType is 'dynamic' and we're using a root config, we don't want --projects as
+         * we have a shared config file at root instead of project level, that will dynamically
+         * be created/deleted as the test runs passed to jest with the --config flag
+         */
+        if (framework === 'jest' && !configFile) {
+            args.projects = projects;
+        }
+
         tracker.started += pkgs.length;
 
         try {
             await runTestFramework(
-                getRootDir(),
+                rootDir,
                 args,
                 env,
                 options.frameworkArgs,
                 options.debug,
                 ATTACH_JEST_DEBUGGER,
-                framework
+                framework,
+                configFile
             );
             tracker.ended += pkgs.length;
         } catch (err) {
@@ -208,6 +235,66 @@ async function runTestSuite(
     }
 
     signale.timeEnd(timeLabel);
+}
+
+function getTestChunks(pkgInfos: PackageInfo[], framework: TestFramework, CHUNK_SIZE: number) {
+    const dynamicConfigPkgs: (PackageInfo & { configType: 'dynamic' | 'custom' })[] = [];
+    const customConfigPkgs: (PackageInfo & { configType: 'dynamic' | 'custom' })[] = [];
+    pkgInfos.forEach((_pkgInfo) => {
+        const exists = fs.existsSync(`${_pkgInfo.dir}/${framework}.config.js`);
+
+        const pkgInfo = _pkgInfo as PackageInfo & { configType: 'dynamic' | 'custom' };
+        pkgInfo.configType = exists ? 'custom' : 'dynamic';
+
+        const group = exists ? customConfigPkgs : dynamicConfigPkgs;
+        group.push(pkgInfo);
+    });
+
+    const chunkedDynamic = chunk(dynamicConfigPkgs, CHUNK_SIZE);
+    const chunkedCustom = chunk(customConfigPkgs, CHUNK_SIZE);
+    return chunkedDynamic.concat(chunkedCustom);
+}
+
+/**
+ * Looks for framework.make-config files, if framework supports JSON in --config it returns
+ * stringified config, otherwise writes config file to tmp folder passing file name to --config,
+ * skipped checking file existence as that could confuse people why config changes aren't working
+ */
+function ensureConfigs(
+    rootDir: string,
+    framework: TestFramework,
+    dirs: string[],
+    pkgs: PackageInfo[]
+): string | undefined {
+    const configFnPath = `${rootDir}/${framework}.make-config.js`;
+    const exists = fs.existsSync(configFnPath);
+
+    if (exists) {
+        try {
+            const makeConfig: ((dirs: string[]) => Record<string, any>) = getModule(
+                require(configFnPath)
+            );
+            const testConfig = JSON.stringify(makeConfig(dirs), null, 2);
+
+            const supportsJSON = framework === 'jest';
+            if (supportsJSON) return testConfig;
+
+            const fileName = `${pkgs.map((el) => el.name.replace('@terascope/', '')).join('_')}.js`;
+            const filePath = `${os.tmpdir()}/test-configs/${framework}/${fileName}`;
+            fs.outputFileSync(filePath, `export default ${testConfig};`);
+            return filePath;
+        } catch (error) {
+            signale.error(`Error creating ${framework} config.`, error);
+        }
+    } else {
+        const files = pkgs.length > 1 ? 'files' : 'file';
+        const dirList = `"${dirs.join('", "')}"`;
+        signale.error(`
+            Unable to find file "${configFnPath}". 
+            Recommend creating one to dynamically create the config OR 
+            adding individual config ${files} in each of these directories ${dirList}
+        `);
+    }
 }
 
 async function runE2ETest(
