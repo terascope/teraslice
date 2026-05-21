@@ -34,6 +34,7 @@
         "@terascope/core-utils": "workspace:~",
         "@terascope/types": "workspace:~",
         "get-port": "~7.2.0",
+        "jest-extended": "~7.0.0",
         "ms": "~2.1.3",
         "nanoid": "~5.1.11",
         "p-event": "~7.1.0",

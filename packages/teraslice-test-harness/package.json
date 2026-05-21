@@ -40,6 +40,7 @@
         "@jest/globals": "^30.4.1",
         "@terascope/core-utils": "workspace:~",
         "@types/decompress": "~4.2.7",
+        "jest-extended": "~7.0.0",
         "nock": "~14.0.15"
     },
     "engines": {

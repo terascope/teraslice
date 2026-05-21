@@ -29,7 +29,8 @@
         "@terascope/types": "workspace:~"
     },
     "devDependencies": {
-        "@terascope/opensearch-client": "workspace:~"
+        "@terascope/opensearch-client": "workspace:~",
+        "jest-extended": "~7.0.0"
     },
     "engines": {
         "node": ">=22.0.0",

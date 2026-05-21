@@ -75,12 +75,6 @@ export default Object.assign({}, jsRules, {
             classes: false,
             typedefs: false
         }],
-    'import/no-extraneous-dependencies': ['error',
-        {
-            devDependencies: true,
-            optionalDependencies: false,
-            peerDependencies: false,
-        }],
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
     'no-unused-vars': 'off',

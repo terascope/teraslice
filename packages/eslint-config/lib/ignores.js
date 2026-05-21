@@ -21,7 +21,7 @@ export default [
     '.vscode/',
     'assets/**',
     'e2e/assets/**',
-    'examples/assets/**',
+    'examples/**',
     'packages/teraslice/assets/**',
     'autoload',
     'e2e/.config/',
@@ -37,6 +37,8 @@ export default [
     'dist/',
     '**/dist/**',
     '**/build/**',
+    '**/bench/**',
+    '**/scripts/**',
     '.pnp.**',
     '*.min.js',
     '*.min.css'

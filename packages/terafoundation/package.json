@@ -45,6 +45,7 @@
         "@types/express": "~5.0.6",
         "@types/js-yaml": "~4.0.9",
         "@types/yargs": "~17.0.35",
+        "jest-extended": "~7.0.0",
         "got": "~15.0.5"
     },
     "peerDependencies": {

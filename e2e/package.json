@@ -66,6 +66,7 @@
         "nanoid": "~5.1.11",
         "semver": "~7.8.0",
         "signale": "~1.4.0",
+        "teraslice": "workspace:~",
         "teraslice-cli": "workspace:~",
         "teraslice-client-js": "workspace:~",
         "ts-jest": "~29.4.9",

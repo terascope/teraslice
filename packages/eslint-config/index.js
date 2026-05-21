@@ -1,5 +1,3 @@
-import path from 'node:path';
-import { readdirSync, existsSync } from 'node:fs';
 import { fixupPluginRules } from '@eslint/compat';
 import jest from 'eslint-plugin-jest';
 import jestDOM from 'eslint-plugin-jest-dom';
@@ -12,25 +10,6 @@ import stylistic from '@stylistic/eslint-plugin';
 import tsEslint from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
 import { rules, ignores } from './lib/index.js';
-
-function findPackageDirs(dir, depth = 2) {
-    if (depth === 0) return [];
-    const result = [];
-    try {
-        for (const entry of readdirSync(dir, { withFileTypes: true })) {
-            if (!entry.isDirectory() || entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
-            const subdir = path.join(dir, entry.name);
-            if (existsSync(path.join(subdir, 'package.json'))) result.push(subdir);
-            result.push(...findPackageDirs(subdir, depth - 1));
-        }
-    } catch {
-        // skip inaccessible directories
-    }
-    return result;
-}
-
-const rootDir = process.cwd();
-const packageDirs = [rootDir, ...findPackageDirs(rootDir)];
 
 const typescriptLint = tsEslint.config(
     ...tsEslint.configs.recommended,
@@ -58,11 +37,6 @@ const eslintConfig = [
         // In your eslint.config.js file, if an ignores key is used without any other
         // keys in the configuration object, then the patterns act as global ignores.
         ignores
-    },
-    {
-        plugins: {
-            import: importPlugin
-        }
     },
     {
         files: ['**/*.{js,mjs,cjs}'],
@@ -100,27 +74,26 @@ const eslintConfig = [
             'jest-dom': jestDOM
         },
         rules: {
-            ...rules.jest,
-            'import/no-extraneous-dependencies': ['error',
-                {
-                    devDependencies: false,
-                    optionalDependencies: false,
-                    peerDependencies: false,
-                    packageDir: packageDirs
-                }]
+            ...rules.jest
         }
     },
     {
-        // overrides for js/ts files in test directories
-        files: ['**/test/**/*.{js,ts,tsx,jsx}'],
+        // import rules for js/ts files in src and test directories
+        files: ['**/*.{js,ts,tsx,jsx}'],
+        plugins: {
+            import: importPlugin
+        },
+        settings: {
+            ...importPlugin.flatConfigs.typescript.settings
+        },
         rules: {
             'import/no-extraneous-dependencies': ['error',
                 {
                     devDependencies: true,
                     optionalDependencies: false,
                     peerDependencies: false,
-                    packageDir: packageDirs
-                }]
+                }
+            ]
         }
     },
     {

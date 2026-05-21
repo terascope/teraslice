@@ -56,7 +56,8 @@
         "@types/chance": "^1.1.7",
         "@types/jexl": "^2.3.4",
         "@types/valid-url": "~1.0.7",
-        "benchmark": "~2.1.4"
+        "benchmark": "~2.1.4",
+        "jest-extended": "~7.0.0"
     },
     "engines": {
         "node": ">=22.0.0",
