@@ -60,6 +60,7 @@ export class ExecutionController {
     private slicerFailed = false;
     private startTime: number | undefined;
     private isDoneDispatching!: boolean | undefined;
+    private _logLevel: Logger.LogLevel | undefined;
 
     constructor(context: Context, executionContext: SlicerExecutionContext) {
         const workerId = generateWorkerId(context);
@@ -238,6 +239,15 @@ export class ExecutionController {
 
         this.client.onExecutionPause(() => this.pause());
         this.client.onExecutionResume(() => this.resume());
+        // Update log level by user api request
+        // TODO: keep track of original value on the ex and
+        // set this._logLevel to undefined if the same
+        this.client.onExecutionLogLevel((msg) => {
+            const { level } = msg.payload as { level: Logger.LogLevel };
+            this._logLevel = level;
+            this.context.apis.foundation.setLogLevel(level);
+            this.logger.debug(`log level updated to ${level}`);
+        });
 
         this.server.onSliceSuccess((workerId, response) => {
             process.nextTick(() => {
@@ -659,6 +669,12 @@ export class ExecutionController {
 
     _dispatchSlice(slice: Slice, workerId: string) {
         this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
+
+        // When set, we bolt on the log_level to the slice
+        // We don't care about persistence right now
+        if (this._logLevel) {
+            slice.log_level = this._logLevel as string;
+        }
 
         return this.server
             .dispatchSlice(slice, workerId)

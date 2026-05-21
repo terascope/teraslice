@@ -88,4 +88,8 @@ export class Client extends core.Client {
     onExecutionResume(fn: core.MessageHandler) {
         this.handleResponse(this.socket, 'execution:resume', fn);
     }
+
+    onExecutionLogLevel(fn: core.MessageHandler) {
+        this.handleResponse(this.socket, 'execution:loglevel', fn);
+    }
 }
