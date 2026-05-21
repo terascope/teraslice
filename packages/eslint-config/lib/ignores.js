@@ -37,8 +37,6 @@ export default [
     'dist/',
     '**/dist/**',
     '**/build/**',
-    '**/bench/**',
-    '**/scripts/**',
     '.pnp.**',
     '*.min.js',
     '*.min.css'

@@ -79,7 +79,7 @@ const eslintConfig = [
     },
     {
         // import rules for js/ts files in src and test directories
-        files: ['**/*.{js,ts,tsx,jsx}'],
+        files: ['**/{src,test}/*.{js,ts,tsx,jsx}'],
         plugins: {
             import: importPlugin
         },
