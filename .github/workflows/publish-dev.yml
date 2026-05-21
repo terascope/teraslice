@@ -15,7 +15,7 @@ jobs:
       npm_prerelease_version: ${{ steps.npm-version.outputs.npm_prerelease_version }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Retrieve Teraslice version
         id: teraslice-version
@@ -30,10 +30,10 @@ jobs:
           echo "npm_prerelease_version=$NPM_PRERELEASE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
@@ -53,13 +53,13 @@ jobs:
         node-version: [22, 24]
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
@@ -70,7 +70,7 @@ jobs:
 
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -87,7 +87,7 @@ jobs:
       version_updated: ${{ steps.version_check.outputs.version_updated }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0
@@ -123,14 +123,14 @@ jobs:
       - name: Generate a token
         if: steps.version_check.outputs.version_updated == 'true'
         id: generate-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.RELEASES_APP_ID }}
           private-key: ${{ secrets.RELEASES_PRIVATE_KEY }}
 
       - name: Create Release
         if: steps.version_check.outputs.version_updated == 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           token: ${{ steps.generate-token.outputs.token }}
           prerelease: true
@@ -146,7 +146,7 @@ jobs:
     steps:
       - name: Announce release in Slack releases channel
         id: announce-release
-        uses: slackapi/slack-github-action@v2.0.0
+        uses: slackapi/slack-github-action@v3.0.3
         with:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}
