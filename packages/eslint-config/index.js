@@ -8,11 +8,8 @@ import react from 'eslint-plugin-react';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import stylistic from '@stylistic/eslint-plugin';
 import tsEslint from 'typescript-eslint';
+import importPlugin from 'eslint-plugin-import';
 import { rules, ignores } from './lib/index.js';
-
-/**
-    TODO: check to see if import plugins works with eslint 9
- */
 
 const typescriptLint = tsEslint.config(
     ...tsEslint.configs.recommended,
@@ -77,7 +74,26 @@ const eslintConfig = [
             'jest-dom': jestDOM
         },
         rules: {
-            ...rules.jest,
+            ...rules.jest
+        }
+    },
+    {
+        // import rules for js/ts files in src and test directories
+        files: ['**/{src,test}/*.{js,ts,tsx,jsx}'],
+        plugins: {
+            import: importPlugin
+        },
+        settings: {
+            ...importPlugin.flatConfigs.typescript.settings
+        },
+        rules: {
+            'import/no-extraneous-dependencies': ['error',
+                {
+                    devDependencies: true,
+                    optionalDependencies: false,
+                    peerDependencies: false,
+                }
+            ]
         }
     },
     {

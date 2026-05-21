@@ -28,7 +28,8 @@
     "dependencies": {
         "@terascope/core-utils": "workspace:~",
         "@terascope/types": "workspace:~",
-        "graphql": "~16.12.0"
+        "graphql": "~16.12.0",
+        "jest-extended": "~7.0.0"
     },
     "engines": {
         "node": ">=22.0.0",

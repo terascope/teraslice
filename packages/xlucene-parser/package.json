@@ -40,7 +40,8 @@
     "devDependencies": {
         "@turf/invariant": "~7.3.5",
         "@turf/random": "~7.3.5",
-        "date-fns": "~4.2.1"
+        "date-fns": "~4.2.1",
+        "jest-extended": "~7.0.0"
     },
     "engines": {
         "node": ">=22.0.0",

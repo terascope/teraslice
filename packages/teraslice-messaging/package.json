@@ -42,7 +42,8 @@
     },
     "devDependencies": {
         "@jest/globals": "^30.4.1",
-        "@types/ms": "~0.7.34"
+        "@types/ms": "~0.7.34",
+        "jest-extended": "~7.0.0"
     },
     "engines": {
         "node": ">=22.0.0",

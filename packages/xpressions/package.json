@@ -27,7 +27,8 @@
         "@terascope/core-utils": "workspace:~"
     },
     "devDependencies": {
-        "@terascope/types": "workspace:~"
+        "@terascope/types": "workspace:~",
+        "jest-extended": "~7.0.0"
     },
     "engines": {
         "node": ">=22.0.0",

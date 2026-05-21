@@ -39,6 +39,9 @@
         "uuid": "~14.0.0",
         "xlucene-translator": "workspace:~"
     },
+    "devDependencies": {
+        "jest-extended": "~7.0.0"
+    },
     "engines": {
         "node": ">=22.0.0",
         "pnpm": ">=10.25.0"

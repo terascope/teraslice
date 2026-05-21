@@ -37,7 +37,8 @@
         "setimmediate": "~1.0.5"
     },
     "devDependencies": {
-        "@jest/globals": "^30.4.1"
+        "@jest/globals": "^30.4.1",
+        "jest-extended": "~7.0.0"
     },
     "engines": {
         "node": ">=22.0.0",

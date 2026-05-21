@@ -38,6 +38,7 @@
         "got": "~15.0.5"
     },
     "devDependencies": {
+        "jest-extended": "~7.0.0",
         "nock": "~14.0.15"
     },
     "engines": {

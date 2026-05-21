@@ -146,6 +146,9 @@ importers:
       signale:
         specifier: ~1.4.0
         version: 1.4.0
+      teraslice:
+        specifier: workspace:~
+        version: link:../packages/teraslice
       teraslice-cli:
         specifier: workspace:~
         version: link:../packages/teraslice-cli
@@ -252,6 +255,9 @@ importers:
       benchmark:
         specifier: ~2.1.4
         version: 2.1.4
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/data-mate:
     dependencies:
@@ -331,6 +337,9 @@ importers:
       benchmark:
         specifier: ~2.1.4
         version: 2.1.4
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/data-types:
     dependencies:
@@ -343,6 +352,9 @@ importers:
       graphql:
         specifier: ~16.12.0
         version: 16.12.0
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/docker-compose-js:
     dependencies:
@@ -356,6 +368,9 @@ importers:
       '@types/debug':
         specifier: ~4.1.13
         version: 4.1.13
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/elasticsearch-api:
     dependencies:
@@ -411,6 +426,10 @@ importers:
       xlucene-translator:
         specifier: workspace:~
         version: link:../xlucene-translator
+    devDependencies:
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/eslint-config:
     dependencies:
@@ -462,6 +481,10 @@ importers:
       typescript-eslint:
         specifier: ~8.54.0
         version: 8.54.0(eslint@9.39.3)(typescript@5.9.3)
+    devDependencies:
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/geo-utils:
     dependencies:
@@ -517,6 +540,9 @@ importers:
       '@types/geojson':
         specifier: ~7946.0.16
         version: 7946.0.16
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/ip-utils:
     dependencies:
@@ -526,6 +552,10 @@ importers:
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
+    devDependencies:
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/job-components:
     dependencies:
@@ -560,6 +590,9 @@ importers:
       fs-extra:
         specifier: ~11.3.5
         version: 11.3.5
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
       jest-fixtures:
         specifier: ~0.6.0
         version: 0.6.0
@@ -591,6 +624,9 @@ importers:
       '@jest/globals':
         specifier: ^30.4.1
         version: 30.4.1
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/scripts:
     dependencies:
@@ -694,6 +730,9 @@ importers:
       '@types/yargs':
         specifier: ~17.0.35
         version: 17.0.35
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
@@ -755,6 +794,9 @@ importers:
       got:
         specifier: ~15.0.5
         version: 15.0.5
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/teraslice:
     dependencies:
@@ -846,6 +888,9 @@ importers:
       '@terascope/opensearch-client':
         specifier: workspace:~
         version: link:../opensearch-client
+      '@terascope/scripts':
+        specifier: workspace:~
+        version: link:../scripts
       '@types/archiver':
         specifier: ~7.0.0
         version: 7.0.0
@@ -879,6 +924,9 @@ importers:
       chance:
         specifier: ~1.1.13
         version: 1.1.13
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
       jest-fixtures:
         specifier: ~0.6.0
         version: 0.6.0
@@ -955,6 +1003,9 @@ importers:
       globby:
         specifier: ~16.2.0
         version: 16.2.0
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
       jest-fixtures:
         specifier: ~0.6.0
         version: 0.6.0
@@ -1004,6 +1055,9 @@ importers:
         specifier: ~15.0.5
         version: 15.0.5
     devDependencies:
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
       nock:
         specifier: ~14.0.15
         version: 14.0.15
@@ -1041,6 +1095,9 @@ importers:
       '@types/ms':
         specifier: ~0.7.34
         version: 0.7.34
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/teraslice-state-storage:
     dependencies:
@@ -1057,6 +1114,9 @@ importers:
       '@terascope/opensearch-client':
         specifier: workspace:~
         version: link:../opensearch-client
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/teraslice-test-harness:
     dependencies:
@@ -1082,6 +1142,9 @@ importers:
       '@types/decompress':
         specifier: ~4.2.7
         version: 4.2.7
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
       nock:
         specifier: ~14.0.15
         version: 14.0.15
@@ -1143,12 +1206,19 @@ importers:
       execa:
         specifier: ~9.6.1
         version: 9.6.1
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/types:
     dependencies:
       prom-client:
         specifier: ~15.1.3
         version: 15.1.3
+    devDependencies:
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/valkey:
     dependencies:
@@ -1193,6 +1263,9 @@ importers:
       date-fns:
         specifier: ~4.2.1
         version: 4.2.1
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/xlucene-translator:
     dependencies:
@@ -1215,6 +1288,9 @@ importers:
       '@terascope/opensearch-client':
         specifier: workspace:~
         version: link:../opensearch-client
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/xpressions:
     dependencies:
@@ -1225,6 +1301,9 @@ importers:
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
 packages:
 
