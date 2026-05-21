@@ -1089,26 +1089,6 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_worker
 "5 workers have been add for execution: 863678b3-daf3-4ea9-8cb0-88b846cd7e57"
 ```
 
-## POST /v1/ex/\{exId\}/_settings
-
-Dynamically updates runtime settings for the running execution without requiring a restart. Currently supports changing the log level.
-
-The log level change is propagated to the execution controller and then applied to all workers on a per-slice basis. Workers update their log level when they receive a slice tagged with the new level.
-
-**Query Options:**
-
-- `log_level: string` — one of `trace`, `debug`, `info`, `warn`, `error`, `fatal`
-
-**Usage:**
-
-```sh
-$ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_settings?log_level=debug'
-{
-    "exId": "863678b3-daf3-4ea9-8cb0-88b846cd7e57",
-    "level": "debug"
-}
-```
-
 ## GET /v1/ex/\{exId\}/controller
 
 Same concept as cluster/controllers, but only get stats on execution controller associated with the given execution context id.
