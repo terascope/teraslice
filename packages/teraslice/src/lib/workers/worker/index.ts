@@ -2,7 +2,7 @@
 
 import {
     get, getFullErrorStack, isFatalError,
-    logError, pWhile, Logger
+    logError, pWhile, Logger, logLevels
 } from '@terascope/core-utils';
 import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
@@ -198,9 +198,9 @@ export class Worker {
             // After we init the slice we check for log level on the slice
             // We update in the case it differs from what the worker has
             if (msg.log_level) {
-                const prevLevel = this.logger.level();
-                this.logger.level(msg.log_level as Logger.LogLevel);
-                if (this.logger.level() !== prevLevel) {
+                const sliceLogLevel = logLevels[msg.log_level as keyof typeof logLevels];
+                if (sliceLogLevel != null && this.logger.level() !== sliceLogLevel) {
+                    this.context.apis.foundation.setLogLevel(msg.log_level as Logger.LogLevel);
                     this.logger.info(`log level updated to ${msg.log_level} for slice ${sliceId}`);
                 }
             }

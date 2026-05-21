@@ -245,7 +245,7 @@ export class ExecutionController {
         this.client.onExecutionLogLevel((msg) => {
             const { level } = msg.payload as { level: Logger.LogLevel };
             this._logLevel = level;
-            this.logger.level(level);
+            this.context.apis.foundation.setLogLevel(level);
             this.logger.debug(`log level updated to ${level}`);
         });
 
