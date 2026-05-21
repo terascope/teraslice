@@ -88,6 +88,16 @@ curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_active"
 curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_inactive"
 ```
 
+### Changing job settings at runtime
+
+You can dynamically change certain job settings without restarting the job. Currently `log_level` is supported.
+
+```sh
+curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_settings?log_level=debug"
+```
+
+Valid log levels are: `trace`, `debug`, `info`, `warn`, `error`, `fatal`.
+
 ### Viewing Slicer statistics for a job
 
 This provides information related to the execution controller and can be useful
