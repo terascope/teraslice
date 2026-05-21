@@ -11,7 +11,7 @@ jobs:
       is_dev_release: ${{ steps.teraslice-version.outputs.is_dev_release }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Retrieve Teraslice version & Check if Prerelease
         id: teraslice-version
@@ -31,13 +31,13 @@ jobs:
       contents: read
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version:  24
           registry-url: 'https://registry.npmjs.org'
@@ -59,20 +59,20 @@ jobs:
     steps:
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
@@ -89,7 +89,7 @@ jobs:
 
       - name: Upload docker tags artifact
         if: steps.docker-publish.outputs.images != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docker-tags-node${{ matrix.node-version }}
           path: /tmp/docker-tags.txt
@@ -102,7 +102,7 @@ jobs:
       contents: write
     steps:
       - name: Download docker tags artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: docker-tags-node*
           merge-multiple: false
@@ -126,7 +126,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Append docker tags to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ needs.ensure-non-pre-release.outputs.teraslice_version }}
           append_body: true
@@ -138,7 +138,7 @@ jobs:
     steps:
       - name: Announce release in Slack releases channel
         id: announce-release
-        uses: slackapi/slack-github-action@v2.0.0
+        uses: slackapi/slack-github-action@v3.0.3
         with:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}
