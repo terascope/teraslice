@@ -552,6 +552,7 @@ importers:
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
+    devDependencies:
       jest-extended:
         specifier: ~7.0.0
         version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
@@ -887,9 +888,6 @@ importers:
       '@terascope/opensearch-client':
         specifier: workspace:~
         version: link:../opensearch-client
-      '@terascope/scripts':
-        specifier: workspace:~
-        version: link:../scripts
       '@types/archiver':
         specifier: ~7.0.0
         version: 7.0.0
@@ -1053,10 +1051,10 @@ importers:
       got:
         specifier: ~15.0.5
         version: 15.0.5
+    devDependencies:
       jest-extended:
         specifier: ~7.0.0
         version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
-    devDependencies:
       nock:
         specifier: ~14.0.15
         version: 14.0.15
@@ -1072,9 +1070,6 @@ importers:
       get-port:
         specifier: ~7.2.0
         version: 7.2.0
-      jest-extended:
-        specifier: ~7.0.0
-        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
       ms:
         specifier: ~2.1.3
         version: 2.1.3
@@ -1097,6 +1092,9 @@ importers:
       '@types/ms':
         specifier: ~0.7.34
         version: 0.7.34
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@25.9.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/teraslice-state-storage:
     dependencies:

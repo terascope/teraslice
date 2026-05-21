@@ -27,7 +27,9 @@
     },
     "dependencies": {
         "@terascope/core-utils": "workspace:~",
-        "@terascope/types": "workspace:~",
+        "@terascope/types": "workspace:~"
+    },
+    "devDependencies": {
         "jest-extended": "~7.0.0"
     },
     "engines": {
