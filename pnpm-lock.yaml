@@ -888,6 +888,9 @@ importers:
       '@terascope/opensearch-client':
         specifier: workspace:~
         version: link:../opensearch-client
+      '@terascope/scripts':
+        specifier: workspace:~
+        version: link:../scripts
       '@types/archiver':
         specifier: ~7.0.0
         version: 7.0.0
