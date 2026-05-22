@@ -23,9 +23,9 @@ export default abstract class BaseSchema<T extends Record<string, any>, S = any>
     validate(inputConfig: Record<string, any>): OpConfig & T;
     validate(inputConfig: Record<string, any>): OpConfig | APIConfig & T {
         if (this.opType === 'api') {
-            return validateAPIConfig<T>(this.schema, inputConfig);
+            return validateAPIConfig<T>(this.schema, inputConfig, this.context);
         }
-        return validateOpConfig<T>(this.schema, inputConfig);
+        return validateOpConfig<T>(this.schema, inputConfig, this.context);
     }
 
     validateJob(_job: ValidatedJobConfig): void {

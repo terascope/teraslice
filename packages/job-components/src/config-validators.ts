@@ -8,10 +8,15 @@ import { opSchema, apiSchema } from './job-schemas.js';
  * provided opConfig against the resulting schema.
  */
 export function validateOpConfig<T>(
-    inputSchema: TF.Schema<any>, inputConfig: Record<string, any>
+    inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
 ): OpConfig & T {
     const schema = Object.assign({}, opSchema, inputSchema) as TF.Schema<OpConfig & T>;
-    const validator = new SchemaValidator<OpConfig & T>(schema, inputConfig._op);
+    const validator = new SchemaValidator<OpConfig & T>(
+        schema,
+        inputConfig._op,
+        undefined,
+        undefined,
+        context);
     try {
         return validator.validate(inputConfig);
     } catch (err) {
@@ -24,10 +29,16 @@ export function validateOpConfig<T>(
  * provided apiConfig against the resulting schema.
  */
 export function validateAPIConfig<T>(
-    inputSchema: TF.Schema<any>, inputConfig: Record<string, any>
+    inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
 ): APIConfig & T {
     const schema = Object.assign({}, apiSchema, inputSchema) as TF.Schema<APIConfig & T>;
-    const validator = new SchemaValidator<APIConfig & T>(schema, inputConfig._name);
+    const validator = new SchemaValidator<APIConfig & T>(
+        schema,
+        inputConfig._name,
+        undefined,
+        undefined,
+        context
+    );
 
     try {
         return validator.validate(inputConfig);
@@ -41,11 +52,14 @@ export function validateAPIConfig<T>(
  * provided jobConfig against the resulting schema.
  */
 export function validateJobConfig<T>(
-    inputSchema: TF.Schema<any>, inputConfig: Record<string, any>
+    inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
 ): ValidatedJobConfig & T {
     const validator = new SchemaValidator<ValidatedJobConfig & T>(
         inputSchema as TF.Schema<ValidatedJobConfig & T>,
-        inputConfig.name
+        inputConfig.name,
+        undefined,
+        undefined,
+        context
     );
 
     try {
