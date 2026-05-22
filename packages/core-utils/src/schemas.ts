@@ -10,7 +10,6 @@ import { isFunction } from './functions.js';
 import { isInteger, toInteger, toNumber } from './numbers.js';
 import { isSimpleObject } from './objects.js';
 import { isString, startsWith } from './strings.js';
-import { Context } from 'packages/types/dist/src/terafoundation.js';
 
 const convictCompatibleBooleanFn = (value: unknown) => {
     if (value === 'true' || value === '1' || value === 1) return true;
@@ -245,7 +244,7 @@ export class SchemaValidator<T = AnyObject> {
         name: string,
         extraFormats: TF.Format[] = [],
         checkUndeclaredKeys: CheckUndeclaredKeys = 'warn',
-        context?: Context
+        context?: TF.Context
     ) {
         extraFormats.forEach((newFormat) => {
             let unique = true;
