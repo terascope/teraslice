@@ -14,6 +14,7 @@ export default [
     'build/**',
     'builds/**',
     '.cache/',
+    '**/test/.cache',
     '.eslintcache/',
     '.yarn-cache/',
     '.yarn/**',
