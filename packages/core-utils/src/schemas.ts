@@ -3,7 +3,7 @@ import bunyan from 'bunyan';
 import dateMath from 'datemath-parser';
 import moment from 'moment';
 import { z, type ZodType, type RefinementCtx } from 'zod';
-import { AnyObject, Terafoundation as TF } from '@terascope/types';
+import { AnyObject, Logger, Terafoundation as TF } from '@terascope/types';
 import { isBoolean, toBoolean } from './booleans.js';
 import { isValidDate, makeISODate } from './dates.js';
 import { isFunction } from './functions.js';
@@ -237,13 +237,14 @@ export class SchemaValidator<T = AnyObject> {
     checkUndeclaredKeys: CheckUndeclaredKeys;
     envMap: Record<string, { envName: string; format: TF.ConvictFormat }> = {};
     argsMap: Record<string, { argName: string; format: TF.ConvictFormat }> = {};
-    logger: bunyan;
+    logger: Logger;
 
     constructor(
         schema: TF.Schema<T>,
         name: string,
         extraFormats: TF.Format[] = [],
-        checkUndeclaredKeys: CheckUndeclaredKeys = 'warn'
+        checkUndeclaredKeys: CheckUndeclaredKeys = 'warn',
+        context?: TF.Context
     ) {
         extraFormats.forEach((newFormat) => {
             let unique = true;
@@ -264,7 +265,9 @@ export class SchemaValidator<T = AnyObject> {
         });
 
         this.name = name;
-        this.logger = bunyan.createLogger({ name: 'SchemaValidator' });
+        this.logger = context
+            ? context.apis.foundation.makeLogger({ module: 'schema_validator', schema: this.name })
+            : bunyan.createLogger({ name: 'schema_validator', module: 'schema_validator', schema: this.name }) as unknown as Logger;
         this.inputSchema = schema;
         this.zodSchema = this._convictStyleSchemaToZod(schema, name);
         this.checkUndeclaredKeys = checkUndeclaredKeys;

@@ -37,7 +37,7 @@ describe('when using native clustering', () => {
                 slicers: 1,
             };
 
-            const jobConfig = validateJobConfig(schema, job);
+            const jobConfig = validateJobConfig(schema, job, context);
             delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });
@@ -72,7 +72,7 @@ describe('when using native clustering', () => {
             };
 
             expect(() => {
-                validateJobConfig(schema, job);
+                validateJobConfig(schema, job, context);
             }).toThrow(/Invalid Operation config in operations, got Number/);
         });
     });
@@ -100,7 +100,7 @@ describe('when using native clustering', () => {
             };
 
             expect(() => {
-                validateJobConfig(schema, job);
+                validateJobConfig(schema, job, context);
             }).toThrow(/Operations need to be of type array with at least two operations in it/);
         });
     });
@@ -139,7 +139,7 @@ describe('when using native clustering', () => {
             };
 
             expect(() => {
-                validateJobConfig(schema, job);
+                validateJobConfig(schema, job, context);
             }).toThrow(/Operation example-reader refers to connection \\"unknown\\" which is unavailable/);
         });
     });
@@ -176,7 +176,7 @@ describe('when using native clustering', () => {
             };
 
             expect(() => {
-                validateJobConfig(schema, job);
+                validateJobConfig(schema, job, context);
             }).toThrow(/Invalid API config in apis, got Number/);
         });
     });
@@ -212,7 +212,7 @@ describe('when using native clustering', () => {
                 ],
             };
             expect(() => {
-                validateJobConfig(schema, job);
+                validateJobConfig(schema, job, context);
             }).toThrow(/API requires an _name/);
         });
     });
@@ -255,7 +255,7 @@ describe('when using native clustering', () => {
                 ],
             };
             expect(() => {
-                validateJobConfig(schema, job);
+                validateJobConfig(schema, job, context);
             }).toThrow(/Duplicate API configurations for/);
         });
     });
@@ -297,7 +297,7 @@ describe('when using native clustering', () => {
             };
 
             try {
-                validateJobConfig(schema, job);
+                validateJobConfig(schema, job, context);
                 throw new Error('expected validateJobConfig to throw');
             } catch (err) {
                 const correctMessage = err.message.includes('API test-api refers to connection');
@@ -307,6 +307,7 @@ describe('when using native clustering', () => {
     });
 
     describe('when validating opConfig', () => {
+        const context = new TestContext('teraslice-operations');
         const schema: Terafoundation.Schema<any> = {
             example: {
                 default: undefined,
@@ -341,7 +342,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const config = validateOpConfig(schema, op);
+            const config = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -360,7 +361,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const config = validateOpConfig(schema, op);
+            const config = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -380,7 +381,7 @@ describe('when using native clustering', () => {
             };
 
             expect(() => {
-                validateOpConfig(schema, op);
+                validateOpConfig(schema, op, context);
             }).toThrow();
         });
 
@@ -393,7 +394,7 @@ describe('when using native clustering', () => {
             };
 
             expect(() => {
-                validateOpConfig(schema, op);
+                validateOpConfig(schema, op, context);
             }).toThrow();
         });
 
@@ -406,7 +407,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const config = validateOpConfig(schema, op);
+            const config = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -426,7 +427,7 @@ describe('when using native clustering', () => {
             };
 
             expect(() => {
-                validateOpConfig(schema, op);
+                validateOpConfig(schema, op, context);
             }).toThrow();
         });
 
@@ -438,12 +439,13 @@ describe('when using native clustering', () => {
             };
 
             expect(() => {
-                validateOpConfig(schema, op);
+                validateOpConfig(schema, op, context);
             }).toThrow(/Invalid schema for formatted value/);
         });
     });
 
     describe('when validating apiConfig', () => {
+        const context = new TestContext('teraslice-operations');
         const schema: Terafoundation.Schema<any> = {
             example: {
                 default: undefined,
@@ -478,7 +480,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi'
             };
 
-            const config = validateAPIConfig(schema, api);
+            const config = validateAPIConfig(schema, api, context);
             expect(config).toEqual({
                 _name: 'some-api',
                 example: 'example',
@@ -497,7 +499,7 @@ describe('when using native clustering', () => {
             };
 
             expect(() => {
-                validateAPIConfig(schema, api);
+                validateAPIConfig(schema, api, context);
             }).toThrow(/Invalid schema for formatted value/);
         });
     });
@@ -534,7 +536,7 @@ describe('when using native clustering', () => {
                     slicers: 1,
                 };
 
-                const jobConfig = validateJobConfig(schema, job);
+                const jobConfig = validateJobConfig(schema, job, context);
                 delete (jobConfig as any).workers;
                 expect(jobConfig).toMatchObject(validJob);
             });
@@ -554,7 +556,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrow('must be object');
+                expect(() => validateJobConfig(schema, job, context)).toThrow('must be object');
             });
 
             it('should throw an error when given an empty key', () => {
@@ -572,7 +574,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrow('key must be not empty');
+                expect(() => validateJobConfig(schema, job, context)).toThrow('key must be not empty');
             });
 
             it('should throw an error when given an empty value', () => {
@@ -590,7 +592,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrow(
+                expect(() => validateJobConfig(schema, job, context)).toThrow(
                     'value for key \\"foo\\" must be not empty'
                 );
             });
@@ -621,7 +623,7 @@ describe('when using native clustering', () => {
                     slicers: 1,
                 };
 
-                const jobConfig = validateJobConfig(schema, job);
+                const jobConfig = validateJobConfig(schema, job, context);
                 delete (jobConfig as any).workers;
                 expect(jobConfig).toMatchObject(validJob);
             });
@@ -643,7 +645,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrow(`must be one of the following: ${logLevelStrings}`);
+                expect(() => validateJobConfig(schema, job, context)).toThrow(`must be one of the following: ${logLevelStrings}`);
             });
 
             it('should throw an error when given a string that isn\'t a log level', () => {
@@ -659,7 +661,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrow(`must be one of the following: ${logLevelStrings}`);
+                expect(() => validateJobConfig(schema, job, context)).toThrow(`must be one of the following: ${logLevelStrings}`);
             });
         });
 
@@ -677,7 +679,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrow('must be valid integer greater than zero');
+                expect(() => validateJobConfig(schema, job, context)).toThrow('must be valid integer greater than zero');
             });
         });
 
@@ -695,7 +697,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrow('must be valid integer greater than zero');
+                expect(() => validateJobConfig(schema, job, context)).toThrow('must be valid integer greater than zero');
             });
         });
     });
@@ -721,7 +723,7 @@ describe('when validating k8s v2 clustering', () => {
                 ],
             };
 
-            const jobConfig = validateJobConfig(schema, job);
+            const jobConfig = validateJobConfig(schema, job, context);
             expect(jobConfig.cpu).toEqual(job.cpu);
             expect(jobConfig.memory).toEqual(job.memory);
         });
@@ -745,7 +747,7 @@ describe('when validating k8s v2 clustering', () => {
                 ],
             };
 
-            const jobConfig = validateJobConfig(schema, job);
+            const jobConfig = validateJobConfig(schema, job, context);
             expect(jobConfig.resources_requests_cpu).toEqual(job.resources_requests_cpu);
             expect(jobConfig.resources_requests_memory).toEqual(job.resources_requests_memory);
             expect(jobConfig.resources_limits_cpu).toEqual(job.resources_limits_cpu);
@@ -774,7 +776,7 @@ describe('when validating k8s v2 clustering', () => {
             };
 
             expect(() => {
-                validateJobConfig(schema, job);
+                validateJobConfig(schema, job, context);
             }).toThrow('Validation failed for job config: undefined - cpu/memory can\'t be mixed with resource settings of the same type.');
         });
     });
@@ -818,7 +820,7 @@ describe('when validating k8s v2 clustering', () => {
                 volumes: [],
             };
 
-            const jobConfig = validateJobConfig(schema, job);
+            const jobConfig = validateJobConfig(schema, job, context);
             delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });
@@ -863,7 +865,7 @@ describe('when validating k8s v2 clustering', () => {
                 slicers: 1,
             };
 
-            const jobConfig = validateJobConfig(schema, job);
+            const jobConfig = validateJobConfig(schema, job, context);
             delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });
