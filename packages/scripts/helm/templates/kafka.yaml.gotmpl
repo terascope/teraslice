@@ -11,8 +11,15 @@ readinessProbe:
   successThreshold: 1
   failureThreshold: 60
 
+##@ Build the default configurationOverrides as a dict so we can merge user overrides on top.
+##@ `:=` declares and assigns a new template variable.
+##@ `dict` creates a key-value map: https://masterminds.github.io/sprig/dicts.html
+##@ `merge` mutates the destination dict by adding keys from the source only if they are missing
+##@ in the destination — so the destination always wins: https://masterminds.github.io/sprig/dicts.html#merge-mustmerge
 {{- $defaults := dict "offsets.topic.replication.factor" (.Values | get "kafka.offsets.topic.replication.factor" "1") }}
 
+##@ Merge SSL or plain listener defaults into $defaults depending on kafka.ssl.enabled.
+##@ `$_ :=` discards the return value — merge mutates $defaults in place so we don't need it.
 {{- if eq (.Values | get "kafka.ssl.enabled" false) true }}
 {{- $_ := merge $defaults (dict
   "advertised.listeners" "TLS://kafka-headless.services-dev1.svc.cluster.local:9094,EXTERNAL://localhost:49094"
@@ -34,13 +41,22 @@ readinessProbe:
 ) }}
 {{- end }}
 
+##@ Deep copy the user's configurationOverrides from values.yaml so we don't mutate the original,
+##@ then merge $defaults into it — user keys already present are never overwritten.
+##@ Any valid Kafka broker config key can be set in values.yaml under kafka.configurationOverrides.
+##@ ref: https://kafka.apache.org/documentation/#brokerconfigs
 {{- $final := merge (deepCopy (.Values.kafka.configurationOverrides | default dict)) $defaults }}
 
+##@ `range` iterates over the merged map and emits each key-value pair.
+##@ ref: https://pkg.go.dev/text/template#hdr-Actions (range)
 configurationOverrides:
 {{- range $k, $v := $final }}
   {{ $k }}: {{ $v }}
 {{- end }}
 
+##@ envOverrides are passed directly to the chart as container environment variables.
+##@ WARNING: env vars are applied by the container entrypoint after server.properties is written,
+##@ so envOverrides silently wins over configurationOverrides when both set the same Kafka property.
 {{- if .Values.kafka.envOverrides }}
 
 envOverrides:
