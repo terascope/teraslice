@@ -148,6 +148,20 @@ kafka:
       replication:
         factor: 1
 
+  # Merged on top of SSL/non-SSL listener defaults.
+  # Any valid Kafka broker config key — user values override template defaults.
+  # ref: https://kafka.apache.org/documentation/#brokerconfigs
+  configurationOverrides: {}
+  # Example:
+  #   auto.create.topics.enable: false
+  #   advertised.listeners: "TLS://kafka-headless.services-dev1.svc.cluster.local:9094,EXTERNAL://localhost:49094"
+
+  # Passed directly to the chart's envOverrides (flat key: value env vars).
+  # WARNING: envOverrides silently wins over configurationOverrides for the same setting.
+  envOverrides: {}
+  # Example:
+  #   KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+
 kafka-ui:
   # If false, kafka-ui will be excluded on helmfile sync
   enabled: false
