@@ -1129,7 +1129,7 @@ function generateHelmValuesFromServices(
             const kafkaK8sConfigOverrides: Record<string, string> = {
                 'advertised.listeners': config.KAFKA_ADVERTISED_LISTENERS,
                 'listener.security.protocol.map': config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP,
-                'listeners': config.KAFKA_LISTENERS,
+                listeners: config.KAFKA_LISTENERS,
             };
             if (config.ENCRYPT_KAFKA) {
                 // PLAINTEXT is the inter-broker listener in the SSL setup: brokers talk to each
