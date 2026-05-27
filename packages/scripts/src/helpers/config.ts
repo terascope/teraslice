@@ -643,7 +643,8 @@ config.KAFKA_PORT = Number(process.env.KAFKA_PORT) || 49094;
 config.KAFKA_BROKER = `${config.KAFKA_HOSTNAME}:${config.KAFKA_PORT}`;
 config.KAFKA_SECURITY_PROTOCOL = process.env.KAFKA_SECURITY_PROTOCOL || (config.ENCRYPT_KAFKA ? 'SSL' : 'PLAINTEXT');
 
-// Listener defaults differ between docker and k8s — k8s values must match kafka.yaml.gotmpl configurationOverrides.
+// Listener defaults differ between docker and k8s.
+// k8s values must match kafka.yaml.gotmpl configurationOverrides.
 const isK8s = config.TEST_PLATFORM === 'kubernetesV2';
 
 config.KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS

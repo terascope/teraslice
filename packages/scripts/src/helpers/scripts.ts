@@ -1120,6 +1120,20 @@ function generateHelmValuesFromServices(
                 values.setIn(['kafka', 'ssl', 'enabled'], true);
                 values.setIn(['kafka', 'ssl', 'caCert'], caCert);
             }
+
+            // Pass Kafka env vars through to the helm chart so k8s behaves the same as docker.
+            // Listener vars default to k8s-appropriate values when TEST_PLATFORM === 'kubernetesV2'
+            // (see config.ts).
+            // If you add a new Kafka env var to config.ts and services.ts, add it here too.
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_ADVERTISED_LISTENERS'], config.KAFKA_ADVERTISED_LISTENERS);
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_LISTENER_SECURITY_PROTOCOL_MAP'], config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP);
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_LISTENERS'], config.KAFKA_LISTENERS);
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_AUTO_CREATE_TOPICS_ENABLE'], config.KAFKA_AUTO_CREATE_TOPICS_ENABLE);
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_CONTROLLER_QUORUM_VOTERS'], config.KAFKA_CONTROLLER_QUORUM_VOTERS);
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR'], config.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR);
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR'], config.KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR);
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_TRANSACTION_STATE_LOG_MIN_ISR'], config.KAFKA_TRANSACTION_STATE_LOG_MIN_ISR);
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS'], config.KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS);
         }
 
         if (service === Service.Minio) {
