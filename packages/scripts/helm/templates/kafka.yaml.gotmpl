@@ -12,6 +12,11 @@ readinessProbe:
   failureThreshold: 60
 
 ##@ Build the default configurationOverrides as a dict so we can merge user overrides on top.
+##@ The upstream chart's brokerConfigs helper merges configurationOverrides with its internal
+##@ defaults, so keys set here safely override chart defaults without creating duplicate env vars.
+##@ Use configurationOverrides for listener/topology settings. Use envOverrides only for settings
+##@ the chart does not generate internally (e.g. KAFKA_AUTO_CREATE_TOPICS_ENABLE) — envOverrides
+##@ is purely additive and will conflict with any key the chart already generates.
 ##@ `:=` declares and assigns a new template variable.
 ##@ `dict` creates a key-value map: https://masterminds.github.io/sprig/dicts.html
 ##@ `merge` mutates the destination dict by adding keys from the source only if they are missing
@@ -43,20 +48,19 @@ readinessProbe:
 
 ##@ Deep copy the user's configurationOverrides from values.yaml so we don't mutate the original,
 ##@ then merge $defaults into it — user keys already present are never overwritten.
-##@ Any valid Kafka broker config key can be set in values.yaml under kafka.configurationOverrides.
+##@ When running via scripts, kafka.configurationOverrides is set programmatically with
+##@ k8s-appropriate listener values (see scripts.ts kafkaK8sConfigOverrides).
 ##@ ref: https://kafka.apache.org/documentation/#brokerconfigs
+##@ ref: https://pkg.go.dev/text/template#hdr-Actions (range)
 {{- $final := merge (deepCopy (.Values.kafka.configurationOverrides | default dict)) $defaults }}
 
-##@ `range` iterates over the merged map and emits each key-value pair.
-##@ ref: https://pkg.go.dev/text/template#hdr-Actions (range)
 configurationOverrides:
 {{- range $k, $v := $final }}
   {{ $k }}: {{ $v }}
 {{- end }}
 
-##@ envOverrides are passed directly to the chart as container environment variables.
-##@ WARNING: env vars are applied by the container entrypoint after server.properties is written,
-##@ so envOverrides silently wins over configurationOverrides when both set the same Kafka property.
+##@ envOverrides are safe only for vars the chart does NOT generate internally via brokerConfigs.
+##@ Do NOT add listener vars here — they belong in configurationOverrides above.
 {{- if .Values.kafka.envOverrides }}
 
 envOverrides:
