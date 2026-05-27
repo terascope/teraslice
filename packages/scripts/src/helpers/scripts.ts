@@ -1132,7 +1132,9 @@ function generateHelmValuesFromServices(
                 'listeners': config.KAFKA_LISTENERS,
             };
             if (config.ENCRYPT_KAFKA) {
-                kafkaK8sConfigOverrides['inter.broker.listener.name'] = config.KAFKA_INTER_BROKER_LISTENER_NAME;
+                // PLAINTEXT is the inter-broker listener in the SSL setup: brokers talk to each
+                // other on the internal PLAINTEXT listener while clients connect via TLS.
+                kafkaK8sConfigOverrides['inter.broker.listener.name'] = 'PLAINTEXT';
                 kafkaK8sConfigOverrides['security.protocol'] = config.KAFKA_SECURITY_PROTOCOL.toLowerCase();
             }
             values.setIn(['kafka', 'configurationOverrides'], kafkaK8sConfigOverrides);
