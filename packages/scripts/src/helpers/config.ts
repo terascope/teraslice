@@ -641,10 +641,17 @@ config.ENCRYPT_KAFKA = toBoolean(process.env.ENCRYPT_KAFKA) || false;
 config.KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || config.HOST_IP;
 config.KAFKA_PORT = Number(process.env.KAFKA_PORT) || 49094;
 config.KAFKA_BROKER = `${config.KAFKA_HOSTNAME}:${config.KAFKA_PORT}`;
-config.KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS || `INTERNAL://${config.KAFKA_HOSTNAME}:${config.KAFKA_PORT}`;
 config.KAFKA_SECURITY_PROTOCOL = process.env.KAFKA_SECURITY_PROTOCOL || (config.ENCRYPT_KAFKA ? 'SSL' : 'PLAINTEXT');
-config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP || `INTERNAL:${config.KAFKA_SECURITY_PROTOCOL}, CONTROLLER:PLAINTEXT`;
-config.KAFKA_LISTENERS = process.env.KAFKA_LISTENERS || `INTERNAL://0.0.0.0:${config.KAFKA_PORT}, CONTROLLER://:9093`;
+
+// Listener defaults differ between docker and k8s — k8s values must match kafka.yaml.gotmpl configurationOverrides.
+const isK8s = config.TEST_PLATFORM === 'kubernetesV2';
+
+config.KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS
+    || (isK8s ? 'EXTERNAL://localhost:9094' : `INTERNAL://${config.KAFKA_HOSTNAME}:${config.KAFKA_PORT}`);
+config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+    || (isK8s ? 'PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT' : `INTERNAL:${config.KAFKA_SECURITY_PROTOCOL}, CONTROLLER:PLAINTEXT`);
+config.KAFKA_LISTENERS = process.env.KAFKA_LISTENERS
+    || (isK8s ? 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:30094' : `INTERNAL://0.0.0.0:${config.KAFKA_PORT}, CONTROLLER://:9093`);
 
 config.ENCRYPT_MINIO = toBoolean(process.env.ENCRYPT_MINIO) || false;
 config.MINIO_HOSTNAME = process.env.MINIO_HOSTNAME || config.HOST_IP;
