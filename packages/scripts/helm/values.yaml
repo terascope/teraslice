@@ -131,10 +131,8 @@ kafka:
   # If false, kafka will be excluded on helmfile sync
   enabled: false
 
-  # If true, "caCert" needs to be set
+  # SSL for the most part does not work unless you pass things in manually
   ssl:
-    enabled: false
-
     # CA certificate in a single-line string format with "\" as line breaks
     # Use the following command to convert a rootCA PEM file to the correct format:
     # awk '{printf "%s\", $0}' <path-to-pem-file> | pbcopy
