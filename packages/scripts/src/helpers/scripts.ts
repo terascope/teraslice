@@ -1120,6 +1120,32 @@ function generateHelmValuesFromServices(
                 values.setIn(['kafka', 'ssl', 'enabled'], true);
                 values.setIn(['kafka', 'ssl', 'caCert'], caCert);
             }
+
+            // Listener settings go into configurationOverrides (dotted Kafka key format) so the
+            // chart's brokerConfigs helper merges them with internal defaults without creating
+            // duplicate env vars. Values come from config.ts which sets k8s-appropriate defaults
+            // based on TEST_PLATFORM and ENCRYPT_KAFKA. If you add new listener settings, add
+            // them to config.ts and include them in this object.
+            const kafkaK8sConfigOverrides: Record<string, string> = {
+                'advertised.listeners': config.KAFKA_ADVERTISED_LISTENERS,
+                'listener.security.protocol.map': config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP,
+                listeners: config.KAFKA_LISTENERS,
+            };
+            if (config.ENCRYPT_KAFKA) {
+                // PLAINTEXT is the inter-broker listener in the SSL setup: brokers talk to each
+                // other on the internal PLAINTEXT listener while clients connect via TLS.
+                kafkaK8sConfigOverrides['inter.broker.listener.name'] = 'PLAINTEXT';
+                kafkaK8sConfigOverrides['security.protocol'] = config.KAFKA_SECURITY_PROTOCOL.toLowerCase();
+            }
+            values.setIn(['kafka', 'configurationOverrides'], kafkaK8sConfigOverrides);
+
+            // Only behavioral vars belong in envOverrides — the chart does not generate these
+            // internally so there is no duplicate risk.
+            // If you add a new Kafka env var to config.ts and services.ts, add it here too.
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_AUTO_CREATE_TOPICS_ENABLE'], config.KAFKA_AUTO_CREATE_TOPICS_ENABLE);
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR'], config.KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR);
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_TRANSACTION_STATE_LOG_MIN_ISR'], config.KAFKA_TRANSACTION_STATE_LOG_MIN_ISR);
+            values.setIn(['kafka', 'envOverrides', 'KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS'], config.KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS);
         }
 
         if (service === Service.Minio) {

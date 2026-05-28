@@ -641,10 +641,34 @@ config.ENCRYPT_KAFKA = toBoolean(process.env.ENCRYPT_KAFKA) || false;
 config.KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || config.HOST_IP;
 config.KAFKA_PORT = Number(process.env.KAFKA_PORT) || 49094;
 config.KAFKA_BROKER = `${config.KAFKA_HOSTNAME}:${config.KAFKA_PORT}`;
-config.KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS || `INTERNAL://${config.KAFKA_HOSTNAME}:${config.KAFKA_PORT}`;
 config.KAFKA_SECURITY_PROTOCOL = process.env.KAFKA_SECURITY_PROTOCOL || (config.ENCRYPT_KAFKA ? 'SSL' : 'PLAINTEXT');
-config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP || `INTERNAL:${config.KAFKA_SECURITY_PROTOCOL}, CONTROLLER:PLAINTEXT`;
-config.KAFKA_LISTENERS = process.env.KAFKA_LISTENERS || `INTERNAL://0.0.0.0:${config.KAFKA_PORT}, CONTROLLER://:9093`;
+
+// Listener defaults differ between docker and k8s, and between SSL and non-SSL in k8s.
+// k8s values must match the configurationOverrides defaults in kafka.yaml.gotmpl.
+const isK8s = process.env.TEST_PLATFORM === 'kubernetesV2';
+
+if (isK8s && config.ENCRYPT_KAFKA) {
+    config.KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS
+        || 'TLS://kafka-headless.services-dev1.svc.cluster.local:9094,EXTERNAL://localhost:49094';
+    config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+        || 'PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,TLS:SSL,EXTERNAL:SSL';
+    config.KAFKA_LISTENERS = process.env.KAFKA_LISTENERS
+        || 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,TLS://0.0.0.0:9094,EXTERNAL://0.0.0.0:30094';
+} else if (isK8s) {
+    config.KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS
+        || 'EXTERNAL://localhost:9094';
+    config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+        || 'PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT';
+    config.KAFKA_LISTENERS = process.env.KAFKA_LISTENERS
+        || 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:30094';
+} else {
+    config.KAFKA_ADVERTISED_LISTENERS = process.env.KAFKA_ADVERTISED_LISTENERS
+        || `INTERNAL://${config.KAFKA_HOSTNAME}:${config.KAFKA_PORT}`;
+    config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = process.env.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+        || `INTERNAL:${config.KAFKA_SECURITY_PROTOCOL}, CONTROLLER:PLAINTEXT`;
+    config.KAFKA_LISTENERS = process.env.KAFKA_LISTENERS
+        || `INTERNAL://0.0.0.0:${config.KAFKA_PORT}, CONTROLLER://:9093`;
+}
 
 config.ENCRYPT_MINIO = toBoolean(process.env.ENCRYPT_MINIO) || false;
 config.MINIO_HOSTNAME = process.env.MINIO_HOSTNAME || config.HOST_IP;
