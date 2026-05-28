@@ -17,10 +17,6 @@ readinessProbe:
 ##@ Use configurationOverrides for listener/topology settings. Use envOverrides only for settings
 ##@ the chart does not generate internally (e.g. KAFKA_AUTO_CREATE_TOPICS_ENABLE) — envOverrides
 ##@ is purely additive and will conflict with any key the chart already generates.
-##@ `:=` declares and assigns a new template variable.
-##@ `dict` creates a key-value map: https://masterminds.github.io/sprig/dicts.html
-##@ `merge` mutates the destination dict by adding keys from the source only if they are missing
-##@ in the destination — so the destination always wins: https://masterminds.github.io/sprig/dicts.html#merge-mustmerge
 {{- $defaults := dict "offsets.topic.replication.factor" (.Values | get "kafka.offsets.topic.replication.factor" "1") }}
 
 ##@ Merge SSL or plain listener defaults into $defaults depending on kafka.ssl.enabled.
