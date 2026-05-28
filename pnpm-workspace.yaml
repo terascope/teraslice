@@ -19,6 +19,20 @@ blockExoticSubdeps: true
 
 minimumReleaseAge: 1440 # 1 day
 
+minimumReleaseAgeExclude:
+  - '@terascope/*'
+  - elasticsearch-store
+  - terafoundation
+  - terafoundation_kafka_connector
+  - teraslice
+  - teraslice-cli
+  - teraslice-client-js
+  - teraslice-test-harness
+  - ts-transforms
+  - xpressions
+  - xlucene-parser
+  - xlucene-translator
+
 trustPolicy: no-downgrade
 
 trustPolicyExclude:
