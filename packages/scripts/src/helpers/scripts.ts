@@ -1117,6 +1117,7 @@ function generateHelmValuesFromServices(
                 if (!caCert) {
                     caCert = readCertFromPath(path.join(config.CERT_PATH, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
                 }
+                values.setIn(['kafka', 'ssl', 'enabled'], true);
                 values.setIn(['kafka', 'ssl', 'caCert'], caCert);
             }
 
