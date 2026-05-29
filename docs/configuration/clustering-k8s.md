@@ -505,6 +505,7 @@ For resources related to specific jobs they will be labeled with the following:
 * `teraslice.terascope.io/exId` - the `exId`
 * `teraslice.terascope.io/jobId` - the `jobId`
 * `teraslice.terascope.io/jobName` - Teraslice job name, possibly modified
+* `job.teraslice.terascope.io/relocatable` - `true` if the node running the execution controller can be safely drained, `false` otherwise
 
 Note that the Teraslice job name is used in creating and labelling some of the
 Kubernetes resources.  Rather than enforce kubernetes strict DNS naming
