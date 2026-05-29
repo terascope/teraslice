@@ -4,6 +4,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import yaml from 'js-yaml';
 import { ParsedArgs } from './interfaces.js';
+import { getRootDir } from '@terascope/scripts';
 
 export function getDefaultConfigFile(): string | undefined {
     const cwd = process.cwd();
@@ -65,10 +66,18 @@ export async function getArgs<S = Record<string, unknown>>(
 }
 
 export async function parseConfigFile<D = Record<string, any>>(file: string): Promise<D> {
-    const configFile = file ? path.resolve(file) : undefined;
+    let configFile = file ? path.resolve(file) : undefined;
 
-    if (!configFile || !fs.existsSync(configFile)) {
-        throw new Error(`Could not find a usable config file at the path: ${configFile}`);
+    const errMsg = `Could not find a usable config file at the path: ${configFile}`;
+    if (!configFile) throw new Error(errMsg);
+
+    if (!fs.existsSync(configFile)) {
+        const root = getRootDir();
+        if (fs.existsSync(`${root}/${configFile}`)) {
+            configFile = `${root}/${configFile}`;
+        } else {
+            throw new Error(errMsg);
+        }
     }
 
     if (['.yaml', '.yml'].includes(path.extname(configFile))) {
