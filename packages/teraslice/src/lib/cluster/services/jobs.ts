@@ -4,7 +4,7 @@ import {
     Logger, defaultsDeep, makeISODate
 } from '@terascope/core-utils';
 import {
-    JobConfigParams, JobValidator, RecoveryCleanupType,
+    JobConfigParams, JobValidator, OperationLoader, RecoveryCleanupType,
     ValidatedJobConfig, parseName
 } from '@terascope/job-components';
 import { JobConfig, ExecutionConfig } from '@terascope/types';
@@ -67,6 +67,49 @@ export class JobsService {
         return validJob;
     }
 
+    /**
+     * Loads in the slicer on the validated job to check if its restartable or not.
+     * Will add the label job.teraslice.terascope.io/relocatable=<boolean>
+     * Will log on failure but not throw.
+     * @param validJob A validated job config
+     */
+    private async _applyRelocatableLabel(
+        validJob: ValidatedJobConfig | JobConfig): Promise<void> {
+        try {
+            const loader = new OperationLoader({
+                assetPath: this.context.sysconfig.teraslice.assets_directory
+            });
+            const readerModule = await loader.loadReader(
+                // The first operation is always a slicer
+                validJob.operations[0]._op,
+                validJob.assets as string[]
+            );
+            const slicerInstance = new readerModule.Slicer(
+                this.context as any,
+                cloneDeep(validJob.operations[0]),
+                // Have to do some type manipulation because I don't have an ex config
+                // the relocatable function doesn't really need it though as it just
+                // returns a boolean. Either way it extends the ValidatedJobConfig
+                validJob as unknown as ExecutionConfig
+            );
+            let relocatable: boolean;
+            if (typeof slicerInstance.isRelocatable === 'function') {
+                relocatable = slicerInstance.isRelocatable();
+            } else {
+                this.logger.warn('Unable to add relocatable label to execution as the slicer'
+                    + ' doesn\'t support it. Ensure the asset supports teraslice version 3 or greater'
+                );
+                return;
+            }
+            validJob.labels = {
+                ...(validJob.labels ?? {}),
+                relocatable: String(relocatable)
+            };
+        } catch (err) {
+            this.logger.warn(`Unable to add relocatable label to execution due to error: ${err}`);
+        }
+    }
+
     async submitJob(jobSpec: Partial<JobConfig | JobConfigParams>, shouldRun?: boolean) {
         // @ts-expect-error
         if (jobSpec.job_id) {
@@ -78,6 +121,8 @@ export class JobsService {
         this.addExternalPortsToJobSpec(jobSpec);
 
         const validJob = await this._validateJobSpec(jobSpec);
+        // We need to apply the relocatable function here in the case shouldRun is true
+        await this._applyRelocatableLabel(validJob);
 
         // We don't create with the fully parsed validJob as it changes the asset names
         // to their asset id which we don't want stored as at the job level
@@ -173,6 +218,9 @@ export class JobsService {
         }
 
         const validJob = await this._validateJobSpec(jobSpec) as JobConfig;
+
+        // Add relocatable label to ex here.
+        await this._applyRelocatableLabel(validJob);
 
         if (validJob.autorecover) {
             return this._recoverValidJob(validJob);
