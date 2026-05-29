@@ -2,6 +2,7 @@ import {
     TSError, logError, get,
     cloneDeep, pRetry, Logger
 } from '@terascope/core-utils';
+import { OperationLoader } from '@terascope/job-components';
 import type { Context, ExecutionConfig } from '@terascope/job-components';
 import { ClusterState } from '@terascope/types';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
@@ -95,6 +96,33 @@ export class KubernetesClusterBackendV2 {
     }
 
     /**
+     * Loads in the slicer on the execution to check if its restartable or not.
+     * Will add the label from the job prefix value relocatable=<boolean>
+     * Will log on failure and set it to false.
+     * @param execution An execution config
+     */
+    private async _getRelocatable(execution: ExecutionConfig): Promise<boolean> {
+        try {
+            const loader = new OperationLoader({
+                assetPath: this.context.sysconfig.teraslice.assets_directory
+            });
+            const readerModule = await loader.loadReader(
+                execution.operations[0]._op,
+                execution.assets as string[]
+            );
+            const slicerInstance = new readerModule.Slicer(
+                this.context as any,
+                cloneDeep(execution.operations[0]),
+                execution
+            );
+            return slicerInstance.isRelocatable();
+        } catch (err) {
+            this.logger.warn(`Unable to determine relocatable status for execution ${execution.ex_id}: ${err}`);
+            return false;
+        }
+    }
+
+    /**
      * Creates k8s Service and Job for the Teraslice Execution Controller
      * (formerly slicer).  This currently works by creating a service with a
      * hostname that contains the exId in it listening on a well known port.
@@ -108,10 +136,13 @@ export class KubernetesClusterBackendV2 {
 
         execution.slicer_port = 45680;
 
+        const relocatable = await this._getRelocatable(execution);
+
         const exJobResource = new K8sJobResource(
             this.context.sysconfig.teraslice,
             execution,
-            this.logger
+            this.logger,
+            relocatable
         );
 
         const exJob = exJobResource.resource;
