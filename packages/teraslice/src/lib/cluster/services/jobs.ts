@@ -4,7 +4,7 @@ import {
     Logger, defaultsDeep, makeISODate
 } from '@terascope/core-utils';
 import {
-    JobConfigParams, JobValidator, RecoveryCleanupType,
+    JobConfigParams, JobValidator, OperationLoader, RecoveryCleanupType,
     ValidatedJobConfig, parseName
 } from '@terascope/job-components';
 import { JobConfig, ExecutionConfig } from '@terascope/types';
@@ -67,6 +67,39 @@ export class JobsService {
         return validJob;
     }
 
+    /**
+     * Loads the slicer for the given job to determine if it is relocatable,
+     * then sets that value as a property on the validJob so it is persisted
+     * on the EX record. The K8s backend reads this property to apply the
+     * appropriate pod label.
+     */
+    private async _applyRelocatable(
+        validJob: ValidatedJobConfig | JobConfig): Promise<void> {
+        try {
+            const loader = new OperationLoader({
+                assetPath: this.context.sysconfig.teraslice.assets_directory
+            });
+            const readerModule = await loader.loadReader(
+                validJob.operations[0]._op,
+                validJob.assets as string[]
+            );
+            const slicerInstance = new readerModule.Slicer(
+                this.context as any,
+                cloneDeep(validJob.operations[0]),
+                validJob as unknown as ExecutionConfig
+            );
+            if (typeof slicerInstance.isRelocatable === 'function') {
+                validJob.relocatable = slicerInstance.isRelocatable();
+            } else {
+                this.logger.warn('Unable to set relocatable on execution: slicer does not'
+                    + ' implement isRelocatable(). Ensure the asset supports teraslice v3 or greater.'
+                );
+            }
+        } catch (err) {
+            this.logger.warn(`Unable to set relocatable on execution due to error: ${err}`);
+        }
+    }
+
     async submitJob(jobSpec: Partial<JobConfig | JobConfigParams>, shouldRun?: boolean) {
         // @ts-expect-error
         if (jobSpec.job_id) {
@@ -90,6 +123,8 @@ export class JobsService {
         const jobRecord = Object.assign({}, jobSpec, validJob, {
             job_id: job.job_id
         }) as JobConfig;
+
+        await this._applyRelocatable(jobRecord);
 
         return this.executionService.createExecutionContext(jobRecord);
     }
@@ -173,6 +208,8 @@ export class JobsService {
         }
 
         const validJob = await this._validateJobSpec(jobSpec) as JobConfig;
+
+        await this._applyRelocatable(validJob);
 
         if (validJob.autorecover) {
             return this._recoverValidJob(validJob);

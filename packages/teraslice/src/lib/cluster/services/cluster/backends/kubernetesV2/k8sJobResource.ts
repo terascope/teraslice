@@ -24,8 +24,7 @@ export class K8sJobResource extends K8sResource<TSJob> {
     constructor(
         terasliceConfig: Config,
         execution: ExecutionConfig,
-        logger: Logger,
-        relocatable = false
+        logger: Logger
     ) {
         super(terasliceConfig, execution, logger);
         this.templateGenerator = makeTemplate('jobs', this.nodeType);
@@ -35,7 +34,7 @@ export class K8sJobResource extends K8sResource<TSJob> {
         this.resource = convertToTSResource(k8sJob);
 
         this._setJobLabels(this.resource);
-        this._setRelocatableLabel(this.resource, relocatable);
+        this._setRelocatableLabel(this.resource, execution.relocatable ?? false);
 
         // Apply job `targets` setting as k8s nodeAffinity
         // We assume that multiple targets require both to match ...

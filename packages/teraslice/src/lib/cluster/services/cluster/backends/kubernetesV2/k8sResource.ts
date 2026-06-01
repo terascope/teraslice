@@ -239,7 +239,7 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
     }
 
     _setRelocatableLabel(resource: TSJob | TSDeployment, relocatable: boolean) {
-        const key = `${this.jobPropertyLabelPrefix}/relocatable`;
+        const key = `${this.jobLabelPrefix}/relocatable`;
         const value = String(relocatable);
         resource.metadata.labels[key] = value;
         resource.spec.template.metadata.labels[key] = value;

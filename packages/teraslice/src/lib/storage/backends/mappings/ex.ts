@@ -47,6 +47,7 @@ export const executionDataTypeConfig: DataTypeConfig = {
         kubernetes_image: { type: FieldType.Keyword },
         prom_metrics_enabled: { type: FieldType.Boolean },
         prom_metrics_port: { type: FieldType.Integer },
-        prom_metrics_add_default: { type: FieldType.Boolean }
+        prom_metrics_add_default: { type: FieldType.Boolean },
+        relocatable: { type: FieldType.Boolean }
     }
 };

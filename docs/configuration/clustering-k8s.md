@@ -508,7 +508,7 @@ For resources related to specific jobs they will be labeled with the following:
 
 The following labels are applied only to execution controller resources:
 
-* `job-property.teraslice.terascope.io/relocatable` - `true` if the execution controller can be safely drained/deleted, `false` otherwise. This is determined by calling `isRelocatable()` on the job's slicer at execution start.
+* `job.teraslice.terascope.io/relocatable` - `true` if the execution controller can be safely drained/deleted, `false` otherwise. This is determined by calling `isRelocatable()` on the job's slicer at execution start.
 
 Note that the Teraslice job name is used in creating and labelling some of the
 Kubernetes resources.  Rather than enforce kubernetes strict DNS naming
