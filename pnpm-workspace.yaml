@@ -29,9 +29,9 @@ minimumReleaseAgeExclude:
   - teraslice-client-js
   - teraslice-test-harness
   - ts-transforms
-  - xpressions
   - xlucene-parser
   - xlucene-translator
+  - xpressions
 
 trustPolicy: no-downgrade
 
