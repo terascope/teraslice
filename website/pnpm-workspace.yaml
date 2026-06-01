@@ -15,5 +15,3 @@ trustPolicyExclude:
   - 'semver@6.3.1' # false positive - maintainer change
   - 'detect-port@1.6.1' #  false positive - republished without provenance
 
-overrides:
-  webpack: 5.105.1
