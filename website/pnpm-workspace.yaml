@@ -1,10 +1,11 @@
 packages:
   - ./
 
-onlyBuiltDependencies:
+allowBuilds:
   # Used by a package within @docusaurus/core
-  - 'core-js-pure'
-  # Used by @docusaurus/core
-  - 'core-js'
+  core-js: true
+
+overrides:
+  webpack: 5.105.1
 
 # publicHoistPattern:
