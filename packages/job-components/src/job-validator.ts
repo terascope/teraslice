@@ -151,7 +151,34 @@ export class JobValidator {
             this.context.apis.executionContext.addToRegistry(name, api);
         });
 
+        await this._applyRelocatable(jobConfig);
+
         return jobConfig;
+    }
+
+    /**
+     * Loads the slicer for the given job to determine if it is relocatable,
+     * then sets that value as a property on the jobConfig so it is persisted
+     * on the EX record. The K8s backend reads this property to apply the
+     * appropriate pod label.
+     */
+    private async _applyRelocatable(jobConfig: ValidatedJobConfig): Promise<void> {
+        try {
+            const readerModule = await this.opLoader.loadReader(
+                jobConfig.operations[0]._op,
+                jobConfig.assets || []
+            );
+            const slicerInstance = new readerModule.Slicer(
+                this.context as any,
+                cloneDeep(jobConfig.operations[0]),
+                jobConfig as any
+            );
+            if (typeof slicerInstance.isRelocatable === 'function') {
+                jobConfig.relocatable = slicerInstance.isRelocatable();
+            }
+        } catch (err) {
+            this.context.logger.warn(`Unable to determine relocatable for job: ${err}`);
+        }
     }
 
     hasSchema(obj: Record<string, any>, name: string): void {

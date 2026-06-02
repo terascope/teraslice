@@ -310,6 +310,8 @@ export interface ValidatedJobConfig {
     prom_metrics_port?: number;
     /** This will only be available in the context of k8s */
     prom_metrics_add_default?: boolean;
+    /** This will only be available in the context of k8s. Set by the system at execution start. */
+    relocatable?: boolean;
 }
 
 // TODO: rename ExecutionControllerTargets???
