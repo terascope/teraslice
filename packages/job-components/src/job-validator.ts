@@ -11,7 +11,6 @@ import { registerApis } from './register-apis.js';
 import {
     OperationAPIConstructor,
     OperationModule,
-    ReaderModule,
 } from './operations/index.js';
 
 export class JobValidator {
