@@ -388,12 +388,32 @@ export class SchemaValidator<T = AnyObject> {
                     value as TF.Schema<T>,
                     `${parentKey.toString()}.${key}`
                 );
-                defaults[key] = fields[key].parse({});
+                defaults[key] = this._extractSchemaDefaults(value as TF.Schema<T>);
             }
         }
 
         return z.looseObject(fields)
             .default(defaults) as z.ZodType<T>;
+    }
+
+    /**
+     * Recursively extract defaults from a schema that may contain nested objects
+     * @param { TF.Schema<T> } schema A convict style schema
+     * @returns { Record<string, unknown> } Object containing defaults for the given schema
+     */
+    private _extractSchemaDefaults(schema: TF.Schema<T>): Record<string, unknown> {
+        const defaults: Record<string, unknown> = {};
+        if (isSimpleObject(schema)) {
+            for (const key in schema) {
+                const value = (schema)[key];
+                if (isSchemaObj(value)) {
+                    defaults[key] = value.default;
+                } else {
+                    defaults[key] = this._extractSchemaDefaults(value as TF.Schema<T>);
+                }
+            }
+        }
+        return defaults;
     }
 
     /**
