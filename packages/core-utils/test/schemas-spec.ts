@@ -2868,4 +2868,60 @@ describe('Schema Object validation', () => {
             }).toThrow('Format 2: Must be number');
         });
     });
+
+    describe('nested schemas with required_string fields and undefined defaults', () => {
+        const schema: Terafoundation.Schema<any> = {
+            store: {
+                connector: {
+                    doc: 'name of the terafoundation connector where the percent will be stored',
+                    default: undefined,
+                    format: 'required_string'
+                },
+                index: {
+                    doc: 'name of the index where the percent will be stored',
+                    default: undefined,
+                    format: 'required_string'
+                },
+                document_id: {
+                    doc: 'name of the document ID where the percent will be stored',
+                    default: undefined,
+                    format: 'required_string'
+                }
+            }
+        };
+
+        it('should construct SchemaValidator without throwing', () => {
+            expect(() => {
+                new SchemaValidator(schema, 'nested_required_string_test');
+            }).not.toThrow();
+        });
+
+        it('should validate a config with all required nested fields provided', () => {
+            const validator = new SchemaValidator(schema, 'nested_required_string_test');
+            const config = {
+                store: {
+                    connector: 'my-connector',
+                    index: 'my-index',
+                    document_id: 'my-doc-id'
+                }
+            };
+            expect(() => validator.validate(config)).not.toThrow();
+            const result = validator.validate(config);
+            expect(result.store.connector).toBe('my-connector');
+            expect(result.store.index).toBe('my-index');
+            expect(result.store.document_id).toBe('my-doc-id');
+        });
+
+        it('should throw when a required nested field is missing', () => {
+            const validator = new SchemaValidator(schema, 'nested_required_string_test');
+            const config = {
+                store: {
+                    connector: 'my-connector',
+                    index: 'my-index'
+                    // document_id is missing
+                }
+            };
+            expect(() => validator.validate(config)).toThrow();
+        });
+    });
 });
