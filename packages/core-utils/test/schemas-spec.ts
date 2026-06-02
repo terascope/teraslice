@@ -2869,21 +2869,16 @@ describe('Schema Object validation', () => {
         });
     });
 
-    describe('nested schemas with required_string fields and undefined defaults', () => {
+    describe('nested schemas with required_string fields and null or undefined defaults', () => {
         const schema: Terafoundation.Schema<any> = {
             store: {
                 connector: {
-                    doc: 'name of the terafoundation connector where the percent will be stored',
-                    default: undefined,
+                    doc: 'name of the terafoundation connector',
+                    default: null,
                     format: 'required_string'
                 },
                 index: {
-                    doc: 'name of the index where the percent will be stored',
-                    default: undefined,
-                    format: 'required_string'
-                },
-                document_id: {
-                    doc: 'name of the document ID where the percent will be stored',
+                    doc: 'name of the index',
                     default: undefined,
                     format: 'required_string'
                 }
