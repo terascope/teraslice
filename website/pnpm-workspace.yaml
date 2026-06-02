@@ -1,10 +1,17 @@
 packages:
   - ./
 
-onlyBuiltDependencies:
+allowBuilds:
   # Used by a package within @docusaurus/core
-  - 'core-js-pure'
-  # Used by @docusaurus/core
-  - 'core-js'
+  core-js: true
 
-# publicHoistPattern:
+blockExoticSubdeps: true
+
+minimumReleaseAge: 1440 # 1 day
+
+trustPolicy: no-downgrade
+
+trustPolicyExclude:
+  - 'semver@6.3.1' # false positive - maintainer change
+  - 'detect-port@1.6.1' #  false positive - republished without provenance
+

@@ -2,16 +2,44 @@ packages:
   - e2e
   - packages/*
 
-onlyBuiltDependencies:
-  - '@confluentinc/kafka-javascript'
-  - '@swc/core'
-  - dtrace-provider
-  - esbuild
-  - event-loop-stats
-  - gc-stats
-  - protobufjs
-  - unrs-resolver
-  - xlucene-parser
+allowBuilds:
+  '@confluentinc/kafka-javascript': true
+  '@swc/core': true
+  dtrace-provider: true
+  esbuild: true
+  protobufjs: true
+  teraslice-cli: true
+  unrs-resolver: true
+  xlucene-parser: true
 
 publicHoistPattern:
   - "@terascope/scripts"
+
+blockExoticSubdeps: true
+
+minimumReleaseAge: 1440 # 1 day
+
+minimumReleaseAgeExclude:
+  - '@terascope/*'
+  - elasticsearch-store
+  - terafoundation
+  - terafoundation_kafka_connector
+  - teraslice
+  - teraslice-cli
+  - teraslice-client-js
+  - teraslice-test-harness
+  - ts-transforms
+  - xlucene-parser
+  - xlucene-translator
+  - xpressions
+
+trustPolicy: no-downgrade
+
+trustPolicyExclude:
+  - 'semver@6.3.1' # false positive - maintainer change
+
+overrides:
+  '@types/lodash': '~4.17.24'
+  debug: '~4.4.3'
+  ms: '~2.1.3'
+  nan: '~2.22.0'

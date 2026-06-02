@@ -27,13 +27,3 @@ After adding or editing docs:
 
 1. Run `pnpm docs` from the repo root to regenerate package READMEs.
 2. Update `sidebars.json` if you added a new page.
-
-## Known Issues
-
-### `webpack` pinned to `5.105.1`
-
-`package.json` contains a pnpm override pinning `webpack` to `5.105.1`. Do not remove it without testing `pnpm run build`.
-
-**Root cause:** `webpackbar@6.0.1` (a transitive dependency of `@docusaurus/core`) extends webpack's `ProgressPlugin` and then overwrites `this.options` with its own options, which include properties like `name`, `color`, `reporters`, and `reporter`. Webpack `5.106.2` moved `ProgressPlugin` schema validation from the constructor to a deferred compiler hook, so it now validates `this.options` *after* webpackbar has overwritten it — resulting in a build-breaking `ValidationError: options has an unknown property 'name'`. Webpack `5.105.1` validated in the constructor before the overwrite, so it was unaffected.
-
-Remove the override once `webpackbar` ships a fix upstream.
