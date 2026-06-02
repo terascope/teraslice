@@ -2897,14 +2897,12 @@ describe('Schema Object validation', () => {
                 store: {
                     connector: 'my-connector',
                     index: 'my-index',
-                    document_id: 'my-doc-id'
                 }
             };
             expect(() => validator.validate(config)).not.toThrow();
             const result = validator.validate(config);
             expect(result.store.connector).toBe('my-connector');
             expect(result.store.index).toBe('my-index');
-            expect(result.store.document_id).toBe('my-doc-id');
         });
 
         it('should throw when a required nested field is missing', () => {
@@ -2912,11 +2910,86 @@ describe('Schema Object validation', () => {
             const config = {
                 store: {
                     connector: 'my-connector',
-                    index: 'my-index'
-                    // document_id is missing
+                    // index is missing
                 }
             };
             expect(() => validator.validate(config)).toThrow();
+        });
+    });
+
+    describe('_extractSchemaDefaults', () => {
+        function extractDefaults(schema: Terafoundation.Schema<any>) {
+            const validator = new SchemaValidator({ _placeholder: { doc: '', default: null, format: '*' } }, '_extract_test');
+            return (validator as any)._extractSchemaDefaults(schema);
+        }
+
+        it('extracts flat schema defaults', () => {
+            const schema: Terafoundation.Schema<any> = {
+                name: { doc: 'a name', default: 'alice', format: String },
+                count: { doc: 'a count', default: 0, format: Number },
+                enabled: { doc: 'flag', default: true, format: Boolean },
+            };
+            expect(extractDefaults(schema)).toEqual({ name: 'alice', count: 0, enabled: true });
+        });
+
+        it('extracts undefined and null defaults', () => {
+            const schema: Terafoundation.Schema<any> = {
+                required: { doc: 'required', default: undefined, format: 'required_string' },
+                nullable: { doc: 'nullable', default: null, format: '*' },
+            };
+            const result = extractDefaults(schema);
+            expect(result.required).toBeUndefined();
+            expect(result.nullable).toBeNull();
+        });
+
+        it('extracts defaults from a one-level nested schema', () => {
+            const schema: Terafoundation.Schema<any> = {
+                store: {
+                    connector: { doc: 'connector', default: undefined, format: 'required_string' },
+                    index: { doc: 'index', default: undefined, format: 'required_string' },
+                    document_id: { doc: 'doc id', default: undefined, format: 'required_string' },
+                }
+            };
+            expect(extractDefaults(schema)).toEqual({
+                store: {
+                    connector: undefined,
+                    index: undefined,
+                    document_id: undefined,
+                }
+            });
+        });
+
+        it('extracts defaults from a deeply nested schema', () => {
+            const schema: Terafoundation.Schema<any> = {
+                connection: {
+                    primary: {
+                        host: { doc: 'host', default: 'localhost', format: String },
+                        port: { doc: 'port', default: 9200, format: Number },
+                    },
+                    secondary: {
+                        host: { doc: 'host', default: undefined, format: 'optional_string' },
+                    }
+                }
+            };
+            expect(extractDefaults(schema)).toEqual({
+                connection: {
+                    primary: { host: 'localhost', port: 9200 },
+                    secondary: { host: undefined },
+                }
+            });
+        });
+
+        it('extracts defaults from a mixed flat-and-nested schema', () => {
+            const schema: Terafoundation.Schema<any> = {
+                top_level: { doc: 'top', default: 'value', format: String },
+                nested: {
+                    child: { doc: 'child', default: 42, format: Number },
+                }
+            };
+            expect(extractDefaults(schema)).toEqual({
+                top_level: 'value',
+                nested: { child: 42 },
+            });
         });
     });
 });
