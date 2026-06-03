@@ -2868,4 +2868,128 @@ describe('Schema Object validation', () => {
             }).toThrow('Format 2: Must be number');
         });
     });
+
+    describe('nested schemas with required_string fields and null or undefined defaults', () => {
+        const schema: Terafoundation.Schema<any> = {
+            store: {
+                connector: {
+                    doc: 'name of the terafoundation connector',
+                    default: null,
+                    format: 'required_string'
+                },
+                index: {
+                    doc: 'name of the index',
+                    default: undefined,
+                    format: 'required_string'
+                }
+            }
+        };
+
+        it('should construct SchemaValidator without throwing', () => {
+            expect(() => {
+                new SchemaValidator(schema, 'nested_required_string_test');
+            }).not.toThrow();
+        });
+
+        it('should validate a config with all required nested fields provided', () => {
+            const validator = new SchemaValidator(schema, 'nested_required_string_test');
+            const config = {
+                store: {
+                    connector: 'my-connector',
+                    index: 'my-index',
+                }
+            };
+            expect(() => validator.validate(config)).not.toThrow();
+            const result = validator.validate(config);
+            expect(result.store.connector).toBe('my-connector');
+            expect(result.store.index).toBe('my-index');
+        });
+
+        it('should throw when a required nested field is missing', () => {
+            const validator = new SchemaValidator(schema, 'nested_required_string_test');
+            const config = {
+                store: {
+                    connector: 'my-connector',
+                    // index is missing
+                }
+            };
+            expect(() => validator.validate(config)).toThrow();
+        });
+    });
+
+    describe('_extractSchemaDefaults', () => {
+        function extractDefaults(schema: Terafoundation.Schema<any>) {
+            const validator = new SchemaValidator({ _placeholder: { doc: '', default: null, format: '*' } }, '_extract_test');
+            return (validator as any)._extractSchemaDefaults(schema);
+        }
+
+        it('extracts flat schema defaults', () => {
+            const schema: Terafoundation.Schema<any> = {
+                name: { doc: 'a name', default: 'alice', format: String },
+                count: { doc: 'a count', default: 0, format: Number },
+                enabled: { doc: 'flag', default: true, format: Boolean },
+            };
+            expect(extractDefaults(schema)).toEqual({ name: 'alice', count: 0, enabled: true });
+        });
+
+        it('extracts undefined and null defaults', () => {
+            const schema: Terafoundation.Schema<any> = {
+                required: { doc: 'required', default: undefined, format: 'required_string' },
+                nullable: { doc: 'nullable', default: null, format: '*' },
+            };
+            const result = extractDefaults(schema);
+            expect(result.required).toBeUndefined();
+            expect(result.nullable).toBeNull();
+        });
+
+        it('extracts defaults from a one-level nested schema', () => {
+            const schema: Terafoundation.Schema<any> = {
+                store: {
+                    connector: { doc: 'connector', default: undefined, format: 'required_string' },
+                    index: { doc: 'index', default: undefined, format: 'required_string' },
+                    document_id: { doc: 'doc id', default: undefined, format: 'required_string' },
+                }
+            };
+            expect(extractDefaults(schema)).toEqual({
+                store: {
+                    connector: undefined,
+                    index: undefined,
+                    document_id: undefined,
+                }
+            });
+        });
+
+        it('extracts defaults from a deeply nested schema', () => {
+            const schema: Terafoundation.Schema<any> = {
+                connection: {
+                    primary: {
+                        host: { doc: 'host', default: 'localhost', format: String },
+                        port: { doc: 'port', default: 9200, format: Number },
+                    },
+                    secondary: {
+                        host: { doc: 'host', default: undefined, format: 'optional_string' },
+                    }
+                }
+            };
+            expect(extractDefaults(schema)).toEqual({
+                connection: {
+                    primary: { host: 'localhost', port: 9200 },
+                    secondary: { host: undefined },
+                }
+            });
+        });
+
+        it('extracts defaults from a mixed flat-and-nested schema', () => {
+            const schema: Terafoundation.Schema<any> = {
+                top_level: { doc: 'top', default: 'value', format: String },
+                nested: {
+                    child: { doc: 'child', default: 42, format: Number },
+                }
+            };
+            expect(extractDefaults(schema)).toEqual({
+                top_level: 'value',
+                nested: { child: 42 },
+            });
+        });
+    });
 });
