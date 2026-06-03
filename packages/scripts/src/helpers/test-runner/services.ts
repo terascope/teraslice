@@ -448,7 +448,10 @@ async function ensureTerasliceWithDevPackages(
 
     const assetE2eImage = 'teraslice-asset-e2e';
     const assetE2eTag = 'local';
-    const scriptsDir = path.join(getRootDir(), 'packages', 'scripts');
+    // Resolve relative to this compiled file so it works regardless of whatever
+    // repo uses scripts.
+    // dist/src/helpers/test-runner/services.js -> up 4 levels --> scripts package root
+    const scriptsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
     const dockerfile = path.join(scriptsDir, 'docker', 'asset-e2e', 'Dockerfile');
 
     signale.pending(`Building asset e2e image from ${baseImage}...`);
