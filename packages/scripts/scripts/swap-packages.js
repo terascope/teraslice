@@ -5,11 +5,13 @@ const APP_DIR = '/app/source';
 const DEV_PACKAGES_ENV = process.env.TERASLICE_DEV_PACKAGES;
 
 if (!DEV_PACKAGES_ENV) {
-    console.log('TERASLICE_DEV_PACKAGES not set, nothing to swap');
+    console.warn('TERASLICE_DEV_PACKAGES not set, nothing to swap');
     process.exit(0);
 }
 
-const devPackagePaths = DEV_PACKAGES_ENV.split(',').map((s) => s.trim()).filter(Boolean);
+const devPackagePaths = DEV_PACKAGES_ENV.split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
 
 // Step 1: Look into each dirs package.json to find npm name
 const devPackages = new Map(); // package name -> absolute host path
@@ -24,7 +26,7 @@ for (const pkgPath of devPackagePaths) {
         process.exit(1);
     }
     devPackages.set(packageName, pkgPath);
-    console.log(`Detected dev package: ${packageName} -> ${pkgPath}`);
+    console.warn(`Detected dev package: ${packageName} -> ${pkgPath}`);
 }
 
 // Step 2: Recursively find all package.json files in /app/source, skipping node_modules
@@ -65,7 +67,7 @@ for (const pkgJsonPath of findPackageJsonFiles(APP_DIR)) {
         if (!pkgJson[field]) continue;
         for (const [name, devPath] of devPackages) {
             if (name in pkgJson[field]) {
-                console.log(`${pkgJsonPath}: ${name} ${pkgJson[field][name]} -> file:${devPath}`);
+                console.warn(`${pkgJsonPath}: ${name} ${pkgJson[field][name]} -> file:${devPath}`);
                 pkgJson[field][name] = `file:${devPath}`;
                 modified = true;
             }
@@ -78,4 +80,4 @@ for (const pkgJsonPath of findPackageJsonFiles(APP_DIR)) {
     }
 }
 
-console.log('Completed!');
+console.warn('Completed!');

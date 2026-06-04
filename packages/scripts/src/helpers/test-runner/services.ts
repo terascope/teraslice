@@ -438,7 +438,8 @@ async function ensureTerasliceWithDevPackages(
         .filter(Boolean);
 
     // Map each host path to a deterministic container path using its basename
-    const devMounts: { hostPath: string; containerPath: string }[] = volumePaths.map((hostPath: string) => ({
+    type DevMount = { hostPath: string; containerPath: string };
+    const devMounts: DevMount[] = volumePaths.map((hostPath: string) => ({
         hostPath,
         containerPath: `/mnt/dev/${path.basename(hostPath)}`,
     }));
