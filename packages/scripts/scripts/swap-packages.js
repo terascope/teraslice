@@ -5,7 +5,7 @@ const APP_DIR = '/app/source';
 const DEV_PACKAGES_ENV = process.env.TERASLICE_DEV_PACKAGES;
 
 if (!DEV_PACKAGES_ENV) {
-    console.warn('TERASLICE_DEV_PACKAGES not set, nothing to swap');
+    console.warn('[swap-packages.js] TERASLICE_DEV_PACKAGES not set, nothing to swap');
     process.exit(0);
 }
 
@@ -22,11 +22,11 @@ for (const pkgPath of devPackagePaths) {
         const packageJson = JSON.parse(readFileSync(path.join(pkgPath, 'package.json'), 'utf8'));
         packageName = packageJson.name;
     } catch (err) {
-        console.error(`Failed to read package.json at ${pkgPath}: ${err.message}`);
+        console.error(`[swap-packages.js] Failed to read package.json at ${pkgPath}: ${err.message}`);
         process.exit(1);
     }
     devPackages.set(packageName, pkgPath);
-    console.warn(`Detected dev package: ${packageName} -> ${pkgPath}`);
+    console.warn(`[swap-packages.js] Detected dev package: ${packageName} -> ${pkgPath}`);
 }
 
 // Step 2: Recursively find all package.json files in /app/source, skipping node_modules
@@ -68,7 +68,7 @@ for (const pkgJsonPath of findPackageJsonFiles(APP_DIR)) {
         if (!pkgJson[field]) continue;
         for (const [name, devPath] of devPackages) {
             if (name in pkgJson[field]) {
-                console.warn(`${pkgJsonPath}: ${name} ${pkgJson[field][name]} -> file:${devPath}`);
+                console.warn(`[swap-packages.js] ${pkgJsonPath}: ${name} ${pkgJson[field][name]} -> file:${devPath}`);
                 pkgJson[field][name] = `file:${devPath}`;
                 modified = true;
             }
@@ -80,7 +80,7 @@ for (const pkgJsonPath of findPackageJsonFiles(APP_DIR)) {
     if (pkgJson.peerDependencies) {
         for (const [name, devPath] of devPackages) {
             if (name in pkgJson.peerDependencies) {
-                console.warn(`${pkgJsonPath}: promoting peerDependency ${name} -> dependencies file:${devPath}`);
+                console.warn(`[swap-packages.js] ${pkgJsonPath}: promoting peerDependency ${name} -> dependencies file:${devPath}`);
                 delete pkgJson.peerDependencies[name];
                 pkgJson.dependencies ??= {};
                 pkgJson.dependencies[name] = `file:${devPath}`;
@@ -95,4 +95,4 @@ for (const pkgJsonPath of findPackageJsonFiles(APP_DIR)) {
     }
 }
 
-console.warn('Completed!');
+console.warn('[swap-packages.js] Completed!');
