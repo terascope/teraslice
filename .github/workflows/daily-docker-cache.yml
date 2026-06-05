@@ -15,5 +15,5 @@ run-name: Daily Docker Cache - ${{ inputs.reason || 'Scheduled Daily Run' }}
 
 jobs:
   call-refresh-docker-cache-workflow:
-    uses: terascope/workflows/.github/workflows/refresh-docker-cache.yml@main
+    uses: terascope/workflows/.github/workflows/refresh-docker-cache.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
     secrets: inherit

@@ -70,21 +70,21 @@ jobs:
         run: pnpm install --frozen-lockfile && pnpm run setup
 
   check-docker-limit-before:
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@main
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
     secrets: inherit
 
   check-github-api-limit-before:
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
     secrets: inherit
 
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@main
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
     secrets: inherit
 
   cache-asset-bundles:
     needs: check-github-api-limit-before
-    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@main
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
     secrets: inherit
 
   determine-tests-based-off-commit:
@@ -1276,7 +1276,7 @@ jobs:
         teraslice-elasticsearch-tests,
       ]
     if: always()
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@main
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
     secrets: inherit
 
   check-github-api-limit-after:
@@ -1294,7 +1294,7 @@ jobs:
         xlucene-translator-tests,
       ]
     if: always()
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@main
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
     secrets: inherit
 
   all-tests-passed:
