@@ -47,7 +47,8 @@ function findPackageJsonFiles(dir) {
 }
 
 // Step 3: If there is a match replace value with 'file:<path to mount>'
-const dependencyKeys = ['dependencies', 'devDependencies', 'peerDependencies'];
+// peerDependencies are handled separately since pnpm rejects file: values there
+const installKeys = ['dependencies', 'devDependencies'];
 
 // Loop through each valid package.json
 for (const pkgJsonPath of findPackageJsonFiles(APP_DIR)) {
@@ -62,13 +63,27 @@ for (const pkgJsonPath of findPackageJsonFiles(APP_DIR)) {
     // Keep track if we edited a package.json file or not.
     let modified = false;
 
-    // We want to loop through each deps key to see if we get a git on our volume dep
-    for (const field of dependencyKeys) {
+    // We want to loop through each deps key to see if we get a hit on our volume dep
+    for (const field of installKeys) {
         if (!pkgJson[field]) continue;
         for (const [name, devPath] of devPackages) {
             if (name in pkgJson[field]) {
                 console.warn(`${pkgJsonPath}: ${name} ${pkgJson[field][name]} -> file:${devPath}`);
                 pkgJson[field][name] = `file:${devPath}`;
+                modified = true;
+            }
+        }
+    }
+
+    // pnpm wont accept 'file:<path>' in peerDependencies so we delete the entry there
+    // and move it into dependencies so pnpm actually installs it
+    if (pkgJson.peerDependencies) {
+        for (const [name, devPath] of devPackages) {
+            if (name in pkgJson.peerDependencies) {
+                console.warn(`${pkgJsonPath}: promoting peerDependency ${name} -> dependencies file:${devPath}`);
+                delete pkgJson.peerDependencies[name];
+                pkgJson.dependencies ??= {};
+                pkgJson.dependencies[name] = `file:${devPath}`;
                 modified = true;
             }
         }
