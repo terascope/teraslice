@@ -336,12 +336,12 @@ jobs:
 
       - name: Install Helmfile
         run: |
-          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.5.2/helmfile_1.5.2_linux_amd64.tar.gz" -o helmfile.tgz
+          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
           tar -xzf helmfile.tgz
           rm helmfile.tgz
           chmod +x helmfile
           mv helmfile /usr/local/bin/helmfile
-          helm plugin install https://github.com/databus23/helm-diff --version 345ef9d55b93f51fea9f93496976f65d59fae5ff --verify=false # v3.15.7
+          helm plugin install https://github.com/databus23/helm-diff
           helmfile version
           helm version
 
@@ -483,12 +483,12 @@ jobs:
 
       - name: Install Helmfile
         run: |
-          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.5.2/helmfile_1.5.2_linux_amd64.tar.gz" -o helmfile.tgz
+          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
           tar -xzf helmfile.tgz
           rm helmfile.tgz
           chmod +x helmfile
           mv helmfile /usr/local/bin/helmfile
-          helm plugin install https://github.com/databus23/helm-diff --version 345ef9d55b93f51fea9f93496976f65d59fae5ff --verify=false # v3.15.7
+          helm plugin install https://github.com/databus23/helm-diff
           helmfile version
           helm version
 
