@@ -1347,7 +1347,8 @@ jobs:
       ]
     if: always()
     uses: terascope/workflows/.github/workflows/check-docker-limit.yml@d2864085b6d36798749fce3dd549dae10283f76a
-    permissions: {}
+    permissions:
+      contents: read
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
