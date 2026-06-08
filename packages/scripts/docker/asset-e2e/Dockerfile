@@ -1,6 +1,6 @@
 # Base image is a pre-built teraslice release. The build arg allows scripts
 # to pass the exact image+tag resolved for the current test run.
-ARG TERASLICE_IMAGE=ghcr.io/terascope/teraslice:latest-node24
+ARG TERASLICE_IMAGE=ghcr.io/terascope/teraslice:dev-local-nodev24
 FROM ${TERASLICE_IMAGE}
 
 # swap-packages.js rewrites package.json dep entries to file: references

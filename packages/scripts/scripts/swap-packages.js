@@ -75,8 +75,9 @@ for (const pkgJsonPath of findPackageJsonFiles(APP_DIR)) {
         }
     }
 
-    // pnpm wont accept 'file:<path>' in peerDependencies so we delete the entry there
-    // and move it into dependencies so pnpm actually installs it
+    // pnpm wont accept 'file:<path>' in peerDependencies — it throws:
+    // "The values in peerDependencies should be either a valid semver range, a `workspace:` spec, or a `catalog:` spec"
+    // So we delete the entry from peerDependencies and move it into dependencies so pnpm actually installs it
     if (pkgJson.peerDependencies) {
         for (const [name, devPath] of devPackages) {
             if (name in pkgJson.peerDependencies) {

@@ -49,6 +49,8 @@ List of environmental variables to setup a database:
 
 ## Asset E2E Testing with Teraslice
 
+> This section applies to asset repos that need to validate themselves against a running Teraslice instance. This is not for testing Teraslice itself.
+
 Setting `TEST_TERASLICE=true` enables e2e testing of assets against a live Teraslice instance. When enabled, the test harness will:
 
 1. Start an OpenSearch instance (required by Teraslice)
