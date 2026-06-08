@@ -1,12 +1,12 @@
 import path from 'node:path';
 import { random } from '@terascope/core-utils';
 import { BufferStream } from 'bufferstreams';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import { newId } from '../../../src/lib/utils/id_utils.js';
 
 export function zipDirectory(dir: string): Promise<Buffer> {
     return new Promise((resolve, reject) => {
-        const archive = archiver('zip', { zlib: { level: 9 } });
+        const archive = new ZipArchive({ zlib: { level: 9 } });
         archive.append(JSON.stringify({
             name: path.basename(dir),
             version: `${random(0, 100)}.${random(0, 100)}.${random(0, 100)}`,
