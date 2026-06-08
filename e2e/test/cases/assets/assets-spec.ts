@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import decompress from 'decompress';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import { createS3Client, getS3Object, S3Client } from '@terascope/file-asset-apis';
 import { Teraslice } from '@terascope/types';
 import { pWhile } from '@terascope/core-utils';
@@ -319,7 +319,7 @@ describe('s3 asset storage', () => {
 
             /// Zip the large asset
             const zippedFile = fs.createWriteStream(path.join(largeAssetPath, 'example_large_asset.zip'));
-            const zipper = archiver('zip');
+            const zipper = new ZipArchive();
             zipper.pipe(zippedFile);
             zipper.on('error', (err) => {
                 throw new Error(err.message);

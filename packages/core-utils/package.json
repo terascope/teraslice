@@ -1,7 +1,7 @@
 {
     "name": "@terascope/core-utils",
     "displayName": "Core Utils",
-    "version": "2.12.0",
+    "version": "2.12.1",
     "description": "A collection of Teraslice Core Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/core-utils#readme",
     "bugs": {
@@ -29,7 +29,7 @@
         "@terascope/types": "workspace:~",
         "awesome-phonenumber": "~7.8.0",
         "bunyan": "~1.8.15",
-        "date-fns": "~4.2.1",
+        "date-fns": "~4.4.0",
         "date-fns-tz": "~3.2.0",
         "datemath-parser": "~1.0.6",
         "debug": "~4.4.3",
