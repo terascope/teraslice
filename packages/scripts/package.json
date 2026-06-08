@@ -1,7 +1,7 @@
 {
     "name": "@terascope/scripts",
     "displayName": "Scripts",
-    "version": "2.16.1",
+    "version": "2.17.0",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
@@ -18,7 +18,9 @@
     },
     "files": [
         "dist/src/**/*",
-        "bin/*"
+        "bin/*",
+        "docker/**/*",
+        "scripts/**/*"
     ],
     "scripts": {
         "build": "tsc --build",

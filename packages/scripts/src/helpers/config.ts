@@ -250,6 +250,11 @@ const configSchema: Terafoundation.Schema<any> = {
         format: 'optional_string',
         env: 'TERASLICE_IMAGE'
     },
+    TERASLICE_DOCKER_VOLUME_PATHS: {
+        default: null,
+        format: 'optional_string',
+        env: 'TERASLICE_DOCKER_VOLUME_PATHS'
+    },
     TERASLICE_VERSION: {
         default: null,
         format: 'optional_string',

@@ -49,6 +49,8 @@ List of environmental variables to setup a database:
 
 ## Asset E2E Testing with Teraslice
 
+> This section applies to asset repos that need to validate themselves against a running Teraslice instance. This is not for testing Teraslice itself.
+
 Setting `TEST_TERASLICE=true` enables e2e testing of assets against a live Teraslice instance. When enabled, the test harness will:
 
 1. Start an OpenSearch instance (required by Teraslice)
@@ -74,3 +76,40 @@ Example `package.json` test script for an asset:
 | `TERASLICE_IMAGE` | Pin a specific Teraslice Docker image (e.g. `ghcr.io/terascope/teraslice:v3.4.2-nodev24.14.0`). If not set, the latest release is fetched from GitHub. | `null` |
 | `TERASLICE_PORT` | Port to expose Teraslice on the host | `45678` |
 | `ASSET_ZIP_PATH` | Path to the built asset `.zip` file to upload during tests | `null` |
+| `TERASLICE_DOCKER_VOLUME_PATHS` | Comma-separated list of absolute host paths to local packages to inject into the Teraslice container. See [Dev Package Injection](#dev-package-injection) below. | `null` |
+
+### Dev Package Injection
+
+By default, e2e tests run against a pre-built Teraslice release image. This means bugs introduced in a local connector or library dependency may not be caught — the pre-built image ships its own copy of those packages.
+
+`TERASLICE_DOCKER_VOLUME_PATHS` solves this by injecting local packages directly into the Teraslice container at test time. When this variable is set, the test harness:
+
+1. Builds a thin wrapper image on top of the base Teraslice image
+2. Mounts each listed host path into the container under `/mnt/dev/<package-basename>`
+3. Rewrites all matching `package.json` dependency entries inside the container to `file:` references pointing at the mounts
+4. Runs `pnpm install` to resolve the rewritten dependencies before starting Teraslice
+
+This ensures the running Teraslice instance uses exactly the local code under test, not a cached registry version.
+
+**Example** — testing a local Kafka connector against Teraslice:
+
+```bash
+# In an asset repo (e.g. kafka-assets), point to the connector package directory
+TERASLICE_DOCKER_VOLUME_PATHS=/path/to/kafka-assets/packages/terafoundation_kafka_connector \
+TEST_TERASLICE=true \
+ts-scripts test -- --testPathPatterns=test/e2e
+```
+
+Or in `package.json`:
+
+```json
+"test:e2e": "TERASLICE_DOCKER_VOLUME_PATHS=$(pwd)/packages/terafoundation_kafka_connector TEST_TERASLICE=true ts-scripts test -- --testPathPatterns=test/e2e"
+```
+
+Multiple packages can be injected at once using a comma-separated list:
+
+```bash
+TERASLICE_DOCKER_VOLUME_PATHS=/path/to/pkg-a,/path/to/pkg-b TEST_TERASLICE=true ts-scripts test -- --testPathPatterns=test/e2e
+```
+
+Each path must point to a directory containing a `package.json` with a `name` field. The name is used to find matching dependency entries across all `package.json` files inside the container.

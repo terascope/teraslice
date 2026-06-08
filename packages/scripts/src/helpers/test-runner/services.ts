@@ -1,6 +1,7 @@
 import ms from 'ms';
 import net from 'node:net';
 import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 import got, { Response } from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
@@ -17,7 +18,7 @@ import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo, dockerStop,
     loadThenDeleteImageFromCache, dockerPull, logTCPPorts,
-    getAdminDnFromCert,
+    getAdminDnFromCert, dockerBuild,
     dockerExec
 } from '../scripts.js';
 import { Kind } from '../kind.js';
@@ -414,10 +415,79 @@ export async function ensureTeraslice(
     await resolveTerasliceVersion();
 
     const configPath = writeTerasliceConfig(launchServices);
+    const configMount = `type=bind,source=${configPath},target=/app/config/teraslice.yaml`;
+
+    if (config.TERASLICE_DOCKER_VOLUME_PATHS) {
+        return ensureTerasliceWithDevPackages(options, configMount);
+    }
+
     const startTime = Date.now();
     const fn = await startService(options, Service.Teraslice, {
-        mount: [`type=bind,source=${configPath},target=/app/config/teraslice.yaml`],
+        mount: [configMount],
     });
+    await checkTeraslice(options, startTime);
+    return fn;
+}
+
+async function ensureTerasliceWithDevPackages(
+    options: TestOptions, configMount: string
+): Promise<() => void> {
+    const volumePaths: string[] = config.TERASLICE_DOCKER_VOLUME_PATHS!
+        .split(',')
+        .map((p: string) => p.trim())
+        .filter(Boolean);
+
+    // Map each host path to a deterministic container path using its basename
+    type DevMount = { hostPath: string; containerPath: string };
+    const devMounts: DevMount[] = volumePaths.map((hostPath: string) => ({
+        hostPath,
+        containerPath: `/mnt/dev/${path.basename(hostPath)}`,
+    }));
+
+    const baseImage = config.TERASLICE_IMAGE
+        ?? `${config.TERASLICE_DOCKER_IMAGE}:${config.TERASLICE_VERSION}`;
+
+    const assetE2eImage = 'teraslice-asset-e2e';
+    const assetE2eTag = 'local';
+    // Resolve relative to this compiled file so it works regardless of whatever
+    // repo uses scripts.
+    // dist/src/helpers/test-runner/services.js -> up 4 levels --> scripts package root
+    const scriptsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
+    const dockerfile = path.join(scriptsDir, 'docker', 'asset-e2e', 'Dockerfile');
+
+    signale.pending(`Building asset e2e image from ${baseImage}...`);
+    await dockerBuild(
+        `${assetE2eImage}:${assetE2eTag}`,
+        [],
+        undefined,
+        [`TERASLICE_IMAGE=${baseImage}`],
+        dockerfile,
+        scriptsDir
+    );
+    signale.success(`Built asset e2e image: ${assetE2eImage}:${assetE2eTag}`);
+
+    const terasliceService = services[Service.Teraslice];
+    await stopService(Service.Teraslice);
+
+    const startTime = Date.now();
+    const fn = await dockerRun(
+        {
+            ...terasliceService,
+            image: assetE2eImage,
+            mount: [
+                configMount,
+                ...devMounts.map((m) => `type=bind,source=${m.hostPath},target=${m.containerPath}`),
+            ],
+            env: {
+                ...terasliceService.env,
+                TERASLICE_DEV_PACKAGES: devMounts.map((m) => m.containerPath).join(','),
+            },
+        },
+        assetE2eTag,
+        options.ignoreMount,
+        options.debug || options.trace
+    );
+
     await checkTeraslice(options, startTime);
     return fn;
 }
