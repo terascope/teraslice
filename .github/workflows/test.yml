@@ -83,7 +83,7 @@ jobs:
         run: pnpm install --frozen-lockfile && pnpm run setup
 
   check-docker-limit-before:
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@d2864085b6d36798749fce3dd549dae10283f76a
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
     permissions:
       contents: read
     secrets:
@@ -91,11 +91,12 @@ jobs:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
   check-github-api-limit-before:
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@d2864085b6d36798749fce3dd549dae10283f76a
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
     permissions: {}
+
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@d2864085b6d36798749fce3dd549dae10283f76a
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
     permissions:
       contents: read
     secrets:
@@ -104,7 +105,7 @@ jobs:
 
   cache-asset-bundles:
     needs: check-github-api-limit-before
-    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@d2864085b6d36798749fce3dd549dae10283f76a
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
     permissions:
       contents: read
 
@@ -1346,7 +1347,7 @@ jobs:
         teraslice-elasticsearch-tests,
       ]
     if: always()
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@d2864085b6d36798749fce3dd549dae10283f76a
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
     permissions:
       contents: read
     secrets:
@@ -1368,7 +1369,7 @@ jobs:
         xlucene-translator-tests,
       ]
     if: always()
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@d2864085b6d36798749fce3dd549dae10283f76a
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
     permissions: {}
 
   all-tests-passed:

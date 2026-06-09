@@ -17,7 +17,7 @@ permissions: {}
 
 jobs:
   call-refresh-asset-bundles-workflow:
-    uses: terascope/workflows/.github/workflows/refresh-asset-bundles.yml@d2864085b6d36798749fce3dd549dae10283f76a
+    uses: terascope/workflows/.github/workflows/refresh-asset-bundles.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
     permissions:
       contents: read
       actions: write
