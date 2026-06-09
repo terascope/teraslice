@@ -34,9 +34,10 @@ export async function createImageList(): Promise<void> {
         list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`;
     } else if (repo === 'standard-assets-bundle') {
-        list = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}`;
+        list = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`
+            + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}`;
     } else if (repo === 'chaos-assets-bundle') {
-        list = '';
+        list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}`;
     } else if (repo === 'teraslice-workspace') {
         list = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH1_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`
