@@ -9,7 +9,11 @@ export async function getLatestTerasliceImageTag(): Promise<string> {
     const nodeMajor = process.version.slice(1).split('.')[0];
     signale.pending(`Fetching latest Teraslice image tag for Node ${nodeMajor} from GHCR...`);
 
-    const releasesResponse = await got('https://api.github.com/repos/terascope/teraslice/releases?per_page=1');
+    // Use a github token if available
+    const token = process.env['GITHUB_TOKEN'];
+    const releasesResponse = await got('https://api.github.com/repos/terascope/teraslice/releases?per_page=1', {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
     const releases = JSON.parse(releasesResponse.body) as { tag_name: string; body: string }[];
     const latest = releases[0];
 
