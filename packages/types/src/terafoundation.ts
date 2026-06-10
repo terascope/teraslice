@@ -22,7 +22,13 @@ export interface SchemaObj<T = any> {
     format?: ConvictFormat;
     env?: string | undefined;
     arg?: string | undefined;
+    deprecated?: string | undefined;
     [key: string]: any;
+}
+
+export interface JobWarning {
+    type: string;
+    description: string;
 }
 
 export type Schema<T> = {
