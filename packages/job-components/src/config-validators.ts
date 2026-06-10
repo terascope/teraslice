@@ -9,7 +9,7 @@ import { opSchema, apiSchema } from './job-schemas.js';
  */
 export function validateOpConfig<T>(
     inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
-): { config: OpConfig & T, warnings: TF.JobWarning[] } {
+): { config: OpConfig & T; warnings: TF.JobWarning[] } {
     const schema = Object.assign({}, opSchema, inputSchema) as TF.Schema<OpConfig & T>;
     const validator = new SchemaValidator<OpConfig & T>(
         schema,
@@ -31,7 +31,7 @@ export function validateOpConfig<T>(
  */
 export function validateAPIConfig<T>(
     inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
-): { config: APIConfig & T, warnings: TF.JobWarning[] } {
+): { config: APIConfig & T; warnings: TF.JobWarning[] } {
     const schema = Object.assign({}, apiSchema, inputSchema) as TF.Schema<APIConfig & T>;
     const validator = new SchemaValidator<APIConfig & T>(
         schema,
