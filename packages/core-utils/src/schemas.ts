@@ -237,6 +237,7 @@ export class SchemaValidator<T = AnyObject> {
     checkUndeclaredKeys: CheckUndeclaredKeys;
     envMap: Record<string, { envName: string; format: TF.ConvictFormat }> = {};
     argsMap: Record<string, { argName: string; format: TF.ConvictFormat }> = {};
+    deprecationWarnings: TF.JobWarning[] = [];
     logger: Logger;
 
     constructor(
@@ -324,6 +325,22 @@ export class SchemaValidator<T = AnyObject> {
                     argValue = toNumber(argValue);
                 }
                 finalConfig[key] = argValue;
+            }
+        }
+
+        // Logic that checks input schema for deprecated field
+        this.deprecationWarnings = [];
+        for (const key in this.inputSchema) {
+            const field = (this.inputSchema as any)[key];
+            if (
+                // Ensure its not nested
+                isSchemaObj(field)
+                // field needs to have the deprecated key on it
+                && field.deprecated
+                // user must have provided this field with a value
+                && config[key] !== undefined
+            ) {
+                this.deprecationWarnings.push({ type: 'deprecation', description: field.deprecated });
             }
         }
 
