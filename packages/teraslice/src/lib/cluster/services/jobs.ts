@@ -61,7 +61,10 @@ export class JobsService {
     */
     private async _validateJobSpec(
         jobSpec: Partial<JobConfig | JobConfigParams>
-    ): Promise<{ jobConfig: ValidatedJobConfig | JobConfig, warnings: Terafoundation.JobWarning[] }> {
+    ): Promise<{
+        jobConfig: ValidatedJobConfig | JobConfig;
+        warnings: Terafoundation.JobWarning[];
+    }> {
         const parsedAssetJob = await this._ensureAssets(cloneDeep(jobSpec));
         return this.jobValidator.validateConfig(parsedAssetJob);
     }
