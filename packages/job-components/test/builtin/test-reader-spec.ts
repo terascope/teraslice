@@ -18,19 +18,19 @@ describe('Test Reader', () => {
         const schema = new Schema(context);
 
         it('should be able to return the correct opConfig with not additional config', () => {
-            const result = schema.validate({ _op: 'test-reader' });
-            expect(result).toHaveProperty('fetcher_data_file_path', null);
-            expect(result).toHaveProperty('slicer_data_file_path', null);
+            const { config } = schema.validate({ _op: 'test-reader' });
+            expect(config).toHaveProperty('fetcher_data_file_path', null);
+            expect(config).toHaveProperty('slicer_data_file_path', null);
         });
 
         it('should be able to return the correct opConfig with additional config', () => {
-            const result = schema.validate({
+            const { config } = schema.validate({
                 _op: 'test-reader',
                 fetcher_data_file_path: 'hello',
                 slicer_data_file_path: 'hi',
             });
-            expect(result).toHaveProperty('fetcher_data_file_path', 'hello');
-            expect(result).toHaveProperty('slicer_data_file_path', 'hi');
+            expect(config).toHaveProperty('fetcher_data_file_path', 'hello');
+            expect(config).toHaveProperty('slicer_data_file_path', 'hi');
         });
     });
 

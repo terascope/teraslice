@@ -32,13 +32,13 @@ describe('Collect Processor', () => {
 
     it('should be able to pass validation', () => {
         const schema = new Schema(context);
-        const result = schema.validate({
+        const { config } = schema.validate({
             _op: 'collect',
             size: 100,
             wait: 100
         });
-        expect(result).toHaveProperty('wait', 100);
-        expect(result).toHaveProperty('size', 100);
+        expect(config).toHaveProperty('wait', 100);
+        expect(config).toHaveProperty('size', 100);
     });
 
     it('should be able to fail validation', () => {

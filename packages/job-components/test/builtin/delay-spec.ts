@@ -25,8 +25,8 @@ describe('Delay Processor', () => {
     });
 
     it('should be able to pass validation', () => {
-        const result = schema.validate({ _op: 'delay' });
-        expect(result).toHaveProperty('ms', 100);
+        const { config } = schema.validate({ _op: 'delay' });
+        expect(config).toHaveProperty('ms', 100);
     });
 
     it('should delay at least 100ms', async () => {
