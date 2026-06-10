@@ -30,7 +30,7 @@ export class JobValidator {
     /** Validate the job configuration, including the Operations and APIs configuration */
     async validateConfig(
         jobSpec: Partial<Teraslice.JobConfig | Teraslice.JobConfigParams>,
-    ): Promise<{ jobConfig: ValidatedJobConfig, warnings: Terafoundation.JobWarning[] }> {
+    ): Promise<{ jobConfig: ValidatedJobConfig; warnings: Terafoundation.JobWarning[] }> {
         // top level job validation occurs, but not operations
         const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec), this.context);
         const assetIds = jobConfig.assets || [];
@@ -210,7 +210,9 @@ export class JobValidator {
  * support both shapes during the deprecation window. Will be removed in Teraslice v4
  * when all schemas are required to return { config, warnings }.
  */
-function isValidateResult(result: any): result is { config: any; warnings: Terafoundation.JobWarning[] } {
+function isValidateResult(
+    result: any
+): result is { config: any; warnings: Terafoundation.JobWarning[] } {
     return result != null
         && typeof result === 'object'
         && 'config' in result
