@@ -19,9 +19,9 @@ export default abstract class BaseSchema<T extends Record<string, any>, S = any>
         this.schema = this.build(context);
     }
 
-    validate(inputConfig: Record<string, any>): APIConfig & T;
-    validate(inputConfig: Record<string, any>): OpConfig & T;
-    validate(inputConfig: Record<string, any>): OpConfig | APIConfig & T {
+    validate(inputConfig: Record<string, any>): { config: APIConfig & T, warnings: Terafoundation.JobWarning[] };
+    validate(inputConfig: Record<string, any>): { config: OpConfig & T, warnings: Terafoundation.JobWarning[] };
+    validate(inputConfig: Record<string, any>): { config: OpConfig | APIConfig & T, warnings: Terafoundation.JobWarning[] } {
         if (this.opType === 'api') {
             return validateAPIConfig<T>(this.schema, inputConfig, this.context);
         }
