@@ -2,6 +2,13 @@ name: Publish Teraslice Dev NPM Packages and Docker Image, Create Release
 
 on:
   workflow_call:
+    secrets:
+      RELEASES_PRIVATE_KEY:
+        required: true
+      SLACK_BOT_TOKEN:
+        required: true
+
+permissions: {}
 
 jobs:
   build-npm:
@@ -15,7 +22,9 @@ jobs:
       npm_prerelease_version: ${{ steps.npm-version.outputs.npm_prerelease_version }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Retrieve Teraslice version
         id: teraslice-version
@@ -30,10 +39,10 @@ jobs:
           echo "npm_prerelease_version=$NPM_PRERELEASE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
@@ -48,18 +57,24 @@ jobs:
   build-docker:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     strategy:
       matrix:
         node-version: [22, 24]
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
@@ -70,7 +85,7 @@ jobs:
 
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -83,12 +98,15 @@ jobs:
     if: github.event.pull_request.merged == true
     needs: build-npm
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       version_updated: ${{ steps.version_check.outputs.version_updated }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
+          persist-credentials: false
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0
 
@@ -97,16 +115,17 @@ jobs:
         # Create a release only for newer semver pre-release versions
         # prerelease tags are newer if alphabetically "greater"
         # rc.0 > dev.2 > dev.1 > beta.5 > alpha.12
+        env:
+          LOCAL_TERASLICE_VERSION: ${{ needs.build-npm.outputs.local_teraslice_version }}
+          NPM_PRERELEASE_VERSION: ${{ needs.build-npm.outputs.npm_prerelease_version }}
         run: |
-          LOCAL_TERASLICE_VERSION=${{ needs.build-npm.outputs.local_teraslice_version }}
-          NPM_PRERELEASE_VERSION=${{ needs.build-npm.outputs.npm_prerelease_version }}
-          echo "current version:" $LOCAL_TERASLICE_VERSION
-          echo "npm version:" $NPM_PRERELEASE_VERSION
+          echo "current version: $LOCAL_TERASLICE_VERSION"
+          echo "npm version: $NPM_PRERELEASE_VERSION"
 
-          COMP_OUTPUT=$(./scripts/semver-tool.sh compare $LOCAL_TERASLICE_VERSION $NPM_PRERELEASE_VERSION)
+          COMP_OUTPUT=$(./scripts/semver-tool.sh compare "$LOCAL_TERASLICE_VERSION" "$NPM_PRERELEASE_VERSION")
           echo "Semver comparison output:" $COMP_OUTPUT
 
-          PRERELEASE_TAG=$(./scripts/semver-tool.sh get prerelease $LOCAL_TERASLICE_VERSION)
+          PRERELEASE_TAG=$(./scripts/semver-tool.sh get prerelease "$LOCAL_TERASLICE_VERSION")
           IS_DEV_RELEASE=$([ -n "$PRERELEASE_TAG" ] && echo true || echo false)
           echo "is_dev_release=$IS_DEV_RELEASE" | tee -a $GITHUB_OUTPUT
 
@@ -123,14 +142,14 @@ jobs:
       - name: Generate a token
         if: steps.version_check.outputs.version_updated == 'true'
         id: generate-token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ vars.RELEASES_APP_ID }}
           private-key: ${{ secrets.RELEASES_PRIVATE_KEY }}
 
       - name: Create Release
         if: steps.version_check.outputs.version_updated == 'true'
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           token: ${{ steps.generate-token.outputs.token }}
           prerelease: true
@@ -143,10 +162,11 @@ jobs:
     needs: [build-npm, create-release-on-teraslice-bump]
     if: needs.create-release-on-teraslice-bump.outputs.version_updated == 'true'
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Announce release in Slack releases channel
         id: announce-release
-        uses: slackapi/slack-github-action@v3.0.3
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
         with:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -161,4 +181,8 @@ jobs:
 
       - name: Failed Announcement Response
         if: ${{ steps.announce-release.outputs.ok == 'false' }}
-        run: echo "Slackbot API failure response - ${{ steps.announce-release.outputs.response }}"
+        env:
+          SLACK_RESPONSE: ${{ steps.announce-release.outputs.response }}
+        run: |
+          echo "::add-mask::$SLACK_RESPONSE"
+          echo "Slackbot API failure response - $SLACK_RESPONSE"

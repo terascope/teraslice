@@ -13,24 +13,39 @@ on:
   release:
     types: [published]
 
-permissions:
-  id-token: write  # Required for OIDC
-  contents: write
-  packages: write
-  pages: write
+permissions: {}
 
 jobs:
   call-publish-master:
     if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.base_ref == 'master'
     uses: ./.github/workflows/publish-master.yml
-    secrets: inherit
+    permissions:
+      id-token: write  # Required for OIDC
+      contents: read
+      packages: write
+      pages: write
+    secrets:
+      RELEASES_PRIVATE_KEY: ${{ secrets.RELEASES_PRIVATE_KEY }}
+      GH_CROSS_REPO_ACTIONS_PRIVATE_KEY: ${{ secrets.GH_CROSS_REPO_ACTIONS_PRIVATE_KEY }}
 
   call-publish-dev:
     if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.base_ref, 'release/teraslice-v')
     uses: ./.github/workflows/publish-dev.yml
-    secrets: inherit
+    permissions:
+      id-token: write  # Required for OIDC
+      contents: read
+      packages: write
+    secrets:
+      RELEASES_PRIVATE_KEY: ${{ secrets.RELEASES_PRIVATE_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
   call-publish-tag:
     if: github.event_name == 'release'
     uses: ./.github/workflows/publish-tag.yml
-    secrets: inherit
+    permissions:
+      id-token: write  # Required for OIDC
+      contents: write
+      packages: write
+    secrets:
+      RELEASES_PRIVATE_KEY: ${{ secrets.RELEASES_PRIVATE_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

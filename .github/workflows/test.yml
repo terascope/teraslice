@@ -5,6 +5,9 @@ on:
     branches:
       - master
       - "release/teraslice-v*"
+
+permissions: {}
+
 env:
   NODE_VERSIONS: "[22, 24]"
   NODE_VERSION_MAIN: "24"
@@ -15,6 +18,8 @@ env:
 jobs:
   compute-vars:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       NODE_VERSIONS: ${{ steps.step1.outputs.NODE_VERSIONS }}
       NODE_VERSION_MAIN: ${{ steps.step2.outputs.NODE_VERSION_MAIN }}
@@ -24,7 +29,9 @@ jobs:
       COMMIT_SHORT_SHA: ${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
       - id: step1
         run: echo "NODE_VERSIONS=${{ env.NODE_VERSIONS }}" >> $GITHUB_OUTPUT
       - id: step2
@@ -46,22 +53,28 @@ jobs:
           echo "NATIVE_E2E_MATRIX=$MATRIX" >> $GITHUB_OUTPUT
       - name: Get Commit Short SHA
         id: get-short-sha
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          calculatedSha=$(git rev-parse --short ${{ github.event.pull_request.head.sha || github.sha }})
+          calculatedSha=$(git rev-parse --short "$HEAD_SHA")
           echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_OUTPUT
 
   verify-build:
     runs-on: ubuntu-latest
     needs: compute-vars
+    permissions:
+      contents: read
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
           cache: "pnpm"
@@ -70,26 +83,37 @@ jobs:
         run: pnpm install --frozen-lockfile && pnpm run setup
 
   check-docker-limit-before:
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
-    secrets: inherit
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
+    permissions:
+      contents: read
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
   check-github-api-limit-before:
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
-    secrets: inherit
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
+    permissions: {}
 
   cache-docker-images:
     needs: check-docker-limit-before
-    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
-    secrets: inherit
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
+    permissions:
+      contents: read
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
   cache-asset-bundles:
     needs: check-github-api-limit-before
-    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
-    secrets: inherit
+    uses: terascope/workflows/.github/workflows/cache-asset-bundles.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
+    permissions:
+      contents: read
 
   determine-tests-based-off-commit:
     runs-on: ubuntu-latest
     needs: compute-vars
+    permissions:
+      contents: read
     outputs:
       unit: ${{ steps.determine.outputs.unit }}
       e2e: ${{ steps.determine.outputs.e2e }}
@@ -97,14 +121,15 @@ jobs:
       integration: ${{ steps.determine.outputs.integration }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
+          persist-credentials: false
           fetch-depth: 0
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       - name: Setup Node ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
           cache: "pnpm"
@@ -137,24 +162,29 @@ jobs:
   linux-unit-tests:
     if: needs.determine-tests-based-off-commit.outputs.unit == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: [determine-tests-based-off-commit, compute-vars]
     strategy:
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
     steps:
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
@@ -169,7 +199,7 @@ jobs:
         run: pnpm run test --suite unit --
 
       - name: Upload Node ${{ matrix.node-version }} unit test coverage
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           fail_ci_if_error: false
           codecov_yml_path: ./.github/codecov.yaml
@@ -181,6 +211,8 @@ jobs:
 
   build-dev-docker-images:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: [compute-vars]
     strategy:
       fail-fast: false # Let all matrix jobs complete
@@ -188,16 +220,16 @@ jobs:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
     steps:
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
 
       - name: Build and export
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           build-args: |
             NODE_VERSION=${{ matrix.node-version }}
@@ -205,7 +237,7 @@ jobs:
           outputs: type=docker,dest=${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
@@ -213,8 +245,8 @@ jobs:
   e2e-k8s-v2-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
     needs:
       [
         compute-vars,
@@ -231,20 +263,22 @@ jobs:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_K8S) }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -259,7 +293,7 @@ jobs:
 
       - name: Restore Docker image cache
         id: docker-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
@@ -268,7 +302,7 @@ jobs:
             docker-images-
 
       - name: Download dev docker image artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}
@@ -284,20 +318,20 @@ jobs:
         working-directory: ./e2e
 
       - name: Get Asset Bundle List From Artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: asset-bundle-txt-file-list
           path: ${{ github.workspace }}/e2e/scripts
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/teraslice_assets
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Install Kind and Kubectl
-        uses: helm/kind-action@v1.14.0
+        uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
         with:
           install_only: "true"
 
@@ -337,7 +371,7 @@ jobs:
       - name: Upload logs artifact
         if: always()
         id: upload-logs-artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
           path: e2e/logs/*.log
@@ -346,6 +380,8 @@ jobs:
   e2e-k8s-v2-encrypted-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs:
       [
         compute-vars,
@@ -362,20 +398,22 @@ jobs:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -390,7 +428,7 @@ jobs:
 
       - name: Restore Docker image cache
         id: docker-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
@@ -399,7 +437,7 @@ jobs:
             docker-images-
 
       - name: Download dev docker image artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}
@@ -427,20 +465,20 @@ jobs:
         working-directory: ./e2e
 
       - name: Get Asset Bundle List From Artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: asset-bundle-txt-file-list
           path: ${{ github.workspace }}/e2e/scripts
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/teraslice_assets
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
       - name: Install Kind and Kubectl
-        uses: helm/kind-action@v1.14.0
+        uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
         with:
           install_only: "true"
 
@@ -483,7 +521,7 @@ jobs:
       - name: Upload logs artifact
         if: always()
         id: upload-logs-artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
           path: e2e/logs/*.log
@@ -491,9 +529,9 @@ jobs:
 
   e2e-external-asset-storage-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs:
       [
         compute-vars,
@@ -510,20 +548,22 @@ jobs:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -538,7 +578,7 @@ jobs:
 
       - name: Restore Docker image cache
         id: docker-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
@@ -547,7 +587,7 @@ jobs:
             docker-images-
 
       - name: Download dev docker image artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}
@@ -563,14 +603,14 @@ jobs:
         working-directory: ./e2e
 
       - name: Get Asset Bundle List From Artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: asset-bundle-txt-file-list
           path: ${{ github.workspace }}/e2e/scripts
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/teraslice_assets
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
@@ -588,7 +628,7 @@ jobs:
       - name: Upload logs artifact
         if: always()
         id: upload-logs-artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
           path: e2e/logs/*.log
@@ -596,9 +636,9 @@ jobs:
 
   e2e-external-asset-storage-tests-encrypted:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs:
       [
         compute-vars,
@@ -615,20 +655,22 @@ jobs:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -643,7 +685,7 @@ jobs:
 
       - name: Restore Docker image cache
         id: docker-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
@@ -652,7 +694,7 @@ jobs:
             docker-images-
 
       - name: Download dev docker image artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}
@@ -680,14 +722,14 @@ jobs:
         working-directory: ./e2e
 
       - name: Get Asset Bundle List From Artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: asset-bundle-txt-file-list
           path: ${{ github.workspace }}/e2e/scripts
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/teraslice_assets
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
@@ -704,7 +746,7 @@ jobs:
       - name: Upload logs artifact
         if: always()
         id: upload-logs-artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
           path: e2e/logs/*.log
@@ -713,6 +755,8 @@ jobs:
   teraslice-elasticsearch-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs:
       [
         compute-vars,
@@ -728,20 +772,22 @@ jobs:
         search-version: [opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -756,7 +802,7 @@ jobs:
 
       - name: Restore Docker image cache
         id: docker-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
@@ -775,14 +821,14 @@ jobs:
 
       - name: Upload logs artifact
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
           path: packages/teraslice/logs/*.log
           retention-days: 3
 
       - name: Upload teraslice node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           fail_ci_if_error: false
           codecov_yml_path: ./.github/codecov.yaml
@@ -794,6 +840,8 @@ jobs:
   elasticsearch-store-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs:
       [
         compute-vars,
@@ -809,20 +857,22 @@ jobs:
         search-version: [opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -837,7 +887,7 @@ jobs:
 
       - name: Restore Docker image cache
         id: docker-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
@@ -855,14 +905,14 @@ jobs:
 
       - name: Upload logs artifact
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
           path: packages/elasticsearch-store/logs/*.log
           retention-days: 3
 
       - name: Upload elasticsearch-store node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           fail_ci_if_error: false
           codecov_yml_path: ./.github/codecov.yaml
@@ -874,6 +924,8 @@ jobs:
   xlucene-translator-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs:
       [
         compute-vars,
@@ -889,20 +941,22 @@ jobs:
         search-version: [opensearch2, opensearch3]
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -917,7 +971,7 @@ jobs:
 
       - name: Restore Docker image cache
         id: docker-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
@@ -935,14 +989,14 @@ jobs:
 
       - name: Upload logs artifact
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
           path: packages/xlucene-translator/logs/*.log
           retention-days: 3
 
       - name: Upload xlucene-translator node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           fail_ci_if_error: false
           codecov_yml_path: ./.github/codecov.yaml
@@ -954,6 +1008,8 @@ jobs:
   opensearch-client-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs:
       [
         compute-vars,
@@ -969,20 +1025,22 @@ jobs:
         search-version: [opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -997,7 +1055,7 @@ jobs:
 
       - name: Restore Docker image cache
         id: docker-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
@@ -1015,14 +1073,14 @@ jobs:
 
       - name: Upload logs artifact
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
           path: packages/opensearch-client/logs/*.log
           retention-days: 3
 
       - name: Upload opensearch-client node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           fail_ci_if_error: false
           codecov_yml_path: ./.github/codecov.yaml
@@ -1033,18 +1091,22 @@ jobs:
 
   lint-and-sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: [compute-vars, verify-build, cache-docker-images]
     # will remove the checkout, build and setup when the artifact is made to just
     # test the linting and syncing of the codebase
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSION_MAIN) }}
           cache: "pnpm"
@@ -1061,6 +1123,8 @@ jobs:
   elasticsearch-api-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs:
       [
         compute-vars,
@@ -1076,20 +1140,22 @@ jobs:
         search-version: [opensearch1, opensearch2, opensearch3]
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -1104,7 +1170,7 @@ jobs:
 
       - name: Restore Docker image cache
         id: docker-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
@@ -1122,14 +1188,14 @@ jobs:
 
       - name: Upload logs artifact
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
           path: packages/elasticsearch-api/logs/*.log
           retention-days: 3
 
       - name: Upload es-api node-${{ matrix.node-version }} ${{ matrix.search-version }} test coverage
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           fail_ci_if_error: false
           codecov_yml_path: ./.github/codecov.yaml
@@ -1141,8 +1207,8 @@ jobs:
   e2e-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
     needs:
       [
         compute-vars,
@@ -1158,20 +1224,22 @@ jobs:
       matrix: ${{ fromJSON(needs.compute-vars.outputs.NATIVE_E2E_MATRIX) }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
       # we login to docker to avoid docker pull limit rates
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -1186,7 +1254,7 @@ jobs:
 
       - name: Restore Docker image cache
         id: docker-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
@@ -1195,7 +1263,7 @@ jobs:
             docker-images-
 
       - name: Download dev docker image artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
           path: ${{ runner.temp }}
@@ -1211,14 +1279,14 @@ jobs:
         working-directory: ./e2e
 
       - name: Get Asset Bundle List From Artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: asset-bundle-txt-file-list
           path: ${{ github.workspace }}/e2e/scripts
 
       - name: Restore asset bundle cache
         id: asset-bundle-cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /tmp/teraslice_assets
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
@@ -1236,7 +1304,7 @@ jobs:
       - name: Upload logs artifact
         if: always()
         id: upload-logs-artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}.${{ matrix.search-version }}
           path: e2e/logs/*.log
@@ -1246,15 +1314,18 @@ jobs:
     if: needs.determine-tests-based-off-commit.outputs.website == 'true'
     needs: [verify-build, determine-tests-based-off-commit, compute-vars]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
+          persist-credentials: false
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       - name: Use Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ needs.compute-vars.outputs.NODE_VERSION_MAIN }}
           cache: "pnpm"
@@ -1276,8 +1347,12 @@ jobs:
         teraslice-elasticsearch-tests,
       ]
     if: always()
-    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
-    secrets: inherit
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
+    permissions:
+      contents: read
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
   check-github-api-limit-after:
     needs:
@@ -1294,8 +1369,8 @@ jobs:
         xlucene-translator-tests,
       ]
     if: always()
-    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
-    secrets: inherit
+    uses: terascope/workflows/.github/workflows/check-github-api-limit.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
+    permissions: {}
 
   all-tests-passed:
     needs:
@@ -1317,6 +1392,7 @@ jobs:
       ]
     if: always()
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Check job results
         run: |

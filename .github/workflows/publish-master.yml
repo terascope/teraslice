@@ -2,6 +2,13 @@ name: Publish Teraslice NPM Packages, Documents and Docker Image, Create Release
 
 on:
   workflow_call:
+    secrets:
+      RELEASES_PRIVATE_KEY:
+        required: true
+      GH_CROSS_REPO_ACTIONS_PRIVATE_KEY:
+        required: true
+
+permissions: {}
 
 jobs:
   build-release:
@@ -14,20 +21,23 @@ jobs:
     steps:
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version:  24
           registry-url: 'https://registry.npmjs.org'
@@ -46,20 +56,24 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     needs: build-release
+    permissions:
+      contents: read
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Check for teraslice version update
         id: version_check
         run: |
           CURRENT_VERSION=$(jq -r .version package.json)
-          echo "current version:" $CURRENT_VERSION
+          echo "current version: $CURRENT_VERSION"
 
           NPM_VERSION=$(npm view teraslice dist-tags.latest)
-          echo "npm version:" $NPM_VERSION
+          echo "npm version: $NPM_VERSION"
 
-          COMP_OUTPUT=$(./scripts/semver-tool.sh compare $CURRENT_VERSION $NPM_VERSION)
+          COMP_OUTPUT=$(./scripts/semver-tool.sh compare "$CURRENT_VERSION" "$NPM_VERSION")
           echo "Semver comparison output:" $COMP_OUTPUT
 
           if [ "$COMP_OUTPUT" = "1" ]; then
@@ -75,14 +89,14 @@ jobs:
       - name: Generate a token
         if: steps.version_check.outputs.version_updated == 'true'
         id: generate-token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ vars.RELEASES_APP_ID }}
           private-key: ${{ secrets.RELEASES_PRIVATE_KEY }}
 
       - name: Create Release
         if: steps.version_check.outputs.version_updated == 'true'
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           token: ${{ steps.generate-token.outputs.token }}
           prerelease: true
@@ -90,35 +104,38 @@ jobs:
           name: ${{ steps.version_check.outputs.tag }}
           generate_release_notes: true
 
-
   build-and-publish-helm-charts:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     needs: build-release
     permissions:
-      contents: write
+      contents: read
       packages: write
     outputs:
        version_exists: ${{ steps.check-version.outputs.version_exists }}
     steps:
       - name: Generate a token
         id: token-generation
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ vars.RELEASES_APP_ID }}
           private-key: ${{ secrets.RELEASES_PRIVATE_KEY }}
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
+          persist-credentials: false
           token: ${{ steps.token-generation.outputs.token }}
 
       - name: Set Up Helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+        with:
+          version: v3.21.0
 
       - name: Authenticate Helm to GHCR
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username $GITHUB_ACTOR --password-stdin
+          echo "$TOKEN" | helm registry login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
 
 
       - name: Extract Helm Chart Version
@@ -131,10 +148,10 @@ jobs:
         id: check-version
         env:
           CHART_VERSION: ${{ steps.extract-helm-version.outputs.CHART_VERSION }}
-
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if curl -Ss -L -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Authorization: Bearer $TOKEN" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
           "https://api.github.com/orgs/terascope/packages/container/teraslice-chart/versions" | \
               jq -r --arg version "$CHART_VERSION" '.[] | select(.metadata.container.tags[] == $version)' | \
@@ -155,14 +172,16 @@ jobs:
           echo $(helm package ../teraslice)
           echo "Packaged Helm chart."
           echo $(ls)
-          helm repo index . --merge=index.yaml --url oci://ghcr.io/terascope/teraslice-chart:${{ env.CHART_VERSION }}
+          helm repo index . --merge=index.yaml --url oci://ghcr.io/terascope/teraslice-chart:$CHART_VERSION
           echo $(cat index.yaml)
           echo $(ls)
-          sed -i 's|/teraslice-chart-${{ env.CHART_VERSION }}.tgz||' index.yaml
+          sed -i "s|/teraslice-chart-${CHART_VERSION}.tgz||" index.yaml
           echo $(cat index.yaml)
 
       - name: Commit Updated index.yaml
         if: steps.check-version.outputs.version_exists == 'false'
+        env:
+          REPO_TOKEN: ${{ steps.token-generation.outputs.token }}
         run: |
           echo $(ls)
           echo $(find ./helm/helm-repo-site/index.yaml)
@@ -171,7 +190,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add ./helm/helm-repo-site/index.yaml
           git commit -m "Update Helm chart index.yaml for version $CHART_VERSION"
-          git push -v https://x-access-token:${{ steps.token-generation.outputs.token }}@github.com/terascope/teraslice.git HEAD:master
+          git -c "http.extraheader=Authorization: Bearer $REPO_TOKEN" push origin HEAD:master
 
       - name: Publish Helm Chart to GHCR
         if: steps.check-version.outputs.version_exists == 'false'
@@ -180,7 +199,7 @@ jobs:
         run: |
           cd ./helm/helm-repo-site
           echo $(ls)
-          CHART_FILE=$(ls teraslice-chart-${{ env.CHART_VERSION }}.tgz)
+          CHART_FILE=$(ls teraslice-chart-$CHART_VERSION.tgz)
           echo "Publishing $CHART_FILE to GHCR..."
           helm push $CHART_FILE oci://ghcr.io/terascope --debug
 
@@ -188,17 +207,21 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     needs: build-and-publish-helm-charts
+    permissions:
+      contents: read
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
+          persist-credentials: false
           ref: master
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version:  24
           registry-url: 'https://registry.npmjs.org'
@@ -213,7 +236,7 @@ jobs:
           mkdir -p ./website/build/charts/
           cp -r ./helm/helm-repo-site/* ./website/build/charts/
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ./website/build
 
@@ -230,17 +253,18 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
 
   trigger-terascope-helm-charts-update-gh-pages-workflow:
     if: github.event.pull_request.merged == true && needs.build-and-publish-helm-charts.outputs.version_exists == 'false'
     needs: [build-and-publish-helm-charts]
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       -
         name: Generate a token
         id: generate-token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ vars.GH_CROSS_REPO_ACTIONS_APP_ID }}
           private-key: ${{ secrets.GH_CROSS_REPO_ACTIONS_PRIVATE_KEY }}
@@ -248,8 +272,10 @@ jobs:
           repositories: helm-charts
       -
         name: Send workflow dispatch event to terascope/helm-charts
+        env:
+          TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           curl -X POST -H "Accept: application/vnd.github+json" \
-                -H "Authorization: Bearer ${{ steps.generate-token.outputs.token }}" \
+                -H "Authorization: Bearer $TOKEN" \
                 https://api.github.com/repos/terascope/helm-charts/actions/workflows/update-gh-pages.yaml/dispatches \
                 -d '{"ref":"main","inputs":{"reason":"Teraslice chart release"}}'
