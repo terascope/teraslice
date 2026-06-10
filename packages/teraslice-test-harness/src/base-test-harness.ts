@@ -67,7 +67,7 @@ export default class BaseTestHarness<U extends ExecutionContext> {
         job.assets = assetIds;
 
         const jobValidator = new JobValidator(this.context);
-        const executionConfig = await jobValidator.validateConfig(job) as ExecutionConfig;
+        const { jobConfig: executionConfig } = await jobValidator.validateConfig(job) as unknown as { jobConfig: ExecutionConfig };
 
         return {
             context: this.context,
