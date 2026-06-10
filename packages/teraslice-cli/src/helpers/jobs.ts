@@ -89,6 +89,16 @@ export default class Jobs {
         }
     }
 
+    // TODO: v3 v4 uses submitWithWarnings instead of submit() to surface warnings without
+    // a breaking change to the client. Remove this when submit() is updated in a future major version.
+    async submitJobConfigWithWarnings(jobConfig: Teraslice.JobConfigParams) {
+        try {
+            return this.teraslice.client.jobs.submitWithWarnings(jobConfig, true);
+        } catch (e) {
+            reply.fatal(e);
+        }
+    }
+
     async verifyK8sImageContinuity(cliConfig: Config) {
         /// Grab all job files and verify each
         const clusterStats = await this.teraslice.client.cluster.info();
