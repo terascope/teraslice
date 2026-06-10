@@ -36,10 +36,11 @@ describe('Base Schema', () => {
 
     describe('->validate', () => {
         it('should succeed when given valid data', () => {
-            expect(schema.validate({
+            const { config } = schema.validate({
                 _op: 'hello',
                 example: 'hi'
-            })).toEqual({
+            });
+            expect(config).toEqual({
                 _op: 'hello',
                 _encoding: 'json',
                 _dead_letter_action: 'throw',
