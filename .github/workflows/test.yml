@@ -381,7 +381,6 @@ jobs:
           command -v helm
           command -v helmfile
           kind version
-          kubectl version
           helm version
           helmfile version
           helm plugin list
@@ -533,7 +532,6 @@ jobs:
           command -v helm
           command -v helmfile
           kind version
-          kubectl version
           helm version
           helmfile version
           helm plugin list
