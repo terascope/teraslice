@@ -362,7 +362,7 @@ jobs:
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
         with:
           install_only: "true"
-          version: ${{ needs.compute-vars.outputs.KIND_VERSION }}
+          version: "v${{ needs.compute-vars.outputs.KIND_VERSION }}"
           kubectl_version: "v${{ needs.compute-vars.outputs.KUBECTL_VERSION }}"
 
       - name: Install Helmfile
@@ -511,7 +511,7 @@ jobs:
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
         with:
           install_only: "true"
-          version: ${{ needs.compute-vars.outputs.KIND_VERSION }}
+          version: "v${{ needs.compute-vars.outputs.KIND_VERSION }}"
           kubectl_version: "v${{ needs.compute-vars.outputs.KUBECTL_VERSION }}"
 
       - name: Install Helmfile
