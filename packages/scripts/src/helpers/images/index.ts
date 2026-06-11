@@ -44,7 +44,7 @@ export async function createImageList(): Promise<void> {
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH3_VERSION}\n`
             + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}\n`
             + `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
-            + `${config.KIND_DOCKER_IMAGE}:${config.KIND_VERSION}`;
+            + `${config.KIND_DOCKER_IMAGE}:${config.K8S_VERSION}`;
     } else {
         throw new Error(`This command does not support repository ${repo}`);
     }

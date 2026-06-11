@@ -172,11 +172,6 @@ const configSchema: Terafoundation.Schema<any> = {
         format: 'optional_int',
         env: 'JEST_MAX_WORKERS'
     },
-    K8S_VERSION: {
-        default: 'v1.33.7',
-        format: String,
-        env: 'K8S_VERSION'
-    },
     MAX_PROJECTS_PER_BATCH: {
         default: undefined,
         format: 'int',
@@ -381,16 +376,16 @@ const configSchema: Terafoundation.Schema<any> = {
         env: 'KAFKA_VERSION'
     },
 
-    // Kind config
+    // Kind/K8S config
     KIND_DOCKER_IMAGE: {
         default: 'kindest/node',
         format: String,
         env: 'KIND_DOCKER_IMAGE'
     },
-    KIND_VERSION: {
-        default: 'v1.30.0',
+    K8S_VERSION: {
+        default: 'v1.33.7',
         format: String,
-        env: 'KIND_VERSION'
+        env: 'K8S_VERSION'
     },
 
     // Minio config

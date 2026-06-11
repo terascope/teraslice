@@ -3,7 +3,8 @@ name: k8s-env
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
-  image: kindest/node:v1.28.12@sha256:fa0e48b1e83bb8688a5724aa7eebffbd6337abd7909ad089a2700bf08c30c6ea
+  # set dynamically in https://https://github.com/terascope/teraslice/blob/master/packages/scripts/src/helpers/kind.ts
+  # image: kindest/node:v1.28.12@sha256:fa0e48b1e83bb8688a5724aa7eebffbd6337abd7909ad089a2700bf08c30c6ea
   extraPortMappings:
   - containerPort: 30678 # Map internal teraslice service to host port
     hostPort: 5678

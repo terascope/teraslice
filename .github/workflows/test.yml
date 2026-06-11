@@ -73,19 +73,19 @@ jobs:
           echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_OUTPUT
       - name: Set KIND_VERSION
         id: kind-version
-        run: echo "KIND_VERSION=${{ env.KIND_VERSION }}" >> GITHUB_OUTPUT
+        run: echo "KIND_VERSION=${{ env.KIND_VERSION }}" >> $GITHUB_OUTPUT
       - name: Set KUBECTL_VERSION
         id: kubectl-version
-        run: echo "KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}" >> GITHUB_OUTPUT
+        run: echo "KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}" >> $GITHUB_OUTPUT
       - name: Set HELM_VERSION
         id: helm-version
-        run: echo "HELM_VERSION=${{ env.HELM_VERSION }}" >> GITHUB_OUTPUT
+        run: echo "HELM_VERSION=${{ env.HELM_VERSION }}" >> $GITHUB_OUTPUT
       - name: Set HELM_DIFF_VERSION
         id: helm-diff-version
-        run: echo "HELM_DIFF_VERSION=${{ env.HELM_DIFF_VERSION }}" >> GITHUB_OUTPUT
+        run: echo "HELM_DIFF_VERSION=${{ env.HELM_DIFF_VERSION }}" >> $GITHUB_OUTPUT
       - name: Set HELMFILE_VERSION
         id: helmfile-version
-        run: echo "HELMFILE_VERSION=${{ env.HELMFILE_VERSION }}" >> GITHUB_OUTPUT
+        run: echo "HELMFILE_VERSION=${{ env.HELMFILE_VERSION }}" >> $GITHUB_OUTPUT
 
   verify-build:
     runs-on: ubuntu-latest

@@ -43,7 +43,8 @@ function getModule(module: any) {
 
 const {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E,
-    K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH
+    K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH,
+    KIND_DOCKER_IMAGE
 } = config;
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -341,7 +342,7 @@ async function runE2ETest(
             kind = new Kind(K8S_VERSION, options.kindClusterName);
             try {
                 if (isCI) {
-                    await loadThenDeleteImageFromCache('kindest/node:v1.30.0', options.skipImageDeletion);
+                    await loadThenDeleteImageFromCache(`${KIND_DOCKER_IMAGE}:${K8S_VERSION}`, options.skipImageDeletion);
                 }
                 await kind.createCluster();
             } catch (err) {
