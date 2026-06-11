@@ -342,7 +342,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const config = validateOpConfig(schema, op, context);
+            const { config } = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -361,7 +361,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const config = validateOpConfig(schema, op, context);
+            const { config } = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -407,7 +407,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const config = validateOpConfig(schema, op, context);
+            const { config } = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -480,7 +480,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi'
             };
 
-            const config = validateAPIConfig(schema, api, context);
+            const { config } = validateAPIConfig(schema, api, context);
             expect(config).toEqual({
                 _name: 'some-api',
                 example: 'example',

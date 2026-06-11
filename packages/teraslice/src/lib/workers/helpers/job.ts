@@ -11,7 +11,8 @@ export async function validateJob(context: Context, jobSpec: JobConfigParams) {
     const jobValidator = new JobValidator(context);
 
     try {
-        return await jobValidator.validateConfig(jobSpec);
+        const { jobConfig } = await jobValidator.validateConfig(jobSpec);
+        return jobConfig;
     } catch (error) {
         throw new Error(`validating job: ${error}`);
     }
