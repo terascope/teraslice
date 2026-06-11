@@ -32,7 +32,7 @@ jobs:
       NODE_VERSIONS: ${{ steps.node-version.outputs.NODE_VERSIONS }}
       NODE_VERSION_MAIN: ${{ steps.node-version-main.outputs.NODE_VERSION_MAIN }}
       NODE_VERSIONS_K8S: ${{ steps.node-version-k8s.outputs.NODE_VERSIONS_K8S }}
-      NODE_VERSIONS_EXT_STORAGE: ${{ steps.node-version-ext-storeage.outputs.NODE_VERSIONS_EXT_STORAGE }}
+      NODE_VERSIONS_EXT_STORAGE: ${{ steps.node-version-ext-storage.outputs.NODE_VERSIONS_EXT_STORAGE }}
       NATIVE_E2E_MATRIX: ${{ steps.native-e2e-matrix.outputs.NATIVE_E2E_MATRIX }}
       COMMIT_SHORT_SHA: ${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}
       KIND_VERSION: ${{ steps.kind-version.outputs.KIND_VERSION }}
@@ -51,7 +51,7 @@ jobs:
         run: echo "NODE_VERSION_MAIN=${{ env.NODE_VERSION_MAIN }}" >> $GITHUB_OUTPUT
       - id: node-version-k8s
         run: echo "NODE_VERSIONS_K8S=${{ env.NODE_VERSIONS_K8S }}" >> $GITHUB_OUTPUT
-      - id: node-version-ext-storeage
+      - id: node-version-ext-storage
         run: echo "NODE_VERSIONS_EXT_STORAGE=${{ env.NODE_VERSIONS_EXT_STORAGE }}" >> $GITHUB_OUTPUT
       - name: Compute native e2e test matrix
         id: native-e2e-matrix
@@ -285,7 +285,7 @@ jobs:
         build-dev-docker-images,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_K8S) }}
@@ -368,7 +368,7 @@ jobs:
       - name: Install Helmfile
         uses: helmfile/helmfile-action@daefb3e1fa5a91b7a88d30870d20da4896944818 # v2.4.5
         with:
-          helmfile-args: "print-env"
+          helmfile-args: "version"
           helmfile-version: ${{ needs.compute-vars.outputs.HELMFILE_VERSION }}
           helm-version: ${{ needs.compute-vars.outputs.HELM_VERSION }}
           helm-plugins: >
@@ -425,7 +425,7 @@ jobs:
         build-dev-docker-images,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
@@ -520,7 +520,7 @@ jobs:
       - name: Install Helmfile
         uses: helmfile/helmfile-action@daefb3e1fa5a91b7a88d30870d20da4896944818 # v2.4.5
         with:
-          helmfile-args: "print-env"
+          helmfile-args: "version"
           helmfile-version: ${{ needs.compute-vars.outputs.HELMFILE_VERSION }}
           helm-version: ${{ needs.compute-vars.outputs.HELM_VERSION }}
           helm-plugins: >
@@ -580,7 +580,7 @@ jobs:
         build-dev-docker-images,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
@@ -687,7 +687,7 @@ jobs:
         build-dev-docker-images,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
@@ -803,7 +803,7 @@ jobs:
         determine-tests-based-off-commit,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
@@ -888,7 +888,7 @@ jobs:
         determine-tests-based-off-commit,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
@@ -972,7 +972,7 @@ jobs:
         determine-tests-based-off-commit,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
@@ -1056,7 +1056,7 @@ jobs:
         determine-tests-based-off-commit,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
@@ -1171,7 +1171,7 @@ jobs:
         determine-tests-based-off-commit,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
@@ -1257,7 +1257,7 @@ jobs:
         build-dev-docker-images,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-vars.outputs.NATIVE_E2E_MATRIX) }}
     steps:
