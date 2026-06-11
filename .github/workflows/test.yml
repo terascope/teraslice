@@ -372,7 +372,7 @@ jobs:
           helmfile-version: ${{ needs.compute-vars.outputs.HELMFILE_VERSION }}
           helm-version: ${{ needs.compute-vars.outputs.HELM_VERSION }}
           helm-plugins: >
-            "https://github.com/databus23/helm-diff@${{ needs.compute-vars.outputs.HELM_DIFF_VERSION }}"
+            https://github.com/databus23/helm-diff@${{ needs.compute-vars.outputs.HELM_DIFF_VERSION }}
           
       - name: Test CLI Commands and Print Versions
         run: |
@@ -524,7 +524,7 @@ jobs:
           helmfile-version: ${{ needs.compute-vars.outputs.HELMFILE_VERSION }}
           helm-version: ${{ needs.compute-vars.outputs.HELM_VERSION }}
           helm-plugins: >
-            "https://github.com/databus23/helm-diff@${{ needs.compute-vars.outputs.HELM_DIFF_VERSION }}"
+            https://github.com/databus23/helm-diff@${{ needs.compute-vars.outputs.HELM_DIFF_VERSION }}
           
       - name: Test CLI Commands and Print Versions
         run: |
