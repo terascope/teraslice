@@ -275,8 +275,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    env:
-      KUBECTL_VERSION: ${{ needs.compute-vars.outputs.KUBECTL_VERSION }}
     needs:
       [
         compute-vars,
@@ -423,8 +421,6 @@ jobs:
         determine-tests-based-off-commit,
         build-dev-docker-images,
       ]
-    env:
-      KUBECTL_VERSION: ${{ needs.compute-vars.outputs.KUBECTL_VERSION }}
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
