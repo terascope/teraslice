@@ -1,5 +1,6 @@
 import got from 'got';
 import signale from './signale.js';
+// @ts-expect-error: truncate exists in semver@7.8.2 but is missing from @types/semver@7.7.1
 import { truncate } from 'semver';
 
 const token = process.env['GITHUB_TOKEN'];
