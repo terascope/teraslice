@@ -38,7 +38,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await api.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await api.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
         });
 
@@ -172,7 +172,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await testApi.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await testApi.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
         });
 
@@ -204,7 +204,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await testApi.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await testApi.validateConfig(jobSpec);
 
             expect(validJob).toMatchObject(jobSpec);
         });
@@ -276,7 +276,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await testApi.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await testApi.validateConfig(jobSpec);
 
             await expect(
                 () => api.validateConfig(oldJobSpec)
