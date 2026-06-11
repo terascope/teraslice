@@ -173,8 +173,8 @@ const configSchema: Terafoundation.Schema<any> = {
         env: 'JEST_MAX_WORKERS'
     },
     K8S_VERSION: {
-        default: null,
-        format: 'optional_string',
+        default: 'v1.33.7',
+        format: String,
         env: 'K8S_VERSION'
     },
     MAX_PROJECTS_PER_BATCH: {

@@ -7,13 +7,12 @@ name: k8s-env
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
-  image: kindest/node:v1.28.12@sha256:fa0e48b1e83bb8688a5724aa7eebffbd6337abd7909ad089a2700bf08c30c6ea
   extraPortMappings: []
-
-  # Leaving this commented out instead if removing. `hostPort` is now dynamic but
-  # `containerPort` is still hardcoded and is useful information to list
-  # These values are dynamically set here:
-  # https://github.com/terascope/teraslice/blob/c83e68c196d926c96bffb37f544c2751ffcc78d3/packages/scripts/src/helpers/kind.ts#L52-L80
+  # Leaving this commented out as a reference instead if removing.
+  # `image`, `hostPort` and `containerPort` are dynamically set here:
+  # https://https://github.com/terascope/teraslice/blob/master/packages/scripts/src/helpers/kind.ts
+  #
+  # image: kindest/node:<K8S_VERSION>@sha256:<some_hash>
   #
   # teraslice port mapping needs to be at index 0 in this array
   # - containerPort: 30678 # Map internal teraslice service to host port
