@@ -389,6 +389,10 @@ export interface ApiJobCreateResponse {
     warnings?: JobWarning[];
 }
 
+export interface ApiJobUpdateResponse extends JobConfig {
+    warnings?: JobWarning[];
+}
+
 export interface ApiPausedResponse {
     status: ExecutionStatusEnum.paused;
 }
