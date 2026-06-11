@@ -358,6 +358,7 @@ jobs:
           path: /tmp/teraslice_assets
           key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
+      - run: echo "KUBECTL_VERSION is ${{ needs.compute-vars.outputs.KUBECTL_VERSION }}"
       - name: Install Kind and Kubectl
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
         with:
