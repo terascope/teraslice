@@ -366,9 +366,9 @@ jobs:
           kubectl_version: "${{ needs.compute-vars.outputs.KUBECTL_VERSION }}"
 
       - name: Install Helmfile
-        uses: helmfile/helmfile-action@daefb3e1fa5a91b7a88d30870d20da4896944818
+        uses: helmfile/helmfile-action@daefb3e1fa5a91b7a88d30870d20da4896944818 # v2.4.5
         with:
-          helmfile-args: "version,print-env"
+          helmfile-args: "print-env"
           helmfile-version: ${{ needs.compute-vars.outputs.HELMFILE_VERSION }}
           helm-version: ${{ needs.compute-vars.outputs.HELM_VERSION }}
           helm-plugins: >
@@ -518,9 +518,9 @@ jobs:
           kubectl_version: "${{ needs.compute-vars.outputs.KUBECTL_VERSION }}"
 
       - name: Install Helmfile
-        uses: helmfile/helmfile-action@daefb3e1fa5a91b7a88d30870d20da4896944818
+        uses: helmfile/helmfile-action@daefb3e1fa5a91b7a88d30870d20da4896944818 # v2.4.5
         with:
-          helmfile-args: "version,print-env"
+          helmfile-args: "print-env"
           helmfile-version: ${{ needs.compute-vars.outputs.HELMFILE_VERSION }}
           helm-version: ${{ needs.compute-vars.outputs.HELM_VERSION }}
           helm-plugins: >
