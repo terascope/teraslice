@@ -63,7 +63,7 @@ export async function getKindDockerImage(kindVersion: string, k8sVersion: string
             let imageLine = lines[idx];
             const versionsFound = [];
             // We assume imageLine has this format '- v1.36.1: `kindest/node:v1.36.1@sha256:...`'
-            while (imageLine.startsWith('- v')) {
+            while (imageLine.startsWith('- v') || imageLine.startsWith('* v')) {
                 const lineSections = imageLine.split(' ');
                 const lineVersion = lineSections[1].slice(0, -1);
                 versionsFound.push(lineVersion);

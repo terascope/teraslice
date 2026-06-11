@@ -78,13 +78,15 @@ describe('github helpers', () => {
     });
 
     describe('getKindDockerImage', () => {
-        const kindReleaseBody = [
-            'Some release notes',
-            'Images pre-built for this release:',
-            '- v1.30.0: `kindest/node:v1.30.0@sha256:abc123`',
-            '- v1.29.0: `kindest/node:v1.29.0@sha256:def456`',
-            '',
-        ].join('\r\n');
+        function makeReleaseBody(bullet: '-' | '*') {
+            return [
+                'Some release notes',
+                'Images pre-built for this release:',
+                `${bullet} v1.30.0: \`kindest/node:v1.30.0@sha256:abc123\``,
+                `${bullet} v1.29.0: \`kindest/node:v1.29.0@sha256:def456\``,
+                '',
+            ].join('\r\n');
+        }
 
         function makeGotMock(jsonResponse: unknown) {
             return mockGot.mockReturnValue({
@@ -92,18 +94,34 @@ describe('github helpers', () => {
             });
         }
 
-        it('should return the image for the matching k8s version', async () => {
-            makeGotMock({ body: kindReleaseBody });
+        it.each(['-', '*'] as const)('should return the image for the matching k8s version (bullet: %s)', async (bullet) => {
+            makeGotMock({ body: makeReleaseBody(bullet) });
 
             const result = await getKindDockerImage('v0.24.0', 'v1.30.0');
             expect(result).toBe('kindest/node:v1.30.0@sha256:abc123');
         });
 
-        it('should match k8s version without a leading v', async () => {
-            makeGotMock({ body: kindReleaseBody });
+        it.each(['-', '*'] as const)('should match k8s version without a leading v (bullet: %s)', async (bullet) => {
+            makeGotMock({ body: makeReleaseBody(bullet) });
 
             const result = await getKindDockerImage('v0.24.0', '1.29.0');
             expect(result).toBe('kindest/node:v1.29.0@sha256:def456');
+        });
+
+        it.each(['-', '*'] as const)('should throw when the k8s major/minor version is not in the image list (bullet: %s)', async (bullet) => {
+            makeGotMock({ body: makeReleaseBody(bullet) });
+
+            await expect(getKindDockerImage('v0.24.0', 'v1.99.0')).rejects.toThrow(
+                'Kind v0.24.0 has no pre-built images for kubernetes minor version'
+            );
+        });
+
+        it.each(['-', '*'] as const)('should return the closest patch version when the exact patch is unavailable (bullet: %s)', async (bullet) => {
+            makeGotMock({ body: makeReleaseBody(bullet) });
+
+            // v1.30.1 is not in the list, but v1.30.0 shares the same minor version
+            const result = await getKindDockerImage('v0.24.0', 'v1.30.1');
+            expect(result).toBe('kindest/node:v1.30.0@sha256:abc123');
         });
 
         it('should throw when the API call fails', async () => {
@@ -113,14 +131,6 @@ describe('github helpers', () => {
 
             await expect(getKindDockerImage('v0.24.0', 'v1.30.0')).rejects.toThrow(
                 'Failed to retrieve Kind v0.24.0 release information'
-            );
-        });
-
-        it('should throw when the k8s major/minor version is not in the image list', async () => {
-            makeGotMock({ body: kindReleaseBody });
-
-            await expect(getKindDockerImage('v0.24.0', 'v1.99.0')).rejects.toThrow(
-                'Kind v0.24.0 has no pre-built images for kubernetes minor version'
             );
         });
 
@@ -138,14 +148,6 @@ describe('github helpers', () => {
             await expect(getKindDockerImage('v0.24.0', 'v1.30.0')).rejects.toThrow(
                 'Could not parse github API release body for Kind v0.24.0'
             );
-        });
-
-        it('should return the closest patch version when the exact patch is unavailable', async () => {
-            makeGotMock({ body: kindReleaseBody });
-
-            // v1.30.1 is not in the list, but v1.30.0 shares the same minor version
-            const result = await getKindDockerImage('v0.24.0', 'v1.30.1');
-            expect(result).toBe('kindest/node:v1.30.0@sha256:abc123');
         });
     });
 });
