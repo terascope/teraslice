@@ -203,16 +203,22 @@ export class JobValidator {
 }
 
 /**
- * Type guard to distinguish new-style schema validate() results ({ config, warnings })
+ * The shape returned by new-style schema validate() methods.
+ *
+ * @backwards-compat: v3 schemas return the config directly instead of this shape.
+ * Support for the old shape will be dropped in Teraslice v4.
+ */
+type ValidateResult = { config: any; warnings: Terafoundation.JobWarning[] };
+
+/**
+ * Type guard to distinguish new-style schema validate() results (ValidateResult)
  * from old-style results (plain config object).
  *
  * @backwards-compat: v3 schemas return the config directly. This guard exists to
  * support both shapes during the deprecation window. Will be removed in Teraslice v4
  * when all schemas are required to return { config, warnings }.
  */
-function isValidateResult(
-    result: any
-): result is { config: any; warnings: Terafoundation.JobWarning[] } {
+function isValidateResult(result: any): result is ValidateResult {
     return result != null
         && typeof result === 'object'
         && 'config' in result
