@@ -383,7 +383,7 @@ const configSchema: Terafoundation.Schema<any> = {
         env: 'KIND_DOCKER_IMAGE'
     },
     K8S_VERSION: {
-        default: 'v1.33.7',
+        default: 'v1.34.8',
         format: String,
         env: 'K8S_VERSION'
     },

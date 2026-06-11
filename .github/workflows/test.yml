@@ -16,9 +16,9 @@ env:
   NODE_VERSIONS_EXT_STORAGE: "[24]"
   # When updating, ensure this version has a pre-build node image for the KUBECTL_VERSION/K8S_VERSION
   # https://github.com/kubernetes-sigs/kind/releases
-  KIND_VERSION: "v0.31.0"
+  KIND_VERSION: "v0.32.0"
   # This will be used to set ts-scripts K8S_VERSION env var since we want versions to match
-  KUBECTL_VERSION: "v1.33.7"
+  KUBECTL_VERSION: "v1.34.8"
   HELM_VERSION: "v4.1.1"
   HELM_DIFF_VERSION: "v3.15.2"
   HELMFILE_VERSION: "v1.3.1"
@@ -371,7 +371,8 @@ jobs:
           helmfile-args: "version,print-env"
           helmfile-version: ${{ needs.compute-vars.outputs.HELMFILE_VERSION }}
           helm-version: ${{ needs.compute-vars.outputs.HELM_VERSION }}
-          helm-plugins: "diff@${{ needs.compute-vars.outputs.HELM_DIFF_VERSION }}"
+          helm-plugins: >
+            "https://github.com/databus23/helm-diff@${{ needs.compute-vars.outputs.HELM_DIFF_VERSION }}"
           
       - name: Test CLI Commands and Print Versions
         run: |
@@ -522,7 +523,8 @@ jobs:
           helmfile-args: "version,print-env"
           helmfile-version: ${{ needs.compute-vars.outputs.HELMFILE_VERSION }}
           helm-version: ${{ needs.compute-vars.outputs.HELM_VERSION }}
-          helm-plugins: "diff@${{ needs.compute-vars.outputs.HELM_DIFF_VERSION }}"
+          helm-plugins: >
+            "https://github.com/databus23/helm-diff@${{ needs.compute-vars.outputs.HELM_DIFF_VERSION }}"
           
       - name: Test CLI Commands and Print Versions
         run: |
