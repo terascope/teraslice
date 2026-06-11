@@ -132,21 +132,20 @@ export class JobsService {
         // This allows for old jobs that are missing required resources to be marked inactive
         if (originalJob.active !== false && jobSpec.active === false) {
             this.logger.info(`Skipping job validation to set jobId ${jobId} as _inactive`);
-        } else {
-            this.addExternalPortsToJobSpec(jobSpec);
-            const { warnings } = await this._validateJobSpec(jobSpec);
-            const updated = await this.jobsStorage.update(jobId, Object.assign({}, jobSpec, {
+            return this.jobsStorage.update(jobId, Object.assign({}, jobSpec, {
                 _created: originalJob._created
             }));
-            if (warnings.length) {
-                Object.assign(updated, { warnings });
-            }
-            return updated;
         }
 
-        return this.jobsStorage.update(jobId, Object.assign({}, jobSpec, {
+        this.addExternalPortsToJobSpec(jobSpec);
+        const { warnings } = await this._validateJobSpec(jobSpec);
+        const updated = await this.jobsStorage.update(jobId, Object.assign({}, jobSpec, {
             _created: originalJob._created
         }));
+        if (warnings.length) {
+            Object.assign(updated, { warnings });
+        }
+        return updated;
     }
 
     /**
@@ -258,10 +257,13 @@ export class JobsService {
             });
         }
 
-        // warnings are not surfaced here
-        const { jobConfig: validJob } = await this._validateJobSpec(jobSpec);
+        const { jobConfig: validJob, warnings } = await this._validateJobSpec(jobSpec);
 
-        return this._recoverValidJob(validJob as JobConfig, cleanupType);
+        const result = await this._recoverValidJob(validJob as JobConfig, cleanupType);
+        if (warnings.length) {
+            Object.assign(result, { warnings });
+        }
+        return result;
     }
 
     async pauseJob(jobId: string) {

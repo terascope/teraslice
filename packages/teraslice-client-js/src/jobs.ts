@@ -25,8 +25,8 @@ export default class Jobs extends Client {
         return this.wrap(job.job_id);
     }
 
-    // TODO: v3 v4 this exists to avoid a breaking change to submit() which returns just the Job.
-    // This is only used by teraslice-cli. In a future major version, submit() should
+    // TODO: Teraslice v4 this exists to avoid a breaking change to submit() which returns just
+    // the Job. This is only used by teraslice-cli. In Teraslice v4, submit() should
     // be updated to return warnings and this method removed.
     async submitWithWarnings(
         jobSpec: Teraslice.JobConfigParams,
