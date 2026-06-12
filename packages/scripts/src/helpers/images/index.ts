@@ -1,13 +1,14 @@
 import fse from 'fs-extra';
 import config from '../config.js';
-import { ImagesAction } from './interfaces.js';
+import { ImagesAction, ImagesOptions } from './interfaces.js';
 import signale from '../signale.js';
 import { dockerPull, saveAndZip } from '../scripts.js';
 import { getRootInfo } from '../misc.js';
+import { getKindDockerImage } from '../github.js';
 
-export async function images(action: ImagesAction): Promise<void> {
+export async function images(action: ImagesAction, options: ImagesOptions): Promise<void> {
     if (action === ImagesAction.List) {
-        return createImageList();
+        return createImageList(options);
     }
 
     if (action === ImagesAction.Save) {
@@ -19,7 +20,7 @@ export async function images(action: ImagesAction): Promise<void> {
  * Builds a list of all docker images needed for the teraslice CI pipeline
  * @returns Promise<void>
  */
-export async function createImageList(): Promise<void> {
+export async function createImageList(options: ImagesOptions): Promise<void> {
     signale.info(`Creating Docker image list at ${config.DOCKER_IMAGE_LIST_PATH}`);
     const repo = getRootInfo().name;
     let list;
@@ -44,7 +45,7 @@ export async function createImageList(): Promise<void> {
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH3_VERSION}\n`
             + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}\n`
             + `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
-            + `${config.KIND_DOCKER_IMAGE}:${config.K8S_VERSION}`;
+            + await getKindDockerImage(options.kindVersion, options.k8sVersion);
     } else {
         throw new Error(`This command does not support repository ${repo}`);
     }

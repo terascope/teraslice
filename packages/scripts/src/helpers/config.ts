@@ -382,6 +382,12 @@ const configSchema: Terafoundation.Schema<any> = {
         format: String,
         env: 'KIND_DOCKER_IMAGE'
     },
+    KIND_VERSION: {
+        doc: 'Default version of kind we expect to run on. This is NOT the version in the kindest/node docker image tag. That is the K8S_VERSION.',
+        default: 'v0.32.0',
+        format: String,
+        env: 'KIND_VERSION'
+    },
     K8S_VERSION: {
         default: 'v1.34.8',
         format: String,

@@ -6,6 +6,9 @@ sidebar_label: Kubernetes Clustering
 Teraslice supports the use of Kubernetes as a cluster manager. The following
 versions of Kubernetes have been used:
 
+* `1.34.*`
+* `1.33.*`
+* `1.28.*`
 * `1.22.*`
 * `1.20.*`
 * `1.19.*`
