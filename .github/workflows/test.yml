@@ -14,11 +14,6 @@ env:
   NODE_VERSIONS_OTHER: "[22]"
   NODE_VERSIONS_K8S: "[22, 24]"
   NODE_VERSIONS_EXT_STORAGE: "[24]"
-  # When updating, ensure this version has a pre-build node image for the KUBECTL_VERSION/K8S_VERSION
-  # https://github.com/kubernetes-sigs/kind/releases
-  KIND_VERSION: "v0.30.0"
-  # This will be used to set ts-scripts K8S_VERSION env var since we want versions to match
-  KUBECTL_VERSION: "v1.30.0"
   HELM_VERSION: "v4.1.1"
   HELM_DIFF_VERSION: "v3.15.2"
   HELMFILE_VERSION: "v1.3.1"
@@ -35,8 +30,6 @@ jobs:
       NODE_VERSIONS_EXT_STORAGE: ${{ steps.node-version-ext-storage.outputs.NODE_VERSIONS_EXT_STORAGE }}
       NATIVE_E2E_MATRIX: ${{ steps.native-e2e-matrix.outputs.NATIVE_E2E_MATRIX }}
       COMMIT_SHORT_SHA: ${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}
-      KIND_VERSION: ${{ steps.kind-version.outputs.KIND_VERSION }}
-      KUBECTL_VERSION: ${{ steps.kubectl-version.outputs.KUBECTL_VERSION }}
       HELM_VERSION: ${{ steps.helm-version.outputs.HELM_VERSION }}
       HELM_DIFF_VERSION: ${{ steps.helm-diff-version.outputs.HELM_DIFF_VERSION }}
       HELMFILE_VERSION: ${{ steps.helmfile-version.outputs.HELMFILE_VERSION }}
@@ -71,12 +64,6 @@ jobs:
         run: |
           calculatedSha=$(git rev-parse --short "$HEAD_SHA")
           echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_OUTPUT
-      - name: Set KIND_VERSION
-        id: kind-version
-        run: echo "KIND_VERSION=${{ env.KIND_VERSION }}" >> $GITHUB_OUTPUT
-      - name: Set KUBECTL_VERSION
-        id: kubectl-version
-        run: echo "KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}" >> $GITHUB_OUTPUT
       - name: Set HELM_VERSION
         id: helm-version
         run: echo "HELM_VERSION=${{ env.HELM_VERSION }}" >> $GITHUB_OUTPUT
@@ -92,6 +79,9 @@ jobs:
     needs: compute-vars
     permissions:
       contents: read
+    outputs:
+      K8S_VERSION: ${{ steps.k8s-versions.outputs.K8S_VERSION }}
+      KIND_VERSION: ${{ steps.k8s-versions.outputs.KIND_VERSION }}
     steps:
       - name: Check out code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -109,6 +99,14 @@ jobs:
 
       - name: Install and build packages
         run: pnpm install --frozen-lockfile && pnpm run setup
+
+      - name: Get K8S and Kind versions
+        id: k8s-versions
+        run: |
+          output=$(pnpm k8s:listVersions 2>&1)
+          echo "$output"
+          echo "K8S_VERSION=$(echo "$output" | grep 'k8sVersion:' | awk '{print $NF}')" >> $GITHUB_OUTPUT
+          echo "KIND_VERSION=$(echo "$output" | grep 'kindVersion:' | awk '{print $NF}')" >> $GITHUB_OUTPUT
 
   check-docker-limit-before:
     uses: terascope/workflows/.github/workflows/check-docker-limit.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
@@ -362,8 +360,8 @@ jobs:
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
         with:
           install_only: "true"
-          version: "${{ needs.compute-vars.outputs.KIND_VERSION }}"
-          kubectl_version: "${{ needs.compute-vars.outputs.KUBECTL_VERSION }}"
+          version: ${{ needs.verify-build.outputs.KIND_VERSION }}
+          kubectl_version: ${{ needs.verify-build.outputs.K8S_VERSION }}
 
       - name: Install Helmfile
         uses: helmfile/helmfile-action@daefb3e1fa5a91b7a88d30870d20da4896944818 # v2.4.5
@@ -397,7 +395,7 @@ jobs:
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' K8S_VERSION=$KUBECTL_VERSION pnpm run test:k8sV2 --debug
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:k8sV2 --debug
         working-directory: ./e2e
 
       - name: Upload logs artifact
@@ -513,8 +511,8 @@ jobs:
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
         with:
           install_only: "true"
-          version: "${{ needs.compute-vars.outputs.KIND_VERSION }}"
-          kubectl_version: "${{ needs.compute-vars.outputs.KUBECTL_VERSION }}"
+          version: ${{ needs.verify-build.outputs.KIND_VERSION }}
+          kubectl_version: ${{ needs.verify-build.outputs.K8S_VERSION }}
 
       - name: Install Helmfile
         uses: helmfile/helmfile-action@daefb3e1fa5a91b7a88d30870d20da4896944818 # v2.4.5
@@ -551,7 +549,7 @@ jobs:
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' K8S_VERSION=$KUBECTL_VERSION pnpm run test:k8sV2Encrypted --debug
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:k8sV2Encrypted --debug
         working-directory: ./e2e
 
       - name: Upload logs artifact

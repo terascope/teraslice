@@ -38,10 +38,10 @@ Kubernetes.  These tools are available via `pnpm run` or by using the
 
 `ts-scripts` will make its best effort to choose the appropriate kind docker image. In a local environment it will use the version of kind it detects on the system and the ts-scripts config `K8S_VERSION` variable to choose one of the pre-built images listed in the kind release notes. If there is not a pre-built image with the same k8s major.minor version an error will be thrown (patch versions do not have to match). In this case there are two options:
 
-- install the `KIND_VERSION` listed in ts-scripts config.
-- override the `K8S_VERSION` to one supported by the kind version installed. See [kind releases](https://github.com/kubernetes-sigs/kind/releases).
+- install a different version of kind. The `KIND_VERSION` listed in ts-scripts config should always be compatible with the `K8S_VERSION`.
+- override the `K8S_VERSION` to one supported by the kind version you have installed. See [kind releases](https://github.com/kubernetes-sigs/kind/releases).
 
-In CI testing the `KIND_VERSION` and `KUBECTL_VERSION` are hardcoded at the beginning of the test.yml workflow. These variables will determine which kind and kubectl versions are installed, as well as which docker image is cached and used. `K8S_VERSION` will be set to equal the `KUBECTL_VERSION` within the test runner.
+In CI testing the `KIND_VERSION` and `K8S_VERSION` vars are set using the `ts-scripts k8s-env --list-versions` command, which prints what is in ts-scripts config. This is our single source of truth. These variables will determine which kind and kubectl versions are installed, as well as which kind docker image is cached and used. The kubectl version will be set to equal the `K8S_VERSION` when setting up kind within the test runner. If one of these versions is overwritten by an env var in a test command then the docker cache will not have the correct image.
 
 ## Kubernetes End-to-End Tests
 

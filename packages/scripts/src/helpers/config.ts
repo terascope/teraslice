@@ -376,19 +376,23 @@ const configSchema: Terafoundation.Schema<any> = {
         env: 'KAFKA_VERSION'
     },
 
-    // Kind/K8S config
+    // Kind and K8S config
     KIND_DOCKER_IMAGE: {
         default: 'kindest/node',
         format: String,
         env: 'KIND_DOCKER_IMAGE'
     },
     KIND_VERSION: {
-        doc: 'Default version of kind we expect to run on. This is NOT the version in the kindest/node docker image tag. That is the K8S_VERSION.',
+        doc: 'Version of kind we run on in CI. This is NOT the version in the '
+            + 'kindest/node docker image tag. That is the K8S_VERSION. When updating, ensure this '
+            + 'version has a pre-build node image for the K8S_VERSION.',
         default: 'v0.32.0',
         format: String,
         env: 'KIND_VERSION'
     },
     K8S_VERSION: {
+        doc: 'Default version of kubernetes. This is used as the kind docker image version as well '
+            + 'as the kubectl version in CI',
         default: 'v1.34.8',
         format: String,
         env: 'K8S_VERSION'
