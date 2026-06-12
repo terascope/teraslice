@@ -34,6 +34,7 @@ import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
 import config from '../config.js';
+import { getKindDockerImage } from '../github.js';
 
 const require = createRequire(import.meta.url);
 function getModule(module: any) {
@@ -44,7 +45,7 @@ function getModule(module: any) {
 const {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E,
     K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH,
-    KIND_DOCKER_IMAGE
+    KIND_VERSION
 } = config;
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -342,7 +343,8 @@ async function runE2ETest(
             kind = new Kind(K8S_VERSION, options.kindClusterName);
             try {
                 if (isCI) {
-                    await loadThenDeleteImageFromCache(`${KIND_DOCKER_IMAGE}:${K8S_VERSION}`, options.skipImageDeletion);
+                    const kindImageTag = await getKindDockerImage(KIND_VERSION, K8S_VERSION);
+                    await loadThenDeleteImageFromCache(kindImageTag, options.skipImageDeletion);
                 }
                 await kind.createCluster();
             } catch (err) {
