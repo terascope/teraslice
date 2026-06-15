@@ -14,6 +14,9 @@ env:
   NODE_VERSIONS_OTHER: "[22]"
   NODE_VERSIONS_K8S: "[22, 24]"
   NODE_VERSIONS_EXT_STORAGE: "[24]"
+  HELM_VERSION: "v4.1.1"
+  HELM_DIFF_VERSION: "v3.15.2"
+  HELMFILE_VERSION: "v1.3.1"
 
 jobs:
   compute-vars:
@@ -21,24 +24,27 @@ jobs:
     permissions:
       contents: read
     outputs:
-      NODE_VERSIONS: ${{ steps.step1.outputs.NODE_VERSIONS }}
-      NODE_VERSION_MAIN: ${{ steps.step2.outputs.NODE_VERSION_MAIN }}
-      NODE_VERSIONS_K8S: ${{ steps.step3.outputs.NODE_VERSIONS_K8S }}
-      NODE_VERSIONS_EXT_STORAGE: ${{ steps.step4.outputs.NODE_VERSIONS_EXT_STORAGE }}
+      NODE_VERSIONS: ${{ steps.node-version.outputs.NODE_VERSIONS }}
+      NODE_VERSION_MAIN: ${{ steps.node-version-main.outputs.NODE_VERSION_MAIN }}
+      NODE_VERSIONS_K8S: ${{ steps.node-version-k8s.outputs.NODE_VERSIONS_K8S }}
+      NODE_VERSIONS_EXT_STORAGE: ${{ steps.node-version-ext-storage.outputs.NODE_VERSIONS_EXT_STORAGE }}
       NATIVE_E2E_MATRIX: ${{ steps.native-e2e-matrix.outputs.NATIVE_E2E_MATRIX }}
       COMMIT_SHORT_SHA: ${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}
+      HELM_VERSION: ${{ steps.helm-version.outputs.HELM_VERSION }}
+      HELM_DIFF_VERSION: ${{ steps.helm-diff-version.outputs.HELM_DIFF_VERSION }}
+      HELMFILE_VERSION: ${{ steps.helmfile-version.outputs.HELMFILE_VERSION }}
     steps:
       - name: Check out code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
-      - id: step1
+      - id: node-version
         run: echo "NODE_VERSIONS=${{ env.NODE_VERSIONS }}" >> $GITHUB_OUTPUT
-      - id: step2
+      - id: node-version-main
         run: echo "NODE_VERSION_MAIN=${{ env.NODE_VERSION_MAIN }}" >> $GITHUB_OUTPUT
-      - id: step3
+      - id: node-version-k8s
         run: echo "NODE_VERSIONS_K8S=${{ env.NODE_VERSIONS_K8S }}" >> $GITHUB_OUTPUT
-      - id: step4
+      - id: node-version-ext-storage
         run: echo "NODE_VERSIONS_EXT_STORAGE=${{ env.NODE_VERSIONS_EXT_STORAGE }}" >> $GITHUB_OUTPUT
       - name: Compute native e2e test matrix
         id: native-e2e-matrix
@@ -58,12 +64,24 @@ jobs:
         run: |
           calculatedSha=$(git rev-parse --short "$HEAD_SHA")
           echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_OUTPUT
+      - name: Set HELM_VERSION
+        id: helm-version
+        run: echo "HELM_VERSION=${{ env.HELM_VERSION }}" >> $GITHUB_OUTPUT
+      - name: Set HELM_DIFF_VERSION
+        id: helm-diff-version
+        run: echo "HELM_DIFF_VERSION=${{ env.HELM_DIFF_VERSION }}" >> $GITHUB_OUTPUT
+      - name: Set HELMFILE_VERSION
+        id: helmfile-version
+        run: echo "HELMFILE_VERSION=${{ env.HELMFILE_VERSION }}" >> $GITHUB_OUTPUT
 
   verify-build:
     runs-on: ubuntu-latest
     needs: compute-vars
     permissions:
       contents: read
+    outputs:
+      K8S_VERSION: ${{ steps.k8s-versions.outputs.K8S_VERSION }}
+      KIND_VERSION: ${{ steps.k8s-versions.outputs.KIND_VERSION }}
     steps:
       - name: Check out code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -81,6 +99,14 @@ jobs:
 
       - name: Install and build packages
         run: pnpm install --frozen-lockfile && pnpm run setup
+
+      - name: Get K8S and Kind versions
+        id: k8s-versions
+        run: |
+          output=$(pnpm k8s:listVersions 2>&1)
+          echo "$output"
+          echo "K8S_VERSION=$(echo "$output" | grep 'k8sVersion:' | awk '{print $NF}')" >> $GITHUB_OUTPUT
+          echo "KIND_VERSION=$(echo "$output" | grep 'kindVersion:' | awk '{print $NF}')" >> $GITHUB_OUTPUT
 
   check-docker-limit-before:
     uses: terascope/workflows/.github/workflows/check-docker-limit.yml@ce327af249470d5d00c81e9e80dc714c860ac5bb
@@ -257,7 +283,7 @@ jobs:
         build-dev-docker-images,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_K8S) }}
@@ -334,24 +360,28 @@ jobs:
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
         with:
           install_only: "true"
+          version: ${{ needs.verify-build.outputs.KIND_VERSION }}
+          kubectl_version: ${{ needs.verify-build.outputs.K8S_VERSION }}
 
       - name: Install Helmfile
-        run: |
-          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
-          tar -xzf helmfile.tgz
-          rm helmfile.tgz
-          chmod +x helmfile
-          mv helmfile /usr/local/bin/helmfile
-          helm plugin install https://github.com/databus23/helm-diff
-          helmfile version
-          helm version
-
-      - name: Test CLI Commands
+        uses: helmfile/helmfile-action@daefb3e1fa5a91b7a88d30870d20da4896944818 # v2.4.5
+        with:
+          helmfile-args: "version"
+          helmfile-version: ${{ needs.compute-vars.outputs.HELMFILE_VERSION }}
+          helm-version: ${{ needs.compute-vars.outputs.HELM_VERSION }}
+          helm-plugins: >
+            https://github.com/databus23/helm-diff@${{ needs.compute-vars.outputs.HELM_DIFF_VERSION }}
+          
+      - name: Test CLI Commands and Print Versions
         run: |
           command -v kind
           command -v kubectl
           command -v helm
           command -v helmfile
+          kind version
+          helm version
+          helmfile version
+          helm plugin list
 
       - name: Free up space before tests
         run: |
@@ -392,7 +422,7 @@ jobs:
         build-dev-docker-images,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
@@ -481,24 +511,28 @@ jobs:
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
         with:
           install_only: "true"
+          version: ${{ needs.verify-build.outputs.KIND_VERSION }}
+          kubectl_version: ${{ needs.verify-build.outputs.K8S_VERSION }}
 
       - name: Install Helmfile
-        run: |
-          curl -L "https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz" -o helmfile.tgz
-          tar -xzf helmfile.tgz
-          rm helmfile.tgz
-          chmod +x helmfile
-          mv helmfile /usr/local/bin/helmfile
-          helm plugin install https://github.com/databus23/helm-diff
-          helmfile version
-          helm version
-
-      - name: Test CLI Commands
+        uses: helmfile/helmfile-action@daefb3e1fa5a91b7a88d30870d20da4896944818 # v2.4.5
+        with:
+          helmfile-args: "version"
+          helmfile-version: ${{ needs.compute-vars.outputs.HELMFILE_VERSION }}
+          helm-version: ${{ needs.compute-vars.outputs.HELM_VERSION }}
+          helm-plugins: >
+            https://github.com/databus23/helm-diff@${{ needs.compute-vars.outputs.HELM_DIFF_VERSION }}
+          
+      - name: Test CLI Commands and Print Versions
         run: |
           command -v kind
           command -v kubectl
           command -v helm
           command -v helmfile
+          kind version
+          helm version
+          helmfile version
+          helm plugin list
 
       - name: Free up space before tests
         run: |
@@ -542,7 +576,7 @@ jobs:
         build-dev-docker-images,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
@@ -649,7 +683,7 @@ jobs:
         build-dev-docker-images,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
@@ -765,7 +799,7 @@ jobs:
         determine-tests-based-off-commit,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
@@ -850,7 +884,7 @@ jobs:
         determine-tests-based-off-commit,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
@@ -934,7 +968,7 @@ jobs:
         determine-tests-based-off-commit,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
@@ -1018,7 +1052,7 @@ jobs:
         determine-tests-based-off-commit,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
@@ -1133,7 +1167,7 @@ jobs:
         determine-tests-based-off-commit,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix:
         node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
@@ -1219,7 +1253,7 @@ jobs:
         build-dev-docker-images,
       ]
     strategy:
-      # opensearch is finiky, keep testing others if it fails
+      # opensearch is finicky, keep testing others if it fails
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-vars.outputs.NATIVE_E2E_MATRIX) }}
     steps:

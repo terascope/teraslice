@@ -1,7 +1,9 @@
 import { CommandModule } from 'yargs';
 import path from 'node:path';
 import config from '../helpers/config.js';
-import { launchK8sEnv, rebuildTeraslice, generateTemplateConfig } from '../helpers/k8s-env/index.js';
+import {
+    launchK8sEnv, rebuildTeraslice, generateTemplateConfig, listVersions
+} from '../helpers/k8s-env/index.js';
 import { K8sEnvOptions } from '../helpers/k8s-env/interfaces.js';
 
 const cmd: CommandModule = {
@@ -81,6 +83,11 @@ const cmd: CommandModule = {
                 type: 'boolean',
                 default: false
             })
+            .option('list-versions', {
+                description: 'Returns a list of kubernetes related versions from the config.',
+                type: 'boolean',
+                default: false
+            })
             .check(() => {
                 if (process.env.ASSET_STORAGE_CONNECTION_TYPE === 's3' && process.env.TEST_MINIO !== 'true') {
                     throw new Error('You chose "s3" as an asset storage but don\'t have the minio service enabled.\n'
@@ -111,7 +118,9 @@ const cmd: CommandModule = {
             }
         }
 
-        if (Boolean(argv.rebuild) === true) {
+        if (Boolean(argv['list-versions']) === true) {
+            return listVersions();
+        } else if (Boolean(argv.rebuild) === true) {
             if (argv['reset-store']) {
                 k8sOptions.resetStore = true;
             }

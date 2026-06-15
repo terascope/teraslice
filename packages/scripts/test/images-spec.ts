@@ -12,7 +12,10 @@ describe('images command', () => {
 
     describe('list docker images', () => {
         it('should create a txt file containing a list of docker images for teraslice testing', async () => {
-            await createImageList();
+            await createImageList({
+                kindVersion: config.KIND_VERSION,
+                k8sVersion: config.K8S_VERSION
+            });
             expect(fs.existsSync(config.DOCKER_IMAGE_LIST_PATH)).toBe(true);
             const fileContents = fs.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
             expect(fileContents).toBeString();

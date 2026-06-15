@@ -338,3 +338,7 @@ export function generateTemplateConfig() {
     fs.writeFileSync(newFilePath, file);
     signale.success(`Generated new templated config file at ${newFilePath}`);
 }
+
+export function listVersions() {
+    signale.info(`\nk8sVersion: ${config.K8S_VERSION}\nkindVersion: ${config.KIND_VERSION}`);
+}
