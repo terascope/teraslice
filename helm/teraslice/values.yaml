@@ -131,6 +131,40 @@ ingress:
   #    hosts:
   #      - teraslice.local
 
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+  - name: gateway
+    sectionName: http
+    # namespace: default
+  hostnames:
+  - teraslice.local
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+  # Example of an advanced match (commented out)
+  # - matches:
+  #     - path:
+  #         type: PathPrefix
+  #         value: /
+  #       headers:
+  #         - name: version
+  #           value: v2
+  #   timeouts:
+  #     request: 600s
+  #   filters:
+  #     - type: RequestHeaderModifier
+  #       requestHeaderModifier:
+  #         set:
+  #           - name: My-Overwrite-Header
+  #             value: this-is-the-only-value
+  #         remove:
+  #           - User-Agent
+
+
 resources: {}
   # limits:
   #   cpu: 100m

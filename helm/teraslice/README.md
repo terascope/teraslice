@@ -67,12 +67,22 @@ View the `values.yaml` for charts configuration settings.
 | `ingress.hosts[0].paths[0].path`  | Ingress path                                     | `/`                       |
 | `ingress.hosts[0].paths[0].pathType` | Path type                                      | `ImplementationSpecific`  |
 | `ingress.tls`                     | TLS configuration for ingress                    | `[]`                      |
-| `resources`                       | Resource limits and requests                     | `{}`                      |
-| `nodeSelector`                    | Node selector configuration                      | `{}`                      |
-| `tolerations`                     | Tolerations for scheduling                       | `[]`                      |
-| `affinity`                        | Affinity rules for scheduling                    | `{}`                      |
-| `persistence.enabled`             | Enable persistent storage                        | `false`                   |
-| `persistence.size`                | Storage size                                     | `20Gi`                    |
+| `httpRoute.enabled`               | Enable HTTPRoute resource creation              | `false`                   |
+| `httpRoute.annotations`           | Annotations to add to the HTTPRoute             | `{}`                      |
+| `httpRoute.parentRefs[0].name`    | Name of the target Gateway                      | `gateway`                 |
+| `httpRoute.parentRefs[0].sectionName` | Gateway listener section name               | `http`                    |
+| `httpRoute.parentRefs[0].namespace` | Namespace of the target Gateway               | `nil`                     |
+| `httpRoute.hostnames[0]`          | Hostname matched by the route                   | `teraslice.local`         |
+| `httpRoute.rules[0].matches[0].path.type` | Path match type                         | `PathPrefix`              |
+| `httpRoute.rules[0].matches[0].path.value` | Path matched by the route              | `/`                       |
+| `httpRoute.rules[0].filters`      | HTTPRoute filters                               | `nil`                     |
+| `httpRoute.rules[0].timeouts`     | HTTPRoute timeouts                              | `nil`                     |
+| `resources`                       | Resource limits and requests                    | `{}`                      |
+| `nodeSelector`                    | Node selector configuration                     | `{}`                      |
+| `tolerations`                     | Tolerations for scheduling                      | `[]`                      |
+| `affinity`                        | Affinity rules for scheduling                   | `{}`                      |
+| `persistence.enabled`             | Enable persistent storage                       | `false`                   |
+| `persistence.size`                | Storage size                                    | `20Gi`                    |
 | `persistence.accessModes`         | Storage access modes                            | `["ReadWriteMany"]`       |
 | `extraVolumes`                    | Additional volumes                              | `[]`                      |
 | `extraVolumeMounts`               | Additional volume mounts                        | `[]`                      |
