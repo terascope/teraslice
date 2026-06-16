@@ -214,7 +214,7 @@ async function ensureTeraslice(): Promise<void> {
         } else {
             throw new Error(`Teraslice endpoint returned an object that didn't have 'teraslice_version' as a key: ${data}`);
         }
-    }, { retries: 7, delay: 1000, backoff: 1.5, maxDelay: 12000 });
+    }, { retries: 10, delay: 1000, backoff: 1.5, maxDelay: 12000 });
 }
 
 export async function rebuildTeraslice(options: K8sEnvOptions) {

@@ -65,10 +65,23 @@ RUN apk --no-cache add tini ca-certificates bash curl
 WORKDIR /app/source
 RUN corepack enable
 
-# Bring over the built app + production deps
+# Create an unprivileged user (uid/gid pinned to 10001 to match `USER 10001`).
+# /app is root-owned, group 'apps', mode 1775: group members can create entries
+# but the sticky bit + root ownership stop them deleting/overwriting root-owned
+# code like /app/source. Volume dirs are chowned to the user for runtime writes.
+RUN addgroup -S -g 10001 apps && adduser -S -u 10001 -G apps teraslice && \
+    mkdir -p /app/config /app/logs /app/assets && \
+    chown -R 10001:apps /app/config /app/logs /app/assets && \
+    chown root:apps /app && chmod 1775 /app
+
+# Bring over the built app + production deps. Left root-owned (the default) so
+# the running teraslice user has read/execute but cannot modify the code.
 COPY --from=builder /app/source /app/source
 
 COPY service.js /app/source/
+
+# Drop privileges for everything that follows
+USER 10001
 
 # Check if it still works
 RUN node -e "import('teraslice')"

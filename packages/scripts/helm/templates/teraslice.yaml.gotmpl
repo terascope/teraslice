@@ -281,9 +281,12 @@ worker:
             state:
                 number_of_replicas: 0
 
+securityContext:
+    {{- .Values.teraslice.securityContext | toYaml | nindent 4 }}
+
 extraVolumes: |
     {{- $customVolumes := .Values.teraslice.extraVolumes | default list }}
-    {{- $autoloadVolume := list (dict 
+    {{- $autoloadVolume := list (dict
           "name" "autoload" 
           "hostPath" (dict 
             "path" "/autoload" 
