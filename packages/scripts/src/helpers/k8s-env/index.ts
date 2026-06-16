@@ -28,7 +28,28 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 
     if (options.configFile) {
         signale.pending('Starting k8s environment with a config file..');
-        // set the repo and tag to whats in th custom config to use later
+
+        // Encryption is not yet supported when launching with a custom config file
+        const encryptionValuePaths = [
+            'opensearch2.ssl.enabled',
+            'opensearch3.ssl.enabled',
+            'kafka.ssl.enabled',
+            'minio.tls.enabled',
+            'valkey.tls.enabled'
+        ];
+        const encryptedServices: string[] = [];
+        for (const valuePath of encryptionValuePaths) {
+            const enabled = await getConfigValueFromCustomYaml(options.configFile, valuePath);
+            if (enabled) {
+                encryptedServices.push(valuePath.split('.')[0]);
+            }
+        }
+        if (encryptedServices.length > 0) {
+            signale.error(`Encryption is not supported when launching with a config file. Disable encryption for the following service(s): ${encryptedServices.join(', ')}`);
+            process.exit(1);
+        }
+
+        // set the repo and tag to what's in the custom config to use later
         repo = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.repository');
         tag = await getConfigValueFromCustomYaml(options.configFile, 'teraslice.image.tag');
         imageName = `${repo}:${tag}`;
