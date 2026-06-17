@@ -216,7 +216,7 @@ function buildNextStepsMessage(kind: Kind, options: K8sEnvOptions): string {
 
 /**
  * Hits the Teraslice API endpoint until it responds with a valid response
- * containing `teraslice_version`. Retries up to 7 times with exponential backoff.
+ * containing `teraslice_version`. Retries up to 10 times with exponential backoff.
  * Throws if the endpoint never becomes healthy.
  */
 async function ensureTeraslice(): Promise<void> {

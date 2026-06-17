@@ -38,6 +38,10 @@ export default async () => {
         fse.ensureDir(CONFIG_PATH),
     ]);
 
+    // The teraslice container runs as non-root (uid 10001) and must create asset
+    // directories in this bind-mounted dir. Make it writable regardless of host owner.
+    await fse.chmod(ASSETS_PATH, 0o777);
+
     // Try to load in the cache before trying to download
     loadAssetCache();
 
