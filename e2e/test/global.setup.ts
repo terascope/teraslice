@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { pDelay } from '@terascope/core-utils';
 import fse from 'fs-extra';
 import { helmfileCommand, setAlias } from '@terascope/scripts';
@@ -11,7 +12,7 @@ import { teardown } from './teardown.js';
 
 const {
     CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM,
-    TERASLICE_PORT, STERN_LOGS
+    TERASLICE_PORT, STERN_LOGS, FILE_LOGGING, LOG_PATH
 } = config;
 
 export default async () => {
@@ -38,9 +39,18 @@ export default async () => {
         fse.ensureDir(CONFIG_PATH),
     ]);
 
-    // The teraslice container runs as non-root (uid 10001) and must create asset
-    // directories in this bind-mounted dir. Make it writable regardless of host owner.
+    // The teraslice container runs as non-root (uid 10001) and writes into these
+    // bind-mounted dirs (assets, and the host-owned log file when file logging is on).
+    // Make them writable regardless of host owner, else it hits EACCES at startup.
     await fse.chmod(ASSETS_PATH, 0o777);
+    if (FILE_LOGGING) {
+        const logDir = path.dirname(LOG_PATH);
+        await fse.ensureDir(logDir);
+        await fse.chmod(logDir, 0o777);
+        if (fse.existsSync(LOG_PATH)) {
+            await fse.chmod(LOG_PATH, 0o666);
+        }
+    }
 
     // Try to load in the cache before trying to download
     loadAssetCache();
