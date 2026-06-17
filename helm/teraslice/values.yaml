@@ -87,7 +87,7 @@ securityContext:
   allowPrivilegeEscalation: false
   capabilities:
     drop:
-    - ALL
+      - ALL
   readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 10001
@@ -136,34 +136,34 @@ httpRoute:
   enabled: false
   annotations: {}
   parentRefs:
-  - name: gateway
-    sectionName: http
-    # namespace: default
+    - name: gateway
+      sectionName: http
+      # namespace: default
   hostnames:
-  - teraslice.local
+    - teraslice.local
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-  # Example of an advanced match (commented out)
-  # - matches:
-  #     - path:
-  #         type: PathPrefix
-  #         value: /
-  #       headers:
-  #         - name: version
-  #           value: v2
-  #   timeouts:
-  #     request: 600s
-  #   filters:
-  #     - type: RequestHeaderModifier
-  #       requestHeaderModifier:
-  #         set:
-  #           - name: My-Overwrite-Header
-  #             value: this-is-the-only-value
-  #         remove:
-  #           - User-Agent
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+    # Example of an advanced match (commented out)
+    # - matches:
+    #     - path:
+    #         type: PathPrefix
+    #         value: /
+    #       headers:
+    #         - name: version
+    #           value: v2
+    #   timeouts:
+    #     request: 600s
+    #   filters:
+    #     - type: RequestHeaderModifier
+    #       requestHeaderModifier:
+    #         set:
+    #           - name: My-Overwrite-Header
+    #             value: this-is-the-only-value
+    #         remove:
+    #           - User-Agent
 
 
 resources: {}
