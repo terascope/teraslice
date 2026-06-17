@@ -3,7 +3,7 @@ import {
     pDelay, uniq, toString,
     cloneDeep, isEmpty, castArray, pRetry
 } from '@terascope/core-utils';
-import { showState } from '@terascope/scripts';
+import { showState, waitForTerasliceRollout } from '@terascope/scripts';
 import { JobConfig, Teraslice, OpenSearch } from '@terascope/types';
 import { createClient, ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import { TerasliceClient } from 'teraslice-client-js';
@@ -548,6 +548,13 @@ export class TerasliceHarness {
     async waitForTeraslice() {
         const startTime = Date.now();
         signale.pending('Waiting for Teraslice...');
+
+        if (TEST_PLATFORM === 'kubernetesV2') {
+            // Block until the master rollout finishes so waitForClusterState
+            // can't get a false-positive readiness response from a master pod
+            // that helmfile sync is about to terminate.
+            await waitForTerasliceRollout();
+        }
 
         const nodes = await this.waitForClusterState();
 
