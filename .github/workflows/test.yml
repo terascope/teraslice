@@ -222,6 +222,7 @@ jobs:
         env:
           REPORT_COVERAGE: true
           MAX_PROJECTS_PER_BATCH: 6
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm run test --suite unit --
 
       - name: Upload Node ${{ matrix.node-version }} unit test coverage
@@ -313,6 +314,8 @@ jobs:
         run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run docker:listImages
           cat ./images/image-list.txt
@@ -452,6 +455,8 @@ jobs:
         run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run docker:listImages
           cat ./images/image-list.txt
@@ -606,6 +611,8 @@ jobs:
         run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run docker:listImages
           cat ./images/image-list.txt
@@ -713,6 +720,8 @@ jobs:
         run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run docker:listImages
           cat ./images/image-list.txt
@@ -830,6 +839,8 @@ jobs:
         run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run docker:listImages
           cat ./images/image-list.txt
@@ -915,6 +926,8 @@ jobs:
         run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run docker:listImages
           cat ./images/image-list.txt
@@ -999,6 +1012,8 @@ jobs:
         run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run docker:listImages
           cat ./images/image-list.txt
@@ -1083,6 +1098,8 @@ jobs:
         run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run docker:listImages
           cat ./images/image-list.txt
@@ -1198,6 +1215,8 @@ jobs:
         run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run docker:listImages
           cat ./images/image-list.txt
@@ -1282,6 +1301,8 @@ jobs:
         run: pnpm install && pnpm run setup
 
       - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run docker:listImages
           cat ./images/image-list.txt
