@@ -163,7 +163,7 @@ export default class Jobs {
                 const response = await job.api.recover();
 
                 for (const warning of response.warnings ?? []) {
-                    reply.warning(`Warning: (${warning.type}) ${warning.description}`);
+                    reply.warning(`Warning: (${warning.category}) ${warning.description}`);
                 }
 
                 this.logUpdate({
@@ -309,7 +309,7 @@ export default class Jobs {
                 if (action === 'start') {
                     const startResult = result as Teraslice.ApiJobCreateResponse;
                     for (const warning of startResult.warnings ?? []) {
-                        reply.warning(`Warning: (${warning.type}) ${warning.description}`);
+                        reply.warning(`Warning: (${warning.category}) ${warning.description}`);
                     }
                 }
             } catch (e) {

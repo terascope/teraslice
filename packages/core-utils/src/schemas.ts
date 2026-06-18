@@ -237,7 +237,8 @@ export class SchemaValidator<T = AnyObject> {
     checkUndeclaredKeys: CheckUndeclaredKeys;
     envMap: Record<string, { envName: string; format: TF.ConvictFormat }> = {};
     argsMap: Record<string, { argName: string; format: TF.ConvictFormat }> = {};
-    deprecationWarnings: TF.JobWarning[] = [];
+    // subcategory and assetId are added by config-validators once the job context is known
+    deprecationWarnings: { field: string; description: string }[] = [];
     logger: Logger;
 
     constructor(
@@ -340,7 +341,7 @@ export class SchemaValidator<T = AnyObject> {
                 // user must have provided this field with a value
                 && config[key] !== undefined
             ) {
-                this.deprecationWarnings.push({ type: 'deprecation', description: field.deprecated });
+                this.deprecationWarnings.push({ field: key, description: field.deprecated });
             }
         }
 
