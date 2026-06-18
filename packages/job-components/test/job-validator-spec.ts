@@ -42,6 +42,27 @@ describe('JobValidator', () => {
             expect(validJob).toMatchObject(jobSpec);
         });
 
+        it('collects deprecation warnings from multiple ops', async () => {
+            const jobSpec: JobConfigParams = {
+                name: 'test',
+                assets: ['fixtures'],
+                operations: [
+                    {
+                        _op: 'example-reader',
+                        old_example: 'triggered',
+                    },
+                    {
+                        _op: 'example-op',
+                        old_example: 'triggered',
+                    },
+                ],
+            };
+
+            const { warnings } = await api.validateConfig(jobSpec);
+            expect(warnings).toBeArrayOfSize(2);
+            expect(warnings.every((w) => w.type === 'deprecation')).toBeTrue();
+        });
+
         it('will throw based off op validation errors', async () => {
         // if subslice_by_key, then it needs type specified or it will error
             const jobSpec: JobConfigParams = {
