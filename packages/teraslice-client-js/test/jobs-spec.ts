@@ -164,6 +164,65 @@ describe('Teraslice Jobs', () => {
         });
     });
 
+    describe('->submitWithWarnings', () => {
+        describe('when submitting without a jobSpec', () => {
+            it('should fail', async () => {
+                expect.hasAssertions();
+                try {
+                    // @ts-expect-error
+                    await jobs.submitWithWarnings();
+                } catch (err) {
+                    expect(err.message).toEqual('Submit requires a jobSpec');
+                }
+            });
+        });
+
+        describe('when the server returns warnings', () => {
+            const jobSpec = { operations: [{ _op: 'operation' }] };
+            const response = {
+                job_id: 'some-job-id',
+                warnings: [{ category: 'deprecation', subcategory: 'assetOperationProperty', name: 'operation', field: 'old_field', description: 'old_field is deprecated' }]
+            };
+
+            beforeEach(() => {
+                scope.post('/jobs', jobSpec)
+                    .query({ start: false })
+                    .reply(202, response);
+            });
+
+            it('should return the job and warnings', async () => {
+                const result = await jobs.submitWithWarnings(jobSpec, true);
+                expect(result.job).toBeInstanceOf(Job);
+                expect(result.job.id()).toEqual(response.job_id);
+                expect(result.warnings).toBeArrayOfSize(1);
+                expect(result.warnings[0]).toMatchObject({
+                    category: 'deprecation',
+                    subcategory: 'assetOperationProperty',
+                    name: 'operation',
+                    field: 'old_field',
+                    description: 'old_field is deprecated'
+                });
+            });
+        });
+
+        describe('when the response includes no warnings field', () => {
+            const jobSpec = { operations: [{ _op: 'operation' }] };
+            const response = { job_id: 'some-job-id' };
+
+            beforeEach(() => {
+                scope.post('/jobs', jobSpec)
+                    .query({ start: false })
+                    .reply(202, response);
+            });
+
+            it('should return the job with an empty warnings array', async () => {
+                const result = await jobs.submitWithWarnings(jobSpec, true);
+                expect(result.job).toBeInstanceOf(Job);
+                expect(result.warnings).toBeArrayOfSize(0);
+            });
+        });
+    });
+
     describe('->list', () => {
         describe('when called with nothing', () => {
             beforeEach(() => {
