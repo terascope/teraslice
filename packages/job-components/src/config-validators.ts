@@ -19,7 +19,14 @@ export function validateOpConfig<T>(
         context);
     try {
         const config = validator.validate(inputConfig);
-        return { config, warnings: validator.deprecationWarnings };
+        const warnings: TF.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
+            category: 'deprecation',
+            subcategory: 'assetOperationProperty',
+            name: inputConfig._op,
+            field: schemaWarning.field,
+            description: schemaWarning.description,
+        }));
+        return { config, warnings };
     } catch (err) {
         throw new Error(`Validation failed for operation config: ${inputConfig._op} - ${err.message}`);
     }
@@ -43,7 +50,14 @@ export function validateAPIConfig<T>(
 
     try {
         const config = validator.validate(inputConfig);
-        return { config, warnings: validator.deprecationWarnings };
+        const warnings: TF.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
+            category: 'deprecation',
+            subcategory: 'assetAPIProperty',
+            name: inputConfig._name,
+            field: schemaWarning.field,
+            description: schemaWarning.description,
+        }));
+        return { config, warnings };
     } catch (err) {
         throw new Error(`Validation failed for api config: ${inputConfig._name} - ${err.message}`);
     }

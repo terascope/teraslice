@@ -26,10 +26,18 @@ export interface SchemaObj<T = any> {
     [key: string]: any;
 }
 
-export interface JobWarning {
-    type: string;
+export interface DeprecationWarning {
+    category: 'deprecation';
+    subcategory: 'assetAPIProperty' | 'assetOperationProperty' | 'jobProperty';
+    /** the op or api name the deprecated field came from */
+    name: string;
+    /** the specific field that is deprecated */
+    field: string;
+    // TODO: add assetId once the op loader exposes the resolved asset id
     description: string;
 }
+
+export type JobWarning = DeprecationWarning;
 
 export type Schema<T> = {
     [P in keyof T]: Schema<T[P]> | SchemaObj<T[P]>;
