@@ -806,21 +806,6 @@ export async function setAlias(tsPort: number) {
     }
 }
 
-/**
- * Wait for the teraslice master rollout to finish. `helmfile sync` returns
- * while a rolling update may still be in flight, so a leftover pod can answer
- * a readiness probe before being terminated, causing later requests to fail
- * with ECONNREFUSED. This blocks until the new replicas are Ready.
- */
-export async function waitForTerasliceRollout(timeoutSeconds = 120) {
-    // namespace and deployment are fixed by packages/scripts/helm/helmfile.yaml.gotmpl
-    const namespace = 'ts-dev1';
-    const deployment = 'deployment/teraslice-teraslice-chart-master';
-    await execaCommand(
-        `kubectl -n ${namespace} rollout status ${deployment} --timeout=${timeoutSeconds}s`
-    );
-}
-
 export async function showState(tsPort: number, isTeardown: boolean = false) {
     try {
         if (isTeardown) {
