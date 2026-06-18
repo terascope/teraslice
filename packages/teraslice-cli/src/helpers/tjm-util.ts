@@ -8,7 +8,7 @@ import {
     cloneDeep,
     isKey
 } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, Terafoundation } from '@terascope/types';
 import Config from './config.js';
 import Jobs from './jobs.js';
 import { getPackage } from './utils.js';
@@ -92,7 +92,7 @@ export async function updateJobConfig(cliConfig: Config) {
                 reply.fatal(`Could not be updated job ${jobId} on ${tsCluster}`);
             }
 
-            const warnings: { type: string; description: string }[] = get(update, 'warnings', []);
+            const warnings: Terafoundation.JobWarning[] = get(update, 'warnings', []);
             for (const warning of warnings) {
                 reply.warning(`Warning: (${warning.type}) ${warning.description}`);
             }

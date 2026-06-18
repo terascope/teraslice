@@ -131,7 +131,7 @@ export class JobValidator {
             });
 
             const apiResult = schema.validate(apiConfig);
-            // @backwards-compat: v3 schemas may return the config directly instead of
+            // TODO: v3 schemas may return the config directly instead of
             // { config, warnings }. Support for the old shape will be dropped in Teraslice v4.
             const validatedApiConfig = isValidateResult(apiResult) ? apiResult.config : apiResult;
             const apiWarnings = isValidateResult(apiResult) ? (apiResult.warnings ?? []) : [];
@@ -219,8 +219,12 @@ type ValidateResult = { config: any; warnings: Terafoundation.JobWarning[] };
  * when all schemas are required to return { config, warnings }.
  */
 function isValidateResult(result: any): result is ValidateResult {
+    // Check for both 'config' and 'warnings' to avoid false positives on legacy op
+    // configs that happen to have a 'config' property.
     return result != null
         && typeof result === 'object'
         && 'config' in result
-        && typeof result.config === 'object';
+        && typeof result.config === 'object'
+        && 'warnings' in result
+        && Array.isArray(result.warnings);
 }
