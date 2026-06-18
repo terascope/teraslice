@@ -9,7 +9,7 @@ WORKDIR /app/source
 RUN apk --no-cache add tini ca-certificates bash curl
 
 # Install nodemon globally so we can use it with the CMD
-ENV PNPM_HOME=/usr/local/bin
+ENV PNPM_HOME=/usr/local
 RUN corepack enable && pnpm add -g nodemon@3.1.4
 
 EXPOSE 5678

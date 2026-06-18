@@ -1190,6 +1190,16 @@ function generateHelmValuesFromServices(
     values.setIn(['teraslice', 'e2e'], e2e);
 
     if (devMode) {
+        // Dev image runs as root and writes/compiles into the bind-mounted source at
+        // runtime, so the chart's hardened securityContext won't work. Override the
+        // blocking fields back to permissive (explicit values, since Helm deep-merges
+        // and an empty {} would leave the hardened defaults in place).
+        values.setIn(['teraslice', 'securityContext'], {
+            runAsUser: 0,
+            runAsNonRoot: false,
+            readOnlyRootFilesystem: false
+        });
+
         const dockerfileMounts = getVolumesFromDockerfile(false, logger);
 
         // Shared node_modules volume: lives on the Kind node

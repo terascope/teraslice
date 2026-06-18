@@ -10,7 +10,7 @@ nodes:
   extraPortMappings: []
   # Leaving this commented out as a reference instead if removing.
   # `image`, `hostPort` and `containerPort` are dynamically set here:
-  # https://https://github.com/terascope/teraslice/blob/master/packages/scripts/src/helpers/kind.ts
+  # https://github.com/terascope/teraslice/blob/master/packages/scripts/src/helpers/kind.ts
   #
   # image: kindest/node:<K8S_VERSION>@sha256:<some_hash>
   #
