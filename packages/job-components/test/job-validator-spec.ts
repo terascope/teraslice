@@ -60,7 +60,7 @@ describe('JobValidator', () => {
 
             const { warnings } = await api.validateConfig(jobSpec);
             expect(warnings).toBeArrayOfSize(2);
-            expect(warnings.every((w) => w.type === 'deprecation')).toBeTrue();
+            expect(warnings.every((w) => w.category === 'deprecation')).toBeTrue();
         });
 
         it('will throw based off op validation errors', async () => {
