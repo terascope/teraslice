@@ -19,8 +19,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      # we login to docker to publish new teraslice image
-      - name: Login to Docker Hub
+      - name: Login to GHCR
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
@@ -49,8 +48,158 @@ jobs:
       - name: Publish to npm
         run: pnpm ts-scripts publish -t latest npm
 
-      - name: Publish to docker
-        run: pnpm ts-scripts publish -t dev docker
+  build-docker-amd64:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check out code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Get build info
+        id: build-info
+        run: |
+          FULL_NODE=$(docker run --rm node:24-alpine node -v | tr -d 'v')
+          TS_VERSION=$(jq -r .version package.json)
+          echo "ts_version=$TS_VERSION" >> $GITHUB_OUTPUT
+          echo "image_tag=ghcr.io/terascope/teraslice:dev-local-nodev${FULL_NODE}" >> $GITHUB_OUTPUT
+          echo "timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" >> $GITHUB_OUTPUT
+
+      - name: Build and push by digest (linux/amd64)
+        id: build
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: .
+          platforms: linux/amd64
+          build-args: |
+            NODE_VERSION=24
+            TERASLICE_VERSION=${{ steps.build-info.outputs.ts_version }}
+            BUILD_TIMESTAMP=${{ steps.build-info.outputs.timestamp }}
+            GITHUB_SHA=${{ github.sha }}
+          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,name-canonical=true,push=true
+          provenance: false
+
+      - name: Export digest and tag
+        run: |
+          mkdir -p /tmp/docker-meta
+          echo "${{ steps.build.outputs.digest }}" > /tmp/docker-meta/digest.txt
+          echo "${{ steps.build-info.outputs.image_tag }}" > /tmp/docker-meta/tag.txt
+
+      - name: Upload docker meta artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: docker-meta-dev-amd64
+          path: /tmp/docker-meta/
+
+  build-docker-arm64:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check out code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Get build info
+        id: build-info
+        run: |
+          FULL_NODE=$(docker run --rm node:24-alpine node -v | tr -d 'v')
+          TS_VERSION=$(jq -r .version package.json)
+          echo "ts_version=$TS_VERSION" >> $GITHUB_OUTPUT
+          echo "timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" >> $GITHUB_OUTPUT
+
+      - name: Build and push by digest (linux/arm64)
+        id: build
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: .
+          platforms: linux/arm64
+          build-args: |
+            NODE_VERSION=24
+            TERASLICE_VERSION=${{ steps.build-info.outputs.ts_version }}
+            BUILD_TIMESTAMP=${{ steps.build-info.outputs.timestamp }}
+            GITHUB_SHA=${{ github.sha }}
+          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,name-canonical=true,push=true
+          provenance: false
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/docker-meta
+          echo "${{ steps.build.outputs.digest }}" > /tmp/docker-meta/digest.txt
+
+      - name: Upload docker meta artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: docker-meta-dev-arm64
+          path: /tmp/docker-meta/
+
+  create-docker-manifests:
+    if: github.event.pull_request.merged == true
+    needs: [build-docker-amd64, build-docker-arm64]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Download amd64 meta
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: docker-meta-dev-amd64
+          path: /tmp/amd64-meta
+
+      - name: Download arm64 meta
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: docker-meta-dev-arm64
+          path: /tmp/arm64-meta
+
+      - name: Create and push multi-arch manifest
+        run: |
+          TAG=$(cat /tmp/amd64-meta/tag.txt)
+          AMD64_DIGEST=$(cat /tmp/amd64-meta/digest.txt)
+          ARM64_DIGEST=$(cat /tmp/arm64-meta/digest.txt)
+          echo "Creating manifest for ${TAG}"
+          docker buildx imagetools create \
+            -t "${TAG}" \
+            "ghcr.io/terascope/teraslice@${AMD64_DIGEST}" \
+            "ghcr.io/terascope/teraslice@${ARM64_DIGEST}"
 
   create-release-on-teraslice-bump:
     if: github.event.pull_request.merged == true
