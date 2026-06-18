@@ -81,7 +81,16 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podSecurityContext: {} # fsGroup: 2000
+podSecurityContext:
+  # fsGroup is required so the non-root runtime user (uid 10001) can write to the
+  # mounted assets PVC. Without it the volume mounts root-owned and, combined with
+  # securityContext.readOnlyRootFilesystem, asset writes fail at runtime.
+  fsGroup: 10001
+  # fsGroupChangePolicy avoids a slow recursive chown on large volumes by only
+  # fixing ownership when the volume's top-level dir doesn't already match the fsGroup.
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
 
 securityContext:
   allowPrivilegeEscalation: false

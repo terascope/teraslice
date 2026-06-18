@@ -947,6 +947,40 @@ describe('k8sResource', () => {
         });
     });
 
+    describe('securityContext', () => {
+        const podSecurityContext = {
+            runAsNonRoot: true,
+            runAsUser: 10001,
+            runAsGroup: 10001,
+            fsGroup: 10001,
+            fsGroupChangePolicy: 'OnRootMismatch',
+            seccompProfile: {
+                type: 'RuntimeDefault'
+            }
+        };
+        const securityContext = {
+            allowPrivilegeEscalation: false,
+            capabilities: {
+                drop: ['ALL']
+            },
+            runAsNonRoot: true,
+            runAsUser: 10001
+        };
+
+        it('applies configured pod and container securityContext to worker and execution controller pods', () => {
+            const krWorker = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
+            expect(krWorker.resource.spec.template.spec.securityContext)
+                .toEqual(podSecurityContext);
+            expect(krWorker.resource.spec.template.spec.containers[0].securityContext)
+                .toEqual(securityContext);
+
+            const krExc = new K8sJobResource(terasliceConfig, execution, logger);
+            expect(krExc.resource.spec.template.spec.securityContext).toEqual(podSecurityContext);
+            expect(krExc.resource.spec.template.spec.containers[0].securityContext)
+                .toEqual(securityContext);
+        });
+    });
+
     describe('execution_controller service', () => {
         it('has valid resource object.', () => {
             const kr = new K8sServiceResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
