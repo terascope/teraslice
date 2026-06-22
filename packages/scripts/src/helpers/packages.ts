@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import fse from 'fs-extra';
 import semver from 'semver';
-import yaml from 'js-yaml';
+import { load } from 'js-yaml';
 import { isDynamicPattern, globbySync } from 'globby';
 import {
     uniq, fastCloneDeep, get, trim
@@ -68,7 +68,7 @@ export function listPackages(
     const pnpmWorkspacePath = path.join(getRootDir(), 'pnpm-workspace.yaml');
     let workspaces;
     if (fs.existsSync(pnpmWorkspacePath)) {
-        const values = yaml.load(fs.readFileSync(pnpmWorkspacePath, 'utf8')) as any;
+        const values = load(fs.readFileSync(pnpmWorkspacePath, 'utf8')) as any;
         const workspaceArray = values.packages;
 
         if (!Array.isArray(workspaceArray)) {

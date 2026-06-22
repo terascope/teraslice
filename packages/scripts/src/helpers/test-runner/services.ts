@@ -6,7 +6,7 @@ import got, { Response } from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'node:path';
-import yaml from 'js-yaml';
+import { dump, load } from 'js-yaml';
 import { Kafka } from 'kafkajs';
 import { execa } from 'execa';
 import {
@@ -560,7 +560,7 @@ function writeTerasliceConfig(launchServices: Service[]): string {
 
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ts-teraslice-'));
     const configPath = path.join(tmpDir, 'teraslice.yaml');
-    const yamlContent = yaml.dump(cfg);
+    const yamlContent = dump(cfg);
     fs.outputFileSync(configPath, yamlContent);
     signale.debug(`teraslice.yaml:\n${yamlContent}`);
     return configPath;
@@ -1105,7 +1105,7 @@ export async function loadImagesForHelmFromConfigFile(
     configFilePath: string
 ) {
     const kind = new Kind(config.K8S_VERSION, kindClusterName);
-    const customConfig = yaml.load(fs.readFileSync(configFilePath, 'utf8')) as any;
+    const customConfig = load(fs.readFileSync(configFilePath, 'utf8')) as any;
     const promiseArray: Promise<void>[] = [];
 
     for (const service in customConfig) {

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execaCommand } from 'execa';
-import yaml from 'js-yaml';
+import { load, dump } from 'js-yaml';
 import { Logger, debugLogger, isCI } from '@terascope/core-utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale.js';
@@ -58,7 +58,7 @@ export class Kind {
             process.exit(1);
         }
 
-        const configFile = yaml.load(fs.readFileSync(configPath, 'utf8')) as KindCluster;
+        const configFile = load(fs.readFileSync(configPath, 'utf8')) as KindCluster;
 
         configFile.nodes[0].extraPortMappings.push({
             containerPort: 30678,
@@ -116,7 +116,7 @@ export class Kind {
                 }
             }
         } else {
-            const customConfig = yaml.load(fs.readFileSync(customConfigPath, 'utf8')) as any;
+            const customConfig = load(fs.readFileSync(customConfigPath, 'utf8')) as any;
 
             const defaultPorts: CustomKindDefaultPorts = {
                 opensearch1: {
@@ -232,7 +232,7 @@ export class Kind {
                 containerPath: '/certs'
             });
         }
-        const updatedYaml = yaml.dump(configFile);
+        const updatedYaml = dump(configFile);
         signale.debug(`Final kind config yaml: ${updatedYaml}`);
 
         const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
