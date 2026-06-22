@@ -36,7 +36,7 @@
         "ajv": "~8.20.0",
         "ajv-formats": "~3.0.1",
         "setimmediate": "~1.0.5",
-        "uuid": "~14.0.0",
+        "uuid": "~14.0.1",
         "xlucene-translator": "workspace:~"
     },
     "devDependencies": {

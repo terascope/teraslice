@@ -30,7 +30,7 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-mate --"
     },
     "dependencies": {
-        "@faker-js/faker": "^10.4.0",
+        "@faker-js/faker": "^10.5.0",
         "@terascope/core-utils": "workspace:~",
         "@terascope/data-types": "workspace:~",
         "@terascope/geo-utils": "workspace:~",
@@ -42,11 +42,11 @@
         "big-json": "~3.2.0",
         "chance": "~1.1.13",
         "date-fns": "~4.4.0",
-        "ip-bigint": "~9.0.5",
+        "ip-bigint": "~9.0.6",
         "jexl": "~2.3.0",
         "mnemonist": "~0.40.4",
         "randexp": "^0.5.3",
-        "uuid": "~14.0.0",
+        "uuid": "~14.0.1",
         "valid-url": "~1.0.9",
         "validator": "~13.15.35",
         "xlucene-parser": "workspace:~"

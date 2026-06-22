@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import yaml from 'js-yaml';
+import { load } from 'js-yaml';
 import { ParsedArgs } from './interfaces.js';
 
 export function getDefaultConfigFile(): string | undefined {
@@ -73,7 +73,7 @@ export async function parseConfigFile<D = Record<string, any>>(file: string): Pr
 
     if (['.yaml', '.yml'].includes(path.extname(configFile))) {
         const config = fs.readFileSync(configFile, 'utf8');
-        return yaml.load(config) as D;
+        return load(config) as D;
     }
 
     const json = fs.readFileSync(configFile, 'utf8');

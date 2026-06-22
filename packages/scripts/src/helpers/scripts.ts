@@ -5,7 +5,7 @@ import path from 'node:path';
 import { X509Certificate } from 'node:crypto';
 import { execa, execaCommand, type Options } from 'execa';
 import fse from 'fs-extra';
-import yaml from 'js-yaml';
+import { load } from 'js-yaml';
 import got from 'got';
 import { parseDocument } from 'yaml';
 import {
@@ -1249,7 +1249,7 @@ function generateHelmValuesFromServices(
  */
 export async function getCurrentHelmChartVersion(): Promise<string> {
     const chartYamlPath = path.join(getRootDir(), '/helm/teraslice/Chart.yaml');
-    const chartYAML = await yaml.load(fs.readFileSync(chartYamlPath, 'utf8')) as any;
+    const chartYAML = await load(fs.readFileSync(chartYamlPath, 'utf8')) as any;
     return chartYAML.version as string;
 }
 
@@ -1673,7 +1673,7 @@ export async function getConfigValueFromCustomYaml(
     configFilePath: string,
     valuePath: string
 ): Promise<any> {
-    const customConfig = yaml.load(fs.readFileSync(configFilePath, 'utf8')) as any;
+    const customConfig = load(fs.readFileSync(configFilePath, 'utf8')) as any;
 
     const value = get(customConfig, valuePath, undefined);
     return value;

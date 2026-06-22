@@ -39,7 +39,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "esbuild": "~0.28.0"
+        "esbuild": "~0.28.1"
     },
     "devDependencies": {
         "@jest/globals": "^30.4.1",
@@ -64,7 +64,7 @@
         "globby": "~16.2.0",
         "jest-extended": "~7.0.0",
         "jest-fixtures": "~0.6.0",
-        "js-yaml": "~4.2.0",
+        "js-yaml": "~5.0.0",
         "nock": "~14.0.15",
         "pretty-bytes": "~7.1.0",
         "prompts": "~2.4.2",
@@ -72,7 +72,7 @@
         "teraslice-client-js": "workspace:~",
         "tmp": "~0.2.7",
         "tty-table": "~5.0.0",
-        "uuid": "~14.0.0",
+        "uuid": "~14.0.1",
         "yargs": "~18.0.0"
     },
     "engines": {
