@@ -140,6 +140,21 @@ describe('k8sResource', () => {
                     mountPath: /assets`));
         });
 
+        it('mounts an emptyDir at assets_directory when no assets_volume is set.', () => {
+            terasliceConfig.assets_directory = '/app/assets';
+            terasliceConfig.assets_volume = '';
+
+            const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
+
+            expect(kr.resource.spec.template.spec.volumes[1]).toEqual(yaml.load(`
+                    name: assets
+                    emptyDir: {}`));
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts[1])
+                .toEqual(yaml.load(`
+                    name: assets
+                    mountPath: /app/assets`));
+        });
+
         it('has valid resource object with volumes when execution has a single job volume', () => {
             execution.volumes = [
                 { name: 'teraslice-data1', path: '/data' }
@@ -963,6 +978,7 @@ describe('k8sResource', () => {
             capabilities: {
                 drop: ['ALL']
             },
+            readOnlyRootFilesystem: true,
             runAsNonRoot: true,
             runAsUser: 10001
         };
