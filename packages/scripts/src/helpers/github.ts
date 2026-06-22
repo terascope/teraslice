@@ -12,6 +12,7 @@ const token = process.env['GITHUB_TOKEN'];
 export async function getLatestTerasliceImageTag(): Promise<string> {
     const nodeMajor = process.version.slice(1).split('.')[0];
     signale.pending(`Fetching latest Teraslice image tag for Node ${nodeMajor} from GHCR...`);
+    signale.info(token ? 'Authenticated with github API' : 'Not authenticated with github API');
 
     const releasesResponse = await got('https://api.github.com/repos/terascope/teraslice/releases?per_page=1', {
         // Use a github token if available
@@ -42,6 +43,7 @@ export async function getKindDockerImage(kindVersion: string, k8sVersion: string
     const k8sVersionFormatted = k8sVersion.startsWith('v') ? k8sVersion : `v${k8sVersion}`;
 
     signale.pending(`Fetching kindest_node image tag for Kind ${kindVersion} with Kubernetes ${k8sVersionFormatted}...`);
+    signale.info(token ? 'Authenticated with github API' : 'Not authenticated with github API');
     const msgPrefix = 'Failed to get Kind docker image:';
 
     let releaseResponse: { body?: string };
