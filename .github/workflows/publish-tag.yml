@@ -10,6 +10,9 @@ on:
 
 permissions: {}
 
+env:
+  NODE_VERSIONS: "[22, 24]"
+
 jobs:
   ensure-non-pre-release:
     runs-on: ubuntu-latest
@@ -18,6 +21,7 @@ jobs:
     outputs:
       teraslice_version: ${{ steps.teraslice-version.outputs.teraslice_version }}
       is_dev_release: ${{ steps.teraslice-version.outputs.is_dev_release }}
+      NODE_VERSIONS: ${{ steps.node-versions.outputs.NODE_VERSIONS }}
     steps:
       - name: Check out code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -32,6 +36,9 @@ jobs:
           PRERELEASE_TAG=$(./scripts/semver-tool.sh get prerelease $TERASLICE_VERSION)
           IS_DEV_RELEASE=$([ -n "$PRERELEASE_TAG" ] && echo true || echo false)
           echo "is_dev_release=$IS_DEV_RELEASE" | tee -a $GITHUB_OUTPUT
+
+      - id: node-versions
+        run: echo "NODE_VERSIONS=${{ env.NODE_VERSIONS }}" >> $GITHUB_OUTPUT
 
   build-release:
     needs: ensure-non-pre-release
@@ -53,7 +60,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version:  24
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 
@@ -63,7 +70,7 @@ jobs:
       - name: Publish to npm
         run: pnpm ts-scripts publish -t tag npm
 
-  docker-build-publish:
+  docker-build-publish-amd64:
     needs: ensure-non-pre-release
     if: needs.ensure-non-pre-release.outputs.is_dev_release == 'false'
     runs-on: ubuntu-latest
@@ -72,10 +79,9 @@ jobs:
       packages: write
     strategy:
       matrix:
-        node-version: [22, 24]
+        node-version: ${{ fromJSON(needs.ensure-non-pre-release.outputs.NODE_VERSIONS) }}
     steps:
-      # we login to docker to publish new teraslice image
-      - name: Login to Docker Hub
+      - name: Login to GHCR
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
@@ -87,44 +93,159 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
 
-
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-
-      - name: Install and build packages
-        run: pnpm install --frozen-lockfile && pnpm run setup
-
-      - name: Publish to docker
-        id: docker-publish
+      - name: Get build info
+        id: build-info
         run: |
-          pnpm ts-scripts publish -t tag -n ${{ matrix.node-version }} docker 2>/dev/null | tee /tmp/docker-output.txt
-          grep "^- " /tmp/docker-output.txt | sed 's/^- //' > /tmp/docker-tags.txt
-          echo "images=$(grep "^- " /tmp/docker-output.txt | sed 's/^- //' | paste -sd ',' -)" >> $GITHUB_OUTPUT
+          FULL_NODE=$(docker run --rm node:${{ matrix.node-version }}-alpine node -v | tr -d 'v')
+          TS_VERSION=$(jq -r .version package.json)
+          echo "ts_version=$TS_VERSION" >> $GITHUB_OUTPUT
+          echo "image_tag=ghcr.io/terascope/teraslice:v${TS_VERSION}-nodev${FULL_NODE}" >> $GITHUB_OUTPUT
+          echo "timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" >> $GITHUB_OUTPUT
 
-      - name: Upload docker tags artifact
-        if: steps.docker-publish.outputs.images != ''
+      - name: Build and push by digest (linux/amd64)
+        id: build
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: .
+          platforms: linux/amd64
+          build-args: |
+            NODE_VERSION=${{ matrix.node-version }}
+            TERASLICE_VERSION=${{ steps.build-info.outputs.ts_version }}
+            BUILD_TIMESTAMP=${{ steps.build-info.outputs.timestamp }}
+            GITHUB_SHA=${{ github.sha }}
+          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,push=true
+          provenance: false
+
+      - name: Export digest and tag
+        run: |
+          mkdir -p /tmp/docker-meta
+          echo "${{ steps.build.outputs.digest }}" > /tmp/docker-meta/digest.txt
+          echo "${{ steps.build-info.outputs.image_tag }}" > /tmp/docker-meta/tag.txt
+
+      - name: Upload docker meta artifact
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: docker-tags-node${{ matrix.node-version }}
-          path: /tmp/docker-tags.txt
+          name: docker-meta-amd64-node${{ matrix.node-version }}
+          path: /tmp/docker-meta/
+
+  docker-build-publish-arm64:
+    needs: ensure-non-pre-release
+    if: needs.ensure-non-pre-release.outputs.is_dev_release == 'false'
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        node-version: ${{ fromJSON(needs.ensure-non-pre-release.outputs.NODE_VERSIONS) }}
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check out code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Get build info
+        id: build-info
+        run: |
+          FULL_NODE=$(docker run --rm node:${{ matrix.node-version }}-alpine node -v | tr -d 'v')
+          TS_VERSION=$(jq -r .version package.json)
+          echo "ts_version=$TS_VERSION" >> $GITHUB_OUTPUT
+          echo "timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" >> $GITHUB_OUTPUT
+
+      - name: Build and push by digest (linux/arm64)
+        id: build
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: .
+          platforms: linux/arm64
+          build-args: |
+            NODE_VERSION=${{ matrix.node-version }}
+            TERASLICE_VERSION=${{ steps.build-info.outputs.ts_version }}
+            BUILD_TIMESTAMP=${{ steps.build-info.outputs.timestamp }}
+            GITHUB_SHA=${{ github.sha }}
+          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,push=true
+          provenance: false
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/docker-meta
+          echo "${{ steps.build.outputs.digest }}" > /tmp/docker-meta/digest.txt
+
+      - name: Upload docker meta artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: docker-meta-arm64-node${{ matrix.node-version }}
+          path: /tmp/docker-meta/
+
+  create-docker-manifests:
+    needs: [ensure-non-pre-release, docker-build-publish-amd64, docker-build-publish-arm64]
+    if: needs.ensure-non-pre-release.outputs.is_dev_release == 'false'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        node-version: ${{ fromJSON(needs.ensure-non-pre-release.outputs.NODE_VERSIONS) }}
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Download amd64 meta
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: docker-meta-amd64-node${{ matrix.node-version }}
+          path: /tmp/amd64-meta
+
+      - name: Download arm64 meta
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: docker-meta-arm64-node${{ matrix.node-version }}
+          path: /tmp/arm64-meta
+
+      - name: Create and push multi-arch manifest
+        run: |
+          TAG=$(cat /tmp/amd64-meta/tag.txt)
+          AMD64_DIGEST=$(cat /tmp/amd64-meta/digest.txt)
+          ARM64_DIGEST=$(cat /tmp/arm64-meta/digest.txt)
+          echo "Creating manifest for ${TAG}"
+          docker buildx imagetools create \
+            -t "${TAG}" \
+            "ghcr.io/terascope/teraslice@${AMD64_DIGEST}" \
+            "ghcr.io/terascope/teraslice@${ARM64_DIGEST}"
 
   append-docker-tags-to-release:
-    needs: [ensure-non-pre-release, docker-build-publish]
+    needs: [ensure-non-pre-release, create-docker-manifests]
     if: needs.ensure-non-pre-release.outputs.is_dev_release == 'false'
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: Download docker tags artifacts
+      - name: Download amd64 meta artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          pattern: docker-tags-node*
+          pattern: docker-meta-amd64-node*
           merge-multiple: false
           path: artifacts
 
@@ -132,12 +253,11 @@ jobs:
         id: build-body
         run: |
           BODY=$'### Docker Images\n\n'
-          for dir in artifacts/docker-tags-node*/; do
+          for dir in artifacts/docker-meta-amd64-node*/; do
             [ -d "$dir" ] || continue
-            while IFS= read -r img; do
-              [ -z "$img" ] && continue
-              BODY+="  - \`${img}\`"$'\n'
-            done < "$dir/docker-tags.txt"
+            TAG=$(cat "$dir/tag.txt")
+            [ -z "$TAG" ] && continue
+            BODY+="  - \`${TAG}\`"$'\n'
           done
           {
             echo "body<<EOF"
@@ -153,7 +273,7 @@ jobs:
           body: ${{ steps.build-body.outputs.body }}
 
   slack-announcement:
-    needs: [ensure-non-pre-release, build-release, docker-build-publish, append-docker-tags-to-release]
+    needs: [ensure-non-pre-release, build-release, docker-build-publish-amd64, docker-build-publish-arm64, create-docker-manifests, append-docker-tags-to-release]
     runs-on: ubuntu-latest
     permissions: {}
     steps:
