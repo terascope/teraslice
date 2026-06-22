@@ -14,6 +14,15 @@ service:
     nodePort: 30678
     targetPort: 5678
 
+readinessProbe:
+    httpGet:
+        path: /
+        port: 5678
+    initialDelaySeconds: 5
+    periodSeconds: 2
+    timeoutSeconds: 2
+    failureThreshold: 30
+
 terafoundation:
     log_level: info
     workers: 1
