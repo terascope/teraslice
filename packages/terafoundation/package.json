@@ -45,12 +45,12 @@
         "@types/express": "~5.0.6",
         "@types/js-yaml": "~4.0.9",
         "@types/yargs": "~17.0.35",
-        "got": "~15.0.5",
+        "got": "~15.0.6",
         "jest-extended": "~7.0.0"
     },
     "peerDependencies": {
         "@terascope/valkey": "workspace:~",
-        "terafoundation_kafka_connector": "~2.3.1"
+        "terafoundation_kafka_connector": "~2.4.0"
     },
     "peerDependenciesMeta": {
         "@terascope/valkey": {

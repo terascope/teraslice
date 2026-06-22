@@ -48,8 +48,8 @@ importers:
         specifier: ~9.39.2
         version: 9.39.3
       got:
-        specifier: ~15.0.5
-        version: 15.0.5
+        specifier: ~15.0.6
+        version: 15.0.6
       jest:
         specifier: ~30.4.2
         version: 30.4.2(@types/node@26.0.0)(node-notifier@10.0.1)
@@ -646,8 +646,8 @@ importers:
         specifier: ~16.2.0
         version: 16.2.0
       got:
-        specifier: ~15.0.5
-        version: 15.0.5
+        specifier: ~15.0.6
+        version: 15.0.6
       ip:
         specifier: ~2.0.1
         version: 2.0.1
@@ -792,8 +792,8 @@ importers:
         specifier: ~17.0.35
         version: 17.0.35
       got:
-        specifier: ~15.0.5
-        version: 15.0.5
+        specifier: ~15.0.6
+        version: 15.0.6
       jest-extended:
         specifier: ~7.0.0
         version: 7.0.0(jest@30.4.2(@types/node@26.0.0)(node-notifier@10.0.1))(typescript@5.9.3)
@@ -852,8 +852,8 @@ importers:
         specifier: ~7.2.0
         version: 7.2.0
       got:
-        specifier: ~15.0.5
-        version: 15.0.5
+        specifier: ~15.0.6
+        version: 15.0.6
       ip:
         specifier: ~2.0.1
         version: 2.0.1
@@ -876,8 +876,8 @@ importers:
         specifier: workspace:~
         version: link:../terafoundation
       terafoundation_kafka_connector:
-        specifier: ~2.3.1
-        version: 2.3.1
+        specifier: ~2.4.0
+        version: 2.4.0
       uuid:
         specifier: ~14.0.1
         version: 14.0.1
@@ -1052,8 +1052,8 @@ importers:
         specifier: ~5.0.1
         version: 5.0.1
       got:
-        specifier: ~15.0.5
-        version: 15.0.5
+        specifier: ~15.0.6
+        version: 15.0.6
     devDependencies:
       jest-extended:
         specifier: ~7.0.0
@@ -4173,8 +4173,8 @@ packages:
     resolution: {integrity: sha512-QLV1qeYSo5l13mQzWgP/y0LbMr5Plr5fJilgAIwgnwseproEbtNym8xpLsDzeZ6MWXgNE6kdWGBjdh3zT/Qerg==}
     engines: {node: '>=20'}
 
-  got@15.0.5:
-    resolution: {integrity: sha512-PMIMaZuYUCK43+Z9JWEXea4kkX2b3301m81D5TS6QpfG4PmNyirzEdO/Oa2OHAN4GsjnPfvWCWsshKN2rq4/gQ==}
+  got@15.0.6:
+    resolution: {integrity: sha512-6DEiZOte0BMR/QUFlk7CTBtcLpnJx/gAGnmApWtnHvM2i+LssgCaC3Kl3x+SZ/laTbYlmcaabylkwS0t97Y4BA==}
     engines: {node: '>=22'}
 
   graceful-fs@4.2.10:
@@ -5990,6 +5990,10 @@ packages:
     resolution: {integrity: sha512-TWdP8JEACaiFJ3nlYnHaP82TPjicXIefuKTWoDlY0AJBSn950PEfCmmOcBjXx01oCfO4QPiaWV9m/N351mw81g==}
     engines: {node: '>=22.0.0', pnpm: '>=11.3.0'}
 
+  terafoundation_kafka_connector@2.4.0:
+    resolution: {integrity: sha512-K2hKYnXoAeXZG2t2kgvz1KXwAJKMzUUL28eR+U8Fm6d4eDSa/VVdpRcHZFk0gyW3XA7PBCtBtKag1AxDX9/gNg==}
+    engines: {node: '>=22.0.0', pnpm: '>=11.3.0'}
+
   test-exclude@6.0.0:
     resolution: {integrity: sha512-cAGWPIyOHU6zlmg88jwm7VRyXnMN7iV68OGAbYDk/Mh/xC/pzVPlQtY6ngoIH/5/tciuhGfvESU8GrHrcxD56w==}
     engines: {node: '>=8'}
@@ -6103,8 +6107,8 @@ packages:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
-  type-fest@5.6.0:
-    resolution: {integrity: sha512-8ZiHFm91orbSAe2PSAiSVBVko18pbhbiB3U9GglSzF/zCGkR+rxpHx6sEMCUm4kxY4LjDIUGgCfUMtwfZfjfUA==}
+  type-fest@5.7.0:
+    resolution: {integrity: sha512-1URUxUqfHFM1c+zfSPsa3gnkO7Aq21qyH75SIduNYz4SzY964rn1X2vCMQaHSHhktiw+0kPa2iyb6PUpXqB6Vg==}
     engines: {node: '>=20'}
 
   type-is@2.0.1:
@@ -10012,7 +10016,7 @@ snapshots:
       responselike: 4.0.2
       type-fest: 4.41.0
 
-  got@15.0.5:
+  got@15.0.6:
     dependencies:
       '@sindresorhus/is': 8.1.0
       byte-counter: 0.1.0
@@ -10024,7 +10028,7 @@ snapshots:
       keyv: 5.6.0
       lowercase-keys: 4.0.1
       responselike: 4.0.2
-      type-fest: 5.6.0
+      type-fest: 5.7.0
       uint8array-extras: 1.5.0
 
   graceful-fs@4.2.10: {}
@@ -12093,6 +12097,13 @@ snapshots:
       - encoding
       - supports-color
 
+  terafoundation_kafka_connector@2.4.0:
+    dependencies:
+      '@confluentinc/kafka-javascript': 1.9.1
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
   test-exclude@6.0.0:
     dependencies:
       '@istanbuljs/schema': 0.1.6
@@ -12199,7 +12210,7 @@ snapshots:
 
   type-fest@4.41.0: {}
 
-  type-fest@5.6.0:
+  type-fest@5.7.0:
     dependencies:
       tagged-tag: 1.0.0
 
