@@ -146,11 +146,11 @@ describe('k8sResource', () => {
 
             const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
-            expect(kr.resource.spec.template.spec.volumes[1]).toEqual(yaml.load(`
+            expect(kr.resource.spec.template.spec.volumes[1]).toEqual(load(`
                     name: assets
                     emptyDir: {}`));
             expect(kr.resource.spec.template.spec.containers[0].volumeMounts[1])
-                .toEqual(yaml.load(`
+                .toEqual(load(`
                     name: assets
                     mountPath: /app/assets`));
         });
