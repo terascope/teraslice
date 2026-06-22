@@ -90,7 +90,7 @@ jobs:
             TERASLICE_VERSION=${{ steps.build-info.outputs.ts_version }}
             BUILD_TIMESTAMP=${{ steps.build-info.outputs.timestamp }}
             GITHUB_SHA=${{ github.sha }}
-          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,push=true
           provenance: false
 
       - name: Export digest and tag
@@ -146,7 +146,7 @@ jobs:
             TERASLICE_VERSION=${{ steps.build-info.outputs.ts_version }}
             BUILD_TIMESTAMP=${{ steps.build-info.outputs.timestamp }}
             GITHUB_SHA=${{ github.sha }}
-          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,push=true
           provenance: false
 
       - name: Export digest

@@ -10,7 +10,34 @@ on:
 
 permissions: {}
 
+env:
+  NODE_VERSIONS: "[22, 24]"
+
 jobs:
+  compute-vars:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      NODE_VERSIONS: ${{ steps.node-versions.outputs.NODE_VERSIONS }}
+      is_dev_release: ${{ steps.version-check.outputs.is_dev_release }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - id: node-versions
+        run: echo "NODE_VERSIONS=${{ env.NODE_VERSIONS }}" >> $GITHUB_OUTPUT
+
+      - id: version-check
+        run: |
+          TERASLICE_VERSION=$(jq -r .version package.json)
+          PRERELEASE_TAG=$(./scripts/semver-tool.sh get prerelease "$TERASLICE_VERSION")
+          IS_DEV_RELEASE=$([ -n "$PRERELEASE_TAG" ] && echo true || echo false)
+          echo "is_dev_release=$IS_DEV_RELEASE" >> $GITHUB_OUTPUT
+
   build-npm:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
@@ -55,14 +82,15 @@ jobs:
         run: pnpm ts-scripts publish -t prerelease npm
 
   build-docker-amd64:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && needs.compute-vars.outputs.is_dev_release == 'true'
+    needs: compute-vars
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     strategy:
       matrix:
-        node-version: [22, 24]
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
     steps:
       - name: Check out code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -99,7 +127,7 @@ jobs:
             TERASLICE_VERSION=${{ steps.build-info.outputs.ts_version }}
             BUILD_TIMESTAMP=${{ steps.build-info.outputs.timestamp }}
             GITHUB_SHA=${{ github.sha }}
-          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,push=true
           provenance: false
 
       - name: Export digest and tag
@@ -115,14 +143,15 @@ jobs:
           path: /tmp/docker-meta/
 
   build-docker-arm64:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && needs.compute-vars.outputs.is_dev_release == 'true'
+    needs: compute-vars
     runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
       packages: write
     strategy:
       matrix:
-        node-version: [22, 24]
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
     steps:
       - name: Check out code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -158,7 +187,7 @@ jobs:
             TERASLICE_VERSION=${{ steps.build-info.outputs.ts_version }}
             BUILD_TIMESTAMP=${{ steps.build-info.outputs.timestamp }}
             GITHUB_SHA=${{ github.sha }}
-          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=ghcr.io/terascope/teraslice,push-by-digest=true,push=true
           provenance: false
 
       - name: Export digest
@@ -173,15 +202,15 @@ jobs:
           path: /tmp/docker-meta/
 
   create-docker-manifests:
-    if: github.event.pull_request.merged == true
-    needs: [build-docker-amd64, build-docker-arm64]
+    if: github.event.pull_request.merged == true && needs.compute-vars.outputs.is_dev_release == 'true'
+    needs: [compute-vars, build-docker-amd64, build-docker-arm64]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     strategy:
       matrix:
-        node-version: [22, 24]
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS) }}
     steps:
       - name: Login to GHCR
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
