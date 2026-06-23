@@ -223,18 +223,32 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
     }
 
     _setAssetsVolume(resource: TSJob | TSDeployment) {
-        if (this.terasliceConfig.assets_volume
-            && this.terasliceConfig.assets_directory
+        if (this.terasliceConfig.assets_directory
             && typeof this.terasliceConfig.assets_directory === 'string'
         ) {
-            resource.spec.template.spec.volumes.push({
-                name: this.terasliceConfig.assets_volume,
-                persistentVolumeClaim: { claimName: this.terasliceConfig.assets_volume }
-            });
-            resource.spec.template.spec.containers[0].volumeMounts.push({
-                name: this.terasliceConfig.assets_volume,
-                mountPath: this.terasliceConfig.assets_directory
-            });
+            if (this.terasliceConfig.assets_volume) {
+                // A shared asset volume (PVC) was configured: mount it at assets_directory.
+                resource.spec.template.spec.volumes.push({
+                    name: this.terasliceConfig.assets_volume,
+                    persistentVolumeClaim: { claimName: this.terasliceConfig.assets_volume }
+                });
+                resource.spec.template.spec.containers[0].volumeMounts.push({
+                    name: this.terasliceConfig.assets_volume,
+                    mountPath: this.terasliceConfig.assets_directory
+                });
+            } else {
+                // No shared volume: mount an emptyDir so downloaded assets can still be
+                // written while the pod runs with a read-only root filesystem. This is
+                // ephemeral per-pod, matching the previous (image root filesystem) behavior.
+                resource.spec.template.spec.volumes.push({
+                    name: 'assets',
+                    emptyDir: {}
+                });
+                resource.spec.template.spec.containers[0].volumeMounts.push({
+                    name: 'assets',
+                    mountPath: this.terasliceConfig.assets_directory
+                });
+            }
         }
     }
 

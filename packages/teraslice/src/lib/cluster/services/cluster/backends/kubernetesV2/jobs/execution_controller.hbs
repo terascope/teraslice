@@ -60,7 +60,16 @@
                                 "fieldPath": "status.podIP"
                             }
                         }
-                    }]
+                    }],
+                    "securityContext": {
+                        "allowPrivilegeEscalation": false,
+                        "capabilities": {
+                            "drop": ["ALL"]
+                        },
+                        "readOnlyRootFilesystem": true,
+                        "runAsNonRoot": true,
+                        "runAsUser": 10001
+                    }
                 }],
                 "volumes": [{
                     "name": "config",
@@ -73,7 +82,17 @@
                     }
                 }],
                 "terminationGracePeriodSeconds": {{shutdownTimeout}},
-                "restartPolicy": "Never"
+                "restartPolicy": "Never",
+                "securityContext": {
+                    "runAsNonRoot": true,
+                    "runAsUser": 10001,
+                    "runAsGroup": 10001,
+                    "fsGroup": 10001,
+                    "fsGroupChangePolicy": "OnRootMismatch",
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                }
             }
         }
     }

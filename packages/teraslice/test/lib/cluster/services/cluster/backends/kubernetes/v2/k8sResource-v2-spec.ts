@@ -140,6 +140,21 @@ describe('k8sResource', () => {
                     mountPath: /assets`));
         });
 
+        it('mounts an emptyDir at assets_directory when no assets_volume is set.', () => {
+            terasliceConfig.assets_directory = '/app/assets';
+            terasliceConfig.assets_volume = '';
+
+            const kr = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
+
+            expect(kr.resource.spec.template.spec.volumes[1]).toEqual(load(`
+                    name: assets
+                    emptyDir: {}`));
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts[1])
+                .toEqual(load(`
+                    name: assets
+                    mountPath: /app/assets`));
+        });
+
         it('has valid resource object with volumes when execution has a single job volume', () => {
             execution.volumes = [
                 { name: 'teraslice-data1', path: '/data' }
@@ -944,6 +959,41 @@ describe('k8sResource', () => {
             const krWorker = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
 
             expect(krWorker.resource.spec.template.spec).toHaveProperty('initContainers');
+        });
+    });
+
+    describe('securityContext', () => {
+        const podSecurityContext = {
+            runAsNonRoot: true,
+            runAsUser: 10001,
+            runAsGroup: 10001,
+            fsGroup: 10001,
+            fsGroupChangePolicy: 'OnRootMismatch',
+            seccompProfile: {
+                type: 'RuntimeDefault'
+            }
+        };
+        const securityContext = {
+            allowPrivilegeEscalation: false,
+            capabilities: {
+                drop: ['ALL']
+            },
+            readOnlyRootFilesystem: true,
+            runAsNonRoot: true,
+            runAsUser: 10001
+        };
+
+        it('applies configured pod and container securityContext to worker and execution controller pods', () => {
+            const krWorker = new K8sDeploymentResource(terasliceConfig, execution, logger, 'example-job-abcd', 'UID1');
+            expect(krWorker.resource.spec.template.spec.securityContext)
+                .toEqual(podSecurityContext);
+            expect(krWorker.resource.spec.template.spec.containers[0].securityContext)
+                .toEqual(securityContext);
+
+            const krExc = new K8sJobResource(terasliceConfig, execution, logger);
+            expect(krExc.resource.spec.template.spec.securityContext).toEqual(podSecurityContext);
+            expect(krExc.resource.spec.template.spec.containers[0].securityContext)
+                .toEqual(securityContext);
         });
     });
 
