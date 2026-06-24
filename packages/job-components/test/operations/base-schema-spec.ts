@@ -81,11 +81,18 @@ describe('Base Schema', () => {
             const { warnings } = depSchema.validate({ _op: 'hello', old_field: 'some_value' });
             expect(warnings).toBeArrayOfSize(1);
             expect(warnings[0]).toMatchObject({
-                category: 'deprecation',
-                subcategory: 'assetOperationProperty',
-                name: 'hello',
-                field: 'old_field',
-                description: 'use new_field instead',
+                type: 'JobValidation',
+                reason: {
+                    type: 'assetOperationProperty',
+                    reason: {
+                        name: 'hello',
+                        type: 'deprecation',
+                        reason: {
+                            name: 'old_field',
+                            description: 'use new_field instead',
+                        },
+                    },
+                },
             });
         });
 
