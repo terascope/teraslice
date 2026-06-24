@@ -20,11 +20,18 @@ export function validateOpConfig<T>(
     try {
         const config = validator.validate(inputConfig);
         const warnings: TF.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
-            category: 'deprecation',
-            subcategory: 'assetOperationProperty',
-            name: inputConfig._op,
-            field: schemaWarning.field,
-            description: schemaWarning.description,
+            type: 'JobValidation',
+            reason: {
+                type: 'assetOperationProperty',
+                reason: {
+                    name: inputConfig._op,
+                    type: 'deprecation',
+                    reason: {
+                        name: schemaWarning.field,
+                        description: schemaWarning.description,
+                    },
+                },
+            },
         }));
         return { config, warnings };
     } catch (err) {
@@ -51,11 +58,18 @@ export function validateAPIConfig<T>(
     try {
         const config = validator.validate(inputConfig);
         const warnings: TF.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
-            category: 'deprecation',
-            subcategory: 'assetAPIProperty',
-            name: inputConfig._name,
-            field: schemaWarning.field,
-            description: schemaWarning.description,
+            type: 'JobValidation',
+            reason: {
+                type: 'assetAPIProperty',
+                reason: {
+                    name: inputConfig._name,
+                    type: 'deprecation',
+                    reason: {
+                        name: schemaWarning.field,
+                        description: schemaWarning.description,
+                    },
+                },
+            },
         }));
         return { config, warnings };
     } catch (err) {

@@ -181,7 +181,20 @@ describe('Teraslice Jobs', () => {
             const jobSpec = { operations: [{ _op: 'operation' }] };
             const response = {
                 job_id: 'some-job-id',
-                warnings: [{ category: 'deprecation', subcategory: 'assetOperationProperty', name: 'operation', field: 'old_field', description: 'old_field is deprecated' }]
+                warnings: [{
+                    type: 'JobValidation',
+                    reason: {
+                        type: 'assetOperationProperty',
+                        reason: {
+                            name: 'operation',
+                            type: 'deprecation',
+                            reason: {
+                                name: 'old_field',
+                                description: 'old_field is deprecated',
+                            },
+                        },
+                    },
+                }]
             };
 
             beforeEach(() => {
@@ -196,11 +209,18 @@ describe('Teraslice Jobs', () => {
                 expect(result.job.id()).toEqual(response.job_id);
                 expect(result.warnings).toBeArrayOfSize(1);
                 expect(result.warnings[0]).toMatchObject({
-                    category: 'deprecation',
-                    subcategory: 'assetOperationProperty',
-                    name: 'operation',
-                    field: 'old_field',
-                    description: 'old_field is deprecated'
+                    type: 'JobValidation',
+                    reason: {
+                        type: 'assetOperationProperty',
+                        reason: {
+                            name: 'operation',
+                            type: 'deprecation',
+                            reason: {
+                                name: 'old_field',
+                                description: 'old_field is deprecated',
+                            },
+                        },
+                    },
                 });
             });
         });
