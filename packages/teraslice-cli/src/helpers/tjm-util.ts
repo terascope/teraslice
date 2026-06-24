@@ -94,7 +94,9 @@ export async function updateJobConfig(cliConfig: Config) {
 
             const warnings: Terafoundation.JobWarning[] = get(update, 'warnings', []);
             for (const warning of warnings) {
-                reply.warning(`Warning: (${warning.category}) ${warning.description}`);
+                const assetDeprecation = warning.reason.reason;
+                const fieldDeprecation = assetDeprecation.reason;
+                reply.warning(`Warning: (${assetDeprecation.type}) ${fieldDeprecation.description}`);
             }
 
             addMetaData(jobConfig, jobId, tsCluster);
@@ -132,7 +134,9 @@ export async function registerJobToCluster(cliConfig: Config) {
                 const jobId = resp.job.id();
 
                 for (const warning of resp.warnings) {
-                    reply.warning(`Warning: (${warning.category}) ${warning.description}`);
+                    const assetDeprecation = warning.reason.reason;
+                    const fieldDeprecation = assetDeprecation.reason;
+                    reply.warning(`Warning: (${assetDeprecation.type}) ${fieldDeprecation.description}`);
                 }
 
                 reply.green(`Successfully registered ${jobConfig.name} on ${cliConfig.clusterUrl} with job id ${jobId}`);
