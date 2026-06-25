@@ -59,7 +59,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             engines: {
                 node: '>=16.0.0',
                 // TODO: re-enable once all repos are fully migrated to pnpm
-                // pnpm: '>=10.25.0'
+                // pnpm: '>=11.3.0'
             },
             terascope: {
                 root: true,
@@ -84,7 +84,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             engines: {
                 node: '>=16.0.0',
                 // TODO: re-enable once all repos are fully migrated to pnpm
-                // pnpm: '>=10.25.0'
+                // pnpm: '>=11.3.0'
             },
             terascope: {
                 root: true,
@@ -120,7 +120,7 @@ export function getAvailableTestSuites(): string[] {
 
 /**
  * Returns the package manager by reading the `packageManager` field from the
- * root package.json (e.g. "pnpm@10.25.0" → "pnpm"). Defaults to 'pnpm' if not set.
+ * root package.json (e.g. "pnpm@11.3.0" → "pnpm"). Defaults to 'pnpm' if not set.
  */
 export function getPackageManager(): string {
     const rootInfo = getRootInfo();

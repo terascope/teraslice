@@ -13,6 +13,12 @@ export default class Schema extends BaseSchema<any, any> {
                 doc: 'Test flushing',
                 format: 'Boolean',
             },
+            old_example: {
+                default: 'old_default',
+                doc: 'Deprecated example field',
+                format: 'String',
+                deprecated: 'use example instead',
+            },
         };
     }
 }

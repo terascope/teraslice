@@ -1,4 +1,4 @@
-import { SysConfig as BaseSysconfig } from './terafoundation.js';
+import { SysConfig as BaseSysconfig, JobWarning } from './terafoundation.js';
 
 export type ClusterManagerType = 'native' | 'kubernetesV2';
 
@@ -386,6 +386,11 @@ export interface ApiRootResponse {
 export interface ApiJobCreateResponse {
     job_id: string;
     ex_id?: string;
+    warnings?: JobWarning[];
+}
+
+export interface ApiJobUpdateResponse extends JobConfig {
+    warnings?: JobWarning[];
 }
 
 export interface ApiPausedResponse {

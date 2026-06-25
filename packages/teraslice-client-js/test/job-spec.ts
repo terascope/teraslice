@@ -1,5 +1,5 @@
 import nock from 'nock';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, Terafoundation } from '@terascope/types';
 import Job from '../src/job.js';
 
 describe('Teraslice Job', () => {
@@ -223,6 +223,43 @@ describe('Teraslice Job', () => {
         });
     });
 
+    describe('->start', () => {
+        describe('when the server returns deprecation warnings', () => {
+            const deprecationWarning: Terafoundation.JobWarning = {
+                type: 'JobValidation',
+                reason: {
+                    type: 'assetOperationProperty',
+                    reason: {
+                        name: 'some-op',
+                        type: 'deprecation',
+                        reason: {
+                            name: 'old_field',
+                            description: 'old_field is deprecated, use new_field instead',
+                        },
+                    },
+                },
+            };
+
+            const response: Teraslice.ApiJobCreateResponse = {
+                job_id: 'some-job-id',
+                warnings: [deprecationWarning],
+            };
+
+            beforeEach(() => {
+                scope.post('/jobs/some-job-id/_start')
+                    .reply(200, response);
+            });
+
+            it('should return the response with warnings', async () => {
+                const job = new Job({ baseUrl }, 'some-job-id');
+                const result = await job.start();
+                expect(result.job_id).toEqual('some-job-id');
+                expect(result.warnings).toBeArrayOfSize(1);
+                expect(result.warnings![0]).toMatchObject(deprecationWarning);
+            });
+        });
+    });
+
     describe('->recover', () => {
         describe('when called with nothing', () => {
             beforeEach(() => {
@@ -271,6 +308,43 @@ describe('Teraslice Job', () => {
                 expect(results).toEqual({
                     key: 'some-other-key'
                 });
+            });
+        });
+    });
+
+    describe('->recover with warnings', () => {
+        describe('when the server returns deprecation warnings', () => {
+            const deprecationWarning: Terafoundation.JobWarning = {
+                type: 'JobValidation',
+                reason: {
+                    type: 'assetAPIProperty',
+                    reason: {
+                        name: 'some-api',
+                        type: 'deprecation',
+                        reason: {
+                            name: 'old_api_field',
+                            description: 'old_api_field is deprecated, use new_api_field instead',
+                        },
+                    },
+                },
+            };
+
+            const response: Teraslice.ApiJobCreateResponse = {
+                job_id: 'some-other-job-id',
+                warnings: [deprecationWarning],
+            };
+
+            beforeEach(() => {
+                scope.post('/jobs/some-other-job-id/_recover')
+                    .reply(200, response);
+            });
+
+            it('should return the response with warnings', async () => {
+                const job = new Job({ baseUrl }, 'some-other-job-id');
+                const result = await job.recover();
+                expect(result.job_id).toEqual('some-other-job-id');
+                expect(result.warnings).toBeArrayOfSize(1);
+                expect(result.warnings![0]).toMatchObject(deprecationWarning);
             });
         });
     });

@@ -30,7 +30,7 @@ export class JobValidator {
     /** Validate the job configuration, including the Operations and APIs configuration */
     async validateConfig(
         jobSpec: Partial<Teraslice.JobConfig | Teraslice.JobConfigParams>,
-    ): Promise<ValidatedJobConfig> {
+    ): Promise<{ jobConfig: ValidatedJobConfig; warnings: Terafoundation.JobWarning[] }> {
         // top level job validation occurs, but not operations
         const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec), this.context);
         const assetIds = jobConfig.assets || [];
@@ -39,6 +39,7 @@ export class JobValidator {
         type ValidateJobFn = (job: ValidatedJobConfig) => void;
         const validateJobFns: ValidateJobFn[] = [];
         const validateApisFns: ValidateJobFn[] = [];
+        const allWarnings: Terafoundation.JobWarning[] = [];
         const opAPIMapping = new Map<string, string>();
 
         const handleModule = (
@@ -67,7 +68,12 @@ export class JobValidator {
                 job.operations[index]._op = originalName;
             });
 
-            const validatedConfig = schema.validate(opConfig);
+            const opResult = schema.validate(opConfig);
+            // TODO: v3 schemas may return the config directly instead of
+            // { config, warnings }. Support for the old shape will be dropped in Teraslice v4.
+            const validatedConfig = isValidateResult(opResult) ? opResult.config : opResult;
+            const warnings = isValidateResult(opResult) ? (opResult.warnings ?? []) : [];
+            allWarnings.push(...warnings);
 
             const needsAPI = has(validatedConfig, '_api_name') || has(validatedConfig, 'api_name');
 
@@ -124,7 +130,13 @@ export class JobValidator {
                 job.apis[index]._name = originalName;
             });
 
-            return schema.validate(apiConfig);
+            const apiResult = schema.validate(apiConfig);
+            // TODO: v3 schemas may return the config directly instead of
+            // { config, warnings }. Support for the old shape will be dropped in Teraslice v4.
+            const validatedApiConfig = isValidateResult(apiResult) ? apiResult.config : apiResult;
+            const apiWarnings = isValidateResult(apiResult) ? (apiResult.warnings ?? []) : [];
+            allWarnings.push(...apiWarnings);
+            return validatedApiConfig;
         });
 
         // this can mutate the job
@@ -153,7 +165,7 @@ export class JobValidator {
 
         await this._applyRelocatable(jobConfig);
 
-        return jobConfig;
+        return { jobConfig, warnings: allWarnings };
     }
 
     /**
@@ -188,4 +200,31 @@ export class JobValidator {
             throw new Error(`${name} schema needs to return an object`);
         }
     }
+}
+
+/**
+ * The shape returned by new-style schema validate() methods.
+ *
+ * @backwards-compat: v3 schemas return the config directly instead of this shape.
+ * Support for the old shape will be dropped in Teraslice v4.
+ */
+type ValidateResult = { config: any; warnings: Terafoundation.JobWarning[] };
+
+/**
+ * Type guard to distinguish new-style schema validate() results (ValidateResult)
+ * from old-style results (plain config object).
+ *
+ * @backwards-compat: v3 schemas return the config directly. This guard exists to
+ * support both shapes during the deprecation window. Will be removed in Teraslice v4
+ * when all schemas are required to return { config, warnings }.
+ */
+function isValidateResult(result: any): result is ValidateResult {
+    // Check for both 'config' and 'warnings' to avoid false positives on legacy op
+    // configs that happen to have a 'config' property.
+    return result != null
+        && typeof result === 'object'
+        && 'config' in result
+        && typeof result.config === 'object'
+        && 'warnings' in result
+        && Array.isArray(result.warnings);
 }

@@ -20,6 +20,23 @@ describe('Base Schema', () => {
         }
     }
 
+    interface DeprecatedOpConfig extends OpConfig {
+        old_field: string;
+    }
+
+    class DeprecatedSchema extends BaseSchema<DeprecatedOpConfig> {
+        build() {
+            return {
+                old_field: {
+                    default: 'default_value',
+                    doc: 'A deprecated field',
+                    format: 'String',
+                    deprecated: 'use new_field instead',
+                }
+            };
+        }
+    }
+
     const schema = new ExampleSchema(context);
 
     describe('->build', () => {
@@ -36,10 +53,11 @@ describe('Base Schema', () => {
 
     describe('->validate', () => {
         it('should succeed when given valid data', () => {
-            expect(schema.validate({
+            const { config } = schema.validate({
                 _op: 'hello',
                 example: 'hi'
-            })).toEqual({
+            });
+            expect(config).toEqual({
                 _op: 'hello',
                 _encoding: 'json',
                 _dead_letter_action: 'throw',
@@ -51,6 +69,37 @@ describe('Base Schema', () => {
             expect(() => {
                 schema.validate({});
             }).toThrow();
+        });
+
+        it('should return no warnings when no deprecated fields are used', () => {
+            const { warnings } = schema.validate({ _op: 'hello', example: 'hi' });
+            expect(warnings).toBeArrayOfSize(0);
+        });
+
+        it('should return a warning when a deprecated field is provided', () => {
+            const depSchema = new DeprecatedSchema(context);
+            const { warnings } = depSchema.validate({ _op: 'hello', old_field: 'some_value' });
+            expect(warnings).toBeArrayOfSize(1);
+            expect(warnings[0]).toMatchObject({
+                type: 'JobValidation',
+                reason: {
+                    type: 'assetOperationProperty',
+                    reason: {
+                        name: 'hello',
+                        type: 'deprecation',
+                        reason: {
+                            name: 'old_field',
+                            description: 'use new_field instead',
+                        },
+                    },
+                },
+            });
+        });
+
+        it('should not warn about deprecated fields set to their default value', () => {
+            const depSchema = new DeprecatedSchema(context);
+            const { warnings } = depSchema.validate({ _op: 'hello' });
+            expect(warnings).toBeArrayOfSize(0);
         });
     });
 

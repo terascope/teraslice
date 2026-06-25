@@ -9,7 +9,7 @@ import { opSchema, apiSchema } from './job-schemas.js';
  */
 export function validateOpConfig<T>(
     inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
-): OpConfig & T {
+): { config: OpConfig & T; warnings: TF.JobWarning[] } {
     const schema = Object.assign({}, opSchema, inputSchema) as TF.Schema<OpConfig & T>;
     const validator = new SchemaValidator<OpConfig & T>(
         schema,
@@ -18,7 +18,22 @@ export function validateOpConfig<T>(
         undefined,
         context);
     try {
-        return validator.validate(inputConfig);
+        const config = validator.validate(inputConfig);
+        const warnings: TF.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
+            type: 'JobValidation',
+            reason: {
+                type: 'assetOperationProperty',
+                reason: {
+                    name: inputConfig._op,
+                    type: 'deprecation',
+                    reason: {
+                        name: schemaWarning.field,
+                        description: schemaWarning.description,
+                    },
+                },
+            },
+        }));
+        return { config, warnings };
     } catch (err) {
         throw new Error(`Validation failed for operation config: ${inputConfig._op} - ${err.message}`);
     }
@@ -30,7 +45,7 @@ export function validateOpConfig<T>(
  */
 export function validateAPIConfig<T>(
     inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
-): APIConfig & T {
+): { config: APIConfig & T; warnings: TF.JobWarning[] } {
     const schema = Object.assign({}, apiSchema, inputSchema) as TF.Schema<APIConfig & T>;
     const validator = new SchemaValidator<APIConfig & T>(
         schema,
@@ -41,7 +56,22 @@ export function validateAPIConfig<T>(
     );
 
     try {
-        return validator.validate(inputConfig);
+        const config = validator.validate(inputConfig);
+        const warnings: TF.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
+            type: 'JobValidation',
+            reason: {
+                type: 'assetAPIProperty',
+                reason: {
+                    name: inputConfig._name,
+                    type: 'deprecation',
+                    reason: {
+                        name: schemaWarning.field,
+                        description: schemaWarning.description,
+                    },
+                },
+            },
+        }));
+        return { config, warnings };
     } catch (err) {
         throw new Error(`Validation failed for api config: ${inputConfig._name} - ${err.message}`);
     }

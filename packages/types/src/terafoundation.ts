@@ -22,7 +22,31 @@ export interface SchemaObj<T = any> {
     format?: ConvictFormat;
     env?: string | undefined;
     arg?: string | undefined;
+    deprecated?: string | undefined;
     [key: string]: any;
+}
+
+export interface DeprecationFieldReason {
+    /** the specific field that is deprecated */
+    name: string;
+    description: string;
+}
+
+export interface AssetDeprecationReason {
+    /** the op or api name the deprecated field came from */
+    name: string;
+    type: 'deprecation';
+    reason: DeprecationFieldReason;
+}
+
+export interface JobValidationReason {
+    type: 'assetAPIProperty' | 'assetOperationProperty' | 'jobProperty';
+    reason: AssetDeprecationReason;
+}
+
+export interface JobWarning {
+    type: 'JobValidation';
+    reason: JobValidationReason;
 }
 
 export type Schema<T> = {

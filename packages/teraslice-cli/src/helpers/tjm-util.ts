@@ -8,7 +8,7 @@ import {
     cloneDeep,
     isKey
 } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, Terafoundation } from '@terascope/types';
 import Config from './config.js';
 import Jobs from './jobs.js';
 import { getPackage } from './utils.js';
@@ -92,6 +92,13 @@ export async function updateJobConfig(cliConfig: Config) {
                 reply.fatal(`Could not be updated job ${jobId} on ${tsCluster}`);
             }
 
+            const warnings: Terafoundation.JobWarning[] = get(update, 'warnings', []);
+            for (const warning of warnings) {
+                const assetDeprecation = warning.reason.reason;
+                const fieldDeprecation = assetDeprecation.reason;
+                reply.warning(`Warning: (${assetDeprecation.type}) ${fieldDeprecation.description}`);
+            }
+
             addMetaData(jobConfig, jobId, tsCluster);
             saveConfig(cliConfig.args.srcDir, jobFile, jobConfig);
 
@@ -121,10 +128,16 @@ export async function registerJobToCluster(cliConfig: Config) {
         }
 
         try {
-            const resp = await job.submitJobConfig(jobConfig);
+            const resp = await job.submitJobConfigWithWarnings(jobConfig);
 
             if (resp) {
-                const jobId = resp.id();
+                const jobId = resp.job.id();
+
+                for (const warning of resp.warnings) {
+                    const assetDeprecation = warning.reason.reason;
+                    const fieldDeprecation = assetDeprecation.reason;
+                    reply.warning(`Warning: (${assetDeprecation.type}) ${fieldDeprecation.description}`);
+                }
 
                 reply.green(`Successfully registered ${jobConfig.name} on ${cliConfig.clusterUrl} with job id ${jobId}`);
 

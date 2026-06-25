@@ -38,8 +38,30 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await api.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await api.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
+        });
+
+        it('collects deprecation warnings from multiple ops', async () => {
+            const jobSpec: JobConfigParams = {
+                name: 'test',
+                assets: ['fixtures'],
+                operations: [
+                    {
+                        _op: 'example-reader',
+                        old_example: 'triggered',
+                    },
+                    {
+                        _op: 'example-op',
+                        old_example: 'triggered',
+                    },
+                ],
+            };
+
+            const { warnings } = await api.validateConfig(jobSpec);
+            expect(warnings).toBeArrayOfSize(2);
+            expect(warnings.every((w) => w.type === 'JobValidation')).toBeTrue();
+            expect(warnings.every((w) => w.reason.reason.type === 'deprecation')).toBeTrue();
         });
 
         it('will throw based off op validation errors', async () => {
@@ -172,7 +194,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await testApi.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await testApi.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
         });
 
@@ -204,7 +226,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await testApi.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await testApi.validateConfig(jobSpec);
 
             expect(validJob).toMatchObject(jobSpec);
         });
@@ -276,7 +298,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await testApi.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await testApi.validateConfig(jobSpec);
 
             await expect(
                 () => api.validateConfig(oldJobSpec)
