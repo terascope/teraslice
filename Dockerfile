@@ -28,7 +28,9 @@ RUN apk --no-cache add \
       # zstd-dev \
 
 WORKDIR /app/source
-RUN corepack enable
+# corepack is no longer bundled with Node 25+, so install it before enabling.
+# pnpm version is driven by the "packageManager" field in package.json.
+RUN npm install -g corepack@latest && corepack enable
 
 # Copy the minimum required to resolve deps (better cache)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
@@ -63,7 +65,9 @@ ENV NODE_ENV=production \
 RUN apk --no-cache add tini ca-certificates bash curl
 
 WORKDIR /app/source
-RUN corepack enable
+# corepack is no longer bundled with Node 25+, so install it before enabling.
+# pnpm version is driven by the "packageManager" field in package.json.
+RUN npm install -g corepack@latest && corepack enable
 
 # Create an unprivileged user (uid/gid pinned to 10001 to match `USER 10001`).
 # /app is root-owned, group 'apps', mode 1775: group members can create entries
