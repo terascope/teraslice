@@ -11,7 +11,7 @@ on:
 permissions: {}
 
 env:
-  NODE_VERSIONS: "[22, 24]"
+  NODE_VERSIONS: "[22, 24, 26]"
 
 jobs:
   ensure-non-pre-release:
