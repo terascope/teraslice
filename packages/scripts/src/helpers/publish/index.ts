@@ -29,10 +29,28 @@ async function publishToNPM(options: PublishOptions) {
     if (![PublishType.Latest, PublishType.Tag, PublishType.Prerelease].includes(options.type)) {
         throw new Error(`NPM publish does NOT support publish type "${options.type}"`);
     }
-    const result = await pMap(listPackages(), (pkgInfo) => npmPublish(pkgInfo, options), {
-        concurrency: 3,
-        stopOnError: false,
-    });
+    // Publish serially rather than via pMap. Concurrent `yarn npm publish`
+    // calls against a slow registry trigger yarn 4.x's got/p-cancelable
+    // "onCancel handler was attached after the promise settled" crash on the
+    // timeout-retry path, which can leave partial/duplicate publishes (409
+    // Conflict). A plain serial loop keeps one publish in flight at a time and
+    // gives clear per-package logging. We mirror pMap's stopOnError:false by
+    // collecting failures and throwing them together at the end.
+    const result = [];
+    const errors = [];
+    for (const pkgInfo of listPackages()) {
+        try {
+            result.push(await npmPublish(pkgInfo, options));
+        }
+        catch (err) {
+            signale.error(`Failed to publish ${pkgInfo.name}`, err);
+            errors.push(err);
+        }
+    }
+    if (errors.length) {
+        throw new AggregateError(errors, `Failed to publish ${errors.length} package(s)`);
+    }
+    signale.info('publishToNPM-result', result);
 
     const bumped = result.filter(isString);
 
