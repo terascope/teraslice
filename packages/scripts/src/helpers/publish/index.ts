@@ -41,8 +41,7 @@ async function publishToNPM(options: PublishOptions) {
     for (const pkgInfo of listPackages()) {
         try {
             result.push(await npmPublish(pkgInfo, options));
-        }
-        catch (err) {
+        } catch (err) {
             signale.error(`Failed to publish ${pkgInfo.name}`, err);
             errors.push(err);
         }
