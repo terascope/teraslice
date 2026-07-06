@@ -58,7 +58,7 @@
         "socket.io": "~4.8.3",
         "socket.io-client": "~4.8.3",
         "terafoundation": "workspace:~",
-        "terafoundation_kafka_connector": "~2.4.0",
+        "terafoundation_kafka_connector": "~2.5.0",
         "uuid": "~14.0.1"
     },
     "devDependencies": {

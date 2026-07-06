@@ -50,7 +50,7 @@
     },
     "peerDependencies": {
         "@terascope/valkey": "workspace:~",
-        "terafoundation_kafka_connector": "~2.4.0"
+        "terafoundation_kafka_connector": "~2.5.0"
     },
     "peerDependenciesMeta": {
         "@terascope/valkey": {
