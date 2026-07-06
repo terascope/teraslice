@@ -1,7 +1,7 @@
 {
     "name": "@terascope/core-utils",
     "displayName": "Core Utils",
-    "version": "2.12.1",
+    "version": "2.13.0",
     "description": "A collection of Teraslice Core Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/core-utils#readme",
     "bugs": {
@@ -40,7 +40,7 @@
         "mnemonist": "0.40.4",
         "moment": "~2.30.1",
         "ms": "~2.1.3",
-        "p-map": "~7.0.4",
+        "p-map": "~7.0.5",
         "shallow-clone": "~3.0.1",
         "validator": "~13.15.35",
         "zod": "~4.4.3"

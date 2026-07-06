@@ -1,7 +1,7 @@
 {
     "name": "@terascope/valkey",
     "displayName": "Valkey Connector",
-    "version": "0.7.1",
+    "version": "0.8.0",
     "description": "A Terafoundation connector and facade client for Valkey.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/valkey#readme",
     "bugs": {
@@ -26,7 +26,7 @@
     },
     "dependencies": {
         "@terascope/core-utils": "workspace:~",
-        "@valkey/valkey-glide": "~2.4.1"
+        "@valkey/valkey-glide": "~2.4.2"
     },
     "devDependencies": {
         "@terascope/scripts": "workspace:~",
