@@ -43,7 +43,7 @@
         "@jest/globals": "^30.4.1",
         "@types/semver": "~7.7.1",
         "benchmark": "~2.1.4",
-        "fs-extra": "~11.3.5",
+        "fs-extra": "~11.3.6",
         "jest-extended": "~7.0.0",
         "jest-fixtures": "~0.6.0"
     },

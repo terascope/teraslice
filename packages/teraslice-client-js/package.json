@@ -35,11 +35,11 @@
         "@terascope/core-utils": "workspace:~",
         "@terascope/types": "workspace:~",
         "auto-bind": "~5.0.1",
-        "got": "~15.0.6"
+        "got": "~15.1.0"
     },
     "devDependencies": {
         "jest-extended": "~7.0.0",
-        "nock": "~14.0.15"
+        "nock": "~14.0.16"
     },
     "engines": {
         "node": ">=22.0.0",
