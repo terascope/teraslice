@@ -12,7 +12,7 @@ import {
     bumpVersion
 } from './utils.js';
 import signale from '../signale.js';
-import { setup } from '../scripts.js';
+import { setup } from '../package-manager.js';
 
 export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean): Promise<void> {
     const rootInfo = getRootInfo();

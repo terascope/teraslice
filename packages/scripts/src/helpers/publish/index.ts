@@ -6,11 +6,8 @@ import {
     shouldNPMPublish, formatDailyTag, buildDevDockerImage,
     removeNodeSuffixFromTag
 } from './utils.js';
-import {
-    packageMngrPublish, packageMngrRun, remoteDockerImageExists,
-    dockerBuild, dockerPush,
-    getNodeVersionFromImage
-} from '../scripts.js';
+import { packageMngrPublish, packageMngrRun } from '../package-manager.js';
+import { remoteDockerImageExists, dockerBuild, dockerPush, getNodeVersionFromImage } from '../docker.js';
 import { getRootInfo, getDevDockerImage, formatList } from '../misc.js';
 import signale from '../signale.js';
 

@@ -17,10 +17,11 @@ import { Service } from '@terascope/types';
 import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo, dockerStop,
-    loadThenDeleteImageFromCache, dockerPull, logTCPPorts,
-    getAdminDnFromCert, dockerBuild,
+    loadThenDeleteImageFromCache, dockerPull, dockerBuild,
     dockerExec
-} from '../scripts.js';
+} from '../docker.js';
+import { logTCPPorts } from '../kubernetes.js';
+import { getAdminDnFromCert } from '../certs.js';
 import { Kind } from '../kind.js';
 import { isOpenSearchInfo, TestOptions } from './interfaces.js';
 import config, { resolveTerasliceVersion } from '../config.js';
