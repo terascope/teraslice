@@ -13,7 +13,10 @@ import { generateTestCaCerts } from '../certs.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
 import signale from '../signale.js';
-import { getDevDockerImage, getRootDir, getRootInfo, getConfigValueFromCustomYaml, setConfigValuesForCustomYaml } from '../misc.js';
+import {
+    getDevDockerImage, getRootDir, getRootInfo,
+    getConfigValueFromCustomYaml, setConfigValuesForCustomYaml
+} from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import config from '../config.js';
