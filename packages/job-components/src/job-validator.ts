@@ -32,7 +32,10 @@ export class JobValidator {
         jobSpec: Partial<Teraslice.JobConfig | Teraslice.JobConfigParams>,
     ): Promise<{ jobConfig: ValidatedJobConfig; warnings: Terafoundation.JobWarning[] }> {
         // top level job validation occurs, but not operations
-        const { config: jobConfig, warnings: jobWarnings } = validateJobConfig(this.schema, cloneDeep(jobSpec), this.context);
+        const {
+            config: jobConfig,
+            warnings: jobWarnings
+        } = validateJobConfig(this.schema, cloneDeep(jobSpec), this.context);
         const assetIds = jobConfig.assets || [];
         const apis: Record<string, OperationAPIConstructor> = {};
 
