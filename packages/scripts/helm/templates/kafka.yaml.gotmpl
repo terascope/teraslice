@@ -45,7 +45,7 @@ readinessProbe:
 ##@ Deep copy the user's configurationOverrides from values.yaml so we don't mutate the original,
 ##@ then merge $defaults into it — user keys already present are never overwritten.
 ##@ When running via scripts, kafka.configurationOverrides is set programmatically with
-##@ k8s-appropriate listener values (see scripts.ts kafkaK8sConfigOverrides).
+##@ k8s-appropriate listener values (see helm.ts kafkaK8sConfigOverrides).
 ##@ ref: https://kafka.apache.org/documentation/#brokerconfigs
 ##@ ref: https://pkg.go.dev/text/template#hdr-Actions (range)
 {{- $final := merge (deepCopy (.Values.kafka.configurationOverrides | default dict)) $defaults }}
