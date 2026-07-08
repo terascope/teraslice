@@ -103,18 +103,3 @@ export async function runTSScript(cmd: TSCommands, args: string[]): Promise<void
     });
 }
 
-export async function pgrep(name: string): Promise<string> {
-    const result = await exec({ cmd: 'ps', args: ['aux'] }, false);
-    if (!result) {
-        throw new Error('Invalid result from ps aux');
-    }
-    const found = result.split('\n').find((line) => {
-        if (!line) return false;
-        return line.toLowerCase().includes(name.toLowerCase());
-    });
-    if (found) {
-        logger.trace('found process', found);
-        return found;
-    }
-    return '';
-}

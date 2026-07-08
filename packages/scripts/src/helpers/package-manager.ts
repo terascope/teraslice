@@ -3,12 +3,21 @@ import fse from 'fs-extra';
 import { execa } from 'execa';
 import { get, debugLogger } from '@terascope/core-utils';
 import { fork, type ExecEnv } from './exec.js';
-import { getRootDir, getPackageManager, mapToArgs, type ArgsMap } from './misc.js';
+import { getRootDir, getRootInfo, mapToArgs, type ArgsMap } from './misc.js';
 import signale from './signale.js';
 import { PackageInfo } from './interfaces.js';
 import { TestFramework, TestFrameworks } from './test-runner/interfaces.js';
 
 const logger = debugLogger('ts-scripts:cmd');
+
+/**
+ * Returns the package manager by reading the `packageManager` field from the
+ * root package.json (e.g. "pnpm@10.25.0" → "pnpm"). Defaults to 'pnpm' if not set.
+ */
+export function getPackageManager(): string {
+    const rootInfo = getRootInfo();
+    return rootInfo.packageManager?.split('@')[0] ?? 'pnpm';
+}
 
 export async function build(pkgInfo?: PackageInfo): Promise<void> {
     if (pkgInfo) {

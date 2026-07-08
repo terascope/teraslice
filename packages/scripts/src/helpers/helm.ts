@@ -107,6 +107,7 @@ export async function getCurrentHelmChartVersion(): Promise<string> {
     return chartYAML.version as string;
 }
 
+// Move to misc.ts if this is ever needed outside of helm.ts
 function getTerasliceVersion() {
     const rootPackageInfo = getRootInfo();
     return rootPackageInfo.version;

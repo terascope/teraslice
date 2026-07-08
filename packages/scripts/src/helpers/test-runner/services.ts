@@ -14,13 +14,12 @@ import {
     getErrorStatusCode, isKey, toHumanTime
 } from '@terascope/core-utils';
 import { Service } from '@terascope/types';
-import { getServicesForSuite, getRootDir } from '../misc.js';
+import { getServicesForSuite, getRootDir, logTCPPorts } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo, dockerStop,
     loadThenDeleteImageFromCache, dockerPull, dockerBuild,
     dockerExec
 } from '../docker.js';
-import { logTCPPorts } from '../kubernetes.js';
 import { getAdminDnFromCert } from '../certs.js';
 import { Kind } from '../kind.js';
 import { isOpenSearchInfo, TestOptions } from './interfaces.js';
