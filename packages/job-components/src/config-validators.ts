@@ -83,7 +83,7 @@ export function validateAPIConfig<T>(
  */
 export function validateJobConfig<T>(
     inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
-): ValidatedJobConfig & T {
+): { config: ValidatedJobConfig & T; warnings: TF.JobWarning[] } {
     const validator = new SchemaValidator<ValidatedJobConfig & T>(
         inputSchema as TF.Schema<ValidatedJobConfig & T>,
         inputConfig.name,
@@ -102,7 +102,24 @@ export function validateJobConfig<T>(
         ) {
             throw new Error(`cpu/memory can't be mixed with resource settings of the same type.`);
         }
-        return jobProperties;
+
+        // collect warnings from job fields
+        const warnings: TF.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
+            type: 'JobValidation',
+            reason: {
+                type: 'jobProperty',
+                reason: {
+                    name: inputConfig.name,
+                    type: 'deprecation',
+                    reason: {
+                        name: schemaWarning.field,
+                        description: schemaWarning.description,
+                    },
+                },
+            },
+        }));
+
+        return { config: jobProperties, warnings };
     } catch (err) {
         throw new Error(`Validation failed for job config: ${inputConfig.name} - ${err.message}`);
     }

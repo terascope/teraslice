@@ -37,7 +37,7 @@ describe('when using native clustering', () => {
                 slicers: 1,
             };
 
-            const jobConfig = validateJobConfig(schema, job, context);
+            const { config: jobConfig } = validateJobConfig(schema, job, context);
             delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });
@@ -536,7 +536,7 @@ describe('when using native clustering', () => {
                     slicers: 1,
                 };
 
-                const jobConfig = validateJobConfig(schema, job, context);
+                const { config: jobConfig } = validateJobConfig(schema, job, context);
                 delete (jobConfig as any).workers;
                 expect(jobConfig).toMatchObject(validJob);
             });
@@ -623,7 +623,7 @@ describe('when using native clustering', () => {
                     slicers: 1,
                 };
 
-                const jobConfig = validateJobConfig(schema, job, context);
+                const { config: jobConfig } = validateJobConfig(schema, job, context);
                 delete (jobConfig as any).workers;
                 expect(jobConfig).toMatchObject(validJob);
             });
@@ -723,7 +723,7 @@ describe('when validating k8s v2 clustering', () => {
                 ],
             };
 
-            const jobConfig = validateJobConfig(schema, job, context);
+            const { config: jobConfig } = validateJobConfig(schema, job, context);
             expect(jobConfig.cpu).toEqual(job.cpu);
             expect(jobConfig.memory).toEqual(job.memory);
         });
@@ -747,7 +747,7 @@ describe('when validating k8s v2 clustering', () => {
                 ],
             };
 
-            const jobConfig = validateJobConfig(schema, job, context);
+            const { config: jobConfig } = validateJobConfig(schema, job, context);
             expect(jobConfig.resources_requests_cpu).toEqual(job.resources_requests_cpu);
             expect(jobConfig.resources_requests_memory).toEqual(job.resources_requests_memory);
             expect(jobConfig.resources_limits_cpu).toEqual(job.resources_limits_cpu);
@@ -820,7 +820,7 @@ describe('when validating k8s v2 clustering', () => {
                 volumes: [],
             };
 
-            const jobConfig = validateJobConfig(schema, job, context);
+            const { config: jobConfig } = validateJobConfig(schema, job, context);
             delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });
@@ -865,7 +865,7 @@ describe('when validating k8s v2 clustering', () => {
                 slicers: 1,
             };
 
-            const jobConfig = validateJobConfig(schema, job, context);
+            const { config: jobConfig } = validateJobConfig(schema, job, context);
             delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });
