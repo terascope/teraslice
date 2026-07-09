@@ -1,17 +1,22 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { isCI, pRetry } from '@terascope/core-utils';
+import { dockerTag, dockerBuild } from '../docker.js';
 import {
-    dockerTag, isHelmInstalled, isHelmfileInstalled, isKindInstalled,
-    isKubectlInstalled, launchTerasliceWithHelmfile,
-    helmfileDestroy, determineSearchHost, deletePersistentVolumeClaim,
-    generateTestCaCerts, dockerBuild, getConfigValueFromCustomYaml,
-    launchTerasliceWithCustomHelmfile, setConfigValuesForCustomYaml
-} from '../scripts.js';
+    isHelmInstalled, isHelmfileInstalled, isKindInstalled,
+    isKubectlInstalled, determineSearchHost, deletePersistentVolumeClaim
+} from '../kubernetes.js';
+import {
+    launchTerasliceWithHelmfile, helmfileDestroy, launchTerasliceWithCustomHelmfile
+} from '../helm.js';
+import { generateTestCaCerts } from '../certs.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
 import signale from '../signale.js';
-import { getDevDockerImage, getRootDir, getRootInfo } from '../misc.js';
+import {
+    getDevDockerImage, getRootDir, getRootInfo,
+    getConfigValueFromCustomYaml, setConfigValuesForCustomYaml
+} from '../misc.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import config from '../config.js';
