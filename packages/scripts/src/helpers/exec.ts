@@ -102,4 +102,3 @@ export async function runTSScript(cmd: TSCommands, args: string[]): Promise<void
         args: [cmd, ...args],
     });
 }
-

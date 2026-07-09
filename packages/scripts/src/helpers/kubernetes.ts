@@ -145,7 +145,6 @@ async function showAssets(tsPort: number) {
     }
 }
 
-
 export async function deletePersistentVolumeClaim(searchHost: string) {
     try {
         const label = searchHost.includes('opensearch') ? `app.kubernetes.io/instance=${searchHost}` : `app=${searchHost}-master`;

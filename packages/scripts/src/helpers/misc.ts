@@ -124,7 +124,6 @@ export function getAvailableTestSuites(): string[] {
     return Object.keys(getRootInfo().terascope.tests.suites);
 }
 
-
 export function getServicesForSuite(suite: string): Service[] {
     const services = getRootInfo().terascope.tests.suites[suite] || [];
 
