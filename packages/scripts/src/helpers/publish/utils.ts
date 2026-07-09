@@ -1,6 +1,7 @@
 import semver from 'semver';
 import { TSError, toHumanTime } from '@terascope/core-utils';
-import { getCommitHash, dockerBuild } from '../scripts.js';
+import { getCommitHash } from '../git.js';
+import { dockerBuild } from '../docker.js';
 import { PublishType, PublishOptions } from './interfaces.js';
 import { PackageInfo } from '../interfaces.js';
 import signale from '../signale.js';

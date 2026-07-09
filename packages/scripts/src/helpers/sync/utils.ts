@@ -12,7 +12,7 @@ import {
 import { updateReadme, ensureOverview } from '../doc-builder/overview.js';
 import { PackageInfo, RootPackageInfo } from '../interfaces.js';
 import { formatList, getRootDir } from '../misc.js';
-import { getChangedFiles, gitDiff } from '../scripts.js';
+import { getChangedFiles, gitDiff } from '../git.js';
 import { DepKey, SyncOptions } from './interfaces.js';
 import signale from '../signale.js';
 

@@ -17,12 +17,11 @@ import {
 } from './services.js';
 import { PackageInfo } from '../interfaces.js';
 import { TestFramework, TestOptions } from './interfaces.js';
-import {
-    dockerTag, isKindInstalled, isKubectlInstalled,
-    loadThenDeleteImageFromCache, deleteDockerImageCache,
-    isHelmInstalled, isHelmfileInstalled, launchTerasliceWithHelmfile,
-    generateTestCaCerts, runTestFramework
-} from '../scripts.js';
+import { dockerTag, loadThenDeleteImageFromCache, deleteDockerImageCache } from '../docker.js';
+import { isKindInstalled, isKubectlInstalled, isHelmInstalled, isHelmfileInstalled } from '../kubernetes.js';
+import { launchTerasliceWithHelmfile } from '../helm.js';
+import { generateTestCaCerts } from '../certs.js';
+import { runTestFramework } from '../package-manager.js';
 import { Kind } from '../kind.js';
 import {
     filterBySuite, getArgs, getEnv, getTestFramework,

@@ -2,7 +2,7 @@ import fse from 'fs-extra';
 import config from '../config.js';
 import { ImagesAction, ImagesOptions } from './interfaces.js';
 import signale from '../signale.js';
-import { dockerPull, saveAndZip } from '../scripts.js';
+import { dockerPull, saveAndZip } from '../docker.js';
 import { getRootInfo } from '../misc.js';
 import { getKindDockerImage } from '../github.js';
 

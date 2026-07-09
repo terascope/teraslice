@@ -14,13 +14,13 @@ import {
     getErrorStatusCode, isKey, toHumanTime
 } from '@terascope/core-utils';
 import { Service } from '@terascope/types';
-import { getServicesForSuite, getRootDir } from '../misc.js';
+import { getServicesForSuite, getRootDir, logTCPPorts } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo, dockerStop,
-    loadThenDeleteImageFromCache, dockerPull, logTCPPorts,
-    getAdminDnFromCert, dockerBuild,
+    loadThenDeleteImageFromCache, dockerPull, dockerBuild,
     dockerExec
-} from '../scripts.js';
+} from '../docker.js';
+import { getAdminDnFromCert } from '../certs.js';
 import { Kind } from '../kind.js';
 import { isOpenSearchInfo, TestOptions } from './interfaces.js';
 import config, { resolveTerasliceVersion } from '../config.js';
@@ -414,7 +414,7 @@ export async function ensureTeraslice(
 ): Promise<() => void> {
     await resolveTerasliceVersion();
 
-    const configPath = writeTerasliceConfig(launchServices);
+    const configPath = writeTerasliceConfig(launchServices, options);
     const configMount = `type=bind,source=${configPath},target=/app/config/teraslice.yaml`;
 
     if (config.TERASLICE_DOCKER_VOLUME_PATHS) {
@@ -492,7 +492,13 @@ async function ensureTerasliceWithDevPackages(
     return fn;
 }
 
-function writeTerasliceConfig(launchServices: Service[]): string {
+function writeTerasliceConfig(launchServices: Service[], options: TestOptions): string {
+    const logLevel = options.trace
+        ? 'trace'
+        : options.debug
+            ? 'debug'
+            : 'info';
+
     const opensearchNode = `${config.OPENSEARCH_PROTOCOL}://${config.OPENSEARCH_HOSTNAME}:${config.OPENSEARCH_PORT}`;
 
     const connectors: Record<string, any> = {
@@ -535,7 +541,7 @@ function writeTerasliceConfig(launchServices: Service[]): string {
 
     const cfg = {
         terafoundation: {
-            log_level: 'info',
+            log_level: logLevel,
             workers: 1,
             connectors,
         },

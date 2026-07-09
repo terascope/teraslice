@@ -1,11 +1,17 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import fse from 'fs-extra';
+import { execaCommand } from 'execa';
+import { load } from 'js-yaml';
+import { parseDocument } from 'yaml';
 import { packageUpSync } from 'package-up';
 import sortPackageJson from 'sort-package-json';
 import {
     isPlainObject, get, toTitleCase,
-    defaultsDeep
+    defaultsDeep, debugLogger
 } from '@terascope/core-utils';
+
+const logger = debugLogger('ts-scripts:misc');
 import { Service } from '@terascope/types';
 import { PackageInfo, RootPackageInfo } from './interfaces.js';
 import config from './config.js';
@@ -116,15 +122,6 @@ export function getRootInfo(): RootPackageInfo {
 
 export function getAvailableTestSuites(): string[] {
     return Object.keys(getRootInfo().terascope.tests.suites);
-}
-
-/**
- * Returns the package manager by reading the `packageManager` field from the
- * root package.json (e.g. "pnpm@10.25.0" → "pnpm"). Defaults to 'pnpm' if not set.
- */
-export function getPackageManager(): string {
-    const rootInfo = getRootInfo();
-    return rootInfo.packageManager?.split('@')[0] ?? 'pnpm';
 }
 
 export function getServicesForSuite(suite: string): Service[] {
@@ -247,4 +244,76 @@ export function writePkgHeader(
 ): void {
     const names = pkgInfos.map(({ name }) => name).join(', ');
     writeHeader(`${prefix} for ${names}`, prefixNewline);
+}
+
+export const TEST_CONFIGS = 'test-configs';
+
+export type ArgsMap = { [key: string]: string | string[] };
+export function mapToArgs(input: ArgsMap): string[] {
+    const args: string[] = [];
+    for (const [key, value] of Object.entries(input)) {
+        const vals = Array.isArray(value) ? value : [value];
+        if (key.length > 1) {
+            args.push(`--${key}`, ...vals);
+        } else {
+            args.push(`-${key}`, ...vals);
+        }
+    }
+    return args.filter((str) => str != null && str !== '');
+}
+
+export async function getConfigValueFromCustomYaml(
+    configFilePath: string,
+    valuePath: string
+): Promise<any> {
+    const customConfig = load(fs.readFileSync(configFilePath, 'utf8')) as any;
+
+    const value = get(customConfig, valuePath, undefined);
+    return value;
+}
+
+export async function setConfigValuesForCustomYaml(
+    configFilePath: string,
+    valuePath: string,
+    valueToSet: unknown
+): Promise<void> {
+    try {
+        const customConfig = parseDocument(fs.readFileSync(configFilePath, 'utf8'));
+        const splitPath = valuePath.split('.');
+        customConfig.setIn(splitPath, valueToSet);
+        fs.writeFileSync(configFilePath, customConfig.toString(), 'utf8');
+    } catch (err) {
+        throw new Error(`Failed to set ${valuePath} to ${valueToSet} in config file ${configFilePath}. Reason: ${err.message}`);
+    }
+}
+
+export async function logTCPPorts(service: string) {
+    try {
+        const command = 'netstat -an | grep \'^tcp\' | awk \'{print $4}\' | tr ".:" " " | awk \'{print $NF}\' | sort -n | uniq | tr "\n" " "';
+        const subprocess = await execaCommand(command, { shell: true, reject: false });
+        const { stdout, stderr } = subprocess;
+
+        if (stderr) {
+            throw new Error(stderr);
+        }
+        signale.info(`TCP Ports currently in use when starting ${service}:\n ${stdout}`);
+    } catch (err) {
+        signale.error(`Execa command failed trying to log ports: ${err}`);
+    }
+}
+
+export async function pgrep(name: string): Promise<string> {
+    const subprocess = await execaCommand('ps aux', { reject: false });
+    if (!subprocess.stdout) {
+        throw new Error('Invalid result from ps aux');
+    }
+    const found = subprocess.stdout.split('\n').find((line) => {
+        if (!line) return false;
+        return line.toLowerCase().includes(name.toLowerCase());
+    });
+    if (found) {
+        logger.trace('found process', found);
+        return found;
+    }
+    return '';
 }

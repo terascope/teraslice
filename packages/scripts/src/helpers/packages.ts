@@ -20,7 +20,7 @@ import { ReleaseType } from 'semver';
 import signale from './signale.js';
 import {
     updateHelmChart, getCurrentHelmChartVersion
-} from '../helpers/scripts.js';
+} from './helm.js';
 
 let _packages: i.PackageInfo[] = [];
 let _e2eDir: string | undefined;

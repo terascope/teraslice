@@ -4,11 +4,12 @@ import {
     debugLogger, get, flatten,
     isCI, toString
 } from '@terascope/core-utils';
-import { ArgsMap, ExecEnv, exec } from '../scripts.js';
+import { ExecEnv, exec } from '../exec.js';
 import { readPackageInfo } from '../packages.js';
 import { TestOptions, GroupedPackages, TestFramework, TestFrameworks } from './interfaces.js';
 import { PackageInfo } from '../interfaces.js';
-import { getServicesForSuite, getPackageManager } from '../misc.js';
+import { getServicesForSuite, type ArgsMap } from '../misc.js';
+import { getPackageManager } from '../package-manager.js';
 import config from '../config.js';
 import signale from '../signale.js';
 import {

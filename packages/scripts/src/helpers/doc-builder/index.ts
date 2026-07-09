@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { updateReadme, ensureOverview } from './overview.js';
-import { build } from '../scripts.js';
+import { build } from '../package-manager.js';
 import { updateSidebarJSON } from './sidebar.js';
 import { PackageInfo } from '../interfaces.js';
 import { generateTSDocs } from './typedoc.js';
