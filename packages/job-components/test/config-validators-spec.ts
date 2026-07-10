@@ -442,6 +442,49 @@ describe('when using native clustering', () => {
                 validateOpConfig(schema, op, context);
             }).toThrow(/Invalid schema for formatted value/);
         });
+
+        it('should return a deprecation warning when a deprecated field is provided', () => {
+            const deprecatedSchema: Terafoundation.Schema<any> = {
+                old_value: {
+                    default: 'default_value',
+                    doc: 'a deprecated field',
+                    format: 'String',
+                    deprecated: 'use example instead',
+                },
+            };
+            const op = {
+                _op: 'some-op',
+                old_value: 'changed',
+            };
+
+            const { warnings } = validateOpConfig(deprecatedSchema, op, context);
+            expect(warnings).toBeArrayOfSize(1);
+            expect(warnings[0]).toMatchObject({
+                type: 'JobValidation',
+                reason: {
+                    type: 'assetOperationProperty',
+                    reason: {
+                        name: 'some-op',
+                        type: 'deprecation',
+                        reason: {
+                            name: 'old_value',
+                            description: 'use example instead',
+                        },
+                    },
+                },
+            });
+        });
+
+        it('should return no warnings when no deprecated fields are used', () => {
+            const op = {
+                _op: 'some-op',
+                example: 'example',
+                formatted_value: 'hi',
+            };
+
+            const { warnings } = validateOpConfig(schema, op, context);
+            expect(warnings).toBeArrayOfSize(0);
+        });
     });
 
     describe('when validating apiConfig', () => {
@@ -501,6 +544,49 @@ describe('when using native clustering', () => {
             expect(() => {
                 validateAPIConfig(schema, api, context);
             }).toThrow(/Invalid schema for formatted value/);
+        });
+
+        it('should return a deprecation warning when a deprecated field is provided', () => {
+            const deprecatedSchema: Terafoundation.Schema<any> = {
+                old_value: {
+                    default: 'default_value',
+                    doc: 'a deprecated field',
+                    format: 'String',
+                    deprecated: 'use example instead',
+                },
+            };
+            const api = {
+                _name: 'some-api',
+                old_value: 'changed',
+            };
+
+            const { warnings } = validateAPIConfig(deprecatedSchema, api, context);
+            expect(warnings).toBeArrayOfSize(1);
+            expect(warnings[0]).toMatchObject({
+                type: 'JobValidation',
+                reason: {
+                    type: 'assetAPIProperty',
+                    reason: {
+                        name: 'some-api',
+                        type: 'deprecation',
+                        reason: {
+                            name: 'old_value',
+                            description: 'use example instead',
+                        },
+                    },
+                },
+            });
+        });
+
+        it('should return no warnings when no deprecated fields are used', () => {
+            const api = {
+                _name: 'some-api',
+                example: 'example',
+                formatted_value: 'hi',
+            };
+
+            const { warnings } = validateAPIConfig(schema, api, context);
+            expect(warnings).toBeArrayOfSize(0);
         });
     });
 
@@ -726,6 +812,56 @@ describe('when validating k8s v2 clustering', () => {
             const { config: jobConfig } = validateJobConfig(schema, job, context);
             expect(jobConfig.cpu).toEqual(job.cpu);
             expect(jobConfig.memory).toEqual(job.memory);
+        });
+    });
+
+    describe('when passed a jobConfig with deprecated cpu and memory', () => {
+        it('should return jobProperty deprecation warnings', () => {
+            const schema = jobSchema(context);
+            const job = {
+                name: 'test-job',
+                cpu: 1,
+                memory: 805306368,
+                operations: [
+                    {
+                        _op: 'noop',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            const { warnings } = validateJobConfig(schema, job, context);
+            expect(warnings).toBeArrayOfSize(2);
+            expect(warnings[0]).toMatchObject({
+                type: 'JobValidation',
+                reason: {
+                    type: 'jobProperty',
+                    reason: {
+                        name: 'test-job',
+                        type: 'deprecation',
+                        reason: {
+                            name: 'cpu',
+                            description: '"cpu" on a job is deprecated and should use "resources_requests_cpu" instead',
+                        },
+                    },
+                },
+            });
+            expect(warnings[1]).toMatchObject({
+                type: 'JobValidation',
+                reason: {
+                    type: 'jobProperty',
+                    reason: {
+                        name: 'test-job',
+                        type: 'deprecation',
+                        reason: {
+                            name: 'memory',
+                            description: '"memory" on a job is deprecated and should use "resources_requests_memory" instead',
+                        },
+                    },
+                },
+            });
         });
     });
 
