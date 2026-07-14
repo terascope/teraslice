@@ -27,7 +27,7 @@ Only proceed to a brand-new bundle (Step 1) when the data source has **no** publ
 Determine which the user wants:
 
 - **New operation in an existing bundle** (most common) → Step 2.
-- **New bundle from scratch** (only when no public bundle fits — see Step 0) → read `references/new-bundle.md`, scaffold the repo, then return to Step 2 to add the first operation. If the bundle talks to an external service (database, queue, object store), it also needs an in-repo API package + a Dockerfile that layers it onto the Teraslice image — read `references/api-package-and-docker.md`.
+- **New bundle from scratch** (only when no public bundle fits — see Step 0) → read `references/new-bundle.md`, scaffold the repo, then return to Step 2 to add the first operation. If the bundle talks to an external service (database, queue, object store), it also needs — all inside its own monorepo — a **terafoundation connector** (required when introducing a new service like a database; it owns the credentials so they stay out of the job), an API/client package, and a Dockerfile that installs the connector onto the Teraslice image. Read `references/api-package-and-docker.md`.
 
 Ask where the target bundle lives if it isn't obvious. Default search location is `/Users/jsoto/Workspace/TerasliceAssets/`. Confirm the absolute path before writing anything.
 
