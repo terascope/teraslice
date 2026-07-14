@@ -2,7 +2,12 @@
 
 An asset bundle is a repo (usually a small monorepo) that compiles to a deployable zip. Model a new one on `standard-assets` or `elasticsearch-assets` in `/Users/jsoto/Workspace/TerasliceAssets/`. Confirm the target directory and bundle name with the user first.
 
-> **Talking to an external service (database, queue, object store)?** The bundle should also ship a companion **API/client package inside its own monorepo** (`packages/<name>-asset-api`), plus a **Dockerfile** that layers that package onto the Teraslice runtime image. Read `references/api-package-and-docker.md` — that is a required part of this kind of bundle, and the package must **not** go in the `teraslice` repo.
+> **Talking to an external service (database, queue, object store)?** The bundle must also ship, **inside its own monorepo** (never in the `teraslice` repo):
+> - a **terafoundation connector** (`packages/terafoundation_<name>_connector`) — **required when introducing a new service such as a database**; it holds the connection config (host/user/password) so credentials stay out of the job, which references a connection by name via `_connection`;
+> - a companion **API/client package** (`packages/<name>-asset-api`);
+> - a **Dockerfile** that installs the connector onto the Teraslice runtime image.
+>
+> Read `references/api-package-and-docker.md` for all three — it is a required part of this kind of bundle.
 
 ## Minimum layout
 
