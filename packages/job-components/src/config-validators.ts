@@ -22,14 +22,12 @@ export function validateOpConfig<T>(
         const warnings: TF.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
             type: 'JobValidation',
             reason: {
-                type: 'assetOperationProperty',
+                type: 'assetOperation',
+                kind: 'deprecation',
                 reason: {
-                    name: inputConfig._op,
-                    type: 'deprecation',
-                    reason: {
-                        name: schemaWarning.field,
-                        description: schemaWarning.description,
-                    },
+                    _op: inputConfig._op,
+                    field: schemaWarning.field,
+                    description: schemaWarning.description,
                 },
             },
         }));
@@ -61,13 +59,11 @@ export function validateAPIConfig<T>(
             type: 'JobValidation',
             reason: {
                 type: 'assetAPIProperty',
+                kind: 'deprecation',
                 reason: {
-                    name: inputConfig._name,
-                    type: 'deprecation',
-                    reason: {
-                        name: schemaWarning.field,
-                        description: schemaWarning.description,
-                    },
+                    api_name: inputConfig._name,
+                    field: schemaWarning.field,
+                    description: schemaWarning.description,
                 },
             },
         }));
@@ -108,13 +104,10 @@ export function validateJobConfig<T>(
             type: 'JobValidation',
             reason: {
                 type: 'jobProperty',
+                kind: 'deprecation',
                 reason: {
-                    name: inputConfig.name,
-                    type: 'deprecation',
-                    reason: {
-                        name: schemaWarning.field,
-                        description: schemaWarning.description,
-                    },
+                    field: schemaWarning.field,
+                    description: schemaWarning.description,
                 },
             },
         }));

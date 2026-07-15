@@ -184,14 +184,12 @@ describe('Teraslice Jobs', () => {
                 warnings: [{
                     type: 'JobValidation',
                     reason: {
-                        type: 'assetOperationProperty',
+                        type: 'assetOperation',
+                        kind: 'deprecation',
                         reason: {
-                            name: 'operation',
-                            type: 'deprecation',
-                            reason: {
-                                name: 'old_field',
-                                description: 'old_field is deprecated',
-                            },
+                            _op: 'operation',
+                            field: 'old_field',
+                            description: 'old_field is deprecated',
                         },
                     },
                 }]
@@ -211,14 +209,12 @@ describe('Teraslice Jobs', () => {
                 expect(result.warnings[0]).toMatchObject({
                     type: 'JobValidation',
                     reason: {
-                        type: 'assetOperationProperty',
+                        type: 'assetOperation',
+                        kind: 'deprecation',
                         reason: {
-                            name: 'operation',
-                            type: 'deprecation',
-                            reason: {
-                                name: 'old_field',
-                                description: 'old_field is deprecated',
-                            },
+                            _op: 'operation',
+                            field: 'old_field',
+                            description: 'old_field is deprecated',
                         },
                     },
                 });

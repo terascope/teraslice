@@ -163,9 +163,8 @@ export default class Jobs {
                 const response = await job.api.recover();
 
                 for (const warning of response.warnings ?? []) {
-                    const assetDeprecation = warning.reason.reason;
-                    const fieldDeprecation = assetDeprecation.reason;
-                    reply.warning(`Warning: (${assetDeprecation.type}) ${fieldDeprecation.description}`);
+                    const { kind, reason } = warning.reason;
+                    reply.warning(`Warning: (${kind}) ${reason.description}`);
                 }
 
                 this.logUpdate({
@@ -311,9 +310,8 @@ export default class Jobs {
                 if (action === 'start') {
                     const startResult = result as Teraslice.ApiJobCreateResponse;
                     for (const warning of startResult.warnings ?? []) {
-                        const assetDeprecation = warning.reason.reason;
-                        const fieldDeprecation = assetDeprecation.reason;
-                        reply.warning(`Warning: (${assetDeprecation.type}) ${fieldDeprecation.description}`);
+                        const { kind, reason } = warning.reason;
+                        reply.warning(`Warning: (${kind}) ${reason.description}`);
                     }
                 }
             } catch (e) {

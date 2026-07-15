@@ -83,14 +83,12 @@ describe('Base Schema', () => {
             expect(warnings[0]).toMatchObject({
                 type: 'JobValidation',
                 reason: {
-                    type: 'assetOperationProperty',
+                    type: 'assetOperation',
+                    kind: 'deprecation',
                     reason: {
-                        name: 'hello',
-                        type: 'deprecation',
-                        reason: {
-                            name: 'old_field',
-                            description: 'use new_field instead',
-                        },
+                        _op: 'hello',
+                        field: 'old_field',
+                        description: 'use new_field instead',
                     },
                 },
             });

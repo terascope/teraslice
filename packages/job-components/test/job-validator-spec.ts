@@ -61,7 +61,7 @@ describe('JobValidator', () => {
             const { warnings } = await api.validateConfig(jobSpec);
             expect(warnings).toBeArrayOfSize(2);
             expect(warnings.every((w) => w.type === 'JobValidation')).toBeTrue();
-            expect(warnings.every((w) => w.reason.reason.type === 'deprecation')).toBeTrue();
+            expect(warnings.every((w) => w.reason.kind === 'deprecation')).toBeTrue();
         });
 
         it('collects deprecation warnings from an api', async () => {
@@ -90,13 +90,11 @@ describe('JobValidator', () => {
                 type: 'JobValidation',
                 reason: {
                     type: 'assetAPIProperty',
+                    kind: 'deprecation',
                     reason: {
-                        name: 'example-api',
-                        type: 'deprecation',
-                        reason: {
-                            name: 'old_example',
-                            description: 'use example instead',
-                        },
+                        api_name: 'example-api',
+                        field: 'old_example',
+                        description: 'use example instead',
                     },
                 },
             });

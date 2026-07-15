@@ -462,14 +462,12 @@ describe('when using native clustering', () => {
             expect(warnings[0]).toMatchObject({
                 type: 'JobValidation',
                 reason: {
-                    type: 'assetOperationProperty',
+                    type: 'assetOperation',
+                    kind: 'deprecation',
                     reason: {
-                        name: 'some-op',
-                        type: 'deprecation',
-                        reason: {
-                            name: 'old_value',
-                            description: 'use example instead',
-                        },
+                        _op: 'some-op',
+                        field: 'old_value',
+                        description: 'use example instead',
                     },
                 },
             });
@@ -566,13 +564,11 @@ describe('when using native clustering', () => {
                 type: 'JobValidation',
                 reason: {
                     type: 'assetAPIProperty',
+                    kind: 'deprecation',
                     reason: {
-                        name: 'some-api',
-                        type: 'deprecation',
-                        reason: {
-                            name: 'old_value',
-                            description: 'use example instead',
-                        },
+                        api_name: 'some-api',
+                        field: 'old_value',
+                        description: 'use example instead',
                     },
                 },
             });
@@ -838,13 +834,10 @@ describe('when validating k8s v2 clustering', () => {
                 type: 'JobValidation',
                 reason: {
                     type: 'jobProperty',
+                    kind: 'deprecation',
                     reason: {
-                        name: 'test-job',
-                        type: 'deprecation',
-                        reason: {
-                            name: 'cpu',
-                            description: '"cpu" on a job is deprecated and should use "resources_requests_cpu" instead',
-                        },
+                        field: 'cpu',
+                        description: '"cpu" on a job is deprecated and should use "resources_requests_cpu" instead',
                     },
                 },
             });
@@ -852,13 +845,10 @@ describe('when validating k8s v2 clustering', () => {
                 type: 'JobValidation',
                 reason: {
                     type: 'jobProperty',
+                    kind: 'deprecation',
                     reason: {
-                        name: 'test-job',
-                        type: 'deprecation',
-                        reason: {
-                            name: 'memory',
-                            description: '"memory" on a job is deprecated and should use "resources_requests_memory" instead',
-                        },
+                        field: 'memory',
+                        description: '"memory" on a job is deprecated and should use "resources_requests_memory" instead',
                     },
                 },
             });

@@ -228,14 +228,12 @@ describe('Teraslice Job', () => {
             const deprecationWarning: Terafoundation.JobWarning = {
                 type: 'JobValidation',
                 reason: {
-                    type: 'assetOperationProperty',
+                    type: 'assetOperation',
+                    kind: 'deprecation',
                     reason: {
-                        name: 'some-op',
-                        type: 'deprecation',
-                        reason: {
-                            name: 'old_field',
-                            description: 'old_field is deprecated, use new_field instead',
-                        },
+                        _op: 'some-op',
+                        field: 'old_field',
+                        description: 'old_field is deprecated, use new_field instead',
                     },
                 },
             };
@@ -318,13 +316,11 @@ describe('Teraslice Job', () => {
                 type: 'JobValidation',
                 reason: {
                     type: 'assetAPIProperty',
+                    kind: 'deprecation',
                     reason: {
-                        name: 'some-api',
-                        type: 'deprecation',
-                        reason: {
-                            name: 'old_api_field',
-                            description: 'old_api_field is deprecated, use new_api_field instead',
-                        },
+                        api_name: 'some-api',
+                        field: 'old_api_field',
+                        description: 'old_api_field is deprecated, use new_api_field instead',
                     },
                 },
             };
