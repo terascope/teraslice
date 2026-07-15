@@ -26,23 +26,53 @@ export interface SchemaObj<T = any> {
     [key: string]: any;
 }
 
-export interface DeprecationFieldReason {
+/** A deprecated field on an asset API */
+export interface AssetAPIDeprecationReason {
+    /** the api name the deprecated field came from */
+    api_name: string;
     /** the specific field that is deprecated */
-    name: string;
+    field: string;
     description: string;
 }
 
-export interface AssetDeprecationReason {
-    /** the op or api name the deprecated field came from */
-    name: string;
-    type: 'deprecation';
-    reason: DeprecationFieldReason;
+/** A deprecated field on an asset operation */
+export interface AssetOperationDeprecationReason {
+    /** the op name the deprecated field came from */
+    _op: string;
+    /** the specific field that is deprecated */
+    field: string;
+    description: string;
 }
 
-export interface JobValidationReason {
-    type: 'assetAPIProperty' | 'assetOperationProperty' | 'jobProperty';
-    reason: AssetDeprecationReason;
+/** A deprecated field on a job property */
+export interface JobPropertyDeprecationReason {
+    /** the specific field that is deprecated */
+    field: string;
+    description: string;
 }
+
+export interface AssetAPIValidationReason {
+    type: 'assetAPIProperty';
+    kind: 'deprecation';
+    reason: AssetAPIDeprecationReason;
+}
+
+export interface AssetOperationValidationReason {
+    type: 'assetOperation';
+    kind: 'deprecation';
+    reason: AssetOperationDeprecationReason;
+}
+
+export interface JobPropertyValidationReason {
+    type: 'jobProperty';
+    kind: 'deprecation';
+    reason: JobPropertyDeprecationReason;
+}
+
+export type JobValidationReason
+    = | AssetAPIValidationReason
+        | AssetOperationValidationReason
+        | JobPropertyValidationReason;
 
 export interface JobWarning {
     type: 'JobValidation';
