@@ -28,6 +28,7 @@ export class Worker {
     isShuttingDown = false;
     isProcessing = false;
     isInitialized = false;
+    isSliceInitializing = false;
     shouldShutdown = false;
     forceShutdown = false;
     slicesProcessed = 0;
@@ -177,13 +178,20 @@ export class Worker {
     }
 
     async runOnce() {
-        if (this.isShuttingDown || this.forceShutdown || this.shouldShutdown) return;
+        this.isSliceInitializing = true;
+        if (this.isShuttingDown || this.forceShutdown || this.shouldShutdown) {
+            this.isSliceInitializing = false;
+            this.events.emit('worker:slice:initialized');
+            return;
+        }
 
         this.logger.trace('waiting for new slice from execution controller');
         const msg = await this.client.waitForSlice(() => this.isShuttingDown);
 
         if (!msg) {
             this.logger.debug(`${this.workerId} worker is idle`);
+            this.isSliceInitializing = false;
+            this.events.emit('worker:slice:initialized');
             return;
         }
 
@@ -194,6 +202,8 @@ export class Worker {
 
         try {
             await this.slice.initialize(msg);
+            this.isSliceInitializing = false;
+            this.events.emit('worker:slice:initialized');
 
             // After we init the slice we check for log level on the slice
             // We update in the case it differs from what the worker has
@@ -203,6 +213,11 @@ export class Worker {
                     this.context.apis.foundation.setLogLevel(msg.log_level as Logger.LogLevel);
                     this.logger.info(`log level updated to ${msg.log_level} for slice ${sliceId}`);
                 }
+            }
+
+            if (this.isShuttingDown || this.forceShutdown || this.shouldShutdown) {
+                this.isProcessing = false;
+                return;
             }
 
             await this.slice.run();
@@ -274,6 +289,18 @@ export class Worker {
         // in case a slice isn't currently active
         if (shutdownError && this.executionContext.sliceState) {
             this.executionContext.onSliceFailed();
+        }
+
+        // if a new slice is already initializing we must wait for the reference
+        // to this.slice to be updated or we could hit a race condition where we
+        // flush the previous slice, but mark the new slice as complete.
+        if (this.isSliceInitializing) {
+            const p = await new Promise((resolve) => {
+                this.events.once('worker:slice:initialized', () => {
+                    resolve(null);
+                });
+            });
+            await p;
         }
 
         // attempt to flush the slice

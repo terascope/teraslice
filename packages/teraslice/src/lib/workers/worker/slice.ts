@@ -59,7 +59,9 @@ export class SliceExecution {
             result = await this.executionContext.runSlice();
 
             sliceSuccess = true;
-            await this._markCompleted(result.retry_count);
+            if (result.status === 'completed') {
+                await this._markCompleted(result.retry_count);
+            }
         } catch (err) {
             const error = err || new Error(`Unknown slice error, got ${getTypeOf(err)} error`);
             // avoid incorrectly marking
@@ -83,7 +85,9 @@ export class SliceExecution {
         const result = await this.executionContext.flush();
 
         if (result) {
-            await this._markCompleted();
+            if (result.status === 'completed') {
+                await this._markCompleted();
+            }
             await this._logAnalytics(result);
             await this._onSliceFinalize(this.slice);
         }
