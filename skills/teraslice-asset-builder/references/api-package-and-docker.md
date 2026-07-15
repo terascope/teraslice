@@ -96,24 +96,39 @@ The reader/sender client library is a second workspace package, e.g. `packages/<
 
 ## Rule 2 — the CONNECTOR must be installed into the Teraslice runtime image
 
-Teraslice imports the connector **by module name** — at boot (to validate `terafoundation.connectors.<name>`) and at runtime (`foundation.createClient`). So the connector package must be present in the runtime's `node_modules`. The API package does not (it's bundled in the zip). Ship a `Dockerfile` that installs the **connector**:
+Teraslice imports the connector **by module name** — at boot (to validate `terafoundation.connectors.<name>`) and at runtime (`foundation.createClient`). So the connector package must be present in the runtime's `node_modules`. The API package does not (it's bundled in the zip). Ship a `Dockerfile` that installs the **connector**.
+
+**Do NOT `npm install` in `/app/source`.** That directory holds teraslice's own `package.json`, which uses pnpm `workspace:` specs; `npm install` there dies with `EUNSUPPORTEDPROTOCOL Unsupported URL Type "workspace:"`. Also, `cp`-ing packages over teraslice's existing pnpm **symlinks** (e.g. `@terascope/core-utils`) fails with "is not a directory". The working pattern: pack the pre-built connector, install it (production deps only) in a **clean scratch prefix**, then merge the result into teraslice's `node_modules`.
+
+Because the connector typically imports terascope types (`Logger`, `Terafoundation`) as **types only**, make `@terascope/*` `devDependencies` and use `import type` — then its only runtime dependency is the driver (e.g. `pg`), so `--omit=dev` installs a small tree that doesn't collide with teraslice's own `@terascope` packages.
 
 ```dockerfile
-# No `latest` tag for terascope/teraslice — pick the newest published tag.
-# Format: vX.Y.Z-nodevNN (Docker Hub terascope/teraslice, or the GitHub releases)
-ARG TERASLICE_IMAGE=terascope/teraslice:v3.14.0-nodev22.21.1
+# No `latest` tag for teraslice — pick the newest published tag (vX.Y.Z-nodevNN)
+# from ghcr.io/terascope/teraslice or the GitHub releases.
+ARG TERASLICE_IMAGE=ghcr.io/terascope/teraslice:v3.14.0-nodev24.18.0
 FROM ${TERASLICE_IMAGE}
-ARG CONNECTOR_PACKAGE=terafoundation_<name>_connector
 
-# teraslice image runs as USER 10001 with root-owned code under /app/source.
 USER root
-WORKDIR /app/source
-RUN npm install --no-save ${CONNECTOR_PACKAGE} && npm cache clean --force
+# The pre-built connector package (run `pnpm build` first so dist/ exists).
+COPY packages/terafoundation_<name>_connector /tmp/connector
+RUN cd /tmp/connector && npm pack --silent \
+    && mv terafoundation_<name>_connector-*.tgz /tmp/connector.tgz \
+    && cd /tmp && npm init -y >/dev/null 2>&1 \
+    && npm install --no-audit --no-fund --no-save --omit=dev /tmp/connector.tgz \
+    && cp -a /tmp/node_modules/. /app/source/node_modules/ \
+    && rm -rf /tmp/connector /tmp/connector.tgz /tmp/node_modules /tmp/package.json \
+    && npm cache clean --force
 USER 10001
 ```
 
-Verify: `docker run --rm <image> node -e "require('terafoundation_<name>_connector')"`.
-Point the cluster (native, or the kubernetes `kubernetes_image` config) at the derived image; deploy the asset the normal way.
+Verify the way terafoundation actually loads it — an **ESM** `import` (not `require`; the connector is `"type": "module"`) resolved from `/app/source`:
+
+```bash
+docker run --rm -w /app/source <image> \
+  node --input-type=module -e "import('terafoundation_<name>_connector').then((m) => console.log(typeof m.default.createClient))"
+```
+
+Point the cluster (native, or the kubernetes `kubernetes_image` config) at the derived image; deploy the asset the normal way. (Once the connector is published to npm, you can `npm install <name>` in the scratch prefix instead of COPY+pack.)
 
 ---
 
