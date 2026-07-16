@@ -28,6 +28,7 @@ export default class Jobs extends Client {
     // TODO: Teraslice v4 this exists to avoid a breaking change to submit() which returns just
     // the Job. This is only used by teraslice-cli. In Teraslice v4, submit() should
     // be updated to return warnings and this method removed.
+    // See https://github.com/terascope/teraslice/issues/4501
     async submitWithWarnings(
         jobSpec: Teraslice.JobConfigParams,
         shouldNotStart?: boolean
