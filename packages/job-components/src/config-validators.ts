@@ -19,18 +19,19 @@ export function validateOpConfig<T>(
         context);
     try {
         const config = validator.validate(inputConfig);
-        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
-            type: 'JobValidation',
-            reason: {
-                type: 'assetOperation',
-                kind: 'deprecation',
+        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings
+            .map((schemaWarning) => ({
+                type: 'JobValidation',
                 reason: {
-                    _op: inputConfig._op,
-                    field: schemaWarning.field,
-                    description: schemaWarning.description,
+                    type: 'assetOperation',
+                    kind: 'deprecation',
+                    reason: {
+                        _op: inputConfig._op,
+                        field: schemaWarning.field,
+                        description: schemaWarning.description,
+                    },
                 },
-            },
-        }));
+            }));
         return { config, warnings };
     } catch (err) {
         throw new Error(`Validation failed for operation config: ${inputConfig._op} - ${err.message}`);
@@ -55,18 +56,19 @@ export function validateAPIConfig<T>(
 
     try {
         const config = validator.validate(inputConfig);
-        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
-            type: 'JobValidation',
-            reason: {
-                type: 'assetAPIProperty',
-                kind: 'deprecation',
+        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings
+            .map((schemaWarning) => ({
+                type: 'JobValidation',
                 reason: {
-                    api_name: inputConfig._name,
-                    field: schemaWarning.field,
-                    description: schemaWarning.description,
+                    type: 'assetAPIProperty',
+                    kind: 'deprecation',
+                    reason: {
+                        api_name: inputConfig._name,
+                        field: schemaWarning.field,
+                        description: schemaWarning.description,
+                    },
                 },
-            },
-        }));
+            }));
         return { config, warnings };
     } catch (err) {
         throw new Error(`Validation failed for api config: ${inputConfig._name} - ${err.message}`);
@@ -100,17 +102,18 @@ export function validateJobConfig<T>(
         }
 
         // collect warnings from job fields
-        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
-            type: 'JobValidation',
-            reason: {
-                type: 'jobProperty',
-                kind: 'deprecation',
+        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings
+            .map((schemaWarning) => ({
+                type: 'JobValidation',
                 reason: {
-                    field: schemaWarning.field,
-                    description: schemaWarning.description,
+                    type: 'jobProperty',
+                    kind: 'deprecation',
+                    reason: {
+                        field: schemaWarning.field,
+                        description: schemaWarning.description,
+                    },
                 },
-            },
-        }));
+            }));
 
         return { config: jobProperties, warnings };
     } catch (err) {
