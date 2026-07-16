@@ -46,3 +46,5 @@ To update the pnpm version, follow these steps:
     ```
 
 5. Update the `packageManager` field in the `package.json` file located in the `teraslice/website` directory to reflect the updated pnpm version.
+
+6. Update the hardcoded `engines.pnpm` value in `_getRootInfo` in `packages/scripts/src/helpers/misc.ts` to match the updated pnpm version.
