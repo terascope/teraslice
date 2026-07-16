@@ -83,6 +83,7 @@ export default class Jobs {
 
     // TODO: Teraslice v4 uses submitWithWarnings instead of submit() to surface warnings without
     // a breaking change to the client. Remove this when submit() is updated in Teraslice v4.
+    // See https://github.com/terascope/teraslice/issues/4501
     async submitJobConfigWithWarnings(jobConfig: Teraslice.JobConfigParams) {
         try {
             return this.teraslice.client.jobs.submitWithWarnings(jobConfig, true);

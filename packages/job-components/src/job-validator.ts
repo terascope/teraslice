@@ -74,6 +74,7 @@ export class JobValidator {
             const opResult = schema.validate(opConfig);
             // TODO: v3 schemas may return the config directly instead of
             // { config, warnings }. Support for the old shape will be dropped in Teraslice v4.
+            // See https://github.com/terascope/teraslice/issues/4501
             const validatedConfig = isValidateResult(opResult) ? opResult.config : opResult;
             const warnings = isValidateResult(opResult) ? (opResult.warnings ?? []) : [];
             allWarnings.push(...warnings);
@@ -136,6 +137,7 @@ export class JobValidator {
             const apiResult = schema.validate(apiConfig);
             // TODO: v3 schemas may return the config directly instead of
             // { config, warnings }. Support for the old shape will be dropped in Teraslice v4.
+            // See https://github.com/terascope/teraslice/issues/4501
             const validatedApiConfig = isValidateResult(apiResult) ? apiResult.config : apiResult;
             const apiWarnings = isValidateResult(apiResult) ? (apiResult.warnings ?? []) : [];
             allWarnings.push(...apiWarnings);
@@ -210,6 +212,7 @@ export class JobValidator {
  *
  * @backwards-compat: v3 schemas return the config directly instead of this shape.
  * Support for the old shape will be dropped in Teraslice v4.
+ * See https://github.com/terascope/teraslice/issues/4501
  */
 type ValidateResult = { config: any; warnings: Teraslice.JobWarning[] };
 
@@ -220,6 +223,7 @@ type ValidateResult = { config: any; warnings: Teraslice.JobWarning[] };
  * @backwards-compat: v3 schemas return the config directly. This guard exists to
  * support both shapes during the deprecation window. Will be removed in Teraslice v4
  * when all schemas are required to return { config, warnings }.
+ * See https://github.com/terascope/teraslice/issues/4501
  */
 function isValidateResult(result: any): result is ValidateResult {
     // Check for both 'config' and 'warnings' to avoid false positives on legacy op
