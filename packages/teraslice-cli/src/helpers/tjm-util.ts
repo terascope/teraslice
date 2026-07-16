@@ -92,6 +92,12 @@ export async function updateJobConfig(cliConfig: Config) {
                 reply.fatal(`Could not be updated job ${jobId} on ${tsCluster}`);
             }
 
+            const warnings: Teraslice.JobWarning[] = get(update, 'warnings', []);
+            for (const warning of warnings) {
+                const { kind, reason } = warning.reason;
+                reply.warning(`Warning: (${kind}) ${reason.description}`);
+            }
+
             addMetaData(jobConfig, jobId, tsCluster);
             saveConfig(cliConfig.args.srcDir, jobFile, jobConfig);
 
@@ -121,10 +127,15 @@ export async function registerJobToCluster(cliConfig: Config) {
         }
 
         try {
-            const resp = await job.submitJobConfig(jobConfig);
+            const resp = await job.submitJobConfigWithWarnings(jobConfig);
 
             if (resp) {
-                const jobId = resp.id();
+                const jobId = resp.job.id();
+
+                for (const warning of resp.warnings) {
+                    const { kind, reason } = warning.reason;
+                    reply.warning(`Warning: (${kind}) ${reason.description}`);
+                }
 
                 reply.green(`Successfully registered ${jobConfig.name} on ${cliConfig.clusterUrl} with job id ${jobId}`);
 

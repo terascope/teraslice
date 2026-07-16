@@ -238,6 +238,7 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
             doc: 'DEPRECATED: number of cpus to reserve per teraslice worker in kubernetes',
             default: undefined,
             format: 'Number',
+            deprecated: '"cpu" on a job is deprecated and should use "resources_requests_cpu" instead'
         };
 
         schemas.cpu_execution_controller = {
@@ -302,6 +303,7 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
             doc: 'DEPRECATED: memory, in bytes, to reserve per teraslice worker in Kubernetes',
             default: undefined,
             format: 'Number',
+            deprecated: '"memory" on a job is deprecated and should use "resources_requests_memory" instead'
         };
 
         schemas.memory_execution_controller = {

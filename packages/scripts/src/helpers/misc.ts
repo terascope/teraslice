@@ -64,8 +64,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             displayName: getName(pkg.name),
             engines: {
                 node: '>=16.0.0',
-                // TODO: re-enable once all repos are fully migrated to pnpm
-                // pnpm: '>=10.25.0'
+                pnpm: '>=11.3.0'
             },
             terascope: {
                 root: true,
@@ -89,8 +88,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             },
             engines: {
                 node: '>=16.0.0',
-                // TODO: re-enable once all repos are fully migrated to pnpm
-                // pnpm: '>=10.25.0'
+                pnpm: '>=11.3.0'
             },
             terascope: {
                 root: true,

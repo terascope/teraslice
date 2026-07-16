@@ -37,7 +37,7 @@ describe('when using native clustering', () => {
                 slicers: 1,
             };
 
-            const jobConfig = validateJobConfig(schema, job, context);
+            const { config: jobConfig } = validateJobConfig(schema, job, context);
             delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });
@@ -342,7 +342,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const config = validateOpConfig(schema, op, context);
+            const { config } = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -361,7 +361,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const config = validateOpConfig(schema, op, context);
+            const { config } = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -407,7 +407,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const config = validateOpConfig(schema, op, context);
+            const { config } = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -441,6 +441,47 @@ describe('when using native clustering', () => {
             expect(() => {
                 validateOpConfig(schema, op, context);
             }).toThrow(/Invalid schema for formatted value/);
+        });
+
+        it('should return a deprecation warning when a deprecated field is provided', () => {
+            const deprecatedSchema: Terafoundation.Schema<any> = {
+                old_value: {
+                    default: 'default_value',
+                    doc: 'a deprecated field',
+                    format: 'String',
+                    deprecated: 'use example instead',
+                },
+            };
+            const op = {
+                _op: 'some-op',
+                old_value: 'changed',
+            };
+
+            const { warnings } = validateOpConfig(deprecatedSchema, op, context);
+            expect(warnings).toBeArrayOfSize(1);
+            expect(warnings[0]).toMatchObject({
+                type: 'JobValidation',
+                reason: {
+                    type: 'assetOperation',
+                    kind: 'deprecation',
+                    reason: {
+                        _op: 'some-op',
+                        field: 'old_value',
+                        description: 'use example instead',
+                    },
+                },
+            });
+        });
+
+        it('should return no warnings when no deprecated fields are used', () => {
+            const op = {
+                _op: 'some-op',
+                example: 'example',
+                formatted_value: 'hi',
+            };
+
+            const { warnings } = validateOpConfig(schema, op, context);
+            expect(warnings).toBeArrayOfSize(0);
         });
     });
 
@@ -480,7 +521,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi'
             };
 
-            const config = validateAPIConfig(schema, api, context);
+            const { config } = validateAPIConfig(schema, api, context);
             expect(config).toEqual({
                 _name: 'some-api',
                 example: 'example',
@@ -501,6 +542,47 @@ describe('when using native clustering', () => {
             expect(() => {
                 validateAPIConfig(schema, api, context);
             }).toThrow(/Invalid schema for formatted value/);
+        });
+
+        it('should return a deprecation warning when a deprecated field is provided', () => {
+            const deprecatedSchema: Terafoundation.Schema<any> = {
+                old_value: {
+                    default: 'default_value',
+                    doc: 'a deprecated field',
+                    format: 'String',
+                    deprecated: 'use example instead',
+                },
+            };
+            const api = {
+                _name: 'some-api',
+                old_value: 'changed',
+            };
+
+            const { warnings } = validateAPIConfig(deprecatedSchema, api, context);
+            expect(warnings).toBeArrayOfSize(1);
+            expect(warnings[0]).toMatchObject({
+                type: 'JobValidation',
+                reason: {
+                    type: 'assetAPIProperty',
+                    kind: 'deprecation',
+                    reason: {
+                        api_name: 'some-api',
+                        field: 'old_value',
+                        description: 'use example instead',
+                    },
+                },
+            });
+        });
+
+        it('should return no warnings when no deprecated fields are used', () => {
+            const api = {
+                _name: 'some-api',
+                example: 'example',
+                formatted_value: 'hi',
+            };
+
+            const { warnings } = validateAPIConfig(schema, api, context);
+            expect(warnings).toBeArrayOfSize(0);
         });
     });
 
@@ -536,7 +618,7 @@ describe('when using native clustering', () => {
                     slicers: 1,
                 };
 
-                const jobConfig = validateJobConfig(schema, job, context);
+                const { config: jobConfig } = validateJobConfig(schema, job, context);
                 delete (jobConfig as any).workers;
                 expect(jobConfig).toMatchObject(validJob);
             });
@@ -623,7 +705,7 @@ describe('when using native clustering', () => {
                     slicers: 1,
                 };
 
-                const jobConfig = validateJobConfig(schema, job, context);
+                const { config: jobConfig } = validateJobConfig(schema, job, context);
                 delete (jobConfig as any).workers;
                 expect(jobConfig).toMatchObject(validJob);
             });
@@ -723,9 +805,53 @@ describe('when validating k8s v2 clustering', () => {
                 ],
             };
 
-            const jobConfig = validateJobConfig(schema, job, context);
+            const { config: jobConfig } = validateJobConfig(schema, job, context);
             expect(jobConfig.cpu).toEqual(job.cpu);
             expect(jobConfig.memory).toEqual(job.memory);
+        });
+    });
+
+    describe('when passed a jobConfig with deprecated cpu and memory', () => {
+        it('should return jobProperty deprecation warnings', () => {
+            const schema = jobSchema(context);
+            const job = {
+                name: 'test-job',
+                cpu: 1,
+                memory: 805306368,
+                operations: [
+                    {
+                        _op: 'noop',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            const { warnings } = validateJobConfig(schema, job, context);
+            expect(warnings).toBeArrayOfSize(2);
+            expect(warnings[0]).toMatchObject({
+                type: 'JobValidation',
+                reason: {
+                    type: 'jobProperty',
+                    kind: 'deprecation',
+                    reason: {
+                        field: 'cpu',
+                        description: '"cpu" on a job is deprecated and should use "resources_requests_cpu" instead',
+                    },
+                },
+            });
+            expect(warnings[1]).toMatchObject({
+                type: 'JobValidation',
+                reason: {
+                    type: 'jobProperty',
+                    kind: 'deprecation',
+                    reason: {
+                        field: 'memory',
+                        description: '"memory" on a job is deprecated and should use "resources_requests_memory" instead',
+                    },
+                },
+            });
         });
     });
 
@@ -747,7 +873,7 @@ describe('when validating k8s v2 clustering', () => {
                 ],
             };
 
-            const jobConfig = validateJobConfig(schema, job, context);
+            const { config: jobConfig } = validateJobConfig(schema, job, context);
             expect(jobConfig.resources_requests_cpu).toEqual(job.resources_requests_cpu);
             expect(jobConfig.resources_requests_memory).toEqual(job.resources_requests_memory);
             expect(jobConfig.resources_limits_cpu).toEqual(job.resources_limits_cpu);
@@ -820,7 +946,7 @@ describe('when validating k8s v2 clustering', () => {
                 volumes: [],
             };
 
-            const jobConfig = validateJobConfig(schema, job, context);
+            const { config: jobConfig } = validateJobConfig(schema, job, context);
             delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });
@@ -865,7 +991,7 @@ describe('when validating k8s v2 clustering', () => {
                 slicers: 1,
             };
 
-            const jobConfig = validateJobConfig(schema, job, context);
+            const { config: jobConfig } = validateJobConfig(schema, job, context);
             delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });

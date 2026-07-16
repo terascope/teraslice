@@ -38,8 +38,66 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await api.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await api.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
+        });
+
+        it('collects deprecation warnings from multiple ops', async () => {
+            const jobSpec: JobConfigParams = {
+                name: 'test',
+                assets: ['fixtures'],
+                operations: [
+                    {
+                        _op: 'example-reader',
+                        old_example: 'triggered',
+                    },
+                    {
+                        _op: 'example-op',
+                        old_example: 'triggered',
+                    },
+                ],
+            };
+
+            const { warnings } = await api.validateConfig(jobSpec);
+            expect(warnings).toBeArrayOfSize(2);
+            expect(warnings.every((w) => w.type === 'JobValidation')).toBeTrue();
+            expect(warnings.every((w) => w.reason.kind === 'deprecation')).toBeTrue();
+        });
+
+        it('collects deprecation warnings from an api', async () => {
+            const jobSpec: JobConfigParams = {
+                name: 'test',
+                assets: ['fixtures'],
+                apis: [
+                    {
+                        _name: 'example-api',
+                        old_example: 'triggered',
+                    },
+                ],
+                operations: [
+                    {
+                        _op: 'test-reader',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            const { warnings } = await api.validateConfig(jobSpec);
+            expect(warnings).toBeArrayOfSize(1);
+            expect(warnings[0]).toMatchObject({
+                type: 'JobValidation',
+                reason: {
+                    type: 'assetAPIProperty',
+                    kind: 'deprecation',
+                    reason: {
+                        api_name: 'example-api',
+                        field: 'old_example',
+                        description: 'use example instead',
+                    },
+                },
+            });
         });
 
         it('will throw based off op validation errors', async () => {
@@ -172,7 +230,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await testApi.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await testApi.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
         });
 
@@ -204,7 +262,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await testApi.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await testApi.validateConfig(jobSpec);
 
             expect(validJob).toMatchObject(jobSpec);
         });
@@ -276,7 +334,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = await testApi.validateConfig(jobSpec);
+            const { jobConfig: validJob } = await testApi.validateConfig(jobSpec);
 
             await expect(
                 () => api.validateConfig(oldJobSpec)

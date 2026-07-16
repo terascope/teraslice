@@ -81,9 +81,12 @@ export default class Jobs {
         return this.jobs;
     }
 
-    async submitJobConfig(jobConfig: Teraslice.JobConfigParams) {
+    // TODO: Teraslice v4 uses submitWithWarnings instead of submit() to surface warnings without
+    // a breaking change to the client. Remove this when submit() is updated in Teraslice v4.
+    // See https://github.com/terascope/teraslice/issues/4501
+    async submitJobConfigWithWarnings(jobConfig: Teraslice.JobConfigParams) {
         try {
-            return this.teraslice.client.jobs.submit(jobConfig, true);
+            return this.teraslice.client.jobs.submitWithWarnings(jobConfig, true);
         } catch (e) {
             reply.fatal(e);
         }
@@ -159,6 +162,11 @@ export default class Jobs {
 
             try {
                 const response = await job.api.recover();
+
+                for (const warning of response.warnings ?? []) {
+                    const { kind, reason } = warning.reason;
+                    reply.warning(`Warning: (${kind}) ${reason.description}`);
+                }
 
                 this.logUpdate({
                     job,
@@ -299,7 +307,14 @@ export default class Jobs {
             this.logUpdate({ action: display.setAction(action, 'present'), job });
 
             try {
-                await job.api[action]();
+                const result = await job.api[action]();
+                if (action === 'start') {
+                    const startResult = result as Teraslice.ApiJobCreateResponse;
+                    for (const warning of startResult.warnings ?? []) {
+                        const { kind, reason } = warning.reason;
+                        reply.warning(`Warning: (${kind}) ${reason.description}`);
+                    }
+                }
             } catch (e) {
                 this.commandFailed(e.message, job);
             }

@@ -7,7 +7,7 @@ import {
     JobConfigParams, JobValidator, RecoveryCleanupType,
     ValidatedJobConfig, parseName
 } from '@terascope/job-components';
-import { JobConfig, ExecutionConfig } from '@terascope/types';
+import { Teraslice, JobConfig, ExecutionConfig } from '@terascope/types';
 import { ClusterMasterContext } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { spawnAssetLoader } from '../../workers/assets/spawn.js';
@@ -61,10 +61,12 @@ export class JobsService {
     */
     private async _validateJobSpec(
         jobSpec: Partial<JobConfig | JobConfigParams>
-    ): Promise<ValidatedJobConfig | JobConfig> {
+    ): Promise<{
+        jobConfig: ValidatedJobConfig | JobConfig;
+        warnings: Teraslice.JobWarning[];
+    }> {
         const parsedAssetJob = await this._ensureAssets(cloneDeep(jobSpec));
-        const validJob = await this.jobValidator.validateConfig(parsedAssetJob);
-        return validJob;
+        return this.jobValidator.validateConfig(parsedAssetJob);
     }
 
     async submitJob(jobSpec: Partial<JobConfig | JobConfigParams>, shouldRun?: boolean) {
@@ -77,21 +79,29 @@ export class JobsService {
 
         this.addExternalPortsToJobSpec(jobSpec);
 
-        const validJob = await this._validateJobSpec(jobSpec);
+        const { jobConfig: validJob, warnings } = await this._validateJobSpec(jobSpec);
 
         // We don't create with the fully parsed validJob as it changes the asset names
         // to their asset id which we don't want stored as at the job level
         const job = await this.jobsStorage.create(jobSpec as ValidatedJobConfig);
 
         if (!shouldRun) {
-            return { job_id: job.job_id };
+            const response = { job_id: job.job_id };
+            if (warnings.length) {
+                Object.assign(response, { warnings });
+            }
+            return response;
         }
 
         const jobRecord = Object.assign({}, jobSpec, validJob, {
             job_id: job.job_id
         }) as JobConfig;
 
-        return this.executionService.createExecutionContext(jobRecord);
+        const result = await this.executionService.createExecutionContext(jobRecord);
+        if (warnings.length) {
+            Object.assign(result, { warnings });
+        }
+        return result;
     }
 
     /**
@@ -122,14 +132,20 @@ export class JobsService {
         // This allows for old jobs that are missing required resources to be marked inactive
         if (originalJob.active !== false && jobSpec.active === false) {
             this.logger.info(`Skipping job validation to set jobId ${jobId} as _inactive`);
-        } else {
-            this.addExternalPortsToJobSpec(jobSpec);
-            await this._validateJobSpec(jobSpec);
+            return this.jobsStorage.update(jobId, Object.assign({}, jobSpec, {
+                _created: originalJob._created
+            }));
         }
 
-        return this.jobsStorage.update(jobId, Object.assign({}, jobSpec, {
+        this.addExternalPortsToJobSpec(jobSpec);
+        const { warnings } = await this._validateJobSpec(jobSpec);
+        const updated = await this.jobsStorage.update(jobId, Object.assign({}, jobSpec, {
             _created: originalJob._created
         }));
+        if (warnings.length) {
+            Object.assign(updated, { warnings });
+        }
+        return updated;
     }
 
     /**
@@ -172,13 +188,21 @@ export class JobsService {
             });
         }
 
-        const validJob = await this._validateJobSpec(jobSpec) as JobConfig;
+        const { jobConfig: validJob, warnings } = await this._validateJobSpec(jobSpec);
 
-        if (validJob.autorecover) {
-            return this._recoverValidJob(validJob);
+        if ((validJob as JobConfig).autorecover) {
+            const result = await this._recoverValidJob(validJob as JobConfig);
+            if (warnings.length) {
+                Object.assign(result, { warnings });
+            }
+            return result;
         }
 
-        return this.executionService.createExecutionContext(validJob);
+        const result = await this.executionService.createExecutionContext(validJob as JobConfig);
+        if (warnings.length) {
+            Object.assign(result, { warnings });
+        }
+        return result;
     }
 
     /**
@@ -233,9 +257,13 @@ export class JobsService {
             });
         }
 
-        const validJob = await this._validateJobSpec(jobSpec) as JobConfig;
+        const { jobConfig: validJob, warnings } = await this._validateJobSpec(jobSpec);
 
-        return this._recoverValidJob(validJob, cleanupType);
+        const result = await this._recoverValidJob(validJob as JobConfig, cleanupType);
+        if (warnings.length) {
+            Object.assign(result, { warnings });
+        }
+        return result;
     }
 
     async pauseJob(jobId: string) {

@@ -87,13 +87,13 @@ export default class Job extends Client {
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
     }
 
-    async update(jobSpec: Teraslice.JobConfig): Promise<Teraslice.JobConfig> {
+    async update(jobSpec: Teraslice.JobConfig): Promise<Teraslice.ApiJobUpdateResponse> {
         return this.put(`/jobs/${this._jobId}`, jobSpec);
     }
 
     async updatePartial(
         jobSpec: Partial<Teraslice.JobConfig>
-    ): Promise<Teraslice.JobConfig> {
+    ): Promise<Teraslice.ApiJobUpdateResponse> {
         const current = await this.config();
         const body: Teraslice.JobConfig = Object.assign({}, current, jobSpec);
         return this.update(body);

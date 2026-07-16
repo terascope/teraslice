@@ -1,5 +1,5 @@
 import { SchemaValidator } from '@terascope/core-utils';
-import { Terafoundation as TF } from '@terascope/types';
+import { Teraslice, Terafoundation as TF } from '@terascope/types';
 import { ValidatedJobConfig, OpConfig, APIConfig } from './interfaces/index.js';
 import { opSchema, apiSchema } from './job-schemas.js';
 
@@ -9,7 +9,7 @@ import { opSchema, apiSchema } from './job-schemas.js';
  */
 export function validateOpConfig<T>(
     inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
-): OpConfig & T {
+): { config: OpConfig & T; warnings: Teraslice.JobWarning[] } {
     const schema = Object.assign({}, opSchema, inputSchema) as TF.Schema<OpConfig & T>;
     const validator = new SchemaValidator<OpConfig & T>(
         schema,
@@ -18,7 +18,21 @@ export function validateOpConfig<T>(
         undefined,
         context);
     try {
-        return validator.validate(inputConfig);
+        const config = validator.validate(inputConfig);
+        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings
+            .map((schemaWarning) => ({
+                type: 'JobValidation',
+                reason: {
+                    type: 'assetOperation',
+                    kind: 'deprecation',
+                    reason: {
+                        _op: inputConfig._op,
+                        field: schemaWarning.field,
+                        description: schemaWarning.description,
+                    },
+                },
+            }));
+        return { config, warnings };
     } catch (err) {
         throw new Error(`Validation failed for operation config: ${inputConfig._op} - ${err.message}`);
     }
@@ -30,7 +44,7 @@ export function validateOpConfig<T>(
  */
 export function validateAPIConfig<T>(
     inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
-): APIConfig & T {
+): { config: APIConfig & T; warnings: Teraslice.JobWarning[] } {
     const schema = Object.assign({}, apiSchema, inputSchema) as TF.Schema<APIConfig & T>;
     const validator = new SchemaValidator<APIConfig & T>(
         schema,
@@ -41,7 +55,21 @@ export function validateAPIConfig<T>(
     );
 
     try {
-        return validator.validate(inputConfig);
+        const config = validator.validate(inputConfig);
+        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings
+            .map((schemaWarning) => ({
+                type: 'JobValidation',
+                reason: {
+                    type: 'assetAPIProperty',
+                    kind: 'deprecation',
+                    reason: {
+                        api_name: inputConfig._name,
+                        field: schemaWarning.field,
+                        description: schemaWarning.description,
+                    },
+                },
+            }));
+        return { config, warnings };
     } catch (err) {
         throw new Error(`Validation failed for api config: ${inputConfig._name} - ${err.message}`);
     }
@@ -53,7 +81,7 @@ export function validateAPIConfig<T>(
  */
 export function validateJobConfig<T>(
     inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
-): ValidatedJobConfig & T {
+): { config: ValidatedJobConfig & T; warnings: Teraslice.JobWarning[] } {
     const validator = new SchemaValidator<ValidatedJobConfig & T>(
         inputSchema as TF.Schema<ValidatedJobConfig & T>,
         inputConfig.name,
@@ -72,7 +100,22 @@ export function validateJobConfig<T>(
         ) {
             throw new Error(`cpu/memory can't be mixed with resource settings of the same type.`);
         }
-        return jobProperties;
+
+        // collect warnings from job fields
+        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings
+            .map((schemaWarning) => ({
+                type: 'JobValidation',
+                reason: {
+                    type: 'jobProperty',
+                    kind: 'deprecation',
+                    reason: {
+                        field: schemaWarning.field,
+                        description: schemaWarning.description,
+                    },
+                },
+            }));
+
+        return { config: jobProperties, warnings };
     } catch (err) {
         throw new Error(`Validation failed for job config: ${inputConfig.name} - ${err.message}`);
     }

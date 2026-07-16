@@ -15,6 +15,12 @@ export default class Schema extends BaseSchema<any, any> {
                 doc: 'A random example schema property',
                 format: 'String',
             },
+            old_example: {
+                default: 'old_default',
+                doc: 'Deprecated example field',
+                format: 'String',
+                deprecated: 'use example instead',
+            },
         };
     }
 }

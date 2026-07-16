@@ -2,6 +2,59 @@ import { SysConfig as BaseSysconfig } from './terafoundation.js';
 
 export type ClusterManagerType = 'native' | 'kubernetesV2';
 
+/** A deprecated field on an asset API */
+export interface AssetAPIDeprecationReason {
+    /** the api name the deprecated field came from */
+    api_name: string;
+    /** the specific field that is deprecated */
+    field: string;
+    description: string;
+}
+
+/** A deprecated field on an asset operation */
+export interface AssetOperationDeprecationReason {
+    /** the op name the deprecated field came from */
+    _op: string;
+    /** the specific field that is deprecated */
+    field: string;
+    description: string;
+}
+
+/** A deprecated field on a job property */
+export interface JobPropertyDeprecationReason {
+    /** the specific field that is deprecated */
+    field: string;
+    description: string;
+}
+
+export interface AssetAPIValidationReason {
+    type: 'assetAPIProperty';
+    kind: 'deprecation';
+    reason: AssetAPIDeprecationReason;
+}
+
+export interface AssetOperationValidationReason {
+    type: 'assetOperation';
+    kind: 'deprecation';
+    reason: AssetOperationDeprecationReason;
+}
+
+export interface JobPropertyValidationReason {
+    type: 'jobProperty';
+    kind: 'deprecation';
+    reason: JobPropertyDeprecationReason;
+}
+
+export type JobValidationReason
+    = | AssetAPIValidationReason
+        | AssetOperationValidationReason
+        | JobPropertyValidationReason;
+
+export interface JobWarning {
+    type: 'JobValidation';
+    reason: JobValidationReason;
+}
+
 export interface AssetRecord {
     blob: SharedArrayBuffer | string | Buffer;
     name: string;
@@ -386,6 +439,11 @@ export interface ApiRootResponse {
 export interface ApiJobCreateResponse {
     job_id: string;
     ex_id?: string;
+    warnings?: JobWarning[];
+}
+
+export interface ApiJobUpdateResponse extends JobConfig {
+    warnings?: JobWarning[];
 }
 
 export interface ApiPausedResponse {
