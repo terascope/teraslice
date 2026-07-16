@@ -1,5 +1,5 @@
 import nock from 'nock';
-import { Teraslice, Terafoundation } from '@terascope/types';
+import { Teraslice } from '@terascope/types';
 import Job from '../src/job.js';
 
 describe('Teraslice Job', () => {
@@ -225,7 +225,7 @@ describe('Teraslice Job', () => {
 
     describe('->start', () => {
         describe('when the server returns deprecation warnings', () => {
-            const deprecationWarning: Terafoundation.JobWarning = {
+            const deprecationWarning: Teraslice.JobWarning = {
                 type: 'JobValidation',
                 reason: {
                     type: 'assetOperation',
@@ -312,7 +312,7 @@ describe('Teraslice Job', () => {
 
     describe('->recover with warnings', () => {
         describe('when the server returns deprecation warnings', () => {
-            const deprecationWarning: Terafoundation.JobWarning = {
+            const deprecationWarning: Teraslice.JobWarning = {
                 type: 'JobValidation',
                 reason: {
                     type: 'assetAPIProperty',

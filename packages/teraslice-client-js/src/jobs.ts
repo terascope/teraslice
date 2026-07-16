@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/core-utils';
-import { Teraslice, Terafoundation } from '@terascope/types';
+import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client.js';
 import Job from './job.js';
@@ -31,7 +31,7 @@ export default class Jobs extends Client {
     async submitWithWarnings(
         jobSpec: Teraslice.JobConfigParams,
         shouldNotStart?: boolean
-    ): Promise<{ job: Job; warnings: Terafoundation.JobWarning[] }> {
+    ): Promise<{ job: Job; warnings: Teraslice.JobWarning[] }> {
         if (!jobSpec) {
             throw new TSError('Submit requires a jobSpec', {
                 statusCode: 400

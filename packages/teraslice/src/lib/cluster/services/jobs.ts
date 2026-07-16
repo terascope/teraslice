@@ -7,7 +7,7 @@ import {
     JobConfigParams, JobValidator, RecoveryCleanupType,
     ValidatedJobConfig, parseName
 } from '@terascope/job-components';
-import { Terafoundation, JobConfig, ExecutionConfig } from '@terascope/types';
+import { Teraslice, JobConfig, ExecutionConfig } from '@terascope/types';
 import { ClusterMasterContext } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { spawnAssetLoader } from '../../workers/assets/spawn.js';
@@ -63,7 +63,7 @@ export class JobsService {
         jobSpec: Partial<JobConfig | JobConfigParams>
     ): Promise<{
         jobConfig: ValidatedJobConfig | JobConfig;
-        warnings: Terafoundation.JobWarning[];
+        warnings: Teraslice.JobWarning[];
     }> {
         const parsedAssetJob = await this._ensureAssets(cloneDeep(jobSpec));
         return this.jobValidator.validateConfig(parsedAssetJob);
