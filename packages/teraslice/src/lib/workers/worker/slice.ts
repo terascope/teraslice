@@ -145,11 +145,11 @@ export class SliceExecution {
         const { slice } = this;
 
         await this.stateStorage.updateState(slice, SliceState.completed, undefined, retryCount);
+
+        this.logger.trace(`completed slice for execution: ${this.executionContext.exId}`, slice);
         if (this.logger.fields.slice_id !== slice.slice_id) {
             // This log is used to identify this issue: https://github.com/terascope/teraslice/issues/4495
-            this.logger.error('The slice_id of the slice does not match the slice_id of this logger. slice: ', slice);
-        } else {
-            this.logger.trace(`completed slice for execution: ${this.executionContext.exId}`, slice);
+            this.logger.error(`The slice_id of the slice: ${slice.slice_id} does not match the slice_id of this logger: ${this.logger.fields.slice_id}`);
         }
         this.events.emit('slice:success', slice);
     }
