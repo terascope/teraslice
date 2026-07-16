@@ -30,7 +30,7 @@ export class JobValidator {
     /** Validate the job configuration, including the Operations and APIs configuration */
     async validateConfig(
         jobSpec: Partial<Teraslice.JobConfig | Teraslice.JobConfigParams>,
-    ): Promise<{ jobConfig: ValidatedJobConfig; warnings: Terafoundation.JobWarning[] }> {
+    ): Promise<{ jobConfig: ValidatedJobConfig; warnings: Teraslice.JobWarning[] }> {
         // top level job validation occurs, but not operations
         const {
             config: jobConfig,
@@ -42,7 +42,7 @@ export class JobValidator {
         type ValidateJobFn = (job: ValidatedJobConfig) => void;
         const validateJobFns: ValidateJobFn[] = [];
         const validateApisFns: ValidateJobFn[] = [];
-        const allWarnings: Terafoundation.JobWarning[] = [...jobWarnings];
+        const allWarnings: Teraslice.JobWarning[] = [...jobWarnings];
         const opAPIMapping = new Map<string, string>();
 
         const handleModule = (
@@ -211,7 +211,7 @@ export class JobValidator {
  * @backwards-compat: v3 schemas return the config directly instead of this shape.
  * Support for the old shape will be dropped in Teraslice v4.
  */
-type ValidateResult = { config: any; warnings: Terafoundation.JobWarning[] };
+type ValidateResult = { config: any; warnings: Teraslice.JobWarning[] };
 
 /**
  * Type guard to distinguish new-style schema validate() results (ValidateResult)

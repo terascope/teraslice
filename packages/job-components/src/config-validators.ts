@@ -1,5 +1,5 @@
 import { SchemaValidator } from '@terascope/core-utils';
-import { Terafoundation as TF } from '@terascope/types';
+import { Teraslice, Terafoundation as TF } from '@terascope/types';
 import { ValidatedJobConfig, OpConfig, APIConfig } from './interfaces/index.js';
 import { opSchema, apiSchema } from './job-schemas.js';
 
@@ -9,7 +9,7 @@ import { opSchema, apiSchema } from './job-schemas.js';
  */
 export function validateOpConfig<T>(
     inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
-): { config: OpConfig & T; warnings: TF.JobWarning[] } {
+): { config: OpConfig & T; warnings: Teraslice.JobWarning[] } {
     const schema = Object.assign({}, opSchema, inputSchema) as TF.Schema<OpConfig & T>;
     const validator = new SchemaValidator<OpConfig & T>(
         schema,
@@ -19,7 +19,7 @@ export function validateOpConfig<T>(
         context);
     try {
         const config = validator.validate(inputConfig);
-        const warnings: TF.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
+        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
             type: 'JobValidation',
             reason: {
                 type: 'assetOperation',
@@ -43,7 +43,7 @@ export function validateOpConfig<T>(
  */
 export function validateAPIConfig<T>(
     inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
-): { config: APIConfig & T; warnings: TF.JobWarning[] } {
+): { config: APIConfig & T; warnings: Teraslice.JobWarning[] } {
     const schema = Object.assign({}, apiSchema, inputSchema) as TF.Schema<APIConfig & T>;
     const validator = new SchemaValidator<APIConfig & T>(
         schema,
@@ -55,7 +55,7 @@ export function validateAPIConfig<T>(
 
     try {
         const config = validator.validate(inputConfig);
-        const warnings: TF.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
+        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
             type: 'JobValidation',
             reason: {
                 type: 'assetAPIProperty',
@@ -79,7 +79,7 @@ export function validateAPIConfig<T>(
  */
 export function validateJobConfig<T>(
     inputSchema: TF.Schema<any>, inputConfig: Record<string, any>, context: TF.Context
-): { config: ValidatedJobConfig & T; warnings: TF.JobWarning[] } {
+): { config: ValidatedJobConfig & T; warnings: Teraslice.JobWarning[] } {
     const validator = new SchemaValidator<ValidatedJobConfig & T>(
         inputSchema as TF.Schema<ValidatedJobConfig & T>,
         inputConfig.name,
@@ -100,7 +100,7 @@ export function validateJobConfig<T>(
         }
 
         // collect warnings from job fields
-        const warnings: TF.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
+        const warnings: Teraslice.JobWarning[] = validator.deprecationWarnings.map((schemaWarning) => ({
             type: 'JobValidation',
             reason: {
                 type: 'jobProperty',

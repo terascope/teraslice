@@ -1,4 +1,4 @@
-import { Terafoundation } from '@terascope/types';
+import { Teraslice } from '@terascope/types';
 import { Context, OpConfig, ValidatedJobConfig } from '../../interfaces/index.js';
 
 /**
@@ -17,7 +17,7 @@ export default abstract class SchemaCore<T> {
     abstract build(context?: Context): any;
     abstract validate(
         inputConfig: Record<string, any>
-    ): { config: OpConfig & T; warnings: Terafoundation.JobWarning[] };
+    ): { config: OpConfig & T; warnings: Teraslice.JobWarning[] };
     abstract validateJob?(job: ValidatedJobConfig): void;
 }
 
