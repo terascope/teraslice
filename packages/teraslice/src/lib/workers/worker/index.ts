@@ -278,7 +278,8 @@ export class Worker {
         }
 
         const start = Date.now();
-        const end = start + this.shutdownTimeout;
+        const shutdownSignalDelayEst = 3000;
+        const end = start + this.shutdownTimeout - shutdownSignalDelayEst;
 
         // if a new slice is already in progress we must wait for the reference
         // to this.slice to be updated or we could hit a race condition where we
@@ -290,7 +291,9 @@ export class Worker {
                     `Worker shutdown timeout after ${seconds} seconds while waiting for slice to initialize, forcing shutdown`
                 );
             }
-            await pDelay(50);
+            this.logger.trace('Blocking while slice initialized before starting flush');
+
+            await pDelay(250);
         }
         // attempt to flush the slice
         // and wait for the slice to finish
