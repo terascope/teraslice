@@ -2,7 +2,8 @@
 
 import {
     get, getFullErrorStack, isFatalError,
-    logError, pWhile, Logger, logLevels
+    logError, pWhile, Logger, logLevels,
+    pDelay
 } from '@terascope/core-utils';
 import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
@@ -177,6 +178,7 @@ export class Worker {
     }
 
     async runOnce() {
+        this.isProcessing = true;
         if (this.isShuttingDown || this.forceShutdown || this.shouldShutdown) return;
 
         this.logger.trace('waiting for new slice from execution controller');
@@ -184,10 +186,9 @@ export class Worker {
 
         if (!msg) {
             this.logger.debug(`${this.workerId} worker is idle`);
+            this.isProcessing = false;
             return;
         }
-
-        this.isProcessing = true;
 
         let sentSliceComplete = false;
         const { slice_id: sliceId } = msg;
@@ -276,6 +277,21 @@ export class Worker {
             this.executionContext.onSliceFailed();
         }
 
+        const start = Date.now();
+        const end = start + this.shutdownTimeout;
+
+        // if a new slice is already in progress we must wait for the reference
+        // to this.slice to be updated or we could hit a race condition where we
+        // flush the previous slice, but mark the new slice as complete.
+        while (this.isProcessing && this.executionContext.status === 'idle') {
+            if (Date.now() >= end) {
+                const seconds = this.shutdownTimeout / 1000;
+                throw new Error(
+                    `Worker shutdown timeout after ${seconds} seconds while waiting for slice to initialize, forcing shutdown`
+                );
+            }
+            await pDelay(50);
+        }
         // attempt to flush the slice
         // and wait for the slice to finish
         await Promise.all([
