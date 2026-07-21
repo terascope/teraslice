@@ -31,26 +31,34 @@ it doesn't need cluster credentials/aliases to do its job.
 ## What this means for `references/` (resolving `DOCS_SYNC.md`)
 
 `skills/DOCS_SYNC.md` left open how a skill should source `docs/` content
-without drifting. For this skill, standalone-portability forces the answer:
-we can't link-at-runtime-only or rely on a checkout, so v1 goes with
-**Option 3 (hand-maintained, distilled reference files)**, bundled directly
-in `references/`, sourced now from `docs/jobs/*.md`,
-`docs/asset-bundles*.md`, and `packages/job-components/src/job-schemas.ts`.
+without drifting. **Decision (updated with user):** go with
+**Option 1 (link-driven from the live published docs)** as the primary
+strategy, not Option 3. The published site
+(`https://terascope.github.io/teraslice/docs/...`) is regenerated from
+`docs/` on every change, so linking to it keeps the skill's reference
+content current with zero sync effort and no risk of vendored copies
+silently drifting.
 
-To soften the staleness risk `DOCS_SYNC.md` calls out:
-- Reference files stay short and focused on stable structural facts (field
-  names, schema shape, ordering conventions) rather than exhaustive prose —
-  less surface area to go stale.
-- Skill.md tells Claude it may `WebFetch` the published docs
-  (`terascope.github.io/teraslice/docs/...`) or an asset bundle's own repo
-  when it needs a detail this skill doesn't bundle (e.g. the full field list
-  for a specific `elasticsearch-assets` operation) — a soft fallback, not a
-  hard dependency, so the skill still works fully offline.
-- This is a stopgap, not a resolution of `DOCS_SYNC.md` itself. If/when
-  Option 2 (auto-regenerate distilled files from `docs/` at package time)
-  gets built, this skill's `references/` files are exactly what that
-  tooling should target first — flag this in `DOCS_SYNC.md` as a concrete
-  consumer once v1 ships.
+How the `references/` files work under this decision:
+- Each `references/*.md` is **thin and pointer-first**: it names the
+  canonical live URL(s) at the top and instructs Claude to `WebFetch` them
+  for authoritative / current detail. The reference file itself is a
+  router + a small cheat-sheet, not a full copy of the docs.
+- Files carry only **stable structural facts** (field names, the `≥2
+  operations` rule, ordering conventions, the `@asset:version` collision
+  syntax) and **skill-specific guidance not in the docs** (lint rules,
+  handoff command). These change rarely and give the skill useful answers
+  without a round-trip for trivial questions.
+- URL structure is verified: `docs/<path>.md` publishes to
+  `https://terascope.github.io/teraslice/docs/<path>` (docusaurus
+  `path: '../docs'`, default `/docs/` route). External asset bundles have
+  their own sites (see `common-assets.md`).
+- Network is assumed available at runtime. If offline, the cheat-sheets
+  still cover the common cases; Claude notes when a fetch was needed but
+  unavailable rather than guessing.
+
+This concretely resolves `DOCS_SYNC.md` for this skill in favor of Option 1;
+flag it there as the first real consumer once v1 ships.
 
 ## `Skill.md` outline
 
