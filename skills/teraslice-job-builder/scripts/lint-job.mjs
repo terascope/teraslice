@@ -23,6 +23,11 @@ const TOP_LEVEL = new Set([
     'stateful', 'labels', 'env_vars', 'log_level',
 ]);
 
+// Injected by tooling, not part of the job schema. `teraslice-cli tjm register`
+// writes __metadata (cluster + job_id) into the file; the cluster strips it.
+// Recognize it so re-linting a registered job doesn't warn about it.
+const INJECTED = new Set(['__metadata']);
+
 // Only valid when cluster_manager_type === 'kubernetesV2'. We can't know the
 // cluster manager from a job.json alone, so these are warnings, not errors.
 const K8S_ONLY = new Set([
@@ -128,7 +133,7 @@ if ('probation_window' in job && job.lifecycle !== 'persistent') {
 
 // unknown / k8s / deprecated top-level fields
 for (const key of Object.keys(job)) {
-    if (TOP_LEVEL.has(key)) continue;
+    if (TOP_LEVEL.has(key) || INJECTED.has(key)) continue;
     if (key in DEPRECATED) {
         warn(`"${key}" is deprecated — ${DEPRECATED[key]}.`);
     } else if (K8S_ONLY.has(key)) {
@@ -192,8 +197,13 @@ if (Array.isArray(job.operations)) {
                 warn(`${label} "_dead_letter_action": ${JSON.stringify(dla)} is not a builtin (${DLQ_BUILTINS.join('/')}) and no api with that _name is declared — it must resolve to a registered DLQ API at runtime.`);
             }
         }
-        if (op.api_name != null && !declaredApiNames.has(op.api_name)) {
-            err(`${label} "api_name": ${JSON.stringify(op.api_name)} references an api not declared in "apis".`);
+        // Ops reference a declared api by either `api_name` (elasticsearch-style)
+        // or `_api_name` (kafka-style and other API-first assets). Both must
+        // resolve to a declared api "_name".
+        for (const field of ['api_name', '_api_name']) {
+            if (op[field] != null && !declaredApiNames.has(op[field])) {
+                err(`${label} "${field}": ${JSON.stringify(op[field])} references an api not declared in "apis".`);
+            }
         }
     });
 }
