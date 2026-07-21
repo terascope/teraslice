@@ -326,7 +326,7 @@ export interface ValidatedJobConfig {
     log_level?: string;
     slicers: number;
     workers: number;
-    worker_shutdown_version?: WorkerShutdownVersion;
+    worker_version?: WorkerVersion;
     stateful?: boolean;
     /** This will only be available in the context of k8s */
     labels?: { [key: string]: string };
@@ -573,7 +573,7 @@ export interface Config {
     state: { connection: string };
     env_vars: { [key: string]: string };
     worker_disconnect_timeout: number;
-    worker_shutdown_version: WorkerShutdownVersion;
+    worker_version: WorkerVersion;
     workers: number;
 }
 
@@ -654,4 +654,4 @@ export interface ChangeWorkerResponse {
     message: string;
 }
 
-export type WorkerShutdownVersion = 'v1' | 'v2';
+export type WorkerVersion = 'v1' | 'v2';

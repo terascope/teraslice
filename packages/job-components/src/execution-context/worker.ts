@@ -96,6 +96,10 @@ export class WorkerExecutionContext
             async (input: any) => {
                 context._onOperationStart(0);
                 if (context.status === 'flushing') {
+                    // TODO: This appears to be written in the context of the kafka_reader.
+                    // For slices that contain state, like elasticsearch date or id reader,
+                    // this will result in the slice being marked complete. Running ecovery
+                    // will result in that slice never being processed.
                     context._onOperationComplete(0, []);
                     return [];
                 }

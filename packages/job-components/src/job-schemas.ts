@@ -210,8 +210,8 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
                 }
             }
         },
-        worker_shutdown_version: {
-            doc: 'Which version of the worker shutdown function to use. Overrides the value in the teraslice config.',
+        worker_version: {
+            doc: 'Which version of the worker runOnce() and shutdown() functions to use. Overrides the property with same name in the teraslice config.',
             default: undefined,
             format: ['v1', 'v2']
         }

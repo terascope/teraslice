@@ -87,6 +87,8 @@ export function shutdownHandler(
     }
 
     async function shutdownWithTimeout(event: string, err?: Error) {
+        // If the hardcoded 2000 is modified also modify ../worker/index.ts
+        // shutdownV2() shutdownSignalDelayEst variable by the same amount
         const timeout = shutdownTimeout - 2000;
         await pRaceWithTimeout(callShutdownFn(event, err), timeout, (timeoutErr) => {
             logError(logger, timeoutErr, 'shutdown error after timeout');
