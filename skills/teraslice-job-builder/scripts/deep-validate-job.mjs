@@ -24,16 +24,35 @@
  * Exit: 0 = validation passed (or was cleanly skipped), 1 = validation failed
  *       or file unreadable.
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
-import { resolve as resolvePath } from 'node:path';
+import { resolve as resolvePath, dirname, parse as parsePath } from 'node:path';
 
 const file = process.argv[2];
 const asK8s = process.argv.includes('--k8s');
 
-if (!file) {
-    console.error('Usage: node deep-validate-job.mjs path/to/job.json [--k8s]');
+// The real schema checks every op/api `connection`/`_connection` against the
+// connections known to terafoundation. We don't have the cluster's config, so
+// we tell the validator which connection names to treat as available. Defaults
+// to just "default" (the connection every teraslice cluster defines). Pass more
+// with --connections a,b,c to match your cluster's terafoundation.connectors.
+function parseConnections() {
+    const flag = '--connections';
+    const idx = process.argv.indexOf(flag);
+    if (idx === -1) return ['default'];
+    const val = process.argv[idx + 1];
+    if (!val || val.startsWith('--')) return ['default'];
+    const names = val.split(',').map((s) => s.trim()).filter(Boolean);
+    return names.length ? names : ['default'];
+}
+const connectionNames = parseConnections();
+
+if (!file || file.startsWith('--')) {
+    console.error('Usage: node deep-validate-job.mjs path/to/job.json [--k8s] [--connections a,b,c]');
+    console.error('  --k8s          validate as a kubernetesV2 cluster (enables k8s-only fields)');
+    console.error('  --connections  comma-separated connection names to treat as available');
+    console.error('                 (default: "default")');
     process.exit(1);
 }
 
@@ -45,10 +64,38 @@ try {
     process.exit(1);
 }
 
-// Resolve @terascope/job-components from the user's cwd (checkout root or
-// their project), falling back to the job file's directory.
+// Walk up from `start` looking for a teraslice monorepo checkout that has the
+// job-components package built on disk, and return its entry file. Needed
+// because the teraslice monorepo does NOT symlink @terascope/job-components
+// into a root node_modules, so bare-specifier resolution fails even when you
+// ARE inside a checkout — the built package must be imported by path.
+function findMonorepoEntry(start) {
+    let dir = resolvePath(start);
+    const { root } = parsePath(dir);
+    while (true) {
+        const pkgDir = resolvePath(dir, 'packages', 'job-components');
+        const pkgJson = resolvePath(pkgDir, 'package.json');
+        if (existsSync(pkgJson)) {
+            try {
+                const main = JSON.parse(readFileSync(pkgJson, 'utf8')).main || 'index.js';
+                const entry = resolvePath(pkgDir, main);
+                if (existsSync(entry)) return entry;
+            } catch {
+                // fall through to keep walking up
+            }
+        }
+        if (dir === root) return null;
+        dir = dirname(dir);
+    }
+}
+
+// Resolve @terascope/job-components. Strategy, in order:
+//  1) bare-specifier resolution from cwd, the job file's dir, then this script
+//     (covers "installed as a dependency" / node_modules-linked setups);
+//  2) walk up those same dirs for a monorepo checkout with the package built
+//     on disk (covers working inside a teraslice checkout, where 1 fails).
 async function loadJobComponents() {
-    const bases = [process.cwd(), resolvePath(file, '..')];
+    const bases = [process.cwd(), resolvePath(file, '..'), resolvePath(process.argv[1], '..')];
     for (const base of bases) {
         try {
             const require = createRequire(resolvePath(base, 'noop.js'));
@@ -57,6 +104,10 @@ async function loadJobComponents() {
         } catch {
             // try next base
         }
+    }
+    for (const base of bases) {
+        const entry = findMonorepoEntry(base);
+        if (entry) return await import(pathToFileURL(entry).href);
     }
     // last resort: bare specifier resolved relative to this script
     return import('@terascope/job-components');
@@ -91,10 +142,14 @@ const noopLogger = {
     info() {}, debug() {}, warn() {}, error() {}, trace() {}, fatal() {},
     child() { return noopLogger; },
 };
+// job-schemas derives the set of available connections from the KEYS of each
+// connector type's object. Put every requested name under one synthetic
+// connector type so `connection`/`_connection` references resolve.
+const stubConnector = Object.fromEntries(connectionNames.map((n) => [n, {}]));
 const context = {
     apis: { foundation: { makeLogger: () => noopLogger } },
     sysconfig: {
-        terafoundation: { connectors: {} },
+        terafoundation: { connectors: { _skill_stub: stubConnector } },
         teraslice: {
             cluster_manager_type: asK8s ? 'kubernetesV2' : 'native',
             assets_directory: '',
@@ -113,6 +168,8 @@ try {
         }
     }
     console.log(`\nOK: ${file} passed REAL top-level job schema validation${asK8s ? ' (kubernetesV2)' : ''}.`);
+    console.log(`Connections treated as available: ${connectionNames.join(', ')} `
+        + '(override with --connections a,b,c).');
     console.log('Note: per-operation (asset-specific) field validation was NOT run —');
     console.log('that requires each op\'s asset installed locally, or registering');
     console.log('against a real cluster. Verify op-specific fields against the');
