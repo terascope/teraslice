@@ -209,6 +209,11 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
                     throw new Error(`must be one of the following: ${logLevelStrings}`);
                 }
             }
+        },
+        worker_shutdown_version: {
+            doc: 'Which version of the worker shutdown function to use. Overrides the value in the teraslice config.',
+            default: undefined,
+            format: ['v1', 'v2']
         }
     };
 

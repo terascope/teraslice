@@ -337,6 +337,11 @@ export const schema = {
         default: undefined,
         format: 'optional_string'
     },
+    worker_shutdown_version: {
+        doc: 'Which version of the worker shutdown function to use. Can be overridden by the value set in the job spec.',
+        default: 'v1',
+        format: ['v1', 'v2']
+    }
 };
 
 export function configSchema() {
