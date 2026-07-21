@@ -179,7 +179,10 @@ export class Worker {
 
     async runOnce() {
         this.isProcessing = true;
-        if (this.isShuttingDown || this.forceShutdown || this.shouldShutdown) return;
+        if (this.isShuttingDown || this.forceShutdown || this.shouldShutdown) {
+            this.isProcessing = false;
+            return;
+        }
 
         this.logger.trace('waiting for new slice from execution controller');
         const msg = await this.client.waitForSlice(() => this.isShuttingDown);
