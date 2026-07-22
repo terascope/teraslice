@@ -24,6 +24,7 @@
  * Exit: 0 = validation passed (or was cleanly skipped), 1 = validation failed
  *       or file unreadable.
  */
+/* eslint-disable no-console -- intentional CLI: results print to stdout, read by exit code */
 import { readFileSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
@@ -43,7 +44,8 @@ function parseConnections() {
     if (idx === -1) return ['default'];
     const val = process.argv[idx + 1];
     if (!val || val.startsWith('--')) return ['default'];
-    const names = val.split(',').map((s) => s.trim()).filter(Boolean);
+    const names = val.split(',').map((s) => s.trim())
+        .filter(Boolean);
     return names.length ? names : ['default'];
 }
 const connectionNames = parseConnections();
@@ -140,7 +142,9 @@ if (typeof jobSchema !== 'function' || typeof validateJobConfig !== 'function') 
 // a no-op logger; jobSchema reads sysconfig.terafoundation/teraslice.
 const noopLogger = {
     info() {}, debug() {}, warn() {}, error() {}, trace() {}, fatal() {},
-    child() { return noopLogger; },
+    child() {
+        return noopLogger;
+    },
 };
 // job-schemas derives the set of available connections from the KEYS of each
 // connector type's object. Put every requested name under one synthetic
