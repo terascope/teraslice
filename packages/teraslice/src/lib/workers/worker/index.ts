@@ -355,7 +355,8 @@ export class Worker {
         // we need to check if this.executionContext.sliceState
         // in case a slice isn't currently active
         if (shutdownError && this.executionContext.sliceState) {
-            await this.executionContext.onSliceFailed();
+            // TODO: this should be awaited. Do this after we validate changes in v3.16.0
+            this.executionContext.onSliceFailed();
         }
 
         // attempt to flush the slice
@@ -453,7 +454,8 @@ export class Worker {
         // we need to check if this.executionContext.sliceState
         // in case a slice isn't currently active
         if (shutdownError && this.executionContext.sliceState) {
-            await this.executionContext.onSliceFailed();
+            // TODO: this should be awaited. Do this after we validate changes in v3.16.0
+            this.executionContext.onSliceFailed();
         }
 
         const start = Date.now();

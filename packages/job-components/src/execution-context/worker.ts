@@ -196,7 +196,8 @@ export class WorkerExecutionContext
         };
 
         if (currentSliceId === slice.slice_id) return;
-        return this.onSliceInitialized();
+        // TODO: this should be awaited. Do this after we validate changes in v3.16.0
+        this.onSliceInitialized();
     }
 
     /**
