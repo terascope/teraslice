@@ -122,7 +122,7 @@ export class StateStorage {
             state
         };
 
-        // it will usaully just be error
+        // it will usually just be error
         if (state === SliceState.error || error) {
             if (error) {
                 record.error = getFullErrorStack(error);

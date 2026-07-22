@@ -98,7 +98,7 @@ export class WorkerExecutionContext
                 if (context.status === 'flushing') {
                     // TODO: This appears to be written in the context of the kafka_reader.
                     // For slices that contain state, like elasticsearch date or id reader,
-                    // this will result in the slice being marked complete. Running ecovery
+                    // this will result in the slice being marked complete. Running recovery
                     // will result in that slice never being processed.
                     context._onOperationComplete(0, []);
                     return [];
@@ -196,7 +196,7 @@ export class WorkerExecutionContext
         };
 
         if (currentSliceId === slice.slice_id) return;
-        this.onSliceInitialized();
+        return this.onSliceInitialized();
     }
 
     /**
