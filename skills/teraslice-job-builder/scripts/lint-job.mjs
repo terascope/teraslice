@@ -10,6 +10,7 @@
  * Usage:  node lint-job.mjs path/to/job.json
  * Exit:   0 = no errors (warnings allowed), 1 = errors found or unreadable.
  */
+/* eslint-disable no-console -- intentional CLI: results print to stdout, read by exit code */
 import { readFileSync } from 'node:fs';
 
 const LIFECYCLES = ['once', 'persistent'];
@@ -18,9 +19,22 @@ const LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
 const DLQ_BUILTINS = ['throw', 'log', 'none'];
 
 const TOP_LEVEL = new Set([
-    'active', 'analytics', 'assets', 'autorecover', 'lifecycle', 'max_retries',
-    'name', 'operations', 'apis', 'probation_window', 'slicers', 'workers',
-    'stateful', 'labels', 'env_vars', 'log_level',
+    'active',
+    'analytics',
+    'assets',
+    'autorecover',
+    'lifecycle',
+    'max_retries',
+    'name',
+    'operations',
+    'apis',
+    'probation_window',
+    'slicers',
+    'workers',
+    'stateful',
+    'labels',
+    'env_vars',
+    'log_level',
 ]);
 
 // Injected by tooling, not part of the job schema. `teraslice-cli tjm register`
@@ -31,11 +45,22 @@ const INJECTED = new Set(['__metadata']);
 // Only valid when cluster_manager_type === 'kubernetesV2'. We can't know the
 // cluster manager from a job.json alone, so these are warnings, not errors.
 const K8S_ONLY = new Set([
-    'targets', 'cpu', 'cpu_execution_controller', 'ephemeral_storage',
-    'external_ports', 'memory', 'memory_execution_controller',
-    'pod_spec_override', 'resources_requests_cpu', 'resources_requests_memory',
-    'resources_limits_cpu', 'resources_limits_memory', 'volumes',
-    'kubernetes_image', 'prom_metrics_enabled', 'prom_metrics_port',
+    'targets',
+    'cpu',
+    'cpu_execution_controller',
+    'ephemeral_storage',
+    'external_ports',
+    'memory',
+    'memory_execution_controller',
+    'pod_spec_override',
+    'resources_requests_cpu',
+    'resources_requests_memory',
+    'resources_limits_cpu',
+    'resources_limits_memory',
+    'volumes',
+    'kubernetes_image',
+    'prom_metrics_enabled',
+    'prom_metrics_port',
     'prom_metrics_add_default',
 ]);
 
