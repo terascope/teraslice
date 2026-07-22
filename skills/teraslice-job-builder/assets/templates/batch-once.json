@@ -1,0 +1,16 @@
+{
+    "name": "REPLACE_ME batch job",
+    "lifecycle": "once",
+    "workers": 1,
+    "analytics": true,
+    "assets": ["REPLACE_ME_asset"],
+    "operations": [
+        {
+            "_op": "REPLACE_ME_reader",
+            "size": 10000
+        },
+        {
+            "_op": "REPLACE_ME_sender"
+        }
+    ]
+}

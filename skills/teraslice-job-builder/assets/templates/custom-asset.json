@@ -1,0 +1,21 @@
+{
+    "name": "REPLACE_ME custom-asset job",
+    "lifecycle": "once",
+    "workers": 1,
+    "analytics": true,
+    "assets": ["my_custom_asset"],
+    "apis": [],
+    "operations": [
+        {
+            "_op": "REPLACE_ME_reader"
+        },
+        {
+            "_op": "my_custom_op",
+            "some_config_field": "REPLACE_ME",
+            "_dead_letter_action": "throw"
+        },
+        {
+            "_op": "stdout"
+        }
+    ]
+}
