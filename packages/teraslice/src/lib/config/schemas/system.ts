@@ -337,6 +337,11 @@ export const schema = {
         default: undefined,
         format: 'optional_string'
     },
+    worker_version: {
+        doc: 'Which version of the worker runOnce() and shutdown() functions to use. Can be overridden by the property with same name set in the job spec.',
+        default: 'v1',
+        format: ['v1', 'v2']
+    }
 };
 
 export function configSchema() {

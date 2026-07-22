@@ -97,6 +97,7 @@ See
 |                    **state**                    |              `Object`              | `{"connection":"default"}` |                                    Opensearch cluster where job state, analytics and logs are stored                                     |
 |                  **env_vars**                   |              `Object`              |    `{"EXAMPLE":"test"}`    |                                      default environment variables to set on each the teraslice worker                                      |
 |          **worker_disconnect_timeout**          |             `duration`             |          `300000`          |                time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job                |
+|           **worker_version**           |           `"v1"`, `"v2"`           |            `"v1"`          |              Which version of the worker runOnce() and shutdown() functions to use. Can be overridden by the property with same name set in the job spec.                                                                          |
 |                   **workers**                   |              `Number`              |            `4`             |                                                        Number of workers per server                                                         |
 
 ### Terafoundation Connectors
