@@ -9,24 +9,24 @@ const END_MARKER = '<!-- AUTO-GENERATED-DATA-TYPES:END -->';
 
 /**
  * Scan the generated per-type doc dirs and return the kebab type names that
- * actually produced an `overview.md`. Scanning the generated dirs (rather than
- * the source files) guarantees every link in the index resolves.
+ * actually produced a `classes/default.md`. Scanning the generated dirs (rather
+ * than the source files) guarantees every link in the index resolves.
  */
 function listGeneratedTypes(typesDir: string): string[] {
     if (!fse.existsSync(typesDir)) return [];
 
     return fse.readdirSync(typesDir)
         .filter((name) => {
-            const overview = path.join(typesDir, name, 'overview.md');
+            const classDoc = path.join(typesDir, name, 'classes', 'default.md');
             return fse.statSync(path.join(typesDir, name)).isDirectory()
-                && fse.existsSync(overview);
+                && fse.existsSync(classDoc);
         })
         .sort();
 }
 
 function buildIndexBlock(types: string[]): string {
-    const rows = types
-        .map((name) => `| \`${name}\` | [${name}](./api/types/v1/${name}/overview.md) |`)
+    const items = types
+        .map((name) => `- [${name}](./api/types/v1/${name}/classes/default.md)`)
         .join('\n');
 
     return [
@@ -34,9 +34,7 @@ function buildIndexBlock(types: string[]): string {
         '',
         '## Field Types',
         '',
-        '| Type | Documentation |',
-        '| ---- | ------------- |',
-        rows,
+        items,
         '',
         END_MARKER,
     ].join('\n');
