@@ -4,6 +4,7 @@ import { build } from '../package-manager.js';
 import { updateSidebarJSON } from './sidebar.js';
 import { PackageInfo } from '../interfaces.js';
 import { generateTSDocs } from './typedoc.js';
+import { updateDataTypesIndex } from './data-types-index.js';
 import { getRootDir, writePkgHeader } from '../misc.js';
 
 export async function buildPackages(pkgInfos: PackageInfo[]) {
@@ -20,6 +21,7 @@ export async function buildPackages(pkgInfos: PackageInfo[]) {
 
         await updateReadme(pkgInfo);
         await ensureOverview(pkgInfo);
+        await updateDataTypesIndex(pkgInfo);
         runOnce = true;
     }
 
