@@ -8,6 +8,23 @@ import { GraphQLType, TypeESMapping } from '../interfaces.js';
 
 export type NestedTypes = { [field: string]: BaseType };
 
+/**
+ * Represents an `Object` field together with its nested children as a single
+ * grouped unit. This is not a `FieldType` you declare directly — it is
+ * assembled during field grouping (`getGroupType`) from an `Object` parent and
+ * its dot-notation children (e.g. `user` + `user.id` + `user.name`), so the
+ * parent and its descendants convert together into one nested structure.
+ *
+ * - **ES/OpenSearch mapping:** the parent's `object`/`nested` mapping with each
+ *   child folded into its `properties` (recursively, since a child may itself
+ *   be a group), merging any analyzers/tokenizers the children contribute.
+ * - **GraphQL:** a generated nested type (`DT<Parent><Field>V<version>`) whose
+ *   fields are the children, referenced from the parent type.
+ * - **xLucene:** the merged xLucene configs of the parent and all children,
+ *   keyed by their full dot-notation paths.
+ *
+ * @see {@link TupleType} for the ordered-set analogue.
+ */
 export default class GroupType extends BaseType {
     readonly types: NestedTypes;
 
@@ -16,6 +33,10 @@ export default class GroupType extends BaseType {
         this.types = types;
     }
 
+    /**
+     * Emit the parent's mapping with each child nested under its `properties`,
+     * accumulating any analyzers/tokenizers contributed by the children.
+     */
     toESMapping(config: ClientMetadata): TypeESMapping {
         const {
             mapping,
@@ -49,6 +70,10 @@ export default class GroupType extends BaseType {
         };
     }
 
+    /**
+     * Emit a generated nested GraphQL type built from the children and return
+     * the parent field referencing it (as `[list]` when the parent is an array).
+     */
     toGraphQL(options: ToGraphQLOptions = {}): GraphQLType {
         const { typeName = 'Object', isInput, includePrivate } = options;
 

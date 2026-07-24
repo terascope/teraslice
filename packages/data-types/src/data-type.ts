@@ -19,6 +19,24 @@ import { getTypes, LATEST_VERSION, getGroupedFields } from './types/index.js';
  * - Elasticsearch Mappings
  * - GraphQL Schemas
  * - xLucene
+ *
+ * It is constructed from a `DataTypeConfig` (a `version` plus a map of field
+ * names to their {@link BaseType} configs); nested `Object` and `Tuple` fields
+ * declared with dot-notation are grouped into {@link GroupType} /
+ * {@link TupleType} instances during construction.
+ *
+ * @example
+ * const dataType = new DataType({
+ *     version: 1,
+ *     fields: {
+ *         name: { type: 'Keyword' },
+ *         location: { type: 'GeoPoint' },
+ *     },
+ * }, 'Person');
+ *
+ * dataType.toESMapping();  // Elasticsearch/OpenSearch mapping
+ * dataType.toGraphQL();    // GraphQL schema string
+ * dataType.toXlucene();    // xLucene type config
  */
 export class DataType {
     readonly name!: string;
@@ -30,7 +48,13 @@ export class DataType {
 
     private readonly _types: BaseType[];
 
-    /** Merge multiple data types into one GraphQL schema, useful for removing duplicates */
+    /**
+     * Merge multiple data types into a single GraphQL schema, de-duplicating
+     * shared custom types and scalars. Throws on a missing or duplicate type
+     * name (or duplicate input name when `createInputTypes` is set). Options
+     * control input-type generation, snake_case naming, scalar removal, and
+     * per-type reference/virtual fields.
+     */
     static mergeGraphQLDataTypes(types: DataType[], options: i.MergeGraphQLOptions = {}): string {
         const {
             references: typeReferences = {},
@@ -88,6 +112,14 @@ export class DataType {
         return formatSchema(strSchema, removeScalars);
     }
 
+    /**
+     * @param config the data type config; `version` defaults to the latest and
+     * `fields` to `{}`, and the config is validated (throwing on an unknown
+     * version or invalid field config).
+     * @param typeName optional name for the type (required by some conversions,
+     * e.g. GraphQL).
+     * @param description optional description carried into the GraphQL output.
+     */
     constructor(config: Partial<DataTypeConfig>, typeName?: string, description?: string) {
         if (typeName) this.name = typeName;
         if (description) this.description = description;
@@ -155,6 +187,15 @@ export class DataType {
         return defaultsDeep({}, overrides, esMapping);
     }
 
+    /**
+     * Convert the DataType to a formatted GraphQL schema string. Combines the
+     * generated custom types, the base type, an optional input type, and any
+     * `args.customTypes`, then validates and prints the result. Pass
+     * `removeScalars` to strip `scalar` declarations from the output.
+     *
+     * Note: fields that reference an undeclared scalar (e.g. `Any`/`Tuple` →
+     * `JSON`) require that scalar to be supplied for the schema to validate.
+     */
     toGraphQL(args?: i.GraphQLOptions, removeScalars = false): string {
         const { baseType, inputType, customTypes } = this.toGraphQLTypes(args);
         const schema = utils.joinStrings(
@@ -163,6 +204,14 @@ export class DataType {
         return formatSchema(schema, removeScalars);
     }
 
+    /**
+     * Build the GraphQL type parts without assembling/validating a full schema:
+     * the `baseType` definition, an optional `inputType`, and the `customTypes`
+     * (scalars and generated nested types) the fields reference. Use this when
+     * composing several data types into one schema (see
+     * {@link DataType.mergeGraphQLDataTypes}); use `toGraphQL` for a single,
+     * ready-to-use schema string. Throws if no type name is available.
+     */
     toGraphQLTypes(args: i.GraphQLOptions = {}): i.GraphQLTypesResult {
         const {
             typeName = this.name,
@@ -237,6 +286,11 @@ export class DataType {
         };
     }
 
+    /**
+     * Convert the DataType to an xLucene type config — a flat map of field name
+     * (including nested dot-notation paths) to its xLucene field type, merged
+     * across every field.
+     */
     toXlucene(): xLuceneTypeConfig {
         return this._types.reduce((accum, type) => ({ ...accum, ...type.toXlucene() }), {});
     }

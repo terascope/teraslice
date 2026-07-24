@@ -5,7 +5,6 @@ import {
 import BaseType, { ToGraphQLOptions } from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
-// TODO: This type is deprecated, not sure how to properly indicate it.
 /**
  * @deprecated Use {@link GeoPointType} (`GeoPoint`) instead.
  *

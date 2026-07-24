@@ -14,6 +14,21 @@ pnpm add @terascope/data-types
 npm install --save @terascope/data-types
 ```
 
+## Core classes
+
+- [`DataType`](./api/data-type/classes/DataType.md) — the entry point. Build one
+  from a `DataTypeConfig` (a `version` plus a map of field names to their type
+  configs), then convert it with `toESMapping()`, `toGraphQL()`, or
+  `toXlucene()`. See [Examples](#examples) below.
+- [`BaseType`](./api/types/base-type/classes/default.md) — the abstract base
+  every field type extends. It defines the `toESMapping` / `toGraphQL` /
+  `toXlucene` contract that each [field type](#field-types) implements.
+- [`GroupType`](./api/types/group-type/classes/default.md) — represents an
+  `Object` field together with its dot-notation children as a single nested
+  unit (assembled internally, not declared directly).
+- [`TupleType`](./api/types/tuple-type/classes/default.md) — represents a
+  `Tuple` field: an ordered set of values, each element its own type.
+
 ## Field Types
 
 Each field in a `DataTypeConfig` is declared with a `FieldType` — the name you
@@ -71,7 +86,7 @@ See [Choosing a string type](#choosing-a-string-type) below for how to pick betw
 - [`Object`](./api/types/v1/object/classes/default.md) — nested object; declare children with dot-notation names.
 - [`Vector`](./api/types/v1/vector/classes/default.md) — ML embedding vector (ES `knn_vector`; enables `index.knn`).
 - [`Any`](./api/types/v1/any/classes/default.md) — unindexed, free-form value (`{ enabled: false }`).
-- [`Tuple`](./api/types/v1/any/classes/default.md) — an ordered set of values; handled specially and reuses the `Any` mapping.
+- [`Tuple`](./api/types/tuple-type/classes/default.md) — an ordered set of values, each element its own type.
 
 ## Choosing a string type
 
