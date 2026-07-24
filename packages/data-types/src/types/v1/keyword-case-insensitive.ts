@@ -2,6 +2,29 @@ import { xLuceneFieldType, ESFieldType, xLuceneTypeConfig } from '@terascope/typ
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
+/**
+ * A keyword that matches case-insensitively. It defines a custom
+ * `lowercase_keyword_analyzer` (a `keyword` tokenizer plus a `lowercase`
+ * filter) so the whole value is indexed as a single lowercased token.
+ *
+ * - **ES/OpenSearch mapping:** depends on `use_fields_hack`:
+ *   - default → `{ type: 'text', analyzer: 'lowercase_keyword_analyzer' }`.
+ *   - `use_fields_hack: true` → `{ type: 'keyword' }` with a `text` sub-field
+ *     (`fields.text`) using the analyzer. This keeps an exact `keyword` for
+ *     sorting/aggregations while still allowing case-insensitive matching on
+ *     the sub-field. The mapping always emits the `analyzer` block defining
+ *     `lowercase_keyword_analyzer`.
+ * - **GraphQL:** `String`.
+ * - **xLucene:** `AnalyzedString` by default, or `String` when
+ *   `use_fields_hack` is set (because the base field is then a plain
+ *   `keyword`).
+ *
+ * @example
+ * const config: DataTypeConfig = {
+ *     version: 1,
+ *     fields: { username: { type: 'KeywordCaseInsensitive' } }
+ * };
+ */
 export default class KeywordCaseInsensitive extends BaseType {
     toESMapping(): TypeESMapping {
         this._validateESMapping();

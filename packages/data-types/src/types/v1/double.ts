@@ -5,6 +5,21 @@ import {
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
+/**
+ * A floating-point number stored as an Elasticsearch/OpenSearch `double`
+ * (64-bit, double-precision IEEE 754).
+ *
+ * - **ES/OpenSearch mapping:** `{ type: 'double' }`. Honors `indexed: false`
+ *   (emitted as `index: false`).
+ * - **GraphQL:** `Float`.
+ * - **xLucene:** `Float`.
+ *
+ * @example
+ * const config: DataTypeConfig = {
+ *     version: 1,
+ *     fields: { latitude_precise: { type: 'Double' } }
+ * };
+ */
 export default class Double extends BaseType {
     toESMapping(): TypeESMapping {
         this._validateESMapping();

@@ -5,6 +5,20 @@ import {
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
+/**
+ * A true/false value stored as an Elasticsearch/OpenSearch `boolean`.
+ *
+ * - **ES/OpenSearch mapping:** `{ type: 'boolean' }`. Honors `indexed: false`
+ *   (emitted as `index: false`).
+ * - **GraphQL:** `Boolean`.
+ * - **xLucene:** `Boolean`.
+ *
+ * @example
+ * const config: DataTypeConfig = {
+ *     version: 1,
+ *     fields: { is_active: { type: 'Boolean' } }
+ * };
+ */
 export default class BooleanType extends BaseType {
     toESMapping(): TypeESMapping {
         this._validateESMapping();

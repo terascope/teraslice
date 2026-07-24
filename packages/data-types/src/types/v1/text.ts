@@ -5,6 +5,23 @@ import {
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
+/**
+ * A full-text string stored as an Elasticsearch/OpenSearch `text` field. The
+ * value is passed through the standard analyzer (tokenized, lowercased), so
+ * it supports full-text search but is **not** suited to exact-match filtering,
+ * sorting, or aggregations — use `Keyword` for those.
+ *
+ * - **ES/OpenSearch mapping:** `{ type: 'text' }`. Honors `indexed: false`
+ *   (emitted as `index: false`).
+ * - **GraphQL:** `String`.
+ * - **xLucene:** `String`.
+ *
+ * @example
+ * const config: DataTypeConfig = {
+ *     version: 1,
+ *     fields: { description: { type: 'Text' } }
+ * };
+ */
 export default class Text extends BaseType {
     toESMapping(): TypeESMapping {
         this._validateESMapping();

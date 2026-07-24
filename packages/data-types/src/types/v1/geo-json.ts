@@ -5,6 +5,23 @@ import {
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
+/**
+ * An arbitrary GeoJSON geometry (point, line, polygon, etc.) stored as an
+ * Elasticsearch/OpenSearch `geo_shape`, enabling shape-relation queries
+ * (intersects, within, contains, disjoint).
+ *
+ * - **ES/OpenSearch mapping:** `{ type: 'geo_shape' }`. Unlike most types this
+ *   does **not** honor `indexed: false` — a `geo_shape` is always indexed.
+ * - **GraphQL:** a `GeoJSON` custom scalar (the `scalar GeoJSON` definition is
+ *   emitted alongside the field).
+ * - **xLucene:** `GeoJSON`.
+ *
+ * @example
+ * const config: DataTypeConfig = {
+ *     version: 1,
+ *     fields: { region: { type: 'GeoJSON' } }
+ * };
+ */
 export default class GeoJSON extends BaseType {
     toESMapping(_clientMetaData: ClientMetadata): TypeESMapping {
         this._validateESMapping();

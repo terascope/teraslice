@@ -6,6 +6,25 @@ import { withoutNil } from '@terascope/core-utils';
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
+/**
+ * A date/time value stored as an Elasticsearch/OpenSearch `date`.
+ *
+ * - **ES/OpenSearch mapping:** `{ type: 'date' }`, optionally with a `format`.
+ *   The `config.format` is only carried through to ES when it is a custom
+ *   (non-`DateFormat`) pattern or an epoch format; `DateFormat.seconds` is
+ *   normalized to `epoch` and `DateFormat.milliseconds` to `epoch_millis`,
+ *   since ES only understands `epoch`/`epoch_millis`. When no usable format
+ *   is present the `format` key is dropped (via `withoutNil`). Honors
+ *   `indexed: false` (emitted as `index: false`).
+ * - **GraphQL:** `String` (ISO-8601 date strings).
+ * - **xLucene:** `Date`.
+ *
+ * @example
+ * const config: DataTypeConfig = {
+ *     version: 1,
+ *     fields: { created: { type: 'Date' } }
+ * };
+ */
 export default class DateType extends BaseType {
     toESMapping(): TypeESMapping {
         this._validateESMapping();
