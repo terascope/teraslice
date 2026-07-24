@@ -51,7 +51,7 @@ function injectBlock(existing: string, block: string): string {
     if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
         const before = existing.slice(0, startIdx);
         const after = existing.slice(endIdx + END_MARKER.length);
-        return `${before.replace(/\s+$/, '')}\n\n${block}\n${after.replace(/^\s+/, '')}`.trimEnd();
+        return `${before.replace(/\s+$/, '')}\n\n${block}\n\n${after.replace(/^\s+/, '')}`.trimEnd();
     }
 
     return `${existing.trimEnd()}\n\n${block}`;
