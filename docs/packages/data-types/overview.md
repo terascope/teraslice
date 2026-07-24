@@ -14,41 +14,64 @@ pnpm add @terascope/data-types
 npm install --save @terascope/data-types
 ```
 
-<!-- AUTO-GENERATED-DATA-TYPES:START -->
-
 ## Field Types
 
-- [any](./api/types/v1/any/classes/default.md)
-- [binary](./api/types/v1/binary/classes/default.md)
-- [boolean](./api/types/v1/boolean/classes/default.md)
-- [boundary](./api/types/v1/boundary/classes/default.md)
-- [byte](./api/types/v1/byte/classes/default.md)
-- [date](./api/types/v1/date/classes/default.md)
-- [domain](./api/types/v1/domain/classes/default.md)
-- [double](./api/types/v1/double/classes/default.md)
-- [float](./api/types/v1/float/classes/default.md)
-- [geo](./api/types/v1/geo/classes/default.md)
-- [geo-json](./api/types/v1/geo-json/classes/default.md)
-- [geo-point](./api/types/v1/geo-point/classes/default.md)
-- [hostname](./api/types/v1/hostname/classes/default.md)
-- [integer](./api/types/v1/integer/classes/default.md)
-- [ip](./api/types/v1/ip/classes/default.md)
-- [ip-range](./api/types/v1/ip-range/classes/default.md)
-- [keyword](./api/types/v1/keyword/classes/default.md)
-- [keyword-case-insensitive](./api/types/v1/keyword-case-insensitive/classes/default.md)
-- [keyword-path-analyzer](./api/types/v1/keyword-path-analyzer/classes/default.md)
-- [keyword-tokens](./api/types/v1/keyword-tokens/classes/default.md)
-- [keyword-tokens-case-insensitive](./api/types/v1/keyword-tokens-case-insensitive/classes/default.md)
-- [long](./api/types/v1/long/classes/default.md)
-- [ngram-tokens](./api/types/v1/ngram-tokens/classes/default.md)
-- [number](./api/types/v1/number/classes/default.md)
-- [object](./api/types/v1/object/classes/default.md)
-- [short](./api/types/v1/short/classes/default.md)
-- [string](./api/types/v1/string/classes/default.md)
-- [text](./api/types/v1/text/classes/default.md)
-- [vector](./api/types/v1/vector/classes/default.md)
+Each field in a `DataTypeConfig` is declared with a `FieldType` — the name you
+write in `{ type: '...' }` (or `FieldType.X`). The types are grouped below by
+purpose; follow a link for the full mapping/GraphQL/xLucene details of each.
 
-<!-- AUTO-GENERATED-DATA-TYPES:END -->
+### Numeric
+
+- [`Byte`](./api/types/v1/byte/classes/default.md) — 8-bit signed integer (ES `byte`).
+- [`Short`](./api/types/v1/short/classes/default.md) — 16-bit signed integer (ES `short`).
+- [`Integer`](./api/types/v1/integer/classes/default.md) — 32-bit signed integer (ES `integer`).
+- [`Long`](./api/types/v1/long/classes/default.md) — 64-bit signed integer (ES `long`; GraphQL `Float`).
+- [`Float`](./api/types/v1/float/classes/default.md) — single-precision float (ES `float`).
+- [`Double`](./api/types/v1/double/classes/default.md) — double-precision float (ES `double`).
+- [`Number`](./api/types/v1/number/classes/default.md) — general-purpose numeric when the width doesn't matter (ES `double`).
+
+### String / keyword / text
+
+See [Choosing a string type](#choosing-a-string-type) below for how to pick between these.
+
+- [`Keyword`](./api/types/v1/keyword/classes/default.md) — exact-match string for filtering, sorting, aggregations.
+- [`String`](./api/types/v1/string/classes/default.md) — like `Keyword`, but always GraphQL `String` (no `_key`→`ID` special-case).
+- [`Text`](./api/types/v1/text/classes/default.md) — analyzed full-text string.
+- [`KeywordCaseInsensitive`](./api/types/v1/keyword-case-insensitive/classes/default.md) — case-insensitive exact match.
+- [`KeywordTokens`](./api/types/v1/keyword-tokens/classes/default.md) — exact match plus a tokenized sub-field for word search.
+- [`KeywordTokensCaseInsensitive`](./api/types/v1/keyword-tokens-case-insensitive/classes/default.md) — case-insensitive exact match plus word search.
+- [`KeywordPathAnalyzer`](./api/types/v1/keyword-path-analyzer/classes/default.md) — slash-delimited paths, matchable by segment.
+- [`NgramTokens`](./api/types/v1/ngram-tokens/classes/default.md) — substring matching over numeric strings (3-gram, digits only).
+
+### Boolean / binary
+
+- [`Boolean`](./api/types/v1/boolean/classes/default.md) — `true`/`false` (ES `boolean`).
+- [`Binary`](./api/types/v1/binary/classes/default.md) — Base64-encoded binary value (ES `binary`).
+
+### Date
+
+- [`Date`](./api/types/v1/date/classes/default.md) — date/time (ES `date`; xLucene `Date`).
+
+### Geo
+
+- [`GeoPoint`](./api/types/v1/geo-point/classes/default.md) — a single lat/lon point (ES `geo_point`).
+- [`GeoJSON`](./api/types/v1/geo-json/classes/default.md) — arbitrary GeoJSON geometry (ES `geo_shape`).
+- [`Boundary`](./api/types/v1/boundary/classes/default.md) — a lat/lon boundary object.
+- [`Geo`](./api/types/v1/geo/classes/default.md) — **deprecated**; use `GeoPoint` or `GeoJSON`.
+
+### Network
+
+- [`IP`](./api/types/v1/ip/classes/default.md) — IPv4/IPv6 address (ES `ip`).
+- [`IPRange`](./api/types/v1/ip-range/classes/default.md) — CIDR range (ES `ip_range`).
+- [`Hostname`](./api/types/v1/hostname/classes/default.md) — hostname, matched case-insensitively and by label.
+- [`Domain`](./api/types/v1/domain/classes/default.md) — domain name, matched by suffix.
+
+### Complex / other
+
+- [`Object`](./api/types/v1/object/classes/default.md) — nested object; declare children with dot-notation names.
+- [`Vector`](./api/types/v1/vector/classes/default.md) — ML embedding vector (ES `knn_vector`; enables `index.knn`).
+- [`Any`](./api/types/v1/any/classes/default.md) — unindexed, free-form value (`{ enabled: false }`).
+- [`Tuple`](./api/types/v1/any/classes/default.md) — an ordered set of values; handled specially and reuses the `Any` mapping.
 
 ## Choosing a string type
 
