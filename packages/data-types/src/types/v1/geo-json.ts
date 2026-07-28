@@ -6,12 +6,13 @@ import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
 /**
- * An arbitrary GeoJSON geometry (point, line, polygon, etc.) stored as an
+ * A GeoJSON geometry (point, polygon, or multi-polygon) stored as an
  * Elasticsearch/OpenSearch `geo_shape`, enabling shape-relation queries
  * (intersects, within, contains, disjoint).
  *
  * - **ES/OpenSearch mapping:** `{ type: 'geo_shape' }`. Unlike most types this
- *   does **not** honor `indexed: false` — a `geo_shape` is always indexed.
+ *   cannot be excluded from indexing — `GeoJSON` is in `indexedRequiredFieldTypes`,
+ *   so `indexed: false` will throw.
  * - **GraphQL:** a `GeoJSON` custom scalar (the `scalar GeoJSON` definition is
  *   emitted alongside the field).
  * - **xLucene:** `GeoJSON`.

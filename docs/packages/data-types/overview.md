@@ -5,6 +5,60 @@ sidebar_label: Overview
 
 > A library for defining the data structures and mapping, exports to Opensearch Mappings, GraphQL, xLucene, and more.
 
+## What is a data type?
+
+A data type is a declarative, versioned description of the shape of a record —
+one schema definition that every other layer of the stack is generated from. It is
+a plain object (`DataTypeConfig`) holding a `version` and a `fields` map
+of field names → field configs.
+
+```ts
+{
+    version: 1,
+    fields: {
+        name: { type: FieldType.Keyword },
+        'name.tokens': { type: FieldType.Text },
+        created: { type: FieldType.Date, is_primary_date: true },
+        location: { type: FieldType.GeoPoint },
+        tags: { type: FieldType.Keyword, array: true },
+    },
+}
+```
+
+Wrapping that config in a [`DataType`](./api/data-type/classes/DataType.md) validates
+it and gives you the conversion functions needed for use throughout teraslice:
+
+| Function | Produces | Used for |
+| ------ | -------- | -------- |
+| `toESMapping()` | Elasticsearch/OpenSearch `mappings` + `settings` | creating indices, analyzers, `knn` settings |
+| `toGraphQL()` | a GraphQL schema (types, input types, scalars) | serving the data over an API |
+| `toXlucene()` | an xLucene type config | parsing and translating user queries |
+
+The conversions are also target-aware: `toESMapping()` takes `distribution`,
+`majorVersion`, and `minorVersion`, so one data type can emit the right mapping for
+whichever cluster you're pointing at.
+
+### Field configs carry more than a type
+
+Each entry in `fields` is a `DataTypeFieldConfig`, and `type` is its only required
+key. All other keys refine how the field is indexed and described. Which of these a field actually honors depends on its type. See [Field Configuration](./field-configs.md) for what each option does and where it is valid.
+
+### Nested structure
+
+Nested objects are declared **flat, with dot-notation** field names (`user`,
+`user.id`, `user.tags`) rather than by nesting configs. On construction, an `Object`
+or `Tuple` field and its children are grouped together, and each output format
+re-assembles them appropriately — nested `properties` in a mapping, a generated
+child type in GraphQL, dotted paths in xLucene. See
+[Nested objects](#nested-objects).
+
+### Where data types are used
+
+The same config is consumed across the stack: `elasticsearch-store` /
+`opensearch-client` build index mappings and templates from a `DataType`,
+`xlucene-translator` uses the xLucene config to validate and translate queries,
+and `data-mate` uses it to type, coerce, and aggregate `DataFrame` columns.
+
 ## Installation
 
 ```bash
@@ -14,79 +68,71 @@ pnpm add @terascope/data-types
 npm install --save @terascope/data-types
 ```
 
-## Core classes
-
-- [`DataType`](./api/data-type/classes/DataType.md) — the entry point. Build one
-  from a `DataTypeConfig` (a `version` plus a map of field names to their type
-  configs), then convert it with `toESMapping()`, `toGraphQL()`, or
-  `toXlucene()`. See [Examples](#examples) below.
-- [`BaseType`](./api/types/base-type/classes/default.md) — the abstract base
-  every field type extends. It defines the `toESMapping` / `toGraphQL` /
-  `toXlucene` contract that each [field type](#field-types) implements.
-- [`GroupType`](./api/types/group-type/classes/default.md) — represents an
-  `Object` field together with its dot-notation children as a single nested
-  unit (assembled internally, not declared directly).
-- [`TupleType`](./api/types/tuple-type/classes/default.md) — represents a
-  `Tuple` field: an ordered set of values, each element its own type.
-
 ## Field Types
 
-Each field in a `DataTypeConfig` is declared with a `FieldType` — the name you
-write in `{ type: '...' }` (or `FieldType.X`). The types are grouped below by
-purpose; follow a link for the full mapping/GraphQL/xLucene details of each.
+Each field in a `DataTypeConfig` is declared with a `FieldType`. These describe what a
+value *means*, so they are more specific than the storage types they map to —
+`Hostname`, `Domain`, and `Keyword` are three distinct field types that all end up as
+a string, and that extra meaning is what lets mapping generation, query translation,
+and coercion each do the right thing with them. Several types are also composites: one
+declaration can emit a primary field, sub-fields, and the custom
+analyzers/tokenizers or index settings they depend on.
+
+The types are grouped below by purpose; follow a link for the full
+mapping/GraphQL/xLucene details of each.
 
 ### Numeric
 
-- [`Byte`](./api/types/v1/byte/classes/default.md) — 8-bit signed integer (ES `byte`).
-- [`Short`](./api/types/v1/short/classes/default.md) — 16-bit signed integer (ES `short`).
-- [`Integer`](./api/types/v1/integer/classes/default.md) — 32-bit signed integer (ES `integer`).
-- [`Long`](./api/types/v1/long/classes/default.md) — 64-bit signed integer (ES `long`; GraphQL `Float`).
-- [`Float`](./api/types/v1/float/classes/default.md) — single-precision float (ES `float`).
-- [`Double`](./api/types/v1/double/classes/default.md) — double-precision float (ES `double`).
-- [`Number`](./api/types/v1/number/classes/default.md) — general-purpose numeric when the width doesn't matter (ES `double`).
+- [`Byte`](./api/types/v1/byte/classes/default.md)
+- [`Short`](./api/types/v1/short/classes/default.md)
+- [`Integer`](./api/types/v1/integer/classes/default.md)
+- [`Long`](./api/types/v1/long/classes/default.md)
+- [`Float`](./api/types/v1/float/classes/default.md)
+- [`Double`](./api/types/v1/double/classes/default.md)
+- [`Number`](./api/types/v1/number/classes/default.md)
 
 ### String / keyword / text
 
 See [Choosing a string type](#choosing-a-string-type) below for how to pick between these.
 
-- [`Keyword`](./api/types/v1/keyword/classes/default.md) — exact-match string for filtering, sorting, aggregations.
-- [`String`](./api/types/v1/string/classes/default.md) — like `Keyword`, but always GraphQL `String` (no `_key`→`ID` special-case).
-- [`Text`](./api/types/v1/text/classes/default.md) — analyzed full-text string.
-- [`KeywordCaseInsensitive`](./api/types/v1/keyword-case-insensitive/classes/default.md) — case-insensitive exact match.
-- [`KeywordTokens`](./api/types/v1/keyword-tokens/classes/default.md) — exact match plus a tokenized sub-field for word search.
-- [`KeywordTokensCaseInsensitive`](./api/types/v1/keyword-tokens-case-insensitive/classes/default.md) — case-insensitive exact match plus word search.
-- [`KeywordPathAnalyzer`](./api/types/v1/keyword-path-analyzer/classes/default.md) — slash-delimited paths, matchable by segment.
-- [`NgramTokens`](./api/types/v1/ngram-tokens/classes/default.md) — substring matching over numeric strings (3-gram, digits only).
+- [`Keyword`](./api/types/v1/keyword/classes/default.md)
+- [`String`](./api/types/v1/string/classes/default.md)
+- [`Text`](./api/types/v1/text/classes/default.md)
+- [`KeywordCaseInsensitive`](./api/types/v1/keyword-case-insensitive/classes/default.md)
+- [`KeywordTokens`](./api/types/v1/keyword-tokens/classes/default.md)
+- [`KeywordTokensCaseInsensitive`](./api/types/v1/keyword-tokens-case-insensitive/classes/default.md)
+- [`KeywordPathAnalyzer`](./api/types/v1/keyword-path-analyzer/classes/default.md)
+- [`NgramTokens`](./api/types/v1/ngram-tokens/classes/default.md)
 
 ### Boolean / binary
 
-- [`Boolean`](./api/types/v1/boolean/classes/default.md) — `true`/`false` (ES `boolean`).
-- [`Binary`](./api/types/v1/binary/classes/default.md) — Base64-encoded binary value (ES `binary`).
+- [`Boolean`](./api/types/v1/boolean/classes/default.md)
+- [`Binary`](./api/types/v1/binary/classes/default.md)
 
 ### Date
 
-- [`Date`](./api/types/v1/date/classes/default.md) — date/time (ES `date`; xLucene `Date`).
+- [`Date`](./api/types/v1/date/classes/default.md)
 
 ### Geo
 
-- [`GeoPoint`](./api/types/v1/geo-point/classes/default.md) — a single lat/lon point (ES `geo_point`).
-- [`GeoJSON`](./api/types/v1/geo-json/classes/default.md) — arbitrary GeoJSON geometry (ES `geo_shape`).
-- [`Boundary`](./api/types/v1/boundary/classes/default.md) — a lat/lon boundary object.
+- [`GeoPoint`](./api/types/v1/geo-point/classes/default.md)
+- [`GeoJSON`](./api/types/v1/geo-json/classes/default.md)
+- [`Boundary`](./api/types/v1/boundary/classes/default.md)
 - [`Geo`](./api/types/v1/geo/classes/default.md) — **deprecated**; use `GeoPoint` or `GeoJSON`.
 
 ### Network
 
-- [`IP`](./api/types/v1/ip/classes/default.md) — IPv4/IPv6 address (ES `ip`).
-- [`IPRange`](./api/types/v1/ip-range/classes/default.md) — CIDR range (ES `ip_range`).
-- [`Hostname`](./api/types/v1/hostname/classes/default.md) — hostname, matched case-insensitively and by label.
-- [`Domain`](./api/types/v1/domain/classes/default.md) — domain name, matched by suffix.
+- [`IP`](./api/types/v1/ip/classes/default.md)
+- [`IPRange`](./api/types/v1/ip-range/classes/default.md)
+- [`Hostname`](./api/types/v1/hostname/classes/default.md)
+- [`Domain`](./api/types/v1/domain/classes/default.md)
 
 ### Complex / other
 
-- [`Object`](./api/types/v1/object/classes/default.md) — nested object; declare children with dot-notation names.
-- [`Vector`](./api/types/v1/vector/classes/default.md) — ML embedding vector (ES `knn_vector`; enables `index.knn`).
-- [`Any`](./api/types/v1/any/classes/default.md) — unindexed, free-form value (`{ enabled: false }`).
-- [`Tuple`](./api/types/tuple-type/classes/default.md) — an ordered set of values, each element its own type.
+- [`Object`](./api/types/v1/object/classes/default.md)
+- [`Vector`](./api/types/v1/vector/classes/default.md)
+- [`Any`](./api/types/v1/any/classes/default.md)
+- [`Tuple`](./api/types/tuple-type/classes/default.md)
 
 ## Choosing a string type
 
@@ -120,7 +166,7 @@ Quick guide:
 | Type | Reach for it when | ES/OpenSearch mapping | Exact match | Full-text / partial |
 | ---- | ----------------- | --------------------- | :---------: | ------------------- |
 | [`keyword`](./api/types/v1/keyword/classes/default.md) | Exact values you filter, sort, or aggregate on | `keyword` | ✅ | — |
-| [`string`](./api/types/v1/string/classes/default.md) | Same as `keyword`, no `_key`→`ID` GraphQL special-case | `keyword` | ✅ | — |
+| [`string`](./api/types/v1/string/classes/default.md) | Same as `keyword`, but no special `_key` treatment | `keyword` | ✅ | — |
 | [`text`](./api/types/v1/text/classes/default.md) | Free-form prose you search over | `text` (standard analyzer) | — | words |
 | [`keyword-tokens`](./api/types/v1/keyword-tokens/classes/default.md) | Need exact match *and* word search on one field | `keyword` + `tokens` text sub-field | ✅ | words (on `.tokens`) |
 | [`keyword-case-insensitive`](./api/types/v1/keyword-case-insensitive/classes/default.md) | Exact match ignoring case | `text` w/ `lowercase_keyword_analyzer` (or `keyword` + sub-field via `use_fields_hack`) | ✅ (case-insensitive) | — |
@@ -130,9 +176,39 @@ Quick guide:
 | [`hostname`](./api/types/v1/hostname/classes/default.md) | Hostnames, case-insensitive + per-label | `text` w/ `lowercase_keyword_analyzer` + `tokens` sub-field (`.` pattern) | ✅ (case-insensitive) | labels (on `.tokens`) |
 | [`domain`](./api/types/v1/domain/classes/default.md) | Domain names, match by suffix | `text` w/ `lowercase_keyword_analyzer` + `tokens` and `right` sub-fields | ✅ (case-insensitive) | suffixes (on `.right`), words (on `.tokens`) |
 
-All of these map to the GraphQL `String` scalar. For xLucene, the plain
-`keyword`/`text`/tokenized variants report `String`; `keyword-case-insensitive`
-and `domain` report `AnalyzedString`.
+All of these map to the GraphQL `String` scalar — except a `keyword` field named
+`_key`, see below. For xLucene, the plain `keyword`/`text`/tokenized variants
+report `String`; `keyword-case-insensitive` and `domain` report `AnalyzedString`.
+
+## The `_key` field
+
+`_key` is the convention across Teraslice for a record's unique identifier. Several packages have specific behaviors related to this field name:
+
+- In data-types the `keyword` type gives a field named `_key` special treatment: it maps to the GraphQL `ID` scalar instead of `String`. The ES/OpenSearch mapping (`keyword`) and xLucene type (`String`) are unchanged.
+
+```ts
+const dataType = new DataType({
+    version: 1,
+    fields: {
+        _key: { type: FieldType.Keyword },
+        name: { type: FieldType.Keyword },
+    },
+}, 'Person');
+
+dataType.toGraphQL();
+// type Person {
+//   _key: ID
+//   name: String
+// }
+```
+
+- A core-utils [`DataEntity`](../../jobs/data-entities.md) stores the record's unique key in its metadata as `_key`, readable and writable via `getKey()`/`setKey()`. Elasticsearch/OpenSearch readers populate it from the document's `_id`.
+
+- `IndexModel` in [`elasticsearch-store`](../elasticsearch-store/overview.md)
+  uses `_key` as its `id_field` — an autogenerated unique ID stored on the
+  record that also serves as the document `_id`.
+
+Because of its special treatment of `_key`, the `keyword` type is always preferred over the `string` type.
 
 ## Examples
 

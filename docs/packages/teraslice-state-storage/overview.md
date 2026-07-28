@@ -215,7 +215,7 @@ module.exports = StateStorageProcessor;
 "persist": BOOLEAN - Saves the record to elasticsearch upon caching the document, defaults to false
 
 ### meta_key_field
-"metaKey": "STRING" - Field in the metadata to use as the key for cacheing and searching in elasticsearch
+"metaKey": "STRING" - Field in the metadata to use as the key for caching and searching in elasticsearch
 
 ### connection
 "connection": "STRING" - Terafoundation connection name for elasticsearch cluster

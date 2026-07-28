@@ -48,7 +48,7 @@ expect(dataEntity.toBuffer()).toEqual(Buffer.from(JSON.stringify(dataEntity)));
 
 ### DataEntity.make
 
-A utility for safely converting an object a `DataEntity`. If the input is a DataEntity it will return it and have no side-effect. If you want a create new DataEntity from an existing DataEntity either use `new DataEntity` or shallow clone the input before passing it to `DataEntity.make`.
+A utility for safely converting an object to a `DataEntity`. If the input is a DataEntity it will return it and have no side-effect. If you want to create a new DataEntity from an existing DataEntity either use `new DataEntity` or shallow clone the input before passing it to `DataEntity.make`.
 
 ```js
 'use strict';
@@ -193,7 +193,7 @@ expect(dataEntity.getMetadata('touched')).toBeNumber();
 
 ### DataEntity->getKey
 
-Get the unique document `_key` from the metadata. If no `_key` is found, an error will be thrown. The key can be a `number` of `string`.
+Get the unique document `_key` from the metadata. If no `_key` is found, an error will be thrown. The key can be a `number` or `string`.
 
 ```js
 'use strict';
@@ -448,6 +448,6 @@ As a convention we use the following metadata keys in many of our asset bundles
 | `_ingestTime`  | The time at which the data was ingested into the source data                                         | `Unix Timestamp` | optional                        |
 | `_processTime` | The time at which the data was consumed by the reader                                                | `Unix Timestamp` | optional                        |
 | `_eventTime`   | The time associated with this data entity, usually off of a specific field on source data or message | `Unix Timestamp` | optional                        |
-| `_key`         | A unique key for the data which will be can be used to key the data                                  | `String          | Number`                         | optional |
+| `_key`         | A unique key for the data which can be used to key the data                                  | `String          | Number`                         | optional |
 
 Checkout [this Github issue](https://github.com/terascope/teraslice/issues/950) for more details.
