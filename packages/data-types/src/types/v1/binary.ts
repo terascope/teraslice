@@ -18,7 +18,10 @@ import { GraphQLType, TypeESMapping } from '../../interfaces.js';
  *
  * Because it is neither indexed for search nor stored as doc values, a
  * `Binary` field is opaque storage — you can retrieve it by `_source` but
- * cannot filter, sort, or aggregate on it.
+ * cannot filter, sort, or aggregate on it. This can be useful to store
+ * small files (thumbnails, audio, scripts, cryptographic keys, bit vectors)
+ * that can be filtered, sorted, and aggregated by metadata fields stored
+ * on the same record.
  *
  * @example
  * const config: DataTypeConfig = {

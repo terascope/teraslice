@@ -51,7 +51,7 @@ placed on a type that doesn't read it. `dimension: 5` on a `Keyword`, or
 one thing validated at construction time is that each field name is legal and
 has a `type`; everything else is validated (if at all) when a conversion runs.
 
-## `array`
+### `array`
 
 Marks the field as holding a list of values. Every field type honors it — the
 list wrapper is applied by the shared base class, not per type — but its effect
@@ -81,7 +81,7 @@ Two types deserve care:
   renders as `[DTGeoBoundaryV1]` on its own. Adding `array: true` wraps it again
   into `[[DTGeoBoundaryV1]]` (a list of boundaries).
 
-## `description`
+### `description`
 
 Free text carried into the generated GraphQL schema as a docstring. It has no
 effect on the ES mapping or xLucene config.
@@ -99,7 +99,7 @@ type T {
 }
 ```
 
-## `indexed`
+### `indexed`
 
 Defaults to `true`. Setting `indexed: false` keeps the value in `_source` but
 takes it out of the index, so it can't be searched, sorted, or aggregated on.
@@ -120,7 +120,7 @@ that cannot meaningfully be excluded from indexing. The error is raised by
 not by the `DataType` constructor, so an invalid combination is only surfaced
 when you generate a mapping.
 
-## `format` (Date)
+### `format` (Date)
 
 The date format, either a member of the `DateFormat` enum (`iso_8601`,
 `epoch`, `epoch_millis`, `seconds`, `milliseconds`) or a custom
@@ -142,7 +142,7 @@ ES's default and is dropped:
 GraphQL always renders a `Date` field as `String`, and xLucene as `date`,
 regardless of format.
 
-## `is_primary_date` and `time_resolution`
+### `is_primary_date` and `time_resolution`
 
 `is_primary_date` marks the record's main date field, and `time_resolution`
 (`'seconds'` or `'milliseconds'`) declares its precision — it is documented as
@@ -159,11 +159,11 @@ Nothing enforces any of this. Only one field should carry `is_primary_date`,
 but a config with several is accepted; setting it on a non-`Date` field is
 accepted and ignored.
 
-## `locale`
+### `locale`
 
 A BCP 47 language tag. It is not read by `@terascope/data-types` at all. Treat it as metadata for downstream consumers.
 
-## `use_fields_hack` (KeywordCaseInsensitive)
+### `use_fields_hack` (KeywordCaseInsensitive)
 
 A temporary flag, valid only on `KeywordCaseInsensitive`. By default that type
 maps to an analyzed `text` field, which means it can't be sorted or aggregated
@@ -180,7 +180,7 @@ matching case-insensitively on the sub-field.
 Either way, the mapping's `settings` gain the `lowercase_keyword_analyzer`
 definition (a `keyword` tokenizer plus a `lowercase` filter).
 
-## Vector options
+### Vector options
 
 `Vector` fields take four extra options beyond the required `array: true`:
 
