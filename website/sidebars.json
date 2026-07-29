@@ -55,6 +55,8 @@
                 "label": "data-types",
                 "items": [
                     "packages/data-types/overview",
+                    "packages/data-types/field-configs",
+                    "packages/data-types/development",
                     "packages/data-types/api/overview"
                 ]
             },

@@ -6,6 +6,44 @@ import { isInteger, isString } from '@terascope/core-utils';
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
+/**
+ * A dense numeric vector for k-NN / similarity search, stored as an
+ * OpenSearch `knn_vector`.
+ *
+ * - **ES/OpenSearch mapping:** `{ type: 'knn_vector', dimension, method: {
+ *   name, engine } }` plus a `settings` block enabling `index.knn: true`. The
+ *   `space_type` is placed at the top level for OpenSearch major version >= 3
+ *   and inside `method` for earlier versions.
+ * - **GraphQL:** `Float`.
+ * - **xLucene:** `Float`.
+ *
+ * Relevant `DataTypeFieldConfig` options:
+ * - `array` — **required**; a vector must be declared as an array.
+ * - `dimension` — **required**; must be an integer (the vector length).
+ * - `space_type` — distance metric; one of `l1`, `l2` (default), `linf`,
+ *   `cosinesimil`, `innerproduct`, `hamming`, `hammingbit`.
+ * - `name` — algorithm; `hnsw` (default) or `ivf`.
+ * - `engine` — `faiss` (default) or `lucene`.
+ *
+ * Validation (throws from `toESMapping`):
+ * - OpenSearch < 2.10 is unsupported.
+ * - `array` must be `true`, `dimension` must be an integer, and `space_type`,
+ *   `name`, and `engine` must each be valid.
+ * - `engine: 'lucene'` cannot be paired with `name: 'ivf'`.
+ *
+ * @example
+ * const config: DataTypeConfig = {
+ *     version: 1,
+ *     fields: {
+ *         embedding: {
+ *             type: 'Vector',
+ *             array: true,
+ *             dimension: 768,
+ *             space_type: 'cosinesimil'
+ *         }
+ *     }
+ * };
+ */
 export default class VectorType extends BaseType {
     toESMapping(config: ClientMetadata): TypeESMapping {
         this._validateESMapping();

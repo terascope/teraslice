@@ -5,6 +5,21 @@ import {
 import BaseType from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
+/**
+ * An IPv4 or IPv6 address stored as an Elasticsearch/OpenSearch `ip` field,
+ * enabling CIDR-range queries.
+ *
+ * - **ES/OpenSearch mapping:** `{ type: 'ip' }`. Honors `indexed: false`
+ *   (emitted as `index: false`).
+ * - **GraphQL:** `String`.
+ * - **xLucene:** `IP`.
+ *
+ * @example
+ * const config: DataTypeConfig = {
+ *     version: 1,
+ *     fields: { client_ip: { type: 'IP' } }
+ * };
+ */
 export default class IPType extends BaseType {
     toESMapping(): TypeESMapping {
         this._validateESMapping();

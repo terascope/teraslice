@@ -5,7 +5,26 @@ import {
 import BaseType, { ToGraphQLOptions } from '../base-type.js';
 import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
-// TODO: This type is deprecated, not sure how to properly indicate it.
+/**
+ * @deprecated Use {@link GeoPointType} (`GeoPoint`) instead.
+ *
+ * A latitude/longitude point stored as an Elasticsearch/OpenSearch
+ * `geo_point`. This is the legacy geo type, kept for backwards compatibility;
+ * it is identical to `GeoPoint` at the ES/GraphQL level and differs only in
+ * its xLucene type.
+ *
+ * - **ES/OpenSearch mapping:** `{ type: 'geo_point' }`. Honors
+ *   `indexed: false` (emitted as `index: false`).
+ * - **GraphQL:** a generated object type `DTGeoPointV1` with `lat: String!`
+ *   and `lon: String!` (an `input` variant is emitted when `isInput` is set).
+ * - **xLucene:** `Geo`.
+ *
+ * @example
+ * const config: DataTypeConfig = {
+ *     version: 1,
+ *     fields: { location: { type: 'Geo' } }
+ * };
+ */
 export default class GeoType extends BaseType {
     toESMapping(): TypeESMapping {
         this._validateESMapping();
