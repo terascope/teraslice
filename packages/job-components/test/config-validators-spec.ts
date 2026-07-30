@@ -5,7 +5,7 @@ import { logLevels } from '@terascope/core-utils';
 import { Terafoundation } from '@terascope/types';
 import {
     jobSchema, validateJobConfig, validateOpConfig,
-    TestContext, validateAPIConfig,
+    TestContext, validateAPIConfig, getValidationWarnings,
 } from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -342,7 +342,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const { config } = validateOpConfig(schema, op, context);
+            const config = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -361,7 +361,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const { config } = validateOpConfig(schema, op, context);
+            const config = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -407,7 +407,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const { config } = validateOpConfig(schema, op, context);
+            const config = validateOpConfig(schema, op, context);
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
@@ -457,7 +457,9 @@ describe('when using native clustering', () => {
                 old_value: 'changed',
             };
 
-            const { warnings } = validateOpConfig(deprecatedSchema, op, context);
+            const warnings = getValidationWarnings(
+                validateOpConfig(deprecatedSchema, op, context)
+            );
             expect(warnings).toBeArrayOfSize(1);
             expect(warnings[0]).toMatchObject({
                 type: 'JobValidation',
@@ -480,7 +482,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const { warnings } = validateOpConfig(schema, op, context);
+            const warnings = getValidationWarnings(validateOpConfig(schema, op, context));
             expect(warnings).toBeArrayOfSize(0);
         });
     });
@@ -521,7 +523,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi'
             };
 
-            const { config } = validateAPIConfig(schema, api, context);
+            const config = validateAPIConfig(schema, api, context);
             expect(config).toEqual({
                 _name: 'some-api',
                 example: 'example',
@@ -558,7 +560,9 @@ describe('when using native clustering', () => {
                 old_value: 'changed',
             };
 
-            const { warnings } = validateAPIConfig(deprecatedSchema, api, context);
+            const warnings = getValidationWarnings(
+                validateAPIConfig(deprecatedSchema, api, context)
+            );
             expect(warnings).toBeArrayOfSize(1);
             expect(warnings[0]).toMatchObject({
                 type: 'JobValidation',
@@ -581,7 +585,7 @@ describe('when using native clustering', () => {
                 formatted_value: 'hi',
             };
 
-            const { warnings } = validateAPIConfig(schema, api, context);
+            const warnings = getValidationWarnings(validateAPIConfig(schema, api, context));
             expect(warnings).toBeArrayOfSize(0);
         });
     });

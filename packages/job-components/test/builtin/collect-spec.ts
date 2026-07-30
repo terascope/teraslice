@@ -32,7 +32,7 @@ describe('Collect Processor', () => {
 
     it('should be able to pass validation', () => {
         const schema = new Schema(context);
-        const { config } = schema.validate({
+        const config = schema.validate({
             _op: 'collect',
             size: 100,
             wait: 100

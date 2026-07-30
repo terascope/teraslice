@@ -25,7 +25,7 @@ describe('Noop Processor', () => {
     });
 
     it('should be able to pass validation', () => {
-        const { config } = schema.validate({ _op: 'delay' });
+        const config = schema.validate({ _op: 'delay' });
         expect(config).toMatchObject({ _op: 'delay' });
     });
 

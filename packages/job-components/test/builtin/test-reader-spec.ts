@@ -18,13 +18,13 @@ describe('Test Reader', () => {
         const schema = new Schema(context);
 
         it('should be able to return the correct opConfig with not additional config', () => {
-            const { config } = schema.validate({ _op: 'test-reader' });
+            const config = schema.validate({ _op: 'test-reader' });
             expect(config).toHaveProperty('fetcher_data_file_path', null);
             expect(config).toHaveProperty('slicer_data_file_path', null);
         });
 
         it('should be able to return the correct opConfig with additional config', () => {
-            const { config } = schema.validate({
+            const config = schema.validate({
                 _op: 'test-reader',
                 fetcher_data_file_path: 'hello',
                 slicer_data_file_path: 'hi',
