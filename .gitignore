@@ -101,3 +101,6 @@ k8s-config.yaml
 
 # dynamically generated jest config
 jest.custom.config.js
+
+# api-extractor scratch output; the reviewed baseline lives in packages/*/etc/
+packages/*/temp/

@@ -9,6 +9,9 @@
     },
     "type": "module",
     "scripts": {
+        "api:check": "for c in packages/*/api-extractor.json; do echo \"--- $c\"; api-extractor run --config \"$c\" || exit 1; done",
+        "api:diff": "git diff --stat -- 'packages/*/etc/*.api.md' && git diff -- 'packages/*/etc/*.api.md'",
+        "api:update": "for c in packages/*/api-extractor.json; do echo \"--- $c\"; api-extractor run --local --config \"$c\" || exit 1; done",
         "prebuild": "./packages/xlucene-parser/scripts/generate-engine.js",
         "build": "pnpm prebuild && tsc --build --verbose && pnpm postbuild",
         "postbuild": "pnpm --filter teraslice-cli postbuild",
@@ -43,6 +46,7 @@
     },
     "devDependencies": {
         "@eslint/js": "~9.39.2",
+        "@microsoft/api-extractor": "^7.58.12",
         "@swc/core": "1.15.43",
         "@swc/jest": "~0.2.39",
         "@terascope/core-utils": "workspace:~",

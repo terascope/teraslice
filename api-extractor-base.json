@@ -1,0 +1,92 @@
+/**
+ * Shared API Extractor settings for every publishable package in this monorepo.
+ *
+ * This is not a runnable config: the repo root is a private workspace shell with no
+ * sources of its own, so there is no entry point to analyze here. Each package has its
+ * own api-extractor.json that extends this file, and the <projectFolder> token below
+ * resolves to that package's folder.
+ *
+ * For more info, please visit: https://api-extractor.com
+ */
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+
+  /**
+   * Matches the "typings" field used by every package in packages/*.
+   */
+  "mainEntryPointFilePath": "<projectFolder>/dist/src/index.d.ts",
+
+  "bundledPackages": [],
+
+  "newlineKind": "lf",
+
+  "apiReport": {
+    "enabled": true,
+    "reportFolder": "<projectFolder>/etc/",
+    "reportTempFolder": "<projectFolder>/temp/"
+  },
+
+  "docModel": {
+    "enabled": true,
+    "apiJsonFilePath": "<projectFolder>/temp/<unscopedPackageName>.api.json",
+    "projectFolderUrl": "https://github.com/terascope/teraslice/tree/master/packages/<unscopedPackageName>"
+  },
+
+  /**
+   * Packages ship the tsc-emitted dist/src/index.d.ts directly, so no rollup is needed.
+   */
+  "dtsRollup": {
+    "enabled": false
+  },
+
+  "tsdocMetadata": {
+    "enabled": false
+  },
+
+  /**
+   * In a production (non---local) run, ANY warning causes a nonzero exit. The categories
+   * silenced below are all pre-existing conditions in this repo, so leaving them at
+   * "warning" would make the CI gate fire constantly and drown out the signal that
+   * actually matters: "the public API changed and the .api.md baseline wasn't updated".
+   */
+  "messages": {
+    "compilerMessageReporting": {
+      "default": {
+        "logLevel": "warning"
+      }
+    },
+
+    "extractorMessageReporting": {
+      "default": {
+        "logLevel": "warning"
+      },
+
+      /**
+       * Nothing in the repo is tagged @public/@beta/@alpha yet. Re-enable if release
+       * tagging is ever adopted.
+       */
+      "ae-missing-release-tag": {
+        "logLevel": "none"
+      },
+
+      /**
+       * Several {@link} references point at re-exported symbols that live in sibling
+       * packages. Re-enable once those are qualified, e.g.
+       * {@link @terascope/core-utils#DataEntity}.
+       */
+      "ae-unresolved-link": {
+        "logLevel": "none"
+      }
+    },
+
+    /**
+     * Pre-existing doc-comment formatting (missing @param hyphens, unescaped braces).
+     * Not worth failing a build over; re-enable after a cleanup pass.
+     */
+    "tsdocMessageReporting": {
+      "default": {
+        "logLevel": "none"
+      }
+    }
+  }
+}
