@@ -10,7 +10,7 @@
     "type": "module",
     "scripts": {
         "api:check": "for c in packages/*/api-extractor.json; do echo \"--- $c\"; api-extractor run --config \"$c\" || exit 1; done",
-        "api:diff": "git diff --stat -- 'packages/*/etc/*.api.md' && git diff -- 'packages/*/etc/*.api.md'",
+        "api:diff": "git diff ${API_BASE:+$API_BASE...} -- 'packages/*/etc/*.api.md'",
         "api:update": "for c in packages/*/api-extractor.json; do echo \"--- $c\"; api-extractor run --local --config \"$c\" || exit 1; done",
         "prebuild": "./packages/xlucene-parser/scripts/generate-engine.js",
         "build": "pnpm prebuild && tsc --build --verbose && pnpm postbuild",

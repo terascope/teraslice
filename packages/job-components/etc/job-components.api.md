@@ -154,9 +154,15 @@ export abstract class BaseSchema<T extends Record<string, any>, S = any> extends
     // (undocumented)
     static type(): string;
     // (undocumented)
-    validate(inputConfig: Record<string, any>): APIConfig & T;
+    validate(inputConfig: Record<string, any>): {
+        config: APIConfig & T;
+        warnings: Teraslice.JobWarning[];
+    };
     // (undocumented)
-    validate(inputConfig: Record<string, any>): OpConfig & T;
+    validate(inputConfig: Record<string, any>): {
+        config: OpConfig & T;
+        warnings: Teraslice.JobWarning[];
+    };
     // (undocumented)
     validateJob(_job: ValidatedJobConfig): void;
 }
@@ -447,7 +453,10 @@ export class JobValidator {
     hasSchema(obj: Record<string, any>, name: string): void;
     // (undocumented)
     schema: Terafoundation.Schema<any>;
-    validateConfig(jobSpec: Partial<Teraslice.JobConfig | Teraslice.JobConfigParams>): Promise<ValidatedJobConfig>;
+    validateConfig(jobSpec: Partial<Teraslice.JobConfig | Teraslice.JobConfigParams>): Promise<{
+        jobConfig: ValidatedJobConfig;
+        warnings: Teraslice.JobWarning[];
+    }>;
 }
 
 export { LifeCycle }
@@ -744,7 +753,10 @@ export abstract class SchemaCore<T> {
     // (undocumented)
     readonly opType: OpType;
     // (undocumented)
-    abstract validate(inputConfig: Record<string, any>): OpConfig & T;
+    abstract validate(inputConfig: Record<string, any>): {
+        config: OpConfig & T;
+        warnings: Teraslice.JobWarning[];
+    };
     // (undocumented)
     abstract validateJob?(job: ValidatedJobConfig): void;
 }
@@ -1003,15 +1015,24 @@ export class TestReaderSlicer extends Slicer<TestReaderConfig> {
 }
 
 // @public
-export function validateAPIConfig<T>(inputSchema: Terafoundation.Schema<any>, inputConfig: Record<string, any>, context: Terafoundation.Context): APIConfig & T;
+export function validateAPIConfig<T>(inputSchema: Terafoundation.Schema<any>, inputConfig: Record<string, any>, context: Terafoundation.Context): {
+    config: APIConfig & T;
+    warnings: Teraslice.JobWarning[];
+};
 
 export { ValidatedJobConfig }
 
 // @public
-export function validateJobConfig<T>(inputSchema: Terafoundation.Schema<any>, inputConfig: Record<string, any>, context: Terafoundation.Context): ValidatedJobConfig & T;
+export function validateJobConfig<T>(inputSchema: Terafoundation.Schema<any>, inputConfig: Record<string, any>, context: Terafoundation.Context): {
+    config: ValidatedJobConfig & T;
+    warnings: Teraslice.JobWarning[];
+};
 
 // @public
-export function validateOpConfig<T>(inputSchema: Terafoundation.Schema<any>, inputConfig: Record<string, any>, context: Terafoundation.Context): OpConfig & T;
+export function validateOpConfig<T>(inputSchema: Terafoundation.Schema<any>, inputConfig: Record<string, any>, context: Terafoundation.Context): {
+    config: OpConfig & T;
+    warnings: Teraslice.JobWarning[];
+};
 
 // @public (undocumented)
 export interface ValidLoaderOptions {
