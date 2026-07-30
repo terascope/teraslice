@@ -1,4 +1,4 @@
-import { Teraslice, Terafoundation } from '@terascope/types';
+import { Terafoundation } from '@terascope/types';
 import SchemaCore, { OpType } from './core/schema-core.js';
 import {
     Context, OpConfig, APIConfig,
@@ -19,15 +19,9 @@ export default abstract class BaseSchema<T extends Record<string, any>, S = any>
         this.schema = this.build(context);
     }
 
-    validate(inputConfig: Record<string, any>): {
-        config: APIConfig & T; warnings: Teraslice.JobWarning[];
-    };
-    validate(inputConfig: Record<string, any>): {
-        config: OpConfig & T; warnings: Teraslice.JobWarning[];
-    };
-    validate(
-        inputConfig: Record<string, any>
-    ): { config: OpConfig | APIConfig & T; warnings: Teraslice.JobWarning[] } {
+    validate(inputConfig: Record<string, any>): APIConfig & T;
+    validate(inputConfig: Record<string, any>): OpConfig & T;
+    validate(inputConfig: Record<string, any>): (OpConfig | APIConfig) & T {
         if (this.opType === 'api') {
             return validateAPIConfig<T>(this.schema, inputConfig, this.context);
         }

@@ -4,7 +4,7 @@ import {
 } from '@terascope/core-utils';
 import { Teraslice, Terafoundation } from '@terascope/types';
 import { Context, OpConfig, ValidatedJobConfig } from './interfaces';
-import { validateJobConfig } from './config-validators.js';
+import { validateJobConfig, getValidationWarnings } from './config-validators.js';
 import { jobSchema } from './job-schemas.js';
 import { OperationLoader, parseName } from './operation-loader/index.js';
 import { registerApis } from './register-apis.js';
@@ -72,11 +72,16 @@ export class JobValidator {
             });
 
             const opResult = schema.validate(opConfig);
-            // TODO: v3 schemas may return the config directly instead of
-            // { config, warnings }. Support for the old shape will be dropped in Teraslice v4.
-            // See https://github.com/terascope/teraslice/issues/4501
+            // Current job-components returns the flat config with warnings attached
+            // as a non-enumerable property (read via getValidationWarnings). Assets
+            // built against job-components 2.16.0 exactly returned a { config, warnings }
+            // wrapper instead — still tolerated here via isValidateResult.
+            // TODO: the wrapper branch will be dropped in Teraslice v4.
+            // See https://github.com/terascope/teraslice/issues/4509 and #4501
             const validatedConfig = isValidateResult(opResult) ? opResult.config : opResult;
-            const warnings = isValidateResult(opResult) ? (opResult.warnings ?? []) : [];
+            const warnings = isValidateResult(opResult)
+                ? (opResult.warnings ?? [])
+                : getValidationWarnings(validatedConfig);
             allWarnings.push(...warnings);
 
             const needsAPI = has(validatedConfig, '_api_name') || has(validatedConfig, 'api_name');
@@ -135,11 +140,14 @@ export class JobValidator {
             });
 
             const apiResult = schema.validate(apiConfig);
-            // TODO: v3 schemas may return the config directly instead of
-            // { config, warnings }. Support for the old shape will be dropped in Teraslice v4.
-            // See https://github.com/terascope/teraslice/issues/4501
+            // See the operation branch above: flat config + non-enumerable warnings
+            // for current job-components; { config, warnings } wrapper tolerated for
+            // assets built against job-components 2.16.0 exactly.
+            // See https://github.com/terascope/teraslice/issues/4509 and #4501
             const validatedApiConfig = isValidateResult(apiResult) ? apiResult.config : apiResult;
-            const apiWarnings = isValidateResult(apiResult) ? (apiResult.warnings ?? []) : [];
+            const apiWarnings = isValidateResult(apiResult)
+                ? (apiResult.warnings ?? [])
+                : getValidationWarnings(validatedApiConfig);
             allWarnings.push(...apiWarnings);
             return validatedApiConfig;
         });
