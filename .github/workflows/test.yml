@@ -1471,7 +1471,7 @@ jobs:
         id: upload-logs-artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ env.NODE_VERSION }}.opensearch3
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.${{ matrix.test-command }}.node-${{ env.NODE_VERSION }}
           path: e2e/logs/*.log
           retention-days: 3
 
