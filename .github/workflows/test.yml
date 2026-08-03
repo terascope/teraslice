@@ -1397,6 +1397,15 @@ jobs:
       matrix:
         test-command: [test:assetsFromSource, test:assetsFromSourceAgainstLatestTS]
     steps:
+      # The log artifact name has to say which matrix entry it came from, since two
+      # jobs uploading one name is a conflict rather than an overwrite, and artifact
+      # names cannot contain the colon in the command name. First step so it is set
+      # no matter which later step fails.
+      - name: Name this matrix entry
+        env:
+          TEST_COMMAND: ${{ matrix.test-command }}
+        run: echo "TEST_COMMAND_LABEL=${TEST_COMMAND//:/-}" >> "$GITHUB_ENV"
+
       - name: Check out code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
@@ -1440,13 +1449,18 @@ jobs:
             docker-images-${{ hashFiles('./images/image-list.txt') }}-
             docker-images-
 
+      # Skipped by the matrix entries that set TERASLICE_IMAGE: those pull the
+      # published teraslice they test against and never touch the dev image, so
+      # downloading and loading it is a gigabyte of wasted work.
       - name: Download dev docker image artifact
+        if: matrix.test-command == 'test:assetsFromSource'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
           path: ${{ runner.temp }}
 
       - name: Load dev docker image
+        if: matrix.test-command == 'test:assetsFromSource'
         run: |
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
           rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
@@ -1471,7 +1485,7 @@ jobs:
         id: upload-logs-artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.${{ matrix.test-command }}.node-${{ env.NODE_VERSION }}
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.${{ env.TEST_COMMAND_LABEL }}.node-${{ env.NODE_VERSION }}
           path: e2e/logs/*.log
           retention-days: 3
 
