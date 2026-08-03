@@ -28,6 +28,10 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         default: null,
         format: 'optional_string'
     },
+    ASSETS_FROM_SOURCE: {
+        default: null,
+        format: 'optional_string'
+    },
     CERT_PATH: {
         default: undefined,
         format: String

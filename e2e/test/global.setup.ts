@@ -7,6 +7,9 @@ import { dockerUp } from './docker-helpers.js';
 import signale from './signale.js';
 import setupTerasliceConfig from './setup-config.js';
 import { downloadAssets, loadAssetCache } from './download-assets.js';
+import {
+    buildAssetsFromSource, getSourceAssetBuilds, deleteCompatTestAssets
+} from './source-assets.js';
 import { config } from './config.js';
 import { teardown } from './teardown.js';
 
@@ -52,9 +55,22 @@ export default async () => {
         }
     }
 
+    // Assets named by ASSETS_FROM_SOURCE are built against the local packages and
+    // land in the autoload directory at a version no release can outrank, so the
+    // download path below runs untouched and the built asset is the one jobs
+    // resolve to.
+    const sourceAssetBuilds = getSourceAssetBuilds();
+
+    // Runs whether or not this run builds anything: teardown clears source-built
+    // assets, but a run that died -- or was left up with KEEP_OPEN -- never got
+    // there. Before the download path, so it sees the directory as released
+    // assets only.
+    deleteCompatTestAssets();
+
     // Try to load in the cache before trying to download
     loadAssetCache();
 
+    await buildAssetsFromSource(sourceAssetBuilds);
     await Promise.all([setupTerasliceConfig(), downloadAssets()]);
 
     if (TEST_PLATFORM === 'kubernetesV2') {
@@ -66,7 +82,7 @@ export default async () => {
         await teraslice.waitForTeraslice();
     }
 
-    await pDelay(2000);
+    await pDelay(60000);
     await teraslice.resetState();
 
     try {

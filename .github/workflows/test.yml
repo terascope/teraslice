@@ -1369,6 +1369,113 @@ jobs:
           path: e2e/logs/*.log
           retention-days: 3
 
+  # Runs the e2e suite against asset bundles built from this PR's packages rather
+  # than downloaded at their latest release, which is "gap A" in
+  # docs/development/asset-compatibility-testing.md: does an asset built from
+  # today's master still work? The specs are the same ones e2e-tests runs; only
+  # where the zips came from differs.
+  #
+  # Deliberately not sharing the asset-bundle cache the other e2e jobs restore.
+  # ASSETS_FROM_SOURCE builds all three bundles, so every zip that cache holds is
+  # replaced before anything reads it, and nothing is downloaded at all.
+  e2e-assets-from-source-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs:
+      [
+        compute-vars,
+        verify-build,
+        cache-docker-images,
+        determine-tests-based-off-commit,
+        build-dev-docker-images,
+      ]
+    env:
+      NODE_VERSION: ${{ needs.compute-vars.outputs.NODE_VERSION_MAIN }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: ${{ fromJSON(env.NODE_VERSION) }}
+          cache: "pnpm"
+
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # The asset builds pack and inject these packages, so `dist` has to exist
+      # for every one of them before the suite starts.
+      - name: Install and build packages
+        run: pnpm install && pnpm run setup
+
+      - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pnpm run docker:listImages
+          cat ./images/image-list.txt
+
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
+
+      - name: Download dev docker image artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
+          path: ${{ runner.temp }}
+
+      - name: Load dev docker image
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
+          rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
+          docker image ls -a
+
+      - name: Compile e2e code
+        run: pnpm run build
+        working-directory: ./e2e
+
+      # USE_DEV_ASSETS because a source build is versioned as a prerelease
+      # (9999.0.0-compat-test.0); without it the download step deletes the very
+      # zips this job exists to test, and the suite quietly passes against the
+      # releases instead.
+      - name: Test opensearch3 with assets built from source
+        run: |
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:assetsFromSource
+        working-directory: ./e2e
+
+      - name: Upload logs artifact
+        if: always()
+        id: upload-logs-artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ env.NODE_VERSION }}.opensearch3
+          path: e2e/logs/*.log
+          retention-days: 3
+
   test-website:
     if: needs.determine-tests-based-off-commit.outputs.website == 'true'
     needs: [verify-build, determine-tests-based-off-commit, compute-vars]
@@ -1401,6 +1508,7 @@ jobs:
         e2e-external-asset-storage-tests-encrypted,
         e2e-k8s-v2-tests,
         e2e-tests,
+        e2e-assets-from-source-tests,
         elasticsearch-api-tests,
         elasticsearch-store-tests,
         teraslice-elasticsearch-tests,
@@ -1422,6 +1530,7 @@ jobs:
         e2e-external-asset-storage-tests-encrypted,
         e2e-k8s-v2-tests,
         e2e-tests,
+        e2e-assets-from-source-tests,
         elasticsearch-api-tests,
         elasticsearch-store-tests,
         teraslice-elasticsearch-tests,

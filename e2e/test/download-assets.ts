@@ -30,7 +30,7 @@ function getNodeVersion() {
     return String(majorNodeVersion);
 }
 
-const nodeVersion = getNodeVersion();
+export const nodeVersion = getNodeVersion();
 
 const leaveZipped = true;
 const disableLogging = true;
@@ -133,7 +133,7 @@ function filterAsset(asset: any) {
     return asset.name.includes(`node-${nodeVersion}-bundle.zip`);
 }
 
-function listAssets() {
+export function listAssets() {
     return fs
         .readdirSync(AUTOLOAD_PATH)
         .filter((file) => {
