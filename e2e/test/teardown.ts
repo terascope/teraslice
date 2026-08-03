@@ -2,7 +2,7 @@ import { ElasticsearchTestHelpers, Client } from '@terascope/opensearch-client';
 import { helmfileDestroy, showState } from '@terascope/scripts';
 import fse from 'fs-extra';
 import { config } from './config.js';
-import { tearDown } from './docker-helpers.js';
+import { makeAssetsHostWritable, tearDown } from './docker-helpers.js';
 import signale from './signale.js';
 
 const {
@@ -32,6 +32,10 @@ export async function teardown(testClient?: Client) {
             await helmfileDestroy('teraslice');
             await cleanupIndex(client, `${CLUSTER_NAME}_*`);
         } else {
+            // Before the cluster comes down, while the compose network it needs
+            // is still there. Native only: nothing bind mounts the assets
+            // directory into the kind cluster, so nothing but the host writes it.
+            await makeAssetsHostWritable();
             await tearDown();
         }
     } catch (err) {

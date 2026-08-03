@@ -1393,6 +1393,9 @@ jobs:
       ]
     env:
       NODE_VERSION: ${{ needs.compute-vars.outputs.NODE_VERSION_MAIN }}
+    strategy:
+      matrix:
+        test-command: [test:assetsFromSource, test:assetsFromSourceAgainstLatestTS]
     steps:
       - name: Check out code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -1453,10 +1456,6 @@ jobs:
         run: pnpm run build
         working-directory: ./e2e
 
-      # USE_DEV_ASSETS because a source build is versioned as a prerelease
-      # (9999.0.0-compat-test.0); without it the download step deletes the very
-      # zips this job exists to test, and the suite quietly passes against the
-      # releases instead.
       - name: Test opensearch3 with assets built from source
         run: |
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
@@ -1464,7 +1463,7 @@ jobs:
           export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:assetsFromSource
+          DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run ${{ matrix.test-command }}
         working-directory: ./e2e
 
       - name: Upload logs artifact
