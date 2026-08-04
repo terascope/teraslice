@@ -183,12 +183,24 @@ function classify(result) {
     return { status: 'clean', failures: [] };
 }
 
+/**
+ * Jest calls a skipped test "pending", and counts it in numTotalTests. Left
+ * unmentioned, the counts don't add up in the one direction that matters -- a reader
+ * comparing "passed (85 tests)" against the 89 in the run log has to guess whether
+ * four tests were skipped on purpose or died on the way in.
+ */
+function skippedSuffix(report) {
+    const skipped = report.numPendingTests ?? 0;
+    if (!skipped) return '';
+    return `, ${skipped} skipped`;
+}
+
 function resultCell({ status, report }) {
     if (status === 'clean') {
-        return report ? `passed (${report.numPassedTests} tests)` : 'passed';
+        return report ? `passed (${report.numPassedTests} tests${skippedSuffix(report)})` : 'passed';
     }
     if (status === 'failing') {
-        return `**${report.numFailedTests} of ${report.numTotalTests} failed**`;
+        return `**${report.numFailedTests} of ${report.numTotalTests} failed**${skippedSuffix(report)}`;
     }
     if (status === 'notRun') {
         return 'did not run';
