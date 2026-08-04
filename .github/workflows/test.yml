@@ -1378,8 +1378,17 @@ jobs:
   # Deliberately not sharing the asset-bundle cache the other e2e jobs restore.
   # ASSETS_FROM_SOURCE builds all three bundles, so every zip that cache holds is
   # replaced before anything reads it, and nothing is downloaded at all.
+  #
+  # This job reports rather than gates: what it can break is an asset repo, not this
+  # PR, so it is deliberately impossible for it to fail the run. The answer arrives as
+  # the PR comment asset-compat-report posts. Two things keep it non-blocking, and
+  # both are needed: continue-on-error here covers a failure in any step, and the
+  # step that runs the suite has its own so its outcome can be read back rather than
+  # ending the job. It is also absent from all-tests-passed, which is what branch
+  # protection actually gates on.
   e2e-assets-from-source-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+    continue-on-error: true
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -1394,6 +1403,9 @@ jobs:
     env:
       NODE_VERSION: ${{ needs.compute-vars.outputs.NODE_VERSION_MAIN }}
     strategy:
+      # The two entries answer different questions, so one failing is not a reason to
+      # stop asking the other.
+      fail-fast: false
       matrix:
         test-command: [test:assetsFromSource, test:assetsFromSourceAgainstLatestTS]
     steps:
@@ -1470,15 +1482,51 @@ jobs:
         run: pnpm run build
         working-directory: ./e2e
 
-      - name: Test opensearch3 with assets built from source
+      # The jest args are appended without a `--` of their own, which looks like an
+      # oversight and is not: the pnpm scripts already end in `--`, and a second one
+      # reaches jest as an argument separator, which turns everything after it into
+      # test path patterns. `--json --outputFile` then silently becomes two patterns
+      # that match nothing, and the run ends with no report and no explanation.
+      - name: Test assets built from source
+        id: run-tests
+        continue-on-error: true
         run: |
+          mkdir -p "$RUNNER_TEMP/asset-compat-results"
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run ${{ matrix.test-command }}
+          DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run ${{ matrix.test-command }} \
+            --json --outputFile="$RUNNER_TEMP/asset-compat-results/$TEST_COMMAND_LABEL.jest.json"
         working-directory: ./e2e
+
+      # Written whether or not the run got as far as producing a jest report, since a
+      # build that dies in global.setup leaves none at all, and "no report" has to
+      # read differently from "no failures" in the comment. The step outcome is the
+      # only place that distinction survives -- continue-on-error means the job is
+      # green either way.
+      - name: Record this matrix entry's result
+        if: always()
+        env:
+          TEST_COMMAND: ${{ matrix.test-command }}
+          OUTCOME: ${{ steps.run-tests.outcome }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/asset-compat-results"
+          jq -n \
+            --arg command "$TEST_COMMAND" \
+            --arg label "$TEST_COMMAND_LABEL" \
+            --arg outcome "${OUTCOME:-skipped}" \
+            '{ command: $command, label: $label, outcome: $outcome }' \
+            > "$RUNNER_TEMP/asset-compat-results/$TEST_COMMAND_LABEL.json"
+
+      - name: Upload result artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: asset-compat-result-${{ env.TEST_COMMAND_LABEL }}
+          path: ${{ runner.temp }}/asset-compat-results/
+          retention-days: 3
 
       - name: Upload logs artifact
         if: always()
@@ -1488,6 +1536,84 @@ jobs:
           name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.${{ env.TEST_COMMAND_LABEL }}.node-${{ env.NODE_VERSION }}
           path: e2e/logs/*.log
           retention-days: 3
+
+  # Collects both matrix entries' results into one PR comment. This cannot live in the
+  # job above: each entry only knows its own result, and two of them racing to write
+  # one comment would each overwrite the other's half.
+  #
+  # The comment is updated in place rather than added to, so the PR carries the state
+  # of the latest commit instead of a history of every push. That is done by hiding a
+  # marker in the body and looking for it -- see the upsert step.
+  asset-compat-report:
+    needs: [compute-vars, e2e-assets-from-source-tests]
+    # always(), because the whole point is reporting a job that failed. Skipped when
+    # the matrix job never ran at all: a docs-only PR has nothing to report.
+    if: always() && needs.e2e-assets-from-source-tests.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      # continue-on-error because download-artifact treats a pattern that matches
+      # nothing as a failure, and nothing matching is a real outcome -- the matrix job
+      # can be cancelled before it uploads. The report script says so rather than the
+      # job dying here.
+      - name: Download matrix results
+        continue-on-error: true
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: asset-compat-result-*
+          path: results
+          merge-multiple: true
+
+      # No setup-node and no install: the script is plain node with no dependencies,
+      # so this job stays seconds long even when the matrix job took half an hour.
+      - name: Build comment body
+        id: build
+        env:
+          COMMIT_SHORT_SHA: ${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}
+        run: node ./scripts/build-asset-compat-comment.js results > comment-body.md
+
+      # Where fork PRs report: their GITHUB_TOKEN is read-only whatever `permissions`
+      # says, so the comment step below is skipped for them.
+      - name: Add report to the job summary
+        run: cat comment-body.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upsert PR comment
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          HAS_FINDINGS: ${{ steps.build.outputs.has-findings }}
+        run: |
+          marker='<!-- asset-compat-report -->'
+          { echo "$marker"; cat comment-body.md; } > body.md
+          jq -n --rawfile body body.md '{ body: $body }' > payload.json
+
+          # The marker is what makes this an update rather than another comment. Note
+          # the filter runs per page under --paginate, so the id is taken from the last
+          # line rather than by asking jq for the last element.
+          existing=$(gh api --paginate "repos/$REPO/issues/$PR_NUMBER/comments" \
+            --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | tail -n 1)
+
+          # An existing comment is always updated, so a PR that gets fixed stops
+          # showing a stale failure. A clean run only creates one if there is nothing
+          # to update -- every green PR carrying a comment saying so is just noise.
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$existing" --input payload.json --silent
+            echo "Updated comment $existing"
+          elif [ "$HAS_FINDINGS" = 'true' ]; then
+            gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" --input payload.json --silent
+            echo 'Posted a new comment'
+          else
+            echo 'Nothing to report and no existing comment to update'
+          fi
 
   test-website:
     if: needs.determine-tests-based-off-commit.outputs.website == 'true'
