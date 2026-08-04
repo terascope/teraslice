@@ -1482,23 +1482,31 @@ jobs:
         run: pnpm run build
         working-directory: ./e2e
 
-      # The jest args are appended without a `--` of their own, which looks like an
-      # oversight and is not: the pnpm scripts already end in `--`, and a second one
-      # reaches jest as an argument separator, which turns everything after it into
-      # test path patterns. `--json --outputFile` then silently becomes two patterns
-      # that match nothing, and the run ends with no report and no explanation.
+      # The report is written by a reporter rather than by `--json --outputFile`,
+      # which does not survive `--bail` -- and ts-scripts forces --bail for the e2e
+      # suite, so every failing run took that path. See
+      # e2e/scripts/jest-json-reporter.js for the mechanism; the short version is
+      # that jest exits from inside the scheduler and never reaches the code that
+      # writes the file, so the failure it bailed on was the one thing lost.
+      #
+      # `--reporters` replaces the configured list rather than adding to it, hence
+      # naming `default` too, and the args are appended without a `--` of their own:
+      # the pnpm scripts already end in `--`, and a second one reaches jest as an
+      # argument separator, which turns everything after it into test path patterns
+      # that match nothing.
       - name: Test assets built from source
         id: run-tests
         continue-on-error: true
         run: |
           mkdir -p "$RUNNER_TEMP/asset-compat-results"
+          export JEST_JSON_REPORT="$RUNNER_TEMP/asset-compat-results/$TEST_COMMAND_LABEL.jest.json"
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
           DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run ${{ matrix.test-command }} \
-            --json --outputFile="$RUNNER_TEMP/asset-compat-results/$TEST_COMMAND_LABEL.jest.json"
+            --reporters=default --reporters=./scripts/jest-json-reporter.js
         working-directory: ./e2e
 
       # Written whether or not the run got as far as producing a jest report, since a

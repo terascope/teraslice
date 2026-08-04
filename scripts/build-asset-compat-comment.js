@@ -12,10 +12,16 @@
  *
  *   <label>.json       what the job recorded: the pnpm script it ran and the
  *                      outcome of the step that ran it. Always written.
- *   <label>.jest.json  jest's `--json` report. Missing when the run died before jest
- *                      produced results -- an asset build that throws in
+ *   <label>.jest.json  jest's `--json` report, written by
+ *                      e2e/scripts/jest-json-reporter.js. Missing when the run died
+ *                      before jest produced results -- an asset build that throws in
  *                      global.setup does exactly that, and "no report" has to read
  *                      differently from "no failures".
+ *
+ * The e2e suite runs with `--bail`, so a report of a failing run covers only the
+ * suites that ran before jest stopped. `testResults` against `numTotalTestSuites`
+ * is what says so, and the comment reports the gap rather than presenting a
+ * bailed run as a whole one.
  *
  * Usage:
  *   node ./scripts/build-asset-compat-comment.js <results-dir> > comment-body.md
@@ -168,7 +174,17 @@ function classify(result) {
     }
 
     const failures = getFailures(report);
-    if (failures.length) return { status: 'failing', failures };
+    if (failures.length) {
+        const missed = suitesNotRun(report);
+        return {
+            status: 'failing',
+            failures,
+            note: missed
+                ? `jest stopped at the first failure (--bail), so ${missed} of `
+                + `${report.numTotalTestSuites} suites never ran and may hold more`
+                : undefined,
+        };
+    }
 
     // No failing test, but the step still failed -- a teardown error, or ts-scripts
     // failing after the suite. Its own state rather than green.
@@ -195,12 +211,26 @@ function skippedSuffix(report) {
     return `, ${skipped} skipped`;
 }
 
+/**
+ * How many selected suites never ran, which for this suite means how much `--bail`
+ * cut off. Reported rather than left implicit: "2 of 10 failed" beside the other
+ * entry's 56 tests otherwise reads as though the suite shrank, when what happened is
+ * that ten suites were never asked.
+ */
+function suitesNotRun(report) {
+    const ran = report.testResults?.length ?? 0;
+    const selected = report.numTotalTestSuites ?? ran;
+    return selected > ran ? selected - ran : 0;
+}
+
 function resultCell({ status, report }) {
     if (status === 'clean') {
         return report ? `passed (${report.numPassedTests} tests${skippedSuffix(report)})` : 'passed';
     }
     if (status === 'failing') {
-        return `**${report.numFailedTests} of ${report.numTotalTests} failed**${skippedSuffix(report)}`;
+        const cell = `**${report.numFailedTests} of ${report.numTotalTests} failed**${skippedSuffix(report)}`;
+        if (!suitesNotRun(report)) return cell;
+        return `${cell}, stopped after ${report.testResults.length} of ${report.numTotalTestSuites} suites`;
     }
     if (status === 'notRun') {
         return 'did not run';
@@ -282,7 +312,6 @@ function footer() {
         GITHUB_SERVER_URL = 'https://github.com',
         GITHUB_REPOSITORY,
         GITHUB_RUN_ID,
-        GITHUB_RUN_NUMBER,
         COMMIT_SHORT_SHA,
     } = process.env;
 
@@ -290,7 +319,7 @@ function footer() {
     if (COMMIT_SHORT_SHA) parts.push(`commit \`${COMMIT_SHORT_SHA}\``);
     if (GITHUB_REPOSITORY && GITHUB_RUN_ID) {
         const url = `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}`;
-        const label = GITHUB_RUN_NUMBER ? `run #${GITHUB_RUN_NUMBER}` : 'run';
+        const label = `run #${GITHUB_RUN_ID}`;
         parts.push(`[${label}](${url})`);
     }
 
