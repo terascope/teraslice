@@ -12,7 +12,7 @@ Terascope maintains a set of public asset bundles. **Before scaffolding anything
 | **chaos-assets** | Developer/testing utilities: fault injection, forced errors, OOM, queue-buster stress tests. | https://github.com/terascope/chaos-assets |
 | **standard-assets** | Generic, source-agnostic processors: filter, transform, dedupe, routing, aggregation, sampling, data generation. | https://github.com/terascope/standard-assets |
 
-If a bundle is also cloned locally under `/Users/jsoto/Workspace/TerasliceAssets/<bundle>/`, its `asset/src/` on disk is the fastest way to see current operations — but the GitHub repo is the source of truth for what's been released.
+The GitHub repo is the source of truth for what's been released. If the user explicitly points you at a local clone of a bundle, its `asset/src/` on disk is a fast way to see current operations — but don't assume a clone exists; default to reading the repo over WebFetch.
 
 ## How to use this when a user asks to build for one of these sources
 

@@ -1,6 +1,6 @@
 # Scaffolding a New Asset Bundle Repo
 
-An asset bundle is a repo (usually a small monorepo) that compiles to a deployable zip. Model a new one on `standard-assets` or `elasticsearch-assets` in `/Users/jsoto/Workspace/TerasliceAssets/`. Confirm the target directory and bundle name with the user first.
+An asset bundle is a repo (usually a small monorepo) that compiles to a deployable zip. Model a new one on a public bundle such as [`standard-assets`](https://github.com/terascope/standard-assets) or [`elasticsearch-assets`](https://github.com/terascope/elasticsearch-assets) (read it via WebFetch — see `references/public-assets.md`). Ask the user for the target directory and bundle name; confirm both before writing anything.
 
 > **Talking to an external service (database, queue, object store)?** The bundle must also ship, **inside its own monorepo** (never in the `teraslice` repo):
 > - a **terafoundation connector** (`packages/terafoundation_<name>_connector`) — **required when introducing a new service such as a database**; it holds the connection config (host/user/password) so credentials stay out of the job, which references a connection by name via `_connection`;
@@ -94,7 +94,7 @@ export const ASSETS = {
 };
 ```
 
-For a reader the entry uses `Fetcher` + `Slicer` + `Schema`; for an API it uses `API` + `Schema`.
+For a processor **or a sender** the entry uses `Processor` + `Schema` (a sender is just a `BatchProcessor`); for a reader it uses `Fetcher` + `Slicer` + `Schema`; for an API it uses `API` + `Schema`.
 
 ## Build & deploy
 

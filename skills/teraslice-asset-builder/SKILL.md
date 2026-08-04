@@ -7,7 +7,7 @@ description: Interactively scaffold a Teraslice asset — either add a new opera
 
 Walk the user through building a Teraslice asset, then generate the files. Do **not** dump questions all at once — ask in focused rounds, propose sensible defaults, and confirm before writing files.
 
-An **asset** is a deployable bundle of Teraslice **operations**. A bundle repo (e.g. `elasticsearch-assets`, `standard-assets`) contains many operations under `asset/src/<operation_name>/`. Existing bundles for reference live at `/Users/jsoto/Workspace/TerasliceAssets/` (e.g. `standard-assets`, `elasticsearch-assets`, `file-assets`, `kafka-assets`). Read a sibling operation there before writing a new one — matching the surrounding style matters more than the templates in this skill.
+An **asset** is a deployable bundle of Teraslice **operations**. A bundle repo (e.g. `elasticsearch-assets`, `standard-assets`) contains many operations under `asset/src/<operation_name>/`. The public bundles are the reference implementations — see `references/public-assets.md` for their GitHub repos, and read a sibling operation from the relevant repo (via WebFetch) before writing a new one; matching the surrounding style matters more than the templates in this skill. Only read a local clone of a bundle if the user explicitly points you at one — never assume a bundle exists on disk.
 
 ## Step 0 — Does a public bundle already cover this?
 
@@ -17,7 +17,7 @@ If the request maps to one of those data sources (e.g. "an Elasticsearch reader"
 
 1. **Tell the user a public bundle already covers that source** — they likely don't need a new bundle.
 2. **Ask what they specifically need** — the whole reader/writer (probably already exists → point them at it), or a *specific new operation* the bundle lacks?
-3. **Read the live repo before building.** These bundles get new processors constantly, so don't rely on any static list — WebFetch the bundle's GitHub repo (README, `docs/`, and the `asset/src/` tree), or read the local clone under `/Users/jsoto/Workspace/TerasliceAssets/<bundle>/` if present, and confirm what operations currently exist. If one already aligns, point to it instead of duplicating.
+3. **Read the live repo before building.** These bundles get new processors constantly, so don't rely on any static list — WebFetch the bundle's GitHub repo (README, `docs/`, and the `asset/src/` tree) and confirm what operations currently exist. If one already aligns, point to it instead of duplicating. (Only read a local clone if the user explicitly gives you its path.)
 4. If the operation genuinely doesn't exist, **add it inside that existing bundle** (Step 2), matching its conventions — don't spin up a new bundle.
 
 Only proceed to a brand-new bundle (Step 1) when the data source has **no** public bundle (e.g. a database with no existing asset).
@@ -29,7 +29,7 @@ Determine which the user wants:
 - **New operation in an existing bundle** (most common) → Step 2.
 - **New bundle from scratch** (only when no public bundle fits — see Step 0) → read `references/new-bundle.md`, scaffold the repo, then return to Step 2 to add the first operation. If the bundle talks to an external service (database, queue, object store), it also needs — all inside its own monorepo — a **terafoundation connector** (required when introducing a new service like a database; it owns the credentials so they stay out of the job), an API/client package, and a Dockerfile that installs the connector onto the Teraslice image. Read `references/api-package-and-docker.md`.
 
-Ask where the target bundle lives if it isn't obvious. Default search location is `/Users/jsoto/Workspace/TerasliceAssets/`. Confirm the absolute path before writing anything.
+Ask the user where the target bundle lives — the local path to their checkout of the bundle repo. Don't guess a location; confirm the absolute path before writing anything.
 
 ## Step 2 — Gather requirements
 
@@ -49,7 +49,7 @@ Restate the plan in one short block and get a yes before writing.
 
 Create under `asset/src/<operation_name>/`:
 
-- Implementation file(s): `processor.ts`, or `fetcher.ts` + `slicer.ts` for a reader, or `api.ts` for an API.
+- Implementation file(s): `processor.ts` for a processor **or a sender** (a sender is a `BatchProcessor` that writes records out), `fetcher.ts` + `slicer.ts` for a reader, or `api.ts` for an API.
 - `schema.ts` — the config schema.
 - `interfaces.ts` — the `OpConfig`-extending config interface (only if the op has custom config fields; small ops sometimes skip it).
 
@@ -62,7 +62,7 @@ Every operation must be registered in `asset/src/index.ts` (the "registry"), whi
 ```ts
 export const ASSETS = {
     my_operation: {
-        Processor: MyOperation,      // or Fetcher + Slicer, or API
+        Processor: MyOperation,      // processor or sender; or Fetcher + Slicer for a reader, or API
         Schema: MyOperationSchema,
     },
     // ...
