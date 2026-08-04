@@ -51,7 +51,7 @@ Create under `asset/src/<operation_name>/`:
 
 - Implementation file(s): `processor.ts` for a processor **or a sender** (a sender is a `BatchProcessor` that writes records out), `fetcher.ts` + `slicer.ts` for a reader, or `api.ts` for an API.
 - `schema.ts` — the config schema.
-- `interfaces.ts` — the `OpConfig`-extending config interface (only if the op has custom config fields; small ops sometimes skip it).
+- `interfaces.ts` — the `OpConfig`- extending config interface (only if the op has custom config fields; small ops sometimes skip it).
 
 Use the templates in `references/operation-types.md`, but adapt imports and style to what the target bundle actually uses (check a sibling op — e.g. some use `@terascope/core-utils`, older ones use `@terascope/utils`).
 
