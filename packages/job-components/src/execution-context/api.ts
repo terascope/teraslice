@@ -119,6 +119,27 @@ export class ExecutionContextAPI {
     }
 
     /**
+     * Get a reference to a specific operation API from a "Slicer".
+     *
+     * Same lookup as {@link ExecutionContextAPI#getAPI}, but scoped to the
+     * "Execution Controller", where an API that was never created is a far
+     * more common mistake than it is on a "Worker" -- a Slicer's `initialize`
+     * runs before any worker has touched the API. The error names the slicer
+     * rather than leaving "Unable to find created API" to be read as a bug in
+     * the reader.
+     */
+    getSlicerAPI<T extends OpAPI = OpAPI>(name: string): T {
+        const api = this._apis[name];
+        if (api == null) {
+            throw new Error(`Unable to find API by name "${name}"`);
+        }
+        if (api.opAPI == null) {
+            throw new Error(`Unable to find created API by name "${name}", the slicer must create it before use`);
+        }
+        return api.opAPI as T;
+    }
+
+    /**
      * Create an instance of the API
      *
      * @param name the name of API to create
