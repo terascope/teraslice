@@ -29,6 +29,7 @@ jobs:
       NODE_VERSIONS_K8S: ${{ steps.node-version-k8s.outputs.NODE_VERSIONS_K8S }}
       NODE_VERSIONS_EXT_STORAGE: ${{ steps.node-version-ext-storage.outputs.NODE_VERSIONS_EXT_STORAGE }}
       NATIVE_E2E_MATRIX: ${{ steps.native-e2e-matrix.outputs.NATIVE_E2E_MATRIX }}
+      LATEST_TERASLICE_IMAGE: ${{ steps.latest-teraslice-image.outputs.LATEST_TERASLICE_IMAGE }}
       COMMIT_SHORT_SHA: ${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}
       HELM_VERSION: ${{ steps.helm-version.outputs.HELM_VERSION }}
       HELM_DIFF_VERSION: ${{ steps.helm-diff-version.outputs.HELM_DIFF_VERSION }}
@@ -57,6 +58,35 @@ jobs:
               ($others[] | {"node-version": ., "search-version": "opensearch3"})
             ]}')
           echo "NATIVE_E2E_MATRIX=$MATRIX" >> $GITHUB_OUTPUT
+      # The published Teraslice that e2e-assets-from-source-tests loads its freshly
+      # built assets into. Read out of the release body rather than assembled from the
+      # tag name, because only the body knows which node patch each image was built
+      # with -- v3.17.0 is published as v3.17.0-nodev24.19.0, and the patch moves with
+      # every release.
+      #
+      # releases/latest, so this tracks the release GitHub marks latest -- the version
+      # actually running in production. Prereleases are deliberately skipped: assets
+      # breaking against something nobody has deployed yet is not the question here.
+      #
+      # Never fails the job: every other job in this workflow needs compute-vars, and
+      # a release body that has changed shape is not a reason to stop the whole run
+      # over a test that is deliberately non-gating. The matrix entry that needs the
+      # image fails on its own instead, and says so in the PR comment.
+      - name: Get latest Teraslice release image
+        id: latest-teraslice-image
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_MAJOR: ${{ env.NODE_VERSION_MAIN }}
+        run: |
+          body=$(gh api repos/terascope/teraslice/releases/latest --jq .body || true)
+          image=$(printf '%s' "$body" \
+            | grep -oE "ghcr\.io/terascope/teraslice:v[0-9][^\` ]*-nodev${NODE_MAJOR}\.[0-9]+\.[0-9]+" \
+            | head -n 1)
+          if [ -z "$image" ]; then
+            echo "::warning::Could not find a Teraslice image for Node ${NODE_MAJOR} in the latest release"
+          fi
+          echo "Latest Teraslice release image: ${image:-<none>}"
+          echo "LATEST_TERASLICE_IMAGE=$image" >> $GITHUB_OUTPUT
       - name: Get Commit Short SHA
         id: get-short-sha
         env:
@@ -1407,17 +1437,15 @@ jobs:
       # stop asking the other.
       fail-fast: false
       matrix:
-        test-command: [test:assetsFromSource, test:assetsFromSourceAgainstLatestTS]
+        # Both entries run the same pnpm script; the only difference is which Teraslice
+        # the assets get loaded into. An empty teraslice-image means the dev image built
+        # from this PR, which is what the script does when TERASLICE_IMAGE is unset.
+        include:
+          - name: pr-build
+            teraslice-image: ""
+          - name: latest-release
+            teraslice-image: ${{ needs.compute-vars.outputs.LATEST_TERASLICE_IMAGE }}
     steps:
-      # The log artifact name has to say which matrix entry it came from, since two
-      # jobs uploading one name is a conflict rather than an overwrite, and artifact
-      # names cannot contain the colon in the command name. First step so it is set
-      # no matter which later step fails.
-      - name: Name this matrix entry
-        env:
-          TEST_COMMAND: ${{ matrix.test-command }}
-        run: echo "TEST_COMMAND_LABEL=${TEST_COMMAND//:/-}" >> "$GITHUB_ENV"
-
       - name: Check out code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
@@ -1461,18 +1489,18 @@ jobs:
             docker-images-${{ hashFiles('./images/image-list.txt') }}-
             docker-images-
 
-      # Skipped by the matrix entries that set TERASLICE_IMAGE: those pull the
-      # published teraslice they test against and never touch the dev image, so
-      # downloading and loading it is a gigabyte of wasted work.
+      # Skipped by the entries that test against a published image: those pull the
+      # teraslice they test against and never touch the dev image, so downloading and
+      # loading it is a gigabyte of wasted work.
       - name: Download dev docker image artifact
-        if: matrix.test-command == 'test:assetsFromSource'
+        if: matrix.name == 'pr-build'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
           path: ${{ runner.temp }}
 
       - name: Load dev docker image
-        if: matrix.test-command == 'test:assetsFromSource'
+        if: matrix.name == 'pr-build'
         run: |
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
           rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
@@ -1497,15 +1525,29 @@ jobs:
       - name: Test assets built from source
         id: run-tests
         continue-on-error: true
+        env:
+          ENTRY_NAME: ${{ matrix.name }}
+          ENTRY_TERASLICE_IMAGE: ${{ matrix.teraslice-image }}
         run: |
+          # Exported only when there is something to export. An empty TERASLICE_IMAGE is
+          # not the same as an unset one: ts-scripts reads it with `??`, so the empty
+          # string reaches docker as the name of the image to run.
+          if [ "$ENTRY_NAME" != 'pr-build' ]; then
+            if [ -z "$ENTRY_TERASLICE_IMAGE" ]; then
+              echo 'compute-vars found no published Teraslice image to test against'
+              exit 1
+            fi
+            export TERASLICE_IMAGE="$ENTRY_TERASLICE_IMAGE"
+            echo "Testing against published image $TERASLICE_IMAGE"
+          fi
           mkdir -p "$RUNNER_TEMP/asset-compat-results"
-          export JEST_JSON_REPORT="$RUNNER_TEMP/asset-compat-results/$TEST_COMMAND_LABEL.jest.json"
+          export JEST_JSON_REPORT="$RUNNER_TEMP/asset-compat-results/$ENTRY_NAME.jest.json"
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
           export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-          DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run ${{ matrix.test-command }} \
+          DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:assetsFromSource \
             --reporters=default --reporters=./scripts/jest-json-reporter.js
         working-directory: ./e2e
 
@@ -1517,22 +1559,25 @@ jobs:
       - name: Record this matrix entry's result
         if: always()
         env:
-          TEST_COMMAND: ${{ matrix.test-command }}
+          ENTRY_NAME: ${{ matrix.name }}
+          ENTRY_TERASLICE_IMAGE: ${{ matrix.teraslice-image }}
           OUTCOME: ${{ steps.run-tests.outcome }}
         run: |
           mkdir -p "$RUNNER_TEMP/asset-compat-results"
           jq -n \
-            --arg command "$TEST_COMMAND" \
-            --arg label "$TEST_COMMAND_LABEL" \
+            --arg name "$ENTRY_NAME" \
+            --arg image "$ENTRY_TERASLICE_IMAGE" \
             --arg outcome "${OUTCOME:-skipped}" \
-            '{ command: $command, label: $label, outcome: $outcome }' \
-            > "$RUNNER_TEMP/asset-compat-results/$TEST_COMMAND_LABEL.json"
+            '{ name: $name, image: $image, outcome: $outcome }' \
+            > "$RUNNER_TEMP/asset-compat-results/$ENTRY_NAME.json"
 
+      # Each entry uploads under its own name: two jobs uploading one name is a
+      # conflict rather than an overwrite.
       - name: Upload result artifact
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: asset-compat-result-${{ env.TEST_COMMAND_LABEL }}
+          name: asset-compat-result-${{ matrix.name }}
           path: ${{ runner.temp }}/asset-compat-results/
           retention-days: 3
 
@@ -1541,7 +1586,7 @@ jobs:
         id: upload-logs-artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.${{ env.TEST_COMMAND_LABEL }}.node-${{ env.NODE_VERSION }}
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.${{ matrix.name }}.node-${{ env.NODE_VERSION }}
           path: e2e/logs/*.log
           retention-days: 3
 

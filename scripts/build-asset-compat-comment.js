@@ -8,11 +8,12 @@
  * is the only place the answer shows up.
  *
  * Input is the directory both matrix entries' artifacts get downloaded into, holding
- * two files per entry:
+ * two files per entry, named for the matrix entry:
  *
- *   <label>.json       what the job recorded: the pnpm script it ran and the
- *                      outcome of the step that ran it. Always written.
- *   <label>.jest.json  jest's `--json` report, written by
+ *   <name>.json        what the job recorded: the Teraslice image it tested against
+ *                      (empty for the one built from the PR) and the outcome of the
+ *                      step that ran the suite. Always written.
+ *   <name>.jest.json   jest's `--json` report, written by
  *                      e2e/scripts/jest-json-reporter.js. Missing when the run died
  *                      before jest produced results -- an asset build that throws in
  *                      global.setup does exactly that, and "no report" has to read
@@ -38,17 +39,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 /**
- * The matrix entries, in the order they should appear, and what each one is testing
- * against. The prose is here because only the workflow knows it -- nothing about the
- * command name says which Teraslice it loads the assets into. An unlisted entry
- * still reports, just under its bare command name.
+ * The matrix entries, in the order they should appear, keyed by the entry name the
+ * workflow records. Both entries run the same pnpm script, so the name is the only
+ * thing that says which Teraslice the assets were loaded into; the prose is here
+ * because nothing in the recorded result spells it out. An unlisted entry still
+ * reports, just under its bare name.
  */
 const ENTRIES = {
-    'test:assetsFromSource': {
+    'pr-build': {
         teraslice: 'built from this PR',
     },
-    'test:assetsFromSourceAgainstLatestTS': {
-        teraslice: 'a published release',
+    'latest-release': {
+        teraslice: 'the latest published release',
     },
 };
 
@@ -65,12 +67,12 @@ const MAX_BODY_CHARS = 60000;
 // eslint-disable-next-line no-control-regex
 const ANSI = /\u001B\[[0-9;]*m/g;
 
-function entryInfo(command) {
-    return ENTRIES[command] ?? { teraslice: 'unknown' };
+function entryInfo(name) {
+    return ENTRIES[name] ?? { teraslice: name ?? 'unknown' };
 }
 
-function entryOrder(command) {
-    const index = Object.keys(ENTRIES).indexOf(command);
+function entryOrder(name) {
+    const index = Object.keys(ENTRIES).indexOf(name);
     return index === -1 ? Number.MAX_SAFE_INTEGER : index;
 }
 
@@ -96,7 +98,7 @@ function readResults(dir) {
         .filter((name) => name.endsWith('.json') && !name.endsWith('.jest.json'))
         .map((name) => {
             const meta = readJSON(path.join(dir, name));
-            const reportPath = path.join(dir, `${meta.label}.jest.json`);
+            const reportPath = path.join(dir, `${meta.name}.jest.json`);
 
             let report = null;
             let reportError = null;
@@ -110,7 +112,7 @@ function readResults(dir) {
 
             return { ...meta, report, reportError };
         })
-        .sort((a, b) => entryOrder(a.command) - entryOrder(b.command));
+        .sort((a, b) => entryOrder(a.name) - entryOrder(b.name));
 }
 
 /**
@@ -280,7 +282,7 @@ function formatMessage(message) {
 function detailsFor(result, { withMessages }) {
     const lines = [
         '<details>',
-        `<summary><code>${result.command}</code></summary>`,
+        `<summary>Teraslice under test: ${entryInfo(result.name).teraslice}</summary>`,
         '',
     ];
 
@@ -341,20 +343,22 @@ function build(results, { withMessages = true } = {}) {
 
     lines.push(
         'The asset bundles were rebuilt from this PR\'s packages and run through the e2e',
-        'suite, once against Teraslice built from this PR and once against a published',
-        'Teraslice release. A failure here means an asset repo would break against these',
-        'packages; it does not mean this PR\'s own tests failed, and it does not block',
-        'merging.',
+        'suite, once against Teraslice built from this PR and once against the latest',
+        'published Teraslice release. A failure here means an asset repo would break',
+        'against these packages; it does not mean this PR\'s own tests failed, and it does',
+        'not block merging.',
         '',
         '| Teraslice under test | Result | Failing specs |',
         '| :--- | :--- | :--- |'
     );
 
     for (const result of results) {
-        const { teraslice } = entryInfo(result.command);
-        lines.push(
-            `| ${teraslice} (\`${result.command}\`) | ${resultCell(result)} | ${failingFiles(result)} |`
-        );
+        const { teraslice } = entryInfo(result.name);
+        // The image is only recorded for the entries that test against a published
+        // release -- the other one runs the dev image this run built, which has no tag
+        // worth printing. Naming it matters: "the latest release" moves.
+        const against = result.image ? `${teraslice} (\`${result.image}\`)` : teraslice;
+        lines.push(`| ${against} | ${resultCell(result)} | ${failingFiles(result)} |`);
     }
 
     const notClean = results.filter((result) => result.status !== 'clean');
