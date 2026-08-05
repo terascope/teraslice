@@ -203,7 +203,6 @@ export class TestContext implements i.Context {
                     connection: 'default',
                 },
                 worker_disconnect_timeout: 3000,
-                worker_version: 'v1',
                 workers: 1,
             },
             _nodeName: `${testName}-${newId()}__${this?.cluster?.worker?.id}`,

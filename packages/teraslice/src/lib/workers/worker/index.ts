@@ -8,7 +8,7 @@ import {
 import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
 import { type Context, type WorkerExecutionContext, isPromAvailable } from '@terascope/job-components';
-import type { SliceCompletePayload, WorkerVersion } from '@terascope/types';
+import type { SliceCompletePayload } from '@terascope/types';
 import { StateStorage, AnalyticsStorage } from '../../storage/index.js';
 import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
 import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
@@ -21,7 +21,6 @@ export class Worker {
     client: ExecutionController.Client;
     readonly executionContext: WorkerExecutionContext;
     readonly shutdownTimeout: number;
-    readonly workerVersion: WorkerVersion;
     readonly context: Context;
     readonly workerId: string;
     private slice!: SliceExecution;
@@ -47,8 +46,7 @@ export class Worker {
 
         const {
             slicer_port: slicerPort,
-            slicer_hostname: slicerHostname,
-            worker_version
+            slicer_hostname: slicerHostname
         } = executionContext.config;
 
         const config = context.sysconfig.teraslice;
@@ -57,7 +55,6 @@ export class Worker {
         const workerDisconnectTimeout = get(config, 'worker_disconnect_timeout');
         const slicerTimeout = get(config, 'slicer_timeout');
         const shutdownTimeout = get(config, 'shutdown_timeout');
-        const workerVersion = worker_version ?? get(config, 'worker_version');
 
         this.stateStorage = new StateStorage(context);
         this.analyticsStorage = new AnalyticsStorage(context);
@@ -76,7 +73,6 @@ export class Worker {
 
         this.executionContext = executionContext;
         this.shutdownTimeout = shutdownTimeout;
-        this.workerVersion = workerVersion;
         this.context = context;
         this.workerId = workerId;
         this.logger = logger;
@@ -182,73 +178,6 @@ export class Worker {
     }
 
     async runOnce() {
-        this.workerVersion === 'v2'
-            ? await this.runOnceV2()
-            : await this.runOnceV1();
-    }
-
-    async runOnceV1() {
-        if (this.isShuttingDown || this.forceShutdown || this.shouldShutdown) return;
-
-        this.logger.trace('waiting for new slice from execution controller');
-        const msg = await this.client.waitForSlice(() => this.isShuttingDown);
-
-        if (!msg) {
-            this.logger.debug(`${this.workerId} worker is idle`);
-            return;
-        }
-
-        this.isProcessing = true;
-
-        let sentSliceComplete = false;
-        const { slice_id: sliceId } = msg;
-
-        try {
-            await this.slice.initialize(msg);
-
-            // After we init the slice we check for log level on the slice
-            // We update in the case it differs from what the worker has
-            if (msg.log_level) {
-                const sliceLogLevel = logLevels[msg.log_level as keyof typeof logLevels];
-                if (sliceLogLevel != null && this.logger.level() !== sliceLogLevel) {
-                    this.context.apis.foundation.setLogLevel(msg.log_level as Logger.LogLevel);
-                    this.logger.info(`log level updated to ${msg.log_level} for slice ${sliceId}`);
-                }
-            }
-
-            await this.slice.run();
-
-            this.logger.info(`slice ${sliceId} completed`);
-
-            await this._sendSliceComplete({
-                slice: this.slice.slice,
-                analytics: this.slice.analyticsData
-            });
-
-            sentSliceComplete = true;
-
-            await this.executionContext.onSliceFinished();
-        } catch (err) {
-            logError(this.logger, err, `slice ${sliceId} run error`);
-
-            if (!sentSliceComplete) {
-                await this._sendSliceComplete({
-                    slice: this.slice.slice,
-                    analytics: this.slice.analyticsData,
-                    error: getFullErrorStack(err)
-                });
-            }
-
-            if (isFatalError(err)) {
-                throw err;
-            }
-        }
-
-        this.isProcessing = false;
-        this.slicesProcessed += 1;
-    }
-
-    async runOnceV2() {
         this.isProcessing = true;
         if (this.isShuttingDown || this.forceShutdown || this.shouldShutdown) {
             this.isProcessing = false;
@@ -313,112 +242,6 @@ export class Worker {
     }
 
     async shutdown(event?: string, shutdownError?: Error, block?: boolean) {
-        this.workerVersion === 'v2'
-            ? await this.shutdownV2(event, shutdownError, block)
-            : await this.shutdownV1(event, shutdownError, block);
-    }
-
-    async shutdownV1(event?: string, shutdownError?: Error, block?: boolean) {
-        this.logger.info('shutting down worker with shutdownV1');
-        if (this.isShutdown) return;
-        if (!this.isInitialized) return;
-        const { exId } = this.executionContext;
-
-        if (this.isShuttingDown) {
-            const msgs = [
-                'worker',
-                `shutdown was called for ${exId}`,
-                'but it was already shutting down',
-                block !== false ? ', will block until done' : ''
-            ];
-            this.logger.debug(msgs.join(' '));
-
-            if (block !== false) {
-                await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
-            }
-            return;
-        }
-
-        this.client.available = false;
-        this.isShuttingDown = true;
-
-        const shutdownErrs: Error[] = [];
-        const pushError = (err: Error) => {
-            shutdownErrs.push(err);
-        };
-
-        const extra = event ? ` due to event: ${event}` : '';
-        this.logger.warn(`worker shutdown was called for execution ${exId}${extra}`);
-
-        // set the slice to to failed to avoid
-        // flushing the slice at the end
-        // we need to check if this.executionContext.sliceState
-        // in case a slice isn't currently active
-        if (shutdownError && this.executionContext.sliceState) {
-            // TODO: this should be awaited. Do this after we validate changes in v3.16.0
-            this.executionContext.onSliceFailed();
-        }
-
-        // attempt to flush the slice
-        // and wait for the slice to finish
-        await Promise.all([
-            this.slice.flush().catch(pushError),
-            this._waitForSliceToFinish().catch(pushError)
-        ]);
-
-        this.events.emit('worker:shutdown');
-        await this.executionContext.shutdown();
-
-        // make sure ->run() resolves the promise
-        this.forceShutdown = true;
-
-        await Promise.all([
-            (async () => {
-                await Promise.all([
-                    (async () => {
-                        try {
-                            await this.stateStorage.shutdown(true);
-                        } catch (err) {
-                            pushError(err);
-                        }
-                    })(),
-                    (async () => {
-                        try {
-                            await this.analyticsStorage.shutdown(true);
-                        } catch (err) {
-                            pushError(err);
-                        }
-                    })()
-                ]);
-            })(),
-            (async () => {
-                await this.slice.shutdown().catch(pushError);
-            })(),
-            (async () => {
-                await this.client.shutdown().catch(pushError);
-            })(),
-        ]);
-
-        const n = this.slicesProcessed;
-        this.logger.warn(
-            `worker ${this.workerId} is shutdown for execution ${exId}, processed ${n} slices`
-        );
-        this.isShutdown = true;
-
-        if (shutdownErrs.length) {
-            const errMsg = shutdownErrs.map((e) => e.stack).join(', and');
-            const shutdownErr = new Error(`Failed to shutdown correctly: ${errMsg}`);
-            this.events.emit('worker:shutdown:complete', shutdownErr);
-            throw shutdownErr;
-        }
-
-        // TODO: investigate this this.events.emit(this.context, 'worker:shutdown:complete');
-
-        this.events.emit('worker:shutdown:complete');
-    }
-
-    async shutdownV2(event?: string, shutdownError?: Error, block?: boolean) {
-        this.logger.info('shutting down worker with shutdownV2');
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         const { exId } = this.executionContext;

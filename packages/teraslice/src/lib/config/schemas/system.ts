@@ -336,11 +336,6 @@ export const schema = {
         doc: 'Name of S3 bucket used to store assets. Can only be used if "asset_storage_connection_type" is "s3".',
         default: undefined,
         format: 'optional_string'
-    },
-    worker_version: {
-        doc: 'Which version of the worker runOnce() and shutdown() functions to use. Can be overridden by the property with same name set in the job spec.',
-        default: 'v1',
-        format: ['v1', 'v2']
     }
 };
 
