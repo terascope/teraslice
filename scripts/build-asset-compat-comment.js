@@ -2,27 +2,15 @@
  * Builds the PR comment body for the `e2e-assets-from-source-tests` job in
  * .github/workflows/test.yml.
  *
- * That job answers a question about code nobody in this PR is looking at -- do the
- * asset repos still build and run against these packages -- so it reports rather
- * than gates: the step that runs the suite is `continue-on-error`, and this comment
- * is the only place the answer shows up.
- *
- * Input is the directory both matrix entries' artifacts get downloaded into, holding
- * two files per entry, named for the matrix entry:
+ * Input is the directory both scenarios' artifacts get downloaded into, holding two
+ * files per scenario, named for the matrix scenario:
  *
  *   <name>.json        what the job recorded: the Teraslice image it tested against
  *                      (empty for the one built from the PR) and the outcome of the
  *                      step that ran the suite. Always written.
  *   <name>.jest.json   jest's `--json` report, written by
  *                      e2e/scripts/jest-json-reporter.js. Missing when the run died
- *                      before jest produced results -- an asset build that throws in
- *                      global.setup does exactly that, and "no report" has to read
- *                      differently from "no failures".
- *
- * The e2e suite runs with `--bail`, so a report of a failing run covers only the
- * suites that ran before jest stopped. `testResults` against `numTotalTestSuites`
- * is what says so, and the comment reports the gap rather than presenting a
- * bailed run as a whole one.
+ *                      before jest produced results.
  *
  * Usage:
  *   node ./scripts/build-asset-compat-comment.js <results-dir> > comment-body.md
@@ -39,13 +27,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 /**
- * The matrix entries, in the order they should appear, keyed by the entry name the
- * workflow records. Both entries run the same pnpm script, so the name is the only
- * thing that says which Teraslice the assets were loaded into; the prose is here
- * because nothing in the recorded result spells it out. An unlisted entry still
+ * The matrix scenarios, in the order they should appear, keyed by the scenario name
+ * the workflow records. Both scenarios run the same pnpm script, so the name is the
+ * only thing that says which Teraslice the assets were loaded into; the prose is here
+ * because nothing in the recorded result spells it out. An unlisted scenario still
  * reports, just under its bare name.
  */
-const ENTRIES = {
+const SCENARIOS = {
     'pr-build': {
         teraslice: 'built from this PR',
     },
@@ -59,20 +47,15 @@ const MAX_MESSAGE_LINES = 12;
 const MAX_MESSAGE_CHARS = 700;
 /** GitHub rejects a comment body over 65536 characters outright. */
 const MAX_BODY_CHARS = 60000;
-/**
- * ts-scripts forces color on unless FORCE_COLOR says otherwise, and it defaults to
- * on, so failure messages arrive full of escape codes that a comment renders as
- * garbage.
- */
 // eslint-disable-next-line no-control-regex
 const ANSI = /\u001B\[[0-9;]*m/g;
 
-function entryInfo(name) {
-    return ENTRIES[name] ?? { teraslice: name ?? 'unknown' };
+function scenarioInfo(name) {
+    return SCENARIOS[name] ?? { teraslice: name ?? 'unknown' };
 }
 
-function entryOrder(name) {
-    const index = Object.keys(ENTRIES).indexOf(name);
+function scenarioOrder(name) {
+    const index = Object.keys(SCENARIOS).indexOf(name);
     return index === -1 ? Number.MAX_SAFE_INTEGER : index;
 }
 
@@ -80,12 +63,6 @@ function readJSON(file) {
     return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
-/**
- * A missing or unreadable results directory is a normal outcome, not an error: the
- * matrix job can be cancelled before it uploads anything, and the download step is
- * itself `continue-on-error` because download-artifact treats a pattern that matches
- * nothing as a failure.
- */
 function readResults(dir) {
     let names;
     try {
@@ -112,15 +89,9 @@ function readResults(dir) {
 
             return { ...meta, report, reportError };
         })
-        .sort((a, b) => entryOrder(a.name) - entryOrder(b.name));
+        .sort((a, b) => scenarioOrder(a.name) - scenarioOrder(b.name));
 }
 
-/**
- * Pulls the failing tests out of a jest report. A suite that threw on the way in --
- * a transpile error, a beforeAll that rejected -- has no assertionResults at all,
- * only a `message`, and that is exactly the failure worth reading, so it gets an
- * entry of its own rather than being dropped for having no failing tests.
- */
 function getFailures(report) {
     const failures = [];
 
@@ -147,11 +118,6 @@ function getFailures(report) {
     return failures;
 }
 
-/**
- * Four states, not two. "The step failed" and "a test failed" are different answers
- * -- the first usually means an asset never got built -- and a matrix entry that
- * never ran has to be distinguishable from one that ran clean.
- */
 function classify(result) {
     const { outcome, report, reportError } = result;
 
@@ -164,8 +130,6 @@ function classify(result) {
     }
 
     if (!report) {
-        // Either the run never reached the end of jest, or it did and the report was
-        // unreadable. Both mean the same thing here: no per-test detail to show.
         return {
             status: outcome === 'success' ? 'clean' : 'errored',
             failures: [],
@@ -188,8 +152,6 @@ function classify(result) {
         };
     }
 
-    // No failing test, but the step still failed -- a teardown error, or ts-scripts
-    // failing after the suite. Its own state rather than green.
     if (outcome === 'failure') {
         return {
             status: 'errored',
@@ -201,12 +163,7 @@ function classify(result) {
     return { status: 'clean', failures: [] };
 }
 
-/**
- * Jest calls a skipped test "pending", and counts it in numTotalTests. Left
- * unmentioned, the counts don't add up in the one direction that matters -- a reader
- * comparing "passed (85 tests)" against the 89 in the run log has to guess whether
- * four tests were skipped on purpose or died on the way in.
- */
+// Jest calls a skipped test "pending", and counts it in numTotalTests.
 function skippedSuffix(report) {
     const skipped = report.numPendingTests ?? 0;
     if (!skipped) return '';
@@ -214,10 +171,8 @@ function skippedSuffix(report) {
 }
 
 /**
- * How many selected suites never ran, which for this suite means how much `--bail`
- * cut off. Reported rather than left implicit: "2 of 10 failed" beside the other
- * entry's 56 tests otherwise reads as though the suite shrank, when what happened is
- * that ten suites were never asked.
+ * How many selected suites never ran, which
+ * usually means how much `--bail` cut off.
  */
 function suitesNotRun(report) {
     const ran = report.testResults?.length ?? 0;
@@ -230,14 +185,14 @@ function resultCell({ status, report }) {
         return report ? `passed (${report.numPassedTests} tests${skippedSuffix(report)})` : 'passed';
     }
     if (status === 'failing') {
-        const cell = `**${report.numFailedTests} of ${report.numTotalTests} failed**${skippedSuffix(report)}`;
+        const cell = `**:warning:${report.numFailedTests} of ${report.numTotalTests} failed**${skippedSuffix(report)}`;
         if (!suitesNotRun(report)) return cell;
         return `${cell}, stopped after ${report.testResults.length} of ${report.numTotalTestSuites} suites`;
     }
     if (status === 'notRun') {
-        return 'did not run';
+        return ':warning:did not run';
     }
-    return '**errored**';
+    return '**::warning::errored**';
 }
 
 function failingFiles({ failures }) {
@@ -256,13 +211,17 @@ function formatMessage(message) {
     const lines = [];
     let dropped = false;
 
-    // Runner paths are absolute and long enough to wrap the whole comment.
     const workspace = process.env.GITHUB_WORKSPACE;
+
+    // ts-scripts forces color on unless FORCE_COLOR says otherwise, so failure
+    // messages arrive full of ANSI escape codes that a comment would render as-is.
+    // Runner paths are absolute and long enough to wrap the whole comment.
     const plain = workspace
         ? message.replace(ANSI, '').replaceAll(`${workspace}/`, '')
         : message.replace(ANSI, '');
 
     for (const line of plain.split('\n')) {
+        // remove stack traces into node_modules
         if (/^\s+at\s.*node_modules/.test(line) || lines.length >= MAX_MESSAGE_LINES) {
             dropped = true;
             break;
@@ -282,7 +241,7 @@ function formatMessage(message) {
 function detailsFor(result, { withMessages }) {
     const lines = [
         '<details>',
-        `<summary>Teraslice under test: ${entryInfo(result.name).teraslice}</summary>`,
+        `<summary>Scenario: ${scenarioInfo(result.name).teraslice}</summary>`,
         '',
     ];
 
@@ -300,7 +259,6 @@ function detailsFor(result, { withMessages }) {
     const hidden = result.failures.length - shown.length;
     if (hidden > 0) lines.push(`_...and ${hidden} more, see the run logs._`, '');
 
-    // Trailing blanks would double up against the separator build() adds.
     while (lines.at(-1) === '') {
         lines.pop();
     }
@@ -348,15 +306,13 @@ function build(results, { withMessages = true } = {}) {
         'against these packages; it does not mean this PR\'s own tests failed, and it does',
         'not block merging.',
         '',
-        '| Teraslice under test | Result | Failing specs |',
+        '| Scenario | Result | Failing specs |',
         '| :--- | :--- | :--- |'
     );
 
     for (const result of results) {
-        const { teraslice } = entryInfo(result.name);
-        // The image is only recorded for the entries that test against a published
-        // release -- the other one runs the dev image this run built, which has no tag
-        // worth printing. Naming it matters: "the latest release" moves.
+        const { teraslice } = scenarioInfo(result.name);
+        // The image is only recorded for the scenarios with a published release
         const against = result.image ? `${teraslice} (\`${result.image}\`)` : teraslice;
         lines.push(`| ${against} | ${resultCell(result)} | ${failingFiles(result)} |`);
     }
@@ -366,7 +322,7 @@ function build(results, { withMessages = true } = {}) {
         lines.push('');
         for (const result of notClean) lines.push(detailsFor(result, { withMessages }), '');
     } else {
-        lines.push('', 'Every entry passed.', '');
+        lines.push('', 'Every scenario passed.', '');
     }
 
     lines.push(...footer());
@@ -374,7 +330,7 @@ function build(results, { withMessages = true } = {}) {
 }
 
 /**
- * Failure messages are jest stack traces and can be enormous, so they are the first
+ * Failure messages are jest stack traces and can be large, so they are the first
  * thing dropped when the body would not fit. The table always survives.
  */
 function buildWithinLimit(results) {
@@ -399,7 +355,6 @@ function main() {
     const results = readResults(dir).map((result) => ({ ...result, ...classify(result) }));
     process.stdout.write(`${buildWithinLimit(results)}\n`);
 
-    // No results at all is a finding in its own right, not a clean run.
     const hasFindings = !results.length || results.some((result) => result.status !== 'clean');
     if (process.env.GITHUB_OUTPUT) {
         fs.appendFileSync(process.env.GITHUB_OUTPUT, `has-findings=${hasFindings}\n`);

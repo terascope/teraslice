@@ -58,31 +58,19 @@ jobs:
               ($others[] | {"node-version": ., "search-version": "opensearch3"})
             ]}')
           echo "NATIVE_E2E_MATRIX=$MATRIX" >> $GITHUB_OUTPUT
-      # The published Teraslice that e2e-assets-from-source-tests loads its freshly
-      # built assets into. Read out of the release body rather than assembled from the
-      # tag name, because only the body knows which node patch each image was built
-      # with -- v3.17.0 is published as v3.17.0-nodev24.19.0, and the patch moves with
-      # every release.
-      #
-      # releases/latest, so this tracks the release GitHub marks latest -- the version
-      # actually running in production. Prereleases are deliberately skipped: assets
-      # breaking against something nobody has deployed yet is not the question here.
-      #
-      # Never fails the job: every other job in this workflow needs compute-vars, and
-      # a release body that has changed shape is not a reason to stop the whole run
-      # over a test that is deliberately non-gating. The matrix entry that needs the
-      # image fails on its own instead, and says so in the PR comment.
       - name: Get latest Teraslice release image
         id: latest-teraslice-image
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_MAJOR: ${{ env.NODE_VERSION_MAIN }}
         run: |
+          # Get 'latest', not a prerelease
           body=$(gh api repos/terascope/teraslice/releases/latest --jq .body || true)
           image=$(printf '%s' "$body" \
             | grep -oE "ghcr\.io/terascope/teraslice:v[0-9][^\` ]*-nodev${NODE_MAJOR}\.[0-9]+\.[0-9]+" \
             | head -n 1)
           if [ -z "$image" ]; then
+            # Will fail the job that uses the var, not 'compute-vars'
             echo "::warning::Could not find a Teraslice image for Node ${NODE_MAJOR} in the latest release"
           fi
           echo "Latest Teraslice release image: ${image:-<none>}"
@@ -1399,26 +1387,9 @@ jobs:
   #         path: e2e/logs/*.log
   #         retention-days: 3
 
-  # Runs the e2e suite against asset bundles built from this PR's packages rather
-  # than downloaded at their latest release, which is "gap A" in
-  # docs/development/asset-compatibility-testing.md: does an asset built from
-  # today's master still work? The specs are the same ones e2e-tests runs; only
-  # where the zips came from differs.
-  #
-  # Deliberately not sharing the asset-bundle cache the other e2e jobs restore.
-  # ASSETS_FROM_SOURCE builds all three bundles, so every zip that cache holds is
-  # replaced before anything reads it, and nothing is downloaded at all.
-  #
-  # This job reports rather than gates: what it can break is an asset repo, not this
-  # PR, so it is deliberately impossible for it to fail the run. The answer arrives as
-  # the PR comment asset-compat-report posts. Two things keep it non-blocking, and
-  # both are needed: continue-on-error here covers a failure in any step, and the
-  # step that runs the suite has its own so its outcome can be read back rather than
-  # ending the job. It is also absent from all-tests-passed, which is what branch
-  # protection actually gates on.
   e2e-assets-from-source-tests:
     if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
-    continue-on-error: true
+    continue-on-error: true # failures are informative only, don't mark job failed
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -1436,13 +1407,14 @@ jobs:
       # Test both scenarios, regardless of the outcome of the other
       fail-fast: false
       matrix:
-        # Both entries run the same pnpm script; the only difference is which Teraslice
-        # the assets get loaded into. An empty teraslice-image means the dev image built
-        # from this PR, which is what the script does when TERASLICE_IMAGE is unset.
+        # Both scenarios run the same pnpm script; the only difference is which
+        # Teraslice the assets get loaded into. An empty teraslice-image means the dev
+        # image built from this PR, which is what the script does when TERASLICE_IMAGE
+        # is unset.
         include:
-          - name: pr-build
+          - scenario: pr-build
             teraslice-image: ""
-          - name: latest-release
+          - scenario: latest-release
             # teraslice-image: ${{ needs.compute-vars.outputs.LATEST_TERASLICE_IMAGE }}
             teraslice-image: 'ghcr.io/terascope/teraslice:v3.15.0-nodev24.18.0'
     steps:
@@ -1489,18 +1461,17 @@ jobs:
             docker-images-${{ hashFiles('./images/image-list.txt') }}-
             docker-images-
 
-      # Skipped by the entries that test against a published image: those pull the
-      # teraslice they test against and never touch the dev image, so downloading and
-      # loading it is a gigabyte of wasted work.
       - name: Download dev docker image artifact
-        if: matrix.name == 'pr-build'
+        # Skipped by the scenarios that test against a published image
+        if: matrix.scenario == 'pr-build'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
           path: ${{ runner.temp }}
 
       - name: Load dev docker image
-        if: matrix.name == 'pr-build'
+        # Skipped by the scenarios that test against a published image
+        if: matrix.scenario == 'pr-build'
         run: |
           docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
           rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
@@ -1510,38 +1481,23 @@ jobs:
         run: pnpm run build
         working-directory: ./e2e
 
-      # The report is written by a reporter rather than by `--json --outputFile`,
-      # which does not survive `--bail` -- and ts-scripts forces --bail for the e2e
-      # suite, so every failing run took that path. See
-      # e2e/scripts/jest-json-reporter.js for the mechanism; the short version is
-      # that jest exits from inside the scheduler and never reaches the code that
-      # writes the file, so the failure it bailed on was the one thing lost.
-      #
-      # `--reporters` replaces the configured list rather than adding to it, hence
-      # naming `default` too, and the args are appended without a `--` of their own:
-      # the pnpm scripts already end in `--`, and a second one reaches jest as an
-      # argument separator, which turns everything after it into test path patterns
-      # that match nothing.
       - name: Test assets built from source
         id: run-tests
         continue-on-error: true
         env:
-          ENTRY_NAME: ${{ matrix.name }}
-          ENTRY_TERASLICE_IMAGE: ${{ matrix.teraslice-image }}
+          SCENARIO: ${{ matrix.scenario }}
+          SCENARIO_TERASLICE_IMAGE: ${{ matrix.teraslice-image }}
         run: |
-          # Exported only when there is something to export. An empty TERASLICE_IMAGE is
-          # not the same as an unset one: ts-scripts reads it with `??`, so the empty
-          # string reaches docker as the name of the image to run.
-          if [ "$ENTRY_NAME" != 'pr-build' ]; then
-            if [ -z "$ENTRY_TERASLICE_IMAGE" ]; then
+          if [ "$SCENARIO" != 'pr-build' ]; then
+            if [ -z "$SCENARIO_TERASLICE_IMAGE" ]; then
               echo 'compute-vars found no published Teraslice image to test against'
               exit 1
             fi
-            export TERASLICE_IMAGE="$ENTRY_TERASLICE_IMAGE"
+            export TERASLICE_IMAGE="$SCENARIO_TERASLICE_IMAGE"
             echo "Testing against published image $TERASLICE_IMAGE"
           fi
           mkdir -p "$RUNNER_TEMP/asset-compat-results"
-          export JEST_JSON_REPORT="$RUNNER_TEMP/asset-compat-results/$ENTRY_NAME.jest.json"
+          export JEST_JSON_REPORT="$RUNNER_TEMP/asset-compat-results/$SCENARIO.jest.json"
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
           export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
@@ -1551,33 +1507,26 @@ jobs:
             --reporters=default --reporters=./scripts/jest-json-reporter.js
         working-directory: ./e2e
 
-      # Written whether or not the run got as far as producing a jest report, since a
-      # build that dies in global.setup leaves none at all, and "no report" has to
-      # read differently from "no failures" in the comment. The step outcome is the
-      # only place that distinction survives -- continue-on-error means the job is
-      # green either way.
-      - name: Record this matrix entry's result
+      - name: Record this scenario's result
         if: always()
         env:
-          ENTRY_NAME: ${{ matrix.name }}
-          ENTRY_TERASLICE_IMAGE: ${{ matrix.teraslice-image }}
+          SCENARIO: ${{ matrix.scenario }}
+          SCENARIO_TERASLICE_IMAGE: ${{ matrix.teraslice-image }}
           OUTCOME: ${{ steps.run-tests.outcome }}
         run: |
           mkdir -p "$RUNNER_TEMP/asset-compat-results"
           jq -n \
-            --arg name "$ENTRY_NAME" \
-            --arg image "$ENTRY_TERASLICE_IMAGE" \
+            --arg name "$SCENARIO" \
+            --arg image "$SCENARIO_TERASLICE_IMAGE" \
             --arg outcome "${OUTCOME:-skipped}" \
             '{ name: $name, image: $image, outcome: $outcome }' \
-            > "$RUNNER_TEMP/asset-compat-results/$ENTRY_NAME.json"
+            > "$RUNNER_TEMP/asset-compat-results/$SCENARIO.json"
 
-      # Each entry uploads under its own name: two jobs uploading one name is a
-      # conflict rather than an overwrite.
       - name: Upload result artifact
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: asset-compat-result-${{ matrix.name }}
+          name: asset-compat-result-${{ matrix.scenario }}
           path: ${{ runner.temp }}/asset-compat-results/
           retention-days: 3
 
@@ -1586,22 +1535,17 @@ jobs:
         id: upload-logs-artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.${{ matrix.name }}.node-${{ env.NODE_VERSION }}
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.${{ matrix.scenario }}.node-${{ env.NODE_VERSION }}
           path: e2e/logs/*.log
           retention-days: 3
 
-  # Collects both matrix entries' results into one PR comment. This cannot live in the
-  # job above: each entry only knows its own result, and two of them racing to write
-  # one comment would each overwrite the other's half.
-  #
-  # The comment is updated in place rather than added to, so the PR carries the state
-  # of the latest commit instead of a history of every push. That is done by hiding a
-  # marker in the body and looking for it -- see the upsert step.
+  # Collects both e2e-assets-from-source-tests scenario results into one PR comment.
+  # The comment is updated in place every CI run rather than added to, so the PR carries
+  # the state of the latest commit instead of a history of every push.
   asset-compat-report:
     needs: [compute-vars, e2e-assets-from-source-tests]
-    # always(), because the whole point is reporting a job that failed. Skipped when
-    # the matrix job never ran at all: a docs-only PR has nothing to report.
-    if: always() && needs.e2e-assets-from-source-tests.result != 'skipped'
+    # Skipped when the e2e-assets-from-source-tests job never ran at all (docs-only PR).
+    if: needs.e2e-assets-from-source-tests.result != 'skipped'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -1624,8 +1568,6 @@ jobs:
           path: results
           merge-multiple: true
 
-      # No setup-node and no install: the script is plain node with no dependencies,
-      # so this job stays seconds long even when the matrix job took half an hour.
       - name: Build comment body
         id: build
         env:
@@ -1655,9 +1597,8 @@ jobs:
           existing=$(gh api --paginate "repos/$REPO/issues/$PR_NUMBER/comments" \
             --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | tail -n 1)
 
-          # An existing comment is always updated, so a PR that gets fixed stops
-          # showing a stale failure. A clean run only creates one if there is nothing
-          # to update -- every green PR carrying a comment saying so is just noise.
+          # An existing comment is always updated, so a PR that gets fixed stops showing
+          # a stale failure. A clean run only creates one if there is nothing to update.
           if [ -n "$existing" ]; then
             gh api -X PATCH "repos/$REPO/issues/comments/$existing" --input payload.json --silent
             echo "Updated comment $existing"

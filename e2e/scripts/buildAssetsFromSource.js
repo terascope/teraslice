@@ -1,22 +1,18 @@
 /**
  * Builds a Teraslice asset bundle from an asset repo's source, with the local
- * monorepo's `@terascope/*` packages injected in place of the published ones.
- *
- * This closes "gap A" from docs/development/asset-compatibility-testing.md:
- * it answers "does an asset built from today's master still work?" by producing
- * a zip that e2e can run against unmodified specs.
+ * monorepo's packages injected in place of the published ones.
  *
  * Injection works by `pnpm pack`ing every publishable package in the monorepo and
  * pointing pnpm `overrides` at the resulting `file:` tarballs. Overrides apply to
- * the whole dependency graph, so transitive `@terascope` dependencies
- * (data-mate -> core-utils) are resolved to local builds too, and an override for
- * a package the asset does not use is simply inert.
+ * the whole dependency graph, so transitive dependencies (data-mate -> core-utils)
+ * are resolved to local builds too, and an override for a package the asset does
+ * not use is simply inert.
  *
  * The asset repo is cloned from GitHub by default; `--local <path>` builds from a
  * checkout on disk instead. Either way the source has to look like an asset repo:
  * an `asset` directory at the root containing `asset.json`.
  *
- * The staged copy is given a deliberately absurd version (`9999.0.0-compat-test.0`)
+ * The staged copy is given a deliberately high version (`9999.0.0-compat-test.0`)
  * before it is bundled, so the zip is named for a version that could not have been
  * released. That keeps a build distinguishable from the release it was built from,
  * and -- since it outranks everything -- makes it the version teraslice picks when
@@ -40,10 +36,10 @@
  *   --skip-pack            reuse tarballs already in the work directory
  *   --pack-only            pack the monorepo packages and stop, building nothing. Lets
  *                          several --skip-pack builds share one pack step, and run at
- *                          the same time without writing the tarball directory at once.
+ *                          the same time.
  *   --prerelease-id <id>   prerelease identifier to build under (default: compat-test)
  *   --asset-version <ver>  build at this exact version (default: 9999.0.0-<id>.0)
- *   --keep-version         build at the version in the source, unchanged
+ *   --keep-version         build at the version in the source
  */
 
 import fs from 'node:fs';
@@ -87,6 +83,7 @@ function parseArgs(argv) {
         } else if (arg === '--keep-version') {
             args.keepVersion = true;
         } else if (arg.startsWith('--')) {
+            // kebab-case to camelCase
             const key = arg.slice(2).replace(/-([a-z])/g, (_, c) => c.toUpperCase());
             if (!(key in args)) {
                 throw new Error(`Unknown option "${arg}"`);
@@ -101,8 +98,7 @@ function parseArgs(argv) {
         }
     }
 
-    // --pack-only never touches an asset repo, so it is the one mode that has
-    // nothing to say about which one to build.
+    // --pack-only never touches an asset repo so repo is not required
     if (!args.repo && !args.packOnly) {
         throw new Error('Option "--repo <name>" is required, e.g. --repo elasticsearch-assets');
     }
@@ -111,8 +107,7 @@ function parseArgs(argv) {
         throw new Error('Options "--pack-only" and "--skip-pack" are mutually exclusive');
     }
 
-    // The repo name also names the staging directory, so keep it to a bare name
-    // rather than an org/repo pair or a path.
+    // Valid repo characters are a-z, A-Z, 0-9, '_', '.', and '-'
     if (args.repo && !/^[\w.-]+$/.test(args.repo)) {
         throw new Error(
             `Invalid repo name "${args.repo}". Pass just the repo name and use --org for the owner.`
@@ -138,8 +133,8 @@ function parseArgs(argv) {
         args.assetVersion = `${BUILD_VERSION_MAJOR}.0.0-${args.prereleaseId}.0`;
     }
 
-    // Not a full semver validation -- just enough that a typo fails here rather
-    // than inside the bundler, or worse, in a zip name nothing can parse.
+    // Not a full semver validation -- just enough that a typo
+    // fails here rather than inside the bundler.
     if (!/^\d+\.\d+\.\d+(-[\w.-]+)?$/.test(args.assetVersion)) {
         throw new Error(`Invalid asset version "${args.assetVersion}". Expected a semver version, e.g. 9999.0.0-compat-test.0`);
     }
@@ -156,9 +151,7 @@ function readJSON(filePath) {
 }
 
 /**
- * Index every publishable package in the monorepo by its npm name. All of them
- * get injected: which packages an asset actually depends on is the asset repo's
- * business, and an override nothing resolves costs nothing.
+ * Index every publishable package in the monorepo by its npm name.
  * @returns {Map<string, { dir: string, version: string, needsBuild: boolean }>}
  */
 function indexMonorepoPackages() {
@@ -184,9 +177,7 @@ function indexMonorepoPackages() {
 }
 
 /**
- * `pnpm pack` each package into `destDir`. Packing (rather than linking) is what
- * makes this faithful to publishing: `workspace:~` ranges are rewritten to real
- * versions and only the files listed in `files` end up in the tarball.
+ * `pnpm pack` each package into `destDir`
  * @returns {Promise<Map<string, string>>} package name -> absolute tarball path
  */
 async function packPackages(index, destDir, skipPack) {
@@ -235,10 +226,8 @@ function tarballPrefix(name) {
 }
 
 /**
- * Every asset repo keeps its bundle source in an `asset` directory at the root,
- * with the manifest `teraslice-cli assets build` reads beside it. Anything else
- * is not something we can build, and the failure is much clearer here than three
- * steps later inside pnpm or the bundler.
+ * Every asset repo must have `asset` directory at the root,
+ * with the asset.json manifest within.
  */
 function assertAssetRepo(dir, description) {
     const assetDir = path.join(dir, 'asset');
@@ -263,9 +252,7 @@ function resolveLocalSource(localPath) {
 }
 
 /**
- * Put a clean copy of the asset repo in the work directory. We never build in
- * the user's checkout: the install rewrites package.json, pnpm-workspace.yaml
- * and pnpm-lock.yaml.
+ * Put a clean copy of the asset repo in the work directory.
  */
 async function stageSource(args, stageDir) {
     fs.rmSync(stageDir, { recursive: true, force: true });
@@ -290,11 +277,7 @@ async function stageSource(args, stageDir) {
 
     const srcDir = resolveLocalSource(args.local);
     log(`* staging ${srcDir} -> ${stageDir}`);
-    // node_modules, dist and build are all regenerated, and copying a pnpm
-    // node_modules tree is both slow and full of symlinks into the old store.
-    // The tsbuildinfo files have to go with them: leaving incremental state
-    // behind while dropping `dist` makes tsc skip declaration emit, which then
-    // fails the bundle with unresolvable imports.
+
     const skip = new Set(['node_modules', 'dist', 'build', '.git']);
     fs.cpSync(srcDir, stageDir, {
         recursive: true,
@@ -310,21 +293,12 @@ async function stageSource(args, stageDir) {
  * the same three files `ts-scripts bump-asset` maintains: package.json,
  * asset/package.json and asset/asset.json.
  *
- * The default, `9999.0.0-compat-test.0`, is deliberately absurd. Two things fall
- * out of it:
- *
+ * The default, `9999.0.0-compat-test.0`, is deliberately high because:
  * - The zip is named for a version that could not possibly have been released, so
  *   a build is never mistaken for -- or silently written over -- the release it
  *   was built from.
- * - Teraslice resolves an unversioned `assets: ['elasticsearch']` to the highest
- *   matching version, so the build always wins. Nothing has to be deleted from
- *   the autoload directory to make room for it, at any ref, ever.
- *
- * This is a plain write rather than `bump-asset` because that command can only
- * increment what is already there -- `semver.inc` -- and a relative bump only
- * outranks the version it started from. Writing the version directly also means
- * no git checkout, no built ts-scripts, and no `syncAll` quietly rewriting the
- * asset repo's dependency ranges on the way past.
+ * - Teraslice resolves an unversioned asset name in a job spec to the highest
+ *   matching version, so the build always wins over other versions in autoload.
  *
  * @returns {string} the version that was set
  */
@@ -339,10 +313,6 @@ function setAssetVersion(stageDir, version) {
     const previous = readJSON(assetJsonPath).version;
 
     for (const manifest of manifests) {
-        // Only asset/asset.json and the root package.json are guaranteed; not
-        // every asset repo makes `asset` a workspace package of its own.
-        if (!fs.existsSync(manifest)) continue;
-
         const contents = readJSON(manifest);
         contents.version = version;
         fs.writeFileSync(manifest, `${JSON.stringify(contents, null, 4)}\n`, 'utf8');
@@ -354,11 +324,8 @@ function setAssetVersion(stageDir, version) {
 }
 
 /**
- * Point pnpm at the local tarballs. In pnpm 10+ workspace-wide `overrides` live
- * in pnpm-workspace.yaml rather than package.json.
- *
- * `blockExoticSubdeps` has to come off: `file:` specifiers are exactly the
- * "exotic" deps it exists to reject.
+ * Point pnpm at the local tarballs.
+ * `blockExoticSubdeps` has to come off: `file:` specifiers are rejected.
  */
 function applyOverrides(stageDir, tarballs) {
     const workspaceFile = path.join(stageDir, 'pnpm-workspace.yaml');
@@ -388,13 +355,8 @@ async function install(stageDir) {
 }
 
 /**
- * Compile the asset repo against the injected packages. The asset bundler only
- * reads TypeScript under `asset/src`, but the repo's own workspace packages
- * (elasticsearch-asset-apis, for one) have to be compiled to `dist` before
- * esbuild can resolve them.
- *
- * This step is also the first real signal for gap A: a type-level break in a
- * monorepo package fails here, before anything is zipped.
+ * Attempt to compile the asset repo against the injected packages.
+ * A type-level break in a monorepo package fails here, before anything is zipped.
  */
 async function buildSource(stageDir) {
     const pkg = readJSON(path.join(stageDir, 'package.json'));
@@ -408,15 +370,11 @@ async function buildSource(stageDir) {
 }
 
 /**
- * Confirm the install actually resolved to the local builds. A silent fallback
- * to a published package would turn the whole run into a false pass, so this is
- * the check the rest of the pipeline hangs on.
+ * Confirm the install actually resolved to the local builds.
  *
- * Version numbers cannot answer this on their own. Most of the time the local
- * package and the published one the asset pins carry the *same* version — the
- * monorepo has not been bumped since the last release — so matching versions
- * prove nothing. What we check instead is provenance: where the resolved
- * package physically lives.
+ * Version numbers cannot answer this on their own. The local package and the
+ * published one the asset pins may carry the same version (not yet bumped).
+ * What we check instead is provenance: where the resolved package physically lives.
  *
  * pnpm names virtual store entries `<name>@<reference>`, flattening `/` and `@`
  * to `+`, so anything installed from our tarballs reads as `...@file+...` and
@@ -440,9 +398,7 @@ function verifyInjection(stageDir, tarballs) {
     for (const name of tarballs.keys()) {
         const storePrefix = `${name.replace('/', '+')}@`;
 
-        // Anywhere in the graph, not just at the top level: a transitive
-        // dependency pulling in a published copy is the leak that matters, and
-        // it never shows up in asset/node_modules.
+        // Anywhere in the graph, not just at the top level
         for (const entry of storeEntries) {
             if (!entry.startsWith(storePrefix)) continue;
             if (!entry.slice(storePrefix.length).startsWith('file+')) {
@@ -501,7 +457,6 @@ async function main() {
     const args = parseArgs(process.argv.slice(2));
     const tarballDir = path.join(args.work, 'tarballs');
 
-    // Fail on an unusable source before packing 20-odd tarballs for it.
     if (args.local) resolveLocalSource(args.local);
 
     const index = indexMonorepoPackages();
@@ -539,8 +494,6 @@ async function main() {
         fs.mkdirSync(outputDir, { recursive: true });
         finalPath = path.join(outputDir, path.basename(zipPath));
 
-        // With the version bump this can only be an earlier build of the same
-        // asset at the same prerelease, never a release zip.
         if (fs.existsSync(finalPath)) {
             log(`* replacing existing ${finalPath}`);
         }
