@@ -1196,15 +1196,20 @@ describe('DataFrame', () => {
             it('should be able to sort name:desc and age:desc', () => {
                 const resultFrame = peopleDataFrame.orderBy(['name:desc', 'age:desc']);
 
+                // Every name is distinct, so name:desc alone determines the order
+                // and age never acts as a tie-breaker.
                 expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Nancy',
+                        age: 10
+                    },
                     {
                         name: 'Jill',
                         age: 39,
                         friends: ['Frank']
                     },
                     {
-                        name: 'Billy',
-                        age: 47,
+                        name: 'Jane',
                         friends: ['Jill']
                     },
                     {
@@ -1213,11 +1218,8 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                     {
-                        name: 'Nancy',
-                        age: 10
-                    },
-                    {
-                        name: 'Jane',
+                        name: 'Billy',
+                        age: 47,
                         friends: ['Jill']
                     },
                 ]);
