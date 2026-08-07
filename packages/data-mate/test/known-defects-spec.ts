@@ -13,16 +13,17 @@ import {
  *
  * These tests assert the CORRECT behaviour, so an OPEN defect shows as a FAILING test.
  *
- * FIXED - these five tests pass:
+ * FIXED - these tests pass:
  *   D1  multi-key orderBy summed per-field comparisons instead of taking the first
  *       non-zero one, so two keys that disagreed cancelled out and the primary key
  *       was ignored. Fuzzing showed 76% of multi-key sorts returned the wrong order.
  *   D2  compare() left nils to the JS relational operators, making it non-transitive
  *       for strings and treating a nil as 0 for numerics.
+ *   D3  reverse() walked UTF-16 code units, splitting surrogate pairs into lone
+ *       surrogates. It now segments by grapheme, which also keeps combining marks
+ *       attached and leaves ZWJ sequences and flags in order.
  *
- * STILL OPEN - these seven tests fail, and that is intentional:
- *   D3  reverse() operates on UTF-16 code units, so astral characters (emoji, some
- *       CJK) are split into lone surrogates.
+ * STILL OPEN - these tests fail, and that is intentional:
  *   D4  integer coercion truncates at the first non-digit: '1e3' -> 1, '0x10' -> 0.
  *   D5  date coercion delegates to the JS Date parser, so a bare integer string
  *       becomes a year ('0' -> 2000-01-01) and loose formats read the process
@@ -187,9 +188,11 @@ describe('DataFrame known defects', () => {
         });
     });
 
-    describe('D3: reverse() operates on UTF-16 code units', () => {
-    // Astral characters are stored as surrogate pairs. Reversing code units splits
-    // the pair and produces lone surrogates, which are not valid text.
+    describe('D3: reverse() must reverse by grapheme', () => {
+    // Reversing UTF-16 code units splits surrogate pairs into lone surrogates.
+    // Reversing code POINTS fixes that but is still wrong: it detaches combining
+    // marks and reorders ZWJ sequences and regional-indicator flags. Only grapheme
+    // segmentation is correct, so the cases below deliberately cover all three.
         const LONE_SURROGATE
             = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
 
@@ -204,16 +207,39 @@ describe('DataFrame known defects', () => {
                 .toJSON();
         }
 
-        it('should reverse by code point, not code unit', () => {
-            expect(reverseValues(['abc', '😀x', 'a😀b'])).toEqual([
+        it('should keep surrogate pairs intact', () => {
+            expect(reverseValues(['abc', '\u{1F600}x', 'a\u{1F600}b'])).toEqual([
                 'cba',
-                'x😀',
-                'b😀a',
+                'x\u{1F600}',
+                'b\u{1F600}a',
             ]);
         });
 
+        it('should keep a combining mark attached to its base character', () => {
+            // 'e' + U+0301 COMBINING ACUTE, written as an escape so an editor cannot
+            // silently normalise it to the precomposed single-code-point form.
+            const decomposed = 'e\u0301abc';
+            expect(decomposed).toHaveLength(5);
+
+            expect(reverseValues([decomposed])).toEqual(['cbae\u0301']);
+        });
+
+        it('should not reorder ZWJ sequences or regional-indicator flags', () => {
+            // A ZWJ family and a two-codepoint flag are each ONE grapheme.
+            const family = '\u{1F468}\u{200D}\u{1F469}\u{200D}\u{1F467}';
+            const flag = '\u{1F1FA}\u{1F1F8}ab';
+
+            expect(reverseValues([family, flag])).toEqual([family, 'ba\u{1F1FA}\u{1F1F8}']);
+        });
+
         it('should never produce a lone surrogate', () => {
-            const results = reverseValues(['😀x', 'a😀b', '👨x']);
+            const results = reverseValues([
+                '\u{1F600}x',
+                'a\u{1F600}b',
+                '\u{1F468}x',
+                '\u{1F468}\u{200D}\u{1F469}\u{200D}\u{1F467}',
+                '\u{1F1FA}\u{1F1F8}ab',
+            ]);
             const corrupted = results.filter(
                 (value) => typeof value === 'string' && LONE_SURROGATE.test(value),
             );
