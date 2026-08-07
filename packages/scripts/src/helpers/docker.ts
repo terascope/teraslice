@@ -25,6 +25,19 @@ export async function dockerPull(image: string, timeout = 0): Promise<void> {
     }
 }
 
+/**
+ * Is the image already in the local image store?
+ * `docker images -q` answers with an empty string instead of an error for an image that isn't there
+ * so a miss is not something the caller has to catch.
+ */
+export async function dockerImageExists(image: string): Promise<boolean> {
+    const imageId = await exec({
+        cmd: 'docker',
+        args: ['images', '-q', image],
+    });
+    return imageId !== '';
+}
+
 export async function dockerStop(name: string): Promise<void> {
     await exec({
         cmd: 'docker',

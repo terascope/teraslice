@@ -7,6 +7,9 @@ import { dockerUp } from './docker-helpers.js';
 import signale from './signale.js';
 import setupTerasliceConfig from './setup-config.js';
 import { downloadAssets, loadAssetCache } from './download-assets.js';
+import {
+    buildAssetsFromSource, getSourceAssetBuilds, deleteCompatTestAssets
+} from './source-assets.js';
 import { config } from './config.js';
 import { teardown } from './teardown.js';
 
@@ -52,9 +55,13 @@ export default async () => {
         }
     }
 
+    const sourceAssetBuilds = getSourceAssetBuilds();
+    deleteCompatTestAssets();
+
     // Try to load in the cache before trying to download
     loadAssetCache();
 
+    await buildAssetsFromSource(sourceAssetBuilds);
     await Promise.all([setupTerasliceConfig(), downloadAssets()]);
 
     if (TEST_PLATFORM === 'kubernetesV2') {

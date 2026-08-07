@@ -3,6 +3,7 @@ import { Logger } from './logger';
 export interface TestEnv {
     ASSET_STORAGE_CONNECTION?: string;
     ASSET_STORAGE_CONNECTION_TYPE?: string;
+    ASSETS_FROM_SOURCE?: string;
     ATTACH_JEST_DEBUGGER?: boolean;
     CERT_PATH?: string;
     CI?: boolean;

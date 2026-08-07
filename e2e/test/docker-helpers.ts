@@ -35,6 +35,44 @@ export async function tearDown() {
     });
 }
 
+/**
+ * Widen the permissions on everything teraslice unpacked into the assets bind
+ * mount, so the host can delete it.
+ *
+ * The teraslice image runs as uid 10001, and global.setup only makes the volume
+ * root writable by it -- the `<assetId>` directories it unpacks below that are
+ * its own, mode 0755. Removing a file inside one needs write permission on the
+ * directory, which the host user does not have, so teardown's cleanup fails with
+ * EACCES and the assets directory grows across runs.
+ *
+ * Only the owner (or root) can chmod those directories, so this runs in a
+ * throwaway container off the same service definition -- `run` rather than
+ * `exec` so it works whether or not the cluster is still up, which it is not
+ * after a run that crashed.
+ *
+ * Best effort: teardown tolerates what it cannot delete, and a chmod failure is
+ * not worth failing a run over.
+ */
+export async function makeAssetsHostWritable() {
+    try {
+        await compose.runCmd(
+            'run',
+            {
+                '--rm': null,
+                '--no-deps': null,
+                '--user': 0,
+                '--entrypoint': 'chmod'
+            },
+            'teraslice-master',
+            '-R',
+            'a+rwX',
+            '/app/assets'
+        );
+    } catch (err) {
+        signale.warn(`Unable to make the assets directory host writable: ${err.message}`);
+    }
+}
+
 export async function dockerUp() {
     const startTime = Date.now();
     signale.pending('Bringing Docker environment up...');

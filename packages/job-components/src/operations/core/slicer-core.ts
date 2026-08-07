@@ -69,7 +69,7 @@ export default abstract class SlicerCore<T = OpConfig>
      * Get a reference to an existing API
      */
     getAPI<A extends OpAPI = OpAPI>(name: string): A {
-        return this.context.apis.executionContext.getAPI<A>(name);
+        return this.context.apis.executionContext.getSlicerAPI<A>(name);
     }
 
     /**
