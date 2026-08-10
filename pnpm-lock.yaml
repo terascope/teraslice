@@ -39,7 +39,7 @@ importers:
         specifier: ~30.0.0
         version: 30.0.0
       '@types/lodash':
-        specifier: ~4.17.25
+        specifier: ~4.17.24
         version: 4.17.25
       '@types/node':
         specifier: ~26.2.0
@@ -688,7 +688,7 @@ importers:
         specifier: ~2.0.2
         version: 2.0.2
       typedoc:
-        specifier: ~0.28.20
+        specifier: ~0.28.19
         version: 0.28.20(typescript@5.9.3)
       typedoc-plugin-markdown:
         specifier: ~4.12.0
