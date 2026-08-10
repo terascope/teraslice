@@ -39,7 +39,7 @@
     },
     "devDependencies": {
         "jest-extended": "~7.0.0",
-        "nock": "~14.0.16"
+        "nock": "~14.0.17"
     },
     "engines": {
         "node": ">=22.0.0",

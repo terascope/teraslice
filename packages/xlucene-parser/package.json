@@ -38,8 +38,8 @@
         "peggy": "~5.1.0"
     },
     "devDependencies": {
-        "@turf/invariant": "~7.3.5",
-        "@turf/random": "~7.3.5",
+        "@turf/invariant": "~7.4.0",
+        "@turf/random": "~7.4.0",
         "date-fns": "~4.4.0",
         "jest-extended": "~7.0.0"
     },
