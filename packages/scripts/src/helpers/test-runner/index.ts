@@ -371,9 +371,6 @@ async function runE2ETest(
 
     try {
         if (TERASLICE_IMAGE) {
-            // Run the suite against a published teraslice instead of the working
-            // tree, which is how an asset built from source is tested against
-            // the production teraslice version.
             signale.warn(`Running e2e against published image ${TERASLICE_IMAGE}, not a build of the working tree`);
             await pullTerasliceImage(TERASLICE_IMAGE);
             await dockerTag(TERASLICE_IMAGE, e2eImage);
@@ -491,9 +488,7 @@ async function runE2ETest(
 }
 
 /**
- * Fetch a published teraslice image, preferring a fresh pull.
- * A failed pull is only fatal when there is no local copy to fall back on: that
- * covers being offline, and a tag built locally that was never pushed anywhere.
+ * Fetch a published teraslice image. Fall back to a local image.
  */
 async function pullTerasliceImage(image: string): Promise<void> {
     try {
