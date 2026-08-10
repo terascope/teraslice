@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import fse from 'fs-extra';
-import { execaCommand } from 'execa';
+import { execa } from 'execa';
 import { load } from 'js-yaml';
 import { parseDocument } from 'yaml';
 import { packageUpSync } from 'package-up';
@@ -288,7 +288,7 @@ export async function setConfigValuesForCustomYaml(
 export async function logTCPPorts(service: string) {
     try {
         const command = 'netstat -an | grep \'^tcp\' | awk \'{print $4}\' | tr ".:" " " | awk \'{print $NF}\' | sort -n | uniq | tr "\n" " "';
-        const subprocess = await execaCommand(command, { shell: true, reject: false });
+        const subprocess = await execa({ shell: true, reject: false })`${command}`;
         const { stdout, stderr } = subprocess;
 
         if (stderr) {
@@ -301,7 +301,7 @@ export async function logTCPPorts(service: string) {
 }
 
 export async function pgrep(name: string): Promise<string> {
-    const subprocess = await execaCommand('ps aux', { reject: false });
+    const subprocess = await execa({ reject: false })`ps aux`;
     if (!subprocess.stdout) {
         throw new Error('Invalid result from ps aux');
     }

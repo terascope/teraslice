@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execaCommand } from 'execa';
+import { execa } from 'execa';
 import { load } from 'js-yaml';
 import { parseDocument } from 'yaml';
 import { debugLogger, isCI, TSError } from '@terascope/core-utils';
@@ -20,7 +20,7 @@ export async function helmfileDestroy(selector: string) {
     const helmfilePath = path.join(getRootDir(), 'packages/scripts/helm/helmfile.yaml.gotmpl');
 
     try {
-        const subprocess = await execaCommand(`helmfile destroy -f ${helmfilePath} --selector app=${selector}`);
+        const subprocess = await execa`helmfile destroy -f ${helmfilePath} --selector app=${selector}`;
         logger.debug(`helmfile destroy:\n${subprocess.stdout}`);
     } catch (err) {
         logger.info(err);
@@ -41,7 +41,7 @@ export async function helmfileCommand(
 
     let subprocess;
     try {
-        subprocess = await execaCommand(`helmfile --state-values-file ${valuesPath} ${command} -f ${helmfilePath}`);
+        subprocess = await execa`helmfile --state-values-file ${valuesPath} ${command} -f ${helmfilePath}`;
     } catch (err) {
         // TSError truncates to 3000 characters which is an issue here
         throw new Error(`Helmfile ${command} command failed:\n${err}`);
@@ -84,10 +84,10 @@ export async function launchTerasliceWithCustomHelmfile(
         if (debug && !isCI) {
             // We want to exclude certain charts from the diff command because
             //  they may require crds that aren't installed
-            diffProcess = await execaCommand(`helmfile ${diffSelector} --state-values-file ${configFilePath} diff -f ${helmfilePath}`);
+            diffProcess = await execa`helmfile ${diffSelector} --state-values-file ${configFilePath} diff -f ${helmfilePath}`;
             logger.debug(`helmfile diff:\n${diffProcess.stdout}`);
         }
-        syncProcess = await execaCommand(`helmfile ${syncSelector} --state-values-file ${configFilePath} sync -f ${helmfilePath}`);
+        syncProcess = await execa`helmfile ${syncSelector} --state-values-file ${configFilePath} sync -f ${helmfilePath}`;
         logger.debug(`helmfile sync:\n${syncProcess.stdout}`);
     } catch (err) {
         // TSError truncates to 3000 characters which is an issue here
