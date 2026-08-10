@@ -29,6 +29,7 @@ jobs:
       NODE_VERSIONS_K8S: ${{ steps.node-version-k8s.outputs.NODE_VERSIONS_K8S }}
       NODE_VERSIONS_EXT_STORAGE: ${{ steps.node-version-ext-storage.outputs.NODE_VERSIONS_EXT_STORAGE }}
       NATIVE_E2E_MATRIX: ${{ steps.native-e2e-matrix.outputs.NATIVE_E2E_MATRIX }}
+      LATEST_TERASLICE_IMAGE: ${{ steps.latest-teraslice-image.outputs.LATEST_TERASLICE_IMAGE }}
       COMMIT_SHORT_SHA: ${{ steps.get-short-sha.outputs.COMMIT_SHORT_SHA }}
       HELM_VERSION: ${{ steps.helm-version.outputs.HELM_VERSION }}
       HELM_DIFF_VERSION: ${{ steps.helm-diff-version.outputs.HELM_DIFF_VERSION }}
@@ -57,6 +58,23 @@ jobs:
               ($others[] | {"node-version": ., "search-version": "opensearch3"})
             ]}')
           echo "NATIVE_E2E_MATRIX=$MATRIX" >> $GITHUB_OUTPUT
+      - name: Get latest Teraslice release image
+        id: latest-teraslice-image
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_MAJOR: ${{ env.NODE_VERSION_MAIN }}
+        run: |
+          # Get 'latest', not a prerelease
+          body=$(gh api repos/terascope/teraslice/releases/latest --jq .body || true)
+          image=$(printf '%s' "$body" \
+            | grep -oE "ghcr\.io/terascope/teraslice:v[0-9][^\` ]*-nodev${NODE_MAJOR}\.[0-9]+\.[0-9]+" \
+            | head -n 1)
+          if [ -z "$image" ]; then
+            # Will fail the job that uses the var, not 'compute-vars'
+            echo "**Warning:** Could not find a Teraslice image for Node ${NODE_MAJOR} in the latest release"
+          fi
+          echo "Latest Teraslice release image: ${image:-<none>}"
+          echo "LATEST_TERASLICE_IMAGE=$image" >> $GITHUB_OUTPUT
       - name: Get Commit Short SHA
         id: get-short-sha
         env:
@@ -1369,6 +1387,220 @@ jobs:
           path: e2e/logs/*.log
           retention-days: 3
 
+  e2e-assets-from-source-tests:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+    continue-on-error: true # failures are informative only, don't mark job failed
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs:
+      [
+        compute-vars,
+        verify-build,
+        cache-docker-images,
+        determine-tests-based-off-commit,
+        build-dev-docker-images,
+      ]
+    env:
+      NODE_VERSION: ${{ needs.compute-vars.outputs.NODE_VERSION_MAIN }}
+    strategy:
+      fail-fast: false # Always test both scenarios
+      matrix:
+        # An empty teraslice-image means we test against the dev
+        # image built during 'build-dev-docker-images' job
+        include:
+          - scenario: pr-build
+            teraslice-image: ""
+          - scenario: latest-release
+            teraslice-image: ${{ needs.compute-vars.outputs.LATEST_TERASLICE_IMAGE }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: ${{ fromJSON(env.NODE_VERSION) }}
+          cache: "pnpm"
+
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Install and build packages
+        run: pnpm install && pnpm run setup
+
+      - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pnpm run docker:listImages
+          cat ./images/image-list.txt
+
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
+
+      - name: Download dev docker image artifact
+        # Skipped by the scenario that tests against a published image
+        if: matrix.scenario == 'pr-build'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
+          path: ${{ runner.temp }}
+
+      - name: Load dev docker image
+        # Skipped by the scenario that tests against a published image
+        if: matrix.scenario == 'pr-build'
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
+          rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ env.NODE_VERSION }}.tar
+          docker image ls -a
+
+      - name: Compile e2e code
+        run: pnpm run build
+        working-directory: ./e2e
+
+      - name: Test assets built from source
+        id: run-tests
+        continue-on-error: true
+        env:
+          SCENARIO: ${{ matrix.scenario }}
+          SCENARIO_TERASLICE_IMAGE: ${{ matrix.teraslice-image }}
+        run: |
+          if [ "$SCENARIO" != 'pr-build' ]; then
+            if [ -z "$SCENARIO_TERASLICE_IMAGE" ]; then
+              echo 'compute-vars found no published Teraslice image to test against'
+              exit 1
+            fi
+            export TERASLICE_IMAGE="$SCENARIO_TERASLICE_IMAGE"
+            echo "Testing against published image $TERASLICE_IMAGE"
+          fi
+          mkdir -p "$RUNNER_TEMP/asset-compat-results"
+          export JEST_JSON_REPORT="$RUNNER_TEMP/asset-compat-results/$SCENARIO.jest.json"
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export ZOOKEEPER_PORT=$(../scripts/get-random-port.sh)
+          export MINIO_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:assetsFromSource \
+            --reporters=default --reporters=./scripts/jest-json-reporter.js
+        working-directory: ./e2e
+
+      - name: Record this scenario's result
+        if: always()
+        env:
+          SCENARIO: ${{ matrix.scenario }}
+          SCENARIO_TERASLICE_IMAGE: ${{ matrix.teraslice-image }}
+          OUTCOME: ${{ steps.run-tests.outcome }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/asset-compat-results"
+          jq -n \
+            --arg name "$SCENARIO" \
+            --arg image "$SCENARIO_TERASLICE_IMAGE" \
+            --arg outcome "${OUTCOME:-skipped}" \
+            '{ name: $name, image: $image, outcome: $outcome }' \
+            > "$RUNNER_TEMP/asset-compat-results/$SCENARIO.json"
+
+      - name: Upload result artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: asset-compat-result-${{ matrix.scenario }}
+          path: ${{ runner.temp }}/asset-compat-results/
+          retention-days: 3
+
+      - name: Upload logs artifact
+        if: always()
+        id: upload-logs-artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.${{ matrix.scenario }}.node-${{ env.NODE_VERSION }}
+          path: e2e/logs/*.log
+          retention-days: 3
+
+  # Collects both e2e-assets-from-source-tests scenario results into one PR comment.
+  # The comment is updated in place every CI run rather than added to, so the comment
+  # carries the state of the latest commit. See the comment's 'edited' dropdown for a
+  # history of every push.
+  asset-compat-report:
+    needs: [compute-vars, e2e-assets-from-source-tests]
+    # Skipped when the e2e-assets-from-source-tests job never ran at all (docs-only PR).
+    if: needs.e2e-assets-from-source-tests.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      # continue-on-error because download-artifact treats a pattern that matches
+      # nothing as a failure, and the matrix job can be cancelled before it uploads.
+      - name: Download matrix results
+        continue-on-error: true
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: asset-compat-result-*
+          path: results
+          merge-multiple: true
+
+      - name: Build comment body
+        id: build
+        env:
+          COMMIT_SHORT_SHA: ${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}
+        run: node ./e2e/scripts/build-asset-compat-comment.js results > comment-body.md
+
+      # Add report to actions job summary. A fork PR can't comment, so look here instead. 
+      - name: Add report to the job summary
+        run: cat comment-body.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upsert PR comment
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          HAS_FINDINGS: ${{ steps.build.outputs.has-findings }}
+        run: |
+          marker='<!-- asset-compat-report -->'
+          { echo "$marker"; cat comment-body.md; } > body.md
+          jq -n --rawfile body body.md '{ body: $body }' > payload.json
+
+          # The marker is what makes this an update rather than another comment. Note
+          # the filter runs per page under --paginate, so the id is taken from the last
+          # line rather than by asking jq for the last element.
+          existing=$(gh api --paginate "repos/$REPO/issues/$PR_NUMBER/comments" \
+            --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | tail -n 1)
+
+          # An existing comment is always updated, so a PR that gets fixed stops showing
+          # a stale failure. A clean run only creates a comment if there is something to update.
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$existing" --input payload.json --silent
+            echo "Updated comment $existing"
+          elif [ "$HAS_FINDINGS" = 'true' ]; then
+            gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" --input payload.json --silent
+            echo 'Posted a new comment'
+          else
+            echo 'Nothing to report and no existing comment to update'
+          fi
+
   test-website:
     if: needs.determine-tests-based-off-commit.outputs.website == 'true'
     needs: [verify-build, determine-tests-based-off-commit, compute-vars]
@@ -1392,6 +1624,7 @@ jobs:
         run: pnpm install && ./scripts/build-documentation.sh
       - name: Check Output
         run: find ./website/build
+
   check-docker-limit-after:
     needs:
       [
@@ -1401,6 +1634,7 @@ jobs:
         e2e-external-asset-storage-tests-encrypted,
         e2e-k8s-v2-tests,
         e2e-tests,
+        e2e-assets-from-source-tests,
         elasticsearch-api-tests,
         elasticsearch-store-tests,
         teraslice-elasticsearch-tests,
@@ -1422,6 +1656,7 @@ jobs:
         e2e-external-asset-storage-tests-encrypted,
         e2e-k8s-v2-tests,
         e2e-tests,
+        e2e-assets-from-source-tests,
         elasticsearch-api-tests,
         elasticsearch-store-tests,
         teraslice-elasticsearch-tests,

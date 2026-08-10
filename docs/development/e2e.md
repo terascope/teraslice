@@ -33,9 +33,24 @@ When in CI, the teraslice tests will run until a failure happens then bail, outp
 
 ## Assets
 
-Currently only the `elasticsearch-assets` and `kafka-assets` are automatically downloaded to the latest bundle and loaded into `${root}/e2e/autoload` when the tests are ran. When downloading it will delete any older assets in order to prevent loading two different versions of the same asset.
+The `elasticsearch-assets`, `kafka-assets` and `standard-assets` bundles are automatically downloaded at their latest prerelease and loaded into `${root}/e2e/autoload` when the tests are ran. When downloading it will delete any older assets in order to prevent loading two different versions of the same asset.
 
-To add additionally asset bundles, edit `${root}/e2e/test/download-assets.js`.
+To add additionally asset bundles, edit `${root}/e2e/test/download-assets.ts`.
+
+### Building assets from source
+
+Those downloaded bundles were built against *previously published* Teraslice packages, so a plain run never tests an asset built against the working tree. `ASSETS_FROM_SOURCE` builds one instead: the asset repo is cloned, its `@terascope/*` dependencies are replaced with the local monorepo build, and the resulting bundle is used in place of the release.
+
+```sh
+# from the e2e directory
+pnpm run test:assetsFromSource                    # all three, from source
+ASSETS_FROM_SOURCE='elasticsearch' pnpm test      # just one
+ASSETS_FROM_SOURCE='kafka-assets@v6.8.0' pnpm test  # pinned to a tag
+```
+
+A source build is given a version of its own before it is bundled — whatever the asset repo says, it is built and loaded as `9999.0.0-compat-test.0`. Since a job asking for an asset without specifying the version gets the highest version available, and nothing released reaches 9999, the source build is what runs. The `-compat-test` bundles are deleted when the suite finishes — both the zip in `autoload` and the unpacked copy in the `assets` volume — so a later plain `pnpm test` goes back to testing released assets.
+
+To build a bundle without running e2e — including for repos e2e does not use — see `node ./scripts/buildAssetsFromSource.js --help`.
 
 ## Trouble-Shooting
 

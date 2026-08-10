@@ -17,7 +17,10 @@ import {
 } from './services.js';
 import { PackageInfo } from '../interfaces.js';
 import { TestFramework, TestOptions } from './interfaces.js';
-import { dockerTag, loadThenDeleteImageFromCache, deleteDockerImageCache } from '../docker.js';
+import {
+    dockerTag, dockerPull, dockerImageExists,
+    loadThenDeleteImageFromCache, deleteDockerImageCache
+} from '../docker.js';
 import { isKindInstalled, isKubectlInstalled, isHelmInstalled, isHelmfileInstalled } from '../kubernetes.js';
 import { launchTerasliceWithHelmfile } from '../helm.js';
 import { generateTestCaCerts } from '../certs.js';
@@ -44,7 +47,7 @@ function getModule(module: any) {
 const {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E,
     K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH,
-    KIND_VERSION
+    KIND_VERSION, TERASLICE_IMAGE
 } = config;
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -367,7 +370,11 @@ async function runE2ETest(
     }
 
     try {
-        if (SKIP_DOCKER_BUILD_IN_E2E) {
+        if (TERASLICE_IMAGE) {
+            signale.warn(`Running e2e against published image ${TERASLICE_IMAGE}, not a build of the working tree`);
+            await pullTerasliceImage(TERASLICE_IMAGE);
+            await dockerTag(TERASLICE_IMAGE, e2eImage);
+        } else if (SKIP_DOCKER_BUILD_IN_E2E) {
             const devImage = getDevDockerImage(NODE_VERSION);
             await dockerTag(devImage, e2eImage);
         } else {
@@ -477,6 +484,19 @@ async function runE2ETest(
     // Ensure the certs dir gets cleaned up
     if (fs.existsSync(CERT_PATH)) {
         fs.rmSync(CERT_PATH, { recursive: true, force: true });
+    }
+}
+
+/**
+ * Fetch a published teraslice image. Fall back to a local image.
+ */
+async function pullTerasliceImage(image: string): Promise<void> {
+    try {
+        signale.info(`Pulling teraslice image: ${image}`);
+        await dockerPull(image);
+    } catch (err) {
+        if (!await dockerImageExists(image)) throw err;
+        signale.warn(`Unable to pull ${image}, using the copy in the local image store: ${err.message}`);
     }
 }
 

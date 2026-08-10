@@ -160,3 +160,18 @@ export default class Schema extends ConvictSchema {
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 See the [teraslice-cli](../packages/teraslice-cli/overview#assets) documentation for assets.
+
+## Testing Teraslice package changes with Assets
+
+The `e2e-tests` job runs the current teraslice against the latest release of the elasticsearch, standard and kafka assets. Those bundles were built against *previously published* versions of the teraslice packages, so if a current teraslice package change is incompatible with a previous version that is built into one of these assets then we will see an error and tests will fail.
+
+The `e2e-assets-from-source-tests` job in [test.yml](../../.github/workflows/test.yml) covers the other direction: it builds all three asset bundles from source with the *current* packages injected, then runs the same e2e suite against them twice — once against the teraslice image built from the same PR, and once against the latest published teraslice release. See [Building assets from source](../development/e2e.md#building-assets-from-source) for running this locally.
+
+| | current packages | previous packages |
+| :---: | :---: | :---: |
+| current Teraslice | `pr-build` scenario | `e2e-tests` |
+| previous Teraslice | `latest-release` scenario | N/A |
+
+This job **reports, it does not gate**. It cannot fail a run and is not part of the `all-tests-passed` check, because a break it finds usually has to be fixed in the asset repo rather than in the teraslice PR. What it found arrives as a single PR comment that is updated in place on every push, and on the job summary for fork PRs.
+
+A failure against the `latest release` likely means that one of the assets will need its `minimum_teraslice_version` increased.
