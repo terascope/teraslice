@@ -116,7 +116,15 @@ describe('Numbers', () => {
             [{ }, false],
             [[], false],
             [[1], false],
-            [3.343e-5, 0.00003343]
+            [3.343e-5, 0.00003343],
+            // the whole value is parsed, not just the leading digits
+            ['1e3', 1000],
+            ['1e-3', 0.001],
+            ['0x10', 16],
+            ['0b11', 3],
+            ['0o17', 15],
+            ['1,000', 1000],
+            ['1_000.5', 1000.5],
         ])('should convert %p to be %p', (input, expected) => {
             expect(toFloat(input)).toEqual(expected);
         });
@@ -151,7 +159,20 @@ describe('Numbers', () => {
             [{ }, false],
             [[], false],
             [[1], false],
-            ['11e10', 11]
+            ['11e10', 110000000000],
+            // the whole value is parsed, not just the leading digits
+            ['1e3', 1000],
+            ['-1e3', -1000],
+            ['1e-3', 0],
+            ['0x10', 16],
+            ['0b11', 3],
+            ['0o17', 15],
+            ['1,000', 1000],
+            ['1_000', 1000],
+            ['.5', 0],
+            // parses to a number too large to be an integer, so it is
+            // rejected rather than silently truncated to 2
+            ['2e21', false],
         ])('should convert %p to be %p', (input, expected) => {
             expect(toInteger(input)).toEqual(expected);
         });

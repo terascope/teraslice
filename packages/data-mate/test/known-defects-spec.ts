@@ -22,15 +22,19 @@ import {
  *   D3  reverse() walked UTF-16 code units, splitting surrogate pairs into lone
  *       surrogates. It now segments by grapheme, which also keeps combining marks
  *       attached and leaves ZWJ sequences and flags in order.
+ *   D4  numeric coercion checked the whole string with Number() but then parsed it
+ *       with parseInt/parseFloat, which stop at the first character they do not
+ *       understand: '1e3' -> 1, '0x10' -> 0. Check and parse now share one
+ *       implementation, so a value that passes the check converts to the number it
+ *       looks like.
  *
  * STILL OPEN - these tests fail, and that is intentional:
- *   D4  integer coercion truncates at the first non-digit: '1e3' -> 1, '0x10' -> 0.
  *   D5  date coercion delegates to the JS Date parser, so a bare integer string
  *       becomes a year ('0' -> 2000-01-01) and loose formats read the process
  *       timezone. Only the first half is asserted here - see the D5 block.
  *
- * D4 and D5 are behaviour changes rather than plain bug fixes: tightening them would
- * reject input that is accepted today, so production data should be checked first.
+ * D5 is a behaviour change rather than a plain bug fix: tightening it would reject
+ * input that is accepted today, so production data should be checked first.
  */
 
 /** Deterministic LCG so a failing case is reproducible rather than flaky. */
@@ -249,8 +253,9 @@ describe('DataFrame known defects', () => {
     });
 
     describe('D4: integer coercion truncates at the first non-digit', () => {
-    // Coercion parses leading digits and stops, rather than parsing the value as a
-    // number. '1e3' becomes 1 instead of 1000, and '0x10' becomes 0 instead of 16.
+    // Coercion used to parse leading digits and stop, rather than parsing the value
+    // as a number: '1e3' became 1 instead of 1000, and '0x10' became 0 instead of 16.
+    // The root cause is in @terascope/core-utils - see numbers.ts _parseNumberLike.
         function coerceInteger(value: string): unknown {
             return Column.fromJSON('n', { type: FieldType.Integer }, [
                 value,
@@ -260,6 +265,9 @@ describe('DataFrame known defects', () => {
         it.each([
             ['1e3', 1000],
             ['0x10', 16],
+            ['0b11', 3],
+            ['0o17', 15],
+            ['1,000', 1000],
         ])('should coerce %p to %p', (input, expected) => {
             expect(coerceInteger(input as string)).toEqual(expected);
         });
