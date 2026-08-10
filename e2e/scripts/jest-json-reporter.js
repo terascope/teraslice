@@ -3,7 +3,7 @@
  *
  * Used by the `e2e-assets-from-source-tests` job in .github/workflows/test.yml,
  * whose only output is a PR comment built from this file -- see
- * scripts/build-asset-compat-comment.js.
+ * e2e/scripts/build-asset-compat-comment.js.
  *
  * **Why not `--json --outputFile`.** Both are written by the same `if (isJSON)`
  * branch of `processResults` in @jest/core, which runs after
@@ -30,9 +30,10 @@ import path from 'node:path';
 
 /**
  * Mirrors `formatTestResult` in @jest/test-result, which is what turns jest's
- * internal results into the `--json` shape. Reimplemented rather than imported
- * because that package is only a transitive dependency here, and this is the whole
- * of it. Anything reading the output can treat it as a jest report.
+ * internal results into the `--json` shape.
+ * Anything reading the output can treat it as a jest report.
+ *
+ * https://github.com/jestjs/jest/blob/main/packages/jest-test-result/src/formatTestResults.ts
  */
 function formatTestResult(result) {
     if (result.testExecError) {
@@ -79,6 +80,8 @@ function formatTestResult(result) {
  * Mirrors `serializeToJSON` in @jest/core: `openHandles` holds Errors, which
  * `JSON.stringify` turns into `{}`. Duck-typed rather than `instanceof`, since an
  * Error thrown inside a test's module registry is not the same class as ours.
+ *
+ * https://github.com/jestjs/jest/blob/main/packages/jest-core/src/lib/serializeToJSON.ts
  */
 function replacer(_key, value) {
     const isError = value instanceof Error

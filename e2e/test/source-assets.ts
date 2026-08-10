@@ -213,8 +213,7 @@ function describeBuild(build: SourceAssetBuild): string {
 }
 
 /**
- * Move a freshly built zip into the autoload directory, alongside the release it
- * was built from rather than on top of it.
+ * Move a freshly built zip into the autoload directory.
  */
 function installBuiltAsset(build: SourceAssetBuild, outputDir: string) {
     const zips = fs.existsSync(outputDir)

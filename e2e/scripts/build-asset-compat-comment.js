@@ -13,7 +13,7 @@
  *                      before jest produced results.
  *
  * Usage:
- *   node ./scripts/build-asset-compat-comment.js <results-dir> > comment-body.md
+ *   node ./e2e/scripts/build-asset-compat-comment.js <results-dir> > comment-body.md
  *
  * The footer comes from the usual GITHUB_* variables, and is left off entirely when
  * they are absent, so running this by hand against a downloaded results directory
@@ -192,7 +192,7 @@ function resultCell({ status, report }) {
     if (status === 'notRun') {
         return ':warning:did not run';
     }
-    return '**::warning::errored**';
+    return '**:warning:errored**';
 }
 
 function failingFiles({ failures }) {

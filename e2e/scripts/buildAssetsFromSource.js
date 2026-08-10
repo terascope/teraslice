@@ -372,8 +372,8 @@ async function buildSource(stageDir) {
 /**
  * Confirm the install actually resolved to the local builds.
  *
- * Version numbers cannot answer this on their own. The local package and the
- * published one the asset pins may carry the same version (not yet bumped).
+ * Version numbers cannot answer this on their own. The published package the asset pins and the
+ * local package (if not yet bumped) may carry the same version.
  * What we check instead is provenance: where the resolved package physically lives.
  *
  * pnpm names virtual store entries `<name>@<reference>`, flattening `/` and `@`

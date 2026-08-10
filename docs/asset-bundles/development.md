@@ -169,7 +169,7 @@ The `e2e-assets-from-source-tests` job in [test.yml](../../.github/workflows/tes
 
 | | current packages | previous packages |
 | :---: | :---: | :---: |
-| current Teraslice | `pr-build` scenario | yes — `e2e-tests` |
+| current Teraslice | `pr-build` scenario | `e2e-tests` |
 | previous Teraslice | `latest-release` scenario | N/A |
 
 This job **reports, it does not gate**. It cannot fail a run and is not part of the `all-tests-passed` check, because a break it finds usually has to be fixed in the asset repo rather than in the teraslice PR. What it found arrives as a single PR comment that is updated in place on every push, and on the job summary for fork PRs.
