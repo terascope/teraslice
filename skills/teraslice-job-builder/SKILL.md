@@ -35,7 +35,7 @@ over guessing.
 | Job overview | `https://terascope.github.io/teraslice/docs/jobs/overview` |
 | Top-level job config (all fields, examples, name collisions) | `https://terascope.github.io/teraslice/docs/jobs/configuration` |
 | Types of operations (reader/slicer/fetcher, processor variants, apis) | `https://terascope.github.io/teraslice/docs/jobs/types-of-operations` |
-| Built-in ops (`script`, `stdout`, `noop`, `delay`, `test-reader`) | `https://terascope.github.io/teraslice/docs/jobs/builtin-operations` |
+| Built-in ops (`noop`, `delay`, `collect`, `test-reader`) | `https://terascope.github.io/teraslice/docs/jobs/builtin-operations` |
 | Dead letter queue (`_dead_letter_action`) | `https://terascope.github.io/teraslice/docs/jobs/dead-letter-queue` |
 | Slices / how a reader chunks data | `https://terascope.github.io/teraslice/docs/jobs/slices` |
 | Asset bundles overview | `https://terascope.github.io/teraslice/docs/asset-bundles` |
@@ -83,8 +83,11 @@ over guessing.
    ```
    node scripts/deep-validate-job.mjs path/to/job.json
    ```
-   Runs the real `JobValidator` **if** `@terascope/job-components` is
-   resolvable (inside a teraslice checkout, or installed as a dep). If not, it
+   Runs Teraslice's real top-level job-schema validation (`validateJobConfig`,
+   the same check `JobValidator` uses for the job config) **if**
+   `@terascope/job-components` is resolvable (inside a teraslice checkout, or
+   installed as a dep). It does **not** do full per-operation asset validation
+   — that needs each op's asset on disk. If job-components isn't resolvable it
    reports clearly what it skipped — don't claim the job is fully validated
    when only the lint ran.
 

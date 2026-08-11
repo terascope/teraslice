@@ -7,6 +7,13 @@
  * convict-schema validation or per-operation asset validation — for that use
  * deep-validate-job.mjs, and ultimately register against a real cluster.
  *
+ * TARGETS TERASLICE v2.x. The rules below are pinned to that major version:
+ * the `kubernetesV2`-only fields (K8S_ONLY), the `cpu`/`memory` → `resources_*`
+ * deprecations (DEPRECATED), the allowed TOP_LEVEL field set, and the
+ * "operations must have >= 2 entries" rule. On a future major bump, re-verify
+ * these lists against `packages/job-components/src/job-schemas.ts`; they are
+ * grouped as named constants so the update is a one-place edit.
+ *
  * Usage:  node lint-job.mjs path/to/job.json
  * Exit:   0 = no errors (warnings allowed), 1 = errors found or unreadable.
  */
