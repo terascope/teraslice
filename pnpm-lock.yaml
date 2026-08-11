@@ -770,8 +770,8 @@ importers:
         specifier: ~15.1.3
         version: 15.1.3
       terafoundation_kafka_connector:
-        specifier: ~2.5.0
-        version: 2.5.0
+        specifier: ~2.5.1
+        version: 2.5.1
       yargs:
         specifier: ~18.1.0
         version: 18.1.0
@@ -5939,10 +5939,6 @@ packages:
 
   teex@1.0.1:
     resolution: {integrity: sha512-eYE6iEI62Ni1H8oIa7KlDU6uQBtqr4Eajni3wX7rpfXD8ysFx8z0+dri+KWEPWpBsxXfxu58x/0jvTVT1ekOSg==}
-
-  terafoundation_kafka_connector@2.5.0:
-    resolution: {integrity: sha512-dT0bLKdIjjKMaInRpi2/k85+B5xUfcAO5+y/SvYYxhEtDeTvVgc1Umn6jbvjt2uE/VCcYoIrXwiYQFdVQLE++g==}
-    engines: {node: '>=22.0.0', pnpm: '>=11.3.0'}
 
   terafoundation_kafka_connector@2.5.1:
     resolution: {integrity: sha512-Up8F3plicv9gZRA/nucwAKgrYv7+W0snaJrzmfj9eEcf072kcCh8whm0OuPgFQ+R7bLncGV1Cy8BPl8UbhS6ig==}
@@ -11949,13 +11945,6 @@ snapshots:
     transitivePeerDependencies:
       - bare-abort-controller
       - react-native-b4a
-
-  terafoundation_kafka_connector@2.5.0:
-    dependencies:
-      '@confluentinc/kafka-javascript': 1.10.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
 
   terafoundation_kafka_connector@2.5.1:
     dependencies:
