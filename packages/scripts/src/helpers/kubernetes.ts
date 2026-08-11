@@ -1,4 +1,4 @@
-import { execaCommand } from 'execa';
+import { execa } from 'execa';
 import { debugLogger, TSError, pDelay } from '@terascope/core-utils';
 import config from './config.js';
 import signale from './signale.js';
@@ -8,7 +8,7 @@ const logger = debugLogger('ts-scripts:cmd');
 
 export async function isKindInstalled(): Promise<boolean> {
     try {
-        const subprocess = await execaCommand('command -v kind');
+        const subprocess = await execa`command -v kind`;
         return !!subprocess.stdout;
     } catch (err) {
         return false;
@@ -17,7 +17,7 @@ export async function isKindInstalled(): Promise<boolean> {
 
 export async function isKubectlInstalled(): Promise<boolean> {
     try {
-        const subprocess = await execaCommand('command -v kubectl');
+        const subprocess = await execa`command -v kubectl`;
         return !!subprocess.stdout;
     } catch (err) {
         return false;
@@ -26,7 +26,7 @@ export async function isKubectlInstalled(): Promise<boolean> {
 
 export async function isHelmInstalled(): Promise<boolean> {
     try {
-        const subprocess = await execaCommand('command -v helm');
+        const subprocess = await execa`command -v helm`;
         return !!subprocess.stdout;
     } catch (err) {
         return false;
@@ -35,7 +35,7 @@ export async function isHelmInstalled(): Promise<boolean> {
 
 export async function isHelmfileInstalled(): Promise<boolean> {
     try {
-        const subprocess = await execaCommand('command -v helmfile');
+        const subprocess = await execa`command -v helmfile`;
         return !!subprocess.stdout;
     } catch (err) {
         return false;
@@ -49,12 +49,12 @@ export async function waitForKafkaRunning(name: string, timeoutMs = 12000): Prom
         if (Date.now() > endAt) {
             if (logger.level() <= 20) {
                 try {
-                    const errorSearchCommand = await execaCommand(`kubectl -n services-dev1 logs -l app.kubernetes.io/name=${name}`);
+                    const errorSearchCommand = await execa`kubectl -n services-dev1 logs -l app.kubernetes.io/name=${name}`;
                     logger.debug('Kafka pod logs:');
                     logger.debug(errorSearchCommand.stdout);
                 } catch (err) {
                     logger.error(err, 'Failure to retrieve kafka pod logs');
-                    const describePodCommand = await execaCommand(`kubectl -n services-dev1 describe pods -l app.kubernetes.io/name=${name}`);
+                    const describePodCommand = await execa`kubectl -n services-dev1 describe pods -l app.kubernetes.io/name=${name}`;
                     logger.debug('Describe kafka pod:');
                     logger.debug(describePodCommand.stdout);
                 }
@@ -64,7 +64,7 @@ export async function waitForKafkaRunning(name: string, timeoutMs = 12000): Prom
 
         let kafkaRunning = false;
         try {
-            const kubectlResponse = await execaCommand(`kubectl -n services-dev1 get pods -l app.kubernetes.io/name=${name} -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"`);
+            const kubectlResponse = await execa`kubectl -n services-dev1 get pods -l app.kubernetes.io/name=${name} -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"`;
             const kafkaReady = kubectlResponse.stdout;
             logger.debug('Kafka ready: ', kafkaReady);
             if (kafkaReady === '"true"') {
@@ -87,13 +87,13 @@ export async function waitForKafkaRunning(name: string, timeoutMs = 12000): Prom
 
 export async function setAlias(tsPort: number) {
     try {
-        const subprocess1 = await execaCommand('earl aliases remove k8s-e2e 2> /dev/null || true', { shell: true });
+        const subprocess1 = await execa({ shell: true })`earl aliases remove k8s-e2e 2> /dev/null || true`;
         logger.debug(subprocess1.stdout);
         if (subprocess1.stderr) {
             throw new Error(subprocess1.stderr);
         }
 
-        const subprocess2 = await execaCommand(`earl aliases add k8s-e2e http://${config.HOST_IP}:${tsPort}`);
+        const subprocess2 = await execa`earl aliases add k8s-e2e http://${config.HOST_IP}:${tsPort}`;
         logger.debug(subprocess2.stdout);
         if (subprocess2.stderr) {
             throw new Error(subprocess2.stderr);
@@ -107,22 +107,22 @@ export async function showState(tsPort: number, isTeardown: boolean = false) {
     try {
         if (isTeardown) {
             logger.debug('=== k8s cluster state ===');
-            const clusterState = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
+            const clusterState = await execa`kubectl get deployments,po,svc --all-namespaces --show-labels -o wide`;
             logger.debug(clusterState.stdout);
 
             logger.debug('=== docker stats ===');
-            const dockerStats = await execaCommand('docker stats --no-stream');
+            const dockerStats = await execa`docker stats --no-stream`;
             logger.debug(dockerStats.stdout);
 
             logger.debug('=== opensearch2 pod description ===');
             const searchHost = await determineSearchHost();
-            const os2Desc = await execaCommand(`kubectl -n services-dev1 describe pod ${searchHost}-cluster-master-0`);
+            const os2Desc = await execa`kubectl -n services-dev1 describe pod ${searchHost}-cluster-master-0`;
             logger.debug(os2Desc.stdout);
 
             // TODO: consider adding describe for kafka and minio pods
         }
 
-        const subprocess = await execaCommand('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
+        const subprocess = await execa`kubectl get deployments,po,svc --all-namespaces --show-labels -o wide`;
         logger.debug(subprocess.stdout);
         logger.debug(await showESIndices());
         logger.debug(await showAssets(tsPort));
@@ -132,13 +132,13 @@ export async function showState(tsPort: number, isTeardown: boolean = false) {
 }
 
 async function showESIndices() {
-    const subprocess = await execaCommand(`curl -k ${config.SEARCH_TEST_HOST}/_cat/indices?v`);
+    const subprocess = await execa`curl -k ${config.SEARCH_TEST_HOST}/_cat/indices?v`;
     return subprocess.stdout;
 }
 
 async function showAssets(tsPort: number) {
     try {
-        const subprocess = await execaCommand(`curl ${config.HOST_IP}:${tsPort}/v1/assets`);
+        const subprocess = await execa`curl ${config.HOST_IP}:${tsPort}/v1/assets`;
         return subprocess.stdout;
     } catch (err) {
         return err;
@@ -148,7 +148,7 @@ async function showAssets(tsPort: number) {
 export async function deletePersistentVolumeClaim(searchHost: string) {
     try {
         const label = searchHost.includes('opensearch') ? `app.kubernetes.io/instance=${searchHost}` : `app=${searchHost}-master`;
-        const subprocess = await execaCommand(`kubectl delete -n services-dev1 pvc -l ${label}`);
+        const subprocess = await execa`kubectl delete -n services-dev1 pvc -l ${label}`;
 
         logger.debug(`kubectl delete pvc: ${subprocess.stdout}`);
     } catch (err) {
@@ -158,7 +158,7 @@ export async function deletePersistentVolumeClaim(searchHost: string) {
 
 export async function determineSearchHost() {
     const possible = ['opensearch1', 'opensearch2', 'opensearch3'];
-    const subprocess = await execaCommand('helm list -n services-dev1 -o json');
+    const subprocess = await execa`helm list -n services-dev1 -o json`;
 
     logger.debug(`helmfile list:\n${subprocess.stdout}`);
 

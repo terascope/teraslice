@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execaCommand } from 'execa';
+import { execa } from 'execa';
 import { load, dump } from 'js-yaml';
 import { Logger, debugLogger, isCI } from '@terascope/core-utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
@@ -22,7 +22,7 @@ const {
 } = config;
 
 async function localDockerImageExists(image: string): Promise<boolean> {
-    const result = await execaCommand(`docker image inspect ${image}`, { reject: false });
+    const result = await execa({ reject: false })`docker image inspect ${image}`;
     return result.exitCode === 0;
 }
 
@@ -238,7 +238,7 @@ export class Kind {
         const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
         fs.writeFileSync(path.join(tempDir, 'kindConfig.yaml'), updatedYaml);
         const updatedYamlConfigPath = `${path.join(tempDir, 'kindConfig.yaml')}`;
-        const subprocess = await execaCommand(`kind create cluster --config ${updatedYamlConfigPath}`);
+        const subprocess = await execa`kind create cluster --config ${updatedYamlConfigPath}`;
         this.logger.debug(subprocess.stderr);
         if (tempDir) {
             fs.rmSync(tempDir, { recursive: true, force: true });
@@ -246,7 +246,7 @@ export class Kind {
     }
 
     async destroyCluster(): Promise<void> {
-        const subprocess = await execaCommand(`kind delete cluster --name ${this.clusterName}`);
+        const subprocess = await execa`kind delete cluster --name ${this.clusterName}`;
         this.logger.debug(subprocess.stderr);
     }
 
@@ -262,7 +262,7 @@ export class Kind {
                 + 'To build the image from source, run without --skip-build and without --teraslice-image.'
             );
         }
-        const subprocess = await execaCommand(`kind load docker-image ${terasliceImage} --name ${this.clusterName}`);
+        const subprocess = await execa`kind load docker-image ${terasliceImage} --name ${this.clusterName}`;
         this.logger.debug(subprocess.stderr);
     }
 
@@ -279,9 +279,9 @@ export class Kind {
                 if (!fs.existsSync(filePath)) {
                     throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
                 }
-                subprocess = await execaCommand(`gunzip -d ${filePath}`);
+                subprocess = await execa`gunzip -d ${filePath}`;
                 signale.info(`${subprocess.command}: successful`);
-                subprocess = await execaCommand(`kind load --name ${this.clusterName} image-archive ${tarPath}`);
+                subprocess = await execa`kind load --name ${this.clusterName} image-archive ${tarPath}`;
                 if (!skipDelete) {
                     fs.rmSync(tarPath);
                 }
@@ -291,7 +291,7 @@ export class Kind {
                     signale.warn(`The ${serviceName} image ${serviceImage}:${version} is not present locally and will be pulled by Kubernetes when deploying.`);
                     return;
                 }
-                subprocess = await execaCommand(`kind load --name ${this.clusterName} docker-image ${serviceImage}:${version}`);
+                subprocess = await execa`kind load --name ${this.clusterName} docker-image ${serviceImage}:${version}`;
             }
             signale.info(`${subprocess.command}: successful`);
         } catch (err) {
@@ -302,7 +302,7 @@ export class Kind {
 
     async getKindVersion(): Promise<string> {
         try {
-            const subprocess = await execaCommand('kind version');
+            const subprocess = await execa`kind version`;
             const version = subprocess.stdout.split(' ')[1];
             return version;
         } catch (err) {

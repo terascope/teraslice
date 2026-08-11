@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { execa, execaCommand } from 'execa';
+import { execa } from 'execa';
 import ms from 'ms';
 import got from 'got';
 import fse from 'fs-extra';
@@ -77,10 +77,7 @@ export async function getContainerInfo(name: string): Promise<any> {
 }
 
 export async function dockerNetworkExists(name: string): Promise<boolean> {
-    const subprocess = await execaCommand(
-        `docker network ls --format='{{json .Name}}' | grep '"${name}"'`,
-        { reject: false, shell: true }
-    );
+    const subprocess = await execa({ reject: false, shell: true })`docker network ls --format='{{json .Name}}' | grep '"${name}"'`;
     return subprocess.exitCode ? subprocess.exitCode > 0 : false;
 }
 
@@ -217,7 +214,7 @@ export async function dockerRun(
             signale.error(error);
         }
 
-        if (done && !subprocess.killed) return;
+        if (done && !subprocess.nodeChildProcess.killed) return;
 
         subprocess.kill();
     };
@@ -277,10 +274,7 @@ export async function dockerBuild(
 }
 
 export async function dockerPush(image: string): Promise<void> {
-    const subprocess = await execaCommand(
-        `docker push ${image}`,
-        { reject: false }
-    );
+    const subprocess = await execa({ reject: false })`docker push ${image}`;
 
     if (subprocess.exitCode !== 0) {
         throw new Error(`Unable to push docker image ${image}, ${subprocess.stderr}`);
@@ -299,10 +293,7 @@ export async function dockerExec(containerName: string, command: string[]): Prom
 }
 
 async function dockerImageRm(image: string): Promise<void> {
-    const subprocess = await execaCommand(
-        `docker image rm ${image}`,
-        { reject: false }
-    );
+    const subprocess = await execa({ reject: false })`docker image rm ${image}`;
 
     if (subprocess.exitCode !== 0) {
         throw new Error(`Unable to remove docker image ${image}, ${subprocess.stderr}`);
@@ -329,7 +320,7 @@ export async function loadThenDeleteImageFromCache(
         return false;
     }
 
-    const result = await execaCommand(`gunzip -c ${filePath} | docker load`, { shell: true });
+    const result = await execa({ shell: true })`gunzip -c ${filePath} | docker load`;
     signale.info('Result: ', result);
 
     if (result.exitCode !== 0) {
@@ -364,7 +355,7 @@ export async function saveAndZip(imageName: string, imageSavePath: string) {
     const fileName = imageName.replace(/[/:]/g, '_');
     const filePath = path.join(imageSavePath, `${fileName}.tar`);
     const command = `docker save ${imageName} | gzip > ${filePath}.gz`;
-    await execaCommand(command, { shell: true });
+    await execa({ shell: true })`${command}`;
     await dockerImageRm(imageName);
 }
 
