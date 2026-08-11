@@ -7,6 +7,15 @@ import {
 import { bigIntToJSON, cloneDeep, isBigInt } from '@terascope/core-utils';
 import { Column, DataFrame } from '../src/index.js';
 
+/** Deterministic LCG so a failing case is reproducible rather than flaky. */
+function lcg(seed: number): () => number {
+    let s = seed;
+    return () => {
+        s = (s * 1103515245 + 12345) & 0x7fffffff;
+        return s / 0x7fffffff;
+    };
+}
+
 describe('DataFrame', () => {
     it('should be able to create an empty table using DataFrame#fromJSON', () => {
         const dataFrame = DataFrame.fromJSON({ version: LATEST_VERSION, fields: {} }, []);
@@ -1196,15 +1205,20 @@ describe('DataFrame', () => {
             it('should be able to sort name:desc and age:desc', () => {
                 const resultFrame = peopleDataFrame.orderBy(['name:desc', 'age:desc']);
 
+                // Every name is distinct, so name:desc alone determines the order
+                // and age never acts as a tie-breaker.
                 expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Nancy',
+                        age: 10
+                    },
                     {
                         name: 'Jill',
                         age: 39,
                         friends: ['Frank']
                     },
                     {
-                        name: 'Billy',
-                        age: 47,
+                        name: 'Jane',
                         friends: ['Jill']
                     },
                     {
@@ -1213,15 +1227,131 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                     {
-                        name: 'Nancy',
-                        age: 10
-                    },
-                    {
-                        name: 'Jane',
+                        name: 'Billy',
+                        age: 47,
                         friends: ['Jill']
                     },
                 ]);
                 expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
+            describe('when sorting by more than one key', () => {
+                // The comparator used to SUM the per-field comparisons, so two keys
+                // that disagreed cancelled to 0, the pair reported "equal" and the
+                // primary key was ignored. It now returns the first non-zero result.
+                const config: DataTypeConfig = {
+                    version: LATEST_VERSION,
+                    fields: {
+                        a: { type: FieldType.Keyword },
+                        b: { type: FieldType.Integer },
+                    },
+                };
+
+                it('should order by the first key when a later key disagrees', () => {
+                    // 'x' < 'y' so x1 must come first, regardless of what b says
+                    const resultFrame = DataFrame.fromJSON<{ a: string; b: number }>(config, [
+                        { a: 'y', b: 2 },
+                        { a: 'x', b: 1 },
+                    ]).orderBy('a:asc', 'b:desc');
+
+                    expect(resultFrame.toJSON().map((r) => `${r.a}${r.b}`))
+                        .toEqual(['x1', 'y2']);
+                });
+
+                it('should sort every random frame the same as a reference comparator', () => {
+                    const rnd = lcg(12345);
+                    const numericConfig: DataTypeConfig = {
+                        version: LATEST_VERSION,
+                        fields: {
+                            a: { type: FieldType.Integer },
+                            b: { type: FieldType.Integer },
+                        },
+                    };
+
+                    const failures: { input: string; actual: string; expected: string }[] = [];
+
+                    for (let trial = 0; trial < 200; trial++) {
+                        const size = 3 + Math.floor(rnd() * 12);
+                        const rows = Array.from({ length: size }, () => ({
+                            a: Math.floor(rnd() * 3),
+                            b: Math.floor(rnd() * 3),
+                        }));
+
+                        const actual = DataFrame.fromJSON<{ a: number; b: number }>(
+                            numericConfig,
+                            rows,
+                        )
+                            .orderBy('a:asc', 'b:desc')
+                            .toJSON()
+                            .map((r) => `${r.a}${r.b}`);
+
+                        // first non-zero key wins
+                        const expected = [...rows]
+                            .sort((x, y) => x.a - y.a || y.b - x.b)
+                            .map((r) => `${r.a}${r.b}`);
+
+                        if (actual.join(' ') !== expected.join(' ')) {
+                            failures.push({
+                                input: rows.map((r) => `${r.a}${r.b}`).join(' '),
+                                actual: actual.join(' '),
+                                expected: expected.join(' '),
+                            });
+                        }
+                    }
+
+                    expect(failures).toEqual([]);
+                });
+            });
+
+            describe('when the sorted column contains nils', () => {
+                // A nil used to be left to the JS relational operators, which made the
+                // comparator non-transitive - so a nil corrupted the ordering of the
+                // NON-nil values, not just its own placement. See Vector->compare.
+                it('should keep the non-nil values ordered', () => {
+                    const config: DataTypeConfig = {
+                        version: LATEST_VERSION,
+                        fields: { s: { type: FieldType.Keyword } },
+                    };
+                    const rnd = lcg(999);
+                    const letters = 'abcdefghijklmnopqrst'.split('');
+                    const rows = Array.from({ length: 64 }, () => ({
+                        s: rnd() < 0.25 ? null : letters[Math.floor(rnd() * letters.length)],
+                    }));
+
+                    const sorted = DataFrame.fromJSON<{ s: string | null }>(config, rows)
+                        .orderBy('s:asc')
+                        .toJSON()
+                        .map((r) => r.s)
+                        .filter((s): s is string => s != null);
+
+                    expect(sorted).toEqual([...sorted].sort());
+                });
+
+                it('should sort a nil to one end, not into the middle of the range', () => {
+                    // A nil coerced to the NUMBER ZERO, which is invisible when the values
+                    // are all negative (the nil lands last) or all positive (it lands
+                    // first). It only shows when the range spans zero.
+                    const numericConfig: DataTypeConfig = {
+                        version: LATEST_VERSION,
+                        fields: { n: { type: FieldType.Integer } },
+                    };
+
+                    const sorted = DataFrame.fromJSON<{ n: number | null }>(numericConfig, [
+                        { n: -10 },
+                        { n: null },
+                        { n: 5 },
+                        { n: -1 },
+                        { n: 20 },
+                    ])
+                        .orderBy('n:asc')
+                        .toJSON()
+                        .map((r) => r.n);
+
+                    const nilIndex = sorted.findIndex((n) => n == null);
+
+                    // a nil belongs at one end or the other, never between two real values
+                    expect([0, sorted.length - 1]).toContain(nilIndex);
+                });
             });
         });
 

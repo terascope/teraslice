@@ -140,7 +140,6 @@ export function makeRandomDataFunctionForField(
         }
     };
 
-    console.error('===fn', type);
     let fn = dataFnForFieldType[type] || (() => 'UNKNOWN');
 
     if (isTextFieldType(config.type)) {

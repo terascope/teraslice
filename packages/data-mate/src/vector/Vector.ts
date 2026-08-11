@@ -42,13 +42,20 @@ export abstract class Vector<T = unknown> {
             original[i] = [i, sortBy.map(({ vector }) => vector.get(i))];
         }
 
+        const sortByLen = sortBy.length;
         original
-            .sort(([, a], [, b]) => (
-                sortBy.reduce((acc, { vector, direction: d }, i) => {
+            .sort(([, a], [, b]) => {
+                // Return the first non-zero comparison. This previously summed the
+                // per-field results, which let two keys that disagree cancel out to
+                // zero - the comparator then reported "equal" and the primary key
+                // was ignored.
+                for (let i = 0; i < sortByLen; i++) {
+                    const { vector, direction } = sortBy[i];
                     const res = vector.compare(a[i], b[i]);
-                    return acc + (d === 'asc' ? res : -res);
-                }, 0)
-            ))
+                    if (res !== 0) return direction === 'asc' ? res : -res;
+                }
+                return 0;
+            })
             .forEach(([i], newPosition) => {
                 indices[i] = newPosition;
             });
@@ -495,6 +502,20 @@ export abstract class Vector<T = unknown> {
         // undefined has inconsistent behavior
         const aVal = this._getComparableValue(a);
         const bVal = this._getComparableValue(b);
+
+        // Order nils explicitly rather than leaving them to the relational operators.
+        // `null < 'a'` and `null > 'a'` are BOTH false, so every string used to
+        // compare "equal" to a nil - a non-transitive comparator, which corrupts the
+        // ordering of the non-nil values, not just the placement of the nils. For
+        // numerics `null` coerced to 0, so a nil sorted into the middle of a range
+        // that spans zero.
+        //
+        // A nil sorts as the smallest value: first ascending, last descending.
+        if (aVal == null || bVal == null) {
+            if (aVal == null && bVal == null) return 0;
+            return aVal == null ? -1 : 1;
+        }
+
         if (aVal < bVal) return -1;
         if (aVal > bVal) return 1;
         return 0;

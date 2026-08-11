@@ -645,6 +645,34 @@ describe('Vector', () => {
         }
     });
 
+    describe('->compare', () => {
+        // A nil used to be left to the JS relational operators. Both `null < 'a'` and
+        // `null > 'a'` are false, so compare returned 0 and a nil was "equal" to every
+        // string; for numerics `null` coerced to 0. A non-transitive comparator does
+        // not merely misplace the nils, it misorders the real values around them.
+        const vector = Vector.make<string>([
+            new ReadableData(new WritableData<string>(1).set(0, 'a'))
+        ], {
+            config: { type: FieldType.String },
+            name: 'test'
+        });
+
+        it('should not report a nil as equal to every value', () => {
+            expect(vector.compare(null, 'a')).not.toEqual(0);
+            expect(vector.compare(null, 'z')).not.toEqual(0);
+        });
+
+        it('should order a nil as the smallest value', () => {
+            expect(vector.compare(null, 'a')).toEqual(-1);
+            expect(vector.compare('a', null)).toEqual(1);
+        });
+
+        it('should report two nils as equal', () => {
+            expect(vector.compare(null, null)).toEqual(0);
+            expect(vector.compare(null, undefined)).toEqual(0);
+        });
+    });
+
     it('should be able to find the correct data bucket index (9) with consistent sizing of 3', () => {
         const vector = Vector.make(times(10, () => (
             new ReadableData(new WritableData(3).set(0, 'hi')

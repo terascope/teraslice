@@ -113,6 +113,26 @@ export function bigIntToJSON(int: bigint): string | number {
     return (int - BigInt(1)).toString(10);
 }
 
+// a comma or numeric separator, but only if a
+// single character surrounded by digits
+const NUMERIC_SEPARATOR = /(?<=\d)[,_](?=\d)/g;
+
+/**
+ * Parse a string to the number it represents, or Number.NaN if it
+ * does not represent one.
+ *
+ * This is the single parse shared by `isNumberLike` and the numeric
+ * converters, so a value that passes the check always converts to the number
+ * it looks like. Prefix parsers (`parseInt`, `parseFloat`) must not be used
+ * here: they stop at the first character they do not understand and silently
+ * return a wrong value, e.g. `parseInt('1e3', 10)` is 1, not 1000.
+*/
+function _parseNumberLike(input: string): number {
+    if (isEmpty(input.trim())) return Number.NaN;
+
+    return Number(input.replace(NUMERIC_SEPARATOR, ''));
+}
+
 /**
  * return true if value could be a number
 */
@@ -122,16 +142,7 @@ export function isNumberLike(input: unknown): boolean {
     if (['bigint', 'number'].includes(inputType)) return true;
     if (inputType !== 'string') return false;
 
-    if (isEmpty((input as string).trim())) {
-        return false;
-    }
-
-    // remove commas and numeric separator,
-    // but only if a single character surrounded by digits
-    const sanitized = Number(
-        (input as string)
-            .replace(/(?<=\d)[,_](?=\d)/g, '')
-    );
+    const sanitized = _parseNumberLike(input as string);
 
     return !isNaN(sanitized) && Number.isFinite(sanitized);
 }
@@ -172,7 +183,7 @@ export function toIntegerOrThrow(input: unknown): number {
         throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a integer`);
     }
 
-    const val = Number.parseInt(input as any, 10);
+    const val = Math.trunc(_parseNumberLike(input as string));
     if (isInteger(val)) return val;
 
     throw new TypeError(`Expected ${val} (${getTypeOf(input)}) to be parsable to a integer`);
@@ -214,7 +225,7 @@ export function toFloatOrThrow(input: unknown): number {
         throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
     }
 
-    const val = Number.parseFloat(input as any);
+    const val = _parseNumberLike(input as string);
     if (isFloat(val)) return val;
 
     throw new TypeError(`Expected ${val} (${getTypeOf(input)}) to be parsable to a float`);
