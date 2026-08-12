@@ -13,7 +13,9 @@ jest.unstable_mockModule('../src/helpers/signale.js', () => ({
     default: mockSignale,
 }));
 
-const mockGot = jest.fn<() => any>();
+const mockGot = Object.assign(jest.fn<() => any>(), {
+    defaults: { options: { retry: { errorCodes: ['ETIMEDOUT'] } } },
+});
 
 jest.unstable_mockModule('got', () => ({
     __esModule: true,
