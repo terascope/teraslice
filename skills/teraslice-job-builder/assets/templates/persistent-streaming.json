@@ -1,0 +1,20 @@
+{
+    "name": "REPLACE_ME streaming job",
+    "lifecycle": "persistent",
+    "workers": 2,
+    "analytics": true,
+    "probation_window": 300000,
+    "assets": ["REPLACE_ME_asset"],
+    "operations": [
+        {
+            "_op": "REPLACE_ME_reader",
+            "size": 10000
+        },
+        {
+            "_op": "noop"
+        },
+        {
+            "_op": "REPLACE_ME_sender"
+        }
+    ]
+}
