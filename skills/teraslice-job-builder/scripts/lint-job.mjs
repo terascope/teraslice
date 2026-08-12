@@ -7,12 +7,13 @@
  * convict-schema validation or per-operation asset validation — for that use
  * deep-validate-job.mjs, and ultimately register against a real cluster.
  *
- * TARGETS TERASLICE v2.x. The rules below are pinned to that major version:
- * the `kubernetesV2`-only fields (K8S_ONLY), the `cpu`/`memory` → `resources_*`
- * deprecations (DEPRECATED), the allowed TOP_LEVEL field set, and the
- * "operations must have >= 2 entries" rule. On a future major bump, re-verify
- * these lists against `packages/job-components/src/job-schemas.ts`; they are
- * grouped as named constants so the update is a one-place edit.
+ * TARGETS TERASLICE v3.x (v2 is out of support). The rules below are pinned to
+ * that major version: the `_api_name` op→api reference (v2's bare `api_name` is
+ * not accepted), the `kubernetesV2`-only fields (K8S_ONLY), the `cpu`/`memory`
+ * → `resources_*` deprecations (DEPRECATED), the allowed TOP_LEVEL field set,
+ * and the "operations must have >= 2 entries" rule. On a future major bump,
+ * re-verify these lists against `packages/job-components/src/job-schemas.ts`;
+ * they are grouped as named constants so the update is a one-place edit.
  *
  * Usage:  node lint-job.mjs path/to/job.json
  * Exit:   0 = no errors (warnings allowed), 1 = errors found or unreadable.
@@ -175,7 +176,7 @@ for (const key of Object.keys(job)) {
     }
 }
 
-// ---- apis (validate first so operations can cross-check api_name) ----
+// ---- apis (validate first so operations can cross-check _api_name) ----
 const declaredApiNames = new Set();
 if ('apis' in job) {
     if (!Array.isArray(job.apis)) {
@@ -229,13 +230,15 @@ if (Array.isArray(job.operations)) {
                 warn(`${label} "_dead_letter_action": ${JSON.stringify(dla)} is not a builtin (${DLQ_BUILTINS.join('/')}) and no api with that _name is declared — it must resolve to a registered DLQ API at runtime.`);
             }
         }
-        // Ops reference a declared api by either `api_name` (elasticsearch-style)
-        // or `_api_name` (kafka-style and other API-first assets). Both must
+        // Ops reference a declared api via `_api_name` (Teraslice v3). It must
         // resolve to a declared api "_name".
-        for (const field of ['api_name', '_api_name']) {
-            if (op[field] != null && !declaredApiNames.has(op[field])) {
-                err(`${label} "${field}": ${JSON.stringify(op[field])} references an api not declared in "apis".`);
-            }
+        if (op._api_name != null && !declaredApiNames.has(op._api_name)) {
+            err(`${label} "_api_name": ${JSON.stringify(op._api_name)} references an api not declared in "apis".`);
+        }
+        // `api_name` (no underscore) is the removed Teraslice v2 field. v3
+        // ignores it, so a ported v2 job would silently fail to link its api.
+        if (op.api_name != null) {
+            err(`${label} uses "api_name", the Teraslice v2 field — v3 renamed it to "_api_name". Rename it (v2 is out of support).`);
         }
     });
 }

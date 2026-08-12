@@ -5,7 +5,7 @@ description: >-
   defines a job's lifecycle, workers, assets, and its pipeline of operations
   (one reader, zero-or-more processors, one sender) plus reusable apis. Use
   when a user wants to build a new Teraslice job, fix or review an existing
-  job.json, understand a job config error (e.g. api_name, asset/op name
+  job.json, understand a job config error (e.g. _api_name, asset/op name
   collisions, missing _op), or pick the right operations/asset bundles for a
   pipeline. Does not deploy the job — it hands off a validated job.json and
   the teraslice-cli command to register it.
@@ -47,7 +47,7 @@ over guessing.
 | elasticsearch-assets | `https://terascope.github.io/elasticsearch-assets` (ops under `/docs/asset/operations/<op>`) | `elasticsearch_reader`, `elasticsearch_bulk`, `id_reader`, `spaces_reader` |
 | standard-assets | `https://terascope.github.io/standard-assets` | `data_generator`, `filter`, `set_field`, `group_by`, routers, samplers |
 | kafka-assets | `https://terascope.github.io/kafka-assets` | `kafka_reader`, `kafka_sender`, `kafka_dead_letter` |
-| file-assets | `https://terascope.github.io/file-assets` | `file_reader`, `file_sender`, `s3_reader`, `s3_sender` |
+| file-assets | `https://terascope.github.io/file-assets` | `file_reader`, `file_exporter`, `s3_reader`, `s3_exporter` |
 | chaos-assets | `https://github.com/terascope/chaos-assets` | fault-injection ops for testing |
 
 ## Workflow
@@ -104,7 +104,7 @@ over guessing.
 |---|---|
 | `references/job-schema.md` | Filling top-level fields (`lifecycle`, `workers`, `assets`, `apis`, k8s resource fields, etc.) |
 | `references/operations.md` | Ordering ops, choosing processor variants, generic op fields (`_op`, `_encoding`, `_dead_letter_action`), asset/op name-collision syntax |
-| `references/apis.md` | Declaring `apis` and cross-referencing them from ops via `api_name` |
+| `references/apis.md` | Declaring `apis` and cross-referencing them from ops via `_api_name` |
 | `references/builtin-operations.md` | Using core ops that need no asset bundle |
 | `references/common-assets.md` | Choosing an external asset bundle and its common ops |
 

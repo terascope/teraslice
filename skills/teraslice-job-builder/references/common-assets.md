@@ -45,7 +45,8 @@ Docs: `https://terascope.github.io/kafka-assets`
 Docs: `https://terascope.github.io/file-assets`
 
 - **Readers:** `file_reader`, `s3_reader`
-- **Senders:** `file_sender`, `s3_sender`
+- **Senders:** `file_exporter`, `s3_exporter` (the sender *ops*; the sender
+  *apis* are `file_sender_api` / `s3_sender_api`)
 
 ## chaos-assets
 

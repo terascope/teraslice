@@ -19,8 +19,10 @@ data).
    `file_reader`, `data_generator`, `test-reader`.
 2. **Processors** — zero or more, in the middle. Transform, enrich, or filter.
 3. **Sender** — typically last, writes to a destination. Examples:
-   `elasticsearch_bulk`, `kafka_sender`, `s3_sender`. A sender is just a
-   processor that writes out; `stdout`/`noop` can stand in during development.
+   `elasticsearch_bulk`, `kafka_sender`, `s3_exporter`. A sender is just a
+   processor that writes out; the built-in `noop`/`delay` can stand in during
+   development (no asset needed). `stdout` also works but lives in
+   **standard-assets**, so the job must list the `standard` asset.
 
 **Hard rule:** `operations` must contain **at least 2 entries**. A reader
 alone is invalid.

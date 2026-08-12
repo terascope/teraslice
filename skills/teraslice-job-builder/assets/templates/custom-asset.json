@@ -15,7 +15,7 @@
             "_dead_letter_action": "throw"
         },
         {
-            "_op": "stdout"
+            "_op": "noop"
         }
     ]
 }
