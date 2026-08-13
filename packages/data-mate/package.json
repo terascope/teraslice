@@ -30,6 +30,7 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../data-mate --"
     },
     "dependencies": {
+        "@duckdb/node-api": "1.5.5-r.3",
         "@faker-js/faker": "^10.5.0",
         "@terascope/core-utils": "workspace:~",
         "@terascope/data-types": "workspace:~",
