@@ -1,8 +1,34 @@
-import got from 'got';
+import got, { OptionsOfTextResponseBody, RequestError } from 'got';
 import signale from './signale.js';
 import { truncate } from 'semver';
 
 const token = process.env['GITHUB_TOKEN'];
+
+const gotOptions: OptionsOfTextResponseBody = {
+    // Use a github token if available
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    retry: {
+        limit: 3,
+        errorCodes: [
+            ...(got.defaults.options.retry.errorCodes ?? []),
+            // CI intermittently fails cert verification against api.github.com
+            // with DEPTH_ZERO_SELF_SIGNED_CERT. The cause hasn't been confirmed,
+            // but it only affects some runs, so retry rather than fail the job.
+            // Retry related cert errors as well.
+            'DEPTH_ZERO_SELF_SIGNED_CERT',
+            'SELF_SIGNED_CERT_IN_CHAIN',
+            'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
+            'UNABLE_TO_VERIFY_LEAF_SIGNATURE'
+        ]
+    },
+    hooks: {
+        beforeRetry: [
+            (error: RequestError, retryCount: number) => {
+                signale.warn(`Retrying github API request (attempt ${retryCount}) after error: ${error.code ?? ''} ${error.message}`);
+            }
+        ]
+    }
+};
 
 /**
  * Fetches the latest Teraslice GitHub release and extracts the GHCR image tag
@@ -12,10 +38,7 @@ export async function getLatestTerasliceImageTag(): Promise<string> {
     const nodeMajor = process.version.slice(1).split('.')[0];
     signale.pending(`Fetching latest Teraslice image tag for Node ${nodeMajor} from GHCR...`);
 
-    const releasesResponse = await got('https://api.github.com/repos/terascope/teraslice/releases?per_page=1', {
-        // Use a github token if available
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    });
+    const releasesResponse = await got('https://api.github.com/repos/terascope/teraslice/releases?per_page=1', gotOptions);
     const releases = JSON.parse(releasesResponse.body) as { tag_name: string; body: string }[];
     const latest = releases[0];
 
@@ -45,10 +68,7 @@ export async function getKindDockerImage(kindVersion: string, k8sVersion: string
 
     let releaseResponse: { body?: string };
     try {
-        releaseResponse = await got(`https://api.github.com/repos/kubernetes-sigs/kind/releases/tags/${kindVersion}`, {
-            // Use a github token if available
-            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        }).json();
+        releaseResponse = await got(`https://api.github.com/repos/kubernetes-sigs/kind/releases/tags/${kindVersion}`, gotOptions).json();
     } catch (err) {
         throw new Error(`${msgPrefix} Failed to retrieve Kind ${kindVersion} release information: ${err.message}`);
     }
