@@ -272,13 +272,12 @@ export class Worker {
         const extra = event ? ` due to event: ${event}` : '';
         this.logger.warn(`worker shutdown was called for execution ${exId}${extra}`);
 
-        // set the slice to to failed to avoid
-        // flushing the slice at the end
-        // we need to check if this.executionContext.sliceState
-        // in case a slice isn't currently active
+        // Set the slice to failed to avoid
+        // flushing the slice at the end.
+        // We need to check if this.executionContext.sliceState exists
+        // in case a slice isn't currently active.
         if (shutdownError && this.executionContext.sliceState) {
-            // TODO: this should be awaited. Do this after we validate changes in v3.16.0
-            this.executionContext.onSliceFailed();
+            await this.executionContext.onSliceFailed();
         }
 
         const start = Date.now();
