@@ -1,9 +1,8 @@
 {
     "compilerOptions": {
-        "baseUrl": ".",
-        "moduleResolution": "node",
+        "moduleResolution": "nodenext",
         "target": "ESNext",
-        "module": "ESNext",
+        "module": "nodenext",
         "skipLibCheck": true,
         "experimentalDecorators": true,
         "strict": true,
@@ -20,14 +19,14 @@
         "sourceMap": true,
         "isolatedModules": true,
         "disableReferencedProjectLoad": true,
+        "types": ["node", "jest"],
         "typeRoots": [
             "./types",
             "./node_modules/@types"
         ],
         "paths": {
             "*": [
-                "*",
-                "./types/*"
+                "./types/*/index.d.ts"
             ],
             "got": [
                 "./node_modules/got/dist/source/index.d.ts"
