@@ -237,9 +237,6 @@ importers:
       '@types/geojson':
         specifier: ~7946.0.16
         version: 7946.0.16
-      '@types/is-plain-object':
-        specifier: ~2.0.4
-        version: 2.0.4
       '@types/js-string-escape':
         specifier: ~1.0.3
         version: 1.0.3
@@ -2433,10 +2430,6 @@ packages:
 
   '@types/ip@1.1.3':
     resolution: {integrity: sha512-64waoJgkXFTYnCYDUWgSATJ/dXEBanVkaP5d4Sbk7P6U7cTTMhxVyROTckc6JKdwCrgnAjZMn0k3177aQxtDEA==}
-
-  '@types/is-plain-object@2.0.4':
-    resolution: {integrity: sha512-najbe//S/ThT7nEh+iLmXNUFMWQHf7x2QUrsMgtF/apA8dJl8rCsfWr9f8XG9nBo+NyT5TbT92IFIJji9ZmsRQ==}
-    deprecated: This is a stub types definition for is-plain-object (https://github.com/jonschlinkert/is-plain-object). is-plain-object provides its own type definitions, so you don't need @types/is-plain-object installed!
 
   '@types/istanbul-lib-coverage@2.0.6':
     resolution: {integrity: sha512-2QF/t/auWm0lsy8XtKVPG19v3sSOQlJe/YHZgfjb/KBBHOGSV+J2q/S671rcq9uTBrLAXmZpqJiaQbMT+zNU1w==}
@@ -7907,10 +7900,6 @@ snapshots:
   '@types/ip@1.1.3':
     dependencies:
       '@types/node': 26.2.0
-
-  '@types/is-plain-object@2.0.4':
-    dependencies:
-      is-plain-object: 5.0.0
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 

@@ -50,7 +50,6 @@
         "@types/bunyan": "~1.8.11",
         "@types/debug": "~4.1.13",
         "@types/geojson": "~7946.0.16",
-        "@types/is-plain-object": "~2.0.4",
         "@types/js-string-escape": "~1.0.3",
         "@types/lodash-es": "~4.17.12",
         "@types/ms": "~0.7.34",
