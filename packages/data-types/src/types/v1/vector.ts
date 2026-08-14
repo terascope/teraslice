@@ -4,7 +4,7 @@ import {
 } from '@terascope/types';
 import { isInteger, isString } from '@terascope/core-utils';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A dense numeric vector for k-NN / similarity search, stored as an
@@ -125,6 +125,13 @@ export default class VectorType extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Float };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('DOUBLE');
     }
 }
 

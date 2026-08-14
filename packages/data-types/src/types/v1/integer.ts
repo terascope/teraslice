@@ -3,7 +3,7 @@ import {
     ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A whole number stored as an Elasticsearch/OpenSearch `integer`
@@ -44,5 +44,14 @@ export default class Integer extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Integer };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     * BIGINT, not INTEGER: data-mate bounds Integer by Number.MAX_SAFE_INTEGER
+     * (2^53-1), which overflows int32.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('BIGINT');
     }
 }

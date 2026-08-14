@@ -3,7 +3,7 @@ import {
     ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A Base64-encoded binary value stored as an Elasticsearch/OpenSearch
@@ -53,5 +53,14 @@ export default class BinaryType extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.String };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     * VARCHAR, not BLOB: no validation or decoding happens for Binary - `'not base64!!!'`
+     * is accepted unchanged - so storing the string as given is behaviour-preserving.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('VARCHAR');
     }
 }

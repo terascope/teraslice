@@ -3,7 +3,7 @@ import {
     indexedRequiredFieldTypes
 } from '@terascope/types';
 import { castArray } from '@terascope/core-utils';
-import { GraphQLType, TypeESMapping } from '../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../interfaces.js';
 import { formatGQLDescription } from '../graphql-helper.js';
 
 export interface IBaseType {
@@ -55,6 +55,7 @@ export default abstract class BaseType {
     abstract toESMapping(config: ClientMetadata): TypeESMapping;
     abstract toGraphQL(options?: ToGraphQLOptions): GraphQLType;
     abstract toXlucene(): xLuceneTypeConfig;
+    abstract toDuckDB(): DuckDBTypeConfig;
 
     /**
      * Build the `{ type, customTypes }` GraphQL result for a field of the given
@@ -77,6 +78,14 @@ export default abstract class BaseType {
             type: formatGQLType(`${this.field}: ${type}`, desc),
             customTypes: makeCustomTypes(customType)
         };
+    }
+
+    /**
+     * Build the `{ [field]: type }` DuckDB result, wrapping the type as a DuckDB list
+     * (`TYPE[]`) when the field is an array - the DuckDB counterpart of `_formatGql`.
+     */
+    protected _formatDuckDB(type: string): DuckDBTypeConfig {
+        return { [this.field]: this.config.array ? `${type}[]` : type };
     }
 
     /**
@@ -104,4 +113,15 @@ function makeCustomTypes(customType?: string|(string[])): string[] {
 export function formatGQLType(type: string, desc?: string): string {
     if (!desc) return type;
     return `${formatGQLDescription(desc)}\n${type}`;
+}
+
+const SAFE_IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+/**
+ * Quote a DuckDB identifier unless it is already a bare one. Used for STRUCT child names,
+ * which can be anything a DataType field can be - including tuple positions like `0`.
+ */
+export function quoteDuckDBIdentifier(name: string): string {
+    if (SAFE_IDENTIFIER.test(name)) return name;
+    return `"${name.replace(/"/g, '""')}"`;
 }
