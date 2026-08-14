@@ -313,6 +313,55 @@ describe('DuckFrame', () => {
         });
     });
 
+    describe('coercion failure parity with DataFrame', () => {
+        it('should fail FAST on the first bad value, not after the whole batch', async () => {
+            // DataFrame's Builder throws out of valueFrom on the first value it cannot
+            // convert and nothing catches it. Strict mode matches: one failure recorded,
+            // not one per bad row or per bad field.
+            const bad = Array.from({ length: 500 }, () => ({
+                ...RECORDS[0], bytes: 'not-a-number', ip: 'not-an-ip',
+            }));
+
+            expect.hasAssertions();
+            try {
+                await DuckFrame.fromRecords(CONFIG, bad, { name: 'fail_fast' });
+            } catch (err) {
+                const e = err as CoercionFailureError;
+                expect(e).toBeInstanceOf(CoercionFailureError);
+                expect(e.failures).toHaveLength(1);
+                expect(e.failures[0].failedCount).toEqual(1);
+            }
+        });
+
+        it('should leave NO table behind when it throws', async () => {
+            // The table is created before the append loop, so an early throw used to orphan a
+            // populated table that nothing could reach - no frame was returned, so no caller
+            // could destroy() it. DataFrame produces no artifact when fromJSON throws.
+            await expect(DuckFrame.fromRecords(
+                CONFIG, [{ ...RECORDS[0], bytes: 'not-a-number' }], { name: 'orphan_check' }
+            )).toReject();
+
+            const probe = await DuckFrame.fromRecords(CONFIG, RECORDS, { name: 'probe' });
+            const tables = await probe.query(
+                'SELECT table_name FROM duckdb_tables() WHERE table_name LIKE \'orphan_check%\''
+            );
+            expect(tables).toEqual([]);
+            await probe.destroy();
+        });
+
+        it('should still collect every failing field in lenient mode', async () => {
+            // lenient is the opt-in extra, and the one place collecting is worth the full pass
+            const frame = await DuckFrame.fromRecords(
+                CONFIG,
+                [{ ...RECORDS[0], bytes: 'not-a-number', ip: 'not-an-ip' }],
+                { mode: 'lenient', name: 'lenient_collect' }
+            );
+            const rows = await frame.query(`SELECT bytes, ip FROM ${frame.from}`);
+            expect(rows).toEqual([[null, null]]);
+            await frame.destroy();
+        });
+    });
+
     describe('rows() value shapes', () => {
         // REGRESSION: getColumnValues returns DuckDBListValue / struct wrappers, not plain JS.
         // rows() is the output path, so a wrapper would surface as {"items":[...]} in a user's
