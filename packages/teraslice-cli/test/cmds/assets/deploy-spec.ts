@@ -1,4 +1,5 @@
 import yargs from 'yargs';
+import type { Argv } from 'yargs';
 import tmp from 'tmp';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +10,7 @@ import deploy from '../../../src/cmds/assets/deploy.js';
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('assets deploy', () => {
-    let yargsCmd: yargs.Argv<Record<string, any>>;
+    let yargsCmd: Argv<Record<string, any>>;
     beforeEach(() => {
         yargsCmd = yargs().command(
             // @ts-expect-error

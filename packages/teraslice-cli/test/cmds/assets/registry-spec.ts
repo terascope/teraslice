@@ -1,5 +1,6 @@
 import 'jest-extended';
 import yargs from 'yargs';
+import type { Argv } from 'yargs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'fs-extra';
@@ -8,7 +9,7 @@ import registry from '../../../src/cmds/assets/registry.js';
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('assets registry', () => {
-    let yargsCmd: yargs.Argv<Record<string, any>>;
+    let yargsCmd: Argv<Record<string, any>>;
     beforeEach(() => {
         yargsCmd = yargs().command(
             // @ts-expect-error
