@@ -17,7 +17,7 @@ import jsStringEscape from 'js-string-escape';
 import pMap from 'p-map';
 import { isKey } from './objects.js';
 
-const multiFieldSort = sortBy;
+const multiFieldSort: typeof sortBy = sortBy;
 
 /**
  * Detect if an object created by Object.create(null)

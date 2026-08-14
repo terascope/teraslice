@@ -28,8 +28,14 @@
             "*": [
                 "./types/*/index.d.ts"
             ],
-            "got": [
-                "./node_modules/got/dist/source/index.d.ts"
+            "is-plain-object": [
+                "./packages/core-utils/node_modules/is-plain-object/is-plain-object.d.ts"
+            ],
+            "@opensearch-project/opensearch": [
+                "./packages/elasticsearch-api/node_modules/@opensearch-project/opensearch/index.d.ts"
+            ],
+            "opensearch1": [
+                "./packages/opensearch-client/node_modules/opensearch1/index.d.ts"
             ]
         }
     },
