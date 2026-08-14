@@ -5,7 +5,7 @@ import {
 } from '../src/errors.js';
 import { times } from '../src/index.js';
 
-import type { EstimatedElasticOpenSearchError, SearchErrorMetadata } from '../src/errors';
+import type { EstimatedElasticOpenSearchError, SearchErrorMetadata } from '../src/errors.js';
 
 class TestOpenSearchClientError extends Error implements EstimatedElasticOpenSearchError {
     meta?: SearchErrorMetadata;

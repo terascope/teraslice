@@ -1,5 +1,5 @@
 import { cloneDeep, DataEntity } from '@terascope/core-utils';
-import { Url as UrlOp } from '../../../src/operations';
+import { Url as UrlOp } from '../../../src/operations/index.js';
 
 describe('url validation', () => {
     it('can instantiate', () => {

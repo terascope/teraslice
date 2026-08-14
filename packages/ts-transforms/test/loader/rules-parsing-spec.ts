@@ -8,7 +8,7 @@ import {
 import {
     RulesLoader, RulesParser, OperationConfig,
     OperationConfigInput
-} from '../../src';
+} from '../../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

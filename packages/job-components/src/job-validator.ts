@@ -3,7 +3,7 @@ import {
     isTest
 } from '@terascope/core-utils';
 import { Teraslice, Terafoundation } from '@terascope/types';
-import { Context, OpConfig, ValidatedJobConfig } from './interfaces';
+import { Context, OpConfig, ValidatedJobConfig } from './interfaces/index.js';
 import { validateJobConfig } from './config-validators.js';
 import { jobSchema } from './job-schemas.js';
 import { OperationLoader, parseName } from './operation-loader/index.js';

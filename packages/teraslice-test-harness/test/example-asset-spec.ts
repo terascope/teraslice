@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { TestClientConfig } from '@terascope/job-components';
 import { DataEntity, debugLogger } from '@terascope/core-utils';
-import SimpleClient from './fixtures/asset/simple-connector/client';
+import SimpleClient from './fixtures/asset/simple-connector/client.js';
 import {
     JobTestHarness, newTestJobConfig, newTestSlice,
     SlicerTestHarness, WorkerTestHarness

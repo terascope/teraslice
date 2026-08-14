@@ -4,8 +4,8 @@ import got from 'got';
 import { Logger } from '@terascope/core-utils';
 import { createClient } from '@terascope/opensearch-client';
 import { createS3Client } from '@terascope/file-asset-apis';
-import { AssetsService } from '../../src/lib/cluster/services/assets';
-import { SEARCH_TEST_HOST, TEST_INDEX_PREFIX } from '../test.config';
+import { AssetsService } from '../../src/lib/cluster/services/assets.js';
+import { SEARCH_TEST_HOST, TEST_INDEX_PREFIX } from '../test.config.js';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 
 describe('Assets Service', () => {

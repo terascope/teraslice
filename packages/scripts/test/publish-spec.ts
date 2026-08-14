@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { formatDailyTag, removeNodeSuffixFromTag } from '../src/helpers/publish/utils';
+import { formatDailyTag, removeNodeSuffixFromTag } from '../src/helpers/publish/utils.js';
 
 describe('Publish', () => {
     describe('->formatDailyTag', () => {

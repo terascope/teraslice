@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'fs-extra';
-import { generateRegistry } from '../../src/generators/registry';
+import { generateRegistry } from '../../src/generators/registry/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

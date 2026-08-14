@@ -1,5 +1,5 @@
 import { cloneDeep, DataEntity } from '@terascope/core-utils';
-import { Lowercase } from '../../../src/operations';
+import { Lowercase } from '../../../src/operations/index.js';
 
 describe('Lowercase operator', () => {
     it('can instantiate', () => {

@@ -1,8 +1,8 @@
 import { Fetcher, SliceRequest } from '@terascope/job-components';
 import { DataEntity, times } from '@terascope/core-utils';
-import { SimpleReaderConfig } from './interfaces';
-import SimpleClient from '../simple-connector/client';
-import { SimpleAPI } from '../simple-api/interfaces';
+import { SimpleReaderConfig } from './interfaces.js';
+import SimpleClient from '../simple-connector/client.js';
+import { SimpleAPI } from '../simple-api/interfaces.js';
 
 export default class TestFetcher extends Fetcher<SimpleReaderConfig> {
     client!: SimpleClient;

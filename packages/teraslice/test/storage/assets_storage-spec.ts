@@ -3,8 +3,8 @@ import { TestContext, TestContextOptions } from '@terascope/job-components';
 import { Logger } from '@terascope/core-utils';
 import { createClient } from '@terascope/opensearch-client';
 import { createS3Client } from '@terascope/file-asset-apis';
-import { AssetsStorage } from '../../src/lib/storage';
-import { SEARCH_TEST_HOST, TEST_INDEX_PREFIX } from '../test.config';
+import { AssetsStorage } from '../../src/lib/storage/index.js';
+import { SEARCH_TEST_HOST, TEST_INDEX_PREFIX } from '../test.config.js';
 
 describe('AssetsStorage using S3 backend', () => {
     let storage: AssetsStorage;

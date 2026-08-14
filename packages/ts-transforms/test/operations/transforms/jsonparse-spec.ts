@@ -1,5 +1,5 @@
 import { cloneDeep, DataEntity } from '@terascope/core-utils';
-import { JsonParse } from '../../../src/operations';
+import { JsonParse } from '../../../src/operations/index.js';
 
 describe('JsonParse operator', () => {
     it('can instantiate', () => {

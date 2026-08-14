@@ -1,4 +1,4 @@
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 
 export interface TestEnv {
     ASSET_STORAGE_CONNECTION?: string;

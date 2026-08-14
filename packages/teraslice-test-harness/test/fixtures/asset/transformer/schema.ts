@@ -1,5 +1,5 @@
 import { BaseSchema } from '@terascope/job-components';
-import { TransformerConfig, actions } from './interfaces';
+import { TransformerConfig, actions } from './interfaces.js';
 
 export default class Schema extends BaseSchema<TransformerConfig> {
     build(): Record<string, any> {

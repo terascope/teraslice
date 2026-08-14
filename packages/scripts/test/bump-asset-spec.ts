@@ -3,10 +3,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { cloneDeep } from '@terascope/core-utils';
-import { BumpPkgInfo, BumpAssetOnlyOptions } from '../src/helpers/bump/interfaces';
-import { PackageInfo } from '../src/helpers/interfaces';
-import { bumpAssetVersion } from '../src/helpers/bump/index';
-import { getBumpCommitMessages } from '../src/helpers/bump/utils';
+import { BumpPkgInfo, BumpAssetOnlyOptions } from '../src/helpers/bump/interfaces.js';
+import { PackageInfo } from '../src/helpers/interfaces.js';
+import { bumpAssetVersion } from '../src/helpers/bump/index.js';
+import { getBumpCommitMessages } from '../src/helpers/bump/utils.js';
 
 describe('Bump-asset-only', () => {
     const tempRootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'asset'));

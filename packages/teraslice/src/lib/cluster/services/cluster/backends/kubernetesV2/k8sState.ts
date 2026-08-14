@@ -2,7 +2,7 @@ import {
     get, has, uniq, difference
 } from '@terascope/core-utils';
 import { ClusterState, ProcessAssignment } from '@terascope/types';
-import { TSPodList } from './interfaces';
+import { TSPodList } from './interfaces.js';
 
 /**
  * Given the k8s Pods API output generates the appropriate Teraslice cluster

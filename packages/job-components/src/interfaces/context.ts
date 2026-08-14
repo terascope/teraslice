@@ -1,5 +1,5 @@
 import type { Teraslice, Terafoundation } from '@terascope/types';
-import { ExecutionContextAPI } from '../execution-context';
+import { ExecutionContextAPI } from '../execution-context/index.js';
 
 export interface GetClientConfig {
     connection?: string;

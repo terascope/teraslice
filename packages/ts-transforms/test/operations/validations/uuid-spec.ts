@@ -1,6 +1,6 @@
 import { cloneDeep, DataEntity } from '@terascope/core-utils';
-import { Uuid } from '../../../src/operations';
-import { PostProcessConfig } from '../../../src/interfaces';
+import { Uuid } from '../../../src/operations/index.js';
+import { PostProcessConfig } from '../../../src/interfaces.js';
 
 describe('Uuid validation', () => {
     it('can instantiate', () => {

@@ -1,6 +1,6 @@
 import { cloneDeep, DataEntity } from '@terascope/core-utils';
 import crypto from 'crypto';
-import { Md5Encode } from '../../../src/operations';
+import { Md5Encode } from '../../../src/operations/index.js';
 
 describe('Md5Encode operator', () => {
     function encode(str: string) {

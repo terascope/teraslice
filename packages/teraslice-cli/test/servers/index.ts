@@ -1,5 +1,5 @@
-import GithubServer from './github-server';
-import TerasliceServer from './teraslice-server';
+import GithubServer from './github-server.js';
+import TerasliceServer from './teraslice-server.js';
 
 export {
     GithubServer,

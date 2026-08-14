@@ -1,5 +1,5 @@
 import { cloneDeep, DataEntity } from '@terascope/core-utils';
-import { MakeArray } from '../../../src/operations';
+import { MakeArray } from '../../../src/operations/index.js';
 
 describe('MakeArray operator', () => {
     it('can instantiate', () => {
