@@ -71,7 +71,7 @@
         "teraslice-cli": "workspace:~",
         "teraslice-client-js": "workspace:~",
         "ts-jest": "~29.4.12",
-        "typescript": "~5.9.3",
+        "typescript": "~6.0.3",
         "uuid": "~14.0.1",
         "yaml": "~2.9.0"
     },
