@@ -1,11 +1,17 @@
-import { DuckDBInstance, DuckDBConnection, DuckDBDataChunk } from '@duckdb/node-api';
+import {
+    DuckDBInstance, DuckDBConnection, DuckDBDataChunk, DuckDBScalarFunction,
+    DuckDBTimestampValue
+} from '@duckdb/node-api';
+import { bigIntToJSON, toISO8601 } from '@terascope/core-utils';
 import {
     DataTypeConfig, ReadonlyDataTypeConfig, DataTypeFieldConfig, DataTypeFields, FieldType
 } from '@terascope/types';
 import { getChildDataTypeConfig } from '../core/utils.js';
 import { coerceToType } from '../builder/type-coercion.js';
-import { buildColumnTypes, quoteIdentifier } from './type-map.js';
 import { makeValueConverter, ValueConverter } from './duck-values.js';
+import { createScalarFunction, ScalarFunctionSpec } from './scalar-function.js';
+import { DataType } from '@terascope/data-types';
+import { quoteIdentifier, quoteLiteral } from './sql.js';
 
 /**
  * A frame whose rows live in a DuckDB table.
@@ -38,21 +44,85 @@ import { makeValueConverter, ValueConverter } from './duck-values.js';
 const MAX_CHUNK_ROWS = 2048;
 
 /**
- * Owns the DuckDB instance and connection.
+ * Owns the DuckDB instance and the shared connection.
  *
- * Separate from the frame because DuckDB is embedded and process-wide: the worker holds
- * ONE database with many tables, so an instance per frame would be wasteful and would
- * break cross-frame joins, which need a shared catalogue.
+ * INTERNAL. Not exported and not reachable from a frame: there is exactly ONE database per
+ * process - the qpl-api and qpl-worker are separate processes whose frames never meet, and a
+ * child hands Parquet to its parent rather than sharing a catalogue. A caller has nothing to
+ * pass around, so it is not in the API.
+ *
+ * The *instance* is shared because tables live in its catalogue and any connection can see
+ * them (they are real tables, not TEMP, which would be connection-local). The *connection*
+ * is deliberately NOT shared with streams - see `streamRowObjects`.
 */
-export class DuckContext {
+class DuckContext {
+    /**
+     * Registered scalar functions, kept so they are not garbage-collected while DuckDB still
+     * holds them, and so a name cannot be silently registered twice.
+    */
+    private readonly functions = new Map<string, DuckDBScalarFunction>();
+
     private constructor(
         readonly instance: DuckDBInstance,
         readonly connection: DuckDBConnection
     ) {}
 
-    static async create(path = ':memory:'): Promise<DuckContext> {
+    /**
+     * Registers a scalar function. **Instance-wide, not connection-scoped** - MEASURED: a
+     * function registered on one connection is visible to every other connection on the same
+     * instance, including the private connection each `rows()` stream opens. That is what
+     * makes UDFs and streaming compatible.
+    */
+    registerFunction(spec: ScalarFunctionSpec): void {
+        // Idempotent: `duckFrameAdapter` derives the name from (function, column, args), so
+        // the same step registered twice IS the same function and must not error.
+        if (this.functions.has(spec.name)) return;
+
+        const fn = createScalarFunction(spec);
+        this.connection.registerScalarFunction(fn);
+        this.functions.set(spec.name, fn);
+    }
+
+    hasFunction(name: string): boolean {
+        return this.functions.has(name);
+    }
+
+    static async create(
+        path = ':memory:',
+        settings: DuckDatabaseSettings = {}
+    ): Promise<DuckContext> {
         const instance = await DuckDBInstance.create(path);
-        return new DuckContext(instance, await instance.connect());
+        const context = new DuckContext(instance, await instance.connect());
+        await context.applySettings(settings);
+        return context;
+    }
+
+    /**
+     * Applies the spill and memory settings.
+     *
+     * `temp_directory` is what makes "load the whole dataset and let DuckDB overflow to disk"
+     * work - without it a query that exceeds `memory_limit` fails instead of spilling. Both
+     * are runtime `SET`s, so they can be changed on an existing database.
+     *
+     * `memory_limit` MUST be set below the container's cap. If DuckDB believes it has more
+     * than the container allows it never spills and the kernel kills the process - that is
+     * exactly what produced the bogus "OOMs and does not spill" finding in docs/HANDOFF.md.
+    */
+    async applySettings(settings: DuckDatabaseSettings): Promise<void> {
+        if (settings.tempDirectory != null) {
+            await this.run(`SET temp_directory = ${quoteLiteral(settings.tempDirectory)}`);
+        }
+        if (settings.maxTempDirectorySize != null) {
+            await this.run(
+                `SET max_temp_directory_size = ${quoteLiteral(settings.maxTempDirectorySize)}`
+            );
+        }
+        if (settings.memoryLimit != null) {
+            await this.run(`SET memory_limit = ${quoteLiteral(settings.memoryLimit)}`);
+        }
+        if (settings.threads != null) {
+            await this.run(`SET threads = ${Math.trunc(settings.threads)}`);
+        }
     }
 
     async run(sql: string): Promise<void> {
@@ -75,51 +145,147 @@ export class DuckContext {
      * result never lands in JS all at once. The QPL engine's output path is
      * `frame.rows(...)` returning an `Iterable`, not an array (`run.ts:188`), so streaming
      * is the shape that path already expects.
+     *
+     * **Each stream gets its OWN connection and closes it when the stream ends.**
+     * MEASURED (`docs/tools/conn-isolation.mjs`): any query run on a connection holding an
+     * open streaming result silently truncates that stream - one interleaved query took
+     * 500,000 rows down to 100,352, with NO error. DuckDB concurrency itself is fine; the
+     * limit is per-connection. On the shared connection, any other frame's `size()` - or
+     * this frame's own - could clip a stream in progress and look like a short result.
     */
     async* streamRowObjects(sql: string): AsyncIterableIterator<Record<string, unknown>> {
-        const result = await this.connection.stream(sql);
-        const names = result.columnNames();
+        const connection = await this.instance.connect();
 
-        for (;;) {
-            const chunk = await result.fetchChunk();
-            // MEASURED: fetchChunk never returns null - at the end it returns an EMPTY
-            // chunk, forever. So rowCount === 0 IS the terminator. Skipping empties and
-            // waiting for null (which is what the docs' shape suggests) is an infinite
-            // loop; the null check stays only as a guard, not as the exit condition.
-            if (chunk == null || chunk.rowCount === 0) return;
+        try {
+            const result = await connection.stream(sql);
+            const names = result.columnNames();
 
-            const columns = names.map((_name, i) => chunk.getColumnValues(i));
-            for (let row = 0; row < chunk.rowCount; row++) {
-                yield Object.fromEntries(
-                    names.map((name, col) => [name, columns[col][row]])
-                );
+            for (;;) {
+                const chunk = await result.fetchChunk();
+                // MEASURED: fetchChunk never returns null - at the end it returns an EMPTY
+                // chunk, forever. So rowCount === 0 IS the terminator. Skipping empties and
+                // waiting for null (which is what the docs' shape suggests) is an infinite
+                // loop; the null check stays only as a guard, not as the exit condition.
+                if (chunk == null || chunk.rowCount === 0) return;
+
+                const columns = names.map((_name, i) => chunk.getColumnValues(i));
+                for (let row = 0; row < chunk.rowCount; row++) {
+                    yield Object.fromEntries(
+                        names.map((name, col) => [name, toPlainValue(columns[col][row])])
+                    );
+                }
             }
+        } finally {
+            // also runs on an early `break` out of a `for await`, not just on exhaustion
+            connection.disconnectSync();
         }
     }
 
+    /**
+     * Closes the connection AND the instance.
+     *
+     * Closing the instance is not optional once a scalar UDF has been registered: MEASURED
+     * (`scratchpad/exit-isolate.mjs`), a process that registers one **never exits** on
+     * `disconnectSync()` alone, and `DuckDBScalarFunction.destroySync()` makes no difference.
+     * `instance.closeSync()` is what releases it. Without a UDF the process exits either way,
+     * so this is only visible once UDFs land - which is exactly when it would be hardest to
+     * diagnose.
+    */
     disconnect(): void {
         this.connection.disconnectSync();
+        this.instance.closeSync();
     }
 }
 
-let defaultContext: Promise<DuckContext> | undefined;
-
-/**
- * The process-wide context, created on first use.
- *
- * There is exactly ONE database per process: the qpl-api and qpl-worker are separate
- * processes whose frames never meet, and a child process hands Parquet to its parent
- * rather than sharing a catalogue. So callers never pass a context around. It stays
- * injectable for tests and for a file-backed database.
-*/
-export function getDefaultContext(): Promise<DuckContext> {
-    defaultContext ??= DuckContext.create();
-    return defaultContext;
+/** Spill and resource settings for a database. All are runtime `SET`s. */
+export interface DuckDatabaseSettings {
+    /**
+     * Directory DuckDB spills to when a query exceeds `memoryLimit`. **Required for the
+     * whole-dataset-plus-file-overflow strategy** - without it, an over-limit query fails
+     * rather than overflowing to disk.
+    */
+    tempDirectory?: string;
+    /** Cap on the spill directory, e.g. `'30GB'`. */
+    maxTempDirectorySize?: string;
+    /** e.g. `'48GB'`. **Set this BELOW the container's cap** - see `applySettings`. */
+    memoryLimit?: string;
+    threads?: number;
 }
 
-/** Resets the process-wide context. Tests only. */
-export function resetDefaultContext(): void {
-    defaultContext = undefined;
+export interface DuckDatabaseOptions extends DuckDatabaseSettings {
+    /** Path, or `:memory:`. See `FrameOptions.database` for the file-vs-memory trap. */
+    database?: string;
+}
+
+const contexts = new Map<string, Promise<DuckContext>>();
+
+/**
+ * The context for a database path, created on first use and cached per path.
+ *
+ * `:memory:` is the process-wide default. A distinct path gives a file-backed database, and
+ * is also how a test gets an isolated catalogue.
+*/
+function getContext(database = ':memory:'): Promise<DuckContext> {
+    let context = contexts.get(database);
+    if (!context) {
+        context = DuckContext.create(database);
+        contexts.set(database, context);
+    }
+    return context;
+}
+
+/**
+ * Opens or reconfigures a database, and returns once the settings are applied.
+ *
+ * Call once at startup to point spill at a real directory:
+ * `configureDuckDatabase({ tempDirectory: '/var/tmp/duck', memoryLimit: '48GB' })`.
+ * Settings are runtime `SET`s, so calling it on an already-open database updates it.
+*/
+export async function configureDuckDatabase(
+    options: DuckDatabaseOptions = {}
+): Promise<void> {
+    const { database, ...settings } = options;
+    const existing = contexts.get(database ?? ':memory:');
+
+    if (existing) {
+        await (await existing).applySettings(settings);
+        return;
+    }
+
+    const created = DuckContext.create(database ?? ':memory:', settings);
+    contexts.set(database ?? ':memory:', created);
+    await created;
+}
+
+/**
+ * Registers a scalar function so SQL can call a real data-mate primitive.
+ *
+ * This is the ONLY way to run the 205 QPL functions inside a query: they are JavaScript, and
+ * reimplementing their semantics in SQL is what produced 11 divergences last time (DuckDB's
+ * own casts differ from the DataType config on 26 of 40 probed inputs). A UDF over the real
+ * primitive is parity by construction, the same argument that makes `fromRecords` use
+ * `coerceToType`.
+ *
+ * Registration is instance-wide, so the function is available to every frame and every
+ * stream on that database.
+*/
+export async function registerScalarFunction(
+    spec: ScalarFunctionSpec & { database?: string }
+): Promise<string> {
+    const { database, ...fnSpec } = spec;
+    (await getContext(database)).registerFunction(fnSpec);
+    return fnSpec.name;
+}
+
+/**
+ * Closes a cached database and forgets it. For test teardown; a process that simply exits
+ * does not need to call it.
+*/
+export async function closeDuckDatabase(database = ':memory:'): Promise<void> {
+    const context = contexts.get(database);
+    if (!context) return;
+    contexts.delete(database);
+    (await context).disconnect();
 }
 
 /** Where a frame's rows come from. */
@@ -151,8 +317,19 @@ export type CoercionMode
         | 'lenient';
 
 export interface FrameOptions {
-    /** Defaults to the process-wide context. */
-    context?: DuckContext;
+    /**
+     * Database path. Defaults to the process-wide `:memory:` database.
+     *
+     * There is one database per process, so this exists for a file-backed database and for
+     * giving a test an isolated catalogue - NOT for callers to route frames around. Frames
+     * from different databases cannot see each other's tables and so cannot be joined.
+     *
+     * **Only the exact string `:memory:` is in-memory.** Anything else is a FILE PATH -
+     * measured: both a bare `'my-test'` AND the `:memory:<name>` form each wrote a database
+     * file into the working directory. Tests do not need this option at all: jest gives every
+     * test file its own module registry, so each already gets its own default context.
+    */
+    database?: string;
     /** Used for the table or relation name. */
     name?: string;
 }
@@ -160,6 +337,54 @@ export interface FrameOptions {
 export interface FromRecordsOptions extends FrameOptions {
     /** Defaults to `strict`. */
     mode?: CoercionMode;
+}
+
+/**
+ * Turns a value read out of DuckDB into the plain JS shape the response path expects.
+ *
+ * `rows()` is the OUTPUT path - the QPL engine hands these records straight to the response -
+ * so anything DuckDB-shaped leaking through would reach users. Found by the FieldType sweep in
+ * `type-sweep-spec.ts`; nothing had covered arrays, structs or dates through `rows()` before,
+ * because the older specs read them via `query()` with explicit casts, which bypasses all of
+ * this. Three separate leaks:
+ *
+ * - **LIST** -> `DuckDBListValue`, not an array. Would serialize as `{"items":[...]}`.
+ * - **TIMESTAMP** -> `DuckDBTimestampValue`, not a date. Rendered via `toISO8601`, which is
+ *   what `DateVector.toJSONCompatibleValue` uses, so the two frames agree.
+ * - **BIGINT / HUGEINT** -> a JS `bigint`, and **`JSON.stringify` THROWS on bigint**
+ *   ("Do not know how to serialize a BigInt"), so every Integer or Long column broke the
+ *   response. Converted with `bigIntToJSON` - the same helper `DataFrame`'s own JSON paths use
+ *   (`data-frame/metadata-utils.ts`, `function-configs/json/toJSON.ts`), giving a number when
+ *   it fits and a string above `MAX_SAFE_INTEGER`.
+ *
+ * NOTE `bigIntToJSON` carries the documented `Long`-loses-1 defect above `MAX_SAFE_INTEGER`.
+ * Reproducing it here is deliberate: matching `DataFrame` is the contract, and that defect is
+ * on the shelved list to be recorded as a known divergence rather than silently fixed on one
+ * side only.
+*/
+function toPlainValue(value: unknown): unknown {
+    if (value == null) return value;
+
+    if (typeof value === 'bigint') return bigIntToJSON(value);
+
+    if (typeof value !== 'object') return value;
+
+    if (value instanceof DuckDBTimestampValue) {
+        return toISO8601(Number(value.micros / 1000n));
+    }
+
+    const items = (value as { items?: unknown }).items;
+    if (Array.isArray(items)) return items.map(toPlainValue);
+
+    const entries = (value as { entries?: unknown }).entries;
+    if (entries != null && typeof entries === 'object') {
+        return Object.fromEntries(
+            Object.entries(entries as Record<string, unknown>)
+                .map(([key, val]) => [key, toPlainValue(val)])
+        );
+    }
+
+    return value;
 }
 
 let tableCounter = 0;
@@ -201,6 +426,30 @@ function buildPlan(config: DataTypeConfig | ReadonlyDataTypeConfig): FieldPlan[]
         });
 }
 
+/** How to join two frames. Expressions are raw SQL written against the two aliases. */
+export interface JoinOptions {
+    /** Join predicate, e.g. `'a.user_id = b.id'`. */
+    on: string;
+    /** Output expressions, `{ outputName: sqlExpression }`, same shape as `select`. */
+    select: Readonly<Record<string, string>>;
+    /** The result's declared field types. The caller knows what its expressions produce. */
+    config: DataTypeConfig | ReadonlyDataTypeConfig;
+    /** Defaults to `inner`. */
+    type?: 'inner' | 'left' | 'right' | 'full' | 'cross';
+    /** Alias for this frame. Defaults to `a`. */
+    as?: string;
+    /** Alias for the other frame. Defaults to `b`. */
+    otherAs?: string;
+    /** Group the joined rows, so join-then-aggregate is a single statement. */
+    groupBy?: readonly string[];
+}
+
+/** `GROUP BY` clause for a list of raw SQL grouping expressions, or nothing. */
+function groupByClause(groupBy?: readonly string[]): string {
+    if (!groupBy?.length) return '';
+    return ` GROUP BY ${groupBy.join(', ')}`;
+}
+
 export class DuckFrame {
     private constructor(
         private readonly ctx: DuckContext,
@@ -226,9 +475,21 @@ export class DuckFrame {
             : `(${this.source.sql})`;
     }
 
-    /** For callers running their own SQL against this frame. */
-    get context(): DuckContext {
-        return this.ctx;
+    /**
+     * Runs SQL against this frame's database and returns raw rows.
+     *
+     * For data-mate's own tooling (schema checks) and tests, which need to assert on the
+     * STORAGE representation - `total::VARCHAR`, `loc.lat`, `DESCRIBE` - that `rows()`
+     * cannot express. Deliberately narrow: it hands out neither the connection nor the
+     * instance, so it cannot be used to route frames between databases, which is what the
+     * removed `get context()` allowed.
+     *
+     * **Values are JSON-rendered, not native:** a BIGINT comes back as the string `'2'`, not
+     * `2n`. `rows()` is the path that yields native values. That difference is why this is
+     * for tooling and assertions rather than for reading data.
+    */
+    query(sql: string): Promise<unknown[][]> {
+        return this.ctx.rows(sql);
     }
 
     /** The backing table name, when this frame is materialized. */
@@ -255,14 +516,14 @@ export class DuckFrame {
         records: readonly Record<string, unknown>[],
         options: FromRecordsOptions = {}
     ): Promise<DuckFrame> {
-        const context = options.context ?? await getDefaultContext();
+        const context = await getContext(options.database);
         const plan = buildPlan(config);
         if (plan.length === 0) {
             throw new TypeError('A DataType config must declare at least one field');
         }
 
         const table = nextTableName(options.name);
-        const columnTypes = buildColumnTypes(config);
+        const columnTypes = new DataType(config as DataTypeConfig).toDuckDB();
         const ddl = plan
             .map(({ name }) => `${quoteIdentifier(name)} ${columnTypes[name]}`)
             .join(', ');
@@ -335,12 +596,15 @@ export class DuckFrame {
         path: string,
         options: FrameOptions = {}
     ): Promise<DuckFrame> {
-        const context = options.context ?? await getDefaultContext();
+        const context = await getContext(options.database);
         // relation-backed: a Parquet file is already a queryable source, so nothing is
         // copied until something asks for the rows
-        const sql = `SELECT * FROM read_parquet('${path.replace(/'/g, '\'\'')}')`;
+        const sql = `SELECT * FROM read_parquet(${quoteLiteral(path)})`;
         return new DuckFrame(
-            context, config, { kind: 'relation', sql }, Object.keys(buildColumnTypes(config))
+            context,
+            config,
+            { kind: 'relation', sql },
+            Object.keys(new DataType(config as DataTypeConfig).toDuckDB())
         );
     }
 
@@ -381,7 +645,8 @@ export class DuckFrame {
     */
     select(
         expressions: Readonly<Record<string, string>>,
-        config: DataTypeConfig | ReadonlyDataTypeConfig = this.config
+        config: DataTypeConfig | ReadonlyDataTypeConfig = this.config,
+        groupBy?: readonly string[]
     ): DuckFrame {
         const names = Object.keys(expressions);
         if (names.length === 0) {
@@ -390,9 +655,55 @@ export class DuckFrame {
         const list = names
             .map((name) => `${expressions[name]} AS ${quoteIdentifier(name)}`)
             .join(', ');
-        return new DuckFrame(
-            this.ctx, config, { kind: 'relation', sql: `SELECT ${list} FROM ${this.from}` }, names
-        );
+
+        const sql = `SELECT ${list} FROM ${this.from}${groupByClause(groupBy)}`;
+
+        return new DuckFrame(this.ctx, config, { kind: 'relation', sql }, names);
+    }
+
+    /**
+     * Join another frame. Returns a relation, like every other operation.
+     *
+     * There is nothing special here - a join is `FROM <a> JOIN <b> ON <pred>`, and `from`
+     * already yields either a table name or a parenthesised subquery, so either side may be
+     * a table or a relation. This method exists to gather the two sides' SQL, alias them, and
+     * declare the result config; it is a SQL builder, not a new execution concept.
+     *
+     * Both sides are aliased (`a` and `b` by default) because two frames routinely share
+     * column names, and a subquery in a FROM clause needs a name to be referenced by. Write
+     * `on` and `select` in terms of those aliases.
+     *
+     * `groupBy` is here too, so "join then aggregate" is one statement rather than two - that
+     * is where per-parent counts and picks land.
+    */
+    join(other: DuckFrame, options: JoinOptions): DuckFrame {
+        if (other.ctx !== this.ctx) {
+            throw new TypeError(
+                'join requires both frames to be in the same database:'
+                + ' they are in different databases, so neither can see the other\'s tables'
+            );
+        }
+
+        const names = Object.keys(options.select);
+        if (names.length === 0) {
+            throw new TypeError('join requires at least one expression to select');
+        }
+
+        const as = options.as ?? 'a';
+        const otherAs = options.otherAs ?? 'b';
+        const type = (options.type ?? 'inner').toUpperCase();
+
+        const list = names
+            .map((name) => `${options.select[name]} AS ${quoteIdentifier(name)}`)
+            .join(', ');
+
+        const sql = `SELECT ${list}`
+            + ` FROM ${this.from} AS ${quoteIdentifier(as)}`
+            + ` ${type} JOIN ${other.from} AS ${quoteIdentifier(otherAs)}`
+            + ` ON ${options.on}`
+            + groupByClause(options.groupBy);
+
+        return new DuckFrame(this.ctx, options.config, { kind: 'relation', sql }, names);
     }
 
     /** Row filter. Returns a new relation-backed frame. */
@@ -417,7 +728,7 @@ export class DuckFrame {
     */
     async writeParquet(path: string): Promise<void> {
         await this.ctx.run(
-            `COPY (SELECT * FROM ${this.from}) TO '${path.replace(/'/g, '\'\'')}'`
+            `COPY (SELECT * FROM ${this.from}) TO ${quoteLiteral(path)}`
             + ' (FORMAT parquet, COMPRESSION zstd)'
         );
     }
