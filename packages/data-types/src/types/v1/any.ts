@@ -1,6 +1,6 @@
 import { xLuceneTypeConfig, AnyFieldMapping } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A field of unrestricted shape. The value is stored but excluded from
@@ -45,5 +45,12 @@ export default class AnyType extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return {};
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('JSON');
     }
 }

@@ -3,7 +3,7 @@ import {
     ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * An IPv4 or IPv6 address stored as an Elasticsearch/OpenSearch `ip` field,
@@ -41,5 +41,15 @@ export default class IPType extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.IP };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     * VARCHAR rather than INET on purpose: INET needs a runtime-installed extension,
+     * and data-mate is the stricter of the two anyway - it rejects `01.02.03.04` where
+     * DuckDB reads it as `1.2.3.4`. Keeping VARCHAR leaves strictness in our coercion.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('VARCHAR');
     }
 }

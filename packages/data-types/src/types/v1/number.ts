@@ -3,7 +3,7 @@ import {
     ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A general-purpose numeric field for when the exact numeric width is not
@@ -46,5 +46,12 @@ export default class NumberClass extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Number };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('DOUBLE');
     }
 }

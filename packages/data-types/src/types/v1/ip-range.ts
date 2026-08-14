@@ -3,7 +3,7 @@ import {
     ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * An IP range stored as an Elasticsearch/OpenSearch `ip_range` field. Accepts
@@ -42,5 +42,12 @@ export default class IpRangeType extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.IPRange };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('VARCHAR');
     }
 }

@@ -3,8 +3,8 @@ import {
     ClientMetadata,
 } from '@terascope/types';
 import { firstToUpper } from '@terascope/core-utils';
-import BaseType, { ToGraphQLOptions } from './base-type.js';
-import { GraphQLType, TypeESMapping } from '../interfaces.js';
+import BaseType, { ToGraphQLOptions, quoteDuckDBIdentifier } from './base-type.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../interfaces.js';
 
 export type NestedTypes = { [field: string]: BaseType };
 
@@ -22,6 +22,9 @@ export type NestedTypes = { [field: string]: BaseType };
  *   fields are the children, referenced from the parent type.
  * - **xLucene:** the merged xLucene configs of the parent and all children,
  *   keyed by their full dot-notation paths.
+ * - **DuckDB:** ONE entry holding a nested `STRUCT`, since DuckDB nests rather than
+ *   flattening. Unlike the conversions above it recurses past one level - see
+ *   {@link GroupType.toDuckDB} for why that asymmetry exists.
  *
  * @see {@link TupleType} for the ordered-set analogue.
  */
@@ -121,7 +124,71 @@ export default class GroupType extends BaseType {
         return Object.assign({}, ...configs);
     }
 
+    /**
+     * Emit the parent as a single `STRUCT(child TYPE, ...)` entry built from its children.
+     *
+     * Note this does NOT flatten the way `toXlucene` does: DuckDB nests, so children are not
+     * columns of their own and the result has exactly one key. A childless Object stays
+     * `JSON` - its shape is unknowable.
+     *
+     * **This recurses where the rest of the package does not.** `getGroupedFields` splits on
+     * the FIRST dot only (`getTypes` carries a `@todo support multiple levels deep nesting`),
+     * so `this.types` is flat: `a.b` and `a.b.c` are siblings here. Inheriting that would
+     * emit `STRUCT(b JSON, "b.c" VARCHAR)` - a struct with a dotted member name, which is a
+     * broken table definition rather than merely an incomplete one. So the dotted paths are
+     * regrouped and nested properly.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        const children: [name: string, type: BaseType][] = [];
+
+        for (const [field, type] of Object.entries(this.types)) {
+            if (field === this.field) continue;
+            children.push([this._removeBase(field), type]);
+        }
+
+        if (!children.length) return this._formatDuckDB('JSON');
+        return this._formatDuckDB(buildStruct(children));
+    }
+
     private _removeBase(str: string) {
         return str.replace(`${this.field}.`, '').trim();
     }
+}
+
+/**
+ * Build a `STRUCT(...)` from dot-notation paths, nesting each level.
+ *
+ * `[['a', T], ['b.c', U]]` becomes `STRUCT(a <T>, b STRUCT(c <U>))`. An intermediate level
+ * that also has its own entry (`b` alongside `b.c`) is superseded by the struct built from
+ * its descendants, since a STRUCT member cannot be both a scalar and a group.
+ */
+function buildStruct(children: [name: string, type: BaseType][]): string {
+    const direct = new Map<string, BaseType>();
+    const nested = new Map<string, [string, BaseType][]>();
+
+    for (const [name, type] of children) {
+        const dot = name.indexOf('.');
+        if (dot === -1) {
+            direct.set(name, type);
+            continue;
+        }
+        const head = name.slice(0, dot);
+        const rest = name.slice(dot + 1);
+        const group = nested.get(head) ?? [];
+        group.push([rest, type]);
+        nested.set(head, group);
+    }
+
+    const members: string[] = [];
+
+    for (const [name, type] of direct) {
+        if (nested.has(name)) continue; // the group wins over the bare parent entry
+        members.push(`${quoteDuckDBIdentifier(name)} ${type.toDuckDB()[type.field]}`);
+    }
+
+    for (const [name, group] of nested) {
+        members.push(`${quoteDuckDBIdentifier(name)} ${buildStruct(group)}`);
+    }
+
+    return `STRUCT(${members.join(', ')})`;
 }

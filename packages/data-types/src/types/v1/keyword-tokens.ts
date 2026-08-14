@@ -1,6 +1,6 @@
 import { xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * An exact-match keyword that additionally exposes a tokenized sub-field for
@@ -44,5 +44,12 @@ export default class KeywordTokens extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.String };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('VARCHAR');
     }
 }

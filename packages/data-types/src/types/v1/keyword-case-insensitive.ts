@@ -1,6 +1,6 @@
 import { xLuceneFieldType, ESFieldType, xLuceneTypeConfig } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A keyword that matches case-insensitively. It defines a custom
@@ -67,5 +67,12 @@ export default class KeywordCaseInsensitive extends BaseType {
         return {
             [this.field]: xLuceneFieldType.AnalyzedString
         };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('VARCHAR');
     }
 }

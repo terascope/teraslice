@@ -1,6 +1,6 @@
 import { DataTypeFieldConfig, xLuceneTypeConfig } from '@terascope/types';
-import BaseType from './base-type.js';
-import { GraphQLType, TypeESMapping } from '../interfaces.js';
+import BaseType, { quoteDuckDBIdentifier } from './base-type.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../interfaces.js';
 
 /**
  * An ordered, fixed set of values where each position (element) has its own
@@ -62,5 +62,20 @@ export default class TupleType extends BaseType {
     toXlucene(): xLuceneTypeConfig {
         const configs = this.types.map((type) => type.toXlucene());
         return Object.assign({}, ...configs);
+    }
+
+    /**
+     * Emit the tuple as a `STRUCT` whose child names are the positional indexes, so
+     * `location.0` / `location.1` become `STRUCT("0" DOUBLE, "1" DOUBLE)`. The positions
+     * need quoting because a bare `0` is not a valid identifier.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        const children = this.types.map((type) => {
+            const name = type.field.replace(`${this.field}.`, '').trim();
+            return `${quoteDuckDBIdentifier(name)} ${type.toDuckDB()[type.field]}`;
+        });
+
+        if (!children.length) return this._formatDuckDB('JSON');
+        return this._formatDuckDB(`STRUCT(${children.join(', ')})`);
     }
 }

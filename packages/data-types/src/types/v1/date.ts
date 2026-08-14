@@ -4,7 +4,7 @@ import {
 } from '@terascope/types';
 import { withoutNil } from '@terascope/core-utils';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A date/time value stored as an Elasticsearch/OpenSearch `date`.
@@ -69,5 +69,12 @@ export default class DateType extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Date };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('TIMESTAMP');
     }
 }

@@ -3,7 +3,7 @@ import {
     ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A true/false value stored as an Elasticsearch/OpenSearch `boolean`.
@@ -40,5 +40,12 @@ export default class BooleanType extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Boolean };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('BOOLEAN');
     }
 }

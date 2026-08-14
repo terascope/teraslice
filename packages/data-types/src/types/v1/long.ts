@@ -3,7 +3,7 @@ import {
     ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A whole number stored as an Elasticsearch/OpenSearch `long`
@@ -45,5 +45,14 @@ export default class Long extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Integer };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     * HUGEINT (128-bit) rather than BIGINT (64-bit), because Long is a JS bigint and
+     * so arbitrary precision - values above 2^63 must survive the round trip.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('HUGEINT');
     }
 }
