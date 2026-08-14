@@ -529,52 +529,72 @@ export class DuckFrame {
             .join(', ');
         await context.run(`CREATE OR REPLACE TABLE ${quoteIdentifier(table)} (${ddl})`);
 
+        const lenient = (options.mode ?? 'strict') === 'lenient';
         const failures = new Map<string, CoercionFailure>();
-        const appender = await context.connection.createAppender(table);
-        const chunkTypes = (
-            await context.connection.run(`SELECT * FROM ${quoteIdentifier(table)} LIMIT 0`)
-        ).columnTypes();
 
-        for (let offset = 0; offset < records.length; offset += MAX_CHUNK_ROWS) {
-            const window = records.slice(offset, offset + MAX_CHUNK_ROWS);
-            const chunk = DuckDBDataChunk.create(chunkTypes, window.length);
+        /** Records one failure. In strict mode this throws immediately - see below. */
+        const recordFailure = (
+            name: string, fieldType: string, value: unknown
+        ): null => {
+            const existing = failures.get(name);
+            if (existing) {
+                existing.failedCount += 1;
+            } else {
+                failures.set(name, {
+                    field: name,
+                    fieldType,
+                    failedCount: 1,
+                    exampleValue: String(value),
+                });
+            }
 
-            chunk.setColumns(plan.map(({ name, fieldType, coerce, convert }) => (
-                window.map((record) => {
-                    try {
-                        return convert(coerce(record[name]));
-                    } catch {
-                        const existing = failures.get(name);
-                        if (existing) {
-                            existing.failedCount += 1;
-                        } else {
-                            failures.set(name, {
-                                field: name,
-                                fieldType,
-                                failedCount: 1,
-                                exampleValue: String(record[name]),
-                            });
+            // STRICT FAILS FAST, matching `DataFrame`. Its Builder throws out of `valueFrom`
+            // on the first value it cannot convert and nothing catches it, so a bad batch
+            // costs one value's work, not the whole batch's. Collecting every failure first
+            // gave a richer message for the same outcome, but did a full pass over a doomed
+            // ingest to get it. Parity is the contract; lenient mode still collects.
+            if (!lenient) {
+                throw new CoercionFailureError(
+                    `coercion failed for field ${name} (${fieldType}):`
+                    + ` ${JSON.stringify(String(value))}`,
+                    [...failures.values()]
+                );
+            }
+            return null;
+        };
+
+        try {
+            const appender = await context.connection.createAppender(table);
+            const chunkTypes = (
+                await context.connection.run(`SELECT * FROM ${quoteIdentifier(table)} LIMIT 0`)
+            ).columnTypes();
+
+            for (let offset = 0; offset < records.length; offset += MAX_CHUNK_ROWS) {
+                const window = records.slice(offset, offset + MAX_CHUNK_ROWS);
+                const chunk = DuckDBDataChunk.create(chunkTypes, window.length);
+
+                chunk.setColumns(plan.map(({ name, fieldType, coerce, convert }) => (
+                    window.map((record) => {
+                        try {
+                            return convert(coerce(record[name]));
+                        } catch {
+                            return recordFailure(name, fieldType, record[name]);
                         }
-                        return null;
-                    }
-                })
-            )) as never[][]);
+                    })
+                )) as never[][]);
 
-            appender.appendDataChunk(chunk);
-        }
+                appender.appendDataChunk(chunk);
+            }
 
-        appender.flushSync();
-        appender.closeSync();
-
-        if ((options.mode ?? 'strict') === 'strict' && failures.size > 0) {
-            const detail = [...failures.values()]
-                .map((f) => `${f.field} (${f.fieldType}): ${f.failedCount} failed, `
-                    + `e.g. ${JSON.stringify(f.exampleValue)}`)
-                .join('; ');
-            throw new CoercionFailureError(
-                `coercion failed for ${failures.size} field(s) - ${detail}`,
-                [...failures.values()]
-            );
+            appender.flushSync();
+            appender.closeSync();
+        } catch (err) {
+            // A failed ingest must leave NOTHING behind. The table is created before the
+            // append loop, so throwing out of it used to orphan a fully-populated table that
+            // no caller could reach - no frame was returned, so nobody could `destroy()` it.
+            // `DataFrame.fromJSON` produces no artifact when it throws.
+            await context.run(`DROP TABLE IF EXISTS ${quoteIdentifier(table)}`);
+            throw err;
         }
 
         return new DuckFrame(
