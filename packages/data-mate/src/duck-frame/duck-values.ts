@@ -1,9 +1,16 @@
 import { structValue, listValue, timestampValue } from '@duckdb/node-api';
 import {
-    DataTypeFieldConfig, DataTypeFields, ReadonlyDataTypeFields, FieldType
+    DataTypeFieldConfig, DataTypeFields, ReadonlyDataTypeFields,
+    FieldType, DeprecatedFieldType
 } from '@terascope/types';
 import { getChildDataTypeConfig } from '../core/utils.js';
-import { FieldTypeLike } from './type-map.js';
+
+/**
+ * `DataTypeFieldConfig.type` is the enum OR the deprecated string union, and real configs
+ * still carry both. The enum's values are those same strings, so a runtime lookup keyed by
+ * this works - only the types need widening.
+*/
+type FieldTypeLike = FieldType | DeprecatedFieldType;
 
 /**
  * Converts a value that `coerceToType` has already produced into the representation a
