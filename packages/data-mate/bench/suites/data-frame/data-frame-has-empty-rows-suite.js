@@ -1,7 +1,7 @@
 import { isExecutedFile } from '@terascope/core-utils';
-import { Suite } from './helpers.js';
-import json from './fixtures/data.json' with { type: 'json' };
-import { DataFrame } from '../dist/src/index.js';
+import { Suite } from '../../lib/helpers.js';
+import json from '../../fixtures/data.json' with { type: 'json' };
+import { DataFrame } from '../../../dist/src/index.js';
 
 const { config, data } = json;
 
@@ -35,6 +35,8 @@ const run = async () => {
         maxTime: 20,
     });
 };
+
+export default run;
 
 if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {

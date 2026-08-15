@@ -4,7 +4,7 @@ import { pDelay } from '@terascope/core-utils';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DataFrame } from '../dist/src/index.js';
+import { DataFrame } from '../../dist/src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -12,7 +12,7 @@ async function readData() {
     console.time('readData');
     try {
         return await new Promise((resolve, reject) => {
-            fs.readFile(path.join(dirname, 'fixtures/data.json'), (err, buf) => {
+            fs.readFile(path.join(dirname, '../fixtures/data.json'), (err, buf) => {
                 if (err) reject(err);
                 else resolve(JSON.parse(buf));
             });

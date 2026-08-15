@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import json from './fixtures/data.json' with { type: 'json' };
-import { Column } from '../dist/src/index.js';
+import json from '../fixtures/data.json' with { type: 'json' };
+import { Column } from '../../dist/src/index.js';
 
 const { config, data } = json;
 

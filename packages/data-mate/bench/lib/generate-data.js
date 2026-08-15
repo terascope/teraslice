@@ -1,4 +1,15 @@
 /* eslint-disable no-console */
+/**
+ * Regenerates `bench/fixtures/`. **Run it deliberately:**
+ *
+ *     node bench/lib/generate-data.js
+ *
+ * It used to do its work in bare IIFEs at module scope, so merely IMPORTING it - which any tool
+ * that enumerates the bench files will do - silently overwrote 22 MB of committed fixture data
+ * with fresh random records. That invalidates every comparison against previously recorded
+ * numbers, and it happened. Hence the `isExecutedFile` guard at the foot of this file.
+*/
+import { isExecutedFile } from '@terascope/core-utils';
 import { times, random, shuffle } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
 import fs from 'node:fs';
@@ -8,7 +19,7 @@ import util from 'node:util';
 import stream from 'node:stream';
 import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
-import { DataFrame } from '../dist/src/index.js';
+import { DataFrame } from '../../dist/src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -135,36 +146,28 @@ function randNull(fn, arg) {
     return fn.call(chance, arg);
 }
 
-console.dir({
-    dataTypeConfig,
-    records,
-}, {
-    maxArrayLength: 1,
-    depth: 5
-});
-
-(async function writeRow() {
+async function writeRow() {
     console.time('write row');
     await new Promise((resolve, reject) => {
         const data = JSON.stringify({
             config: dataTypeConfig,
             data: records
         });
-        fs.writeFile(path.join(dirname, 'fixtures/data.json'), data, (err) => {
+        fs.writeFile(path.join(dirname, '../fixtures/data.json'), data, (err) => {
             if (err) reject(err);
             else resolve();
         });
     });
     console.timeEnd('write row');
-}());
+}
 
 const finished = util.promisify(stream.finished);
 
-(async function writeColumnStream() {
+async function writeColumnStream() {
     const frame = DataFrame.fromJSON(dataTypeConfig, records);
 
     const writable = fs.createWriteStream(
-        path.join(dirname, 'fixtures/data.dfjson'),
+        path.join(dirname, '../fixtures/data.dfjson'),
         { encoding: 'utf8' }
     );
     console.time('write column stream');
@@ -177,4 +180,16 @@ const finished = util.promisify(stream.finished);
     writable.end();
     await finished(writable);
     console.timeEnd('write column stream');
-}());
+}
+
+if (isExecutedFile(import.meta.url)) {
+    console.dir({ dataTypeConfig, records }, { maxArrayLength: 1, depth: 5 });
+
+    await writeRow();
+    await writeColumnStream();
+} else {
+    console.error(
+        'generate-data.js was IMPORTED, so no fixtures were written.'
+        + ' Run it directly to regenerate them.'
+    );
+}

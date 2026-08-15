@@ -1,12 +1,12 @@
 import { isEmpty, isExecutedFile } from '@terascope/core-utils';
 import { FieldType } from '@terascope/types';
-import { Suite } from './helpers.js';
-import json from './fixtures/data.json' with { type: 'json' };
+import { Suite } from '../../lib/helpers.js';
+import json from '../../fixtures/data.json' with { type: 'json' };
 
 import {
     DataFrame, functionConfigRepository,
     FunctionDefinitionType, dataFrameAdapter
-} from '../dist/src/index.js';
+} from '../../../dist/src/index.js';
 
 const { config, data } = json;
 
