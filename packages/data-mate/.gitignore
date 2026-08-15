@@ -1,0 +1,3 @@
+
+# benchmark run artifacts: accumulated results, rendered per-scale by bench/comparison/run.js
+bench/comparison/.results.json
