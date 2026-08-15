@@ -91,10 +91,17 @@ export async function diffSchema(frame: DuckFrame): Promise<SchemaMismatch[]> {
 
 /**
  * `toDuckDB()` already emits DuckDB's canonical spellings, and `DESCRIBE` renders them
- * the same way (verified for STRUCT and array types), so case and padding is all that needs
- * normalising. If a real mismatch ever turns out to be spelling-only, add that alias here
+ * the same way (verified for STRUCT and array types), so case, padding and QUOTING is all that
+ * needs normalising. If a real mismatch ever turns out to be spelling-only, add that alias here
  * rather than reaching for a general type-string parser.
+ *
+ * **Quotes are stripped because they are rendering, not type.** `toDuckDB()` quotes STRUCT
+ * member names unconditionally - it has to, since `inner`, `order` and `group` are reserved
+ * words and an unquoted one is a parser error - while `DESCRIBE` reports them bare. So
+ * `STRUCT("a" VARCHAR)` and `STRUCT(a VARCHAR)` are the SAME type, and comparing them as text
+ * would report every Object column as a mismatch.
  */
 function normalize(type: string): string {
-    return type.trim().toUpperCase();
+    return type.trim().toUpperCase()
+        .replace(/"/g, '');
 }
