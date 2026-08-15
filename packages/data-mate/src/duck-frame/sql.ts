@@ -6,11 +6,22 @@
  * `toXlucene`), while quoting is about generating SQL text, which is this layer's job.
 */
 
-const SAFE_IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
-
-/** Quote an identifier unless it is already a bare one. */
+/**
+ * Quote an identifier - ALWAYS, not only when it looks unsafe.
+ *
+ * An earlier version skipped quoting anything matching `/^[A-Za-z_][A-Za-z0-9_]*$/`, which
+ * looks like the set of identifiers needing no quotes but is not: every RESERVED WORD matches
+ * it too. A DataType field named `group` produced
+ * `CREATE OR REPLACE TABLE t (name VARCHAR, group VARCHAR)` and a parser error, so such a
+ * frame could not be created at all - and `group`, `order`, `end`, `all` and `table` are
+ * ordinary field names in real data.
+ *
+ * Quoting unconditionally is safe here because **DuckDB treats a quoted identifier
+ * case-INsensitively** (verified: `SELECT "mixedcase"` finds a column declared `"MixedCase"`).
+ * That is the opposite of Postgres, where quoting pins the case, and it is why this needs no
+ * reserved-word list to consult.
+*/
 export function quoteIdentifier(name: string): string {
-    if (SAFE_IDENTIFIER.test(name)) return name;
     return `"${name.replace(/"/g, '""')}"`;
 }
 

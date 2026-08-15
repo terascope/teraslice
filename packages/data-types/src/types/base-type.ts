@@ -115,13 +115,19 @@ export function formatGQLType(type: string, desc?: string): string {
     return `${formatGQLDescription(desc)}\n${type}`;
 }
 
-const SAFE_IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
-
 /**
- * Quote a DuckDB identifier unless it is already a bare one. Used for STRUCT child names,
- * which can be anything a DataType field can be - including tuple positions like `0`.
+ * Quote a DuckDB identifier - ALWAYS. Used for STRUCT child names, which can be anything a
+ * DataType field can be, including tuple positions like `0`.
+ *
+ * It used to skip anything matching `/^[A-Za-z_][A-Za-z0-9_]*$/`, which looks like the set of
+ * identifiers needing no quotes but is not: **every reserved word matches it too**. A field
+ * declared `nullObject.inner` produced `STRUCT(inner VARCHAR)` and a parser error, so the type
+ * could not be created at all - and `inner`, `order`, `group` and `end` are ordinary names for
+ * object members.
+ *
+ * Quoting unconditionally is safe because DuckDB treats a quoted identifier
+ * case-INsensitively (verified), unlike Postgres where quoting pins the case.
  */
 export function quoteDuckDBIdentifier(name: string): string {
-    if (SAFE_IDENTIFIER.test(name)) return name;
     return `"${name.replace(/"/g, '""')}"`;
 }

@@ -79,7 +79,7 @@ describe('DataType -> DuckDB', () => {
             expect(duckTypeOf(FieldType.Object, {}, {
                 'field.region': { type: FieldType.Keyword },
                 'field.tier': { type: FieldType.Integer },
-            })).toEqual('STRUCT(region VARCHAR, tier BIGINT)');
+            })).toEqual('STRUCT("region" VARCHAR, "tier" BIGINT)');
         });
 
         // NOTE this recursion is specific to toDuckDB. getGroupedFields splits on the first
@@ -89,7 +89,7 @@ describe('DataType -> DuckDB', () => {
             expect(duckTypeOf(FieldType.Object, {}, {
                 'field.inner': { type: FieldType.Object },
                 'field.inner.leaf': { type: FieldType.Keyword },
-            })).toEqual('STRUCT(inner STRUCT(leaf VARCHAR))');
+            })).toEqual('STRUCT("inner" STRUCT("leaf" VARCHAR))');
         });
 
         it('stays JSON with no children, because the shape is unknowable', () => {
@@ -128,7 +128,7 @@ describe('DataType -> DuckDB', () => {
             expect(new DataType(config).toDuckDB()).toEqual({
                 name: 'VARCHAR',
                 count: 'BIGINT',
-                meta: 'STRUCT(tier SMALLINT)',
+                meta: 'STRUCT("tier" SMALLINT)',
             });
         });
 

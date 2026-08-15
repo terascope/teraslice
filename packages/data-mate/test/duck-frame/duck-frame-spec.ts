@@ -45,6 +45,34 @@ describe('DuckFrame', () => {
             await frame.destroy();
         });
 
+        it('should accept fields named after SQL reserved words', async () => {
+            // `quoteIdentifier` used to skip anything matching /^[A-Za-z_][A-Za-z0-9_]*$/,
+            // which every reserved word matches too - so the DDL came out as
+            // `(name VARCHAR, group VARCHAR)` and the frame could not be created at all.
+            const config: DataTypeConfig = {
+                version: 1,
+                fields: {
+                    group: { type: FieldType.Keyword },
+                    order: { type: FieldType.Integer },
+                    table: { type: FieldType.Keyword },
+                    select: { type: FieldType.Boolean },
+                },
+            };
+
+            const frame = await DuckFrame.fromRecords(config, [
+                { group: 'a', order: 1, table: 't', select: true },
+            ], {});
+
+            expect(await frame.size()).toEqual(1);
+            expect(frame.columns).toEqual(['group', 'order', 'table', 'select']);
+
+            const rows: Record<string, unknown>[] = [];
+            for await (const row of frame.rows()) rows.push(row);
+            expect(rows).toEqual([{ group: 'a', order: 1, table: 't', select: true }]);
+
+            await frame.destroy();
+        });
+
         it('should report the folded column set, with children inside their parent', async () => {
             const frame = await DuckFrame.fromRecords(CONFIG, RECORDS, {});
             expect(frame.columns).toEqual(['_key', 'ip', 'created', 'bytes', 'tags', 'meta']);
