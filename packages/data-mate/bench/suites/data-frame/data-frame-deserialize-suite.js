@@ -2,12 +2,12 @@ import { timesIter, isExecutedFile } from '@terascope/core-utils';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Suite } from './helpers.js';
-import { DataFrame } from '../dist/src/index.js';
+import { Suite } from '../../lib/helpers.js';
+import { DataFrame } from '../../../dist/src/index.js';
 import { setInterval } from 'node:timers';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-const _dfJSON = fs.readFileSync(path.join(dirname, './fixtures/data.dfjson'));
+const _dfJSON = fs.readFileSync(path.join(dirname, '../../fixtures/data.dfjson'));
 
 const run = async () => {
     const suite = Suite('DataFrame#deserialize');

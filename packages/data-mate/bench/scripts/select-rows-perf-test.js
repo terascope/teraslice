@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 // const heapdump from 'heapdump';
-import { DataFrame } from '../dist/src/index.js';
+import { DataFrame } from '../../dist/src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -13,7 +13,7 @@ async function readData() {
     console.time('readData');
     try {
         return await new Promise((resolve, reject) => {
-            fs.readFile(path.join(dirname, 'fixtures/data.dfjson'), (err, buf) => {
+            fs.readFile(path.join(dirname, '../fixtures/data.dfjson'), (err, buf) => {
                 if (err) reject(err);
                 else resolve(DataFrame.deserialize(buf));
             });

@@ -1,14 +1,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { FieldType } from '@terascope/types';
 import { isExecutedFile } from '@terascope/core-utils';
-import { Suite } from './helpers.js';
+import { Suite } from '../../lib/helpers.js';
 import {
     DataFrame, isNumberLike, ValueAggregation,
     KeyAggregation
-} from '../dist/src/index.js';
+} from '../../../dist/src/index.js';
 
-const json = fs.readFileSync(path.join('.', './fixtures/data.json'));
+// resolved from this file, not from the cwd - `path.join('.', ...)` meant the suite only
+// loaded when you happened to run it from inside bench/
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const json = fs.readFileSync(path.join(dirname, '../../fixtures/data.json'));
 const { config, data } = JSON.parse(json);
 
 const run = async () => {

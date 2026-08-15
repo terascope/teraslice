@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
 
 import { pDelay, toHumanTime } from '@terascope/core-utils';
-import MultiMap from 'mnemonist/multi-map';
+// NOT `mnemonist/multi-map`: that subpath is `require`-only in mnemonist's exports map,
+// so an ESM import of it cannot resolve. The root entry has an `import` condition.
+import { MultiMap } from 'mnemonist';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DataFrame } from '../dist/src/index.js';
+import { DataFrame } from '../../dist/src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
