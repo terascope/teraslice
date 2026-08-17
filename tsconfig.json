@@ -12,7 +12,6 @@
         "esModuleInterop": true,
         "resolveJsonModule": true,
         "forceConsistentCasingInFileNames": true,
-        "ignoreDeprecations": "5.0",
         "composite": true,
         "declaration": true,
         "declarationMap": true,
