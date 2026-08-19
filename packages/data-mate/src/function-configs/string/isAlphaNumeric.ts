@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionCategory,
     FunctionDefinitionType, FunctionDefinitionExample
 } from '../interfaces.js';
+import { ALPHANUMERIC_LOCALES, defaultLocale } from './sql-utils.js';
 
 export interface IsAlphaNumericArgs {
     locale?: validator.AlphanumericLocale;
@@ -85,6 +86,11 @@ export const isAlphaNumericConfig: FieldValidateConfig<IsAlphaNumericArgs> = {
         }
     },
     examples,
+    /** `validator`'s `en-US` alphanumeric set, `/^[0-9A-Za-z]+$/`. Same reasoning as `isAlpha`. */
+    sql: {
+        applies: (args) => defaultLocale(args.locale),
+        expression: ({ value }) => `regexp_matches(${value}, '${ALPHANUMERIC_LOCALES}')`,
+    },
     accepts: [FieldType.String],
     required_arguments: [],
     validate_arguments({ locale }: IsAlphaNumericArgs) {

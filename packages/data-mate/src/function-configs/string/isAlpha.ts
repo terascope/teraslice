@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionCategory,
     FunctionDefinitionType, FunctionDefinitionExample
 } from '../interfaces.js';
+import { ALPHA_LOCALES, defaultLocale } from './sql-utils.js';
 
 export interface IsAlphaArgs {
     locale?: validator.AlphaLocale;
@@ -85,6 +86,17 @@ export const isAlphaConfig: FieldValidateConfig<IsAlphaArgs> = {
         }
     },
     examples,
+    /**
+     * `validator`'s `en-US` alphabet, which is `/^[A-Za-z]+$/` and nothing subtler.
+     *
+     * The other locales each have their own letter set, so `applies` claims only the default -
+     * this is the one `validator`-backed predicate simple enough to state exactly, and it is
+     * stated from `validator`'s own table rather than from the name.
+    */
+    sql: {
+        applies: (args) => defaultLocale(args.locale),
+        expression: ({ value }) => `regexp_matches(${value}, '${ALPHA_LOCALES}')`,
+    },
     accepts: [FieldType.String],
     required_arguments: [],
     validate_arguments({ locale }: IsAlphaArgs) {

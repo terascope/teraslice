@@ -1,3 +1,7 @@
+import { FieldType } from '@terascope/types';
+// imported as well as re-exported: `primitiveLiteral` below needs it as a local binding
+import { quoteLiteral } from '../duck-frame/sql.js';
+
 /**
  * Helpers shared by the `sql` emissions on the function configs.
  *
@@ -55,9 +59,10 @@ export function isAsciiSql(value: string): string {
 /**
  * `runMathFn`'s contract, in SQL: a non-finite RESULT becomes null.
  *
- * Every numeric transform goes through `runMathFn`, which returns `null` when the result is `NaN` or
- * either infinity - so `sqrt(-1)`, `log(0)` and an overflow all yield null rather than a value or a
- * throw. A bare `sqrt(x)` in SQL would return `nan` or `-inf` instead, which is a different answer.
+ * Every numeric transform goes through `runMathFn`, which returns `null` when the result is `NaN`
+ * or either infinity - so `sqrt(-1)`, `log(0)` and an overflow all yield null rather than a value
+ * or a throw. A bare `sqrt(x)` in SQL would return `nan` or `-inf` instead, which is a different
+ * answer.
 */
 export function finiteOrNull(expression: string): string {
     return `CASE WHEN isfinite(${expression}) THEN ${expression} ELSE NULL END`;
@@ -66,10 +71,11 @@ export function finiteOrNull(expression: string): string {
 /**
  * A DOUBLE that an `Integer` output can hold.
  *
- * The guard that lets `ceil`/`floor`/`round` be promoted. Their `output_type` is `Integer`, and past
- * that range the UDF path returns a wrapped BIGINT rendered as a STRING (see `docs/known-defects.md`
- * DF2) while the SQL expression returns the true value - so inside the range SQL is used, and outside
- * it the UDF is, which keeps the answer bit-identical to today at magnitudes no real dataset holds.
+ * The guard that lets `ceil`/`floor`/`round` be promoted. Their `output_type` is `Integer`, and
+ * past that range the UDF path returns a wrapped BIGINT rendered as a STRING (see
+ * `docs/known-defects.md` DF2) while the SQL expression returns the true value - so inside the
+ * range SQL is used, and outside it the UDF is, which keeps the answer bit-identical to today at
+ * magnitudes no real dataset holds.
  *
  * `+ 0` normalises `-0` to `0`, which is what the UDF path's conversion does.
 */
@@ -80,9 +86,9 @@ export function withinIntegerRange(value: string, native: string): string {
 /**
  * Values whose reversal needs GRAPHEME segmentation, as an RE2 class.
  *
- * The same set as `reverse.ts`'s `NEEDS_SEGMENTATION`: an astral code point, a zero-width joiner, or
- * a combining mark. Verified that RE2 supports all three forms and matches the same strings as the
- * JavaScript regex - `'éabc'`, `'👍'` and a ZWJ sequence match, plain ASCII does not.
+ * The same set as `reverse.ts`'s `NEEDS_SEGMENTATION`: an astral code point, a zero-width joiner,
+ * or a combining mark. Verified that RE2 supports all three forms and matches the same strings as
+ * the JavaScript regex - `'éabc'`, `'👍'` and a ZWJ sequence match, plain ASCII does not.
 */
 export const NEEDS_GRAPHEME_REVERSE = '[\\p{M}\\x{200D}\\x{10000}-\\x{10FFFF}]';
 
@@ -90,10 +96,10 @@ export const NEEDS_GRAPHEME_REVERSE = '[\\p{M}\\x{200D}\\x{10000}-\\x{10FFFF}]';
  * A domain guard, because **DuckDB THROWS where JavaScript returns NaN**.
  *
  * Measured: `sqrt(-1)` is `Out of Range Error: cannot take square root of a negative number`, and
- * `ln(0)` and `ln(-1)` raise their own errors - while `Math.sqrt(-1)` is `NaN` and `runMathFn` turns
- * that into `null`. So a bare native call is not merely a different answer for out-of-domain input,
- * it aborts the whole query. The guard has to come BEFORE the call, not after it, which is why
- * `finiteOrNull` cannot do this job.
+ * `ln(0)` and `ln(-1)` raise their own errors - while `Math.sqrt(-1)` is `NaN` and `runMathFn`
+ * turns that into `null`. So a bare native call is not merely a different answer for out-of-domain
+ * input, it aborts the whole query. The guard has to come BEFORE the call, not after it, which is
+ * why `finiteOrNull` cannot do this job.
 */
 export function inDomain(condition: string, native: string): string {
     return `CASE WHEN ${condition} THEN ${native} ELSE NULL END`;
@@ -106,8 +112,8 @@ export function inDomain(condition: string, native: string): string {
  * counts CHARACTERS.** `truncate` with size 3 over four thumbs-up emoji returns `'\u{1F44D}\ud83d'`
  * in JavaScript - a lone surrogate - where `substring` returns three whole emoji; `isLength` with
  * size 5 calls five emoji a length of 10. Neither is expressible in SQL, and both are correct
- * according to the current behaviour, so astral input goes to the UDF and everything else - which is
- * all real data - stays native.
+ * according to the current behaviour, so astral input goes to the UDF and everything else - which
+ * is all real data - stays native.
 */
 export const HAS_ASTRAL = '[\\x{10000}-\\x{10FFFF}]';
 
@@ -148,4 +154,49 @@ export function allowsNumericArgs<T extends Record<string, any>>(
     ...names: readonly string[]
 ): (args: T) => boolean {
     return (args) => names.every((name) => args[name] == null || isNumericArg(args[name]));
+}
+
+/** The string-shaped field types, as `validateAccepts` treats them. */
+export const STRING_FIELD_TYPES: readonly FieldType[] = [
+    FieldType.String, FieldType.Keyword, FieldType.Text, FieldType.NgramTokens,
+];
+
+/** The numeric field types. */
+export const NUMERIC_FIELD_TYPES: readonly FieldType[] = [
+    FieldType.Number,
+    FieldType.Byte,
+    FieldType.Short,
+    FieldType.Integer,
+    FieldType.Long,
+    FieldType.Float,
+    FieldType.Double,
+];
+
+/**
+ * A SQL literal for an argument declared `FieldType.Any`, or null when it cannot be one.
+ *
+ * `setDefault` and `equals` take an arbitrary value, and only the primitives have a literal form -
+ * an object or an array would need a structural comparison that `isDeepEqual` does and SQL does
+ * not, so those keep the UDF. Returning null is how the caller's `applies` finds that out.
+*/
+export function primitiveLiteral(value: unknown): string | null {
+    if (typeof value === 'string') return quoteLiteral(value);
+    if (typeof value === 'boolean') return value ? 'TRUE' : 'FALSE';
+    if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+    return null;
+}
+
+/**
+ * Whether a `FieldType.Any` argument and the column it will be compared or coalesced against are
+ * the same KIND of thing.
+ *
+ * Mixing them is not a type error in SQL - `coalesce(varchar_col, 5)` casts happily - but the cast
+ * is DuckDB's and the UDF path's is JavaScript's, and there is no reason to assume they agree on
+ * how `5` becomes a string. Same-kind only; anything else keeps the UDF.
+*/
+export function literalMatchesColumn(value: unknown, type: FieldType): boolean {
+    if (typeof value === 'string') return STRING_FIELD_TYPES.includes(type);
+    if (typeof value === 'boolean') return type === FieldType.Boolean;
+    if (typeof value === 'number') return NUMERIC_FIELD_TYPES.includes(type);
+    return false;
 }

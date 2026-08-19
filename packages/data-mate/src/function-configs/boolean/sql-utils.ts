@@ -1,6 +1,8 @@
 import { FieldType } from '@terascope/types';
 import { DataTypeFieldAndChildren } from '../interfaces.js';
-import { JS_WHITESPACE, sqlLiteral } from '../sql-helpers.js';
+import {
+    JS_WHITESPACE, sqlLiteral, STRING_FIELD_TYPES, NUMERIC_FIELD_TYPES,
+} from '../sql-helpers.js';
 
 /**
  * Helpers shared by the `sql` emissions on the boolean function configs.
@@ -21,12 +23,8 @@ export function isBooleanColumn(inputConfig: DataTypeFieldAndChildren): boolean 
     return columnType(inputConfig) === FieldType.Boolean;
 }
 
-const STRING_TYPES: readonly FieldType[] = [
-    FieldType.String, FieldType.Keyword, FieldType.Text, FieldType.NgramTokens,
-];
-
 export function isStringColumn(inputConfig: DataTypeFieldAndChildren): boolean {
-    return STRING_TYPES.includes(columnType(inputConfig));
+    return STRING_FIELD_TYPES.includes(columnType(inputConfig));
 }
 
 /**
@@ -55,16 +53,6 @@ export function stringIsTruthy(value: string): string {
     return `${normalised(value)} IN ('1', 'true', 'yes')`;
 }
 
-const NUMERIC_TYPES: readonly FieldType[] = [
-    FieldType.Number,
-    FieldType.Byte,
-    FieldType.Short,
-    FieldType.Integer,
-    FieldType.Long,
-    FieldType.Float,
-    FieldType.Double,
-];
-
 /**
  * Whether the column holds numbers.
  *
@@ -72,5 +60,5 @@ const NUMERIC_TYPES: readonly FieldType[] = [
  * the UDF rather than being fed to a comparison that would not mean the same thing.
 */
 export function isNumericColumn(inputConfig: DataTypeFieldAndChildren): boolean {
-    return NUMERIC_TYPES.includes(columnType(inputConfig));
+    return NUMERIC_FIELD_TYPES.includes(columnType(inputConfig));
 }
