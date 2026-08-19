@@ -9,6 +9,7 @@ import {
     FunctionDefinitionCategory,
     FunctionDefinitionExample
 } from '../interfaces.js';
+import { JS_WHITESPACE, sqlLiteral } from '../sql-helpers.js';
 
 export interface TrimEndArgs {
     chars?: string;
@@ -63,6 +64,17 @@ export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
         return trimEndFP(chars);
     },
     accepts: [FieldType.String],
+    /**
+     * `rtrim(x, chars)` - always with an explicit character set, never the one-argument form.
+     *
+     * DuckDB's `rtrim(x)` strips only SPACES where JavaScript strips every Unicode whitespace
+     * code point, so the one-argument form silently differs on tabs and newlines. Passing
+     * `JS_WHITESPACE` makes them agree on all 25 of those code points.
+    */
+    sql: {
+        expression: ({ value, args }) => `rtrim(${value}, `
+            + `${sqlLiteral(args.chars == null ? JS_WHITESPACE : args.chars)})`,
+    },
     argument_schema: {
         chars: {
             type: FieldType.String,

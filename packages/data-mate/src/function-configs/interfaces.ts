@@ -139,6 +139,76 @@ export interface FunctionDefinitionConfig<T extends Record<string, any>> {
 
     /** Used for additional custom validation of args, called after generic arg validation */
     readonly validate_arguments?: (args: T) => void;
+
+    /**
+     * How to run this function as a SQL EXPRESSION instead of a JavaScript UDF.
+     *
+     * **Why this belongs here.** A `FunctionDefinitionConfig` is the single definition of a
+     * function's behaviour - name, aliases, argument schema, accepted types, what the field
+     * becomes, and the implementation - and spaces turns these into GraphQL directives, so they
+     * are the public surface. How a function is EXECUTED is a property of the function, so it is
+     * declared next to everything else about it rather than in a lookup table that could drift.
+     *
+     * **Why it is worth having.** A JS UDF costs ~178 ns per value of pure marshalling and runs
+     * strictly single-threaded (the node binding blocks the DuckDB worker thread until JS
+     * returns), while native SQL is 1-2 ns and uses 9-11 cores. Measured 2026-08-18: 18x on a
+     * five-function pipeline at 5M rows, 125x on an isolated aggregate.
+     *
+     * **Nothing is promoted by inspection.** An emission is only correct if it is byte-equal to
+     * this function's own UDF over a battery of values, and the two most obvious candidates in the
+     * catalogue were NOT: JS `trim()` strips all Unicode whitespace where DuckDB's one-argument
+     * `trim` strips only spaces, and `toUpperCase` uses full case mapping where `upper()` uses
+     * simple mapping (`'ß'` -> `SS` in JS, `ẞ` in SQL). `sql-emission-spec.ts` is the gate.
+    */
+    readonly sql?: SqlEmission<T>;
+}
+
+/**
+ * A function's SQL form.
+ *
+ * `expression` builds SQL for ONE value rather than for the column, because the caller decides how
+ * the value is reached: it is the column for a scalar field, and the lambda variable inside a
+ * `list_transform` for an array field under `INDIVIDUAL_VALUES`. Building per value means the array
+ * case needs nothing extra here.
+*/
+export interface SqlEmission<T extends Record<string, any>> {
+    /** Builds the expression. Must be NULL-safe: a null input has to produce null. */
+    readonly expression: (ctx: SqlEmissionContext<T>) => string;
+
+    /**
+     * Field types this emission is valid for. Defaults to the function's `accepts`.
+     *
+     * Present because an emission is often only right for SOME accepted types - a function that
+     * takes both `String` and `Number` may have a native equivalent for one and not the other.
+    */
+    readonly types?: readonly FieldType[];
+
+    /**
+     * Set when `expression` calls `ctx.udf`, so the adapter knows it must still register the
+     * JavaScript implementation.
+     *
+     * **This is what makes a guarded fast path possible**, which is the difference between
+     * promoting a function and giving up on it: `toUpperCase` is `upper()` for ASCII and needs
+     * JavaScript's full case mapping for anything else, so it emits
+     * `CASE WHEN <ascii> THEN upper(x) ELSE udf(x) END` and the UDF is called only for the values
+     * that need it. When this is NOT set, no UDF is registered at all and the JS boundary is gone.
+    */
+    readonly needs_udf_fallback?: boolean;
+}
+
+export interface SqlEmissionContext<T extends Record<string, any>> {
+    /** SQL for ONE already-typed value: the quoted column, or a lambda variable. */
+    readonly value: string;
+    readonly args: T;
+    readonly inputConfig: DataTypeFieldAndChildren;
+    readonly outputConfig: DataTypeFieldAndChildren;
+    /**
+     * Calls this function's JavaScript UDF for `value`.
+     *
+     * Only usable when `needs_udf_fallback` is set - otherwise no UDF exists and calling this
+     * throws, loudly, at plan time rather than producing SQL that references nothing.
+    */
+    readonly udf: (value: string) => string;
 }
 export interface FunctionContext<T extends Record<string, any> = Record<string, unknown>> {
     readonly args: T;
