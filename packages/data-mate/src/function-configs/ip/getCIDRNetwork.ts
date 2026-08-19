@@ -4,6 +4,9 @@ import { FieldType } from '@terascope/types';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces.js';
+import {
+    isIPv4CIDRSql, cidrNetwork,
+} from './sql-utils.js';
 
 export const getCIDRNetworkConfig: FieldTransformConfig = {
     name: 'getCIDRNetwork',
@@ -29,6 +32,12 @@ export const getCIDRNetworkConfig: FieldTransformConfig = {
     description: 'Returns the network address of a CIDR range, only applicable to IPv4 addresses',
     create() {
         return getCIDRNetwork;
+    },
+    /** IPv4 only - the implementation throws for a v6 block, so v6 goes to the UDF and throws. */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => `CASE WHEN ${isIPv4CIDRSql(value)}`
+            + ` THEN host(${cidrNetwork(value)}) ELSE ${udf(value)} END`,
     },
     accepts: [FieldType.String, FieldType.IPRange],
     output_type({ field_config }) {

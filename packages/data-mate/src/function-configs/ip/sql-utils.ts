@@ -156,3 +156,71 @@ export function isRoutableSql(value: string): string {
         + ` WHEN ${isIPv6Sql(value)} THEN NOT ${inAny(inet, NON_ROUTABLE_V6)}`
         + ' ELSE false END';
 }
+
+/**
+ * ## The throw contract for the IP TRANSFORMS
+ *
+ * A validation returns null for a bad value; a transform THROWS, and per the failure contract
+ * (`docs/HANDOFF.md`) that aborts the whole query, exactly as it does in `DataFrame`. SQL has
+ * `error()`, which also aborts - but with DuckDB's message rather than the function's own.
+ *
+ * So none of these emissions raise. Each is
+ * `CASE WHEN <the native branch is exact> THEN <native> ELSE udf(x) END`, with
+ * `needs_udf_fallback`. Verified: **DuckDB's `CASE` short-circuits**, so the UDF is called only for
+ * the values the native branch cannot serve, and it then throws the real JavaScript error. Parity
+ * on failing input is therefore automatic rather than approximated, and the fast path is untouched
+ * for everything else.
+ *
+ * `docs/tools/probe/ip-transforms.mjs` differenced every native branch below against `ip-utils`.
+*/
+
+/** The network address of a CIDR block, as a bare `INET` with the prefix dropped. */
+export function cidrNetwork(value: string): string {
+    return `host(network(${asInet(value)}))::INET`;
+}
+
+/** The broadcast address, likewise bare. */
+export function cidrBroadcast(value: string): string {
+    return `host(broadcast(${asInet(value)}))::INET`;
+}
+
+/**
+ * **Why the prefix is dropped before any arithmetic.**
+ *
+ * `network('10.0.0.0/8'::INET) - 1` is `Out of Range Error: Cannot add -1 to 10.255.255.255/8` -
+ * DuckDB refuses arithmetic that would leave the subnet, which is precisely what `firstUsable` and
+ * `lastUsable` do. Through `host()` the value is a bare address and the arithmetic is the plain
+ * address arithmetic `IPAddress.offset` performs.
+ *
+ * A single-address block is compared with `host(a) = host(b)` rather than `a = b`: INET equality
+ * did not answer true for a `/32` whose two ends print identically.
+*/
+export function isSingleAddress(value: string): string {
+    return `host(${cidrNetwork(value)}) = host(${cidrBroadcast(value)})`;
+}
+
+/**
+ * A result the two renderers spell differently, so the UDF keeps it.
+ *
+ * `host()` prints an IPv4-mapped address with a DOTTED tail - `::ffff:0.0.0.0` - where
+ * `intToIPv6String` prints `::ffff:0:0`. Every other IPv6 block agreed on both sides, so the guard
+ * excludes only the mapped range rather than IPv6 as a whole.
+*/
+export function isMappedResult(value: string): string {
+    return `(contains(${value}, ':') AND ${asInet(value)} <<= INET '::ffff:0:0/96')`;
+}
+
+/**
+ * The one address DuckDB will not produce by addition.
+ *
+ * Measured: `INET '255.255.255.254' + 1` raises `Out of Range Error`, while subtracting from
+ * `255.255.255.255` is fine and IPv6 has no such limit. Only `firstUsable` can land on it.
+*/
+export function firstUsableHitsTopOfV4(value: string): string {
+    return `host(${cidrNetwork(value)}) = '255.255.255.254'`;
+}
+
+/** An IPv4 CIDR, which is all `getCIDRNetwork` and `getCIDRBroadcast` accept. */
+export function isIPv4CIDRSql(value: string): string {
+    return `(${isCIDRSql(value)} AND NOT contains(${value}, ':'))`;
+}
