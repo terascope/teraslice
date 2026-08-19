@@ -107,6 +107,29 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
         null,
     ],
     [FieldType.IP]: ['1.2.3.4', '255.255.255.255', '0.0.0.0', '::1', 'fe80::1', null],
+    /**
+     * Only what a `GeoJSON` column can actually HOLD.
+     *
+     * Measured: `coerceToType` REJECTS a malformed shape outright - `{ type: 'Point' }`,
+     * `{ coordinates: [...] }`, a `LineString`, `{}` all throw at ingest - and it NORMALISES the
+     * type to title case, so `'point'` is stored as `'Point'`. A near-miss battery therefore cannot
+     * reach the column at all; the emission's structural checks are correct but unreachable here,
+     * and testing them would mean testing coercion instead.
+     *
+     * `'POINT'` stays, and is the interesting one: coercion passes it through unchanged, it
+     * satisfies `isGeoJSON` (which lowercases) and FAILS `isGeoShapePoint` (which compares
+     * exactly).
+    */
+    [FieldType.GeoJSON]: [
+        { type: 'Point', coordinates: [10, 20] },
+        { type: 'point', coordinates: [10, 20] },
+        { type: 'POINT', coordinates: [10, 20] },
+        { type: 'Polygon', coordinates: [[[0, 0], [0, 1], [1, 1], [0, 0]]] },
+        { type: 'polygon', coordinates: [[[0, 0], [0, 1], [1, 1], [0, 0]]] },
+        { type: 'MultiPolygon', coordinates: [[[[0, 0], [0, 1], [1, 1], [0, 0]]]] },
+        { type: 'multipolygon', coordinates: [[[[0, 0], [0, 1], [1, 1], [0, 0]]]] },
+        null,
+    ],
 };
 
 /**
@@ -265,6 +288,7 @@ const IP_TRANSFORM_CASE = { type: FieldType.Keyword, battery: VALID_IPS, throwsO
  * first, numerics next, generic strings last. Same reasoning as `function-sweep-spec.ts`.
 */
 const TYPE_PREFERENCE: readonly FieldType[] = [
+    FieldType.GeoJSON,
     FieldType.Date,
     FieldType.IP,
     FieldType.Boolean,
@@ -313,6 +337,17 @@ const CASES: Record<string, {
      * thing with the broken layer taken out of the loop, which is if anything the stronger check.
     */
     arrayOnly?: boolean;
+    /**
+     * The UDF path cannot bind for this column type, so parity is proved against the JavaScript
+     * implementation directly - same reasoning as `arrayOnly`, different cause.
+     *
+     * `scalar-function.ts` maps no DuckDB type object for JSON or STRUCT field types, deliberately:
+     * "GeoJSON / Any are JSON, and the binding exports no JSON type constant. GeoPoint / Geo /
+     * Boundary / Object / Tuple are STRUCTs, which need a type built at runtime". So **every geo
+     * function is unusable as a UDF today** and the emission is the only way one can run at all.
+     * See `docs/known-defects.md` DF7.
+    */
+    noUdfPath?: boolean;
     /**
      * An input this TRANSFORM rejects, so the throw contract can be asserted rather than assumed.
      *
@@ -398,6 +433,10 @@ const CASES: Record<string, {
      * integer one is there for `isnan`, which would have been a plausible place to find no
      * overload - it has one, but only the test says so.
     */
+    isGeoJSON: { type: FieldType.GeoJSON, noUdfPath: true },
+    isGeoShapePoint: { type: FieldType.GeoJSON, noUdfPath: true },
+    isGeoShapePolygon: { type: FieldType.GeoJSON, noUdfPath: true },
+    isGeoShapeMultiPolygon: { type: FieldType.GeoJSON, noUdfPath: true },
     isDate: { type: FieldType.Date, args: [{}, { format: 'iso_8601' }] },
     isISO8601: { type: FieldType.Date },
     // real zones, not just UTC: a reversed date_diff still matches UTC and fails everywhere else
@@ -638,6 +677,8 @@ describe('sql emissions on the function configs', () => {
     describe.each(PROMOTED)('%s', (name, config) => {
         const argSets = CASES[name]?.args ?? [{}];
         const arrayOnly = CASES[name]?.arrayOnly === true;
+        // either way there is no UDF to compare with - see `arrayOnly` and `noUdfPath`
+        const againstJs = arrayOnly || CASES[name]?.noUdfPath === true;
         const onArray = { array: arrayOnly };
 
         /**
@@ -646,7 +687,7 @@ describe('sql emissions on the function configs', () => {
          * The battery is fed as ONE array - which is what a `FULL_VALUES` function folds - so this
          * compares one value, not one per battery entry.
         */
-        if (arrayOnly) {
+        if (againstJs) {
             it('is byte-equal to its own JavaScript implementation over the battery', async () => {
                 const args = argSets[0] as Record<string, unknown>;
                 const sql = await run(name, config, args, true, onArray);
@@ -655,16 +696,34 @@ describe('sql emissions on the function configs', () => {
                     CASES[name]?.battery ?? BATTERIES[type] ?? []
                 ) as readonly unknown[];
                 // the union does not carry `create`; every promoted config is a field function
+                const fieldConfig = { type, ...(arrayOnly ? { array: true } : {}) };
                 const impl = (config as any).create({
                     args,
-                    inputConfig: { field_config: { type, array: true } },
+                    inputConfig: { field_config: fieldConfig },
                 }) as (input: unknown) => unknown;
 
-                expectSame(
-                    sql.values,
-                    [impl(battery.filter((value) => value != null))],
-                    config.sql?.approximate
-                );
+                if (isFieldValidation(config)) {
+                    /**
+                     * A validation projects `CASE WHEN pred THEN col ELSE NULL END`, so what comes
+                     * back is the VALUE or null - not the predicate. Comparing which entries
+                     * survived is the whole of a validation's contract, and it does not require
+                     * knowing what coercion did to the value on the way in.
+                    */
+                    expect(sql.values.map((value) => value != null)).toEqual(
+                        battery.map((value) => value != null && impl(value) === true)
+                    );
+                    return;
+                }
+
+                /**
+                 * An `arrayOnly` function folds the WHOLE battery into one value; a `noUdfPath`
+                 * one is still per-row, so it maps.
+                */
+                const expected = arrayOnly
+                    ? [impl(battery.filter((value) => value != null))]
+                    : battery.map((value) => (value == null ? null : impl(value)));
+
+                expectSame(sql.values, expected, config.sql?.approximate);
                 expect(sql.dispatch).toEqual('sql');
             }, 60_000);
         }
@@ -689,8 +748,8 @@ describe('sql emissions on the function configs', () => {
             return config.sql?.applies?.(args, { field_config }) !== false;
         };
 
-        // not for the array reducers: their UDF path cannot bind at all, see `arrayOnly`
-        if (!arrayOnly) {
+        // skipped whenever there is no UDF path to compare against
+        if (!againstJs) {
             const types = inputTypesFor(name, config);
             const matrix = types.flatMap(
                 (type) => argSets
@@ -741,7 +800,7 @@ describe('sql emissions on the function configs', () => {
          * function that path cannot even bind (known-defects DF4).
         */
         const skipArray = isFieldValidation(config)
-            || arrayOnly
+            || againstJs
             || !claims(argSets[0] as Record<string, unknown>, inputTypeFor(name, config), true);
         const arrayCase = skipArray ? it.skip : it;
 
@@ -805,6 +864,9 @@ describe('sql emissions on the function configs', () => {
             }
             expect(dispatches.some((d) => d === 'sql' || d === 'sql+udf')).toBeTrue();
         }, 30_000);
+
+        // the remaining dispatch checks build a UDF, which for these types cannot be registered
+        if (againstJs && !arrayOnly) return;
 
         it('registers a udf only when the emission needs one', async () => {
             const type = inputTypeFor(name, config);
