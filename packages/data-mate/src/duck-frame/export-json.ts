@@ -134,6 +134,11 @@ function buildTree(fields: DataTypeFields): Record<string, FieldNode> {
  *
  * `variable` is the lambda parameter, and each caller passes a DIFFERENT one so that a corrected
  * list nested inside a corrected object or list can never shadow an outer binding.
+ *
+ * **`lambda x : ...`, never `x -> ...`.** DuckDB's docs: "DuckDB v2.0 will disable the single arrow
+ * syntax by default. DuckDB v2.1 will remove the `lambda_syntax` flag" - so the arrow form is a
+ * hard break on an upgrade, and both forms parse today (verified on 1.5.5, `lambda_syntax` is
+ * `DEFAULT`).
 */
 function jsonList(
     accessor: string,
@@ -141,7 +146,7 @@ function jsonList(
     element: (reference: string) => string
 ): string {
     return `CASE WHEN ${accessor} IS NULL THEN NULL`
-        + ` ELSE to_json(list_transform(${accessor}, ${variable} -> ${element(variable)})) END`;
+        + ` ELSE to_json(list_transform(${accessor}, lambda ${variable} : ${element(variable)})) END`;
 }
 
 /**
@@ -195,7 +200,7 @@ function jsonValue(node: FieldNode, accessor: string): string {
         // an array of objects: correct each element, then re-wrap
         if (node.isArray) {
             return `CASE WHEN ${accessor} IS NULL THEN NULL ELSE to_json(list_transform(`
-                + `${accessor}, e -> ${jsonObject(node.children, 'e')}))`
+                + `${accessor}, lambda e : ${jsonObject(node.children, 'e')}))`
                 + ' END';
         }
         return `CASE WHEN ${accessor} IS NULL THEN NULL ELSE ${object} END`;
@@ -205,7 +210,7 @@ function jsonValue(node: FieldNode, accessor: string): string {
         // toISO8601, not DuckDB's SQL rendering
         const format = quoteLiteral(ISO8601);
         return node.isArray
-            ? `to_json(list_transform(${accessor}, e -> strftime(e, ${format})))`
+            ? `to_json(list_transform(${accessor}, lambda e : strftime(e, ${format})))`
             : `to_json(strftime(${accessor}, ${format}))`;
     }
 
