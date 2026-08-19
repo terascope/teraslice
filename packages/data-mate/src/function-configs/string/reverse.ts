@@ -7,6 +7,7 @@ import {
     FunctionDefinitionCategory,
     FunctionDefinitionExample
 } from '../interfaces.js';
+import { sqlLiteral, NEEDS_GRAPHEME_REVERSE } from '../sql-helpers.js';
 
 /**
  * Strings containing a surrogate pair, a combining mark, or a zero-width joiner cannot
@@ -93,16 +94,20 @@ export const reverseConfig: FieldTransformConfig = {
         return _reverse;
     },
     /**
-     * NOT promoted to SQL. Two divergences, both real:
+     * `reverse()` for the strings that do not need grapheme segmentation, the UDF for the ones that
+     * do - and NULL for the empty string, which is what `_reverse` returns.
      *
-     * - `_reverse` returns **null** for an empty string, where `reverse('')` is `''`.
-     * - `_reverse` uses GRAPHEME segmentation when the value contains an astral code point, a ZWJ or
-     *   a combining mark, because reversing code points detaches combining marks. DuckDB's `reverse`
-     *   is code-point-based, so those inputs come out differently.
-     *
-     * A guarded emission is possible - `CASE WHEN x = '' THEN NULL WHEN <needs segmentation> THEN
-     * udf(x) ELSE reverse(x) END`, with the guard as an RE2 `\p{M}` test - and is worth trying,
-     * since the segmentation path is the rare one. Not attempted yet.
+     * The guard is the same set as `NEEDS_SEGMENTATION` above, as an RE2 class: an astral code point,
+     * a zero-width joiner or a combining mark. Verified that RE2 supports `\p{M}` and `\x{...}` and
+     * matches the same strings the JavaScript regex does. So the 11x-slower segmentation path runs
+     * only where it is needed, exactly as it does in JavaScript - and everything else, which is
+     * essentially all real data, never leaves SQL.
     */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => `CASE WHEN ${value} = '' THEN NULL`
+            + ` WHEN regexp_matches(${value}, ${sqlLiteral(NEEDS_GRAPHEME_REVERSE)})`
+            + ` THEN ${udf(value)} ELSE reverse(${value}) END`,
+    },
     accepts: [FieldType.String],
 };

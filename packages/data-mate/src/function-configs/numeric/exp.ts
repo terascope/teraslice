@@ -41,6 +41,9 @@ export const expConfig: FieldTransformConfig = {
     },
     /** `exp` is native; an overflow becomes null on both sides via the finiteness guard. */
     sql: {
+        // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754
+        // permits. The gate compares these to a few ULP - see `approximate`.
+        approximate: true,
         expression: ({ value }) => finiteOrNull(`exp(${value})`),
     },
     accepts: [

@@ -61,7 +61,10 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
         '\t x \n',
         ' nbsp ',
         '　ideographic　',
-        '﻿zwnbsp﻿',
+        // a LEADING U+FEFF is stripped on ingest and again when a UDF returns one, so a value
+        // carrying it cannot round-trip through the engine - see docs/known-defects.md DF3.
+        // A trailing one survives, and stays here.
+        'zwnbsp﻿',
         'ß',
         'ﬁ',
         'İstanbul',
@@ -110,8 +113,24 @@ const TYPE_PREFERENCE: readonly FieldType[] = [
     FieldType.Keyword,
 ];
 
-/** Per-function overrides: argument sets to try, and the input type when preference is wrong. */
-const CASES: Record<string, { args?: readonly Record<string, unknown>[]; type?: FieldType }> = {
+/**
+ * Per-function overrides: argument sets, the input type when preference is wrong, and the battery
+ * itself where the shared one contains values the function's DECLARED OUTPUT TYPE cannot hold.
+ *
+ * That last case is `ceil`/`floor`/`round`: their `output_type` is `Integer`, so at `1e21` both paths
+ * produce a wrapped BIGINT (`docs/known-defects.md` DF2) and differ only in how the garbage renders -
+ * a string on one side, a double on the other. Comparing them there measures the overflow defect, not
+ * the emission, so the battery is narrowed to what an `Integer` can represent and the guard on those
+ * emissions keeps the UDF for everything outside it.
+*/
+const CASES: Record<string, {
+    args?: readonly Record<string, unknown>[];
+    type?: FieldType;
+    battery?: readonly unknown[];
+}> = {
+    ceil: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
+    floor: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
+    round: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
     trim: { args: [{}, { chars: 'x' }, { chars: '-' }, { chars: 'ab' }] },
     trimStart: { args: [{}, { chars: 'x' }, { chars: '-' }] },
     trimEnd: { args: [{}, { chars: 'x' }, { chars: '-' }] },
@@ -127,6 +146,10 @@ const CASES: Record<string, { args?: readonly Record<string, unknown>[]; type?: 
         ],
     },
     isLength: { args: [{ size: 5 }, { min: 1, max: 10 }, { min: 0 }] },
+    isGreaterThan: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
+    isGreaterThanOrEqualTo: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
+    isLessThan: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
+    isLessThanOrEqualTo: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
     truncate: { args: [{ size: 3 }, { size: 0 }, { size: 100 }] },
     setPrecision: { args: [{ digits: 2 }, { digits: 0 }] },
 };
@@ -149,6 +172,40 @@ interface Ran {
 }
 
 /**
+ * A few ULP of a double, as a relative tolerance.
+ *
+ * `Number.EPSILON` is 2^-52, one ULP at magnitude 1; four of them is a generous bound on a libm
+ * difference and still ~12 orders of magnitude tighter than anything a caller could notice.
+*/
+const ULP_TOLERANCE = Number.EPSILON * 4;
+
+/**
+ * Compares the two paths' output, exactly by default.
+ *
+ * **Approximate comparison is allowed ONLY for a function that declares it**, and only between two
+ * finite numbers. Everything else - nulls, strings, booleans, a null against a number - still has to
+ * match exactly, so `approximate` cannot hide a structural difference, only a last-bit one.
+*/
+function expectSame(sql: unknown[], udf: unknown[], approximate: boolean | undefined) {
+    if (!approximate) {
+        expect(sql).toEqual(udf);
+        return;
+    }
+
+    expect(sql).toBeArrayOfSize(udf.length);
+    sql.forEach((value, index) => {
+        const other = udf[index];
+        if (typeof value === 'number' && typeof other === 'number'
+            && Number.isFinite(value) && Number.isFinite(other)) {
+            const scale = Math.max(Math.abs(value), Math.abs(other), 1);
+            expect(Math.abs(value - other)).toBeLessThanOrEqual(ULP_TOLERANCE * scale);
+            return;
+        }
+        expect(value).toEqual(other);
+    });
+}
+
+/**
  * Runs one function over its battery, either way, and returns what came out.
  *
  * The projection is forced by draining `rows()`, so what is compared is the values a caller would
@@ -162,7 +219,7 @@ async function run(
     { array }: { array?: boolean } = {}
 ): Promise<Ran> {
     const type = inputTypeFor(name, config);
-    const battery = BATTERIES[type] as readonly unknown[];
+    const battery = CASES[name]?.battery ?? (BATTERIES[type] as readonly unknown[]);
     const fieldConfig = { type, ...(array ? { array: true } : {}) };
     const dtConfig: DataTypeConfig = { version: 1, fields: { field: fieldConfig } };
 
@@ -217,7 +274,7 @@ describe('sql emissions on the function configs', () => {
                 const sql = await run(name, config, args as Record<string, unknown>, true);
                 const udf = await run(name, config, args as Record<string, unknown>, false);
 
-                expect(sql.values).toEqual(udf.values);
+                expectSame(sql.values, udf.values, config.sql?.approximate);
                 // and the two paths really were different paths - otherwise this proves nothing
                 expect(udf.dispatch).toEqual('udf');
                 expect(['sql', 'sql+udf']).toContain(sql.dispatch);
@@ -240,7 +297,12 @@ describe('sql emissions on the function configs', () => {
             const sql = await run(name, config, args, true, { array: true });
             const udf = await run(name, config, args, false, { array: true });
 
-            expect(sql.values).toEqual(udf.values);
+            // one row whose value is the whole battery as a list, so compare element-wise
+            expectSame(
+                (sql.values[0] ?? []) as unknown[],
+                (udf.values[0] ?? []) as unknown[],
+                config.sql?.approximate
+            );
         }, 60_000);
 
         it('registers a udf only when the emission needs one', async () => {
