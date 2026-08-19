@@ -1,4 +1,6 @@
-import { structValue, listValue, timestampValue } from '@duckdb/node-api';
+import {
+    structValue, listValue, timestampValue, DuckDBTimestampValue
+} from '@duckdb/node-api';
 import {
     DataTypeFieldConfig, DataTypeFields, ReadonlyDataTypeFields,
     FieldType, DeprecatedFieldType
@@ -149,4 +151,43 @@ export function makeValueConverter(
     }
 
     return (value) => (value == null ? null : value);
+}
+
+/**
+ * The INVERSE of `makeValueConverter`: what DuckDB hands a scalar function, turned into the
+ * representation data-mate's own primitives expect.
+ *
+ * **This exists because its absence was a silent, machine-dependent defect.**
+ * `createScalarFunction` used to pass DuckDB's value straight through, so a `Date` column arrived
+ * as a `DuckDBTimestampValue`. Its `toString()` is `'2026-08-14 01:02:03.456'` - space-separated
+ * and **zone-less** - and every date primitive coerces an object by stringifying it, so the value
+ * went through `new Date('2026-08-14 01:02:03.456')`, which parses a zone-less string as
+ * **MACHINE-LOCAL**. Every date UDF's input therefore drifted by the host's UTC offset: 0 under
+ * `TZ=UTC`, +4h under `America/New_York`, -9h under `Asia/Tokyo`.
+ *
+ * It was not confined to the timezone functions, or even to `Date` results. Measured under
+ * New York, 13 of 16 date functions diverged from `DataFrame` - `formatDate` (String),
+ * `getUTCHours` (Number), `addToDate` (Date) - and `isAfter`/`isBefore`/`isBetween` **flipped**
+ * between two `TZ` values on identical data and an identical query.
+ *
+ * **`Date` is the only type that needed this.** Measured, what a UDF receives per column type:
+ * `Long` -> `BigInt`, `IP`/`Keyword`/`Text` -> `String`, `Double`/`Float`/`Number` -> `Number`,
+ * `Boolean` -> `Boolean`, and an array element arrives already unwrapped (`INDIVIDUAL_VALUES`
+ * maps with `list_transform`, so the UDF stays scalar). All of those are what the primitives
+ * already expect. `GeoPoint` and friends throw at REGISTRATION - `duckDBTypeObject` refuses a
+ * STRUCT - which is loud rather than silent. Only `Date` gave a wrong answer quietly.
+ *
+ * Epoch millis as a plain `number`, deliberately, not an ISO string: it is what `DateVector`
+ * itself holds for an offset-0 date (verified), `toEpochMSOrThrow` returns it untouched, and it
+ * costs no format-then-parse per row. `toPlainValue` in `DuckFrame.ts` makes the same numeric
+ * conversion for the `rows()` output path - `Number(micros / 1000n)` - so the two agree.
+*/
+export function makeInputConverter(type: FieldTypeLike): ValueConverter {
+    if (type === FieldType.Date) {
+        return (value) => (value instanceof DuckDBTimestampValue
+            ? Number(value.micros / 1000n)
+            : value);
+    }
+
+    return (value) => value;
 }
