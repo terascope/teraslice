@@ -50,7 +50,7 @@
         "@terascope/scripts": "workspace:~",
         "@types/fs-extra": "~11.0.4",
         "@types/jest": "~30.0.0",
-        "@types/lodash": "~4.17.25",
+        "@types/lodash": "~4.17.24",
         "@types/node": "~26.2.0",
         "eslint": "~9.39.2",
         "got": "~15.1.0",
@@ -60,7 +60,7 @@
         "node-notifier": "~10.0.1",
         "teraslice": "workspace:~",
         "ts-jest": "~29.4.12",
-        "typescript": "~6.0.3"
+        "typescript": "~7.0.2"
     },
     "packageManager": "pnpm@11.3.0",
     "engines": {
