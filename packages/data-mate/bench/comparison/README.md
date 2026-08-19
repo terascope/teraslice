@@ -4,11 +4,23 @@ Produces `docs/PERFORMANCE.md`: the same work asked of both engines, across nine
 
 ```bash
 cd packages/data-mate && pnpm build
-node --max-old-space-size=24576 bench/comparison/run.js
+node bench/comparison/sweep.js                           # the full sweep, supervised
 
-SCALES=1000,10000 RUNS=1 node bench/comparison/run.js    # quick pass
+SCALES=1000,10000 RUNS=1 node bench/comparison/run.js    # quick pass, one process
 OUT=/tmp/report.md node bench/comparison/run.js          # write it elsewhere
+node bench/comparison/render.js                          # re-render what is measured
 ```
+
+**Use `sweep.js` for a full run.** `DataFrame.unique(fields)` at 3M does not throw - V8 prints
+`Ineffective mark-compacts near heap limit` and **aborts the process**, which no `try/catch` can
+survive. In one process that cost the 12 cases after it, at 3M and again at 5M: every ldjson case,
+both joins and all the aggregations, missing at exactly the scales that make the argument. The
+supervisor runs one scale and one engine per child, records the case that died from the in-flight
+marker, and restarts after it - so a death becomes an `OOM (fatal abort)` cell instead of a hole.
+It also kills and reports a child that stops producing output (`CASE_TIMEOUT`, default 1800s).
+
+`run.js` directly is for a quick pass, and for the **lifecycle** section, which times both engines
+as a pair and therefore needs one process with both loaded.
 
 Separate from `bench/suites/` on purpose. Those are benchmark.js micro-benchmarks that run a case
 thousands of times; these run a handful of very large operations, need their own forcing rules,
@@ -23,7 +35,11 @@ Every one of these exists because getting it wrong changes the result:
 - **Generation is never timed.** Records are built once per scale and handed to both engines.
 - **Median of `RUNS` after a discarded warm-up.** The first call pays for DuckDB instance
   creation and V8 warm-up; at 1k rows a single timing is mostly that.
-- **`setup` is not timed.** A case that measures sorting starts from a frame that already exists.
+- **Setup is per engine, and not timed.** A case that measures sorting starts from a frame that
+  already exists - and `setupDataFrame`/`setupDuckFrame` build only their own side's. A shared
+  setup hid each engine behind the other's failure: when `DataFrame.fromJSON` could not be built at
+  5M, the case was skipped for BOTH, so the report lost DuckFrame's number rather than reporting
+  DataFrame's ceiling. It also had `ENGINE=duckframe` building a `DataFrame` it never measured.
 - **Row counts are compared.** Each case returns how many rows it produced; a mismatch is printed
   in the report as a warning. "Faster" must never mean "did less".
 - **`DuckFrame` is lazy, so every case forces execution** — and the forcing method is chosen per
@@ -56,11 +72,13 @@ where the other does not.
 
 | | |
 |---|---|
-| `run.js` | runs everything, prints progress, writes the report |
+| `sweep.js` | supervises the full run: one child per scale+engine, survives a fatal abort |
+| `run.js` | measures one pass, prints progress, writes the report |
 | `lib/generate.js` | the corpus: config, seeded records, scales |
 | `lib/harness.js` | timing, forcing, OOM handling, formatting |
 | `lib/cases.js` | the cases themselves, grouped by feature |
 | `lib/report.js` | markdown rendering |
+| `lib/results.js` | the result file, per-half merging, and the in-flight marker |
 | `lifecycle/spaces.js` | the end-to-end spaces flow, today vs DuckFrame |
 
 ## Adding a case
@@ -69,12 +87,17 @@ where the other does not.
 {
     name: 'what it does',
     note: 'what the reader needs to know to trust the number',
-    async setup(ctx) { /* untimed; build frames here */ return state; },
+    setupDataFrame: dfFrame,          // untimed, DataFrame's prerequisites only
+    setupDuckFrame: duckTable,        // untimed, DuckFrame's only
     async dataFrame(ctx, state) { /* return rows produced, or SKIPPED */ },
     async duckFrame(ctx, state) { /* MUST end in force(...) */ },
-    async teardown(ctx, state) { /* destroy frames */ },
+    teardownDuckFrame: destroyDuck,   // and teardownDataFrame, where one is needed
 }
 ```
+
+`dfFrame` / `duckTable` / `destroyDuck` in `lib/cases.js` are the halves most cases need. Each
+half's setup, timing and teardown are caught separately, so one engine's failure is recorded
+against that engine and the other still reports.
 
 Return `SKIPPED` where an engine genuinely has no equivalent — Parquet and joins for
 `DataFrame` — rather than bending the case into something comparable.
