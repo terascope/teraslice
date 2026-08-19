@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isBooleanColumn } from './sql-utils.js';
 
 export const isBooleanConfig: FieldValidateConfig = {
     name: 'isBoolean',
@@ -63,6 +64,17 @@ export const isBooleanConfig: FieldValidateConfig = {
     }],
     create() {
         return isBoolean;
+    },
+    /**
+     * A constant, decided by the COLUMN and not by the value.
+     *
+     * `isBoolean` is `typeof input === 'boolean'`, and a typed column either holds booleans or it
+     * does not - so on a `Boolean` column every non-null value passes and on any other column none
+     * does. The validation wrapper turns `FALSE` into a null column, which is the same answer the
+     * UDF gives one row at a time.
+    */
+    sql: {
+        expression: ({ inputConfig }) => (isBooleanColumn(inputConfig) ? 'TRUE' : 'FALSE'),
     },
     accepts: [],
 };

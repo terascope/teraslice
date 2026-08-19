@@ -141,7 +141,7 @@ async function adaptTransform<T extends Record<string, any>>(
     } as any) as ScalarFunctionImpl;
 
     const functionName = await registerScalarFunction({
-        name: udfName(fnDef.name, field, args),
+        name: udfName(fnDef.name, field, fieldTypeOf(inputConfig), args),
         parameter: fieldTypeOf(inputConfig),
         returns: scalarResultConfig(outputConfig),
         returnsChildren: outputConfig.child_config as any,
@@ -212,7 +212,7 @@ async function adaptValidation<T extends Record<string, any>>(
     const predicate = fnDef.create({ args, inputConfig } as any) as ScalarFunctionImpl;
 
     const functionName = await registerScalarFunction({
-        name: udfName(fnDef.name, field, args),
+        name: udfName(fnDef.name, field, fieldTypeOf(inputConfig), args),
         parameter: fieldTypeOf(inputConfig),
         returns: { type: FieldType.Boolean },
         fn: predicate,
@@ -372,10 +372,22 @@ function scalarResultConfig(config: DataTypeFieldAndChildren): DataTypeFieldConf
  * The implementation is specialised by `create({ args, inputConfig })`, so two different arg
  * sets are two different functions and must not share a name. Registration is idempotent for
  * the same name, so the same (function, args, type) reuses one registration.
+ *
+ * **The COLUMN TYPE is part of the name, and leaving it out was a real collision.** A registration
+ * declares one parameter type, so `isBoolean` over a `Boolean` column and `isBoolean` over a
+ * `Keyword` column are two different DuckDB functions; sharing a name meant the first one
+ * registered won and the second query failed to bind -
+ * `No function matches ... 'dm_isboolean_hk1m0p(VARCHAR)'`. The field name alone hid this whenever
+ * two frames used the same column name for different types.
  */
-function udfName(name: string, field: string, args: Record<string, unknown>): string {
+function udfName(
+    name: string,
+    field: string,
+    type: FieldType,
+    args: Record<string, unknown>
+): string {
     const argPart = Object.keys(args).length ? JSON.stringify(args) : '';
-    return `dm_${name}_${hash(`${name}|${field}|${argPart}`)}`.toLowerCase();
+    return `dm_${name}_${hash(`${name}|${field}|${type}|${argPart}`)}`.toLowerCase();
 }
 
 /** Small stable string hash - only needs to avoid collisions between arg sets. */

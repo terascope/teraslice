@@ -240,7 +240,15 @@ const TYPE_PREFERENCE: readonly FieldType[] = [
 */
 const CASES: Record<string, {
     args?: readonly Record<string, unknown>[];
-    type?: FieldType;
+    /**
+     * The input type to feed, when preference picks the wrong one - or SEVERAL types, when the
+     * emission BRANCHES on the column type and testing one branch proves nothing about the others.
+     *
+     * `isBooleanLike` and `toBoolean` declare `accepts: []` and mean a different thing per type: a
+     * constant for a `Boolean` column, a lookup in two tables for a string, a comparison for a
+     * number. Each branch is a separate emission in all but name and gets its own case.
+    */
+    type?: FieldType | readonly FieldType[];
     battery?: readonly unknown[];
     /**
      * The emission only exists for an ARRAY column, and its parity is proved against the
@@ -327,6 +335,21 @@ const CASES: Record<string, {
     divideValues: { arrayOnly: true },
     maxValues: { arrayOnly: true },
     minValues: { arrayOnly: true },
+    /**
+     * `accepts: []` means every type, and these three MEAN something different per type - so the
+     * gate runs each of them against a boolean, a string, a double and an integer column. The
+     * integer one is there for `isnan`, which would have been a plausible place to find no
+     * overload - it has one, but only the test says so.
+    */
+    isBoolean: {
+        type: [FieldType.Boolean, FieldType.Keyword, FieldType.Number, FieldType.Integer],
+    },
+    isBooleanLike: {
+        type: [FieldType.Boolean, FieldType.Keyword, FieldType.Number, FieldType.Integer],
+    },
+    toBoolean: {
+        type: [FieldType.Boolean, FieldType.Keyword, FieldType.Number, FieldType.Integer],
+    },
     isIP: IP_CASE,
     isIPv4: IP_CASE,
     isIPv6: IP_CASE,
@@ -351,9 +374,16 @@ const CASES: Record<string, {
     },
 };
 
+/** Every input type a function's cases ask for - one unless the emission branches on type. */
+function inputTypesFor(name: string, config: FunctionDefinitionConfig<any>): readonly FieldType[] {
+    const override = CASES[name]?.type;
+    if (Array.isArray(override)) return override;
+    return [inputTypeFor(name, config)];
+}
+
 function inputTypeFor(name: string, config: FunctionDefinitionConfig<any>): FieldType {
     const override = CASES[name]?.type;
-    if (override) return override;
+    if (override) return Array.isArray(override) ? override[0] : override as FieldType;
 
     const usable = new Set(config.accepts.filter((type) => BATTERIES[type] != null));
     // a String-accepting function takes Keyword, which is the battery we have
@@ -413,9 +443,9 @@ async function run(
     config: FunctionDefinitionConfig<any>,
     args: Record<string, unknown>,
     preferSql: boolean,
-    { array }: { array?: boolean } = {}
+    { array, type: forced }: { array?: boolean; type?: FieldType } = {}
 ): Promise<Ran> {
-    const type = inputTypeFor(name, config);
+    const type = forced ?? inputTypeFor(name, config);
     const battery = CASES[name]?.battery ?? (BATTERIES[type] as readonly unknown[]);
     const fieldConfig = { type, ...(array ? { array: true } : {}) };
     const dtConfig: DataTypeConfig = { version: 1, fields: { field: fieldConfig } };
@@ -498,12 +528,17 @@ describe('sql emissions on the function configs', () => {
 
         // not for the array reducers: their UDF path cannot bind at all, see `arrayOnly`
         if (!arrayOnly) {
-            it.each(argSets.map((args) => [JSON.stringify(args), args]))(
-                'is byte-equal to its own UDF over the battery, args=%s',
-                async (_label, args) => {
+            const matrix = inputTypesFor(name, config).flatMap(
+                (type) => argSets.map((args) => [`${type} ${JSON.stringify(args)}`, args, type])
+            );
+
+            it.each(matrix)(
+                'is byte-equal to its own UDF over the battery, %s',
+                async (_label, args, type) => {
                     const one = args as Record<string, unknown>;
-                    const sql = await run(name, config, one, true, onArray);
-                    const udf = await run(name, config, one, false, onArray);
+                    const where = { ...onArray, type: type as FieldType };
+                    const sql = await run(name, config, one, true, where);
+                    const udf = await run(name, config, one, false, where);
 
                     expectSame(sql.values, udf.values, config.sql?.approximate);
                     expect(udf.dispatch).toEqual('udf');
@@ -550,16 +585,19 @@ describe('sql emissions on the function configs', () => {
 
         it('is native for at least one argument set', async () => {
             // a `applies` emission that never fires for any tested argument set is dead code
-            const type = inputTypeFor(name, config);
             const dispatches: string[] = [];
-            for (const args of argSets) {
-                const result = await duckFrameAdapter(config, {
-                    field: 'field',
-                    inputConfig: { field_config: { type, ...(arrayOnly ? { array: true } : {}) } },
-                    args: args as Record<string, unknown>,
-                    preferSql: true,
-                });
-                dispatches.push(result.dispatch);
+            for (const type of inputTypesFor(name, config)) {
+                for (const args of argSets) {
+                    const result = await duckFrameAdapter(config, {
+                        field: 'field',
+                        inputConfig: {
+                            field_config: { type, ...(arrayOnly ? { array: true } : {}) },
+                        },
+                        args: args as Record<string, unknown>,
+                        preferSql: true,
+                    });
+                    dispatches.push(result.dispatch);
+                }
             }
             expect(dispatches.some((d) => d === 'sql' || d === 'sql+udf')).toBeTrue();
         }, 30_000);

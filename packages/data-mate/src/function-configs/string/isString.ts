@@ -50,5 +50,13 @@ export const isStringConfig: FieldValidateConfig = {
     create() {
         return isString;
     },
+    /**
+     * A constant `TRUE`, because the emission only claims a `String` column and every non-null
+     * value in one is a string. The point is not the expression, it is that a UDF call per row
+     * disappears for a predicate that could never have said no.
+    */
+    sql: {
+        expression: () => 'TRUE',
+    },
     accepts: [FieldType.String],
 };
