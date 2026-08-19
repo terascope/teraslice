@@ -75,6 +75,19 @@ export const isPortConfig: FieldValidateConfig = {
     create() {
         return isPort;
     },
+    /**
+     * `validator.isPort` is `isInt(x, { min: 0, max: 65535 })`, and the INT part is the fiddly
+     * half.
+     *
+     * Measured: `'007'` is FALSE - a leading zero is not an integer to `validator` - while `'+80'`
+     * is TRUE, and `' 80'` and `'80.5'` are false. So the regex is the definition and the range
+     * check follows it.
+    */
+    sql: {
+        types: [FieldType.String],
+        expression: ({ value }) => `(regexp_matches(${value}, '^[+-]?(0|[1-9][0-9]*)$')`
+            + ` AND TRY_CAST(${value} AS BIGINT) BETWEEN 0 AND 65535)`,
+    },
     accepts: [
         FieldType.String,
         FieldType.Number

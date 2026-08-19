@@ -4,6 +4,8 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionExample, FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { sqlLiteral } from '../sql-helpers.js';
+import { isRe2Safe, isLiteralReplacement } from './sql-utils.js';
 
 export interface ReplaceRegexArgs {
     regex: string;
@@ -62,6 +64,25 @@ export const replaceRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
         return (input: unknown) => replaceFn(input as string, replace, regex, ignoreCase, global);
     },
     examples,
+    /**
+     * `regexp_replace`, guarded on both the pattern and the replacement.
+     *
+     * Verified identical over six patterns - anchors, classes, quantifiers, the `i` and `g` flags -
+     * and the two things that break it are guarded in `sql-utils.ts`: **RE2 has no lookaround or
+     * backreferences and ERRORS rather than differing**, and **`$1` is a capture group in
+     * JavaScript and a literal in SQL**.
+    */
+    sql: {
+        applies: (args) => typeof args.regex === 'string'
+            && isRe2Safe(args.regex)
+            && isLiteralReplacement(String(args.replace ?? '')),
+        expression: ({ value, args }) => {
+            const flags = `${args.ignoreCase ? 'i' : ''}${args.global ? 'g' : ''}`;
+            const rest = flags ? `, ${sqlLiteral(flags)}` : '';
+            return `regexp_replace(${value}, ${sqlLiteral(args.regex as string)},`
+                + ` ${sqlLiteral(String(args.replace ?? ''))}${rest})`;
+        },
+    },
     accepts: [FieldType.String],
     argument_schema: {
         regex: {
