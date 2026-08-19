@@ -57,6 +57,25 @@ export const getMillisecondsConfig: FieldTransformConfig = {
     create() {
         return getMilliseconds;
     },
+    /**
+     * `date_part('millisecond', x) % 1000`.
+     *
+     * **`types: [Date]` is required, not defensive.** These functions accept `Date`, `String` AND
+     * `Number`, and for the latter two the UDF PARSES the value - many formats, `Number` as epoch
+     * millis - which this expression does not do. So the emission claims only a real TIMESTAMP column
+     * and a `String` or `Number` column keeps using the UDF.
+     *
+     * **The stored value is a naive UTC TIMESTAMP, and these getters are UTC-based.** Verified under
+     * `TZ=America/New_York`: `getHours('2026-01-02T03:04:05.678Z')` is `3`, the UTC hour, not `22` - so
+     * `date_part` on the stored timestamp is the same thing, with no timezone handling needed.
+     *
+     * **The `% 1000` is load-bearing:** DuckDB's `millisecond` part includes the SECONDS -
+     * `5678` for `:05.678` - where `getMilliseconds` returns just `678`.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => `date_part('millisecond', ${value}) % 1000`,
+    },
     accepts: [
         FieldType.Date,
         FieldType.String,

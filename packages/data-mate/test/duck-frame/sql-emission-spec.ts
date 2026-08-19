@@ -86,8 +86,22 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
     [FieldType.Long]: [0, 1, -1, 9007199254740991, -9007199254740991, null],
     [FieldType.Double]: [...ORDINARY_NUMBERS, 0.1, 1e-7, 1e21, null],
     [FieldType.Boolean]: [true, false, null],
+    /**
+     * One date per weekday, both leap and non-leap years, a century and a 400-year boundary, the epoch,
+     * and the last millisecond of a year - so the weekday, leap-year and truncation emissions are
+     * actually exercised rather than nominally covered.
+    */
     [FieldType.Date]: [
-        '2026-01-02T03:04:05.000Z',
+        '2026-01-02T03:04:05.678Z',
+        '2026-01-03T00:00:00.000Z',
+        '2026-01-04T12:00:00.000Z',
+        '2026-01-05T23:59:59.999Z',
+        '2026-01-06T06:30:00.500Z',
+        '2026-01-07T18:45:12.001Z',
+        '2026-01-08T09:15:30.250Z',
+        '2024-02-29T12:00:00.000Z',
+        '1900-03-01T00:00:00.000Z',
+        '2000-02-29T00:00:00.000Z',
         '1970-01-01T00:00:00.000Z',
         '2026-12-31T23:59:59.999Z',
         null,

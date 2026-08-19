@@ -61,6 +61,19 @@ export const toHourlyDateConfig: FieldTransformConfig = {
     create() {
         return trimISODateSegment(ISO8601DateSegment.hourly);
     },
+    /**
+     * `date_trunc('hour', x)`.
+     *
+     * Truncation is in UTC on both sides - verified that `toDailyDate` on
+     * `2026-01-02T03:04:05.678Z` gives `2026-01-02T00:00:00Z` even under `TZ=America/New_York`.
+     *
+     * `types: [Date]` because these also accept `String` and `Number`, which the UDF parses and this
+     * expression does not - see any of the `get*` emissions for the full reasoning.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => `date_trunc('hour', ${value})`,
+    },
     accepts: [
         FieldType.String,
         FieldType.Number,
