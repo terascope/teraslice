@@ -6,7 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
-import { sqlLiteral, HAS_ASTRAL } from '../sql-helpers.js';
+import { sqlLiteral, HAS_ASTRAL, needsNumericArgs } from '../sql-helpers.js';
 
 export interface TruncateConfig {
     size: number;
@@ -46,6 +46,7 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
      * native path for everything else.
     */
     sql: {
+        applies: needsNumericArgs('size'),
         needs_udf_fallback: true,
         expression: ({ value, args, udf }) => `CASE WHEN regexp_matches(${value},`
             + ` ${sqlLiteral(HAS_ASTRAL)}) THEN ${udf(value)}`

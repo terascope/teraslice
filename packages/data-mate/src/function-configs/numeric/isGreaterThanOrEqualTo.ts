@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { needsNumericArgs } from '../sql-helpers.js';
 
 export interface GreaterThanOrEqualToArgs {
     readonly value: number;
@@ -64,6 +65,7 @@ export const isGreaterThanOrEqualToConfig: FieldValidateConfig<GreaterThanOrEqua
     },
     /** A plain comparison; the argument is a plan constant, so it is spliced as a literal. */
     sql: {
+        applies: needsNumericArgs('value'),
         expression: ({ value, args }) => `${value} >= ${Number(args.value)}`,
     },
     accepts: [

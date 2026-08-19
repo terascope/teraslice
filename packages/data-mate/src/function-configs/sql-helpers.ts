@@ -110,3 +110,42 @@ export function inDomain(condition: string, native: string): string {
  * all real data - stays native.
 */
 export const HAS_ASTRAL = '[\\x{10000}-\\x{10FFFF}]';
+
+/**
+ * True for an argument that can be spliced into SQL as a numeric literal.
+ *
+ * **The guard for a whole class of emission, and it is not theoretical.** `subtract` declares no
+ * `required_arguments`, so a call with no `value` reaches the emission as `undefined`,
+ * `Number(undefined)` is `NaN`, and `NaN` splices in as a BARE IDENTIFIER: DuckDB answers
+ * `Binder Error: Referenced column "NaN" not found in FROM clause`, aborting the query, where the
+ * UDF path quietly returns `NaN` for every row. `Infinity` fails the same way. An argument that is
+ * not a finite number therefore keeps the UDF, which is exactly what `applies` is for.
+*/
+function isNumericArg(value: unknown): boolean {
+    return typeof value === 'number' && Number.isFinite(value);
+}
+
+/**
+ * An `applies` for an emission that splices these arguments in as numbers and needs all of them.
+ *
+ * Use for a function whose argument is genuinely required - `add`, `pow`, `truncate`. `subtract` is
+ * in this group despite not DECLARING the argument required, because its emission cannot express
+ * the missing case.
+*/
+export function needsNumericArgs<T extends Record<string, any>>(
+    ...names: readonly string[]
+): (args: T) => boolean {
+    return (args) => names.every((name) => isNumericArg(args[name]));
+}
+
+/**
+ * An `applies` for an emission where the arguments are OPTIONAL but must be numbers when present.
+ *
+ * `inNumberRange` and `isLength` already build their expression from whichever bounds they were
+ * given, so absence is fine and only a present non-number is a problem.
+*/
+export function allowsNumericArgs<T extends Record<string, any>>(
+    ...names: readonly string[]
+): (args: T) => boolean {
+    return (args) => names.every((name) => args[name] == null || isNumericArg(args[name]));
+}

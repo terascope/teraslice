@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { needsNumericArgs } from '../sql-helpers.js';
 
 export interface DivideArgs {
     readonly value: number;
@@ -70,6 +71,7 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
      * `NaN` for a DOUBLE, so plain arithmetic already agrees.
     */
     sql: {
+        applies: needsNumericArgs('value'),
         expression: ({ value, args }) => `(${value} / ${Number(args.value)})`,
     },
     accepts: [
