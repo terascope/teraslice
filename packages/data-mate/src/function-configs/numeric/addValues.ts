@@ -4,6 +4,7 @@ import {
     FieldTransformConfig, FunctionDefinitionType,
     ProcessMode, DataTypeFieldAndChildren, FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isArrayColumn } from './sql-utils.js';
 
 function addValuesReducer(
     acc: number | null,
@@ -97,6 +98,14 @@ export const addValuesConfig: FieldTransformConfig = {
         return addValuesFn;
     },
     argument_schema: {},
+    /**
+     * `list_sum`, which ignores nulls and answers NULL for an all-null or empty list - exactly what
+     * the reducer does by skipping nulls and starting from `null`.
+    */
+    sql: {
+        applies: isArrayColumn,
+        expression: ({ value }) => `list_sum(${value})`,
+    },
     accepts: [FieldType.Number],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
