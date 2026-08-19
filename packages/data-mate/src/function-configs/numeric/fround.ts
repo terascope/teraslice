@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const froundConfig: FieldTransformConfig = {
@@ -37,6 +38,10 @@ export const froundConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.fround);
+    },
+    /** `Math.fround` is a round trip through a 32-bit float, which is exactly a `FLOAT` cast. */
+    sql: {
+        expression: ({ value }) => finiteOrNull(`CAST(${value} AS FLOAT)::DOUBLE`),
     },
     accepts: [
         FieldType.Number,

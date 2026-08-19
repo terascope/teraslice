@@ -184,6 +184,16 @@ export interface SqlEmission<T extends Record<string, any>> {
     readonly types?: readonly FieldType[];
 
     /**
+     * Whether this emission is valid for THESE ARGUMENTS.
+     *
+     * `types` narrows by column type; this narrows by argument, which some functions need and no
+     * type check can express. `encodeSHA` takes a `hash` and a `digest`: DuckDB has `md5`, `sha1` and
+     * `sha256` but no `sha512`, and its digest is hex, so the emission is correct for some argument
+     * combinations and absent for others. Returning false falls back to the UDF for that call only.
+    */
+    readonly applies?: (args: T, inputConfig: DataTypeFieldAndChildren) => boolean;
+
+    /**
      * Set when the emission agrees with the UDF to within a few ULP rather than bit-exactly.
      *
      * **Only for transcendental functions, and it is not a licence to be sloppy.** IEEE 754 does not
