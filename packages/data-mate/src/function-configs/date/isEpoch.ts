@@ -83,5 +83,17 @@ export const isEpochConfig: FieldValidateConfig<IsEpochArgs> = {
     create({ args: { allowBefore1970 } }) {
         return isUnixTimeFP(allowBefore1970);
     },
+    /**
+     * `toInteger(x) !== false`, which for a numeric column is only about finiteness.
+     *
+     * Measured: `isUnixTime` accepts `0.5`, `12.7` and `1e21` - `toInteger` TRUNCATES toward zero
+     * rather than rejecting a fraction, so `-0.6` becomes `0` and passes the `>= 0` test while
+     * `-1.6` becomes `-1` and does not. That is why the guard is `trunc(x) >= 0` and not `x >= 0`.
+    */
+    sql: {
+        expression: ({ value, args }) => (args.allowBefore1970 === false
+            ? `(isfinite(${value}) AND trunc(${value}) >= 0)`
+            : `isfinite(${value})`),
+    },
     accepts: [FieldType.Number],
 };

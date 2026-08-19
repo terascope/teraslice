@@ -54,6 +54,16 @@ export const isISO8601Config: FieldValidateConfig = {
         }
         return isISO8601;
     },
+    /**
+     * A constant, and not because a `TIMESTAMP` happens to be ISO-shaped: `create` itself returns
+     * `alwaysTrue` when `isIS8601FieldConfig` holds, so the emission reproduces the function's own
+     * short-circuit rather than reimplementing `validator.isISO8601`.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (_args, inputConfig) => isIS8601FieldConfig(inputConfig),
+        expression: () => 'TRUE',
+    },
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
 };
 

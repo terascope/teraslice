@@ -4,6 +4,7 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { timezoneOffsetMinutes } from './sql-utils.js';
 
 export interface GetTimezoneOffsetArgs {
     timezone: string;
@@ -71,6 +72,18 @@ export const getTimezoneOffsetConfig: FieldTransformConfig<GetTimezoneOffsetArgs
     ],
     create({ args: { timezone } }) {
         return getTimezoneOffsetFP(timezone);
+    },
+    /**
+     * The DST-aware per-row offset, via `AT TIME ZONE` in both directions.
+     *
+     * The zone is a constant argument here, so nothing needs the column - but the INSTANT does,
+     * which is why this is not a constant: `America/New_York` is -300 in January and -240 in July,
+     * and the emission gets both right.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => typeof args.timezone === 'string',
+        expression: ({ value, args }) => timezoneOffsetMinutes(value, args.timezone as string),
     },
     accepts: [
         FieldType.String,

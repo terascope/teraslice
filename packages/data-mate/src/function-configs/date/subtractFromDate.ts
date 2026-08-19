@@ -6,6 +6,7 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isTimeOnlyAdjustment, timeInterval } from './sql-utils.js';
 
 // AdjustDateArgs is not export as addFromDate does so, cannot double export
 
@@ -73,6 +74,15 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     }],
     create({ args }) {
         return subtractFromDateFP(args);
+    },
+    /** The mirror of `addToDate`, with the same restriction and for the same reason. */
+    sql: {
+        types: [FieldType.Date],
+        applies: isTimeOnlyAdjustment,
+        expression: ({ value, args }) => {
+            const interval = timeInterval(args);
+            return interval ? `(${value} - (${interval}))` : value;
+        },
     },
     accepts: [FieldType.Date],
     argument_schema: {

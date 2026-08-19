@@ -5,6 +5,7 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
 } from '../interfaces.js';
+import { isEpochInterval, timeBetween } from './sql-utils.js';
 
 export type { GetTimeBetweenArgs };
 
@@ -85,6 +86,18 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
         return (input: unknown) => getTimeBetween(input, args);
     },
     required_arguments: ['interval'],
+    /**
+     * The epoch-based intervals only, as a TRUNCATED elapsed time rather than `date_diff`.
+     *
+     * `date_diff` counts boundaries crossed and `differenceInHours` truncates, so they disagree
+     * whenever the endpoints are not aligned. The calendar intervals stay on the UDF - see
+     * `sql-utils.ts` for why.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: isEpochInterval,
+        expression: ({ value, args }) => timeBetween(value, args),
+    },
     accepts: [
         FieldType.Date,
         FieldType.String,
