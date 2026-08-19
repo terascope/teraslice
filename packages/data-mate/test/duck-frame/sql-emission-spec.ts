@@ -450,6 +450,33 @@ const CASES: Record<string, {
     },
     // the emission claims a String column; `accepts` also lists Number, which keeps the UDF
     isPort: { type: FieldType.Keyword },
+    isHash: {
+        battery: [
+            '5d41402abc4b2a76b9719d911017c592',
+            'D41D8CD98F00B204E9800998ECF8427E',
+            'da39a3ee5e6b4b0d3255bfef95601890afd80709',
+            'not-a-hash',
+            '',
+            'abc',
+            null,
+        ],
+        args: [{ algo: 'md5' }, { algo: 'sha1' }, { algo: 'sha256' }, { algo: 'crc32' }],
+    },
+    isUUID: {
+        battery: [
+            '9f8a6b1c-4d2e-4f3a-9b8c-7d6e5f4a3b2c',
+            '9F8A6B1C-4D2E-4F3A-9B8C-7D6E5F4A3B2C',
+            '00000000-0000-0000-0000-000000000000',
+            'ffffffff-ffff-ffff-ffff-ffffffffffff',
+            // variant nibble out of range, and a v9 that only `loose` accepts
+            '9f8a6b1c-4d2e-4f3a-1b8c-7d6e5f4a3b2c',
+            '9f8a6b1c-4d2e-9f3a-9b8c-7d6e5f4a3b2c',
+            'not-a-uuid',
+            '',
+            null,
+        ],
+        args: [{}, { version: '4' }, { version: 'loose' }, { version: 'nil' }, { version: 'max' }],
+    },
     /**
      * Anchors, classes, quantifiers and both flags - plus the two shapes the emission declines: a
      * lookahead, which RE2 cannot compile at all, and a `$1` replacement, which means a capture
