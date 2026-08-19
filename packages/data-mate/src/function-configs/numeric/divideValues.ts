@@ -4,6 +4,7 @@ import {
     FieldTransformConfig, FunctionDefinitionType,
     ProcessMode, DataTypeFieldAndChildren, FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isArrayColumn, foldList } from './sql-utils.js';
 
 function divideValuesReducer(
     acc: number | null,
@@ -117,6 +118,11 @@ export const divideValuesConfig: FieldTransformConfig = {
         return divideValuesFn;
     },
     argument_schema: {},
+    /** A left fold, same shape as `subtractValues`: `[1, null, 10, 3]` is `1 / 10 / 3`. */
+    sql: {
+        applies: isArrayColumn,
+        expression: ({ value }) => foldList(value, '/'),
+    },
     accepts: [FieldType.Number],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;

@@ -4,6 +4,7 @@ import {
     FieldTransformConfig, FunctionDefinitionType,
     ProcessMode, DataTypeFieldAndChildren, FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isArrayColumn, foldList } from './sql-utils.js';
 
 function subtractValuesReducer(
     acc: number | null,
@@ -97,6 +98,14 @@ export const subtractValuesConfig: FieldTransformConfig = {
         return subtractValuesFn;
     },
     argument_schema: {},
+    /**
+     * A LEFT FOLD, not `first - list_sum(rest)`: the reducer takes the first non-null value as the
+     * accumulator and subtracts each later one, so `[1, null, 10, 3]` is `-12`.
+    */
+    sql: {
+        applies: isArrayColumn,
+        expression: ({ value }) => foldList(value, '-'),
+    },
     accepts: [FieldType.Number],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;

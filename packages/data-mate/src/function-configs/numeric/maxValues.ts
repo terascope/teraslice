@@ -4,6 +4,7 @@ import {
     FieldTransformConfig, FunctionDefinitionType,
     ProcessMode, DataTypeFieldAndChildren, FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isArrayColumn } from './sql-utils.js';
 
 function maxValuesReducer(
     acc: number | null,
@@ -98,6 +99,11 @@ export const maxValuesConfig: FieldTransformConfig = {
         return maxValuesFn;
     },
     argument_schema: {},
+    /** `list_max` ignores nulls and returns NULL for an all-null list, as the reducer does. */
+    sql: {
+        applies: isArrayColumn,
+        expression: ({ value }) => `list_max(${value})`,
+    },
     accepts: [FieldType.Number],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;

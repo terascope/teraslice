@@ -242,6 +242,22 @@ const CASES: Record<string, {
     args?: readonly Record<string, unknown>[];
     type?: FieldType;
     battery?: readonly unknown[];
+    /**
+     * The emission only exists for an ARRAY column, and its parity is proved against the
+     * JAVASCRIPT IMPLEMENTATION rather than against the UDF path.
+     *
+     * `addValues` and its five siblings are `FULL_VALUES` reducers: on a scalar column they return
+     * the value unchanged, and `list_sum` of a scalar is not an expression - so their emission
+     * declines via `applies` and the scalar column keeps the UDF, correctly.
+     *
+     * The UDF path cannot be the comparison here, because **it does not work at all for these
+     * six**: `registerScalarFunction` takes a bare `FieldType` and the adapter registers
+     * `dm_addvalues(DOUBLE)` for a `DOUBLE[]` column, so the query fails to bind. That is a
+     * pre-existing gap in the UDF layer, not something the emission introduced - see
+     * `docs/known-defects.md`. Comparing against `config.create()` called directly proves the same
+     * thing with the broken layer taken out of the loop, which is if anything the stronger check.
+    */
+    arrayOnly?: boolean;
 }> = {
     ceil: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
     // a temperature, so the battery is temperatures: the conversion rounds to two decimals, and
@@ -304,6 +320,13 @@ const CASES: Record<string, {
     isBetween: {
         args: [{ start: '2026-01-03T00:00:00.000Z', end: '2026-01-07T00:00:00.000Z' }],
     },
+    // FULL_VALUES reducers - see `arrayOnly`
+    addValues: { arrayOnly: true },
+    subtractValues: { arrayOnly: true },
+    multiplyValues: { arrayOnly: true },
+    divideValues: { arrayOnly: true },
+    maxValues: { arrayOnly: true },
+    minValues: { arrayOnly: true },
     isIP: IP_CASE,
     isIPv4: IP_CASE,
     isIPv6: IP_CASE,
@@ -441,30 +464,65 @@ describe('sql emissions on the function configs', () => {
 
     describe.each(PROMOTED)('%s', (name, config) => {
         const argSets = CASES[name]?.args ?? [{}];
+        const arrayOnly = CASES[name]?.arrayOnly === true;
+        const onArray = { array: arrayOnly };
 
-        it.each(argSets.map((args) => [JSON.stringify(args), args]))(
-            'is byte-equal to its own UDF over the battery, args=%s',
-            async (_label, args) => {
-                const sql = await run(name, config, args as Record<string, unknown>, true);
-                const udf = await run(name, config, args as Record<string, unknown>, false);
+        /**
+         * The array reducers, against the JavaScript implementation itself. See `arrayOnly`.
+         *
+         * The battery is fed as ONE array - which is what a `FULL_VALUES` function folds - so this
+         * compares one value, not one per battery entry.
+        */
+        if (arrayOnly) {
+            it('is byte-equal to its own JavaScript implementation over the battery', async () => {
+                const args = argSets[0] as Record<string, unknown>;
+                const sql = await run(name, config, args, true, onArray);
+                const type = inputTypeFor(name, config);
+                const battery = (
+                    CASES[name]?.battery ?? BATTERIES[type] ?? []
+                ) as readonly unknown[];
+                // the union does not carry `create`; every promoted config is a field function
+                const impl = (config as any).create({
+                    args,
+                    inputConfig: { field_config: { type, array: true } },
+                }) as (input: unknown) => unknown;
 
-                expectSame(sql.values, udf.values, config.sql?.approximate);
-                expect(udf.dispatch).toEqual('udf');
+                expectSame(
+                    sql.values,
+                    [impl(battery.filter((value) => value != null))],
+                    config.sql?.approximate
+                );
+                expect(sql.dispatch).toEqual('sql');
+            }, 60_000);
+        }
 
-                /**
+        // not for the array reducers: their UDF path cannot bind at all, see `arrayOnly`
+        if (!arrayOnly) {
+            it.each(argSets.map((args) => [JSON.stringify(args), args]))(
+                'is byte-equal to its own UDF over the battery, args=%s',
+                async (_label, args) => {
+                    const one = args as Record<string, unknown>;
+                    const sql = await run(name, config, one, true, onArray);
+                    const udf = await run(name, config, one, false, onArray);
+
+                    expectSame(sql.values, udf.values, config.sql?.approximate);
+                    expect(udf.dispatch).toEqual('udf');
+
+                    /**
                  * The two paths must really BE different paths, or this proves nothing - except
                  * where the emission declares `applies` and legitimately declines for these
                  * arguments, which is the whole point of that field. `encodeSHA` with
                  * `hash: 'sha512'` has no native form, so both sides are the UDF and agreeing is
                  * trivially true; the case below asserts that at least one argument set IS native.
                 */
-                const allowed = config.sql?.applies
-                    ? ['sql', 'sql+udf', 'udf']
-                    : ['sql', 'sql+udf'];
-                expect(allowed).toContain(sql.dispatch);
-            },
-            60_000
-        );
+                    const allowed = config.sql?.applies
+                        ? ['sql', 'sql+udf', 'udf']
+                        : ['sql', 'sql+udf'];
+                    expect(allowed).toContain(sql.dispatch);
+                },
+                60_000
+            );
+        }
 
         /**
          * **Skipped for validations, because the adapter cannot express one on an array column at
@@ -475,7 +533,7 @@ describe('sql emissions on the function configs', () => {
          * `docs/known-defects.md`. Promoting a function must not be blocked on it, so the array
          * case is asserted for transforms only.
         */
-        const arrayCase = isFieldValidation(config) ? it.skip : it;
+        const arrayCase = isFieldValidation(config) || arrayOnly ? it.skip : it;
 
         arrayCase('is byte-equal on an ARRAY column, where SQL maps with list_transform', async () => {
             const args = argSets[0] as Record<string, unknown>;
@@ -497,7 +555,7 @@ describe('sql emissions on the function configs', () => {
             for (const args of argSets) {
                 const result = await duckFrameAdapter(config, {
                     field: 'field',
-                    inputConfig: { field_config: { type } },
+                    inputConfig: { field_config: { type, ...(arrayOnly ? { array: true } : {}) } },
                     args: args as Record<string, unknown>,
                     preferSql: true,
                 });
@@ -510,7 +568,7 @@ describe('sql emissions on the function configs', () => {
             const type = inputTypeFor(name, config);
             const result = await duckFrameAdapter(config, {
                 field: 'field',
-                inputConfig: { field_config: { type } },
+                inputConfig: { field_config: { type, ...(arrayOnly ? { array: true } : {}) } },
                 args: argSets[0] as Record<string, unknown>,
                 preferSql: true,
             });
