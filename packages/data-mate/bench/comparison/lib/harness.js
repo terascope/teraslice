@@ -126,6 +126,85 @@ export async function force(frame, how = 'table') {
     return rows;
 }
 
+// ---------------------------------------------------------------- checkpointing
+
+/**
+ * `CHECKPOINT=1` compresses the DuckFrame side's tables before a case is timed.
+ *
+ * **A measured DIMENSION of the comparison, not a tweak.** An in-memory DuckDB table stays
+ * `Uncompressed` until a checkpoint, and every number in `docs/PERFORMANCE.md` was taken in that
+ * state. Compressing changes what a scan has to read, and how often a UDF is called - once per
+ * dictionary entry per row group instead of once per row - so the same case can move by two orders
+ * of magnitude. Running the sweep twice, `CHECKPOINT=0` and `CHECKPOINT=1` into separate `RESULTS`
+ * files, is how the payback is established PER OPERATION, which is what a policy needs.
+ *
+ * The checkpoint is taken in SETUP, so it never lands inside a timing. Its cost belongs to the
+ * ingest side of the ledger and is measured on its own, per size, by
+ * `docs/tools/bench/checkpoint-cost.mjs`.
+*/
+export const CHECKPOINT = ['1', 'true', 'yes'].includes(String(process.env.CHECKPOINT));
+
+/**
+ * Checkpoints the database the case's tables live in, VERIFIES that it happened, and returns what
+ * it cost.
+ *
+ * **One call, not one per frame.** `CHECKPOINT` is database-wide and there is one database per
+ * process here, so issuing it through the first frame found compresses every table the setup
+ * built - including both sides of a join.
+ *
+ * A setup that produces no frame is left alone, and that is correct rather than a gap: the append
+ * cases hand over Parquet paths and build their table INSIDE the measurement, so there is nothing
+ * to compress before the work being timed has created it.
+ *
+ * **Arming and verifying are not belt-and-braces; without them this function measures nothing at
+ * some sizes.** Measured (`docs/tools/bench/checkpoint-cost.mjs`, `probe/checkpoint-noop.mjs`):
+ * after 20 Parquet appends at 1M and 2M rows, `CHECKPOINT` returns in 0 ms with every segment still
+ * `Uncompressed`, and `FORCE CHECKPOINT` does the same. No error either way. A real WRITE since the
+ * last checkpoint is what arms it - another append, a one-row insert, or a throwaway `CREATE TABLE`
+ * + `DROP TABLE`; reads, waiting, an empty transaction and a no-match `DELETE` all leave it
+ * disabled. A silently uncompressed table would put a `CHECKPOINT=1` number in the report that was
+ * measured without a checkpoint, which is worse than no number, so a checkpoint that cannot be
+ * verified THROWS and the cell records it.
+*/
+export async function checkpointTables(prepared) {
+    if (!CHECKPOINT || !prepared) return 0;
+
+    const frames = Object.values(prepared).filter(
+        (value) => value && typeof value.query === 'function'
+    );
+    const frame = frames[0];
+    if (!frame) return 0;
+
+    const table = frames.find((value) => value.table)?.table;
+    const uncompressed = async () => {
+        if (!table) return null;
+        const rows = await frame.query(
+            `SELECT count(*) FROM pragma_storage_info('${table}') WHERE compression = 'Uncompressed'`
+        );
+        return Number(rows[0][0] ?? 0);
+    };
+
+    const before = await uncompressed();
+
+    const start = performance.now();
+    // the write that arms the checkpoint - cheapest one with no effect on the data
+    await frame.query('CREATE OR REPLACE TABLE _bench_checkpoint_arm (a INTEGER)');
+    await frame.query('DROP TABLE _bench_checkpoint_arm');
+    await frame.query('CHECKPOINT');
+    const ms = performance.now() - start;
+
+    const after = await uncompressed();
+    if (before && after >= before) {
+        throw new Error(
+            `CHECKPOINT did not compress "${table}": ${before} uncompressed segments before,`
+            + ` ${after} after. The number would be an uncompressed measurement mislabelled as a`
+            + ' checkpointed one.'
+        );
+    }
+
+    return ms;
+}
+
 // ---------------------------------------------------------------- reporting
 
 const PAD = 26;

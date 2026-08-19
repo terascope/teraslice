@@ -11,6 +11,23 @@ OUT=/tmp/report.md node bench/comparison/run.js          # write it elsewhere
 node bench/comparison/render.js                          # re-render what is measured
 ```
 
+**`CHECKPOINT=1` compresses the DuckFrame side before each case is timed**, which is a dimension of
+the comparison rather than a tweak: an in-memory DuckDB table stays `Uncompressed` until a
+checkpoint, and compressing it changes what a scan reads and how often a UDF is called. Measure the
+payback by sweeping twice into separate result files:
+
+```bash
+RESULTS=bench/comparison/.plain.json  ENGINES=duckframe node bench/comparison/sweep.js
+RESULTS=bench/comparison/.ckpt.json   ENGINES=duckframe CHECKPOINT=1 node bench/comparison/sweep.js
+```
+
+The checkpoint is taken in each case's SETUP, so it is never inside a timing - what it COSTS is a
+one-off measured by `docs/tools/bench/checkpoint-cost.mjs`, and what it BUYS is the difference
+between those two files. It is also **armed and verified**: after the ingest path a plain
+`CHECKPOINT` can return in 0 ms having compressed nothing, so the harness does a throwaway write
+first and then checks `pragma_storage_info`, failing the cell rather than reporting an uncompressed
+measurement as a checkpointed one.
+
 **Use `sweep.js` for a full run.** `DataFrame.unique(fields)` at 3M does not throw - V8 prints
 `Ineffective mark-compacts near heap limit` and **aborts the process**, which no `try/catch` can
 survive. In one process that cost the 12 cases after it, at 3M and again at 5M: every ldjson case,
