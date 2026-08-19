@@ -437,6 +437,35 @@ const CASES: Record<string, {
     isGeoShapePoint: { type: FieldType.GeoJSON, noUdfPath: true },
     isGeoShapePolygon: { type: FieldType.GeoJSON, noUdfPath: true },
     isGeoShapeMultiPolygon: { type: FieldType.GeoJSON, noUdfPath: true },
+    /**
+     * A non-empty delimiter only - the default `''` splits into UTF-16 code units.
+     *
+     * `noUdfPath` because `split` RETURNS AN ARRAY and `scalarResultConfig` strips `array` from the
+     * UDF's result type, so the registered function promises a VARCHAR and hands back a list:
+     * `Invalid Input Error: A string was expected`. Broken before any emission - known-defects DF4.
+    */
+    split: {
+        noUdfPath: true,
+        args: [{ delimiter: '-' }, { delimiter: 'l' }, { delimiter: ' ' }, {}],
+    },
+    // the emission claims a String column; `accepts` also lists Number, which keeps the UDF
+    isPort: { type: FieldType.Keyword },
+    /**
+     * Anchors, classes, quantifiers and both flags - plus the two shapes the emission declines: a
+     * lookahead, which RE2 cannot compile at all, and a `$1` replacement, which means a capture
+     * group in JavaScript and a literal in SQL.
+    */
+    replaceRegex: {
+        args: [
+            { regex: 'l', replace: 'L' },
+            { regex: 'l', replace: 'L', global: true },
+            { regex: '[aeiou]', replace: '*', global: true },
+            { regex: '^H', replace: 'h', ignoreCase: true },
+            { regex: '\\d+', replace: '#', global: true },
+            { regex: '(?=l)', replace: 'X', global: true },
+            { regex: '(l)', replace: '[$1]', global: true },
+        ],
+    },
     isDate: { type: FieldType.Date, args: [{}, { format: 'iso_8601' }] },
     isISO8601: { type: FieldType.Date },
     // real zones, not just UTC: a reversed date_diff still matches UTC and fails everywhere else
@@ -682,53 +711,6 @@ describe('sql emissions on the function configs', () => {
         const onArray = { array: arrayOnly };
 
         /**
-         * The array reducers, against the JavaScript implementation itself. See `arrayOnly`.
-         *
-         * The battery is fed as ONE array - which is what a `FULL_VALUES` function folds - so this
-         * compares one value, not one per battery entry.
-        */
-        if (againstJs) {
-            it('is byte-equal to its own JavaScript implementation over the battery', async () => {
-                const args = argSets[0] as Record<string, unknown>;
-                const sql = await run(name, config, args, true, onArray);
-                const type = inputTypeFor(name, config);
-                const battery = (
-                    CASES[name]?.battery ?? BATTERIES[type] ?? []
-                ) as readonly unknown[];
-                // the union does not carry `create`; every promoted config is a field function
-                const fieldConfig = { type, ...(arrayOnly ? { array: true } : {}) };
-                const impl = (config as any).create({
-                    args,
-                    inputConfig: { field_config: fieldConfig },
-                }) as (input: unknown) => unknown;
-
-                if (isFieldValidation(config)) {
-                    /**
-                     * A validation projects `CASE WHEN pred THEN col ELSE NULL END`, so what comes
-                     * back is the VALUE or null - not the predicate. Comparing which entries
-                     * survived is the whole of a validation's contract, and it does not require
-                     * knowing what coercion did to the value on the way in.
-                    */
-                    expect(sql.values.map((value) => value != null)).toEqual(
-                        battery.map((value) => value != null && impl(value) === true)
-                    );
-                    return;
-                }
-
-                /**
-                 * An `arrayOnly` function folds the WHOLE battery into one value; a `noUdfPath`
-                 * one is still per-row, so it maps.
-                */
-                const expected = arrayOnly
-                    ? [impl(battery.filter((value) => value != null))]
-                    : battery.map((value) => (value == null ? null : impl(value)));
-
-                expectSame(sql.values, expected, config.sql?.approximate);
-                expect(sql.dispatch).toEqual('sql');
-            }, 60_000);
-        }
-
-        /**
          * Whether the emission claims this column and these arguments.
          *
          * Used to prune the type-by-argument matrix below. A case that declares SEVERAL types is
@@ -747,6 +729,63 @@ describe('sql emissions on the function configs', () => {
             const field_config = { type, ...(array ? { array: true } : {}) };
             return config.sql?.applies?.(args, { field_config }) !== false;
         };
+
+        /**
+         * The array reducers, against the JavaScript implementation itself. See `arrayOnly`.
+         *
+         * The battery is fed as ONE array - which is what a `FULL_VALUES` function folds - so this
+         * compares one value, not one per battery entry.
+        */
+        if (againstJs) {
+            // every argument set the emission CLAIMS - a declined one has no SQL path to check
+            const claimed = argSets.filter(
+                (args) => claims(args as Record<string, unknown>,
+                    inputTypeFor(name, config),
+                    arrayOnly)
+            );
+
+            it.each(claimed.map((args) => [JSON.stringify(args), args]))(
+                'is byte-equal to its own JavaScript implementation over the battery, args=%s',
+                async (_label, argsIn) => {
+                    const args = argsIn as Record<string, unknown>;
+                    const sql = await run(name, config, args, true, onArray);
+                    const type = inputTypeFor(name, config);
+                    const battery = (
+                        CASES[name]?.battery ?? BATTERIES[type] ?? []
+                    ) as readonly unknown[];
+                    // the union does not carry `create`; every promoted config is a field function
+                    const fieldConfig = { type, ...(arrayOnly ? { array: true } : {}) };
+                    const impl = (config as any).create({
+                        args,
+                        inputConfig: { field_config: fieldConfig },
+                    }) as (input: unknown) => unknown;
+
+                    if (isFieldValidation(config)) {
+                    /**
+                     * A validation projects `CASE WHEN pred THEN col ELSE NULL END`, so what comes
+                     * back is the VALUE or null - not the predicate. Comparing which entries
+                     * survived is the whole of a validation's contract, and it does not require
+                     * knowing what coercion did to the value on the way in.
+                    */
+                        expect(sql.values.map((value) => value != null)).toEqual(
+                            battery.map((value) => value != null && impl(value) === true)
+                        );
+                        return;
+                    }
+
+                    /**
+                 * An `arrayOnly` function folds the WHOLE battery into one value; a `noUdfPath`
+                 * one is still per-row, so it maps.
+                */
+                    const expected = arrayOnly
+                        ? [impl(battery.filter((value) => value != null))]
+                        : battery.map((value) => (value == null ? null : impl(value)));
+
+                    expectSame(sql.values, expected, config.sql?.approximate);
+                    expect(sql.dispatch).toEqual('sql');
+                },
+                60_000);
+        }
 
         // skipped whenever there is no UDF path to compare against
         if (!againstJs) {
