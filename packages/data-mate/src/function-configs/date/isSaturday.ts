@@ -35,6 +35,18 @@ export const isSaturdayConfig: FieldValidateConfig = {
         },
     ],
     description: 'Returns the input if it is on a Saturday, otherwise returns null',
+    /**
+     * `dayofweek(x) = 6`.
+     *
+     * DuckDB's `dayofweek` is 0-for-Sunday, the same convention as JavaScript's `getUTCDay` - verified:
+     * 2026-01-02 is a Friday and returns 5, 2026-01-04 is a Sunday and returns 0.
+     *
+     * `types: [Date]` because this also accepts `String` and `Number`, which the UDF parses.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => `dayofweek(${value}) = 6`,
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,

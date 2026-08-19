@@ -49,6 +49,15 @@ export const isWeekendConfig: FieldValidateConfig = {
         },
     ],
     description: 'Returns the input if it is on a Weekend (Saturday-Sunday), otherwise returns null',
+    /**
+     * `dayofweek(x) IN (0, 6)` - Sunday or Saturday.
+     *
+     * `types: [Date]` because this also accepts `String` and `Number`, which the UDF parses.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => `dayofweek(${value}) IN (0, 6)`,
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,
