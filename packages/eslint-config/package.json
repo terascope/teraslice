@@ -12,6 +12,10 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "type": "module",
     "main": "index.js",
+    "files": [
+        "index.js",
+        "lib/**/*"
+    ],
     "scripts": {
         "test": "node ../scripts/bin/ts-scripts test ../eslint-config --",
         "test:debug": "node ../scripts/bin/ts-scripts test --debug ../eslint-config --",

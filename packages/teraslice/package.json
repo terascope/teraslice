@@ -18,8 +18,7 @@
     "typings": "dist/src/index.d.ts",
     "files": [
         "*.js",
-        "lib/**/*",
-        "examples/**/*"
+        "dist/src/**/*"
     ],
     "scripts": {
         "build": "tsc --build",

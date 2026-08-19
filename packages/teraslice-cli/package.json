@@ -15,7 +15,6 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "type": "module",
     "main": "dist/src/ts-cli.js",
-    "typings": "dist/src/index.d.ts",
     "bin": {
         "earl": "bin/teraslice-cli.js",
         "teraslice-cli": "bin/teraslice-cli.js"
@@ -90,7 +89,6 @@
             "generators-templates/**/*"
         ]
     },
-    "srcMain": "src/index.ts",
     "terascope": {
         "testSuite": "unit",
         "enableTypedoc": true
