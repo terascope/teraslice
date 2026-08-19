@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { timestampLiteral, isDateArg } from './sql-utils.js';
 
 export interface IsAfterArgs {
     date: string | number | Date | DateTuple;
@@ -87,6 +88,15 @@ export const isAfterConfig: FieldValidateConfig<IsAfterArgs> = {
     required_arguments: ['date'],
     create({ args: { date } }) {
         return (input: unknown) => isAfter(input, date);
+    },
+    /**
+     * A strict comparison against a constant, because `date-fns`' `isAfter` is strict and the
+     * argument is fixed for the whole query.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => isDateArg(args.date),
+        expression: ({ value, args }) => `${value} > ${timestampLiteral(args.date)}`,
     },
     accepts: [
         FieldType.Date,

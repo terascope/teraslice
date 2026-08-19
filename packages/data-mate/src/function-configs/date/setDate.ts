@@ -6,6 +6,7 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
 } from '../interfaces.js';
+import { replaceField } from './sql-utils.js';
 
 export interface SetDateArgs {
     value: number;
@@ -80,6 +81,16 @@ export const setDateConfig: FieldTransformConfig<SetDateArgs> = {
         }
     },
     required_arguments: ['value'],
+    /**
+     * Month boundary plus `value - 1` days, which **rolls over exactly as `setUTCDate` does**:
+     * day 31 of a February is March 3, not an error and not February 28.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => Number.isInteger(args.value)
+            && args.value >= 1 && args.value <= 31,
+        expression: ({ value, args }) => replaceField(value, 'month', 'day', `${args.value} - 1`),
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,

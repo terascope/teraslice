@@ -80,6 +80,22 @@ export const setMonthConfig: FieldTransformConfig<SetMonthArgs> = {
         }
     },
     required_arguments: ['value'],
+    /**
+     * Year boundary, then the month, then the ORIGINAL day-of-month as an offset in days.
+     *
+     * Adding months to the value itself would clamp - DuckDB's `Jan 31 + INTERVAL 1 MONTH` is
+     * Feb 28 - where `setUTCMonth` overflows to March 3. Adding the day as days after landing on
+     * the first of the target month reproduces the overflow.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => Number.isInteger(args.value)
+            && args.value >= 1 && args.value <= 12,
+        expression: ({ value, args }) => `(date_trunc('year', ${value})`
+            + ` + INTERVAL (${args.value} - 1) MONTH`
+            + ` + INTERVAL (date_part('day', ${value}) - 1) DAY`
+            + ` + (${value} - date_trunc('day', ${value})))`,
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,
