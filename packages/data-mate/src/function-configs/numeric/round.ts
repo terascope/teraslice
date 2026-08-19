@@ -48,6 +48,18 @@ export const roundConfig: FieldTransformConfig = {
     create() {
         return runMathFn(Math.round);
     },
+    /**
+     * NOT promoted to SQL, and the reason is a defect on the UDF side rather than in the SQL.
+     *
+     * `output_type` makes the result an `Integer`, and at `1e21` the JavaScript UDF path returns
+     * garbage - the parity gate recorded `"3875820019684212735"` (a wrapped BIGINT, rendered as a
+     * STRING) where the SQL expression returns the mathematically correct `1e+21`. SQL is the better
+     * answer, but promoting it would still be a behaviour CHANGE, and the two cannot be made equal
+     * while the UDF path is wrong. `-0` differs too: SQL preserves it, the UDF path normalises it
+     * to `0`.
+     *
+     * Fix the overflow first (what does `DataFrame` return at `1e21`?), then promote.
+    */
     accepts: [
         FieldType.Number,
     ],

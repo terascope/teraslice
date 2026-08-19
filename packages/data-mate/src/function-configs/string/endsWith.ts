@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { sqlLiteral } from '../sql-helpers.js';
 
 export interface EndsWithArgs {
     value: string;
@@ -53,6 +54,10 @@ export const endsWithConfig: FieldValidateConfig<EndsWithArgs> = {
             type: FieldType.String,
             description: 'The value compared to the end of the input string '
         }
+    },
+    /** `ends_with` is native; an empty needle is true for both, which the battery checks. */
+    sql: {
+        expression: ({ value, args }) => `ends_with(${value}, ${sqlLiteral(args.value)})`,
     },
     accepts: [FieldType.String],
     required_arguments: ['value'],
