@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { timestampLiteral, isDateArg } from './sql-utils.js';
 
 export interface IsBetweenArgs {
     start: string | number | Date | DateTuple;
@@ -82,6 +83,16 @@ export const isBetweenConfig: FieldValidateConfig<IsBetweenArgs> = {
     required_arguments: ['start', 'end'],
     create({ args }) {
         return (input: unknown) => isBetween(input, args);
+    },
+    /**
+     * `after(start) AND before(end)`, and **both ends are EXCLUSIVE** - the implementation is
+     * literally `_isAfter(input, start) && _isBefore(input, end)`, so `BETWEEN` would be wrong.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => isDateArg(args.start) && isDateArg(args.end),
+        expression: ({ value, args }) => `(${value} > ${timestampLiteral(args.start)}`
+            + ` AND ${value} < ${timestampLiteral(args.end)})`,
     },
     accepts: [
         FieldType.Date,

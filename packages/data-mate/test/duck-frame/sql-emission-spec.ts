@@ -288,6 +288,22 @@ const CASES: Record<string, {
     // `size` must be positive - the function rejects 0 itself
     truncate: { args: [{ size: 3 }, { size: 1 }, { size: 100 }] },
     setPrecision: { args: [{ digits: 2 }, { digits: 0 }] },
+    /**
+     * Date setters: one ordinary value and one that FORCES the rollover, because that is the only
+     * place a naive emission and `Date` disagree - `setUTCDate(31)` on a February date is March 3.
+    */
+    setMilliseconds: { args: [{ value: 0 }, { value: 999 }] },
+    setSeconds: { args: [{ value: 0 }, { value: 59 }] },
+    setMinutes: { args: [{ value: 0 }, { value: 59 }] },
+    setHours: { args: [{ value: 0 }, { value: 23 }] },
+    setDate: { args: [{ value: 1 }, { value: 31 }] },
+    setMonth: { args: [{ value: 1 }, { value: 2 }, { value: 12 }] },
+    setYear: { args: [{ value: 2023 }, { value: 2024 }] },
+    isAfter: { args: [{ date: '2026-01-05T00:00:00.000Z' }, { date: 1735689600000 }] },
+    isBefore: { args: [{ date: '2026-01-05T00:00:00.000Z' }, { date: 1735689600000 }] },
+    isBetween: {
+        args: [{ start: '2026-01-03T00:00:00.000Z', end: '2026-01-07T00:00:00.000Z' }],
+    },
     isIP: IP_CASE,
     isIPv4: IP_CASE,
     isIPv6: IP_CASE,

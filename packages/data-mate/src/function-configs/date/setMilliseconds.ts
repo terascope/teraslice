@@ -80,6 +80,17 @@ export const setMillisecondsConfig: FieldTransformConfig<SetMillisecondsArgs> = 
         }
     },
     required_arguments: ['value'],
+    /**
+     * Second boundary plus the new milliseconds. No rollover is possible - the argument is
+     * validated to 0-999, so it always lands inside the same second.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => Number.isInteger(args.value)
+            && args.value >= 0 && args.value <= 999,
+        expression: ({ value, args }) => `(date_trunc('second', ${value})`
+            + ` + INTERVAL (${args.value}) MILLISECOND)`,
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,

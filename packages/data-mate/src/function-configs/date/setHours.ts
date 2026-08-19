@@ -6,6 +6,7 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
 } from '../interfaces.js';
+import { replaceField } from './sql-utils.js';
 
 export interface SetHoursArgs {
     value: number;
@@ -80,6 +81,13 @@ export const setHoursConfig: FieldTransformConfig<SetHoursArgs> = {
         }
     },
     required_arguments: ['value'],
+    /** Day boundary plus the new hours, keeping the rest of the time. Validated to 0-23. */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => Number.isInteger(args.value)
+            && args.value >= 0 && args.value <= 23,
+        expression: ({ value, args }) => replaceField(value, 'day', 'hour', String(args.value)),
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,
