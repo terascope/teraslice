@@ -45,6 +45,23 @@ function result(ms, rows, note) {
     return { ms, rows, note };
 }
 
+/**
+ * Turns a thrown error into the cell the report shows.
+ *
+ * **An OOM is a RESULT, not a crash** - it is the scale at which an engine stops working on this
+ * machine, and reporting it is the point. Exported because a failure in a case's SETUP has to be
+ * classified the same way as one in the measurement: at 5M the dfjson payload cannot be built at
+ * all, and `setup failed` in that cell would read as a harness bug rather than the engine's
+ * ceiling. `where` names the phase, so the two are still distinguishable.
+*/
+export function classify(err, where) {
+    const message = String(err?.message ?? err);
+    const oom = /heap out of memory|Array buffer allocation failed|Invalid (string|array) length|Maximum call stack/i
+        .test(message);
+    if (oom) return result(null, null, where ? `OOM (${where})` : 'OOM');
+    return result(null, null, `${where ? `${where} ` : ''}failed: ${message.slice(0, 60)}`);
+}
+
 export const SKIPPED = Symbol('skipped');
 
 /**
@@ -72,10 +89,7 @@ export async function measure(fn, { warmup = true, runs = RUNS } = {}) {
         samples.sort((a, b) => a - b);
         return result(samples[Math.floor(samples.length / 2)], rows);
     } catch (err) {
-        const message = String(err?.message ?? err);
-        const oom = /heap out of memory|Array buffer allocation failed|Invalid (string|array) length|Maximum call stack/i
-            .test(message);
-        return result(null, null, oom ? 'OOM' : `failed: ${message.slice(0, 60)}`);
+        return classify(err);
     }
 }
 
@@ -89,7 +103,10 @@ export async function measure(fn, { warmup = true, runs = RUNS } = {}) {
  *   materialised JS values, so both pay for output conversion.
  * - `'count'` - `count(*)`. Cheapest honest force for a filter or a join, where the question is
  *   how fast the engine finds the rows, not how fast it hands them over. **Never use it for a
- *   sort**: `count(*)` lets the optimiser drop the ORDER BY entirely.
+ *   sort**: `count(*)` lets the optimiser drop the ORDER BY entirely. **Never use it on a frame
+ *   from `fromParquet` either**: that frame is relation-backed, and DuckDB answers the count from
+ *   the Parquet footer's row-group metadata without reading a single value - it reported 0 ms at
+ *   500k rows, and a 5,939x speedup, for work that never happened.
  * - `'table'` - `materialize()`. The right one for "produce a frame the next step can use",
  *   which is what `DataFrame`'s eager operations always do.
 */

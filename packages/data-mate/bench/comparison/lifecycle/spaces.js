@@ -23,7 +23,17 @@ const PAYLOADS = Number(process.env.PAYLOADS || 5);
 export async function lifecycle(ctx) {
     const {
         DataFrame, DuckFrame, config, makeRecords, SCALES, tmp, measure, label, line, heading,
+        runsFor,
     } = ctx;
+
+    /**
+     * The SAME per-scale sample count the cases use.
+     *
+     * Without this the lifecycle took 3 samples where a 5M case takes 1, so it ran
+     * `DataFrame.serialize()` over the whole corpus six times at the one scale that is already
+     * known to exhaust a 24 GB heap - a needless way to lose a whole run's numbers.
+    */
+    const samples = (scale) => ({ runs: runsFor(scale) });
 
     heading(`Spaces lifecycle: today (DataFrame + dfjson) vs DuckFrame + Parquet`);
     line(`  ${PAYLOADS} payloads per query, assembled then queried\n`);
@@ -44,7 +54,7 @@ export async function lifecycle(ctx) {
                 bytes += DataFrame.fromJSON(config, batch).serialize().length;
             }
             return bytes;
-        });
+        }, samples(scale));
 
         let payloads = [];
         const producerDuck = await measure(async () => {
@@ -57,7 +67,7 @@ export async function lifecycle(ctx) {
                 payloads.push(file);
             }
             return payloads.length;
-        });
+        }, samples(scale));
 
         // ---------------------------------------------------- WORKER: assemble
         // Today the worker must deserialize every payload and append them; on DuckFrame it
@@ -67,7 +77,7 @@ export async function lifecycle(ctx) {
         const assembleToday = await measure(async () => {
             const frames = await Promise.all(wire.map((buf) => DataFrame.deserialize(buf)));
             return DataFrame.fromJSON(config, []).appendAll(frames).size;
-        });
+        }, samples(scale));
 
         const assembleDuck = await measure(async () => {
             const frame = await DuckFrame.create(config, {});
@@ -75,7 +85,7 @@ export async function lifecycle(ctx) {
             const rows = await frame.size();
             await frame.destroy();
             return rows;
-        });
+        }, samples(scale));
 
         // ---------------------------------------------------- WORKER: query
         // filter -> aggregate -> sort, then read the answer. On DuckFrame that is ONE statement;
@@ -99,7 +109,7 @@ export async function lifecycle(ctx) {
                 .avg('score')
                 .run();
             return out.orderBy('category:asc').size;
-        });
+        }, samples(scale));
 
         const assembledDuck = await (async () => {
             const frame = await DuckFrame.create(config, {});
@@ -134,7 +144,7 @@ export async function lifecycle(ctx) {
 
             for await (const _row of aggregated.rows()) seen++;
             return seen;
-        });
+        }, samples(scale));
 
         await assembledDuck.destroy();
 

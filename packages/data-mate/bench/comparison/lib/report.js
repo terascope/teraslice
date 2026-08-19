@@ -122,7 +122,7 @@ export function writeReport({
     push();
     push('```bash');
     push('cd packages/data-mate && pnpm build');
-    push('node --max-old-space-size=16384 bench/comparison/run.mjs');
+    push('node --max-old-space-size=16384 bench/comparison/run.js');
     push('```');
     push();
     push('`SCALES=1000,10000` for a quick pass, `RUNS=5` for more samples, `OUT=path.md` to send'
