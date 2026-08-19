@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isCIDRSql } from './sql-utils.js';
 
 export const isCIDRConfig: FieldValidateConfig = {
     name: 'isCIDR',
@@ -44,6 +45,15 @@ export const isCIDRConfig: FieldValidateConfig = {
     description: 'Returns the input if it is a valid IPv4 or IPv6 IP address in CIDR notation, otherwise returns null',
     create() {
         return isCIDR;
+    },
+    /**
+     * A prefix must be present - which is the whole difference between this and `isIP`.
+     *
+     * `TRY_CAST` accepts a bare address as an implicit `/32`, so without the `contains` test this
+     * would call every IP a CIDR.
+    */
+    sql: {
+        expression: ({ value }) => isCIDRSql(value),
     },
     accepts: [FieldType.String, FieldType.IPRange],
 };

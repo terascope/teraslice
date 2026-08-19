@@ -87,9 +87,9 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
     [FieldType.Double]: [...ORDINARY_NUMBERS, 0.1, 1e-7, 1e21, null],
     [FieldType.Boolean]: [true, false, null],
     /**
-     * One date per weekday, both leap and non-leap years, a century and a 400-year boundary, the epoch,
-     * and the last millisecond of a year - so the weekday, leap-year and truncation emissions are
-     * actually exercised rather than nominally covered.
+     * One date per weekday, both leap and non-leap years, a century and a 400-year boundary,
+     * the epoch and the last millisecond of a year - so the weekday, leap-year and truncation
+     * emissions are actually exercised rather than nominally covered.
     */
     [FieldType.Date]: [
         '2026-01-02T03:04:05.678Z',
@@ -108,6 +108,107 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
     ],
     [FieldType.IP]: ['1.2.3.4', '255.255.255.255', '0.0.0.0', '::1', 'fe80::1', null],
 };
+
+/**
+ * The IP battery, fed through a **Keyword** column rather than an `IP` one.
+ *
+ * The IP functions accept `String` as well as `IP`, and a `String` column is the only one that can
+ * hold the inputs that matter here: coercion into an `IP` field rejects a malformed address before
+ * the function ever sees it, so an `IP`-typed battery can only contain values every predicate
+ * answers the same way about. Everything below is a shape where `ip-utils` and the `inet` extension
+ * could disagree - leading zeros, a prefix on an address, a scope ID, both IPv4-in-IPv6 spellings,
+ * and one member of every reserved range - and they are here because
+ * `docs/tools/probe/ip-semantics.mjs` found the first three of them disagreeing.
+*/
+const IP_BATTERY: readonly unknown[] = [
+    // ordinary, and one from each family
+    '1.2.3.4',
+    '8.8.8.8',
+    '0.0.0.0',
+    '255.255.255.255',
+    '::1',
+    '::',
+    '2001:4860:4860::8888',
+    'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+    '0:0:0:0:0:0:0:1',
+    '2001:DB8::1',
+    // one per non-routable range, both families
+    '10.0.0.1',
+    '172.16.0.1',
+    '192.168.1.1',
+    '127.0.0.1',
+    '169.254.1.1',
+    '100.64.0.1',
+    '224.0.0.1',
+    '240.0.0.1',
+    '203.0.113.1',
+    '198.51.100.1',
+    '192.0.2.1',
+    '198.18.0.1',
+    '192.88.99.1',
+    '192.0.0.1',
+    'fe80::1',
+    'ff00::1',
+    'fc00::1',
+    'fd00::1',
+    '2002::1',
+    '64:ff9b::1',
+    '100::1',
+    '2620:4f:8000::1',
+    '2001:db8::1',
+    // strictness: data-mate rejects a leading zero, INET reads it as the address
+    '01.02.03.04',
+    '010.1.1.1',
+    '1.2.3.04',
+    // a prefix makes it a CIDR, not an IP - INET casts it either way
+    '1.2.3.4/24',
+    '1.2.3.4/32',
+    '10.0.0.0/8',
+    '192.168.1.0/24',
+    '0.0.0.0/0',
+    '2001:db8::/32',
+    'fe80::/10',
+    '::/0',
+    '::ffff:0:0/96',
+    '2001:db8::1/64',
+    // scope IDs: valid to data-mate, rejected outright by INET
+    'fe80::1%eth0',
+    'fe80::1%1',
+    '2001:db8::1%0',
+    'fe80::1%',
+    '1.2.3.4%eth0',
+    // both IPv4-in-IPv6 spellings, including the pair that is the same 128 bits
+    '::ffff:1.2.3.4',
+    '::ffff:8.8.8.8',
+    '::ffff:192.168.1.1',
+    '::1.2.3.4',
+    '::8.8.8.8',
+    '::0.0.0.0',
+    '::255.255.255.255',
+    '::ffff:0102:0304',
+    '::1.2.3.4%eth0',
+    // not addresses at all
+    '256.1.1.1',
+    '1.2.3',
+    '1.2.3.4.5',
+    '1.2.3.4 ',
+    ' 1.2.3.4',
+    '1.2.3.4:80',
+    '0x1.2.3.4',
+    ':::1',
+    '2001:db8::1::2',
+    'gggg::1',
+    '12345::1',
+    '1:2:3:4:5:6:7',
+    '',
+    'not-an-ip',
+    '1',
+    '4294967295',
+    null,
+];
+
+/** Every IP predicate gets the same battery, through a String column. See `IP_BATTERY`. */
+const IP_CASE = { type: FieldType.Keyword, battery: IP_BATTERY };
 
 /**
  * Which of a function's accepted types to feed it.
@@ -131,11 +232,11 @@ const TYPE_PREFERENCE: readonly FieldType[] = [
  * Per-function overrides: argument sets, the input type when preference is wrong, and the battery
  * itself where the shared one contains values the function's DECLARED OUTPUT TYPE cannot hold.
  *
- * That last case is `ceil`/`floor`/`round`: their `output_type` is `Integer`, so at `1e21` both paths
- * produce a wrapped BIGINT (`docs/known-defects.md` DF2) and differ only in how the garbage renders -
- * a string on one side, a double on the other. Comparing them there measures the overflow defect, not
- * the emission, so the battery is narrowed to what an `Integer` can represent and the guard on those
- * emissions keeps the UDF for everything outside it.
+ * That last case is `ceil`/`floor`/`round`: their `output_type` is `Integer`, so at `1e21`
+ * both paths produce a wrapped BIGINT (`docs/known-defects.md` DF2) and differ only in how the
+ * garbage renders - a string on one side, a double on the other. Comparing them there measures
+ * the overflow defect, not the emission, so the battery is narrowed to what an `Integer` can
+ * represent and the guard on those emissions keeps the UDF for everything outside it.
 */
 const CASES: Record<string, {
     args?: readonly Record<string, unknown>[];
@@ -187,6 +288,28 @@ const CASES: Record<string, {
     // `size` must be positive - the function rejects 0 itself
     truncate: { args: [{ size: 3 }, { size: 1 }, { size: 100 }] },
     setPrecision: { args: [{ digits: 2 }, { digits: 0 }] },
+    isIP: IP_CASE,
+    isIPv4: IP_CASE,
+    isIPv6: IP_CASE,
+    isCIDR: IP_CASE,
+    isMappedIPv4: IP_CASE,
+    isRoutableIP: IP_CASE,
+    isNonRoutableIP: IP_CASE,
+    /**
+     * A `cidr` from each family and both extremes, plus the `min`/`max` form the emission
+     * declines - which is what makes the `applies` assertion below meaningful rather than nominal.
+    */
+    inIPRange: {
+        ...IP_CASE,
+        args: [
+            { cidr: '10.0.0.0/8' },
+            { cidr: '192.168.1.0/24' },
+            { cidr: '0.0.0.0/0' },
+            { cidr: '2001:db8::/32' },
+            { cidr: '::ffff:0:0/96' },
+            { min: '1.2.3.4', max: '1.2.3.10' },
+        ],
+    },
 };
 
 function inputTypeFor(name: string, config: FunctionDefinitionConfig<any>): FieldType {
@@ -218,8 +341,8 @@ const ULP_TOLERANCE = Number.EPSILON * 4;
  * Compares the two paths' output, exactly by default.
  *
  * **Approximate comparison is allowed ONLY for a function that declares it**, and only between two
- * finite numbers. Everything else - nulls, strings, booleans, a null against a number - still has to
- * match exactly, so `approximate` cannot hide a structural difference, only a last-bit one.
+ * finite numbers. Everything else - nulls, strings, booleans, a null against a number - still
+ * has to match exactly, so `approximate` cannot hide a structural difference, only a last-bit one.
 */
 function expectSame(sql: unknown[], udf: unknown[], approximate: boolean | undefined) {
     if (!approximate) {
@@ -330,10 +453,11 @@ describe('sql emissions on the function configs', () => {
         /**
          * **Skipped for validations, because the adapter cannot express one on an array column at
          * all** - on EITHER path. `applyToValues` maps per element, so the predicate becomes a
-         * `BOOLEAN[]`, and the surrounding `CASE WHEN <pred> THEN col ELSE NULL END` then fails with
-         * `Unimplemented type for cast (BOOLEAN[] -> BOOLEAN)`. That predates the sql emissions - the
-         * UDF path builds the same shape - and is recorded in `docs/known-defects.md`. Promoting a
-         * function must not be blocked on it, so the array case is asserted for transforms only.
+         * `BOOLEAN[]`, and the surrounding `CASE WHEN <pred> THEN col ELSE NULL END` then fails
+         * with `Unimplemented type for cast (BOOLEAN[] -> BOOLEAN)`. That predates the sql
+         * emissions - the UDF path builds the same shape - and is recorded in
+         * `docs/known-defects.md`. Promoting a function must not be blocked on it, so the array
+         * case is asserted for transforms only.
         */
         const arrayCase = isFieldValidation(config) ? it.skip : it;
 

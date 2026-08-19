@@ -5,6 +5,8 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { sqlLiteral } from '../sql-helpers.js';
+import { asInet, isIPSql } from './sql-utils.js';
 
 export interface InIPRangeArgs {
     min?: string;
@@ -50,6 +52,20 @@ export const inIPRangeConfig: FieldValidateConfig = {
     description: 'Returns the input if the IP is within the given range, boundaries are inclusive. Accepts min, max or cidr notation for the IP range, also accepts min without a max and vice versa.',
     create({ args }) {
         return (input: unknown) => inIPRange(input, args);
+    },
+    /**
+     * The `cidr` form only - `applies` declines the rest, and that is a correctness boundary.
+     *
+     * `min`/`max` compare the raw integers in data-mate, so `::1` sits inside
+     * `0.0.0.0`-`255.255.255.255`; `INET` ordering puts every IPv4 address before every
+     * IPv6 one and answers false. That divergence is not fixable by a guard, so those arguments
+     * keep the UDF. `validate_arguments` has already rejected a malformed `cidr` by the time this
+     * runs.
+    */
+    sql: {
+        applies: (args) => args.cidr != null && args.min == null && args.max == null,
+        expression: ({ value, args }) => `(${isIPSql(value)} AND ${asInet(value)}`
+            + ` <<= INET ${sqlLiteral(args.cidr as string)})`,
     },
     accepts: [FieldType.String, FieldType.IP],
     argument_schema: {

@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isMappedIPv4Sql } from './sql-utils.js';
 
 export const isMappedIPv4Config: FieldValidateConfig = {
     name: 'isMappedIPv4',
@@ -51,6 +52,15 @@ export const isMappedIPv4Config: FieldValidateConfig = {
     description: 'Returns the input if it is an IPv4 address mapped to an IPv6 address, otherwise returns null',
     create() {
         return isMappedIPv4;
+    },
+    /**
+     * Containment in `::ffff:0:0/96`, OR the deprecated `::a.b.c.d` spelling.
+     *
+     * The second arm has to be textual: data-mate answers true for `::0.0.0.0` and false for `::`,
+     * which are the same 128 bits, because it records how the value was written.
+    */
+    sql: {
+        expression: ({ value }) => isMappedIPv4Sql(value),
     },
     accepts: [FieldType.String, FieldType.IP],
 };
