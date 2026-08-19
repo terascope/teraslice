@@ -399,6 +399,54 @@ const CASES: Record<string, {
      * overload - it has one, but only the test says so.
     */
     isDate: { type: FieldType.Date, args: [{}, { format: 'iso_8601' }] },
+    isISO8601: { type: FieldType.Date },
+    // real zones, not just UTC: a reversed date_diff still matches UTC and fails everywhere else
+    getTimezoneOffset: {
+        type: FieldType.Date,
+        args: [
+            { timezone: 'America/New_York' },
+            { timezone: 'Asia/Kolkata' },
+            { timezone: 'Australia/Lord_Howe' },
+            { timezone: 'UTC' },
+        ],
+    },
+    getTimeBetween: {
+        type: FieldType.Date,
+        args: [
+            { start: '2026-01-01T00:00:00.000Z', interval: 'milliseconds' },
+            { start: '2026-01-01T00:00:00.000Z', interval: 'seconds' },
+            { start: '2026-01-01T00:00:00.000Z', interval: 'hours' },
+            { start: '2026-01-01T00:00:00.000Z', interval: 'days' },
+            { end: '2026-06-01T00:00:00.000Z', interval: 'minutes' },
+            { end: '2026-06-01T00:00:00.000Z', interval: 'weeks' },
+            // calendar intervals the emission declines
+            { start: '2026-01-01T00:00:00.000Z', interval: 'months' },
+            { start: '2026-01-01T00:00:00.000Z', interval: 'calendarDays' },
+        ],
+    },
+    isEpoch: { args: [{}, { allowBefore1970: false }] },
+    isEpochMillis: { args: [{}, { allowBefore1970: false }] },
+    /**
+     * Time units only, plus the calendar ones the emission declines and `milliseconds`, which BOTH
+     * paths ignore - `date-fns`' `Duration` has no such key. See `date/sql-utils.ts`.
+    */
+    addToDate: {
+        type: FieldType.Date,
+        args: [{ hours: 5 },
+            { seconds: 90 },
+            { hours: 1, minutes: 2, seconds: 3 },
+            { milliseconds: 500 },
+            { months: 1 },
+            { expr: '1h' }],
+    },
+    subtractFromDate: {
+        type: FieldType.Date,
+        args: [{ hours: 5 },
+            { seconds: 90 },
+            { hours: 1, minutes: 2, seconds: 3 },
+            { milliseconds: 500 },
+            { days: 1 }],
+    },
     isEmpty: {
         type: [FieldType.Keyword, FieldType.Number, FieldType.Boolean],
         args: [{}, { ignoreWhitespace: true }],

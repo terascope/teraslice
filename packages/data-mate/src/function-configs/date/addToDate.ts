@@ -6,6 +6,7 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { isTimeOnlyAdjustment, timeInterval } from './sql-utils.js';
 
 export type { AdjustDateArgs };
 
@@ -75,6 +76,18 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     ],
     create({ args }) {
         return addToDateFP(args);
+    },
+    /**
+     * Hour, minute and second adjustments only - the calendar units are timezone dependent and stay
+     * on the UDF. `sql-utils.ts` records the measurements.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: isTimeOnlyAdjustment,
+        expression: ({ value, args }) => {
+            const interval = timeInterval(args);
+            return interval ? `(${value} + ${interval})` : value;
+        },
     },
     accepts: [
         FieldType.Date,
