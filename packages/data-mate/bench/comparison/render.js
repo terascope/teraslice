@@ -36,6 +36,7 @@ const report = writeReport({
         runs: '3 / 2 / 1 by scale',
         columns: COLUMNS.length,
         paths: Object.keys(CONFIG.fields).length,
+        checkpoint: ['1', 'true', 'yes'].includes(String(process.env.CHECKPOINT)),
     },
 });
 

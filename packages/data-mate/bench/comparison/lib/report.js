@@ -33,6 +33,9 @@ export function writeReport({
     push(`| timing | median of ${meta.runs} runs, after a discarded warm-up |`);
     push(`| machine | node ${meta.node}, ${meta.cores} cores, ${meta.memory} RAM,`
         + ` JS heap limit ${meta.heap} |`);
+    push(`| DuckFrame tables | ${meta.checkpoint
+        ? '**checkpointed** before each case, so segments are compressed'
+        : 'uncompressed - an in-memory DuckDB table is not compressed until a `CHECKPOINT`'} |`);
     push();
     push('**How to read the timings.** `DuckFrame` operations are lazy — they build SQL and'
         + ' execute nothing — so every case below ends in an explicit force: `count(*)` for a'

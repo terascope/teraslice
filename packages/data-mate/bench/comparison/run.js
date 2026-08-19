@@ -278,13 +278,13 @@ await closeDuckDatabase();
  *
  * A process that has REGISTERED A SCALAR FUNCTION does not exit when its work is done, even though
  * `closeDuckDatabase()` calls `instance.closeSync()` - a known node-neo defect (their PR #457), and
- * the same reason every script in `docs/tools/` ends this way and the test runner uses `--forceExit`.
- * Every transform and validation case here registers a UDF, so every run hits it.
+ * the same reason every script in `docs/tools/` ends this way and the test runner uses
+ * `--forceExit`. Every transform and validation case here registers a UDF, so every run hits it.
  *
- * It cost about 30 MINUTES PER SCALE before it was found: the child printed its whole report, went to
- * 0% CPU, and sat there until `sweep.js`'s `CASE_TIMEOUT` watchdog killed it. The supervisor then
- * found no in-flight marker - the last case had already cleared it - so it logged "child failed
- * before any case started", which reads like a harness bug rather than a finished run. The results
- * were complete and correct the whole time; only the wall clock was wrong.
+ * It cost about 30 MINUTES PER SCALE before it was found: the child printed its whole report, went
+ * to 0% CPU, and sat there until `sweep.js`'s `CASE_TIMEOUT` watchdog killed it. The supervisor
+ * then found no in-flight marker - the last case had already cleared it - so it logged "child
+ * failed before any case started", which reads like a harness bug rather than a finished run. The
+ * results were complete and correct the whole time; only the wall clock was wrong.
 */
 process.exit(0);
