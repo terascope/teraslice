@@ -108,6 +108,20 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
     ],
     [FieldType.IP]: ['1.2.3.4', '255.255.255.255', '0.0.0.0', '::1', 'fe80::1', null],
     /**
+     * Points around the `[{lat:1,lon:0}, {lat:0,lon:1}]` box used by the `inGeoBoundingBox` case -
+     * centre, all four EDGES, all four CORNERS, and one outside on each side.
+     *
+     * The edges and corners are the point: turf includes them and `ST_Within` does not, so a
+     * battery of interior points would pass with the wrong emission.
+    */
+    [FieldType.GeoPoint]: [
+        { lat: 0.5, lon: 0.5 },
+        { lat: 1, lon: 0.5 }, { lat: 0, lon: 0.5 }, { lat: 0.5, lon: 0 }, { lat: 0.5, lon: 1 },
+        { lat: 1, lon: 0 }, { lat: 0, lon: 1 }, { lat: 1, lon: 1 }, { lat: 0, lon: 0 },
+        { lat: 2, lon: 0.5 }, { lat: -1, lon: 0.5 }, { lat: 0.5, lon: -1 }, { lat: 0.5, lon: 2 },
+        null,
+    ],
+    /**
      * Only what a `GeoJSON` column can actually HOLD.
      *
      * Measured: `coerceToType` REJECTS a malformed shape outright - `{ type: 'Point' }`,
@@ -288,6 +302,7 @@ const IP_TRANSFORM_CASE = { type: FieldType.Keyword, battery: VALID_IPS, throwsO
  * first, numerics next, generic strings last. Same reasoning as `function-sweep-spec.ts`.
 */
 const TYPE_PREFERENCE: readonly FieldType[] = [
+    FieldType.GeoPoint,
     FieldType.GeoJSON,
     FieldType.Date,
     FieldType.IP,
@@ -434,6 +449,18 @@ const CASES: Record<string, {
      * overload - it has one, but only the test says so.
     */
     isGeoJSON: { type: FieldType.GeoJSON, noUdfPath: true },
+    /**
+     * `noUdfPath` because a `GeoPoint` column is a STRUCT, which cannot be a UDF parameter (DF7) -
+     * so like the shape predicates, SQL is the only way this runs at all.
+    */
+    inGeoBoundingBox: {
+        type: FieldType.GeoPoint,
+        noUdfPath: true,
+        args: [
+            { top_left: { lat: 1, lon: 0 }, bottom_right: { lat: 0, lon: 1 } },
+            { top_left: '1,0', bottom_right: '0,1' },
+        ],
+    },
     isGeoShapePoint: { type: FieldType.GeoJSON, noUdfPath: true },
     isGeoShapePolygon: { type: FieldType.GeoJSON, noUdfPath: true },
     isGeoShapeMultiPolygon: { type: FieldType.GeoJSON, noUdfPath: true },
