@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { HASH_LENGTHS } from './sql-utils.js';
 
 export interface IsHashArgs {
     algo: string;
@@ -67,6 +68,15 @@ export const isHashConfig: FieldValidateConfig<IsHashArgs> = {
         return (input: unknown) => isString(input) && validator.isHash(
             input, algo as validator.HashAlgorithm
         );
+    },
+    /**
+     * `validator.isHash` is only `^[a-fA-F0-9]{N}$` with N from a length table - no version bits,
+     * no TLD list, nothing the name hides. Transliterated from its source, not inferred.
+    */
+    sql: {
+        applies: (args) => HASH_LENGTHS[String(args.algo)] != null,
+        expression: ({ value, args }) => `regexp_matches(${value},`
+            + ` '^[a-fA-F0-9]{${HASH_LENGTHS[String(args.algo)]}}$')`,
     },
     accepts: [FieldType.String],
     argument_schema: {
