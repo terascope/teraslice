@@ -3,7 +3,7 @@ import {
     BOOLEAN, TINYINT, SMALLINT, BIGINT, HUGEINT, DOUBLE, VARCHAR, TIMESTAMP,
 } from '@duckdb/node-api';
 import { FieldType, DataTypeFieldConfig, DataTypeFields } from '@terascope/types';
-import { makeValueConverter } from './duck-values.js';
+import { makeValueConverter, makeInputConverter } from './duck-values.js';
 
 /**
  * The `DuckDBType` OBJECT for each field type, for registering a scalar function.
@@ -110,6 +110,13 @@ export interface ScalarFunctionSpec {
 export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunction {
     const callWithNull = spec.callWithNull ?? false;
     const convert = makeValueConverter(spec.returns, spec.returnsChildren);
+    /**
+     * The way IN needs a conversion too, and its absence was a real defect: a `Date` arrived as a
+     * `DuckDBTimestampValue` that the date primitives stringified into a zone-less string and
+     * re-parsed as machine-local, drifting every date function by the host's UTC offset. See
+     * `makeInputConverter`.
+    */
+    const toInput = makeInputConverter(spec.parameter);
 
     return DuckDBScalarFunction.create({
         name: spec.name,
@@ -126,7 +133,7 @@ export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunc
                     continue;
                 }
 
-                const result = spec.fn(value, row);
+                const result = spec.fn(toInput(value), row);
                 output.setItem(row, (result == null ? null : convert(result)) as any);
             }
 

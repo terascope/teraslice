@@ -230,4 +230,317 @@ describe('DuckFrame JSON export', () => {
             expect(JSON.parse(lines[0])._key).toBe('a');
         });
     });
+
+    /**
+     * **`writeNDJSON` writes with the CSV writer, not `FORMAT JSON`.**
+     *
+     * It has to. The lines are already JSON strings, so `COPY ... (FORMAT JSON)` would encode
+     * them a SECOND time - `{"json":"{\\"a\\":1}"}` - and DuckDB's own row JSON is not
+     * `DataFrame`'s anyway. So it writes `FORMAT CSV` with `QUOTE ''`, `ESCAPE ''` and a BEL
+     * delimiter, using the CSV writer purely as a line writer.
+     *
+     * That is only safe while no rendered line can CONTAIN a byte the CSV writer treats as
+     * structural - the BEL delimiter, a newline, or a carriage return. JSON escaping is what
+     * guarantees it, and this is the test that says so: without it, one control character in one
+     * string field would split a row across two lines in an S3 export, silently.
+    */
+    describe('values that could break the line writer', () => {
+        const HOSTILE: Record<string, string> = {
+            bel: `a\u0007b`,
+            newline: 'a\nb',
+            carriageReturn: 'a\r\nb',
+            doubleQuote: 'a"b',
+            backslash: 'a\\b',
+            tab: 'a\tb',
+            comma: 'a,b',
+            lowControl: `a\u0001b`,
+            lineSeparator: `a\u2028b`,
+        };
+
+        const HOSTILE_CONFIG: DataTypeConfig = {
+            version: 1,
+            fields: { label: { type: FieldType.Keyword }, value: { type: FieldType.Keyword } },
+        };
+
+        const HOSTILE_RECORDS = Object.entries(HOSTILE)
+            .map(([label, value]) => ({ label, value }));
+
+        let hostile: DuckFrame;
+
+        beforeAll(async () => {
+            hostile = await DuckFrame.fromRecords(HOSTILE_CONFIG, HOSTILE_RECORDS, {
+                name: 'hostile',
+            });
+        });
+
+        afterAll(async () => {
+            await hostile.destroy();
+        });
+
+        it('should write exactly one line per row, whatever the strings contain', async () => {
+            const path = join(tmpdir(), `export-hostile-${process.pid}.ndjson`);
+            files.push(path);
+
+            await hostile.writeNDJSON(path);
+            const written = readFileSync(path, 'utf8');
+
+            expect(written.split('\n').filter((line) => line.length > 0))
+                .toHaveLength(HOSTILE_RECORDS.length);
+        });
+
+        it('should round-trip every hostile value through the file', async () => {
+            const path = join(tmpdir(), `export-hostile-rt-${process.pid}.ndjson`);
+            files.push(path);
+
+            await hostile.writeNDJSON(path);
+            const parsed = readFileSync(path, 'utf8').trim()
+                .split('\n')
+                .map((line) => JSON.parse(line));
+
+            expect(parsed).toEqual(HOSTILE_RECORDS);
+        });
+
+        it('should leave no raw delimiter byte in the file', async () => {
+            const path = join(tmpdir(), `export-hostile-bytes-${process.pid}.ndjson`);
+            files.push(path);
+
+            await hostile.writeNDJSON(path);
+            const bytes = readFileSync(path);
+
+            // the BEL delimiter survives only as the escape sequence \u0007
+            expect(bytes.includes(0x07)).toBeFalse();
+            expect(readFileSync(path, 'utf8')).toInclude('\\u0007');
+        });
+
+        it('should match DataFrame on hostile strings too', async () => {
+            const lines: string[] = [];
+            for await (const line of hostile.ndjson()) lines.push(line);
+
+            const expected = DataFrame.fromJSON(HOSTILE_CONFIG, HOSTILE_RECORDS)
+                .toJSON(SPACES_DEFAULT)
+                .map((row) => JSON.stringify(row));
+
+            expect(normalize(lines)).toEqual(normalize(expected));
+        });
+    });
+
+    /**
+     * **Number rendering follows `JSON.stringify`, not DuckDB's.**
+     *
+     * `to_json` writes an integral double as `5.0`, keeps the sign on `-0`, and writes a bare
+     * `Infinity`/`NaN` token that `JSON.parse` REJECTS outright. `DataFrame` goes through
+     * `JSON.stringify`, which writes `5`, `0` and `null`.
+     *
+     * The fixture at the top of this file could not catch any of it, because every float in it
+     * (`0.25`, `1.5`) is fractional. It surfaced only when the 30-field BENCHMARK corpus was
+     * exported, where `GeoPoint` lat/lon land on whole degrees - 57 of 500 lines differed. So
+     * every case here is a **byte** comparison against `DataFrame` itself rather than against a
+     * literal, which is the only kind of assertion that would have failed.
+    */
+    describe('number rendering', () => {
+        /** Byte-compares the whole export against `DataFrame`, and hands back the lines. */
+        async function expectBytesToMatch(
+            config: DataTypeConfig,
+            records: Record<string, unknown>[]
+        ): Promise<string[]> {
+            const subject = await DuckFrame.fromRecords(config, records, {});
+
+            try {
+                const lines: string[] = [];
+                for await (const value of subject.ndjson()) lines.push(value);
+
+                expect(lines).toEqual(
+                    DataFrame.fromJSON(config, records)
+                        .toJSON(SPACES_DEFAULT)
+                        .map((row) => JSON.stringify(row))
+                );
+
+                return lines;
+            } finally {
+                await subject.destroy();
+            }
+        }
+
+        const NUMERIC: DataTypeConfig = {
+            version: 1,
+            fields: {
+                aFloat: { type: FieldType.Float },
+                aDouble: { type: FieldType.Double },
+                aNumber: { type: FieldType.Number },
+                aGeo: { type: FieldType.GeoPoint },
+                doubles: { type: FieldType.Double, array: true },
+                nested: { type: FieldType.Object },
+                'nested.ratio': { type: FieldType.Double },
+            },
+        };
+
+        it('should write an integral float without a decimal point', async () => {
+            const [line] = await expectBytesToMatch(NUMERIC, [{
+                aFloat: 2,
+                aDouble: 5,
+                aNumber: 7,
+                aGeo: { lat: -90, lon: 180 },
+                doubles: [1, 2],
+                nested: { ratio: 3 },
+            }]);
+
+            // the shape that used to be `5.0`, everywhere it can appear
+            expect(line).toInclude('"aDouble":5');
+            expect(line).toInclude('"aFloat":2');
+            expect(line).toInclude('"aNumber":7');
+            expect(line).toInclude('"aGeo":{"lat":-90,"lon":180}');
+            expect(line).toInclude('"doubles":[1,2]');
+            expect(line).toInclude('"ratio":3');
+            expect(line).not.toInclude('.0');
+        });
+
+        it('should leave a fractional float exactly as it was', async () => {
+            const [line] = await expectBytesToMatch(NUMERIC, [{
+                aFloat: 2.5,
+                aDouble: 5.25,
+                aNumber: 7.125,
+                aGeo: { lat: -90.5, lon: 180.25 },
+                doubles: [1.5, 2.5],
+                nested: { ratio: 3.75 },
+            }]);
+
+            expect(line).toInclude('"aDouble":5.25');
+            expect(line).toInclude('"doubles":[1.5,2.5]');
+        });
+
+        it('should drop the sign from negative zero', async () => {
+            const [line] = await expectBytesToMatch(
+                { version: 1, fields: { v: { type: FieldType.Double } } },
+                [{ v: -0 }]
+            );
+
+            expect(line).toBe('{"v":0}');
+        });
+
+        it('should render a GeoPoint array and a Boundary the same way', async () => {
+            const points = [{ lat: -90, lon: 180 }, { lat: 1.5, lon: 2.5 }];
+            const expected = '{"v":[{"lat":-90,"lon":180},{"lat":1.5,"lon":2.5}]}';
+
+            const [asArray] = await expectBytesToMatch(
+                { version: 1, fields: { v: { type: FieldType.GeoPoint, array: true } } },
+                [{ v: points }]
+            );
+
+            // a Boundary is `STRUCT(lat, lon)[]` in its OWN right - the type is the array, so it
+            // needs the list treatment even though `array` is not set on the field
+            const [asBoundary] = await expectBytesToMatch(
+                { version: 1, fields: { v: { type: FieldType.Boundary } } },
+                [{ v: points }]
+            );
+
+            expect(asArray).toBe(expected);
+            expect(asBoundary).toBe(expected);
+        });
+
+        it('should stringify a big Long INSIDE an array, as it does a scalar one', async () => {
+            const [line] = await expectBytesToMatch(
+                { version: 1, fields: { v: { type: FieldType.Long, array: true } } },
+                [{ v: [9007199254740993n, 5n] }]
+            );
+
+            // ...992 for an input of ...993 is the shelved `Long` round-trip defect, reproduced
+            // deliberately: the contract is to match `DataFrame`, not to fix one side
+            expect(line).toBe('{"v":["9007199254740992",5]}');
+        });
+
+        it('should never write a bare Infinity or NaN, which is not valid JSON', async () => {
+            const config: DataTypeConfig = {
+                version: 1,
+                fields: { v: { type: FieldType.Double } },
+            };
+            const subject = await DuckFrame.fromRecords(
+                config,
+                [{ v: Infinity }, { v: -Infinity }, { v: Number.NaN }],
+                {}
+            );
+
+            try {
+                const lines: string[] = [];
+                for await (const value of subject.ndjson()) lines.push(value);
+
+                // the point: every line PARSES. Before the correction these were
+                // `{"v":Infinity}`, `{"v":-Infinity}` and `{"v":NaN}`, and `JSON.parse` threw on
+                // all three - a single infinite value made an exported line unreadable.
+                for (const value of lines) expect(() => JSON.parse(value)).not.toThrow();
+
+                // KNOWN DIVERGENCE, and the only one left in the default mode: a non-finite
+                // number becomes SQL NULL, and null-stripping then removes the key, where
+                // `DataFrame` keeps it as `"v":null`. It cannot be helped while null stripping is
+                // `json_merge_patch` - RFC 7396 uses null as the delete sentinel, so there is no
+                // way to emit a null that survives it. Both outputs are valid JSON and mean the
+                // same thing; only `@preserveNullFields` mode matches byte for byte.
+                expect(lines).toEqual(['{}', '{}', '{}']);
+            } finally {
+                await subject.destroy();
+            }
+        });
+
+        it('should match DataFrame on a non-finite value when nulls are preserved', async () => {
+            const config: DataTypeConfig = {
+                version: 1,
+                fields: { v: { type: FieldType.Double } },
+            };
+            const subject = await DuckFrame.fromRecords(config, [{ v: Infinity }], {});
+
+            try {
+                const lines: string[] = [];
+                for await (const value of subject.ndjson({ removeNullFields: false })) {
+                    lines.push(value);
+                }
+
+                expect(lines).toEqual(
+                    DataFrame.fromJSON(config, [{ v: Infinity }])
+                        .toJSON(PRESERVE_NULLS)
+                        .map((row) => JSON.stringify(row))
+                );
+                expect(lines[0]).toBe('{"v":null}');
+            } finally {
+                await subject.destroy();
+            }
+        });
+
+        /**
+         * **KNOWN DIVERGENCE, pinned: the exponential form loses its `+`.**
+         *
+         * At `abs(x) >= 1e21` both engines switch to exponential notation, but `JSON.stringify`
+         * writes `1e+21` and DuckDB writes `1e21`. It cannot be corrected through the JSON type,
+         * which re-normalises every number handed to it - `CAST('1e+21' AS JSON)` renders back as
+         * `1e21` - and correcting it would mean assembling the object as raw text and giving up
+         * `json_merge_patch` for null stripping. Negative exponents already agree, because they
+         * carry their sign: `1e-7` is identical on both sides.
+        */
+        it('should still diverge on the exponent sign past 1e21', async () => {
+            const config: DataTypeConfig = {
+                version: 1,
+                fields: { v: { type: FieldType.Double } },
+            };
+            const subject = await DuckFrame.fromRecords(config, [{ v: 1e21 }], {});
+
+            try {
+                const lines: string[] = [];
+                for await (const value of subject.ndjson()) lines.push(value);
+
+                expect(lines[0]).toBe('{"v":1e21}');
+                expect(JSON.stringify({ v: 1e21 })).toBe('{"v":1e+21}');
+                // the VALUES still agree, which is why this is tolerable
+                expect(JSON.parse(lines[0]).v).toBe(1e21);
+            } finally {
+                await subject.destroy();
+            }
+        });
+
+        it('should agree with DataFrame on a negative exponent', async () => {
+            const [line] = await expectBytesToMatch(
+                { version: 1, fields: { v: { type: FieldType.Double } } },
+                [{ v: 1e-7 }]
+            );
+
+            expect(line).toBe('{"v":1e-7}');
+        });
+    });
 });
