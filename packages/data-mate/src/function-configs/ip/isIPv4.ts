@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isIPv4Sql } from './sql-utils.js';
 
 export const isIPv4Config: FieldValidateConfig = {
     name: 'isIPv4',
@@ -44,6 +45,15 @@ export const isIPv4Config: FieldValidateConfig = {
     description: 'Returns the input if it is a valid IPv4 address in dot notation, otherwise returns null',
     create() {
         return isIPv4;
+    },
+    /**
+     * `IPV4_RE` from `ip-utils`, transliterated, rather than anything `INET` offers.
+     *
+     * There is no `family()` in the extension, and the cast would take a leading-zero octet and a
+     * `/prefix` that data-mate does not - so the regex IS the definition here.
+    */
+    sql: {
+        expression: ({ value }) => isIPv4Sql(value),
     },
     accepts: [FieldType.String, FieldType.IP],
 };
