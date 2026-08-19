@@ -62,6 +62,10 @@ export const isGreaterThanConfig: FieldValidateConfig<GreaterThanArgs> = {
     create({ args: { value } }) {
         return isGreaterThanFP(value);
     },
+    /** A plain comparison; the argument is a plan constant, so it is spliced as a literal. */
+    sql: {
+        expression: ({ value, args }) => `${value} > ${Number(args.value)}`,
+    },
     accepts: [
         FieldType.Number,
     ],

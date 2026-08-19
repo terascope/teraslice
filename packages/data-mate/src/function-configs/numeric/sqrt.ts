@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull, inDomain } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const sqrtConfig: FieldTransformConfig = {
@@ -47,6 +48,15 @@ export const sqrtConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.sqrt);
+    },
+    /**
+     * `sqrt`, with its domain checked first.
+     *
+     * `sqrt(-1)` THROWS in DuckDB (`Out of Range Error`) where `Math.sqrt(-1)` is NaN, which
+     * `runMathFn` turns into null. The guard is what stops an out-of-domain value aborting the query.
+    */
+    sql: {
+        expression: ({ value }) => finiteOrNull(inDomain(`${value} >= 0`, `sqrt(${value})`)),
     },
     accepts: [
         FieldType.Number,

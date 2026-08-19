@@ -6,6 +6,7 @@ import {
     FunctionDefinitionCategory,
 } from '../interfaces.js';
 import { runMathFn } from './utils.js';
+import { finiteOrNull, withinIntegerRange } from '../sql-helpers.js';
 
 export const roundConfig: FieldTransformConfig = {
     name: 'round',
@@ -49,17 +50,19 @@ export const roundConfig: FieldTransformConfig = {
         return runMathFn(Math.round);
     },
     /**
-     * NOT promoted to SQL, and the reason is a defect on the UDF side rather than in the SQL.
+     * `floor(x + 0.5)` inside the `Integer` range, the UDF outside it.
      *
-     * `output_type` makes the result an `Integer`, and at `1e21` the JavaScript UDF path returns
-     * garbage - the parity gate recorded `"3875820019684212735"` (a wrapped BIGINT, rendered as a
-     * STRING) where the SQL expression returns the mathematically correct `1e+21`. SQL is the better
-     * answer, but promoting it would still be a behaviour CHANGE, and the two cannot be made equal
-     * while the UDF path is wrong. `-0` differs too: SQL preserves it, the UDF path normalises it
-     * to `0`.
-     *
-     * Fix the overflow first (what does `DataFrame` return at `1e21`?), then promote.
+     * TWO things had to be right here. `Math.round` breaks ties toward +infinity where SQL's `round`
+     * breaks them away from zero, so `round(-2.5)` is `-3` in SQL and `-2` in JavaScript -
+     * `floor(x + 0.5)` reproduces the JavaScript rule. And past the `Integer` range the UDF path
+     * returns a wrapped BIGINT as a STRING (`docs/known-defects.md` DF2), while `x + 0.5` also stops
+     * being representable, so the guard hands those values to the UDF and nothing changes for them.
     */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => `${withinIntegerRange(value, `floor(${value} + 0.5)`)}`
+            + ` ELSE ${udf(value)} END`,
+    },
     accepts: [
         FieldType.Number,
     ],

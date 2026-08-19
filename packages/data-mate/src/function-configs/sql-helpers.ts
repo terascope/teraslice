@@ -62,3 +62,39 @@ export function isAsciiSql(value: string): string {
 export function finiteOrNull(expression: string): string {
     return `CASE WHEN isfinite(${expression}) THEN ${expression} ELSE NULL END`;
 }
+
+/**
+ * A DOUBLE that an `Integer` output can hold.
+ *
+ * The guard that lets `ceil`/`floor`/`round` be promoted. Their `output_type` is `Integer`, and past
+ * that range the UDF path returns a wrapped BIGINT rendered as a STRING (see `docs/known-defects.md`
+ * DF2) while the SQL expression returns the true value - so inside the range SQL is used, and outside
+ * it the UDF is, which keeps the answer bit-identical to today at magnitudes no real dataset holds.
+ *
+ * `+ 0` normalises `-0` to `0`, which is what the UDF path's conversion does.
+*/
+export function withinIntegerRange(value: string, native: string): string {
+    return `CASE WHEN abs(${value}) <= 2147483647 THEN ${native} + 0`;
+}
+
+/**
+ * Values whose reversal needs GRAPHEME segmentation, as an RE2 class.
+ *
+ * The same set as `reverse.ts`'s `NEEDS_SEGMENTATION`: an astral code point, a zero-width joiner, or
+ * a combining mark. Verified that RE2 supports all three forms and matches the same strings as the
+ * JavaScript regex - `'éabc'`, `'👍'` and a ZWJ sequence match, plain ASCII does not.
+*/
+export const NEEDS_GRAPHEME_REVERSE = '[\\p{M}\\x{200D}\\x{10000}-\\x{10FFFF}]';
+
+/**
+ * A domain guard, because **DuckDB THROWS where JavaScript returns NaN**.
+ *
+ * Measured: `sqrt(-1)` is `Out of Range Error: cannot take square root of a negative number`, and
+ * `ln(0)` and `ln(-1)` raise their own errors - while `Math.sqrt(-1)` is `NaN` and `runMathFn` turns
+ * that into `null`. So a bare native call is not merely a different answer for out-of-domain input,
+ * it aborts the whole query. The guard has to come BEFORE the call, not after it, which is why
+ * `finiteOrNull` cannot do this job.
+*/
+export function inDomain(condition: string, native: string): string {
+    return `CASE WHEN ${condition} THEN ${native} ELSE NULL END`;
+}

@@ -23,6 +23,7 @@ import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import {
     measure, line, heading, progress, progressHeader, runsFor, heapLimitMB, classify,
+    CHECKPOINT, checkpointTables,
 } from './lib/harness.js';
 import {
     CONFIG, COLUMNS, SCALES, makeRecords, label
@@ -119,7 +120,26 @@ async function runHalf(half, testCase, ctx) {
         return classify(err, 'setup');
     }
 
+    /**
+     * `CHECKPOINT=1` compresses what setup built, before the timing starts.
+     *
+     * Deliberately part of SETUP and not of the measurement: a checkpoint is a one-off cost paid
+     * once per frame when ingest is quiesced, while the case below is a per-query cost paid every
+     * time a question is asked. Charging the one to the other would answer neither. What a
+     * checkpoint COSTS is measured per size by `docs/tools/bench/checkpoint-cost.mjs`; what it
+     * BUYS is this run, compared against the same sweep with the flag off.
+    */
+    let checkpointMs = 0;
+    if (half === 'duck') {
+        try {
+            checkpointMs = await checkpointTables(prepared);
+        } catch (err) {
+            return classify(err, 'checkpoint');
+        }
+    }
+
     const result = await measure(() => run(ctx, prepared), { runs: runsFor(ctx.scale) });
+    if (checkpointMs) result.checkpointMs = checkpointMs;
 
     if (teardown) {
         try {
@@ -137,6 +157,8 @@ line(`scales: ${SCALES.map(label).join(', ')}   runs per case: ${process.env.RUN
 line(`node ${process.version} | ${os.cpus().length} cores | ${(os.totalmem() / 1024 ** 3).toFixed(0)} GB RAM`
     + ` | heap limit ${heapLimitMB() ? `${heapLimitMB()} MB` : 'default'}`);
 line(`engine: ${ENGINE ?? 'both (single process)'}   results: ${RESULTS_FILE}`);
+line('DuckFrame tables: '
+    + (CHECKPOINT ? 'CHECKPOINTED in setup (compressed)' : 'uncompressed (no checkpoint)'));
 if (SKIP.size) line(`skipping ${SKIP.size} case(s) that killed an earlier process`);
 
 for (const scale of SCALES) {
@@ -237,6 +259,7 @@ const report = writeReport({
         runs: process.env.RUNS || '3 / 2 / 1 by scale',
         columns: COLUMNS.length,
         paths: Object.keys(CONFIG.fields).length,
+        checkpoint: CHECKPOINT,
     },
 });
 
@@ -249,3 +272,19 @@ for (const file of written) {
 }
 fs.rmSync(scratch, { recursive: true, force: true });
 await closeDuckDatabase();
+
+/**
+ * **Explicit exit, because this process will otherwise never end.**
+ *
+ * A process that has REGISTERED A SCALAR FUNCTION does not exit when its work is done, even though
+ * `closeDuckDatabase()` calls `instance.closeSync()` - a known node-neo defect (their PR #457), and
+ * the same reason every script in `docs/tools/` ends this way and the test runner uses `--forceExit`.
+ * Every transform and validation case here registers a UDF, so every run hits it.
+ *
+ * It cost about 30 MINUTES PER SCALE before it was found: the child printed its whole report, went to
+ * 0% CPU, and sat there until `sweep.js`'s `CASE_TIMEOUT` watchdog killed it. The supervisor then
+ * found no in-flight marker - the last case had already cleared it - so it logged "child failed
+ * before any case started", which reads like a harness bug rather than a finished run. The results
+ * were complete and correct the whole time; only the wall clock was wrong.
+*/
+process.exit(0);

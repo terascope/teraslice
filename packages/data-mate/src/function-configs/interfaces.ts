@@ -184,6 +184,22 @@ export interface SqlEmission<T extends Record<string, any>> {
     readonly types?: readonly FieldType[];
 
     /**
+     * Set when the emission agrees with the UDF to within a few ULP rather than bit-exactly.
+     *
+     * **Only for transcendental functions, and it is not a licence to be sloppy.** IEEE 754 does not
+     * specify exact results for `sin`, `cos`, `ln` and friends - only for `sqrt` and the algebraic
+     * operations - so DuckDB's libm and V8's implementation legitimately differ in the last bit:
+     * measured, `cos` over the battery gave `0.9910848718142532` where JavaScript gave
+     * `...533`. Requiring bit-equality there would reject every transcendental function forever,
+     * while requiring nothing would hide a real error, so the gate compares them with a relative
+     * tolerance of a few ULP and demands exactness everywhere else.
+     *
+     * A function whose result must round-trip exactly - anything algebraic, anything producing an
+     * integer, anything a caller might compare for equality - must NOT set this.
+    */
+    readonly approximate?: boolean;
+
+    /**
      * Set when `expression` calls `ctx.udf`, so the adapter knows it must still register the
      * JavaScript implementation.
      *

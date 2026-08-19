@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull, inDomain } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const atanhConfig: FieldTransformConfig = {
@@ -38,6 +39,17 @@ export const atanhConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.atanh);
+    },
+    /**
+     * `atanh`, with its domain checked first.
+     *
+     * `Math.atanh` at or beyond +-1 is +-Infinity or NaN, both null after `runMathFn`; DuckDB raises.
+    */
+    sql: {
+        // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754
+        // permits. The gate compares these to a few ULP - see `approximate`.
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(inDomain(`abs(${value}) < 1`, `atanh(${value})`)),
     },
     accepts: [
         FieldType.Number,

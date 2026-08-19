@@ -62,6 +62,10 @@ export const isLessThanOrEqualToConfig: FieldValidateConfig<LessThanOrEqualToArg
     create({ args: { value } }) {
         return isLessThanOrEqualToFP(value);
     },
+    /** A plain comparison; the argument is a plan constant, so it is spliced as a literal. */
+    sql: {
+        expression: ({ value, args }) => `${value} <= ${Number(args.value)}`,
+    },
     accepts: [
         FieldType.Number,
     ],
