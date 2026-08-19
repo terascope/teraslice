@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { needsNumericArgs } from '../sql-helpers.js';
 
 export interface AddArgs {
     readonly value: number;
@@ -80,6 +81,7 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
      * `NaN` for a DOUBLE, so plain arithmetic already agrees.
     */
     sql: {
+        applies: needsNumericArgs('value'),
         expression: ({ value, args }) => `(${value} + ${Number(args.value)})`,
     },
     accepts: [

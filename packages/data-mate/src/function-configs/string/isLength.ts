@@ -5,7 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
-import { sqlLiteral, HAS_ASTRAL } from '../sql-helpers.js';
+import { sqlLiteral, HAS_ASTRAL, allowsNumericArgs } from '../sql-helpers.js';
 
 export interface IsLengthArgs {
     /** Check to see if it exactly matches size */
@@ -27,6 +27,7 @@ export const isLengthConfig: FieldValidateConfig<IsLengthArgs> = {
      * where `length()` says 5. Astral input goes to the UDF.
     */
     sql: {
+        applies: allowsNumericArgs('size', 'min', 'max'),
         needs_udf_fallback: true,
         expression: ({ value, args, udf }) => {
             const parts: string[] = [];
