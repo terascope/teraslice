@@ -5,6 +5,9 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
 } from '../interfaces.js';
+import {
+    isIPv4Sql,
+} from './sql-utils.js';
 
 export const reverseIPConfig: FieldTransformConfig = {
     name: 'reverseIP',
@@ -37,6 +40,18 @@ export const reverseIPConfig: FieldTransformConfig = {
     description: 'Returns the IP address in reverse notation, accepts both IPv4 and IPv6 addresses',
     create() {
         return reverseIP;
+    },
+    /**
+     * IPv4 only: the octets in reverse, which is the PTR form.
+     *
+     * IPv6 reverses NIBBLES from the fully expanded address - a different algorithm, and one with
+     * no native equivalent - so it goes to the UDF.
+    */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => `CASE WHEN ${isIPv4Sql(value)}`
+            + ` THEN array_to_string(list_reverse(string_split(${value}, '.')), '.')`
+            + ` ELSE ${udf(value)} END`,
     },
     accepts: [FieldType.String, FieldType.IP],
 };

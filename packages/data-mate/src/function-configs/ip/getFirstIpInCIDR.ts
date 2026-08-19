@@ -4,6 +4,9 @@ import { FieldType } from '@terascope/types';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces.js';
+import {
+    isCIDRSql, cidrNetwork, isMappedResult,
+} from './sql-utils.js';
 
 export const getFirstIPInCIDRConfig: FieldTransformConfig = {
     name: 'getFirstIPInCIDR',
@@ -36,6 +39,16 @@ export const getFirstIPInCIDRConfig: FieldTransformConfig = {
     description: 'Returns the first address of a CIDR range, all inclusive',
     create() {
         return getFirstIPInCIDR;
+    },
+    /**
+     * The network address. Throws for a non-CIDR, so anything that is not one goes to the UDF and
+     * throws there - see the throw contract in `sql-utils.ts`.
+    */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => `CASE WHEN ${isCIDRSql(value)}`
+            + ` AND NOT ${isMappedResult(value)} THEN host(${cidrNetwork(value)})`
+            + ` ELSE ${udf(value)} END`,
     },
     accepts: [FieldType.String, FieldType.IPRange],
     output_type({ field_config }) {

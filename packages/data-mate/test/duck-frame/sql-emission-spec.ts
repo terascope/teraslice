@@ -211,6 +211,53 @@ const IP_BATTERY: readonly unknown[] = [
 const IP_CASE = { type: FieldType.Keyword, battery: IP_BATTERY };
 
 /**
+ * **A TRANSFORM cannot be given the predicate battery, because a transform THROWS.**
+ *
+ * The failure contract (`docs/HANDOFF.md`) is that a throwing transform aborts the whole query, as
+ * it does in `DataFrame`. So a battery with one bad value in it kills the query on BOTH paths and
+ * there is nothing left to compare - the run fails for the right reason, which is useless as a
+ * parity check.
+ *
+ * The contract is therefore asserted in two halves: these batteries hold only inputs the function
+ * accepts, and `throwsOn` names one it does not, which is checked separately for the same failure
+ * on both paths.
+*/
+const VALID_CIDRS: readonly unknown[] = [
+    '10.0.0.0/8',
+    '192.168.1.0/24',
+    '192.168.1.5/24',
+    '1.2.3.4/32',
+    '0.0.0.0/0',
+    '255.255.255.254/31',
+    '172.16.0.0/12',
+    '203.0.113.0/26',
+    '2001:db8::/32',
+    'fe80::/10',
+    '::/0',
+    '2001:db8::1/128',
+    '2001:db8:abcd:1234::/64',
+    null,
+];
+
+const VALID_IPS: readonly unknown[] = [
+    '1.2.3.4',
+    '8.8.8.8',
+    '0.0.0.0',
+    '255.255.255.255',
+    '192.168.1.1',
+    '10.0.0.1',
+    '::1',
+    '2001:db8::1',
+    'fe80::1',
+    '::ffff:1.2.3.4',
+    '::ffff:8.8.8.8',
+    null,
+];
+
+const CIDR_CASE = { type: FieldType.Keyword, battery: VALID_CIDRS, throwsOn: 'not-a-cidr' };
+const IP_TRANSFORM_CASE = { type: FieldType.Keyword, battery: VALID_IPS, throwsOn: 'not-an-ip' };
+
+/**
  * Which of a function's accepted types to feed it.
  *
  * Order matters and getting it wrong looks like a bug in the emission when it is not - IP functions
@@ -266,6 +313,15 @@ const CASES: Record<string, {
      * thing with the broken layer taken out of the loop, which is if anything the stronger check.
     */
     arrayOnly?: boolean;
+    /**
+     * An input this TRANSFORM rejects, so the throw contract can be asserted rather than assumed.
+     *
+     * Both paths must fail, and with the SAME message - which is the point of emitting
+     * `CASE WHEN <valid> THEN <native> ELSE udf(x) END` instead of `error('...')`: the UDF is
+     * reached for exactly the values the native branch declines, and it raises the function's own
+     * error rather than a DuckDB approximation of it.
+    */
+    throwsOn?: unknown;
 }> = {
     ceil: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
     // a temperature, so the battery is temperatures: the conversion rounds to two decimals, and
@@ -362,6 +418,32 @@ const CASES: Record<string, {
         type: [FieldType.Boolean, FieldType.Keyword, FieldType.Number, FieldType.Integer],
     },
     isIP: IP_CASE,
+    // the CIDR transforms - valid input only, plus a `throwsOn`. See `CIDR_CASE`.
+    getFirstIPInCIDR: CIDR_CASE,
+    getLastIPInCIDR: CIDR_CASE,
+    getFirstUsableIPInCIDR: CIDR_CASE,
+    getLastUsableIPInCIDR: CIDR_CASE,
+    getCIDRMin: CIDR_CASE,
+    getCIDRMax: CIDR_CASE,
+    // IPv4 only: a v6 block throws, so the battery is the v4 half of `VALID_CIDRS`
+    getCIDRNetwork: {
+        type: FieldType.Keyword,
+        battery: VALID_CIDRS.filter((v) => v == null || !String(v).includes(':')),
+        throwsOn: '2001:db8::/32',
+    },
+    getCIDRBroadcast: {
+        type: FieldType.Keyword,
+        battery: VALID_CIDRS.filter((v) => v == null || !String(v).includes(':')),
+        throwsOn: '2001:db8::/32',
+    },
+    reverseIP: IP_TRANSFORM_CASE,
+    // it throws for anything that is not a MAPPED address, so that is the whole battery
+    extractMappedIPv4: {
+        type: FieldType.Keyword,
+        battery: ['::ffff:1.2.3.4', '::ffff:8.8.8.8', '::ffff:0.0.0.0', '::1.2.3.4', null],
+        throwsOn: '1.2.3.4',
+    },
+    toCIDR: { ...IP_TRANSFORM_CASE, args: [{ suffix: 24 }, { suffix: 32 }] },
     isIPv4: IP_CASE,
     isIPv6: IP_CASE,
     isCIDR: IP_CASE,
@@ -454,10 +536,12 @@ async function run(
     config: FunctionDefinitionConfig<any>,
     args: Record<string, unknown>,
     preferSql: boolean,
-    { array, type: forced }: { array?: boolean; type?: FieldType } = {}
+    {
+        array, type: forced, battery: override,
+    }: { array?: boolean; type?: FieldType; battery?: readonly unknown[] } = {}
 ): Promise<Ran> {
     const type = forced ?? inputTypeFor(name, config);
-    const battery = CASES[name]?.battery ?? (BATTERIES[type] as readonly unknown[]);
+    const battery = override ?? CASES[name]?.battery ?? (BATTERIES[type] as readonly unknown[]);
     const fieldConfig = { type, ...(array ? { array: true } : {}) };
     const dtConfig: DataTypeConfig = { version: 1, fields: { field: fieldConfig } };
 
@@ -625,6 +709,35 @@ describe('sql emissions on the function configs', () => {
                 config.sql?.approximate
             );
         }, 60_000);
+
+        /**
+         * **The throw contract, asserted rather than assumed.**
+         *
+         * A transform throws for input it cannot handle, and that aborts the whole query - the same
+         * as `DataFrame`. An emission must reproduce that, and it must reproduce the MESSAGE too:
+         * `error('...')` would abort with DuckDB's wording, where the guarded shape reaches the UDF
+         * and raises the function's own error. This checks that both paths fail, and identically.
+        */
+        if (CASES[name]?.throwsOn !== undefined) {
+            it('fails the query the same way on both paths, for input it rejects', async () => {
+                const args = argSets[0] as Record<string, unknown>;
+                const bad = [CASES[name]!.throwsOn];
+                const attempt = async (preferSql: boolean) => {
+                    try {
+                        await run(name, config, args, preferSql, { battery: bad });
+                        return null;
+                    } catch (err) {
+                        return (err as Error).message;
+                    }
+                };
+
+                const sql = await attempt(true);
+                const udf = await attempt(false);
+
+                expect(udf).toBeString();
+                expect(sql).toEqual(udf);
+            }, 60_000);
+        }
 
         it('is native for at least one argument set', async () => {
             // a `applies` emission that never fires for any tested argument set is dead code

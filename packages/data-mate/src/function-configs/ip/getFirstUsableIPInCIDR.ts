@@ -4,6 +4,9 @@ import { FieldType } from '@terascope/types';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces.js';
+import {
+    isCIDRSql, cidrNetwork, isMappedResult, isSingleAddress, firstUsableHitsTopOfV4,
+} from './sql-utils.js';
 
 export const getFirstUsableIPInCIDRConfig: FieldTransformConfig = {
     name: 'getFirstUsableIPInCIDR',
@@ -36,6 +39,19 @@ export const getFirstUsableIPInCIDRConfig: FieldTransformConfig = {
     description: 'Returns the first address of a CIDR range, excluding the network address',
     create() {
         return getFirstUsableIPInCIDR;
+    },
+    /**
+     * Network + 1, except for a single-address block, which is its own first usable address.
+     *
+     * `firstUsableHitsTopOfV4` sends the one block whose answer is `255.255.255.255` to the UDF:
+     * DuckDB refuses to reach that address by addition.
+    */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => `CASE WHEN NOT ${isCIDRSql(value)}`
+            + ` OR ${isMappedResult(value)} OR ${firstUsableHitsTopOfV4(value)} THEN ${udf(value)}`
+            + ` WHEN ${isSingleAddress(value)} THEN host(${cidrNetwork(value)})`
+            + ` ELSE host(${cidrNetwork(value)} + 1) END`,
     },
     accepts: [FieldType.String, FieldType.IPRange],
     output_type({ field_config }) {
