@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { sqlLiteral } from '../sql-helpers.js';
 
 export interface ContainsArgs {
     readonly value: string;
@@ -40,6 +41,10 @@ export const containsConfig: FieldValidateConfig<ContainsArgs> = {
     ],
     create({ args: { value } }) {
         return containsFP(value);
+    },
+    /** `contains` is native and byte-oriented, the same as `String.prototype.includes`. */
+    sql: {
+        expression: ({ value, args }) => `contains(${value}, ${sqlLiteral(args.value)})`,
     },
     accepts: [FieldType.String],
     argument_schema: {

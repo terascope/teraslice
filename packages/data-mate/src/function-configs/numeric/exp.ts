@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const expConfig: FieldTransformConfig = {
@@ -37,6 +38,10 @@ export const expConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.exp);
+    },
+    /** `exp` is native; an overflow becomes null on both sides via the finiteness guard. */
+    sql: {
+        expression: ({ value }) => finiteOrNull(`exp(${value})`),
     },
     accepts: [
         FieldType.Number,

@@ -92,5 +92,17 @@ export const reverseConfig: FieldTransformConfig = {
     create() {
         return _reverse;
     },
+    /**
+     * NOT promoted to SQL. Two divergences, both real:
+     *
+     * - `_reverse` returns **null** for an empty string, where `reverse('')` is `''`.
+     * - `_reverse` uses GRAPHEME segmentation when the value contains an astral code point, a ZWJ or
+     *   a combining mark, because reversing code points detaches combining marks. DuckDB's `reverse`
+     *   is code-point-based, so those inputs come out differently.
+     *
+     * A guarded emission is possible - `CASE WHEN x = '' THEN NULL WHEN <needs segmentation> THEN
+     * udf(x) ELSE reverse(x) END`, with the guard as an RE2 `\p{M}` test - and is worth trying,
+     * since the segmentation path is the rare one. Not attempted yet.
+    */
     accepts: [FieldType.String],
 };

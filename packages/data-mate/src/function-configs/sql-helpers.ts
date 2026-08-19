@@ -51,3 +51,14 @@ export const JS_WHITESPACE = ''
 export function isAsciiSql(value: string): string {
     return `strlen(${value}) = length(${value})`;
 }
+
+/**
+ * `runMathFn`'s contract, in SQL: a non-finite RESULT becomes null.
+ *
+ * Every numeric transform goes through `runMathFn`, which returns `null` when the result is `NaN` or
+ * either infinity - so `sqrt(-1)`, `log(0)` and an overflow all yield null rather than a value or a
+ * throw. A bare `sqrt(x)` in SQL would return `nan` or `-inf` instead, which is a different answer.
+*/
+export function finiteOrNull(expression: string): string {
+    return `CASE WHEN isfinite(${expression}) THEN ${expression} ELSE NULL END`;
+}
