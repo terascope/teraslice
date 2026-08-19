@@ -98,3 +98,15 @@ export const NEEDS_GRAPHEME_REVERSE = '[\\p{M}\\x{200D}\\x{10000}-\\x{10FFFF}]';
 export function inDomain(condition: string, native: string): string {
     return `CASE WHEN ${condition} THEN ${native} ELSE NULL END`;
 }
+
+/**
+ * Values that contain a code point outside the BMP, as an RE2 class.
+ *
+ * **The guard for every function whose JavaScript implementation counts UTF-16 CODE UNITS while SQL
+ * counts CHARACTERS.** `truncate` with size 3 over four thumbs-up emoji returns `'\u{1F44D}\ud83d'`
+ * in JavaScript - a lone surrogate - where `substring` returns three whole emoji; `isLength` with
+ * size 5 calls five emoji a length of 10. Neither is expressible in SQL, and both are correct
+ * according to the current behaviour, so astral input goes to the UDF and everything else - which is
+ * all real data - stays native.
+*/
+export const HAS_ASTRAL = '[\\x{10000}-\\x{10FFFF}]';

@@ -117,7 +117,7 @@ async function adaptTransform<T extends Record<string, any>>(
     }
 
     const fullValues = fnDef.process_mode === ProcessMode.FULL_VALUES;
-    const emission = emissionFor(fnDef, inputConfig, options.preferSql);
+    const emission = emissionFor(fnDef, inputConfig, options.preferSql, args);
 
     // pure SQL: no UDF is registered at all, so the JS boundary - 178 ns per value, single
     // threaded - is not merely made cheaper, it is gone
@@ -184,7 +184,7 @@ async function adaptValidation<T extends Record<string, any>>(
     const outputConfig = inputConfig;
 
     const fullValues = fnDef.process_mode === ProcessMode.FULL_VALUES;
-    const emission = emissionFor(fnDef, inputConfig, options.preferSql);
+    const emission = emissionFor(fnDef, inputConfig, options.preferSql, args);
 
     /**
      * Failing validation NULLS the value and keeps the row - `validatorTransformFN`:
@@ -277,12 +277,15 @@ function applyToValues(
 function emissionFor<T extends Record<string, any>>(
     fnDef: FunctionDefinitionConfig<T>,
     inputConfig: DataTypeFieldAndChildren,
-    preferSql: boolean | undefined
+    preferSql: boolean | undefined,
+    args: T
 ): SqlEmission<T> | undefined {
     if (preferSql === false || !fnDef.sql) return undefined;
 
-    const { types } = fnDef.sql;
+    const { types, applies } = fnDef.sql;
     if (types?.length && typesError(types, inputConfig)) return undefined;
+    // narrowing by ARGUMENT, for a native that exists only for some of them - see `applies`
+    if (applies && !applies(args, inputConfig)) return undefined;
 
     return fnDef.sql;
 }

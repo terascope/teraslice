@@ -129,6 +129,10 @@ const CASES: Record<string, {
     battery?: readonly unknown[];
 }> = {
     ceil: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
+    // a temperature, so the battery is temperatures: the conversion rounds to two decimals, and
+    // `floor(v * 100 + 0.5) / 100` loses precision at magnitudes no thermometer produces
+    toCelsius: { battery: [...ORDINARY_NUMBERS, 212, 98.6, -40, 1e6, null] },
+    toFahrenheit: { battery: [...ORDINARY_NUMBERS, 100, 37.78, -40, 1e6, null] },
     floor: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
     round: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
     trim: { args: [{}, { chars: 'x' }, { chars: '-' }, { chars: 'ab' }] },
@@ -147,10 +151,27 @@ const CASES: Record<string, {
     },
     isLength: { args: [{ size: 5 }, { min: 1, max: 10 }, { min: 0 }] },
     isGreaterThan: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
+    add: { args: [{ value: 1 }, { value: -2.5 }, { value: 0 }] },
+    subtract: { args: [{ value: 1 }, { value: -2.5 }, { value: 0 }] },
+    multiply: { args: [{ value: 3 }, { value: -0.5 }, { value: 0 }] },
+    divide: { args: [{ value: 3 }, { value: -0.5 }, { value: 0 }] },
+    modulus: { args: [{ value: 3 }, { value: -3 }, { value: 2 }] },
+    pow: { args: [{ value: 2 }, { value: 0.5 }, { value: -1 }] },
+    inNumberRange: {
+        args: [
+            { min: 0, max: 100 },
+            { min: 0, max: 100, inclusive: true },
+            { min: -1 },
+            { max: 1 },
+        ],
+    },
+    encodeSHA: { args: [{}, { hash: 'sha512' }, { digest: 'base64' }] },
+    encodeSHA1: { args: [{}, { digest: 'base64' }] },
     isGreaterThanOrEqualTo: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
     isLessThan: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
     isLessThanOrEqualTo: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
-    truncate: { args: [{ size: 3 }, { size: 0 }, { size: 100 }] },
+    // `size` must be positive - the function rejects 0 itself
+    truncate: { args: [{ size: 3 }, { size: 1 }, { size: 100 }] },
     setPrecision: { args: [{ digits: 2 }, { digits: 0 }] },
 };
 
@@ -275,9 +296,19 @@ describe('sql emissions on the function configs', () => {
                 const udf = await run(name, config, args as Record<string, unknown>, false);
 
                 expectSame(sql.values, udf.values, config.sql?.approximate);
-                // and the two paths really were different paths - otherwise this proves nothing
                 expect(udf.dispatch).toEqual('udf');
-                expect(['sql', 'sql+udf']).toContain(sql.dispatch);
+
+                /**
+                 * The two paths must really BE different paths, or this proves nothing - except
+                 * where the emission declares `applies` and legitimately declines for these
+                 * arguments, which is the whole point of that field. `encodeSHA` with
+                 * `hash: 'sha512'` has no native form, so both sides are the UDF and agreeing is
+                 * trivially true; the case below asserts that at least one argument set IS native.
+                */
+                const allowed = config.sql?.applies
+                    ? ['sql', 'sql+udf', 'udf']
+                    : ['sql', 'sql+udf'];
+                expect(allowed).toContain(sql.dispatch);
             },
             60_000
         );
@@ -305,6 +336,22 @@ describe('sql emissions on the function configs', () => {
             );
         }, 60_000);
 
+        it('is native for at least one argument set', async () => {
+            // a `applies` emission that never fires for any tested argument set is dead code
+            const type = inputTypeFor(name, config);
+            const dispatches: string[] = [];
+            for (const args of argSets) {
+                const result = await duckFrameAdapter(config, {
+                    field: 'field',
+                    inputConfig: { field_config: { type } },
+                    args: args as Record<string, unknown>,
+                    preferSql: true,
+                });
+                dispatches.push(result.dispatch);
+            }
+            expect(dispatches.some((d) => d === 'sql' || d === 'sql+udf')).toBeTrue();
+        }, 30_000);
+
         it('registers a udf only when the emission needs one', async () => {
             const type = inputTypeFor(name, config);
             const result = await duckFrameAdapter(config, {
@@ -314,7 +361,10 @@ describe('sql emissions on the function configs', () => {
                 preferSql: true,
             });
 
-            if (config.sql?.needs_udf_fallback) {
+            if (result.dispatch === 'udf') {
+                // declined for these arguments - `applies` is the only way that can happen here
+                expect(config.sql?.applies).toBeDefined();
+            } else if (config.sql?.needs_udf_fallback) {
                 expect(result.dispatch).toEqual('sql+udf');
                 expect(result.functionName).toBeString();
             } else {

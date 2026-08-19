@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { sqlLiteral, HAS_ASTRAL } from '../sql-helpers.js';
 
 export interface TruncateConfig {
     size: number;
@@ -35,6 +36,20 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
     ],
     create({ args: { size } }) {
         return truncateFP(size, false) as (value: unknown) => string;
+    },
+    /**
+     * `substring` for BMP-only values, the UDF for anything with an astral code point.
+     *
+     * `truncateFP` counts UTF-16 CODE UNITS and `substring` counts CHARACTERS, so they part company on
+     * astral input: four thumbs-up emoji truncated to 3 gives one emoji plus a LONE SURROGATE in
+     * JavaScript and three whole emoji in SQL. The guard keeps today's answer for those and takes the
+     * native path for everything else.
+    */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, args, udf }) => `CASE WHEN regexp_matches(${value},`
+            + ` ${sqlLiteral(HAS_ASTRAL)}) THEN ${udf(value)}`
+            + ` ELSE substring(${value}, 1, ${Number(args.size)}) END`,
     },
     accepts: [FieldType.String],
     required_arguments: ['size'],

@@ -61,6 +61,17 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
 
         return divideFP(value);
     },
+    /**
+     * Native division. The argument is a plan constant, so it is spliced as a numeric literal.
+     *
+     * **No finiteness guard here, deliberately.** These use `divideFP`, not `runMathFn`, so they return
+     * raw `Infinity`/`NaN` rather than null - `divide` by zero gives `Infinity` today, and the gate
+     * caught a `finiteOrNull` wrapper turning that into null. SQL produces the same `Infinity` and
+     * `NaN` for a DOUBLE, so plain arithmetic already agrees.
+    */
+    sql: {
+        expression: ({ value, args }) => `(${value} / ${Number(args.value)})`,
+    },
     accepts: [
         FieldType.Number,
     ],
