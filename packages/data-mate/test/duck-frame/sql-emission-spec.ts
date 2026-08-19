@@ -329,6 +329,7 @@ const CASES: Record<string, {
         args: [{ start: '2026-01-03T00:00:00.000Z', end: '2026-01-07T00:00:00.000Z' }],
     },
     // FULL_VALUES reducers - see `arrayOnly`
+    join: { arrayOnly: true, type: FieldType.Keyword, args: [{ delimiter: '-' }, {}] },
     addValues: { arrayOnly: true },
     subtractValues: { arrayOnly: true },
     multiplyValues: { arrayOnly: true },
@@ -341,6 +342,16 @@ const CASES: Record<string, {
      * integer one is there for `isnan`, which would have been a plausible place to find no
      * overload - it has one, but only the test says so.
     */
+    isDate: { type: FieldType.Date, args: [{}, { format: 'iso_8601' }] },
+    isEmpty: {
+        type: [FieldType.Keyword, FieldType.Number, FieldType.Boolean],
+        args: [{}, { ignoreWhitespace: true }],
+    },
+    equals: { type: [FieldType.Keyword, FieldType.Number], args: [{ value: 'hello' }, { value: 1 }] },
+    // a string column and a string default: the only shape that works on BOTH paths, see DF5
+    setDefault: { type: FieldType.Keyword, args: [{ value: 'fallback' }] },
+    isAlpha: { args: [{}, { locale: 'pl-PL' }] },
+    isAlphaNumeric: { args: [{}, { locale: 'pl-PL' }] },
     isBoolean: {
         type: [FieldType.Boolean, FieldType.Keyword, FieldType.Number, FieldType.Integer],
     },
@@ -526,10 +537,34 @@ describe('sql emissions on the function configs', () => {
             }, 60_000);
         }
 
+        /**
+         * Whether the emission claims this column and these arguments.
+         *
+         * Used to prune the type-by-argument matrix below. A case that declares SEVERAL types is
+         * declaring several BRANCHES, and its argument sets belong to particular ones - a numeric
+         * default is for the numeric branch of `setDefault`, not for the string column. The cross
+         * product would pair them anyway, and where the emission declines BOTH paths are the UDF,
+         * so the comparison proves nothing about the emission. Worse, it can fail for reasons that
+         * have nothing to do with it: `setDefault` returning a number into a VARCHAR column is
+         * `Invalid Input Error: A string was expected` on the UDF path today.
+         *
+         * Only multi-type cases are pruned. A single-type case keeps every argument set, including
+         * the ones the emission declines - `encodeSHA` with `sha512` has to stay, because checking
+         * that a decline still works is the point of it.
+        */
+        const claims = (args: Record<string, unknown>, type: FieldType, array = false) => {
+            const field_config = { type, ...(array ? { array: true } : {}) };
+            return config.sql?.applies?.(args, { field_config }) !== false;
+        };
+
         // not for the array reducers: their UDF path cannot bind at all, see `arrayOnly`
         if (!arrayOnly) {
-            const matrix = inputTypesFor(name, config).flatMap(
-                (type) => argSets.map((args) => [`${type} ${JSON.stringify(args)}`, args, type])
+            const types = inputTypesFor(name, config);
+            const matrix = types.flatMap(
+                (type) => argSets
+                    .filter((args) => types.length === 1
+                        || claims(args as Record<string, unknown>, type))
+                    .map((args) => [`${type} ${JSON.stringify(args)}`, args, type])
             );
 
             it.each(matrix)(
@@ -568,7 +603,15 @@ describe('sql emissions on the function configs', () => {
          * `docs/known-defects.md`. Promoting a function must not be blocked on it, so the array
          * case is asserted for transforms only.
         */
-        const arrayCase = isFieldValidation(config) || arrayOnly ? it.skip : it;
+        /**
+         * Also skipped when the emission does not CLAIM an array column: `setDefault` and `join`
+         * both decline one, so SQL and the UDF would be the same path - and for a `FULL_VALUES`
+         * function that path cannot even bind (known-defects DF4).
+        */
+        const skipArray = isFieldValidation(config)
+            || arrayOnly
+            || !claims(argSets[0] as Record<string, unknown>, inputTypeFor(name, config), true);
+        const arrayCase = skipArray ? it.skip : it;
 
         arrayCase('is byte-equal on an ARRAY column, where SQL maps with list_transform', async () => {
             const args = argSets[0] as Record<string, unknown>;

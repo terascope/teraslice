@@ -73,5 +73,18 @@ Default: iso_8601 for strings and epoch_millis for number`
             return isMatch(primitiveToString(input), format);
         };
     },
+    /**
+     * A constant on a real `Date` column: it is already a `TIMESTAMP`, so every non-null value is
+     * a valid date and `isValidDate` cannot say otherwise.
+     *
+     * `applies` declines a CUSTOM format - with one, the function stops asking "is this a date"
+     * and starts asking "does this string match this `date-fns` pattern", which is a different
+     * question and not one a `TIMESTAMP` column can be asked.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => args.format == null || args.format in DateFormat,
+        expression: () => 'TRUE',
+    },
     accepts: [FieldType.Date, FieldType.String, FieldType.Number]
 };
