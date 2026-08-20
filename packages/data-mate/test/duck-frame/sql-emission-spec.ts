@@ -478,6 +478,9 @@ const CASES: Record<string, {
     // FULL_VALUES reducers - see `arrayOnly`
     join: { arrayOnly: true, type: FieldType.Keyword, args: [{ delimiter: '-' }, {}] },
     addValues: { arrayOnly: true },
+    hypot: { arrayOnly: true },
+    // exactly two elements: `getCoordinates` THROWS for any other length
+    atan2: { arrayOnly: true, battery: [3, 4] },
     subtractValues: { arrayOnly: true },
     multiplyValues: { arrayOnly: true },
     divideValues: { arrayOnly: true },
@@ -490,6 +493,7 @@ const CASES: Record<string, {
      * overload - it has one, but only the test says so.
     */
     isGeoJSON: { type: FieldType.GeoJSON, noUdfPath: true },
+    isGeoPoint: { type: FieldType.GeoPoint, noUdfPath: true },
     /**
      * The spatial predicates. `noUdfPath` because a `GeoJSON` column is JSON, which cannot be a
      * UDF parameter (DF7) - so SQL is the only path, and the comparison is against
