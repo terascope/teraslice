@@ -608,6 +608,33 @@ const CASES: Record<string, {
     },
     // the emission claims a String column; `accepts` also lists Number, which keeps the UDF
     isPort: { type: FieldType.Keyword },
+    /**
+     * `isBase64` is one of the cases where SQL is CORRECT and the JavaScript is not - see DF9. The
+     * battery holds valid base64 whose decoded bytes are not UTF-8, which is what `core-utils`
+     * wrongly rejects, and each is listed with the right answer.
+    */
+    isBase64: {
+        battery: ['aGVsbG8=',
+            'YQ==',
+            'YWJjZA==',
+            'AAAA',
+            'SGVsbG8gd29ybGQ=',
+            'abcd',
+            '////',
+            '++++',
+            'a',
+            'ab',
+            'abc',
+            '',
+            'a===',
+            'not base64!',
+            null],
+        knownDivergences: [
+            { args: {}, input: 'abcd', sql: true, why: 'valid base64; decodes to bytes that are not UTF-8' },
+            { args: {}, input: '////', sql: true, why: 'valid base64; decodes to 0xFF FF FF' },
+            { args: {}, input: '++++', sql: true, why: 'valid base64; decodes to 0xFB EF BE' },
+        ],
+    },
     isFQDN: {
         battery: ['example.com',
             'sub.example.co.uk',
@@ -1106,7 +1133,36 @@ describe('sql emissions on the function configs', () => {
                     const sql = await run(name, config, one, true, where);
                     const udf = await run(name, config, one, false, where);
 
-                    expectSame(sql.values, udf.values, config.sql?.approximate);
+                    const accepted = (CASES[name]?.knownDivergences ?? []).filter(
+                        (d) => JSON.stringify(d.args) === JSON.stringify(one)
+                    );
+
+                    if (accepted.length) {
+                        /**
+                         * A case where the SQL is deliberately MORE CORRECT than the UDF.
+                         *
+                         * Compared on which rows SURVIVED, with the listed inputs overridden to
+                         * the correct answer - the same shape the JavaScript comparison uses, and
+                         * the whole of a validation's contract. Everything not listed must still
+                         * match the UDF exactly, so an unrecorded divergence fails.
+                        */
+                        expect(isFieldValidation(config)).toBeTrue();
+                        const battery = (
+                            CASES[name]?.battery ?? BATTERIES[type as FieldType] ?? []
+                        ) as readonly unknown[];
+
+                        expect(sql.values.map((value) => value != null)).toEqual(
+                            battery.map((value, index) => {
+                                const known = accepted.find(
+                                    (d) => JSON.stringify(d.input) === JSON.stringify(value)
+                                );
+                                if (known) return known.sql === true;
+                                return udf.values[index] != null;
+                            })
+                        );
+                    } else {
+                        expectSame(sql.values, udf.values, config.sql?.approximate);
+                    }
                     expect(udf.dispatch).toEqual('udf');
 
                     /**

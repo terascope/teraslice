@@ -183,7 +183,7 @@ export function upperFirstSql(word: string): string {
 }
 
 /**
- * `validator.isBase64` with its default options, transliterated from source.
+ * **Correct** base64 validation — RFC 4648 with padding, which is `validator.isBase64`'s default.
  *
  * ```js
  * var base64WithPadding = /^[A-Za-z0-9+/]+={0,2}$/;
@@ -191,8 +191,9 @@ export function upperFirstSql(word: string): string {
  * if (options.padding && str.length % 4 !== 0) return false;
  * ```
  *
- * `padding` defaults to true (it is `!options.urlSafe`), and `data-mate` passes no options. The
- * empty string is accepted BEFORE the length check, which is why it is tested separately.
+ * This deliberately does NOT reproduce `core-utils`' `isBase64`, which is broken: it wraps
+ * `validator` in a lossy UTF-8 round trip and so **rejects 99.3% of valid base64-encoded binary**.
+ * See `docs/known-defects.md` DF9 for the measurement and the reproduction.
 */
 export function isBase64Sql(value: string): string {
     return `(${value} = '' OR (length(${value}) % 4 = 0`
