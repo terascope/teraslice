@@ -79,14 +79,14 @@ describe('AssetSrc', () => {
 
         expect(registry).toEqual({
             proc: {
-                Processor: ['Proc', 'processor'],
-                Schema: ['ProcSchema', 'schema'],
-                Slicer: ['ProcSlicer', 'slicer']
+                Processor: ['Proc', 'processor.js'],
+                Schema: ['ProcSchema', 'schema.js'],
+                Slicer: ['ProcSlicer', 'slicer.js']
             },
             proc2: {
-                API: ['Proc2API', 'api'],
-                Schema: ['Proc2Schema', 'schema'],
-                Fetcher: ['Proc2Fetcher', 'fetcher']
+                API: ['Proc2API', 'api.js'],
+                Schema: ['Proc2Schema', 'schema.js'],
+                Fetcher: ['Proc2Fetcher', 'fetcher.js']
             }
         });
     });

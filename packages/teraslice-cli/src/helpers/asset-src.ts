@@ -158,7 +158,7 @@ export class AssetSrc {
                 } else {
                     importName = toPascalCase(opDirectory) + pathName;
                 }
-                value = [importName, parsedPath.name];
+                value = [importName, `${parsedPath.name}.js`];
             } else {
                 value = parsedPath.base;
             }

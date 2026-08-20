@@ -38,12 +38,12 @@ describe('registry generator', () => {
 
     it('should create an index.ts with correct object reference', () => {
         const indexContents = fs.readFileSync(TSRegistryPath, 'utf8');
-        expect(indexContents).toInclude('import Proc from \'../src/proc/processor\';');
-        expect(indexContents).toInclude('import ProcSchema from \'../src/proc/schema\';');
-        expect(indexContents).toInclude('import ProcSlicer from \'../src/proc/slicer\';');
-        expect(indexContents).toInclude('import Proc2API from \'../src/proc2/api\';');
-        expect(indexContents).toInclude('import Proc2Fetcher from \'../src/proc2/fetcher\';');
-        expect(indexContents).toInclude('import Proc2Schema from \'../src/proc2/schema\';');
+        expect(indexContents).toInclude('import Proc from \'../src/proc/processor.js\';');
+        expect(indexContents).toInclude('import ProcSchema from \'../src/proc/schema.js\';');
+        expect(indexContents).toInclude('import ProcSlicer from \'../src/proc/slicer.js\';');
+        expect(indexContents).toInclude('import Proc2API from \'../src/proc2/api.js\';');
+        expect(indexContents).toInclude('import Proc2Fetcher from \'../src/proc2/fetcher.js\';');
+        expect(indexContents).toInclude('import Proc2Schema from \'../src/proc2/schema.js\';');
         expect(indexContents).toInclude('Processor: Proc,');
         expect(indexContents).toInclude('Schema: ProcSchema,');
         expect(indexContents).toInclude('Slicer: ProcSlicer,');
