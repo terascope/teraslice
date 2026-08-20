@@ -4,6 +4,9 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample,
 } from '../interfaces.js';
+import {
+    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate,
+} from './sql-utils.js';
 
 export interface GeoContainsArgs {
     value: GeoInput;
@@ -109,6 +112,16 @@ export const geoContainsConfig: FieldValidateConfig<GeoContainsArgs> = {
     description: 'Returns the input if it contains the value argument, otherwise returns null. The interiors of both geo entities must intersect, and the argument geo-entity must not exceed the bounds of the input geo-entity',
     create({ args: { value } }) {
         return geoContainsFP(value);
+    },
+    /**
+     * `ST_Contains`, which differs from `geoContains` for a shape TOUCHING a hole's edge - and is
+     * right where `geo-utils` is wrong. See `sql-utils.ts` and known-defects DF8.
+    */
+    sql: {
+        applies: (args, inputConfig) => isGeoColumn(inputConfig) && isGeoArg(args.value),
+        expression: ({ value, args, inputConfig }) => tryPredicate(
+            `ST_Contains(${asGeometry(value, inputConfig)}, ${constantGeometry(args.value)})`
+        ),
     },
     accepts: [
         FieldType.GeoJSON,

@@ -116,9 +116,18 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
     */
     [FieldType.GeoPoint]: [
         { lat: 0.5, lon: 0.5 },
-        { lat: 1, lon: 0.5 }, { lat: 0, lon: 0.5 }, { lat: 0.5, lon: 0 }, { lat: 0.5, lon: 1 },
-        { lat: 1, lon: 0 }, { lat: 0, lon: 1 }, { lat: 1, lon: 1 }, { lat: 0, lon: 0 },
-        { lat: 2, lon: 0.5 }, { lat: -1, lon: 0.5 }, { lat: 0.5, lon: -1 }, { lat: 0.5, lon: 2 },
+        { lat: 1, lon: 0.5 },
+        { lat: 0, lon: 0.5 },
+        { lat: 0.5, lon: 0 },
+        { lat: 0.5, lon: 1 },
+        { lat: 1, lon: 0 },
+        { lat: 0, lon: 1 },
+        { lat: 1, lon: 1 },
+        { lat: 0, lon: 0 },
+        { lat: 2, lon: 0.5 },
+        { lat: -1, lon: 0.5 },
+        { lat: 0.5, lon: -1 },
+        { lat: 0.5, lon: 2 },
         null,
     ],
     /**
@@ -135,6 +144,19 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
      * exactly).
     */
     [FieldType.GeoJSON]: [
+        // shapes for the spatial predicates: inside, touching, overlapping, disjoint, holed
+        { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] },
+        { type: 'Polygon', coordinates: [[[2, 2], [2, 8], [8, 8], [8, 2], [2, 2]]] },
+        { type: 'Polygon', coordinates: [[[10, 0], [10, 10], [20, 10], [20, 0], [10, 0]]] },
+        { type: 'Polygon', coordinates: [[[5, 5], [5, 15], [15, 15], [15, 5], [5, 5]]] },
+        { type: 'Polygon', coordinates: [[[50, 50], [50, 60], [60, 60], [60, 50], [50, 50]]] },
+        {
+            type: 'Polygon',
+            coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]],
+                [[4, 4], [4, 6], [6, 6], [6, 4], [4, 4]]],
+        },
+        { type: 'Point', coordinates: [5, 5] },
+        { type: 'Point', coordinates: [0, 5] },
         { type: 'Point', coordinates: [10, 20] },
         { type: 'point', coordinates: [10, 20] },
         { type: 'POINT', coordinates: [10, 20] },
@@ -372,6 +394,25 @@ const CASES: Record<string, {
      * error rather than a DuckDB approximation of it.
     */
     throwsOn?: unknown;
+    /**
+     * Inputs where the SQL is deliberately DIFFERENT from the JavaScript, with the correct answer.
+     *
+     * Used only where SQL is the more correct of the two and that has been accepted as the
+     * behaviour - the geo predicates, whose `booleanIntersects`-based hole test treats a shape
+     * merely TOUCHING a hole as being inside it. Each entry names an input and what SQL must
+     * answer, so the gate still proves two things: everything else agrees exactly, and these cases
+     * give the stated correct value. A NEW divergence still fails.
+    */
+    knownDivergences?: readonly {
+        /**
+         * The argument set this applies to - a divergence is a property of the PAIR, not the
+         * input on its own.
+        */
+        args: Record<string, unknown>;
+        input: unknown;
+        sql: unknown;
+        why: string;
+    }[];
 }> = {
     ceil: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
     // a temperature, so the battery is temperatures: the conversion rounds to two decimals, and
@@ -449,6 +490,92 @@ const CASES: Record<string, {
      * overload - it has one, but only the test says so.
     */
     isGeoJSON: { type: FieldType.GeoJSON, noUdfPath: true },
+    /**
+     * The spatial predicates. `noUdfPath` because a `GeoJSON` column is JSON, which cannot be a
+     * UDF parameter (DF7) - so SQL is the only path, and the comparison is against
+     * `config.create()` in JavaScript.
+     *
+     * `geoIntersects` and `geoDisjoint` agree with `geo-utils` everywhere. `geoContains`,
+     * `geoWithin`, `geoRelation` and `geoContainsPoint` do NOT, on hole-touching inputs, and those
+     * are listed in `knownDivergences` with the correct SQL answer - see known-defects DF8.
+    */
+    geoIntersects: {
+        type: FieldType.GeoJSON,
+        noUdfPath: true,
+        args: [
+            { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
+            { value: { type: 'Point', coordinates: [5, 5] } },
+        ],
+    },
+    geoDisjoint: {
+        type: FieldType.GeoJSON,
+        noUdfPath: true,
+        args: [
+            { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
+        ],
+    },
+    geoContains: {
+        type: FieldType.GeoJSON,
+        noUdfPath: true,
+        args: [
+            { value: { type: 'Polygon', coordinates: [[[2, 2], [2, 8], [8, 8], [8, 2], [2, 2]]] } },
+            { value: { type: 'Point', coordinates: [5, 5] } },
+            // TOUCHES the hole of the holed polygon at (4,4) - the divergence, see below
+            { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 4], [4, 4], [4, 0], [0, 0]]] } },
+        ],
+        knownDivergences: [{
+            args: {
+                value: {
+                    type: 'Polygon',
+                    coordinates: [[[0, 0], [0, 4], [4, 4], [4, 0], [0, 0]]],
+                },
+            },
+            input: {
+                type: 'Polygon',
+                coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]],
+                    [[4, 4], [4, 6], [6, 6], [6, 4], [4, 4]]],
+            },
+            sql: true,
+            why: 'the 0..4 square meets the hole only at (4,4); geo-utils asks '
+                + 'booleanIntersects against the hole, which is boundary-inclusive, and calls it '
+                + 'not-contained. ST_Contains says contained, which is right. known-defects DF8',
+        }],
+    },
+    geoWithin: {
+        type: FieldType.GeoJSON,
+        noUdfPath: true,
+        args: [
+            { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
+        ],
+    },
+    geoRelation: {
+        type: FieldType.GeoJSON,
+        noUdfPath: true,
+        args: [
+            {
+                value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] },
+                relation: 'intersects',
+            },
+            {
+                value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] },
+                relation: 'disjoint',
+            },
+        ],
+    },
+    geoContainsPoint: {
+        type: FieldType.GeoJSON,
+        noUdfPath: true,
+        args: [{ point: { lat: 5, lon: 5 } }, { point: { lat: 0, lon: 5 } }],
+    },
+    /**
+     * A true distance test where JavaScript uses a 64-gon, so EVERY point in the band between the
+     * polygon and the circle diverges. The battery is points around a 1000km range from (0,0).
+    */
+    geoPointWithinRange: {
+        type: FieldType.GeoPoint,
+        noUdfPath: true,
+        args: [{ point: { lat: 0, lon: 0 }, distance: '1000km' }],
+    },
     /**
      * `noUdfPath` because a `GeoPoint` column is a STRUCT, which cannot be a UDF parameter (DF7) -
      * so like the shape predicates, SQL is the only way this runs at all.
@@ -746,6 +873,28 @@ async function run(
 }
 
 describe('sql emissions on the function configs', () => {
+    /**
+     * `LOAD spatial` is TEST SETUP, not the production path.
+     *
+     * The geo emissions need `ST_*`, and unlike `inet` the `spatial` extension does NOT autoload -
+     * a bare `ST_Point` is `Catalog Error: Scalar Function with name "st_point" is not in the
+     * catalog`. `DuckFrame` has no extension bootstrap yet, and building one is a separate
+     * packaging decision (57 MB, pinned to the DuckDB version AND platform) recorded in
+     * `docs/HANDOFF.md`. Loading it here lets the SQL be verified now without pre-empting that.
+    */
+    beforeAll(async () => {
+        const frame = await DuckFrame.fromRecords(
+            { version: 1, fields: { a: { type: FieldType.Byte } } },
+            [{ a: 1 }],
+            { name: 'emit_load_spatial' }
+        );
+        try {
+            await frame.query('LOAD spatial');
+        } finally {
+            await frame.destroy();
+        }
+    }, 60_000);
+
     afterAll(async () => {
         await closeDuckDatabase();
     });
@@ -820,10 +969,24 @@ describe('sql emissions on the function configs', () => {
                      * back is the VALUE or null - not the predicate. Comparing which entries
                      * survived is the whole of a validation's contract, and it does not require
                      * knowing what coercion did to the value on the way in.
+                     *
+                     * Where SQL is deliberately MORE CORRECT than the JavaScript, the expected
+                     * value comes from `knownDivergences` instead - so the gate still asserts an
+                     * exact answer for every input, and an UNLISTED divergence still fails.
                     */
-                        expect(sql.values.map((value) => value != null)).toEqual(
-                            battery.map((value) => value != null && impl(value) === true)
+                        const divergences = (CASES[name]?.knownDivergences ?? []).filter(
+                            (d) => JSON.stringify(d.args) === JSON.stringify(args)
                         );
+                        const expected = battery.map((value) => {
+                            if (value == null) return false;
+                            const known = divergences.find(
+                                (d) => JSON.stringify(d.input) === JSON.stringify(value)
+                            );
+                            if (known) return known.sql === true;
+                            return impl(value) === true;
+                        });
+
+                        expect(sql.values.map((value) => value != null)).toEqual(expected);
                         return;
                     }
 

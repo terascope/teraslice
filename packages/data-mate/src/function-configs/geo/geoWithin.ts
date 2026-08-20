@@ -7,6 +7,9 @@ import {
     FunctionDefinitionCategory,
     FunctionDefinitionExample
 } from '../interfaces.js';
+import {
+    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate,
+} from './sql-utils.js';
 
 export interface GeoWithinArgs {
     value: GeoInput;
@@ -135,6 +138,13 @@ export const geoWithinConfig: FieldValidateConfig<GeoWithinArgs> = {
     description: 'Returns the input if it is completely within the argument geo-value. The interiors of both geo entities must intersect and the geo data must not exceed the bounds of the geo argument.  Otherwise returns null',
     create({ args: { value } }) {
         return geoWithinFP(value);
+    },
+    /** `ST_Within`, the mirror of `geoContains` including the hole divergence. */
+    sql: {
+        applies: (args, inputConfig) => isGeoColumn(inputConfig) && isGeoArg(args.value),
+        expression: ({ value, args, inputConfig }) => tryPredicate(
+            `ST_Within(${asGeometry(value, inputConfig)}, ${constantGeometry(args.value)})`
+        ),
     },
     accepts: [
         FieldType.GeoJSON,

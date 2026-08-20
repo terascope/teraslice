@@ -5,6 +5,8 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { parseGeoPoint } from '@terascope/geo-utils';
+import { isGeoPointColumn, rangeInMetres, distanceSphere } from './sql-utils.js';
 
 export interface GeoPointWithinRangeArgs {
     point: GeoPointInput;
@@ -36,6 +38,30 @@ export const geoPointWithinRangeConfig: FieldValidateConfig<GeoPointWithinRangeA
     description: 'Returns the input if it\'s distance to the args point is less then or equal to the args distance.',
     create({ args: { point, distance } }) {
         return geoPointWithinRangeFP(point, distance);
+    },
+    /**
+     * A TRUE distance test, which is the point: `geoPointWithinRange` builds a turf 64-gon and
+     * does point-in-polygon against it, so it reports points inside the circle as out of range.
+     * Measured band at `1000km`: a point 998,867 m away is `false` in JavaScript. SQL is right.
+     *
+     * Note the (lat, lon) argument order - see `distanceSphere`.
+    */
+    sql: {
+        applies: (args, inputConfig) => {
+            if (!isGeoPointColumn(inputConfig)) return false;
+            try {
+                parseGeoPoint(args.point as any);
+                const { distance, unit } = parseGeoDistance(args.distance as string);
+                return rangeInMetres(distance, unit) != null;
+            } catch {
+                return false;
+            }
+        },
+        expression: ({ value, args }) => {
+            const { distance, unit } = parseGeoDistance(args.distance as string);
+            const metres = rangeInMetres(distance, unit);
+            return `(${distanceSphere(value, parseGeoPoint(args.point as any))} <= ${metres})`;
+        },
     },
     accepts: [
         FieldType.GeoJSON,
