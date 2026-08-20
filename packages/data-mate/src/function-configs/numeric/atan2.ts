@@ -6,6 +6,8 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { isArrayColumn } from './sql-utils.js';
+import { finiteOrNull } from '../sql-helpers.js';
 
 export const atan2Config: FieldTransformConfig = {
     name: 'atan2',
@@ -48,6 +50,20 @@ export const atan2Config: FieldTransformConfig = {
     ],
     create() {
         return atan2;
+    },
+    /**
+     * `atan2(y, x)` from a two-element coordinate list - note the ARGUMENT ORDER.
+     *
+     * `getCoordinates` destructures `[x, y]` and then calls `Math.atan2(y, x)`, so the list's
+     * SECOND element is the first argument. DuckDB's lists are 1-indexed. Reversed, this returns a
+     * plausible wrong angle rather than an error.
+     *
+     * `approximate` for the usual transcendental reason.
+    */
+    sql: {
+        approximate: true,
+        applies: isArrayColumn,
+        expression: ({ value }) => finiteOrNull(`atan2(${value}[2], ${value}[1])`),
     },
     accepts: [
         FieldType.Number,

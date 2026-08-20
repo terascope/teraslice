@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { isGeoPointColumn } from './sql-utils.js';
 
 export const isGeoPointConfig: FieldValidateConfig = {
     name: 'isGeoPoint',
@@ -52,6 +53,18 @@ export const isGeoPointConfig: FieldValidateConfig = {
     ],
     create() {
         return isGeoPoint;
+    },
+    /**
+     * A constant on a `GeoPoint` column: the DuckDB type is `STRUCT(lat DOUBLE, lon DOUBLE)` and
+     * coercion rejects anything that is not a valid point at ingest, so `parseGeoPoint` cannot
+     * fail for a stored value.
+     *
+     * `noUdfPath` territory - a STRUCT cannot be a UDF parameter (DF7) - so this is the only way
+     * the function runs at all.
+    */
+    sql: {
+        applies: (_args, inputConfig) => isGeoPointColumn(inputConfig),
+        expression: () => 'TRUE',
     },
     accepts: [],
 };
