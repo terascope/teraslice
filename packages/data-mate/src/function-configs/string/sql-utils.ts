@@ -1,3 +1,5 @@
+import { isAsciiSql } from '../sql-helpers.js';
+
 /**
  * Helpers shared by the `sql` emissions on the string function configs.
 */
@@ -178,4 +180,51 @@ export function capitalizeSql(word: string): string {
 */
 export function upperFirstSql(word: string): string {
     return `upper(substring(${word}, 1, 1)) || substring(${word}, 2)`;
+}
+
+/**
+ * `validator.isBase64` with its default options, transliterated from source.
+ *
+ * ```js
+ * var base64WithPadding = /^[A-Za-z0-9+/]+={0,2}$/;
+ * if (str === '') return true;
+ * if (options.padding && str.length % 4 !== 0) return false;
+ * ```
+ *
+ * `padding` defaults to true (it is `!options.urlSafe`), and `data-mate` passes no options. The
+ * empty string is accepted BEFORE the length check, which is why it is tested separately.
+*/
+export function isBase64Sql(value: string): string {
+    return `(${value} = '' OR (length(${value}) % 4 = 0`
+        + ` AND regexp_matches(${value}, '^[A-Za-z0-9+/]+={0,2}$')))`;
+}
+
+/**
+ * `validator.isFQDN` with its default options, for ASCII input.
+ *
+ * Transliterated from source rather than inferred - and there is **no TLD list** in it, which is
+ * what makes it expressible at all. With the defaults (`require_tld`, no underscores, no trailing
+ * dot, no wildcard, no numeric TLD, max length enforced) the algorithm is:
+ *
+ * 1. at least two dot-separated parts;
+ * 2. the last part matches `/^([a-z…]{2,}|xn[a-z0-9-]{2,})$/i`, contains no whitespace and is not
+ *    all digits;
+ * 3. every part is 1-63 characters, matches `/^[a-z_0-9-]+$/i`, has no full-width character, and
+ *    neither starts nor ends with `-`; and with `allow_underscores` false, contains no `_`.
+ *
+ * The guard is ASCII: the real character classes run to `\u{ffff}` and include a full-width
+ * exclusion, and reproducing those exactly is not worth the risk when non-ASCII domains can have
+ * the UDF.
+*/
+export function isFQDNSql(value: string, udf: (v: string) => string): string {
+    const parts = `string_split(${value}, '.')`;
+    const tld = `${parts}[-1]`;
+    const badPart = `list_filter(${parts}, lambda p :`
+        + ' NOT regexp_matches(p, \'^[A-Za-z0-9](([A-Za-z0-9-]{0,61})[A-Za-z0-9])?$\'))';
+    // non-ASCII goes to the UDF rather than being answered false: `validator`'s classes run to
+    // \u{ffff}, so `exämple.com` is a VALID domain to it
+    return `CASE WHEN NOT ${isAsciiSql(value)} THEN ${udf(value)} ELSE (`
+        + `len(${parts}) >= 2`
+        + ` AND regexp_matches(${tld}, '^([A-Za-z]{2,}|[xX][nN][A-Za-z0-9-]{2,})$')`
+        + ` AND len(${badPart}) = 0) END`;
 }
