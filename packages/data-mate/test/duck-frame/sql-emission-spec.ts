@@ -608,6 +608,24 @@ const CASES: Record<string, {
     },
     // the emission claims a String column; `accepts` also lists Number, which keeps the UDF
     isPort: { type: FieldType.Keyword },
+    isFQDN: {
+        battery: ['example.com',
+            'sub.example.co.uk',
+            'xn--bcher-kva.example',
+            'a.io',
+            'example',
+            'example.c',
+            'example.123',
+            '-bad.com',
+            'bad-.com',
+            'under_score.com',
+            'has space.com',
+            'a..com',
+            '',
+            'exämple.com',
+            'x.' + 'a'.repeat(64) + '.com',
+            null],
+    },
     /**
      * The case converters: the shared Keyword battery, PLUS plain inputs that take lodash's ASCII
      * word splitter, since the shared one is almost entirely unicode-path strings.
@@ -767,6 +785,20 @@ const CASES: Record<string, {
         type: [FieldType.Boolean, FieldType.Keyword, FieldType.Number, FieldType.Integer],
     },
     isIP: IP_CASE,
+    // valid addresses only - it THROWS otherwise - plus a throwsOn for the contract
+    ipToInt: {
+        type: FieldType.Keyword,
+        battery: ['1.2.3.4',
+            '0.0.0.0',
+            '255.255.255.255',
+            '8.8.8.8',
+            '192.168.1.1',
+            '::1',
+            '2001:db8::1',
+            '::ffff:1.2.3.4',
+            null],
+        throwsOn: 'not-an-ip',
+    },
     // the CIDR transforms - valid input only, plus a `throwsOn`. See `CIDR_CASE`.
     getFirstIPInCIDR: CIDR_CASE,
     getLastIPInCIDR: CIDR_CASE,
