@@ -6,6 +6,10 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import {
+    HAS_UNICODE_WORD, caseConvertSql,
+} from './sql-utils.js';
+import { sqlLiteral } from '../sql-helpers.js';
 
 export const toKebabCaseConfig: FieldTransformConfig = {
     name: 'toKebabCase',
@@ -39,6 +43,23 @@ export const toKebabCaseConfig: FieldTransformConfig = {
     create() {
         // toKebabCase handles cases input is not string
         return (input: unknown) => toKebabCase(input as string);
+    },
+    /**
+     * `_.kebabCase` - every word lowercased, joined with `-`.
+     *
+     * Only for input lodash handles with its ASCII word splitter - see `HAS_UNICODE_WORD`. Case
+     * transitions, digit/letter boundaries, acronyms and anything non-ASCII take lodash's other
+     * algorithm and keep the UDF.
+    */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => `CASE WHEN regexp_matches(${value},`
+            + ` ${sqlLiteral(HAS_UNICODE_WORD)}) THEN ${udf(value)}`
+            + ` ELSE ${caseConvertSql(value, {
+                join: '-',
+                first: (w) => `lower(${w})`,
+                rest: (w) => `lower(${w})`,
+            })} END`,
     },
     accepts: [FieldType.String]
 };

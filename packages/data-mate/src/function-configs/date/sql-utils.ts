@@ -173,3 +173,47 @@ export function timezoneOffsetMinutes(value: string, zone: string): string {
     const local = `(${value} AT TIME ZONE ${sqlLiteral(zone)}) AT TIME ZONE 'UTC'`;
     return `CAST(date_diff('second', ${local}, ${value}) / 60 AS BIGINT)`;
 }
+
+/**
+ * ## The `now`-relative date predicates, as SQL over a PLAN-TIME instant.
+ *
+ * **This is the one accepted behaviour change in the date group.** `isFuture`, `isPast`,
+ * `isToday`, `isTomorrow` and `isYesterday` each read `Date.now()` **per row** through `date-fns`.
+ * The emission resolves the instant ONCE, when the query is planned, and compares every row
+ * against that. For a query that straddles midnight the two differ - and the plan-time answer is
+ * the more defensible of the two, because every row in one result then agrees about when "now"
+ * was, which the per-row version cannot promise.
+ *
+ * **The day boundaries are computed in JavaScript, deliberately.** `_isToday` and friends are
+ * LOCAL-day predicates, and DuckDB's `current_date` would use the session's timezone rather than
+ * the Node process's. Building the boundary with `Date` in this process and splicing it in as a
+ * UTC `TIMESTAMP` literal reproduces `date-fns` exactly instead of approximating it.
+*/
+
+/** A naive-UTC `TIMESTAMP` literal for an instant. */
+function literal(date: Date): string {
+    return `TIMESTAMP '${date.toISOString().slice(0, 23)
+        .replace('T', ' ')}'`;
+}
+
+/** Local midnight `offset` days from today, as an instant. */
+function localMidnight(offset: number): Date {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+}
+
+/** `value` falls on the local day `offset` days from today. */
+export function onLocalDay(value: string, offset: number): string {
+    return `(${value} >= ${literal(localMidnight(offset))}`
+        + ` AND ${value} < ${literal(localMidnight(offset + 1))})`;
+}
+
+/** `value` is strictly after the plan-time instant. */
+export function afterNow(value: string): string {
+    return `${value} > ${literal(new Date())}`;
+}
+
+/** `value` is strictly before the plan-time instant. */
+export function beforeNow(value: string): string {
+    return `${value} < ${literal(new Date())}`;
+}

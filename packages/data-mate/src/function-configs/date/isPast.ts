@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { beforeNow } from './sql-utils.js';
 
 export const isPastConfig: FieldValidateConfig = {
     name: 'isPast',
@@ -35,6 +36,16 @@ export const isPastConfig: FieldValidateConfig = {
         },
     ],
     description: 'Returns the input if it is in the past, otherwise returns null',
+    /**
+     * Strictly before the plan-time instant.
+     *
+     * **"now" is resolved ONCE, at plan time**, where the UDF reads it per row - the accepted
+     * behaviour change recorded in `sql-utils.ts`.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => beforeNow(value),
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,

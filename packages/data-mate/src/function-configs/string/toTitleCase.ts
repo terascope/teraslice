@@ -6,6 +6,10 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import {
+    HAS_UNICODE_WORD, caseConvertSql, upperFirstSql,
+} from './sql-utils.js';
+import { sqlLiteral } from '../sql-helpers.js';
 
 export const toTitleCaseConfig: FieldTransformConfig = {
     name: 'toTitleCase',
@@ -39,6 +43,24 @@ export const toTitleCaseConfig: FieldTransformConfig = {
     create() {
         // toTitleCase handles cases input is not string
         return (input: unknown) => toTitleCase(input as string);
+    },
+    /**
+     * `_.startCase` - every word's FIRST character uppercased and the rest left alone,
+     * joined with a space. Not `capitalize`: `startCase('HELLO')` is `'HELLO'`.
+     *
+     * Only for input lodash handles with its ASCII word splitter - see `HAS_UNICODE_WORD`. Case
+     * transitions, digit/letter boundaries, acronyms and anything non-ASCII take lodash's other
+     * algorithm and keep the UDF.
+    */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => `CASE WHEN regexp_matches(${value},`
+            + ` ${sqlLiteral(HAS_UNICODE_WORD)}) THEN ${udf(value)}`
+            + ` ELSE ${caseConvertSql(value, {
+                join: ' ',
+                first: (w) => upperFirstSql(w),
+                rest: (w) => upperFirstSql(w),
+            })} END`,
     },
     accepts: [FieldType.String],
 };

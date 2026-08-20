@@ -121,3 +121,61 @@ export function uuidPattern(version: unknown): string | null {
     }
     return null;
 }
+
+/**
+ * lodash's word splitting, for the ASCII case only - which is what makes the case converters
+ * promotable at all.
+ *
+ * `_.camelCase` and friends run `words(deburr(string).replace(/['’]/g, ''))`, and `words`
+ * picks one of two algorithms:
+ *
+ * ```js
+ * var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
+ * var reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+ * ```
+ *
+ * When `reHasUnicodeWord` does NOT match, the whole thing is `string.match(reAsciiWord)` - split on
+ * ASCII punctuation, nothing else. That path is exactly reproducible. The unicode path handles
+ * case transitions, digit/letter boundaries, acronyms like `XMLHttpRequest` and combining marks,
+ * and is not; it keeps the UDF.
+ *
+ * `deburr` is a no-op for input this guard admits, since it only contains `[a-zA-Z0-9 ]`.
+*/
+export const HAS_UNICODE_WORD = '[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]';
+
+/** The words of an ASCII-path string, as a SQL list. */
+function asciiWords(value: string): string {
+    return `regexp_extract_all(${value}, '[a-zA-Z0-9]+')`;
+}
+
+/**
+ * A case conversion over the ASCII word list.
+ *
+ * `join` is the separator between words; `first` and `rest` say how each word is cased. An empty
+ * word list gives `''`, which is what `_.camelCase('')` and `_.camelCase('---')` return.
+*/
+export function caseConvertSql(
+    value: string,
+    options: { join: string; first: (word: string) => string; rest: (word: string) => string }
+): string {
+    const words = asciiWords(value);
+    const { join, first, rest } = options;
+    const tail = `list_transform(${words}[2:], lambda w : ${rest('w')})`;
+    return `CASE WHEN len(${words}) = 0 THEN ''`
+        + ` ELSE array_to_string(list_prepend(${first(`${words}[1]`)}, ${tail}), '${join}') END`;
+}
+
+/** `word[0].toUpperCase() + word.slice(1).toLowerCase()`, which is lodash's `capitalize`. */
+export function capitalizeSql(word: string): string {
+    return `upper(substring(${word}, 1, 1)) || lower(substring(${word}, 2))`;
+}
+
+/**
+ * `_.upperFirst`: the first character uppercased and **the rest left alone**.
+ *
+ * Not `capitalize`, which also lowercases the tail. `_.startCase` uses this one, which is why
+ * `startCase('HELLO WORLD')` is `'HELLO WORLD'` and not `'Hello World'`.
+*/
+export function upperFirstSql(word: string): string {
+    return `upper(substring(${word}, 1, 1)) || substring(${word}, 2)`;
+}
