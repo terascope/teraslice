@@ -608,6 +608,48 @@ const CASES: Record<string, {
     },
     // the emission claims a String column; `accepts` also lists Number, which keeps the UDF
     isPort: { type: FieldType.Keyword },
+    /**
+     * The case converters: the shared Keyword battery, PLUS plain inputs that take lodash's ASCII
+     * word splitter, since the shared one is almost entirely unicode-path strings.
+    */
+    ...Object.fromEntries(
+        ['toCamelCase', 'toPascalCase', 'toKebabCase', 'toSnakeCase', 'toTitleCase'].map(
+            (name) => [name,
+                {
+                    battery: [
+                        'hello world',
+                        'HELLO WORLD',
+                        'Hello World',
+                        'hello',
+                        'HELLO',
+                        'one two three',
+                        'a b c',
+                        '',
+                        '   ',
+                        '123 456',
+                        'Foo Bar Baz',
+                        // unicode-path inputs, which the emission declines
+                        'XMLHttpRequest',
+                        'fooBar',
+                        'a-b_c.d',
+                        'ßeta',
+                        '👍 ok',
+                        'tab\tinside',
+                        'MiXeD CaSe',
+                        'it\'s quoted',
+                        null,
+                    ],
+                }]
+        )
+    ),
+    // one branch per starting type - see the emission
+    toString: {
+        type: [FieldType.Keyword,
+            FieldType.Date,
+            FieldType.Boolean,
+            FieldType.Number,
+            FieldType.Integer],
+    },
     isHash: {
         battery: [
             '5d41402abc4b2a76b9719d911017c592',
@@ -653,6 +695,12 @@ const CASES: Record<string, {
     },
     isDate: { type: FieldType.Date, args: [{}, { format: 'iso_8601' }] },
     isISO8601: { type: FieldType.Date },
+    // the battery is all fixed past dates, so plan-time and per-row "now" agree on every one
+    isFuture: { type: FieldType.Date },
+    isPast: { type: FieldType.Date },
+    isToday: { type: FieldType.Date },
+    isTomorrow: { type: FieldType.Date },
+    isYesterday: { type: FieldType.Date },
     // real zones, not just UTC: a reversed date_diff still matches UTC and fails everywhere else
     getTimezoneOffset: {
         type: FieldType.Date,
