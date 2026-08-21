@@ -1,5 +1,5 @@
 import os from 'node:os';
-import yargs from 'yargs';
+import type { Options as YargsOption, PositionalOptions } from 'yargs';
 import Url from './url.js';
 
 const homeDir = os.homedir();
@@ -7,7 +7,7 @@ const homeDir = os.homedir();
 const url = new Url();
 
 export default class Options {
-    private options: Record<string, (...args: any[]) => yargs.Options> = {
+    private options: Record<string, (...args: any[]) => YargsOption> = {
         arch: () => ({
             choices: ['x32', 'x64'],
             describe: 'The architecture of the Teraslice cluster.'
@@ -246,7 +246,7 @@ export default class Options {
         })
     };
 
-    private positionals: Record<string, (...args: any[]) => yargs.PositionalOptions> = {
+    private positionals: Record<string, (...args: any[]) => PositionalOptions> = {
         asset: () => ({
             describe: 'Github user/repo of asset to load, e.g.: terascope/file-assets',
             nargs: 1,
@@ -303,11 +303,11 @@ export default class Options {
         'new-cluster-url': (newUrl: string) => url.build(newUrl)
     };
 
-    buildOption(key: string, ...args: any[]): yargs.Options {
+    buildOption(key: string, ...args: any[]): YargsOption {
         return this.options[key](...args);
     }
 
-    buildPositional(key: string, ...args: any[]): yargs.PositionalOptions {
+    buildPositional(key: string, ...args: any[]): PositionalOptions {
         return this.positionals[key](...args);
     }
 

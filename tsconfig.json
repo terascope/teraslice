@@ -1,9 +1,8 @@
 {
     "compilerOptions": {
-        "baseUrl": ".",
-        "moduleResolution": "node",
+        "moduleResolution": "nodenext",
         "target": "ESNext",
-        "module": "ESNext",
+        "module": "nodenext",
         "skipLibCheck": true,
         "experimentalDecorators": true,
         "strict": true,
@@ -13,24 +12,29 @@
         "esModuleInterop": true,
         "resolveJsonModule": true,
         "forceConsistentCasingInFileNames": true,
-        "ignoreDeprecations": "5.0",
         "composite": true,
         "declaration": true,
         "declarationMap": true,
         "sourceMap": true,
         "isolatedModules": true,
         "disableReferencedProjectLoad": true,
+        "types": ["node", "jest"],
         "typeRoots": [
             "./types",
             "./node_modules/@types"
         ],
         "paths": {
             "*": [
-                "*",
-                "./types/*"
+                "./types/*/index.d.ts"
             ],
-            "got": [
-                "./node_modules/got/dist/source/index.d.ts"
+            "is-plain-object": [
+                "./packages/core-utils/node_modules/is-plain-object/is-plain-object.d.ts"
+            ],
+            "@opensearch-project/opensearch": [
+                "./packages/elasticsearch-api/node_modules/@opensearch-project/opensearch/index.d.ts"
+            ],
+            "opensearch1": [
+                "./packages/opensearch-client/node_modules/opensearch1/index.d.ts"
             ]
         }
     },

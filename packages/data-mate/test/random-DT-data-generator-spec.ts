@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { type DataTypeFields, FieldType, GeoShapeType } from '@terascope/types';
-import { makeRandomDataSet } from '../src';
+import { makeRandomDataSet } from '../src/index.js';
 
 describe('random data type data generator', () => {
     const fields: DataTypeFields = {

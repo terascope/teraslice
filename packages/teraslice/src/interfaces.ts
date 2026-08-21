@@ -2,11 +2,11 @@ import { Request, Response } from 'express';
 import { Logger } from '@terascope/core-utils';
 import { Context } from '@terascope/job-components';
 import { ExecutionAnalytics } from '@terascope/types';
-import type { ExecutionStorage, StateStorage, JobsStorage } from './lib/storage';
+import type { ExecutionStorage, StateStorage, JobsStorage } from './lib/storage/index.js';
 import type {
     ExecutionService, JobsService, ApiService,
     ClusterServiceType
-} from './lib/cluster/services';
+} from './lib/cluster/services/index.js';
 
 export interface TerasliceRequest extends Request {
     logger: Logger;

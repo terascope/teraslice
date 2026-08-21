@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
     "displayName": "Teraslice",
-    "version": "3.17.2",
+    "version": "3.18.0",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -18,8 +18,7 @@
     "typings": "dist/src/index.d.ts",
     "files": [
         "*.js",
-        "lib/**/*",
-        "examples/**/*"
+        "dist/src/**/*"
     ],
     "scripts": {
         "build": "tsc --build",

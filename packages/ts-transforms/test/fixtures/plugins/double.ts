@@ -1,5 +1,5 @@
 import { DataEntity } from '@terascope/core-utils';
-import { OperationConfig, TransformOpBase, InputOutputCardinality } from '../../../src';
+import { OperationConfig, TransformOpBase, InputOutputCardinality } from '../../../src/index.js';
 
 export default class Double extends TransformOpBase {
     static cardinality: InputOutputCardinality = 'one-to-one';

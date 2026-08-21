@@ -1,5 +1,5 @@
 import { BaseSchema } from '@terascope/job-components';
-import { SimpleReaderConfig } from './interfaces';
+import { SimpleReaderConfig } from './interfaces.js';
 
 export default class Schema extends BaseSchema<SimpleReaderConfig> {
     build(): Record<string, any> {

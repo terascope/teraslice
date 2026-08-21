@@ -1,8 +1,8 @@
-import yargs from 'yargs';
+import type { CommandModule } from 'yargs';
 import { Job } from 'teraslice-client-js';
 import { Teraslice } from '@terascope/types';
 
-export type CMD = yargs.CommandModule;
+export type CMD = CommandModule;
 
 export interface GithubAssetConfig {
     arch: string;

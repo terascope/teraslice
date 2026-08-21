@@ -2,7 +2,7 @@
     "extends": "../tsconfig",
     "compilerOptions": {
         "target": "ESNext",
-        "module": "ESNext",
+        "module": "nodenext",
         "outDir": "dist",
         "rootDir": "."
     },

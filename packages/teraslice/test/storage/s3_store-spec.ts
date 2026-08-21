@@ -2,8 +2,8 @@ import fse from 'fs-extra';
 import { Logger } from '@terascope/core-utils';
 import { TestContext, TestContextOptions } from '@terascope/job-components';
 import { createS3Client, deleteS3Bucket } from '@terascope/file-asset-apis';
-import { S3Store } from '../../src/lib/storage/backends/s3_store';
-import { TEST_INDEX_PREFIX } from '../test.config';
+import { S3Store } from '../../src/lib/storage/backends/s3_store.js';
+import { TEST_INDEX_PREFIX } from '../test.config.js';
 
 describe('S3 backend test', () => {
     let s3Backend: S3Store;

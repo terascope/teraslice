@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'fs-extra';
-import { AssetSrc } from './asset-src';
-import reply from './reply';
+import { AssetSrc } from './asset-src.js';
+import reply from './reply.js';
 
 /**
  * Add all APIS and Operations to the root asset bundle README.md file.

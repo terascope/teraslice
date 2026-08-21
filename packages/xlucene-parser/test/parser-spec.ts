@@ -4,7 +4,7 @@ import { xLuceneFieldType } from '@terascope/types';
 import allTestCases, { filterNilTestCases } from './cases/index.js';
 import {
     Parser, NodeType, FieldValue, TermLikeNode
-} from '../src';
+} from '../src/index.js';
 
 describe('Parser', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {

@@ -1,5 +1,5 @@
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
+import _Ajv from 'ajv';
+import _addFormats from 'ajv-formats';
 import {
     isString, TSError, uniq,
     castArray, Logger, getTypeOf,
@@ -7,6 +7,9 @@ import {
 } from '@terascope/core-utils';
 import { IndexConfig, IndexSchema, DataSchema } from '../interfaces.js';
 import { throwValidationError, getErrorMessages } from './errors.js';
+
+const Ajv = _Ajv.default;
+const addFormats = _addFormats.default;
 
 export function isValidName(name: string): boolean {
     return Boolean(isString(name) && name && !name.includes('-'));

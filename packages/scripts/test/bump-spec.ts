@@ -3,14 +3,14 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { cloneDeep } from '@terascope/core-utils';
-import { BumpPackageOptions, BumpType, BumpPkgInfo } from '../src/helpers/bump/interfaces';
-import { PackageInfo } from '../src/helpers/interfaces';
-import { bumpAssetVersion } from '../src/helpers/bump/index';
+import { BumpPackageOptions, BumpType, BumpPkgInfo } from '../src/helpers/bump/interfaces.js';
+import { PackageInfo } from '../src/helpers/interfaces.js';
+import { bumpAssetVersion } from '../src/helpers/bump/index.js';
 import {
     getPackagesToBump,
     bumpPackagesList,
     getBumpCommitMessages
-} from '../src/helpers/bump/utils';
+} from '../src/helpers/bump/utils.js';
 
 describe('Bump Utils', () => {
     const testPackages: PackageInfo[] = [

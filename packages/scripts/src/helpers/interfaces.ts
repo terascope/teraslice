@@ -1,6 +1,6 @@
 import { EmptyObject, Service } from '@terascope/types';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
-import type { TestFramework } from './test-runner/interfaces';
+import type { TestFramework } from './test-runner/interfaces.js';
 
 export type PackageInfo = {
     dir: string;

@@ -1,5 +1,5 @@
 import { cloneDeep, DataEntity } from '@terascope/core-utils';
-import { Trim } from '../../../src/operations';
+import { Trim } from '../../../src/operations/index.js';
 
 describe('transform operator', () => {
     it('can instantiate', () => {

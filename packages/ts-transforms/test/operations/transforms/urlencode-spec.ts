@@ -1,5 +1,5 @@
 import { cloneDeep, DataEntity } from '@terascope/core-utils';
-import { UrlEncode } from '../../../src/operations';
+import { UrlEncode } from '../../../src/operations/index.js';
 
 describe('UrlEncode operator', () => {
     function encode(str: string) {

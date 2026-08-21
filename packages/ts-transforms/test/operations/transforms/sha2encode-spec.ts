@@ -1,6 +1,6 @@
 import { cloneDeep, DataEntity } from '@terascope/core-utils';
 import crypto from 'crypto';
-import { Sha2Encode } from '../../../src/operations';
+import { Sha2Encode } from '../../../src/operations/index.js';
 
 describe('Sha2Encode operator', () => {
     function encode(str: string, algo = 'sha256') {
