@@ -8,11 +8,27 @@ import type {
     ClusterServiceType
 } from './lib/cluster/services/index.js';
 
-export interface TerasliceRequest extends Request {
-    logger: Logger;
+/**
+ * Every request passes through middleware that attaches `logger` (see ApiService
+ * and AssetsService). Declaration merging makes that known to the type system so
+ * express `Request` no longer has to be cast to a Teraslice-specific type.
+ */
+declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace Express {
+        interface Request {
+            logger: Logger;
+        }
+    }
 }
 
-export interface TerasliceResponse extends Response {}
+/**
+ * Aliases kept for readability at call sites; `any` params let route handlers
+ * with typed params (e.g. `Request<{ jobId: string }>`) pass without casting.
+ */
+export type TerasliceRequest = Request<any>;
+
+export type TerasliceResponse = Response;
 
 export interface ClusterMasterContext extends Context {
     stores: {
