@@ -23,7 +23,7 @@ import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import {
     measure, line, heading, progress, progressHeader, runsFor, heapLimitMB, classify,
-    CHECKPOINT, checkpointTables,
+    CHECKPOINT, checkpointTables, PREFER_SQL,
 } from './lib/harness.js';
 import {
     CONFIG, COLUMNS, SCALES, makeRecords, label
@@ -184,7 +184,15 @@ for (const scale of SCALES) {
         DataFrame,
         DuckFrame,
         dfAdapter: dataFrameAdapter,
-        duckAdapter: duckFrameAdapter,
+        /**
+         * Wrapped rather than passed through, so `PREFER_SQL` reaches every case without any of
+         * them opting in. A case that set `preferSql` itself would still win, which is the right
+         * precedence: the flag is a default for the run, not an override of a case's intent.
+        */
+        duckAdapter: (fnDef, options) => duckFrameAdapter(
+            fnDef,
+            PREFER_SQL === undefined ? options : { preferSql: PREFER_SQL, ...options }
+        ),
         repo: functionConfigRepository,
         config: CONFIG,
         records,
@@ -260,6 +268,7 @@ const report = writeReport({
         columns: COLUMNS.length,
         paths: Object.keys(CONFIG.fields).length,
         checkpoint: CHECKPOINT,
+        preferSql: PREFER_SQL,
     },
 });
 
