@@ -1,4 +1,4 @@
-import { Router, Express } from 'express';
+import { Router, Express, ErrorRequestHandler } from 'express';
 import bodyParser from 'body-parser';
 import { pipeline as streamPipeline } from 'node:stream/promises';
 import got, { OptionsInit } from 'got';
@@ -209,14 +209,14 @@ export class ApiService {
                 return (req.headers['content-type'] === 'application/json' || req.headers['content-type'] === 'application/x-www-form-urlencoded');
             }
         }));
-        // @ts-expect-error
-        this.app.use((err, req, res, next) => {
+        const handleJsonParseError: ErrorRequestHandler = (err, _req, res, next) => {
             if (err instanceof SyntaxError) {
                 sendError(res, 400, 'the json submitted is malformed');
             } else {
                 next();
             }
-        });
+        };
+        this.app.use(handleJsonParseError);
 
         this.app.use((req, res, next) => {
             if (!this.available) {
