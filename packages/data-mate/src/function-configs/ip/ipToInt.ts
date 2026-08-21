@@ -5,7 +5,7 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
 } from '../interfaces.js';
-import { isIPv4Sql } from './sql-utils.js';
+import { ipv4ToIntSql, isIPv4Sql } from './sql-utils.js';
 
 export const ipToIntConfig: FieldTransformConfig = {
     name: 'ipToInt',
@@ -41,13 +41,8 @@ export const ipToIntConfig: FieldTransformConfig = {
     */
     sql: {
         needs_udf_fallback: true,
-        expression: ({ value, udf }) => {
-            const part = (n: number) => `CAST(string_split(${value}, '.')[${n}] AS HUGEINT)`;
-            return `CASE WHEN ${isIPv4Sql(value)}`
-                + ` THEN ${part(1)} * 16777216 + ${part(2)} * 65536`
-                + ` + ${part(3)} * 256 + ${part(4)}`
-                + ` ELSE ${udf(value)} END`;
-        },
+        expression: ({ value, udf }) => `CASE WHEN ${isIPv4Sql(value)}`
+            + ` THEN ${ipv4ToIntSql(value)} ELSE ${udf(value)} END`,
     },
     accepts: [FieldType.String, FieldType.IP],
     output_type({ field_config }) {

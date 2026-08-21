@@ -8,6 +8,7 @@ import {
     FunctionDefinitionCategory,
 } from '../interfaces.js';
 import { encodeAny } from './encode-utils.js';
+import { encodeURIComponentSql, hasHashSql, hashSql } from './sql-utils.js';
 
 export interface EncodeArgs {
     algo: string;
@@ -95,6 +96,19 @@ export const encodeConfig: FieldTransformConfig<EncodeArgs> = {
     ],
     create({ args: { algo, digest } }) {
         return encodeAny(algo, digest);
+    },
+    sql: {
+        /**
+         * Every algorithm/digest pair DuckDB can express, which is most of them.
+         *
+         * `encodeAny` has three branches - `url`, the two `Buffer` encodings, and `createHash` -
+         * and all three have a native form. Anything else (`sha512`, a `latin1` digest) keeps the
+         * UDF. Measured byte-equal over a 12-input battery: see `hashSql`.
+        */
+        applies: ({ algo, digest }) => algo === 'url' || hasHashSql(algo, digest),
+        expression: ({ value, args: { algo, digest } }) => (algo === 'url'
+            ? encodeURIComponentSql(value)
+            : hashSql(algo, digest ?? 'hex', value) as string),
     },
     accepts: [FieldType.String],
     argument_schema: {

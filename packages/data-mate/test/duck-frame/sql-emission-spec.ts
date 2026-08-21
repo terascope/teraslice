@@ -395,6 +395,15 @@ const CASES: Record<string, {
     */
     throwsOn?: unknown;
     /**
+     * Argument sets the emission must DECLINE, asserted through `applies` rather than by running.
+     *
+     * A declined set cannot be run and compared: under `noUdfPath` there is no working UDF to
+     * compare against, and the gate's `dispatch` assertion would fail for the right reason while
+     * telling you nothing. Calling `applies` directly proves the guard without a query, which is
+     * what a decline actually is.
+    */
+    declines?: readonly Record<string, unknown>[];
+    /**
      * Inputs where the SQL is deliberately DIFFERENT from the JavaScript, with the correct answer.
      *
      * Used only where SQL is the more correct of the two and that has been accepted as the
@@ -458,7 +467,6 @@ const CASES: Record<string, {
     isLessThanOrEqualTo: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
     // `size` must be positive - the function rejects 0 itself
     truncate: { args: [{ size: 3 }, { size: 1 }, { size: 100 }] },
-    setPrecision: { args: [{ digits: 2 }, { digits: 0 }] },
     /**
      * Date setters: one ordinary value and one that FORCES the rollover, because that is the only
      * place a naive emission and `Date` disagree - `setUTCDate(31)` on a February date is March 3.
@@ -736,6 +744,12 @@ const CASES: Record<string, {
             { regex: '\\d+', replace: '#', global: true },
             { regex: '(?=l)', replace: 'X', global: true },
             { regex: '(l)', replace: '[$1]', global: true },
+            // DF10: `\s` and `.` mean different things to the two engines, and the Keyword
+            // battery holds NBSP, an ideographic space and a tab for exactly this
+            { regex: '\\s', replace: '_', global: true },
+            { regex: '\\S', replace: '#', global: true },
+            { regex: 'a.c', replace: 'X' },
+            { regex: '.', replace: '.', global: true },
         ],
     },
     isDate: { type: FieldType.Date, args: [{}, { format: 'iso_8601' }] },
@@ -872,6 +886,175 @@ const CASES: Record<string, {
             { cidr: '::ffff:0:0/96' },
             { min: '1.2.3.4', max: '1.2.3.10' },
         ],
+    },
+    /**
+     * `intToIP` - an integer STRING column, because that is the shape the second example uses and
+     * the one where the `BigInt`-versus-cast divergence lives. Version 6 is in the arg list so the
+     * `applies` that declines it is exercised too, and `throwsOn` names an out-of-range value,
+     * which the function rejects with `Invalid IP input`.
+    */
+    intToIP: {
+        type: FieldType.Keyword,
+        battery: [
+            '0',
+            '1',
+            '255',
+            '256',
+            '168829138',
+            '3232235777',
+            '4294967295',
+            '2130706433',
+            // `TRY_CAST` reads this as 12 and so does `BigInt`, so the digit guard must let it
+            // through and the two must agree
+            '012',
+            null,
+        ],
+        args: [{ version: 4 }, { version: '4' }, { version: 6 }],
+        /**
+         * `isNumberLike` gates `intToIP` before `BigInt` ever runs, so `''` and `'0x10'` - the
+         * shapes where `BigInt` and `TRY_CAST` disagree - are THROWS rather than values, and a
+         * transform battery cannot hold them. `4294967296` is the range check on the other side.
+        */
+        throwsOn: '4294967296',
+    },
+    /**
+     * `encode` - every algorithm the emission claims plus the two it declines (`sha512`, which
+     * DuckDB does not have, and a `latin1` digest, which is not one of the two it can produce).
+    */
+    encode: {
+        args: [
+            { algo: 'sha256' },
+            { algo: 'sha1' },
+            { algo: 'md5' },
+            { algo: 'sha256', digest: 'base64' },
+            { algo: 'md5', digest: 'base64' },
+            { algo: 'base64' },
+            { algo: 'hex' },
+            { algo: 'url' },
+            { algo: 'sha512' },
+            { algo: 'sha256', digest: 'latin1' as any },
+        ],
+    },
+    /**
+     * `createID` - a scalar string column, the only shape the emission claims. The array and tuple
+     * shapes in its own examples go through `toString(...).join('')`, which the emission declines.
+    */
+    createID: {
+        type: FieldType.Keyword,
+        args: [{}, { hash: 'sha256' }, { hash: 'sha1', digest: 'base64' }, { hash: 'sha512' }],
+    },
+    /**
+     * `extract` - both modes, both `global` settings, and every guard.
+     *
+     * `noUdfPath` because `global: true` returns an ARRAY and `scalarResultConfig` strips `array`
+     * from the UDF's return type, so the registered function promises a VARCHAR and hands back a
+     * list - the same pre-existing break `split` has (known-defects DF4). With one arg set in this
+     * list returning a list, the whole case is proved against `config.create()` directly.
+    */
+    extract: {
+        noUdfPath: true,
+        type: FieldType.Keyword,
+        battery: [
+            '<hello>',
+            '<hello> some stuff <world>',
+            'no markers',
+            '<unterminated',
+            '<a<b>',
+            '<>',
+            'a|b|c',
+            'line1\n<multi\nline>',
+            'Hello World some other things',
+            'a1b22c333',
+            'hello',
+            ' nbsp ',
+            'tab\tinside',
+            // astral and combining input BETWEEN the markers: RE2's `.*?` counts code points and
+            // the state machine counts code units, and the extracted text must be the same anyway
+            '<👍𝔘 ok>',
+            'e\u0301<abc>',
+            '',
+            null,
+        ],
+        args: [
+            { start: '<', end: '>' },
+            { start: '<', end: '>', global: true },
+            { start: '|', end: '|' },
+            { regex: '[0-9]+' },
+            { regex: '[0-9]+', global: true },
+            { regex: '([A-Z]\\w+)' },
+            { regex: '([A-Z]\\w+)', global: true },
+            { regex: '\\d+' },
+            { regex: '^H' },
+        ],
+        /**
+         * Every guard, asserted as a refusal. In order: a multi-character marker, which the state
+         * machine can never match; the four class constructs whose meaning differs between the
+         * engines; the `/pattern/flags` form, which `formatRegex` accepts and RE2 does not; a
+         * lookahead RE2 cannot compile; and two capture groups, which `regexp_extract_all` cannot
+         * interleave.
+        */
+        declines: [
+            { start: '<<', end: '>>' },
+            { regex: 'he.*' },
+            { regex: 'a.c' },
+            { regex: '\\s' },
+            { regex: '\\S' },
+            { regex: '[^0-9]' },
+            { regex: '/([A-Z]\\w+)/', global: true },
+            { regex: '(?=l)' },
+            { regex: '(a)(b)' },
+        ],
+    },
+    /**
+     * `setPrecision` - a Float column, which is the only shape the emission claims, and the digit
+     * counts where `printf` and `toFixed` could part company. 2.675 is here on purpose: it is the
+     * value that ruled out `round()` and the DECIMAL cast.
+    */
+    setPrecision: {
+        type: FieldType.Float,
+        battery: [
+            10.123444,
+            10.253444,
+            Math.PI,
+            8.29,
+            1.005,
+            2.675,
+            0.1,
+            -10.253444,
+            -8.29,
+            0.5,
+            1.5,
+            2.5,
+            -2.5,
+            0.25,
+            1.25,
+            0.125,
+            99.995,
+            1234.5678,
+            0,
+            -0.0001,
+            1e-7,
+            1e6,
+            null,
+        ],
+        args: [
+            { digits: 0 },
+            { digits: 1 },
+            { digits: 2 },
+            { digits: 4 },
+            { digits: 0, truncate: true },
+            { digits: 1, truncate: true },
+            { digits: 2, truncate: true },
+            { digits: 4, truncate: true },
+        ],
+    },
+    /**
+     * `toNumber` - one entry per branch of `create`, because each has its own emission. The String
+     * column is deliberately absent from `type`: `Number('')` is `0` and `Number('0x10')` is `16`,
+     * so that branch keeps the UDF and there is nothing to compare.
+    */
+    toNumber: {
+        type: [FieldType.Date, FieldType.IP, FieldType.Double, FieldType.Integer, FieldType.Long],
     },
 };
 
@@ -1113,6 +1296,24 @@ describe('sql emissions on the function configs', () => {
                     expect(sql.dispatch).toEqual('sql');
                 },
                 60_000);
+        }
+
+        /**
+         * The guards, as refusals.
+         *
+         * `applies` is a pure function of the arguments and the column, so this needs no query -
+         * and it is the only way to assert a decline for a function whose UDF path is broken.
+        */
+        const declined = CASES[name]?.declines ?? [];
+        if (declined.length) {
+            const declineType = inputTypeFor(name, config);
+            it.each(declined.map((args) => [JSON.stringify(args), args]))(
+                'declines the emission for %s',
+                (_label, args) => {
+                    const inputConfig = { field_config: { type: declineType } };
+                    expect(config.sql?.applies?.(args as any, inputConfig)).toBe(false);
+                }
+            );
         }
 
         // skipped whenever there is no UDF path to compare against
