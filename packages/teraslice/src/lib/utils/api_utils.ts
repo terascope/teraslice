@@ -55,7 +55,11 @@ export function handleTerasliceRequest(
     { errorCode = 500, successCode = 200 } = {}
 ) {
     logTerasliceRequest(req);
-    return async (fn: () => Promise<string | Record<string, any>>) => {
+    // `fn` returns whatever should be serialized as the response body: a string is
+    // sent as-is, anything else is sent as JSON. The value is intentionally `unknown`
+    // because callers return a wide range of endpoint payloads (objects, arrays,
+    // cluster state, etc.); the response shape is narrowed below.
+    return async (fn: () => unknown) => {
         try {
             const result = await fn();
 

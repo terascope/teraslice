@@ -238,12 +238,11 @@ export class ApiService {
                 node_version: process.version,
                 platform: this.context.platform,
                 teraslice_version: `v${terasliceVersion}`
-            } as any));
+            }));
         });
 
         v1routes.get('/cluster/state', (req, res) => {
             const requestHandler = handleTerasliceRequest(req, res);
-            // @ts-expect-error
             requestHandler(() => this.clusterService.getClusterState());
         });
 
@@ -492,10 +491,8 @@ export class ApiService {
             requestHandler(async () => {
                 const stats = executionService.getClusterAnalytics();
 
-                // for backwards compatibility
-                // @ts-expect-error
-                stats.slicer = stats.controllers;
-                return stats;
+                // `slicer` is the legacy alias for `controllers`, kept for backwards compatibility
+                return { ...stats, slicer: stats.controllers };
             });
         });
         v1routes.get(['/cluster/slicers', '/cluster/controllers'], (req, res) => {
