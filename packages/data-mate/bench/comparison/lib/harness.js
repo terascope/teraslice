@@ -145,6 +145,37 @@ export async function force(frame, how = 'table') {
 export const CHECKPOINT = ['1', 'true', 'yes'].includes(String(process.env.CHECKPOINT));
 
 /**
+ * `PREFER_SQL` chooses which EXECUTION PATH the DuckFrame side's transforms take.
+ *
+ * **The second measured dimension of this comparison, and the one this document was missing.**
+ * 188 of the 205 function configs now carry a `sql` emission, so `duckFrameAdapter` returns native
+ * SQL and registers no UDF at all; before that work every function ran as a vectorized JavaScript
+ * UDF at a measured ~171 ns per value, single-threaded, because the node binding blocks DuckDB's
+ * worker thread until JS returns. Every transform number in `docs/PERFORMANCE.md` was taken on the
+ * UDF path and is therefore a lower bound by an unknown margin - which is what this flag exists to
+ * quantify.
+ *
+ * `preferSql: false` on the adapter forces the UDF path for a function that HAS an emission, so the
+ * two runs measure the same work through the two paths:
+ *
+ *     RESULTS=bench/comparison/.udf.json PREFER_SQL=0 node bench/comparison/sweep.js
+ *     RESULTS=bench/comparison/.sql.json PREFER_SQL=1 node bench/comparison/sweep.js
+ *
+ * Unset means "the adapter's own default", which is SQL - so an ordinary run measures what ships.
+ * Only `PREFER_SQL=0` changes behaviour; it is written as an explicit tri-state rather than a
+ * boolean so that "not set" and "set to 1" are not silently the same code path as each other in the
+ * report metadata.
+ *
+ * It affects ONLY the cases that go through `duckAdapter`: the transform, validation and composed
+ * pipeline groups. Creation, filters, sorts, paging, output, group-bys, appends and joins
+ * involve no UDF and are untouched, so a difference there between two runs is noise, not
+ * signal.
+*/
+export const PREFER_SQL = process.env.PREFER_SQL == null
+    ? undefined
+    : ['1', 'true', 'yes'].includes(String(process.env.PREFER_SQL));
+
+/**
  * Checkpoints the database the case's tables live in, VERIFIES that it happened, and returns what
  * it cost.
  *
