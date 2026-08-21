@@ -32,7 +32,6 @@ export class AssetsService {
         this.app.set('json spaces', 4);
 
         this.app.use((req, _res, next) => {
-            // @ts-expect-error
             req.logger = this.logger;
             next();
         });
@@ -44,7 +43,7 @@ export class AssetsService {
             await this.assetsStorage.initialize();
 
             this.app.get('/status', (req, res) => {
-                const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res);
+                const requestHandler = handleTerasliceRequest(req, res);
                 requestHandler(async () => ({ available: this.running }));
             });
 
@@ -86,8 +85,7 @@ export class AssetsService {
 
             this.app.delete('/assets/:assetId', (req, res) => {
                 const { assetId } = req.params;
-                // @ts-expect-error
-                const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, `Could not delete asset ${assetId}`);
+                const requestHandler = handleTerasliceRequest(req, res, `Could not delete asset ${assetId}`);
 
                 if (assetId.length !== 40) {
                     res.status(400).json({
@@ -107,32 +105,32 @@ export class AssetsService {
 
             this.app.get('/txt/assets', (req, res) => {
                 const query = 'id:*';
-                this.createAssetTable(query, req as TerasliceRequest, res);
+                this.createAssetTable(query, req, res);
             });
 
             this.app.get('/txt/assets/:name', (req, res) => {
                 const query = `id:* AND name:"${req.params.name}"`;
-                this.createAssetTable(query, req as unknown as TerasliceRequest, res);
+                this.createAssetTable(query, req, res);
             });
 
             this.app.get('/txt/assets/:name/:version', (req, res) => {
                 const query = `id:* AND name:"${req.params.name}" AND version:"${req.params.version}"`;
-                this.createAssetTable(query, req as unknown as TerasliceRequest, res);
+                this.createAssetTable(query, req, res);
             });
 
             this.app.get('/assets', (req, res) => {
                 const query = 'id:*';
-                this.assetsSearch(query, req as TerasliceRequest, res);
+                this.assetsSearch(query, req, res);
             });
 
             this.app.get('/assets/:name', (req, res) => {
                 const query = `id:* AND name:"${req.params.name}"`;
-                this.assetsSearch(query, req as unknown as TerasliceRequest, res);
+                this.assetsSearch(query, req, res);
             });
 
             this.app.get('/assets/:name/:version', (req, res) => {
                 const query = `id:* AND name:"${req.params.name}" AND version:"${req.params.version}"`;
-                this.assetsSearch(query, req as unknown as TerasliceRequest, res);
+                this.assetsSearch(query, req, res);
             });
 
             await new Promise((resolve, reject) => {
