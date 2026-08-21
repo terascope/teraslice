@@ -224,3 +224,42 @@ export function firstUsableHitsTopOfV4(value: string): string {
 export function isIPv4CIDRSql(value: string): string {
     return `(${isCIDRSql(value)} AND NOT contains(${value}, ':'))`;
 }
+
+/**
+ * An IPv4 address as its integer value.
+ *
+ * There is no `inet_aton` and no cast between `INET` and a number, so this is arithmetic over the
+ * dotted parts. `HUGEINT` rather than `BIGINT` because `ipToInt` returns a `Long` and the same
+ * helper serves the IPv6 case's guard.
+*/
+export function ipv4ToIntSql(value: string): string {
+    const part = (n: number) => `CAST(string_split(${value}, '.')[${n}] AS HUGEINT)`;
+    return `${part(1)} * 16777216 + ${part(2)} * 65536 + ${part(3)} * 256 + ${part(4)}`;
+}
+
+/**
+ * An integer as a dotted-quad IPv4 address.
+ *
+ * The inverse arithmetic, and exact: verified against `ip-utils`' `intToIP` at 0, 1, 255, 256,
+ * 127.0.0.1, 10.16.32.210, 192.168.1.1 and 255.255.255.255
+ * (`docs/tools/probe/group-a-candidates.mjs`).
+*/
+export function intToIPv4Sql(value: string): string {
+    const octet = (expression: string) => `CAST(${expression} AS VARCHAR)`;
+    return `${octet(`${value} // 16777216`)} || '.' || ${octet(`(${value} // 65536) % 256`)}`
+        + ` || '.' || ${octet(`(${value} // 256) % 256`)} || '.' || ${octet(`${value} % 256`)}`;
+}
+
+/**
+ * An integer input that `intToIP` will read the same way SQL does, as a HUGEINT, or null.
+ *
+ * **The guard is a digit regex, and it is narrower than a cast on purpose.** `intToIP` calls
+ * `BigInt(input)`, and measured against `TRY_CAST(x AS HUGEINT)` the two disagree eight ways
+ * (`docs/tools/probe/group-a-candidates.mjs`): SQL accepts `'12.0'`, `'12.5'`, `'1e3'` and
+ * `'1_000'` where `BigInt` THROWS, and `BigInt` accepts `'0x10'`, `'0b11'` and `''` where the cast
+ * is null. `^[0-9]+$` is inside both, so every one of those eight keeps the UDF and today's answer.
+*/
+export function plainIntegerSql(value: string): string {
+    return `CASE WHEN regexp_matches(${value}, '^[0-9]+$')`
+        + ` THEN TRY_CAST(${value} AS HUGEINT) ELSE NULL END`;
+}

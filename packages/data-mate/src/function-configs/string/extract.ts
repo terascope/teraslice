@@ -1,4 +1,4 @@
-import { isNil, matchAll } from '@terascope/core-utils';
+import { isNil, isRegExpLike, matchAll } from '@terascope/core-utils';
 import { FieldType, ReadonlyDataTypeConfig } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -8,6 +8,10 @@ import {
     FunctionDefinitionCategory,
     FunctionDefinitionExample,
 } from '../interfaces.js';
+import {
+    countGroups, emptyToNull, extractMarkerAllSql, extractMarkerSql, extractRegexAllSql,
+    extractRegexSql, hasPortableEscapes, isOneCodePoint, isRe2Safe, needsClassGuard
+} from './sql-utils.js';
 
 export interface ExtractArgs {
     regex?: string;
@@ -66,6 +70,59 @@ export const extractConfig: FieldTransformConfig<ExtractArgs> = {
     description: 'Returns an extracted substring or an array of substrings from the input string',
     create({ args }) {
         return _extract(args);
+    },
+    sql: {
+        /**
+         * Both modes, built from what `_extract` and `matchAll` actually do rather than from the
+         * names - the builders and every measurement are in `sql-utils.ts`.
+         *
+         * The guards, each earned:
+         *
+         * - **marker mode wants ONE CODE POINT per marker.** `_subSlice` compares `char === start`
+         *   inside `for (const char of input)`, so a two-character `start` can never match and the
+         *   function returns null for every row. A native `position()` WOULD find it, which is a
+         *   different answer, not a slower one.
+         * - **regex mode wants at most ONE capture group.** `matchAll` pushes every group of every
+         *   match, interleaved; `regexp_extract_all` takes a single group index.
+         * - **RE2 must compile it, AND its classes must mean the same thing.** `isRe2Safe` covers
+         *   the first: lookaround and backreferences ERROR. The second is `needsClassGuard`, and
+         *   here it DECLINES rather than guards - a pattern containing `.`, `\s`, `\S` or a
+         *   negated class keeps the UDF outright. `replaceRegex` can guard the value and fall back
+         *   per row; `extract` cannot, because under `global` it has no working UDF to fall back to
+         *   (DF4), so the emission must be self-sufficient or absent. What that costs is `he.*`
+         *   staying on the UDF; what it buys is never returning a different answer.
+         * - **a FLAGGED pattern keeps the UDF.** `formatRegex` accepts the `/pattern/flags` form
+         *   and `i`, `s`, `m` and `x` each change the match; `x` has no RE2 equivalent at all.
+         *
+         * `global: true` returns a LIST, so the emission is the only way that shape runs at all -
+         * `scalarResultConfig` strips `array` from the UDF's return type and the registered
+         * function promises a VARCHAR (known-defects DF4, the same wall `split` hit).
+        */
+        applies: ({ regex, start, end }) => {
+            if (regex != null) {
+                if (typeof regex !== 'string' || isRegExpLike(regex)) return false;
+                const groups = countGroups(regex);
+                return groups != null && groups <= 1
+                    && isRe2Safe(regex) && hasPortableEscapes(regex)
+                    && !needsClassGuard(regex);
+            }
+            return isOneCodePoint(start) && isOneCodePoint(end);
+        },
+        expression: ({
+            value, args: {
+                regex, start, end, global = globalDefault
+            }
+        }) => {
+            if (regex == null) {
+                return global
+                    ? emptyToNull(extractMarkerAllSql(value, start as string, end as string))
+                    : extractMarkerSql(value, start as string, end as string);
+            }
+            const group = countGroups(regex) as number;
+            return global
+                ? emptyToNull(extractRegexAllSql(value, regex, group))
+                : extractRegexSql(value, regex, group);
+        },
     },
     accepts: [FieldType.String],
     examples,
