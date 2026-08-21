@@ -9,9 +9,10 @@ import {
     FunctionDefinitionExample,
 } from '../interfaces.js';
 import {
-    countGroups, emptyToNull, extractMarkerAllSql, extractMarkerSql, extractRegexAllSql,
-    extractRegexSql, hasPortableEscapes, isOneCodePoint, isRe2Safe, needsClassGuard
+    emptyToNull, extractMarkerAllSql, extractMarkerSql, extractRegexAllSql,
+    extractRegexSql, isOneCodePoint
 } from './sql-utils.js';
+import { countGroups, hasPortableEscapes, isRe2Safe, needsClassGuard } from './sql-regex-utils.js';
 
 export interface ExtractArgs {
     regex?: string;

@@ -1,4 +1,5 @@
-import { HAS_ASTRAL, isAsciiSql, sqlLiteral } from '../sql-helpers.js';
+import { isAsciiSql, sqlLiteral } from '../sql-helpers.js';
+import { re2Literal } from './sql-regex-utils.js';
 
 /**
  * Helpers shared by the `sql` emissions on the string function configs.
@@ -19,34 +20,6 @@ export const ALPHANUMERIC_LOCALES = '^[0-9A-Za-z]+$';
 /** True when no locale was given, so `validator`'s `en-US` default applies. */
 export function defaultLocale(locale: unknown): boolean {
     return locale == null || locale === 'en-US';
-}
-
-/**
- * Whether a regex is safe to hand to RE2, DuckDB's engine.
- *
- * **RE2 has no lookaround and no backreferences**, and it does not degrade gracefully - the query
- * ERRORS. A JavaScript pattern using either is therefore not a slow path, it is a dead query, so
- * anything containing `(?=`, `(?!`, `(?<=`, `(?<!` or a `\1`-style backreference keeps the UDF.
- *
- * Named groups `(?<name>...)` are excluded by the same `(?<` test. That is stricter than necessary
- * - RE2 supports them as `(?P<name>...)` - and being stricter is the right side to err on.
-*/
-export function isRe2Safe(pattern: string): boolean {
-    if (/\(\?[=!]/.test(pattern)) return false;
-    if (/\(\?</.test(pattern)) return false;
-    return !/\\[1-9]/.test(pattern);
-}
-
-/**
- * Whether a replacement string is a plain literal.
- *
- * **`$1` means a capture group in JavaScript and NOTHING in SQL** - measured, `'abc'` with
- * `/(a)(b)/g` and `'$2$1'` is `'bac'` in JavaScript and the literal `'$2$1c'` in DuckDB, which uses
- * `\1`. Translating is possible but `$&`, `` $` ``, `$'` and `$$` all mean something too, so a
- * replacement containing `$` keeps the UDF rather than being half-translated.
-*/
-export function isLiteralReplacement(replace: string): boolean {
-    return !replace.includes('$');
 }
 
 /**
@@ -231,79 +204,6 @@ export function isFQDNSql(value: string, udf: (v: string) => string): string {
 }
 
 /**
- * Every character where RE2's `\s`, `\S` and `.` disagree with JavaScript's, as an RE2 class.
- *
- * **`isRe2Safe` is not sufficient on its own, and this is the measurement that says so.** It only
- * rejects the constructs RE2 cannot COMPILE. A pattern both engines compile can still match
- * different characters, and that failure is silent - a different answer, not an error.
- *
- * Measured by `docs/tools/probe/re2-vs-js-regex.mjs` over all 28 characters that could differ:
- *
- * - **`\s` diverges on 20 of them.** JavaScript's `\s` is `WhiteSpace` + `LineTerminator`, so it
- *   accepts VERTICAL TAB, NBSP, the whole `Zs` category, U+2028, U+2029 and the BOM. RE2's `\s` is
- *   exactly `[\t\n\f\r ]`. `\S`, being the complement, inverts on the same 20.
- * - **`.` diverges on 3.** JavaScript's `.` excludes CR, U+2028 and U+2029 as well as LF; RE2's
- *   excludes only LF.
- * - **`\w`, `\d` and `\b` AGREE on all 28** - both engines are ASCII-only there, so a pattern built
- *   from those needs no guard at all.
- *
- * **The gate then added a second half the probe had not asked about: ASTRAL input.** A pattern that
- * matches "any character" - `.`, `\S`, a negated class - consumes one UTF-16 CODE UNIT in
- * JavaScript and one CODE POINT in RE2, so `/\S/g` replacing over `'\u{1D518}nicode'` produces
- * TWO replacements per astral character in JavaScript and one in SQL. Translating the class cannot
- * fix that, because it is the unit of matching rather than the class membership - so `HAS_ASTRAL`
- * joins this class in `withClassGuard`, which is why that guard is built from both.
- *
- * So the guard is on the VALUE, not the pattern - the same shape as `HAS_ASTRAL` elsewhere. A value
- * holding none of these characters gets the native path; one that does keeps the UDF, where
- * JavaScript's own classes and code units apply.
-*/
-export const RE2_CLASS_DIVERGENCE = '[\\x{0b}\\x{0d}\\x{a0}\\x{1680}\\x{2000}-\\x{200a}'
-    + '\\x{2028}\\x{2029}\\x{202f}\\x{205f}\\x{3000}\\x{feff}]';
-
-/**
- * Whether a pattern contains a class whose definition differs between the engines.
- *
- * Only `.`, `\s` and `\S` do - see `RE2_CLASS_DIVERGENCE`. A `.` inside a character class (`[.]`)
- * is a literal dot and needs no guard, but distinguishing that means parsing the pattern, so any
- * `.` at all asks for the guard. Over-guarding costs a UDF call for exotic values; under-guarding
- * returns a wrong answer.
-*/
-export function needsClassGuard(pattern: string): boolean {
-    return /\\[sS]/.test(pattern) || pattern.includes('.') || pattern.includes('[^');
-}
-
-/**
- * A pattern whose ESCAPES mean the same thing to both engines.
- *
- * `\p{...}`/`\P{...}` are Unicode property escapes to RE2 always, and to JavaScript **only under
- * the `u` flag** - without it `\p` is an identity escape, so `/\p{L}/` matches the literal text
- * `p{L}`. `\u{...}` is the same story. Neither errors, so both are silent divergences and both
- * keep the UDF.
-*/
-export function hasPortableEscapes(pattern: string): boolean {
-    return !/\\[pP]\{/.test(pattern) && !/\\u\{/.test(pattern);
-}
-
-/**
- * Guards a native regex expression with the value-level class check, when the pattern needs it.
- *
- * The whole point of `needs_udf_fallback`: the native path runs for every value that cannot be
- * affected by the divergence, which is all real text, and the UDF answers for the rest.
-*/
-export function withClassGuard(
-    pattern: string,
-    value: string,
-    native: string,
-    udf: (v: string) => string
-): string {
-    if (!needsClassGuard(pattern)) return native;
-    const guard = `${RE2_CLASS_DIVERGENCE.slice(0, -1)}${HAS_ASTRAL.slice(1)}`;
-    return `CASE WHEN regexp_matches(${value}, ${sqlLiteral(guard)})`
-        + ` THEN ${udf(value)} ELSE ${native} END`;
-}
-
-/**
  * A hash or byte-encoding of a string, in SQL - shared by `encode` and `createID`.
  *
  * Returns null for a combination DuckDB cannot express, which is how the callers' `applies` decide.
@@ -347,11 +247,6 @@ export function hasHashSql(algo: unknown, digest: unknown): boolean {
 */
 export function isOneCodePoint(value: unknown): boolean {
     return typeof value === 'string' && [...value].length === 1;
-}
-
-/** A literal, escaped for use inside an RE2 pattern. */
-export function re2Literal(value: string): string {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**
@@ -416,22 +311,6 @@ export function extractRegexAllSql(
 }
 
 /**
- * How many capture groups a pattern has, and whether the emission can express it.
- *
- * `matchAll` pushes ALL groups of every match, interleaved - `regexp_extract_all` takes one group
- * index - so more than one group has no native form. Counted by compiling `pattern|`, which matches
- * the empty string and reports the group count without needing the pattern to match anything.
-*/
-export function countGroups(pattern: string): number | null {
-    try {
-        const probe = new RegExp(`${pattern}|`).exec('');
-        return probe ? probe.length - 1 : null;
-    } catch {
-        return null;
-    }
-}
-
-/**
  * A list expression that answers NULL rather than `[]` when nothing matched.
  *
  * **`extract` under `global` returns null for no match, not an empty list.** `matchAll` returns
@@ -441,4 +320,53 @@ export function countGroups(pattern: string): number | null {
 */
 export function emptyToNull(list: string): string {
     return `CASE WHEN len(${list}) = 0 THEN NULL ELSE ${list} END`;
+}
+
+/**
+ * `isPhoneNumberLike`, and it is **not libphonenumber**.
+ *
+ * ```
+ * const testValue = toString(input).trim().replace(/\D/g, '');
+ * return inNumberRange(testValue.length, { min: 7, max: 20, inclusive: true });
+ * ```
+ *
+ * Strip every non-digit, count what is left, ask whether it is 7 to 20. `trim()` cannot change the
+ * answer - whitespace is not a digit, so it is stripped either way - and `\D` is `[^0-9]` in both
+ * engines (measured: `\d` and `\w` agree on all 28 characters where they could differ). The digits
+ * that remain are ASCII, so `length()` counting characters and JavaScript counting code units
+ * agree.
+ *
+ * `isISDN` and `toISDN` really are libphonenumber; this one only shares their file.
+*/
+export function phoneNumberLikeSql(value: string): string {
+    return `length(regexp_replace(${value}, '[^0-9]', '', 'g')) BETWEEN 7 AND 20`;
+}
+
+/**
+ * Shannon entropy with no aggregate: split to characters, count each distinct one, fold the terms.
+ *
+ * `list_filter` over the distinct characters is the per-character aggregation that was called
+ * impossible inside a scalar expression. It is quadratic in the number of DISTINCT characters,
+ * which for text is bounded by the alphabet rather than by the string length.
+ *
+ * Verified against `shannonEntropy` on nine inputs including the empty string, a single character,
+ * an all-same string and non-ASCII - **exact, not approximate** (`tools/probe/remaining-26.mjs`).
+ *
+ * The divisor is the character count, and that is where the JavaScript is internally inconsistent:
+ * it builds the frequency table with `for (const char of input)`, which iterates CODE POINTS, and
+ * divides by `input.length`, which counts CODE UNITS. The two differ only for astral input, so
+ * astral input keeps the UDF rather than the emission reproducing the inconsistency.
+*/
+export function shannonEntropySql(value: string): string {
+    const chars = `string_split(${value}, '')`;
+    const counts = `list_transform(list_distinct(${chars}),`
+        + ` lambda c : len(list_filter(${chars}, lambda x : x = c)))`;
+    const total = `len(${chars})`;
+    const terms = `list_transform(${counts},`
+        + ` lambda n : -((n / ${total}) * ln(n / ${total}) / ln(2)))`;
+    // `+ 0` normalises NEGATIVE ZERO, which is the only thing the gate found wrong here: for a
+    // single-distinct-character string `p` is 1 and the term is `-(1 * 0 / ln(2))` = `-0`, where
+    // the JavaScript accumulates `0 - 0` and gets `0`. Same trick as `withinIntegerRange`.
+    return `CASE WHEN ${total} = 0 THEN 0`
+        + ` ELSE list_reduce(${terms}, lambda a, b : a + b) + 0 END`;
 }

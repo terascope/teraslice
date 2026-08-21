@@ -5,9 +5,7 @@ import {
     FunctionDefinitionExample, FunctionDefinitionCategory,
 } from '../interfaces.js';
 import { sqlLiteral } from '../sql-helpers.js';
-import {
-    hasPortableEscapes, isLiteralReplacement, isRe2Safe, withClassGuard
-} from './sql-utils.js';
+import { hasPortableEscapes, isLiteralReplacement, isRe2Safe, withClassGuard } from './sql-regex-utils.js';
 
 export interface ReplaceRegexArgs {
     regex: string;

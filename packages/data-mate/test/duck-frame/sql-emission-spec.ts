@@ -1056,6 +1056,200 @@ const CASES: Record<string, {
     toNumber: {
         type: [FieldType.Date, FieldType.IP, FieldType.Double, FieldType.Integer, FieldType.Long],
     },
+    /**
+     * The four predicates that turned out NOT to be `validator`-shaped walls. Each battery holds
+     * the real thing, the near misses, and the case/whitespace shapes that decide the guard.
+    */
+    isEmail: {
+        type: FieldType.Keyword,
+        battery: [
+            'a@b.co',
+            'first.last@example.com',
+            'UPPER@EXAMPLE.COM',
+            'x+tag@sub.domain.co.uk',
+            'no-at-sign',
+            'a@b',
+            'a@b.c',
+            '@example.com',
+            'a@.com',
+            'a@b..com',
+            'a@b.company',
+            'user%name@example.com',
+            'a@b-c.com',
+            'a@-b.com',
+            'x'.repeat(65) + '@example.com',
+            'a@example.toolongtldbutunder63chars',
+            ' a@b.co',
+            'a@b.co ',
+            'ábc@example.com',
+            'a@éxample.com',
+            '',
+            null,
+        ],
+    },
+    isMACAddress: {
+        type: FieldType.Keyword,
+        battery: [
+            '00:1f:f3:5b:2b:1f',
+            '00-1f-f3-5b-2b-1f',
+            '00 1f f3 5b 2b 1f',
+            '001f.f35b.2b1f',
+            '001ff35b2b1f',
+            '00:1F:F3:5B:2B:1F',
+            '00:1f:f3:5b:2b',
+            '00:1f:f3:5b:2b:1f:2a',
+            '00:1f-f3:5b:2b:1f',
+            'zz:1f:f3:5b:2b:1f',
+            '001ff35b2b1',
+            '001ff35b2b1ff',
+            // the `space` pattern's `\s` is JavaScript's, so an NBSP separator must agree
+            '00\u00a01f\u00a0f3\u00a05b\u00a02b\u00a01f',
+            '',
+            'not a mac',
+            null,
+        ],
+        args: [{},
+            { delimiter: 'colon' },
+            { delimiter: 'dash' },
+            { delimiter: 'space' },
+            { delimiter: 'dot' },
+            { delimiter: 'none' },
+            { delimiter: 'any' }],
+        declines: [{ delimiter: ['colon', 'dash'] }],
+    },
+    isMIMEType: {
+        type: FieldType.Keyword,
+        battery: [
+            'application/json',
+            'text/plain',
+            'text/html',
+            'image/png',
+            'video/mp4',
+            'TEXT/PLAIN',
+            'text/plain; charset=utf-8',
+            'text/plain;charset=utf-8',
+            'text/plain; charset="utf-8"',
+            'multipart/form-data; boundary=abc',
+            'multipart/mixed; boundary=abc; charset=utf-8',
+            'application/vnd.api+json',
+            'notatype/plain',
+            'text',
+            'text/',
+            '/plain',
+            'application/x_custom',
+            'text/plain; charset=utf-8 (comment)',
+            '',
+            'text/plain;\u00a0charset=utf-8',
+            null,
+        ],
+    },
+    isCountryCode: {
+        type: FieldType.Keyword,
+        battery: [
+            'US',
+            'us',
+            'Us',
+            'GB',
+            'DE',
+            'ZW',
+            'AD',
+            'ZZ',
+            'XX',
+            'U',
+            'USA',
+            '',
+            // the guard: `'\ufb01'.toUpperCase()` is 'FI', a real code, and DuckDB's `upper`
+            // leaves the ligature alone
+            '\ufb01',
+            '\u0131d',
+            'ÜS',
+            null,
+        ],
+    },
+    /**
+     * `entropy` - the algorithm argument it accepts and the one it THROWS on, over strings whose
+     * character distributions differ. Astral input is in the battery to prove the guard, not the
+     * formula.
+    */
+    entropy: {
+        type: FieldType.Keyword,
+        battery: [
+            'hello',
+            'aaaa',
+            'abcdefg',
+            'a',
+            'aabb',
+            'The quick brown fox',
+            '1234567890',
+            'héllo',
+            'ábc',
+            '',
+            '👍👍',
+            '𝔘nicode 𝔘',
+            'e\u0301abc',
+            '   ',
+            'tab\tinside',
+            null,
+        ],
+        args: [{}, { algo: 'shannon' }],
+        declines: [{ algo: 'other' }],
+    },
+    /**
+     * `isPhoneNumberLike` - it counts DIGITS, so the battery is about how many digits survive
+     * stripping, not about phone numbers. The boundaries are 7 and 20, inclusive.
+    */
+    /**
+     * `formatDate` - one argument set per branch of `formatDateValue`, plus the date-fns custom
+     * format that is declined. The Date battery already spans a century, a leap year, the epoch and
+     * the last millisecond of a year.
+    */
+    formatDate: {
+        type: FieldType.Date,
+        args: [
+            {},
+            { format: 'iso_8601' },
+            { format: 'epoch_millis' },
+            { format: 'milliseconds' },
+            { format: 'epoch' },
+            { format: 'seconds' },
+        ],
+        declines: [{ format: 'yyyy-MM-dd' }, { format: 'MM/dd/yyyy HH:mm' }],
+    },
+    // `toDate` on a Date column is identity; the epoch and custom-format branches are declined
+    toDate: {
+        type: FieldType.Date,
+        args: [{}, { format: 'iso_8601' }, { format: 'epoch_millis' }, { format: 'milliseconds' }],
+        declines: [{ format: 'epoch' }, { format: 'seconds' }, { format: 'yyyy-MM-dd' }],
+    },
+    /**
+     * `toJSON` - one column type per family it claims, and the two it declines for measured
+     * rendering differences.
+    */
+    toJSON: {
+        type: [FieldType.Keyword, FieldType.Boolean],
+        /**
+         * `Integer` and `Long` are absent because `toJSON`'s own UDF cannot run on them - see
+         * known-defects DF11 - so there is nothing for the gate to compare an emission against.
+        */
+    },
+    isPhoneNumberLike: {
+        type: FieldType.Keyword,
+        battery: [
+            '1234567',
+            '123456',
+            '+1 (555) 123-4567',
+            '555-1234',
+            '12345678901234567890',
+            '123456789012345678901',
+            'abcdefg',
+            '',
+            '   ',
+            '(((1234567)))',
+            '1234567890123456789012345',
+            'phone: 555 123 4567 ext 9',
+            null,
+        ],
+    },
 };
 
 /** Every input type a function's cases ask for - one unless the emission branches on type. */
