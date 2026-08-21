@@ -93,6 +93,38 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
             );
         };
     },
+    sql: {
+        /**
+         * **Three of `formatDateValue`'s four branches are one function call**, which is what the
+         * "translating the date-fns format vocabulary is its own project" note was hiding:
+         *
+         * | `format` | what it returns | emission |
+         * |---|---|---|
+         * | `epoch_millis`, `milliseconds` | the millis | `epoch_ms(v)` |
+         * | `epoch`, `seconds` | `floor(ms / 1000)` | `floor(epoch_ms(v) / 1000)` |
+         * | absent, or `iso_8601` | `toISO8601(value)` | `strftime(v, '%Y-%m-%dT%H:%M:%S.%gZ')` |
+         * | anything else | `formatDate(ms + offset, format)` | **declined** - date-fns |
+         *
+         * Verified exact on four instants including 1900 and the epoch itself. `output_type`
+         * already declares Number for the epoch formats and String otherwise, so the emission's
+         * types line up with the column without any extra work.
+         *
+         * `types: [Date]` for the same reason as every other date function: `String` and `Number`
+         * columns make the UDF PARSE the value first.
+        */
+        types: [FieldType.Date],
+        applies: ({ format }) => format == null || format in DateFormat,
+        expression: ({ value, args: { format } }) => {
+            if (format === DateFormat.epoch_millis
+                || format === DateFormat.milliseconds) {
+                return `epoch_ms(${value})`;
+            }
+            if (format === DateFormat.epoch || format === DateFormat.seconds) {
+                return `CAST(floor(epoch_ms(${value}) / 1000) AS BIGINT)`;
+            }
+            return `strftime(${value}, '%Y-%m-%dT%H:%M:%S.%gZ')`;
+        },
+    },
     accepts: [
         FieldType.Date,
         FieldType.String,

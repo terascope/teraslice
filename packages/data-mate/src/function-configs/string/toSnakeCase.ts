@@ -6,9 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
-import {
-    HAS_UNICODE_WORD, caseConvertSql,
-} from './sql-utils.js';
+import { HAS_UNICODE_WORD, caseConvertSql } from './sql-utils.js';
 import { sqlLiteral } from '../sql-helpers.js';
 
 export const toSnakeCaseConfig: FieldTransformConfig = {

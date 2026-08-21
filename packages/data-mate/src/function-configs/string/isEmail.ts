@@ -4,6 +4,8 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces.js';
+import { EMAIL_SQL_PATTERN } from './sql-validator-utils.js';
+import { sqlLiteral } from '../sql-helpers.js';
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {
@@ -143,6 +145,17 @@ export const isEmailConfig: FieldValidateConfig = {
     examples,
     create() {
         return isEmail;
+    },
+    sql: {
+        /**
+         * **One regex, and not `validator`'s.** `core-utils`' `isEmail` is a single pattern with no
+         * lookaround and no backreference, which RE2 compiles as written - see
+         * `EMAIL_SQL_PATTERN`, where the `i` flag is expanded by hand rather than handed to DuckDB.
+         *
+         * The 173 procedural lines this was declined for are `validator.isEmail`, which nothing in
+         * this codebase calls.
+        */
+        expression: ({ value }) => `regexp_matches(${value}, ${sqlLiteral(EMAIL_SQL_PATTERN)})`,
     },
     accepts: [FieldType.String],
 };
