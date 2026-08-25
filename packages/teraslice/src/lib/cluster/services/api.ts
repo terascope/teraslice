@@ -1,4 +1,4 @@
-import { Router, Express } from 'express';
+import { Router, Express, ErrorRequestHandler } from 'express';
 import bodyParser from 'body-parser';
 import { pipeline as streamPipeline } from 'node:stream/promises';
 import got, { OptionsInit } from 'got';
@@ -209,21 +209,20 @@ export class ApiService {
                 return (req.headers['content-type'] === 'application/json' || req.headers['content-type'] === 'application/x-www-form-urlencoded');
             }
         }));
-        // @ts-expect-error
-        this.app.use((err, req, res, next) => {
+        const handleJsonParseError: ErrorRequestHandler = (err, _req, res, next) => {
             if (err instanceof SyntaxError) {
                 sendError(res, 400, 'the json submitted is malformed');
             } else {
                 next();
             }
-        });
+        };
+        this.app.use(handleJsonParseError);
 
         this.app.use((req, res, next) => {
             if (!this.available) {
                 res.json({ error: 'api is not available' });
                 return;
             }
-            // @ts-expect-error
             req.logger = this.logger;
             next();
         });
@@ -231,7 +230,7 @@ export class ApiService {
         this.app.set('json spaces', 4);
 
         v1routes.get('/', (req, res) => {
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res);
+            const requestHandler = handleTerasliceRequest(req, res);
             requestHandler(() => ({
                 arch: this.context.arch,
                 clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
@@ -239,27 +238,25 @@ export class ApiService {
                 node_version: process.version,
                 platform: this.context.platform,
                 teraslice_version: `v${terasliceVersion}`
-            } as any));
+            }));
         });
 
         v1routes.get('/cluster/state', (req, res) => {
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res);
-            // @ts-expect-error
+            const requestHandler = handleTerasliceRequest(req, res);
             requestHandler(() => this.clusterService.getClusterState());
         });
 
         v1routes.route('/assets{*splat}')
             .delete((req, res) => {
-                assetRedirect(req as TerasliceRequest, res);
+                assetRedirect(req, res);
             })
             .post((req, res) => {
                 if (req.headers['content-type'] === 'application/json' || req.headers['content-type'] === 'application/x-www-form-urlencoded') {
                     sendError(res, 400, '/asset endpoints do not accept json');
                     return;
                 }
-                assetRedirect(req as TerasliceRequest, res);
+                assetRedirect(req, res);
             })
-            // @ts-expect-error
             .get(assetRedirect);
 
         v1routes.post('/jobs', (req, res) => {
@@ -273,15 +270,15 @@ export class ApiService {
             const jobSpec = req.body;
             const shouldRun = `${start}` !== 'false';
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Job submission failed');
+            const requestHandler = handleTerasliceRequest(req, res, 'Job submission failed');
             requestHandler(() => jobsService.submitJob(jobSpec, shouldRun));
         });
 
         v1routes.get('/jobs', (req, res) => {
             const { active = '', deleted = 'false', ex } = req.query;
-            const { size, from, sort, filter } = getSearchOptions(req as TerasliceRequest);
+            const { size, from, sort, filter } = getSearchOptions(req);
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of jobs');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not retrieve list of jobs');
             requestHandler(() => {
                 validateGetDeletedOption(deleted as string);
 
@@ -298,8 +295,7 @@ export class ApiService {
         v1routes.get('/jobs/:jobId', (req, res) => {
             const { ex } = req.query;
             const { jobId } = req.params;
-            // @ts-expect-error
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve job');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not retrieve job');
             typeof ex === 'string'
                 ? requestHandler(async () => this.jobsService.getJobWithExInfo(jobId, ex.split(',')))
                 : requestHandler(async () => this.jobsStorage.get(jobId));
@@ -313,37 +309,32 @@ export class ApiService {
                 sendError(res, 400, `no data was provided to update job ${jobId}`);
                 return;
             }
-            // @ts-expect-error
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not update job');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not update job');
             requestHandler(async () => jobsService.updateJob(jobId, jobSpec));
         });
 
         v1routes.get('/jobs/:jobId/ex', (req, res) => {
             const { jobId } = req.params;
-            // @ts-expect-error
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of execution contexts');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not retrieve list of execution contexts');
             requestHandler(async () => jobsService.getLatestExecution(jobId));
         });
 
         v1routes.post('/jobs/:jobId/_active', (req, res) => {
             const { jobId } = req.params;
-            // @ts-expect-error
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, `Could not change active to 'true' for job: ${jobId}`);
+            const requestHandler = handleTerasliceRequest(req, res, `Could not change active to 'true' for job: ${jobId}`);
             requestHandler(async () => jobsService.setActiveState(jobId, true));
         });
 
         v1routes.post('/jobs/:jobId/_inactive', (req, res) => {
             const { jobId } = req.params;
-            // @ts-expect-error
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, `Could not change active to 'false' for job: ${jobId}`);
+            const requestHandler = handleTerasliceRequest(req, res, `Could not change active to 'false' for job: ${jobId}`);
             requestHandler(async () => jobsService.setActiveState(jobId, false));
         });
 
         v1routes.post('/jobs/:jobId/_start', (req, res) => {
             const { jobId } = req.params;
-            // @ts-expect-error
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, `Could not start job: ${jobId}`);
+            const requestHandler = handleTerasliceRequest(req, res, `Could not start job: ${jobId}`);
             requestHandler(async () => jobsService.startJob(jobId));
         });
 
@@ -354,9 +345,9 @@ export class ApiService {
                 force = false
             } = req.query as unknown as { timeout: number; blocking: boolean; force: boolean };
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not stop execution');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not stop execution');
             requestHandler(async () => {
-                const exId = await this._getExIdFromRequest(req as TerasliceRequest);
+                const exId = await this._getExIdFromRequest(req);
 
                 await executionService.stopExecution(exId, { timeout, force });
 
@@ -374,33 +365,31 @@ export class ApiService {
         });
 
         v1routes.post(['/jobs/:jobId/_pause', '/ex/:exId/_pause'], (req, res) => {
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not pause execution');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not pause execution');
             requestHandler(async () => {
-                const exId = await this._getExIdFromRequest(req as TerasliceRequest);
+                const exId = await this._getExIdFromRequest(req);
                 return executionService.pauseExecution(exId);
             });
         });
 
         v1routes.post(['/jobs/:jobId/_resume', '/ex/:exId/_resume'], (req, res) => {
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not resume execution');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not resume execution');
             requestHandler(async () => {
-                const exId = await this._getExIdFromRequest(req as TerasliceRequest);
+                const exId = await this._getExIdFromRequest(req);
                 return executionService.resumeExecution(exId);
             });
         });
 
         v1routes.delete('/jobs/:jobId', (req, res) => {
             const { jobId } = req.params;
-            // @ts-expect-error
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not delete job');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not delete job');
             requestHandler(async () => jobsService.softDeleteJob(jobId));
         });
 
         v1routes.post('/jobs/:jobId/_recover', (req, res) => {
             const cleanupType = req.query.cleanup_type || req.query.cleanup;
             const { jobId } = req.params;
-            // @ts-expect-error
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not recover job');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not recover job');
             requestHandler(async () => {
                 validateCleanupType(cleanupType as RecoveryCleanupType);
                 return jobsService.recoverJob(jobId, cleanupType as RecoveryCleanupType);
@@ -410,8 +399,7 @@ export class ApiService {
         v1routes.post('/ex/:exId/_recover', (req, res) => {
             const cleanupType = req.query.cleanup_type || req.query.cleanup;
             const { exId } = req.params;
-            // @ts-expect-error
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not recover execution');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not recover execution');
             requestHandler(async () => {
                 validateCleanupType(cleanupType as RecoveryCleanupType);
                 return executionService.recoverExecution(exId, cleanupType as RecoveryCleanupType);
@@ -419,11 +407,9 @@ export class ApiService {
         });
 
         v1routes.post('/jobs/:jobId/_settings', (req, res) => {
-            // @ts-expect-error
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not update dynamic job settings');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not update dynamic job settings');
             requestHandler(async () => {
-                // @ts-expect-error
-                const exId = await this._getExIdFromRequest(req as TerasliceRequest);
+                const exId = await this._getExIdFromRequest(req);
                 const { log_level } = req.query;
                 return executionService.setLogLevel(exId, log_level as string);
             });
@@ -432,9 +418,9 @@ export class ApiService {
         v1routes.post(['/jobs/:jobId/_workers', '/ex/:exId/_workers'], (req, res) => {
             const { query } = req;
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not change workers count');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not change workers count');
             requestHandler(async () => {
-                const exId = await this._getExIdFromRequest(req as TerasliceRequest);
+                const exId = await this._getExIdFromRequest(req);
                 const result = await this._changeWorkers(exId, query);
                 return { message: `${result.workerNum} workers have been ${result.action} for execution: ${result.ex_id}` };
             });
@@ -446,9 +432,9 @@ export class ApiService {
             '/ex/:exId/slicer',
             '/ex/:exId/controller'
         ], (req, res) => {
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get slicer statistics');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get slicer statistics');
             requestHandler(async () => {
-                const exId = await this._getExIdFromRequest(req as TerasliceRequest);
+                const exId = await this._getExIdFromRequest(req);
                 return this._controllerStats(exId);
             });
         });
@@ -458,11 +444,11 @@ export class ApiService {
             '/ex/:exId/errors',
             '/ex/errors',
         ], (req, res) => {
-            const { size, from, sort, filter } = getSearchOptions(req as TerasliceRequest);
+            const { size, from, sort, filter } = getSearchOptions(req);
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get errors for job');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get errors for job');
             requestHandler(async () => {
-                const exId = await this._getExIdFromRequest(req as TerasliceRequest, true);
+                const exId = await this._getExIdFromRequest(req, true);
                 const query = addFilterToQuery(
                     `state:error AND ex_id:"${exId}"`,
                     filter as string
@@ -473,9 +459,9 @@ export class ApiService {
 
         v1routes.get('/ex', (req, res) => {
             const { status = '', deleted = 'false' } = req.query;
-            const { size, from, sort, filter } = getSearchOptions(req as TerasliceRequest);
+            const { size, from, sort, filter } = getSearchOptions(req);
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not retrieve list of execution contexts');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not retrieve list of execution contexts');
             requestHandler(async () => {
                 validateGetDeletedOption(deleted as string);
                 const statuses = parseList(status);
@@ -496,24 +482,21 @@ export class ApiService {
 
         v1routes.get('/ex/:exId', (req, res) => {
             const { exId } = req.params;
-            // @ts-expect-error
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, `Could not retrieve execution context ${exId}`);
+            const requestHandler = handleTerasliceRequest(req, res, `Could not retrieve execution context ${exId}`);
             requestHandler(async () => executionService.getExecutionContext(exId));
         });
 
         v1routes.get('/cluster/stats', (req, res) => {
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get cluster statistics');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get cluster statistics');
             requestHandler(async () => {
                 const stats = executionService.getClusterAnalytics();
 
-                // for backwards compatibility
-                // @ts-expect-error
-                stats.slicer = stats.controllers;
-                return stats;
+                // `slicer` is the legacy alias for `controllers`, kept for backwards compatibility
+                return { ...stats, slicer: stats.controllers };
             });
         });
         v1routes.get(['/cluster/slicers', '/cluster/controllers'], (req, res) => {
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get execution statistics');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get execution statistics');
             requestHandler(() => this._controllerStats());
         });
 
@@ -522,11 +505,10 @@ export class ApiService {
         this.app.use('/v1', v1routes);
 
         this.app.route('/txt/assets{*splat}')
-        // @ts-expect-error
             .get(assetRedirect);
 
         this.app.get('/txt/workers', (req, res) => {
-            const { size, from } = getSearchOptions(req as TerasliceRequest);
+            const { size, from } = getSearchOptions(req);
             let defaults: string[];
             if (this.clusterType === 'native') {
                 defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
@@ -536,18 +518,18 @@ export class ApiService {
                 defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pod_name', 'image'];
             }
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all workers');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get all workers');
             requestHandler(async () => {
                 const workers = await executionService.findAllWorkers() as Record<string, any>[];
-                return makeTable(req as TerasliceRequest, defaults, workers.slice(from, size));
+                return makeTable(req, defaults, workers.slice(from, size));
             });
         });
 
         this.app.get('/txt/nodes', (req, res) => {
-            const { size, from } = getSearchOptions(req as TerasliceRequest);
+            const { size, from } = getSearchOptions(req);
             const defaults = ['node_id', 'state', 'hostname', 'total', 'active', 'pid', 'teraslice_version', 'node_version'];
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all nodes');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get all nodes');
             requestHandler(async () => {
                 const nodes = await clusterService.getClusterState();
 
@@ -559,17 +541,17 @@ export class ApiService {
                         { active: node.active.length }
                     ));
 
-                return makeTable(req as TerasliceRequest, defaults, transform);
+                return makeTable(req, defaults, transform);
             });
         });
 
         this.app.get('/txt/jobs', (req, res) => {
             const { active = '', deleted = 'false' } = req.query;
-            const { size, from, sort, filter } = getSearchOptions(req as TerasliceRequest);
+            const { size, from, sort, filter } = getSearchOptions(req);
 
             const defaults = ['job_id', 'name', 'active', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all jobs');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get all jobs');
             requestHandler(async () => {
                 validateGetDeletedOption(deleted as string);
 
@@ -585,17 +567,17 @@ export class ApiService {
                     query, from, size, sort as string
                 ) as Record<string, any>[];
 
-                return makeTable(req as TerasliceRequest, defaults, jobs);
+                return makeTable(req, defaults, jobs);
             });
         });
 
         this.app.get('/txt/ex', (req, res) => {
             const { deleted = 'false' } = req.query;
-            const { size, from, sort, filter } = getSearchOptions(req as TerasliceRequest);
+            const { size, from, sort, filter } = getSearchOptions(req);
 
             const defaults = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all executions');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get all executions');
 
             requestHandler(async () => {
                 validateGetDeletedOption(deleted as string);
@@ -612,12 +594,12 @@ export class ApiService {
                     query, from, size, sort as string
                 ) as Record<string, any>[];
 
-                return makeTable(req as TerasliceRequest, defaults, exs);
+                return makeTable(req, defaults, exs);
             });
         });
 
         this.app.get(['/txt/slicers', '/txt/controllers'], (req, res) => {
-            const { size, from } = getSearchOptions(req as TerasliceRequest);
+            const { size, from } = getSearchOptions(req);
 
             const defaults = [
                 'name',
@@ -629,10 +611,10 @@ export class ApiService {
                 'processed'
             ];
 
-            const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get all execution statistics');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get all execution statistics');
             requestHandler(async () => {
                 const stats = await this._controllerStats();
-                return makeTable(req as TerasliceRequest, defaults, stats.slice(from, size));
+                return makeTable(req, defaults, stats.slice(from, size));
             });
         });
 
