@@ -23,10 +23,12 @@ declare global {
 }
 
 /**
- * Aliases kept for readability at call sites; `any` params let route handlers
- * with typed params (e.g. `Request<{ jobId: string }>`) pass without casting.
+ * Aliases kept for readability at call sites. The `P` generic forwards to
+ * express `Request`'s route-params type, so handlers can express typed params
+ * (e.g. `TerasliceRequest<{ jobId: string }>`) while defaulting to `any` lets
+ * untyped handlers pass without casting.
  */
-export type TerasliceRequest = Request<any>;
+export type TerasliceRequest<P = any> = Request<P>;
 
 export type TerasliceResponse = Response;
 
