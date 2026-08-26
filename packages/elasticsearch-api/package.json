@@ -33,11 +33,11 @@
     "dependencies": {
         "@terascope/core-utils": "workspace:~",
         "@terascope/types": "workspace:~",
-        "setimmediate": "~1.0.5"
+        "setimmediate": "catalog:"
     },
     "devDependencies": {
-        "@jest/globals": "^30.4.1",
-        "@opensearch-project/opensearch": "~1.2.0",
+        "@jest/globals": "catalog:",
+        "@opensearch-project/opensearch": "catalog:",
         "@terascope/opensearch-client": "workspace:~"
     },
     "engines": {

@@ -30,7 +30,7 @@
         "@terascope/types": "workspace:~"
     },
     "devDependencies": {
-        "jest-extended": "~7.0.0"
+        "jest-extended": "catalog:"
     },
     "engines": {
         "node": ">=22.0.0",

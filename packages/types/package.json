@@ -25,10 +25,10 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../types --"
     },
     "dependencies": {
-        "prom-client": "~15.1.3"
+        "prom-client": "catalog:"
     },
     "devDependencies": {
-        "jest-extended": "~7.0.0"
+        "jest-extended": "catalog:"
     },
     "engines": {
         "node": ">=22.0.0",

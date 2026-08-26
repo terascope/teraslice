@@ -33,14 +33,14 @@
         "@terascope/data-types": "workspace:~",
         "@terascope/opensearch-client": "workspace:~",
         "@terascope/types": "workspace:~",
-        "ajv": "~8.20.0",
-        "ajv-formats": "~3.0.1",
-        "setimmediate": "~1.0.5",
-        "uuid": "~14.0.2",
+        "ajv": "catalog:",
+        "ajv-formats": "catalog:",
+        "setimmediate": "catalog:",
+        "uuid": "catalog:",
         "xlucene-translator": "workspace:~"
     },
     "devDependencies": {
-        "jest-extended": "~7.0.0"
+        "jest-extended": "catalog:"
     },
     "engines": {
         "node": ">=22.0.0",

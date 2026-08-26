@@ -31,14 +31,14 @@
         "@terascope/core-utils": "workspace:~",
         "@terascope/data-types": "workspace:~",
         "@terascope/types": "workspace:~",
-        "opensearch1": "npm:@opensearch-project/opensearch@~1.2.0",
-        "opensearch2": "npm:@opensearch-project/opensearch@~2.12.0",
-        "opensearch3": "npm:@opensearch-project/opensearch@~3.5.1",
-        "setimmediate": "~1.0.5"
+        "opensearch1": "catalog:",
+        "opensearch2": "catalog:",
+        "opensearch3": "catalog:",
+        "setimmediate": "catalog:"
     },
     "devDependencies": {
-        "@jest/globals": "^30.4.1",
-        "jest-extended": "~7.0.0"
+        "@jest/globals": "catalog:",
+        "jest-extended": "catalog:"
     },
     "engines": {
         "node": ">=22.0.0",
