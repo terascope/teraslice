@@ -24,6 +24,7 @@ so the work is versioned while the branch is alive. It is still **not** in `.git
 | **what a checkpoint BUYS, per operation** | **§THE CHECKPOINT PAYBACK, PER OPERATION** |
 | **SQL emission: what is promoted, guarded, rejected** | **`sql-emission.md`** — read it before adding one |
 | **the air-gapped S3 perf image, and how to run it** | **`s3-perf/README.md`** — Dockerfile.duckperf at the repo root |
+| **the 100M/1B/10B query fixtures, and why they are 106 MB/million** | **`s3-perf/fixtures/README.md`** — and §3c |
 | **the 2026-08-25 storage report — formats, break-even, layout, S3, memory** | **`PERFORMANCE.md` §THE 2026-08-25 REPORT MEASUREMENTS** — the current tables, and four recorded claims it retires |
 | **why a Parquet query can OOM, and when** | **`PERFORMANCE.md` §7** — one shape of fifteen; threads x row-group x columns, NOT dataset size |
 | **the 2026-08-20 scale + UDF measurements** | **§THE 2026-08-20 MEASUREMENTS — SUMMARY** |
@@ -964,6 +965,53 @@ in the hostname.
 **Cost of the real thing, over TLS:** frame `size()` is ~50 ms against ~5 ms on local minio. That is
 TLS handshake plus RGW plus emulation, not a defect — but it means **numbers taken against minio are
 not comparable to numbers taken against Ceph.** Record which one produced any figure.
+
+#### 3c. THE QUERY FIXTURES — 100M / 1B GENERATED 2026-08-27, 10B PROJECTED
+
+**`docs/s3-perf/fixtures/`, read its README.** Deterministic Parquet corpora for the query
+battery, one file per scale, generated entirely inside DuckDB from `range(n)` — the JS record
+generator is right for a 5M-row comparison and unreachable at 1B rows at any price. Same 30
+columns and the same DuckDB types as `bench/comparison/lib/generate.js`'s `CONFIG`, so numbers
+stay comparable.
+
+| scale | size | generation | row groups | footer read |
+|---|---|---|---|---|
+| 100m | **10.34 GB** | 186 s | 814 | 12.5 ms |
+| 1b | **103.45 GB** | 31 min | 8,139 | **129.2 ms** |
+| 10b | ~1.03 TB *(projected)* | ~5.2 h | ~81,400 | ~1.25 s |
+
+**THE 28 MB/MILLION IN `PERFORMANCE.md` IS A GENERATOR ARTEFACT, NOT A PROPERTY OF THE DATA.**
+These fixtures measure **~106 MB/million** — 3.8x larger. The recorded figure came from a
+generator built on `i % N` and linear sequences, and §DO NOT already noted that such a generator
+compresses ~2x better than real data. **The tell was printed in the report's own table:** 29.21,
+28.14, 28.11, 28.02, 28.01 MB/million across a **1000x** range of scales. A compression ratio that
+constant means every row is equally novel — what a periodic generator produces and real data never
+does. Same family as §0.8 and §0.11: *a suspiciously constant number between two columns IS the
+finding.* **Any size or throughput figure derived from the old corpus is optimistic by roughly
+4x.** Query TIMINGS are less affected, but the I/O-bound shapes are.
+
+**PARQUET DICTIONARIES ARE SCOPED TO THE ROW GROUP, NOT THE FILE** (measured, one VARCHAR column
+over 1M rows): 100 distinct values costs 0.9 bytes/row, 122,880 (one row group) costs 4.0, and
+1,000,000 costs only 4.3. Nearly all the compression benefit is consumed by the time cardinality
+reaches the row-group size. That is why bytes/row is flat across scales for **both** generators,
+and why dropping `email` from 1e9 to 2e6 distinct changed the total by under 8%. **Raw cardinality
+is the wrong lever; row-level LOCALITY is the right one.**
+
+**The selectivity check caught a real defect on its first run:** `email LIKE 'user1%'` measured
+**55.6%** against an intended 10%, because with a variable-width number the range
+1,000,000-1,999,999 is half the values on its own. Fixed-width zero-padded digits over a full
+decade make the leading digit uniform. `inspect-fixture.mjs` re-checks all five battery predicates,
+and they must stay stable across regenerations or the benchmark quietly changes meaning.
+
+**Layout:** one bucket, prefix per scale, versioned — `s3://<bucket>/v1/<scale>/`. A flat bucket is
+a **correctness hazard**, not untidy: `S3_GLOB` defaults to `**/*.parquet`, which would match every
+fixture at once and answer a "100M" question with 11.1B rows. `FIXTURE=100m|1b|10b` sets the prefix,
+so one word switches the harness between scales.
+
+**10B is not generatable on a 1 TB workstation** alongside the other scales. Generate it straight to
+S3 (`--out s3://...`), which never lands it locally. The generator already raises
+`s3_uploader_max_filesize`, which **DuckDB defaults to 800 GB** — a ~1.03 TB object would otherwise
+fail the write after five hours.
 
 #### 4. Measure the residue before writing any native code
 

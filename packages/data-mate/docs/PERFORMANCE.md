@@ -22,6 +22,26 @@ Both engines are given **identical records** from a seeded generator, and every 
 > uses 5.4x less memory. High-cardinality columns are unaffected. **Re-run after adding the checkpoint
 > before quoting these numbers externally.** See `HANDOFF.md` §THE 2026-08-18 MEASUREMENTS.
 
+> ## ⚠ THE 28 MB/MILLION FIGURE BELOW IS A GENERATOR ARTEFACT (added 2026-08-27)
+>
+> Every size and bytes-per-row number in this file comes from
+> `bench/comparison/lib/generate.js`, which builds values with `i % N` and linear sequences.
+> **The query fixtures built 2026-08-27 measure ~106 MB/million — 3.8x larger.**
+>
+> The tell is in this file's own format table: **29.21, 28.14, 28.11, 28.02, 28.01 MB/million
+> across a 1000x range of scales.** A compression ratio that constant means every row is equally
+> novel, which is what a periodic generator produces and what real data never does. `HANDOFF.md`
+> §DO NOT had already recorded that this generator compresses ~2x better than real data; the
+> fixtures put the factor nearer 4x.
+>
+> **Treat every SIZE, disk-footprint and bytes-on-the-wire figure here as optimistic by roughly
+> 4x.** Query TIMINGS are less affected, but the I/O-bound shapes are affected in the same
+> direction. Ratios BETWEEN formats measured on the same corpus remain valid — both sides carry
+> the same error.
+>
+> Corpus details and the row-group dictionary law: `s3-perf/fixtures/README.md`, and
+> `HANDOFF.md` §3c.
+
 ## THE 2026-08-25 REPORT MEASUREMENTS — READ THIS SECTION FIRST
 
 Run to answer five questions for a boss-facing report (published artifact:

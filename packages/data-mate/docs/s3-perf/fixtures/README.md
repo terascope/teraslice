@@ -71,15 +71,31 @@ regenerates byte-identically on any machine.
 
 ## Sizes — measured, not estimated
 
-**107.1 MB per million rows**, measured at both 1M and 10M and flat between them.
+**~106 MB per million rows** — 105.96 at 1M, 107.10 at 10M, 105.93 at 100M and
+105.78 at 1B. Flat across a 1000x range, for the reason under "Why cardinality
+barely moves the number" below.
 
-| scale | rows | size | note |
-|---|---|---|---|
-| 1m | 1,000,000 | 0.11 GB | smoke test |
-| 10m | 10,000,000 | 1.05 GB | smoke test |
-| **100m** | 100,000,000 | **~10.7 GB** | |
-| **1b** | 1,000,000,000 | **~107 GB** | |
-| **10b** | 10,000,000,000 | **~1.07 TB** | **needs a TB of free space** |
+| scale | rows | size | generation | row groups | footer read |
+|---|---|---|---|---|---|
+| 1m | 1,000,000 | 0.11 GB | 2 s | 9 | <1 ms |
+| 10m | 10,000,000 | 1.05 GB | 19 s | 82 | ~2 ms |
+| **100m** | 100,000,000 | **10.34 GB** | **186 s** | 814 | **12.5 ms** |
+| **1b** | 1,000,000,000 | **103.45 GB** | **1,857 s** (31 min) | 8,139 | **129.2 ms** |
+| **10b** | 10,000,000,000 | **~1.03 TB** *(projected)* | ~5.2 h | ~81,400 | ~1.25 s |
+
+100M and 1B are measured. 10B is projected from them, and the projection is
+trustworthy: the 1B footer read was predicted at ~125 ms and measured 129.2 ms.
+
+**The footer column is the cost of the single-file choice.** The whole footer is
+parsed to plan ANY query, `count(*)` included, before a single value is read. At
+10B that is roughly 1.25 s on every query. Reported, not editorialised — one file
+per scale was the requirement, and it is the right call for fixture data that has
+to be shipped and mirrored. It is simply worth knowing what it costs.
+
+**10B does not fit on a 1 TB workstation** alongside the other scales. Generate it
+STRAIGHT TO S3 (`--out s3://...`), which never lands it on local disk. The
+generator already raises `s3_uploader_max_filesize` — DuckDB defaults that to
+**800 GB**, and a ~1.03 TB object would otherwise fail the write after five hours.
 
 ### Why not 28 MB/million, as the report recorded
 
