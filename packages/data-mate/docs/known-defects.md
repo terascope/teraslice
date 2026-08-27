@@ -352,7 +352,7 @@ Single-key sorts are unaffected — the loop exits on the first key either way.
 
 ---
 
-## DuckFrame defects found while building the SQL-vs-UDF dispatch (2026-08-19, DF10-DF11 on 2026-08-21)
+## DuckFrame defects found while building the SQL-vs-UDF dispatch (2026-08-19, DF10-DF11 on 2026-08-21, DF12 on 2026-08-26, DF13 on 2026-08-27)
 
 Both were found by `test/duck-frame/sql-emission-spec.ts`, which runs a function through the adapter
 twice - as SQL and as its own UDF - and requires the two to agree. Neither is caused by the emissions;
@@ -780,3 +780,68 @@ one, which is what `sql-emission.md` meant to say. A string function that *retur
 hits the same strip on the way back through a UDF result, so an emission and its UDF can still
 disagree on such a value; no promoted function has been observed to produce one.
 
+
+### DF13. Over TLS with a private CA, every `rows()` call fails while `size()` succeeds — `ca_cert_file` is CONNECTION-scoped
+
+**Found 2026-08-27**, against minio serving HTTPS with a private CA (a stand-in for Ceph RGW),
+using the `s3-perf` harness. It would have surfaced first in the air-gapped test environment.
+
+**The symptom is misleading.** With `SET ca_cert_file = '/path/ca.pem'` applied to the frame's
+database, some frame operations work and some do not:
+
+| operation | result |
+|---|---|
+| `size()` | **OK** |
+| `select([...]) + size()` | **OK** |
+| `distinct() + size()` | **OK** |
+| `limit(100).rows()` | **FAILS** — `IO Error: SSL peer certificate or SSH remote key was not OK` |
+| `orderBy(...).limit(100).rows()` | **FAILS**, same |
+| `rows()` (full drain) | **FAILS**, same |
+
+Reading that table, the natural conclusion is a credentials or permissions problem specific to
+streaming. It is not. **The split is exactly "does this operation open a NEW connection".**
+
+**The cause, measured.** Two DuckDB settings that look alike have different scopes:
+
+| | scope | survives a new connection? |
+|---|---|---|
+| `CREATE SECRET` (the S3 credentials) | **instance** | **yes** |
+| `SET ca_cert_file` | **connection** | **no** — a new connection sees `""` |
+
+`DuckFrame.rows()` takes its own connection by design (the documented reason: a connection cannot
+hold an open streaming result while another query runs on it, and it fails SILENTLY with a short
+result). `append()` does too, for the transaction reason. So the credentials carry over to those
+connections and the certificate does not, and the first HTTPS read on the new connection fails.
+
+Verified directly — `SELECT current_setting('ca_cert_file')` on a second connection returns `""`
+after a plain `SET`, and the same query that succeeds on connection 1 fails on connection 2.
+
+**The fix, both verified:**
+
+```sql
+SET GLOBAL ca_cert_file = '/path/ca.pem'   -- new connections inherit it
+```
+
+or set it at instance creation:
+
+```js
+DuckDBInstance.create(path, { ca_cert_file: '/path/ca.pem' })
+```
+
+`s3-perf` uses `SET GLOBAL` in both `lib/duck.mjs` and, through `frame.query()`, in
+`scripts/05-duckframe.mjs`.
+
+**Why this is a data-mate defect and not just a harness bug.** `configureDuckDatabase` accepts
+`{ database, tempDirectory, maxTempDirectorySize, memoryLimit, threads }` and **has no way to express
+any S3 or TLS setting**. A caller therefore has to reach through `frame.query()` — the escape hatch —
+and must independently know that `ca_cert_file` needs `SET GLOBAL` while `CREATE SECRET` does not.
+Any spaces deployment reading Parquet from an HTTPS endpoint with a private or internal CA hits this,
+and the symptom points away from the cause.
+
+**Suggested fix:** extend `configureDuckDatabase` to carry the remote-storage settings
+(`ca_cert_file` at minimum) and apply them with `SET GLOBAL`, or apply them as create-time options on
+the instance so no connection can miss them.
+
+**Not affected:** plain HTTP endpoints, and public TLS endpoints whose certificate chains to the
+system CA store — neither needs `ca_cert_file` at all. That is why the local minio testing over plain
+HTTP never showed it.

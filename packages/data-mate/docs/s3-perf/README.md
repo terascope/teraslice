@@ -61,8 +61,16 @@ is commented in place. The ones that matter:
 Mount a CA certificate with:
 
 ```bash
-docker run -v /path/to/ca.pem:/app/config/ca.pem:ro ...
+docker run -v /path/to/ca.pem:/app/config/ca.pem:ro \
+           -e CA_CERT_FILE=/app/config/ca.pem ...
 ```
+
+**The certificate must match the hostname in `S3_ENDPOINT`** — its SAN, not just its CN. Connecting
+by IP to a certificate issued for a DNS name fails, so use the name the certificate was issued for
+and make sure the container can resolve it.
+
+TLS with a private CA is tested: the full suite passes against an HTTPS endpoint whose certificate
+chains to a generated private CA. That test found DF13 — see the troubleshooting table.
 
 Any setting can be overridden for one run without editing the file:
 
@@ -185,7 +193,8 @@ Scripts diagnose their own errors, but for reference:
 | symptom | cause |
 |---|---|
 | `SignatureDoesNotMatch`, `403` | wrong keys — **or `S3_URL_STYLE=vhost` where Ceph wants `path`** |
-| `certificate verify failed` | private CA. Mount the PEM, set `CA_CERT_FILE` |
+| `SSL peer certificate ... was not OK` | private CA. Mount the PEM, set `CA_CERT_FILE` |
+| **`size()` works but every `rows()` fails on TLS** | `ca_cert_file` is CONNECTION-scoped and `rows()` opens its own connection. The harness already uses `SET GLOBAL`; if you hit this in your own code, that is the fix. See `known-defects.md` DF13 |
 | `NoSuchBucket`, empty glob | wrong `S3_BUCKET`/`S3_PREFIX`, or objects are not `*.parquet` (see `S3_GLOB`) |
 | `Connection error` / timeout | wrong `S3_ENDPOINT`, unreachable host, or a proxy is needed |
 | `Extension ... autoload` error | an extension is missing from the image — it cannot be fetched here. Rebuild |

@@ -906,9 +906,33 @@ docker buildx build --platform linux/amd64 -f Dockerfile.duckperf \
   --tag harbor.tera4.lan/dev/terascope/teraslice:3.17.2-node24-test --load .
 ```
 
-**Still to confirm against the real Ceph endpoint:** TLS with a private CA (`CA_CERT_FILE` is wired
-and validated but has only been exercised against plain HTTP), and whether Ceph needs anything
-beyond `S3_URL_STYLE=path`.
+**TLS WITH A PRIVATE CA IS NOW TESTED, AND IT FOUND A REAL DEFECT — DF13.** Verified 2026-08-27
+against minio serving HTTPS with a generated private CA (a stand-in for Ceph RGW, on a docker network
+so the certificate's SAN hostname resolves). The full suite passes over TLS.
+
+**What it caught.** With a plain `SET ca_cert_file`, `size()`, `select()` and `distinct()` all
+succeed while **every `rows()` call fails** with `SSL peer certificate ... was not OK`. The split is
+exactly "does this operation open a NEW connection":
+
+| | scope | survives a new connection? |
+|---|---|---|
+| `CREATE SECRET` (credentials) | **instance** | **yes** |
+| `SET ca_cert_file` | **connection** | **NO** — a new connection sees `""` |
+
+`rows()` takes its own connection by design, so credentials carry over and the certificate does not —
+and the symptom reads as a credentials fault. **Fix: `SET GLOBAL ca_cert_file`**, or pass
+`ca_cert_file` as a create-time instance option. Both verified. Full write-up in `known-defects.md`
+DF13, including why it is a data-mate defect: `configureDuckDatabase` cannot express any S3 or TLS
+setting, so a caller must reach through `frame.query()` AND know which settings need `SET GLOBAL`.
+
+**Also proved:** the doctor's TLS diagnosis fires correctly — without the CA it names the private-CA
+case and points at `CA_CERT_FILE` rather than printing a raw OpenSSL error.
+
+**Still not confirmed against a REAL Ceph RGW:** its S3 dialect — listing (`list-type=2`), signature
+handling, and whether it needs anything beyond `S3_URL_STYLE=path`. Residual risk is low (minio
+speaks the same protocol and `doctor` surfaces auth and listing faults immediately with a diagnosis),
+and standing up a real cluster is a much larger lift than the TLS test was — `quay.io/ceph/demo` is
+amd64-only here, so it would run under emulation.
 
 #### 4. Measure the residue before writing any native code
 

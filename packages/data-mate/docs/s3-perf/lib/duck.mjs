@@ -90,7 +90,20 @@ export async function open(overrides = {}) {
 
     // --- endpoint ---
     await applyCredentials(connection);
-    if (config.caCertFile) await connection.run(`SET ca_cert_file = '${config.caCertFile}'`);
+    /*
+     * SET GLOBAL, not SET. `ca_cert_file` is CONNECTION-scoped: a plain `SET`
+     * leaves any connection opened later seeing `""`, and its first HTTPS read
+     * fails with "SSL peer certificate ... was not OK". That is not theoretical
+     * — it is exactly how `DuckFrame.rows()` broke against a private-CA
+     * endpoint, because `rows()` takes its own connection by design.
+     *
+     * `CREATE SECRET` above is instance-scoped and needs no such treatment,
+     * which is why credentials survived and only TLS broke — a confusing
+     * symptom that looked like a credentials problem and was not.
+     */
+    if (config.caCertFile) {
+        await connection.run(`SET GLOBAL ca_cert_file = '${config.caCertFile}'`);
+    }
     await connection.run(`SET http_timeout = ${config.httpTimeout * 1000}`);
     await connection.run(`SET http_retries = ${config.httpRetries}`);
     if (config.proxyHost) {
