@@ -47,6 +47,28 @@ name rather than silently producing an empty glob.
 
 ---
 
+## Where the generated files live
+
+**`~/fixtures/qpl/`** — outside any git repo, and on a durable volume rather than
+`/private/tmp`, which macOS purges on reboot. There is a `README.md` in that
+directory describing what the files are and what to do with them.
+
+```
+~/fixtures/qpl/
+  qpl-fixture-v1-100m.parquet    10.33 GB
+  qpl-fixture-v1-1b.parquet     103.30 GB
+```
+
+They are **not** in the repo and must never be: `.gitignore` is not the guard
+here, distance is. Point the tools at them by path:
+
+```bash
+node fixtures/inspect-fixture.mjs ~/fixtures/qpl/qpl-fixture-v1-1b.parquet
+node fixtures/upload-fixture.mjs --scale 1b --from ~/fixtures/qpl --bucket qpl-fixtures
+```
+
+---
+
 ## Generating
 
 ```bash
