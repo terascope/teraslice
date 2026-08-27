@@ -37,6 +37,43 @@ function parseEnvFile(path) {
 
 const fileValues = parseEnvFile(ENV_FILE);
 
+/**
+ * The fixture scales, and the prefix each one lives under.
+ *
+ * Kept in step with `fixtures/schema.mjs` — that module owns generation and this
+ * one owns reading. They stay separate because the harness must work in the
+ * target environment whether or not anything is ever generated there.
+ */
+const FIXTURE_VERSION = 'v1';
+const FIXTURE_SCALES = ['1m', '10m', '100m', '1b', '10b'];
+
+/**
+ * `S3_PREFIX`, or the prefix implied by `FIXTURE`.
+ *
+ * `FIXTURE=1b` is the convenient form: one word switches the whole harness from
+ * one scale to another. An explicit `S3_PREFIX` always wins, so pointing at real
+ * non-fixture data still works.
+ *
+ * **Why a prefix per scale and not one flat bucket.** `S3_GLOB` defaults to
+ * `**` + `/*.parquet`, which would match EVERY fixture at once if they shared a
+ * prefix — silently answering a "100M" question with 11.1B rows. A prefix makes
+ * that impossible rather than merely unlikely.
+ */
+function resolvePrefix() {
+    const explicit = setting('S3_PREFIX').replace(/^\/+/, '')
+        .replace(/\/+$/, '');
+    if (explicit) return explicit;
+
+    const fixture = setting('FIXTURE').toLowerCase();
+    if (!fixture) return '';
+    if (!FIXTURE_SCALES.includes(fixture)) {
+        throw new Error(
+            `FIXTURE must be one of ${FIXTURE_SCALES.join(', ')}, got "${fixture}" (in ${ENV_FILE})`
+        );
+    }
+    return `${FIXTURE_VERSION}/${fixture}`;
+}
+
 /** Real env wins over the file, so a one-off override needs no edit. */
 function setting(key, fallback = '') {
     const fromEnv = process.env[key];
@@ -77,9 +114,9 @@ export const config = {
     insecureDiagnostic: bool('S3_INSECURE_DIAGNOSTIC', false),
 
     bucket: setting('S3_BUCKET'),
-    prefix: setting('S3_PREFIX').replace(/^\/+/, '')
-        .replace(/\/+$/, ''),
+    prefix: resolvePrefix(),
     glob: setting('S3_GLOB', '**/*.parquet'),
+    fixture: setting('FIXTURE'),
 
     httpTimeout: int('HTTP_TIMEOUT', 30),
     httpRetries: int('HTTP_RETRIES', 3),

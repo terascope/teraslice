@@ -57,6 +57,7 @@ is commented in place. The ones that matter:
 | `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | RGW user keys | |
 | `CA_CERT_FILE` | `/app/config/ca.pem` | only for a private/self-signed CA |
 | `S3_BUCKET` / `S3_PREFIX` | where the objects are | |
+| `FIXTURE` | `100m`, `1b`, `10b` | shorthand that sets `S3_PREFIX` to the fixture's — see `fixtures/README.md` |
 
 Mount a CA certificate with:
 
@@ -82,6 +83,7 @@ Any setting can be overridden for one run without editing the file:
 ```bash
 THREADS=4 ./run.sh battery
 LIMITS=32MiB,64MiB ./run.sh memory
+FIXTURE=1b ./run.sh all          # switch scale with one word
 ```
 
 ---
@@ -273,4 +275,20 @@ s3-perf/
     bake-extensions.mjs    build-time: install the extensions
     build-data-mate.mjs    build-time: build data-mate + its closure
     verify-offline.mjs     build-time: prove the image is self-contained
+    verify-harness.mjs     build-time: prove the harness modules load
+  fixtures/                the 100M/1B/10B corpora — see fixtures/README.md
+    schema.mjs             the 30-column corpus, as one SQL SELECT
+    generate-fixture.mjs   generate one scale, local or straight to S3
+    upload-fixture.mjs     push a local fixture to S3/Ceph, then verify it
+    inspect-fixture.mjs    content, layout cost, and battery selectivity
 ```
+
+---
+
+## 8. Fixtures
+
+The corpora the battery runs against live in `fixtures/`. Read
+`fixtures/README.md` — it covers the bucket layout, how to generate and upload,
+and **why these fixtures are ~106 MB per million rows rather than the 28 MB the
+earlier report recorded** (that figure came from a periodic generator that
+compresses about twice as well as real data).
