@@ -928,11 +928,42 @@ setting, so a caller must reach through `frame.query()` AND know which settings 
 **Also proved:** the doctor's TLS diagnosis fires correctly — without the CA it names the private-CA
 case and points at `CA_CERT_FILE` rather than printing a raw OpenSSL error.
 
-**Still not confirmed against a REAL Ceph RGW:** its S3 dialect — listing (`list-type=2`), signature
-handling, and whether it needs anything beyond `S3_URL_STYLE=path`. Residual risk is low (minio
-speaks the same protocol and `doctor` surfaces auth and listing faults immediately with a diagnosis),
-and standing up a real cluster is a much larger lift than the TLS test was — `quay.io/ceph/demo` is
-amd64-only here, so it would run under emulation.
+**TESTED AGAINST REAL CEPH — 2026-08-27.** Jared asked for the production server rather than a
+stand-in, on the grounds that it might turn up another config error the way the TLS test had. **It
+did.**
+
+`quay.io/ceph/demo` (amd64-only, runs under Rosetta here) brings up **Ceph 19.2.0 squid** — mon, mgr,
+osd, rgw — in about 30 s. RGW was then reconfigured for TLS with the same private CA:
+
+```
+rgw frontends = beast endpoint=0.0.0.0:8080 ssl_endpoint=0.0.0.0:8443 ssl_certificate=/certs/rgw.pem
+```
+
+(the cert and key concatenated into ONE pem, and mounted somewhere OTHER than `/etc/ceph` — the demo
+entrypoint refuses to start if `/etc/ceph` is non-empty). The **full suite passes against real Ceph
+RGW over TLS with a private CA, on both arm64 and the amd64 ship image**, and DuckDB both reads and
+writes Parquet to it.
+
+**What it caught: `S3_URL_STYLE=vhost` was UNDIAGNOSED.** vhost prepends the bucket to the hostname,
+so it fails with `Could not resolve hostname` for
+`https://duck-perf.ceph-rgw.tera4.lan:8443/` — and the harness printed "No specific diagnosis",
+which is precisely the situation it exists to prevent. **vhost is DuckDB's default**, so it is a
+likely first mistake. `explain()` now names it and tells the reader to look at whether the bucket is
+in the hostname.
+
+**Ceph behaviours worth knowing:**
+
+| | |
+|---|---|
+| **region is IGNORED** | a deliberately wrong `S3_REGION` still passes every check. Do not chase region as a cause |
+| **wrong secret AND wrong access key** | both give a flat **403**, indistinguishable from each other |
+| **missing bucket** | **404**, cleanly distinct from the 403s |
+| **ports** | RGW is **8080 plain / 8443 TLS** in this setup, not minio's 9000 |
+| `**` recursive glob, `list-type=2` | work exactly as on minio — no dialect difference found |
+
+**Cost of the real thing, over TLS:** frame `size()` is ~50 ms against ~5 ms on local minio. That is
+TLS handshake plus RGW plus emulation, not a defect — but it means **numbers taken against minio are
+not comparable to numbers taken against Ceph.** Record which one produced any figure.
 
 #### 4. Measure the residue before writing any native code
 
