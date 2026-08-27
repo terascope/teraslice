@@ -138,6 +138,49 @@ the wrong lever.
 
 ---
 
+## What the battery actually costs on these fixtures
+
+Local disk, `memory_limit 12GiB`, warm median of 3. This is the reason the fixture
+needs more than a `count(*)`: the shapes span a **296x range** at 1B.
+
+| query | 100M | 1B |
+|---|---|---|
+| `count(*)` [metadata only] | 13 ms | **138 ms** |
+| search: 2 predicates | 68 ms | 681 ms |
+| search: range + eq | 132 ms | 1.59 s |
+| search: text prefix (`LIKE`) | 224 ms | 2.47 s |
+| search: IN list | 111 ms | 1.13 s |
+| **search: top 100 rows (`SELECT *`)** | **3.67 s** | **40.81 s** |
+| agg: 1 key + 3 aggs | 180 ms | 2.32 s |
+| agg: 2 keys + 3 aggs | 239 ms | 2.92 s |
+| agg: high-card group | 304 ms | 3.26 s |
+| agg: filtered + ordered | 120 ms | 1.56 s |
+| agg: count distinct | 278 ms | 3.01 s |
+| agg: approx distinct | 157 ms | 1.83 s |
+| **agg: quantiles** | **2.28 s** | **29.66 s** |
+| project 1 col | 90 ms | 888 ms |
+| project all cols (`LIMIT 5000`) | 67 ms | 606 ms |
+
+Three things this table says that a single `count(*)` cannot:
+
+- **`count(*)` is answered from the footer and scans nothing.** At 1B it costs
+  138 ms, which is the footer parse and nothing else. Quoting it as "query
+  performance" measures the metadata path only.
+- **Two shapes dominate everything.** The wide top-N (40.81 s) and quantiles
+  (29.66 s) are each an order of magnitude above the rest, and together they are
+  **74% of the battery total**. Any "the battery improved by X%" claim is really a
+  claim about those two — decompose before quoting one.
+- **`LIMIT` without `ORDER BY` is nearly free** (606 ms for all 34 columns), while
+  `LIMIT` *with* `ORDER BY` is the most expensive shape in the set. Same clause,
+  67x apart, because one streams and the other cannot know the top 100 until every
+  row is seen.
+
+Scaling is close to linear 100M→1B on every shape (9-12x for a 10x row count),
+which is the expected result for scan-bound work and a useful check that a
+fixture is behaving.
+
+---
+
 ## Uploading
 
 ```bash
