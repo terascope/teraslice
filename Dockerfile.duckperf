@@ -1,0 +1,156 @@
+# =============================================================================
+# DuckFrame / DuckDB S3 performance test image
+#
+# Purpose: measure DuckDB + DuckFrame query performance against Parquet objects
+# in an S3-compatible store (Ceph RGW in the target environment, minio locally).
+#
+# The target environment has NO INTERNET. Everything DuckDB needs at runtime is
+# baked in at build time, and the image is verified offline during the build.
+#
+# Build (local, this Mac, for testing against local minio):
+#   docker buildx build --platform linux/arm64 \
+#     -f Dockerfile.duckperf --tag duckperf:local --load .
+#
+# Build (the shippable linux/amd64 image):
+#   docker buildx build --platform linux/amd64 \
+#     -f Dockerfile.duckperf \
+#     --tag harbor.tera4.lan/dev/terascope/teraslice:3.17.2-node24-test --load .
+#
+# NOTE the `-f Dockerfile.duckperf`. The plain build command in the harbor docs
+# has no -f and would build the ordinary teraslice image instead.
+#
+# Run:  docker run --rm -it --env-file s3.env duckperf:local
+# =============================================================================
+ARG NODE_VERSION=24
+
+# -----------------------------------------------------------------------------
+# 1) builder — data-mate subtree only, plus the baked DuckDB extensions
+# -----------------------------------------------------------------------------
+FROM node:${NODE_VERSION}-alpine AS builder
+
+ENV NODE_ENV=development \
+    NPM_CONFIG_LOGLEVEL=error \
+    CI=true
+
+# python3/build-base are only needed for any dep that still compiles. They stay
+# in this stage and never reach the runtime image.
+RUN apk --no-cache add ca-certificates bash python3 build-base
+
+WORKDIR /app/source
+RUN corepack enable
+
+# Dep resolution first, for layer caching.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
+COPY packages ./packages
+COPY scripts ./scripts
+COPY types ./types
+
+# Install ONLY data-mate and its workspace dependencies. The trailing `...`
+# means "and everything it depends on". The ROOT project is deliberately NOT
+# included: its devDependencies pull @terascope/scripts, which drags in the
+# kafka and valkey native binaries — irrelevant to DuckDB, and the slowest and
+# most fragile part of a full install.
+#
+# `--ignore-scripts` is deliberate. Even with the filter, pnpm runs install
+# scripts across the whole lockfile, which downloads the kafka and valkey native
+# binaries — `pnpm why @confluentinc/kafka-javascript --filter
+# '@terascope/data-mate...'` returns [], so none of it is reachable from
+# data-mate. Nothing in data-mate's own tree HAS an install script:
+# @duckdb/node-api ships prebuilt binaries with no node-gyp step, and
+# xlucene-parser's engine generation is a `prebuild`, not a lifecycle hook — it
+# is run explicitly below.
+RUN pnpm --version && node --version && \
+    pnpm install --frozen-lockfile --ignore-scripts --filter '@terascope/data-mate...'
+
+# typescript comes from the root only as a devDependency, and the root is not
+# installed above. Install it standalone at the SAME version the repo pins, read
+# out of the root package.json so the two cannot drift.
+RUN npm install -g "typescript@$(node -p "require('/app/source/package.json').devDependencies.typescript")" && \
+    tsc --version
+
+# xlucene-parser generates its engine before any tsc run.
+RUN node ./packages/xlucene-parser/scripts/generate-engine.js
+
+# Build data-mate + its workspace deps, in the root tsconfig's order. The
+# per-package tsconfigs have no `references`, so tsc cannot chase the graph on
+# its own — see the comment in this script. Run it IN PLACE: it derives paths
+# from its own location, so copying it elsewhere breaks it.
+RUN node packages/data-mate/docs/s3-perf/image/build-data-mate.mjs
+
+# NOTE ON IMAGE SIZE (~1.2 GB, of which node_modules is ~550 MB).
+# pnpm's `--filter` governs which projects get LINKED, not what is materialised
+# in the virtual store, so `node_modules/.pnpm` holds the whole workspace —
+# 1,113 packages, @kubernetes/client-node and kafka among them, none reachable
+# from data-mate at runtime. A `--prod` second pass was tried and removed
+# nothing, so it was dropped rather than left in as a no-op build step.
+# `pnpm deploy --filter` would genuinely trim it; it is not worth the risk to
+# the harness's relative-path resolution for a test image.
+
+# Fail the build now, not in the air-gapped box, if dist is not what the
+# harness resolves.
+RUN node -e "import('./packages/data-mate/dist/src/duck-frame/DuckFrame.js').then(m => { \
+      if (typeof m.DuckFrame !== 'function') { throw new Error('dist has no DuckFrame export'); } \
+      console.log('dist ok: DuckFrame present'); })"
+
+# --- bake the DuckDB extensions -------------------------------------------
+#
+# Uses the repo's OWN @duckdb/node-api, so the extension version can never
+# drift from the binding version. Extensions are keyed by DuckDB version AND
+# platform, so this must happen inside a container of the target platform.
+#
+# Only httpfs/aws/inet/spatial are installed. icu, json and parquet are
+# STATICALLY LINKED into the binary — installing them would download a copy
+# that SHADOWS the built-in one, costing ~72 MB for nothing.
+# Installed to DuckDB's DEFAULT directory ($HOME/.duckdb/extensions/...), so
+# every DuckDB instance in the container finds them with no configuration —
+# including the one DuckFrame creates internally, which never sees this
+# harness's settings.
+RUN node packages/data-mate/docs/s3-perf/image/bake-extensions.mjs
+
+# -----------------------------------------------------------------------------
+# 2) runtime
+# -----------------------------------------------------------------------------
+FROM node:${NODE_VERSION}-alpine AS runtime
+
+ARG TERASLICE_VERSION
+ARG BUILD_TIMESTAMP
+ARG GITHUB_SHA
+
+ENV NODE_ENV=production \
+    NPM_CONFIG_LOGLEVEL=error \
+    S3_PERF_HOME=/app/source/packages/data-mate/docs/s3-perf \
+    S3_PERF_ENV_FILE=/app/config/s3.env \
+    S3_PERF_RESULTS=/app/results
+
+# bash for the run scripts, tini for PID1, curl for poking the endpoint by hand
+# over SSH, ca-certificates so a public TLS endpoint works without extra config.
+RUN apk --no-cache add tini bash ca-certificates curl
+
+WORKDIR /app/source
+
+COPY --from=builder /app/source /app/source
+# The baked extensions, at DuckDB's default lookup path. HOME is /root in both
+# stages and no USER switch follows, so the path resolves identically at runtime.
+COPY --from=builder /root/.duckdb /root/.duckdb
+
+# Config and results are volumes so the env file survives a container restart
+# and result JSON can be pulled back off the box over scp.
+RUN mkdir -p /app/config /app/results && \
+    cp /app/source/packages/data-mate/docs/s3-perf/s3.env.example /app/config/s3.env
+
+# --- verify the image is genuinely self-contained ---------------------------
+# This runs with autoinstall/autoload forced OFF, so a network fallback cannot
+# hide a missing extension file. If this line passes, the image works offline.
+RUN node /app/source/packages/data-mate/docs/s3-perf/image/verify-offline.mjs
+
+VOLUME /app/config /app/results
+
+LABEL org.opencontainers.image.title="DuckFrame S3 performance harness" \
+      org.opencontainers.image.description="DuckDB + DuckFrame query performance against S3 Parquet objects. Offline-capable." \
+      org.opencontainers.image.version="$TERASLICE_VERSION" \
+      org.opencontainers.image.created="$BUILD_TIMESTAMP" \
+      org.opencontainers.image.revision="$GITHUB_SHA" \
+      org.opencontainers.image.vendor="Terascope"
+
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["bash", "/app/source/packages/data-mate/docs/s3-perf/help.sh"]

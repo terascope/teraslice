@@ -25,3 +25,12 @@ packages/*/autoload
 packages/*/bench
 
 packages/generator-teraslice
+
+# --- DuckFrame S3 performance harness (Dockerfile.duckperf) ------------------
+# The broad rules above exclude **/*.md, which would strip the harness README
+# and leave the image with no manual — and the target environment is offline
+# and AI-free, so the manual IS the interface. Re-include the whole directory.
+# (Its scripts live in `image/` and `scripts/`, never `build/`, because
+# **/build above would swallow them.)
+!packages/data-mate/docs/s3-perf
+!packages/data-mate/docs/s3-perf/**
