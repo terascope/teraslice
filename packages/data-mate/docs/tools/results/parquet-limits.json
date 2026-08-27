@@ -1,0 +1,1681 @@
+{
+  "rows": 10000000,
+  "nativeBytes": 1181495296,
+  "parquetBytes": 293833919,
+  "limits": [
+    "2GiB",
+    "1GiB",
+    "512MiB",
+    "256MiB",
+    "128MiB"
+  ],
+  "stage1": [
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "count(*)",
+      "failure": null,
+      "total": 274498,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=0 MB",
+      "peakRss": 87326720
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "count(*)",
+      "failure": null,
+      "total": 274498,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=0 MB",
+      "peakRss": 87277568
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "count(*)",
+      "failure": null,
+      "total": 274498,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=0 MB",
+      "peakRss": 87228416
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "count(*)",
+      "failure": null,
+      "total": 274498,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=0 MB",
+      "peakRss": 87638016
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "count(*)",
+      "failure": null,
+      "total": 274498,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=0 MB",
+      "peakRss": 87212032
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "count(*)",
+      "failure": null,
+      "total": 524288,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=1 MB",
+      "peakRss": 85950464
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "count(*)",
+      "failure": null,
+      "total": 524288,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=1 MB",
+      "peakRss": 85917696
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "count(*)",
+      "failure": null,
+      "total": 524288,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=1 MB",
+      "peakRss": 85868544
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "count(*)",
+      "failure": null,
+      "total": 524288,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=1 MB",
+      "peakRss": 86032384
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "count(*)",
+      "failure": null,
+      "total": 524288,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=1 MB",
+      "peakRss": 85590016
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "2 predicates",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 92143616
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "2 predicates",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 92143616
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "2 predicates",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 91930624
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "2 predicates",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 91979776
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "2 predicates",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 91668480
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "2 predicates",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141623296
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "2 predicates",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 142262272
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "2 predicates",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141639680
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "2 predicates",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141918208
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "2 predicates",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 142098432
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "range + eq",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 121339904
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "range + eq",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 115408896
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "range + eq",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 123338752
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "range + eq",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 118800384
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "range + eq",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 118341632
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "range + eq",
+      "failure": null,
+      "total": 68419584,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=65 MB",
+      "peakRss": 156942336
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "range + eq",
+      "failure": null,
+      "total": 68419584,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=65 MB",
+      "peakRss": 156155904
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "range + eq",
+      "failure": null,
+      "total": 68419584,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=65 MB",
+      "peakRss": 157335552
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "range + eq",
+      "failure": null,
+      "total": 68419584,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=65 MB",
+      "peakRss": 156794880
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "range + eq",
+      "failure": null,
+      "total": 68419584,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=65 MB",
+      "peakRss": 157253632
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "text prefix",
+      "failure": null,
+      "total": 602178,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 135823360
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "text prefix",
+      "failure": null,
+      "total": 602178,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 135069696
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "text prefix",
+      "failure": null,
+      "total": 602178,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 135888896
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "text prefix",
+      "failure": null,
+      "total": 602178,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 136134656
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "text prefix",
+      "failure": null,
+      "total": 602178,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 135757824
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "text prefix",
+      "failure": null,
+      "total": 79953920,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=76 MB",
+      "peakRss": 168935424
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "text prefix",
+      "failure": null,
+      "total": 79953920,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=76 MB",
+      "peakRss": 168574976
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "text prefix",
+      "failure": null,
+      "total": 79953920,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=76 MB",
+      "peakRss": 168951808
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "text prefix",
+      "failure": null,
+      "total": 79953920,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=76 MB",
+      "peakRss": 169082880
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "text prefix",
+      "failure": null,
+      "total": 79953920,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=76 MB",
+      "peakRss": 168673280
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "IN list",
+      "failure": null,
+      "total": 938050,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 92471296
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "IN list",
+      "failure": null,
+      "total": 938050,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 92454912
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "IN list",
+      "failure": null,
+      "total": 938050,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 92782592
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "IN list",
+      "failure": null,
+      "total": 938050,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 92094464
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "IN list",
+      "failure": null,
+      "total": 938050,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 92700672
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "IN list",
+      "failure": null,
+      "total": 27525120,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=26 MB",
+      "peakRss": 116457472
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "IN list",
+      "failure": null,
+      "total": 27525120,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=26 MB",
+      "peakRss": 115965952
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "IN list",
+      "failure": null,
+      "total": 27525120,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=26 MB",
+      "peakRss": 115834880
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "IN list",
+      "failure": null,
+      "total": 27525120,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=26 MB",
+      "peakRss": 116310016
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "IN list",
+      "failure": null,
+      "total": 27525120,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=26 MB",
+      "peakRss": 115458048
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "top 100 sorted",
+      "failure": null,
+      "total": 17522754,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=17 MB",
+      "peakRss": 732659712
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "top 100 sorted",
+      "failure": null,
+      "total": 17522754,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=17 MB",
+      "peakRss": 684113920
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "top 100 sorted",
+      "failure": "Out of Memory Error: failed to allocate data of size 2.0 MiB (510.5 MiB/512.0 MiB used)",
+      "total": 0,
+      "temp": 0,
+      "peakTag": null,
+      "peakRss": 468140032
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "top 100 sorted",
+      "failure": "Out of Memory Error: failed to allocate data of size 8.0 MiB (252.8 MiB/256.0 MiB used)",
+      "total": 0,
+      "temp": 0,
+      "peakTag": null,
+      "peakRss": 308953088
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "top 100 sorted",
+      "failure": "Out of Memory Error: failed to allocate data of size 32.0 KiB (128.0 MiB/128.0 MiB used)",
+      "total": 0,
+      "temp": 0,
+      "peakTag": null,
+      "peakRss": 209354752
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "top 100 sorted",
+      "failure": null,
+      "total": 1181483008,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=1127 MB",
+      "peakRss": 1351663616
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "top 100 sorted",
+      "failure": null,
+      "total": 976748544,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=932 MB",
+      "peakRss": 1151041536
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "top 100 sorted",
+      "failure": null,
+      "total": 441712640,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=421 MB",
+      "peakRss": 627507200
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "top 100 sorted",
+      "failure": null,
+      "total": 170655744,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=163 MB",
+      "peakRss": 350945280
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "top 100 sorted",
+      "failure": "Out of Memory Error: failed to allocate data of size 32.0 KiB (127.9 MiB/128.0 MiB used)",
+      "total": 20709376,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=20 MB",
+      "peakRss": 130383872
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "agg 1 key",
+      "failure": null,
+      "total": 1929282,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 139902976
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "agg 1 key",
+      "failure": null,
+      "total": 1929282,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 136871936
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "agg 1 key",
+      "failure": null,
+      "total": 1929282,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 142573568
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "agg 1 key",
+      "failure": null,
+      "total": 1929282,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 140443648
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "agg 1 key",
+      "failure": null,
+      "total": 1929282,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 140656640
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "agg 1 key",
+      "failure": null,
+      "total": 96731136,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=92 MB",
+      "peakRss": 198098944
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "agg 1 key",
+      "failure": null,
+      "total": 96731136,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=92 MB",
+      "peakRss": 197738496
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "agg 1 key",
+      "failure": null,
+      "total": 96731136,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=92 MB",
+      "peakRss": 196689920
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "agg 1 key",
+      "failure": null,
+      "total": 96731136,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=92 MB",
+      "peakRss": 197509120
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "agg 1 key",
+      "failure": null,
+      "total": 96731136,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=92 MB",
+      "peakRss": 197836800
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "agg 2 keys",
+      "failure": null,
+      "total": 2592834,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 143147008
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "agg 2 keys",
+      "failure": null,
+      "total": 2592834,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 145211392
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "agg 2 keys",
+      "failure": null,
+      "total": 2592834,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 150568960
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "agg 2 keys",
+      "failure": null,
+      "total": 2592834,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 144277504
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "agg 2 keys",
+      "failure": null,
+      "total": 2592834,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 147783680
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "agg 2 keys",
+      "failure": null,
+      "total": 110100480,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=105 MB",
+      "peakRss": 216694784
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "agg 2 keys",
+      "failure": null,
+      "total": 110100480,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=105 MB",
+      "peakRss": 215056384
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "agg 2 keys",
+      "failure": null,
+      "total": 110100480,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=105 MB",
+      "peakRss": 216776704
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "agg 2 keys",
+      "failure": null,
+      "total": 110100480,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=105 MB",
+      "peakRss": 216776704
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "agg 2 keys",
+      "failure": null,
+      "total": 86769664,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=83 MB",
+      "peakRss": 212467712
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "agg high-card",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 631324672
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "agg high-card",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 618119168
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "agg high-card",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 620167168
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "agg high-card",
+      "failure": null,
+      "total": 66,
+      "temp": 0,
+      "peakTag": "OBJECT_CACHE=0 MB",
+      "peakRss": 434569216
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "agg high-card",
+      "failure": "Out of Memory Error: failed to allocate data of size 2.0 MiB (127.1 MiB/128.0 MiB used)",
+      "total": 0,
+      "temp": 0,
+      "peakTag": null,
+      "peakRss": 181321728
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "agg high-card",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 565919744
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "agg high-card",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 558219264
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "agg high-card",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 553975808
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "agg high-card",
+      "failure": null,
+      "total": 0,
+      "temp": 0,
+      "peakTag": null,
+      "peakRss": 413663232
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "agg high-card",
+      "failure": null,
+      "total": 262144,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=0 MB",
+      "peakRss": 308920320
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "agg filtered+ordered",
+      "failure": null,
+      "total": 1601602,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 133005312
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "agg filtered+ordered",
+      "failure": null,
+      "total": 1601602,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 135217152
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "agg filtered+ordered",
+      "failure": null,
+      "total": 1601602,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 132579328
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "agg filtered+ordered",
+      "failure": null,
+      "total": 1601602,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 128892928
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "agg filtered+ordered",
+      "failure": null,
+      "total": 1601602,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=2 MB",
+      "peakRss": 131678208
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "agg filtered+ordered",
+      "failure": null,
+      "total": 81264640,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=78 MB",
+      "peakRss": 181714944
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "agg filtered+ordered",
+      "failure": null,
+      "total": 81264640,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=78 MB",
+      "peakRss": 182583296
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "agg filtered+ordered",
+      "failure": null,
+      "total": 81264640,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=78 MB",
+      "peakRss": 181174272
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "agg filtered+ordered",
+      "failure": null,
+      "total": 81264640,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=78 MB",
+      "peakRss": 182976512
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "agg filtered+ordered",
+      "failure": null,
+      "total": 81264640,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=78 MB",
+      "peakRss": 180928512
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "count distinct",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 508510208
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "count distinct",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 505069568
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "count distinct",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 504938496
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "count distinct",
+      "failure": null,
+      "total": 66,
+      "temp": 0,
+      "peakTag": "OBJECT_CACHE=0 MB",
+      "peakRss": 394870784
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "count distinct",
+      "failure": "Out of Memory Error: failed to allocate data of size 2.0 MiB (126.4 MiB/128.0 MiB used)",
+      "total": 0,
+      "temp": 0,
+      "peakTag": null,
+      "peakRss": 208945152
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "count distinct",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 513982464
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "count distinct",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 515276800
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "count distinct",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 510951424
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "count distinct",
+      "failure": null,
+      "total": 0,
+      "temp": 0,
+      "peakTag": null,
+      "peakRss": 374439936
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "count distinct",
+      "failure": null,
+      "total": 2883584,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=3 MB",
+      "peakRss": 257982464
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "approx distinct",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 158220288
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "approx distinct",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 151519232
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "approx distinct",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 148357120
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "approx distinct",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 156221440
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "approx distinct",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 160694272
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "approx distinct",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141852672
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "approx distinct",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141524992
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "approx distinct",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141443072
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "approx distinct",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141950976
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "approx distinct",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 142475264
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "quantiles",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 451018752
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "quantiles",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 464814080
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "quantiles",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 492290048
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "quantiles",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 437878784
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "quantiles",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 417726464
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "quantiles",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 434208768
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "quantiles",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 441991168
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "quantiles",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 426606592
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "quantiles",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 442777600
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "quantiles",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 441991168
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "project 1 col",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 118685696
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "project 1 col",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 117964800
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "project 1 col",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 118915072
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "project 1 col",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 117932032
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "project 1 col",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 119898112
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "project 1 col",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141230080
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "project 1 col",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141639680
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "project 1 col",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141033472
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "project 1 col",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141230080
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "project 1 col",
+      "failure": null,
+      "total": 53739520,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=51 MB",
+      "peakRss": 141541376
+    },
+    {
+      "kind": "parquet",
+      "limit": "2GiB",
+      "q": "project all cols",
+      "failure": null,
+      "total": 487490,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=0 MB",
+      "peakRss": 248463360
+    },
+    {
+      "kind": "parquet",
+      "limit": "1GiB",
+      "q": "project all cols",
+      "failure": null,
+      "total": 487490,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=0 MB",
+      "peakRss": 248725504
+    },
+    {
+      "kind": "parquet",
+      "limit": "512MiB",
+      "q": "project all cols",
+      "failure": null,
+      "total": 487490,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=0 MB",
+      "peakRss": 248119296
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "q": "project all cols",
+      "failure": null,
+      "total": 487490,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=0 MB",
+      "peakRss": 250413056
+    },
+    {
+      "kind": "parquet",
+      "limit": "128MiB",
+      "q": "project all cols",
+      "failure": null,
+      "total": 487490,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=0 MB",
+      "peakRss": 249823232
+    },
+    {
+      "kind": "native",
+      "limit": "2GiB",
+      "q": "project all cols",
+      "failure": null,
+      "total": 60030976,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=57 MB",
+      "peakRss": 268648448
+    },
+    {
+      "kind": "native",
+      "limit": "1GiB",
+      "q": "project all cols",
+      "failure": null,
+      "total": 60030976,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=57 MB",
+      "peakRss": 268681216
+    },
+    {
+      "kind": "native",
+      "limit": "512MiB",
+      "q": "project all cols",
+      "failure": null,
+      "total": 60030976,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=57 MB",
+      "peakRss": 270991360
+    },
+    {
+      "kind": "native",
+      "limit": "256MiB",
+      "q": "project all cols",
+      "failure": null,
+      "total": 60030976,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=57 MB",
+      "peakRss": 269385728
+    },
+    {
+      "kind": "native",
+      "limit": "128MiB",
+      "q": "project all cols",
+      "failure": null,
+      "total": 60030976,
+      "temp": 0,
+      "peakTag": "BASE_TABLE=57 MB",
+      "peakRss": 270483456
+    }
+  ],
+  "stage2": [
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 14,
+      "q": "top 100 sorted",
+      "failure": "Out of Memory Error: failed to allocate data of size 4.0 MiB (252.6 MiB/256.0 MiB used)",
+      "total": 0,
+      "temp": 0,
+      "peakTag": null,
+      "peakRss": 328204288
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 8,
+      "q": "top 100 sorted",
+      "failure": "Out of Memory Error: failed to allocate data of size 256.0 KiB (255.9 MiB/256.0 MiB used)",
+      "total": 0,
+      "temp": 0,
+      "peakTag": null,
+      "peakRss": 292323328
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 4,
+      "q": "top 100 sorted",
+      "failure": null,
+      "total": 17522754,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=17 MB",
+      "peakRss": 293912576
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 2,
+      "q": "top 100 sorted",
+      "failure": null,
+      "total": 17522754,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=17 MB",
+      "peakRss": 222642176
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 1,
+      "q": "top 100 sorted",
+      "failure": null,
+      "total": 17522754,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=17 MB",
+      "peakRss": 164823040
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 14,
+      "q": "agg high-card",
+      "failure": null,
+      "total": 66,
+      "temp": 0,
+      "peakTag": "OBJECT_CACHE=0 MB",
+      "peakRss": 438435840
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 8,
+      "q": "agg high-card",
+      "failure": null,
+      "total": 66,
+      "temp": 0,
+      "peakTag": "OBJECT_CACHE=0 MB",
+      "peakRss": 445480960
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 4,
+      "q": "agg high-card",
+      "failure": null,
+      "total": 66,
+      "temp": 0,
+      "peakTag": "OBJECT_CACHE=0 MB",
+      "peakRss": 445038592
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 2,
+      "q": "agg high-card",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 163102720
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 1,
+      "q": "agg high-card",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 147800064
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 14,
+      "q": "count distinct",
+      "failure": null,
+      "total": 66,
+      "temp": 0,
+      "peakTag": "OBJECT_CACHE=0 MB",
+      "peakRss": 391643136
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 8,
+      "q": "count distinct",
+      "failure": null,
+      "total": 66,
+      "temp": 0,
+      "peakTag": "OBJECT_CACHE=0 MB",
+      "peakRss": 411516928
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 4,
+      "q": "count distinct",
+      "failure": null,
+      "total": 66,
+      "temp": 0,
+      "peakTag": "OBJECT_CACHE=0 MB",
+      "peakRss": 404324352
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 2,
+      "q": "count distinct",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 118013952
+    },
+    {
+      "kind": "parquet",
+      "limit": "256MiB",
+      "threads": 1,
+      "q": "count distinct",
+      "failure": null,
+      "total": 606274,
+      "temp": 0,
+      "peakTag": "EXTERNAL_FILE_CACHE=1 MB",
+      "peakRss": 98172928
+    }
+  ]
+}

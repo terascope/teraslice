@@ -1,0 +1,1176 @@
+{
+  "rows": 5000000,
+  "rtts": [
+    0,
+    20,
+    50,
+    100
+  ],
+  "queries": [
+    "count(*) [metadata only]",
+    "search: 2 predicates",
+    "search: range + eq",
+    "search: IN list",
+    "search: top 100 rows",
+    "agg: 1 key + 3 aggs",
+    "agg: high-card group",
+    "project 1 col"
+  ],
+  "results": [
+    {
+      "origin": "local disk",
+      "rtt": 0,
+      "caches": "n/a",
+      "layout": "many payloads",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 4.670333000001847,
+          "warm": 3.702917000002344
+        },
+        "search: 2 predicates": {
+          "cold": 6.718916999991052,
+          "warm": 6.600166999996873
+        },
+        "search: range + eq": {
+          "cold": 8.289749999996275,
+          "warm": 8.734416999999667
+        },
+        "search: IN list": {
+          "cold": 5.526917000010144,
+          "warm": 5.319667000003392
+        },
+        "search: top 100 rows": {
+          "cold": 126.18787500000326,
+          "warm": 121.23358300000837
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 9.090959000008297,
+          "warm": 9.05000000000291
+        },
+        "agg: high-card group": {
+          "cold": 55.20258299999114,
+          "warm": 53.73095899999316
+        },
+        "project 1 col": {
+          "cold": 6.6350839999940945,
+          "warm": 6.474582999988343
+        }
+      },
+      "requests": 0
+    },
+    {
+      "origin": "local disk",
+      "rtt": 0,
+      "caches": "n/a",
+      "layout": "consolidated ~2M",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 2.3423750000074506,
+          "warm": 2.702624999990803
+        },
+        "search: 2 predicates": {
+          "cold": 4.4068330000009155,
+          "warm": 4.6972919999971054
+        },
+        "search: range + eq": {
+          "cold": 8.535625000004075,
+          "warm": 8.232374999992317
+        },
+        "search: IN list": {
+          "cold": 4.524959000002127,
+          "warm": 4.471999999994296
+        },
+        "search: top 100 rows": {
+          "cold": 111.34524999999849,
+          "warm": 113.03870799999277
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 8.108917000005022,
+          "warm": 7.874042000010377
+        },
+        "agg: high-card group": {
+          "cold": 52.47287500000675,
+          "warm": 52.146458000002895
+        },
+        "project 1 col": {
+          "cold": 5.775875000006636,
+          "warm": 5.59275000001071
+        }
+      },
+      "requests": 0
+    },
+    {
+      "origin": "local disk",
+      "rtt": 0,
+      "caches": "n/a",
+      "layout": "ONE object",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 1.297500000000582,
+          "warm": 1.4562079999886919
+        },
+        "search: 2 predicates": {
+          "cold": 4.646999999997206,
+          "warm": 4.030417000001762
+        },
+        "search: range + eq": {
+          "cold": 8.000291000003926,
+          "warm": 8.58200000000943
+        },
+        "search: IN list": {
+          "cold": 5.2719579999975394,
+          "warm": 4.957874999992782
+        },
+        "search: top 100 rows": {
+          "cold": 112.69220900000073,
+          "warm": 111.14579200001026
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 8.768167000001995,
+          "warm": 8.489666000008583
+        },
+        "agg: high-card group": {
+          "cold": 50.61908299999777,
+          "warm": 51.54520799999591
+        },
+        "project 1 col": {
+          "cold": 6.493875000000116,
+          "warm": 6.093875000005937
+        }
+      },
+      "requests": 0
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 0,
+      "caches": "off",
+      "layout": "many payloads",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 158.67741699999897,
+          "warm": 13.366125000000466
+        },
+        "search: 2 predicates": {
+          "cold": 360.21724999998696,
+          "warm": 14.685333000001265
+        },
+        "search: range + eq": {
+          "cold": 271.4566249999916,
+          "warm": 10.934625000008964
+        },
+        "search: IN list": {
+          "cold": 8.987165999991703,
+          "warm": 8.857499999998254
+        },
+        "search: top 100 rows": {
+          "cold": 188.23566599999322,
+          "warm": 125.63324999999895
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 14.676208000004408,
+          "warm": 14.72033399999782
+        },
+        "agg: high-card group": {
+          "cold": 53.887541999996756,
+          "warm": 58.000665999992634
+        },
+        "project 1 col": {
+          "cold": 12.007124999989173,
+          "warm": 13.562416000000667
+        }
+      },
+      "failure": null,
+      "requests": 705,
+      "bytesOut": 178486496
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 0,
+      "caches": "off",
+      "layout": "consolidated ~2M",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 6.570584000000963,
+          "warm": 4.495125000001281
+        },
+        "search: 2 predicates": {
+          "cold": 29.387457999997423,
+          "warm": 4.326000000000931
+        },
+        "search: range + eq": {
+          "cold": 32.93154200000572,
+          "warm": 9.177167000001646
+        },
+        "search: IN list": {
+          "cold": 6.273541000002297,
+          "warm": 6.161500000001979
+        },
+        "search: top 100 rows": {
+          "cold": 182.5321660000045,
+          "warm": 112.8363750000135
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 10.399375000008149,
+          "warm": 10.477542000007816
+        },
+        "agg: high-card group": {
+          "cold": 51.59487499999523,
+          "warm": 52.39566699998977
+        },
+        "project 1 col": {
+          "cold": 9.011834000004455,
+          "warm": 9.037125000002561
+        }
+      },
+      "failure": null,
+      "requests": 329,
+      "bytesOut": 182563161
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 0,
+      "caches": "off",
+      "layout": "ONE object",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 3.055791999999201,
+          "warm": 2.8420830000104615
+        },
+        "search: 2 predicates": {
+          "cold": 31.950125000003027,
+          "warm": 4.719458999999915
+        },
+        "search: range + eq": {
+          "cold": 32.4034590000083,
+          "warm": 8.688624999995227
+        },
+        "search: IN list": {
+          "cold": 6.641915999993216,
+          "warm": 6.78633400000399
+        },
+        "search: top 100 rows": {
+          "cold": 178.6359999999986,
+          "warm": 117.9919169999921
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 10.048042000009445,
+          "warm": 9.948499999998603
+        },
+        "agg: high-card group": {
+          "cold": 50.67075000000477,
+          "warm": 52.012791000001016
+        },
+        "project 1 col": {
+          "cold": 9.068207999996957,
+          "warm": 8.52287499999511
+        }
+      },
+      "failure": null,
+      "requests": 305,
+      "bytesOut": 183285815
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 0,
+      "caches": "on",
+      "layout": "many payloads",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 24.537708000003477,
+          "warm": 6.084083000008832
+        },
+        "search: 2 predicates": {
+          "cold": 51.78887499999837,
+          "warm": 7.355708000002778
+        },
+        "search: range + eq": {
+          "cold": 38.003292000008514,
+          "warm": 10.197125000006054
+        },
+        "search: IN list": {
+          "cold": 8.28329200000735,
+          "warm": 8.995291999992332
+        },
+        "search: top 100 rows": {
+          "cold": 182.51770900000702,
+          "warm": 122.58941600000253
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 13.952958999987459,
+          "warm": 14.607250000000931
+        },
+        "agg: high-card group": {
+          "cold": 54.26966700000048,
+          "warm": 54.34833300000173
+        },
+        "project 1 col": {
+          "cold": 11.704666999998153,
+          "warm": 11.84833300000173
+        }
+      },
+      "failure": null,
+      "requests": 705,
+      "bytesOut": 178486496
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 0,
+      "caches": "on",
+      "layout": "consolidated ~2M",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 5.833834000004572,
+          "warm": 1.84870800000499
+        },
+        "search: 2 predicates": {
+          "cold": 20.666207999995095,
+          "warm": 3.5466250000026776
+        },
+        "search: range + eq": {
+          "cold": 30.27304100000765,
+          "warm": 10.033416999998735
+        },
+        "search: IN list": {
+          "cold": 5.637291000006371,
+          "warm": 4.971583000005921
+        },
+        "search: top 100 rows": {
+          "cold": 166.4122919999936,
+          "warm": 118.20008300000336
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 8.522875000009662,
+          "warm": 8.9367920000077
+        },
+        "agg: high-card group": {
+          "cold": 49.21283299999777,
+          "warm": 51.87812499998836
+        },
+        "project 1 col": {
+          "cold": 9.0971669999999,
+          "warm": 7.423750000001746
+        }
+      },
+      "failure": null,
+      "requests": 329,
+      "bytesOut": 182563161
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 0,
+      "caches": "on",
+      "layout": "ONE object",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 2.8326250000100117,
+          "warm": 2.3952920000010636
+        },
+        "search: 2 predicates": {
+          "cold": 56.31462499999907,
+          "warm": 4.201000000000931
+        },
+        "search: range + eq": {
+          "cold": 24.979624999992666,
+          "warm": 8.923624999995809
+        },
+        "search: IN list": {
+          "cold": 5.342125000010128,
+          "warm": 6.314125000004424
+        },
+        "search: top 100 rows": {
+          "cold": 168.72204199999396,
+          "warm": 116.08441700000549
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 8.856499999994412,
+          "warm": 9.437999999994645
+        },
+        "agg: high-card group": {
+          "cold": 50.23358399998688,
+          "warm": 50.50783300001058
+        },
+        "project 1 col": {
+          "cold": 7.71570800000336,
+          "warm": 9.330541999996058
+        }
+      },
+      "failure": null,
+      "requests": 305,
+      "bytesOut": 183285815
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 20,
+      "caches": "off",
+      "layout": "many payloads",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 207.85541699999885,
+          "warm": 31.607334000000264
+        },
+        "search: 2 predicates": {
+          "cold": 552.2220830000006,
+          "warm": 39.796375000005355
+        },
+        "search: range + eq": {
+          "cold": 631.3955419999984,
+          "warm": 48.677708000002895
+        },
+        "search: IN list": {
+          "cold": 36.61837500000547,
+          "warm": 36.443290999988676
+        },
+        "search: top 100 rows": {
+          "cold": 310.54929199999606,
+          "warm": 143.90049999998882
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 36.356750000006286,
+          "warm": 36.128333000000566
+        },
+        "agg: high-card group": {
+          "cold": 76.95612500001153,
+          "warm": 76.54158299999835
+        },
+        "project 1 col": {
+          "cold": 33.85912500000268,
+          "warm": 34.5339590000076
+        }
+      },
+      "failure": null,
+      "requests": 705,
+      "bytesOut": 178486496
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 20,
+      "caches": "off",
+      "layout": "consolidated ~2M",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 51.33883399999468,
+          "warm": 29.37141700000211
+        },
+        "search: 2 predicates": {
+          "cold": 368.11212499999965,
+          "warm": 28.2886659999931
+        },
+        "search: range + eq": {
+          "cold": 351.37545800000953,
+          "warm": 33.48120799999742
+        },
+        "search: IN list": {
+          "cold": 31.042708999986644,
+          "warm": 29.667874999999185
+        },
+        "search: top 100 rows": {
+          "cold": 251.0034169999999,
+          "warm": 132.49766699998872
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 31.770916000008583,
+          "warm": 32.45316699999967
+        },
+        "agg: high-card group": {
+          "cold": 75.63570800000161,
+          "warm": 82.51320900001156
+        },
+        "project 1 col": {
+          "cold": 29.10975000000326,
+          "warm": 28.69604199999594
+        }
+      },
+      "failure": null,
+      "requests": 329,
+      "bytesOut": 182563161
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 20,
+      "caches": "off",
+      "layout": "ONE object",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 25.63608299999032,
+          "warm": 26.578833000006853
+        },
+        "search: 2 predicates": {
+          "cold": 270.9272500000079,
+          "warm": 41.06737499999872
+        },
+        "search: range + eq": {
+          "cold": 315.0861670000013,
+          "warm": 40.448749999995925
+        },
+        "search: IN list": {
+          "cold": 33.150125000000116,
+          "warm": 33.0951250000071
+        },
+        "search: top 100 rows": {
+          "cold": 270.75037500000326,
+          "warm": 132.68420800000604
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 31.49004099999729,
+          "warm": 32.50266699999338
+        },
+        "agg: high-card group": {
+          "cold": 71.88129199999094,
+          "warm": 73.11562500000582
+        },
+        "project 1 col": {
+          "cold": 30.235792000006768,
+          "warm": 30.44133299999521
+        }
+      },
+      "failure": null,
+      "requests": 305,
+      "bytesOut": 183285815
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 20,
+      "caches": "on",
+      "layout": "many payloads",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 218.51024999999208,
+          "warm": 28.630000000004657
+        },
+        "search: 2 predicates": {
+          "cold": 528.9758750000037,
+          "warm": 33.088000000003376
+        },
+        "search: range + eq": {
+          "cold": 551.6434580000059,
+          "warm": 36.81241699999373
+        },
+        "search: IN list": {
+          "cold": 34.881583000009414,
+          "warm": 35.17287500000384
+        },
+        "search: top 100 rows": {
+          "cold": 302.0249590000021,
+          "warm": 142.713665999996
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 34.91370800000732,
+          "warm": 37.0604580000072
+        },
+        "agg: high-card group": {
+          "cold": 77.15204200000153,
+          "warm": 78.47362499999872
+        },
+        "project 1 col": {
+          "cold": 33.993875000000116,
+          "warm": 33.7173749999929
+        }
+      },
+      "failure": null,
+      "requests": 705,
+      "bytesOut": 178486496
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 20,
+      "caches": "on",
+      "layout": "consolidated ~2M",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 50.478625000003376,
+          "warm": 24.082791000008
+        },
+        "search: 2 predicates": {
+          "cold": 334.06258399999933,
+          "warm": 27.468791999999667
+        },
+        "search: range + eq": {
+          "cold": 369.34679199999664,
+          "warm": 31.512374999991152
+        },
+        "search: IN list": {
+          "cold": 29.18437500001164,
+          "warm": 31.051207999989856
+        },
+        "search: top 100 rows": {
+          "cold": 257.8967910000065,
+          "warm": 134.47908299999835
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 30.43224999999802,
+          "warm": 30.880291999987094
+        },
+        "agg: high-card group": {
+          "cold": 71.77195799999754,
+          "warm": 73.31008300000394
+        },
+        "project 1 col": {
+          "cold": 28.948166000001947,
+          "warm": 29.58420899999328
+        }
+      },
+      "failure": null,
+      "requests": 329,
+      "bytesOut": 182563161
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 20,
+      "caches": "on",
+      "layout": "ONE object",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 24.43987499999639,
+          "warm": 24.973999999987427
+        },
+        "search: 2 predicates": {
+          "cold": 284.77479100000346,
+          "warm": 35.92462499999965
+        },
+        "search: range + eq": {
+          "cold": 290.2329170000012,
+          "warm": 37.32670900000085
+        },
+        "search: IN list": {
+          "cold": 32.59833300000173,
+          "warm": 38.40945799999463
+        },
+        "search: top 100 rows": {
+          "cold": 260.1831669999956,
+          "warm": 131.0895840000012
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 31.22620800000732,
+          "warm": 31.710957999996026
+        },
+        "agg: high-card group": {
+          "cold": 72.87108400001307,
+          "warm": 74.30675000000338
+        },
+        "project 1 col": {
+          "cold": 29.309957999998005,
+          "warm": 30.27079199999571
+        }
+      },
+      "failure": null,
+      "requests": 305,
+      "bytesOut": 183285815
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 50,
+      "caches": "off",
+      "layout": "many payloads",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 498.6384999999864,
+          "warm": 62.82325000000128
+        },
+        "search: 2 predicates": {
+          "cold": 1207.5486249999958,
+          "warm": 64.13070900000457
+        },
+        "search: range + eq": {
+          "cold": 1166.2313749999885,
+          "warm": 67.20170800000778
+        },
+        "search: IN list": {
+          "cold": 67.36204100000032,
+          "warm": 72.25079199999163
+        },
+        "search: top 100 rows": {
+          "cold": 565.6445000000094,
+          "warm": 174.36491699999897
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 66.76037499999802,
+          "warm": 71.26258399999642
+        },
+        "agg: high-card group": {
+          "cold": 123.2858750000014,
+          "warm": 107.96541600000637
+        },
+        "project 1 col": {
+          "cold": 65.92308399999456,
+          "warm": 66.77533299999777
+        }
+      },
+      "failure": null,
+      "requests": 705,
+      "bytesOut": 178486496
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 50,
+      "caches": "off",
+      "layout": "consolidated ~2M",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 120.07683299999917,
+          "warm": 65.56225000000268
+        },
+        "search: 2 predicates": {
+          "cold": 779.2607089999947,
+          "warm": 58.95029199999408
+        },
+        "search: range + eq": {
+          "cold": 735.1027920000051,
+          "warm": 62.88437500000873
+        },
+        "search: IN list": {
+          "cold": 61.60583299999416,
+          "warm": 76.37249999999767
+        },
+        "search: top 100 rows": {
+          "cold": 393.65887500000827,
+          "warm": 163.40733400000317
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 63.07325000000128,
+          "warm": 65.08533299999544
+        },
+        "agg: high-card group": {
+          "cold": 116.83904099999927,
+          "warm": 105.50933299999451
+        },
+        "project 1 col": {
+          "cold": 59.895292000001064,
+          "warm": 63.73599999998987
+        }
+      },
+      "failure": null,
+      "requests": 329,
+      "bytesOut": 182563161
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 50,
+      "caches": "off",
+      "layout": "ONE object",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 59.404999999998836,
+          "warm": 59.8463330000086
+        },
+        "search: 2 predicates": {
+          "cold": 652.0928749999875,
+          "warm": 77.51675000000978
+        },
+        "search: range + eq": {
+          "cold": 656.4958749999932,
+          "warm": 80.7503330000036
+        },
+        "search: IN list": {
+          "cold": 72.88495800000965,
+          "warm": 79.03316700000141
+        },
+        "search: top 100 rows": {
+          "cold": 398.4473330000037,
+          "warm": 167.0582080000022
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 62.388374999994994,
+          "warm": 67.25716700000339
+        },
+        "agg: high-card group": {
+          "cold": 119.38633400000981,
+          "warm": 104.638374999995
+        },
+        "project 1 col": {
+          "cold": 60.79145900000003,
+          "warm": 65.54908400001295
+        }
+      },
+      "failure": null,
+      "requests": 305,
+      "bytesOut": 183285815
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 50,
+      "caches": "on",
+      "layout": "many payloads",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 476.50687499999185,
+          "warm": 56.52933399999165
+        },
+        "search: 2 predicates": {
+          "cold": 1168.08191600001,
+          "warm": 64.91820799998823
+        },
+        "search: range + eq": {
+          "cold": 1196.65625,
+          "warm": 66.33658399998967
+        },
+        "search: IN list": {
+          "cold": 64.76183300001139,
+          "warm": 75.05500000000757
+        },
+        "search: top 100 rows": {
+          "cold": 551.7168329999986,
+          "warm": 173.48958400000993
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 67.46304200000304,
+          "warm": 70.96933300000092
+        },
+        "agg: high-card group": {
+          "cold": 119.67612499999814,
+          "warm": 107.57504199999676
+        },
+        "project 1 col": {
+          "cold": 63.67970900000364,
+          "warm": 68.19837500000722
+        }
+      },
+      "failure": null,
+      "requests": 705,
+      "bytesOut": 178486496
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 50,
+      "caches": "on",
+      "layout": "consolidated ~2M",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 113.75516700001026,
+          "warm": 55.47279200000048
+        },
+        "search: 2 predicates": {
+          "cold": 756.7539170000091,
+          "warm": 58.536542000001646
+        },
+        "search: range + eq": {
+          "cold": 776.0815409999923,
+          "warm": 61.342333000007784
+        },
+        "search: IN list": {
+          "cold": 60.617708999998285,
+          "warm": 70.65241700000479
+        },
+        "search: top 100 rows": {
+          "cold": 388.55349999999453,
+          "warm": 161.84883299999638
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 61.582208000007086,
+          "warm": 64.63724999999977
+        },
+        "agg: high-card group": {
+          "cold": 114.18450000000303,
+          "warm": 104.81041600000754
+        },
+        "project 1 col": {
+          "cold": 58.35529099999985,
+          "warm": 62.12333300001046
+        }
+      },
+      "failure": null,
+      "requests": 329,
+      "bytesOut": 182563161
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 50,
+      "caches": "on",
+      "layout": "ONE object",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 57.89037500000268,
+          "warm": 56.94666699999652
+        },
+        "search: 2 predicates": {
+          "cold": 577.2240420000016,
+          "warm": 64.49141599998984
+        },
+        "search: range + eq": {
+          "cold": 616.8318750000035,
+          "warm": 76.25433300000441
+        },
+        "search: IN list": {
+          "cold": 73.9457090000069,
+          "warm": 75.68470800000068
+        },
+        "search: top 100 rows": {
+          "cold": 404.60716699999466,
+          "warm": 166.27166700000816
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 61.87145799999416,
+          "warm": 67.81004200001189
+        },
+        "agg: high-card group": {
+          "cold": 118.94495799999277,
+          "warm": 106.33845900000597
+        },
+        "project 1 col": {
+          "cold": 59.52141699999629,
+          "warm": 61.60358300000371
+        }
+      },
+      "failure": null,
+      "requests": 305,
+      "bytesOut": 183285815
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 100,
+      "caches": "off",
+      "layout": "many payloads",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 852.2999580000032,
+          "warm": 125.49499999999534
+        },
+        "search: 2 predicates": {
+          "cold": 2238.698749999996,
+          "warm": 121.5515000000014
+        },
+        "search: range + eq": {
+          "cold": 2246.7326659999962,
+          "warm": 122.94266699999571
+        },
+        "search: IN list": {
+          "cold": 138.15887500000827,
+          "warm": 138.74779199999466
+        },
+        "search: top 100 rows": {
+          "cold": 981.6867499999935,
+          "warm": 227.08562499999243
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 119.68512500000361,
+          "warm": 137.39004100000602
+        },
+        "agg: high-card group": {
+          "cold": 187.85991600000125,
+          "warm": 172.1626249999972
+        },
+        "project 1 col": {
+          "cold": 113.93737499999406,
+          "warm": 142.29520800001046
+        }
+      },
+      "failure": null,
+      "requests": 705,
+      "bytesOut": 178486496
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 100,
+      "caches": "off",
+      "layout": "consolidated ~2M",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 218.8615839999984,
+          "warm": 114.15533300000243
+        },
+        "search: 2 predicates": {
+          "cold": 1382.7307089999958,
+          "warm": 123.27170899999328
+        },
+        "search: range + eq": {
+          "cold": 1400.784707999992,
+          "warm": 122.05987499999173
+        },
+        "search: IN list": {
+          "cold": 130.23466600000393,
+          "warm": 127.63354199999594
+        },
+        "search: top 100 rows": {
+          "cold": 640.1767499999987,
+          "warm": 218.4429999999993
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 115.075582999998,
+          "warm": 125.89716700000281
+        },
+        "agg: high-card group": {
+          "cold": 185.6037079999951,
+          "warm": 165.68816700000025
+        },
+        "project 1 col": {
+          "cold": 112.42024999999558,
+          "warm": 125.80637500000012
+        }
+      },
+      "failure": null,
+      "requests": 329,
+      "bytesOut": 182563161
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 100,
+      "caches": "off",
+      "layout": "ONE object",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 108.72400000000198,
+          "warm": 107.77895799999533
+        },
+        "search: 2 predicates": {
+          "cold": 1108.0367499999993,
+          "warm": 124.84191600000486
+        },
+        "search: range + eq": {
+          "cold": 1137.7825000000157,
+          "warm": 131.1555830000143
+        },
+        "search: IN list": {
+          "cold": 127.44154200001503,
+          "warm": 130.16500000000815
+        },
+        "search: top 100 rows": {
+          "cold": 604.6127919999999,
+          "warm": 223.27154200000223
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 114.62541599999531,
+          "warm": 131.3746669999964
+        },
+        "agg: high-card group": {
+          "cold": 188.94270899999538,
+          "warm": 164.56883299999754
+        },
+        "project 1 col": {
+          "cold": 114.71866700000828,
+          "warm": 121.31054100001347
+        }
+      },
+      "failure": null,
+      "requests": 305,
+      "bytesOut": 183285815
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 100,
+      "caches": "on",
+      "layout": "many payloads",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 858.9350419999973,
+          "warm": 108.97595799999544
+        },
+        "search: 2 predicates": {
+          "cold": 2301.2177499999816,
+          "warm": 132.9481670000241
+        },
+        "search: range + eq": {
+          "cold": 2252.1507909999928,
+          "warm": 130.217416999978
+        },
+        "search: IN list": {
+          "cold": 136.8269169999985,
+          "warm": 139.26733399997465
+        },
+        "search: top 100 rows": {
+          "cold": 935.6516669999983,
+          "warm": 229.243959000014
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 118.3382500000007,
+          "warm": 130.59641599998577
+        },
+        "agg: high-card group": {
+          "cold": 190.82816699999967,
+          "warm": 168.83566699997755
+        },
+        "project 1 col": {
+          "cold": 114.92391599999974,
+          "warm": 136.80570799999987
+        }
+      },
+      "failure": null,
+      "requests": 705,
+      "bytesOut": 178486496
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 100,
+      "caches": "on",
+      "layout": "consolidated ~2M",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 216.47404100000858,
+          "warm": 106.58987500000512
+        },
+        "search: 2 predicates": {
+          "cold": 1386.3180839999986,
+          "warm": 127.4230830000015
+        },
+        "search: range + eq": {
+          "cold": 1443.0388329999987,
+          "warm": 126.88741699999082
+        },
+        "search: IN list": {
+          "cold": 121.75224999999045,
+          "warm": 125.05633399999351
+        },
+        "search: top 100 rows": {
+          "cold": 666.4590000000026,
+          "warm": 220.07325000001583
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 111.25004099999205,
+          "warm": 115.98462500001187
+        },
+        "agg: high-card group": {
+          "cold": 188.21254199999385,
+          "warm": 167.3389169999864
+        },
+        "project 1 col": {
+          "cold": 111.86779200000456,
+          "warm": 125.5726250000007
+        }
+      },
+      "failure": null,
+      "requests": 329,
+      "bytesOut": 182563161
+    },
+    {
+      "origin": "s3 (modelled)",
+      "rtt": 100,
+      "caches": "on",
+      "layout": "ONE object",
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 106.76258300000336,
+          "warm": 107.492957999988
+        },
+        "search: 2 predicates": {
+          "cold": 1099.4760839999944,
+          "warm": 108.88608399999794
+        },
+        "search: range + eq": {
+          "cold": 1123.1268329999875,
+          "warm": 115.74404200000572
+        },
+        "search: IN list": {
+          "cold": 125.58245799998986,
+          "warm": 128.9047079999873
+        },
+        "search: top 100 rows": {
+          "cold": 608.202541000006,
+          "warm": 219.68679099998553
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 113.63695799998823,
+          "warm": 128.32708299998194
+        },
+        "agg: high-card group": {
+          "cold": 181.19724999999744,
+          "warm": 163.63583399998606
+        },
+        "project 1 col": {
+          "cold": 111.5968330000178,
+          "warm": 126.0741670000134
+        }
+      },
+      "failure": null,
+      "requests": 305,
+      "bytesOut": 183285815
+    }
+  ]
+}

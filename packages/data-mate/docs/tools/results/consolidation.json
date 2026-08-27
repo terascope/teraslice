@@ -1,0 +1,708 @@
+{
+  "rows": 10000000,
+  "queries": [
+    {
+      "name": "count(*) [metadata only]",
+      "sql": "SELECT count(*) FROM t"
+    },
+    {
+      "name": "search: 2 predicates",
+      "sql": "SELECT count(*) FROM t WHERE \"active\" = true AND \"category\" = 'gamma'"
+    },
+    {
+      "name": "search: range + eq",
+      "sql": "SELECT count(*) FROM t WHERE \"amount\" BETWEEN 100 AND 5000 AND \"status\" = 'active'"
+    },
+    {
+      "name": "search: text prefix",
+      "sql": "SELECT count(*) FROM t WHERE \"email\" LIKE 'user1%'"
+    },
+    {
+      "name": "search: IN list",
+      "sql": "SELECT count(*) FROM t WHERE \"category\" IN ('alpha','gamma')"
+    },
+    {
+      "name": "search: top 100 rows",
+      "sql": "SELECT * FROM t WHERE \"active\" = true ORDER BY \"amount\" DESC LIMIT 100"
+    },
+    {
+      "name": "agg: 1 key + 3 aggs",
+      "sql": "SELECT \"category\", count(*), sum(\"amount\"), avg(\"score\") FROM t GROUP BY 1"
+    },
+    {
+      "name": "agg: 2 keys + 3 aggs",
+      "sql": "SELECT \"category\", \"status\", count(*), sum(\"amount\"), max(\"score\") FROM t GROUP BY 1, 2"
+    },
+    {
+      "name": "agg: high-card group",
+      "sql": "SELECT \"name\", count(*) FROM t GROUP BY 1"
+    },
+    {
+      "name": "agg: filtered + ordered",
+      "sql": "SELECT \"category\", sum(\"amount\") AS total FROM t WHERE \"active\" = true GROUP BY 1 ORDER BY total DESC LIMIT 20"
+    },
+    {
+      "name": "agg: count distinct",
+      "sql": "SELECT count(DISTINCT \"name\") FROM t"
+    },
+    {
+      "name": "agg: approx distinct",
+      "sql": "SELECT approx_count_distinct(\"name\") FROM t"
+    },
+    {
+      "name": "agg: quantiles",
+      "sql": "SELECT quantile_cont(\"amount\", [0.5, 0.9, 0.99]) FROM t"
+    },
+    {
+      "name": "project 1 col",
+      "sql": "SELECT sum(\"amount\") FROM t"
+    },
+    {
+      "name": "project all cols",
+      "sql": "SELECT * FROM t LIMIT 5000"
+    }
+  ],
+  "cheap": [
+    "count(*) [metadata only]",
+    "search: 2 predicates",
+    "search: range + eq",
+    "search: IN list",
+    "project 1 col"
+  ],
+  "routes": {
+    "streamMs": 1687.8616250000196,
+    "stagedMs": 4354.580333000049
+  },
+  "layouts": [
+    {
+      "label": "as landed: 1,000 × 10k",
+      "kind": "as-landed",
+      "files": 1000,
+      "rowGroups": 1000,
+      "buildMs": 0,
+      "bytes": 400833636,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 31.96754100000544,
+          "warm": 30.177624999996624
+        },
+        "search: 2 predicates": {
+          "cold": 64.25516700001026,
+          "warm": 66.14125000000058
+        },
+        "search: range + eq": {
+          "cold": 67.93337499999325,
+          "warm": 65.7947920000006
+        },
+        "search: text prefix": {
+          "cold": 34.121083000005456,
+          "warm": 34.66883300000336
+        },
+        "search: IN list": {
+          "cold": 28.434666000001016,
+          "warm": 28.31562500000291
+        },
+        "search: top 100 rows": {
+          "cold": 287.68875000000116,
+          "warm": 284.4046250000101
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 37.222042000008514,
+          "warm": 41.25041599999531
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 43.80862500000512,
+          "warm": 43.43579200000386
+        },
+        "agg: high-card group": {
+          "cold": 101.99308299999393,
+          "warm": 83.33662499999627
+        },
+        "agg: filtered + ordered": {
+          "cold": 34.1033749999915,
+          "warm": 34.522666999997455
+        },
+        "agg: count distinct": {
+          "cold": 53.953624999994645,
+          "warm": 54.28233299999556
+        },
+        "agg: approx distinct": {
+          "cold": 33.314208000010694,
+          "warm": 34.05337500000314
+        },
+        "agg: quantiles": {
+          "cold": 266.27162499999395,
+          "warm": 247.0166670000035
+        },
+        "project 1 col": {
+          "cold": 30.014999999999418,
+          "warm": 30.013374999994994
+        },
+        "project all cols": {
+          "cold": 70.49162499999511,
+          "warm": 73.95591699999932
+        }
+      }
+    },
+    {
+      "label": "as landed: 200 × 50k",
+      "kind": "as-landed",
+      "files": 200,
+      "rowGroups": 200,
+      "buildMs": 0,
+      "bytes": 332529982,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 7.086999999999534,
+          "warm": 7.0560419999819715
+        },
+        "search: 2 predicates": {
+          "cold": 13.666165999980876,
+          "warm": 13.419041999994079
+        },
+        "search: range + eq": {
+          "cold": 15.527750000008382,
+          "warm": 15.422958999988623
+        },
+        "search: text prefix": {
+          "cold": 18.22470799999428,
+          "warm": 18.07591699998011
+        },
+        "search: IN list": {
+          "cold": 9.695000000006985,
+          "warm": 9.440833999979077
+        },
+        "search: top 100 rows": {
+          "cold": 229.67512500000885,
+          "warm": 211.44383400000515
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 16.66608300001826,
+          "warm": 15.675667000003159
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 22.057207999983802,
+          "warm": 22.701708000007784
+        },
+        "agg: high-card group": {
+          "cold": 74.78658300000825,
+          "warm": 77.1433749999851
+        },
+        "agg: filtered + ordered": {
+          "cold": 19.56341699999757,
+          "warm": 14.98200000001816
+        },
+        "agg: count distinct": {
+          "cold": 43.82641700000386,
+          "warm": 41.647375000000466
+        },
+        "agg: approx distinct": {
+          "cold": 17.216667000000598,
+          "warm": 17.68354100000579
+        },
+        "agg: quantiles": {
+          "cold": 210.02137500001118,
+          "warm": 197.18104100000346
+        },
+        "project 1 col": {
+          "cold": 11.48579200002132,
+          "warm": 11.745374999998603
+        },
+        "project all cols": {
+          "cold": 53.26383299997542,
+          "warm": 49.19375000000582
+        }
+      }
+    },
+    {
+      "label": "as landed: 100 × 100k",
+      "kind": "as-landed",
+      "files": 100,
+      "rowGroups": 100,
+      "buildMs": 0,
+      "bytes": 306277379,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 3.9200829999754205,
+          "warm": 4.085208999982569
+        },
+        "search: 2 predicates": {
+          "cold": 7.777624999987893,
+          "warm": 7.257792000018526
+        },
+        "search: range + eq": {
+          "cold": 13.758582999987993,
+          "warm": 13.752625000022817
+        },
+        "search: text prefix": {
+          "cold": 18.130958000023384,
+          "warm": 18.051916000025813
+        },
+        "search: IN list": {
+          "cold": 8.102208000025712,
+          "warm": 8.135458000004292
+        },
+        "search: top 100 rows": {
+          "cold": 218.34487500000978,
+          "warm": 208.96983300003922
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 13.947583000001032,
+          "warm": 13.984791000024416
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 20.582707999972627,
+          "warm": 20.837624999985565
+        },
+        "agg: high-card group": {
+          "cold": 69.48475000000326,
+          "warm": 69.99220800003968
+        },
+        "agg: filtered + ordered": {
+          "cold": 12.893041000002995,
+          "warm": 12.381584000017028
+        },
+        "agg: count distinct": {
+          "cold": 39.27308399998583,
+          "warm": 39.55720800004201
+        },
+        "agg: approx distinct": {
+          "cold": 16.26245800004108,
+          "warm": 16.916874999995343
+        },
+        "agg: quantiles": {
+          "cold": 239.5489589999779,
+          "warm": 245.69679200003156
+        },
+        "project 1 col": {
+          "cold": 10.04849999997532,
+          "warm": 9.868333999998868
+        },
+        "project all cols": {
+          "cold": 52.192582999996375,
+          "warm": 52.788875000027474
+        }
+      }
+    },
+    {
+      "label": "as landed: jagged 10k–100k",
+      "kind": "as-landed",
+      "files": 178,
+      "rowGroups": 178,
+      "buildMs": 0,
+      "bytes": 322550780,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 6.473791999975219,
+          "warm": 6.772125000017695
+        },
+        "search: 2 predicates": {
+          "cold": 11.837624999985565,
+          "warm": 11.979125000012573
+        },
+        "search: range + eq": {
+          "cold": 16.86079200002132,
+          "warm": 15.090582999982871
+        },
+        "search: text prefix": {
+          "cold": 19.920959000010043,
+          "warm": 19.042124999978114
+        },
+        "search: IN list": {
+          "cold": 9.589540999964811,
+          "warm": 10.506332999968436
+        },
+        "search: top 100 rows": {
+          "cold": 230.6241250000312,
+          "warm": 219.03899999998976
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 16.183041999989655,
+          "warm": 15.920666000049096
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 24.23916699999245,
+          "warm": 23.408333999977913
+        },
+        "agg: high-card group": {
+          "cold": 71.39241600001696,
+          "warm": 71.14720800000941
+        },
+        "agg: filtered + ordered": {
+          "cold": 14.166874999995343,
+          "warm": 14.158374999999069
+        },
+        "agg: count distinct": {
+          "cold": 40.88629100000253,
+          "warm": 41.06779199995799
+        },
+        "agg: approx distinct": {
+          "cold": 17.21891700004926,
+          "warm": 17.142165999975987
+        },
+        "agg: quantiles": {
+          "cold": 263.0040839999565,
+          "warm": 243.2644159999909
+        },
+        "project 1 col": {
+          "cold": 11.18995900003938,
+          "warm": 11.178708999999799
+        },
+        "project all cols": {
+          "cold": 58.41608300001826,
+          "warm": 50.28945800004294
+        }
+      }
+    },
+    {
+      "label": "consolidated: ~123k rows/object",
+      "kind": "consolidated",
+      "files": 82,
+      "rowGroups": 82,
+      "buildMs": 12032.328665999987,
+      "bytes": 289252998,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 3.2920419999863952,
+          "warm": 3.3729999999632128
+        },
+        "search: 2 predicates": {
+          "cold": 9.228625000047032,
+          "warm": 5.996624999970663
+        },
+        "search: range + eq": {
+          "cold": 12.938916999963112,
+          "warm": 12.790417000011075
+        },
+        "search: text prefix": {
+          "cold": 17.684666999964975,
+          "warm": 17.47066699998686
+        },
+        "search: IN list": {
+          "cold": 7.815415999968536,
+          "warm": 8.028333999973256
+        },
+        "search: top 100 rows": {
+          "cold": 202.19000000000233,
+          "warm": 202.83783299999777
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 14.13925000000745,
+          "warm": 13.68674999999348
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 20.478875000029802,
+          "warm": 20.260083000001032
+        },
+        "agg: high-card group": {
+          "cold": 70.32433299999684,
+          "warm": 69.38949999999022
+        },
+        "agg: filtered + ordered": {
+          "cold": 12.552832999965176,
+          "warm": 12.411666999978479
+        },
+        "agg: count distinct": {
+          "cold": 39.3940419999999,
+          "warm": 40.14500000001863
+        },
+        "agg: approx distinct": {
+          "cold": 16.629500000039116,
+          "warm": 16.85795799997868
+        },
+        "agg: quantiles": {
+          "cold": 189.55366699997103,
+          "warm": 257.85670900001423
+        },
+        "project 1 col": {
+          "cold": 9.938291999977082,
+          "warm": 10.410000000032596
+        },
+        "project all cols": {
+          "cold": 55.669708999979775,
+          "warm": 54.585250000003725
+        }
+      }
+    },
+    {
+      "label": "consolidated: ~500k rows/object",
+      "kind": "consolidated",
+      "files": 20,
+      "rowGroups": 100,
+      "buildMs": 3534.8453330000048,
+      "bytes": 290341069,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 4.5441249999566935,
+          "warm": 4.095208000042476
+        },
+        "search: 2 predicates": {
+          "cold": 6.364207999955397,
+          "warm": 6.315291000006255
+        },
+        "search: range + eq": {
+          "cold": 12.569791999994777,
+          "warm": 12.792709000001196
+        },
+        "search: text prefix": {
+          "cold": 16.228374999947846,
+          "warm": 16.46745799999917
+        },
+        "search: IN list": {
+          "cold": 7.3447090000263415,
+          "warm": 7.133417000004556
+        },
+        "search: top 100 rows": {
+          "cold": 198.15004099998623,
+          "warm": 199.00966699997662
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 13.491541999974288,
+          "warm": 13.82754200004274
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 19.607499999983702,
+          "warm": 19.869874999974854
+        },
+        "agg: high-card group": {
+          "cold": 71.88649999996414,
+          "warm": 68.38195800001267
+        },
+        "agg: filtered + ordered": {
+          "cold": 12.112334000004921,
+          "warm": 12.078665999986697
+        },
+        "agg: count distinct": {
+          "cold": 39.285207999986596,
+          "warm": 40.55395899998257
+        },
+        "agg: approx distinct": {
+          "cold": 16.669959000020754,
+          "warm": 16.48537499998929
+        },
+        "agg: quantiles": {
+          "cold": 241.76004199997988,
+          "warm": 235.6710829999647
+        },
+        "project 1 col": {
+          "cold": 9.75370900001144,
+          "warm": 9.2962079999852
+        },
+        "project all cols": {
+          "cold": 50.67208400001982,
+          "warm": 52.24154199997429
+        }
+      }
+    },
+    {
+      "label": "consolidated: ~2M rows/object",
+      "kind": "consolidated",
+      "files": 5,
+      "rowGroups": 85,
+      "buildMs": 14553.353125000023,
+      "bytes": 289672842,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 3.5881250000093132,
+          "warm": 3.7706660000258125
+        },
+        "search: 2 predicates": {
+          "cold": 8.866417000012007,
+          "warm": 6.838500000012573
+        },
+        "search: range + eq": {
+          "cold": 15.070166999998037,
+          "warm": 13.385000000009313
+        },
+        "search: text prefix": {
+          "cold": 18.06754199997522,
+          "warm": 16.306666999997105
+        },
+        "search: IN list": {
+          "cold": 7.507332999957725,
+          "warm": 7.335375000024214
+        },
+        "search: top 100 rows": {
+          "cold": 220.88608399999794,
+          "warm": 205.9191249999567
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 13.124708999996074,
+          "warm": 13.581708999990951
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 19.71983299998101,
+          "warm": 21.463042000017595
+        },
+        "agg: high-card group": {
+          "cold": 68.84000000002561,
+          "warm": 68.66675000003306
+        },
+        "agg: filtered + ordered": {
+          "cold": 12.16887500003213,
+          "warm": 11.92429200001061
+        },
+        "agg: count distinct": {
+          "cold": 38.51912499999162,
+          "warm": 39.902834000007715
+        },
+        "agg: approx distinct": {
+          "cold": 16.173708999995142,
+          "warm": 16.016708999988623
+        },
+        "agg: quantiles": {
+          "cold": 203.06770900002448,
+          "warm": 263.46691600000486
+        },
+        "project 1 col": {
+          "cold": 9.877833000035025,
+          "warm": 10.494834000011906
+        },
+        "project all cols": {
+          "cold": 50.48587500001304,
+          "warm": 52.42545799998334
+        }
+      }
+    },
+    {
+      "label": "consolidated: ONE object",
+      "kind": "consolidated",
+      "files": 1,
+      "rowGroups": 81,
+      "buildMs": 10307.052832999965,
+      "bytes": 288724790,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 2.1311250000144355,
+          "warm": 2.1530410000123084
+        },
+        "search: 2 predicates": {
+          "cold": 8.678499999979977,
+          "warm": 8.390500000037719
+        },
+        "search: range + eq": {
+          "cold": 14.102083000005223,
+          "warm": 14.517125000013039
+        },
+        "search: text prefix": {
+          "cold": 17.877832999976818,
+          "warm": 17.70008300000336
+        },
+        "search: IN list": {
+          "cold": 8.724874999956228,
+          "warm": 8.801625000021886
+        },
+        "search: top 100 rows": {
+          "cold": 198.5162910000072,
+          "warm": 220.657790999976
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 15.189540999999736,
+          "warm": 14.842749999952503
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 21.86995800002478,
+          "warm": 21.551625000021886
+        },
+        "agg: high-card group": {
+          "cold": 68.6160830000299,
+          "warm": 69.09962500003166
+        },
+        "agg: filtered + ordered": {
+          "cold": 12.978166999993846,
+          "warm": 13.212082999991253
+        },
+        "agg: count distinct": {
+          "cold": 39.80679199995939,
+          "warm": 39.459499999997206
+        },
+        "agg: approx distinct": {
+          "cold": 17.076292000012472,
+          "warm": 17.673458000004757
+        },
+        "agg: quantiles": {
+          "cold": 237.8037909999839,
+          "warm": 240.07750000001397
+        },
+        "project 1 col": {
+          "cold": 11.255833000002895,
+          "warm": 11.155334000010043
+        },
+        "project all cols": {
+          "cold": 54.666124999988824,
+          "warm": 55.46883299999172
+        }
+      }
+    },
+    {
+      "label": "native TABLE",
+      "kind": "native",
+      "files": 1,
+      "rowGroups": 84,
+      "buildMs": 16450.547499999986,
+      "bytes": 1216098304,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 0.23858299996936694,
+          "warm": 0.21983299998100847
+        },
+        "search: 2 predicates": {
+          "cold": 3.464832999976352,
+          "warm": 2.1988750000018626
+        },
+        "search: range + eq": {
+          "cold": 8.330707999994047,
+          "warm": 4.376916000037454
+        },
+        "search: text prefix": {
+          "cold": 15.57662500004517,
+          "warm": 13.164333000022452
+        },
+        "search: IN list": {
+          "cold": 6.286542000016198,
+          "warm": 6.043249999987893
+        },
+        "search: top 100 rows": {
+          "cold": 184.60650000005262,
+          "warm": 100.8876670000027
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 4.89391699997941,
+          "warm": 4.969291000044905
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 11.98475000000326,
+          "warm": 11.936499999952503
+        },
+        "agg: high-card group": {
+          "cold": 72.11404099996435,
+          "warm": 62.59533300000476
+        },
+        "agg: filtered + ordered": {
+          "cold": 3.9863750000367872,
+          "warm": 3.770208999980241
+        },
+        "agg: count distinct": {
+          "cold": 35.26300000003539,
+          "warm": 35.883250000013504
+        },
+        "agg: approx distinct": {
+          "cold": 12.678291999967769,
+          "warm": 12.440000000002328
+        },
+        "agg: quantiles": {
+          "cold": 218.08762500004377,
+          "warm": 232.4577500000014
+        },
+        "project 1 col": {
+          "cold": 3.147333000029903,
+          "warm": 2.0586250000051223
+        },
+        "project all cols": {
+          "cold": 47.37799999996787,
+          "warm": 46.20904200000223
+        }
+      }
+    }
+  ]
+}

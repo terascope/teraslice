@@ -1,0 +1,6 @@
+FROM node:24-alpine
+WORKDIR /app
+RUN npm init -y >/dev/null 2>&1 && npm pkg set type=module >/dev/null 2>&1
+RUN npm install @duckdb/node-api@1.5.5-r.3 2>&1 | tail -1
+COPY lifecycle.mjs .
+CMD ["node","lifecycle.mjs"]
