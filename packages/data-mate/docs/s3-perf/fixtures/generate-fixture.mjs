@@ -118,6 +118,23 @@ if (toS3) {
         URL_STYLE '${config.urlStyle}',
         USE_SSL ${config.useSsl}
     )`);
+    /*
+     * DuckDB's S3 uploader refuses an object above `s3_uploader_max_filesize`,
+     * which DEFAULTS TO 800GB. At ~106 MB per million rows the 10B fixture is
+     * roughly 1.0 TB, so the default would fail the write after hours of work.
+     * The setting accepts 50GB-5TB. Raised here for any object projected above
+     * half the default, which leaves plenty of headroom without silently
+     * changing behaviour for the small scales.
+     *
+     * The 10,000-part cap still applies: at 1 TB that is a ~105 MB minimum part
+     * size, which DuckDB handles, but it is why a much larger object would need
+     * a different approach entirely.
+     */
+    const projectedBytes = rows * 106;
+    if (projectedBytes > 400 * 1024 ** 3) {
+        await connection.run('SET s3_uploader_max_filesize = \'4TB\'');
+        console.log('  uploader     s3_uploader_max_filesize raised to 4TB (default 800GB)');
+    }
     console.log(`  s3 endpoint  ${config.endpoint} (ssl ${config.useSsl}, ${config.urlStyle}-style)`);
 } else {
     mkdirSync(out, { recursive: true });
