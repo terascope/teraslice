@@ -10,7 +10,7 @@ type Options = {
 
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
     command: 'sync',
-    describe: 'Sync packages to make sure they are up-to-date',
+    describe: 'Sync internal (workspace) package references, linked versions, and generated docs. External dependency versions are managed by the pnpm catalog in pnpm-workspace.yaml.',
     builder(yargs) {
         return yargs
             .option('verify', {
