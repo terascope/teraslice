@@ -1,0 +1,406 @@
+{
+  "steps": [
+    [
+      "toUpperCase",
+      "category"
+    ],
+    [
+      "toLowerCase",
+      "status"
+    ],
+    [
+      "trim",
+      "name"
+    ],
+    [
+      "toUpperCase",
+      "email"
+    ],
+    [
+      "trim",
+      "description"
+    ]
+  ],
+  "scales": [
+    {
+      "rows": 1000000,
+      "checkpointMs": 0.4415000000008149,
+      "segmentsBefore": {
+        "all": 2500,
+        "uncompressed": 2500
+      },
+      "segmentsAfter": {
+        "all": 1092,
+        "uncompressed": 18
+      },
+      "results": [
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "all SQL",
+          "shape": "projection (5 transforms)",
+          "ms": 197.94587499999943,
+          "sqlCount": 5
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "all SQL",
+          "shape": "transform + filter + group",
+          "ms": 94.92270800000006,
+          "sqlCount": 5
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 583.8029999999999,
+          "sqlCount": 3
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "transform + filter + group",
+          "ms": 267.74233300000014,
+          "sqlCount": 3
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "all UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 1401.2304159999985,
+          "sqlCount": 0
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "all UDF",
+          "shape": "transform + filter + group",
+          "ms": 633.8955000000024,
+          "sqlCount": 0
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "all SQL",
+          "shape": "projection (5 transforms)",
+          "ms": 190.31829199999993,
+          "sqlCount": 5
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "all SQL",
+          "shape": "transform + filter + group",
+          "ms": 109.85325000000012,
+          "sqlCount": 5
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 411.88895799999955,
+          "sqlCount": 3
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "transform + filter + group",
+          "ms": 272.6390840000022,
+          "sqlCount": 3
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "all UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 1014.0326249999998,
+          "sqlCount": 0
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "all UDF",
+          "shape": "transform + filter + group",
+          "ms": 465.4752090000002,
+          "sqlCount": 0
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "all SQL",
+          "shape": "projection (5 transforms)",
+          "ms": 199.6235839999972,
+          "sqlCount": 5
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "all SQL",
+          "shape": "transform + filter + group",
+          "ms": 96.97487499999988,
+          "sqlCount": 5
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 411.6937500000022,
+          "sqlCount": 3
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "transform + filter + group",
+          "ms": 186.80374999999913,
+          "sqlCount": 3
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "all UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 1017.2707919999993,
+          "sqlCount": 0
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "all UDF",
+          "shape": "transform + filter + group",
+          "ms": 465.4178329999995,
+          "sqlCount": 0
+        }
+      ],
+      "gains": [
+        {
+          "storage": "table UNCOMPRESSED",
+          "shape": "projection (5 transforms)",
+          "sql": 197.94587499999943,
+          "mixed": 583.8029999999999,
+          "udf": 1401.2304159999985,
+          "gain": 7.078856359093123
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "shape": "transform + filter + group",
+          "sql": 94.92270800000006,
+          "mixed": 267.74233300000014,
+          "udf": 633.8955000000024,
+          "gain": 6.678017445520012
+        },
+        {
+          "storage": "table COMPRESSED",
+          "shape": "projection (5 transforms)",
+          "sql": 199.6235839999972,
+          "mixed": 411.6937500000022,
+          "udf": 1017.2707919999993,
+          "gain": 5.0959449360453
+        },
+        {
+          "storage": "table COMPRESSED",
+          "shape": "transform + filter + group",
+          "sql": 96.97487499999988,
+          "mixed": 186.80374999999913,
+          "udf": 465.4178329999995,
+          "gain": 4.7993651242138755
+        },
+        {
+          "storage": "parquet view",
+          "shape": "projection (5 transforms)",
+          "sql": 190.31829199999993,
+          "mixed": 411.88895799999955,
+          "udf": 1014.0326249999998,
+          "gain": 5.328088090450077
+        },
+        {
+          "storage": "parquet view",
+          "shape": "transform + filter + group",
+          "sql": 109.85325000000012,
+          "mixed": 272.6390840000022,
+          "udf": 465.4752090000002,
+          "gain": 4.237245680032222
+        }
+      ]
+    },
+    {
+      "rows": 10000000,
+      "checkpointMs": 0.9017500000190921,
+      "segmentsBefore": {
+        "all": 23722,
+        "uncompressed": 23722
+      },
+      "segmentsAfter": {
+        "all": 10273,
+        "uncompressed": 164
+      },
+      "results": [
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "all SQL",
+          "shape": "projection (5 transforms)",
+          "ms": 1439.3722500000003,
+          "sqlCount": 5
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "all SQL",
+          "shape": "transform + filter + group",
+          "ms": 646.1722499999887,
+          "sqlCount": 5
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 5798.246665999992,
+          "sqlCount": 3
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "transform + filter + group",
+          "ms": 2700.729249999975,
+          "sqlCount": 3
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "all UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 13840.287749999989,
+          "sqlCount": 0
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "pipeline": "all UDF",
+          "shape": "transform + filter + group",
+          "ms": 6352.627582999994,
+          "sqlCount": 0
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "all SQL",
+          "shape": "projection (5 transforms)",
+          "ms": 1412.0767089999863,
+          "sqlCount": 5
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "all SQL",
+          "shape": "transform + filter + group",
+          "ms": 662.704916000017,
+          "sqlCount": 5
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 4094.4292089999944,
+          "sqlCount": 3
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "transform + filter + group",
+          "ms": 1940.7713330000115,
+          "sqlCount": 3
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "all UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 10114.269124999992,
+          "sqlCount": 0
+        },
+        {
+          "storage": "parquet view",
+          "pipeline": "all UDF",
+          "shape": "transform + filter + group",
+          "ms": 4624.079207999981,
+          "sqlCount": 0
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "all SQL",
+          "shape": "projection (5 transforms)",
+          "ms": 1399.2781670000404,
+          "sqlCount": 5
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "all SQL",
+          "shape": "transform + filter + group",
+          "ms": 654.9259580000071,
+          "sqlCount": 5
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 4285.618917000014,
+          "sqlCount": 3
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "mixed 3 SQL + 2 UDF",
+          "shape": "transform + filter + group",
+          "ms": 1892.6694160000188,
+          "sqlCount": 3
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "all UDF",
+          "shape": "projection (5 transforms)",
+          "ms": 10145.617165999953,
+          "sqlCount": 0
+        },
+        {
+          "storage": "table COMPRESSED",
+          "pipeline": "all UDF",
+          "shape": "transform + filter + group",
+          "ms": 4647.485750000051,
+          "sqlCount": 0
+        }
+      ],
+      "gains": [
+        {
+          "storage": "table UNCOMPRESSED",
+          "shape": "projection (5 transforms)",
+          "sql": 1439.3722500000003,
+          "mixed": 5798.246665999992,
+          "udf": 13840.287749999989,
+          "gain": 9.615502695706398
+        },
+        {
+          "storage": "table UNCOMPRESSED",
+          "shape": "transform + filter + group",
+          "sql": 646.1722499999887,
+          "mixed": 2700.729249999975,
+          "udf": 6352.627582999994,
+          "gain": 9.831167437165718
+        },
+        {
+          "storage": "table COMPRESSED",
+          "shape": "projection (5 transforms)",
+          "sql": 1399.2781670000404,
+          "mixed": 4285.618917000014,
+          "udf": 10145.617165999953,
+          "gain": 7.250607781404525
+        },
+        {
+          "storage": "table COMPRESSED",
+          "shape": "transform + filter + group",
+          "sql": 654.9259580000071,
+          "mixed": 1892.6694160000188,
+          "udf": 4647.485750000051,
+          "gain": 7.096200254746965
+        },
+        {
+          "storage": "parquet view",
+          "shape": "projection (5 transforms)",
+          "sql": 1412.0767089999863,
+          "mixed": 4094.4292089999944,
+          "udf": 10114.269124999992,
+          "gain": 7.162690993014665
+        },
+        {
+          "storage": "parquet view",
+          "shape": "transform + filter + group",
+          "sql": 662.704916000017,
+          "mixed": 1940.7713330000115,
+          "udf": 4624.079207999981,
+          "gain": 6.977583984000297
+        }
+      ]
+    }
+  ]
+}

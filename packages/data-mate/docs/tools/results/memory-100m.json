@@ -1,0 +1,112 @@
+{
+  "rows": 100000000,
+  "nativeBytes": 11806715904,
+  "parquetBytes": 2936686114,
+  "cases": [
+    {
+      "mode": "native:24GiB",
+      "kind": "native",
+      "limit": "24.0 GiB",
+      "duckMemBytes": 11806703616,
+      "peakRssBytes": 16452386816,
+      "failure": null,
+      "breakdown": [
+        {
+          "tag": "BASE_TABLE",
+          "bytes": 11806703616,
+          "temp": 0
+        }
+      ]
+    },
+    {
+      "mode": "native:8GiB",
+      "kind": "native",
+      "limit": "8.0 GiB",
+      "duckMemBytes": 8227127296,
+      "peakRssBytes": 13990674432,
+      "failure": null,
+      "breakdown": [
+        {
+          "tag": "BASE_TABLE",
+          "bytes": 8227127296,
+          "temp": 0
+        }
+      ]
+    },
+    {
+      "mode": "native:4GiB",
+      "kind": "native",
+      "limit": "4.0 GiB",
+      "duckMemBytes": 4233887744,
+      "peakRssBytes": 9885499392,
+      "failure": null,
+      "breakdown": [
+        {
+          "tag": "BASE_TABLE",
+          "bytes": 4233887744,
+          "temp": 0
+        }
+      ]
+    },
+    {
+      "mode": "parquet:24GiB",
+      "kind": "parquet",
+      "limit": "24.0 GiB",
+      "duckMemBytes": 180510796,
+      "peakRssBytes": 5122949120,
+      "failure": null,
+      "breakdown": [
+        {
+          "tag": "EXTERNAL_FILE_CACHE",
+          "bytes": 180510720,
+          "temp": 0
+        },
+        {
+          "tag": "OBJECT_CACHE",
+          "bytes": 76,
+          "temp": 0
+        }
+      ]
+    },
+    {
+      "mode": "parquet:4GiB",
+      "kind": "parquet",
+      "limit": "4.0 GiB",
+      "duckMemBytes": 180510796,
+      "peakRssBytes": 5010604032,
+      "failure": null,
+      "breakdown": [
+        {
+          "tag": "EXTERNAL_FILE_CACHE",
+          "bytes": 180510720,
+          "temp": 0
+        },
+        {
+          "tag": "OBJECT_CACHE",
+          "bytes": 76,
+          "temp": 0
+        }
+      ]
+    },
+    {
+      "mode": "parquet:1GiB",
+      "kind": "parquet",
+      "limit": "1.0 GiB",
+      "duckMemBytes": 180510796,
+      "peakRssBytes": 4832215040,
+      "failure": null,
+      "breakdown": [
+        {
+          "tag": "EXTERNAL_FILE_CACHE",
+          "bytes": 180510720,
+          "temp": 0
+        },
+        {
+          "tag": "OBJECT_CACHE",
+          "bytes": 76,
+          "temp": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,582 @@
+{
+  "rows": 10000000,
+  "queries": [
+    "count(*) [metadata only]",
+    "search: 2 predicates",
+    "search: range + eq",
+    "search: text prefix",
+    "search: IN list",
+    "search: top 100 rows",
+    "agg: 1 key + 3 aggs",
+    "agg: 2 keys + 3 aggs",
+    "agg: high-card group",
+    "agg: filtered + ordered",
+    "agg: count distinct",
+    "agg: approx distinct",
+    "agg: quantiles",
+    "project 1 col",
+    "project all cols"
+  ],
+  "layouts": [
+    {
+      "label": "10 files",
+      "kind": "parquet",
+      "files": 10,
+      "rowGroups": 90,
+      "produceMs": 90449.11025,
+      "bytes": 294030313,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 4.095375000004424,
+          "warm": 3.8675420000072336
+        },
+        "search: 2 predicates": {
+          "cold": 6.376292000000831,
+          "warm": 6.2376660000009
+        },
+        "search: range + eq": {
+          "cold": 12.1127919999999,
+          "warm": 13.00420799999847
+        },
+        "search: text prefix": {
+          "cold": 7.918208000002778,
+          "warm": 7.764458000005106
+        },
+        "search: IN list": {
+          "cold": 7.487583000009181,
+          "warm": 10.796208999992814
+        },
+        "search: top 100 rows": {
+          "cold": 209.17716700000165,
+          "warm": 222.5942919999943
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 13.481832999998005,
+          "warm": 13.897708000004059
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 19.979291999989073,
+          "warm": 19.664583000005223
+        },
+        "agg: high-card group": {
+          "cold": 71.49099999999453,
+          "warm": 71.22941699999501
+        },
+        "agg: filtered + ordered": {
+          "cold": 11.751917000001413,
+          "warm": 11.547875000003842
+        },
+        "agg: count distinct": {
+          "cold": 38.40762499999255,
+          "warm": 40.06779099999403
+        },
+        "agg: approx distinct": {
+          "cold": 16.6677500000078,
+          "warm": 15.565833000000566
+        },
+        "agg: quantiles": {
+          "cold": 223.45341700001154,
+          "warm": 234.30933299999742
+        },
+        "project 1 col": {
+          "cold": 9.302041999995708,
+          "warm": 9.13612500000454
+        },
+        "project all cols": {
+          "cold": 60.77804200000537,
+          "warm": 55.45191599999089
+        }
+      }
+    },
+    {
+      "label": "100 files",
+      "kind": "parquet",
+      "files": 100,
+      "rowGroups": 100,
+      "produceMs": 93031.4685,
+      "bytes": 306277379,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 3.685874999995576,
+          "warm": 4.056458999984898
+        },
+        "search: 2 predicates": {
+          "cold": 7.957790999993449,
+          "warm": 7.366084000008414
+        },
+        "search: range + eq": {
+          "cold": 12.768708000017796,
+          "warm": 12.90458299999591
+        },
+        "search: text prefix": {
+          "cold": 16.775290999998106,
+          "warm": 17.384665999998106
+        },
+        "search: IN list": {
+          "cold": 8.239542000024812,
+          "warm": 7.8039999999746215
+        },
+        "search: top 100 rows": {
+          "cold": 204.13333299997612,
+          "warm": 205.27612500000396
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 13.63758300000336,
+          "warm": 13.49033399997279
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 20.283832999994047,
+          "warm": 20.110958000004757
+        },
+        "agg: high-card group": {
+          "cold": 76.1354589999828,
+          "warm": 70.72412499997881
+        },
+        "agg: filtered + ordered": {
+          "cold": 12.858915999997407,
+          "warm": 12.323291999986395
+        },
+        "agg: count distinct": {
+          "cold": 39.00150000001304,
+          "warm": 39.21112500000163
+        },
+        "agg: approx distinct": {
+          "cold": 16.163292000012007,
+          "warm": 16.05762499998673
+        },
+        "agg: quantiles": {
+          "cold": 265.2577090000268,
+          "warm": 245.93237499997485
+        },
+        "project 1 col": {
+          "cold": 10.293082999996841,
+          "warm": 9.711750000016764
+        },
+        "project all cols": {
+          "cold": 50.98454100001254,
+          "warm": 52.04945900000166
+        }
+      }
+    },
+    {
+      "label": "1,000 files",
+      "kind": "parquet",
+      "files": 1000,
+      "rowGroups": 1000,
+      "produceMs": 85836.320584,
+      "bytes": 400833636,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 29.620959000021685,
+          "warm": 28.004833000013605
+        },
+        "search: 2 predicates": {
+          "cold": 68.93991700001061,
+          "warm": 70.94245900004171
+        },
+        "search: range + eq": {
+          "cold": 71.42158299998846,
+          "warm": 71.14891599997645
+        },
+        "search: text prefix": {
+          "cold": 34.351874999993015,
+          "warm": 33.975582999992184
+        },
+        "search: IN list": {
+          "cold": 29.523209000006318,
+          "warm": 28.3360410000314
+        },
+        "search: top 100 rows": {
+          "cold": 272.72233400004916,
+          "warm": 258.42699999996694
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 36.57654199999524,
+          "warm": 36.49833299999591
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 42.895290999964345,
+          "warm": 42.837207999953534
+        },
+        "agg: high-card group": {
+          "cold": 88.45766600000206,
+          "warm": 81.54958300001454
+        },
+        "agg: filtered + ordered": {
+          "cold": 34.45179199997801,
+          "warm": 34.48579200002132
+        },
+        "agg: count distinct": {
+          "cold": 55.25125000003027,
+          "warm": 53.68895799998427
+        },
+        "agg: approx distinct": {
+          "cold": 33.0611659999704,
+          "warm": 33.601625000010245
+        },
+        "agg: quantiles": {
+          "cold": 327.75491699995473,
+          "warm": 264.3178750000079
+        },
+        "project 1 col": {
+          "cold": 30.21766700001899,
+          "warm": 30.30883300001733
+        },
+        "project all cols": {
+          "cold": 68.24012500001118,
+          "warm": 66.73441699997056
+        }
+      }
+    },
+    {
+      "label": "5,000 files",
+      "kind": "parquet",
+      "files": 5000,
+      "rowGroups": 5000,
+      "produceMs": 91446.98087500001,
+      "bytes": 478884146,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 143.1865000000107,
+          "warm": 140.36154099996202
+        },
+        "search: 2 predicates": {
+          "cold": 347.4614580000052,
+          "warm": 345.6751670000376
+        },
+        "search: range + eq": {
+          "cold": 352.0759589999798,
+          "warm": 346.06916600000113
+        },
+        "search: text prefix": {
+          "cold": 130.54937500000233,
+          "warm": 130.99012500001118
+        },
+        "search: IN list": {
+          "cold": 130.42508300003828,
+          "warm": 128.28908300003968
+        },
+        "search: top 100 rows": {
+          "cold": 848.5299579999992,
+          "warm": 700.5271669999929
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 169.49920899997232,
+          "warm": 161.30495899997186
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 157.84337499999674,
+          "warm": 159.53295900003286
+        },
+        "agg: high-card group": {
+          "cold": 207.31487499998184,
+          "warm": 191.8670840000268
+        },
+        "agg: filtered + ordered": {
+          "cold": 144.55574999999953,
+          "warm": 157.50049999996554
+        },
+        "agg: count distinct": {
+          "cold": 167.29737499996554,
+          "warm": 160.40320800000336
+        },
+        "agg: approx distinct": {
+          "cold": 141.60129200003576,
+          "warm": 159.09566699998686
+        },
+        "agg: quantiles": {
+          "cold": 325.31374999997206,
+          "warm": 333.66137500002515
+        },
+        "project 1 col": {
+          "cold": 141.78258299996378,
+          "warm": 180.65112500003306
+        },
+        "project all cols": {
+          "cold": 170.3624580000178,
+          "warm": 205.91025000001537
+        }
+      }
+    },
+    {
+      "label": "jagged 10k-100k",
+      "kind": "parquet",
+      "files": 178,
+      "rowGroups": 178,
+      "produceMs": 91242.17133400001,
+      "bytes": 322550780,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 6.503958999994211,
+          "warm": 6.233624999993481
+        },
+        "search: 2 predicates": {
+          "cold": 12.505707999982405,
+          "warm": 12.593208000005689
+        },
+        "search: range + eq": {
+          "cold": 14.607499999983702,
+          "warm": 17.84420799999498
+        },
+        "search: text prefix": {
+          "cold": 17.582624999980908,
+          "warm": 19.493707999994513
+        },
+        "search: IN list": {
+          "cold": 9.905333000002429,
+          "warm": 9.242708000005223
+        },
+        "search: top 100 rows": {
+          "cold": 214.54354199999943,
+          "warm": 211.91687499999534
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 15.866207999992184,
+          "warm": 15.83041699999012
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 22.631875000020955,
+          "warm": 22.384707999997772
+        },
+        "agg: high-card group": {
+          "cold": 68.09804200002691,
+          "warm": 68.84037500002887
+        },
+        "agg: filtered + ordered": {
+          "cold": 13.905291999981273,
+          "warm": 13.805042000021785
+        },
+        "agg: count distinct": {
+          "cold": 40.55708300002152,
+          "warm": 39.72429199999897
+        },
+        "agg: approx distinct": {
+          "cold": 16.95408299996052,
+          "warm": 17.080208000028506
+        },
+        "agg: quantiles": {
+          "cold": 228.16862499999115,
+          "warm": 231.78599999996368
+        },
+        "project 1 col": {
+          "cold": 11.03158299997449,
+          "warm": 11.076499999966472
+        },
+        "project all cols": {
+          "cold": 45.87987499998417,
+          "warm": 47.05783399997745
+        }
+      }
+    },
+    {
+      "label": "merged (1 file)",
+      "kind": "merged",
+      "files": 1,
+      "rowGroups": 81,
+      "produceMs": 1588.5280410000123,
+      "bytes": 288724790,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 2.1392500000074506,
+          "warm": 2.107709000003524
+        },
+        "search: 2 predicates": {
+          "cold": 9.796875,
+          "warm": 7.772499999962747
+        },
+        "search: range + eq": {
+          "cold": 16.74945800000569,
+          "warm": 13.971250000002328
+        },
+        "search: text prefix": {
+          "cold": 19.293374999950174,
+          "warm": 17.253958000044804
+        },
+        "search: IN list": {
+          "cold": 8.73687499994412,
+          "warm": 8.709207999985665
+        },
+        "search: top 100 rows": {
+          "cold": 213.81945800001267,
+          "warm": 211.21612499997718
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 14.1100420000148,
+          "warm": 14.17262500000652
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 20.760249999992084,
+          "warm": 20.571874999965075
+        },
+        "agg: high-card group": {
+          "cold": 95.162416999985,
+          "warm": 67.42887500004144
+        },
+        "agg: filtered + ordered": {
+          "cold": 12.812833000032697,
+          "warm": 13.317083999980241
+        },
+        "agg: count distinct": {
+          "cold": 39.46920799999498,
+          "warm": 40.09545799996704
+        },
+        "agg: approx distinct": {
+          "cold": 16.712209000019357,
+          "warm": 16.994707999983802
+        },
+        "agg: quantiles": {
+          "cold": 256.5533749999595,
+          "warm": 236.94812499999534
+        },
+        "project 1 col": {
+          "cold": 10.834458000026643,
+          "warm": 10.828791999956593
+        },
+        "project all cols": {
+          "cold": 55.029541999974754,
+          "warm": 56.19337499997346
+        }
+      }
+    },
+    {
+      "label": "merged (staged)",
+      "kind": "merged",
+      "files": 1,
+      "rowGroups": 82,
+      "produceMs": 3756.751333000022,
+      "bytes": 289013868,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 2.1375000000116415,
+          "warm": 2.1153330000233836
+        },
+        "search: 2 predicates": {
+          "cold": 9.288834000006318,
+          "warm": 7.446875000023283
+        },
+        "search: range + eq": {
+          "cold": 16.740041000011843,
+          "warm": 14.376875000016298
+        },
+        "search: text prefix": {
+          "cold": 19.385874999978114,
+          "warm": 18.075249999994412
+        },
+        "search: IN list": {
+          "cold": 8.79520799999591,
+          "warm": 8.558499999984633
+        },
+        "search: top 100 rows": {
+          "cold": 215.1935410000151,
+          "warm": 203.60324999998556
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 15.117167000018526,
+          "warm": 14.570666000014171
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 20.837499999965075,
+          "warm": 20.97266699996544
+        },
+        "agg: high-card group": {
+          "cold": 68.43941699998686,
+          "warm": 68.12758299999405
+        },
+        "agg: filtered + ordered": {
+          "cold": 12.629749999963678,
+          "warm": 13.322166999976616
+        },
+        "agg: count distinct": {
+          "cold": 39.09862499998417,
+          "warm": 39.413624999986496
+        },
+        "agg: approx distinct": {
+          "cold": 17.161707999999635,
+          "warm": 17.266875000030268
+        },
+        "agg: quantiles": {
+          "cold": 241.27066699997522,
+          "warm": 271.96000000002095
+        },
+        "project 1 col": {
+          "cold": 11.211249999993015,
+          "warm": 10.587874999968335
+        },
+        "project all cols": {
+          "cold": 55.31258299999172,
+          "warm": 56.23954199999571
+        }
+      }
+    },
+    {
+      "label": "native table",
+      "kind": "native",
+      "files": 1,
+      "rowGroups": 82,
+      "produceMs": 16951.700332999986,
+      "bytes": 1216622592,
+      "queries": {
+        "count(*) [metadata only]": {
+          "cold": 0.4627079999772832,
+          "warm": 0.21845899999607354
+        },
+        "search: 2 predicates": {
+          "cold": 4.832915999984834,
+          "warm": 2.277416000026278
+        },
+        "search: range + eq": {
+          "cold": 9.738000000012107,
+          "warm": 4.4557090000016615
+        },
+        "search: text prefix": {
+          "cold": 17.306916999979876,
+          "warm": 13.24966700002551
+        },
+        "search: IN list": {
+          "cold": 6.194750000024214,
+          "warm": 6.240624999976717
+        },
+        "search: top 100 rows": {
+          "cold": 252.27379200002179,
+          "warm": 100.37104100000579
+        },
+        "agg: 1 key + 3 aggs": {
+          "cold": 5.003334000008181,
+          "warm": 4.961249999993015
+        },
+        "agg: 2 keys + 3 aggs": {
+          "cold": 12.147791000024881,
+          "warm": 12.119166999997105
+        },
+        "agg: high-card group": {
+          "cold": 63.853999999992084,
+          "warm": 64.7107079999987
+        },
+        "agg: filtered + ordered": {
+          "cold": 4.052832999965176,
+          "warm": 3.880708000040613
+        },
+        "agg: count distinct": {
+          "cold": 34.94525000004796,
+          "warm": 34.96029100002488
+        },
+        "agg: approx distinct": {
+          "cold": 12.235791000013705,
+          "warm": 12.489208000013605
+        },
+        "agg: quantiles": {
+          "cold": 205.8909579999745,
+          "warm": 231.39274999999907
+        },
+        "project 1 col": {
+          "cold": 2.797000000020489,
+          "warm": 1.8031670000054874
+        },
+        "project all cols": {
+          "cold": 44.57441600004677,
+          "warm": 45.93487500003539
+        }
+      }
+    }
+  ]
+}

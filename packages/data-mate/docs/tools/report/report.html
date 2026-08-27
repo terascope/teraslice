@@ -1,0 +1,1112 @@
+<title>Parquet or a Table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --surface: #fcfcfb;
+  --surface-2: #f4f5f3;
+  --surface-3: #eceeeb;
+  --ink: #14181d;
+  --ink-2: #4d5661;
+  --ink-3: #78828e;
+  --rule: #dcdfdb;
+  --rule-2: #c6cbc5;
+  --accent: #1f5fae;
+  --accent-soft: #e7eff9;
+  --good: #1a6b46;
+  --warn: #8a5a00;
+  --crit: #a33232;
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --s4: #eda100;
+  --shadow: 0 1px 2px rgba(20,24,29,.06), 0 8px 24px -12px rgba(20,24,29,.14);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface: #14171b;
+    --surface-2: #1b1f24;
+    --surface-3: #232830;
+    --ink: #eef1f5;
+    --ink-2: #a9b3bf;
+    --ink-3: #7d8794;
+    --rule: #2b3138;
+    --rule-2: #3a424b;
+    --accent: #6aa9f0;
+    --accent-soft: #1c2a3b;
+    --good: #58c191;
+    --warn: #d9a441;
+    --crit: #e88b8b;
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
+    --s4: #c98500;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #14171b;
+  --surface-2: #1b1f24;
+  --surface-3: #232830;
+  --ink: #eef1f5;
+  --ink-2: #a9b3bf;
+  --ink-3: #7d8794;
+  --rule: #2b3138;
+  --rule-2: #3a424b;
+  --accent: #6aa9f0;
+  --accent-soft: #1c2a3b;
+  --good: #58c191;
+  --warn: #d9a441;
+  --crit: #e88b8b;
+  --s1: #3987e5;
+  --s2: #d95926;
+  --s3: #199e70;
+  --s4: #c98500;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1140px; margin: 0 auto; padding: 0 28px 96px; }
+.col { max-width: 68ch; }
+
+h1, h2, h3, h4, .eyebrow, .lede, th, .metric-v, .c-lbl, .c-val, .c-tick, .c-end, .c-axlbl, .lg, .kicker {
+  font-family: Archivo, "Helvetica Neue", Arial, sans-serif;
+}
+h1 { font-size: clamp(2.1rem, 4.4vw, 3.1rem); line-height: 1.04; letter-spacing: -0.022em; margin: 0 0 14px; font-weight: 700; text-wrap: balance; }
+h2 { font-size: 1.62rem; line-height: 1.16; letter-spacing: -0.014em; margin: 0 0 6px; font-weight: 650; text-wrap: balance; }
+h3 { font-size: 1.12rem; line-height: 1.28; letter-spacing: -0.006em; margin: 34px 0 8px; font-weight: 650; text-wrap: balance; }
+h4 { font-size: .82rem; text-transform: uppercase; letter-spacing: .11em; color: var(--ink-3); margin: 28px 0 8px; font-weight: 600; }
+p { margin: 0 0 15px; }
+a { color: var(--accent); }
+strong { font-weight: 700; color: var(--ink); }
+code, .mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: .88em; }
+code { background: var(--surface-3); padding: .1em .34em; border-radius: 3px; }
+
+/* ---- masthead ---- */
+.masthead { border-bottom: 2px solid var(--ink); padding: 44px 0 22px; margin-bottom: 34px; }
+.eyebrow { font-size: .74rem; text-transform: uppercase; letter-spacing: .17em; color: var(--accent); font-weight: 650; margin-bottom: 16px; }
+.lede { font-family: "Source Serif 4", Georgia, serif; font-size: 1.22rem; line-height: 1.5; color: var(--ink-2); max-width: 62ch; margin: 0 0 20px; }
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px 26px; font-family: "IBM Plex Mono", monospace; font-size: .74rem; color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: 14px; }
+.meta-row b { color: var(--ink-2); font-weight: 500; }
+
+/* ---- verdict ---- */
+.verdict { background: var(--surface-2); border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 4px; padding: 22px 26px; margin: 0 0 38px; }
+.verdict h2 { font-size: 1.06rem; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-3); margin-bottom: 14px; font-weight: 600; }
+.verdict ol { margin: 0; padding-left: 20px; }
+.verdict li { margin-bottom: 10px; }
+.verdict li:last-child { margin-bottom: 0; }
+
+/* ---- metric strip ---- */
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; margin: 26px 0 34px; }
+.metric { background: var(--surface); padding: 16px 18px; }
+.metric-k { font-family: Archivo, sans-serif; font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); margin-bottom: 7px; }
+.metric-v { font-size: 1.52rem; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.metric-n { font-size: .8rem; color: var(--ink-2); line-height: 1.4; margin-top: 5px; font-family: "Source Serif 4", serif; }
+
+/* ---- sections ---- */
+section { padding-top: 26px; scroll-margin-top: 70px; }
+.sec-head { display: flex; align-items: baseline; gap: 14px; border-top: 1px solid var(--rule-2); padding-top: 20px; margin-bottom: 16px; }
+.sec-num { font-family: "IBM Plex Mono", monospace; font-size: .82rem; color: var(--accent); font-weight: 600; letter-spacing: .04em; padding-top: 5px; }
+.q { color: var(--ink-2); font-style: italic; margin: -2px 0 18px; max-width: 66ch; }
+
+/* ---- tables ---- */
+.table-scroll { overflow-x: auto; margin: 18px 0; border: 1px solid var(--rule); border-radius: 4px; }
+table { border-collapse: collapse; width: 100%; font-size: .82rem; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+th, td { padding: 8px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--rule); }
+thead th { background: var(--surface-2); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); font-weight: 600; position: sticky; top: 0; }
+tbody th { text-align: left; font-weight: 500; color: var(--ink); }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: var(--surface-2); }
+td.win { color: var(--good); font-weight: 600; }
+td.lose { color: var(--crit); }
+td.flag { color: var(--warn); font-weight: 600; }
+.tnote, .axis-note { font-size: .78rem; color: var(--ink-3); margin: -8px 0 20px; }
+.col ul { margin: 0 0 15px; padding-left: 22px; }
+.col li { margin-bottom: 9px; }
+.col li:last-child { margin-bottom: 0; }
+.tag { font-family: Archivo, sans-serif; font-size: .6rem; text-transform: uppercase; letter-spacing: .07em; background: var(--accent-soft); color: var(--accent); padding: .13em .42em; border-radius: 2px; vertical-align: .08em; font-weight: 650; }
+td.why { white-space: normal; min-width: 22ch; max-width: 40ch; font-family: "Source Serif 4", Georgia, serif; font-size: .88rem; color: var(--ink-2); text-align: left; line-height: 1.45; }
+table td code { background: none; padding: 0; font-size: .78rem; color: var(--ink-2); }
+tbody th { white-space: normal; min-width: 14ch; }
+
+/* ---- charts ---- */
+.fig { margin: 24px 0 30px; }
+.chart-scroll { overflow-x: auto; }
+.chart { width: 100%; min-width: 480px; height: auto; display: block; }
+.c-lbl { font-size: 11.5px; fill: var(--ink-2); }
+.c-val { font-size: 11px; fill: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
+.c-tick { font-size: 10.5px; fill: var(--ink-3); font-variant-numeric: tabular-nums; }
+.c-end { font-size: 11.5px; font-weight: 600; }
+.c-axlbl { font-size: 11px; fill: var(--ink-3); }
+.c-grid { stroke: var(--rule); stroke-width: 1; }
+.c-axis { stroke: var(--rule-2); stroke-width: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; }
+.lg { font-size: .75rem; color: var(--ink-2); display: inline-flex; align-items: center; gap: 7px; }
+.lg i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+figcaption { font-size: .84rem; color: var(--ink-2); margin-top: 12px; max-width: 70ch; line-height: 1.5; }
+
+/* ---- diagrams ---- */
+.fig svg[role="img"]:not(.chart) { width: 100%; height: auto; color: var(--ink); }
+
+/* ---- callouts ---- */
+.callout { border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 4px; padding: 16px 20px; margin: 22px 0; background: var(--surface-2); font-size: .93rem; }
+.callout.flag { border-left-color: var(--warn); }
+.callout.risk { border-left-color: var(--crit); }
+.callout.good { border-left-color: var(--good); }
+.callout .kicker { display: block; font-size: .69rem; text-transform: uppercase; letter-spacing: .11em; margin-bottom: 7px; font-weight: 650; color: var(--ink-3); }
+.callout.flag .kicker { color: var(--warn); }
+.callout.risk .kicker { color: var(--crit); }
+.callout.good .kicker { color: var(--good); }
+.callout p:last-child { margin-bottom: 0; }
+
+/* ---- nav ---- */
+nav.toc { position: sticky; top: 0; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--rule); z-index: 20; margin-bottom: 8px; }
+nav.toc ol { display: flex; flex-wrap: wrap; gap: 2px 20px; list-style: none; margin: 0; padding: 11px 0; max-width: 1140px; margin: 0 auto; padding-left: 28px; padding-right: 28px; font-family: Archivo, sans-serif; font-size: .78rem; }
+nav.toc a { color: var(--ink-2); text-decoration: none; }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+.rec { display: grid; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; margin: 22px 0; }
+.rec > div { background: var(--surface); padding: 15px 20px; display: grid; grid-template-columns: 30px 1fr; column-gap: 14px; row-gap: 7px; align-items: start; }
+.rec .n { font-family: "IBM Plex Mono", monospace; font-size: .8rem; color: var(--accent); font-weight: 600; padding-top: 3px; grid-column: 1; grid-row: 1; }
+/* Every paragraph sits in column 2, whatever the count. Without this an entry with a SECOND
+   paragraph flows it into the 30px badge column, where it renders one word per line. */
+.rec > div > p { grid-column: 2; margin: 0; font-size: .93rem; }
+.rec .t { font-family: Archivo, sans-serif; font-weight: 650; display: block; margin-bottom: 3px; font-size: .97rem; }
+
+footer { border-top: 1px solid var(--rule); margin-top: 54px; padding-top: 20px; font-size: .8rem; color: var(--ink-3); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .wrap { padding: 0 18px 64px; }
+  nav.toc ol { padding-left: 18px; padding-right: 18px; }
+}
+</style>
+
+<nav class="toc" aria-label="Sections">
+  <ol>
+    <li><a href="#verdict">Verdict</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#battery">The battery</a></li>
+    <li><a href="#p1">1 · Formats</a></li>
+    <li><a href="#p2">2 · Append vs query</a></li>
+    <li><a href="#p3">3 · Memory vs disk</a></li>
+    <li><a href="#p4">4 · File layout</a></li>
+    <li><a href="#p5">5 · Local vs S3</a></li>
+    <li><a href="#transforms">Transforms</a></li>
+    <li><a href="#risks">Risks</a></li>
+    <li><a href="#next">Next steps</a></li>
+  </ol>
+</nav>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Storage decision · qpl-worker · measured 2026-08-26</div>
+  <h1>Parquet or a table?</h1>
+  <p class="lede">The worker receives every search slice as a Parquet payload. It can append them
+  into a DuckDB table, or leave the bytes alone and query them where they land. This is the
+  measurement behind that choice — five scales, fifteen query shapes, and the S3 round trip that
+  previous rounds left at zero.</p>
+  <div class="meta-row">
+    <span><b>corpus</b> 30 columns, every field type</span>
+    <span><b>scales</b> 100k → 100M rows</span>
+    <span><b>battery</b> 15 query shapes</span>
+    <span><b>machine</b> 14 cores · 36 GB · memory_limit 24 GiB</span>
+    <span><b>DuckDB</b> v1.5.5 via @duckdb/node-api</span>
+  </div>
+</header>
+
+<div class="verdict" id="verdict">
+  <h2>The recommendation</h2>
+  <ol>
+    <li><strong>Keep the payloads as Parquet and query them in place. Do not append into a table.</strong>
+    Landing bytes is <strong>188x</strong> faster to
+    ingest, and a table only repays its cost after <strong>272 queries</strong>
+    on aggregation-shaped work. These jobs aggregate rarely.</li>
+    <li><strong>The query penalty for that is 1.38x, and it uses
+    3.2x less peak memory</strong> — plus it leaves the
+    buffer pool essentially free, which is what lets concurrent jobs coexist. <em>One caveat, precisely
+    bounded: a wide <code>SELECT * … ORDER BY … LIMIT</code> over Parquet needs ~1 GiB of scan
+    headroom regardless of dataset size, and fails rather than degrading if it does not get it.
+    Projecting only the needed columns removes it.</em> Section 1 has the mechanism.</li>
+    <li><strong>Do not hold tables in memory.</strong> At every scale from 100k to 100M, a file-backed
+    table queries within noise of an in-memory one, while costing
+    73.9 s to load and
+    gigabytes of RAM to keep.</li>
+    <li><strong>Size slices, not files.</strong> Query cost tracks <em>row groups</em>, not file count:
+    10 files and 100 files are identical. Only consolidate if slices fall to ~10k rows, and target
+    ~2M rows per object when you do.</li>
+    <li><strong>On S3, latency raises the floor for every layout equally — it does not punish object
+    count the way we predicted.</strong> A request-count model over-predicts the penalty by ~22x
+    because DuckDB prunes objects and fetches concurrently. Turn the three httpfs caches on anyway;
+    they are off by default and cost nothing.</li>
+  </ol>
+</div>
+
+<div class="metrics">
+  <div class="metric">
+    <div class="metric-k">Parquet vs native</div>
+    <div class="metric-v">1.38x</div>
+    <div class="metric-n">slower on the full battery at 100M — stable from 100k up</div>
+  </div>
+  <div class="metric">
+    <div class="metric-k">Peak memory</div>
+    <div class="metric-v">3.2x less</div>
+    <div class="metric-n">process RSS, Parquet vs a native table — <em>not</em> the 65x an earlier
+    draft claimed</div>
+  </div>
+  <div class="metric">
+    <div class="metric-k">Disk</div>
+    <div class="metric-v">4.0x less</div>
+    <div class="metric-n">28.0 MB per million, against native's 112.6</div>
+  </div>
+  <div class="metric">
+    <div class="metric-k">Ingest</div>
+    <div class="metric-v">188x faster</div>
+    <div class="metric-n">landing bytes vs appending, 10M rows</div>
+  </div>
+  <div class="metric">
+    <div class="metric-k">Break-even</div>
+    <div class="metric-v">272</div>
+    <div class="metric-n">queries before a table repays itself</div>
+  </div>
+</div>
+
+<section id="architecture">
+  <div class="sec-head"><h2>Where the decision actually sits</h2></div>
+  <div class="col">
+    <p>Records become columnar exactly once, on the producer, and the wire has carried Parquet since
+    that was settled. The worker therefore never coerces anything — it receives finished bytes. That
+    is what makes this a real choice rather than a tuning exercise: <strong>the worker already holds a
+    queryable file, and appending means decoding and re-encoding data that is already in the right
+    shape.</strong></p>
+  </div>
+  <!-- DIAGRAM 1: the flow, and where the decision sits -->
+<figure class="fig">
+<svg viewBox="0 0 900 260" role="img" aria-label="Elasticsearch feeds qpl-search-api, which coerces records once and returns Parquet+zstd over the wire to qpl-worker, where the storage decision is made and all queries and joins run." xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+    </marker>
+    <marker id="ar-hot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="var(--accent)"/>
+    </marker>
+  </defs>
+
+  <!-- Elasticsearch -->
+  <rect x="8" y="86" width="104" height="52" rx="4" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.55"/>
+  <text x="60" y="108" text-anchor="middle" font-size="12" fill="currentColor">Elasticsearch</text>
+  <text x="60" y="124" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">parsed JS objects</text>
+
+  <line x1="112" y1="112" x2="168" y2="112" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- producer -->
+  <rect x="170" y="44" width="220" height="136" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="280" y="34" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.65" letter-spacing="0.08em">PRODUCER</text>
+  <text x="280" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">qpl-search-api</text>
+  <text x="280" y="90" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.75">stateless · distributed</text>
+  <text x="280" y="108" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.75">≤ 100k records per slice</text>
+  <line x1="192" y1="120" x2="368" y2="120" stroke="currentColor" stroke-width="1" opacity="0.25"/>
+  <text x="280" y="140" text-anchor="middle" font-size="10.5" fill="currentColor">coerceToType → typed appender</text>
+  <text x="280" y="158" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.75">validation happens ONCE, here</text>
+
+  <!-- wire -->
+  <line x1="390" y1="112" x2="516" y2="112" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar-hot)"/>
+  <text x="453" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="var(--accent)">Parquet + zstd</text>
+  <text x="453" y="130" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.7">28 MB / million</text>
+
+  <!-- worker -->
+  <rect x="518" y="24" width="374" height="212" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="705" y="16" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.65" letter-spacing="0.08em">CONSUMER — the only stateful tier</text>
+  <text x="705" y="48" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">qpl-worker (~64 GB)</text>
+  <text x="705" y="68" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.75">receives every payload's bytes</text>
+
+  <rect x="540" y="84" width="330" height="60" rx="4" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="705" y="106" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--accent)">THE DECISION</text>
+  <text x="705" y="126" text-anchor="middle" font-size="10.5" fill="currentColor">append · land the bytes · land then materialise</text>
+
+  <line x1="705" y1="144" x2="705" y2="166" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="560" y="168" width="290" height="52" rx="4" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.55"/>
+  <text x="705" y="190" text-anchor="middle" font-size="11.5" fill="currentColor">SQL: filter · project · aggregate · JOIN</text>
+  <text x="705" y="208" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">joins execute HERE, never in the api-server</text>
+</svg>
+<figcaption>Records become columnar exactly once, on the producer. The wire carries Parquet, so the worker does zero coercion — which is why the only open question is what the worker does with bytes it already holds.</figcaption>
+</figure>
+
+<!-- DIAGRAM 2: the three options, drawn as the DIFFERENCE between them -->
+<figure class="fig">
+<svg viewBox="0 0 900 320" role="img" aria-label="Three worker options compared: appending decodes and re-encodes every payload into one table; landing the bytes is a verbatim copy queried as a Parquet view; landing then materialising pays one rewrite at the end. The decode step is what separates them." xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+    </marker>
+    <marker id="ar2-hot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="var(--accent)"/>
+    </marker>
+  </defs>
+
+  <!-- shared payload source -->
+  <text x="14" y="20" font-size="11" fill="currentColor" opacity="0.65" letter-spacing="0.08em">PAYLOADS IN HAND</text>
+  <g opacity="0.75">
+    <rect x="14" y="30" width="26" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1.3"/>
+    <rect x="44" y="30" width="26" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1.3"/>
+    <rect x="74" y="30" width="26" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1.3"/>
+    <text x="110" y="52" font-size="10" fill="currentColor" opacity="0.7">× N</text>
+  </g>
+
+  <!-- ROW A -->
+  <text x="14" y="106" font-size="12" font-weight="600" fill="currentColor">A · append</text>
+  <line x1="120" y1="100" x2="196" y2="100" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar2-hot)"/>
+  <text x="158" y="92" text-anchor="middle" font-size="10" font-weight="600" fill="var(--accent)">decode</text>
+  <rect x="198" y="80" width="132" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+  <text x="264" y="105" text-anchor="middle" font-size="11" fill="currentColor">INSERT BY NAME</text>
+  <line x1="330" y1="100" x2="392" y2="100" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <rect x="394" y="80" width="120" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.6"/>
+  <text x="454" y="105" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">one table</text>
+  <text x="536" y="97" font-size="10.5" fill="currentColor" opacity="0.8">per-STATEMENT cost, paid N times</text>
+  <text x="536" y="113" font-size="10.5" fill="currentColor" opacity="0.8">table is queryable only after the last append</text>
+
+  <!-- ROW B -->
+  <text x="14" y="186" font-size="12" font-weight="600" fill="currentColor">B · land</text>
+  <line x1="120" y1="180" x2="392" y2="180" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <text x="256" y="172" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.8">byte copy — nothing is decoded</text>
+  <rect x="394" y="160" width="120" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.6"/>
+  <text x="454" y="185" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">parquet view</text>
+  <text x="536" y="177" font-size="10.5" fill="currentColor" opacity="0.8">ingest ≈ free; queryable immediately</text>
+  <text x="536" y="193" font-size="10.5" fill="currentColor" opacity="0.8">pays a per-ROW-GROUP tax on every query</text>
+
+  <!-- ROW C -->
+  <text x="14" y="266" font-size="12" font-weight="600" fill="currentColor">C · land, then</text>
+  <text x="14" y="280" font-size="12" font-weight="600" fill="currentColor">materialise</text>
+  <line x1="120" y1="260" x2="196" y2="260" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <text x="158" y="252" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.8">copy</text>
+  <rect x="198" y="240" width="132" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.7"/>
+  <text x="264" y="265" text-anchor="middle" font-size="11" fill="currentColor">landed bytes</text>
+  <line x1="330" y1="260" x2="392" y2="260" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar2-hot)"/>
+  <text x="361" y="252" text-anchor="middle" font-size="10" font-weight="600" fill="var(--accent)">ONE</text>
+  <text x="361" y="278" text-anchor="middle" font-size="9.5" fill="var(--accent)">rewrite</text>
+  <rect x="394" y="240" width="120" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.6"/>
+  <text x="454" y="265" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">one table</text>
+  <text x="536" y="257" font-size="10.5" fill="currentColor" opacity="0.8">B's ingest, A's query cost</text>
+  <text x="536" y="273" font-size="10.5" fill="currentColor" opacity="0.8">the rewrite is deferred to quiesce, and paid once</text>
+</svg>
+<figcaption>The three options differ in exactly one place: where — and how many times — bytes are decoded and re-encoded. A pays it per payload, C pays it once, B never pays it and settles up per query instead.</figcaption>
+</figure>
+
+</section>
+
+<section id="battery">
+  <div class="sec-head"><h2>The query battery</h2></div>
+  <div class="col">
+    <p>Every measurement in this report runs the <strong>same fifteen queries</strong> against
+    whatever is being compared, so a format, a layout and a storage choice are all judged on
+    identical work. Two terms are used throughout and are worth pinning down before the results:</p>
+    <p><strong>"Full battery"</strong> is the sum of the warm times of all fifteen queries below. It
+    is a single number for "how does this option feel across a realistic mix of work" — useful for
+    ranking, but it hides its own distribution.</p>
+    <p><strong>"Cheap queries"</strong> is the five marked <span class="tag">cheap</span>: the ones
+    that are dominated by reading metadata rather than column data. <strong>These are where layout
+    and file count actually land.</strong> The expensive shapes — quantiles, high-cardinality
+    group-bys — spend their time inside the aggregation and barely notice how the bytes are stored.</p>
+    <p><strong>"Aggregation-shaped"</strong>, used in the break-even arithmetic, strips
+    <code>search: top 100 rows</code>. That query is scan-bound rather than metadata-bound and is a
+    disproportionate share of any total, so leaving it in flatters every result that claims a saving.</p>
+  </div>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>query</th><th>SQL</th><th>what it stands for</th></tr></thead>
+<tbody>
+<tr><th>count(*) [metadata only] &nbsp;<span class="tag">cheap</span></th><td><code>SELECT count(*) FROM t</code></td><td class="why">Answered entirely from file footers and row-group statistics — it reads no column data at all. A thermometer for metadata cost, never a workload. Quoting it as "query performance" overstates every layout difference in this report.</td></tr>
+<tr><th>search: 2 predicates &nbsp;<span class="tag">cheap</span></th><td><code>SELECT count(*) FROM t WHERE active = true AND category = 'gamma'</code></td><td class="why">A selective filter on two columns — the commonest search spaces issues. Row-group statistics can skip most groups, so this is the query that rewards good row-group fill most.</td></tr>
+<tr><th>search: range + eq &nbsp;<span class="tag">cheap</span></th><td><code>SELECT count(*) FROM t WHERE amount BETWEEN 100 AND 5000 AND status = 'active'</code></td><td class="why">A numeric range plus an equality. Min/max zone maps prune on the range half.</td></tr>
+<tr><th>search: text prefix</th><td><code>SELECT count(*) FROM t WHERE email LIKE 'user1%'</code></td><td class="why">A string prefix match with no index — every candidate string is examined.</td></tr>
+<tr><th>search: IN list &nbsp;<span class="tag">cheap</span></th><td><code>SELECT count(*) FROM t WHERE category IN ('alpha','gamma')</code></td><td class="why">Set membership on a low-cardinality column.</td></tr>
+<tr><th>search: top 100 rows</th><td><code>SELECT * FROM t WHERE active = true ORDER BY amount DESC LIMIT 100</code></td><td class="why">A sorted page — what a results list in the UI actually asks for. Scan-bound: it reads real column data for every surviving row, so metadata cost is a small share of it. This is the query that flatters a battery total, and it is stripped from the aggregation-shaped view.</td></tr>
+<tr><th>agg: 1 key + 3 aggs</th><td><code>SELECT category, count(*), sum(amount), avg(score) FROM t GROUP BY 1</code></td><td class="why">A single-key group-by with three aggregates — one dashboard tile.</td></tr>
+<tr><th>agg: 2 keys + 3 aggs</th><td><code>SELECT category, status, count(*), sum(amount), max(score) FROM t GROUP BY 1, 2</code></td><td class="why">Two grouping keys; a cross-tab.</td></tr>
+<tr><th>agg: high-card group</th><td><code>SELECT name, count(*) FROM t GROUP BY 1</code></td><td class="why">A group-by on ~100k distinct values. The aggregation dominates its own scan, so layout barely moves it — which is why it is here.</td></tr>
+<tr><th>agg: filtered + ordered</th><td><code>SELECT category, sum(amount) AS total FROM t WHERE active = true GROUP BY 1 ORDER BY total DESC LIMIT 20</code></td><td class="why">Filter, group, order, limit — a "top categories" panel.</td></tr>
+<tr><th>agg: count distinct</th><td><code>SELECT count(DISTINCT name) FROM t</code></td><td class="why">An exact distinct count: expensive, and unavoidable when the answer must be exact.</td></tr>
+<tr><th>agg: approx distinct</th><td><code>SELECT approx_count_distinct(name) FROM t</code></td><td class="why">The HyperLogLog approximation of the previous row, for comparison.</td></tr>
+<tr><th>agg: quantiles</th><td><code>SELECT quantile_cont(amount, [0.5, 0.9, 0.99]) FROM t</code></td><td class="why">Median, p90 and p99 — the most expensive shape in the battery, and the one where storage format stops mattering.</td></tr>
+<tr><th>project 1 col &nbsp;<span class="tag">cheap</span></th><td><code>SELECT sum(amount) FROM t</code></td><td class="why">Reads exactly one of the 30 columns. Measures whether projection pushdown works.</td></tr>
+<tr><th>project all cols</th><td><code>SELECT * FROM t LIMIT 5000</code></td><td class="why">Materialises every column — the opposite of the previous row.</td></tr>
+</tbody>
+</table></div>
+  <p class="tnote">Warm figures are the median of three runs after a discarded first. Column names are
+  the corpus's: 30 columns spanning every field type, ~100k distinct <code>name</code> values, five
+  <code>category</code> values.</p>
+</section>
+
+<section id="p1">
+  <div class="sec-head"><span class="sec-num">01</span><h2>Query performance: Parquet against the native format, and everything else</h2></div>
+  <p class="q">Over 100k, 500k, 1M, 10M and 100M rows — fifteen query shapes, not a count.</p>
+  <div class="col">
+    <p>Each format holds the identical corpus: it is generated once into the native table, and every
+    other format is a <code>COPY</code> of that table, so no generator variation can reach a size or a
+    timing. The native table is checkpointed and verified before it is measured — an uncompressed
+    native table is a different artefact, and a plain <code>CHECKPOINT</code> after an ingest path
+    silently does nothing at some sizes.</p>
+  </div>
+  <figure class="fig">
+<div class="chart-scroll"><svg viewBox="0 0 720 284" role="img" aria-label="Battery time relative to a native table, per format and scale. Parquet with zstd stays between 1.15 and 1.44 times native across all five scales, while Arrow IPC degrades from 2 times at 100k to 8 times at 1M." class="chart">
+
+<text x="86" y="30" text-anchor="end" class="c-lbl">100k rows</text><rect x="96" y="8" width="92.9" height="7" rx="2.5" fill="var(--s1)"><title>100k rows · parquet + zstd: 1.37x</title></rect><text x="194.9" y="12" class="c-val">1.37x</text><rect x="96" y="17" width="83.5" height="7" rx="2.5" fill="var(--s2)"><title>100k rows · parquet + snappy: 1.23x</title></rect><text x="185.5" y="21" class="c-val">1.23x</text><rect x="96" y="26" width="73.4" height="7" rx="2.5" fill="var(--s3)"><title>100k rows · parquet, uncompressed: 1.08x</title></rect><text x="175.4" y="30" class="c-val">1.08x</text><rect x="96" y="35" width="139.4" height="7" rx="2.5" fill="var(--s4)"><title>100k rows · arrow IPC: 2.05x</title></rect><text x="241.4" y="39" class="c-val">2.05x</text><text x="86" y="80" text-anchor="end" class="c-lbl">500k rows</text><rect x="96" y="58" width="86.3" height="7" rx="2.5" fill="var(--s1)"><title>500k rows · parquet + zstd: 1.27x</title></rect><text x="188.3" y="62" class="c-val">1.27x</text><rect x="96" y="67" width="83.4" height="7" rx="2.5" fill="var(--s2)"><title>500k rows · parquet + snappy: 1.23x</title></rect><text x="185.4" y="71" class="c-val">1.23x</text><rect x="96" y="76" width="75.0" height="7" rx="2.5" fill="var(--s3)"><title>500k rows · parquet, uncompressed: 1.10x</title></rect><text x="177.0" y="80" class="c-val">1.10x</text><rect x="96" y="85" width="384.4" height="7" rx="2.5" fill="var(--s4)"><title>500k rows · arrow IPC: 5.65x</title></rect><text x="486.4" y="89" class="c-val">5.65x</text><text x="86" y="130" text-anchor="end" class="c-lbl">1M rows</text><rect x="96" y="108" width="78.0" height="7" rx="2.5" fill="var(--s1)"><title>1M rows · parquet + zstd: 1.15x</title></rect><text x="180.0" y="112" class="c-val">1.15x</text><rect x="96" y="117" width="73.6" height="7" rx="2.5" fill="var(--s2)"><title>1M rows · parquet + snappy: 1.08x</title></rect><text x="175.6" y="121" class="c-val">1.08x</text><rect x="96" y="126" width="68.0" height="7" rx="2.5" fill="var(--s3)"><title>1M rows · parquet, uncompressed: 1.00x</title></rect><text x="170.0" y="130" class="c-val">1.00x</text><rect x="96" y="135" width="550.0" height="7" rx="2.5" fill="var(--s4)"><title>1M rows · arrow IPC: 8.09x</title></rect><text x="652.0" y="139" class="c-val">8.09x</text><text x="86" y="180" text-anchor="end" class="c-lbl">10M rows</text><rect x="96" y="158" width="98.1" height="7" rx="2.5" fill="var(--s1)"><title>10M rows · parquet + zstd: 1.44x</title></rect><text x="200.1" y="162" class="c-val">1.44x</text><rect x="96" y="167" width="98.9" height="7" rx="2.5" fill="var(--s2)"><title>10M rows · parquet + snappy: 1.45x</title></rect><text x="200.9" y="171" class="c-val">1.45x</text><text x="86" y="230" text-anchor="end" class="c-lbl">100M rows</text><rect x="96" y="208" width="93.7" height="7" rx="2.5" fill="var(--s1)"><title>100M rows · parquet + zstd: 1.38x</title></rect><text x="195.7" y="212" class="c-val">1.38x</text><rect x="96" y="217" width="85.8" height="7" rx="2.5" fill="var(--s2)"><title>100M rows · parquet + snappy: 1.26x</title></rect><text x="187.8" y="221" class="c-val">1.26x</text>
+</svg></div>
+<div class="legend"><span class="lg"><i style="background:var(--s1)"></i>parquet + zstd</span><span class="lg"><i style="background:var(--s2)"></i>parquet + snappy</span><span class="lg"><i style="background:var(--s3)"></i>parquet, uncompressed</span><span class="lg"><i style="background:var(--s4)"></i>arrow IPC</span></div>
+<figcaption>Whole 15-query battery, as a multiple of the native table on the same data. <strong>1.00x means "as fast as DuckDB's own format".</strong> CSV and NDJSON are omitted from the chart at 17x — they are in the table below. Arrow was not run above 1M: it was already decisively out, and running it at 100M would have cost hours and 44 GB to re-prove a settled result.</figcaption>
+</figure>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>format</th><th>100k</th><th>500k</th><th>1M</th><th>10M</th><th>100M</th><th>MB / million</th></tr></thead>
+<tbody>
+<tr><th>native table (file)</th><td>86 ms</td><td>112 ms</td><td>143 ms</td><td>533 ms</td><td>4.85 s</td><td>112.6</td></tr>
+<tr><th>parquet + zstd</th><td>117 ms · 1.37x</td><td>142 ms · 1.27x</td><td>165 ms · 1.15x</td><td>768 ms · 1.44x</td><td>6.69 s · 1.38x</td><td>29.2</td></tr>
+<tr><th>parquet + snappy</th><td>105 ms · 1.23x</td><td>137 ms · 1.23x</td><td>155 ms · 1.08x</td><td>774 ms · 1.45x</td><td>6.12 s · 1.26x</td><td>68.5</td></tr>
+<tr><th>parquet, uncompressed</th><td>92 ms · 1.08x</td><td>124 ms · 1.10x</td><td>143 ms · 1.00x</td><td>—</td><td>—</td><td>221.7</td></tr>
+<tr><th>arrow IPC</th><td>176 ms · 2.05x</td><td class="lose">633 ms · 5.65x</td><td class="lose">1.16 s · 8.09x</td><td>—</td><td>—</td><td>442.5</td></tr>
+<tr><th>CSV</th><td class="lose">1.48 s · 17.32x</td><td class="lose">1.92 s · 17.14x</td><td class="lose">2.36 s · 16.46x</td><td>—</td><td>—</td><td>540.5</td></tr>
+<tr><th>NDJSON</th><td class="lose">1.48 s · 17.24x</td><td class="lose">1.89 s · 16.83x</td><td class="lose">2.35 s · 16.40x</td><td>—</td><td>—</td><td>800.9</td></tr>
+</tbody>
+</table></div><p class="tnote">Warm milliseconds for the whole battery, and the ratio against the native table. MB/million is measured at the largest scale each format was run at.</p>
+  <div class="col">
+    <h3>What it settles</h3>
+    <p><strong>Parquet+zstd costs 1.38x at 100M and never leaves the
+    1.15–1.44x band anywhere on the ladder.</strong> That stability across three orders of magnitude
+    is the useful part: the ratio can be planned against, and nothing surprising appears at scale.</p>
+    <p>The penalty is also not spread evenly. It falls almost entirely on <em>cheap</em> queries,
+    where reading footers is most of the work; on the expensive shapes the two formats converge —
+    <code>agg: quantiles</code> at 100M is 2.53 s
+    on Parquet against 2.62 s
+    on the native table. A dashboard that runs one aggregation pays nothing for Parquet; a UI firing
+    many small metadata-bound lookups pays the whole ratio.</p>
+    <p>Everything else is out, and not narrowly. Arrow IPC is 3.9x the disk of native and degrades
+    from 2.1x
+    at 100k to 8.1x
+    at 1M, because it carries no row-group statistics and every query full-scans. CSV and NDJSON sit
+    at ~17x and re-parse the file on every query.</p>
+  </div>
+  <h3>The memory axis — and a correction to this report</h3>
+  <div class="col">
+    <p><strong>An earlier version of this page claimed a Parquet view holds ~65x less memory than a
+    native table. That claim was wrong, and it is worth explaining why rather than quietly
+    dropping.</strong></p>
+    <p>It came from <code>sum(memory_usage_bytes)</code> in <code>duckdb_memory()</code>, which
+    reported 172 MB for the
+    Parquet view against 11.0 GB
+    for the table. The tell that something was off: <strong>the native figure equalled the database
+    file size to four decimal places at every scale</strong> from 100k to 100M. A metric that tracks
+    file size is not reporting a fixed requirement.</p>
+    <p>Probing it (<code>probe/memory-metric.mjs</code>, running each case in its own process and
+    varying <code>memory_limit</code>) gives three corrections:</p>
+    <ul>
+      <li><strong>It is not the file size.</strong> The Parquet file at 100M is
+      2.7 GB on disk. The small number
+      was always memory, never storage — but the two sat close enough together in the text to invite
+      exactly the confusion you would expect.</li>
+      <li><strong>Buffer-manager residency is elastic, not a requirement.</strong> Given room, DuckDB
+      caches the whole table, so the metric converges on the file size. Squeeze
+      <code>memory_limit</code> and the identical workload completes holding a fraction of it.</li>
+      <li><strong>Peak process RSS is the number that decides whether a job fits</strong>, and by that
+      measure the gap is far smaller than 65x.</li>
+    </ul>
+  </div>
+  <figure class="fig">
+<div class="chart-scroll"><svg viewBox="0 0 720 132" role="img" aria-label="Peak process memory against the buffer-manager metric, for a native table and a Parquet view. The two metrics disagree by more than an order of magnitude, and the process-level figures are much closer together than the buffer-manager ones." class="chart">
+<text x="200" y="25" text-anchor="end" class="c-lbl">native table — peak RSS</text><rect x="210" y="9" width="394.1" height="18" rx="2.5" fill="var(--s2)"><title>native table — peak RSS: 15.3 GB</title></rect><text x="611.1" y="25" class="c-val">15.3 GB</text><text x="200" y="55" text-anchor="end" class="c-lbl">parquet view — peak RSS</text><rect x="210" y="39" width="305.8" height="18" rx="2.5" fill="var(--s1)"><title>parquet view — peak RSS: 4.8 GB</title></rect><text x="522.8" y="55" class="c-val">4.8 GB</text><text x="200" y="85" text-anchor="end" class="c-lbl">native table — duckdb_memory()</text><rect x="210" y="69" width="369.0" height="18" rx="2.5" fill="var(--s2)"><title>native table — duckdb_memory(): 11.0 GB</title></rect><text x="586.0" y="85" class="c-val">11.0 GB</text><text x="200" y="115" text-anchor="end" class="c-lbl">parquet view — duckdb_memory()</text><rect x="210" y="99" width="52.5" height="18" rx="2.5" fill="var(--s1)"><title>parquet view — duckdb_memory(): 172 MB</title></rect><text x="269.5" y="115" class="c-val">172 MB</text>
+</svg></div>
+<p class="axis-note">log scale — each step is 10x</p>
+<figcaption><strong>The two metrics tell different stories, and the process-level one is the honest one.</strong> The buffer-manager figures are far apart; actual peak process memory is much closer. Anything that decides how many jobs fit on a worker has to be measured at the process, not at the buffer manager.</figcaption>
+</figure>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>storage</th><th>memory_limit</th><th>duckdb_memory()</th><th>peak process RSS</th><th>outcome</th></tr></thead>
+<tbody>
+<tr><th>native table</th><td>24.0 GiB</td><td>11.0 GB</td><td class="flag">15.3 GB</td><td class="win">completed</td></tr>
+<tr><th>native table</th><td>8.0 GiB</td><td>7.7 GB</td><td class="flag">13.0 GB</td><td class="win">completed</td></tr>
+<tr><th>native table</th><td>4.0 GiB</td><td>3.9 GB</td><td class="flag">9.2 GB</td><td class="win">completed</td></tr>
+<tr><th>parquet view</th><td>24.0 GiB</td><td>172 MB</td><td class="flag">4.8 GB</td><td class="win">completed</td></tr>
+<tr><th>parquet view</th><td>4.0 GiB</td><td>172 MB</td><td class="flag">4.7 GB</td><td class="win">completed</td></tr>
+<tr><th>parquet view</th><td>1.0 GiB</td><td>172 MB</td><td class="flag">4.5 GB</td><td class="win">completed</td></tr>
+</tbody>
+</table></div><p class="tnote">100M rows · native database 11.0 GB, Parquet 2.7 GB. Each case runs in its OWN process, because RSS accumulates and cannot otherwise be attributed. The battery is the same 15 queries, 3 passes.</p>
+  <h3>The one shape that actually fails, and why</h3>
+  <div class="col">
+    <p>An earlier draft of this section said flatly that "a Parquet view OOMs under pressure where a
+    table survives". True as far as it went, and useless: nobody can plan against it without knowing
+    <em>which queries</em>, <em>at what memory</em>, and <em>why</em>. Running every query
+    individually across a sweep of limits narrows it to almost nothing:</p>
+  </div>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>query shape</th><th>parquet @ 2GiB</th><th>native @ 2GiB</th><th>parquet @ 1GiB</th><th>native @ 1GiB</th><th>parquet @ 512MiB</th><th>native @ 512MiB</th><th>parquet @ 256MiB</th><th>native @ 256MiB</th><th>parquet @ 128MiB</th><th>native @ 128MiB</th></tr></thead>
+<tbody>
+<tr><th>count(*)</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+<tr><th>2 predicates</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+<tr><th>range + eq</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+<tr><th>text prefix</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+<tr><th>IN list</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+<tr><th>top 100 sorted</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="lose">OOM</td><td class="win">ok</td><td class="lose">OOM</td><td class="win">ok</td><td class="lose">OOM</td><td class="lose">OOM</td></tr>
+<tr><th>agg 1 key</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+<tr><th>agg 2 keys</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+<tr><th>agg high-card</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="lose">OOM</td><td class="win">ok</td></tr>
+<tr><th>agg filtered+ordered</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+<tr><th>count distinct</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="lose">OOM</td><td class="win">ok</td></tr>
+<tr><th>approx distinct</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+<tr><th>quantiles</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+<tr><th>project 1 col</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+<tr><th>project all cols</th><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td><td class="win">ok</td></tr>
+</tbody>
+</table></div><p class="tnote">10M rows · Parquet 280 MB, native 1.1 GB. Each cell is one query in its own process. temp_directory defaults to ".tmp" with 90% of disk, so spilling was available everywhere — "it cannot spill" is NOT the explanation.</p>
+  <div class="col">
+    <p><strong>Fourteen of the fifteen shapes are fine on Parquet down to 128 MiB</strong> — every
+    filter, every aggregation, every projection. The fragile one is a single shape:</p>
+    <p style="text-align:center"><code>SELECT * … ORDER BY "amount" DESC LIMIT 100</code></p>
+    <p>A <strong>wide top-N</strong>. It is the only query that must materialise <em>all thirty
+    columns</em> for every matching row before the top-100 heap can start discarding — filters and
+    aggregations touch one to three columns and stream. Two others (<code>agg high-card</code>,
+    <code>count distinct</code>) fail only at the extreme 128 MiB and are not a practical concern.</p>
+    <h3>What the requirement is proportional to — and it is not the data</h3>
+    <p>This is the part that turns it from a scare into a capacity number. If the working set were
+    driven by dataset size, it would be a cliff you eventually fall off. It is not:</p>
+  </div>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>corpus</th><th>parquet file</th><th>2GiB</th><th>1GiB</th><th>512MiB</th><th>256MiB</th></tr></thead>
+<tbody>
+<tr><th>10M rows</th><td>280 MB</td><td class="win">ok</td><td class="win">ok</td><td class="lose">OOM</td><td class="lose">OOM</td></tr>
+<tr><th>100M rows</th><td>2.7 GB</td><td class="win">ok</td><td class="win">ok</td><td class="lose">OOM</td><td class="lose">OOM</td></tr>
+</tbody>
+</table></div><p class="tnote">A 10x difference in data size, and the threshold does not move.</p>
+  <div class="col">
+    <p>Ten times the data, identical threshold. What <em>does</em> move it:</p>
+  </div>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>what changed</th><th>at memory_limit</th><th>result</th></tr></thead>
+<tbody>
+<tr><th>SELECT * (30 columns)</th><td>256MiB</td><td class="lose">OOM</td></tr>
+<tr><th>SELECT 3 columns</th><td>256MiB</td><td class="win">ok</td></tr>
+<tr><th>SELECT * at threads = 14</th><td>256MiB</td><td class="lose">OOM</td></tr>
+<tr><th>SELECT * at threads = 8</th><td>256MiB</td><td class="lose">OOM</td></tr>
+<tr><th>SELECT * at threads = 4</th><td>256MiB</td><td class="win">ok</td></tr>
+<tr><th>SELECT * at threads = 2</th><td>256MiB</td><td class="win">ok</td></tr>
+<tr><th>SELECT * at threads = 1</th><td>256MiB</td><td class="win">ok</td></tr>
+</tbody>
+</table></div><p class="tnote">Both terms move the failure point; dataset size does not.</p>
+  <div class="callout good">
+    <span class="kicker">The law, and what to do about it</span>
+    <p><strong>A Parquet scan's working set is <em>threads × row-group size × columns projected</em> —
+    not dataset size.</strong> At 14 threads, DuckDB's 122,880-row group and all 30 columns, that
+    needs somewhere between 512 MiB and 1 GiB, and it needs exactly the same whether the table holds
+    10M rows or 100M.</p>
+    <p>Why the native table survives where the view does not: the table keeps a large <em>evictable</em>
+    reserve of cached clean pages (1.1 GB of
+    <code>BASE_TABLE</code> at a 2 GiB limit), which DuckDB drops instantly when an operator needs
+    room. The Parquet view caches almost nothing — <code>EXTERNAL_FILE_CACHE</code> peaked at
+    <strong>17 MB</strong> — so there is no reserve to give back, and the allocation simply fails.</p>
+    <p><strong>Three ways to remove it, in order of preference:</strong> project only the columns the
+    query needs (QPL knows them — <code>SELECT *</code> is the worst case and rarely what a user
+    asked for); cap <code>threads</code> (4 is sufficient at 256 MiB); or budget ~1 GiB of headroom
+    per concurrent query, which on a 64 GB worker is not a constraint for one job and is very much
+    one for fifty.</p>
+  </div>
+</section>
+
+<section id="p2">
+  <div class="sec-head"><span class="sec-num">02</span><h2>Appending a table against querying the payloads</h2></div>
+  <p class="q">Where is break-even, and what decides which side of it you are on?</p>
+  <div class="col">
+    <p>All three options receive the same bytes, so <strong>the producer leg is excluded from every
+    one of them</strong> — counting it would add the same constant three times and change no
+    comparison. What is measured is only what the worker does with a payload already in hand.</p>
+  </div>
+  <figure class="fig">
+<div class="chart-scroll"><svg viewBox="0 0 720 282" role="img" aria-label="Time from the last payload arriving to the data being queryable, per path and scale. Landing the bytes is two to three orders of magnitude faster than appending." class="chart">
+<text x="200" y="25" text-anchor="end" class="c-lbl">append — 1M</text><rect x="210" y="9" width="218.7" height="18" rx="2.5" fill="var(--s2)"><title>append — 1M: 2.05 s</title></rect><text x="435.7" y="25" class="c-val">2.05 s</text><text x="200" y="55" text-anchor="end" class="c-lbl">land, materialise — 1M</text><rect x="210" y="39" width="216.4" height="18" rx="2.5" fill="var(--s4)"><title>land, materialise — 1M: 1.93 s</title></rect><text x="433.4" y="55" class="c-val">1.93 s</text><text x="200" y="85" text-anchor="end" class="c-lbl">land the bytes — 1M</text><rect x="210" y="69" width="26.6" height="18" rx="2.5" fill="var(--s1)"><title>land the bytes — 1M: 14 ms</title></rect><text x="243.6" y="85" class="c-val">14 ms</text><text x="200" y="115" text-anchor="end" class="c-lbl">append — 10M</text><rect x="210" y="99" width="306.3" height="18" rx="2.5" fill="var(--s2)"><title>append — 10M: 20.2 s</title></rect><text x="523.3" y="115" class="c-val">20.2 s</text><text x="200" y="145" text-anchor="end" class="c-lbl">land, materialise — 10M</text><rect x="210" y="129" width="298.3" height="18" rx="2.5" fill="var(--s4)"><title>land, materialise — 10M: 16.4 s</title></rect><text x="515.3" y="145" class="c-val">16.4 s</text><text x="200" y="175" text-anchor="end" class="c-lbl">land the bytes — 10M</text><rect x="210" y="159" width="105.7" height="18" rx="2.5" fill="var(--s1)"><title>land the bytes — 10M: 108 ms</title></rect><text x="322.7" y="175" class="c-val">108 ms</text><text x="200" y="205" text-anchor="end" class="c-lbl">append — 100M</text><rect x="210" y="189" width="403.9" height="18" rx="2.5" fill="var(--s2)"><title>append — 100M: 4.3 min</title></rect><text x="620.9" y="205" class="c-val">4.3 min</text><text x="200" y="235" text-anchor="end" class="c-lbl">land, materialise — 100M</text><rect x="210" y="219" width="344.8" height="18" rx="2.5" fill="var(--s4)"><title>land, materialise — 100M: 55.1 s</title></rect><text x="561.8" y="235" class="c-val">55.1 s</text><text x="200" y="265" text-anchor="end" class="c-lbl">land the bytes — 100M</text><rect x="210" y="249" width="260.7" height="18" rx="2.5" fill="var(--s1)"><title>land the bytes — 100M: 6.15 s</title></rect><text x="477.7" y="265" class="c-val">6.15 s</text>
+</svg></div>
+<p class="axis-note">log scale — each step is 10x</p>
+<figcaption>Time-to-queryable after the last payload lands — the worker's ingest latency. The producer leg is excluded from all three because all three pay it identically. <strong>Landing the bytes is a byte copy; appending decodes and re-encodes every row.</strong></figcaption>
+</figure>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>rows</th><th>payloads</th><th>append: ready</th><th>land: ready</th><th>materialise: ready</th><th>append disk</th><th>land disk</th><th>median append call</th></tr></thead>
+<tbody>
+<tr><th>1M</th><td>20</td><td class="lose">2.05 s</td><td class="win">14 ms</td><td>1.93 s</td><td>112 MB</td><td class="win">32 MB</td><td>91.7 ms</td></tr>
+<tr><th>10M</th><td>200</td><td class="lose">20.2 s</td><td class="win">108 ms</td><td>16.4 s</td><td>1.1 GB</td><td class="win">317 MB</td><td>91.9 ms</td></tr>
+<tr><th>100M</th><td>2,000</td><td class="lose">4.3 min</td><td class="win">6.15 s</td><td>55.1 s</td><td>10.9 GB</td><td class="win">3.1 GB</td><td>107.4 ms</td></tr>
+</tbody>
+</table></div><p class="tnote">"ready" includes the checkpoint that has to happen before a table is in its steady-state compressed form. Landing needs no such step.</p>
+  <div class="col">
+    <h3>What "break-even" means here, and why it is the deciding number</h3>
+    <p>Building a table is an <strong>investment</strong>: you spend time once, up front, and get a
+    faster query every time afterwards. Whether that is a good trade depends entirely on how many
+    queries you actually run.</p>
+    <p>Worked, with the 10M numbers from the table above.
+    Appending the payloads into a table instead of just landing them costs an extra
+    <strong>20.1 s</strong>,
+    once. In exchange each query gets
+    <strong>74 ms</strong> faster. Dividing one
+    by the other: you need
+    <strong>272 queries</strong> against that dataset
+    before the table has paid for itself. Query it fewer times than that and appending was pure
+    loss — you spent 20.1 s
+    to save less than that.</p>
+    <p><strong>So the question is not "which is faster" — it is "how many times will this dataset be
+    queried".</strong> These jobs are documented as append-dominated and aggregating rarely, which
+    puts the real number in the single or low double digits.</p>
+  </div>
+  <figure class="fig">
+<div class="chart-scroll"><svg viewBox="0 0 720 160" role="img" aria-label="How many queries a dataset must receive before building a table repays what it cost to build. Between 234 and 546 queries depending on scale, against a realistic workload of roughly ten." class="chart">
+<line x1="106.1" y1="2" x2="106.1" y2="134" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55"/><text x="112.1" y="146" class="c-tick" opacity="0.8">← a job that "aggregates rarely" lives about here</text>
+<text x="86" y="26" text-anchor="end" class="c-lbl">1M rows</text><rect x="96" y="8" width="284.6" height="12" rx="2.5" fill="var(--s2)"><title>1M rows · append into a table, per payload: 283 queries</title></rect><text x="386.6" y="17" class="c-val">283 queries</text><rect x="96" y="22" width="550.0" height="12" rx="2.5" fill="var(--s4)"><title>1M rows · land the bytes, materialise once at the end: 546 queries</title></rect><text x="652.0" y="31" class="c-val">546 queries</text><text x="86" y="68" text-anchor="end" class="c-lbl">10M rows</text><rect x="96" y="50" width="273.6" height="12" rx="2.5" fill="var(--s2)"><title>10M rows · append into a table, per payload: 272 queries</title></rect><text x="375.6" y="59" class="c-val">272 queries</text><rect x="96" y="64" width="235.1" height="12" rx="2.5" fill="var(--s4)"><title>10M rows · land the bytes, materialise once at the end: 234 queries</title></rect><text x="337.1" y="73" class="c-val">234 queries</text><text x="86" y="110" text-anchor="end" class="c-lbl">100M rows</text><rect x="96" y="92" width="471.9" height="12" rx="2.5" fill="var(--s2)"><title>100M rows · append into a table, per payload: 469 queries</title></rect><text x="573.9" y="101" class="c-val">469 queries</text><rect x="96" y="106" width="70.0" height="12" rx="2.5" fill="var(--s4)"><title>100M rows · land the bytes, materialise once at the end: 70 queries</title></rect><text x="172.0" y="115" class="c-val">70 queries</text>
+</svg></div>
+<div class="legend"><span class="lg"><i style="background:var(--s2)"></i>append into a table, per payload</span><span class="lg"><i style="background:var(--s4)"></i>land the bytes, materialise once at the end</span></div>
+<figcaption>Longer is worse. <strong>Each bar answers one question: how many times would you have to query this dataset before building a table saves more time than it cost?</strong> Both bars use the aggregation-shaped battery. The dashed rule is where these jobs actually sit — they are documented as append-dominated and aggregating rarely — so every bar being far to its right is the finding.</figcaption>
+</figure>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>rows</th><th>option</th><th>extra cost, paid once</th><th>saved per query</th><th>queries to break even</th></tr></thead>
+<tbody>
+<tr><th>1M</th><td>A. append into a table</td><td class="lose">2.04 s</td><td class="win">7.2 ms</td><td class="flag">283</td></tr>
+<tr><th>1M</th><td>C. land, materialise once</td><td class="lose">1.92 s</td><td class="win">3.5 ms</td><td class="flag">546</td></tr>
+<tr><th>10M</th><td>A. append into a table</td><td class="lose">20.1 s</td><td class="win">73.9 ms</td><td class="flag">272</td></tr>
+<tr><th>10M</th><td>C. land, materialise once</td><td class="lose">16.3 s</td><td class="win">69.7 ms</td><td class="flag">234</td></tr>
+<tr><th>100M</th><td>A. append into a table</td><td class="lose">4.2 min</td><td class="win">538.2 ms</td><td class="flag">469</td></tr>
+<tr><th>100M</th><td>C. land, materialise once</td><td class="lose">48.9 s</td><td class="win">704.4 ms</td><td class="flag">70</td></tr>
+</tbody>
+</table></div><p class="tnote">extra cost ÷ saved per query = queries to break even. Aggregation-shaped battery (top-100 stripped). Option B — land the bytes and query them — is the baseline both are measured against, so it has no row of its own.</p>
+  <div class="col">
+    <h3>Reading the break-even honestly</h3>
+    <p>The full-battery column is flattered by <code>top 100 rows</code>, which is scan-bound rather
+    than metadata-bound and is a large share of the total saving. Strip it and the aggregation-shaped
+    break-even roughly doubles or triples. <strong>At 10M rows that is
+    272 queries against one dataset before appending
+    pays for itself.</strong> A job that runs a handful of aggregations never reaches it.</p>
+    <p>The second result matters as much as the first: <strong>if you do want a table, build it once
+    at the end — never by appending per payload.</strong> At 100M, appending incrementally takes
+    4.3 min while landing and materialising once
+    produces the same table in
+    55.1 s —
+    4.7x
+    cheaper, for a byte-identical result.</p>
+  </div>
+  <h3>Does append cost scale with rows, or with calls?</h3>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>payload size</th><th>payloads</th><th>append: ready</th><th>median append call</th><th>µs per row</th><th>land: ready</th><th>break-even (agg)</th></tr></thead>
+<tbody>
+<tr><th>10k rows</th><td>1,000</td><td>24.8 s</td><td>23.0 ms</td><td>2.30</td><td class="win">1.41 s</td><td>85 queries</td></tr>
+<tr><th>50k rows</th><td>200</td><td>20.2 s</td><td>91.9 ms</td><td>1.84</td><td class="win">108 ms</td><td>272 queries</td></tr>
+<tr><th>100k rows</th><td>100</td><td>21.1 s</td><td>191.7 ms</td><td>1.92</td><td class="win">418 ms</td><td>372 queries</td></tr>
+</tbody>
+</table></div><p class="tnote">10M rows total in every row — only the slice size changes. The µs-per-row column is the test of whether append cost is per STATEMENT or per ROW.</p>
+  <div class="callout flag">
+    <span class="kicker">Correction to a recorded figure</span>
+    <p>Our notes record append as <strong>11.3 ms per call, per statement and not per row</strong>.
+    That does not reproduce here: at 50k-row payloads the median call is
+    92 ms, and the sweep above shows the
+    cost tracking payload <em>size</em> almost exactly. Fitting the three sweep points gives
+    <strong>2.0 ms per statement plus 1.88 µs per row</strong>
+    — so at a 50k-row slice the per-statement constant is about
+    2%
+    of the cost and the rest is per-row work.</p>
+    <p><strong>The practical consequence is the opposite of what the recorded figure implies.</strong>
+    If append cost were per statement, batching several payloads into one call would be a large win —
+    our notes claim exactly that. Because it is per row, batching saves only the small constant, and
+    the only way to actually avoid the cost is not to decode the rows at all. That is what landing the
+    bytes does.</p>
+  </div>
+</section>
+
+<section id="p3">
+  <div class="sec-head"><span class="sec-num">03</span><h2>Tables in memory against tables on disk</h2></div>
+  <p class="q">Is there a query advantage to keeping the table in RAM?</p>
+  <div class="col">
+    <p><strong>Both tables are checkpointed before measurement.</strong> Without that this would
+    compare a compressed file against an uncompressed memory table and report the compression
+    difference as a storage difference — DuckDB only compresses at checkpoint.</p>
+  </div>
+  <figure class="fig">
+<div class="chart-scroll"><svg viewBox="0 0 720 244" role="img" aria-label="Battery time for the same checkpointed table held on disk versus in memory. The two are within noise of each other at every scale from 100 thousand to 100 million rows." class="chart">
+
+<text x="86" y="26" text-anchor="end" class="c-lbl">100k rows</text><rect x="96" y="8" width="9.7" height="12" rx="2.5" fill="var(--s1)"><title>100k rows · table on disk (file-backed): 86 ms</title></rect><text x="111.7" y="17" class="c-val">86 ms</text><rect x="96" y="22" width="9.8" height="12" rx="2.5" fill="var(--s2)"><title>100k rows · table in memory: 86 ms</title></rect><text x="111.8" y="31" class="c-val">86 ms</text><text x="86" y="68" text-anchor="end" class="c-lbl">500k rows</text><rect x="96" y="50" width="12.7" height="12" rx="2.5" fill="var(--s1)"><title>500k rows · table on disk (file-backed): 112 ms</title></rect><text x="114.7" y="59" class="c-val">112 ms</text><rect x="96" y="64" width="13.2" height="12" rx="2.5" fill="var(--s2)"><title>500k rows · table in memory: 117 ms</title></rect><text x="115.2" y="73" class="c-val">117 ms</text><text x="86" y="110" text-anchor="end" class="c-lbl">1M rows</text><rect x="96" y="92" width="16.2" height="12" rx="2.5" fill="var(--s1)"><title>1M rows · table on disk (file-backed): 143 ms</title></rect><text x="118.2" y="101" class="c-val">143 ms</text><rect x="96" y="106" width="14.4" height="12" rx="2.5" fill="var(--s2)"><title>1M rows · table in memory: 128 ms</title></rect><text x="116.4" y="115" class="c-val">128 ms</text><text x="86" y="152" text-anchor="end" class="c-lbl">10M rows</text><rect x="96" y="134" width="60.2" height="12" rx="2.5" fill="var(--s1)"><title>10M rows · table on disk (file-backed): 533 ms</title></rect><text x="162.2" y="143" class="c-val">533 ms</text><rect x="96" y="148" width="67.6" height="12" rx="2.5" fill="var(--s2)"><title>10M rows · table in memory: 598 ms</title></rect><text x="169.6" y="157" class="c-val">598 ms</text><text x="86" y="194" text-anchor="end" class="c-lbl">100M rows</text><rect x="96" y="176" width="548.6" height="12" rx="2.5" fill="var(--s1)"><title>100M rows · table on disk (file-backed): 4.85 s</title></rect><text x="650.6" y="185" class="c-val">4.85 s</text><rect x="96" y="190" width="550.0" height="12" rx="2.5" fill="var(--s2)"><title>100M rows · table in memory: 4.86 s</title></rect><text x="652.0" y="199" class="c-val">4.86 s</text>
+</svg></div>
+<div class="legend"><span class="lg"><i style="background:var(--s1)"></i>table on disk (file-backed)</span><span class="lg"><i style="background:var(--s2)"></i>table in memory</span></div>
+<figcaption>The SAME data, the SAME compression — only where the pages live differs. <strong>Both tables are checkpointed</strong>, or this would compare compressed-on-disk against uncompressed-in-memory and call the difference "storage".</figcaption>
+</figure>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>rows</th><th>on disk</th><th>in memory</th><th>difference</th><th>load time: disk</th><th>load time: memory</th><th>RAM held</th></tr></thead>
+<tbody>
+<tr><th>100k</th><td>86 ms</td><td>86 ms</td><td>+1%</td><td class="win">0 ms</td><td>195 ms</td><td>12 MB</td></tr>
+<tr><th>500k</th><td>112 ms</td><td>117 ms</td><td>+4%</td><td class="win">1 ms</td><td>356 ms</td><td>58 MB</td></tr>
+<tr><th>1M</th><td>143 ms</td><td>128 ms</td><td>-11%</td><td class="win">0 ms</td><td>595 ms</td><td>116 MB</td></tr>
+<tr><th>10M</th><td>533 ms</td><td>598 ms</td><td>+12%</td><td class="win">1 ms</td><td>4.33 s</td><td>1.1 GB</td></tr>
+<tr><th>100M</th><td>4.85 s</td><td>4.86 s</td><td>+0%</td><td class="win">1 ms</td><td class="lose">73.9 s</td><td>11.3 GB</td></tr>
+</tbody>
+</table></div><p class="tnote">Differences under about 15% are inside single-sample noise at these scales — the point is that there is no consistent direction, not that one wins by a little.</p>
+  <div class="callout">
+    <span class="kicker">Answer</span>
+    <p><strong>No — there is no query advantage at any scale.</strong> The differences have no
+    consistent direction and sit inside sampling noise. What in-memory does cost is real and
+    one-directional: 73.9 s to load
+    100M rows against 1 ms
+    to attach the file, plus 11.3 GB of RAM held for the duration.</p>
+    <p>DuckDB's buffer manager already caches hot pages from a file-backed table, so a resident copy
+    buys nothing it was not doing anyway. This also means the worker is free to let the OS manage
+    the footprint, which is the safer failure mode under memory pressure.</p>
+  </div>
+</section>
+
+<section id="p4">
+  <div class="sec-head"><span class="sec-num">04</span><h2>Many files against one big file</h2></div>
+  <p class="q">100 files or 1,000? Ragged sizes? One giant object? And how would that object be produced?</p>
+  <div class="col">
+    <p>Every layout below holds the same 10M rows and is produced the way the worker really receives
+    them — one object per slice — then consolidated at four different target sizes. <strong>Row groups
+    are censused, never inferred</strong>, including for the native table.</p>
+    <h3>First: file count is not the unit of cost, and here is the proof</h3>
+    <p>An earlier version of this report published a "µs per file" column. That column was
+    misleading and has been removed, because <strong>the file is not what a query pays for.</strong>
+    Two of the layouts settle it cleanly:</p>
+  </div>
+  <div class="callout good">
+    <span class="kicker">The decisive pair</span>
+    <p><strong>as landed: 100 × 100k</strong> — 100 files, 100 row
+    groups — answers <code>count(*)</code> in <strong>4.1 ms</strong>.<br>
+    <strong>consolidated: ~500k rows/object</strong> — 20 files, 100 row
+    groups — answers it in <strong>4.1 ms</strong>.</p>
+    <p>Same number of row groups, <strong>5x</strong> different
+    file count, identical cost. If the file were the unit, these could not tie. <strong>A query pays
+    for row groups; files are almost free.</strong></p>
+  </div>
+  <div class="col">
+    <p>That is why the per-file figure looked wrong — it <em>was</em> wrong. Dividing a query's time
+    by the file count produces a number that swings wildly (from ~30 µs across 1,000 files to the
+    entire query time when there is one file) precisely because it is dividing by the wrong thing.
+    Dividing by censused row groups instead gives a near-constant
+    <strong>27–44 µs</strong> across every Parquet layout in the table, spanning a 1,000x range of
+    file count.</p>
+  </div>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>layout</th><th>files</th><th>row groups</th><th>rows per group</th><th>count(*)</th><th>µs per ROW GROUP</th><th>cheap queries</th><th>full battery</th></tr></thead>
+<tbody>
+<tr><th>as landed: 1,000 × 10k</th><td class="flag">1,000</td><td class="win">1,000</td><td>10,000</td><td>30.2 ms</td><td>30</td><td>220 ms</td><td>1.15 s</td></tr>
+<tr><th>as landed: 200 × 50k</th><td class="flag">200</td><td class="win">200</td><td>50,000</td><td>7.1 ms</td><td>35</td><td>57 ms</td><td>723 ms</td></tr>
+<tr><th>as landed: 100 × 100k</th><td class="flag">100</td><td class="win">100</td><td>100,000</td><td>4.1 ms</td><td>41</td><td>43 ms</td><td>742 ms</td></tr>
+<tr><th>as landed: jagged 10k–100k</th><td class="flag">178</td><td class="win">178</td><td>56,180</td><td>6.8 ms</td><td>38</td><td>56 ms</td><td>770 ms</td></tr>
+<tr><th>consolidated: ~123k rows/object</th><td class="flag">82</td><td class="win">82</td><td>121,951</td><td>3.4 ms</td><td>41</td><td>41 ms</td><td>746 ms</td></tr>
+<tr><th>consolidated: ~500k rows/object</th><td class="flag">20</td><td class="win">100</td><td>100,000</td><td>4.1 ms</td><td>41</td><td>40 ms</td><td>714 ms</td></tr>
+<tr><th>consolidated: ~2M rows/object</th><td class="flag">5</td><td class="win">85</td><td>117,647</td><td>3.8 ms</td><td>44</td><td>42 ms</td><td>751 ms</td></tr>
+<tr><th>consolidated: ONE object</th><td class="flag">1</td><td class="win">81</td><td>123,457</td><td>2.2 ms</td><td>27</td><td>45 ms</td><td>755 ms</td></tr>
+<tr><th>native TABLE</th><td class="flag">1</td><td class="win">84</td><td>119,048</td><td>0.2 ms</td><td class="win">3</td><td>15 ms</td><td>539 ms</td></tr>
+</tbody>
+</table></div><p class="tnote">Row groups are CENSUSED, never inferred — parquet_file_metadata for the Parquet layouts, and count(DISTINCT row_group_id) from pragma_storage_info for the native table.</p>
+  <figure class="fig">
+<div class="chart-scroll"><svg viewBox="0 0 720 412" role="img" aria-label="Query cost by layout at 10 million rows, including the consolidated targets and a native table. Only the thousand-file layout of ten-thousand-row slices is materially worse; every other Parquet layout, including one single object, is within a few percent." class="chart">
+
+<text x="158" y="26" text-anchor="end" class="c-lbl">1,000 × 10k</text><rect x="168" y="8" width="478.0" height="12" rx="2.5" fill="var(--s1)"><title>1,000 × 10k · full battery (all 15 queries): 1.15 s</title></rect><text x="652.0" y="17" class="c-val">1.15 s</text><rect x="168" y="22" width="91.5" height="12" rx="2.5" fill="var(--s2)"><title>1,000 × 10k · cheap queries only (the 5 metadata-bound ones): 220 ms</title></rect><text x="265.5" y="31" class="c-val">220 ms</text><text x="158" y="68" text-anchor="end" class="c-lbl">200 × 50k</text><rect x="168" y="50" width="300.1" height="12" rx="2.5" fill="var(--s1)"><title>200 × 50k · full battery (all 15 queries): 723 ms</title></rect><text x="474.1" y="59" class="c-val">723 ms</text><rect x="168" y="64" width="23.7" height="12" rx="2.5" fill="var(--s2)"><title>200 × 50k · cheap queries only (the 5 metadata-bound ones): 57 ms</title></rect><text x="197.7" y="73" class="c-val">57 ms</text><text x="158" y="110" text-anchor="end" class="c-lbl">100 × 100k</text><rect x="168" y="92" width="308.2" height="12" rx="2.5" fill="var(--s1)"><title>100 × 100k · full battery (all 15 queries): 742 ms</title></rect><text x="482.2" y="101" class="c-val">742 ms</text><rect x="168" y="106" width="17.9" height="12" rx="2.5" fill="var(--s2)"><title>100 × 100k · cheap queries only (the 5 metadata-bound ones): 43 ms</title></rect><text x="191.9" y="115" class="c-val">43 ms</text><text x="158" y="152" text-anchor="end" class="c-lbl">jagged 10k–100k</text><rect x="168" y="134" width="319.7" height="12" rx="2.5" fill="var(--s1)"><title>jagged 10k–100k · full battery (all 15 queries): 770 ms</title></rect><text x="493.7" y="143" class="c-val">770 ms</text><rect x="168" y="148" width="23.1" height="12" rx="2.5" fill="var(--s2)"><title>jagged 10k–100k · cheap queries only (the 5 metadata-bound ones): 56 ms</title></rect><text x="197.1" y="157" class="c-val">56 ms</text><text x="158" y="194" text-anchor="end" class="c-lbl">→ ~123k rows/object</text><rect x="168" y="176" width="309.7" height="12" rx="2.5" fill="var(--s1)"><title>→ ~123k rows/object · full battery (all 15 queries): 746 ms</title></rect><text x="483.7" y="185" class="c-val">746 ms</text><rect x="168" y="190" width="16.9" height="12" rx="2.5" fill="var(--s2)"><title>→ ~123k rows/object · cheap queries only (the 5 metadata-bound ones): 41 ms</title></rect><text x="190.9" y="199" class="c-val">41 ms</text><text x="158" y="236" text-anchor="end" class="c-lbl">→ ~500k rows/object</text><rect x="168" y="218" width="296.5" height="12" rx="2.5" fill="var(--s1)"><title>→ ~500k rows/object · full battery (all 15 queries): 714 ms</title></rect><text x="470.5" y="227" class="c-val">714 ms</text><rect x="168" y="232" width="16.5" height="12" rx="2.5" fill="var(--s2)"><title>→ ~500k rows/object · cheap queries only (the 5 metadata-bound ones): 40 ms</title></rect><text x="190.5" y="241" class="c-val">40 ms</text><text x="158" y="278" text-anchor="end" class="c-lbl">→ ~2M rows/object</text><rect x="168" y="260" width="312.0" height="12" rx="2.5" fill="var(--s1)"><title>→ ~2M rows/object · full battery (all 15 queries): 751 ms</title></rect><text x="486.0" y="269" class="c-val">751 ms</text><rect x="168" y="274" width="17.4" height="12" rx="2.5" fill="var(--s2)"><title>→ ~2M rows/object · cheap queries only (the 5 metadata-bound ones): 42 ms</title></rect><text x="191.4" y="283" class="c-val">42 ms</text><text x="158" y="320" text-anchor="end" class="c-lbl">→ ONE object</text><rect x="168" y="302" width="313.3" height="12" rx="2.5" fill="var(--s1)"><title>→ ONE object · full battery (all 15 queries): 755 ms</title></rect><text x="487.3" y="311" class="c-val">755 ms</text><rect x="168" y="316" width="18.7" height="12" rx="2.5" fill="var(--s2)"><title>→ ONE object · cheap queries only (the 5 metadata-bound ones): 45 ms</title></rect><text x="192.7" y="325" class="c-val">45 ms</text><text x="158" y="362" text-anchor="end" class="c-lbl">native TABLE</text><rect x="168" y="344" width="223.9" height="12" rx="2.5" fill="var(--s1)"><title>native TABLE · full battery (all 15 queries): 539 ms</title></rect><text x="397.9" y="353" class="c-val">539 ms</text><rect x="168" y="358" width="6.2" height="12" rx="2.5" fill="var(--s2)"><title>native TABLE · cheap queries only (the 5 metadata-bound ones): 15 ms</title></rect><text x="180.2" y="367" class="c-val">15 ms</text>
+</svg></div>
+<div class="legend"><span class="lg"><i style="background:var(--s1)"></i>full battery (all 15 queries)</span><span class="lg"><i style="background:var(--s2)"></i>cheap queries only (the 5 metadata-bound ones)</span></div>
+<figcaption>Every layout holds the same 10M rows. <strong>Only one is materially bad — 10k slices — and consolidating anything else, up to and including a single object, changes almost nothing.</strong> The native table is included as the ceiling: it is the one thing that is genuinely faster, and section 2 prices what it costs to build.</figcaption>
+</figure>
+  <div class="col">
+    <h3>What that means for consolidation</h3>
+    <p>Because slices arrive below DuckDB's 122,880-row group, <strong>each payload becomes its own
+    under-filled row group</strong>. Consolidating helps only insofar as it packs those groups fuller
+    — and once the groups are reasonably full, further merging buys nothing:</p>
+    <ul>
+      <li><strong>10k slices are the one real problem.</strong> 1,000 objects of 10k rows is
+      220 ms
+      on the cheap queries against
+      43 ms
+      for 100k slices — the only layout worth acting on.</li>
+      <li><strong>The realistic jagged mix is already fine.</strong>
+      770 ms on the full
+      battery, indistinguishable from tidy 100k slices.</li>
+      <li><strong>One giant object is not better than twenty medium ones.</strong> Every consolidated
+      target — 82 objects, 20, 5, or 1 — lands within a few percent of the others, because they all
+      end up with roughly the same 81–100 row groups. <strong>"One big file" has no special
+      property.</strong></li>
+    </ul>
+    <h3>How the single object would be generated</h3>
+    <p>Two routes, both measured on the same jagged input:</p>
+    <ul>
+      <li><strong>Stream it through</strong> —
+      <code>COPY (SELECT * FROM read_parquet([...])) TO one.parquet</code> —
+      1.69 s.</li>
+      <li><strong>Stage it in a table first</strong>, then copy out —
+      4.35 s, for a byte-equivalent result.</li>
+    </ul>
+    <p><strong>Stream it. There is no reason to stage.</strong></p>
+  </div>
+  <div class="callout flag">
+    <span class="kicker">A number I am deliberately not publishing</span>
+    <p>This run also timed each consolidation target as it was built, but that loop used
+    <code>LIMIT n OFFSET k</code> per batch, which rescans from the start every time and is therefore
+    quadratic in batch count. It produced non-monotonic nonsense — 12.0 s for 82 objects, 3.5 s for
+    20, 14.6 s for 5 — which measures my loop, not consolidation. <strong>Those figures are excluded
+    rather than reported.</strong> The trustworthy build number is the stream route above
+    (1.69 s for the whole 10M into one object); measuring
+    per-target build cost honestly needs a single-pass partitioned write, and has not been done.</p>
+  </div>
+  <div class="callout flag">
+    <span class="kicker">Correction to a recorded claim</span>
+    <p>Our notes record that <em>"writing a native table costs LESS than rewriting Parquet"</em>, and
+    conclude that consolidating to Parquet is always dominated by materialising. <strong>That does not
+    reproduce.</strong> Streaming the jagged layout into one Parquet object took
+    1.69 s; building the native table from the same input took
+    16.5 s —
+    9.7x
+    the other way, because the table writes several times more bytes. The recorded result came from
+    consolidating 2,000 tiny payloads, where decode overhead dominates the write. <strong>Which is
+    cheaper depends on the input layout; the general claim should be retired.</strong></p>
+  </div>
+</section>
+
+<section id="p5">
+  <div class="sec-head"><span class="sec-num">05</span><h2>Local disk against S3</h2></div>
+  <p class="q">And what happens when the round trip is not zero?</p>
+  <div class="col">
+    <p>Every remote number we have recorded until now was taken against minio on localhost, where the
+    round trip is sub-millisecond. That isolates protocol and CPU cost, which is a real finding — but
+    it silently sets the term that dominates real S3 to zero. <strong>This run puts it back</strong>:
+    the same minio, behind a proxy that injects a known delay per request.</p>
+  </div>
+  <figure class="fig">
+<div class="chart-scroll"><svg viewBox="0 0 720 300" role="img" aria-label="A selective two-predicate search against S3 as round-trip latency rises, with caches on. Many small payloads degrade steeply with latency while a single consolidated object stays nearly flat." class="chart">
+<line x1="62" y1="258.0" x2="604" y2="258.0" class="c-grid"/><text x="54" y="262.0" text-anchor="end" class="c-tick">0</text><line x1="62" y1="197.5" x2="604" y2="197.5" class="c-grid"/><text x="54" y="201.5" text-anchor="end" class="c-tick">36</text><line x1="62" y1="137.0" x2="604" y2="137.0" class="c-grid"/><text x="54" y="141.0" text-anchor="end" class="c-tick">72</text><line x1="62" y1="76.5" x2="604" y2="76.5" class="c-grid"/><text x="54" y="80.5" text-anchor="end" class="c-tick">108</text><line x1="62" y1="16.0" x2="604" y2="16.0" class="c-grid"/><text x="54" y="20.0" text-anchor="end" class="c-tick">144</text><text x="62.0" y="276" text-anchor="middle" class="c-tick">0 ms</text><text x="242.7" y="276" text-anchor="middle" class="c-tick">20 ms</text><text x="423.3" y="276" text-anchor="middle" class="c-tick">50 ms</text><text x="604.0" y="276" text-anchor="middle" class="c-tick">100 ms</text>
+<line x1="62" y1="16" x2="62" y2="258" class="c-axis"/>
+<line x1="62" y1="258" x2="604" y2="258" class="c-axis"/>
+<polyline points="62.0,245.6 242.7,202.2 423.3,148.6 604.0,33.9" fill="none" stroke="var(--s2)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="62.0" cy="245.6" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="2"><title>many payloads at 0 ms: 7</title></circle><circle cx="242.7" cy="202.2" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="2"><title>many payloads at 20 ms: 33</title></circle><circle cx="423.3" cy="148.6" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="2"><title>many payloads at 50 ms: 65</title></circle><circle cx="604.0" cy="33.9" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="2"><title>many payloads at 100 ms: 133</title></circle><text x="614.0" y="37.9" class="c-end" fill="var(--s2)">many payloads</text><polyline points="62.0,252.0 242.7,211.7 423.3,159.3 604.0,43.2" fill="none" stroke="var(--s4)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="62.0" cy="252.0" r="4" fill="var(--s4)" stroke="var(--surface)" stroke-width="2"><title>consolidated ~2M at 0 ms: 4</title></circle><circle cx="242.7" cy="211.7" r="4" fill="var(--s4)" stroke="var(--surface)" stroke-width="2"><title>consolidated ~2M at 20 ms: 27</title></circle><circle cx="423.3" cy="159.3" r="4" fill="var(--s4)" stroke="var(--surface)" stroke-width="2"><title>consolidated ~2M at 50 ms: 59</title></circle><circle cx="604.0" cy="43.2" r="4" fill="var(--s4)" stroke="var(--surface)" stroke-width="2"><title>consolidated ~2M at 100 ms: 127</title></circle><text x="614.0" y="47.2" class="c-end" fill="var(--s4)">consolidated ~2M</text><polyline points="62.0,250.9 242.7,197.5 423.3,149.3 604.0,74.5" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="62.0" cy="250.9" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>ONE object at 0 ms: 4</title></circle><circle cx="242.7" cy="197.5" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>ONE object at 20 ms: 36</title></circle><circle cx="423.3" cy="149.3" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>ONE object at 50 ms: 64</title></circle><circle cx="604.0" cy="74.5" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>ONE object at 100 ms: 109</title></circle><text x="614.0" y="78.5" class="c-end" fill="var(--s1)">ONE object</text>
+<text x="333" y="296" text-anchor="middle" class="c-axlbl">modelled round trip per request</text>
+<text x="14" y="137" text-anchor="middle" class="c-axlbl" transform="rotate(-90 14 137)">ms</text>
+</svg></div>
+<figcaption>A two-predicate search — the shape spaces actually issues — with the httpfs caches ON. <strong>The layouts converge as latency rises, they do not diverge.</strong> Round-trip cost lands on every layout at once, and object count adds far less than a request-count model predicts, because DuckDB issues those requests concurrently.</figcaption>
+</figure>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>layout</th><th>local disk</th><th>s3 @ 0 ms</th><th>s3 @ 20 ms</th><th>s3 @ 50 ms</th><th>s3 @ 100 ms</th></tr></thead>
+<tbody>
+<tr><th>many payloads · caches off</th><td>7 ms</td><td class="win">15 ms</td><td class="win">40 ms</td><td class="win">64 ms</td><td>122 ms</td></tr>
+<tr><th>many payloads · caches on</th><td>7 ms</td><td class="win">7 ms</td><td class="win">33 ms</td><td class="win">65 ms</td><td>133 ms</td></tr>
+<tr><th>consolidated ~2M · caches off</th><td>5 ms</td><td class="win">4 ms</td><td class="win">28 ms</td><td class="win">59 ms</td><td>123 ms</td></tr>
+<tr><th>consolidated ~2M · caches on</th><td>5 ms</td><td class="win">4 ms</td><td class="win">27 ms</td><td class="win">59 ms</td><td>127 ms</td></tr>
+<tr><th>ONE object · caches off</th><td>4 ms</td><td class="win">5 ms</td><td class="win">41 ms</td><td class="win">78 ms</td><td>125 ms</td></tr>
+<tr><th>ONE object · caches on</th><td>4 ms</td><td class="win">4 ms</td><td class="win">36 ms</td><td class="win">64 ms</td><td>109 ms</td></tr>
+</tbody>
+</table></div><p class="tnote">Warm milliseconds for "search: 2 predicates". Local disk is the same corpus on the same machine.</p>
+  <h3>Requests do not scale with object count, and latency does not multiply</h3>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>layout</th><th>requests, caches off</th><th>requests, caches on</th><th>requests per query</th><th>bytes transferred</th></tr></thead>
+<tbody>
+<tr><th>many payloads</th><td>705</td><td class="win">705</td><td>29.4</td><td>170 MB</td></tr>
+<tr><th>consolidated ~2M</th><td>329</td><td class="win">329</td><td>13.7</td><td>174 MB</td></tr>
+<tr><th>ONE object</th><td>305</td><td class="win">305</td><td>12.7</td><td>175 MB</td></tr>
+</tbody>
+</table></div><p class="tnote">Counted at the proxy, so these are real HTTP requests, not an estimate. Every request pays the round trip once.</p>
+  <div class="callout flag">
+    <span class="kicker">The prediction in our own notes did not hold</span>
+    <p>Our notes flag real S3 latency as the term that could <em>"collapse every break-even in favour
+    of consolidation"</em>, reasoning that Parquet issues 2–5 requests per file and each pays the
+    round trip: 87 objects would then cost 2.94 s
+    at 100 ms. <strong>Measured, the same query costs 133 ms</strong> —
+    the model over-predicts by roughly 22x.</p>
+    <p>Two reasons, both visible in the table. Requests do not scale with objects: 87 objects drew
+    only 29.4 requests per query, because row-group statistics prune
+    most objects before they are ever fetched. And the requests that do happen are issued
+    <strong>concurrently</strong>, so the round trip is paid in parallel rather than in series.</p>
+  </div>
+  <div class="col">
+    <p>The practical reading is the opposite of what was expected. <strong>Latency raises the floor
+    for every layout at once rather than separating them.</strong> At 0 ms the three layouts span
+    4 ms–7 ms; at 100 ms they land within
+    24 ms of each other. Consolidation is worth
+    1.22x under latency on this query — real, but nothing like the
+    8–30x that the zero-latency localhost numbers implied, and not enough on its own to overturn a
+    break-even.</p>
+    <p>What this does argue for is unchanged: <strong>if the worker is going to be latency-bound, the
+    win comes from issuing fewer, larger reads and letting row-group statistics prune — not from
+    chasing object count.</strong></p>
+  </div>
+  <div class="callout">
+    <span class="kicker">Still turn the caches on</span>
+    <p><code>enable_http_metadata_cache</code>, <code>parquet_metadata_cache</code> and
+    <code>httpfs_connection_caching</code> ship <strong>disabled</strong>. Their benefit here is
+    around 2x on metadata-bound queries at low latency and shrinks as the round trip dominates — less
+    dramatic than an earlier note claimed, but free, one-directional, and previously observed to fix
+    outright connection failures at high file counts. Turn them on.</p>
+  </div>
+  <div class="callout">
+    <span class="kicker">What this model is and is not</span>
+    <p>A fixed injected delay where real S3 has a distribution, and no TLS, no per-prefix rate limits,
+    no cross-AZ effects. <strong>Report these as "modelled at N ms", never as "measured on S3".</strong>
+    What the model does capture faithfully is the term that matters — request count multiplied by
+    round trip — which is why the layouts diverge as latency grows.</p>
+  </div>
+</section>
+
+<section id="transforms">
+  <div class="sec-head"><h2>The query type this decision interacts with: transforms</h2></div>
+  <p class="q">Field functions running as native SQL, as a mix, and as JavaScript UDFs.</p>
+  <div class="col">
+    <p>188 of the 205 QPL field functions now emit native SQL instead of a JavaScript UDF. Every
+    number we had for what that is worth was measured on an <em>uncompressed</em> table — the state
+    right after ingest — while production checkpoints at quiesce and therefore queries a
+    <em>compressed</em> one, where a UDF runs once per distinct value rather than once per row. If
+    compression closed the gap, the promotion win would be overstated. <strong>It does not.</strong></p>
+  </div>
+  <figure class="fig">
+<div class="chart-scroll"><svg viewBox="0 0 720 184" role="img" aria-label="A five-function transform pipeline run three ways on ten million rows. All-SQL is about seven times faster than all-UDF, and compression narrows but does not close the gap. Two UDFs among five functions cost three times the all-SQL pipeline." class="chart">
+
+<text x="140" y="30" text-anchor="end" class="c-lbl">table, uncompressed</text><rect x="150" y="8" width="51.6" height="10" rx="2.5" fill="var(--s1)"><title>table, uncompressed · all functions as SQL: 1.44 s</title></rect><text x="207.6" y="15" class="c-val">1.44 s</text><rect x="150" y="20" width="207.8" height="10" rx="2.5" fill="var(--s4)"><title>table, uncompressed · mixed — 3 SQL + 2 UDF: 5.80 s</title></rect><text x="363.8" y="27" class="c-val">5.80 s</text><rect x="150" y="32" width="496.0" height="10" rx="2.5" fill="var(--s2)"><title>table, uncompressed · all functions as UDF: 13.8 s</title></rect><text x="652.0" y="39" class="c-val">13.8 s</text><text x="140" y="80" text-anchor="end" class="c-lbl">table, compressed</text><rect x="150" y="58" width="50.1" height="10" rx="2.5" fill="var(--s1)"><title>table, compressed · all functions as SQL: 1.40 s</title></rect><text x="206.1" y="65" class="c-val">1.40 s</text><rect x="150" y="70" width="153.6" height="10" rx="2.5" fill="var(--s4)"><title>table, compressed · mixed — 3 SQL + 2 UDF: 4.29 s</title></rect><text x="309.6" y="77" class="c-val">4.29 s</text><rect x="150" y="82" width="363.6" height="10" rx="2.5" fill="var(--s2)"><title>table, compressed · all functions as UDF: 10.1 s</title></rect><text x="519.6" y="89" class="c-val">10.1 s</text><text x="140" y="130" text-anchor="end" class="c-lbl">parquet view</text><rect x="150" y="108" width="50.6" height="10" rx="2.5" fill="var(--s1)"><title>parquet view · all functions as SQL: 1.41 s</title></rect><text x="206.6" y="115" class="c-val">1.41 s</text><rect x="150" y="120" width="146.7" height="10" rx="2.5" fill="var(--s4)"><title>parquet view · mixed — 3 SQL + 2 UDF: 4.09 s</title></rect><text x="302.7" y="127" class="c-val">4.09 s</text><rect x="150" y="132" width="362.5" height="10" rx="2.5" fill="var(--s2)"><title>parquet view · all functions as UDF: 10.1 s</title></rect><text x="518.5" y="139" class="c-val">10.1 s</text>
+</svg></div>
+<div class="legend"><span class="lg"><i style="background:var(--s1)"></i>all functions as SQL</span><span class="lg"><i style="background:var(--s4)"></i>mixed — 3 SQL + 2 UDF</span><span class="lg"><i style="background:var(--s2)"></i>all functions as UDF</span></div>
+<figcaption>Five chained field transforms over 10M rows, forced with <code>sum(strlen(…))</code> so the optimiser cannot discard the projection. <strong>Two unpromoted functions out of five cost 3x the all-SQL pipeline</strong> — a single JavaScript function in a query dominates every native one beside it.</figcaption>
+</figure>
+  <div class="table-scroll"><table class="">
+<thead><tr><th>storage</th><th>shape</th><th>all SQL</th><th>mixed (2 UDF)</th><th>all UDF</th><th>UDF ÷ SQL</th></tr></thead>
+<tbody>
+<tr><th>1M · UNCOMPRESSED</th><td>projection</td><td class="win">198 ms</td><td>584 ms</td><td class="lose">1.40 s</td><td>7.08x</td></tr>
+<tr><th>1M · UNCOMPRESSED</th><td>transform + filter + group</td><td class="win">95 ms</td><td>268 ms</td><td class="lose">634 ms</td><td>6.68x</td></tr>
+<tr><th>1M · COMPRESSED</th><td>projection</td><td class="win">200 ms</td><td>412 ms</td><td class="lose">1.02 s</td><td>5.10x</td></tr>
+<tr><th>1M · COMPRESSED</th><td>transform + filter + group</td><td class="win">97 ms</td><td>187 ms</td><td class="lose">465 ms</td><td>4.80x</td></tr>
+<tr><th>1M · parquet view</th><td>projection</td><td class="win">190 ms</td><td>412 ms</td><td class="lose">1.01 s</td><td>5.33x</td></tr>
+<tr><th>1M · parquet view</th><td>transform + filter + group</td><td class="win">110 ms</td><td>273 ms</td><td class="lose">465 ms</td><td>4.24x</td></tr>
+<tr><th>10M · UNCOMPRESSED</th><td>projection</td><td class="win">1.44 s</td><td>5.80 s</td><td class="lose">13.8 s</td><td>9.62x</td></tr>
+<tr><th>10M · UNCOMPRESSED</th><td>transform + filter + group</td><td class="win">646 ms</td><td>2.70 s</td><td class="lose">6.35 s</td><td>9.83x</td></tr>
+<tr><th>10M · COMPRESSED</th><td>projection</td><td class="win">1.40 s</td><td>4.29 s</td><td class="lose">10.1 s</td><td>7.25x</td></tr>
+<tr><th>10M · COMPRESSED</th><td>transform + filter + group</td><td class="win">655 ms</td><td>1.89 s</td><td class="lose">4.65 s</td><td>7.10x</td></tr>
+<tr><th>10M · parquet view</th><td>projection</td><td class="win">1.41 s</td><td>4.09 s</td><td class="lose">10.1 s</td><td>7.16x</td></tr>
+<tr><th>10M · parquet view</th><td>transform + filter + group</td><td class="win">663 ms</td><td>1.94 s</td><td class="lose">4.62 s</td><td>6.98x</td></tr>
+</tbody>
+</table></div><p class="tnote">The compressed rows are the ones production actually runs: the settled recipe checkpoints at quiesce, and every previously recorded promotion number was taken on an uncompressed table.</p>
+  <div class="callout">
+    <span class="kicker">Two results, both load-bearing</span>
+    <p><strong>Compression narrows the SQL advantage but does not collapse it</strong> —
+    9.6x uncompressed against
+    7.3x compressed at 10M rows.
+    Roughly a quarter of the headline is attributable to measuring on a table nobody queries.</p>
+    <p><strong>A single unpromoted function dominates a query.</strong> Two UDFs among five functions
+    cost 3.1x the all-SQL
+    pipeline. The 17 functions still on the UDF path are not a rounding error — one of them anywhere
+    in a query erases the benefit of the other four running natively.</p>
+  </div>
+</section>
+
+<section id="risks">
+  <div class="sec-head"><h2>Bottlenecks and risks this does not solve</h2></div>
+  <div class="col">
+    <p>The measurements above answer the storage question. These are the things that could still bite,
+    listed because a report that only carries good news is not useful.</p>
+  </div>
+  <div class="rec">
+    <div><span class="n">R1</span><p><span class="t">This whole decision is a small slice of the end-to-end cost</span>
+    Producing 100M rows on the api-server — querying Elasticsearch, coercing every field, writing
+    Parquet — took <strong>13.6 min</strong>. Landing those
+    same bytes on the worker took <strong>6.15 s</strong>.
+    So the recommended option is about
+    <strong>0.8%</strong>
+    of the pipeline's wall clock, and even the worst option here
+    (4.3 min to append) is only
+    32%.</p>
+    <p>That does not make the choice unimportant — it is decided on <em>memory and concurrency</em>,
+    not wall clock, and those are what cap how many jobs a worker carries. But it does mean
+    <strong>this report is the wrong place to look for end-to-end speed.</strong> If that is the goal,
+    the target is <code>coerceToType</code> on the producer, which is roughly half of that
+    13.6 min and is the same code on both engines.</p></div>
+    <div><span class="n">R2</span><p><span class="t">Real S3 latency is modelled, not measured</span>
+    The model injects a fixed delay per request; real S3 has a distribution, TLS, and per-prefix rate
+    limits. It was expected to be the term that overturns the recommendation and it was not — but
+    that conclusion rests on the model being faithful in the one way that matters, concurrency of
+    requests. <strong>A real bucket under real concurrency is still the measurement to run</strong>,
+    and it is the cheapest way to retire the largest remaining assumption.</p></div>
+    <div><span class="n">R3</span><p><span class="t">The <code>spatial</code> extension is a hard ship prerequisite</span>
+    13 geo functions are promoted to SQL and <strong>have no UDF fallback at all</strong> — without the
+    extension packaged into the worker image, those queries fail outright rather than running slowly.
+    It does not autoload. <code>inet</code> is the same job, smaller, and does autoload.</p></div>
+    <div><span class="n">R4</span><p><span class="t">Two functions answer differently on the SQL path than the JS path</span>
+    <code>isBase64</code> and the geo shape predicates deliberately differ from the JavaScript
+    implementation — the SQL is more correct, but "more correct" is still a behaviour change on a
+    public GraphQL directive. These need to be signed off as intentional, or gated, before cutover.</p></div>
+    <div><span class="n">R5</span><p><span class="t">Row-group fill on real payloads is still unknown</span>
+    Everything here uses a synthetic 30-column corpus. The law says cost tracks row groups, and slice
+    sizes decide row-group fill — so <strong>a census of real spaces payloads is what says whether any
+    of this currently costs anything</strong>. It is cheap to run and has not been run.</p></div>
+    <div><span class="n">R6</span><p><span class="t">Concurrency across jobs is untested, and it is now the biggest open question</span>
+    Every number here is one job on an idle machine; the worker runs several. This is where the
+    Parquet scan reservation stops being academic: it is <strong>~1 GiB per concurrent wide top-N,
+    fixed</strong>, so N such queries want N GiB of headroom between them and the ceiling. A single
+    job on a 64 GB worker cannot hit it; fifty concurrent ones can.</p>
+    <p><strong>Several concurrent queries against one <code>memory_limit</code> is the measurement
+    most likely to change an operational decision, and it has not been run.</strong> The mitigation
+    is known and cheap either way — project only the columns the query asked for.</p></div>
+  </div>
+</section>
+
+<section id="next">
+  <div class="sec-head"><h2>Recommended next steps</h2></div>
+  <div class="rec">
+    <div><span class="n">1</span><p><span class="t">Adopt "land the bytes, query in place" as the worker's default</span>
+    It is the fastest to ingest, the smallest on disk and in memory, and the simplest to reason about.
+    Keep materialising available as a per-job switch for the rare high-Q dataset.</p></div>
+    <div><span class="n">2</span><p><span class="t">If a table is ever wanted, build it once at quiesce</span>
+    Never by appending per payload — measured
+    4.7x
+    cheaper at 100M for the identical result.</p></div>
+    <div><span class="n">3</span><p><span class="t">Turn on the three httpfs caches wherever S3 is used</span>
+    They are off by default. Do it before any remote rollout, not after the first incident.</p></div>
+    <div><span class="n">4</span><p><span class="t">Run a row-group census on a real corpus</span>
+    The cheapest remaining measurement, and the one that says whether the layout guidance changes
+    anything in production today.</p></div>
+    <div><span class="n">5</span><p><span class="t">Measure against a real S3 bucket</span>
+    To retire R2. Same bench, real endpoint, several jobs at once — the modelled result says object
+    count matters far less than feared, and that is worth confirming before it is relied on.</p></div>
+    <div><span class="n">6</span><p><span class="t">Package <code>spatial</code> and <code>inet</code> into the worker image</span>
+    A build step, but a blocking one for the geo functions.</p></div>
+    <div><span class="n">7</span><p><span class="t">Never emit <code>SELECT *</code> from the query planner</span>
+    Project only the fields the query actually references. It removes the one Parquet memory cliff
+    outright, and it reduces scan cost on every other shape too. QPL already knows the field list.</p></div>
+    <div><span class="n">8</span><p><span class="t">Re-point optimisation effort at the producer</span>
+    It is the dominant cost in the whole pipeline, and <code>coerceToType</code> is roughly half of it.</p></div>
+  </div>
+</section>
+
+<section id="method">
+  <div class="sec-head"><h2>Method, and what would invalidate this</h2></div>
+  <div class="col">
+    <p>One corpus of 30 columns covering every field type, generated from a fixed seed. Every scale
+    builds the native table first and derives every other format from it by <code>COPY</code>, so no
+    generator variation can reach a number. Warm figures are the median of repeats after a discarded
+    first run; cold figures are reported separately in the raw results. Benches were run strictly one
+    at a time — two DuckDB benchmarks sharing 14 cores produce four numbers that are all wrong and
+    none obviously so.</p>
+    <p><code>memory_limit</code> is set to 24 GiB, deliberately <em>below</em> this machine's 36 GB.
+    Set above the real cap, DuckDB never spills and the kernel kills the process — which is exactly
+    how an earlier round produced a bogus "will not spill" finding.</p>
+    <p>Sorts are never forced with <code>count(*)</code>, which lets the optimiser drop the
+    <code>ORDER BY</code>; transforms are forced with <code>sum(strlen(…))</code>, because a transform
+    projection under a count is discarded entirely and once reported 500k rows in 0 ms.</p>
+    <p><strong>Row groups are counted, never derived.</strong> Dividing rows by 122,880 would have
+    been wrong — DuckDB rounds — and inferring the unit is exactly the mistake that produced the
+    per-file law this report retires. Where a measurement turned out to be an artifact of the bench
+    rather than of the thing measured, it is excluded and said so, not quietly dropped.</p>
+    <p><strong>What would invalidate it:</strong> real payloads whose row-group fill differs sharply
+    from this corpus; a real S3 endpoint behaving unlike the model; or concurrency changing the memory
+    picture. All three are in the next-steps list.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Generated from <code>docs/tools/results/*.json</code> by
+  <code>docs/tools/report/build-report.mjs</code>. Every figure on this page is read from those files
+  at build time — re-run a bench, rebuild, and the report is current. Benches:
+  <code>report-ladder</code>, <code>report-ingest</code>, <code>report-consolidation</code>,
+  <code>report-transforms</code>, <code>report-s3</code>.</p>
+</footer>
+
+</div>

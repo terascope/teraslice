@@ -1,0 +1,91 @@
+{
+  "sizeIndependence": [
+    {
+      "corpus": "10M",
+      "bytes": 293833919,
+      "limit": "2GiB",
+      "ok": true
+    },
+    {
+      "corpus": "10M",
+      "bytes": 293833919,
+      "limit": "1GiB",
+      "ok": true
+    },
+    {
+      "corpus": "10M",
+      "bytes": 293833919,
+      "limit": "512MiB",
+      "ok": false
+    },
+    {
+      "corpus": "10M",
+      "bytes": 293833919,
+      "limit": "256MiB",
+      "ok": false
+    },
+    {
+      "corpus": "100M",
+      "bytes": 2936686114,
+      "limit": "2GiB",
+      "ok": true
+    },
+    {
+      "corpus": "100M",
+      "bytes": 2936686114,
+      "limit": "1GiB",
+      "ok": true
+    },
+    {
+      "corpus": "100M",
+      "bytes": 2936686114,
+      "limit": "512MiB",
+      "ok": false
+    },
+    {
+      "corpus": "100M",
+      "bytes": 2936686114,
+      "limit": "256MiB",
+      "ok": false
+    }
+  ],
+  "columnEffect": [
+    {
+      "shape": "SELECT * (30 columns)",
+      "limit": "256MiB",
+      "ok": false
+    },
+    {
+      "shape": "SELECT 3 columns",
+      "limit": "256MiB",
+      "ok": true
+    }
+  ],
+  "threadEffect": [
+    {
+      "threads": 14,
+      "limit": "256MiB",
+      "ok": false
+    },
+    {
+      "threads": 8,
+      "limit": "256MiB",
+      "ok": false
+    },
+    {
+      "threads": 4,
+      "limit": "256MiB",
+      "ok": true
+    },
+    {
+      "threads": 2,
+      "limit": "256MiB",
+      "ok": true
+    },
+    {
+      "threads": 1,
+      "limit": "256MiB",
+      "ok": true
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "rows": 10000000,
+  "nativeBytes": 1181495296,
+  "parquetBytes": 293833919,
+  "cases": [
+    {
+      "mode": "native:24GiB",
+      "kind": "native",
+      "limit": "24.0 GiB",
+      "duckMemBytes": 1181483008,
+      "peakRssBytes": 2409611264,
+      "failure": null,
+      "breakdown": [
+        {
+          "tag": "BASE_TABLE",
+          "bytes": 1181483008,
+          "temp": 0
+        }
+      ]
+    },
+    {
+      "mode": "native:512MiB",
+      "kind": "native",
+      "limit": "512.0 MiB",
+      "duckMemBytes": 246415360,
+      "peakRssBytes": 1340702720,
+      "failure": null,
+      "breakdown": [
+        {
+          "tag": "BASE_TABLE",
+          "bytes": 246415360,
+          "temp": 0
+        }
+      ]
+    },
+    {
+      "mode": "native:256MiB",
+      "kind": "native",
+      "limit": "256.0 MiB",
+      "duckMemBytes": 162529280,
+      "peakRssBytes": 1088749568,
+      "failure": null,
+      "breakdown": [
+        {
+          "tag": "BASE_TABLE",
+          "bytes": 162529280,
+          "temp": 0
+        }
+      ]
+    },
+    {
+      "mode": "parquet:24GiB",
+      "kind": "parquet",
+      "limit": "24.0 GiB",
+      "duckMemBytes": 18186306,
+      "peakRssBytes": 1457881088,
+      "failure": null,
+      "breakdown": [
+        {
+          "tag": "EXTERNAL_FILE_CACHE",
+          "bytes": 18186240,
+          "temp": 0
+        },
+        {
+          "tag": "OBJECT_CACHE",
+          "bytes": 66,
+          "temp": 0
+        }
+      ]
+    },
+    {
+      "mode": "parquet:512MiB",
+      "kind": "parquet",
+      "limit": "512.0 MiB",
+      "duckMemBytes": null,
+      "peakRssBytes": 499875840,
+      "failure": "Out of Memory Error: failed to allocate data of size 2.0 MiB (511.2 MiB/512.0 MiB used)",
+      "breakdown": []
+    },
+    {
+      "mode": "parquet:256MiB",
+      "kind": "parquet",
+      "limit": "256.0 MiB",
+      "duckMemBytes": null,
+      "peakRssBytes": 357974016,
+      "failure": "Out of Memory Error: failed to allocate data of size 8.0 MiB (248.4 MiB/256.0 MiB used)",
+      "breakdown": []
+    }
+  ]
+}
