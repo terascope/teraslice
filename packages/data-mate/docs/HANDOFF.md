@@ -1003,6 +1003,10 @@ is the wrong lever; row-level LOCALITY is the right one.**
 decade make the leading digit uniform. `inspect-fixture.mjs` re-checks all five battery predicates,
 and they must stay stable across regenerations or the benchmark quietly changes meaning.
 
+**The generated files live in `~/fixtures/qpl/`** — outside any git repo, on a durable volume
+rather than `/private/tmp` (which macOS purges on reboot). 100M and 1B are there and verified; that
+directory has its own README. **Do not put them in the repo.**
+
 **Layout:** one bucket, prefix per scale, versioned — `s3://<bucket>/v1/<scale>/`. A flat bucket is
 a **correctness hazard**, not untidy: `S3_GLOB` defaults to `**/*.parquet`, which would match every
 fixture at once and answer a "100M" question with 11.1B rows. `FIXTURE=100m|1b|10b` sets the prefix,
