@@ -44,7 +44,25 @@ const has = (name) => argv.includes(`--${name}`);
 const scaleKey = flag('scale');
 const explicitRows = flag('rows');
 const out = flag('out');
-const level = Number(flag('level', 3));
+/**
+ * zstd level INSIDE the Parquet. DuckDB defaults to 3; 9 is measured better.
+ *
+ * 10M rows, 34 columns:
+ *
+ *   level 1   1.106 GB  (+7.0%)   15 s write   71 ms scan
+ *   level 3   1.034 GB  (default) 19 s write   60 ms scan
+ *   level 9   0.932 GB  (-9.9%)   36 s write   59 ms scan   <-- here
+ *   level 15  0.923 GB  (-10.8%) 149 s write   55 ms scan
+ *
+ * Level 9 buys ~10% for 1.9x the write time, and **reads no slower** — zstd
+ * decompression speed is close to level-independent, so the usual
+ * smaller-but-slower trade does not apply. Level 15 adds 0.9 points for another
+ * 4x on writes, which is not worth it.
+ *
+ * For contrast, gzipping the finished file gains **0.3%** at any gzip level, and
+ * destroys random access — see fixtures/README.md.
+ */
+const level = Number(flag('level', 9));
 const dry = has('dry');
 
 if (!out && !dry) {

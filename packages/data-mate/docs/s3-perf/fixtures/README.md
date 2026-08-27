@@ -181,6 +181,62 @@ fixture is behaving.
 
 ---
 
+## Compression — what helps, what does not
+
+The fixtures are **zstd inside the Parquet**, verified from the file metadata:
+every one of the 1B fixture's 276,726 column chunks is `ZSTD`, taking 288.84 GB
+down to 103.30 GB (**2.80x**). The data compresses well; it cannot compress
+twice.
+
+### Do NOT gzip the file for transport
+
+Measured on the 10M fixture (1.03 GB), on top of the existing zstd:
+
+| method | gain | cost |
+|---|---|---|
+| `gzip -1` | **0.3%** | 15 s/GB |
+| `gzip -6` | **0.3%** | 16 s/GB |
+| `gzip -9` | **0.3%** | 16 s/GB |
+| whole-file `zstd -3` | 0.4% | 0.7 s/GB |
+| whole-file `zstd -19` | 1.9% | 47 s/GB |
+
+On the 1B fixture that is roughly **300 MB saved out of 103 GB for ~27 minutes of
+CPU**. That gzip's own level makes no difference at all — 0.3% at 1, 6 and 9 — is
+the signature of feeding it incompressible input.
+
+**The ratio is not even the main objection. A gzipped Parquet is not a Parquet.**
+The format is a random-access container: DuckDB reads the footer, prunes row
+groups by statistics, then fetches only the column chunks it needs. Wrapping the
+whole file in gzip destroys all three properties, so the entire object would have
+to be transferred and decompressed before answering any query — which discards
+the design these fixtures exist to test.
+
+### DO raise the zstd level inside the Parquet
+
+Same corpus, 10M rows, 34 columns:
+
+| level | size | vs default | write | scan |
+|---|---|---|---|---|
+| 1 | 1.106 GB | +7.0% | 15 s | 71 ms |
+| 3 *(DuckDB default)* | 1.034 GB | — | 19 s | 60 ms |
+| **9** *(this generator's default)* | **0.932 GB** | **-9.9%** | 36 s | **59 ms** |
+| 15 | 0.923 GB | -10.8% | 149 s | 55 ms |
+
+**Level 9 is 33x the gain of gzip and keeps the file a valid Parquet.** It costs
+1.9x the write time and **reads no slower** — zstd decompression speed is close to
+level-independent, so the usual smaller-but-slower trade does not apply here.
+Level 15 adds 0.9 points for another 4x on writes; not worth it. Level 22 is
+pathologically slow and was abandoned mid-measurement.
+
+At level 9 the projected sizes become **~93 GB at 1B** and **~929 GB at 10B**.
+
+**The 100M and 1B fixtures already on disk were written at level 3.** Regenerating
+at 9 costs ~6 min and ~59 min respectively, to save ~1 GB and ~10 GB. Worth doing
+before they are pushed anywhere they will be stored and transferred repeatedly;
+not worth doing to test the harness.
+
+---
+
 ## Uploading
 
 ```bash
