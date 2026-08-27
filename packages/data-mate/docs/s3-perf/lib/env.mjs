@@ -47,14 +47,14 @@ function setting(key, fallback = '') {
 }
 
 const bool = (key, fallback) => {
-    const raw = value(key, String(fallback)).toLowerCase();
+    const raw = setting(key, String(fallback)).toLowerCase();
     if (['true', '1', 'yes', 'on'].includes(raw)) return true;
     if (['false', '0', 'no', 'off'].includes(raw)) return false;
     throw new Error(`${key} must be true or false, got "${raw}" (in ${ENV_FILE})`);
 };
 
 const int = (key, fallback) => {
-    const raw = value(key, String(fallback));
+    const raw = setting(key, String(fallback));
     const n = Number(raw);
     if (!Number.isFinite(n)) {
         throw new Error(`${key} must be a number, got "${raw}" (in ${ENV_FILE})`);

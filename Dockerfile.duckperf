@@ -143,6 +143,12 @@ RUN mkdir -p /app/config /app/results && \
 # hide a missing extension file. If this line passes, the image works offline.
 RUN node /app/source/packages/data-mate/docs/s3-perf/image/verify-offline.mjs
 
+# --- verify the harness itself loads ---------------------------------------
+# A stale identifier passed both `node --check` and eslint, then died at runtime
+# on the first step. This imports every library module for real and parses every
+# script, so that class of error cannot reach the air-gapped box.
+RUN node /app/source/packages/data-mate/docs/s3-perf/image/verify-harness.mjs
+
 VOLUME /app/config /app/results
 
 LABEL org.opencontainers.image.title="DuckFrame S3 performance harness" \

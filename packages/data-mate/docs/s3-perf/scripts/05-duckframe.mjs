@@ -90,7 +90,21 @@ try {
         URL_STYLE '${config.urlStyle}',
         USE_SSL ${config.insecureDiagnostic ? false : config.useSsl}
     )`);
-    if (config.caCertFile) await frame.query(`SET ca_cert_file = '${config.caCertFile}'`);
+    /*
+     * SET GLOBAL, not SET — and this is the sharp edge of the whole file.
+     *
+     * `ca_cert_file` is CONNECTION-scoped while `CREATE SECRET` is
+     * INSTANCE-scoped. `rows()` takes its own connection, so with a plain `SET`
+     * the credentials carry over and the certificate does not: `size()`,
+     * `select()` and `distinct()` all succeed while every `rows()` call fails
+     * with "SSL peer certificate ... was not OK". Measured against a private-CA
+     * endpoint, and it reads as a credentials fault when it is a TLS one.
+     *
+     * The worker hits this too — see HANDOFF §3b and known-defects DF13.
+     */
+    if (config.caCertFile) {
+        await frame.query(`SET GLOBAL ca_cert_file = '${config.caCertFile}'`);
+    }
     note('credentials applied to the frame\'s own database via frame.query()');
 
     heading('FRAME OPERATIONS OVER S3 PARQUET');
