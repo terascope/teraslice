@@ -146,8 +146,17 @@ export function explain(err) {
         [/SignatureDoesNotMatch|InvalidAccessKeyId|403|Forbidden|AccessDenied/i,
             'Credentials were rejected. Check S3_ACCESS_KEY_ID / S3_SECRET_ACCESS_KEY.\n'
             + '     Ceph is also sensitive to S3_URL_STYLE — it usually needs `path`, not `vhost`.'],
-        [/Connection error|Could not establish|timed out|timeout/i,
+        [/Could not resolve hostname|Name or service not known|DNS/i,
+            'DNS could not resolve the host.\n'
+            + '     LOOK AT THE FAILING URL ABOVE. If the BUCKET NAME is prepended to the\n'
+            + '     hostname (https://<bucket>.<host>/), then S3_URL_STYLE is `vhost` —\n'
+            + '     which is DUCKDB\'S DEFAULT and is wrong for Ceph RGW and minio.\n'
+            + '     Set S3_URL_STYLE=path. Verified against Ceph 19.2: vhost fails exactly this way.\n'
+            + '     Otherwise the endpoint hostname itself does not resolve from this container —\n'
+            + '     check S3_ENDPOINT, and that the container has DNS for it.'],
+        [/Connection error|Could not establish|timed out|timeout|Connection refused/i,
             'The endpoint did not answer. Check S3_ENDPOINT (host:port, NO https:// prefix),\n'
+            + '     the PORT (Ceph RGW is often 8080 plain / 8443 TLS, not 9000),\n'
             + '     that the box can reach it, and whether HTTP_PROXY_HOST is needed.'],
         [/out of memory|Out of Memory|allocate/i,
             'DuckDB hit its memory limit. Either raise MEMORY_LIMIT, lower THREADS, or —\n'

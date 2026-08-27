@@ -69,8 +69,13 @@ docker run -v /path/to/ca.pem:/app/config/ca.pem:ro \
 by IP to a certificate issued for a DNS name fails, so use the name the certificate was issued for
 and make sure the container can resolve it.
 
-TLS with a private CA is tested: the full suite passes against an HTTPS endpoint whose certificate
-chains to a generated private CA. That test found DF13 — see the troubleshooting table.
+**Both are tested against real Ceph.** The full suite passes against Ceph 19.2 (squid) RGW over TLS
+with a private CA, on both architectures. Those tests found two things: DF13 (see the troubleshooting
+table) and the undiagnosed `vhost` failure, both now fixed.
+
+Note that figures taken against local minio are **not** comparable to figures against Ceph — over TLS
+a frame `size()` was ~50 ms on Ceph against ~5 ms on minio. Always record which endpoint produced a
+number.
 
 Any setting can be overridden for one run without editing the file:
 
@@ -196,7 +201,10 @@ Scripts diagnose their own errors, but for reference:
 | `SSL peer certificate ... was not OK` | private CA. Mount the PEM, set `CA_CERT_FILE` |
 | **`size()` works but every `rows()` fails on TLS** | `ca_cert_file` is CONNECTION-scoped and `rows()` opens its own connection. The harness already uses `SET GLOBAL`; if you hit this in your own code, that is the fix. See `known-defects.md` DF13 |
 | `NoSuchBucket`, empty glob | wrong `S3_BUCKET`/`S3_PREFIX`, or objects are not `*.parquet` (see `S3_GLOB`) |
-| `Connection error` / timeout | wrong `S3_ENDPOINT`, unreachable host, or a proxy is needed |
+| `Could not resolve hostname`, bucket in the URL host | **`S3_URL_STYLE=vhost`** — DuckDB's default, wrong for Ceph. Set `path` |
+| `Connection error` / timeout | wrong `S3_ENDPOINT` or port (RGW is often 8080/8443, not 9000), unreachable host, or a proxy is needed |
+| `403` on everything | wrong access key *or* wrong secret — Ceph gives the same 403 for both |
+| config looks wrong but passes | **Ceph ignores `S3_REGION`.** A wrong region is not the cause of anything |
 | `Extension ... autoload` error | an extension is missing from the image — it cannot be fetched here. Rebuild |
 | wide `SELECT *` fails, others pass | **the documented cliff, not a bug.** Project fewer columns, or cap `THREADS` |
 | everything is slow, high request counts | the httpfs caches are off. See `./run.sh caches` |
