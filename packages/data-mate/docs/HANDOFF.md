@@ -1007,6 +1007,26 @@ and they must stay stable across regenerations or the benchmark quietly changes 
 rather than `/private/tmp` (which macOS purges on reboot). 100M and 1B are there and verified; that
 directory has its own README. **Do not put them in the repo.**
 
+**COMPRESSION, THE FULL MATRIX (2026-08-28).** Asked whether gzipping an *uncompressed* Parquet
+would beat zstd — a fair challenge, because the first test only gzipped an already-zstd file and
+found 0.3%, which stacked the deck. Measured properly at 10M rows:
+
+| parquet codec | size | scan | + `gzip -6` |
+|---|---|---|---|
+| uncompressed | 2.890 GB | **37 ms** | **1.030 GB** |
+| snappy | 1.469 GB | 46 ms | 1.165 GB |
+| gzip (internal) | 1.029 GB | **122 ms** | 1.018 GB |
+| lz4_raw | 1.516 GB | 45 ms | 1.089 GB |
+| zstd L3 | 1.034 GB | 59 ms | 1.031 GB |
+| **zstd L9** | **0.932 GB** | 56 ms | 0.930 GB |
+
+**Gzip on raw Parquet genuinely works** — 2.8x, 2.890 GB to 1.030 GB. It is not that gzip cannot
+compress this data. It is that the gzip route ends up **10.5% BIGGER than zstd L9** (1.030 vs
+0.932 GB), takes 66 s against 14 s, **and gives up random access**. There is no size argument for
+it at any codec. Also: **gzip as the INTERNAL codec is the worst option** — bigger than zstd L9 and
+2.2x slower to scan. **Uncompressed scans fastest** (37 ms, nothing to decode); zstd L9 costs 19 ms
+more per scan to be 3.1x smaller, which is the trade that makes it the default.
+
 **Layout:** one bucket, prefix per scale, versioned — `s3://<bucket>/v1/<scale>/`. A flat bucket is
 a **correctness hazard**, not untidy: `S3_GLOB` defaults to `**/*.parquet`, which would match every
 fixture at once and answer a "100M" question with 11.1B rows. `FIXTURE=100m|1b|10b` sets the prefix,
