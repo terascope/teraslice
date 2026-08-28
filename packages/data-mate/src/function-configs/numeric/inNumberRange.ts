@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { allowsNumericArgs } from '../sql-helpers.js';
 
 export type { InNumberRangeArg };
 
@@ -79,6 +80,23 @@ export const inNumberRangeConfig: FieldValidateConfig<InNumberRangeArg> = {
     ],
     create({ args }) {
         return inNumberRangeFP(args);
+    },
+    /**
+     * `>`/`<`, or `>=`/`<=` when `inclusive` is set - EXCLUSIVE is the default.
+     *
+     * Verified: `inNumberRange(1, { min: 1, max: 10 })` is false and only becomes true with
+     * `inclusive: true`, so emitting `BETWEEN` (which is inclusive) would have been wrong.
+    */
+    sql: {
+        applies: allowsNumericArgs('min', 'max'),
+        expression: ({ value, args }) => {
+            const low = args.inclusive ? '>=' : '>';
+            const high = args.inclusive ? '<=' : '<';
+            const parts: string[] = [];
+            if (args.min != null) parts.push(`${value} ${low} ${Number(args.min)}`);
+            if (args.max != null) parts.push(`${value} ${high} ${Number(args.max)}`);
+            return parts.length ? parts.join(' AND ') : 'TRUE';
+        },
     },
     accepts: [
         FieldType.Number,

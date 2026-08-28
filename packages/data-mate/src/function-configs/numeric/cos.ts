@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const cosConfig: FieldTransformConfig = {
@@ -47,6 +48,13 @@ export const cosConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.cos);
+    },
+    /** `cos` is native. */
+    sql: {
+        // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754
+        // permits. The gate compares these to a few ULP - see `approximate`.
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(`cos(${value})`),
     },
     accepts: [
         FieldType.Number,

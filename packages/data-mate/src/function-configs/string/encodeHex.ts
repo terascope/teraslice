@@ -33,6 +33,15 @@ export const encodeHexConfig: FieldTransformConfig = {
     create() {
         return bufferEncode('hex');
     },
+    /**
+     * `hex(encode(x))`, lower-cased - `encode`, NOT `x::BLOB`.
+     *
+     * A `VARCHAR -> BLOB` cast refuses non-ASCII input; `encode()` is the UTF-8 conversion. Lower-case
+     * to match `Buffer.toString('hex')`. Verified equal for ASCII, Latin-1, CJK and astral input.
+    */
+    sql: {
+        expression: ({ value }) => `lower(hex(encode(${value})))`,
+    },
     accepts: [FieldType.String],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config, child_config } = inputConfig;

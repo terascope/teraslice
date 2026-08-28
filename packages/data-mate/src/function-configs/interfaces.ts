@@ -139,6 +139,102 @@ export interface FunctionDefinitionConfig<T extends Record<string, any>> {
 
     /** Used for additional custom validation of args, called after generic arg validation */
     readonly validate_arguments?: (args: T) => void;
+
+    /**
+     * How to run this function as a SQL EXPRESSION instead of a JavaScript UDF.
+     *
+     * **Why this belongs here.** A `FunctionDefinitionConfig` is the single definition of a
+     * function's behaviour - name, aliases, argument schema, accepted types, what the field
+     * becomes, and the implementation - and spaces turns these into GraphQL directives, so they
+     * are the public surface. How a function is EXECUTED is a property of the function, so it is
+     * declared next to everything else about it rather than in a lookup table that could drift.
+     *
+     * **Why it is worth having.** A JS UDF costs ~178 ns per value of pure marshalling and runs
+     * strictly single-threaded (the node binding blocks the DuckDB worker thread until JS
+     * returns), while native SQL is 1-2 ns and uses 9-11 cores. Measured 2026-08-18: 18x on a
+     * five-function pipeline at 5M rows, 125x on an isolated aggregate.
+     *
+     * **Nothing is promoted by inspection.** An emission is only correct if it is byte-equal to
+     * this function's own UDF over a battery of values, and the two most obvious candidates in the
+     * catalogue were NOT: JS `trim()` strips all Unicode whitespace where DuckDB's one-argument
+     * `trim` strips only spaces, and `toUpperCase` uses full case mapping where `upper()` uses
+     * simple mapping (`'ß'` -> `SS` in JS, `ẞ` in SQL). `sql-emission-spec.ts` is the gate.
+    */
+    readonly sql?: SqlEmission<T>;
+}
+
+/**
+ * A function's SQL form.
+ *
+ * `expression` builds SQL for ONE value rather than for the column, because the caller decides how
+ * the value is reached: it is the column for a scalar field, and the lambda variable inside a
+ * `list_transform` for an array field under `INDIVIDUAL_VALUES`. Building per value means the array
+ * case needs nothing extra here.
+*/
+export interface SqlEmission<T extends Record<string, any>> {
+    /** Builds the expression. Must be NULL-safe: a null input has to produce null. */
+    readonly expression: (ctx: SqlEmissionContext<T>) => string;
+
+    /**
+     * Field types this emission is valid for. Defaults to the function's `accepts`.
+     *
+     * Present because an emission is often only right for SOME accepted types - a function that
+     * takes both `String` and `Number` may have a native equivalent for one and not the other.
+    */
+    readonly types?: readonly FieldType[];
+
+    /**
+     * Whether this emission is valid for THESE ARGUMENTS.
+     *
+     * `types` narrows by column type; this narrows by argument, which some functions need and no
+     * type check can express. `encodeSHA` takes a `hash` and a `digest`: DuckDB has `md5`, `sha1` and
+     * `sha256` but no `sha512`, and its digest is hex, so the emission is correct for some argument
+     * combinations and absent for others. Returning false falls back to the UDF for that call only.
+    */
+    readonly applies?: (args: T, inputConfig: DataTypeFieldAndChildren) => boolean;
+
+    /**
+     * Set when the emission agrees with the UDF to within a few ULP rather than bit-exactly.
+     *
+     * **Only for transcendental functions, and it is not a licence to be sloppy.** IEEE 754 does not
+     * specify exact results for `sin`, `cos`, `ln` and friends - only for `sqrt` and the algebraic
+     * operations - so DuckDB's libm and V8's implementation legitimately differ in the last bit:
+     * measured, `cos` over the battery gave `0.9910848718142532` where JavaScript gave
+     * `...533`. Requiring bit-equality there would reject every transcendental function forever,
+     * while requiring nothing would hide a real error, so the gate compares them with a relative
+     * tolerance of a few ULP and demands exactness everywhere else.
+     *
+     * A function whose result must round-trip exactly - anything algebraic, anything producing an
+     * integer, anything a caller might compare for equality - must NOT set this.
+    */
+    readonly approximate?: boolean;
+
+    /**
+     * Set when `expression` calls `ctx.udf`, so the adapter knows it must still register the
+     * JavaScript implementation.
+     *
+     * **This is what makes a guarded fast path possible**, which is the difference between
+     * promoting a function and giving up on it: `toUpperCase` is `upper()` for ASCII and needs
+     * JavaScript's full case mapping for anything else, so it emits
+     * `CASE WHEN <ascii> THEN upper(x) ELSE udf(x) END` and the UDF is called only for the values
+     * that need it. When this is NOT set, no UDF is registered at all and the JS boundary is gone.
+    */
+    readonly needs_udf_fallback?: boolean;
+}
+
+export interface SqlEmissionContext<T extends Record<string, any>> {
+    /** SQL for ONE already-typed value: the quoted column, or a lambda variable. */
+    readonly value: string;
+    readonly args: T;
+    readonly inputConfig: DataTypeFieldAndChildren;
+    readonly outputConfig: DataTypeFieldAndChildren;
+    /**
+     * Calls this function's JavaScript UDF for `value`.
+     *
+     * Only usable when `needs_udf_fallback` is set - otherwise no UDF exists and calling this
+     * throws, loudly, at plan time rather than producing SQL that references nothing.
+    */
+    readonly udf: (value: string) => string;
 }
 export interface FunctionContext<T extends Record<string, any> = Record<string, unknown>> {
     readonly args: T;

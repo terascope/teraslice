@@ -3,7 +3,7 @@ import {
     ClientMetadata, ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A GeoJSON geometry (point, polygon, or multi-polygon) stored as an
@@ -43,5 +43,14 @@ export default class GeoJSON extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.GeoJSON };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     * Shape-dependent (Point/Polygon/MultiPolygon), so JSON until the spatial extension
+     * earns its place.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('JSON');
     }
 }

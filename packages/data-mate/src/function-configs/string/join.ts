@@ -4,6 +4,7 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionExample, FunctionDefinitionCategory
 } from '../interfaces.js';
+import { sqlLiteral, STRING_FIELD_TYPES } from '../sql-helpers.js';
 
 export interface JoinArgs {
     delimiter?: string;
@@ -100,6 +101,24 @@ export const joinConfig: FieldTransformConfig<JoinArgs> = {
     examples,
     create({ args: { delimiter = '' } }) {
         return joinFn(delimiter);
+    },
+    /**
+     * `array_to_string` over the non-null elements, which is `input.filter(isNotNil).join(d)`.
+     *
+     * Verified against the JavaScript: an empty list and an all-null list both give `''` on either
+     * side, and an empty delimiter concatenates. `applies` claims only a STRING-element array -
+     * for numbers and booleans `join` uses `String(x)` and SQL would use DuckDB's cast, and there
+     * is no reason to assume those agree on something like `1e21`.
+     *
+     * Array-only for the same reason as the `*Values` reducers, plus one of its own: on a scalar
+     * column `_join` returns `String(input)`, which is a cast rather than a join.
+    */
+    sql: {
+        applies: (_args, inputConfig) => inputConfig?.field_config?.array === true
+            && STRING_FIELD_TYPES.includes(inputConfig.field_config.type as FieldType),
+        expression: ({ value, args }) => 'array_to_string('
+            + `list_filter(${value}, lambda x : x IS NOT NULL),`
+            + ` ${sqlLiteral((args.delimiter as string) ?? '')})`,
     },
     accepts: [FieldType.String, FieldType.Number, FieldType.Boolean],
     argument_schema: {

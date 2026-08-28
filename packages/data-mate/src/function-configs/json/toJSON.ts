@@ -10,6 +10,7 @@ import {
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { JSON_SQL_TYPES } from './sql-utils.js';
 
 export const toJSONConfig: FieldTransformConfig = {
     name: 'toJSON',
@@ -90,6 +91,28 @@ export const toJSONConfig: FieldTransformConfig = {
 
             return JSON.stringify(input);
         };
+    },
+    sql: {
+        /**
+         * **`to_json` is `JSON.stringify`, for most column types.** Measured over 13 values across
+         * six types (`tools/probe/remaining-26.mjs`): every VARCHAR case byte-equal including
+         * quotes, tabs, backslashes and astral input; BIGINT, BOOLEAN and non-integral DOUBLE
+         * equal; STRUCT and LIST equal including key ORDER.
+         *
+         * Two type families are declined for measured reasons, not caution:
+         *
+         * - **floating point.** `to_json(2.0)` is `'2.0'` where `JSON.stringify(2)` is `'2'`, and
+         *   `to_json(1e21)` is `'1e21'` where JavaScript writes `'1e+21'`. That is JavaScript's
+         *   number-to-string algorithm, not a formatting option, so it stays on the UDF.
+         * - **Date.** `to_json` on a TIMESTAMP gives `"2026-01-02 03:04:05.678"` - no `T`, no `Z` -
+         *   where `JSON.stringify(new Date(...))` gives the ISO form.
+         *
+         * An array column is declined because `output_type` declares the result `array: false`
+         * while `list_transform` would hand back a list.
+        */
+        applies: (_args, inputConfig) => !inputConfig.field_config.array
+            && JSON_SQL_TYPES.includes(inputConfig.field_config.type as FieldType),
+        expression: ({ value }) => `CAST(to_json(${value}) AS VARCHAR)`,
     },
     accepts: [],
     output_type(_inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {

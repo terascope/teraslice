@@ -5,6 +5,9 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import {
+    FRACTIONAL_FIELD_TYPES, notAtRoundingTie, toFixedSql, truncateToDigitsSql
+} from './sql-utils.js';
 
 export interface SetPrecisionArgs {
     readonly digits: number;
@@ -144,6 +147,32 @@ export const setPrecisionConfig: FieldTransformConfig<SetPrecisionArgs> = {
         }
 
         return setPrecisionFP(digits, truncate);
+    },
+    sql: {
+        /**
+         * The NUMERIC path only, and only away from a rounding tie.
+         *
+         * `create` returns a different function for a `GeoPoint`/`Geo` column - it parses the point
+         * and rounds both members - and that produces a STRUCT, which is not something an emission
+         * can hand back today (known-defects DF7). A whole-number column is excluded too: the
+         * function is identity there, but `toFloatOrThrow` on a `Long` goes through `Number`, so
+         * matching it would mean matching a precision loss rather than avoiding one.
+         *
+         * The rounding itself, and why it is `printf` rather than `round`, is on `toFixedSql`.
+        */
+        needs_udf_fallback: true,
+        applies: ({ digits }, inputConfig) => Number.isInteger(digits)
+            && digits >= 0 && digits <= 100
+            && FRACTIONAL_FIELD_TYPES.includes(inputConfig.field_config.type),
+        expression: ({ value, args: { digits, truncate = false }, udf }) => {
+            const native = truncate
+                ? truncateToDigitsSql(value, digits)
+                : toFixedSql(value, digits);
+            // the tie guard is on the digit the rounding actually consults: `digits` for the
+            // rounded form, `digits + 5` for the truncated one, which renders that far first
+            const guard = notAtRoundingTie(value, truncate ? digits + 5 : digits);
+            return `CASE WHEN ${guard} THEN ${native} ELSE ${udf(value)} END`;
+        },
     },
     accepts: [
         FieldType.Number,

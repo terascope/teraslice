@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull, needsNumericArgs } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export interface PowerArgs {
@@ -42,6 +43,12 @@ export const powConfig: FieldTransformConfig<PowerArgs> = {
     ],
     create({ args: { value } }) {
         return runMathFn(Math.pow, value);
+    },
+    /** Native `pow`. Transcendental, so compared to a few ULP rather than bit-exactly. */
+    sql: {
+        applies: needsNumericArgs('value'),
+        approximate: true,
+        expression: ({ value, args }) => finiteOrNull(`pow(${value}, ${Number(args.value)})`),
     },
     accepts: [
         FieldType.Number,

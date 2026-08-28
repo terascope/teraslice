@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { needsNumericArgs } from '../sql-helpers.js';
 
 export interface ModulusArgs {
     readonly value: number;
@@ -71,6 +72,14 @@ export const modulusConfig: FieldTransformConfig<ModulusArgs> = {
         }
 
         return modulusFP(value);
+    },
+    /**
+     * `mod`, which agrees with JavaScript's `%` on sign: both take the sign of the DIVIDEND, so
+     * `mod(-7, 3)` is `-1` in SQL and `-7 % 3` is `-1` in JavaScript. (Many languages differ here.)
+    */
+    sql: {
+        applies: needsNumericArgs('value'),
+        expression: ({ value, args }) => `mod(${value}, ${Number(args.value)})`,
     },
     accepts: [
         FieldType.Number,

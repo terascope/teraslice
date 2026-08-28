@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces.js';
+import { uuidPattern } from './sql-utils.js';
 
 export interface IsUUIDArgs {
     version?: validator.UUIDVersion;
@@ -79,6 +80,18 @@ export const isUUIDConfig: FieldValidateConfig = {
             type: FieldType.String,
             description: 'Specify version of UUID to verify, defaults to all.  Also accepts loose which checks if the string is UUID-like with hexadecimal values, ignoring RFC9565.'
         }
+    },
+    /**
+     * `validator.isUUID`'s per-version patterns, transliterated from its source.
+     *
+     * The default `all` is NOT the union of versions 1-8 - it also takes the nil and max UUIDs, and
+     * still requires the `[89ab]` variant nibble - so it is written out rather than derived. None
+     * of the patterns use lookaround or a backreference, so RE2 compiles every one.
+    */
+    sql: {
+        applies: (args) => uuidPattern(args.version) != null,
+        expression: ({ value, args }) => `regexp_matches(${value},`
+            + ` '${uuidPattern(args.version)}')`,
     },
     accepts: [FieldType.String],
     required_arguments: [],

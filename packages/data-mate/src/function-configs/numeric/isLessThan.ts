@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { needsNumericArgs } from '../sql-helpers.js';
 
 export interface LessThanArgs {
     readonly value: number;
@@ -61,6 +62,11 @@ export const isLessThanConfig: FieldValidateConfig<LessThanArgs> = {
     ],
     create({ args: { value } }) {
         return isLessThanFP(value);
+    },
+    /** A plain comparison; the argument is a plan constant, so it is spliced as a literal. */
+    sql: {
+        applies: needsNumericArgs('value'),
+        expression: ({ value, args }) => `${value} < ${Number(args.value)}`,
     },
     accepts: [
         FieldType.Number,

@@ -8,6 +8,7 @@ import {
 } from '@terascope/types';
 import { formatSchema, formatGQLDescription } from './graphql-helper.js';
 import * as i from './interfaces.js';
+import { DuckDBTypeConfig } from './interfaces.js';
 import BaseType from './types/base-type.js';
 import * as utils from './utils.js';
 import { getTypes, LATEST_VERSION, getGroupedFields } from './types/index.js';
@@ -19,6 +20,15 @@ import { getTypes, LATEST_VERSION, getGroupedFields } from './types/index.js';
  * - Elasticsearch Mappings
  * - GraphQL Schemas
  * - xLucene
+ * - DuckDB column types
+ *
+ * **Nesting asymmetry, deliberate:** `toDuckDB` nests deeper than the other conversions.
+ * `getGroupedFields` splits on the FIRST dot only and `getTypes` carries a
+ * `@todo support multiple levels deep nesting`, so `a.b` and `a.b.c` arrive as siblings and
+ * `toESMapping`/`toGraphQL` stop nesting after one level. DuckDB cannot tolerate that: a
+ * `STRUCT` member named `b.c` is not an incomplete mapping but an invalid table definition,
+ * so {@link GroupType.toDuckDB} regroups the dotted paths and recurses. Fixing the grouping
+ * itself would let every conversion nest and make this special case unnecessary.
  *
  * It is constructed from a `DataTypeConfig` (a `version` plus a map of field
  * names to their {@link BaseType} configs); nested `Object` and `Tuple` fields
@@ -293,5 +303,16 @@ export class DataType {
      */
     toXlucene(): xLuceneTypeConfig {
         return this._types.reduce((accum, type) => ({ ...accum, ...type.toXlucene() }), {});
+    }
+
+    /**
+     * Convert the DataType to DuckDB column types - a map of top-level column name to its
+     * DuckDB type.
+     *
+     * Dot-notation children are folded into their parent as a STRUCT, so the result is the
+     * real column set of a table built from this DataType, not one entry per declared field.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._types.reduce((accum, type) => ({ ...accum, ...type.toDuckDB() }), {});
     }
 }

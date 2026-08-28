@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { timestampLiteral, isDateArg } from './sql-utils.js';
 
 export interface IsBeforeArgs {
     date: string | number | Date | DateTuple;
@@ -77,6 +78,12 @@ export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
     required_arguments: ['date'],
     create({ args: { date } }) {
         return (input: unknown) => isBefore(input, date);
+    },
+    /** Strict, for the same reason as `isAfter`. */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => isDateArg(args.date),
+        expression: ({ value, args }) => `${value} < ${timestampLiteral(args.date)}`,
     },
     accepts: [
         FieldType.Date,

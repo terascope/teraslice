@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isGeoJSONColumn, isGeoShapeSql } from './sql-utils.js';
 
 export const isGeoShapePolygonConfig: FieldValidateConfig = {
     name: 'isGeoShapePolygon',
@@ -48,6 +49,11 @@ export const isGeoShapePolygonConfig: FieldValidateConfig = {
     description: 'Return the input if it is a valid geo-json polygon, otherwise returns null',
     create() {
         return isGeoShapePolygon;
+    },
+    /** `isGeoJSON` plus an exact-case `type`. */
+    sql: {
+        applies: (_args, inputConfig) => isGeoJSONColumn(inputConfig),
+        expression: ({ value }) => isGeoShapeSql(value, 'Polygon', 'polygon'),
     },
     accepts: [
         FieldType.GeoJSON,

@@ -3,7 +3,7 @@ import {
     ESTypeMapping
 } from '@terascope/types';
 import BaseType, { ToGraphQLOptions } from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A geo boundary represented as a list of lat/lon points — for example the
@@ -60,5 +60,13 @@ export default class Boundary extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Geo };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     * A list of points, so the array form of the GeoPoint struct.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('STRUCT(lat DOUBLE, lon DOUBLE)[]');
     }
 }

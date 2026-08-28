@@ -9,6 +9,8 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces.js';
 import { encodeAny } from './encode-utils.js';
+import { hasHashSql, hashSql } from './sql-utils.js';
+import { STRING_FIELD_TYPES } from '../sql-helpers.js';
 
 export interface CreateIDArgs {
     hash?: string;
@@ -118,6 +120,23 @@ export const createIDConfig: FieldTransformConfig<CreateIDArgs> = {
             }
             return encode(toString(value));
         };
+    },
+    sql: {
+        /**
+         * A scalar string column only.
+         *
+         * `createID` is `FULL_VALUES` and hashes `toString(value)`, or for an array
+         * `value.flat().map(toString).join('')`. On a string column `toString` is identity and the
+         * hash is exact; every other shape means reproducing `toString`'s number, boolean, object
+         * and nested-array rendering in SQL, which is a guess this file exists to avoid. An array
+         * or tuple column keeps the UDF.
+        */
+        types: STRING_FIELD_TYPES,
+        applies: ({ hash, digest }, inputConfig) => !inputConfig.field_config.array
+            && hasHashSql(hash ?? hashDefault, digest ?? digestDefault),
+        expression: ({ value, args: { hash = hashDefault, digest = digestDefault } }) => (
+            hashSql(hash, digest, value) as string
+        ),
     },
     accepts: [],
     argument_schema: {

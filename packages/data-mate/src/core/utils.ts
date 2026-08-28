@@ -1,7 +1,6 @@
 import { getTypeOf, TSError } from '@terascope/core-utils';
 import {
-    DataTypeFields, FieldType, ReadonlyDataTypeFields,
-    TypedArray, TypedArrayConstructor
+    TypedArray, TypedArrayConstructor, DataTypeFields, ReadonlyDataTypeFields, FieldType
 } from '@terascope/types';
 import {
     FieldArg, MAX_16BIT_INT, MAX_32BIT_INT,

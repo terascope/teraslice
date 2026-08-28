@@ -3,6 +3,7 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionExample, FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { sqlLiteral } from '../sql-helpers.js';
 
 export interface ReplaceLiteralArgs {
     search: string;
@@ -36,6 +37,26 @@ export const replaceLiteralConfig: FieldTransformConfig<ReplaceLiteralArgs> = {
     examples,
     create({ args: { replace, search } }) {
         return (input: unknown) => replaceFn(input as string, search, replace);
+    },
+    /**
+     * FIRST occurrence only - `replace()` would be wrong.
+     *
+     * `replaceFn` is `input.replace(search, newVal)` with a STRING needle, and that replaces only the
+     * first match; SQL's `replace()` replaces every match. The gate caught it immediately: with
+     * `search: 'e'`, `'Hey There'` became `'HEy ThErE'` in SQL and `'HEy There'` in JavaScript.
+     *
+     * Built from `position` and `substring` rather than `regexp_replace`, which also stops at the
+     * first match: a literal needle would have to be regex-escaped, and the replacement would have to
+     * be escaped against backreference syntax. `position` returns 0 when the needle is absent.
+    */
+    sql: {
+        expression: ({ value, args }) => {
+            const needle = sqlLiteral(args.search);
+            const at = `position(${needle} IN ${value})`;
+            return `CASE WHEN ${at} = 0 THEN ${value}`
+                + ` ELSE substring(${value}, 1, ${at} - 1) || ${sqlLiteral(args.replace)}`
+                + ` || substring(${value}, ${at} + length(${needle})) END`;
+        },
     },
     accepts: [FieldType.String],
     argument_schema: {

@@ -6,6 +6,7 @@ import {
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { encodeURIComponentSql } from './sql-utils.js';
 import { encodeURL } from './encode-utils.js';
 
 export const encodeURLConfig: FieldTransformConfig = {
@@ -32,6 +33,12 @@ export const encodeURLConfig: FieldTransformConfig = {
     ],
     create() {
         return encodeURL;
+    },
+    /**
+     * `url_encode`, minus the five characters it over-escapes. See `encodeURIComponentSql`.
+    */
+    sql: {
+        expression: ({ value }) => encodeURIComponentSql(value),
     },
     accepts: [FieldType.String],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {

@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces.js';
+import { isFQDNSql } from './sql-utils.js';
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {
@@ -115,6 +116,17 @@ export const isFQDNConfig: FieldValidateConfig = {
     examples,
     create() {
         return isFQDN;
+    },
+    /**
+     * `validator.isFQDN` with its defaults, for ASCII input. There is no TLD list in it, which is
+     * what makes it expressible.
+     *
+     * Transliterated from `validator`'s source, not inferred from the name - the same bar
+     * `isAlpha`, `isPort`, `isHash` and `isUUID` had to clear.
+    */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => isFQDNSql(value, udf),
     },
     accepts: [FieldType.String],
 };

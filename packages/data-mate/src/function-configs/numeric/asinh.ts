@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const asinhConfig: FieldTransformConfig = {
@@ -27,6 +28,13 @@ export const asinhConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.asinh);
+    },
+    /** `asinh` is native, and total. */
+    sql: {
+        // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754
+        // permits. The gate compares these to a few ULP - see `approximate`.
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(`asinh(${value})`),
     },
     accepts: [
         FieldType.Number,

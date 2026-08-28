@@ -4,6 +4,9 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     DataTypeFieldAndChildren, FunctionDefinitionCategory
 } from '../interfaces.js';
+import {
+    isBooleanColumn, isStringColumn, stringIsFalsy, isNumericColumn,
+} from './sql-utils.js';
 
 export const toBooleanConfig: FieldTransformConfig = {
     name: 'toBoolean',
@@ -55,6 +58,24 @@ export const toBooleanConfig: FieldTransformConfig = {
     ],
     create() {
         return toBoolean;
+    },
+    /**
+     * `isFalsy(x) ? false : isTruthy(x) ? true : Boolean(x)`, collapsed per column type.
+     *
+     * For a string the three branches reduce to "not falsy": anything that is not in `_falsy` and
+     * not empty is either in `_truthy` or a non-empty string, and `Boolean` of a non-empty string
+     * is true. For a number, `Boolean(x)` is false only for zero and `NaN`, and `String(0)` is
+     * already a `_falsy` key, so the two agree on `x <> 0 AND NOT isnan(x)`.
+    */
+    sql: {
+        applies: (_args, inputConfig) => isBooleanColumn(inputConfig)
+            || isStringColumn(inputConfig)
+            || isNumericColumn(inputConfig),
+        expression: ({ value, inputConfig }) => {
+            if (isBooleanColumn(inputConfig)) return value;
+            if (isStringColumn(inputConfig)) return `NOT ${stringIsFalsy(value)}`;
+            return `(${value} <> 0 AND NOT isnan(${value}))`;
+        },
     },
     accepts: [],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {

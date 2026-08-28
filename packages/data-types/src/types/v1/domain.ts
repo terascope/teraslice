@@ -1,6 +1,6 @@
 import { xLuceneFieldType, ESFieldType, xLuceneTypeConfig } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A domain name optimized for matching by domain suffix. The base value is
@@ -76,5 +76,12 @@ export default class Domain extends BaseType {
         return {
             [this.field]: xLuceneFieldType.AnalyzedString
         };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('VARCHAR');
     }
 }

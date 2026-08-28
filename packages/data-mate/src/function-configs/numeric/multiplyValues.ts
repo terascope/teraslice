@@ -4,6 +4,7 @@ import {
     FieldTransformConfig, FunctionDefinitionType,
     ProcessMode, DataTypeFieldAndChildren, FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isArrayColumn } from './sql-utils.js';
 
 function multiplyValuesReducer(
     acc: number | null,
@@ -97,6 +98,11 @@ export const multiplyValuesConfig: FieldTransformConfig = {
         return multiplyValuesFn;
     },
     argument_schema: {},
+    /** `list_product`, with the same null behaviour as `list_sum`. */
+    sql: {
+        applies: isArrayColumn,
+        expression: ({ value }) => `list_product(${value})`,
+    },
     accepts: [FieldType.Number],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;

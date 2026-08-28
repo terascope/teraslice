@@ -37,6 +37,10 @@ export const isEvenConfig: FieldValidateConfig = {
     create() {
         return isEven;
     },
+    /** `mod(x, 2) = 0`, which is false for a fraction on both sides - `isEven(4.5)` is false. */
+    sql: {
+        expression: ({ value }) => `mod(${value}, 2) = 0`,
+    },
     accepts: [
         FieldType.Number,
     ],

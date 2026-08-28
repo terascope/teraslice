@@ -5,6 +5,7 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
 } from '../interfaces.js';
+import { ipv4ToIntSql, isIPv4Sql } from './sql-utils.js';
 
 export const ipToIntConfig: FieldTransformConfig = {
     name: 'ipToInt',
@@ -30,6 +31,18 @@ export const ipToIntConfig: FieldTransformConfig = {
     description: 'Returns the IP as an integer or a big int',
     create() {
         return ipToInt;
+    },
+    /**
+     * IPv4 only, as octet arithmetic.
+     *
+     * There is no `inet_aton` and no cast between `INET` and a number, so the octets are split out
+     * and weighted. IPv6 needs 128 UNSIGNED bits where `HUGEINT` is signed, so it keeps the UDF -
+     * along with anything that is not an address, which throws there as it does today.
+    */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => `CASE WHEN ${isIPv4Sql(value)}`
+            + ` THEN ${ipv4ToIntSql(value)} ELSE ${udf(value)} END`,
     },
     accepts: [FieldType.String, FieldType.IP],
     output_type({ field_config }) {

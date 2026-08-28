@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample,
 } from '../interfaces.js';
+import { primitiveLiteral, literalMatchesColumn } from '../sql-helpers.js';
 
 export interface EqualsArgs {
     readonly value: unknown;
@@ -63,6 +64,19 @@ export const equalsConfig: FieldValidateConfig<EqualsArgs> = {
     examples,
     create({ args: { value } }) {
         return isDeepEqualFP(value);
+    },
+    /**
+     * A plain comparison, for a scalar column against a primitive argument.
+     *
+     * `isDeepEqual` is structural, and neither an object nor an array has a literal form here, so
+     * `applies` keeps those on the UDF. The kinds must match too: `coalesce`-style implicit casting
+     * would be DuckDB deciding how `5` becomes a string, where the UDF path never converts at all.
+    */
+    sql: {
+        applies: (args, inputConfig) => primitiveLiteral(args.value) != null
+            && !inputConfig?.field_config?.array
+            && literalMatchesColumn(args.value, inputConfig.field_config.type as FieldType),
+        expression: ({ value, args }) => `${value} = ${primitiveLiteral(args.value)}`,
     },
     accepts: [],
     argument_schema: {

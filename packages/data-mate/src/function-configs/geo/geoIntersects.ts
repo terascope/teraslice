@@ -7,6 +7,9 @@ import {
     FunctionDefinitionCategory,
     FunctionDefinitionExample
 } from '../interfaces.js';
+import {
+    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate,
+} from './sql-utils.js';
 
 export interface GeoIntersectsArgs {
     value: GeoInput;
@@ -82,6 +85,16 @@ export const geoIntersectsConfig: FieldValidateConfig<GeoIntersectsArgs> = {
     description: 'Returns the input if it has at least one point in common with the argument value, otherwise returns null',
     create({ args: { value } }) {
         return geoIntersectsFP(value);
+    },
+    /**
+     * `ST_Intersects` - measured identical to `geoIntersects` on all 324 shape pairs, holes and
+     * holed MultiPolygons included. No divergence to accept here.
+    */
+    sql: {
+        applies: (args, inputConfig) => isGeoColumn(inputConfig) && isGeoArg(args.value),
+        expression: ({ value, args, inputConfig }) => tryPredicate(
+            `ST_Intersects(${asGeometry(value, inputConfig)}, ${constantGeometry(args.value)})`
+        ),
     },
     accepts: [
         FieldType.GeoJSON,

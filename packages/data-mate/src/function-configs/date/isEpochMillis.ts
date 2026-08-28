@@ -82,5 +82,11 @@ export const isEpochMillisConfig: FieldValidateConfig<IsEpochMillisArgs> = {
     create({ args: { allowBefore1970 } }) {
         return isUnixTimeFP(allowBefore1970);
     },
+    /** The same `isUnixTime` check as `isEpoch`, on a millisecond value. */
+    sql: {
+        expression: ({ value, args }) => (args.allowBefore1970 === false
+            ? `(isfinite(${value}) AND trunc(${value}) >= 0)`
+            : `isfinite(${value})`),
+    },
     accepts: [FieldType.Number],
 };
