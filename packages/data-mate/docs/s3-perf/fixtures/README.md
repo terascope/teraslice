@@ -210,28 +210,45 @@ every one of the 1B fixture's 276,726 column chunks is `ZSTD`, taking 288.84 GB
 down to 103.30 GB (**2.80x**). The data compresses well; it cannot compress
 twice.
 
-### Do NOT gzip the file for transport
+### The full codec matrix
 
-Measured on the 10M fixture (1.03 GB), on top of the existing zstd:
+The first version of this section tested gzip only on an ALREADY-ZSTD Parquet,
+found 0.3%, and concluded gzip was useless. That stacked the deck — of course a
+compressor cannot compress its own output. The honest test is to gzip an
+UNCOMPRESSED Parquet and compare the total against zstd. Measured, 10M rows:
 
-| method | gain | cost |
-|---|---|---|
-| `gzip -1` | **0.3%** | 15 s/GB |
-| `gzip -6` | **0.3%** | 16 s/GB |
-| `gzip -9` | **0.3%** | 16 s/GB |
-| whole-file `zstd -3` | 0.4% | 0.7 s/GB |
-| whole-file `zstd -19` | 1.9% | 47 s/GB |
+| Parquet codec | size | scan | + `gzip -6` | gzip time |
+|---|---|---|---|---|
+| **uncompressed** | 2.890 GB | **37 ms** | **1.030 GB** | 66 s |
+| snappy | 1.469 GB | 46 ms | 1.165 GB | 48 s |
+| gzip *(internal)* | 1.029 GB | 122 ms | 1.018 GB | 18 s |
+| lz4_raw | 1.516 GB | 45 ms | 1.089 GB | 59 s |
+| zstd L3 | 1.034 GB | 59 ms | 1.031 GB | 16 s |
+| **zstd L9** | **0.932 GB** | 56 ms | 0.930 GB | 14 s |
 
-On the 1B fixture that is roughly **300 MB saved out of 103 GB for ~27 minutes of
-CPU**. That gzip's own level makes no difference at all — 0.3% at 1, 6 and 9 — is
-the signature of feeding it incompressible input.
+**Gzip on raw Parquet genuinely works** — 2.890 GB down to 1.030 GB, a real 2.8x.
+It is not that gzip cannot compress this data. It is that **zstd already captures
+that compression and keeps the file queryable**, and does it better:
 
-**The ratio is not even the main objection. A gzipped Parquet is not a Parquet.**
-The format is a random-access container: DuckDB reads the footer, prunes row
-groups by statistics, then fetches only the column chunks it needs. Wrapping the
-whole file in gzip destroys all three properties, so the entire object would have
-to be transferred and decompressed before answering any query — which discards
-the design these fixtures exist to test.
+- gzipping an uncompressed Parquet lands at **1.030 GB, 10.5% BIGGER** than the
+  zstd L9 Parquet at 0.932 GB, and takes 66 s against 14 s.
+- so the gzip route gives up random access **to end up with a larger file**.
+  There is no size argument for it, at any codec.
+
+**And a gzipped Parquet is not a Parquet.** The format is a random-access
+container: DuckDB reads the footer, prunes row groups by statistics, then fetches
+only the column chunks it needs. Wrapping the whole file destroys all three, so
+the entire object must be transferred and decompressed before answering any
+query — which discards the design these fixtures exist to test.
+
+Two more results worth keeping:
+
+- **gzip as the INTERNAL codec is the worst of both**: 1.029 GB (bigger than zstd
+  L9) at **122 ms scan** (2.2x slower). Never use it.
+- **Uncompressed scans fastest** at 37 ms, because nothing is decompressed. zstd
+  L9 costs 19 ms more per scan to be **3.1x smaller** — which is the trade that
+  makes it the default. snappy and lz4_raw sit in between and are beaten by zstd
+  on size without matching uncompressed on speed.
 
 ### DO raise the zstd level inside the Parquet
 

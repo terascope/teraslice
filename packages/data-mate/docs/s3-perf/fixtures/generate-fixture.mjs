@@ -59,8 +59,11 @@ const out = flag('out');
  * smaller-but-slower trade does not apply. Level 15 adds 0.9 points for another
  * 4x on writes, which is not worth it.
  *
- * For contrast, gzipping the finished file gains **0.3%** at any gzip level, and
- * destroys random access — see fixtures/README.md.
+ * The alternative of writing an UNCOMPRESSED Parquet and gzipping it was measured
+ * properly rather than dismissed: it lands at 1.030 GB against zstd L9's 0.932 GB
+ * — **10.5% BIGGER**, 66 s instead of 14 s, and it gives up random access. Gzip
+ * compresses this data perfectly well (2.890 GB -> 1.030 GB); it simply loses to
+ * zstd on every axis at once. Full matrix in fixtures/README.md.
  */
 const level = Number(flag('level', 9));
 const dry = has('dry');
