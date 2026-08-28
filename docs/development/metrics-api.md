@@ -5,7 +5,7 @@ sidebar_label: Prometheus Metrics
 
 The `PromMetrics` class lives within `packages/terafoundation/src/api/prom-metrics` package. Use of its API can be enabled using `prom_metrics_enabled` in the terafoundation config and overwritten in the job config. The `init` function can be found at `context.apis.foundation.promMetrics.init`. It is called on startup of the Teraslice master, execution_controller, and worker, but only creates the API if `prom_metrics_enabled` is true.
 
-## Functions
+## Functions 
 
 | Name | Description | Type |
 | ---------------- | ------------------------ | ----------------------------- |
