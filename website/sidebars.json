@@ -36,6 +36,7 @@
             "development/k8s",
             "development/node",
             "development/typescript",
+            "development/metrics-api",
             "development/contributing"
         ]
     },
