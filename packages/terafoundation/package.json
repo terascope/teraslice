@@ -1,7 +1,7 @@
 {
     "name": "terafoundation",
     "displayName": "Terafoundation",
-    "version": "2.19.0",
+    "version": "2.19.1",
     "description": "A Clustering and Foundation tool for Terascope Tools",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terafoundation#readme",
     "bugs": {
@@ -50,7 +50,7 @@
     },
     "peerDependencies": {
         "@terascope/valkey": "workspace:~",
-        "terafoundation_kafka_connector": "~2.5.1"
+        "terafoundation_kafka_connector": "~2.6.0"
     },
     "peerDependenciesMeta": {
         "@terascope/valkey": {
