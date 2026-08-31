@@ -4,6 +4,7 @@ packages:
 
 allowBuilds:
   '@confluentinc/kafka-javascript': true
+  '@parcel/watcher': true
   '@swc/core': true
   dtrace-provider: true
   esbuild: true
