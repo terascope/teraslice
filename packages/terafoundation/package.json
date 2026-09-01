@@ -29,28 +29,28 @@
     },
     "dependencies": {
         "@terascope/core-utils": "workspace:~",
-        "@terascope/file-asset-apis": "~2.2.0",
+        "@terascope/file-asset-apis": "catalog:",
         "@terascope/opensearch-client": "workspace:~",
         "@terascope/types": "workspace:~",
-        "bunyan": "~1.8.15",
-        "express": "~5.2.1",
-        "js-yaml": "~5.4.1",
-        "nanoid": "~6.0.1",
-        "prom-client": "~15.1.3",
-        "yargs": "~18.1.0"
+        "bunyan": "catalog:",
+        "express": "catalog:",
+        "js-yaml": "catalog:",
+        "nanoid": "catalog:",
+        "prom-client": "catalog:",
+        "yargs": "catalog:"
     },
     "devDependencies": {
-        "@jest/globals": "^30.4.1",
-        "@types/bunyan": "~1.8.11",
-        "@types/express": "~5.0.6",
-        "@types/js-yaml": "~4.0.9",
-        "@types/yargs": "~17.0.35",
-        "got": "~15.1.0",
-        "jest-extended": "~7.0.0"
+        "@jest/globals": "catalog:",
+        "@types/bunyan": "catalog:",
+        "@types/express": "catalog:",
+        "@types/js-yaml": "catalog:",
+        "@types/yargs": "catalog:",
+        "got": "catalog:",
+        "jest-extended": "catalog:"
     },
     "peerDependencies": {
         "@terascope/valkey": "workspace:~",
-        "terafoundation_kafka_connector": "~2.6.0"
+        "terafoundation_kafka_connector": "catalog:"
     },
     "peerDependenciesMeta": {
         "@terascope/valkey": {

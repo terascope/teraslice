@@ -2,8 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import semver from 'semver';
 import {
-    getFirstChar, uniq, trim,
-    isCI, isString
+    uniq, isCI
 } from '@terascope/core-utils';
 import {
     getDocPath, updatePkgJSON, fixDepPkgName,
@@ -115,72 +114,38 @@ export async function syncPackage(
     files.push(...getFiles(pkgInfo));
 }
 
+/**
+ * Keep internal (workspace) package references and versions in sync.
+ *
+ * External dependency versions are kept in sync by the pnpm catalog
+ * (the `catalog:` block in pnpm-workspace.yaml), so this only:
+ *   - rewrites references to internal packages to the workspace protocol
+ *   - pins packages flagged `linkToMain` to the main package's version
+ *   - keeps the root package version in step with the main package
+*/
 export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo): void {
-    const externalVersions: Record<string, VersionVal> = {};
-    const internalVersions: Record<string, VersionVal> = {};
-
-    /**
-     * verify an external dependency and return the correct version to use
-    */
-    function getLatest(name: string, val: VersionVal): VersionVal | string | null {
-        const internal = internalVersions[name];
-        const external = externalVersions[name];
-        if (internal != null) {
-            if (rootInfo.terascope.version === 2) return 'workspace:*';
-            return 'workspace:~';
-        }
-
-        if (external == null) {
-            externalVersions[name] = val;
-            return null;
-        }
-
-        if (!val.valid) {
-            return null;
-        }
-
-        if (external.valid && semver.gte(val.version, external.version)) {
-            externalVersions[name] = val;
-            return val;
-        }
-
-        return external;
-    }
+    const internalPackages = new Set<string>();
 
     function forDeps(pkgInfo: PackageInfo | RootPackageInfo, key: DepKey): void {
         const deps = pkgInfo[key] || {};
-        for (let [name, version] of Object.entries(deps)) {
-            const originalName = name;
-            name = fixDepPkgName(name);
-            if (originalName !== name) {
-                delete deps[originalName];
-            }
-            version = trim(version);
-
-            const val = getVersion(version, false);
-            const latest = getLatest(name, val);
-            if (latest == null) continue;
-
-            let updateTo: string;
-            if (isString(latest)) {
-                updateTo = latest;
-            } else if (!latest.valid) {
-                if (key !== DepKey.Peer && latest.version.startsWith('>=')) {
-                    updateTo = `~${latest.version.replace('>=', '')}`;
-                } else {
-                    updateTo = latest.version;
-                }
-            } else if (key === DepKey.Peer && internalVersions[name] != null) {
-                updateTo = `>=${latest.version}`;
-            } else {
-                updateTo = `${latest.range}${latest.version}`;
+        for (const [name, currentVersion] of Object.entries(deps)) {
+            const fixedName = fixDepPkgName(name);
+            if (fixedName !== name) {
+                deps[fixedName] = currentVersion;
+                delete deps[name];
             }
 
-            if (version !== updateTo) {
-                const currentInfo = `${pkgInfo.folderName} ${name}@${version}`;
-                signale.warn(`updating (${key}) ${currentInfo} to ${updateTo}`);
+            // external deps are kept in sync by the pnpm catalog; skip them
+            if (!internalPackages.has(fixedName)) continue;
+
+            const updateTo = rootInfo.terascope.version === 2
+                ? 'workspace:*'
+                : 'workspace:~';
+
+            if (currentVersion !== updateTo) {
+                signale.warn(`updating (${key}) ${pkgInfo.folderName} ${fixedName}@${currentVersion} to ${updateTo}`);
             }
-            deps[name] = updateTo;
+            deps[fixedName] = updateTo;
         }
     }
 
@@ -190,13 +155,12 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
     for (const pkgInfo of packages) {
         if (pkgInfo.private && !pkgInfo.terascope?.allowBumpWhenPrivate) continue;
 
-        const val = getVersion(pkgInfo.version, true);
-        if (!val) {
+        if (!semver.valid(pkgInfo.version)) {
             throw new Error(
                 `Package ${pkgInfo.name} has invalid version of ${pkgInfo.version}`
             );
         }
-        internalVersions[pkgInfo.name] = val;
+        internalPackages.add(pkgInfo.name);
         if (isMainPackage(pkgInfo)) {
             mainVersion = pkgInfo.version;
         }
@@ -210,75 +174,20 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
             if (pkgInfo.version !== mainVersion) {
                 signale.warn(`syncing package ${pkgInfo.name}@${pkgInfo.version} to ${mainVersion}`);
                 pkgInfo.version = mainVersion;
-                internalVersions[pkgInfo.name] = getVersion(mainVersion, true)!;
             }
         }
     }
 
-    function updateDepVersions() {
-        for (const pkgInfo of packages) {
-            for (const key of Object.values(DepKey)) {
-                forDeps(pkgInfo, key);
-            }
-        }
+    for (const pkgInfo of packages) {
         for (const key of Object.values(DepKey)) {
-            forDeps(rootInfo, key);
+            forDeps(pkgInfo, key);
         }
     }
-
-    updateDepVersions();
-    // go through it again to get the version updated everywhere
-    updateDepVersions();
+    for (const key of Object.values(DepKey)) {
+        forDeps(rootInfo, key);
+    }
 
     if (mainVersion && mainVersion !== rootInfo.version) {
         rootInfo.version = mainVersion;
     }
-
-    for (const key of Object.values(DepKey)) {
-        forDeps(rootInfo, key);
-    }
 }
-
-function getVersion(input: string, strict: false): VersionVal;
-function getVersion(input: string, strict: true): VersionVal | undefined;
-function getVersion(input: string, strict: boolean): VersionVal | undefined {
-    if (input === '*') {
-        if (strict) return undefined;
-        return {
-            version: '*',
-            valid: false,
-            range: ''
-        };
-    }
-
-    const firstChar = getFirstChar(input.trim());
-    const range: string | undefined = ['~', '^'].includes(firstChar)
-        ? firstChar
-        : undefined;
-
-    const _input = range ? input.slice(1) : input;
-    const version = semver.valid(_input);
-
-    if (!version) {
-        if (strict) return undefined;
-        return {
-            version: input,
-            valid: false,
-            range: ''
-        };
-    }
-
-    const defaultRange = strict ? '~' : '';
-
-    return {
-        version,
-        valid: true,
-        range: range != null ? range : defaultRange,
-    };
-}
-
-type VersionVal = {
-    version: string;
-    valid: boolean;
-    range: string;
-};

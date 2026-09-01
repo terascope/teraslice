@@ -33,17 +33,17 @@
     "dependencies": {
         "@terascope/core-utils": "workspace:~",
         "@terascope/types": "workspace:~",
-        "get-port": "~7.2.0",
-        "ms": "~2.1.3",
-        "nanoid": "~6.0.1",
-        "p-event": "~7.1.0",
-        "socket.io": "~4.8.3",
-        "socket.io-client": "~4.8.3"
+        "get-port": "catalog:",
+        "ms": "catalog:",
+        "nanoid": "catalog:",
+        "p-event": "catalog:",
+        "socket.io": "catalog:",
+        "socket.io-client": "catalog:"
     },
     "devDependencies": {
-        "@jest/globals": "^30.4.1",
-        "@types/ms": "~0.7.34",
-        "jest-extended": "~7.0.0"
+        "@jest/globals": "catalog:",
+        "@types/ms": "catalog:",
+        "jest-extended": "catalog:"
     },
     "engines": {
         "node": ">=22.0.0",

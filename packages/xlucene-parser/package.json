@@ -35,13 +35,13 @@
         "@terascope/geo-utils": "workspace:~",
         "@terascope/ip-utils": "workspace:~",
         "@terascope/types": "workspace:~",
-        "peggy": "~5.1.0"
+        "peggy": "catalog:"
     },
     "devDependencies": {
-        "@turf/invariant": "~7.4.0",
-        "@turf/random": "~7.4.0",
-        "date-fns": "~4.4.0",
-        "jest-extended": "~7.0.0"
+        "@turf/invariant": "catalog:",
+        "@turf/random": "catalog:",
+        "date-fns": "catalog:",
+        "jest-extended": "catalog:"
     },
     "engines": {
         "node": ">=22.0.0",

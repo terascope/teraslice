@@ -37,12 +37,12 @@
     "dependencies": {
         "@terascope/core-utils": "workspace:~",
         "@terascope/types": "workspace:~",
-        "auto-bind": "~5.0.1",
-        "got": "~15.1.0"
+        "auto-bind": "catalog:",
+        "got": "catalog:"
     },
     "devDependencies": {
-        "jest-extended": "~7.0.0",
-        "nock": "~14.0.17"
+        "jest-extended": "catalog:",
+        "nock": "catalog:"
     },
     "engines": {
         "node": ">=22.0.0",
