@@ -166,11 +166,11 @@ export type GeoDistanceSort = {
     };
 };
 
-export type GeoSortQuery = {
+export type GeoQuerySort = {
     _geo_distance: GeoDistanceSort;
 };
 
-export type AnyQuerySort = GeoSortQuery;
+export type AnyQuerySort = GeoQuerySort;
 
 export type ElasticsearchDSLResult = {
     query: ConstantScoreQuery | MatchAllQuery | MatchNoneQuery | KNNQuery;
