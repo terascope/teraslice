@@ -12,6 +12,17 @@ export interface TranslatorOptions extends ParserOptions {
     default_geo_sort_unit?: GeoDistanceUnit | string;
 }
 
+export type TranslatorGeoConfig = {
+    // field & point required
+    field?: string;
+    point?: GeoPoint;
+    // order & unit can use defaults if not provided
+    order?: SortOrder;
+    unit?: GeoDistanceUnit;
+    default_order: SortOrder;
+    default_unit: GeoDistanceUnit;
+};
+
 /**
  * @internal
 */
@@ -19,8 +30,5 @@ export interface UtilsTranslateQueryOptions extends Partial<ClientMetadata> {
     logger: Logger;
     type_config: xLuceneTypeConfig;
     variables: xLuceneVariables;
-    default_geo_field?: string;
-    geo_sort_point?: GeoPoint;
-    geo_sort_order: SortOrder;
-    geo_sort_unit: GeoDistanceUnit;
+    geo_sort: TranslatorGeoConfig;
 }

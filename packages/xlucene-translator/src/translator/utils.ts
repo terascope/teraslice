@@ -1,6 +1,6 @@
 import {
-    TSError, isString, isArray, isEmpty,
-    matchWildcard
+    castArray, isArray, isEmpty, isString,
+    matchWildcard, TSError
 } from '@terascope/core-utils';
 import {
     isEmptyNode, isWildcardField, isTerm,
@@ -19,7 +19,7 @@ import type {
     RangeQuery, AnyQuerySort, ElasticsearchDSLResult,
     MatchAllQuery, ConstantScoreQuery, MatchNoneQuery,
     AnyQuery, BoolQuery, ExistsQuery, RegExprQuery,
-    BoolQueryTypes, KNNQuery
+    BoolQueryTypes, KNNQuery, GeoQuerySort
 } from '@terascope/types';
 import { UtilsTranslateQueryOptions } from './interfaces.js';
 
@@ -119,14 +119,32 @@ export function translateQuery(
 
     let { sort } = context;
 
-    if (!sort && options.default_geo_field && options.geo_sort_point) {
-        sort = {
-            _geo_distance: {
-                order: options.geo_sort_order,
-                unit: options.geo_sort_unit,
-                [options.default_geo_field]: options.geo_sort_point,
-            }
-        };
+    const { geo_sort } = options;
+
+    if (geo_sort.field && geo_sort.point) {
+        const order = geo_sort.order || geo_sort.default_order;
+        const unit = geo_sort.unit || geo_sort.default_unit;
+
+        // add if no sort, OR override existing geo distance sort
+        if (!sort || (sort as GeoQuerySort)?._geo_distance) {
+            sort = {
+                _geo_distance: {
+                    order,
+                    unit,
+                    [geo_sort.field]: geo_sort.point
+                }
+            };
+        } else {
+            // tack on to existing sort
+            sort = castArray(sort);
+            sort.push({
+                _geo_distance: {
+                    order,
+                    unit,
+                    [geo_sort.field]: geo_sort.point
+                }
+            });
+        }
     }
 
     return {

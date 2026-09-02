@@ -1,4 +1,7 @@
-import { AnyQuery, xLuceneVariables } from '@terascope/types';
+import {
+    GEO_DISTANCE_UNITS, GeoDistanceUnit, GeoQuery, GeoQuerySort,
+    xLuceneVariables
+} from '@terascope/types';
 import { parseGeoPoint, parseGeoDistance, geoPointWithinRangeFP } from '@terascope/geo-utils';
 import * as i from '../../interfaces.js';
 import { getFieldValue, logger } from '../../utils.js';
@@ -26,6 +29,13 @@ function validate(params: i.Term[], variables: xLuceneVariables) {
     };
 }
 
+/** returns the value if valid, otherwise the default value */
+function getValidUnit(defaultValue: GeoDistanceUnit, value: any) {
+    if (!value || typeof value !== 'string') return defaultValue;
+    if (Object.values(GEO_DISTANCE_UNITS).includes(value as GeoDistanceUnit)) return value;
+    return defaultValue;
+}
+
 const geoDistance: i.FunctionDefinition = {
     name: 'geoDistance',
     version: '1',
@@ -35,30 +45,35 @@ const geoDistance: i.FunctionDefinition = {
         if (!node.field || node.field === '*') {
             throw new Error('Field for geoDistance cannot be empty or "*"');
         }
+
         const {
             lat, lon, distance, unit: paramUnit
         } = validate(node.params as i.Term[], variables);
 
         function toElasticsearchQuery(field: string, options: i.FunctionElasticsearchOptions) {
-            const unit = paramUnit || options.geo_sort_unit;
-            const order = options.geo_sort_order;
+            const sortUnit = getValidUnit(paramUnit, options.geo_sort.unit);
+            const sortPoint = parseGeoPoint(options.geo_sort.point, false);
 
-            const query: AnyQuery = {};
-            query.geo_distance = {
-                distance: `${distance}${unit}`,
-            };
-            query.geo_distance[field] = {
-                lat,
-                lon,
-            };
+            const unit = paramUnit || sortUnit;
+            const order = options.geo_sort.order || options.geo_sort.default_order;
 
-            const sort = {
-                _geo_distance: {
-                    order,
-                    unit,
+            const query: GeoQuery = {
+                geo_distance: {
+                    distance: `${distance}${unit}`,
                     [field]: {
                         lat,
                         lon
+                    }
+                }
+            };
+
+            const sort: GeoQuerySort = {
+                _geo_distance: {
+                    order,
+                    unit: sortUnit,
+                    [field]: {
+                        lat: sortPoint?.lat || lat,
+                        lon: sortPoint?.lon || lon
                     }
                 }
             };

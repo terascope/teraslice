@@ -1,12 +1,12 @@
 import { debugLogger, isString } from '@terascope/core-utils';
 import { parseGeoDistanceUnit } from '@terascope/geo-utils';
 import {
-    xLuceneVariables, xLuceneTypeConfig, GeoDistanceUnit,
+    xLuceneVariables, xLuceneTypeConfig,
     ElasticsearchDSLOptions, ElasticsearchDSLResult,
     ElasticsearchDistribution
 } from '@terascope/types';
 import { Parser } from 'xlucene-parser';
-import { TranslatorOptions } from './interfaces.js';
+import type { TranslatorGeoConfig, TranslatorOptions } from './interfaces.js';
 import { translateQuery } from './utils.js';
 
 const logger = debugLogger('xlucene-translator');
@@ -16,9 +16,7 @@ export class Translator {
     readonly typeConfig: xLuceneTypeConfig;
     readonly variables: xLuceneVariables | undefined;
     private readonly _parser: Parser;
-    private _defaultGeoField?: string;
-    private _defaultGeoSortOrder: 'asc' | 'desc' = 'asc';
-    private _defaultGeoSortUnit: GeoDistanceUnit = 'meters';
+    private _defaultGeoSortConfig: TranslatorGeoConfig;
 
     constructor(input: string | Parser, options: TranslatorOptions = {}) {
         this.variables = options.variables;
@@ -34,15 +32,13 @@ export class Translator {
             this._parser = input;
         }
 
-        if (options.default_geo_field) {
-            this._defaultGeoField = options.default_geo_field;
-        }
-        if (options.default_geo_sort_order) {
-            this._defaultGeoSortOrder = options.default_geo_sort_order;
-        }
-        if (options.default_geo_sort_unit) {
-            this._defaultGeoSortUnit = parseGeoDistanceUnit(options.default_geo_sort_unit);
-        }
+        this._defaultGeoSortConfig = {
+            field: options.default_geo_field,
+            default_order: options.default_geo_sort_order || 'asc',
+            default_unit: options.default_geo_sort_unit
+                ? parseGeoDistanceUnit(options.default_geo_sort_unit)
+                : 'meters'
+        };
 
         this.query = this._parser.query;
     }
@@ -55,11 +51,13 @@ export class Translator {
             version: opts.version ?? '2.15.0',
             distribution: opts.distribution ?? ElasticsearchDistribution.opensearch,
             type_config: this.typeConfig,
-            default_geo_field: this._defaultGeoField,
             variables: this.variables ?? {},
-            geo_sort_point: opts.geo_sort_point,
-            geo_sort_order: opts.geo_sort_order || this._defaultGeoSortOrder,
-            geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortUnit,
+            geo_sort: {
+                ...this._defaultGeoSortConfig,
+                point: opts.geo_sort_point,
+                order: opts.geo_sort_order,
+                unit: opts.geo_sort_unit
+            },
         });
 
         if (logger.level() === 10) {
