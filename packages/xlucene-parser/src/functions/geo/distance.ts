@@ -1,5 +1,5 @@
 import {
-    GEO_DISTANCE_UNITS, GeoDistanceUnit, GeoQuery, GeoQuerySort,
+    GEO_DISTANCE_UNITS, GeoDistanceUnit, GeoQuery, GeoDistanceSort,
     xLuceneVariables
 } from '@terascope/types';
 import { parseGeoPoint, parseGeoDistance, geoPointWithinRangeFP } from '@terascope/geo-utils';
@@ -30,7 +30,7 @@ function validate(params: i.Term[], variables: xLuceneVariables) {
 }
 
 /** returns the value if valid, otherwise the default value */
-function getValidUnit(defaultValue: GeoDistanceUnit, value: any) {
+function getValidUnit(defaultValue: GeoDistanceUnit, value: GeoDistanceUnit): GeoDistanceUnit {
     if (!value || typeof value !== 'string') return defaultValue;
     if (Object.values(GEO_DISTANCE_UNITS).includes(value as GeoDistanceUnit)) return value;
     return defaultValue;
@@ -67,7 +67,7 @@ const geoDistance: i.FunctionDefinition = {
                 }
             };
 
-            const sort: GeoQuerySort = {
+            const sort: GeoDistanceSort = {
                 _geo_distance: {
                     order,
                     unit: sortUnit,
