@@ -19,7 +19,7 @@ import type {
     RangeQuery, AnyQuerySort, ElasticsearchDSLResult,
     MatchAllQuery, ConstantScoreQuery, MatchNoneQuery,
     AnyQuery, BoolQuery, ExistsQuery, RegExprQuery,
-    BoolQueryTypes, KNNQuery, GeoQuerySort
+    BoolQueryTypes, KNNQuery, GeoDistanceSort
 } from '@terascope/types';
 import { UtilsTranslateQueryOptions } from './interfaces.js';
 
@@ -125,8 +125,8 @@ export function translateQuery(
         const order = geo_sort.order || geo_sort.default_order;
         const unit = geo_sort.unit || geo_sort.default_unit;
 
-        // add if no sort, OR override existing geo distance sort
-        if (!sort || (sort as GeoQuerySort)?._geo_distance) {
+        // add if no sort - OR - override existing geo distance sort
+        if (!sort || (sort as GeoDistanceSort)?._geo_distance) {
             sort = {
                 _geo_distance: {
                     order,

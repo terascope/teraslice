@@ -257,6 +257,40 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
 
         const translated = translator.toElasticsearchDSL(translateOptions);
 
+        if (translated.sort && params.sort) {
+            const sorts: any[] = castArray(translated.sort);
+
+            /**
+             * Convert URL-style sort string (e.g. "foo:desc,bar:asc")
+             * into request-body sort array [{ foo: { order: desc }, etc.] and
+             * add as tie-breaker to translated geo sorts for less ambiguity
+             * with a single sort array
+             */
+            params.sort
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .forEach((sort) => {
+                    const delimiter = sort.lastIndexOf(':');
+
+                    if (delimiter !== -1) {
+                        const field = sort.substring(0, delimiter);
+                        const order = sort.substring(delimiter + 1);
+
+                        if (order === 'asc' || order === 'desc') {
+                            sorts.push({ [field]: { order } });
+                        }
+
+                        // no order provided
+                        sorts.push(field);
+                    }
+
+                    sorts.push(sort);
+                });
+
+            delete params.sort;
+        }
+
         const {
             _source_includes: sourceIncludes,
             _source_excludes: sourceExcludes,
