@@ -159,18 +159,21 @@ export type MatchNoneQuery = {
     match_none: Record<PropertyKey, never>; // empty object {}
 };
 
-export type GeoDistanceSort = {
-    [field: string]: SortOrder | geo.GeoDistanceUnit | {
-        lat: number;
-        lon: number;
+export type FieldSort = string | {
+    [field: string]: {
+        order: SortOrder;
     };
 };
 
-export type GeoQuerySort = {
-    _geo_distance: GeoDistanceSort;
+export type GeoDistanceSort = {
+    _geo_distance: {
+        unit: geo.GeoDistanceUnit;
+        order: SortOrder;
+        [field: string]: geo.GeoPoint | geo.GeoPointArr | geo.GeoPointStr;
+    };
 };
 
-export type AnyQuerySort = GeoQuerySort;
+export type AnyQuerySort = FieldSort | GeoDistanceSort;
 
 export type ElasticsearchDSLResult = {
     query: ConstantScoreQuery | MatchAllQuery | MatchNoneQuery | KNNQuery;
