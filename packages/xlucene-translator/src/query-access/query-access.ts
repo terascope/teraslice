@@ -11,9 +11,9 @@ import {
     NodeType
 } from 'xlucene-parser';
 import {
-    SortOrder, GeoDistanceUnit, xLuceneVariables,
-    xLuceneTypeConfig, xLuceneFieldType, ClientParams,
-    ElasticsearchDistribution,
+    ClientParams, ElasticsearchDSLResult,
+    SortOrder, GeoDistanceUnit,
+    xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables
 } from '@terascope/types';
 import { CachedTranslator } from '../translator/index.js';
 import { RestrictSearchQueryOptions, QueryAccessConfig } from './interfaces.js';
@@ -220,27 +220,15 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
     ): Promise<ClientParams.SearchParams> {
         const {
             params: _params = {},
-            majorVersion = 2,
-            minorVersion = 15,
-            distribution = ElasticsearchDistribution.opensearch,
-            version = '2.15.0',
             ...options
         } = opts ?? {};
 
-        const translateOptions = {
-            ...options,
-            distribution,
-            majorVersion,
-            minorVersion,
-            version
-        };
-
-        const variables = Object.assign({}, this.variables, opts?.variables ?? {});
-
+        const params = { ..._params };
         if (_params._source) {
             throw new Error('Cannot include _source in params, use _source_includes or _source_excludes');
         }
-        const params = { ..._params };
+
+        const variables = Object.assign({}, this.variables, opts?.variables ?? {});
 
         const parser = this._restrict(query, variables, _overrideParsedQuery);
 
@@ -255,40 +243,10 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
             filterNilVariables: this.filterNilVariables
         });
 
-        const translated = translator.toElasticsearchDSL(translateOptions);
+        const translated = translator.toElasticsearchDSL({ ...options });
 
         if (translated.sort && params.sort) {
-            const sorts: any[] = castArray(translated.sort);
-
-            /**
-             * Convert URL-style sort string (e.g. "foo:desc,bar:asc")
-             * into request-body sort array [{ foo: { order: desc }, etc.] and
-             * add as tie-breaker to translated geo sorts for less ambiguity
-             * with a single sort array
-             */
-            params.sort
-                .split(',')
-                .map((s) => s.trim())
-                .filter(Boolean)
-                .forEach((sort) => {
-                    const delimiter = sort.lastIndexOf(':');
-
-                    if (delimiter !== -1) {
-                        const field = sort.substring(0, delimiter);
-                        const order = sort.substring(delimiter + 1);
-
-                        if (order === 'asc' || order === 'desc') {
-                            sorts.push({ [field]: { order } });
-                        }
-
-                        // no order provided
-                        sorts.push(field);
-                    }
-
-                    sorts.push(sort);
-                });
-
-            delete params.sort;
+            this.mergeSorts(translated, params);
         }
 
         const {
@@ -314,6 +272,45 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
         }
 
         return searchParams;
+    }
+
+    /**
+     * Merges different sorts for less ambiguity - there can be
+     * URL-style sort string (e.g. "foo:desc,bar:asc") and also
+     * request-body sort array [{ foo: { order: desc }, etc.] -
+     * the request body geo sort takes precedence
+     */
+    private mergeSorts(
+        translated: ElasticsearchDSLResult,
+        params: Partial<ClientParams.SearchParams>
+    ) {
+        if (translated.sort && params.sort) {
+            const sorts: any[] = castArray(translated.sort);
+
+            params.sort
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .forEach((sort) => {
+                    const delimiter = sort.lastIndexOf(':');
+
+                    if (delimiter !== -1) {
+                        const field = sort.substring(0, delimiter);
+                        const order = sort.substring(delimiter + 1);
+
+                        if (order === 'asc' || order === 'desc') {
+                            sorts.push({ [field]: { order } });
+                        }
+
+                        // no order provided
+                        sorts.push(field);
+                    }
+
+                    sorts.push(sort);
+                });
+
+            delete params.sort;
+        }
     }
 
     /**

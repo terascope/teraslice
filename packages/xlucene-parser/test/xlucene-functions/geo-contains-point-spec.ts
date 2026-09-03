@@ -12,8 +12,10 @@ describe('geoContainsPoint', () => {
     const typeConfig: xLuceneTypeConfig = { location: xLuceneFieldType.GeoJSON };
     const options: FunctionElasticsearchOptions = {
         logger: debugLogger('test'),
-        geo_sort_order: 'asc',
-        geo_sort_unit: 'meters',
+        geo_sort_config: {
+            default_order: 'asc',
+            default_unit: 'meters'
+        },
         type_config: {}
     };
 

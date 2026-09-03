@@ -30,7 +30,7 @@ function validate(params: i.Term[], variables: xLuceneVariables) {
 }
 
 /** returns the value if valid, otherwise the default value */
-function getValidUnit(defaultValue: GeoDistanceUnit, value: GeoDistanceUnit): GeoDistanceUnit {
+function getValidUnit(defaultValue: GeoDistanceUnit, value?: GeoDistanceUnit): GeoDistanceUnit {
     if (!value || typeof value !== 'string') return defaultValue;
     if (Object.values(GEO_DISTANCE_UNITS).includes(value as GeoDistanceUnit)) return value;
     return defaultValue;
@@ -51,11 +51,11 @@ const geoDistance: i.FunctionDefinition = {
         } = validate(node.params as i.Term[], variables);
 
         function toElasticsearchQuery(field: string, options: i.FunctionElasticsearchOptions) {
-            const sortUnit = getValidUnit(paramUnit, options.geo_sort.unit);
-            const sortPoint = parseGeoPoint(options.geo_sort.point, false);
+            const sortUnit = getValidUnit(paramUnit, options.geo_sort_config?.unit);
+            const sortPoint = parseGeoPoint(options.geo_sort_config?.point, false);
 
             const unit = paramUnit || sortUnit;
-            const order = options.geo_sort.order || options.geo_sort.default_order;
+            const order = options.geo_sort_config?.order || options.geo_sort_config?.default_order || 'asc';
 
             const query: GeoQuery = {
                 geo_distance: {

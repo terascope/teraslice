@@ -24,7 +24,7 @@ describe('Translator', () => {
             logger,
             type_config: {},
             variables: {},
-            geo_sort: {
+            geo_sort_config: {
                 default_order: 'asc',
                 default_unit: 'meters'
             },

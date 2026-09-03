@@ -1,5 +1,5 @@
 import {
-    AnyQuery, GeoShapeRelation, ESGeoShapeType,
+    GeoQuery, GeoShapeRelation, ESGeoShapeType,
     xLuceneVariables
 } from '@terascope/types';
 import { parseGeoPoint, geoContainsFP } from '@terascope/geo-utils';
@@ -28,7 +28,7 @@ const geoContainsPoint: i.FunctionDefinition = {
         const { lat, lon } = validate(node.params as i.Term[], variables);
 
         function toElasticsearchQuery(field: string) {
-            const query: AnyQuery = {
+            const query: GeoQuery = {
                 geo_shape: {
                     [field]: {
                         shape: {
