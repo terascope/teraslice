@@ -12,7 +12,7 @@ import {
 } from 'xlucene-parser';
 import {
     ClientParams, ElasticsearchDSLResult,
-    SortOrder, GeoDistanceUnit,
+    FieldSort, SortOrder, GeoDistanceUnit,
     xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables
 } from '@terascope/types';
 import { CachedTranslator } from '../translator/index.js';
@@ -287,28 +287,30 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
         if (translated.sort && params.sort) {
             const sorts: any[] = castArray(translated.sort);
 
+            const parseSort = (sort: string): FieldSort => {
+                const delimiter = sort.lastIndexOf(':');
+
+                // no order, let search engine use default
+                if (delimiter == -1) return sort;
+
+                const field = sort.substring(0, delimiter);
+                const order = sort.substring(delimiter + 1);
+                if (order === 'asc' || order === 'desc') {
+                    return { [field]: { order } };
+                }
+                // field has colon or order is bad
+                return field;
+            };
+
             params.sort
                 .split(',')
                 .map((s) => s.trim())
                 .filter(Boolean)
                 .forEach((sort) => {
-                    const delimiter = sort.lastIndexOf(':');
-
-                    if (delimiter !== -1) {
-                        const field = sort.substring(0, delimiter);
-                        const order = sort.substring(delimiter + 1);
-
-                        if (order === 'asc' || order === 'desc') {
-                            sorts.push({ [field]: { order } });
-                        }
-
-                        // no order provided
-                        sorts.push(field);
-                    }
-
-                    sorts.push(sort);
+                    sorts.push(parseSort(sort));
                 });
 
+            translated.sort = sorts;
             delete params.sort;
         }
     }
