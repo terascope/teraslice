@@ -117,8 +117,21 @@ export function parseUnifiedDiff(diff) {
     return changes;
 }
 
+// A file is considered documentation-only if it lives in the `docs/` or
+// `website/` directories, or is a top-level markdown file. Changes to these
+// files only affect the website build, so the code test suites can be skipped.
+export function isDocsFile(file) {
+    return file.startsWith('docs/')
+        || file.startsWith('website/')
+        || file.endsWith('.md')
+        || file.endsWith('.mdx');
+}
+
 function determineTestJobs() {
     const changedFiles = getChangedFiles();
+
+    // If every changed file is documentation-only, skip the code test suites.
+    const docsOnly = changedFiles.length > 0 && changedFiles.every(isDocsFile);
 
     function checkWebsiteTests() {
         // Always run website tests for now
@@ -127,17 +140,17 @@ function determineTestJobs() {
 
     function checkE2eTests() {
         // If every file is a docs change, don't run e2e
-        return !changedFiles.every((file) => file.startsWith('docs/'));
+        return !docsOnly;
     }
 
     function checkUnitTests() {
         // If every file is a docs change, don't run unit
-        return !changedFiles.every((file) => file.startsWith('docs/'));
+        return !docsOnly;
     }
 
     function checkIntegrationTests() {
         // If every file is a docs change, don't run integration
-        return !changedFiles.every((file) => file.startsWith('docs/'));
+        return !docsOnly;
     }
     const result = {
         unit: checkUnitTests(),
