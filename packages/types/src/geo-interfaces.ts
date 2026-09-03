@@ -48,8 +48,8 @@ export type JoinGeoShape = GeoShape | ESGeoShape;
 
 export type CoordinateTuple = [lon: number, lat: number];
 
-type GeoPointArr = [lon: number, lat: number];
-type GeoPointStr = string;
+export type GeoPointArr = [lon: number, lat: number];
+export type GeoPointStr = string;
 type GeoObjShort = { lat: string | number; lon: string | number };
 type GeoObjLong = { latitude: string | number; longitude: string | number };
 

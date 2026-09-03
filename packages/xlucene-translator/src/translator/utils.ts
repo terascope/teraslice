@@ -1,6 +1,6 @@
 import {
-    TSError, isString, isArray, isEmpty,
-    matchWildcard
+    castArray, isArray, isEmpty, isString,
+    matchWildcard, TSError
 } from '@terascope/core-utils';
 import {
     isEmptyNode, isWildcardField, isTerm,
@@ -19,9 +19,9 @@ import type {
     RangeQuery, AnyQuerySort, ElasticsearchDSLResult,
     MatchAllQuery, ConstantScoreQuery, MatchNoneQuery,
     AnyQuery, BoolQuery, ExistsQuery, RegExprQuery,
-    BoolQueryTypes, KNNQuery
+    BoolQueryTypes, KNNQuery, GeoDistanceSort,
+    XluceneTranslateQueryOptions
 } from '@terascope/types';
-import { UtilsTranslateQueryOptions } from './interfaces.js';
 
 type WildCardQueryResults
     = WildcardQuery
@@ -41,15 +41,17 @@ type RangeQueryResults
 
 type SortArgs = AnyQuerySort | AnyQuerySort[] | undefined;
 
-interface QueryContext extends UtilsTranslateQueryOptions {
+type PartialRequired<T, K extends keyof T> = Partial<T> & Pick<Required<T>, K>;
+interface QueryContext extends PartialRequired<XluceneTranslateQueryOptions, 'variables' | 'type_config'> {
     sort?: SortArgs;
 }
 
 export function translateQuery(
     parser: Parser,
-    options: UtilsTranslateQueryOptions
+    options: XluceneTranslateQueryOptions
 ): ElasticsearchDSLResult {
     const context: QueryContext = {
+        variables: {},
         ...options
     };
     // TODO: this should probably reference the search type from opensearch, maybe not
@@ -92,7 +94,7 @@ export function translateQuery(
                 },
             });
 
-            options.logger.error(error);
+            options.logger?.error(error);
         }
 
         const filter = compactFinalQuery(anyQuery);
@@ -119,14 +121,32 @@ export function translateQuery(
 
     let { sort } = context;
 
-    if (!sort && options.default_geo_field && options.geo_sort_point) {
-        sort = {
-            _geo_distance: {
-                order: options.geo_sort_order,
-                unit: options.geo_sort_unit,
-                [options.default_geo_field]: options.geo_sort_point,
-            }
-        };
+    const { geo_sort_config } = options;
+
+    if (geo_sort_config?.field && geo_sort_config?.point) {
+        const order = geo_sort_config.order || geo_sort_config.default_order;
+        const unit = geo_sort_config.unit || geo_sort_config.default_unit;
+
+        // add if no sort - OR - override existing geo distance sort
+        if (!sort || (sort as GeoDistanceSort)?._geo_distance) {
+            sort = {
+                _geo_distance: {
+                    order,
+                    unit,
+                    [geo_sort_config.field]: geo_sort_config.point
+                }
+            };
+        } else {
+            // tack on to existing sort
+            sort = castArray(sort);
+            sort.push({
+                _geo_distance: {
+                    order,
+                    unit,
+                    [geo_sort_config.field]: geo_sort_config.point
+                }
+            });
+        }
     }
 
     return {
@@ -175,7 +195,7 @@ function buildTermLevelQuery(
     }
 
     if (isFunctionNode(node)) {
-        const { variables, type_config } = context;
+        const { variables, type_config = {} } = context;
         const instance = initFunction({ node, variables, type_config });
         const { query, sort: sortQuery } = instance.toElasticsearchQuery(
             getTermField(node),
@@ -408,7 +428,7 @@ function buildKNNQuery(
 
     parser.walkAST((node: Node) => {
         if (isFunctionNode(node) && node.name === 'knn') {
-            const { variables, type_config } = context;
+            const { variables, type_config = {} } = context;
             const instance = initFunction({ node, variables, type_config });
             const { query } = instance.toElasticsearchQuery(
                 getTermField(node),

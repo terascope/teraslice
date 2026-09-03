@@ -693,6 +693,34 @@ describe('QueryAccess', () => {
             });
         });
 
+        it('should be able to return a restricted geo query and disambiguate sorts', async () => {
+            const q = 'foo:geoDistance(point:"33.435518,-111.873616" distance:5000yd)';
+            const result = await queryAccess.restrictSearchQuery(q, {
+                geo_sort_order: 'asc',
+                params: { sort: 'bar:desc' },
+            });
+
+            expect(result).toMatchObject({
+                body: {
+                    sort: [
+                        {
+                            _geo_distance: {
+                                order: 'asc',
+                                unit: 'yards',
+                                foo: {
+                                    lat: 33.435518,
+                                    lon: -111.873616,
+                                }
+                            }
+                        },
+                        {
+                            bar: { order: 'desc' }
+                        }
+                    ]
+                }
+            });
+        });
+
         it('can process quoted values correctly', async () => {
             const q = 'foo:"something-xy40\\" value 8008"';
             const result = await queryAccess.restrictSearchQuery(q);

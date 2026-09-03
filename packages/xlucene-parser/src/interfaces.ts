@@ -1,4 +1,3 @@
-import { Logger } from '@terascope/core-utils';
 import * as t from '@terascope/types';
 
 /**
@@ -12,11 +11,9 @@ import * as t from '@terascope/types';
  *  because the real value of the variable is not known at the current stage of execution
 
  */
-export interface ParserOptions {
-    type_config?: t.xLuceneTypeConfig;
+export interface ParserOptions extends Partial<t.XluceneBaseOptions> {
     filterNilVariables?: boolean;
     instantiateVariableValues?: boolean;
-    variables?: t.xLuceneVariables;
 }
 
 /**
@@ -351,14 +348,13 @@ export interface FunctionDefinition {
     create: (config: FunctionConfig) => FunctionMethods;
 }
 
+/** Similar to t.ElasticsearchDSLResult */
 export interface FunctionMethodsResults {
     query: t.AnyQuery;
     sort?: t.AnyQuerySort;
 }
 
-export type FunctionElasticsearchOptions
-    = { logger: Logger; type_config: t.xLuceneTypeConfig }
-        & Record<string, any>;
+export type FunctionElasticsearchOptions = t.XluceneTranslateQueryOptions;
 
 export interface FunctionMethods {
     match(arg: any): boolean;

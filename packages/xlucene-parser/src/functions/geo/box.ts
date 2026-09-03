@@ -1,4 +1,4 @@
-import { AnyQuery, xLuceneVariables } from '@terascope/types';
+import { GeoQuery, xLuceneVariables } from '@terascope/types';
 import { inGeoBoundingBoxFP, validateBoundingBox } from '@terascope/geo-utils';
 import * as i from '../../interfaces.js';
 import { getFieldValue, logger } from '../../utils.js';
@@ -37,11 +37,13 @@ const geoBox: i.FunctionDefinition = {
         const { top_left, bottom_right } = validate(node.params as i.Term[], variables);
 
         function toElasticsearchQuery(field: string) {
-            const query: AnyQuery = {};
-            query.geo_bounding_box = {};
-            query.geo_bounding_box[field] = {
-                top_left,
-                bottom_right,
+            const query: GeoQuery = {
+                geo_bounding_box: {
+                    [field]: {
+                        top_left,
+                        bottom_right
+                    }
+                }
             };
 
             if (logger.level() === 10) logger.trace('built geo bounding box query', { query });

@@ -24,10 +24,12 @@ describe('Translator', () => {
             logger,
             type_config: {},
             variables: {},
-            geo_sort_order: 'asc',
-            geo_sort_unit: 'meters',
+            geo_sort_config: {
+                default_order: 'asc',
+                default_unit: 'meters'
+            },
             majorVersion: 2,
-            distribution: ElasticsearchDistribution.opensearch
+            distribution: ElasticsearchDistribution.opensearch,
         })).toEqual({
             query: {
                 match_none: {}
@@ -53,8 +55,8 @@ describe('Translator', () => {
 
         const translator = new Translator(query);
 
-        expect(translator).toHaveProperty('_defaultGeoSortOrder', 'asc');
-        expect(translator).toHaveProperty('_defaultGeoSortUnit', 'meters');
+        expect(translator).toHaveProperty('_defaultGeoSortConfig.default_order', 'asc');
+        expect(translator).toHaveProperty('_defaultGeoSortConfig.default_unit', 'meters');
     });
 
     it('should have the geo sort properties', () => {
@@ -66,9 +68,9 @@ describe('Translator', () => {
             default_geo_sort_unit: 'km'
         });
 
-        expect(translator).toHaveProperty('_defaultGeoField', 'test_loc');
-        expect(translator).toHaveProperty('_defaultGeoSortOrder', 'desc');
-        expect(translator).toHaveProperty('_defaultGeoSortUnit', 'kilometers');
+        expect(translator).toHaveProperty('_defaultGeoSortConfig.field', 'test_loc');
+        expect(translator).toHaveProperty('_defaultGeoSortConfig.default_order', 'desc');
+        expect(translator).toHaveProperty('_defaultGeoSortConfig.default_unit', 'kilometers');
     });
 
     for (const [key, testCases] of Object.entries(allTestCases)) {

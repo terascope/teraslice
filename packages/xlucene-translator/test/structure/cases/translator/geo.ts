@@ -95,10 +95,10 @@ export default [
             sort: {
                 _geo_distance: {
                     order: 'asc',
-                    unit: 'inch',
-                    loc: {
-                        lat: 33.435518,
-                        lon: -111.873616,
+                    unit: 'nauticalmiles',
+                    some_other_loc: {
+                        lat: 35.435518,
+                        lon: 35.435518,
                     }
                 }
             }
@@ -110,7 +110,7 @@ export default [
         {
             geo_sort_point: {
                 lat: 35.435518,
-                lon: -120.873616,
+                lon: 35.435518,
             },
             geo_sort_unit: 'nauticalmiles'
         }
