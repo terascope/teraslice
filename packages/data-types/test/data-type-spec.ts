@@ -113,13 +113,23 @@ describe('DataType', () => {
                 foo: { type: FieldType.Tuple },
                 'foo.0': { type: FieldType.Keyword },
                 'foo.1': { type: FieldType.Integer },
+                'foo.2': { type: FieldType.Object },
+                'foo.2.nested': { type: FieldType.Keyword },
             },
         };
 
         const dataType = new DataType(typeConfig, 'Test', 'hello there');
+
+        // FIXME add tests for these - toGQL throws i think
+        // console.log(dataType.toXlucene());
+        // - throws JSON not supported
+        // console.log(dataType.toGraphQL());
+        // console.log('===data', dataType.fields);
+        // console.log('===data', dataType.groupedFields);
+
         expect(dataType).toHaveProperty('groupedFields', {
             hello: ['hello'],
-            foo: ['foo', 'foo.0', 'foo.1']
+            foo: ['foo', 'foo.0', 'foo.1', 'foo.2', 'foo.2.nested']
         });
         // @ts-expect-error
         const types = dataType._types;
