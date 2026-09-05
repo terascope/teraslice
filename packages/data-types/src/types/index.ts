@@ -100,8 +100,19 @@ function getTupleType({
         });
     }
 
+    const tupleNestedObjs: string[] = [];
     fields.forEach(({ field, config }) => {
-        const index = toIntegerOrThrow(getLast(field.split('.')));
+        if (config?.type === 'Object') tupleNestedObjs.push(field);
+
+        let index: number | undefined;
+        try {
+            index = toIntegerOrThrow(getLast(field.split('.')));
+        } catch (error) {
+            index = tupleNestedObjs.findIndex((el) => field.startsWith(el));
+            if (index === -1) throw error;
+            index = nestedTypes.length;
+        }
+
         nestedTypes[index] = getType({
             field,
             config: config || { type: FieldType.Any },
