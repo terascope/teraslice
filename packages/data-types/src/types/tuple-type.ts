@@ -56,7 +56,7 @@ export default class TupleType extends BaseType {
     }
 
     toGraphQL(): GraphQLType {
-        return this._formatGql('JSON', ['scalar JSON']);
+        return this._formatGql('JSON');
     }
 
     toXlucene(): xLuceneTypeConfig {
