@@ -40,7 +40,7 @@ export default class AnyType extends BaseType {
     }
 
     toGraphQL(): GraphQLType {
-        return this._formatGql('JSON');
+        return this._formatGql('JSON', ['scalar JSON']);
     }
 
     toXlucene(): xLuceneTypeConfig {
