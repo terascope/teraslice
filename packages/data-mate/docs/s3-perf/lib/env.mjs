@@ -45,7 +45,13 @@ const fileValues = parseEnvFile(ENV_FILE);
  * target environment whether or not anything is ever generated there.
  */
 const FIXTURE_VERSION = 'v1';
-const FIXTURE_SCALES = ['1m', '10m', '100m', '1b', '10b'];
+/**
+ * `noaa` is not a scale — it is the real 691M-row NOAA ISD corpus, and it lives
+ * in the same versioned layout so `FIXTURE=noaa` targets it exactly the way
+ * `FIXTURE=1b` targets a generated one. Kept in this list rather than special
+ * cased, so an unknown value is still rejected by name.
+ */
+const FIXTURE_SCALES = ['1m', '10m', '100m', '1b', '10b', 'noaa'];
 
 /**
  * `S3_PREFIX`, or the prefix implied by `FIXTURE`.
