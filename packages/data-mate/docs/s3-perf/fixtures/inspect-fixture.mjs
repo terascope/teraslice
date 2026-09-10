@@ -5,7 +5,7 @@
  * Report what a fixture actually contains, and what its single-file layout costs.
  *
  *   node fixtures/inspect-fixture.mjs /data/fixtures/qpl-fixture-v1-100m.parquet
- *   node fixtures/inspect-fixture.mjs s3://qpl-fixtures/v1/100m/... --env
+ *   node fixtures/inspect-fixture.mjs s3://duckdb/v1/100m/... --env
  *
  * **Why the footer matters, and why it is measured rather than assumed.** These
  * fixtures are ONE file per scale by request. Query cost tracks ROW GROUPS, not

@@ -1,5 +1,38 @@
 # QPL fixtures — generation, layout, and what the sizes actually are
 
+## THE REAL DEPLOYMENT (verified 2026-09-09)
+
+The bucket is **`duckdb`**, not `qpl-fixtures`. Every doc here said the latter,
+which does not exist — following those instructions produced a `404 Not Found`
+that reads as a broken config and is not one.
+
+| | |
+|---|---|
+| S3 API | `minio-dev1.dev.tera4.lan` (**not** the `-console` host, which is the web UI) |
+| scheme / style | `https`, `path`-style |
+| TLS | private CA — `Terascope Root CA 1`. It is in the macOS keychain: `security find-certificate -a -c Terascope -p > ~/tera4-ca.pem`, then point `CA_CERT_FILE` at it |
+| bucket | `duckdb` |
+
+Contents:
+
+```
+s3://duckdb/
+  v1/100m/qpl-fixture-v1-100m.parquet    10.34 GiB   synthetic
+  v1/1b/qpl-fixture-v1-1b.parquet       103.45 GiB   synthetic
+  v1/noaa/noaa-isd-v5.parquet            22.87 GiB   REAL — 691,122,937 NOAA ISD records
+```
+
+**Two traps that each cost time here.**
+
+`host` and `dig` report `NXDOMAIN` for every `*.tera4.lan` name on a Mac,
+including ones that plainly work — they query nameservers directly and bypass the
+system resolver's search domains. Only `getaddrinfo` resolves them, which is what
+Node and curl use. Do not conclude a host is missing from `host` alone.
+
+A **404 means the credentials were fine** and the bucket or prefix is wrong. Bad
+keys give a flat **403**. That distinction is the fastest way to tell a config
+error from an auth one.
+
 Deterministic Parquet fixtures for the DuckFrame / DuckDB query battery, at
 100M, 1B and 10B rows. **One file per scale**, zstd-compressed.
 
@@ -10,7 +43,7 @@ Deterministic Parquet fixtures for the DuckFrame / DuckDB query battery, at
 **One bucket, one prefix per scale, versioned:**
 
 ```
-s3://qpl-fixtures/
+s3://duckdb/
   v1/1m/    qpl-fixture-v1-1m.parquet       ← smoke-test scales
   v1/10m/   qpl-fixture-v1-10m.parquet
   v1/100m/  qpl-fixture-v1-100m.parquet
@@ -64,7 +97,7 @@ here, distance is. Point the tools at them by path:
 
 ```bash
 node fixtures/inspect-fixture.mjs ~/fixtures/qpl/qpl-fixture-v1-1b.parquet
-node fixtures/upload-fixture.mjs --scale 1b --from ~/fixtures/qpl --bucket qpl-fixtures
+node fixtures/upload-fixture.mjs --scale 1b --from ~/fixtures/qpl --bucket duckdb
 ```
 
 ---
@@ -76,7 +109,7 @@ node fixtures/upload-fixture.mjs --scale 1b --from ~/fixtures/qpl --bucket qpl-f
 node fixtures/generate-fixture.mjs --scale 100m --out /data/fixtures
 
 # straight to S3 — CHEAPER for the large scales, see "Uploading" below
-node fixtures/generate-fixture.mjs --scale 1b --out s3://qpl-fixtures/v1/1b
+node fixtures/generate-fixture.mjs --scale 1b --out s3://duckdb/v1/1b
 
 node fixtures/generate-fixture.mjs --scale 100m --dry     # print the SQL, write nothing
 node fixtures/generate-fixture.mjs --rows 5000000 --out /tmp --name probe.parquet
@@ -279,7 +312,7 @@ not worth doing to test the harness.
 ## Uploading
 
 ```bash
-node fixtures/upload-fixture.mjs --scale 100m --from /data/fixtures --bucket qpl-fixtures
+node fixtures/upload-fixture.mjs --scale 100m --from /data/fixtures --bucket duckdb
 ```
 
 Reads S3 settings from the harness env file, then verifies the remote object by
@@ -296,7 +329,7 @@ write. `generate-fixture.mjs --out s3://...` skips the local round trip entirely
 
 ```bash
 node fixtures/inspect-fixture.mjs /data/fixtures/qpl-fixture-v1-100m.parquet
-node fixtures/inspect-fixture.mjs s3://qpl-fixtures/v1/100m/qpl-fixture-v1-100m.parquet
+node fixtures/inspect-fixture.mjs s3://duckdb/v1/100m/qpl-fixture-v1-100m.parquet
 ```
 
 Reports content, single-file layout cost (row groups, footer read time), the
