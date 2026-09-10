@@ -565,6 +565,15 @@ The script issues a throwaway `SELECT 1` to arm it. Without that, the run produc
 correct timings and printed "No profile was written" for the entire engine table.
 Do not remove the arming query as dead code.
 
+**A CA certificate is not required, and do not design around one.** The endpoint
+uses a private CA. Leave `CA_CERT_FILE` **empty** and the harness sets
+`enable_curl_server_cert_verification = false`, which connects without a PEM. If
+you see `SSL peer certificate ... was not OK`, `CA_CERT_FILE` is pointing at a
+missing or wrong file — clear it. `s3.env.example` used to claim DuckDB had no
+such switch; it was wrong, and believing it turned a default into an imagined
+hard requirement. Check `duckdb_settings()` before accepting that the engine
+cannot do something.
+
 **`_key` is not unique in this corpus**, and neither is `(date, _key)` — so do not
 build a paging cursor on them. See `fixtures/extract-noaa.mjs`.
 

@@ -55,7 +55,7 @@ is commented in place. The ones that matter:
 | `S3_USE_SSL` | `true` | DuckDB's own default is `true`; minio needs `false` |
 | `S3_URL_STYLE` | `path` | **DuckDB defaults to `vhost`, which Ceph rejects** |
 | `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | RGW user keys | |
-| `CA_CERT_FILE` | `/app/config/ca.pem` | only for a private/self-signed CA |
+| `CA_CERT_FILE` | *(empty)* | **optional — leave empty.** Empty disables certificate verification, so a private CA needs no PEM. Set it only when you have one and want the server authenticated |
 | `S3_BUCKET` / `S3_PREFIX` | where the objects are | |
 | `FIXTURE` | `100m`, `1b`, `10b` | shorthand that sets `S3_PREFIX` to the fixture's — see `fixtures/README.md` |
 
@@ -220,7 +220,7 @@ Scripts diagnose their own errors, but for reference:
 | symptom | cause |
 |---|---|
 | `SignatureDoesNotMatch`, `403` | wrong keys — **or `S3_URL_STYLE=vhost` where Ceph wants `path`** |
-| `SSL peer certificate ... was not OK` | private CA. Mount the PEM, set `CA_CERT_FILE` |
+| `SSL peer certificate ... was not OK` | `CA_CERT_FILE` points at a missing or wrong file. **Clear it** — empty means verification is switched off and a private CA connects fine. A PEM is never required |
 | **`size()` works but every `rows()` fails on TLS** | `ca_cert_file` is CONNECTION-scoped and `rows()` opens its own connection. The harness already uses `SET GLOBAL`; if you hit this in your own code, that is the fix. See `known-defects.md` DF13 |
 | `NoSuchBucket`, empty glob | wrong `S3_BUCKET`/`S3_PREFIX`, or objects are not `*.parquet` (see `S3_GLOB`) |
 | `Could not resolve hostname`, bucket in the URL host | **`S3_URL_STYLE=vhost`** — DuckDB's default, wrong for Ceph. Set `path` |
