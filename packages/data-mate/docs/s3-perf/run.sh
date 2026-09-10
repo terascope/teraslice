@@ -26,6 +26,7 @@ script_for() {
         layout)    echo "$SCRIPTS/04-layout.mjs" ;;
         duckframe) echo "$SCRIPTS/05-duckframe.mjs" ;;
         memory)    echo "$SCRIPTS/06-memory.mjs" ;;
+        sql)       echo "$SCRIPTS/07-sql.mjs" ;;
         *)         echo "" ;;
     esac
 }
@@ -45,6 +46,12 @@ Steps, in the order to run them:
   memory      the memory-limit sweep and the wide top-N cliff
 
   all         every step above, in order, stopping at the first failure
+
+Not part of 'all' — it needs a query from you:
+
+  sql         run ANY query, with the engine settings as flags
+              ./run.sh sql --sql "SELECT count(*) FROM {{T}}"
+              ./run.sh sql --help   for every flag
 
 Config: ${S3_PERF_ENV_FILE:-/app/config/s3.env}
 Manual: $HERE/README.md

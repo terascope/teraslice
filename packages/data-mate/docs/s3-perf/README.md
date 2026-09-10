@@ -161,6 +161,26 @@ LIMITS=32MiB,64MiB,128MiB ./run.sh memory   # find a lower cliff
 THREAD_SWEEP=1,2,4,8 ./run.sh memory        # test the threads mitigation
 ```
 
+### `./run.sh sql` — any query you write, not part of `all`
+
+The seven steps above run a fixed suite. This one runs **your** query, with every
+engine setting as a flag rather than an env-file edit, and reports the same
+measurements the battery does plus DuckDB's own per-operator profile.
+
+```bash
+./run.sh sql --sql "SELECT count(*) FROM {{T}}"
+./run.sh sql --file ~/queries/daily-temps.sql --explain --print 5
+./run.sh sql --sql "..." --rows json                  # add the JS row cost
+./run.sh sql --sql "..." --sweep threads=2,4,8        # one setting, several values
+./run.sh sql --help
+```
+
+`{{T}}` expands to the corpus, so a query is portable across `FIXTURE` values.
+
+**Full manual with every flag and real captured output:
+[`sql-runner.md`](sql-runner.md).** It is not part of `./run.sh all`, because it
+has no query of its own.
+
 ---
 
 ## 4. Reading the results
