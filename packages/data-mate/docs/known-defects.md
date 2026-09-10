@@ -783,6 +783,15 @@ disagree on such a value; no promoted function has been observed to produce one.
 
 ### DF13. Over TLS with a private CA, every `rows()` call fails while `size()` succeeds — `ca_cert_file` is CONNECTION-scoped
 
+> **CORRECTION, 2026-09-10 — A CA FILE IS NOT REQUIRED AT ALL.** Everything below
+> is accurate about `ca_cert_file`'s scoping, and it still matters when you choose
+> to supply a PEM. But the premise that a private-CA endpoint *needs* one is
+> wrong: DuckDB 1.5.5 exposes `enable_curl_server_cert_verification`, and setting
+> it false connects with no PEM. `lib/duck.mjs` now does that whenever
+> `CA_CERT_FILE` is empty. **Do not design around a CA certificate unless it is
+> the only possible way** — check `duckdb_settings()` before treating a default as
+> a constraint.
+
 **Found 2026-08-27**, against minio serving HTTPS with a private CA (a stand-in for Ceph RGW),
 using the `s3-perf` harness. It would have surfaced first in the air-gapped test environment.
 

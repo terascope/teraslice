@@ -123,6 +123,30 @@ export async function applyEndpointSettings(run, overrides = {}) {
      */
     if (config.caCertFile) {
         await run(`SET GLOBAL ca_cert_file = '${config.caCertFile}'`);
+    } else {
+        /*
+         * NO CA CONFIGURED: turn verification off rather than fail.
+         *
+         * **DO NOT DESIGN AROUND A CA CERTIFICATE UNLESS IT IS THE ONLY
+         * POSSIBLE WAY.** A CA file is an operational burden — it has to be
+         * obtained, shipped to every box, mounted into every container and kept
+         * in step with rotation — and here it buys nothing that a setting does
+         * not.
+         *
+         * `enable_curl_server_cert_verification` defaults TRUE, so an endpoint
+         * with a private CA fails "SSL peer certificate ... was not OK" unless a
+         * PEM is supplied. Setting it false removes the requirement entirely.
+         *
+         * An earlier comment in `s3.env.example` asserted DuckDB had no such
+         * switch. IT WAS WRONG, and repeating it cost a long diagnosis that
+         * treated a config default as a hard constraint. Verified against 1.5.5:
+         * `duckdb_settings()` lists `enable_curl_server_cert_verification`
+         * alongside `ca_cert_file` and `enable_server_cert_verification`.
+         *
+         * Setting CA_CERT_FILE still works and still authenticates the server;
+         * it is simply no longer required to connect.
+         */
+        await run('SET GLOBAL enable_curl_server_cert_verification = false');
     }
     await run(`SET http_timeout = ${config.httpTimeout * 1000}`);
     await run(`SET http_retries = ${config.httpRetries}`);

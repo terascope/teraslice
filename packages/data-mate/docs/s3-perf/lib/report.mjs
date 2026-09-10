@@ -140,7 +140,11 @@ export function explain(err) {
             'The bucket or prefix does not exist, or holds no objects matching S3_GLOB.\n'
             + '     Check S3_BUCKET and S3_PREFIX, then re-run `./run.sh discover`.'],
         [/SSL|certificate|CERTIFICATE_VERIFY|handshake/i,
-            'A TLS problem. If Ceph uses a private CA, mount the PEM and set CA_CERT_FILE.\n'
+            'A TLS problem — the endpoint uses a private or self-signed CA.\n'
+            + '     A CA FILE IS NOT REQUIRED. Leaving CA_CERT_FILE empty makes the harness\n'
+            + '     set enable_curl_server_cert_verification = false, which connects without\n'
+            + '     a PEM. If you see this error, CA_CERT_FILE is probably pointing at a file\n'
+            + '     that is missing or wrong — clear it, or fix the path.\n'
             + '     To confirm it is certificate-related, set S3_INSECURE_DIAGNOSTIC=true once —\n'
             + '     that talks plain HTTP, so it is a diagnostic, never a way to record numbers.'],
         [/SignatureDoesNotMatch|InvalidAccessKeyId|403|Forbidden|AccessDenied/i,

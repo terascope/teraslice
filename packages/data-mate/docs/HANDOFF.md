@@ -134,6 +134,37 @@ slices" — inherited from the old engine's `fetchPartialFrames`/`appendAll`; it
 Each of these was gotten wrong at least once, several of them three or four times, and every
 one cost real work. They are collected here so nobody has to be told again.
 
+**0b. DO NOT DESIGN AROUND A CA CERTIFICATE. Check the settings list first.**
+
+Added 2026-09-10, after it cost most of a session. The harness told the operator
+that a private-CA endpoint needs a PEM (`s3.env.example` even asserted "DuckDB has
+no such switch"). **That was false.** DuckDB 1.5.5 has
+`enable_curl_server_cert_verification`, listed in `duckdb_settings()` right next
+to `ca_cert_file`. Setting it false connects to a private-CA endpoint with no PEM
+at all.
+
+The cost of believing otherwise: a CA has to be obtained, copied to every box,
+mounted into every container and rotated. Worse, a wrong comment became a hard
+constraint in everyone's head, and a genuine bug elsewhere (a second DuckDB
+database configured differently — see below) was misdiagnosed as a TLS problem
+for an hour because "it must be the cert".
+
+**The general form, and this is the part worth keeping:** before concluding an
+engine cannot do something, `SELECT * FROM duckdb_settings()` and grep it. A
+default is not a limitation. This is the same failure as
+§Read the wrapper, not the library — a wall that was only ever a wall in a comment.
+
+**0c. A FRAME OWNS A SECOND DATABASE, AND IT IS NOT CONFIGURED BY `open()`.**
+
+`lib/duck.mjs`'s `open()` and a `DuckFrame` are two DuckDB instances that share
+nothing. `07-sql.mjs` hand-copied "the settings that looked relevant" onto the
+frame and silently omitted `LOAD aws`, `LOAD parquet`, `LOAD json`, the autoload
+switches and the HTTP timeout/retries. It then failed against a config the
+battery handled fine, which reads as a broken script and is not one.
+
+Fixed by making `applyEndpointSettings(run, overrides)` the single definition,
+called by both. **Anything that opens a second database must call it.**
+
 **1. This is a NEW ENGINE, not a port.** Corrected 3+ times. Match observable behaviour and the
 205 functions; the old engine's internals (`QueryScope`, `JoinChanges`, `Builder.mset`,
 `SearchLoader`'s LRU, the per-row correlation in `scope-utils.ts`) are ONE implementation chosen
