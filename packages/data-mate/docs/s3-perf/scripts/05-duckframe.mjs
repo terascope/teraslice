@@ -36,7 +36,7 @@ import {
 const glob = s3Glob();
 
 try {
-    const { DuckFrame, closeDuckDatabase } = await duckFrame();
+    const { DuckFrame, closeDuckDatabase, configureDuckDatabase } = await duckFrame();
 
     heading('RECONSTRUCTING A DataTypeConfig FROM THE CORPUS');
     const probe = await open();
@@ -70,6 +70,24 @@ try {
     };
 
     heading('CREATING THE FRAME AND GIVING ITS DATABASE THE CREDENTIALS');
+
+    /*
+     * THE FRAME OWNS ITS OWN DATABASE, and without this call that database runs
+     * on DuckDB's DEFAULTS — which inside a container means memory_limit at 80%
+     * of the cgroup cap and one thread per core, regardless of what MEMORY_LIMIT
+     * says here. Peak RSS is ~3 GB plus ~2.1x the limit, so an 8 GB box defaults
+     * itself into a ~17 GB prediction and is OOM-killed. This step was, twice.
+     *
+     * The same trap applies to anything embedding DuckFrame: the settings must be
+     * pushed in deliberately, they are not inherited from the environment.
+     */
+    await configureDuckDatabase({
+        memoryLimit: config.memoryLimit,
+        tempDirectory: config.tempDirectory,
+        ...(config.threads ? { threads: Number(config.threads) } : {}),
+    });
+    note(`frame database configured: memory_limit ${config.memoryLimit}, `
+        + `threads ${config.threads || 'all cores'}, spill ${config.tempDirectory}`);
 
     let frame = await DuckFrame.fromParquet(dataTypeConfig, glob);
     note('fromParquet returned — note that NO S3 access has happened yet.');
@@ -164,9 +182,24 @@ try {
         + 'deterministic and paging over one loses rows — append a unique tiebreaker.');
     }
 
-    await record('rows() — drain the WHOLE frame', async () => {
-        return drain(frame.rows());
-    }, 'Streams every row into JS. The honest cost of the output path at this scale.');
+    /*
+     * ROW performance, not QUERY performance — and the two are not close. At 100M
+     * this drained every row into JS objects in 1,261,310 ms (21 minutes), two
+     * orders of magnitude above every other shape in the suite, and it is not a
+     * shape the system runs: the worker writes Parquet or aggregates, it does not
+     * materialise 100M rows in JS. It also needs no local disk, but the wall-clock
+     * alone makes it the wrong default.
+     *
+     * OFF unless DRAIN_ALL_ROWS=true asks for it.
+     */
+    if (config.drainAllRows) {
+        await record('rows() — drain the WHOLE frame', async () => {
+            return drain(frame.rows());
+        }, 'Streams every row into JS. The honest cost of the output path at this scale.');
+    } else {
+        note('rows() — drain the WHOLE frame: SKIPPED (row performance, not query '
+            + 'performance). It took 21 min at 100M. Set DRAIN_ALL_ROWS=true to include it.');
+    }
 
     await record('distinct() + size()', async () => {
         const deduped = await frame.distinct();

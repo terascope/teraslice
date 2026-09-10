@@ -134,6 +134,8 @@ export const config = {
     memoryLimit: setting('MEMORY_LIMIT', '8GiB'),
     threads: setting('THREADS'),
     tempDirectory: setting('TEMP_DIRECTORY', '/tmp/duckdb-spill'),
+    maxTempDirectorySize: setting('MAX_TEMP_DIRECTORY_SIZE'),
+    drainAllRows: bool('DRAIN_ALL_ROWS', false),
 
     repeats: int('REPEATS', 3),
     resultsDir: setting('RESULTS_DIR', process.env.S3_PERF_RESULTS || '/app/results'),

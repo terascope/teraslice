@@ -85,6 +85,18 @@ export async function open(overrides = {}) {
     await connection.run(`SET memory_limit = '${overrides.memoryLimit ?? config.memoryLimit}'`);
     // Without a temp directory an over-limit query FAILS instead of spilling.
     await connection.run(`SET temp_directory = '${config.tempDirectory}'`);
+    /*
+     * DuckDB defaults max_temp_directory_size to 90% OF AVAILABLE DISK, which on a
+     * box with little free space means a spilling query can fill the filesystem
+     * before it fails. Lowering memory_limit — the fix for peak RSS — makes
+     * spilling MORE likely, so the two settings have to be chosen together.
+     * Bounding it turns "the disk filled up" into a clean query error.
+     */
+    if (config.maxTempDirectorySize) {
+        await connection.run(
+            `SET max_temp_directory_size = '${config.maxTempDirectorySize}'`
+        );
+    }
     const threads = overrides.threads ?? (config.threads ? Number(config.threads) : null);
     if (threads) await connection.run(`SET threads = ${threads}`);
 
