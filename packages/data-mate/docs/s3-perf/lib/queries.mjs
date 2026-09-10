@@ -37,6 +37,60 @@ export const UNIVERSAL = [
  * code has never seen them. Each builder returns null when the corpus lacks a
  * suitable column, and the battery reports it as skipped rather than failing.
  */
+/**
+ * Sample-based cardinality cannot tell a UNIQUE key from a column that merely
+ * saturates near the sample size — both report ~sampleRows distinct. Grouping by
+ * a unique key is degenerate: it returns one row per input row, so the query
+ * materialises the entire table in a hash table and measures memory rather than
+ * aggregation. On the 100M fixture that shape needed 9.1 GB and was killed on any
+ * box under ~10 GB, while the intended key (~98k groups) costs a fraction of it.
+ *
+ * So the candidates are re-counted over the FULL corpus — one extra pass over a
+ * handful of columns — and anything near-unique is rejected as a group key. The
+ * refined copy is returned; the input is not modified.
+ *
+ * @param {object} session   an open() session
+ * @param {string} T         the table expression to read
+ * @param {object[]} columns the sampled columns
+ * @param {number} totalRows exact row count, from the footer
+ */
+export async function refineCardinality(session, T, columns, totalRows) {
+    const candidates = columns.filter((c) => c.highCardinality);
+    if (!candidates.length || !totalRows) return columns;
+
+    const q = (name) => `"${String(name).replace(/"/g, '""')}"`;
+
+    // ONE pass, not one per column. Each extra scan of a remote corpus costs
+    // real seconds, and HyperLogLog counters are cheap to carry side by side.
+    const exact = new Map();
+    try {
+        const projection = candidates
+            .map((c) => `approx_count_distinct(${q(c.name)})`)
+            .join(', ');
+        const counts = (await session.rows(`SELECT ${projection} FROM ${T}`))[0] ?? [];
+        candidates.forEach((c, i) => {
+            if (counts[i] !== undefined && counts[i] !== null) exact.set(c.name, Number(counts[i]));
+        });
+    } catch { /* leave every candidate on its sampled estimate */ }
+
+    // Above this share of the table a key is effectively unique, and grouping by
+    // it stops being an aggregation. 0.5 is deliberately loose: a real group key
+    // saturates far below it, and a synthetic id sits at ~1.0.
+    const DEGENERATE_SHARE = 0.5;
+
+    return columns.map((c) => {
+        if (!exact.has(c.name)) return c;
+        const corpusDistinct = exact.get(c.name);
+        const degenerate = corpusDistinct > totalRows * DEGENERATE_SHARE;
+        return {
+            ...c,
+            corpusDistinct,
+            degenerate,
+            highCardinality: c.highCardinality && !degenerate,
+        };
+    });
+}
+
 export function buildBattery(columns) {
     const byType = (predicate) => columns.filter(predicate).map((c) => c.name);
 
@@ -49,7 +103,12 @@ export function buildBattery(columns) {
     // the highest-cardinality one the most punishing. Cardinality is measured
     // by the battery before these are built.
     const lowCard = columns.filter((c) => c.lowCardinality).map((c) => c.name);
-    const highCard = columns.filter((c) => c.highCardinality).map((c) => c.name);
+    const highCard = columns.filter((c) => c.highCardinality)
+        // the most punishing key that is still a real aggregation: highest
+        // cardinality AFTER the near-unique ones have been rejected.
+        .sort((a, b) => (b.corpusDistinct ?? b.approxDistinct)
+            - (a.corpusDistinct ?? a.approxDistinct))
+        .map((c) => c.name);
 
     const q = (name) => `"${String(name).replace(/"/g, '""')}"`;
     const battery = [...UNIVERSAL];

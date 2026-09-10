@@ -13,7 +13,7 @@
  */
 import { s3Glob, config } from '../lib/env.mjs';
 import { open, measureQuery } from '../lib/duck.mjs';
-import { buildBattery } from '../lib/queries.mjs';
+import { buildBattery, refineCardinality } from '../lib/queries.mjs';
 import {
     heading, note, table, ms, num, bytes, save, explain
 } from '../lib/report.mjs';
@@ -52,7 +52,14 @@ try {
         });
     }
 
-    const classified = columns.filter((c) => c.approxDistinct !== null);
+    // A 100k sample cannot separate a unique id from a column that saturates
+    // near 100k, and grouping by the former is degenerate. Re-count the
+    // candidates over the whole corpus before the battery is built.
+    const totalRows = Number(await session.one(`SELECT count(*) FROM ${T}`));
+    const refined = await refineCardinality(session, T, columns, totalRows);
+    const rejected = refined.filter((c) => c.degenerate);
+
+    const classified = refined.filter((c) => c.approxDistinct !== null);
     table(
         ['column', 'type', `approx distinct (in ${num(sampleRows)})`, 'role'],
         classified.slice(0, 20).map((c) => [
@@ -64,7 +71,32 @@ try {
     );
     if (classified.length > 20) note(`… and ${num(classified.length - 20)} more columns`);
 
-    const battery = buildBattery(columns);
+    // Never drop a column silently: a rejected key changes which shape runs.
+    for (const c of rejected) {
+        note(`${c.name} rejected as a group key — ${num(c.corpusDistinct)} distinct in `
+            + `${num(totalRows)} rows is effectively unique, so GROUP BY it is degenerate.`);
+    }
+
+    /*
+     * Print the surviving key and its cardinality. Two runs are only comparable
+     * if they chose the SAME key: a key that saturates (a name, a category) has
+     * the same cardinality at 100M and 1B, while one that grows with the row
+     * count makes a "100M vs 1B" comparison a comparison of two different
+     * queries. The harness cannot tell those apart from a single corpus, so it
+     * reports what it picked instead of guessing.
+     */
+    const chosen = refined
+        .filter((c) => c.highCardinality && c.corpusDistinct !== undefined)
+        .sort((a, b) => b.corpusDistinct - a.corpusDistinct)[0];
+    if (chosen) {
+        const share = ((chosen.corpusDistinct / totalRows) * 100).toFixed(1);
+        note('');
+        note(`group key for the high-cardinality shape: ${chosen.name} — `
+            + `${num(chosen.corpusDistinct)} distinct (${share}% of rows)`);
+        note('  Comparing this run against another REQUIRES the same key in both.');
+    }
+
+    const battery = buildBattery(refined);
 
     heading(`BATTERY — ${battery.length} shapes, median of ${config.repeats} after a warmup`);
     note(`reading ${glob}`);
