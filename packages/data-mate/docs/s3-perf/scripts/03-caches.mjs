@@ -14,12 +14,23 @@
  * distant or busy one the same byte difference dominates. Timing alone cannot
  * tell a cache hit from a warm OS page cache — the byte counter can.
  *
- * Each profile runs in a FRESH connection, because a cache that persisted from
- * the previous profile would make the OFF measurement meaningless.
+ * Each profile runs in a FRESH CHILD PROCESS, not merely a fresh connection.
+ * Two reasons, and the second was found the hard way:
+ *
+ *   1. Isolation. A cache surviving from the previous profile would make the OFF
+ *      measurement meaningless, and a process boundary guarantees what a new
+ *      connection only mostly achieves.
+ *   2. MEMORY. This step runs the whole battery once per profile, and peak RSS is
+ *      a process LIFETIME high-water mark — the allocator does not return freed
+ *      pages to the OS. Run in one process, ~40 queries accumulated past 8 GB and
+ *      were OOM-killed even at memory_limit=1GiB, while every other step passed.
+ *      One process per profile resets that floor each time.
  */
+import { execFileSync } from 'node:child_process';
+import { writeFileSync, readFileSync, unlinkSync } from 'node:fs';
 import { s3Glob, config } from '../lib/env.mjs';
 import { open, measureQuery } from '../lib/duck.mjs';
-import { buildBattery } from '../lib/queries.mjs';
+import { buildBattery, refineCardinality } from '../lib/queries.mjs';
 import {
     heading, note, table, ms, bytes, save, explain,
 } from '../lib/report.mjs';
@@ -32,6 +43,56 @@ const PROFILES = [
     ['parquet_metadata_cache only', { httpMetadata: false, parquetMetadata: true, connection: false, externalFile: false }],
     ['all ON (recommended)', { httpMetadata: true, parquetMetadata: true, connection: true, externalFile: true }],
 ];
+
+const BATTERY_FILE = `${config.tempDirectory.replace(/\/$/, '')}/s3perf-cache-battery.json`;
+const MARKER = '__PROFILE_JSON__';
+
+/** Measure ONE profile. Runs in the child, whose whole address space is then discarded. */
+async function measureProfile(index, battery) {
+    const [, caches] = PROFILES[index];
+    const session = await open({ caches });
+    const rows = [];
+    try {
+        for (const shape of battery) {
+            const sql = shape.sql.replaceAll('{{T}}', T);
+            try {
+                const m = await measureQuery(session, sql, config.repeats);
+                rows.push({
+                    key: shape.key, label: shape.label, median: m.median, bytes: m.coldBytes,
+                });
+            } catch (err) {
+                rows.push({ key: shape.key, label: shape.label, failed: String(err.message).split('\n')[0] });
+            }
+        }
+    } finally {
+        session.close();
+    }
+    return { rows };
+}
+
+// CHILD MODE. Entered only when the parent sets the index; measures one profile,
+// writes it to stdout behind a marker, and exits so its memory goes with it.
+if (process.env.S3_PERF_PROFILE_INDEX !== undefined) {
+    const index = Number(process.env.S3_PERF_PROFILE_INDEX);
+    const battery = JSON.parse(readFileSync(BATTERY_FILE, 'utf8'));
+    const result = await measureProfile(index, battery);
+    process.stdout.write(MARKER + JSON.stringify(result));
+    process.exit(0);
+}
+
+/** Run one profile in a child and return its rows. */
+function runProfileInChild(index, battery) {
+    writeFileSync(BATTERY_FILE, JSON.stringify(battery));
+    const out = execFileSync(process.execPath, [new URL(import.meta.url).pathname], {
+        env: { ...process.env, S3_PERF_PROFILE_INDEX: String(index) },
+        encoding: 'utf8',
+        maxBuffer: 32 * 1024 * 1024,
+        stdio: ['ignore', 'pipe', 'inherit'],
+    });
+    const at = out.lastIndexOf(MARKER);
+    if (at === -1) throw new Error(`profile ${index} produced no result`);
+    return JSON.parse(out.slice(at + MARKER.length));
+}
 
 try {
     // Profile the corpus once, on its own connection, so every cache profile
@@ -55,11 +116,15 @@ try {
             highCardinality: approxDistinct !== null && approxDistinct > 10_000,
         });
     }
+    // Same trap as the battery: a 100k sample cannot tell a unique id from a
+    // column saturating near 100k, and grouping by the former is degenerate.
+    const totalRows = Number(await probe.one(`SELECT count(*) FROM ${T}`));
+    const refined = await refineCardinality(probe, T, columns, totalRows);
     probe.close();
 
     // The wide top-N is excluded: it can fail for MEMORY reasons, which would
     // confound a measurement about caching.
-    const battery = buildBattery(columns).filter((s) => !s.dangerous);
+    const battery = buildBattery(refined).filter((s) => !s.dangerous);
 
     heading(`CACHE PROFILES — ${battery.length} shapes each, median of ${config.repeats}`);
     note(`reading ${glob}`);
@@ -68,27 +133,9 @@ try {
 
     const measured = [];
 
-    for (const [label, caches] of PROFILES) {
-        const session = await open({ caches });
-        const rows = [];
-        try {
-            for (const shape of battery) {
-                const sql = shape.sql.replaceAll('{{T}}', T);
-                try {
-                    const m = await measureQuery(session, sql, config.repeats);
-                    rows.push({
-                        key: shape.key,
-                        label: shape.label,
-                        median: m.median,
-                        bytes: m.coldBytes,
-                    });
-                } catch (err) {
-                    rows.push({ key: shape.key, label: shape.label, failed: String(err.message).split('\n')[0] });
-                }
-            }
-        } finally {
-            session.close();
-        }
+    for (let i = 0; i < PROFILES.length; i++) {
+        const [label, caches] = PROFILES[i];
+        const { rows } = runProfileInChild(i, battery);
         measured.push({ profile: label, caches, rows });
 
         const ok = rows.filter((r) => !r.failed);
@@ -155,6 +202,10 @@ try {
     note('These caches cost memory and nothing else, and they are OFF by default.');
     note('Turn all three on in the worker unless this table says otherwise for');
     note('your endpoint. The setting names are in s3.env.');
+
+    try {
+        unlinkSync(BATTERY_FILE);
+    } catch { /* already gone */ }
 
     save('caches', { table: T, profiles: measured });
 

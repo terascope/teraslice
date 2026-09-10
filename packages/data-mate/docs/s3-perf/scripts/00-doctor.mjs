@@ -17,6 +17,7 @@
 import {
     config, envFile, validate, s3Glob, s3Root
 } from '../lib/env.mjs';
+import { readFileSync } from 'node:fs';
 import { open } from '../lib/duck.mjs';
 import {
     heading, note, table, bytes, num, explain
@@ -40,6 +41,83 @@ if (problems.length) {
     process.exit(1);
 }
 pass('all required settings present and consistent');
+
+/*
+ * The most expensive mistake this harness can make is not a wrong endpoint — it
+ * is an OOM kill 20 minutes into a run, which reads as "DuckDB cannot do this"
+ * and is really "the limit was set above what the box has". memory_limit bounds
+ * the buffer manager, NOT resident memory: measured, peak RSS lands at roughly
+ * 2x the limit. So check the limit against the cgroup before anything runs.
+ */
+/*
+ * Peak RSS is NOT a multiple of memory_limit — it is a floor plus a slope. The
+ * floor (node, DuckDB, the external file cache, allocator retention) is there
+ * whatever the limit, and a process running many queries keeps the high-water
+ * mark of all of them. Fitted against a full 10-shape battery at 100M over Ceph:
+ * 512MiB->4050, 1GiB->5137, 2GiB->7318 MiB.
+ *
+ * An earlier version of this check used a flat 2x, which came from SINGLE-query
+ * probes and understates a real run by ~1.8x — the optimistic direction, so it
+ * would have passed a config that then got OOM-killed 20 minutes in.
+ */
+const RSS_FLOOR_BYTES = 2965 * 1024 ** 2;
+const RSS_PER_LIMIT = 2.13;
+const predictRss = (limit) => RSS_FLOOR_BYTES + limit * RSS_PER_LIMIT;
+const memBytes = (raw) => {
+    const m = String(raw).trim()
+        .match(/^([\d.]+)\s*(TiB|GiB|MiB|KiB|TB|GB|MB|KB|B)?$/i);
+    if (!m) return null;
+    const units = {
+        b: 1, kb: 1e3, mb: 1e6, gb: 1e9, tb: 1e12,
+        kib: 1024, mib: 1024 ** 2, gib: 1024 ** 3, tib: 1024 ** 4,
+    };
+    return Number(m[1]) * (units[(m[2] || 'B').toLowerCase()] ?? 1);
+};
+
+const containerLimit = () => {
+    for (const f of ['/sys/fs/cgroup/memory.max', '/sys/fs/cgroup/memory/memory.limit_in_bytes']) {
+        try {
+            const v = readFileSync(f, 'utf8').trim();
+            if (v && v !== 'max') {
+                const n = Number(v);
+                // An unset cgroup reports a sentinel near 2^63, not a real cap.
+                if (Number.isFinite(n) && n > 0 && n < 2 ** 62) return n;
+            }
+        } catch { /* not cgroup v2, or not containerised */ }
+    }
+    return null;
+};
+
+const gib = (n) => `${(n / 1024 ** 3).toFixed(1)} GiB`;
+const limitBytes = memBytes(config.memoryLimit);
+const capBytes = containerLimit();
+
+if (limitBytes && capBytes) {
+    const predicted = predictRss(limitBytes);
+    if (predicted > capBytes) {
+        fail(`MEMORY_LIMIT=${config.memoryLimit} predicts ~${gib(predicted)} peak RSS `
+            + `against a ${gib(capBytes)} container cap.`);
+        note('');
+        note('  memory_limit bounds DuckDB\'s buffer pool, NOT the process. Measured on the');
+        note('  100M fixture, a full battery peaks at ~3 GB PLUS ~2.1x the limit, so this');
+        note('  run would be OOM-killed partway through — which looks like a DuckDB');
+        note('  failure and is not one.');
+        const headroom = capBytes * 0.8;
+        const affordable = Math.max(0, (headroom - RSS_FLOOR_BYTES) / RSS_PER_LIMIT);
+        if (affordable < 256 * 1024 ** 2) {
+            note(`  This box cannot hold the ~${gib(RSS_FLOOR_BYTES)} floor plus a usable pool.`);
+            note('  EXTERNAL_FILE_CACHE=false removes ~1.1 GB of that floor, at 3.7x on the battery.');
+        } else {
+            note(`  Set MEMORY_LIMIT to at most ${gib(affordable)} here.`);
+        }
+        process.exit(1);
+    }
+    pass(`MEMORY_LIMIT=${config.memoryLimit} predicts ~${gib(predicted)} peak RSS, `
+        + `within the ${gib(capBytes)} cap`);
+} else if (limitBytes && !capBytes) {
+    note(`MEMORY_LIMIT=${config.memoryLimit} implies ~${gib(predictRss(limitBytes))} peak RSS `
+        + '(no container cap detected — check it against the box\'s real RAM)');
+}
 
 table(
     ['setting', 'value'],
