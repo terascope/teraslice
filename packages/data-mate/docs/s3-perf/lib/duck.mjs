@@ -40,7 +40,7 @@ export async function duckFrame() {
  * older `SET s3_access_key_id`. The secret is scoped to the endpoint so a
  * future second endpoint does not silently inherit these credentials.
  */
-async function applyCredentials(connection) {
+async function applyCredentials(run) {
     const parts = [
         'TYPE s3',
         `KEY_ID '${config.accessKeyId.replace(/'/g, '\'\'')}'`,
@@ -52,7 +52,92 @@ async function applyCredentials(connection) {
     ];
     if (config.sessionToken) parts.push(`SESSION_TOKEN '${config.sessionToken}'`);
 
-    await connection.run(`CREATE OR REPLACE SECRET s3_perf (${parts.join(', ')})`);
+    await run(`CREATE OR REPLACE SECRET s3_perf (${parts.join(', ')})`);
+}
+
+/**
+ * Apply EVERY endpoint and engine setting to a connection, through a caller
+ * supplied `run`.
+ *
+ * **Why this is a function and not a copied block.** `07-sql.mjs` drives a
+ * DuckFrame, and a frame owns its OWN DuckDB instance — a second database that
+ * shares nothing with the one `open()` returns. It has to be configured
+ * separately, and the first version of that script hand-copied only the subset
+ * that looked relevant: `LOAD httpfs`, the secret, the CA and the caches. It
+ * silently omitted `LOAD aws`, `LOAD parquet`, `LOAD json`, the autoload
+ * switches and the HTTP timeout and retry settings.
+ *
+ * The result was a script that worked wherever the omitted settings happened not
+ * to matter and failed where they did — against a config the battery handled
+ * fine, which reads as "the new script is broken" and is really "the frame's
+ * database was set up differently".
+ *
+ * Anything that opens a second database MUST call this. Adding a setting to
+ * `open()` alone would recreate exactly that divergence.
+ *
+ * @param {(sql: string) => Promise<unknown>} run  issues one statement
+ * @param {object} [overrides]  same shape as `open()`'s
+ */
+export async function applyEndpointSettings(run, overrides = {}) {
+    // Refuse any silent network fallback. In the target environment there is no
+    // network, so an autoload attempt is a slow failure rather than a rescue —
+    // and locally it would mask a missing baked extension.
+    await run('SET autoinstall_known_extensions = false');
+    await run('SET autoload_known_extensions = false');
+
+    for (const extension of ['httpfs', 'aws', 'parquet', 'json']) {
+        await run(`LOAD ${extension}`);
+    }
+
+    // --- engine ---
+    await run(`SET memory_limit = '${overrides.memoryLimit ?? config.memoryLimit}'`);
+    // Without a temp directory an over-limit query FAILS instead of spilling.
+    await run(`SET temp_directory = '${config.tempDirectory}'`);
+    /*
+     * DuckDB defaults max_temp_directory_size to 90% OF AVAILABLE DISK, which on a
+     * box with little free space means a spilling query can fill the filesystem
+     * before it fails. Lowering memory_limit — the fix for peak RSS — makes
+     * spilling MORE likely, so the two settings have to be chosen together.
+     * Bounding it turns "the disk filled up" into a clean query error.
+     */
+    if (config.maxTempDirectorySize) {
+        await run(
+            `SET max_temp_directory_size = '${config.maxTempDirectorySize}'`
+        );
+    }
+    const threads = overrides.threads ?? (config.threads ? Number(config.threads) : null);
+    if (threads) await run(`SET threads = ${threads}`);
+
+    // --- endpoint ---
+    await applyCredentials(run);
+    /*
+     * SET GLOBAL, not SET. `ca_cert_file` is CONNECTION-scoped: a plain `SET`
+     * leaves any connection opened later seeing `""`, and its first HTTPS read
+     * fails with "SSL peer certificate ... was not OK". That is not theoretical
+     * — it is exactly how `DuckFrame.rows()` broke against a private-CA
+     * endpoint, because `rows()` takes its own connection by design.
+     *
+     * `CREATE SECRET` above is instance-scoped and needs no such treatment,
+     * which is why credentials survived and only TLS broke — a confusing
+     * symptom that looked like a credentials problem and was not.
+     */
+    if (config.caCertFile) {
+        await run(`SET GLOBAL ca_cert_file = '${config.caCertFile}'`);
+    }
+    await run(`SET http_timeout = ${config.httpTimeout * 1000}`);
+    await run(`SET http_retries = ${config.httpRetries}`);
+    if (config.proxyHost) {
+        await run(`SET http_proxy = '${config.proxyHost}'`);
+        if (config.proxyUsername) await run(`SET http_proxy_username = '${config.proxyUsername}'`);
+        if (config.proxyPassword) await run(`SET http_proxy_password = '${config.proxyPassword}'`);
+    }
+
+    // --- caches ---
+    const caches = { ...config.caches, ...(overrides.caches ?? {}) };
+    await run(`SET enable_http_metadata_cache = ${caches.httpMetadata}`);
+    await run(`SET parquet_metadata_cache = ${caches.parquetMetadata}`);
+    await run(`SET httpfs_connection_caching = ${caches.connection}`);
+    await run(`SET enable_external_file_cache = ${caches.externalFile}`);
 }
 
 /**
@@ -71,65 +156,7 @@ export async function open(overrides = {}) {
     const instance = await DuckDBInstance.create(':memory:');
     const connection = await instance.connect();
 
-    // Refuse any silent network fallback. In the target environment there is no
-    // network, so an autoload attempt is a slow failure rather than a rescue —
-    // and locally it would mask a missing baked extension.
-    await connection.run('SET autoinstall_known_extensions = false');
-    await connection.run('SET autoload_known_extensions = false');
-
-    for (const extension of ['httpfs', 'aws', 'parquet', 'json']) {
-        await connection.run(`LOAD ${extension}`);
-    }
-
-    // --- engine ---
-    await connection.run(`SET memory_limit = '${overrides.memoryLimit ?? config.memoryLimit}'`);
-    // Without a temp directory an over-limit query FAILS instead of spilling.
-    await connection.run(`SET temp_directory = '${config.tempDirectory}'`);
-    /*
-     * DuckDB defaults max_temp_directory_size to 90% OF AVAILABLE DISK, which on a
-     * box with little free space means a spilling query can fill the filesystem
-     * before it fails. Lowering memory_limit — the fix for peak RSS — makes
-     * spilling MORE likely, so the two settings have to be chosen together.
-     * Bounding it turns "the disk filled up" into a clean query error.
-     */
-    if (config.maxTempDirectorySize) {
-        await connection.run(
-            `SET max_temp_directory_size = '${config.maxTempDirectorySize}'`
-        );
-    }
-    const threads = overrides.threads ?? (config.threads ? Number(config.threads) : null);
-    if (threads) await connection.run(`SET threads = ${threads}`);
-
-    // --- endpoint ---
-    await applyCredentials(connection);
-    /*
-     * SET GLOBAL, not SET. `ca_cert_file` is CONNECTION-scoped: a plain `SET`
-     * leaves any connection opened later seeing `""`, and its first HTTPS read
-     * fails with "SSL peer certificate ... was not OK". That is not theoretical
-     * — it is exactly how `DuckFrame.rows()` broke against a private-CA
-     * endpoint, because `rows()` takes its own connection by design.
-     *
-     * `CREATE SECRET` above is instance-scoped and needs no such treatment,
-     * which is why credentials survived and only TLS broke — a confusing
-     * symptom that looked like a credentials problem and was not.
-     */
-    if (config.caCertFile) {
-        await connection.run(`SET GLOBAL ca_cert_file = '${config.caCertFile}'`);
-    }
-    await connection.run(`SET http_timeout = ${config.httpTimeout * 1000}`);
-    await connection.run(`SET http_retries = ${config.httpRetries}`);
-    if (config.proxyHost) {
-        await connection.run(`SET http_proxy = '${config.proxyHost}'`);
-        if (config.proxyUsername) await connection.run(`SET http_proxy_username = '${config.proxyUsername}'`);
-        if (config.proxyPassword) await connection.run(`SET http_proxy_password = '${config.proxyPassword}'`);
-    }
-
-    // --- caches ---
-    const caches = { ...config.caches, ...(overrides.caches ?? {}) };
-    await connection.run(`SET enable_http_metadata_cache = ${caches.httpMetadata}`);
-    await connection.run(`SET parquet_metadata_cache = ${caches.parquetMetadata}`);
-    await connection.run(`SET httpfs_connection_caching = ${caches.connection}`);
-    await connection.run(`SET enable_external_file_cache = ${caches.externalFile}`);
+    await applyEndpointSettings((sql) => connection.run(sql), overrides);
 
     return {
         instance,

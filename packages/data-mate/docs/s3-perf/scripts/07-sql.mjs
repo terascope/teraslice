@@ -175,7 +175,7 @@ for (const [flag, envVar] of Object.entries(ENV_FOR)) {
 }
 
 const { config, s3Glob } = await import('../lib/env.mjs');
-const { open, duckFrame } = await import('../lib/duck.mjs');
+const { open, duckFrame, applyEndpointSettings } = await import('../lib/duck.mjs');
 const { configFromSchema } = await import('../lib/data-type.mjs');
 const {
     heading, note, table, ms, num, bytes, save, explain, measure, time, median,
@@ -320,27 +320,22 @@ async function openFrame({ DuckFrame, configureDuckDatabase }) {
 
     const frame = await DuckFrame.fromParquet(dataTypeConfig, glob);
 
-    await frame.query('LOAD httpfs');
-    await frame.query(`CREATE OR REPLACE SECRET s3_perf (
-        TYPE s3,
-        KEY_ID '${config.accessKeyId.replace(/'/g, '\'\'')}',
-        SECRET '${config.secretAccessKey.replace(/'/g, '\'\'')}',
-        REGION '${config.region}',
-        ENDPOINT '${config.endpoint}',
-        URL_STYLE '${config.urlStyle}',
-        USE_SSL ${config.insecureDiagnostic ? false : config.useSsl}
-    )`);
-    // SET GLOBAL: `ca_cert_file` is CONNECTION-scoped, and `rows()` and
-    // `append()` each take their own connection. See 05-duckframe.mjs and DF13.
-    if (config.caCertFile) {
-        await frame.query(`SET GLOBAL ca_cert_file = '${config.caCertFile}'`);
-    }
-
-    // The caches are not part of DuckDatabaseSettings, so they go in the same way.
-    await frame.query(`SET enable_http_metadata_cache = ${config.caches.httpMetadata}`);
-    await frame.query(`SET parquet_metadata_cache = ${config.caches.parquetMetadata}`);
-    await frame.query(`SET httpfs_connection_caching = ${config.caches.connection}`);
-    await frame.query(`SET enable_external_file_cache = ${config.caches.externalFile}`);
+    /*
+     * THE SAME settings the harness applies to its own connection, from the same
+     * function — not a hand-copied subset.
+     *
+     * The frame owns a SECOND DuckDB instance that shares nothing with `open()`'s,
+     * so it has to be configured separately. The first version of this script
+     * copied across only what looked relevant (httpfs, the secret, the CA, the
+     * caches) and silently dropped `LOAD aws`, `LOAD parquet`, `LOAD json`, the
+     * autoload switches and the HTTP timeout and retry settings. That made this
+     * script fail against a configuration `02-battery.mjs` handled fine, which
+     * reads as a broken script rather than as a differently-configured database.
+     *
+     * `applyEndpointSettings` is now the single definition, so the two cannot
+     * drift again.
+     */
+    await applyEndpointSettings((sql) => frame.query(sql));
 
     return { frame, glob, skipped };
 }
