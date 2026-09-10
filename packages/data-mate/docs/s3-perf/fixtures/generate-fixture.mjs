@@ -9,7 +9,7 @@
  * at 1B rows at any price.
  *
  *   node generate-fixture.mjs --scale 100m --out /data/fixtures
- *   node generate-fixture.mjs --scale 1b --out s3://qpl-fixtures --env
+ *   node generate-fixture.mjs --scale 1b --out s3://duckdb --env
  *   node generate-fixture.mjs --rows 5000000 --out /tmp --name probe.parquet
  *
  * Flags:

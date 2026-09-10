@@ -4,7 +4,7 @@
 /**
  * Upload a generated fixture to S3/Ceph, into the layout the harness expects.
  *
- *   node fixtures/upload-fixture.mjs --scale 100m --from /data/fixtures --bucket qpl-fixtures
+ *   node fixtures/upload-fixture.mjs --scale 100m --from /data/fixtures --bucket duckdb
  *
  * Reads S3 settings from the harness env file, so there is ONE place that knows
  * the endpoint, credentials and CA.
