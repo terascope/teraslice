@@ -540,3 +540,4 @@ describe('->geoContainsFP', () => {
         expect(geoContainsFP(secondGeo)(firstGeo)).toEqual(output);
     });
 });
+
