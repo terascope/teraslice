@@ -103,10 +103,6 @@
         "npm": {
             "registry": "https://registry.npmjs.org/"
         },
-        "engines": {
-            "node": ">=22.0.0",
-            "pnpm": ">=12.3.4"
-        },
         "version": 1
     }
 }
