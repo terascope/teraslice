@@ -76,12 +76,28 @@ fault in your query rather than in the wrapping.
 | flag | default | what it does |
 |---|---|---|
 | `--rows none\|json` | `none` | whether result rows cross into JavaScript. See **Rows modes** |
-| `--repeats N` | `REPEATS` in the env file | timed runs after a cold run and a discarded warmup; reports the median |
+| `--repeats N` | `REPEATS` in the env file | **warm** runs, after a cold run and a discarded warmup; reports the median. `0` = the cold run only, one execution total. See **How many times the query actually runs** |
 | `--explain` | off | prints the per-operator timing tree |
 | `--print N` | off | prints the first N result rows |
 | `--tag <name>` | derived from the query | names the result JSON in `RESULTS_DIR` |
 | `--sweep <flag>=<v1,v2,...>` | none | re-runs the whole measurement once per value. Repeatable |
 | `--help`, `-h` | | the flag list |
+
+### How many times the query actually runs
+
+`--repeats` counts the **warm** runs. It has never counted the total, because the
+cold run and the warmup are unconditional:
+
+| `--repeats` | executions | what the report shows |
+|---|---|---|
+| `0` | 1 — cold | `cold (first touch)` only. No median, no first-touch overhead |
+| `1` | 3 — cold, warmup (discarded), 1 timed | a "warm median of 1" that is the **third** execution |
+| `3` (default) | 5 — cold, warmup, 3 timed | cold, median, min, max, overhead |
+
+So `--repeats 1` is not "run it once". If a single cold execution is what you
+want — an ad-hoc query where the first touch is the number you care about — use
+`--repeats 0`. It skips `measure()` entirely, because that function's own warmup
+would be a second execution of the query.
 
 ## Engine settings — one mechanism, nine names
 
@@ -126,23 +142,24 @@ TIMING
   warm max              72.2 ms
 
 WHAT THE ENGINE DID (cold run, from DuckDB's profiler)
-  metric                 value                    what it tells you
-  --------------------  ------  -----------------------------------
-  latency               0.4 ms            engine time, excluding JS
-  cpu time              0.0 ms                summed across threads
-  blocked thread time   0.0 ms  stalled — on S3 this is the network
-  bytes read               0 B  moved over the wire on the cold run
-  bytes written            0 B               spill and table writes
-  peak buffer memory       0 B                 against memory_limit
-  peak spill               0 B        0 means it never went to disk
-  rows out of the scan       0          what the scan handed upward
-  rows returned              1                           the answer
+  DuckDB wrote NO profile for this query. MEASURED: it writes none when the
+  query is answered from cached Parquet metadata — a bare count(*), or
+  anything whose footers parquet_metadata_cache already holds. The TIMING
+  above is unaffected: it is a wall clock around the real call. Give the
+  query a predicate or a column to scan and the profiler reports on it.
 ```
 
-**Expect 0 bytes read.** `count(*)` is answered from the Parquet footer; no column
-data is touched, which is why `latency` is 0.4 ms while the cold wall clock is 3 s
-— that gap is the TLS handshake and the footer fetch, not query work. 691M rows in
-71 ms warm.
+**A bare `count(*)` gets no engine table, and that is the honest output.**
+`count(*)` is answered from the Parquet footer, and DuckDB does not profile that
+path at all. 691M rows in 71 ms warm; the 3 s cold is the TLS handshake and the
+footer fetch.
+
+> **This block used to print a table.** It showed `latency 0.4 ms`, `0 B read`,
+> `0 rows out of the scan` — and every one of those numbers belonged to the
+> throwaway `SELECT 1` that arms the profiler, because DuckDB had left the
+> previous profile in place. The apparent paradox it created — "0.4 ms of engine
+> time inside a 3 s call" — was not a finding about first-touch cost. It was two
+> different queries in one table. See **The profiler goes stale** below.
 
 Cold varies a lot on this shape: 962 ms, 1,509 ms and 2,958 ms across runs, with
 the warm median steady at 49-71 ms. See the cold-outlier gotcha below.
@@ -508,6 +525,11 @@ non-zero, and `wall time not on CPU` (latency − cpu) carries the I/O story ins
 - **`bytes read` and `peak buffer memory` come from the COLD run only.** The warm
   median has no byte count beside it, because a profiled repeat would report the
   cached run and print near-zero. The two columns describe different executions.
+- **`--repeats N` does NOT mean "run it N times".** `N` counts the WARM runs
+  only; the cold run and the warmup it discards are on top of it, so the total is
+  `1 + 1 + N`. `--repeats 1` runs the query **three** times and the headline
+  "warm median of 1" is the third one, not the first. Use `--repeats 0` for a
+  single cold execution and nothing else.
 - **"Cold" is DuckDB-cold, not server-cold.** `openFrame()` reads the schema with
   `DESCRIBE` on a separate connection first, and the object store and OS may hold
   their own caches. It is the first touch by *this* DuckDB instance, which is the
@@ -516,6 +538,54 @@ non-zero, and `wall time not on CPU` (latency − cpu) carries the I/O story ins
   threads. The geo query shows 1,634,982 ms of CPU against 212,421 ms of latency
   on 8 threads.
 
+## The profiler goes stale
+
+**DuckDB does not always write a profile, and when it does not, the file still
+holds the previous query's.** Measured against DuckDB 1.5.5, with the profile
+file's mtime checked after every statement:
+
+| query | profile written? | what the file held |
+|---|---|---|
+| local parquet, `parquet_metadata_cache=false` | yes, every run | its own plan, `latency` ≈ wall |
+| local parquet, cache on, run 1 | yes | its own plan |
+| local parquet, cache on, runs 2-4 | **no** | run 1's, `latency` frozen at 38.5 ms while the wall clock fell to 15.2 ms |
+| remote https parquet, `count(*)` | **no, ever** | `SELECT 1`'s — `PROJECTION > DUMMY_SCAN`, latency 0.4 ms, 0 B read, against a 983 ms wall clock |
+| remote https parquet, `WHERE passenger_count > 2` | yes, every run | its own plan, `latency` 3159.9 ms against a 3160.2 ms wall |
+
+The pattern: **a query answered from cached Parquet metadata is not profiled.**
+The harness now deletes the arming query's profile before the measured run, so an
+absent file is reported as "DuckDB wrote no profile" instead of being printed as a
+measurement.
+
+**The timing was never affected.** `cold` and the warm runs are a
+`process.hrtime.bigint()` wall clock around the real call, and the last row of
+that table is the proof the two agree when a profile exists at all: 3159.9 ms
+profiled against 3160.2 ms measured, cold, and 296.0 against 296.8 warm. There is
+no hidden gap between "what DuckDB did" and "what the clock saw" — the gap was an
+artefact of reading a stale file.
+
+## So why is cold slow, every single time?
+
+Because **nothing that makes a run warm survives the process.** A standalone
+invocation cannot inherit anything from the last one:
+
+- the httpfs connection pool, and with it DNS and the TLS handshake
+- `parquet_metadata_cache` — the footers. On NOAA that is 13.7 MB of thrift for
+  5,579 row groups × 25 columns, fetched before any value is read
+- `http_metadata_cache` — the HEAD results for the glob
+- the external file cache
+
+All four live in the DuckDB *instance*. The harness makes it worse than a fresh
+process would be on its own: `openFrame()` reads the schema with `DESCRIBE` on a
+throwaway instance from `open()`, closes it, and then `DuckFrame.fromParquet()`
+builds a **second** instance that shares none of those caches. So the cold run is
+the first touch for the instance that runs it, no matter how many times you have
+run the script before.
+
+Warm runs are fast because they hit all four caches. Back-to-back processes are
+slow because each one starts with all four empty. `--repeats` measures the first
+thing; running the script twice measures the second. **They are different
+questions, and both numbers are right.**
 ---
 
 # Reading the output
@@ -523,8 +593,8 @@ non-zero, and `wall time not on CPU` (latency − cpu) carries the I/O story ins
 | metric | what it is |
 |---|---|
 | `cold (first touch)` | the first run, profiled. **A single measurement** — see the gotcha below |
-| `warm median` | median of `--repeats` after a discarded warmup |
-| `latency` | DuckDB's own engine time, excluding JS |
+| `warm median` | median of `--repeats` after a discarded warmup. Absent at `--repeats 0` |
+| `latency` | DuckDB's own engine time. Tracks the wall clock to ~1 ms when a profile exists at all — see **The profiler goes stale** |
 | `cpu time` | summed across threads, so it exceeds latency when parallel |
 | `blocked thread time` | stalled. On a remote corpus this is the network |
 | `bytes read` | moved over the wire on the cold run |

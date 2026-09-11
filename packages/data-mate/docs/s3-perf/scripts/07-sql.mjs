@@ -98,7 +98,8 @@ Usage: ./run.sh sql (--sql "<query>" | --file <path> | -) [flags]
 
 Engine settings — each overrides the env file for this run only:
 
-  --repeats N            timed runs, after a cold run and a warmup
+  --repeats N            warm runs, after a cold run and a discarded warmup.
+                         0 = the cold run only, one execution total
   --memory-limit 512MiB  use BINARY units; DuckDB reads 2GB as 2x10^9
   --threads N            the documented mitigation for the wide top-N cliff
   --temp-dir <path>      spill directory; without one an over-limit query FAILS
@@ -236,7 +237,11 @@ function readProfile() {
         // "no profile" covers a file that was never written and one that was
         // written and could not be parsed, and those have different causes.
         profileFailure = err.code === 'ENOENT'
-            ? `no profile at ${PROFILE_PATH} — the query ran on a connection that was not profiled`
+            ? 'DuckDB wrote NO profile for this query. MEASURED: it writes none when the query '
+              + 'is answered from cached Parquet metadata — a bare count(*), or anything whose '
+              + 'footers parquet_metadata_cache already holds. The TIMING above is unaffected: '
+              + 'it is a wall clock around the real call. Give the query a predicate or a '
+              + 'column to scan and the profiler reports on it.'
             : `profile at ${PROFILE_PATH} unreadable: ${err.message.split('\n')[0]}`;
         return null;
     }
@@ -364,7 +369,15 @@ async function runOnce(deps) {
     const { frame, glob, skipped } = await openFrame(deps);
     const T = frame.from;
     const sql = sqlText.replaceAll('{{T}}', T);
-    const repeats = Math.max(1, config.repeats);
+    /*
+     * `--repeats 0` MEANS COLD ONLY, and this used to clamp to 1 in silence.
+     *
+     * `repeats` only ever controlled the WARM sample; the cold run and the
+     * warmup it discards are unconditional, so asking for one repeat still ran
+     * the query three times and reported the third as the headline. Zero now
+     * means what it reads as: run it once, cold, and report that.
+     */
+    const repeats = Math.max(0, config.repeats);
 
     heading('THE QUERY');
     note(sql);
@@ -387,7 +400,7 @@ async function runOnce(deps) {
             ['http metadata cache', String(config.caches.httpMetadata)],
             ['parquet metadata cache', String(config.caches.parquetMetadata)],
             ['connection caching', String(config.caches.connection)],
-            ['repeats', String(repeats)],
+            ['repeats', repeats === 0 ? '0 (cold run only)' : String(repeats)],
         ]
     );
 
@@ -409,17 +422,45 @@ async function runOnce(deps) {
      * An earlier probe of this mechanism missed it because it happened to read
      * `duckdb_settings()` in between, which armed it by accident.
      *
-     * `SELECT 1` is itself profiled and immediately overwritten by the real
-     * query's profile, so this costs one trivial statement and nothing else.
+     * `SELECT 1` is itself profiled, so this costs one trivial statement — and
+     * its profile is then DELETED, for the reason below.
      */
     await frame.query('SELECT 1');
+    /*
+     * DELETE THE ARMING QUERY'S PROFILE, because a stale one is indistinguishable
+     * from a fresh one and this report believed it.
+     *
+     * MEASURED against DuckDB 1.5.5: a query answered from cached Parquet
+     * metadata WRITES NO PROFILE AT ALL. `SELECT count(*) FROM read_parquet(<a
+     * remote https URL>)` left the file holding `SELECT 1`'s profile —
+     * byte-identical, same mtime, operator tree `PROJECTION > DUMMY_SCAN` — so
+     * the engine table printed latency 0.4 ms, 0 B read and 0 rows out of the
+     * scan for a call whose wall clock was 983 ms. Every one of those numbers
+     * was `SELECT 1`'s. The same goes stale on a LOCAL corpus from the second
+     * run on, once `parquet_metadata_cache` is serving the footers.
+     *
+     * A query that actually scans a column profiles correctly, and there
+     * `latency` tracks the wall clock to within a millisecond — 3159.9 ms
+     * against 3160.2 ms cold, 296.0 against 296.8 warm.
+     *
+     * With the file removed, its ABSENCE afterwards is the signal, and
+     * `readProfile` says so instead of printing another query's measurement.
+     */
+    try {
+        unlinkSync(PROFILE_PATH);
+    } catch {
+        // Nothing to remove — then the arming query wrote nothing either.
+    }
     const cold = await time(() => execute(frame, sql, values.rows));
     const stats = readProfile();
     await frame.query('SET enable_profiling = \'no_output\'');
 
     // Then the timed repeats. `measure` discards its own warmup, so the total
-    // number of executions is 1 cold + 1 warmup + repeats.
-    const warm = await measure(() => execute(frame, sql, values.rows), repeats);
+    // number of executions is 1 cold + 1 warmup + repeats — and at repeats 0 it
+    // is not called at all, because its warmup would be a second execution.
+    const warm = repeats === 0
+        ? { median: null, min: null, max: null, timings: [], value: cold.value }
+        : await measure(() => execute(frame, sql, values.rows), repeats);
 
     const resultRows = values.rows === 'json'
         ? (Array.isArray(cold.value) ? cold.value.length : 0)
@@ -441,25 +482,36 @@ async function runOnce(deps) {
     heading('TIMING');
     table(
         ['run', 'ms'],
-        [
-            ['cold (first touch)', ms(cold.millis)],
-            [`warm median of ${repeats}`, ms(warm.median)],
-            ['warm min', ms(warm.min)],
-            ['warm max', ms(warm.max)],
-            ['first-touch overhead', ms(Math.max(0, cold.millis - warm.median))],
-        ]
+        repeats === 0
+            ? [['cold (first touch)', ms(cold.millis)]]
+            : [
+                ['cold (first touch)', ms(cold.millis)],
+                [`warm median of ${repeats}`, ms(warm.median)],
+                ['warm min', ms(warm.min)],
+                ['warm max', ms(warm.max)],
+                ['first-touch overhead', ms(Math.max(0, cold.millis - warm.median))],
+            ]
     );
+    if (repeats === 0) {
+        note('');
+        note('ONE execution, cold. There is no warm median and no first-touch overhead,');
+        note('so this number is the query PLUS the footer fetch and TLS setup, and it is a');
+        note('single sample — the same query has measured 72,306 / 4,477 / 1,509 ms cold');
+        note('against a warm median that never moved. Raise --repeats to separate them.');
+    }
     // Every run, not just the summary: a median hides an outlier, and on a
     // remote corpus the outliers are the thing worth seeing.
-    note(`every warm run: ${warm.timings.map((t) => `${t.toFixed(1)}`).join(', ')} ms`);
-    if (cold.millis > warm.median * 5) {
+    if (repeats > 0) {
+        note(`every warm run: ${warm.timings.map((t) => `${t.toFixed(1)}`).join(', ')} ms`);
+    }
+    if (repeats > 0 && cold.millis > warm.median * 5) {
         note('');
         note(`cold is ${(cold.millis / warm.median).toFixed(0)}x the warm median. On a remote`);
         note('corpus that is the footer fetch and TLS setup, NOT query cost — it is the same');
         note('for a query matching nothing. Treat cold as one noisy sample; re-run before');
         note('quoting it.');
     }
-    if (warm.max > warm.min * 3) {
+    if (repeats > 0 && warm.max > warm.min * 3) {
         note('');
         note('The spread is more than 3x. That is not a measurement — something else was');
         note('moving: a cold cache, a busy Ceph node, another tenant. Re-run it.');
@@ -642,7 +694,7 @@ function sweep(axes) {
                 : [
                     r.value,
                     ms(r.coldMs),
-                    ms(r.medianMs),
+                    r.medianMs === null ? '(none)' : ms(r.medianMs),
                     bytes(r.stats?.bytesRead),
                     bytes(r.stats?.peakBufferBytes),
                     bytes(r.stats?.peakSpillBytes),
@@ -652,14 +704,23 @@ function sweep(axes) {
 
         const ok = series.filter((r) => !r.failed);
         if (ok.length > 1) {
-            const fastest = ok.reduce((a, b) => (b.medianMs < a.medianMs ? b : a));
-            const slowest = ok.reduce((a, b) => (b.medianMs > a.medianMs ? b : a));
+            // At --repeats 0 there is no median to rank on, so the ranking falls
+            // back to the cold run and SAYS SO. A cold ranking across an axis is
+            // one sample per cell and the footer fetch dominates it.
+            const coldOnly = ok.some((r) => r.medianMs === null);
+            const at = (r) => (coldOnly ? r.coldMs : r.medianMs);
+            const fastest = ok.reduce((a, b) => (at(b) < at(a) ? b : a));
+            const slowest = ok.reduce((a, b) => (at(b) > at(a) ? b : a));
             note('');
-            note(`fastest ${flag}=${fastest.value} at ${ms(fastest.medianMs)}, `
-                + `slowest ${flag}=${slowest.value} at ${ms(slowest.medianMs)} — `
-                + `${(slowest.medianMs / fastest.medianMs).toFixed(2)}x`);
-            const spread = median(ok.map((r) => r.medianMs));
-            if (slowest.medianMs / fastest.medianMs < 1.1) {
+            if (coldOnly) {
+                note('--repeats 0: ranked on the COLD run, one sample per cell. This ranking is');
+                note('dominated by the footer fetch and TLS setup, not by the axis.');
+            }
+            note(`fastest ${flag}=${fastest.value} at ${ms(at(fastest))}, `
+                + `slowest ${flag}=${slowest.value} at ${ms(at(slowest))} — `
+                + `${(at(slowest) / at(fastest)).toFixed(2)}x`);
+            const spread = median(ok.map(at));
+            if (at(slowest) / at(fastest) < 1.1) {
                 note(`This axis is FLAT (median ${ms(spread)}). Do not read a ranking into it —`);
                 note('the differences are inside the noise of a single run.');
             }
