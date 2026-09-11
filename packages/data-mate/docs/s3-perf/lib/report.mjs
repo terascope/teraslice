@@ -64,10 +64,17 @@ export async function time(fn) {
  * @param {number} [repeats]  defaults to REPEATS from the env file
  */
 export async function measure(fn, repeats = config.repeats) {
+    /*
+     * At least one timed run, because `median([])` is NaN and `Math.min()` of
+     * nothing is Infinity — a REPEATS=0 env file would have printed both as
+     * measurements. `07-sql.mjs` treats 0 as "cold only" and does not call this
+     * at all in that case; every other script needs a warm sample to exist.
+     */
+    const runs = Math.max(1, repeats);
     await fn(); // warmup, discarded — it pays the one-time connection costs
     const timings = [];
     let value;
-    for (let i = 0; i < repeats; i++) {
+    for (let i = 0; i < runs; i++) {
         const run = await time(fn);
         timings.push(run.millis);
         value = run.value;
