@@ -33,7 +33,7 @@ the opportunity to track the slices enqueued by the execution controller
 ### `->onSliceDispatch`
 
 A method called by the "Execution Controller" to give a "Slicer"
-the opportunity to track the slices disptached by the execution controller
+the opportunity to track the slices dispatched by the execution controller
 
 ### `->onSliceComplete`
 
@@ -43,7 +43,7 @@ the opportunity to track the slices completed by the execution controller
 ### `->onExecutionStats`
 
 A method called by the "Execution Controller" to give a "Slicer"
-the opportunity to track various slicer satistics
+the opportunity to track various slicer statistics
 
 See [SlicerOperationLifeCycle](../packages/job-components/api/interfaces/operation-lifecycle/interfaces/SlicerOperationLifeCycle.md) API for more details.
 
@@ -51,7 +51,7 @@ See [SlicerOperationLifeCycle](../packages/job-components/api/interfaces/operati
 
 ### `->onSliceInitialized`
 
-Called after a slice is initializated, but before the slice has been handed to any operation.
+Called after a slice is initialized, but before the slice has been handed to any operation.
 
 ### `->onSliceStarted`
 
