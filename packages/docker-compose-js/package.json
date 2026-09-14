@@ -1,7 +1,7 @@
 {
     "name": "@terascope/docker-compose-js",
     "displayName": "Docker Compose Js",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "description": "Node.js driver for controlling docker-compose testing environments.",
     "keywords": [
         "docker",
@@ -42,7 +42,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "pnpm": ">=11.3.0"
+        "pnpm": ">=12.3.4"
     },
     "publishConfig": {
         "access": "public",

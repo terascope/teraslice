@@ -1,7 +1,7 @@
 {
     "name": "@terascope/types",
     "displayName": "Types",
-    "version": "2.16.1",
+    "version": "2.16.2",
     "description": "A collection of typescript interfaces",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/types#readme",
     "bugs": {
@@ -32,7 +32,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "pnpm": ">=11.3.0"
+        "pnpm": ">=12.3.4"
     },
     "publishConfig": {
         "access": "public",

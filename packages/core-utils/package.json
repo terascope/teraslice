@@ -1,7 +1,7 @@
 {
     "name": "@terascope/core-utils",
     "displayName": "Core Utils",
-    "version": "2.17.2",
+    "version": "2.17.3",
     "description": "A collection of Teraslice Core Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/core-utils#readme",
     "bugs": {
@@ -59,7 +59,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "pnpm": ">=11.3.0"
+        "pnpm": ">=12.3.4"
     },
     "publishConfig": {
         "access": "public",

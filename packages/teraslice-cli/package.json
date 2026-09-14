@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "3.2.0",
+    "version": "3.2.1",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -76,7 +76,7 @@
     },
     "engines": {
         "node": ">=22.0.0",
-        "pnpm": ">=11.3.0"
+        "pnpm": ">=12.3.4"
     },
     "publishConfig": {
         "access": "public",
