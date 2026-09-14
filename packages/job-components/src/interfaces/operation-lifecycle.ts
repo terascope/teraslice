@@ -20,7 +20,7 @@ export interface OperationLifeCycle {
 
 export interface WorkerOperationLifeCycle extends OperationLifeCycle {
     /**
-     * Called after a slice is initializated, but before the slice
+     * Called after a slice is initialized, but before the slice
      * has been handed to any operation.
      */
     onSliceInitialized?(sliceId: string): Promise<void>;
@@ -108,7 +108,7 @@ export interface SlicerOperationLifeCycle extends OperationLifeCycle {
 
     /**
      * A method called by the "Execution Controller" to give a "Slicer"
-     * the opportunity to track the slices disptached by the execution controller
+     * the opportunity to track the slices dispatched by the execution controller
      */
     onSliceDispatch?(slice: Teraslice.Slice): void;
 
@@ -120,7 +120,7 @@ export interface SlicerOperationLifeCycle extends OperationLifeCycle {
 
     /**
      * A method called by the "Execution Controller" to give a "Slicer"
-     * the opportunity to track various slicer satistics
+     * the opportunity to track various slicer statistics
      */
     onExecutionStats?(stats: ExecutionStats): void;
 }
