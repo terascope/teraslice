@@ -9,6 +9,14 @@ export type RunOptions = {
 };
 type Services = string[] | string;
 
+export type ComposeOptions = {
+    /**
+     * Merged over `process.env` for the spawned `docker compose` process.
+     * Reaches the CLI, not the containers.
+     */
+    env?: NodeJS.ProcessEnv;
+};
+
 /**
  * Wrapper around `docker compose` (with fallback to `docker-compose`) for
  * programmatically managing Docker Compose services.
@@ -31,12 +39,25 @@ type Services = string[] | string;
  * if (FILE_LOGGING) files.push('docker-compose.logs.yml');
  * const compose = new Compose(files);
  *
+ * @example
+ * // Extra environment for the compose CLI itself. Note this reaches compose,
+ * // not the containers: it covers `COMPOSE_*` settings and `${VAR}`
+ * // interpolation in the compose file, but values the containers read still
+ * // have to arrive via `environment:` or `env_file:`.
+ * const compose = new Compose('docker-compose.yml', {
+ *     env: { COMPOSE_PROJECT_NAME: 'my_project' }
+ * });
+ *
  * @see https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/
  */
 export class Compose {
     composeFiles: string[];
-    constructor(composeFile: string | string[]) {
+    env: NodeJS.ProcessEnv;
+    constructor(composeFile: string | string[], options: ComposeOptions = {}) {
         this.composeFiles = Array.isArray(composeFile) ? composeFile : [composeFile];
+        this.env = options.env
+            ? { ...process.env, ...options.env }
+            : process.env;
     }
 
     runCmd(
@@ -45,6 +66,7 @@ export class Compose {
         services?: Services,
         ...extraParams: Arg[]
     ): Promise<string> {
+        const { env } = this;
         return new Promise((resolve, reject) => {
             let stdout = '';
             let stderr = '';
@@ -89,9 +111,7 @@ export class Compose {
 
             /// runs a spawn instance of either 'docker compose' or 'docker-compose'
             function runCommand(sCommand: string, a: Array<string>) {
-                const cmd = spawn(sCommand, a, {
-                    env: process.env
-                });
+                const cmd = spawn(sCommand, a, { env });
                 cmd.stdout.on('data', (data) => {
                     debug('stdout', data.toString());
                     stdout += data;

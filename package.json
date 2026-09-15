@@ -84,7 +84,7 @@
                 "e2e": [],
                 "k8s-e2e": [],
                 "opensearch": [
-                    "minio"
+                    "ceph"
                 ],
                 "search": [],
                 "restrained": [],

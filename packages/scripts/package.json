@@ -32,6 +32,7 @@
     "dependencies": {
         "@kubernetes/client-node": "catalog:",
         "@terascope/core-utils": "workspace:~",
+        "@terascope/docker-compose-js": "workspace:~",
         "execa": "catalog:",
         "fs-extra": "catalog:",
         "globby": "catalog:",

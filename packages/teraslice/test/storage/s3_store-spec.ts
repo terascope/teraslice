@@ -26,12 +26,12 @@ describe('S3 backend test', () => {
         connectors: {
             s3: {
                 default: {
-                    endpoint: process.env.MINIO_HOST,
-                    accessKeyId: process.env.MINIO_ACCESS_KEY,
-                    secretAccessKey: process.env.MINIO_SECRET_KEY,
+                    endpoint: process.env.CEPH_HOST,
+                    accessKeyId: process.env.CEPH_ACCESS_KEY,
+                    secretAccessKey: process.env.CEPH_SECRET_KEY,
                     forcePathStyle: true,
                     sslEnabled: false,
-                    region: 'test-region'
+                    region: 'us-east-1'
                 }
             }
         }
@@ -45,7 +45,7 @@ describe('S3 backend test', () => {
                 bucket: 'Invalid-Bucket-Name@'
             });
 
-            await expect(s3Backend.initialize()).rejects.toThrow('Bucket name does not follow S3 naming rules: The specified bucket is not valid.');
+            await expect(s3Backend.initialize()).rejects.toThrow('Bucket name does not follow S3 naming rules');
         });
     });
 

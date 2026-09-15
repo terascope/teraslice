@@ -1,0 +1,107 @@
+# Default project name for standalone `docker compose up`. ts-scripts overrides
+# it with COMPOSE_PROJECT_NAME, which takes precedence over this key.
+name: ceph
+
+# A single-node Ceph cluster (1 mon, 1 mgr, 1 OSD, 1 RGW) for local testing.
+# The OSD is a BlueStore store on a sparse file, so no loop devices, no
+# privileged containers, and nothing touching the host's disks.
+#
+# Nothing here pins an address or a subnet: each daemon reads its own address at
+# runtime, so docker allocates whatever range is free and this stack cannot
+# collide with an existing network. See the note at the top of scripts/mon.sh.
+#
+# Under `ts-scripts test` the .env file next to this one is GENERATED from
+# packages/scripts/src/helpers/config.ts -- see ensureCeph() in
+# src/helpers/test-runner/services.ts. Edits to it are overwritten on every run.
+# Standalone: `cp .env.example .env` first.
+
+x-ceph: &ceph
+  image: ${CEPH_IMAGE:-quay.io/ceph/ceph:v19.2.6}
+  env_file: .env
+  volumes:
+    - ./scripts:/scripts:ro
+    - ceph-etc:/etc/ceph
+    - ceph-lib:/var/lib/ceph
+  networks: [ceph]
+  # Ceph daemons want a decent number of threads/fds.
+  ulimits:
+    nofile: 65536
+    nproc: 65536
+
+services:
+  # Also creates the cluster on first run: fsid, ceph.conf, keyrings, monmap.
+  mon:
+    <<: *ceph
+    hostname: ceph-mon
+    command: ["bash", "/scripts/mon.sh"]
+    healthcheck:
+      test: ["CMD", "ceph", "--connect-timeout", "5", "quorum_status"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+      start_period: 10s
+    restart: unless-stopped
+
+  mgr:
+    <<: *ceph
+    hostname: ceph-mgr
+    command: ["bash", "/scripts/mgr.sh"]
+    depends_on:
+      mon:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Provisions its own BlueStore store on first run. To add another OSD, copy
+  # this block, bump OSD_ID, and raise OSD_COUNT in the env file.
+  osd0:
+    <<: *ceph
+    hostname: ceph-osd0
+    command: ["bash", "/scripts/osd.sh"]
+    environment:
+      OSD_ID: 0
+    depends_on:
+      mon:
+        condition: service_healthy
+    restart: unless-stopped
+
+  rgw:
+    <<: *ceph
+    hostname: ceph-rgw
+    command: ["bash", "/scripts/rgw.sh"]
+    ports:
+      # Same port inside and out, so RGW never hands back an unreachable URL.
+      - "${RGW_PORT:-8000}:${RGW_PORT:-8000}"
+    depends_on:
+      osd0: {condition: service_started}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:${RGW_PORT:-8000}/"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 20s
+    restart: unless-stopped
+
+  # ---- one-shot: creates the S3 user. Its exit 0 is the readiness signal ----
+  setup:
+    <<: *ceph
+    command: ["bash", "/scripts/setup.sh"]
+    depends_on:
+      rgw:
+        condition: service_healthy
+    restart: "no"
+
+  # ---- opt-in: `docker compose run --rm toolbox` for a ceph/radosgw-admin shell
+  toolbox:
+    <<: *ceph
+    profiles: [tools]
+    command: ["bash"]
+    stdin_open: true
+    tty: true
+    restart: "no"
+
+volumes:
+  ceph-etc:
+  ceph-lib:
+
+networks:
+  ceph:

@@ -92,6 +92,11 @@ const configSchema: Terafoundation.Schema<any> = {
         format: Boolean,
         env: 'TEST_MINIO'
     },
+    TEST_CEPH: {
+        default: false,
+        format: Boolean,
+        env: 'TEST_CEPH'
+    },
     TEST_RESTRAINED_OPENSEARCH: {
         default: false,
         format: Boolean,
@@ -398,6 +403,79 @@ const configSchema: Terafoundation.Schema<any> = {
         env: 'K8S_VERSION'
     },
 
+    // Ceph config
+    // Drives the generated env file for packages/scripts/docker/ceph -- see
+    // ensureCeph() in test-runner/services.ts. The container-side scripts read
+    // these through compose's `env_file:`, so this is the only place to set
+    // them; exporting a var in the shell does not reach the containers.
+    // There is no subnet or monitor address here on purpose: every daemon reads
+    // its own address at runtime, so docker allocates a free range itself.
+    CEPH_ACCESS_KEY: {
+        doc: 'S3 access key for the Ceph RGW test user. A throwaway credential '
+            + 'for a disposable local cluster, not a secret.',
+        default: 'cephtestaccesskey',
+        format: String,
+        env: 'CEPH_ACCESS_KEY'
+    },
+    CEPH_DOCKER_IMAGE: {
+        default: 'quay.io/ceph/ceph',
+        format: String,
+        env: 'CEPH_DOCKER_IMAGE'
+    },
+    CEPH_HOST: {
+        default: undefined,
+        format: String,
+    },
+    CEPH_HOSTNAME: {
+        default: undefined,
+        format: String,
+    },
+    CEPH_NAME: {
+        default: 'ceph',
+        format: String,
+        env: 'CEPH_NAME'
+    },
+    CEPH_OSD_COUNT: {
+        doc: 'Raising this also requires adding matching osd1, osd2... service '
+            + 'blocks to docker-compose.yml; compose cannot template them.',
+        default: 1,
+        format: Number,
+        env: 'CEPH_OSD_COUNT'
+    },
+    CEPH_OSD_SIZE: {
+        doc: 'Size of each OSD\'s BlueStore file. Sparse, so it costs nothing '
+            + 'until written to.',
+        default: '10G',
+        format: String,
+        env: 'CEPH_OSD_SIZE'
+    },
+    CEPH_PROTOCOL: {
+        default: undefined,
+        format: ['http', 'https'],
+    },
+    CEPH_PORT: {
+        // Set imperatively below -- it is used to compute CEPH_HOST.
+        default: undefined,
+        format: Number,
+    },
+    CEPH_SECRET_KEY: {
+        doc: 'S3 secret key for the Ceph RGW test user. A throwaway credential '
+            + 'for a disposable local cluster, not a secret.',
+        default: 'cephtestsecretkey',
+        format: String,
+        env: 'CEPH_SECRET_KEY'
+    },
+    CEPH_USER: {
+        default: 'test',
+        format: String,
+        env: 'CEPH_USER'
+    },
+    CEPH_VERSION: {
+        default: 'v19.2.6',
+        format: String,
+        env: 'CEPH_VERSION'
+    },
+
     // Minio config
     ENCRYPT_MINIO: {
         default: undefined,
@@ -686,6 +764,13 @@ config.MINIO_PORT = Number(process.env.MINIO_PORT) || 49000;
 config.MINIO_PROTOCOL = config.ENCRYPT_MINIO ? 'https' : 'http';
 config.MINIO_HOST = `${config.MINIO_PROTOCOL}://${config.MINIO_HOSTNAME}:${config.MINIO_PORT}`;
 
+config.CEPH_HOSTNAME = process.env.CEPH_HOSTNAME || config.HOST_IP;
+config.CEPH_PORT = Number(process.env.CEPH_PORT) || 49500;
+// http only for now -- RGW's beast frontend can do TLS, but it needs a cert
+// minted for the hostname clients connect on. MinIO still covers that target.
+config.CEPH_PROTOCOL = 'http';
+config.CEPH_HOST = `${config.CEPH_PROTOCOL}://${config.CEPH_HOSTNAME}:${config.CEPH_PORT}`;
+
 config.RABBITMQ_PORT = Number(process.env.RABBITMQ_PORT) || 45672;
 config.RABBITMQ_MANAGEMENT_PORT = Number(process.env.RABBITMQ_MANAGEMENT_PORT) || 55672;
 config.RABBITMQ_HOSTNAME = process.env.RABBITMQ_HOSTNAME || config.HOST_IP;
@@ -744,6 +829,7 @@ config.ENV_SERVICES = [
     testOpensearch || testTeraslice ? Service.Opensearch : undefined,
     toBoolean(process.env.TEST_KAFKA) ? Service.Kafka : undefined,
     toBoolean(process.env.TEST_MINIO) ? Service.Minio : undefined,
+    toBoolean(process.env.TEST_CEPH) ? Service.Ceph : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
     toBoolean(process.env.TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
     toBoolean(process.env.TEST_VALKEY) ? Service.Valkey : undefined,
