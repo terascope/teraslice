@@ -101,6 +101,7 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
         ASSET_STORAGE_CONNECTION: config.ASSET_STORAGE_CONNECTION,
         ASSET_STORAGE_CONNECTION_TYPE: config.ASSET_STORAGE_CONNECTION_TYPE,
         MINIO_HOST: config.MINIO_HOST,
+        CEPH_HOST: config.CEPH_HOST,
         CLUSTER_NAME: config.CLUSTER_NAME
     };
 
