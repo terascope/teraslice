@@ -430,8 +430,7 @@ const configSchema: Terafoundation.Schema<any> = {
         env: 'CEPH_NAME'
     },
     CEPH_OSD_COUNT: {
-        doc: 'Raising this also requires adding matching osd1, osd2... service '
-            + 'blocks to docker-compose.yml; compose cannot template them.',
+        doc: 'Number of OSDs in the Ceph test cluster.',
         default: 1,
         format: Number,
         env: 'CEPH_OSD_COUNT'

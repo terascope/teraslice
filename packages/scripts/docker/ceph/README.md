@@ -15,6 +15,12 @@ in this directory from `src/helpers/config.ts`, runs `up -d`, waits for the
 `setup` script to exit 0, and runs `down -v` on teardown. Tests read
 `CEPH_HOST`, `CEPH_ACCESS_KEY`, and `CEPH_SECRET_KEY` from the environment.
 
+It also generates `docker-compose.osds.yml`, an override holding an `osd1`,
+`osd2`... service per `CEPH_OSD_COUNT`, each cloned from the `osd0` block, and
+runs compose with both files. `CEPH_OSD_COUNT=1` (the default) deletes the
+override and runs the base file alone, so there is nothing to generate for the
+common case. Edit `osd0` to change what every OSD gets.
+
 **No bucket is pre-created.** The stack gives you an S3 user; every test makes
 whatever buckets it needs and cleans them up.
 
@@ -59,10 +65,15 @@ until you `down -v`.
 
 **Changing `OSD_COUNT` requires `down -v`.** `osd.sh` skips provisioning when it
 finds a `ready` marker, so going 3→1 on existing volumes leaves osd.1 and osd.2
-in the osdmap with no daemons behind them — degraded forever. Raising the count
-also means adding matching `osd1`, `osd2`... service blocks; compose can't
-template them, so the count is structural in the YAML. Each OSD provisions
-itself, so such a block is a copy of `osd0` with a different `OSD_ID`.
+in the osdmap with no daemons behind them — degraded forever. Under
+`ts-scripts test` that is covered: `ensureCeph()` runs `down -v` before every
+`up`.
+
+**The count is structural in the YAML.** `rgw.sh` blocks until `OSD_COUNT` OSDs
+are up, and compose can't template a service, so the service blocks have to
+exist. `ts-scripts test` generates them (see above); standalone, add matching
+`osd1`, `osd2`... blocks yourself. Each OSD provisions itself, so such a block
+is a copy of `osd0` with a different `OSD_ID` and `hostname`.
 
 **No `container_name:` keys.** Container names are globally unique in Docker, so
 hardcoding them would stop two stacks coexisting even under different project

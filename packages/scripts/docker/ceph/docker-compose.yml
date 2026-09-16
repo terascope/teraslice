@@ -47,8 +47,10 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # Provisions its own BlueStore store on first run. To add another OSD, copy
-  # this block, bump OSD_ID, and raise OSD_COUNT in the env file.
+  # Provisions its own BlueStore store on first run. Under `ts-scripts test`
+  # this block is the template CEPH_OSD_COUNT > 1 clones into osd1, osd2... in
+  # the generated docker-compose.osds.yml override. Standalone, copy it by
+  # hand, bump OSD_ID, and raise OSD_COUNT in the env file.
   osd0:
     <<: *ceph
     hostname: ceph-osd0
