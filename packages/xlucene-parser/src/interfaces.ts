@@ -354,6 +354,33 @@ export interface FunctionMethodsResults {
     sort?: t.AnyQuerySort;
 }
 
+/**
+ * What a function node produces when the query is translated to SQL.
+ *
+ * `query` is a boolean SQL expression, safe to inline into a larger one.
+*/
+export interface FunctionSQLResults {
+    query: string;
+    sort?: t.SQLSort;
+}
+
+/**
+ * The options a function node is given when emitting SQL.
+ *
+ * Everything engine-specific is reached through `dialect`, so a function describes WHAT it
+ * needs - a distance, a bounding box, a shape relation - and never how a particular engine
+ * spells it.
+*/
+export type FunctionSQLOptions
+    = {
+        logger: t.Logger;
+        type_config: t.xLuceneTypeConfig;
+        dialect: t.SQLDialect;
+        geo_sort_order?: t.SortOrder;
+        geo_sort_unit?: t.GeoDistanceUnit;
+    }
+    & Record<string, any>;
+
 export type FunctionElasticsearchOptions = t.XluceneTranslateQueryOptions;
 
 export interface FunctionMethods {
@@ -362,4 +389,12 @@ export interface FunctionMethods {
         field: string,
         options: FunctionElasticsearchOptions
     ): FunctionMethodsResults;
+    /**
+     * Optional because not every function has a SQL equivalent - `knn` has none, and a
+     * translator reports that as an unsupported query rather than emitting something wrong.
+    */
+    toSQLQuery?(
+        field: string,
+        options: FunctionSQLOptions
+    ): FunctionSQLResults;
 }

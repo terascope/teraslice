@@ -236,19 +236,39 @@ const geoPolygon: i.FunctionDefinition = {
             return { query };
         }
 
+        /**
+         * The relation as ONE spatial predicate, whatever the shape.
+         *
+         * The Elasticsearch emission has to take a polygon apart - shell in `filter`, every
+         * hole in `must_not`, a `should` per polygon of a multi-polygon - because
+         * `geo_polygon` knows nothing about holes. A spatial engine does, so a hole needs no
+         * special handling and neither does a multi-polygon.
+        */
+        function toSQLQuery(field: string, options: i.FunctionSQLOptions) {
+            const { dialect } = options;
+
+            return {
+                query: dialect.geoRelation(
+                    dialect.fieldRef(field), polygonShape, relation, targetIsGeoPoint
+                )
+            };
+        }
+
         if (targetIsGeoPoint) {
             if (relation === GeoShapeRelation.Contains) {
                 throw new Error(`Cannot query against geo-points with relation set to "${GeoShapeRelation.Contains}"`);
             }
             return {
                 match: geoRelationFP(polygonShape, relation),
-                toElasticsearchQuery: esPolyToPointQuery
+                toElasticsearchQuery: esPolyToPointQuery,
+                toSQLQuery
             };
         }
 
         return {
             match: geoRelationFP(polygonShape, relation),
-            toElasticsearchQuery: esPolyToPolyQuery
+            toElasticsearchQuery: esPolyToPolyQuery,
+            toSQLQuery
         };
     }
 };
