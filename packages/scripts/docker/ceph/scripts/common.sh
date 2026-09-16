@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared helpers for the Ceph role scripts. Sourced, not executed.
+# Shared helpers for the Ceph role scripts.
 
 set -euo pipefail
 
@@ -10,8 +10,6 @@ log() { echo "[$(date -u '+%H:%M:%S')] [${ROLE:-ceph}] $*" >&2; }
 die() { log "FATAL: $*"; exit 1; }
 
 # This container's own IPv4 address on the docker network, read at runtime.
-# Nothing in this stack pins an address or a subnet -- see the note at the top
-# of mon.sh for why that matters.
 own_addr() {
   local addr
   addr=$(hostname -i | tr ' ' '\n' | grep -v ':' | head -1)

@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 # Creates the cluster on first run -- fsid, ceph.conf, keyrings, monmap, and the
 # monitor's data store -- and then runs the monitor.
-#
-# Bootstrapping lives here rather than in a container of its own so the monitor
-# can read its address off its own interface at runtime. That is the only reason
-# this stack ever pinned a subnet: a separate bootstrap container has no way to
-# know what address the monitor will end up with, so it had to be told one in
-# advance, which meant fixing the network too. Now nothing is pinned and docker
-# allocates whatever range is free, so the stack cannot collide with an existing
-# network.
 ROLE=mon
 source /scripts/common.sh
 

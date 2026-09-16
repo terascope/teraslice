@@ -182,8 +182,7 @@ function generateHelmValuesFromServices(
     const values = parseDocument(fs.readFileSync(helmfileValuesPath, 'utf8'));
 
     // Map services to versions used for the image tag.
-    // Ceph is absent on purpose: the k8s path for it is Rook, which is its own
-    // effort, so there is nothing in values.yaml to enable. TEST_CEPH under
+    // Ceph is absent on purpose until we support it in k8s. TEST_CEPH under
     // kubernetesV2 is rejected below rather than silently ignored.
     const versionMap: Record<Exclude<Service, Service.Ceph>, string> = {
         [Service.Opensearch]: config.OPENSEARCH_VERSION,

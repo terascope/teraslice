@@ -12,8 +12,8 @@ import { TerasliceHarness } from '../../teraslice-harness.js';
 import { config } from '../../config.js';
 
 const {
-    ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST,
-    MINIO_SECRET_KEY, TEST_PLATFORM, ENCRYPT_MINIO, ROOT_CERT_PATH
+    ASSET_STORAGE_CONNECTION_TYPE, CEPH_ACCESS_KEY, CEPH_HOST,
+    CEPH_SECRET_KEY, TEST_PLATFORM, ENCRYPT_CEPH, ROOT_CERT_PATH
 } = config;
 
 describe('assets', () => {
@@ -205,13 +205,15 @@ describe('s3 asset storage', () => {
         let assetId: string;
         let bucketName: string;
         const clientConfig = {
-            endpoint: MINIO_HOST,
-            accessKeyId: MINIO_ACCESS_KEY,
-            secretAccessKey: MINIO_SECRET_KEY,
+            endpoint: CEPH_HOST,
+            accessKeyId: CEPH_ACCESS_KEY,
+            secretAccessKey: CEPH_SECRET_KEY,
             forcePathStyle: true,
-            sslEnabled: ENCRYPT_MINIO === true,
-            region: 'test-region',
-            caCertificate: ENCRYPT_MINIO === true
+            sslEnabled: ENCRYPT_CEPH === true,
+            // RGW validates the region against its zonegroup, unlike MinIO which
+            // ignored it. Must match what teraslice itself uses, see setup-config.
+            region: 'us-east-1',
+            caCertificate: ENCRYPT_CEPH === true
                 ? fs.readFileSync(ROOT_CERT_PATH, 'utf8')
                 : ''
         };

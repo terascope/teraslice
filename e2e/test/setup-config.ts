@@ -7,8 +7,9 @@ const {
     NATIVE_WORKERS_PER_NODE, KAFKA_BROKER,
     TEST_HOST, TERASLICE_PORT, CLUSTER_NAME,
     HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
-    ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST,
-    ENCRYPT_MINIO, ROOT_CERT_PATH, FILE_LOGGING,
+    ASSET_STORAGE_CONNECTION_TYPE, CEPH_HOST,
+    CEPH_ACCESS_KEY, CEPH_SECRET_KEY,
+    ENCRYPT_CEPH, ROOT_CERT_PATH, FILE_LOGGING,
     ENCRYPT_KAFKA, DEBUG_LOG_LEVEL, ENCRYPT_OPENSEARCH
 } = config;
 
@@ -44,9 +45,9 @@ const baseConfig = {
             },
             s3: {
                 default: {
-                    endpoint: MINIO_HOST,
-                    accessKeyId: 'minioadmin',
-                    secretAccessKey: 'minioadmin',
+                    endpoint: CEPH_HOST,
+                    accessKeyId: CEPH_ACCESS_KEY,
+                    secretAccessKey: CEPH_SECRET_KEY,
                     forcePathStyle: true,
                     sslEnabled: false,
                     region: 'us-east-1',
@@ -108,7 +109,7 @@ export default async function setupTerasliceConfig() {
 async function writeMasterConfig() {
     const masterConfig = cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
-    if (ENCRYPT_MINIO === true) {
+    if (ENCRYPT_CEPH === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         masterConfig.terafoundation.connectors.s3.default.sslEnabled = true;
         masterConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
@@ -136,7 +137,7 @@ async function writeMasterConfig() {
 async function writeWorkerConfig() {
     const workerConfig = cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
-    if (ENCRYPT_MINIO === true) {
+    if (ENCRYPT_CEPH === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
         workerConfig.terafoundation.connectors.s3.default.sslEnabled = true;
         workerConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;

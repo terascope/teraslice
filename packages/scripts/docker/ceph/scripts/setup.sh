@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-# Creates the S3 user. This is the only setup step that has to run inside the
-# cluster: radosgw-admin goes through ceph.conf and the admin keyring, not the
-# S3 API, so it can't be done from the host. Buckets are deliberately not
-# created here -- every test makes its own, and this script exiting 0 is what
-# checkCeph() in services.ts waits for.
+# Creates the S3 user.
+
 ROLE=setup
 source /scripts/common.sh
 
@@ -11,8 +8,7 @@ S3_USER=${S3_USER:-test}
 S3_ACCESS_KEY=${S3_ACCESS_KEY:?}
 S3_SECRET_KEY=${S3_SECRET_KEY:?}
 RGW_PORT=${RGW_PORT:-8000}
-# The compose service name, not a container_name -- see the note in
-# docker-compose.yml about why the container_name keys were removed.
+# The compose service name, not a container_name
 export S3_ENDPOINT=${S3_ENDPOINT:-http://rgw:${RGW_PORT}}
 export S3_ACCESS_KEY S3_SECRET_KEY
 
@@ -51,7 +47,6 @@ cat >&2 <<EOF
     Access key            ${S3_ACCESS_KEY}
     Secret key            ${S3_SECRET_KEY}
 
-  No bucket is pre-created -- create whatever you need.
   Use path-style addressing; virtual-host style needs DNS wildcards.
   ------------------------------------------------------------------
 

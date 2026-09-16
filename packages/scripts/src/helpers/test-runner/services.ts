@@ -37,11 +37,11 @@ const opensearchConfigPath = path.join(getRootDir(), '/.ts-test-config/opensearc
 // Resolve relative to this compiled file so it works regardless of whatever
 // repo uses scripts.
 // dist/src/helpers/test-runner/services.js -> up 4 levels --> scripts package root
-const scriptsPackageDir = path.resolve(
+const scriptsDir = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..'
 );
 
-const cephDir = path.join(scriptsPackageDir, 'docker', 'ceph');
+const cephDir = path.join(scriptsDir, 'docker', 'ceph');
 const cephComposeFile = path.join(cephDir, 'docker-compose.yml');
 // Deliberately next to the compose file: compose picks up `<project dir>/.env`
 // automatically for `${VAR}` interpolation, and the `env_file: .env` on the
@@ -50,12 +50,8 @@ const cephComposeFile = path.join(cephDir, 'docker-compose.yml');
 const cephEnvFile = path.join(cephDir, '.env');
 const cephProjectName = `${config.TEST_NAMESPACE}_${config.CEPH_NAME}`;
 
-/**
- * Everything except Ceph, which is a compose stack rather than a single
- * `docker run` and so has no entry in `services` below. Spelling that out in
- * the type means the compiler catches any new call site that assumes otherwise,
- * instead of it blowing up at runtime on an undefined container name.
- */
+// Everything except Ceph, which is a compose stack rather than a single
+// `docker run` and so has no entry in `services` below.
 type DockerService = Exclude<Service, Service.Ceph>;
 
 const services: Readonly<Record<DockerService, Readonly<DockerRunOptions>>> = {
@@ -201,7 +197,7 @@ export function startServiceLogging(launchServices: Service[], logsDir: string):
 
     for (const service of launchServices) {
         // Ceph is a compose stack, not a single container, so it has no entry in
-        // `services` and needs `compose logs` to cover all eight of them.
+        // `services` and needs `compose logs` to cover all containers.
         if (service === Service.Ceph) {
             const logFilePath = path.join(logsDir, `${service}.log`);
             signale.info(`Piping ${cephProjectName} docker compose logs to ${logFilePath}`);
@@ -422,17 +418,13 @@ export async function ensureMinio(options: TestOptions): Promise<() => void> {
 }
 
 /**
- * Ceph is the one service that isn't a single `docker run`: it is a five
- * container compose stack whose ordering (`service_healthy`,
- * `service_completed_successfully`) is the whole reason it works. So it is
+ * Ceph is the one service that isn't a single `docker run`: it is a multi
+ * container compose stack whose ordering is necessary for it to work. So it is
  * driven through docker compose rather than added to the `services` record
  * above, and every `services[service]` call site skips it.
  */
 function getCephCompose(): Compose {
     return new Compose(cephComposeFile, {
-        // `--project-name` is a global flag that has to precede the subcommand,
-        // but Compose#runCmd appends options after it, so the env var is the
-        // only way to set the project name from here.
         env: { COMPOSE_PROJECT_NAME: cephProjectName }
     });
 }
@@ -476,7 +468,6 @@ export async function ensureCeph(options: TestOptions): Promise<() => Promise<vo
 
     const compose = getCephCompose();
 
-    // Compose refuses to parse the file at all without this, `down` included.
     await writeCephEnv();
 
     // A crashed previous run can leave volumes holding a cluster built from
@@ -499,18 +490,11 @@ export async function ensureCeph(options: TestOptions): Promise<() => Promise<vo
         }
     };
 
-    // `up -d` still blocks on the depends_on chain, so this returns with the
-    // cluster healthy and RGW serving -- everything except `setup`, which
-    // nothing depends on. checkCeph closes that gap.
     await compose.up({});
 
     try {
         await checkCeph(options, startTime);
     } catch (err) {
-        // The caller only gets the teardown on success, so without this a
-        // failed startup orphans all five containers and both volumes while
-        // every other service still stops. Logs are already being piped to
-        // the logs dir, so there is nothing to keep the stack alive for.
         await teardown();
         throw err;
     }
@@ -602,7 +586,7 @@ async function ensureTerasliceWithDevPackages(
 
     const assetE2eImage = 'teraslice-asset-e2e';
     const assetE2eTag = 'local';
-    const dockerfile = path.join(scriptsPackageDir, 'docker', 'asset-e2e', 'Dockerfile');
+    const dockerfile = path.join(scriptsDir, 'docker', 'asset-e2e', 'Dockerfile');
 
     signale.pending(`Building asset e2e image from ${baseImage}...`);
     await dockerBuild(
@@ -611,7 +595,7 @@ async function ensureTerasliceWithDevPackages(
         undefined,
         [`TERASLICE_IMAGE=${baseImage}`],
         dockerfile,
-        scriptsPackageDir
+        scriptsDir
     );
     signale.success(`Built asset e2e image: ${assetE2eImage}:${assetE2eTag}`);
 
@@ -675,6 +659,21 @@ function writeTerasliceConfig(launchServices: Service[], options: TestOptions): 
                 secretAccessKey: config.MINIO_SECRET_KEY,
                 forcePathStyle: true,
                 sslEnabled: false,
+                region: 'us-east-1',
+            }
+        };
+    }
+
+    if (launchServices.includes(Service.Ceph)) {
+        connectors.s3 = {
+            default: {
+                endpoint: config.CEPH_HOST,
+                accessKeyId: config.CEPH_ACCESS_KEY,
+                secretAccessKey: config.CEPH_SECRET_KEY,
+                forcePathStyle: true,
+                sslEnabled: false,
+                // RGW validates this against its zonegroup, so it is not free
+                // form the way it was under MinIO.
                 region: 'us-east-1',
             }
         };
@@ -982,7 +981,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
 }
 
 /**
- * Read the `setup` one-shot's exit code, or undefined while it is still running.
+ * Read the `setup` script's exit code, or undefined while it is still running.
  *
  * `--format=json` prints either a JSON array or one object per line depending
  * on the compose version, so both are handled.
@@ -1011,22 +1010,10 @@ async function getCephSetupExitCode(compose: Compose): Promise<number | undefine
 }
 
 /**
- * Wait for the `setup` one-shot, not for the containers.
- *
- * `up -d` already blocks on the depends_on chain, so it returns with the
- * cluster healthy and RGW serving. The only thing still outstanding is
- * `setup`, which creates the S3 user the tests authenticate as -- it has no
- * healthcheck and nothing depends on it, so `up --wait` only requires that it
- * *started*. And `compose wait setup` errors with "no containers for project"
- * once the container has exited, so it only works if you happen to call it
- * while setup is still running.
+ * Wait for the `setup` script, not for the containers.
  *
  * `compose ps -a` is timing-independent: the exited container stays listed.
  * Pair it with an anonymous `GET /`, which confirms RGW is actually serving
- * and needs no credentials, so no request signing.
- *
- * No bucket is involved. Every test creates the buckets it needs, so there is
- * nothing pre-created to probe for.
  */
 async function checkCeph(options: TestOptions, startTime: number): Promise<void> {
     const host = config.CEPH_HOST;
@@ -1057,7 +1044,7 @@ async function checkCeph(options: TestOptions, startTime: number): Promise<void>
             if (exitCode == null) return false;
 
             if (exitCode !== 0) {
-                // A one-shot that failed will never succeed on a later poll, so
+                // A one-shot script that failed will never succeed on a later poll, so
                 // fail now instead of burning the whole timeout waiting for it.
                 throw new TSError(
                     `Ceph setup container exited with code ${exitCode}, check the compose logs`

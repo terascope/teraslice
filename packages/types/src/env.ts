@@ -32,6 +32,7 @@ export interface TestEnv {
     DOCKER_IMAGE_LIST_PATH?: string;
     DOCKER_IMAGES_PATH?: string;
     DOCKER_NETWORK_NAME?: string;
+    ENCRYPT_CEPH?: boolean;
     ENCRYPT_KAFKA?: boolean;
     ENCRYPT_MINIO?: boolean;
     ENCRYPT_OPENSEARCH?: boolean;

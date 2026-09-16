@@ -7,27 +7,28 @@ disks.
 
 ## Under `ts-scripts test`
 
-The `opensearch` suite runs on Ceph. Any other package opts in by setting
-`TEST_CEPH='true'` in its `test` script, the same way packages opt into
-OpenSearch — at 1.3GB, only the packages that need it should pay for it.
+The `opensearch` suite runs Ceph. Any other package opts in by setting
+`TEST_CEPH='true'` in its `test` script.
 
 `ensureCeph()` (`src/helpers/test-runner/services.ts`) generates the `.env` file
 in this directory from `src/helpers/config.ts`, runs `up -d`, waits for the
-`setup` one-shot to exit 0, and runs `down -v` on teardown. Tests read
+`setup` script to exit 0, and runs `down -v` on teardown. Tests read
 `CEPH_HOST`, `CEPH_ACCESS_KEY`, and `CEPH_SECRET_KEY` from the environment.
 
 **No bucket is pre-created.** The stack gives you an S3 user; every test makes
 whatever buckets it needs and cleans them up.
 
-Every `CEPH_*` key in `config.ts` is overridable by an env var of the same name.
+Every `CEPH_*` key in `config.ts` is overridable by an env var of the same name,
+except `CEPH_HOST` and `CEPH_PROTOCOL`, which are derived — set `CEPH_HOSTNAME`
+and `CEPH_PORT` instead.
 
 ## Standalone
 
 ```sh
 cp .env.example .env
-docker compose up -d          # ~27s cold on a warm image, ~12s if volumes survive
+docker compose up -d
 docker compose run --rm toolbox   # a shell with ceph / radosgw-admin / rados
-docker compose down -v        # -v matters; see below
+docker compose down -v
 ```
 
 Use **path-style** S3 addressing — virtual-host style needs wildcard DNS.
@@ -40,27 +41,20 @@ every other daemon finds the monitor through that shared `ceph.conf`. Docker is
 therefore free to allocate whatever range is available, and this stack can never
 collide with an existing network.
 
-That is also why bootstrapping lives inside `mon.sh` rather than in a container
-of its own: a separate bootstrap container cannot know what address the monitor
-will get, so it would have to be told one in advance — which is what forced the
-pinned subnet in the first place.
-
 If docker hands out a different address on a later `up`, `mon.sh` notices that
 the stored monmap disagrees, rewrites it in place (preserving the fsid and map
-epoch) and carries on. Verified by squatting on the old subnet and bringing the
-cluster back up: same fsid, `HEALTH_OK`, stored objects intact.
+epoch) and carries on.
 
 The one case this does not cover is the docker daemon reassigning addresses
 underneath containers that keep running — the monitor recovers, but an OSD that
 was never restarted will still be pointed at the old address. Restart the stack.
 
-## Things that will bite you
+## Things to be aware of when using this docker compose
 
 **`down` without `-v` keeps the cluster.** The named volumes hold the fsid,
 keyrings, monmap, and OSD stores, and every script is idempotent, so a plain
-`down`/`up` deliberately reuses the existing cluster. That is what makes
-restarts fast (~12s vs ~27s), and it also means config that only applies at
-creation time — `osd_pool_default_size`, and so `OSD_COUNT` — will not change
+`down`/`up` deliberately reuses the existing cluster. A config that gets applied at
+creation time, like `osd_pool_default_size` set by `OSD_COUNT`, will not change
 until you `down -v`.
 
 **Changing `OSD_COUNT` requires `down -v`.** `osd.sh` skips provisioning when it
@@ -75,11 +69,20 @@ hardcoding them would stop two stacks coexisting even under different project
 names. Containers are `<project>-<service>-1`, and in-network addressing uses
 the compose service name (`rgw`, `mon`).
 
-**Shell env does not reach the containers.** Compose's precedence is
-`environment:` > shell env (for `${VAR}` interpolation only) > `env_file`. The
-scripts inside the containers read their values from `env_file`, so exporting
-`RGW_PORT` changes what compose publishes but *not* what `rgw.sh` binds to.
-Change the `.env` file, not your shell.
+**Export `CEPH_*`, never the container-side names.** Compose's precedence is
+`environment:` > shell env (for `${VAR}` interpolation only) > `env_file`, and
+the scripts inside the containers read their values from `env_file` — so a
+shell export reaches interpolation but not the containers.
+
+Under `ts-scripts test` that is already handled: the `CEPH_*` vars go through
+`config.ts`, which writes both sides of the `.env` file, so `CEPH_PORT=9000
+ts-scripts test` publishes *and* binds 9000. Exporting the container-side name
+is what breaks — `.env` is regenerated on every run, so `RGW_PORT=9000` is
+overwritten in the file while your shell value still wins for interpolation,
+publishing one port while RGW listens on another.
+
+Standalone, there is no generator, so change the `.env` file rather than your
+shell.
 
 **Readiness is `setup` exiting, not the containers starting.** `up -d` already
 blocks on the `depends_on` chain, so it returns with the cluster healthy and RGW
@@ -89,7 +92,7 @@ it, so `--wait` only requires that it started — and `docker compose wait setup
 errors with "no containers for project" once that container has exited. Use
 `docker compose ps -a setup` instead, which keeps listing it after it exits.
 
-## Not yet
+## Planned Improvements
 
 TLS on the RGW endpoint. `rgw.sh` starts a plain beast frontend; beast supports
 `ssl_port=`/`ssl_certificate=`, but it needs a cert minted for the hostname

@@ -404,12 +404,6 @@ const configSchema: Terafoundation.Schema<any> = {
     },
 
     // Ceph config
-    // Drives the generated env file for packages/scripts/docker/ceph -- see
-    // ensureCeph() in test-runner/services.ts. The container-side scripts read
-    // these through compose's `env_file:`, so this is the only place to set
-    // them; exporting a var in the shell does not reach the containers.
-    // There is no subnet or monitor address here on purpose: every daemon reads
-    // its own address at runtime, so docker allocates a free range itself.
     CEPH_ACCESS_KEY: {
         doc: 'S3 access key for the Ceph RGW test user. A throwaway credential '
             + 'for a disposable local cluster, not a secret.',
@@ -454,7 +448,6 @@ const configSchema: Terafoundation.Schema<any> = {
         format: ['http', 'https'],
     },
     CEPH_PORT: {
-        // Set imperatively below -- it is used to compute CEPH_HOST.
         default: undefined,
         format: Number,
     },
@@ -766,8 +759,7 @@ config.MINIO_HOST = `${config.MINIO_PROTOCOL}://${config.MINIO_HOSTNAME}:${confi
 
 config.CEPH_HOSTNAME = process.env.CEPH_HOSTNAME || config.HOST_IP;
 config.CEPH_PORT = Number(process.env.CEPH_PORT) || 49500;
-// http only for now -- RGW's beast frontend can do TLS, but it needs a cert
-// minted for the hostname clients connect on. MinIO still covers that target.
+// http only for now -- TLS will be added in the future
 config.CEPH_PROTOCOL = 'http';
 config.CEPH_HOST = `${config.CEPH_PROTOCOL}://${config.CEPH_HOSTNAME}:${config.CEPH_PORT}`;
 
