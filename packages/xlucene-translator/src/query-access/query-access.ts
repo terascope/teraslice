@@ -15,8 +15,15 @@ import {
     xLuceneTypeConfig, xLuceneFieldType, ClientParams,
     ElasticsearchDistribution,
 } from '@terascope/types';
-import { CachedTranslator } from '../translator/index.js';
-import { RestrictSearchQueryOptions, QueryAccessConfig } from './interfaces.js';
+import {
+    CachedTranslator, getSQLDialect, buildSQLStatement,
+    type SQLQueryParts
+} from '../translator/index.js';
+import { getProjectablePaths, getReadableFields } from './source-fields.js';
+import {
+    RestrictSearchQueryOptions, QueryAccessConfig,
+    RestrictSQLQueryOptions
+} from './interfaces.js';
 
 export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
     readonly excludes: (keyof T)[];
@@ -280,6 +287,107 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
         }
 
         return searchParams;
+    }
+
+    /**
+     * Converts a restricted xlucene query to a complete SQL statement
+     *
+     * The SQL counterpart of {@link QueryAccess.restrictSearchQuery}: that one returns search
+     * params a client can be handed as-is, and this returns a statement a client can be handed
+     * as-is. **Neither asks the caller to assemble anything**, and for the same reason - the
+     * part a caller forgets to assemble is the field restriction.
+     *
+     * ```ts
+     * const sql = await access.restrictSQLQuery('bar:hello', {
+     *     params: { table: 'events', size: 100 }
+     * });
+     * // SELECT * FROM "events" WHERE ("bar" = 'hello') LIMIT 100
+     * await connection.run(sql);
+     * ```
+     *
+     * `params.table` is quoted as an identifier; `params.relation` is used verbatim, for a
+     * source no name can reach - `read_parquet([...])`, a sub-select, a join. One of the two
+     * is required.
+     *
+     * A caller composing their own statement - a frame that already knows its relation - wants
+     * {@link QueryAccess.restrictSQLParts} instead, and then owes the restriction itself.
+     *
+     * @returns a complete SQL statement
+     */
+    async restrictSQLQuery(
+        query: string,
+        opts?: RestrictSQLQueryOptions,
+        _overrideParsedQuery?: Node
+    ): Promise<string> {
+        const parts = await this.restrictSQLParts(query, opts, _overrideParsedQuery);
+        const dialect = getSQLDialect(opts?.dialect);
+
+        return buildSQLStatement(parts, opts?.params ?? {}, dialect);
+    }
+
+    /**
+     * The pieces of a restricted SQL query, for a caller that builds its own statement
+     *
+     * Everything {@link QueryAccess.restrictSQLQuery} assembles, unassembled: the `WHERE`
+     * expression, the `SELECT` list with the field restrictions applied, the ordering, and the
+     * readable columns.
+     *
+     * **A caller here owes the restriction.** Using `where` and ignoring `select` returns every
+     * excluded column - which is why the method that returns a finished statement is the one
+     * with the ordinary name.
+     *
+     * @returns the parts of a restricted SQL query
+     */
+    async restrictSQLParts(
+        query: string,
+        opts?: RestrictSQLQueryOptions,
+        _overrideParsedQuery?: Node
+    ): Promise<SQLQueryParts> {
+        const { params = {}, variables: optVariables, ...translateOptions } = opts ?? {};
+
+        const variables = Object.assign({}, this.variables, optVariables ?? {});
+
+        const parser = this._restrict(query, variables, _overrideParsedQuery);
+
+        await pImmediate();
+
+        const translator = this._translator.make(parser, {
+            type_config: this.parsedTypeConfig,
+            default_geo_field: this.defaultGeoField,
+            default_geo_sort_order: this.defaultGeoSortOrder,
+            default_geo_sort_unit: this.defaultGeoSortUnit,
+            variables,
+            filterNilVariables: this.filterNilVariables
+        });
+
+        const { query: where, sort } = translator.toSQL(translateOptions);
+
+        const { includes, excludes } = this.restrictSourceFields(
+            params.includes as (keyof T)[] | undefined,
+            params.excludes as (keyof T)[] | undefined
+        );
+
+        const columns = getReadableFields(
+            this.typeConfig,
+            includes as string[] | undefined,
+            excludes as string[] | undefined
+        );
+
+        // no source filtering at all is `*`, the same "everything the document has" that
+        // Elasticsearch returns when neither list is sent
+        const unrestricted = !includes?.length && !excludes?.length;
+        const dialect = getSQLDialect(translateOptions.dialect);
+
+        return {
+            select: unrestricted
+                ? '*'
+                : dialect.projection(columns, getProjectablePaths(this.typeConfig)),
+            where,
+            ...(sort && { sort }),
+            columns,
+            includes: includes as string[] | undefined,
+            excludes: excludes as string[] | undefined,
+        };
     }
 
     /**

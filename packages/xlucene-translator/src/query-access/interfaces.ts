@@ -1,6 +1,7 @@
 import {
     SortOrder, ElasticsearchDSLOptions, xLuceneTypeConfig,
     xLuceneVariables, GeoDistanceUnit, ClientParams,
+    xLuceneSQLOptions, SQLSearchParams,
 } from '@terascope/types';
 
 export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
@@ -15,6 +16,17 @@ export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
 
 export interface RestrictOptions {
     variables?: xLuceneVariables;
+}
+
+export interface RestrictSQLQueryOptions extends xLuceneSQLOptions {
+    variables?: xLuceneVariables;
+    /**
+     * Everything the statement needs besides the query - the table, the row limit, the
+     * offset, extra ordering, and the field restrictions.
+     *
+     * The SQL counterpart of {@link RestrictSearchQueryOptions.params}.
+    */
+    params?: SQLSearchParams;
 }
 
 export interface QueryAccessConfig<T extends Record<string, any> = Record<string, any>> {

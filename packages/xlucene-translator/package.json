@@ -34,10 +34,12 @@
     "dependencies": {
         "@terascope/core-utils": "workspace:~",
         "@terascope/geo-utils": "workspace:~",
+        "@terascope/ip-utils": "workspace:~",
         "@terascope/types": "workspace:~",
         "xlucene-parser": "workspace:~"
     },
     "devDependencies": {
+        "@duckdb/node-api": "1.5.5-r.3",
         "@terascope/data-types": "workspace:~",
         "@terascope/opensearch-client": "workspace:~",
         "jest-extended": "~7.0.0"

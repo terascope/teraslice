@@ -1,6 +1,6 @@
 import {
     AnyQuery, GeoShapeRelation, ESGeoShapeType,
-    xLuceneVariables
+    xLuceneVariables, xLuceneFieldType
 } from '@terascope/types';
 import { parseGeoPoint, geoContainsFP } from '@terascope/geo-utils';
 import { getFieldValue, logger } from '../../utils.js';
@@ -45,9 +45,29 @@ const geoContainsPoint: i.FunctionDefinition = {
             return { query };
         }
 
+        /**
+         * Whether the shape in the column contains the point.
+         *
+         * `isPointColumn` decides how the column becomes a geometry; a `geo-point` column
+         * can only "contain" the same point, which is what an equality of geometries gives.
+        */
+        function toSQLQuery(field: string, options: i.FunctionSQLOptions) {
+            const { dialect, type_config: typeConfig } = options;
+            const fieldType = typeConfig?.[field];
+            const isPointColumn = fieldType === xLuceneFieldType.GeoPoint
+                || fieldType === xLuceneFieldType.Geo;
+
+            return {
+                query: dialect.geoContainsPoint(
+                    dialect.fieldRef(field), { lat, lon }, isPointColumn
+                )
+            };
+        }
+
         return {
             match: geoContainsFP({ lat, lon }),
-            toElasticsearchQuery
+            toElasticsearchQuery,
+            toSQLQuery
         };
     }
 };

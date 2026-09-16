@@ -1,5 +1,8 @@
-import { AnyQuery, xLuceneVariables } from '@terascope/types';
-import { parseGeoPoint, parseGeoDistance, geoPointWithinRangeFP } from '@terascope/geo-utils';
+import { AnyQuery, GeoDistanceUnit, xLuceneVariables } from '@terascope/types';
+import {
+    parseGeoPoint, parseGeoDistance, geoPointWithinRangeFP,
+    geoDistanceToMetres
+} from '@terascope/geo-utils';
 import * as i from '../../interfaces.js';
 import { getFieldValue, logger } from '../../utils.js';
 
@@ -71,9 +74,37 @@ const geoDistance: i.FunctionDefinition = {
             };
         }
 
+        /**
+         * The same query as a SQL predicate, plus the distance expression to sort on.
+         *
+         * **A SQL engine measures in metres**, so the unit is resolved here rather than
+         * being handed down: `geoDistanceToMetres` uses turf's factors, the same ones
+         * `match` reaches through `makeGeoCircle`.
+         *
+         * This is also more accurate than `match` is, deliberately. `makeGeoCircle` builds a
+         * 64-sided polygon and tests point-in-polygon, which under-approximates the circle by
+         * about `r * (1 - cos(pi/64))` - ~1.2 km at 1000 km - while a distance test has no
+         * such band.
+        */
+        function toSQLQuery(field: string, options: i.FunctionSQLOptions) {
+            const { dialect } = options;
+            const unit = (paramUnit || options.geo_sort_unit || 'meters') as GeoDistanceUnit;
+            const fieldExpr = dialect.fieldRef(field);
+            const metres = geoDistanceToMetres(distance, unit);
+
+            return {
+                query: dialect.geoPointWithinDistance(fieldExpr, { lat, lon }, metres),
+                sort: {
+                    expression: dialect.geoPointDistance(fieldExpr, { lat, lon }),
+                    order: options.geo_sort_order ?? 'asc'
+                }
+            };
+        }
+
         return {
             match: geoPointWithinRangeFP({ lat, lon }, `${distance}${paramUnit}`),
-            toElasticsearchQuery
+            toElasticsearchQuery,
+            toSQLQuery
         };
     }
 };

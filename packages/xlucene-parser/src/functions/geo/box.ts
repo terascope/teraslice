@@ -48,9 +48,29 @@ const geoBox: i.FunctionDefinition = {
             return { query };
         }
 
+        /**
+         * A bounding box as arithmetic rather than as a spatial predicate, so it needs no
+         * spatial extension at all.
+         *
+         * `validateBoundingBox` has already rejected a box that would cross the antimeridian,
+         * so the box is axis-aligned and containment is two inclusive range checks - which is
+         * boundary-inclusive by construction, exactly as turf's `booleanPointInPolygon` is
+         * with its default `ignoreBoundary: false`.
+        */
+        function toSQLQuery(field: string, options: i.FunctionSQLOptions) {
+            const { dialect } = options;
+
+            return {
+                query: dialect.geoPointInBoundingBox(
+                    dialect.fieldRef(field), top_left, bottom_right
+                )
+            };
+        }
+
         return {
             match: inGeoBoundingBoxFP(top_left, bottom_right),
-            toElasticsearchQuery
+            toElasticsearchQuery,
+            toSQLQuery
         };
     }
 };
