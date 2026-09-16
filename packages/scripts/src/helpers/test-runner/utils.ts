@@ -13,7 +13,7 @@ import { getPackageManager } from '../package-manager.js';
 import config from '../config.js';
 import signale from '../signale.js';
 import {
-    TestEnv, KafkaTestEnv, MinioTestEnv, Service,
+    TestEnv, CephTestEnv, KafkaTestEnv, MinioTestEnv, Service,
     OpenSearchTestEnv, RabbitMQTestEnv, TerasliceServiceTestEnv,
     ValkeyTestEnv
 } from '@terascope/types';
@@ -101,6 +101,7 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
         ASSET_STORAGE_CONNECTION: config.ASSET_STORAGE_CONNECTION,
         ASSET_STORAGE_CONNECTION_TYPE: config.ASSET_STORAGE_CONNECTION_TYPE,
         MINIO_HOST: config.MINIO_HOST,
+        CEPH_HOST: config.CEPH_HOST,
         CLUSTER_NAME: config.CLUSTER_NAME
     };
 
@@ -119,6 +120,15 @@ export function getEnv(options: TestOptions, suite: string): TestEnv {
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
             MINIO_VERSION: config.MINIO_VERSION,
         } satisfies MinioTestEnv);
+    }
+
+    if (launchServices.includes(Service.Ceph)) {
+        Object.assign(env, {
+            CEPH_ACCESS_KEY: config.CEPH_ACCESS_KEY,
+            CEPH_HOST: config.CEPH_HOST,
+            CEPH_SECRET_KEY: config.CEPH_SECRET_KEY,
+            CEPH_VERSION: config.CEPH_VERSION,
+        } satisfies CephTestEnv);
     }
 
     if (launchServices.includes(Service.Kafka)) {

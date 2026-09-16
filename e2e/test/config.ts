@@ -32,6 +32,18 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         default: null,
         format: 'optional_string'
     },
+    CEPH_ACCESS_KEY: {
+        default: null,
+        format: 'optional_string'
+    },
+    CEPH_HOST: {
+        default: null,
+        format: 'optional_string'
+    },
+    CEPH_SECRET_KEY: {
+        default: null,
+        format: 'optional_string'
+    },
     CERT_PATH: {
         default: undefined,
         format: String
@@ -40,11 +52,11 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         default: undefined,
         format: logLevels
     },
-    ENCRYPT_KAFKA: {
+    ENCRYPT_CEPH: {
         default: null,
         format: 'optional_bool'
     },
-    ENCRYPT_MINIO: {
+    ENCRYPT_KAFKA: {
         default: null,
         format: 'optional_bool'
     },
@@ -79,18 +91,6 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
     KIND_CLUSTER: {
         default: undefined,
         format: String
-    },
-    MINIO_ACCESS_KEY: {
-        default: null,
-        format: 'optional_string'
-    },
-    MINIO_HOST: {
-        default: null,
-        format: 'optional_string'
-    },
-    MINIO_SECRET_KEY: {
-        default: null,
-        format: 'optional_string'
     },
     NODE_VERSION: {
         default: undefined,

@@ -5,6 +5,18 @@ export interface TestEnv {
     ASSET_STORAGE_CONNECTION_TYPE?: string;
     ASSETS_FROM_SOURCE?: string;
     ATTACH_JEST_DEBUGGER?: boolean;
+    CEPH_ACCESS_KEY?: string;
+    CEPH_DOCKER_IMAGE?: string;
+    CEPH_HOST?: string;
+    CEPH_HOSTNAME?: string;
+    CEPH_NAME?: string;
+    CEPH_OSD_COUNT?: number;
+    CEPH_OSD_SIZE?: string;
+    CEPH_PROTOCOL?: string;
+    CEPH_PORT?: number;
+    CEPH_SECRET_KEY?: string;
+    CEPH_USER?: string;
+    CEPH_VERSION?: string;
     CERT_PATH?: string;
     CI?: boolean;
     CI_COMMIT_REF_SLUG?: string;
@@ -20,6 +32,7 @@ export interface TestEnv {
     DOCKER_IMAGE_LIST_PATH?: string;
     DOCKER_IMAGES_PATH?: string;
     DOCKER_NETWORK_NAME?: string;
+    ENCRYPT_CEPH?: boolean;
     ENCRYPT_KAFKA?: boolean;
     ENCRYPT_MINIO?: boolean;
     ENCRYPT_OPENSEARCH?: boolean;
@@ -117,6 +130,7 @@ export interface TestEnv {
     TERASLICE_IMAGE?: string;
     TERASLICE_PORT?: number;
     TERASLICE_VERSION?: string;
+    TEST_CEPH?: boolean;
     TEST_INDEX_PREFIX?: string;
     TEST_TERASLICE?: boolean;
     TEST_KAFKA?: boolean;
@@ -159,6 +173,11 @@ export type MinioTestEnv = RequireKeys<
     'MINIO_HOST' | 'MINIO_VERSION' | 'MINIO_ACCESS_KEY' | 'MINIO_SECRET_KEY'
 >;
 
+export type CephTestEnv = RequireKeys<
+    TestEnv,
+    'CEPH_HOST' | 'CEPH_VERSION' | 'CEPH_ACCESS_KEY' | 'CEPH_SECRET_KEY'
+>;
+
 export type KafkaTestEnv = RequireKeys<
     TestEnv,
     'KAFKA_BROKER' | 'KAFKA_VERSION'
@@ -195,6 +214,10 @@ type ScriptsConfig = TestEnv & ScriptsConfigDefaults;
 export type ScriptsTestEnv = RequireKeys<
     ScriptsConfig,
     'ASSET_STORAGE_CONNECTION' | 'ASSET_STORAGE_CONNECTION_TYPE' | 'ATTACH_JEST_DEBUGGER'
+    | 'CEPH_ACCESS_KEY' | 'CEPH_DOCKER_IMAGE' | 'CEPH_HOST'
+    | 'CEPH_HOSTNAME' | 'CEPH_NAME' | 'CEPH_OSD_COUNT' | 'CEPH_OSD_SIZE'
+    | 'CEPH_PROTOCOL' | 'CEPH_PORT' | 'CEPH_SECRET_KEY' | 'CEPH_USER'
+    | 'CEPH_VERSION'
     | 'CERT_PATH' | 'CLUSTER_NAME' | 'CLUSTERING_TYPE' | 'TEST_PLATFORM'
     | 'DEFAULT_OPENSEARCH1_VERSION' | 'DEFAULT_OPENSEARCH2_VERSION'
     | 'DEFAULT_OPENSEARCH3_VERSION' | 'DEV_DOCKER_IMAGE' | 'DEV_TAG' | 'DOCKER_CACHE_PATH'
@@ -290,6 +313,7 @@ export type ValkeyTestEnv = RequireKeys<
 >;
 
 export enum Service {
+    Ceph = 'ceph',
     Kafka = 'kafka',
     Minio = 'minio',
     RabbitMQ = 'rabbitmq',

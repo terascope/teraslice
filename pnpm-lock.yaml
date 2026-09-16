@@ -1092,6 +1092,9 @@ importers:
       '@terascope/core-utils':
         specifier: workspace:~
         version: link:../core-utils
+      '@terascope/docker-compose-js':
+        specifier: workspace:~
+        version: link:../docker-compose-js
       execa:
         specifier: 'catalog:'
         version: 10.0.1

@@ -181,8 +181,10 @@ function generateHelmValuesFromServices(
     const helmfileValuesPath = path.join(getRootDir(), 'packages/scripts/helm/values.yaml');
     const values = parseDocument(fs.readFileSync(helmfileValuesPath, 'utf8'));
 
-    // Map services to versions used for the image tag
-    const versionMap: Record<Service, string> = {
+    // Map services to versions used for the image tag.
+    // Ceph is absent on purpose until we support it in k8s. TEST_CEPH under
+    // kubernetesV2 is rejected below rather than silently ignored.
+    const versionMap: Record<Exclude<Service, Service.Ceph>, string> = {
         [Service.Opensearch]: config.OPENSEARCH_VERSION,
         [Service.Kafka]: config.KAFKA_VERSION,
         [Service.Minio]: config.MINIO_VERSION,
@@ -202,6 +204,14 @@ function generateHelmValuesFromServices(
     // Iterate over each service we want to start and enable them in the
     // helmfile.
     config.ENV_SERVICES.forEach((service: Service) => {
+        if (service === Service.Ceph) {
+            throw new TSError(
+                'TEST_CEPH is not supported on kubernetesV2. Ceph in k8s will run '
+                + 'under Rook, which is not implemented yet; it is currently a '
+                + 'docker compose only test service.'
+            );
+        }
+
         // "serviceString" represents the literal service name string
         // in the "values.yaml"
         let serviceString: string = service;

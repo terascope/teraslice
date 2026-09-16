@@ -92,6 +92,11 @@ const configSchema: Terafoundation.Schema<any> = {
         format: Boolean,
         env: 'TEST_MINIO'
     },
+    TEST_CEPH: {
+        default: false,
+        format: Boolean,
+        env: 'TEST_CEPH'
+    },
     TEST_RESTRAINED_OPENSEARCH: {
         default: false,
         format: Boolean,
@@ -398,6 +403,71 @@ const configSchema: Terafoundation.Schema<any> = {
         env: 'K8S_VERSION'
     },
 
+    // Ceph config
+    CEPH_ACCESS_KEY: {
+        doc: 'S3 access key for the Ceph RGW test user. A throwaway credential '
+            + 'for a disposable local cluster, not a secret.',
+        default: 'cephtestaccesskey',
+        format: String,
+        env: 'CEPH_ACCESS_KEY'
+    },
+    CEPH_DOCKER_IMAGE: {
+        default: 'quay.io/ceph/ceph',
+        format: String,
+        env: 'CEPH_DOCKER_IMAGE'
+    },
+    CEPH_HOST: {
+        default: undefined,
+        format: String,
+    },
+    CEPH_HOSTNAME: {
+        default: undefined,
+        format: String,
+    },
+    CEPH_NAME: {
+        default: 'ceph',
+        format: String,
+        env: 'CEPH_NAME'
+    },
+    CEPH_OSD_COUNT: {
+        doc: 'Number of OSDs in the Ceph test cluster.',
+        default: 1,
+        format: Number,
+        env: 'CEPH_OSD_COUNT'
+    },
+    CEPH_OSD_SIZE: {
+        doc: 'Size of each OSD\'s BlueStore file. Sparse, so it costs nothing '
+            + 'until written to.',
+        default: '10G',
+        format: String,
+        env: 'CEPH_OSD_SIZE'
+    },
+    CEPH_PROTOCOL: {
+        default: undefined,
+        format: ['http', 'https'],
+    },
+    CEPH_PORT: {
+        default: undefined,
+        format: Number,
+    },
+    CEPH_SECRET_KEY: {
+        doc: 'S3 secret key for the Ceph RGW test user. A throwaway credential '
+            + 'for a disposable local cluster, not a secret.',
+        default: 'cephtestsecretkey',
+        format: String,
+        env: 'CEPH_SECRET_KEY'
+    },
+    CEPH_USER: {
+        default: 'test',
+        format: String,
+        env: 'CEPH_USER'
+    },
+    CEPH_VERSION: {
+        default: 'v19.2.6',
+        format: String,
+        env: 'CEPH_VERSION'
+    },
+
     // Minio config
     ENCRYPT_MINIO: {
         default: undefined,
@@ -686,6 +756,12 @@ config.MINIO_PORT = Number(process.env.MINIO_PORT) || 49000;
 config.MINIO_PROTOCOL = config.ENCRYPT_MINIO ? 'https' : 'http';
 config.MINIO_HOST = `${config.MINIO_PROTOCOL}://${config.MINIO_HOSTNAME}:${config.MINIO_PORT}`;
 
+config.CEPH_HOSTNAME = process.env.CEPH_HOSTNAME || config.HOST_IP;
+config.CEPH_PORT = Number(process.env.CEPH_PORT) || 49500;
+// http only for now -- TLS will be added in the future
+config.CEPH_PROTOCOL = 'http';
+config.CEPH_HOST = `${config.CEPH_PROTOCOL}://${config.CEPH_HOSTNAME}:${config.CEPH_PORT}`;
+
 config.RABBITMQ_PORT = Number(process.env.RABBITMQ_PORT) || 45672;
 config.RABBITMQ_MANAGEMENT_PORT = Number(process.env.RABBITMQ_MANAGEMENT_PORT) || 55672;
 config.RABBITMQ_HOSTNAME = process.env.RABBITMQ_HOSTNAME || config.HOST_IP;
@@ -744,6 +820,7 @@ config.ENV_SERVICES = [
     testOpensearch || testTeraslice ? Service.Opensearch : undefined,
     toBoolean(process.env.TEST_KAFKA) ? Service.Kafka : undefined,
     toBoolean(process.env.TEST_MINIO) ? Service.Minio : undefined,
+    toBoolean(process.env.TEST_CEPH) ? Service.Ceph : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
     toBoolean(process.env.TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
     toBoolean(process.env.TEST_VALKEY) ? Service.Valkey : undefined,

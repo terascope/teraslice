@@ -22,6 +22,12 @@ export default async () => {
     const teraslice = new TerasliceHarness();
     await teraslice.init();
 
+    // teardown() below runs `compose run`, so config dir must exist first.
+    await Promise.all([
+        fse.ensureDir(ASSETS_PATH),
+        fse.ensureDir(CONFIG_PATH),
+    ]);
+
     await teardown(teraslice.client);
     if (TEST_PLATFORM === 'native') {
         await teraslice.resetLogs();
@@ -29,18 +35,6 @@ export default async () => {
 
     process.stdout.write('\n');
     signale.time('global setup');
-
-    if (!fse.existsSync(CONFIG_PATH)) {
-        await fse.emptyDir(CONFIG_PATH);
-    }
-    if (!fse.existsSync(ASSETS_PATH)) {
-        await fse.emptyDir(ASSETS_PATH);
-    }
-
-    await Promise.all([
-        fse.ensureDir(ASSETS_PATH),
-        fse.ensureDir(CONFIG_PATH),
-    ]);
 
     // The teraslice container runs as non-root (uid 10001) and writes into these
     // bind-mounted dirs (assets, and the host-owned log file when file logging is on).

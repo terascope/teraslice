@@ -21,7 +21,7 @@ describe('images command', () => {
             expect(fileContents).toBeString();
             expect(fileContents).toContain(config.OPENSEARCH_DOCKER_IMAGE);
             expect(fileContents).toContain(config.KAFKA_DOCKER_IMAGE);
-            expect(fileContents).toContain(config.MINIO_DOCKER_IMAGE);
+            expect(fileContents).toContain(config.CEPH_DOCKER_IMAGE);
             expect(fileContents).toContain(config.KIND_DOCKER_IMAGE);
         });
     });

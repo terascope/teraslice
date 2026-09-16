@@ -43,7 +43,7 @@ export async function teardown(testClient?: Client) {
     await cleanupIndex(client, `${CLUSTER_NAME}_*`);
 
     if (fse.existsSync(CONFIG_PATH)) {
-        await fse.remove(CONFIG_PATH).catch((err) => errors.push(err));
+        await fse.emptyDir(CONFIG_PATH).catch((err) => errors.push(err));
     }
     if (fse.existsSync(ASSETS_PATH)) {
         const entries = await fse.readdir(ASSETS_PATH);

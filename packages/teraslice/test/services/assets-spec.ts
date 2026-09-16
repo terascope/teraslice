@@ -41,12 +41,12 @@ describe('Assets Service', () => {
         connectors: {
             s3: {
                 default: {
-                    endpoint: process.env.MINIO_HOST,
-                    accessKeyId: process.env.MINIO_ACCESS_KEY,
-                    secretAccessKey: process.env.MINIO_SECRET_KEY,
+                    endpoint: process.env.CEPH_HOST,
+                    accessKeyId: process.env.CEPH_ACCESS_KEY,
+                    secretAccessKey: process.env.CEPH_SECRET_KEY,
                     forcePathStyle: true,
                     sslEnabled: false,
-                    region: 'test-region'
+                    region: 'us-east-1'
                 },
             },
             'elasticsearch-next': {

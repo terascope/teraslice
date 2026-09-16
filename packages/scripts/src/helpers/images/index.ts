@@ -32,19 +32,19 @@ export async function createImageList(options: ImagesOptions): Promise<void> {
         list = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`;
     } else if (repo === 'file-assets-bundle') {
-        list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
+        list = `${config.CEPH_DOCKER_IMAGE}:${config.CEPH_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`;
     } else if (repo === 'standard-assets-bundle') {
         list = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`
             + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}`;
     } else if (repo === 'chaos-assets-bundle') {
-        list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}`;
+        list = `${config.CEPH_DOCKER_IMAGE}:${config.CEPH_VERSION}`;
     } else if (repo === 'teraslice-workspace') {
         list = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH1_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH2_VERSION}\n`
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH3_VERSION}\n`
             + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}\n`
-            + `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
+            + `${config.CEPH_DOCKER_IMAGE}:${config.CEPH_VERSION}\n`
             + await getKindDockerImage(options.kindVersion, options.k8sVersion);
     } else {
         throw new Error(`This command does not support repository ${repo}`);
