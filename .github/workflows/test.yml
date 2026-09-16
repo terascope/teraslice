@@ -571,7 +571,6 @@ jobs:
         run: |
           export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
           export KAFKA_PORT=$(../scripts/get-random-port.sh)
-          export MINIO_PORT=$(../scripts/get-random-port.sh)
           export TERASLICE_PORT=$(../scripts/get-random-port.sh)
           NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:k8sV2Encrypted --debug
         working-directory: ./e2e
@@ -794,7 +793,7 @@ jobs:
   #       run: |
   #         export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
   #         export KAFKA_PORT=$(../scripts/get-random-port.sh)
-  #         export MINIO_PORT=$(../scripts/get-random-port.sh)
+  #         export CEPH_PORT=$(../scripts/get-random-port.sh)
   #         export TERASLICE_PORT=$(../scripts/get-random-port.sh)
   #         NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:s3AssetStorageEncrypted
   #       working-directory: ./e2e
