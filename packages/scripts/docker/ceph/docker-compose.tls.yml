@@ -1,0 +1,26 @@
+# TLS overlay, merged over docker-compose.yml when ENCRYPT_CEPH is set:
+#   docker compose -f docker-compose.yml -f docker-compose.tls.yml up -d
+#
+# It exists as a separate file because compose has no conditional `volumes:`,
+# and with encryption off CERT_PATH is the relative `tmp/ts-certs`. A short
+# syntax source with no `./` is read as a named volume, so mounting it
+# unconditionally fails every plaintext run at parse time:
+#   service "rgw" refers to undefined volume tmp/ts-certs: invalid compose project
+#
+# The switch itself lives in the env file: RGW_SSL=true is what makes rgw.sh
+# start a beast ssl_port frontend and setup.sh probe over https. Under
+# `ts-scripts test` both this file and those keys come from ENCRYPT_CEPH.
+#
+# Compose merges `volumes:` by container path, so the mount is added to the ones
+# the x-ceph anchor already provides, and replaces `healthcheck.test`
+
+services:
+  rgw:
+    volumes:
+      - ${CEPH_CERT_DIR:?CEPH_CERT_DIR must point at a directory holding ceph-keypair.pem and CAs/rootCA.pem}:/opt/certs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS --cacert /opt/certs/CAs/rootCA.pem -o /dev/null https://localhost:${RGW_PORT:-8000}/"]
+
+  setup:
+    volumes:
+      - ${CEPH_CERT_DIR:?CEPH_CERT_DIR must point at a directory holding ceph-keypair.pem and CAs/rootCA.pem}:/opt/certs:ro
