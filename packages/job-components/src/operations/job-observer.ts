@@ -12,9 +12,9 @@ export default class JobObserver extends Observer {
     collectAnalytics: boolean;
     analyticsData: SliceAnalyticsData | undefined;
 
-    // use to avoid undefinied variable issues
+    // use to avoid undefined variable issues
     protected _currentSliceId: string;
-    // use to avoid undefinied variable issues
+    // use to avoid undefined variable issues
     protected _currentIndex: number;
 
     // the length of the operations
