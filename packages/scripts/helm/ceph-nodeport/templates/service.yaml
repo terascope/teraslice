@@ -1,0 +1,23 @@
+# Rook creates a ClusterIP service for the RGW; this adds a NodePort in front
+# of the same pods so the S3 endpoint is reachable from the host machine (kind
+# maps this NodePort to host CEPH_PORT). In-cluster consumers can keep using the
+# service DNS rook-ceph-rgw-<store>.<ns>.svc.cluster.local instead.
+apiVersion: v1
+kind: Service
+metadata:
+  name: rook-ceph-rgw-{{ .Values.storeName }}-nodeport
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: rook-ceph-rgw
+    rook_object_store: {{ .Values.storeName }}
+spec:
+  type: NodePort
+  selector:
+    app: rook-ceph-rgw
+    rook_object_store: {{ .Values.storeName }}
+  ports:
+    - name: s3
+      protocol: TCP
+      port: {{ .Values.rgwPort }}
+      targetPort: {{ .Values.rgwPort }}
+      nodePort: {{ .Values.nodePort }}

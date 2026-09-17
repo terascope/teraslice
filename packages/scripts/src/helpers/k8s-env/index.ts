@@ -1,5 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import { execa } from 'execa';
+import { Service } from '@terascope/types';
 import { isCI, pRetry } from '@terascope/core-utils';
 import { dockerTag, dockerBuild } from '../docker.js';
 import {
@@ -24,6 +26,11 @@ import { loadImagesForHelm, loadImagesForHelmFromConfigFile } from '../test-runn
 
 const rootInfo = getRootInfo();
 const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
+
+// Namespace the Rook operator + CephCluster run in, and the CephObjectStore
+// name. Keep in sync with helm/values.yaml `ceph.namespace` / `ceph.storeName`.
+const CEPH_NAMESPACE = 'rook-ceph';
+const CEPH_STORE_NAME = 'teraslice-store';
 
 export async function launchK8sEnv(options: K8sEnvOptions) {
     let repo: string = '';
@@ -63,6 +70,12 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         signale.pending('Starting k8s environment with the following options: ', options);
     }
 
+    // Ceph is enabled either via TEST_CEPH (env-var path -> ENV_SERVICES) or via
+    // `ceph.enabled` in a custom config file. Resolve it (and the S3 creds/store,
+    // which must match what the teraslice s3 connector uses) up front so both the
+    // node prep and the post-sync user creation fire in either path.
+    const cephInfo = await resolveCephInfo(options.configFile);
+
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
         signale.error('Please install Kind before launching a k8s dev environment. https://kind.sigs.k8s.io/docs/user/quick-start');
@@ -98,6 +111,19 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         process.exit(1);
     }
     signale.success('Kind cluster created');
+
+    // Ceph needs a raw block device for its OSD. Prepare a loop device + udev on
+    // the node now, before the Rook cluster reconciles, so the OSD comes up on
+    // the first pass. No-op unless Ceph is enabled.
+    if (cephInfo.enabled) {
+        try {
+            await kind.prepNodeForCeph();
+        } catch (err) {
+            signale.error(err);
+            await kind.destroyCluster();
+            process.exit(1);
+        }
+    }
 
     try {
         if (!options.configFile || (buildTerasliceImage)) {
@@ -159,6 +185,16 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             );
         }
         signale.success('Teraslice launched with helmfile');
+
+        // Ceph's RGW + S3 user are brought up asynchronously by the Rook operator
+        // (not the helm release), so create the user now -- BEFORE asserting the
+        // teraslice API is up. When teraslice uses s3 asset storage it needs this
+        // user to exist; teraslice retries its asset-store init, so creating the
+        // user here lets it converge instead of exhausting its retries.
+        if (cephInfo.enabled) {
+            await setupCephObjectUser(cephInfo);
+        }
+
         signale.pending('Ensuring Teraslice api is up...');
         await ensureTeraslice();
         signale.success('Teraslice api is up and running!');
@@ -170,10 +206,88 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         }
         process.exit(1);
     }
-    signale.success(buildNextStepsMessage(kind, options));
+
+    signale.success(buildNextStepsMessage(kind, cephInfo, options));
 }
 
-function buildNextStepsMessage(kind: Kind, options: K8sEnvOptions): string {
+interface CephRuntimeInfo {
+    enabled: boolean;
+    namespace: string;
+    storeName: string;
+    user: string;
+    accessKey: string;
+    secretKey: string;
+}
+
+/**
+ * Resolve whether Ceph is enabled and the S3 identity to use. In config-file
+ * mode these come from the yaml `ceph.*` block (which the teraslice s3 connector
+ * also reads, so they match); otherwise from the env-var-driven config defaults.
+ */
+async function resolveCephInfo(configFile?: string): Promise<CephRuntimeInfo> {
+    if (configFile) {
+        const enabled = Boolean(await getConfigValueFromCustomYaml(configFile, 'ceph.enabled'));
+        return {
+            enabled,
+            namespace: (await getConfigValueFromCustomYaml(configFile, 'ceph.namespace')) || CEPH_NAMESPACE,
+            storeName: (await getConfigValueFromCustomYaml(configFile, 'ceph.storeName')) || CEPH_STORE_NAME,
+            user: (await getConfigValueFromCustomYaml(configFile, 'ceph.user')) || config.CEPH_USER,
+            accessKey: (await getConfigValueFromCustomYaml(configFile, 'ceph.accessKey')) || config.CEPH_ACCESS_KEY,
+            secretKey: (await getConfigValueFromCustomYaml(configFile, 'ceph.secretKey')) || config.CEPH_SECRET_KEY,
+        };
+    }
+    return {
+        enabled: config.ENV_SERVICES.includes(Service.Ceph),
+        namespace: CEPH_NAMESPACE,
+        storeName: CEPH_STORE_NAME,
+        user: config.CEPH_USER,
+        accessKey: config.CEPH_ACCESS_KEY,
+        secretKey: config.CEPH_SECRET_KEY,
+    };
+}
+
+/**
+ * Create the static S3 user on the Rook RGW via the toolbox, mirroring the
+ * docker path's setup.sh so both paths expose identical, predictable creds.
+ * The creds come from cephInfo (config-file yaml or env-var config) -- the same
+ * source the teraslice s3 connector reads, so they always match. Waits for the
+ * RGW gateway, which the operator creates asynchronously after reconciling the
+ * CephObjectStore CR, so helm's --wait does not cover it.
+ */
+async function setupCephObjectUser(cephInfo: CephRuntimeInfo): Promise<void> {
+    const { namespace: ns, user: uid, accessKey, secretKey } = cephInfo;
+
+    signale.pending('Waiting for the Ceph RGW (S3) gateway to be ready...');
+    await pRetry(async () => {
+        const { stdout } = await execa`kubectl -n ${ns} get deploy -l app=rook-ceph-rgw -o jsonpath={.items[*].status.availableReplicas}`;
+        const available = stdout
+            .split(/\s+/)
+            .map(Number)
+            .reduce((sum, n) => sum + (Number.isFinite(n) ? n : 0), 0);
+        if (available < 1) {
+            throw new Error('RGW gateway not ready yet');
+        }
+    }, { retries: 60, delay: 5000, backoff: 1, maxDelay: 5000 });
+    signale.success('Ceph RGW gateway is ready');
+
+    signale.pending(`Creating Ceph S3 user '${uid}'`);
+    const userScript = [
+        'set -e',
+        `if radosgw-admin user info --uid="${uid}" >/dev/null 2>&1; then`,
+        `  echo "S3 user ${uid} already exists"`,
+        'else',
+        `  radosgw-admin user create --uid="${uid}" --display-name="Teraslice test user"`
+        + ` --access-key="${accessKey}" --secret-key="${secretKey}" >/dev/null`,
+        `  echo "created S3 user ${uid}"`,
+        'fi',
+    ].join('\n');
+    await execa`kubectl -n ${ns} exec deploy/rook-ceph-tools -- bash -c ${userScript}`;
+    signale.success(`Ceph S3 user '${uid}' ready`);
+}
+
+function buildNextStepsMessage(
+    kind: Kind, cephInfo: CephRuntimeInfo, options: K8sEnvOptions
+): string {
     const { deployedPorts } = kind;
     const tsPort = deployedPorts.teraslice;
     const { kindClusterName } = options;
@@ -208,6 +322,13 @@ function buildNextStepsMessage(kind: Kind, options: K8sEnvOptions): string {
     if (deployedPorts.minioApi !== undefined) {
         lines.push(`\tMinio API: http://localhost:${deployedPorts.minioApi}`);
         lines.push(`\tMinio UI: http://localhost:${deployedPorts.minioUi}`);
+    }
+    if (deployedPorts.ceph !== undefined) {
+        lines.push(`\tCeph S3 (host): http://localhost:${deployedPorts.ceph}  (path-style addressing)`);
+        lines.push(`\tCeph S3 (in-cluster): http://rook-ceph-rgw-${cephInfo.storeName}.${cephInfo.namespace}.svc.cluster.local`);
+        lines.push(`\tCeph S3 access key: ${cephInfo.accessKey}`);
+        lines.push(`\tCeph S3 secret key: ${cephInfo.secretKey}`);
+        lines.push(`\tCeph toolbox: kubectl -n ${cephInfo.namespace} exec -it deploy/rook-ceph-tools -- ceph status`);
     }
     if (deployedPorts.kafka !== undefined) {
         lines.push(`\tKafka Broker: localhost:${deployedPorts.kafka}`);

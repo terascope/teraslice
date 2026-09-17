@@ -1,0 +1,4 @@
+apiVersion: v2
+name: ceph-nodeport
+version: 0.1.0
+description: Exposes the Rook RGW (S3) service to the host via a NodePort

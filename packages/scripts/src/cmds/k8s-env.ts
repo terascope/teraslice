@@ -89,9 +89,13 @@ const cmd: CommandModule = {
                 default: false
             })
             .check(() => {
-                if (process.env.ASSET_STORAGE_CONNECTION_TYPE === 's3' && process.env.TEST_MINIO !== 'true') {
-                    throw new Error('You chose "s3" as an asset storage but don\'t have the minio service enabled.\n'
-                        + 'Try either using "yarn k8s:minio" or setting the environment variable TEST_MINIO to true\n');
+                if (process.env.ASSET_STORAGE_CONNECTION_TYPE === 's3'
+                    && process.env.TEST_MINIO !== 'true'
+                    && process.env.TEST_CEPH !== 'true') {
+                    throw new Error('You chose "s3" as an asset storage but don\'t have an S3 service enabled.\n'
+                        + 'Enable one: "pnpm run k8s:minio" / TEST_MINIO=true, or "pnpm run k8s:ceph" / TEST_CEPH=true.\n'
+                        + '(For s3 asset storage on Ceph, the intended path is a config file with '
+                        + 'ceph.enabled + teraslice.asset_storage_connection_type: s3.)\n');
                 }
                 return true;
             });

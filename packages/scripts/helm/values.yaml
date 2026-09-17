@@ -127,6 +127,37 @@ minio:
   # Example -->   hostVolumePath: /Users/local-volumes/es7
   hostVolumePath: null
 
+ceph:
+  # If false, ceph (Rook) will be excluded on helmfile sync
+  enabled: false
+  # Namespace the Rook operator, CephCluster and RGW run in
+  namespace: rook-ceph
+  # Rook operator + cluster chart version (https://charts.rook.io/release)
+  operatorVersion: v1.20.7
+  # Ceph container image tag. Mirrors CEPH_VERSION in config.ts so the docker
+  # and k8s paths run the same Ceph.
+  version: v19.2.6
+  # Name of the CephObjectStore (S3) and the pools it creates
+  storeName: teraslice-store
+  # Static S3 user created post-sync via the Rook toolbox (mirrors docker mode's
+  # setup.sh). These are overridden from config.ts (CEPH_USER/CEPH_ACCESS_KEY/
+  # CEPH_SECRET_KEY) at runtime so both paths share one source of truth.
+  user: test
+  accessKey: cephtestaccesskey
+  secretKey: cephtestsecretkey
+  # The named block device the single OSD consumes. Ceph on kind has no spare
+  # raw disk, so kind.ts creates this loop device on the node (with udev) before
+  # Rook reconciles. Loop devices are skipped by useAllDevices, so it is named.
+  osdDevice: /dev/loop0
+  # RGW gateway port inside the cluster
+  rgwPort: 80
+  # Host NodePort used to reach the S3 endpoint from the host machine. Mapped to
+  # host CEPH_PORT via a kind extraPortMapping in kind.ts.
+  nodePort: 30902
+  tls:
+    # TLS is deferred for now (mirrors #4547 which disabled encrypted-S3 tests)
+    enabled: false
+
 kafka:
   # If false, kafka will be excluded on helmfile sync
   enabled: false

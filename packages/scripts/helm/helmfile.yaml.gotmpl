@@ -19,6 +19,8 @@ repositories:
     url: https://charts.chaos-mesh.org
   - name: valkey
     url: https://valkey.io/valkey-helm/
+  - name: rook-release
+    url: https://charts.rook.io/release
 
 helmDefaults:
   wait: true
@@ -109,6 +111,47 @@ releases:
     {{- if .Values | get "minio.tls.enabled" false }}
       - default/minio-secret
     {{- end }}
+
+  # Ceph (Rook) S3 object store. Three releases: the operator, the CephCluster +
+  # CephObjectStore, and a NodePort in front of the RGW for host access. All are
+  # gated on ceph.enabled and land in the rook-ceph namespace. The node's OSD
+  # loop device + udev are prepared by kind.ts before these reconcile.
+  - name: rook-ceph
+    namespace: rook-ceph
+    chart: rook-release/rook-ceph
+    version: {{ .Values | get "ceph.operatorVersion" "v1.20.7" }}
+    installed: {{ .Values | get "ceph.enabled" false }}
+    values:
+      - ./templates/ceph-operator.yaml.gotmpl
+    needs:
+      - default/namespaces
+
+  - name: rook-ceph-cluster
+    namespace: rook-ceph
+    chart: rook-release/rook-ceph-cluster
+    version: {{ .Values | get "ceph.operatorVersion" "v1.20.7" }}
+    installed: {{ .Values | get "ceph.enabled" false }}
+    # The OSD/RGW are brought up asynchronously by the operator reconciling the
+    # CephCluster/CephObjectStore CRs -- not by this release's own workloads. A
+    # helm --wait here would block on the toolbox for the whole (multi-minute)
+    # reconcile and risk a timeout, so we don't wait; the runner waits for the
+    # RGW gateway explicitly post-sync (setupCephObjectUser in k8s-env).
+    wait: false
+    values:
+      - ./templates/ceph-cluster.yaml.gotmpl
+    needs:
+      - default/namespaces
+      - rook-ceph/rook-ceph
+
+  - name: ceph-nodeport
+    namespace: rook-ceph
+    chart: ./ceph-nodeport
+    version: 0.1.0
+    installed: {{ .Values | get "ceph.enabled" false }}
+    values:
+      - ./templates/ceph-nodeport.yaml.gotmpl
+    needs:
+      - rook-ceph/rook-ceph-cluster
 
   - name: kafka
     namespace: services-dev1
