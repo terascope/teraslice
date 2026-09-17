@@ -11,7 +11,7 @@ on:
 permissions: {}
 
 env:
-  NODE_VERSION: 24.19
+  NODE_VERSION: 24
 
 jobs:
   build-release:

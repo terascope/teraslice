@@ -81,9 +81,14 @@ describe('prometheus exporter', () => {
     describe('shutdown', () => {
         it('should shutdown the express server', async () => {
             await exporter.shutdown();
+            // node <24.20 rejects with ECONNREFUSED; node >=24.20 reworked the net
+            // module and now rejects with ERR_SOCKET_CLOSED_BEFORE_CONNECTION, so
+            // match on the error code (accepting either) instead of the message.
             await expect(() => got('http://127.0.0.1:3344/metrics', {
                 throwHttpErrors: true
-            })).rejects.toThrow('connect ECONNREFUSED 127.0.0.1:3344');
+            })).rejects.toMatchObject({
+                code: expect.stringMatching(/^(ECONNREFUSED|ERR_SOCKET_CLOSED_BEFORE_CONNECTION)$/)
+            });
         });
     });
 });
