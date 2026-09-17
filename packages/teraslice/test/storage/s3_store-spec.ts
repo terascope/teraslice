@@ -3,7 +3,7 @@ import { Logger } from '@terascope/core-utils';
 import { TestContext, TestContextOptions } from '@terascope/job-components';
 import { createS3Client, deleteS3Bucket } from '@terascope/file-asset-apis';
 import { S3Store } from '../../src/lib/storage/backends/s3_store.js';
-import { TEST_INDEX_PREFIX } from '../test.config.js';
+import { S3_CONNECTOR_CONFIG, TEST_INDEX_PREFIX } from '../test.config.js';
 
 describe('S3 backend test', () => {
     let s3Backend: S3Store;
@@ -25,14 +25,7 @@ describe('S3 backend test', () => {
     context.sysconfig.terafoundation = {
         connectors: {
             s3: {
-                default: {
-                    endpoint: process.env.CEPH_HOST,
-                    accessKeyId: process.env.CEPH_ACCESS_KEY,
-                    secretAccessKey: process.env.CEPH_SECRET_KEY,
-                    forcePathStyle: true,
-                    sslEnabled: false,
-                    region: 'us-east-1'
-                }
+                default: S3_CONNECTOR_CONFIG
             }
         }
     };

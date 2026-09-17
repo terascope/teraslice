@@ -693,119 +693,119 @@ jobs:
           path: e2e/logs/*.log
           retention-days: 3
 
-  # e2e-external-asset-storage-tests-encrypted:
-  #   if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #   needs:
-  #     [
-  #       compute-vars,
-  #       verify-build,
-  #       cache-docker-images,
-  #       cache-asset-bundles,
-  #       determine-tests-based-off-commit,
-  #       build-dev-docker-images,
-  #     ]
-  #   strategy:
-  #     # opensearch is finicky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-  #       with:
-  #         persist-credentials: false
+  e2e-external-asset-storage-tests-encrypted:
+    if: needs.determine-tests-based-off-commit.outputs.e2e == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs:
+      [
+        compute-vars,
+        verify-build,
+        cache-docker-images,
+        cache-asset-bundles,
+        determine-tests-based-off-commit,
+        build-dev-docker-images,
+      ]
+    strategy:
+      # opensearch is finicky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(needs.compute-vars.outputs.NODE_VERSIONS_EXT_STORAGE) }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
-  #     - name: Install pnpm
-  #       uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+      - name: Install pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: "pnpm"
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
 
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Install and build packages
-  #       run: pnpm install && pnpm run setup
+      - name: Install and build packages
+        run: pnpm install && pnpm run setup
 
-  #     - name: Create Docker Image List
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       run: |
-  #         pnpm run docker:listImages
-  #         cat ./images/image-list.txt
+      - name: Create Docker Image List
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pnpm run docker:listImages
+          cat ./images/image-list.txt
 
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
-  #         restore-keys: |
-  #           docker-images-${{ hashFiles('./images/image-list.txt') }}-
-  #           docker-images-
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}-master
+          restore-keys: |
+            docker-images-${{ hashFiles('./images/image-list.txt') }}-
+            docker-images-
 
-  #     - name: Download dev docker image artifact
-  #       uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-  #       with:
-  #         name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-  #         path: ${{ runner.temp }}
+      - name: Download dev docker image artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          path: ${{ runner.temp }}
 
-  #     - name: Load dev docker image
-  #       run: |
-  #         docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-  #         rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
-  #         docker image ls -a
+      - name: Load dev docker image
+        run: |
+          docker load --input ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          rm ${{ runner.temp }}/${{ github.run_id }}-nodev${{ matrix.node-version }}.tar
+          docker image ls -a
 
-  #     - name: Install mkcert
-  #       run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
+      - name: Install mkcert
+        run: curl -Ss -JLO "https://dl.filippo.io/mkcert/v1.4.4?for=linux/amd64" && sudo chmod 777 mkcert-v1.4.4-linux-amd64 && sudo cp mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
 
-  #     - name: Check mkcert
-  #       run: command -v mkcert
+      - name: Check mkcert
+        run: command -v mkcert
 
-  #     - name: Compile e2e code
-  #       run: pnpm run build
-  #       working-directory: ./e2e
+      - name: Compile e2e code
+        run: pnpm run build
+        working-directory: ./e2e
 
-  #     - name: Get Asset Bundle List From Artifact
-  #       uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-  #       with:
-  #         name: asset-bundle-txt-file-list
-  #         path: ${{ github.workspace }}/e2e/scripts
+      - name: Get Asset Bundle List From Artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: asset-bundle-txt-file-list
+          path: ${{ github.workspace }}/e2e/scripts
 
-  #     - name: Restore asset bundle cache
-  #       id: asset-bundle-cache
-  #       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-  #       with:
-  #         path: /tmp/teraslice_assets
-  #         key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
+      - name: Restore asset bundle cache
+        id: asset-bundle-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: /tmp/teraslice_assets
+          key: asset-bundles-${{ hashFiles('./e2e/scripts/ci_asset_bundle_list.txt') }}
 
-  #     - name: Test external Asset Storage opensearch2
-  #       run: |
-  #         export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
-  #         export KAFKA_PORT=$(../scripts/get-random-port.sh)
-  #         export CEPH_PORT=$(../scripts/get-random-port.sh)
-  #         export TERASLICE_PORT=$(../scripts/get-random-port.sh)
-  #         NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:s3AssetStorageEncrypted
-  #       working-directory: ./e2e
+      - name: Test external Asset Storage opensearch2
+        run: |
+          export OPENSEARCH_PORT=$(../scripts/get-random-port.sh)
+          export KAFKA_PORT=$(../scripts/get-random-port.sh)
+          export CEPH_PORT=$(../scripts/get-random-port.sh)
+          export TERASLICE_PORT=$(../scripts/get-random-port.sh)
+          NODE_VERSION=${{ matrix.node-version }} DEV_DOCKER_IMAGE=${{ github.run_id }} SKIP_DOCKER_BUILD_IN_E2E='true' pnpm run test:s3AssetStorageEncrypted
+        working-directory: ./e2e
 
-  #     - name: Upload logs artifact
-  #       if: always()
-  #       id: upload-logs-artifact
-  #       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-  #       with:
-  #         name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
-  #         path: e2e/logs/*.log
-  #         retention-days: 3
+      - name: Upload logs artifact
+        if: always()
+        id: upload-logs-artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: logs.commit-${{ needs.compute-vars.outputs.COMMIT_SHORT_SHA }}.job-${{ github.job }}.node-${{ matrix.node-version }}
+          path: e2e/logs/*.log
+          retention-days: 3
 
   teraslice-elasticsearch-tests:
     if: needs.determine-tests-based-off-commit.outputs.integration == 'true'
@@ -1619,7 +1619,7 @@ jobs:
         build-dev-docker-images,
         e2e-k8s-v2-encrypted-tests,
         e2e-external-asset-storage-tests,
-        # e2e-external-asset-storage-tests-encrypted,
+        e2e-external-asset-storage-tests-encrypted,
         e2e-k8s-v2-tests,
         e2e-tests,
         e2e-assets-from-source-tests,
@@ -1641,7 +1641,7 @@ jobs:
         build-dev-docker-images,
         e2e-k8s-v2-encrypted-tests,
         e2e-external-asset-storage-tests,
-        # e2e-external-asset-storage-tests-encrypted,
+        e2e-external-asset-storage-tests-encrypted,
         e2e-k8s-v2-tests,
         e2e-tests,
         e2e-assets-from-source-tests,
@@ -1661,7 +1661,7 @@ jobs:
         build-dev-docker-images,
         e2e-k8s-v2-encrypted-tests,
         e2e-external-asset-storage-tests,
-        # e2e-external-asset-storage-tests-encrypted,
+        e2e-external-asset-storage-tests-encrypted,
         e2e-k8s-v2-tests,
         e2e-tests,
         elasticsearch-api-tests,
@@ -1685,7 +1685,7 @@ jobs:
           results["xlucene-translator-tests"]="${{ needs.xlucene-translator-tests.result }}"
           results["e2e-k8s-v2-encrypted-tests"]="${{ needs.e2e-k8s-v2-encrypted-tests.result }}"
           results["e2e-external-asset-storage-tests"]="${{ needs.e2e-external-asset-storage-tests.result }}"
-          # results["e2e-external-asset-storage-tests-encrypted"]="${{ needs.e2e-external-asset-storage-tests-encrypted.result }}"
+          results["e2e-external-asset-storage-tests-encrypted"]="${{ needs.e2e-external-asset-storage-tests-encrypted.result }}"
           results["e2e-k8s-v2-tests"]="${{ needs.e2e-k8s-v2-tests.result }}"
           results["e2e-tests"]="${{ needs.e2e-tests.result }}"
           results["elasticsearch-api-tests"]="${{ needs.elasticsearch-api-tests.result }}"
