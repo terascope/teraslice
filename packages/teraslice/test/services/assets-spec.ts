@@ -5,7 +5,7 @@ import { Logger } from '@terascope/core-utils';
 import { createClient } from '@terascope/opensearch-client';
 import { createS3Client } from '@terascope/file-asset-apis';
 import { AssetsService } from '../../src/lib/cluster/services/assets.js';
-import { SEARCH_TEST_HOST, TEST_INDEX_PREFIX } from '../test.config.js';
+import { S3_CONNECTOR_CONFIG, SEARCH_TEST_HOST, TEST_INDEX_PREFIX } from '../test.config.js';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 
 describe('Assets Service', () => {
@@ -40,14 +40,7 @@ describe('Assets Service', () => {
         prom_metrics_add_default: true,
         connectors: {
             s3: {
-                default: {
-                    endpoint: process.env.CEPH_HOST,
-                    accessKeyId: process.env.CEPH_ACCESS_KEY,
-                    secretAccessKey: process.env.CEPH_SECRET_KEY,
-                    forcePathStyle: true,
-                    sslEnabled: false,
-                    region: 'us-east-1'
-                },
+                default: S3_CONNECTOR_CONFIG,
             },
             'elasticsearch-next': {
                 default: {

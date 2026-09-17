@@ -153,6 +153,7 @@ snapshotrestore:
  *   - `minio`      → private.key, public.crt
  *   - `opensearch` → opensearch-key.pem, opensearch-cert.pem, internal_users.yml
  *   - `kafka`      → kafka-keypair.pem (key + cert concatenated)
+ *   - `ceph`       → ceph-keypair.pem (key + cert concatenated)
  *
  * @param formats  - List of service formats to produce (e.g. ['minio', 'opensearch'])
  * @param dirPath  - Absolute path to the output directory (recreated if it already exists)
@@ -235,6 +236,15 @@ async function generateCerts(
                 fs.writeFileSync(path.join(dirPath, 'kafka-keypair.pem'), keyContent + certContent, 'utf8');
                 break;
             }
+            case 'ceph': {
+                // https://docs.ceph.com/en/latest/radosgw/frontends/#beast
+                // beast's ssl_certificate= accepts a PEM holding both the key
+                // and the cert, and ssl_private_key= then points at the same file
+                const keyContent = fs.readFileSync(privateKeyPath, 'utf8');
+                const certContent = fs.readFileSync(publicCertPath, 'utf8');
+                fs.writeFileSync(path.join(dirPath, 'ceph-keypair.pem'), keyContent + certContent, 'utf8');
+                break;
+            }
             default:
                 signale.warn(`Unknown format '${format}' ignored.`);
         }
@@ -275,6 +285,15 @@ export async function generateTestCaCerts(): Promise<void> {
             'minio.services-dev1',
             'minio',
             config.MINIO_HOSTNAME
+        );
+    }
+
+    if (config.ENCRYPT_CEPH) {
+        encryptedServices.push('ceph');
+        hostNames.push(
+            'rgw',
+            'ceph-rgw',
+            config.CEPH_HOSTNAME
         );
     }
 

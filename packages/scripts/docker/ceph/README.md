@@ -103,9 +103,28 @@ it, so `--wait` only requires that it started — and `docker compose wait setup
 errors with "no containers for project" once that container has exited. Use
 `docker compose ps -a setup` instead, which keeps listing it after it exits.
 
-## Planned Improvements
+## TLS
 
-TLS on the RGW endpoint. `rgw.sh` starts a plain beast frontend; beast supports
-`ssl_port=`/`ssl_certificate=`, but it needs a cert minted for the hostname
-clients actually connect on. MinIO still covers the encrypted e2e target until
-then.
+`ENCRYPT_CEPH='true'` gives RGW a TLS frontend. Under `ts-scripts test`
+that is all you need: `certs.ts` mints `ceph-keypair.pem` from the shared mkcert
+CA, `ensureCeph()` merges `docker-compose.tls.yml` over the base file, and the
+generated `.env` sets `RGW_SSL=true` plus the cert paths. `CEPH_HOST` becomes
+`https://`.
+
+The certificate has to be valid for every name a client connects on:
+
+| name | who connects on it |
+|---|---|
+| `localhost` | the container healthcheck |
+| `rgw` | `setup.sh`, via the compose service DNS name |
+| `ceph-rgw` | the container's `hostname:` |
+| `CEPH_HOSTNAME` (`HOST_IP`) | host-side tests, and e2e's Teraslice containers |
+
+Standalone there is no generator, so mint the keypair by hand and merge the
+overlay yourself — see `.env.example` for the commands.
+
+**A bad cert is a timeout, not an error message.** radosgw exits when a frontend
+fails to initialize, which reaches the caller only as a readiness timeout after
+`SERVICE_UP_TIMEOUT`. Check `docker compose logs rgw` first — `rgw.sh` logs the
+frontend string it chose. For a SAN mismatch,
+`openssl s_client -connect <host>:49480` is the fast diagnostic.

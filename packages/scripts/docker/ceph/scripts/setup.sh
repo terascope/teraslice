@@ -9,7 +9,16 @@ S3_ACCESS_KEY=${S3_ACCESS_KEY:?}
 S3_SECRET_KEY=${S3_SECRET_KEY:?}
 RGW_PORT=${RGW_PORT:-8000}
 # The compose service name, not a container_name
-export S3_ENDPOINT=${S3_ENDPOINT:-http://rgw:${RGW_PORT}}
+RGW_SSL=${RGW_SSL:-false}
+if [ "$RGW_SSL" = "true" ]; then
+  SCHEME=https
+  RGW_SSL_CA=${RGW_SSL_CA:-/opt/certs/CAs/rootCA.pem}
+  CURL_TLS_OPTS=(--cacert "$RGW_SSL_CA")
+else
+  SCHEME=http
+  CURL_TLS_OPTS=()
+fi
+export S3_ENDPOINT=${S3_ENDPOINT:-${SCHEME}://rgw:${RGW_PORT}}
 export S3_ACCESS_KEY S3_SECRET_KEY
 
 wait_for_conf
@@ -17,7 +26,7 @@ wait_for_mon
 
 log "waiting for the RGW endpoint at ${S3_ENDPOINT} ..."
 tries=90
-until curl -fsS -o /dev/null "${S3_ENDPOINT}"; do
+until curl -fsS "${CURL_TLS_OPTS[@]}" -o /dev/null "${S3_ENDPOINT}"; do
   tries=$((tries - 1))
   [ "$tries" -le 0 ] && die "RGW never became reachable"
   sleep 2
@@ -41,8 +50,8 @@ cat >&2 <<EOF
   ------------------------------------------------------------------
   Ceph is up. S3 endpoint ready.
 
-    Endpoint (from host)  http://localhost:${RGW_PORT}
-    Endpoint (in-network) http://rgw:${RGW_PORT}
+    Endpoint (from host)  ${SCHEME}://localhost:${RGW_PORT}
+    Endpoint (in-network) ${SCHEME}://rgw:${RGW_PORT}
     Region                us-east-1
     Access key            ${S3_ACCESS_KEY}
     Secret key            ${S3_SECRET_KEY}

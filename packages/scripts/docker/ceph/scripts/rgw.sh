@@ -21,9 +21,17 @@ if [ ! -s "$KEYRING" ]; then
 fi
 fix_perms "$KEYRING"
 
-log "starting radosgw ${NAME} on port ${RGW_PORT}"
+if [ "${RGW_SSL:-false}" = "true" ]; then
+  RGW_SSL_CERT=${RGW_SSL_CERT:-/opt/certs/ceph-keypair.pem}
+  [ -s "$RGW_SSL_CERT" ] || die "RGW_SSL is true but ${RGW_SSL_CERT} is missing or empty"
+  FRONTEND="beast ssl_port=${RGW_PORT} ssl_certificate=${RGW_SSL_CERT} ssl_private_key=${RGW_SSL_CERT}"
+else
+  FRONTEND="beast port=${RGW_PORT}"
+fi
+
+log "starting radosgw ${NAME} with frontend: ${FRONTEND}"
 exec radosgw -f -n "$NAME" -k "$KEYRING" \
   --setuser ceph --setgroup ceph \
-  --rgw-frontends="beast port=${RGW_PORT}" \
+  --rgw-frontends="$FRONTEND" \
   --rgw-run-sync-thread=false \
   --rgw-relaxed-s3-bucket-names=true
