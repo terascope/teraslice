@@ -207,11 +207,13 @@ function generateHelmValuesFromServices(
         if (service === Service.Ceph) {
             // Ceph is not a single-image chart like the others (it's the Rook
             // operator + cluster charts), so it doesn't go through versionMap.
-            // The image tag lives in ceph.version; creds come from config.ts so
-            // the docker and k8s paths share one source of truth (the static S3
-            // user is created post-sync by the runner -- see kind/k8s-env).
+            // Drive both versions from config so the images the k8s path runs are
+            // exactly the ones the CI cache holds (createImageList uses the same
+            // config knobs): ceph.version -> quay.io/ceph/ceph tag,
+            // ceph.operatorVersion -> rook-ceph chart + docker.io/rook/ceph tag.
             values.setIn(['ceph', 'enabled'], true);
             values.setIn(['ceph', 'version'], config.CEPH_VERSION);
+            values.setIn(['ceph', 'operatorVersion'], config.CEPH_OPERATOR_VERSION);
             values.setIn(['ceph', 'user'], config.CEPH_USER);
             values.setIn(['ceph', 'accessKey'], config.CEPH_ACCESS_KEY);
             values.setIn(['ceph', 'secretKey'], config.CEPH_SECRET_KEY);
