@@ -139,12 +139,22 @@ ceph:
   version: v19.2.6
   # Name of the CephObjectStore (S3) and the pools it creates
   storeName: teraslice-store
-  # Static S3 user created post-sync via the Rook toolbox (mirrors docker mode's
-  # setup.sh). These are overridden from config.ts (CEPH_USER/CEPH_ACCESS_KEY/
-  # CEPH_SECRET_KEY) at runtime so both paths share one source of truth.
+  # Static S3 user, created declaratively as a CephObjectStoreUser (see the
+  # ceph-extras chart) with these keys. Overridden from config.ts (CEPH_USER/
+  # CEPH_ACCESS_KEY/CEPH_SECRET_KEY) at runtime so docker and k8s share one
+  # source of truth, and teraslice's s3 connector uses the same values.
   user: test
   accessKey: cephtestaccesskey
   secretKey: cephtestsecretkey
+  dashboard:
+    # The ceph-mgr dashboard (cluster + RGW bucket/user browser). Off by default
+    # to save resources. Flip to true (in your k8s-config.yaml) when debugging,
+    # then reach it with:
+    #   kubectl -n rook-ceph port-forward svc/rook-ceph-mgr-dashboard 8443:8443
+    #   open https://localhost:8443   (self-signed; user: admin)
+    #   password: kubectl -n rook-ceph get secret rook-ceph-dashboard-password \
+    #     -o jsonpath='{.data.password}' | base64 -d; echo
+    enabled: false
   # The named block device the single OSD consumes. Ceph on kind has no spare
   # raw disk, so kind.ts creates this loop device on the node (with udev) before
   # Rook reconciles. Loop devices are skipped by useAllDevices, so it is named.

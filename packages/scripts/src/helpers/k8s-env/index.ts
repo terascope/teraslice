@@ -1,6 +1,5 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { execa } from 'execa';
 import { Service } from '@terascope/types';
 import { isCI, pRetry } from '@terascope/core-utils';
 import { dockerTag, dockerBuild } from '../docker.js';
@@ -186,15 +185,10 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         }
         signale.success('Teraslice launched with helmfile');
 
-        // Ceph's RGW + S3 user are brought up asynchronously by the Rook operator
-        // (not the helm release), so create the user now -- BEFORE asserting the
-        // teraslice API is up. When teraslice uses s3 asset storage it needs this
-        // user to exist; teraslice retries its asset-store init, so creating the
-        // user here lets it converge instead of exhausting its retries.
-        if (cephInfo.enabled) {
-            await setupCephObjectUser(cephInfo);
-        }
-
+        // Ceph ordering is handled entirely in the helmfile: the ceph-extras
+        // release's postsync hook blocks until the S3 user is Ready, and teraslice
+        // `needs` ceph-extras, so by the time sync returns teraslice already came
+        // up against a working S3 backend. Nothing to do here.
         signale.pending('Ensuring Teraslice api is up...');
         await ensureTeraslice();
         signale.success('Teraslice api is up and running!');
@@ -246,45 +240,6 @@ async function resolveCephInfo(configFile?: string): Promise<CephRuntimeInfo> {
     };
 }
 
-/**
- * Create the static S3 user on the Rook RGW via the toolbox, mirroring the
- * docker path's setup.sh so both paths expose identical, predictable creds.
- * The creds come from cephInfo (config-file yaml or env-var config) -- the same
- * source the teraslice s3 connector reads, so they always match. Waits for the
- * RGW gateway, which the operator creates asynchronously after reconciling the
- * CephObjectStore CR, so helm's --wait does not cover it.
- */
-async function setupCephObjectUser(cephInfo: CephRuntimeInfo): Promise<void> {
-    const { namespace: ns, user: uid, accessKey, secretKey } = cephInfo;
-
-    signale.pending('Waiting for the Ceph RGW (S3) gateway to be ready...');
-    await pRetry(async () => {
-        const { stdout } = await execa`kubectl -n ${ns} get deploy -l app=rook-ceph-rgw -o jsonpath={.items[*].status.availableReplicas}`;
-        const available = stdout
-            .split(/\s+/)
-            .map(Number)
-            .reduce((sum, n) => sum + (Number.isFinite(n) ? n : 0), 0);
-        if (available < 1) {
-            throw new Error('RGW gateway not ready yet');
-        }
-    }, { retries: 60, delay: 5000, backoff: 1, maxDelay: 5000 });
-    signale.success('Ceph RGW gateway is ready');
-
-    signale.pending(`Creating Ceph S3 user '${uid}'`);
-    const userScript = [
-        'set -e',
-        `if radosgw-admin user info --uid="${uid}" >/dev/null 2>&1; then`,
-        `  echo "S3 user ${uid} already exists"`,
-        'else',
-        `  radosgw-admin user create --uid="${uid}" --display-name="Teraslice test user"`
-        + ` --access-key="${accessKey}" --secret-key="${secretKey}" >/dev/null`,
-        `  echo "created S3 user ${uid}"`,
-        'fi',
-    ].join('\n');
-    await execa`kubectl -n ${ns} exec deploy/rook-ceph-tools -- bash -c ${userScript}`;
-    signale.success(`Ceph S3 user '${uid}' ready`);
-}
-
 function buildNextStepsMessage(
     kind: Kind, cephInfo: CephRuntimeInfo, options: K8sEnvOptions
 ): string {
@@ -329,6 +284,8 @@ function buildNextStepsMessage(
         lines.push(`\tCeph S3 access key: ${cephInfo.accessKey}`);
         lines.push(`\tCeph S3 secret key: ${cephInfo.secretKey}`);
         lines.push(`\tCeph toolbox: kubectl -n ${cephInfo.namespace} exec -it deploy/rook-ceph-tools -- ceph status`);
+        lines.push('\tCeph dashboard (view buckets/users): set ceph.dashboard.enabled=true in your config, then');
+        lines.push(`\t\tkubectl -n ${cephInfo.namespace} port-forward svc/rook-ceph-mgr-dashboard 8443:8443  # https://localhost:8443 (user: admin)`);
     }
     if (deployedPorts.kafka !== undefined) {
         lines.push(`\tKafka Broker: localhost:${deployedPorts.kafka}`);
@@ -361,7 +318,10 @@ async function ensureTeraslice(): Promise<void> {
         } else {
             throw new Error(`Teraslice endpoint returned an object that didn't have 'teraslice_version' as a key: ${data}`);
         }
-    }, { retries: 10, delay: 1000, backoff: 1.5, maxDelay: 12000 });
+        // Bumped from 10 retries: with s3 (Ceph) asset storage, teraslice also has
+        // to reach the RGW and create its assets bucket before the API answers, so
+        // give a slow-but-fine bring-up more room before the runner tears down.
+    }, { retries: 24, delay: 2000, backoff: 1.3, maxDelay: 15000 });
 }
 
 export async function rebuildTeraslice(options: K8sEnvOptions) {

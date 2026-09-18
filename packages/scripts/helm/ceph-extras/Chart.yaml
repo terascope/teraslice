@@ -1,0 +1,4 @@
+apiVersion: v2
+name: ceph-extras
+version: 0.1.0
+description: Extra resources layered on the Rook object store - a NodePort for the RGW (host access) and a static-keyed S3 user (Secret + CephObjectStoreUser)

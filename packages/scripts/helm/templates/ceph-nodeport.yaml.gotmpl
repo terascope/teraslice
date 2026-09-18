@@ -1,4 +1,0 @@
-namespace: {{ .Values | get "ceph.namespace" "rook-ceph" }}
-storeName: {{ .Values | get "ceph.storeName" "teraslice-store" }}
-rgwPort: {{ .Values | get "ceph.rgwPort" 80 }}
-nodePort: {{ .Values | get "ceph.nodePort" 30902 }}

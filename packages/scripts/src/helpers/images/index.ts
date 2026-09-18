@@ -45,6 +45,7 @@ export async function createImageList(options: ImagesOptions): Promise<void> {
             + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.DEFAULT_OPENSEARCH3_VERSION}\n`
             + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_VERSION}\n`
             + `${config.CEPH_DOCKER_IMAGE}:${config.CEPH_VERSION}\n`
+            + `${config.CEPH_OPERATOR_DOCKER_IMAGE}:${config.CEPH_OPERATOR_VERSION}\n`
             + await getKindDockerImage(options.kindVersion, options.k8sVersion);
     } else {
         throw new Error(`This command does not support repository ${repo}`);

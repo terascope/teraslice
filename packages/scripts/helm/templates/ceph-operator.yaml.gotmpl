@@ -7,10 +7,11 @@
 # (ROOK_CEPH_ALLOW_LOOP_DEVICES) step -- the chart writes that ConfigMap for us.
 allowLoopDevices: true
 
-# We only use object storage (RGW), never block/filesystem PVCs, so the CSI
-# drivers are pure overhead on a single test node. Skip the ceph-csi operator.
-csi:
-  installCsiOperator: false
+# NOTE: do NOT disable the ceph-csi operator here. Even for an object-store-only
+# cluster, Rook v1.20 creates a CephConnection CR during *mon* init, and that CRD
+# (csi.ceph.io/v1) ships with the ceph-csi operator subchart. Disabling it makes
+# the cluster fail with: no matches for kind "CephConnection". So we leave
+# csi.installCsiOperator at its default (true).
 
 # No raw-disk discovery needed; the OSD device is named explicitly.
 enableDiscoveryDaemon: false

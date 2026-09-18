@@ -1,5 +1,0 @@
-# Overridden by helmfile from templates/ceph-nodeport.yaml.gotmpl
-namespace: rook-ceph
-storeName: teraslice-store
-rgwPort: 80
-nodePort: 30902

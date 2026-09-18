@@ -416,6 +416,20 @@ const configSchema: Terafoundation.Schema<any> = {
         format: String,
         env: 'CEPH_DOCKER_IMAGE'
     },
+    CEPH_OPERATOR_DOCKER_IMAGE: {
+        doc: 'The Rook operator image (k8s path). Cached + kind-loaded like the '
+            + 'other service images.',
+        default: 'docker.io/rook/ceph',
+        format: String,
+        env: 'CEPH_OPERATOR_DOCKER_IMAGE'
+    },
+    CEPH_OPERATOR_VERSION: {
+        doc: 'The Rook operator + cluster chart/image version (k8s path). Keep in '
+            + 'sync with helm/values.yaml `ceph.operatorVersion`.',
+        default: 'v1.20.7',
+        format: String,
+        env: 'CEPH_OPERATOR_VERSION'
+    },
     CEPH_HOST: {
         default: undefined,
         format: String,

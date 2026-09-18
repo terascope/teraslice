@@ -22,7 +22,7 @@ const {
 } = config;
 
 // The in-cluster NodePort the Rook RGW service is exposed on (see
-// helm/ceph-nodeport). Kept in sync with helm/values.yaml `ceph.nodePort`.
+// helm/ceph-extras). Kept in sync with helm/values.yaml `ceph.nodePort`.
 const CEPH_RGW_NODE_PORT = 30902;
 
 async function localDockerImageExists(image: string): Promise<boolean> {
@@ -291,16 +291,22 @@ export class Kind {
     async prepNodeForCeph(): Promise<void> {
         const node = `${this.clusterName}-control-plane`;
 
-        // Create + attach a file-backed loop device for the OSD. Idempotent:
-        // reuse an existing image/loop if a previous step already made one.
+        // Create + attach a file-backed loop device for the OSD, bound to a
+        // KNOWN device (/dev/loop0) so it matches ceph.osdDevice in the chart.
+        // `losetup --find` is not deterministic (it picks the first free slot,
+        // which may be loop1 if loop0 holds a stale/deleted mapping), so we
+        // detach any prior binding and attach /dev/loop0 explicitly. Idempotent.
         signale.pending(`Preparing loop device for Ceph OSD on node ${node}`);
         const loopScript = [
             'set -e',
             'mkdir -p /var/lib/rook-osd',
             '[ -f /var/lib/rook-osd/osd0.img ] || fallocate -l 20G /var/lib/rook-osd/osd0.img',
-            'LOOP=$(losetup -j /var/lib/rook-osd/osd0.img | cut -d: -f1)',
-            '[ -n "$LOOP" ] || LOOP=$(losetup --find --show /var/lib/rook-osd/osd0.img)',
-            'echo "loop device: $LOOP"',
+            '# detach any loop already bound to our image, and free /dev/loop0',
+            'for l in $(losetup -j /var/lib/rook-osd/osd0.img | cut -d: -f1); do losetup -d "$l" || true; done',
+            'losetup -d /dev/loop0 2>/dev/null || true',
+            '[ -b /dev/loop0 ] || mknod /dev/loop0 b 7 0',
+            'losetup /dev/loop0 /var/lib/rook-osd/osd0.img',
+            'echo "bound /dev/loop0 ->" $(losetup -j /var/lib/rook-osd/osd0.img)',
         ].join('\n');
         const loopProc = await execa`docker exec ${node} bash -c ${loopScript}`;
         this.logger.debug(loopProc.stdout);

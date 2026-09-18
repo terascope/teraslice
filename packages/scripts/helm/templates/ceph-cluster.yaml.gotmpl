@@ -42,7 +42,9 @@ cephClusterSpec:
         enabled: false
 
   dashboard:
-    enabled: false
+    # Off by default; flip ceph.dashboard.enabled to view cluster health + RGW
+    # buckets/users when debugging (Rook auto-wires the dashboard to the RGW).
+    enabled: {{ .Values | get "ceph.dashboard.enabled" false }}
 
   # Trim optional daemons that add pods we don't need for a throwaway cluster.
   crashCollector:
