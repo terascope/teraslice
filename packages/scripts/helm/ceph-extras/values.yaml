@@ -1,0 +1,14 @@
+# Values are supplied inline by the ceph-extras release in helmfile.yaml.gotmpl
+# (pulled from the shared ceph.* config). These are just fallbacks.
+namespace: rook-ceph
+storeName: teraslice-store
+# RGW host exposure
+rgwPort: 80
+nodePort: 30902
+# Static S3 user
+user: test
+accessKey: cephtestaccesskey
+secretKey: cephtestsecretkey
+# ceph-mgr dashboard NodePort (only created when dashboardEnabled)
+dashboardEnabled: false
+dashboardNodePort: 30903

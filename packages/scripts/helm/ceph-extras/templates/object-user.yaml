@@ -1,0 +1,34 @@
+# A CephObjectStoreUser with STATIC keys, so teraslice's s3 connector (which uses
+# the same ceph.accessKey/secretKey) authenticates against a predictable identity
+# -- matching docker mode's static creds.
+#
+# We create the user declaratively rather than via `radosgw-admin` in the Rook
+# toolbox: the operator provisions it server-side through the RGW admin API,
+# which is reliable. Driving it through `kubectl exec` into the toolbox is not --
+# radosgw-admin runs long enough that the exec stream corrupts/drops
+# ("websocket 1006" / "tls: bad record MAC"), killing the command mid-create.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.user }}-s3-keys
+  namespace: {{ .Values.namespace }}
+stringData:
+  accessKey: {{ .Values.accessKey | quote }}
+  secretKey: {{ .Values.secretKey | quote }}
+---
+apiVersion: ceph.rook.io/v1
+kind: CephObjectStoreUser
+metadata:
+  name: {{ .Values.user }}
+  namespace: {{ .Values.namespace }}
+spec:
+  store: {{ .Values.storeName }}
+  displayName: "Teraslice test user"
+  clusterNamespace: {{ .Values.namespace }}
+  keys:
+    - accessKeyRef:
+        name: {{ .Values.user }}-s3-keys
+        key: accessKey
+      secretKeyRef:
+        name: {{ .Values.user }}-s3-keys
+        key: secretKey

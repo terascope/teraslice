@@ -205,11 +205,21 @@ function generateHelmValuesFromServices(
     // helmfile.
     config.ENV_SERVICES.forEach((service: Service) => {
         if (service === Service.Ceph) {
-            throw new TSError(
-                'TEST_CEPH is not supported on kubernetesV2. Ceph in k8s will run '
-                + 'under Rook, which is not implemented yet; it is currently a '
-                + 'docker compose only test service.'
-            );
+            // Ceph is not a single-image chart like the others (it's the Rook
+            // operator + cluster charts), so it doesn't go through versionMap.
+            // Drive both versions from config so the images the k8s path runs are
+            // exactly the ones the CI cache holds (createImageList uses the same
+            // config knobs): ceph.version -> quay.io/ceph/ceph tag,
+            // ceph.operatorVersion -> rook-ceph chart + docker.io/rook/ceph tag.
+            values.setIn(['ceph', 'enabled'], true);
+            values.setIn(['ceph', 'version'], config.CEPH_VERSION);
+            values.setIn(['ceph', 'operatorVersion'], config.CEPH_OPERATOR_VERSION);
+            values.setIn(['ceph', 'user'], config.CEPH_USER);
+            values.setIn(['ceph', 'accessKey'], config.CEPH_ACCESS_KEY);
+            values.setIn(['ceph', 'secretKey'], config.CEPH_SECRET_KEY);
+            // The RGW host NodePort (ceph.nodePort) is fixed in values.yaml;
+            // kind.ts maps it to host CEPH_PORT. Nothing to override here.
+            return;
         }
 
         // "serviceString" represents the literal service name string

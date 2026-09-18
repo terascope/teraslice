@@ -1430,6 +1430,21 @@ export async function loadImagesForHelm(kindClusterName: string, skipImageDeleti
                 config.VALKEY_VERSION,
                 skipImageDeletion
             ));
+        } else if (service === Service.Ceph) {
+            // Two images: the Rook operator and the ceph image. loadServiceImage
+            // restores from the CI cache or kind-loads from local Docker.
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.CEPH_OPERATOR_DOCKER_IMAGE,
+                config.CEPH_OPERATOR_VERSION,
+                skipImageDeletion
+            ));
+            promiseArray.push(kind.loadServiceImage(
+                service,
+                config.CEPH_DOCKER_IMAGE,
+                config.CEPH_VERSION,
+                skipImageDeletion
+            ));
         }
     });
 
@@ -1481,6 +1496,22 @@ export async function loadImagesForHelmFromConfigFile(
                     Service.Valkey,
                     config.VALKEY_DOCKER_IMAGE,
                     customConfig[service].image.tag,
+                    false
+                ));
+            } else if (service === Service.Ceph) {
+                const operatorVersion = customConfig[service].operatorVersion
+                    || config.CEPH_OPERATOR_VERSION;
+                const cephVersion = customConfig[service].version || config.CEPH_VERSION;
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Ceph,
+                    config.CEPH_OPERATOR_DOCKER_IMAGE,
+                    operatorVersion,
+                    false
+                ));
+                promiseArray.push(kind.loadServiceImage(
+                    Service.Ceph,
+                    config.CEPH_DOCKER_IMAGE,
+                    cephVersion,
                     false
                 ));
             }
