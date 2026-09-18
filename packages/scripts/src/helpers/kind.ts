@@ -21,9 +21,14 @@ const {
     CERT_PATH, VALKEY_PORT, CEPH_PORT
 } = config;
 
-// The in-cluster NodePort the Rook RGW service is exposed on (see
-// helm/ceph-extras). Kept in sync with helm/values.yaml `ceph.nodePort`.
+// The in-cluster NodePorts the ceph-extras services are exposed on (see
+// helm/ceph-extras). Kept in sync with helm/values.yaml `ceph.nodePort` /
+// `ceph.dashboard.nodePort`. The dashboard mapping is added whenever Ceph is
+// enabled; it's a harmless no-op on the host until ceph.dashboard.enabled
+// creates the backing NodePort service.
 const CEPH_RGW_NODE_PORT = 30902;
+const CEPH_DASHBOARD_NODE_PORT = 30903;
+const CEPH_DASHBOARD_HOST_PORT = 8443;
 
 async function localDockerImageExists(image: string): Promise<boolean> {
     const result = await execa({ reject: false })`docker image inspect ${image}`;
@@ -124,6 +129,12 @@ export class Kind {
                         containerPort: CEPH_RGW_NODE_PORT,
                         hostPort: CEPH_PORT
                     });
+                    // Map the mgr dashboard NodePort to the host too (used when
+                    // ceph.dashboard.enabled; a no-op otherwise).
+                    configFile.nodes[0].extraPortMappings.push({
+                        containerPort: CEPH_DASHBOARD_NODE_PORT,
+                        hostPort: CEPH_DASHBOARD_HOST_PORT
+                    });
                     this.deployedPorts.ceph = CEPH_PORT;
                 }
             }
@@ -157,8 +168,8 @@ export class Kind {
                     hostPath: '/miniodata'
                 },
                 ceph: {
-                    containerPorts: [CEPH_RGW_NODE_PORT],
-                    hostPorts: [CEPH_PORT],
+                    containerPorts: [CEPH_RGW_NODE_PORT, CEPH_DASHBOARD_NODE_PORT],
+                    hostPorts: [CEPH_PORT, CEPH_DASHBOARD_HOST_PORT],
                     hostPath: ''
                 },
                 prometheus_stack: {

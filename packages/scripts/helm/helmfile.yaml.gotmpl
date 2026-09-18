@@ -160,6 +160,8 @@ releases:
         user: {{ .Values | get "ceph.user" "test" }}
         accessKey: {{ .Values | get "ceph.accessKey" "cephtestaccesskey" }}
         secretKey: {{ .Values | get "ceph.secretKey" "cephtestsecretkey" }}
+        dashboardEnabled: {{ .Values | get "ceph.dashboard.enabled" false }}
+        dashboardNodePort: 30903
     needs:
       - rook-ceph/rook-ceph
       - rook-ceph/rook-ceph-cluster

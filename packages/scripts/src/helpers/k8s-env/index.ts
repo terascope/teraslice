@@ -30,6 +30,9 @@ const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
 // name. Keep in sync with helm/values.yaml `ceph.namespace` / `ceph.storeName`.
 const CEPH_NAMESPACE = 'rook-ceph';
 const CEPH_STORE_NAME = 'teraslice-store';
+// Host port the mgr dashboard NodePort is mapped to (see CEPH_DASHBOARD_HOST_PORT
+// in kind.ts).
+const CEPH_DASHBOARD_HOST_PORT = 8443;
 
 export async function launchK8sEnv(options: K8sEnvOptions) {
     let repo: string = '';
@@ -211,6 +214,7 @@ interface CephRuntimeInfo {
     user: string;
     accessKey: string;
     secretKey: string;
+    dashboardEnabled: boolean;
 }
 
 /**
@@ -228,6 +232,7 @@ async function resolveCephInfo(configFile?: string): Promise<CephRuntimeInfo> {
             user: (await getConfigValueFromCustomYaml(configFile, 'ceph.user')) || config.CEPH_USER,
             accessKey: (await getConfigValueFromCustomYaml(configFile, 'ceph.accessKey')) || config.CEPH_ACCESS_KEY,
             secretKey: (await getConfigValueFromCustomYaml(configFile, 'ceph.secretKey')) || config.CEPH_SECRET_KEY,
+            dashboardEnabled: Boolean(await getConfigValueFromCustomYaml(configFile, 'ceph.dashboard.enabled')),
         };
     }
     return {
@@ -237,6 +242,7 @@ async function resolveCephInfo(configFile?: string): Promise<CephRuntimeInfo> {
         user: config.CEPH_USER,
         accessKey: config.CEPH_ACCESS_KEY,
         secretKey: config.CEPH_SECRET_KEY,
+        dashboardEnabled: false,
     };
 }
 
@@ -284,8 +290,12 @@ function buildNextStepsMessage(
         lines.push(`\tCeph S3 access key: ${cephInfo.accessKey}`);
         lines.push(`\tCeph S3 secret key: ${cephInfo.secretKey}`);
         lines.push(`\tCeph toolbox: kubectl -n ${cephInfo.namespace} exec -it deploy/rook-ceph-tools -- ceph status`);
-        lines.push('\tCeph dashboard (view buckets/users): set ceph.dashboard.enabled=true in your config, then');
-        lines.push(`\t\tkubectl -n ${cephInfo.namespace} port-forward svc/rook-ceph-mgr-dashboard 8443:8443  # https://localhost:8443 (user: admin)`);
+        if (cephInfo.dashboardEnabled) {
+            lines.push(`\tCeph dashboard (view buckets/users): https://localhost:${CEPH_DASHBOARD_HOST_PORT}  (self-signed; user: admin)`);
+            lines.push(`\t\tPassword: kubectl -n ${cephInfo.namespace} get secret rook-ceph-dashboard-password -o jsonpath='{.data.password}' | base64 -d; echo`);
+        } else {
+            lines.push('\tCeph dashboard: disabled (set ceph.dashboard.enabled=true in your config to view buckets/users)');
+        }
     }
     if (deployedPorts.kafka !== undefined) {
         lines.push(`\tKafka Broker: localhost:${deployedPorts.kafka}`);

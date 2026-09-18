@@ -9,3 +9,6 @@ nodePort: 30902
 user: test
 accessKey: cephtestaccesskey
 secretKey: cephtestsecretkey
+# ceph-mgr dashboard NodePort (only created when dashboardEnabled)
+dashboardEnabled: false
+dashboardNodePort: 30903
