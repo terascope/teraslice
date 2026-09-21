@@ -430,6 +430,26 @@ const configSchema: Terafoundation.Schema<any> = {
         format: String,
         env: 'CEPH_OPERATOR_VERSION'
     },
+    CEPH_NAMESPACE: {
+        doc: 'Namespace the Rook operator + CephCluster run in (k8s path). Keep in '
+            + 'sync with helm/values.yaml `ceph.namespace`.',
+        default: 'rook-ceph',
+        format: String,
+        env: 'CEPH_NAMESPACE'
+    },
+    CEPH_STORE_NAME: {
+        doc: 'Name of the CephObjectStore (k8s path). Keep in sync with '
+            + 'helm/values.yaml `ceph.storeName`.',
+        default: 'teraslice-store',
+        format: String,
+        env: 'CEPH_STORE_NAME'
+    },
+    CEPH_DASHBOARD_PORT: {
+        doc: 'Host port the ceph-mgr dashboard NodePort maps to (k8s path).',
+        default: 8443,
+        format: Number,
+        env: 'CEPH_DASHBOARD_PORT'
+    },
     CEPH_HOST: {
         default: undefined,
         format: String,

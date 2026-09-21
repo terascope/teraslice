@@ -182,9 +182,8 @@ function generateHelmValuesFromServices(
     const values = parseDocument(fs.readFileSync(helmfileValuesPath, 'utf8'));
 
     // Map services to versions used for the image tag.
-    // Ceph is absent on purpose until we support it in k8s. TEST_CEPH under
-    // kubernetesV2 is rejected below rather than silently ignored.
-    const versionMap: Record<Exclude<Service, Service.Ceph>, string> = {
+    const versionMap: Record<Service, string> = {
+        [Service.Ceph]: config.CEPH_VERSION,
         [Service.Opensearch]: config.OPENSEARCH_VERSION,
         [Service.Kafka]: config.KAFKA_VERSION,
         [Service.Minio]: config.MINIO_VERSION,
@@ -204,28 +203,20 @@ function generateHelmValuesFromServices(
     // Iterate over each service we want to start and enable them in the
     // helmfile.
     config.ENV_SERVICES.forEach((service: Service) => {
-        if (service === Service.Ceph) {
-            // Ceph is not a single-image chart like the others (it's the Rook
-            // operator + cluster charts), so it doesn't go through versionMap.
-            // Drive both versions from config so the images the k8s path runs are
-            // exactly the ones the CI cache holds (createImageList uses the same
-            // config knobs): ceph.version -> quay.io/ceph/ceph tag,
-            // ceph.operatorVersion -> rook-ceph chart + docker.io/rook/ceph tag.
-            values.setIn(['ceph', 'enabled'], true);
-            values.setIn(['ceph', 'version'], config.CEPH_VERSION);
-            values.setIn(['ceph', 'operatorVersion'], config.CEPH_OPERATOR_VERSION);
-            values.setIn(['ceph', 'user'], config.CEPH_USER);
-            values.setIn(['ceph', 'accessKey'], config.CEPH_ACCESS_KEY);
-            values.setIn(['ceph', 'secretKey'], config.CEPH_SECRET_KEY);
-            // The RGW host NodePort (ceph.nodePort) is fixed in values.yaml;
-            // kind.ts maps it to host CEPH_PORT. Nothing to override here.
-            return;
-        }
-
         // "serviceString" represents the literal service name string
         // in the "values.yaml"
         let serviceString: string = service;
         const version = versionMap[service];
+
+        if (service === Service.Ceph) {
+            // Ceph needs a second version (the Rook operator chart/image) and the
+            // static S3 creds, beyond the enabled/version set for every service
+            // below. All from config so the images match what CI caches.
+            values.setIn(['ceph', 'operatorVersion'], config.CEPH_OPERATOR_VERSION);
+            values.setIn(['ceph', 'user'], config.CEPH_USER);
+            values.setIn(['ceph', 'accessKey'], config.CEPH_ACCESS_KEY);
+            values.setIn(['ceph', 'secretKey'], config.CEPH_SECRET_KEY);
+        }
 
         if (service === Service.Opensearch) {
             const major = config.OPENSEARCH_VERSION.charAt(0);

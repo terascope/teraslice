@@ -1,22 +1,14 @@
-# Values for the rook-release/rook-ceph (operator) chart.
-# Rendered by helmfile from packages/scripts/helm/values.yaml (.Values.ceph.*).
-#
-# The one setting that matters for kind: allowLoopDevices. Ceph on a kind node
-# has no spare raw disk, so kind.ts backs the OSD with a loop device. This is
-# the declarative version of the manual `kubectl patch cm rook-ceph-operator-config`
-# (ROOK_CEPH_ALLOW_LOOP_DEVICES) step -- the chart writes that ConfigMap for us.
+# rook-release/rook-ceph (operator) chart values.
+
+# A kind node has no spare disk; kind.ts backs the OSD with a loop device.
 allowLoopDevices: true
 
-# NOTE: do NOT disable the ceph-csi operator here. Even for an object-store-only
-# cluster, Rook v1.20 creates a CephConnection CR during *mon* init, and that CRD
-# (csi.ceph.io/v1) ships with the ceph-csi operator subchart. Disabling it makes
-# the cluster fail with: no matches for kind "CephConnection". So we leave
-# csi.installCsiOperator at its default (true).
+# Don't disable csi.installCsiOperator: Rook creates a CephConnection CR
+# (csi.ceph.io/v1, from that subchart) during mon init, so disabling it breaks
+# cluster startup.
 
-# No raw-disk discovery needed; the OSD device is named explicitly.
 enableDiscoveryDaemon: false
 
-# Trim the operator footprint for a local single-node cluster.
 resources:
   limits:
     memory: 512Mi

@@ -18,17 +18,8 @@ const {
     DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
     OPENSEARCH_PORT, MINIO_PORT, MINIO_UI_PORT,
     KAFKA_PORT, OPENSEARCH_VERSION, ENCRYPTION_ENABLED,
-    CERT_PATH, VALKEY_PORT, CEPH_PORT
+    CERT_PATH, VALKEY_PORT, CEPH_PORT, CEPH_DASHBOARD_PORT
 } = config;
-
-// The in-cluster NodePorts the ceph-extras services are exposed on (see
-// helm/ceph-extras). Kept in sync with helm/values.yaml `ceph.nodePort` /
-// `ceph.dashboard.nodePort`. The dashboard mapping is added whenever Ceph is
-// enabled; it's a harmless no-op on the host until ceph.dashboard.enabled
-// creates the backing NodePort service.
-const CEPH_RGW_NODE_PORT = 30902;
-const CEPH_DASHBOARD_NODE_PORT = 30903;
-const CEPH_DASHBOARD_HOST_PORT = 8443;
 
 async function localDockerImageExists(image: string): Promise<boolean> {
     const result = await execa({ reject: false })`docker image inspect ${image}`;
@@ -123,17 +114,15 @@ export class Kind {
                         hostPort: VALKEY_PORT
                     });
                 } else if (service === 'ceph') {
-                    // Map the Rook RGW NodePort to host CEPH_PORT so the S3
-                    // endpoint is reachable from the host machine.
+                    // RGW S3 endpoint, and the mgr dashboard (used when
+                    // ceph.dashboard.enabled; a no-op on the host otherwise).
                     configFile.nodes[0].extraPortMappings.push({
-                        containerPort: CEPH_RGW_NODE_PORT,
+                        containerPort: 30902,
                         hostPort: CEPH_PORT
                     });
-                    // Map the mgr dashboard NodePort to the host too (used when
-                    // ceph.dashboard.enabled; a no-op otherwise).
                     configFile.nodes[0].extraPortMappings.push({
-                        containerPort: CEPH_DASHBOARD_NODE_PORT,
-                        hostPort: CEPH_DASHBOARD_HOST_PORT
+                        containerPort: 30903,
+                        hostPort: CEPH_DASHBOARD_PORT
                     });
                     this.deployedPorts.ceph = CEPH_PORT;
                 }
@@ -168,8 +157,8 @@ export class Kind {
                     hostPath: '/miniodata'
                 },
                 ceph: {
-                    containerPorts: [CEPH_RGW_NODE_PORT, CEPH_DASHBOARD_NODE_PORT],
-                    hostPorts: [CEPH_PORT, CEPH_DASHBOARD_HOST_PORT],
+                    containerPorts: [30902, 30903],
+                    hostPorts: [CEPH_PORT, CEPH_DASHBOARD_PORT],
                     hostPath: ''
                 },
                 prometheus_stack: {

@@ -6,9 +6,12 @@ export interface TestEnv {
     ASSETS_FROM_SOURCE?: string;
     ATTACH_JEST_DEBUGGER?: boolean;
     CEPH_ACCESS_KEY?: string;
+    CEPH_DASHBOARD_PORT?: number;
     CEPH_DOCKER_IMAGE?: string;
+    CEPH_NAMESPACE?: string;
     CEPH_OPERATOR_DOCKER_IMAGE?: string;
     CEPH_OPERATOR_VERSION?: string;
+    CEPH_STORE_NAME?: string;
     CEPH_HOST?: string;
     CEPH_HOSTNAME?: string;
     CEPH_NAME?: string;
@@ -216,7 +219,8 @@ type ScriptsConfig = TestEnv & ScriptsConfigDefaults;
 export type ScriptsTestEnv = RequireKeys<
     ScriptsConfig,
     'ASSET_STORAGE_CONNECTION' | 'ASSET_STORAGE_CONNECTION_TYPE' | 'ATTACH_JEST_DEBUGGER'
-    | 'CEPH_ACCESS_KEY' | 'CEPH_DOCKER_IMAGE' | 'CEPH_OPERATOR_DOCKER_IMAGE'
+    | 'CEPH_ACCESS_KEY' | 'CEPH_DASHBOARD_PORT' | 'CEPH_DOCKER_IMAGE'
+    | 'CEPH_NAMESPACE' | 'CEPH_STORE_NAME' | 'CEPH_OPERATOR_DOCKER_IMAGE'
     | 'CEPH_OPERATOR_VERSION' | 'CEPH_HOST'
     | 'CEPH_HOSTNAME' | 'CEPH_NAME' | 'CEPH_OSD_COUNT' | 'CEPH_OSD_SIZE'
     | 'CEPH_PROTOCOL' | 'CEPH_PORT' | 'CEPH_SECRET_KEY' | 'CEPH_USER'

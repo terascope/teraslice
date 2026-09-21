@@ -112,10 +112,9 @@ releases:
       - default/minio-secret
     {{- end }}
 
-  # Ceph (Rook) S3 object store. Three releases: the operator, the CephCluster +
-  # CephObjectStore, and a NodePort in front of the RGW for host access. All are
-  # gated on ceph.enabled and land in the rook-ceph namespace. The node's OSD
-  # loop device + udev are prepared by kind.ts before these reconcile.
+  # Ceph (Rook) S3 object store: the operator, the CephCluster/CephObjectStore,
+  # and ceph-extras (RGW NodePort + a static-keyed S3 user). All gated on
+  # ceph.enabled. kind.ts preps the node's OSD loop device before these reconcile.
   - name: rook-ceph
     namespace: rook-ceph
     chart: rook-release/rook-ceph
@@ -131,11 +130,8 @@ releases:
     chart: rook-release/rook-ceph-cluster
     version: {{ .Values | get "ceph.operatorVersion" "v1.20.7" }}
     installed: {{ .Values | get "ceph.enabled" false }}
-    # The OSD/RGW are brought up asynchronously by the operator reconciling the
-    # CephCluster/CephObjectStore CRs -- not by this release's own workloads. A
-    # helm --wait here would block on the toolbox for the whole (multi-minute)
-    # reconcile and risk a timeout, so we don't wait; the runner waits for the
-    # RGW gateway explicitly post-sync (setupCephObjectUser in k8s-env).
+    # The OSD/RGW come up via operator reconcile, not this release's workloads, so
+    # a helm --wait would just block on the toolbox and risk a timeout.
     wait: false
     values:
       - ./templates/ceph-cluster.yaml.gotmpl
@@ -143,10 +139,8 @@ releases:
       - default/namespaces
       - rook-ceph/rook-ceph
 
-  # Extra resources on top of the Rook object store: a NodePort in front of the
-  # RGW (host access) and a static-keyed S3 user (Secret + CephObjectStoreUser,
-  # provisioned server-side by the operator -- reliable, unlike radosgw-admin over
-  # a kubectl exec stream). Values are inlined from the shared ceph.* config.
+  # RGW NodePort (host access) + a static-keyed S3 user (Secret +
+  # CephObjectStoreUser). Values inlined from the shared ceph.* config.
   - name: ceph-extras
     namespace: rook-ceph
     chart: ./ceph-extras
@@ -165,11 +159,8 @@ releases:
     needs:
       - rook-ceph/rook-ceph
       - rook-ceph/rook-ceph-cluster
-    # Block until the operator has actually provisioned the S3 user (applying the
-    # CR is not enough). Anything that needs a working S3 endpoint -- i.e.
-    # teraslice with s3 asset storage -- depends on this release, so it won't sync
-    # until the user (and thus the RGW) is Ready. This is what lets teraslice's
-    # first boot upload assets to Ceph instead of recording them as "missing".
+    # Wait for the operator to actually provision the S3 user; teraslice `needs`
+    # this release so it won't start until the user (and RGW) is Ready.
     hooks:
       - events: ["postsync"]
         showlogs: true
@@ -239,9 +230,8 @@ releases:
       - default/namespaces
       - services-dev1/{{ .Values | get "teraslice.stateCluster" "opensearch2" }}
       {{- if .Values | get "ceph.enabled" false }}
-      # Wait for Ceph's S3 user to be Ready (via ceph-extras' postsync hook) before
-      # teraslice starts, so its first boot has a working S3 backend and uploads
-      # autoloaded assets to Ceph (no crashloop, no restart, no "missing" assets).
+      # Start teraslice only after Ceph's S3 user is Ready (ceph-extras' hook), so
+      # its first boot uploads assets to Ceph instead of recording them "missing".
       - rook-ceph/ceph-extras
       {{- end }}
     values:
