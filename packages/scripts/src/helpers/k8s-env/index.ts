@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import { Service } from '@terascope/types';
 import { isCI, pRetry } from '@terascope/core-utils';
 import { dockerTag, dockerBuild } from '../docker.js';
 import {
@@ -11,7 +12,7 @@ import {
 } from '../helm.js';
 import { generateTestCaCerts } from '../certs.js';
 import { Kind } from '../kind.js';
-import { K8sEnvOptions } from './interfaces.js';
+import { K8sEnvOptions, CephRuntimeInfo } from './interfaces.js';
 import signale from '../signale.js';
 import {
     getDevDockerImage, getRootDir, getRootInfo,
@@ -63,6 +64,12 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         signale.pending('Starting k8s environment with the following options: ', options);
     }
 
+    // Ceph is enabled either via TEST_CEPH (env-var path -> ENV_SERVICES) or via
+    // `ceph.enabled` in a custom config file. Resolve it (and the S3 creds/store,
+    // which must match what the teraslice s3 connector uses) up front so both the
+    // node prep and the post-sync user creation fire in either path.
+    const cephInfo = await resolveCephInfo(options.configFile);
+
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
         signale.error('Please install Kind before launching a k8s dev environment. https://kind.sigs.k8s.io/docs/user/quick-start');
@@ -98,6 +105,19 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         process.exit(1);
     }
     signale.success('Kind cluster created');
+
+    // Ceph needs a raw block device for its OSD. Prepare a loop device + udev on
+    // the node now, before the Rook cluster reconciles, so the OSD comes up on
+    // the first pass. No-op unless Ceph is enabled.
+    if (cephInfo.enabled) {
+        try {
+            await kind.prepNodeForCeph();
+        } catch (err) {
+            signale.error(err);
+            await kind.destroyCluster();
+            process.exit(1);
+        }
+    }
 
     try {
         if (!options.configFile || (buildTerasliceImage)) {
@@ -159,6 +179,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             );
         }
         signale.success('Teraslice launched with helmfile');
+
         signale.pending('Ensuring Teraslice api is up...');
         await ensureTeraslice();
         signale.success('Teraslice api is up and running!');
@@ -170,10 +191,42 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         }
         process.exit(1);
     }
-    signale.success(buildNextStepsMessage(kind, options));
+
+    signale.success(buildNextStepsMessage(kind, cephInfo, options));
 }
 
-function buildNextStepsMessage(kind: Kind, options: K8sEnvOptions): string {
+/**
+ * Resolve whether Ceph is enabled and the S3 identity to use. In config-file
+ * mode these come from the yaml `ceph.*` block (which the teraslice s3 connector
+ * also reads, so they match); otherwise from the env-var-driven config defaults.
+ */
+async function resolveCephInfo(configFile?: string): Promise<CephRuntimeInfo> {
+    if (configFile) {
+        const enabled = Boolean(await getConfigValueFromCustomYaml(configFile, 'ceph.enabled'));
+        return {
+            enabled,
+            namespace: (await getConfigValueFromCustomYaml(configFile, 'ceph.namespace')) || config.CEPH_NAMESPACE,
+            storeName: (await getConfigValueFromCustomYaml(configFile, 'ceph.storeName')) || config.CEPH_STORE_NAME,
+            user: (await getConfigValueFromCustomYaml(configFile, 'ceph.user')) || config.CEPH_USER,
+            accessKey: (await getConfigValueFromCustomYaml(configFile, 'ceph.accessKey')) || config.CEPH_ACCESS_KEY,
+            secretKey: (await getConfigValueFromCustomYaml(configFile, 'ceph.secretKey')) || config.CEPH_SECRET_KEY,
+            dashboardEnabled: Boolean(await getConfigValueFromCustomYaml(configFile, 'ceph.dashboard.enabled')),
+        };
+    }
+    return {
+        enabled: config.ENV_SERVICES.includes(Service.Ceph),
+        namespace: config.CEPH_NAMESPACE,
+        storeName: config.CEPH_STORE_NAME,
+        user: config.CEPH_USER,
+        accessKey: config.CEPH_ACCESS_KEY,
+        secretKey: config.CEPH_SECRET_KEY,
+        dashboardEnabled: false,
+    };
+}
+
+function buildNextStepsMessage(
+    kind: Kind, cephInfo: CephRuntimeInfo, options: K8sEnvOptions
+): string {
     const { deployedPorts } = kind;
     const tsPort = deployedPorts.teraslice;
     const { kindClusterName } = options;
@@ -209,6 +262,19 @@ function buildNextStepsMessage(kind: Kind, options: K8sEnvOptions): string {
         lines.push(`\tMinio API: http://localhost:${deployedPorts.minioApi}`);
         lines.push(`\tMinio UI: http://localhost:${deployedPorts.minioUi}`);
     }
+    if (deployedPorts.ceph !== undefined) {
+        lines.push(`\tCeph S3 (host): http://localhost:${deployedPorts.ceph}  (path-style addressing)`);
+        lines.push(`\tCeph S3 (in-cluster): http://rook-ceph-rgw-${cephInfo.storeName}.${cephInfo.namespace}.svc.cluster.local`);
+        lines.push(`\tCeph S3 access key: ${cephInfo.accessKey}`);
+        lines.push(`\tCeph S3 secret key: ${cephInfo.secretKey}`);
+        lines.push(`\tCeph toolbox: kubectl -n ${cephInfo.namespace} exec -it deploy/rook-ceph-tools -- ceph status`);
+        if (cephInfo.dashboardEnabled) {
+            lines.push(`\tCeph dashboard (view buckets/users): https://localhost:${config.CEPH_DASHBOARD_PORT}  (self-signed; user: admin)`);
+            lines.push(`\t\tPassword: kubectl -n ${cephInfo.namespace} get secret rook-ceph-dashboard-password -o jsonpath='{.data.password}' | base64 -d; echo`);
+        } else {
+            lines.push('\tCeph dashboard: disabled (set ceph.dashboard.enabled=true in your config to view buckets/users)');
+        }
+    }
     if (deployedPorts.kafka !== undefined) {
         lines.push(`\tKafka Broker: localhost:${deployedPorts.kafka}`);
     }
@@ -240,7 +306,9 @@ async function ensureTeraslice(): Promise<void> {
         } else {
             throw new Error(`Teraslice endpoint returned an object that didn't have 'teraslice_version' as a key: ${data}`);
         }
-    }, { retries: 10, delay: 1000, backoff: 1.5, maxDelay: 12000 });
+        // Allow extra time: with s3 (Ceph) asset storage, teraslice must reach the
+        // RGW and create its assets bucket before the API responds.
+    }, { retries: 24, delay: 2000, backoff: 1.3, maxDelay: 15000 });
 }
 
 export async function rebuildTeraslice(options: K8sEnvOptions) {

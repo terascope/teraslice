@@ -1,3 +1,4 @@
 namespaces:
   - services-dev1
   - ts-dev1
+  - rook-ceph

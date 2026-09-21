@@ -1,0 +1,115 @@
+# Values for the rook-release/rook-ceph-cluster chart.
+# Rendered by helmfile from packages/scripts/helm/values.yaml (.Values.ceph.*).
+#
+# This is the declarative equivalent of the validated manual runbook
+# (deploy/examples/cluster-test.yaml + object-test.yaml): a single-node,
+# single-OSD Ceph cluster serving one S3 object store via RGW. HEALTH_WARN is
+# expected and benign on a 1-OSD cluster (replica size 1).
+
+# The operator is deployed as its own helmfile release (rook-ceph), so the
+# cluster chart must not try to (re)install it here.
+operatorNamespace: {{ .Values.ceph.namespace }}
+# The Ceph image for the cluster (and, by default, the toolbox). This is the
+# chart's top-level image knob; setting cephClusterSpec.cephVersion instead
+# produces a duplicate `cephVersion` key because the chart renders one itself.
+cephImage:
+  repository: quay.io/ceph/ceph
+  tag: {{ .Values.ceph.version }}
+
+toolbox:
+  # Handy for `ceph status` / `radosgw-admin`. Also how the runner creates the
+  # static S3 user post-sync (mirrors docker mode). Inherits cephImage above.
+  enabled: true
+
+# ceph-mgr dashboard is not needed for tests; skip it to save a pod.
+monitoring:
+  enabled: false
+
+cephClusterSpec:
+  # cephVersion is intentionally omitted here -- the image comes from the
+  # top-level cephImage above (see note there).
+  dataDirHostPath: /var/lib/rook
+
+  # --- single-node test settings (mirror cluster-test.yaml) ---
+  mon:
+    count: 1
+    allowMultiplePerNode: true
+  mgr:
+    count: 1
+    allowMultiplePerNode: true
+    modules:
+      - name: rook
+        enabled: false
+
+  dashboard:
+    # Off by default; flip ceph.dashboard.enabled to view cluster health + RGW
+    # buckets/users when debugging (Rook auto-wires the dashboard to the RGW).
+    enabled: {{ .Values | get "ceph.dashboard.enabled" false }}
+
+  # Trim optional daemons that add pods we don't need for a throwaway cluster.
+  crashCollector:
+    disable: true
+  logCollector:
+    enabled: false
+
+  # Shrunk so the whole cluster schedules on one resource-constrained kind node.
+  resources:
+    mgr:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+    mon:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+    osd:
+      requests:
+        cpu: "250m"
+        memory: "1Gi"
+    prepareosd:
+      requests:
+        cpu: "100m"
+        memory: "50Mi"
+
+  storage:
+    useAllNodes: true
+    # Loop devices are deliberately skipped by useAllDevices (see upstream
+    # pkg/daemon/ceph/osd/daemon.go), so the device is named explicitly. The
+    # loop device is created on the node by kind.ts before this reconciles.
+    useAllDevices: false
+    devices:
+      - name: {{ .Values.ceph.osdDevice }}
+
+# Object storage only -- no RBD block pools or CephFS filesystems (and none of
+# their CSI storage classes). Empty lists replace the chart defaults.
+cephBlockPools: []
+cephFileSystems: []
+
+cephObjectStores:
+  - name: {{ .Values.ceph.storeName }}
+    spec:
+      # size 1 / failureDomain osd so the pools are clean on a single OSD.
+      metadataPool:
+        failureDomain: osd
+        replicated:
+          size: 1
+          requireSafeReplicaSize: false
+      dataPool:
+        failureDomain: osd
+        replicated:
+          size: 1
+          requireSafeReplicaSize: false
+      preservePoolsOnDelete: false
+      gateway:
+        port: {{ .Values.ceph.rgwPort }}
+        instances: 1
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+    # The runner creates a static user via the toolbox instead of an
+    # auto-keyed CephObjectStoreUser, so no bucket storage class is needed.
+    storageClass:
+      enabled: false
+    ingress:
+      enabled: false

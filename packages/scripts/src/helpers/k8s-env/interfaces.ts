@@ -10,3 +10,14 @@ export interface K8sEnvOptions {
     configFile?: string;
     logs: boolean;
 }
+
+/** Ceph enablement + the S3 identity used by the k8s-env Ceph path. */
+export interface CephRuntimeInfo {
+    enabled: boolean;
+    namespace: string;
+    storeName: string;
+    user: string;
+    accessKey: string;
+    secretKey: string;
+    dashboardEnabled: boolean;
+}

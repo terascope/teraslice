@@ -18,7 +18,7 @@ const {
     DOCKER_CACHE_PATH, TERASLICE_PORT, ENV_SERVICES,
     OPENSEARCH_PORT, MINIO_PORT, MINIO_UI_PORT,
     KAFKA_PORT, OPENSEARCH_VERSION, ENCRYPTION_ENABLED,
-    CERT_PATH, VALKEY_PORT
+    CERT_PATH, VALKEY_PORT, CEPH_PORT, CEPH_DASHBOARD_PORT
 } = config;
 
 async function localDockerImageExists(image: string): Promise<boolean> {
@@ -113,6 +113,18 @@ export class Kind {
                         containerPort: 30379,
                         hostPort: VALKEY_PORT
                     });
+                } else if (service === 'ceph') {
+                    // RGW S3 endpoint, and the mgr dashboard (used when
+                    // ceph.dashboard.enabled; a no-op on the host otherwise).
+                    configFile.nodes[0].extraPortMappings.push({
+                        containerPort: 30902,
+                        hostPort: CEPH_PORT
+                    });
+                    configFile.nodes[0].extraPortMappings.push({
+                        containerPort: 30903,
+                        hostPort: CEPH_DASHBOARD_PORT
+                    });
+                    this.deployedPorts.ceph = CEPH_PORT;
                 }
             }
         } else {
@@ -143,6 +155,11 @@ export class Kind {
                     containerPorts: [30900, 30901],
                     hostPorts: [9000, 9001],
                     hostPath: '/miniodata'
+                },
+                ceph: {
+                    containerPorts: [30902, 30903],
+                    hostPorts: [CEPH_PORT, CEPH_DASHBOARD_PORT],
+                    hostPath: ''
                 },
                 prometheus_stack: {
                     containerPorts: [30222, 30223, 30224],
@@ -199,6 +216,10 @@ export class Kind {
                         this.deployedPorts.valkey
                             = customConfig[service].hostPort
                                 ?? defs.hostPorts[0];
+                    } else if (service === 'ceph') {
+                        this.deployedPorts.ceph
+                            = customConfig[service].hostPort
+                                ?? defs.hostPorts[0];
                     }
 
                     if (customConfig[service].hostVolumePath) {
@@ -248,6 +269,61 @@ export class Kind {
     async destroyCluster(): Promise<void> {
         const subprocess = await execa`kind delete cluster --name ${this.clusterName}`;
         this.logger.debug(subprocess.stderr);
+    }
+
+    /**
+     * Give the kind node a raw block device for Ceph's OSD.
+     *
+     * A kind "node" is a container with no spare disk and no udevd, so Rook's
+     * OSD prepare (ceph-volume) has nothing to consume. We back the OSD with a
+     * file-based loop device and make udev work inside the node. This must run
+     * AFTER the cluster is created but BEFORE the Rook cluster reconciles, so
+     * the operator finds /dev/loop0 (with udev data) on the first pass.
+     *
+     * This mirrors the validated manual runbook (steps 3.2 + 3.4). It is a
+     * no-op for non-Ceph runs -- only called when Service.Ceph is enabled.
+     *
+     * NOTE: a loop device + udevd do not survive a node restart. That is fine
+     * for an ephemeral test cluster (created fresh each run, never restarted
+     * mid-run). Rook's operator config sets ROOK_CEPH_ALLOW_LOOP_DEVICES via
+     * the operator chart's allowLoopDevices value.
+     */
+    async prepNodeForCeph(): Promise<void> {
+        const node = `${this.clusterName}-control-plane`;
+
+        // Create + attach a file-backed loop device for the OSD, bound to a
+        // KNOWN device (/dev/loop0) so it matches ceph.osdDevice in the chart.
+        // `losetup --find` is not deterministic (it picks the first free slot,
+        // which may be loop1 if loop0 holds a stale/deleted mapping), so we
+        // detach any prior binding and attach /dev/loop0 explicitly. Idempotent.
+        signale.pending(`Preparing loop device for Ceph OSD on node ${node}`);
+        const loopScript = [
+            'set -e',
+            'mkdir -p /var/lib/rook-osd',
+            '[ -f /var/lib/rook-osd/osd0.img ] || fallocate -l 20G /var/lib/rook-osd/osd0.img',
+            '# detach any loop already bound to our image, and free /dev/loop0',
+            'for l in $(losetup -j /var/lib/rook-osd/osd0.img | cut -d: -f1); do losetup -d "$l" || true; done',
+            'losetup -d /dev/loop0 2>/dev/null || true',
+            '[ -b /dev/loop0 ] || mknod /dev/loop0 b 7 0',
+            'losetup /dev/loop0 /var/lib/rook-osd/osd0.img',
+            'echo "bound /dev/loop0 ->" $(losetup -j /var/lib/rook-osd/osd0.img)',
+        ].join('\n');
+        const loopProc = await execa`docker exec ${node} bash -c ${loopScript}`;
+        this.logger.debug(loopProc.stdout);
+
+        // kind ships /sys read-only and runs no udevd, so ceph-volume fails with
+        // "No udev data could be retrieved for /sys/block/loop0". Remount /sys
+        // rw, start udevd, and coldplug so /run/udev/data is populated.
+        signale.pending('Enabling udev inside the kind node for Ceph');
+        const udevScript = [
+            'mount -o remount,rw /sys || true',
+            '/usr/lib/systemd/systemd-udevd --daemon || true',
+            'udevadm trigger --action=add --subsystem-match=block || true',
+            'udevadm settle || true',
+        ].join('\n');
+        const udevProc = await execa`docker exec ${node} bash -c ${udevScript}`;
+        this.logger.debug(udevProc.stdout);
+        signale.success('Ceph OSD loop device + udev ready on kind node');
     }
 
     async loadTerasliceImage(terasliceImage: string): Promise<void> {

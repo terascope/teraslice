@@ -1,0 +1,17 @@
+# rook-release/rook-ceph (operator) chart values.
+
+# A kind node has no spare disk; kind.ts backs the OSD with a loop device.
+allowLoopDevices: true
+
+# Don't disable csi.installCsiOperator: Rook creates a CephConnection CR
+# (csi.ceph.io/v1, from that subchart) during mon init, so disabling it breaks
+# cluster startup.
+
+enableDiscoveryDaemon: false
+
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
