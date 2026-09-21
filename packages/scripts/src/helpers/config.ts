@@ -796,7 +796,7 @@ config.MINIO_HOST = `${config.MINIO_PROTOCOL}://${config.MINIO_HOSTNAME}:${confi
 
 config.ENCRYPT_CEPH = toBoolean(process.env.ENCRYPT_CEPH) || false;
 config.CEPH_HOSTNAME = process.env.CEPH_HOSTNAME || config.HOST_IP;
-config.CEPH_PORT = Number(process.env.CEPH_PORT) || 49480;
+config.CEPH_PORT = Number(process.env.CEPH_PORT) || 47480;
 config.CEPH_PROTOCOL = config.ENCRYPT_CEPH ? 'https' : 'http';
 config.CEPH_HOST = `${config.CEPH_PROTOCOL}://${config.CEPH_HOSTNAME}:${config.CEPH_PORT}`;
 

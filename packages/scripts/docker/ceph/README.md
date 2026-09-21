@@ -127,4 +127,4 @@ overlay yourself — see `.env.example` for the commands.
 fails to initialize, which reaches the caller only as a readiness timeout after
 `SERVICE_UP_TIMEOUT`. Check `docker compose logs rgw` first — `rgw.sh` logs the
 frontend string it chose. For a SAN mismatch,
-`openssl s_client -connect <host>:49480` is the fast diagnostic.
+`openssl s_client -connect <host>:47480` is the fast diagnostic.
