@@ -257,29 +257,36 @@ Check out the [API docs](../packages/job-components/api/operations/operation-api
 
 ### Observer
 
-This type of API only monitors/tracks data and processors, checkout the [Worker Lifecycle](./slices.md#worker-lifecycle-events)) for all of the events that can be subscribed to.
+This type of API only monitors/tracks data and processors. Unlike an [Operation API](#operation-api) it does not expose anything to the other operations in the job, so it does not implement `createAPI`. It subscribes to the lifecycle by defining the methods it cares about, checkout the [Worker Lifecycle](./slices.md#worker-lifecycle-events) for all of the events that can be subscribed to.
 
 **Example:**
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--TypeScript-->
 ```ts
-import { Observer } from '@terascope/job-components';
+import { DataEntity, Observer } from '@terascope/job-components';
 
 export default class ExampleObserver extends Observer {
 
-    onOperationStart(sliceId: string, index: number): boolean {
+    // NOTE: this is NOT an async function and should not return anything.
+    onOperationStart(sliceId: string, index: number): void {
         const opName = this.executionConfig.operations[index]._op;
-        this.logger.trace(`operation ${opName} is starting slice ${slice}`);
+        this.logger.trace(`operation ${opName} is starting slice ${sliceId}`);
     }
 
-    onOperationEnd(sliceId: string, index: number, processed: number): boolean {
+    // NOTE: this is NOT an async function and should not return anything.
+    onOperationComplete(
+        sliceId: string,
+        index: number,
+        processed: number,
+        records: DataEntity[]
+    ): void {
         const opName = this.executionConfig.operations[index]._op;
-        this.logger.trace(`operation ${opName} is processed ${processed} records for slice ${slice}`);
+        this.logger.trace(`operation ${opName} processed ${processed} records for slice ${sliceId}`);
     }
 
 }
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-Check out the [API docs](../packages/job-components/api/operations/observer/overview.md) for more details.
+See [Observers](./observers.md) for the full documentation, or checkout the [API docs](../packages/job-components/api/operations/observer/overview.md) for more details.

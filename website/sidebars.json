@@ -23,6 +23,7 @@
             "jobs/slices",
             "jobs/data-entities",
             "jobs/dead-letter-queue",
+            "jobs/observers",
             "jobs/development",
             "jobs/testing"
         ],
@@ -56,9 +57,9 @@
                 "label": "data-types",
                 "items": [
                     "packages/data-types/overview",
-                    "packages/data-types/field-configs",
                     "packages/data-types/development",
-                    "packages/data-types/api/overview"
+                    "packages/data-types/api/overview",
+                    "packages/data-types/field-configs"
                 ]
             },
             {

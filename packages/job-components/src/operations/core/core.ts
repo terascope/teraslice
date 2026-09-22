@@ -3,7 +3,7 @@ import { Logger } from '@terascope/core-utils';
 import { Context, ExecutionConfig, OperationLifeCycle } from '../../interfaces/index.js';
 
 /**
- * The core class for creating for all varients or base classes for an operation.
+ * The core class for creating for all variants or base classes for an operation.
  */
 
 export default abstract class Core<T extends Context> implements OperationLifeCycle {
