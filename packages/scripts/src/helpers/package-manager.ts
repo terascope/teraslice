@@ -12,7 +12,7 @@ const logger = debugLogger('ts-scripts:cmd');
 
 /**
  * Returns the package manager by reading the `packageManager` field from the
- * root package.json (e.g. "pnpm@11.3.0" → "pnpm"). Defaults to 'pnpm' if not set.
+ * root package.json (e.g. "pnpm@12.3.4" → "pnpm"). Defaults to 'pnpm' if not set.
  */
 export function getPackageManager(): string {
     const rootInfo = getRootInfo();
