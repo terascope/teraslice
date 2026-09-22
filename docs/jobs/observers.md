@@ -4,7 +4,7 @@ title: Observers
 
 An `Observer` is a type of [Job API](./types-of-operations.md#apis) that only watches a job run. It is attached to the execution lifecycle and is notified as slices and operations move through the pipeline, but it never sits in the data pipeline itself and never exposes anything to the other operations in the job.
 
-Use an Observer when you want to collect metrics, emit custom logs, track throughput, or push job progress to an external service &mdash; anything that observes the job without changing the data.
+Use an Observer when you want to collect metrics, emit custom logs, track throughput, or push job progress to an external service - anything that observes the job without changing the data.
 
 If you need to expose functionality to the operations in a job, use an [Operation API](./types-of-operations.md#operation-api) instead.
 
@@ -20,7 +20,7 @@ Both are configured in the job's [apis](./configuration.md#apis) and both extend
 | File name in an asset                 | `api.js`/`api.ts`                  | `observer.js`/`observer.ts` |
 | Retrieved with                        | `getAPI(name)`                     | `getObserver(name)`         |
 
-Teraslice determines which one you wrote by checking whether the instance has a `createAPI` method &mdash; there is no flag to set. Because an Observer has no `createAPI`, it is never "created", and calling `initAPI` on one throws `Observers cannot be created`.
+Teraslice determines which one you wrote by checking whether the instance has a `createAPI` method - there is no flag to set. Because an Observer has no `createAPI`, it is never "created", and calling `initAPI` on one throws `Observers cannot be created`.
 
 ## Writing an Observer
 
