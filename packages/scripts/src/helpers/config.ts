@@ -501,6 +501,10 @@ const configSchema: Terafoundation.Schema<any> = {
         format: String,
         env: 'CEPH_VERSION'
     },
+    ENCRYPT_CEPH: {
+        default: undefined,
+        format: Boolean,
+    },
 
     // Minio config
     ENCRYPT_MINIO: {
@@ -790,10 +794,10 @@ config.MINIO_PORT = Number(process.env.MINIO_PORT) || 49000;
 config.MINIO_PROTOCOL = config.ENCRYPT_MINIO ? 'https' : 'http';
 config.MINIO_HOST = `${config.MINIO_PROTOCOL}://${config.MINIO_HOSTNAME}:${config.MINIO_PORT}`;
 
+config.ENCRYPT_CEPH = toBoolean(process.env.ENCRYPT_CEPH) || false;
 config.CEPH_HOSTNAME = process.env.CEPH_HOSTNAME || config.HOST_IP;
-config.CEPH_PORT = Number(process.env.CEPH_PORT) || 49500;
-// http only for now -- TLS will be added in the future
-config.CEPH_PROTOCOL = 'http';
+config.CEPH_PORT = Number(process.env.CEPH_PORT) || 47480;
+config.CEPH_PROTOCOL = config.ENCRYPT_CEPH ? 'https' : 'http';
 config.CEPH_HOST = `${config.CEPH_PROTOCOL}://${config.CEPH_HOSTNAME}:${config.CEPH_PORT}`;
 
 config.RABBITMQ_PORT = Number(process.env.RABBITMQ_PORT) || 45672;
@@ -834,7 +838,8 @@ config.SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS) ?? (!i
 */
 config.MAX_PROJECTS_PER_BATCH = toIntegerOrThrow(process.env.MAX_PROJECTS_PER_BATCH ?? 5);
 
-config.ENCRYPTION_ENABLED = toBoolean(process.env.ENCRYPT_KAFKA)
+config.ENCRYPTION_ENABLED = toBoolean(process.env.ENCRYPT_CEPH)
+    || toBoolean(process.env.ENCRYPT_KAFKA)
     || toBoolean(process.env.ENCRYPT_MINIO)
     || toBoolean(process.env.ENCRYPT_OPENSEARCH);
 

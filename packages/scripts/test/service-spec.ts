@@ -58,6 +58,8 @@ const mockConfig = {
     CEPH_USER: '',
     CEPH_OSD_COUNT: '',
     CEPH_OSD_SIZE: '',
+    CEPH_PROTOCOL: '',
+    ENCRYPT_CEPH: '',
     RABBITMQ_DOCKER_IMAGE: '',
     RABBITMQ_NAME: '',
     RABBITMQ_PORT: '',

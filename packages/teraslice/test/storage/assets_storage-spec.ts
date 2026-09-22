@@ -4,7 +4,7 @@ import { Logger } from '@terascope/core-utils';
 import { createClient } from '@terascope/opensearch-client';
 import { createS3Client } from '@terascope/file-asset-apis';
 import { AssetsStorage } from '../../src/lib/storage/index.js';
-import { SEARCH_TEST_HOST, TEST_INDEX_PREFIX } from '../test.config.js';
+import { S3_CONNECTOR_CONFIG, SEARCH_TEST_HOST, TEST_INDEX_PREFIX } from '../test.config.js';
 
 describe('AssetsStorage using S3 backend', () => {
     let storage: AssetsStorage;
@@ -39,14 +39,7 @@ describe('AssetsStorage using S3 backend', () => {
                 }
             },
             s3: {
-                default: {
-                    endpoint: process.env.CEPH_HOST,
-                    accessKeyId: process.env.CEPH_ACCESS_KEY,
-                    secretAccessKey: process.env.CEPH_SECRET_KEY,
-                    forcePathStyle: true,
-                    sslEnabled: false,
-                    region: 'us-east-1'
-                }
+                default: S3_CONNECTOR_CONFIG
             }
         }
     };
