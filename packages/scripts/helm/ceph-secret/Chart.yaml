@@ -1,0 +1,4 @@
+apiVersion: v2
+name: ceph-secret
+version: 0.1.0
+description: Creates the Kubernetes secret holding the Ceph RGW TLS keypair (Rook sslCertificateRef)

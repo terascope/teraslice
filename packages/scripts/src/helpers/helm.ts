@@ -216,6 +216,20 @@ function generateHelmValuesFromServices(
             values.setIn(['ceph', 'user'], config.CEPH_USER);
             values.setIn(['ceph', 'accessKey'], config.CEPH_ACCESS_KEY);
             values.setIn(['ceph', 'secretKey'], config.CEPH_SECRET_KEY);
+
+            if (config.ENCRYPT_CEPH) {
+                if (!caCert) {
+                    caCert = readCertFromPath(path.join(config.CERT_PATH, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
+                }
+                // Rook's beast frontend reads a single PEM (key + cert). Stored under
+                // the secret's "cert" key by the ceph-secret chart.
+                const keypair = readCertFromPath(path.join(config.CERT_PATH, 'ceph-keypair.pem')).replace(/\n/g, '\\n');
+
+                values.setIn(['ceph', 'tls', 'enabled'], true);
+                values.setIn(['ceph', 'tls', 'caCert'], caCert);
+                values.setIn(['ceph', 'tls', 'keypair'], keypair);
+                values.setIn(['ceph', 'tls', 'certSecret'], 'tls-ssl-ceph');
+            }
         }
 
         if (service === Service.Opensearch) {

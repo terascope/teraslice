@@ -41,6 +41,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             'opensearch3.ssl.enabled',
             'kafka.ssl.enabled',
             'minio.tls.enabled',
+            'ceph.tls.enabled',
             'valkey.tls.enabled'
         ];
         const encryptedServices: string[] = [];

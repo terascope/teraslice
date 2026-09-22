@@ -101,7 +101,14 @@ cephObjectStores:
           requireSafeReplicaSize: false
       preservePoolsOnDelete: false
       gateway:
+        # Serve plain http on rgwPort always (host NodePort debugging), and add
+        # https on securePort when TLS is on. sslCertificateRef names the opaque
+        # secret (ceph-secret chart) whose "cert" key holds the key+cert PEM.
         port: {{ .Values.ceph.rgwPort }}
+        {{- if .Values | get "ceph.tls.enabled" false }}
+        securePort: 443
+        sslCertificateRef: {{ .Values | get "ceph.tls.certSecret" "tls-ssl-ceph" }}
+        {{- end }}
         instances: 1
         resources:
           requests:

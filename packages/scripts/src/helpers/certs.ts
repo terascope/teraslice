@@ -293,7 +293,13 @@ export async function generateTestCaCerts(): Promise<void> {
         hostNames.push(
             'rgw',
             'ceph-rgw',
-            config.CEPH_HOSTNAME
+            config.CEPH_HOSTNAME,
+            // In-cluster RGW service DNS (k8s/kind path) so teraslice's TLS client
+            // validates the cert when it connects to the RGW over https. Harmless
+            // for docker. Must match the endpoint in teraslice.yaml.gotmpl.
+            `rook-ceph-rgw-${config.CEPH_STORE_NAME}.${config.CEPH_NAMESPACE}.svc.cluster.local`,
+            `rook-ceph-rgw-${config.CEPH_STORE_NAME}.${config.CEPH_NAMESPACE}.svc`,
+            `rook-ceph-rgw-${config.CEPH_STORE_NAME}.${config.CEPH_NAMESPACE}`
         );
     }
 
