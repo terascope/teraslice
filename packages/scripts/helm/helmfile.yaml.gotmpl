@@ -170,6 +170,7 @@ releases:
         storeName: {{ .Values | get "ceph.storeName" "teraslice-store" }}
         rgwPort: {{ .Values | get "ceph.rgwPort" 80 }}
         nodePort: {{ .Values | get "ceph.nodePort" 30902 }}
+        tlsEnabled: {{ .Values | get "ceph.tls.enabled" false }}
         user: {{ .Values | get "ceph.user" "test" }}
         accessKey: {{ .Values | get "ceph.accessKey" "cephtestaccesskey" }}
         secretKey: {{ .Values | get "ceph.secretKey" "cephtestsecretkey" }}

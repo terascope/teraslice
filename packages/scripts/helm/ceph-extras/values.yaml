@@ -5,6 +5,9 @@ storeName: teraslice-store
 # RGW host exposure
 rgwPort: 80
 nodePort: 30902
+# When true, the NodePort targets the RGW's TLS container port (8443) instead of
+# the plain port (8080), so host-facing S3 clients connect over https.
+tlsEnabled: false
 # Static S3 user
 user: test
 accessKey: cephtestaccesskey
