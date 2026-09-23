@@ -56,7 +56,7 @@ describe('ip searches', () => {
     it('can match ipv4 addresses', async () => {
         const searchParams = await access.restrictSearchQuery(
             'ip:192.168.2.1',
-            { ...clientMetadata }
+            { ...clientMetadata, params: { index, size: searchData.length } }
         );
 
         const response = await client.search(searchParams);
@@ -72,7 +72,7 @@ describe('ip searches', () => {
     it('can match ipv6 addresses', async () => {
         const searchParams = await access.restrictSearchQuery(
             'ip:2001:0db8:0123:4567:89ab:cdef:1234:5678',
-            { ...clientMetadata }
+            { ...clientMetadata, params: { index, size: searchData.length } }
         );
 
         const response = await client.search(searchParams);
@@ -88,7 +88,7 @@ describe('ip searches', () => {
     it('should be able to handle masked ipv4 addresses', async () => {
         const searchParams = await access.restrictSearchQuery(
             'ip:"::0.0.0.1"',
-            { ...clientMetadata }
+            { ...clientMetadata, params: { index, size: searchData.length } }
         );
 
         const response = await client.search(searchParams);
@@ -105,7 +105,7 @@ describe('ip searches', () => {
     it('ip field should be able to take CIDR notation and match appropriately', async () => {
         const searchParams = await access.restrictSearchQuery(
             'ip:"192.168.1.0/29"',
-            { ...clientMetadata }
+            { ...clientMetadata, params: { index, size: searchData.length } }
         );
 
         const response = await client.search(searchParams);
@@ -122,7 +122,7 @@ describe('ip searches', () => {
     it('ip range field should be able to take CIDR notation and match appropriately', async () => {
         const searchParams = await access.restrictSearchQuery(
             'ipRange:"2001:0db8:0123:4567:89ab:cdef:1234:0/112"',
-            { ...clientMetadata }
+            { ...clientMetadata, params: { index, size: searchData.length } }
         );
 
         const response = await client.search(searchParams);
@@ -140,7 +140,7 @@ describe('ip searches', () => {
         // this ip is a deprecated ipv4 masked ipv6 format, needs to be tested, was bug found
         const searchParams = await access.restrictSearchQuery(
             'ipRange:"::0.0.0.1"',
-            { ...clientMetadata }
+            { ...clientMetadata, params: { index, size: searchData.length } }
         );
 
         const response = await client.search(searchParams);
@@ -160,6 +160,7 @@ describe('ip searches', () => {
             {
                 ...clientMetadata,
                 variables: { ip: '::0.0.0.1' },
+                params: { index, size: searchData.length },
             }
         );
 

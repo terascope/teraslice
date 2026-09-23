@@ -107,6 +107,9 @@ settings:
 
 catalogs:
   default:
+    '@duckdb/node-api':
+      specifier: 1.5.5-r.3
+      version: 1.5.5-r.3
     '@eslint/compat':
       specifier: ~2.1.1
       version: 2.1.1
@@ -822,7 +825,7 @@ importers:
   packages/data-mate:
     dependencies:
       '@duckdb/node-api':
-        specifier: 1.5.5-r.3
+        specifier: 'catalog:'
         version: 1.5.5-r.3
       '@faker-js/faker':
         specifier: 'catalog:'
@@ -1302,6 +1305,25 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+
+  packages/sql-builder:
+    dependencies:
+      '@terascope/core-utils':
+        specifier: workspace:~
+        version: link:../core-utils
+      '@terascope/geo-utils':
+        specifier: workspace:~
+        version: link:../geo-utils
+      '@terascope/ip-utils':
+        specifier: workspace:~
+        version: link:../ip-utils
+      '@terascope/types':
+        specifier: workspace:~
+        version: link:../types
+    devDependencies:
+      jest-extended:
+        specifier: 'catalog:'
+        version: 7.0.0(jest@30.5.2(@types/node@26.6.4)(node-notifier@10.0.1)(supports-color@8.1.1))(typescript@6.0.3)
 
   packages/terafoundation:
     dependencies:
@@ -1838,6 +1860,12 @@ importers:
       '@terascope/geo-utils':
         specifier: workspace:~
         version: link:../geo-utils
+      '@terascope/ip-utils':
+        specifier: workspace:~
+        version: link:../ip-utils
+      '@terascope/sql-builder':
+        specifier: workspace:~
+        version: link:../sql-builder
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
@@ -1845,6 +1873,9 @@ importers:
         specifier: workspace:~
         version: link:../xlucene-parser
     devDependencies:
+      '@duckdb/node-api':
+        specifier: 1.5.5-r.3
+        version: 1.5.5-r.3
       '@terascope/data-types':
         specifier: workspace:~
         version: link:../data-types

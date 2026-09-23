@@ -168,16 +168,44 @@ describe('general searches (duckdb)', () => {
             await expect(search('num:<=50')).resolves.toEqual(['1', '4', '7', '9', '10']);
         });
 
-        it('can handle [ TO ] statements', async () => {
-            await expect(search('num:[50 TO 60]')).resolves.toEqual(['1', '2', '4', '5', '9']);
+        /**
+         * **The two ends are independent, so all four spellings are different queries.**
+         *
+         * `[` and `]` include the bound, `{` and `}` exclude it. The bounds below sit exactly
+         * on stored values - `num` has records at 50 and at 70, `date` at both ends, `bar` at
+         * `baz` and `fizzbuzz` - so each spelling answers with a different set and a `gt`
+         * emitted where a `gte` was asked for cannot pass.
+        */
+        it.each([
+            ['[ TO ], both bounds included', 'num:[50 TO 70]', ['1', '2', '3', '4', '5', '9']],
+            ['{ TO }, neither bound included', 'num:{50 TO 70}', ['2', '5']],
+            ['[ TO }, the upper bound excluded', 'num:[50 TO 70}', ['1', '2', '4', '5', '9']],
+            ['{ TO ], the lower bound excluded', 'num:{50 TO 70]', ['2', '3', '5']],
+        ])('can handle %s over numbers', async (_name, query, expected) => {
+            await expect(search(query)).resolves.toEqual(expected);
         });
 
-        it('can handle { TO } statements', async () => {
-            await expect(search('num:{50 TO 70}')).resolves.toEqual(['2', '5']);
+        /**
+         * The same four over a `keyword`, where the comparison is between strings and nothing
+         * in the query says so - the bounds are bare words.
+        */
+        it.each([
+            ['[ TO ], both bounds included', 'bar:[baz TO fizzbuzz]', ['4', '5', '6']],
+            ['{ TO }, neither bound included', 'bar:{baz TO fizzbuzz}', ['5']],
+            ['[ TO }, the upper bound excluded', 'bar:[baz TO fizzbuzz}', ['4', '5']],
+            ['{ TO ], the lower bound excluded', 'bar:{baz TO fizzbuzz]', ['5', '6']],
+        ])('can handle %s over keywords', async (_name, query, expected) => {
+            await expect(search(query)).resolves.toEqual(expected);
         });
 
         it('can handle an unbounded range', async () => {
             await expect(search('num:[50 TO *]')).resolves.toEqual(['1', '2', '3', '4', '5', '6', '9']);
+        });
+
+        it('can handle a range with no bounds at all, which asks only that the field exist', async () => {
+            await expect(search('num:[* TO *]')).resolves.toEqual(
+                searchData.filter(({ num }) => num != null).map(({ id }) => id)
+            );
         });
 
         /**
@@ -188,6 +216,36 @@ describe('general searches (duckdb)', () => {
         it('can handle date ranges', async () => {
             await expect(search('date:["2020-01-01" TO "2020-06-01"]')).resolves.toEqual(['1', '2', '3']);
             await expect(search('date:>="2021-01-01T00:00:00.000Z"')).resolves.toEqual(['4', '5', '6', '7']);
+        });
+
+        /**
+         * **A date bound lands on a record's value exactly**, which is the only arrangement
+         * that can tell the four spellings apart - every date in the corpus is midnight UTC
+         * and both bounds here are stored dates.
+        */
+        it.each([
+            [
+                '[ TO ], both bounds included',
+                'date:["2020-03-01" TO "2021-06-01"]',
+                ['2', '3', '4', '5']
+            ],
+            [
+                '{ TO }, neither bound included',
+                'date:{"2020-03-01" TO "2021-06-01"}',
+                ['3', '4']
+            ],
+            [
+                '[ TO }, the upper bound excluded',
+                'date:["2020-03-01" TO "2021-06-01"}',
+                ['2', '3', '4']
+            ],
+            [
+                '{ TO ], the lower bound excluded',
+                'date:{"2020-03-01" TO "2021-06-01"]',
+                ['3', '4', '5']
+            ],
+        ])('can handle %s over dates', async (_name, query, expected) => {
+            await expect(search(query)).resolves.toEqual(expected);
         });
     });
 
@@ -268,13 +326,88 @@ describe('general searches (duckdb)', () => {
         });
     });
 
+    /**
+     * **A variable is a VALUE bound late.** The structure comes from the query text, so
+     * `bar:$str` asks exactly what `bar:hello` asks once the variable resolves - which is the
+     * whole point of one: the same query, a different value, decided at the last moment.
+     *
+     * What these cover is the two places that is not the whole story. An array fans out to one
+     * comparison per element, so the value decides how many there are and an empty list leaves
+     * none. And a variable with no value resolves to an empty one, or, under
+     * `filterNilVariables`, drops the node it belongs to and takes its conjunction with it.
+     *
+     * The SQL is locked in `test/structure/cases/sql/`; what is proved here is that each one
+     * returns the records it should when a real engine answers it.
+    */
     describe('variables', () => {
-        it('expands an array variable into an OR', async () => {
-            const sql = await access.restrictSQLQuery('bar:$values', {
-                variables: { values: ['hello', 'fizz'] },
+        const variables = {
+            str: 'hello',
+            arr: ['hello', 'fizz'],
+            empty: [] as string[],
+            n: 50,
+            nums: [50, 60],
+            flag: false,
+            when: '2020-01-01T00:00:00.000Z',
+            low: 20,
+            high: 70,
+        };
+
+        async function searchWith(query: string, overrides = {}): Promise<string[]> {
+            const sql = await access.restrictSQLQuery(query, {
+                variables: { ...variables, ...overrides },
                 params: { table }
             });
-            await expect(idsOf(sql)).resolves.toEqual(['1', '3', '5', '7']);
+            return idsOf(sql);
+        }
+
+        it.each([
+            ['a string variable', 'bar:$str', ['1', '3', '7']],
+            ['a numeric variable', 'num:$n', ['1', '4', '9']],
+            ['a boolean variable', 'bool:$flag', ['3', '5']],
+            ['a date variable', 'date:$when', ['1']],
+            ['a variable as a range bound', 'num:>=$high', ['3', '6']],
+            ['variables on both bounds', 'num:[$low TO $high]', ['1', '2', '3', '4', '5', '7', '9']],
+        ])('resolves %s', async (_name, query, expected) => {
+            await expect(searchWith(query)).resolves.toEqual(expected);
+        });
+
+        it('expands an array variable into an OR', async () => {
+            await expect(searchWith('bar:$arr')).resolves.toEqual(['1', '3', '5', '7']);
+        });
+
+        it('expands a numeric array variable', async () => {
+            await expect(searchWith('num:$nums')).resolves.toEqual(['1', '2', '4', '5', '9']);
+        });
+
+        it('combines an expanded array with the rest of the query', async () => {
+            await expect(searchWith('bar:$arr AND bool:true')).resolves.toEqual(['1', '7']);
+            await expect(searchWith('(bar:$arr OR baz:$str) AND bool:true'))
+                .resolves.toEqual(['1', '7']);
+        });
+
+        /**
+         * **The expansion has to stay one group under a `NOT`.**
+         *
+         * An array variable becomes an `OR` of terms, and a negation that bound to only the
+         * first of them would answer for a query nobody wrote. Records 8 and 9 have no `bar`
+         * at all and come back for the same reason a plain negation returns them.
+        */
+        it('negates the whole expansion', async () => {
+            await expect(searchWith('NOT bar:$arr'))
+                .resolves.toEqual(['2', '4', '6', '8', '9', '10']);
+        });
+
+        /**
+         * An empty array matches nothing, which is `match_none` on the DSL side - and under an
+         * `AND` it takes the whole conjunction with it, while under an `OR` only its own half
+         * goes.
+        */
+        it.each([
+            ['on its own', 'bar:$empty', []],
+            ['in a conjunction', 'bar:$empty AND baz:$str', []],
+            ['in a disjunction', 'bar:$empty OR baz:$str', ['8']],
+        ])('matches nothing for an empty array variable %s', async (_name, query, expected) => {
+            await expect(searchWith(query)).resolves.toEqual(expected);
         });
 
         /** A nil variable drops its half of the query, exactly as it does for the DSL. */
@@ -284,6 +417,72 @@ describe('general searches (duckdb)', () => {
                 params: { table }
             });
             await expect(idsOf(sql)).resolves.toEqual(['1', '3', '7']);
+        });
+
+        /**
+         * Without `filterNilVariables` the node survives with an empty value, which is the
+         * answer the DSL gives too - a `match` on `''`.
+        */
+        it('compares against an empty value when nil variables are not filtered', async () => {
+            const keepsNil = new QueryAccess({
+                allow_empty_queries: true,
+                type_config: dataType.toXlucene(),
+            });
+
+            const sql = await keepsNil.restrictSQLQuery('bar:$missing', { params: { table } });
+
+            expect(sql).toEndWith('WHERE ("bar" = \'\')');
+            await expect(idsOf(sql)).resolves.toEqual([]);
+        });
+
+        describe('where the values come from', () => {
+            const configured = new QueryAccess({
+                allow_empty_queries: true,
+                type_config: dataType.toXlucene(),
+                variables: { str: 'hello' },
+            });
+
+            it('uses the ones the configuration carries', async () => {
+                const sql = await configured.restrictSQLQuery('bar:$str', { params: { table } });
+                await expect(idsOf(sql)).resolves.toEqual(['1', '3', '7']);
+            });
+
+            it('lets a call add one the configuration does not have', async () => {
+                const sql = await configured.restrictSQLQuery('bar:$str AND num:$n', {
+                    variables: { n: 50 },
+                    params: { table }
+                });
+                await expect(idsOf(sql)).resolves.toEqual(['1']);
+            });
+
+            it('lets a call override one it does', async () => {
+                const sql = await configured.restrictSQLQuery('bar:$str', {
+                    variables: { str: 'fizz' },
+                    params: { table }
+                });
+                await expect(idsOf(sql)).resolves.toEqual(['5']);
+            });
+
+            /**
+             * **The same query text with different variables is a different query.**
+             *
+             * `QueryAccess` caches by query string, and a cache that ignored the variables
+             * would answer the second call with the first call's rows - which is a wrong
+             * answer rather than a slow one.
+            */
+            it('does not answer a second call with the first call\'s values', async () => {
+                const first = await configured.restrictSQLQuery('bar:$str', {
+                    variables: { str: 'hello' },
+                    params: { table }
+                });
+                const second = await configured.restrictSQLQuery('bar:$str', {
+                    variables: { str: 'fizz' },
+                    params: { table }
+                });
+
+                await expect(idsOf(first)).resolves.toEqual(['1', '3', '7']);
+                await expect(idsOf(second)).resolves.toEqual(['5']);
+            });
         });
     });
 

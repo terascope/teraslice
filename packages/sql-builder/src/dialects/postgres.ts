@@ -2,7 +2,7 @@ import {
     GeoPoint, GeoShape, GeoShapeRelation,
     SQLGeoPointColumn, SQLDialectName
 } from '@terascope/types';
-import { parens, quoteIdentifier, quoteNumber } from '../helpers.js';
+import { parens, quoteIdentifier, quoteNumber } from '../quoting.js';
 import { BaseSQLDialect } from './base.js';
 
 const RELATION_FUNCTIONS: Readonly<Record<GeoShapeRelation, string>> = Object.freeze({
@@ -35,7 +35,10 @@ const WGS84 = 4326;
  *
  * **It is emitted but not exercised.** The DuckDB dialect is verified by running its output
  * through DuckDB; there is no PostGIS in this repo's test services, so this one is covered by
- * its emitted SQL only.
+ * its emitted SQL only. What it inherits is the part that matters most for that: the IP
+ * emissions live in {@link BaseSQLDialect} because PostgreSQL orders an `inet` by (family,
+ * address) exactly as DuckDB does, and would answer an address range over mixed IPv4 and
+ * IPv6 data differently from Elasticsearch without the same mapping.
 */
 export class PostgresDialect extends BaseSQLDialect {
     readonly name = SQLDialectName.postgres;
@@ -123,6 +126,11 @@ export class PostgresDialect extends BaseSQLDialect {
 
     protected inetLiteral(value: string): string {
         return `CAST(${this.stringLiteral(value)} AS inet)`;
+    }
+
+    /** **PostgreSQL has no `contains`**; `strpos` is the portable spelling of the same test. */
+    protected textContains(expr: string, substring: string): string {
+        return `strpos(${expr}, ${this.stringLiteral(substring)}) > 0`;
     }
 
     /**

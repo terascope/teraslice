@@ -35,6 +35,7 @@
         "@terascope/core-utils": "workspace:~",
         "@terascope/geo-utils": "workspace:~",
         "@terascope/ip-utils": "workspace:~",
+        "@terascope/sql-builder": "workspace:~",
         "@terascope/types": "workspace:~",
         "xlucene-parser": "workspace:~"
     },

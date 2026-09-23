@@ -28,6 +28,8 @@ import {
     multiPolygon,
     polygon as tPolygon,
     point as tPoint,
+    convertLength,
+    type Units,
 } from '@turf/helpers';
 import type {
     MultiPolygon,
@@ -91,6 +93,23 @@ export function parseGeoDistance(str: string): GeoDistanceObj {
     const unit = parseGeoDistanceUnit(matches[2]);
 
     return { distance, unit };
+}
+
+/**
+ * A geo distance converted to metres, using turf's own unit factors.
+ *
+ * Exists because a SQL engine measures distance in metres and nothing else - both DuckDB's
+ * `ST_Distance_Sphere` and PostGIS' `ST_DWithin` over geography do - so a translated
+ * `geoDistance(distance:"10mi")` has to arrive at a number. Going through turf keeps that
+ * number identical to the one `makeGeoCircle` would have used, so the SQL and the in-process
+ * `match` answer from the same factors.
+ *
+ * **turf spells one unit differently:** its length unit is `inches`, Elasticsearch's is
+ * `inch`, which is the same mismatch `makeGeoCircle` already works around.
+*/
+export function geoDistanceToMetres(distance: number, unit: GeoDistanceUnit): number {
+    const units = (unit === 'inch' ? 'inches' : unit) as Units;
+    return convertLength(distance, units, 'meters');
 }
 
 export function parseGeoDistanceUnit(input: string): GeoDistanceUnit {

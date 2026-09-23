@@ -2,7 +2,7 @@ import 'jest-extended';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { FieldType } from '@terascope/types';
+import { FieldType, SortOrder } from '@terascope/types';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
 import { QueryAccess } from '../../src/query-access/index.js';
 import { DuckTestDB } from './duckdb-helpers.js';
@@ -161,8 +161,25 @@ describe('sql statements (duckdb)', () => {
                 params: { table, sort: [{ expression: '"num"', order: 'desc' }] }
             });
 
-            expect(sql).toEndWith('ORDER BY "num" DESC');
+            expect(sql).toEndWith('ORDER BY "num" DESC NULLS LAST');
             await expect(ids(sql)).resolves.toEqual(['3', '2', '1']);
+        });
+
+        /**
+         * **The direction is checked for the same reason `size` is.**
+         *
+         * It arrives from a caller's request and goes into the statement as a keyword, so an
+         * unchecked one is an injection point sitting next to a carefully checked `LIMIT`. The
+         * expression beside it is the caller's own SQL - a geo-distance sort is a function
+         * call - and is deliberately not.
+        */
+        it.each([
+            ['an unknown direction', 'ascending'],
+            ['a direction carrying more SQL', 'asc, (SELECT 1)'],
+        ])('refuses %s', async (_name, order) => {
+            await expect(access.restrictSQLQuery('bar:hello', {
+                params: { table, sort: [{ expression: '"num"', order: order as SortOrder }] }
+            })).rejects.toThrow(/sort order of asc or desc/);
         });
 
         /** The query's own ordering comes first, as the translated sort does for the DSL. */
@@ -179,7 +196,9 @@ describe('sql statements (duckdb)', () => {
                 geo_sort_point: { lat: 10, lon: 10 },
             });
 
-            expect(sql).toMatch(/ORDER BY ST_Distance_Sphere.+ ASC, "num" ASC$/);
+            expect(sql).toMatch(
+                /ORDER BY ST_Distance_Sphere.+ ASC NULLS FIRST, "num" ASC NULLS FIRST$/
+            );
         });
     });
 

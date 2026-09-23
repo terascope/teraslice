@@ -39,7 +39,11 @@ forgets to assemble is the field restriction.
 `table` is quoted, so a reserved word like `order` is an ordinary table name; `relation` is the
 caller's own SQL and is used as written, so it must never be built from input the caller did not
 write. `size` and `from` cannot be parameterised in a statement, so they are checked to be
-non-negative integers rather than interpolated.
+non-negative integers rather than interpolated, and a `sort` entry's `order` is checked to be
+`asc` or `desc` for the same reason — it reaches the statement as a keyword. Its `expression`
+beside it is caller-written SQL like `relation`, because a geo-distance sort is a function call
+and nothing narrower would admit one; a field name coming from a request wants
+`dialect.fieldRef(field)` around it first.
 
 Field restrictions are **applied**, into the projection. `select` is `*` when nothing is
 restricted, an explicit column list when something is, and `NULL` when nothing may be read at
@@ -88,13 +92,22 @@ passes the instance as `dialect`.
 | `geo-point` | `STRUCT(lat DOUBLE, lon DOUBLE)` | a PostGIS `geometry(Point, 4326)` |
 | `geo-json` | `JSON`, through `ST_GeomFromGeoJSON` | text or `json`/`jsonb`, likewise |
 | a regular expression | `regexp_full_match` | `~` against an anchored pattern |
-| an IP | `TRY_CAST(… AS INET)`, IPv4 mapped into IPv6 | `CAST(… AS inet)` |
+| an IP | `TRY_CAST(… AS INET)` | `CAST(… AS inet)`, with no `TRY_` to fall back on |
 | a distance | `ST_Distance_Sphere` | `ST_DWithin` over `geography` |
 | a partly-readable column | `struct_pack`, rebuilding the struct | the excluded column is simply left out |
 
 **DuckDB needs two extensions and neither is statically linked.** `inet` autoloads on first use;
 `spatial` does **not**, so a geo query without a `LOAD spatial` at bootstrap is a catalog error
 rather than a slow path.
+
+The IP emissions are **not** in either dialect — they are in the base, because both engines have
+the same problem with them. An `INET` orders by (family, address) in DuckDB and PostgreSQL alike,
+so every IPv4 address sorts before every IPv6 one, while Elasticsearch stores an `ip` as 128 bits
+with IPv4 mapped into IPv6 and orders by the value. Every address on both sides of every
+comparison is therefore mapped into `::ffff:` form first — which is also what lets
+`ip:"::ffff:8.8.8.8"` find a stored `8.8.8.8` — and a CIDR's prefix gains the 96 bits that moved
+in front of it. An `ip_range` column is compared by its block's first and last address rather
+than with `<<=`, since a containment operator answers `false` across families.
 
 ### Where SQL does not answer the way Elasticsearch does
 
@@ -117,6 +130,22 @@ deliberate:
 
 `knn` has no SQL equivalent and raises rather than emitting something that would answer wrongly.
 
-Field restrictions are checked the other way round — `test/query/sql-parity-spec.ts` runs the same
-`QueryAccess` against a real OpenSearch and a real DuckDB over ten include/exclude combinations
-and requires the returned records to be identical, sub-object exclusions included.
+One more thing both engines refuse alike, and it is worth knowing which layer refuses it: a `*`
+bound on an `ip` field. `parseRange` turns an open end into `Infinity` and the `ip` field type
+validates every bound as an address, so `ip:[* TO *]` fails in the **parser** and never reaches
+either translator. `_exists_:ip` asks what it would have asked. An `ip_range` field is not
+validated the same way, and `net:[* TO *]` works.
+
+### How that is checked
+
+`test/query/engine-parity-spec.ts` runs one corpus and one list of queries against a real
+OpenSearch and a real DuckDB, and compares **both** to the ids the case declares rather than to
+each other — two engines can agree on a wrong answer, and one silently changing to match the
+other would pass a test that only asked them to match. The cases live in `test/cases/` and cover
+the conjunctions, disjunctions and groups three deep; every negation spelling, each over records
+that have no value for the negated field; all four bracket spellings of a range over numbers,
+dates, keywords, addresses and address blocks; and the IPv4/IPv6 boundary.
+
+Field restrictions are checked the same way in `test/query/sql-parity-spec.ts`, over ten
+include/exclude combinations, sub-object exclusions included. `test/sql/duckdb-query-access-spec.ts`
+covers the `QueryAccess` options that refuse a query rather than change it.

@@ -14,9 +14,9 @@ import {
 } from 'xlucene-parser';
 import { isCIDR } from '@terascope/ip-utils';
 import {
-    SQLResult, SQLSort, xLuceneFieldType
+    SQLIPRangeBound, SQLResult, SQLSort, xLuceneFieldType
 } from '@terascope/types';
-import { canRenderValueAs } from './helpers.js';
+import { canRenderValueAs } from '@terascope/sql-builder';
 import { UtilsTranslateSQLOptions } from './interfaces.js';
 
 interface SQLContext extends UtilsTranslateSQLOptions {
@@ -307,13 +307,11 @@ function buildRangeSQL(
     const { dialect } = context;
     const range = parseRange(node, context.variables, true);
 
-    if (node.field_type === xLuceneFieldType.IPRange) {
-        const start = range.gte ?? range.gt;
-        const end = range.lte ?? range.lt;
+    if (fieldTypeOf(node, context) === xLuceneFieldType.IPRange) {
         return dialect.ipRangeIntersects(
             fieldExpr,
-            start == null ? undefined : `${start}`,
-            end == null ? undefined : `${end}`
+            rangeBound(range.gte, range.gt),
+            rangeBound(range.lte, range.lt)
         );
     }
 
@@ -327,6 +325,37 @@ function buildRangeSQL(
     if (!expressions.length) return dialect.exists(fieldExpr);
 
     return dialect.and(expressions);
+}
+
+/**
+ * The type of the field a range is over.
+ *
+ * **A range node does not always carry it, and the two spellings carry it in different
+ * places.** A CIDR the parser rewrote into a range puts `ip_range` on the node and `ip` on
+ * each bound; a range the query wrote out puts nothing on the node and the field's type on
+ * each bound. Reading only `node.field_type` misses the second, which is how an `ip_range`
+ * column came to be compared as TEXT - `"net" >= '10.0.0.3'` against a stored `10.0.0.0/30`
+ * is a string comparison that runs, returns rows, and is wrong.
+ *
+ * The type config is asked first because it is the field's declared type rather than
+ * whatever the parser happened to put on the node.
+*/
+function fieldTypeOf(node: Range, context: SQLContext): xLuceneFieldType | undefined {
+    return context.type_config[node.field as string]
+        ?? node.field_type
+        ?? node.left?.field_type;
+}
+
+/**
+ * One end of a queried address range, and whether the address itself is in it.
+ *
+ * An inclusive bound and an exclusive one never both appear on the same side, so the
+ * inclusive one decides when it is there.
+*/
+function rangeBound(inclusive: unknown, exclusive: unknown): SQLIPRangeBound | undefined {
+    if (inclusive != null) return { value: `${inclusive}`, inclusive: true };
+    if (exclusive != null) return { value: `${exclusive}`, inclusive: false };
+    return undefined;
 }
 
 /**
@@ -365,13 +394,4 @@ function buildFunctionSQL(node: TermLikeNode, context: SQLContext): string | und
     if (sort != null) context.sort.push(sort);
 
     return query;
-}
-
-/** `ORDER BY` text for a translated sort, or nothing when the query asked for no order. */
-export function toOrderBy(sort?: SQLSort[]): string | undefined {
-    if (!sort?.length) return undefined;
-
-    return sort
-        .map(({ expression, order }) => `${expression} ${order.toUpperCase()}`)
-        .join(', ');
 }
