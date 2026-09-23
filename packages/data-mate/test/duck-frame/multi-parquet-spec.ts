@@ -5,7 +5,7 @@ import { unlinkSync, existsSync } from 'node:fs';
 import { FieldType, DataTypeConfig } from '@terascope/types';
 import {
     DuckFrame, AppendError, CoercionFailureError, closeDuckDatabase
-} from '../../src/duck-frame/DuckFrame.js';
+} from '../../src/duck-frame/index.js';
 
 /**
  * The worker's ingest path: qpl-search-api turns Elasticsearch records into a frame and sends
@@ -111,7 +111,7 @@ describe('DuckFrame multi-Parquet ingest (the worker tier)', () => {
         await frame.append({ parquet: [await payload('g', 4), await payload('h', 4)] });
 
         const top = frame.filter('"bytes" >= 20')
-            .orderBy([{ expression: 'bytes', direction: 'desc' }])
+            .orderBy([{ expression: 'bytes', order: 'desc' }])
             .limit(3);
 
         expect((await collect(top)).map((row) => row.bytes)).toEqual([30, 30, 20]);
@@ -258,7 +258,6 @@ describe('DuckFrame multi-Parquet ingest (the worker tier)', () => {
 
             expect(added).toEqual(Array(8).fill(500));
             expect(await frame.size()).toBe(4000);
-            expect((await frame.info()).appends).toEqual({ count: 8, rows: 4000 });
 
             await frame.destroy();
         });
@@ -295,7 +294,6 @@ describe('DuckFrame multi-Parquet ingest (the worker tier)', () => {
             expect(results.filter((r) => r.status === 'rejected')).toHaveLength(2);
             // every good payload survived, and only those
             expect(await frame.size()).toBe(1000);
-            expect((await frame.info()).appends).toEqual({ count: 4, rows: 1000 });
 
             await frame.destroy();
         });
@@ -318,53 +316,55 @@ describe('DuckFrame multi-Parquet ingest (the worker tier)', () => {
         });
     });
 
-    describe('->info', () => {
-        it('should report the state of a table frame, including its appends', async () => {
-            const frame = await DuckFrame.create(CONFIG, { name: 'accumulator_info' });
-            await frame.append({ parquet: await payload('q', 3) });
-            await frame.append({ parquet: await payload('r', 2) });
+    /**
+     * `info()` used to bundle these, and was dropped: every field it reported is reachable
+     * from the frame itself, and the one that was not - an `appends` counter - is what
+     * `append()` already RETURNS. Asserting the return value tests the contract a caller
+     * actually has rather than bookkeeping kept only to be asserted.
+    */
+    describe('->the state of a frame', () => {
+        it('should report the state of a table frame, including what its appends added',
+            async () => {
+                const frame = await DuckFrame.create(CONFIG, { name: 'accumulator_info' });
+                const added = [
+                    await frame.append({ parquet: await payload('q', 3) }),
+                    await frame.append({ parquet: await payload('r', 2) }),
+                ];
 
-            expect(await frame.info()).toEqual({
-                name: expect.stringContaining('accumulator_info'),
-                kind: 'table',
-                isMaterialized: true,
-                isOrdered: false,
-                database: ':memory:',
-                columns: ['_key', 'bytes', 'tags'],
-                rows: 5,
-                sql: expect.stringContaining('accumulator_info'),
-                appends: { count: 2, rows: 5 },
+                expect(added).toEqual([3, 2]);
+                expect(frame.table).toContain('accumulator_info');
+                expect(frame.isMaterialized).toBeTrue();
+                expect(frame.isOrdered).toBeFalse();
+                expect(frame.columns).toEqual(['_key', 'bytes', 'tags']);
+                expect(frame.from).toContain('accumulator_info');
+                expect(await frame.size()).toBe(5);
+
+                await frame.destroy();
             });
-
-            await frame.destroy();
-        });
 
         it('should report a relation as a relation, with the SQL that identifies it', async () => {
             const frame = await DuckFrame.create(CONFIG, { name: 'accumulator_info_rel' });
             await frame.append({ parquet: await payload('s', 4) });
 
-            const derived = frame.filter('"bytes" > 0').orderBy(['bytes']);
-            const info = await derived.info();
+            const derived = frame.filter('"bytes" > 0').orderBy([{ expression: 'bytes' }]);
 
-            expect(info.kind).toBe('relation');
-            expect(info.name).toBeUndefined();
-            expect(info.isMaterialized).toBeFalse();
-            expect(info.isOrdered).toBeTrue();
-            expect(info.rows).toBe(3);
-            expect(info.sql).toInclude('ORDER BY');
-            // a derived frame has had nothing appended to it
-            expect(info.appends).toEqual({ count: 0, rows: 0 });
+            expect(derived.table).toBeUndefined();
+            expect(derived.isMaterialized).toBeFalse();
+            expect(derived.isOrdered).toBeTrue();
+            expect(await derived.size()).toBe(3);
+            expect(derived.from).toInclude('ORDER BY');
 
             await frame.destroy();
         });
 
-        it('should not count a failed append', async () => {
+        it('should leave the table untouched by a failed append', async () => {
             const frame = await DuckFrame.create(CONFIG, { name: 'accumulator_info_fail' });
             await frame.append({ records: slice('t', 2) });
             await expect(frame.append({ records: [{ _key: 'bad', bytes: 'nope' }] }))
                 .rejects.toThrow(AppendError);
 
-            expect((await frame.info()).appends).toEqual({ count: 1, rows: 2 });
+            // the rolled-back append added nothing, which is the invariant the counter stood in for
+            expect(await frame.size()).toBe(2);
 
             await frame.destroy();
         });

@@ -7,9 +7,9 @@ import {
     isFieldTransform, isFieldValidation, ProcessMode, DataTypeFieldAndChildren,
     SqlEmission,
 } from '../../function-configs/interfaces.js';
-import { quoteIdentifier } from '../../duck-frame/sql.js';
+import { quoteIdentifier } from '@terascope/sql-builder';
 import { ScalarFunctionImpl } from '../../duck-frame/scalar-function.js';
-import { registerScalarFunction } from '../../duck-frame/DuckFrame.js';
+import { registerScalarFunction } from '../../duck-frame/index.js';
 
 export interface DuckFrameAdapterOptions<T extends Record<string, any>> {
     /** The column the function applies to. */

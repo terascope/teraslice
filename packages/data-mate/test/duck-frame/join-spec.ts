@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/DuckFrame.js';
+import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/index.js';
 
 const PARENT: DataTypeConfig = {
     version: 1,
@@ -276,8 +276,7 @@ describe('DuckFrame.select with groupBy', () => {
 
     it('appends GROUP BY to the projection it already builds', async () => {
         const rows = (await collect(frame.select(
-            { pkey: 'pkey', total: 'CAST(sum(bytes) AS HUGEINT)' }, AGG, ['pkey']
-        ))).sort((a, b) => String(a.pkey).localeCompare(String(b.pkey)));
+            { pkey: 'pkey', total: 'CAST(sum(bytes) AS HUGEINT)' }, { config: AGG, groupBy: ['pkey'] }))).sort((a, b) => String(a.pkey).localeCompare(String(b.pkey)));
 
         expect(rows).toEqual([
             { pkey: 'a', total: 30 },
@@ -287,30 +286,31 @@ describe('DuckFrame.select with groupBy', () => {
 
     it('aggregates globally with no groupBy, which select already did', async () => {
         expect(await collect(frame.select(
-            { total: 'CAST(sum(bytes) AS HUGEINT)' },
+            { total: 'CAST(sum(bytes) AS HUGEINT)' }, {
+                config:
             { version: 1, fields: { total: { type: FieldType.Long } } }
-        ))).toEqual([{ total: 60 }]);
+            }))).toEqual([{ total: 60 }]);
     });
 
     it('groups by an expression, not just a field', async () => {
         const rows = await collect(frame.select(
-            { half: 'bytes >= 20', total: 'CAST(sum(bytes) AS HUGEINT)' },
+            { half: 'bytes >= 20', total: 'CAST(sum(bytes) AS HUGEINT)' }, {
+                config:
             {
                 version: 1,
                 fields: {
                     half: { type: FieldType.Boolean },
                     total: { type: FieldType.Long },
                 },
-            },
+            }, groupBy:
             ['bytes >= 20']
-        ));
+            }));
         expect(rows).toHaveLength(2);
     });
 
     it('composes with filter as HAVING does', async () => {
         const agg = frame.select(
-            { pkey: 'pkey', total: 'CAST(sum(bytes) AS HUGEINT)' }, AGG, ['pkey']
-        );
+            { pkey: 'pkey', total: 'CAST(sum(bytes) AS HUGEINT)' }, { config: AGG, groupBy: ['pkey'] });
         expect(await collect(agg.filter('total > 30'))).toEqual([]);
         expect(await collect(agg.filter('total >= 30'))).toHaveLength(2);
     });

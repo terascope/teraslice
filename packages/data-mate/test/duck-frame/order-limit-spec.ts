@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/DuckFrame.js';
+import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/index.js';
 
 const CONFIG: DataTypeConfig = {
     version: 1,
@@ -45,7 +45,7 @@ describe('DuckFrame ordering and paging', () => {
 
     describe('->orderBy', () => {
         it('should sort ascending given a bare column name', async () => {
-            expect(await names(frame.orderBy(['bytes']))).toEqual(
+            expect(await names(frame.orderBy([{ expression: 'bytes' }]))).toEqual(
                 ['n', 'a', 'b', 'c', 'd', 'e']
             );
         });
@@ -54,9 +54,9 @@ describe('DuckFrame ordering and paging', () => {
             // DataFrame's Vector.compare sorts a nil as the SMALLEST value: first ascending,
             // last descending. DuckDB's own default is NULLS_LAST for BOTH directions, so an
             // ascending sort would otherwise move every null to the other end of the page.
-            const asc = await names(frame.orderBy(['bytes']));
+            const asc = await names(frame.orderBy([{ expression: 'bytes' }]));
             const desc = await names(frame.orderBy([
-                { expression: 'bytes', direction: 'desc' },
+                { expression: 'bytes', order: 'desc' },
             ]));
 
             expect(asc[0]).toBe('n');
@@ -67,11 +67,11 @@ describe('DuckFrame ordering and paging', () => {
             // A bare string is the EXPRESSION only - we always emit direction and nulls, so
             // 'bytes DESC' becomes 'bytes DESC ASC NULLS FIRST' and DuckDB rejects it. Loud
             // beats a sort that quietly disagrees with the object form.
-            await expect(collect(frame.orderBy(['bytes DESC']))).rejects.toThrow();
+            await expect(collect(frame.orderBy([{ expression: 'bytes DESC' }]))).rejects.toThrow();
         });
 
         it('should sort descending', async () => {
-            expect(await names(frame.orderBy([{ expression: 'bytes', direction: 'desc' }])))
+            expect(await names(frame.orderBy([{ expression: 'bytes', order: 'desc' }])))
                 .toEqual(['e', 'd', 'c', 'b', 'a', 'n']);
         });
 
@@ -85,15 +85,15 @@ describe('DuckFrame ordering and paging', () => {
 
         it('should sort by several terms in order', async () => {
             const sorted = frame.orderBy([
-                '"group"',
-                { expression: 'bytes', direction: 'desc' },
+                { expression: '"group"' },
+                { expression: 'bytes', order: 'desc' },
             ]);
 
             expect(await names(sorted)).toEqual(['c', 'a', 'n', 'e', 'd', 'b']);
         });
 
         it('should accept a raw SQL expression as the sort key', async () => {
-            const sorted = frame.orderBy([{ expression: 'bytes % 30', direction: 'desc' }]);
+            const sorted = frame.orderBy([{ expression: 'bytes % 30', order: 'desc' }]);
 
             // 50%30=20, 20%30=20, 40%30=10, 10%30=10, 30%30=0, null stays null
             expect((await names(sorted)).slice(0, 2).sort()).toEqual(['b', 'e']);
@@ -103,38 +103,43 @@ describe('DuckFrame ordering and paging', () => {
             expect(() => frame.orderBy([])).toThrow('orderBy requires at least one sort term');
         });
 
+        /**
+         * These messages come from `@terascope/sql-builder`, which renders the `ORDER BY` for
+         * a frame and for a translated statement alike - so a bad direction reads the same
+         * whichever built it.
+        */
         it('should reject a term with no expression', () => {
             expect(() => frame.orderBy([{ expression: '' }]))
-                .toThrow('orderBy requires an expression for every sort term');
+                .toThrow('An ORDER BY term requires an expression');
         });
 
         it('should reject a direction that is not asc or desc', () => {
-            const bad = [{ expression: 'bytes', direction: 'sideways' }] as never;
+            const bad = [{ expression: 'bytes', order: 'sideways' }] as never;
 
             expect(() => frame.orderBy(bad))
-                .toThrow('orderBy direction must be \'asc\' or \'desc\', received sideways');
+                .toThrow('Expected a sort order of asc or desc, got sideways');
         });
 
         it('should reject a nulls order that is not first or last', () => {
             const bad = [{ expression: 'bytes', nulls: 'middle' }] as never;
 
             expect(() => frame.orderBy(bad))
-                .toThrow('orderBy nulls must be \'first\' or \'last\', received middle');
+                .toThrow('Expected a null order of first or last, got middle');
         });
     });
 
     describe('->limit', () => {
         it('should take the first count rows', async () => {
-            expect(await names(frame.orderBy(['bytes']).limit(2))).toEqual(['n', 'a']);
+            expect(await names(frame.orderBy([{ expression: 'bytes' }]).limit(2))).toEqual(['n', 'a']);
         });
 
         it('should skip offset rows, with no count', async () => {
-            expect(await names(frame.orderBy(['bytes']).limit(undefined, 4)))
+            expect(await names(frame.orderBy([{ expression: 'bytes' }]).limit(undefined, 4)))
                 .toEqual(['d', 'e']);
         });
 
         it('should page with both bounds', async () => {
-            expect(await names(frame.orderBy(['bytes']).limit(2, 2))).toEqual(['b', 'c']);
+            expect(await names(frame.orderBy([{ expression: 'bytes' }]).limit(2, 2))).toEqual(['b', 'c']);
         });
 
         it('should return no rows for a count of zero', async () => {
@@ -160,14 +165,14 @@ describe('DuckFrame ordering and paging', () => {
 
     describe('composition', () => {
         it('should give the top rows for orderBy then limit', async () => {
-            expect(await names(frame.orderBy([{ expression: 'bytes', direction: 'desc' }])
+            expect(await names(frame.orderBy([{ expression: 'bytes', order: 'desc' }])
                 .limit(2))).toEqual(['e', 'd']);
         });
 
         it('should sort only the page for limit then orderBy', async () => {
             // Which rows land in the page is the scan's business, so assert the shape:
             // three rows, sorted - not which three.
-            const rows = await collect(frame.limit(3).orderBy(['name']));
+            const rows = await collect(frame.limit(3).orderBy([{ expression: 'name' }]));
             const sorted = rows.map((row) => String(row.name));
 
             expect(sorted).toHaveLength(3);
@@ -175,14 +180,14 @@ describe('DuckFrame ordering and paging', () => {
         });
 
         it('should limit the matching rows for orderBy then filter then limit', async () => {
-            const top = frame.orderBy(['bytes']).filter('"group" = \'y\'')
+            const top = frame.orderBy([{ expression: 'bytes' }]).filter('"group" = \'y\'')
                 .limit(2);
 
             expect(await names(top)).toEqual(['b', 'd']);
         });
 
         it('should filter the page for orderBy then limit then filter', async () => {
-            const page = frame.orderBy(['bytes']).limit(3)
+            const page = frame.orderBy([{ expression: 'bytes' }]).limit(3)
                 .filter('"group" = \'y\'');
 
             // The page is n, a, b; only 'b' matches, so fewer than the limit come back.
@@ -191,16 +196,17 @@ describe('DuckFrame ordering and paging', () => {
 
         it('should sort the result of an aggregation', async () => {
             const totals = frame.select(
-                { group: '"group"', total: 'sum(bytes)' },
+                { group: '"group"', total: 'sum(bytes)' }, {
+                    config:
                 {
                     version: 1,
                     fields: {
                         group: { type: FieldType.Keyword },
                         total: { type: FieldType.Integer },
                     },
-                },
+                }, groupBy:
                 ['"group"']
-            ).orderBy([{ expression: 'total', direction: 'desc' }]);
+                }).orderBy([{ expression: 'total', order: 'desc' }]);
 
             expect(await collect(totals)).toEqual([
                 { group: 'y', total: 110 },
@@ -217,7 +223,7 @@ describe('DuckFrame ordering and paging', () => {
         });
 
         it('should be carried through the operators that preserve order', () => {
-            const sorted = frame.orderBy(['bytes']);
+            const sorted = frame.orderBy([{ expression: 'bytes' }]);
 
             expect(sorted.isOrdered).toBeTrue();
             expect(sorted.filter('bytes > 0').isOrdered).toBeTrue();
@@ -226,7 +232,7 @@ describe('DuckFrame ordering and paging', () => {
         });
 
         it('should not be carried by materialize, since a table has no ordering', async () => {
-            const materialized = await frame.orderBy(['bytes']).materialize();
+            const materialized = await frame.orderBy([{ expression: 'bytes' }]).materialize();
 
             expect(materialized.isOrdered).toBeFalse();
             await materialized.destroy();
@@ -246,27 +252,30 @@ describe('DuckFrame ordering and paging', () => {
         };
 
         it('should refuse to join an ordered frame', () => {
-            expect(() => frame.orderBy(['bytes']).join(frame, joinOptions))
+            expect(() => frame.orderBy([{ expression: 'bytes' }]).join(frame, joinOptions))
                 .toThrow('join reorders rows');
         });
 
         it('should refuse to join when the OTHER side is ordered', () => {
-            expect(() => frame.join(frame.orderBy(['bytes']), joinOptions))
+            expect(() => frame.join(frame.orderBy([{ expression: 'bytes' }]), joinOptions))
                 .toThrow('join reorders rows');
         });
 
         it('should refuse to group an ordered frame', () => {
-            expect(() => frame.orderBy(['bytes']).select(
-                { group: '"group"', total: 'sum(bytes)' },
-                CONFIG,
+            expect(() => frame.orderBy([{ expression: 'bytes' }]).select(
+                { group: '"group"', total: 'sum(bytes)' }, {
+                    config:
+                CONFIG, groupBy:
                 ['"group"']
-            )).toThrow('select with groupBy reorders rows');
+                })).toThrow('select with groupBy reorders rows');
         });
 
         it('should allow a plain projection on an ordered frame', async () => {
-            const projected = frame.orderBy(['bytes']).select({ name: 'name' }, {
-                version: 1,
-                fields: { name: { type: FieldType.Keyword } },
+            const projected = frame.orderBy([{ expression: 'bytes' }]).select({ name: 'name' }, {
+                config: {
+                    version: 1,
+                    fields: { name: { type: FieldType.Keyword } },
+                }
             });
 
             expect(await names(projected)).toEqual(['n', 'a', 'b', 'c', 'd', 'e']);
@@ -275,7 +284,7 @@ describe('DuckFrame ordering and paging', () => {
 
     describe('->size on a paged frame', () => {
         it('should count the page, leaving the total to the pre-limit frame', async () => {
-            const sorted = frame.orderBy(['bytes']);
+            const sorted = frame.orderBy([{ expression: 'bytes' }]);
             const page = sorted.limit(2);
 
             expect(await page.size()).toBe(2);

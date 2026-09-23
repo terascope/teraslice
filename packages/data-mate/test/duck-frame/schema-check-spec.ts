@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/DuckFrame.js';
-import { describeColumns, diffSchema } from '../../src/duck-frame/schema-check.js';
+import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/index.js';
+import { describeColumns, diffSchema } from '../../src/duck-frame/index.js';
 
 const CONFIG: DataTypeConfig = {
     version: 1,
@@ -59,8 +59,7 @@ describe('schema-check', () => {
     describe('what it reports', () => {
         it('leads with the FieldType, keeping DuckDB types as diagnostic detail only', async () => {
             const lying = frame.select(
-                { bytes: 'CAST(bytes AS VARCHAR)' }, only(FieldType.Integer)
-            );
+                { bytes: 'CAST(bytes AS VARCHAR)' }, { config: only(FieldType.Integer) });
             const [mismatch] = await diffSchema(lying);
 
             // FieldType is the system's language; the DuckDB type is nested under `storage`
@@ -71,8 +70,7 @@ describe('schema-check', () => {
         it('does not invent an "actual FieldType", because that is not knowable', async () => {
             // VARCHAR is Keyword, Text, IP, Binary and more - there is no reverse mapping
             const lying = frame.select(
-                { bytes: 'CAST(bytes AS VARCHAR)' }, only(FieldType.Integer)
-            );
+                { bytes: 'CAST(bytes AS VARCHAR)' }, { config: only(FieldType.Integer) });
             const [mismatch] = await diffSchema(lying);
             expect(Object.keys(mismatch)).not.toContain('actual');
         });
@@ -90,8 +88,7 @@ describe('schema-check', () => {
         it('catches a projection whose SQL contradicts its declared type', async () => {
             // declares Integer (BIGINT) but produces VARCHAR
             const lying = frame.select(
-                { bytes: 'CAST(bytes AS VARCHAR)' }, only(FieldType.Integer)
-            );
+                { bytes: 'CAST(bytes AS VARCHAR)' }, { config: only(FieldType.Integer) });
 
             expect(await diffSchema(lying)).toEqual([{
                 column: 'bytes',
@@ -105,8 +102,7 @@ describe('schema-check', () => {
             // THE case this helper exists for: DuckDB widens sum(BIGINT) to HUGEINT, so a
             // config still claiming Integer is wrong. An explicit CAST is what fixes it.
             const summed = frame.select(
-                { bytes: 'sum(bytes)' }, only(FieldType.Integer)
-            );
+                { bytes: 'sum(bytes)' }, { config: only(FieldType.Integer) });
 
             expect(await diffSchema(summed)).toEqual([{
                 column: 'bytes',
@@ -119,15 +115,19 @@ describe('schema-check', () => {
         it('is clean once the aggregate is CAST to the declared type', async () => {
             // Long is HUGEINT, which is what data-mate's rules say sum(Integer) produces
             const summed = frame.select(
-                { bytes: 'CAST(sum(bytes) AS HUGEINT)' }, only(FieldType.Long)
-            );
+                { bytes: 'CAST(sum(bytes) AS HUGEINT)' }, { config: only(FieldType.Long) });
             expect(await diffSchema(summed)).toEqual([]);
         });
 
         it('reports a declared column that does not exist as missing', async () => {
             const projected = frame.select({ name: 'name' }, {
-                version: 1,
-                fields: { name: { type: FieldType.Keyword }, gone: { type: FieldType.Integer } },
+                config: {
+                    version: 1,
+                    fields: {
+                        name: { type: FieldType.Keyword },
+                        gone: { type: FieldType.Integer },
+                    },
+                }
             });
 
             expect(await diffSchema(projected)).toEqual([{
@@ -140,8 +140,7 @@ describe('schema-check', () => {
 
         it('reports a produced column that was never declared as unexpected', async () => {
             const extra = frame.select(
-                { bytes: 'bytes', surprise: 'name' }, only(FieldType.Integer)
-            );
+                { bytes: 'bytes', surprise: 'name' }, { config: only(FieldType.Integer) });
 
             expect(await diffSchema(extra)).toEqual([{
                 column: 'surprise', kind: 'unexpected', storage: { actual: 'VARCHAR' },
@@ -149,7 +148,7 @@ describe('schema-check', () => {
         });
 
         it('compares structured types by their rendered form', async () => {
-            const geo = frame.select({ loc: 'loc' }, only(FieldType.GeoPoint, 'loc'));
+            const geo = frame.select({ loc: 'loc' }, { config: only(FieldType.GeoPoint, 'loc') });
             expect(await diffSchema(geo)).toEqual([]);
         });
     });

@@ -3,8 +3,8 @@ import { timestampValue } from '@duckdb/node-api';
 import { FieldType, DataTypeConfig } from '@terascope/types';
 import {
     DuckFrame, closeDuckDatabase, registerScalarFunction
-} from '../../src/duck-frame/DuckFrame.js';
-import { makeInputConverter } from '../../src/duck-frame/duck-values.js';
+} from '../../src/duck-frame/index.js';
+import { makeInputConverter } from '../../src/duck-frame/index.js';
 import { duckFrameAdapter } from '../../src/adapters/duck-frame-adapter/index.js';
 import { functionConfigRepository } from '../../src/function-configs/index.js';
 import { FunctionDefinitionConfig } from '../../src/function-configs/interfaces.js';
@@ -143,9 +143,10 @@ describe('date values crossing the UDF boundary', () => {
                 : `${name}("${field}")`;
 
             const projected = frame.select(
-                { out: expression },
+                { out: expression }, {
+                    config:
                 { version: 1, fields: { out: { type: FieldType.Long, array: fieldConfig.array } } }
-            );
+                });
 
             for await (const _row of projected.rows()) { /* drain */ }
 
@@ -187,9 +188,10 @@ describe('date values crossing the UDF boundary', () => {
                 args,
             });
             const projected = frame.select(
-                { created: adapted.expression },
+                { created: adapted.expression }, {
+                    config:
                 { version: 1, fields: { created: adapted.outputConfig.field_config } }
-            );
+                });
 
             const rows: Record<string, unknown>[] = [];
             for await (const row of projected.rows()) rows.push(row);
@@ -205,9 +207,10 @@ describe('date values crossing the UDF boundary', () => {
                 inputConfig: { field_config: CONFIG.fields.created },
             });
             const projected = frame.select(
-                { hour: adapted.expression },
+                { hour: adapted.expression }, {
+                    config:
                 { version: 1, fields: { hour: adapted.outputConfig.field_config } }
-            );
+                });
 
             const rows: Record<string, unknown>[] = [];
             for await (const row of projected.rows()) rows.push(row);

@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig, DataTypeFields } from '@terascope/types';
-import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/DuckFrame.js';
+import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/index.js';
 import { duckFrameAdapter } from '../../src/adapters/duck-frame-adapter/index.js';
 import { functionConfigRepository } from '../../src/function-configs/index.js';
 import {
@@ -118,9 +118,10 @@ async function trySweep(
         );
         try {
             const projected = frame.select(
-                { field: result.expression },
+                { field: result.expression }, {
+                    config:
                 { version: 1, fields: { field: result.outputConfig.field_config } }
-            );
+                });
             const rows: Record<string, unknown>[] = [];
             for await (const row of projected.rows()) rows.push(row);
             return { kind: 'ran', value: rows[0]?.field };

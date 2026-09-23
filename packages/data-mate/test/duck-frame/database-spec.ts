@@ -7,7 +7,7 @@ import {
 import { FieldType, DataTypeConfig } from '@terascope/types';
 import {
     DuckFrame, configureDuckDatabase, closeDuckDatabase
-} from '../../src/duck-frame/DuckFrame.js';
+} from '../../src/duck-frame/index.js';
 
 const CONFIG: DataTypeConfig = {
     version: 1,
@@ -18,7 +18,7 @@ const RECORDS = [{ _key: 'a', bytes: 1 }, { _key: 'b', bytes: 2 }];
 
 /** Reads a DuckDB setting back out. */
 async function setting(frame: DuckFrame, name: string): Promise<string> {
-    const rows = await frame.query(
+    const rows = await frame.rawRows(
         `SELECT value FROM duckdb_settings() WHERE name = '${name}'`
     );
     return String(rows[0]?.[0] ?? '');
@@ -67,7 +67,7 @@ describe('duck database', () => {
 
             // the first frame's table is still there, with its rows.
             // NOTE query() is JSON-rendered, so a BIGINT count comes back as a string.
-            expect(await reopened.query(`SELECT count(*) FROM ${table}`)).toEqual([['2']]);
+            expect(await reopened.rawRows(`SELECT count(*) FROM ${table}`)).toEqual([['2']]);
             await closeDuckDatabase(path);
         });
 
@@ -93,7 +93,7 @@ describe('duck database', () => {
                 CONFIG, RECORDS, { database: b, name: 'only_in_b' }
             );
 
-            await expect(frameB.query(`SELECT * FROM ${frameA.table}`)).toReject();
+            await expect(frameB.rawRows(`SELECT * FROM ${frameA.table}`)).toReject();
 
             await closeDuckDatabase(a);
             await closeDuckDatabase(b);

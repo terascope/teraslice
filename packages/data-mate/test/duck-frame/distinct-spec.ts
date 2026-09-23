@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/DuckFrame.js';
+import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/index.js';
 
 /**
  * Arrays and objects are in here on purpose: these configs routinely carry them, and a dedup
@@ -97,7 +97,7 @@ describe('DuckFrame->distinct', () => {
 
     it('should be sortable afterwards, which is the supported order', async () => {
         const sorted = frame.distinct().orderBy([
-            'name', { expression: 'bytes', direction: 'desc' },
+            { expression: 'name' }, { expression: 'bytes', order: 'desc' },
         ]);
 
         expect((await collect(sorted)).map((row) => `${row.name}${row.bytes}`))
@@ -109,7 +109,7 @@ describe('DuckFrame->distinct', () => {
     });
 
     it('should refuse to dedup an ordered frame, since DISTINCT reorders', () => {
-        expect(() => frame.orderBy(['name']).distinct())
+        expect(() => frame.orderBy([{ expression: 'name' }]).distinct())
             .toThrow('distinct reorders rows');
     });
 });

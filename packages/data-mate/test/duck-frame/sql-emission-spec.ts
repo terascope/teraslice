@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/DuckFrame.js';
+import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/index.js';
 import { duckFrameAdapter } from '../../src/adapters/duck-frame-adapter/index.js';
 import { functionConfigRepository } from '../../src/function-configs/index.js';
 import {
@@ -1349,9 +1349,10 @@ async function run(
 
     try {
         const projected = frame.select(
-            { field: result.expression },
+            { field: result.expression }, {
+                config:
             { version: 1, fields: { field: result.outputConfig.field_config } }
-        );
+            });
         const values: unknown[] = [];
         for await (const row of projected.rows()) values.push(row.field);
         return { values, dispatch: result.dispatch };
@@ -1377,7 +1378,7 @@ describe('sql emissions on the function configs', () => {
             { name: 'emit_load_spatial' }
         );
         try {
-            await frame.query('LOAD spatial');
+            await frame.rawRows('LOAD spatial');
         } finally {
             await frame.destroy();
         }
