@@ -1,4 +1,3 @@
-import { xLuceneSQLOptions } from '@terascope/types';
 import { TranslatorOptions } from '../../../../src/translator/interfaces.js';
 
 export type SQLTestCase = [
@@ -6,8 +5,6 @@ export type SQLTestCase = [
     string,
     // the expected SQL expression
     string,
-    // optional translator options
-    TranslatorOptions?,
-    // optional options to pass into toSQL
-    xLuceneSQLOptions?
+    // optional translator options - variables, filterNilVariables, a type config of its own
+    TranslatorOptions?
 ];

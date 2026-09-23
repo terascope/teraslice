@@ -57,6 +57,9 @@
             "path": "packages/geo-utils"
         },
         {
+            "path": "packages/sql-builder"
+        },
+        {
             "path": "packages/data-types"
         },
         {

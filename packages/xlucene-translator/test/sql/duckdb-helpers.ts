@@ -1,6 +1,7 @@
 import { DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
 import { DataType } from '@terascope/data-types';
 import { SQLSort } from '@terascope/types';
+import { getSQLDialect } from '../../src/translator/sql/index.js';
 
 /**
  * A real DuckDB database for the SQL translation tests.
@@ -82,9 +83,10 @@ export class DuckTestDB {
         predicate: string,
         sort?: SQLSort[]
     ): Promise<Record<string, any>[]> {
-        const orderBy = sort?.length
-            ? ` ORDER BY ${sort.map(({ expression, order }) => `${expression} ${order.toUpperCase()}`).join(', ')}`
-            : '';
+        // the dialect renders it, so what runs here is what a real statement would carry -
+        // including the explicit NULLS placement, which a hand-rolled clause would omit
+        const terms = getSQLDialect().orderBy(sort);
+        const orderBy = terms ? ` ORDER BY ${terms}` : '';
 
         return this.run(
             `SELECT ${projection} FROM ${quoteIdentifier(table)} WHERE ${predicate}${orderBy}`

@@ -1,0 +1,49 @@
+{
+    "name": "@terascope/sql-builder",
+    "displayName": "SQL Builder",
+    "version": "2.17.3",
+    "description": "Builds SQL text from typed pieces, for every engine Terascope targets",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/sql-builder#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "repository": "git@github.com:terascope/teraslice.git",
+    "license": "MIT",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "sideEffects": false,
+    "type": "module",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "files": [
+        "dist/src/**/*"
+    ],
+    "scripts": {
+        "build": "tsc --build",
+        "build:watch": "pnpm build --watch",
+        "test": "node ../scripts/bin/ts-scripts test ../sql-builder --",
+        "test:debug": "node ../scripts/bin/ts-scripts test --debug ../sql-builder --",
+        "test:watch": "node ../scripts/bin/ts-scripts test --watch ../sql-builder --"
+    },
+    "dependencies": {
+        "@terascope/core-utils": "workspace:~",
+        "@terascope/geo-utils": "workspace:~",
+        "@terascope/ip-utils": "workspace:~",
+        "@terascope/types": "workspace:~"
+    },
+    "devDependencies": {
+        "jest-extended": "~7.0.0"
+    },
+    "engines": {
+        "node": ">=22.0.0",
+        "pnpm": ">=11.3.0"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
+    "srcMain": "src/index.ts",
+    "terascope": {
+        "enableTypedoc": true,
+        "testSuite": "unit"
+    }
+}

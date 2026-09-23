@@ -71,6 +71,7 @@ describe('vector searches', () => {
             {
                 variables: { vector: [5, 4] },
                 ...clientMetadata,
+                params: { index, size: searchData.length },
             }
         );
 
@@ -91,7 +92,8 @@ describe('vector searches', () => {
             'foo:"hello" AND someVector:knn(vector:$vector k:3)',
             {
                 variables: { vector: [5, 4] },
-                ...clientMetadata
+                ...clientMetadata,
+                params: { index, size: searchData.length },
             }
         );
 
@@ -112,7 +114,8 @@ describe('vector searches', () => {
             'foo:"hello" OR someVector:knn(vector:$vector k:3)',
             {
                 variables: { vector: [5, 4] },
-                ...clientMetadata
+                ...clientMetadata,
+                params: { index, size: searchData.length },
             }
         );
 
@@ -136,7 +139,8 @@ describe('vector searches', () => {
             'foo:"hello" AND (bool:true AND someVector:knn(vector:$vector k:3))',
             {
                 variables: { vector: [5, 4] },
-                ...clientMetadata
+                ...clientMetadata,
+                params: { index, size: searchData.length },
             }
         );
 

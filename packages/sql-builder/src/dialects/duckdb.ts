@@ -3,7 +3,7 @@ import {
     SQLGeoPointColumn, SQLDialectName
 } from '@terascope/types';
 import { uniq } from '@terascope/core-utils';
-import { parens, quoteIdentifier, quoteNumber } from '../helpers.js';
+import { parens, quoteIdentifier, quoteNumber } from '../quoting.js';
 import { BaseSQLDialect, NOTHING_READABLE } from './base.js';
 
 /**
@@ -13,9 +13,6 @@ import { BaseSQLDialect, NOTHING_READABLE } from './base.js';
  * are emitted in that order, so `within` is `ST_Within(column, query)` and `contains` is its
  * mirror.
 */
-/** The bits in front of the embedded address in an IPv4-mapped IPv6 address. */
-const IPV4_MAPPED_PREFIX_BITS = 96;
-
 const RELATION_FUNCTIONS: Readonly<Record<GeoShapeRelation, string>> = Object.freeze({
     [GeoShapeRelation.Intersects]: 'ST_Intersects',
     [GeoShapeRelation.Disjoint]: 'ST_Disjoint',
@@ -161,41 +158,6 @@ export class DuckDBDialect extends BaseSQLDialect {
     }
 
     /**
-     * **Comparing addresses raw would answer differently from Elasticsearch on mixed data.**
-     *
-     * DuckDB's `INET` orders by (family, address), so EVERY IPv4 address sorts before EVERY
-     * IPv6 one; Elasticsearch stores an `ip` as 128 bits with IPv4 mapped into IPv6 and
-     * orders by the value. Measured on the mixed corpus in `test/sql/duckdb-ip-spec.ts`,
-     * `ip:>="192.168.2.0"` differs by four records between the two.
-     *
-     * Mapping IPv4 into `::ffff:` form puts every value in one family, which makes DuckDB's
-     * ordering the numeric one - and it is also what makes `::ffff:8.8.8.8` find a stored
-     * `8.8.8.8`, as Elasticsearch does.
-    */
-    private mappedInet(fieldExpr: string): string {
-        return `TRY_CAST(CASE WHEN contains(${fieldExpr}, ':')`
-            + ` THEN ${fieldExpr} ELSE '::ffff:' || ${fieldExpr} END AS INET)`;
-    }
-
-    /**
-     * The same mapping for a literal.
-     *
-     * **A CIDR's prefix moves with it** - `8.8.8.0/24` becomes `::ffff:8.8.8.0/120`, because
-     * the 96 bits in front of the embedded address are part of the prefix now. Getting this
-     * wrong does not error; it silently widens or narrows the block.
-    */
-    private mappedInetLiteral(value: string): string {
-        if (value.includes(':')) return this.inetLiteral(value);
-
-        const [address, prefix] = value.split('/');
-        const mapped = prefix == null
-            ? `::ffff:${address}`
-            : `::ffff:${address}/${Number(prefix) + IPV4_MAPPED_PREFIX_BITS}`;
-
-        return this.inetLiteral(mapped);
-    }
-
-    /**
      * **`IS TRUE` is a fold barrier, not decoration.**
      *
      * DuckDB rewrites a conjunction of two comparisons on the same expression into a
@@ -205,6 +167,10 @@ export class DuckDBDialect extends BaseSQLDialect {
      * `BETWEEN`, even `NOT (ip > b)`. Wrapping each side stops the rewrite recognising the
      * pair.
      *
+     * The two comparisons an `ip_range` overlap makes are over DIFFERENT expressions - the
+     * block's first address and its last - so nothing there is foldable and this is only
+     * needed for the one field type whose bounds share a column.
+     *
      * It also costs nothing semantically: the comparison is `NULL` exactly when the column
      * is, `IS TRUE` turns that into `FALSE`, and a `WHERE` clause drops both alike.
     */
@@ -213,26 +179,16 @@ export class DuckDBDialect extends BaseSQLDialect {
         return parens(`(${column} ${operator} ${this.mappedInetLiteral(value)}) IS TRUE`);
     }
 
-    /** Equality over the mapped form, so `::ffff:8.8.8.8` and `8.8.8.8` are one address. */
-    ipEquals(fieldExpr: string, address: string): string {
-        return parens(
-            `${this.mappedInet(fieldExpr)} = ${this.mappedInetLiteral(this.validIP(address))}`
-        );
-    }
-
-    /** Containment over the mapped form, which is where the lifted prefix earns its keep. */
-    ipInCIDR(fieldExpr: string, cidr: string): string {
-        return parens(
-            `${this.mappedInet(fieldExpr)} <<= ${this.mappedInetLiteral(this.validCIDR(cidr))}`
-        );
-    }
-
     protected toInet(fieldExpr: string): string {
         return `TRY_CAST(${fieldExpr} AS INET)`;
     }
 
     protected inetLiteral(value: string): string {
         return `INET ${this.stringLiteral(value)}`;
+    }
+
+    protected textContains(expr: string, substring: string): string {
+        return `contains(${expr}, ${this.stringLiteral(substring)})`;
     }
 
     /**

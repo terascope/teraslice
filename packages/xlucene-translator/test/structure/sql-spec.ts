@@ -1,13 +1,16 @@
 import 'jest-extended';
 import {
-    SQLDialectName, xLuceneFieldType, xLuceneTypeConfig
+    SortOrder, SQLDialectName, xLuceneFieldType, xLuceneTypeConfig
 } from '@terascope/types';
 import { Parser } from 'xlucene-parser';
 import { Translator } from '../../src/index.js';
 import {
     DuckDBDialect, getSQLDialect, getAvailableSQLDialects,
-    toOrderBy, translateSQLQuery, buildSQLStatement
+    translateSQLQuery, buildSQLStatement
 } from '../../src/translator/sql/index.js';
+
+/** The dialect renders the sort now, so the tests ask it rather than a free function. */
+const duckdb = getSQLDialect();
 import { getProjectablePaths } from '../../src/query-access/source-fields.js';
 import allTestCases, { typeConfig } from './cases/sql/index.js';
 
@@ -23,11 +26,22 @@ describe('Translator->toSQL', () => {
         describe(`when emitting ${dialect}`, () => {
             for (const [group, testCases] of Object.entries(groups)) {
                 describe(`given ${group} queries`, () => {
-                    test.each(testCases)('should translate %s', (query, expected) => {
-                        const translator = new Translator(query, { type_config: typeConfig });
+                    /**
+                     * `describe.each` rather than `test.each`, for the same reason
+                     * `translator-spec` uses it: a `test.each` callback that declares more
+                     * parameters than the shortest row supplies is handed a `done` callback
+                     * by jest and then waits 60s for a call that never comes - a case with no
+                     * options would hang rather than fail.
+                    */
+                    describe.each(testCases)('given %s', (query, expected, options) => {
+                        it('should translate the query correctly', () => {
+                            const translator = new Translator(query, {
+                                type_config: typeConfig, ...options
+                            });
 
-                        expect(translator.toSQL({ dialect: dialect as SQLDialectName }).query)
-                            .toEqual(expected);
+                            expect(translator.toSQL({ dialect: dialect as SQLDialectName }).query)
+                                .toEqual(expected);
+                        });
                     });
                 });
             }
@@ -76,7 +90,7 @@ describe('Translator->toSQL', () => {
             const translator = new Translator('bar:hello', { type_config: typeConfig });
 
             expect(translator.toSQL().sort).toBeUndefined();
-            expect(toOrderBy(undefined)).toBeUndefined();
+            expect(duckdb.orderBy(undefined)).toBe('');
         });
 
         it('sorts by distance for a geoDistance query', () => {
@@ -87,9 +101,9 @@ describe('Translator->toSQL', () => {
 
             const { sort } = translator.toSQL({ geo_sort_order: 'desc' });
 
-            expect(toOrderBy(sort)).toEqual(
+            expect(duckdb.orderBy(sort)).toEqual(
                 'ST_Distance_Sphere(ST_Point(struct_extract("location", \'lat\'),'
-                + ' struct_extract("location", \'lon\')), ST_Point(20, 20)) DESC'
+                + ' struct_extract("location", \'lon\')), ST_Point(20, 20)) DESC NULLS LAST'
             );
         });
 
@@ -102,8 +116,8 @@ describe('Translator->toSQL', () => {
             const { sort } = translator.toSQL({ geo_sort_point: { lat: 10, lon: 10 } });
 
             expect(sort).toHaveLength(1);
-            expect(toOrderBy(sort)).toContain('ST_Distance_Sphere');
-            expect(toOrderBy(sort)).toEndWith(' ASC');
+            expect(duckdb.orderBy(sort)).toContain('ST_Distance_Sphere');
+            expect(duckdb.orderBy(sort)).toEndWith(' ASC NULLS FIRST');
         });
     });
 
@@ -188,7 +202,6 @@ describe('Translator->toSQL', () => {
         /** A column is only taken whole when every one of its members survived. */
         it('rebuilds a struct only when part of it was withheld', () => {
             const all = getProjectablePaths(nested);
-            const duckdb = getSQLDialect(SQLDialectName.duckdb);
 
             expect(duckdb.projection(['nested.name', 'nested.secret'], all)).toEqual('"nested"');
             expect(duckdb.projection(['nested.secret'], all))
@@ -216,7 +229,7 @@ describe('Translator->toSQL', () => {
 
             expect(sql).toEqual(
                 'SELECT "bar", "num" FROM "events" WHERE ("bar" = \'hello\')'
-                + ' ORDER BY "num" DESC LIMIT 10 OFFSET 5'
+                + ' ORDER BY "num" DESC NULLS LAST LIMIT 10 OFFSET 5'
             );
         });
 
@@ -234,6 +247,47 @@ describe('Translator->toSQL', () => {
             );
 
             expect(sql).toStartWith('SELECT "bar", "num" FROM read_parquet([\'a.parquet\', \'b.parquet\'])');
+        });
+
+        /**
+         * **The direction is the one half of an `ORDER BY` entry that is a value rather than
+         * SQL**, and it goes into the statement as a keyword - so it is checked for exactly
+         * the reason `size` is. The expression beside it is the caller's own SQL and is not.
+        */
+        describe('the sort direction', () => {
+            it.each([
+                ['an unknown direction', 'ascending'],
+                ['a direction carrying more SQL', 'asc, (SELECT 1)'],
+                ['an empty direction', ''],
+                ['no direction at all', undefined],
+            ])('refuses %s in the query\'s own sort', (_name, order) => {
+                expect(() => buildSQLStatement(
+                    { ...parts, sort: [{ expression: '"num"', order: order as SortOrder }] },
+                    { table: 'events' },
+                    getSQLDialect()
+                )).toThrow(/sort order of asc or desc/);
+            });
+
+            it('refuses one in the caller\'s sort as well', () => {
+                expect(() => buildSQLStatement(
+                    parts,
+                    {
+                        table: 'events',
+                        sort: [{ expression: '"num"', order: '1; DROP TABLE users' as SortOrder }]
+                    },
+                    getSQLDialect()
+                )).toThrow(/sort order of asc or desc/);
+            });
+
+            it('takes a direction in either case', () => {
+                const sql = buildSQLStatement(
+                    parts,
+                    { table: 'events', sort: [{ expression: '"num"', order: 'DESC' as SortOrder }] },
+                    getSQLDialect()
+                );
+
+                expect(sql).toEndWith('ORDER BY "num" DESC NULLS LAST');
+            });
         });
 
         it('spells LIMIT the same way in postgres', () => {

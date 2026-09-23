@@ -127,7 +127,12 @@ export function formatGQLType(type: string, desc?: string): string {
  *
  * Quoting unconditionally is safe because DuckDB treats a quoted identifier
  * case-INsensitively (verified), unlike Postgres where quoting pins the case.
- */
+ *
+ * **`@terascope/sql-builder` has the same one-liner, on purpose.** This package emits DDL TYPE
+ * strings, not queries, and depending on a query builder - dragging `geo-utils` and `ip-utils`
+ * in with it - to share one line is the worse trade. What must not come back is the
+ * CONDITIONAL version above; that was the bug, and it was written separately in both places.
+*/
 export function quoteDuckDBIdentifier(name: string): string {
     return `"${name.replace(/"/g, '""')}"`;
 }

@@ -1,16 +1,20 @@
 import { TSError } from '@terascope/core-utils';
 import { parseGeoPoint } from '@terascope/geo-utils';
-import { isCIDR, isIP } from '@terascope/ip-utils';
+import {
+    getFirstIPInCIDR, getLastIPInCIDR, isCIDR, isIP
+} from '@terascope/ip-utils';
 import {
     GeoPoint, GeoShape, GeoShapeRelation,
-    SQLDialect, SQLGeoPointColumn, xLuceneFieldType
+    SQLDialect, SQLGeoPointColumn, SQLIPRangeBound,
+    SQLSort, xLuceneFieldType
 } from '@terascope/types';
 import {
-    inferFieldType, isTextFieldType, parens, wholeNumber,
-    quoteBoolean, quoteIdentifier, quoteLiteral,
-    quoteNumber, isMatchAllWildcard, toLiteralString,
-    toUTCTimestampText, wildcardToLikePattern
-} from '../helpers.js';
+    parens, wholeNumber, quoteBoolean, quoteIdentifier,
+    quoteLiteral, quoteNumber, toLiteralString, toUTCTimestampText
+} from '../quoting.js';
+import { isMatchAllWildcard, wildcardToLikePattern } from '../patterns.js';
+import { inferFieldType, isTextFieldType } from '../field-types.js';
+import { orderByTerms } from '../clauses.js';
 
 const COMPARISON_OPERATORS = {
     gt: '>',
@@ -27,6 +31,12 @@ const COMPARISON_OPERATORS = {
  * error or a missing row.
 */
 export const NOTHING_READABLE = 'NULL';
+
+/** What an IPv4 address is prefixed with to become the IPv6 address Elasticsearch stores. */
+const IPV4_MAPPED_PREFIX = '::ffff:';
+
+/** The bits in front of the embedded address in an IPv4-mapped IPv6 address. */
+const IPV4_MAPPED_PREFIX_BITS = 96;
 
 const GEO_POINT_TYPES: readonly xLuceneFieldType[] = [
     xLuceneFieldType.GeoPoint,
@@ -97,6 +107,18 @@ export abstract class BaseSQLDialect implements SQLDialect {
         if (offset != null) parts.push(`OFFSET ${wholeNumber(offset, 'from')}`);
 
         return parts.join(' ');
+    }
+
+    /**
+     * The `ORDER BY` terms, direction and null placement both spelled out.
+     *
+     * Shared by every engine because `NULLS FIRST` / `NULLS LAST` is standard SQL that both
+     * DuckDB and PostgreSQL accept. It is emitted ALWAYS rather than only when it differs
+     * from the engine default, because the default it has to override is a different one in
+     * each engine and none of them is `DataFrame`'s - see `defaultNullOrder`.
+    */
+    orderBy(sort?: readonly SQLSort[]): string {
+        return orderByTerms(sort);
     }
 
     matchAll(): string {
@@ -178,38 +200,67 @@ export abstract class BaseSQLDialect implements SQLDialect {
         return this.join(expressions, 'OR');
     }
 
+    /** Containment over the mapped form, which is where the lifted prefix earns its keep. */
     ipInCIDR(fieldExpr: string, cidr: string): string {
-        return parens(`${this.toInet(fieldExpr)} <<= ${this.inetLiteral(this.validCIDR(cidr))}`);
+        return parens(
+            `${this.mappedInet(fieldExpr)} <<= ${this.mappedInetLiteral(this.validCIDR(cidr))}`
+        );
     }
 
+    /** Equality over the mapped form, so `::ffff:8.8.8.8` and `8.8.8.8` are one address. */
     ipEquals(fieldExpr: string, address: string): string {
-        return parens(`${this.toInet(fieldExpr)} = ${this.inetLiteral(this.validIP(address))}`);
+        return parens(
+            `${this.mappedInet(fieldExpr)} = ${this.mappedInetLiteral(this.validIP(address))}`
+        );
     }
 
     /**
-     * The column holds the BLOCK and the query holds the address, so the containment runs the
-     * other way round from `ipInCIDR`.
+     * An `ip_range` column matching a queried address or block.
+     *
+     * The column holds the BLOCK here and the query holds what has to be inside it, so the
+     * containment runs the other way round from `ipInCIDR` - and it is the same question an
+     * overlap asks, with the queried range collapsed to the one value. Expressing it that way
+     * rather than with `<<=` is what lets a mapped IPv4 address find a block stored as IPv4:
+     * **measured, `'::ffff:10.0.0.1'::INET <<= '10.0.0.0/30'::INET` is FALSE**, because the
+     * two are different families, while their mapped endpoints compare as Elasticsearch's do.
     */
-    ipRangeContains(fieldExpr: string, address: string): string {
-        return parens(`${this.inetLiteral(this.validIP(address))} <<= ${this.toInet(fieldExpr)}`);
+    ipRangeContains(fieldExpr: string, value: string): string {
+        const address = this.validIP(value);
+        const [first, last] = isCIDR(address)
+            ? [getFirstIPInCIDR(address), getLastIPInCIDR(address)]
+            : [address, address];
+
+        return this.ipRangeIntersects(
+            fieldExpr,
+            { value: first, inclusive: true },
+            { value: last, inclusive: true }
+        );
     }
 
     /**
      * Two blocks overlap when each one starts at or before the other one ends.
      *
-     * The stored block's ends are its network and broadcast addresses. **They have to go
-     * back through a cast to strip the mask** - measured, comparing a masked `INET` against a
-     * bare one compares the masks too and answers `false` for a block that plainly overlaps.
+     * **An excluded bound moves the comparison rather than the value.** `{a TO b}` is every
+     * address strictly between them, so it overlaps a stored block only if that block begins
+     * strictly before `b` and ends strictly after `a` - which is the difference between
+     * matching a block that merely touches the bound and not matching it.
     */
-    ipRangeIntersects(fieldExpr: string, start?: string, end?: string): string {
-        const column = this.toInet(fieldExpr);
+    ipRangeIntersects(
+        fieldExpr: string, start?: SQLIPRangeBound, end?: SQLIPRangeBound
+    ): string {
         const parts: string[] = [];
 
         if (end != null) {
-            parts.push(`${this.toInet(`host(network(${column}))`)} <= ${this.inetLiteral(this.validIP(end))}`);
+            parts.push(
+                `${this.blockStart(fieldExpr)} ${end.inclusive ? '<=' : '<'}`
+                + ` ${this.mappedInetLiteral(this.validIP(end.value))}`
+            );
         }
         if (start != null) {
-            parts.push(`${this.toInet(`host(broadcast(${column}))`)} >= ${this.inetLiteral(this.validIP(start))}`);
+            parts.push(
+                `${this.blockEnd(fieldExpr)} ${start.inclusive ? '>=' : '>'}`
+                + ` ${this.mappedInetLiteral(this.validIP(start.value))}`
+            );
         }
 
         if (!parts.length) return this.exists(fieldExpr);
@@ -248,7 +299,61 @@ export abstract class BaseSQLDialect implements SQLDialect {
 
     /** One side of a range on an `ip` field, compared as an address. */
     protected ipComparison(fieldExpr: string, operator: string, value: string): string {
-        return parens(`${this.toInet(fieldExpr)} ${operator} ${this.inetLiteral(value)}`);
+        return parens(`${this.mappedInet(fieldExpr)} ${operator} ${this.mappedInetLiteral(value)}`);
+    }
+
+    /**
+     * The column as an address COMPARABLE with any other address.
+     *
+     * **Comparing addresses raw would answer differently from Elasticsearch on mixed data.**
+     * An `INET` orders by (family, address) in both supported engines, so EVERY IPv4 address
+     * sorts before EVERY IPv6 one; Elasticsearch stores an `ip` as 128 bits with IPv4 mapped
+     * into IPv6 and orders by the value. Measured on the mixed corpus in
+     * `test/cases/ips.ts`, `ip:>="172.16.0.0"` differs by two records between the two.
+     *
+     * Mapping IPv4 into `::ffff:` form puts every value in one family, which makes the
+     * engine's ordering the numeric one - and it is also what makes `::ffff:8.8.8.8` find a
+     * stored `8.8.8.8`, as Elasticsearch does.
+    */
+    protected mappedInet(fieldExpr: string): string {
+        return this.toInet(
+            `CASE WHEN ${this.textContains(fieldExpr, ':')}`
+            + ` THEN ${fieldExpr} ELSE '${IPV4_MAPPED_PREFIX}' || ${fieldExpr} END`
+        );
+    }
+
+    /**
+     * The same mapping for a literal.
+     *
+     * **A CIDR's prefix moves with it** - `8.8.8.0/24` becomes `::ffff:8.8.8.0/120`, because
+     * the 96 bits in front of the embedded address are part of the prefix now. Getting this
+     * wrong does not error; it silently widens or narrows the block.
+    */
+    protected mappedInetLiteral(value: string): string {
+        if (value.includes(':')) return this.inetLiteral(value);
+
+        const [address, prefix] = value.split('/');
+        const mapped = prefix == null
+            ? `${IPV4_MAPPED_PREFIX}${address}`
+            : `${IPV4_MAPPED_PREFIX}${address}/${Number(prefix) + IPV4_MAPPED_PREFIX_BITS}`;
+
+        return this.inetLiteral(mapped);
+    }
+
+    /**
+     * The first and last addresses of the block an `ip_range` column holds.
+     *
+     * **`host` is not decoration** - measured, comparing a masked `INET` against a bare one
+     * compares the masks too and answers `false` for a block that plainly overlaps. Taking
+     * the address out of the block and mapping it leaves a value that compares against a
+     * queried address the way Elasticsearch's 128-bit form does.
+    */
+    protected blockStart(fieldExpr: string): string {
+        return this.mappedInet(`host(network(${this.toInet(fieldExpr)}))`);
+    }
+
+    protected blockEnd(fieldExpr: string): string {
+        return this.mappedInet(`host(broadcast(${this.toInet(fieldExpr)}))`);
     }
 
     /** The column as an IP address value. */
@@ -256,6 +361,9 @@ export abstract class BaseSQLDialect implements SQLDialect {
 
     /** A literal IP address or CIDR block. */
     protected abstract inetLiteral(value: string): string;
+
+    /** Whether a text expression contains a substring, which the engines spell differently. */
+    protected abstract textContains(expr: string, substring: string): string;
 
     /** An anchored regular expression match against an already-textual expression. */
     protected abstract regexpMatch(expr: string, value: string): string;

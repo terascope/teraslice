@@ -279,6 +279,9 @@ importers:
       '@terascope/ip-utils':
         specifier: workspace:~
         version: link:../ip-utils
+      '@terascope/sql-builder':
+        specifier: workspace:~
+        version: link:../sql-builder
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
@@ -343,6 +346,9 @@ importers:
       jest-extended:
         specifier: ~7.0.0
         version: 7.0.0(jest@30.4.2(@types/node@26.2.0)(node-notifier@10.0.1))(typescript@5.9.3)
+      xlucene-translator:
+        specifier: workspace:~
+        version: link:../xlucene-translator
 
   packages/data-types:
     dependencies:
@@ -739,6 +745,25 @@ importers:
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
+
+  packages/sql-builder:
+    dependencies:
+      '@terascope/core-utils':
+        specifier: workspace:~
+        version: link:../core-utils
+      '@terascope/geo-utils':
+        specifier: workspace:~
+        version: link:../geo-utils
+      '@terascope/ip-utils':
+        specifier: workspace:~
+        version: link:../ip-utils
+      '@terascope/types':
+        specifier: workspace:~
+        version: link:../types
+    devDependencies:
+      jest-extended:
+        specifier: ~7.0.0
+        version: 7.0.0(jest@30.4.2(@types/node@26.2.0)(node-notifier@10.0.1))(typescript@5.9.3)
 
   packages/terafoundation:
     dependencies:
@@ -1278,6 +1303,12 @@ importers:
       '@terascope/geo-utils':
         specifier: workspace:~
         version: link:../geo-utils
+      '@terascope/ip-utils':
+        specifier: workspace:~
+        version: link:../ip-utils
+      '@terascope/sql-builder':
+        specifier: workspace:~
+        version: link:../sql-builder
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
@@ -1285,6 +1316,9 @@ importers:
         specifier: workspace:~
         version: link:../xlucene-parser
     devDependencies:
+      '@duckdb/node-api':
+        specifier: 1.5.5-r.3
+        version: 1.5.5-r.3
       '@terascope/data-types':
         specifier: workspace:~
         version: link:../data-types
@@ -3836,6 +3870,7 @@ packages:
   eslint@9.39.3:
     resolution: {integrity: sha512-VmQ+sifHUbI/IcSopBCF/HO3YiHQx/AVd3UVyYL6weuwW+HvON9VYn5l6Zl1WZzPWXPNZrSQpxwkkZ/VuvJZzg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -5431,6 +5466,7 @@ packages:
   prom-client@15.1.3:
     resolution: {integrity: sha512-6ZiOBfCywsD4k1BN9IX0uZhF+tJkV8q8llP64G5Hajs4JOeVLPCwpPVcpXy3BwYiUGgyJzsJJQeOIv7+hDSq8g==}
     engines: {node: ^16 || ^18 || >=20}
+    deprecated: prom-client has been replaced by @prometheus-io/client
 
   prompts@2.4.2:
     resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}

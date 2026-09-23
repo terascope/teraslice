@@ -15,14 +15,64 @@ export enum SQLDialectName {
 }
 
 /**
+ * One end of a queried address range.
+ *
+ * **The inclusivity is not decoration.** `[a TO b]` and `{a TO b}` are different questions
+ * of an `ip_range` column: the first overlaps a block that merely touches `b`, the second
+ * does not. An overlap test makes no such distinction for itself, so the bound carries it.
+*/
+export interface SQLIPRangeBound {
+    /** The address at that end of the range. */
+    value: string;
+    /** Whether that address is itself part of the range. */
+    inclusive: boolean;
+}
+
+/**
+ * Where nulls are placed within a sorted column.
+ *
+ * It is spelled out on every emitted term rather than left to the engine, because no two
+ * engines agree and none of them match `DataFrame` - see `defaultNullOrder` in
+ * `@terascope/sql-builder`.
+*/
+export type SQLNullOrder = 'first' | 'last';
+
+/**
  * A SQL `ORDER BY` entry.
  *
- * The expression is already-quoted SQL, so it may be a bare column or a function call
- * (a geo-distance sort is the latter).
+ * **This is the only sort shape.** The xLucene translator produces it, `SQLSearchParams`
+ * carries it, and `data-mate`'s DuckDB frame consumes it, so a translated sort can be handed
+ * to a frame without being reshaped on the way.
 */
 export interface SQLSort {
+    /**
+     * Already-quoted SQL, so it may be a bare column or a function call - a geo-distance
+     * sort is the latter.
+     *
+     * **This is not escaped and cannot be**, for the same reason
+     * {@link SQLSearchParams.relation} is not: it is the caller's own SQL, and it must never
+     * be built from input the caller did not write. A field name coming from a request wants
+     * `dialect.fieldRef(field)` around it first.
+    */
     expression: string;
+    /**
+     * The direction, which is checked rather than interpolated - the one half of an
+     * `ORDER BY` entry that arrives from a request as a value rather than as SQL.
+     *
+     * **Required, including here where a default would be harmless-looking.** A missing
+     * direction is refused rather than assumed ascending, because this shape is built from
+     * request data: a sort that arrives without one is a caller bug, and answering it with a
+     * guess returns a plausible page in the wrong order. A frame whose own API defaults to
+     * ascending applies that default before it builds one of these - see `SQLSortInput` in
+     * `@terascope/sql-builder`.
+    */
     order: SortOrder;
+    /**
+     * Where nulls go, defaulting to `DataFrame`'s rule - FIRST ascending, LAST descending.
+     *
+     * Set it to `'last'` in both directions for the Elasticsearch answer.
+    */
+    nulls?: SQLNullOrder;
 }
 
 /**
@@ -61,6 +111,8 @@ export interface SQLSearchParams {
      * Ordering, appended to whatever the query itself asked for.
      *
      * A `geoDistance` query produces its own sort; when it does, it comes first.
+     *
+     * **Each entry's `expression` is used verbatim** - see {@link SQLSort.expression}.
     */
     sort?: SQLSort[];
     /** Fields the caller wants, filtered by what the configuration permits. */
@@ -176,6 +228,15 @@ export interface SQLDialect {
     */
     limitOffset(size?: number, offset?: number): string;
 
+    /**
+     * The `ORDER BY` terms, without the keyword, or `''` for no ordering.
+     *
+     * **Direction AND null placement are always emitted**, never left to the engine: no two
+     * engines place nulls the same way and none of them match `DataFrame`. An engine with no
+     * `NULLS FIRST`/`NULLS LAST` syntax overrides this and emits whatever it needs instead.
+    */
+    orderBy(sort?: readonly SQLSort[]): string;
+
     /** `TRUE` - an empty query matches everything. */
     matchAll(): string;
 
@@ -226,15 +287,17 @@ export interface SQLDialect {
     /** An `ip` field equal to a single address, compared as addresses rather than as text. */
     ipEquals(fieldExpr: string, address: string): string;
 
-    /** An `ip_range` field whose stored block contains the address. */
-    ipRangeContains(fieldExpr: string, address: string): string;
+    /** An `ip_range` field whose stored block contains the address or block. */
+    ipRangeContains(fieldExpr: string, value: string): string;
 
     /**
-     * An `ip_range` field whose stored block overlaps the address range.
+     * An `ip_range` field whose stored block overlaps the queried address range.
      *
      * Either bound may be absent, meaning unbounded on that side.
     */
-    ipRangeIntersects(fieldExpr: string, start?: string, end?: string): string;
+    ipRangeIntersects(
+        fieldExpr: string, start?: SQLIPRangeBound, end?: SQLIPRangeBound
+    ): string;
 
     /** A `geo-point` field within `distance` metres of a point. */
     geoPointWithinDistance(

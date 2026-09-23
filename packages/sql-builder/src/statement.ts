@@ -1,7 +1,6 @@
 import { TSError } from '@terascope/core-utils';
 import { SQLDialect, SQLSearchParams, SQLSort } from '@terascope/types';
-import { quoteIdentifier } from './helpers.js';
-import { toOrderBy } from './translate.js';
+import { quoteIdentifier } from './quoting.js';
 
 /**
  * The pieces of a statement, before they are one.
@@ -51,7 +50,7 @@ export function buildSQLStatement(
      * The query's own ordering comes first, matching `restrictSearchQuery`, where the
      * translated `sort` is spread over the caller's.
     */
-    const orderBy = toOrderBy([...(parts.sort ?? []), ...(params.sort ?? [])]);
+    const orderBy = dialect.orderBy([...(parts.sort ?? []), ...(params.sort ?? [])]);
     if (orderBy) statement.push(`ORDER BY ${orderBy}`);
 
     const limit = dialect.limitOffset(params.size, params.from);
