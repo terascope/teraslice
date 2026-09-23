@@ -113,3 +113,6 @@ console.log('\n  UPLOAD VERIFIED');
 console.log(`\n  point the harness at it with:   FIXTURE=${scale} S3_BUCKET=${bucket} ./run.sh doctor`);
 
 instance.closeSync();
+
+// ./run.sh sql --sql "SELECT DISTINCT station_id FROM {{T}} ORDER BY station_id" --repeats 5
+// ./run.sh sql --sql "SELECT DISTINCT station_id FROM {{T}} ORDER BY station_id" --repeats 0 --sweep threads=4,8,16,32

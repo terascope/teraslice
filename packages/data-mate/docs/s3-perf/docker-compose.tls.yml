@@ -1,0 +1,63 @@
+# TLS overlay. Optional — the base file serves plain HTTP with no certificate.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.tls.yml up -d
+#
+# Adds 8443 alongside 8080 and mints its own self-signed certificate, so there
+# is nothing for you to supply. Use it when TLS itself is the thing under test:
+# running real TLS is what exposed DF13 (`ca_cert_file` is CONNECTION-scoped,
+# so `size()` worked and every `rows()` failed).
+#
+# On the DuckDB side you still do NOT need this cert. Set
+# `enable_curl_server_cert_verification = false` rather than plumbing a CA PEM
+# through the harness — a PEM is never a requirement.
+
+services:
+  # One-shot: writes .ceph/certs/rgw.pem, then exits. Re-running `up` reuses an
+  # existing pem instead of minting a new one, so the cert you may have already
+  # trusted stays valid.
+  ceph-certs:
+    # The same image the cluster uses — it already carries openssl, so this
+    # pulls nothing extra and cannot drift from the server's TLS library.
+    image: quay.io/ceph/demo:latest
+    platform: linux/amd64
+    container_name: ceph-demo-certs
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -euo pipefail
+        if [ -s /certs/rgw.pem ]; then
+          echo "certs: /certs/rgw.pem already exists, reusing it"
+          exit 0
+        fi
+        name="${RGW_NAME:-ceph-rgw.tera4.lan}"
+        echo "certs: minting a self-signed certificate for $$name"
+        openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
+          -keyout /certs/rgw.key -out /certs/rgw.crt \
+          -subj "/CN=$$name" \
+          -addext "subjectAltName=DNS:$$name,DNS:*.$$name,DNS:localhost,IP:127.0.0.1"
+        # beast wants the certificate and the key concatenated into ONE file.
+        cat /certs/rgw.crt /certs/rgw.key > /certs/rgw.pem
+        chmod 644 /certs/rgw.pem
+        echo "certs: wrote /certs/rgw.pem"
+    volumes:
+      # Bind-mounted, not a named volume, so the cert is visible on the host if
+      # you do want to hand it to a client as a CA.
+      - ./.ceph/certs:/certs
+    networks:
+      default:
+
+  ceph:
+    depends_on:
+      ceph-certs:
+        condition: service_completed_successfully
+    environment:
+      # The entrypoint interpolates RGW_FRONTEND straight into `rgw frontends`
+      # in ceph.conf before radosgw starts, so TLS needs no hand-edit of
+      # ceph.conf and no restarting radosgw by hand.
+      RGW_FRONTEND: beast endpoint=0.0.0.0:8080 ssl_endpoint=0.0.0.0:8443 ssl_certificate=/certs/rgw.pem
+    ports:
+      - "${RGW_HTTPS_PORT:-8443}:8443"
+    volumes:
+      # Anywhere BUT /etc/ceph — the demo entrypoint refuses to start if
+      # /etc/ceph is non-empty ("I can see existing Ceph files").
+      - ./.ceph/certs:/certs:ro

@@ -1,0 +1,77 @@
+# Real Ceph RGW, on this machine, to bench the duck-frame against.
+#
+#   docker compose up -d      plain HTTP on :8080 — no certificate involved
+#   docker compose logs -f    watch the bootstrap (~30 s)
+#   docker compose down       destroys the cluster AND its data
+#
+# TLS is entirely optional. RGW's default frontend is plain beast on 8080; a
+# certificate is only needed if you are specifically testing TLS, which is what
+# found DF13. When you want it, layer the overlay on top — it mints its own
+# self-signed cert, so there is still nothing for you to supply:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.tls.yml up -d
+#
+# Why a real Ceph and not minio: testing the server that runs in production
+# found two config bugs a stand-in could not — see docs/HANDOFF.md.
+
+name: s3-perf
+
+services:
+  ceph:
+    # quay.io/ceph/demo is amd64-only. On an arm64 Mac it runs under Rosetta,
+    # which costs start-up time but nothing measurable once RGW is serving.
+    image: quay.io/ceph/demo:latest
+    platform: linux/amd64
+    container_name: ceph-demo
+    environment:
+      # One container, the four daemons S3 needs. Ceph reports HEALTH_WARN
+      # because a single OSD cannot satisfy its redundancy rules; that is
+      # expected here and does not affect the S3 path at all.
+      DEMO_DAEMONS: mon,mgr,osd,rgw
+      MON_IP: 127.0.0.1
+      CEPH_PUBLIC_NETWORK: 0.0.0.0/0
+
+      # The entrypoint writes this as `rgw dns name`, and the network alias
+      # below resolves it, so the harness reaches RGW under the same hostname
+      # the production deployment uses.
+      RGW_NAME: ${RGW_NAME:-ceph-rgw.tera4.lan}
+      RGW_FRONTEND_PORT: 8080
+
+      # The demo entrypoint creates this user and bucket during bootstrap.
+      # They are local throwaway credentials for a throwaway cluster.
+      CEPH_DEMO_UID: ${CEPH_DEMO_UID:-duckperf}
+      CEPH_DEMO_ACCESS_KEY: ${CEPH_DEMO_ACCESS_KEY:-duckperfkey}
+      CEPH_DEMO_SECRET_KEY: ${CEPH_DEMO_SECRET_KEY:-duckperfsecret}
+      CEPH_DEMO_BUCKET: ${CEPH_DEMO_BUCKET:-qpl-fixtures}
+    ports:
+      # RGW is 8080 plain / 8443 TLS — not minio's 9000.
+      - "${RGW_HTTP_PORT:-8080}:8080"
+
+    # Deliberately no volumes. The entrypoint aborts with "I can see existing
+    # Ceph files, please remove them" if /etc/ceph is non-empty, and it
+    # re-bootstraps the cluster on every start, so a persisted /var/lib/ceph
+    # would collide with the new one. `stop`/`start` keeps the data in the
+    # container's writable layer; `down` discards it and re-uploads is the
+    # intended way to get a clean corpus.
+
+    networks:
+      default:
+        aliases:
+          - ${RGW_NAME:-ceph-rgw.tera4.lan}
+
+    healthcheck:
+      # RGW answers anonymous GET / with a ListAllMyBuckets document as soon as
+      # it is serving, which is the last thing bootstrap brings up.
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/ > /dev/null"]
+      interval: 5s
+      timeout: 5s
+      # Bootstrap is ~30 s native and slower under Rosetta; start_period keeps
+      # those attempts from counting as failures.
+      start_period: 180s
+      retries: 5
+
+networks:
+  default:
+    # Named, not defaulted, so the harness container can join it by a stable
+    # name: `docker run --network ceph-net ... duckperf:local`.
+    name: ceph-net
