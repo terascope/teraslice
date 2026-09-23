@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/DuckFrame.js';
+import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/index.js';
 import { duckFrameAdapter } from '../../src/adapters/duck-frame-adapter/index.js';
 import { functionConfigRepository } from '../../src/function-configs/index.js';
 import { FunctionDefinitionConfig } from '../../src/function-configs/interfaces.js';
@@ -41,9 +41,10 @@ async function applyTo(
     });
 
     const rows = await collect(frame.select(
-        { [field]: result.expression },
+        { [field]: result.expression }, {
+            config:
         { version: 1, fields: { [field]: result.outputConfig.field_config } }
-    ));
+        }));
 
     return { result, values: rows.map((r) => r[field]) };
 }
@@ -132,12 +133,13 @@ describe('duckFrameAdapter', () => {
         });
 
         const rows = await collect(frame
-            .select({ name: upper.expression, bytes: 'bytes' }, CONFIG)
+            .select({ name: upper.expression, bytes: 'bytes' }, { config: CONFIG })
             .filter('name IS NOT NULL')
             .select(
-                { n: 'count(*)' },
+                { n: 'count(*)' }, {
+                    config:
                 { version: 1, fields: { n: { type: FieldType.Integer } } }
-            ));
+                }));
 
         expect(rows).toEqual([{ n: 2 }]);
     });
@@ -149,18 +151,20 @@ describe('duckFrameAdapter', () => {
 
         const step1 = await duckFrameAdapter(repo.trim, { field: 'name', inputConfig: nameConfig });
         const after1 = frame.select(
-            { name: step1.expression },
+            { name: step1.expression }, {
+                config:
             { version: 1, fields: { name: step1.outputConfig.field_config } }
-        );
+            });
 
         const step2 = await duckFrameAdapter(repo.toUpperCase, {
             field: 'name',
             inputConfig: step1.outputConfig,
         });
         const after2 = after1.select(
-            { name: step2.expression },
+            { name: step2.expression }, {
+                config:
             { version: 1, fields: { name: step2.outputConfig.field_config } }
-        );
+            });
 
         expect((await collect(after2)).map((r) => r.name)).toEqual(['ALPHA', 'BETA', null]);
 

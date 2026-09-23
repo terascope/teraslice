@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readFileSync, existsSync, unlinkSync } from 'node:fs';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/DuckFrame.js';
+import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/index.js';
 import { DataFrame } from '../../src/data-frame/index.js';
 
 /**
@@ -160,7 +160,7 @@ describe('DuckFrame JSON export', () => {
     describe('the three divergences from native to_json', () => {
         it('should render a Date as ISO8601, not as DuckDB SQL text', async () => {
             const [first] = await collectNdjson();
-            const native = await frame.query(`SELECT to_json(t)::VARCHAR FROM ${frame.from} AS t`);
+            const native = await frame.rawRows(`SELECT to_json(t)::VARCHAR FROM ${frame.from} AS t`);
 
             expect(JSON.parse(first).created).toBe('2026-08-14T01:02:03.456Z');
             // what it would have been without the correction

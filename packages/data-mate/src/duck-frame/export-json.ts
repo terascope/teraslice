@@ -1,5 +1,5 @@
 import { DataTypeConfig, ReadonlyDataTypeConfig, DataTypeFields, FieldType } from '@terascope/types';
-import { quoteIdentifier, quoteLiteral } from './sql.js';
+import { quoteIdentifier, quoteLiteral } from '@terascope/sql-builder';
 
 /**
  * Builds the SQL that renders a frame's rows as JSON **byte-identical to what `DataFrame`

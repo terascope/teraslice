@@ -1,6 +1,6 @@
 import { FieldType } from '@terascope/types';
 // imported as well as re-exported: `primitiveLiteral` below needs it as a local binding
-import { quoteLiteral } from '../duck-frame/sql.js';
+import { quoteLiteral } from '@terascope/sql-builder';
 
 /**
  * Helpers shared by the `sql` emissions on the function configs.
@@ -16,7 +16,7 @@ import { quoteLiteral } from '../duck-frame/sql.js';
  * Re-exported from the DuckDB layer rather than reimplemented: exactly one function in the
  * codebase should decide how a value becomes a SQL literal.
 */
-export { quoteLiteral as sqlLiteral } from '../duck-frame/sql.js';
+export { quoteLiteral as sqlLiteral } from '@terascope/sql-builder';
 
 /**
  * Every code point `String.prototype.trim` strips: ECMAScript `WhiteSpace` + `LineTerminator`.

@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig, DataTypeFields } from '@terascope/types';
-import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/DuckFrame.js';
-import { diffSchema } from '../../src/duck-frame/schema-check.js';
+import { DuckFrame, closeDuckDatabase } from '../../src/duck-frame/index.js';
+import { diffSchema } from '../../src/duck-frame/index.js';
 
 /**
  * One sample value per FieldType, in the form the ES client would hand us.

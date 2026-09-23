@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { unlinkSync, existsSync } from 'node:fs';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DuckFrame, CoercionFailureError, closeDuckDatabase } from '../../src/duck-frame/DuckFrame.js';
+import { DuckFrame, CoercionFailureError, closeDuckDatabase } from '../../src/duck-frame/index.js';
 
 const CONFIG: DataTypeConfig = {
     version: 1,
@@ -81,7 +81,7 @@ describe('DuckFrame', () => {
 
         it('should coerce by DataType rather than by DuckDB cast rules', async () => {
             const frame = await DuckFrame.fromRecords(CONFIG, RECORDS, {});
-            const rows = await frame.query(
+            const rows = await frame.rawRows(
                 `SELECT bytes::VARCHAR FROM ${frame.from} ORDER BY _key`
             );
             // '1e3' -> 1000, and 12.7 truncates to 12 (a DuckDB cast would round to 13)
@@ -91,7 +91,7 @@ describe('DuckFrame', () => {
 
         it('should castArray a scalar and keep a null array null', async () => {
             const frame = await DuckFrame.fromRecords(CONFIG, RECORDS, {});
-            const rows = await frame.query(
+            const rows = await frame.rawRows(
                 `SELECT tags::VARCHAR FROM ${frame.from} ORDER BY _key`
             );
             expect(String(rows[1][0])).toEqual('[solo]');
@@ -101,7 +101,7 @@ describe('DuckFrame', () => {
 
         it('should drop object keys absent from the config', async () => {
             const frame = await DuckFrame.fromRecords(CONFIG, RECORDS, {});
-            const rows = await frame.query(
+            const rows = await frame.rawRows(
                 `SELECT meta::VARCHAR FROM ${frame.from} WHERE _key = 'b'`
             );
             // the record carried an extra 'drop' key, which is not in the config
@@ -129,7 +129,7 @@ describe('DuckFrame', () => {
             const frame = await DuckFrame.fromRecords(
                 CONFIG, [{ ...RECORDS[0], bytes: 'not-a-number' }], { mode: 'lenient' }
             );
-            const rows = await frame.query(`SELECT bytes FROM ${frame.from}`);
+            const rows = await frame.rawRows(`SELECT bytes FROM ${frame.from}`);
             expect(rows[0][0]).toBeNull();
             await frame.destroy();
         });
@@ -145,7 +145,7 @@ describe('DuckFrame', () => {
             const frame = await DuckFrame.fromRecords(
                 cfg, [{ total: '9007199254740993' }], { name: 'bigint' }
             );
-            const rows = await frame.query(`SELECT total::VARCHAR FROM ${frame.from}`);
+            const rows = await frame.rawRows(`SELECT total::VARCHAR FROM ${frame.from}`);
             expect(String(rows[0][0])).toEqual('9007199254740993');
             await frame.destroy();
         });
@@ -159,8 +159,57 @@ describe('DuckFrame', () => {
             const frame = await DuckFrame.fromRecords(
                 cfg, [{ loc: 'ezs42' }], { name: 'geohash' }
             );
-            const rows = await frame.query(`SELECT loc.lat::VARCHAR, loc.lon::VARCHAR FROM ${frame.from}`);
+            const rows = await frame.rawRows(`SELECT loc.lat::VARCHAR, loc.lon::VARCHAR FROM ${frame.from}`);
             expect(rows[0].map(String)).toEqual(['42.605', '-5.603']);
+            await frame.destroy();
+        });
+
+        /**
+         * **Large whole numbers survive the trip out, exactly.**
+         *
+         * `core-utils`' `bigIntToJSON` cannot be used here: it subtracts 1 from every positive
+         * value above the safe limit (cancelling a `+1` in `toBigInt` that a value from DuckDB
+         * never went through), and its bound is a SIGNED comparison, so every negative takes a
+         * lossy `Number` conversion with no string fallback. See the DEF-BIGINT issue.
+         *
+         * The invariant pinned here is that **what is stored, what `rows()` yields and what
+         * `ndjson()` writes all agree** - they did not, and `rows()` was the odd one out.
+        */
+        it('should read large integers back exactly, and agree with ndjson', async () => {
+            const cfg: DataTypeConfig = {
+                version: 1,
+                fields: { _key: { type: FieldType.Keyword }, big: { type: FieldType.Long } },
+            };
+            const values = [
+                '9007199254740993', // one above the safe limit - the off-by-one case
+                '9223372036854775807', // BIGINT max, which +1 would push out of range
+                '-9223372036854775808', // BIGINT min - the signed-bound case
+                '-9007199254740993',
+                '42', // comfortably in range, stays a number
+            ];
+            const frame = await DuckFrame.fromRecords(
+                cfg,
+                values.map((big, n) => ({ _key: `k${n}`, big })),
+                { name: 'bigint_exact' }
+            );
+
+            const stored = (await frame.rawRows(
+                `SELECT big::VARCHAR FROM ${frame.from} ORDER BY _key`
+            )).map((row) => String(row[0]));
+            expect(stored).toEqual(values);
+
+            const rows: unknown[] = [];
+            for await (const row of frame.rows()) rows.push(row.big);
+            expect(rows.map(String)).toEqual(values);
+
+            // in range it stays a number; out of range it becomes an exact string
+            expect(typeof rows[4]).toBe('number');
+            expect(typeof rows[0]).toBe('string');
+
+            const lines: string[] = [];
+            for await (const line of frame.ndjson()) lines.push(line.trim());
+            expect(lines.map((line) => String(JSON.parse(line).big))).toEqual(values);
+
             await frame.destroy();
         });
 
@@ -186,8 +235,8 @@ describe('DuckFrame', () => {
             const restored = await DuckFrame.fromParquet(CONFIG, path, {});
 
             expect(await restored.size()).toEqual(3);
-            const a = await source.query(`SELECT * FROM ${source.from} ORDER BY _key`);
-            const b = await restored.query(`SELECT * FROM ${restored.from} ORDER BY _key`);
+            const a = await source.rawRows(`SELECT * FROM ${source.from} ORDER BY _key`);
+            const b = await restored.rawRows(`SELECT * FROM ${restored.from} ORDER BY _key`);
             expect(JSON.stringify(b)).toEqual(JSON.stringify(a));
 
             await source.destroy();
@@ -198,7 +247,7 @@ describe('DuckFrame', () => {
             const source = await DuckFrame.fromRecords(CONFIG, RECORDS, {});
             await source.writeParquet(path);
             const restored = await DuckFrame.fromParquet(CONFIG, path, {});
-            const rows = await restored.query(
+            const rows = await restored.rawRows(
                 `SELECT tags::VARCHAR, meta.region, meta.tier::VARCHAR`
                 + ` FROM ${restored.from} WHERE _key = 'a'`
             );
@@ -249,7 +298,7 @@ describe('DuckFrame', () => {
 
         it('should stream an empty frame without yielding', async () => {
             const frame = await DuckFrame.fromRecords(CONFIG, RECORDS, {});
-            await frame.query(`DELETE FROM ${frame.table}`);
+            await frame.rawRows(`DELETE FROM ${frame.table}`);
             const out = [];
             for await (const row of frame.rows()) out.push(row);
             expect(out).toEqual([]);
@@ -260,7 +309,7 @@ describe('DuckFrame', () => {
     describe('queries', () => {
         it('should aggregate over a nested struct field', async () => {
             const frame = await DuckFrame.fromRecords(CONFIG, RECORDS, {});
-            const rows = await frame.query(
+            const rows = await frame.rawRows(
                 `SELECT meta.region, count(*) FROM ${frame.from}`
                 + ' WHERE meta.region IS NOT NULL GROUP BY meta.region ORDER BY 1'
             );
@@ -370,7 +419,7 @@ describe('DuckFrame', () => {
             )).toReject();
 
             const probe = await DuckFrame.fromRecords(CONFIG, RECORDS, { name: 'probe' });
-            const tables = await probe.query(
+            const tables = await probe.rawRows(
                 'SELECT table_name FROM duckdb_tables() WHERE table_name LIKE \'orphan_check%\''
             );
             expect(tables).toEqual([]);
@@ -384,7 +433,7 @@ describe('DuckFrame', () => {
                 [{ ...RECORDS[0], bytes: 'not-a-number', ip: 'not-an-ip' }],
                 { mode: 'lenient', name: 'lenient_collect' }
             );
-            const rows = await frame.query(`SELECT bytes, ip FROM ${frame.from}`);
+            const rows = await frame.rawRows(`SELECT bytes, ip FROM ${frame.from}`);
             expect(rows).toEqual([[null, null]]);
             await frame.destroy();
         });
@@ -428,7 +477,7 @@ describe('DuckFrame', () => {
             for await (const _row of frame.rows()) {
                 seen++;
                 // one interleaved query, right inside the first chunk
-                if (seen === 1) await frame.query(`SELECT count(*) FROM ${frame.from}`);
+                if (seen === 1) await frame.rawRows(`SELECT count(*) FROM ${frame.from}`);
             }
 
             expect(seen).toEqual(MANY.length);
@@ -456,7 +505,7 @@ describe('DuckFrame', () => {
         it('should drop the table and leave the database usable', async () => {
             const frame = await DuckFrame.fromRecords(CONFIG, RECORDS, {});
             await frame.destroy();
-            expect(await frame.query('SELECT 1')).toEqual([[1]]);
+            expect(await frame.rawRows('SELECT 1')).toEqual([[1]]);
         });
     });
 });

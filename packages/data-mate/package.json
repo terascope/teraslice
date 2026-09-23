@@ -36,6 +36,7 @@
         "@terascope/data-types": "workspace:~",
         "@terascope/geo-utils": "workspace:~",
         "@terascope/ip-utils": "workspace:~",
+        "@terascope/sql-builder": "workspace:~",
         "@terascope/types": "workspace:~",
         "@turf/random": "catalog:",
         "@types/validator": "catalog:",
@@ -58,7 +59,8 @@
         "@types/jexl": "catalog:",
         "@types/valid-url": "catalog:",
         "benchmark": "catalog:",
-        "jest-extended": "catalog:"
+        "jest-extended": "catalog:",
+        "xlucene-translator": "workspace:~"
     },
     "engines": {
         "node": ">=22.0.0",

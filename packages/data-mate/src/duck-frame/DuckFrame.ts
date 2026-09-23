@@ -1,24 +1,65 @@
-import {
-    DuckDBInstance, DuckDBConnection, DuckDBDataChunk, DuckDBScalarFunction,
-    DuckDBTimestampValue
-} from '@duckdb/node-api';
-import { bigIntToJSON, toISO8601 } from '@terascope/core-utils';
-import {
-    DataTypeConfig, ReadonlyDataTypeConfig, DataTypeFieldConfig, DataTypeFields, FieldType
-} from '@terascope/types';
-import { getChildDataTypeConfig } from '../core/utils.js';
-import { coerceToType } from '../builder/type-coercion.js';
-import { makeValueConverter, ValueConverter } from './duck-values.js';
-import { createScalarFunction, ScalarFunctionSpec } from './scalar-function.js';
+import { DataTypeConfig, SQLDialectName, SQLSearchParams } from '@terascope/types';
 import { DataType } from '@terascope/data-types';
-import { quoteIdentifier, quoteLiteral } from './sql.js';
+import {
+    getSQLDialect, groupByClause, quoteIdentifier,
+    quoteLiteral, toSQLSort, wholeNumber, type SQLSortInput
+} from '@terascope/sql-builder';
+import { appendParquet, appendRecords, countQuietly } from './append.js';
+import { DuckContext } from './DuckContext.js';
+import { getContext } from './database.js';
+import { AppendError } from './errors.js';
+import { createTable, nextTableName } from './table.js';
+import { joinSQL, selectList } from './clauses.js';
+import { describeSource, readParquetSource } from './sources.js';
 import { buildJsonExpression, JsonExportOptions } from './export-json.js';
+import {
+    AppendOptions, AppendSource, FrameConfig, FrameOptions,
+    FromRecordsOptions, JoinOptions, SelectList, SelectOptions, Source
+} from './interfaces.js';
+
+/**
+ * The DuckDB dialect, shared with `@terascope/xlucene-translator`.
+ *
+ * **Identifier quoting, `ORDER BY` and `LIMIT`/`OFFSET` all come from here rather than from
+ * this file**, so a sort a frame builds and a sort `QueryAccess.restrictSQLQuery` emits are
+ * rendered by the same code. They used to be two implementations, and they disagreed: the
+ * translator left null placement to DuckDB's `NULLS LAST` default while this file emitted
+ * `DataFrame`'s rule, so the same user query put nulls at opposite ends of an ascending page
+ * depending on which one built the statement.
+*/
+const dialect = getSQLDialect(SQLDialectName.duckdb);
 
 /**
  * A frame whose rows live in a DuckDB table.
  *
  * Its own thing with its own API - `DataFrame` and the QPL engine are frozen and this
  * neither wraps nor replaces them.
+ *
+ * ## THE API IS THREE GROUPS, NOT A LIST OF WAYS TO SEARCH
+ *
+ * **1. Compose a statement** - `filter` `select` `orderBy` `limit` `distinct` `join`.
+ * Each appends ONE SQL clause to this frame and returns a new frame. Nothing runs.
+ *
+ * **2. Be handed a statement** - `query` (instance) and `fromSQL` (static). The statement
+ * already exists; the frame runs it. Same instance/static pairing as
+ * `append({records})` / `fromRecords`.
+ *
+ * **3. Consume** - `rows` `size` `ndjson` `writeNDJSON` `writeParquet`. Execute, and
+ * produce output.
+ *
+ * **`filter` and `select` are CLAUSE BUILDERS, not a search API.** `filter` is the `WHERE`
+ * and `select` is the `SELECT` list, exactly as `orderBy` is the `ORDER BY` - six methods of
+ * one kind, not two special ones. They exist because the 205 field functions arrive ONE AT A
+ * TIME: `duckFrameAdapter` returns an expression for a single function on a single column, and
+ * a transform chain is `select` -> `select` -> `select`, composing into one statement
+ * evaluated in a single pass. There is no finished statement on that path to hand over.
+ *
+ * **If you already HAVE a statement, do not take it apart - use `query`.** That is the
+ * `QueryAccess` path, and rebuilding a restricted statement out of `filter` + `select` is how
+ * a field restriction gets dropped.
+ *
+ * `rawRows` is in none of these groups: it is inspection - a config-free hatch for catalog
+ * queries and storage assertions. See its own note.
  *
  * **There is no JSON anywhere in this path.** Records arrive as JS objects (the
  * Elasticsearch client already parsed them), are coerced by `coerceToType` - the SAME
@@ -40,674 +81,10 @@ import { buildJsonExpression, JsonExportOptions } from './export-json.js';
  * reimplementing `coerceToType`, and carried 11 documented divergences. It was deleted.
  * See `docs/ingest-findings.md` - read the STOP block, not the chronology.
 */
-
-/** DuckDB's hard per-chunk row limit. Appending more in one chunk throws. */
-const MAX_CHUNK_ROWS = 2048;
-
-/**
- * Owns the DuckDB instance and the shared connection.
- *
- * INTERNAL. Not exported and not reachable from a frame: there is exactly ONE database per
- * process - the qpl-api and qpl-worker are separate processes whose frames never meet, and a
- * child hands Parquet to its parent rather than sharing a catalogue. A caller has nothing to
- * pass around, so it is not in the API.
- *
- * The *instance* is shared because tables live in its catalogue and any connection can see
- * them (they are real tables, not TEMP, which would be connection-local). The *connection*
- * is deliberately NOT shared with streams - see `streamRowObjects`.
-*/
-class DuckContext {
-    /**
-     * Registered scalar functions, kept so they are not garbage-collected while DuckDB still
-     * holds them, and so a name cannot be silently registered twice.
-    */
-    private readonly functions = new Map<string, DuckDBScalarFunction>();
-
-    private constructor(
-        readonly instance: DuckDBInstance,
-        readonly connection: DuckDBConnection,
-        /** The database path, so a frame can report where it lives. */
-        readonly path: string
-    ) {}
-
-    /**
-     * Registers a scalar function. **Instance-wide, not connection-scoped** - MEASURED: a
-     * function registered on one connection is visible to every other connection on the same
-     * instance, including the private connection each `rows()` stream opens. That is what
-     * makes UDFs and streaming compatible.
-    */
-    registerFunction(spec: ScalarFunctionSpec): void {
-        // Idempotent: `duckFrameAdapter` derives the name from (function, column, args), so
-        // the same step registered twice IS the same function and must not error.
-        if (this.functions.has(spec.name)) return;
-
-        const fn = createScalarFunction(spec);
-        this.connection.registerScalarFunction(fn);
-        this.functions.set(spec.name, fn);
-    }
-
-    hasFunction(name: string): boolean {
-        return this.functions.has(name);
-    }
-
-    static async create(
-        path = ':memory:',
-        settings: DuckDatabaseSettings = {}
-    ): Promise<DuckContext> {
-        const instance = await DuckDBInstance.create(path);
-        const context = new DuckContext(instance, await instance.connect(), path);
-        await context.applySettings(settings);
-        return context;
-    }
-
-    /**
-     * Applies the spill and memory settings.
-     *
-     * `temp_directory` is what makes "load the whole dataset and let DuckDB overflow to disk"
-     * work - without it a query that exceeds `memory_limit` fails instead of spilling. Both
-     * are runtime `SET`s, so they can be changed on an existing database.
-     *
-     * `memory_limit` MUST be set below the container's cap. If DuckDB believes it has more
-     * than the container allows it never spills and the kernel kills the process - that is
-     * exactly what produced the bogus "OOMs and does not spill" finding in docs/HANDOFF.md.
-    */
-    async applySettings(settings: DuckDatabaseSettings): Promise<void> {
-        if (settings.tempDirectory != null) {
-            await this.run(`SET temp_directory = ${quoteLiteral(settings.tempDirectory)}`);
-        }
-        if (settings.maxTempDirectorySize != null) {
-            await this.run(
-                `SET max_temp_directory_size = ${quoteLiteral(settings.maxTempDirectorySize)}`
-            );
-        }
-        if (settings.memoryLimit != null) {
-            await this.run(`SET memory_limit = ${quoteLiteral(settings.memoryLimit)}`);
-        }
-        if (settings.threads != null) {
-            await this.run(`SET threads = ${Math.trunc(settings.threads)}`);
-        }
-    }
-
-    async run(sql: string): Promise<void> {
-        await this.connection.run(sql);
-    }
-
-    async scalar(sql: string): Promise<unknown> {
-        const rows = await (await this.connection.run(sql)).getRowsJson();
-        return rows.length === 0 ? undefined : rows[0][0];
-    }
-
-    async rows(sql: string): Promise<unknown[][]> {
-        return (await (await this.connection.run(sql)).getRowsJson()) as unknown[][];
-    }
-
-    /**
-     * Streams a query's rows as objects, a DuckDB chunk at a time.
-     *
-     * Uses `stream()` + `fetchChunk()` rather than a materializing read, so a large
-     * result never lands in JS all at once. The QPL engine's output path is
-     * `frame.rows(...)` returning an `Iterable`, not an array (`run.ts:188`), so streaming
-     * is the shape that path already expects.
-     *
-     * **Each stream gets its OWN connection and closes it when the stream ends.**
-     * MEASURED (`docs/tools/conn-isolation.mjs`): any query run on a connection holding an
-     * open streaming result silently truncates that stream - one interleaved query took
-     * 500,000 rows down to 100,352, with NO error. DuckDB concurrency itself is fine; the
-     * limit is per-connection. On the shared connection, any other frame's `size()` - or
-     * this frame's own - could clip a stream in progress and look like a short result.
-    */
-    /**
-     * Streams a single-column result as strings, chunk by chunk.
-     *
-     * For output formats DuckDB has already rendered - ldjson, CSV - where the only work left
-     * in JS is moving bytes. Deliberately does NOT go through `toPlainValue`: the value is
-     * already the final text.
-    */
-    async* streamColumnStrings(sql: string): AsyncIterableIterator<string> {
-        const connection = await this.instance.connect();
-
-        try {
-            const result = await connection.stream(sql);
-
-            for (;;) {
-                const chunk = await result.fetchChunk();
-                if (chunk == null || chunk.rowCount === 0) return;
-
-                const values = chunk.getColumnValues(0);
-                for (let row = 0; row < chunk.rowCount; row++) {
-                    yield String(values[row]);
-                }
-            }
-        } finally {
-            connection.disconnectSync();
-        }
-    }
-
-    async* streamRowObjects(sql: string): AsyncIterableIterator<Record<string, unknown>> {
-        const connection = await this.instance.connect();
-
-        try {
-            const result = await connection.stream(sql);
-            const names = result.columnNames();
-
-            for (;;) {
-                const chunk = await result.fetchChunk();
-                // MEASURED: fetchChunk never returns null - at the end it returns an EMPTY
-                // chunk, forever. So rowCount === 0 IS the terminator. Skipping empties and
-                // waiting for null (which is what the docs' shape suggests) is an infinite
-                // loop; the null check stays only as a guard, not as the exit condition.
-                if (chunk == null || chunk.rowCount === 0) return;
-
-                const columns = names.map((_name, i) => chunk.getColumnValues(i));
-                for (let row = 0; row < chunk.rowCount; row++) {
-                    yield Object.fromEntries(
-                        names.map((name, col) => [name, toPlainValue(columns[col][row])])
-                    );
-                }
-            }
-        } finally {
-            // also runs on an early `break` out of a `for await`, not just on exhaustion
-            connection.disconnectSync();
-        }
-    }
-
-    /**
-     * Closes the connection AND the instance.
-     *
-     * Closing the instance is not optional once a scalar UDF has been registered: MEASURED
-     * (isolated in an earlier session; that script is gone), a process that registers one
-     * **never exits** on
-     * `disconnectSync()` alone, and `DuckDBScalarFunction.destroySync()` makes no difference.
-     * `instance.closeSync()` is what releases it. Without a UDF the process exits either way,
-     * so this is only visible once UDFs land - which is exactly when it would be hardest to
-     * diagnose.
-    */
-    disconnect(): void {
-        this.connection.disconnectSync();
-        this.instance.closeSync();
-    }
-}
-
-/** Spill and resource settings for a database. All are runtime `SET`s. */
-export interface DuckDatabaseSettings {
-    /**
-     * Directory DuckDB spills to when a query exceeds `memoryLimit`. **Required for the
-     * whole-dataset-plus-file-overflow strategy** - without it, an over-limit query fails
-     * rather than overflowing to disk.
-    */
-    tempDirectory?: string;
-    /** Cap on the spill directory, e.g. `'30GB'`. */
-    maxTempDirectorySize?: string;
-    /** e.g. `'48GB'`. **Set this BELOW the container's cap** - see `applySettings`. */
-    memoryLimit?: string;
-    threads?: number;
-}
-
-export interface DuckDatabaseOptions extends DuckDatabaseSettings {
-    /** Path, or `:memory:`. See `FrameOptions.database` for the file-vs-memory trap. */
-    database?: string;
-}
-
-const contexts = new Map<string, Promise<DuckContext>>();
-
-/**
- * The context for a database path, created on first use and cached per path.
- *
- * `:memory:` is the process-wide default. A distinct path gives a file-backed database, and
- * is also how a test gets an isolated catalogue.
-*/
-function getContext(database = ':memory:'): Promise<DuckContext> {
-    let context = contexts.get(database);
-    if (!context) {
-        context = DuckContext.create(database);
-        contexts.set(database, context);
-    }
-    return context;
-}
-
-/**
- * Opens or reconfigures a database, and returns once the settings are applied.
- *
- * Call once at startup to point spill at a real directory:
- * `configureDuckDatabase({ tempDirectory: '/var/tmp/duck', memoryLimit: '48GB' })`.
- * Settings are runtime `SET`s, so calling it on an already-open database updates it.
-*/
-export async function configureDuckDatabase(
-    options: DuckDatabaseOptions = {}
-): Promise<void> {
-    const { database, ...settings } = options;
-    const existing = contexts.get(database ?? ':memory:');
-
-    if (existing) {
-        await (await existing).applySettings(settings);
-        return;
-    }
-
-    const created = DuckContext.create(database ?? ':memory:', settings);
-    contexts.set(database ?? ':memory:', created);
-    await created;
-}
-
-/**
- * Registers a scalar function so SQL can call a real data-mate primitive.
- *
- * This is the ONLY way to run the 205 QPL functions inside a query: they are JavaScript, and
- * reimplementing their semantics in SQL is what produced 11 divergences last time (DuckDB's
- * own casts differ from the DataType config on 26 of 40 probed inputs). A UDF over the real
- * primitive is parity by construction, the same argument that makes `fromRecords` use
- * `coerceToType`.
- *
- * Registration is instance-wide, so the function is available to every frame and every
- * stream on that database.
-*/
-export async function registerScalarFunction(
-    spec: ScalarFunctionSpec & { database?: string }
-): Promise<string> {
-    const { database, ...fnSpec } = spec;
-    (await getContext(database)).registerFunction(fnSpec);
-    return fnSpec.name;
-}
-
-/**
- * Closes a cached database and forgets it. For test teardown; a process that simply exits
- * does not need to call it.
-*/
-export async function closeDuckDatabase(database = ':memory:'): Promise<void> {
-    const context = contexts.get(database);
-    if (!context) return;
-    contexts.delete(database);
-    (await context).disconnect();
-}
-
-/** Where a frame's rows come from. */
-type Source
-    = | { kind: 'table'; table: string }
-        /**
-         * `ordered` means this relation's rows come out in a defined order - it ends in an
-         * `ORDER BY`, or derives from one through an operator that preserves it. It exists so
-         * `join` and an aggregating `select` can refuse to discard that ordering silently;
-         * see `orderBy`. A table is never ordered: row order in a table is not a property
-         * anything may rely on.
-        */
-        | { kind: 'relation'; sql: string; ordered?: boolean };
-
-/** One field's coercion failure, with the value that caused it. */
-export interface CoercionFailure {
-    field: string;
-    fieldType: string;
-    failedCount: number;
-    /** The original value, which is the only useful thing to report. */
-    exampleValue: string;
-}
-
-/** Raised by strict mode when a value does not fit its declared field type. */
-export class CoercionFailureError extends Error {
-    constructor(message: string, readonly failures: readonly CoercionFailure[]) {
-        super(message);
-        this.name = 'CoercionFailureError';
-    }
-}
-
-export type CoercionMode
-    /** ingest: a value that fails to convert is corruption, and is raised */
-    = | 'strict'
-    /** QPL pipeline: a value that fails to convert is the answer, and is nulled */
-        | 'lenient';
-
-export interface FrameOptions {
-    /**
-     * Database path. Defaults to the process-wide `:memory:` database.
-     *
-     * There is one database per process, so this exists for a file-backed database and for
-     * giving a test an isolated catalogue - NOT for callers to route frames around. Frames
-     * from different databases cannot see each other's tables and so cannot be joined.
-     *
-     * **Only the exact string `:memory:` is in-memory.** Anything else is a FILE PATH -
-     * measured: both a bare `'my-test'` AND the `:memory:<name>` form each wrote a database
-     * file into the working directory. Tests do not need this option at all: jest gives every
-     * test file its own module registry, so each already gets its own default context.
-    */
-    database?: string;
-    /** Used for the table or relation name. */
-    name?: string;
-}
-
-export interface FromRecordsOptions extends FrameOptions {
-    /** Defaults to `strict`. */
-    mode?: CoercionMode;
-}
-
-/** Everything an append failure can say about itself. */
-export interface AppendFailure {
-    /** The table the rows were going into. */
-    table: string;
-    /** Which shape was being appended. */
-    source: 'records' | 'parquet';
-    /** What was being added, in words: `3 records`, or the paths. */
-    describedSource: string;
-    /**
-     * Rows in the table AFTER the failed append - i.e. what survived. Counted on the failure
-     * path only, so a successful append pays nothing for it. Undefined if even that count
-     * failed, which means the table itself is in doubt.
-    */
-    rowsRemaining?: number;
-}
-
-/**
- * An `append` that did not happen.
- *
- * The whole point is to say **what survived**: an append runs in a transaction, so a failure
- * leaves the table exactly as it was, and a worker assembling one table from many payloads
- * needs to know that its earlier payloads are intact. The underlying error is kept as `cause`.
- *
- * `fromRecords` deliberately does NOT wrap in this - it is one-shot, so there is no prior table
- * to reassure anyone about, and its contract is to throw what `DataFrame` throws.
-*/
-export class AppendError extends Error {
-    constructor(readonly failure: AppendFailure, cause: unknown) {
-        const reason = cause instanceof Error ? cause.message : String(cause);
-        const survived = failure.rowsRemaining == null
-            ? 'the table could not be counted afterwards, so its contents are in doubt'
-            : `the table is unchanged and still has ${failure.rowsRemaining} row(s)`;
-
-        super(
-            `appending ${failure.describedSource} to table "${failure.table}" failed`
-            + ` - it was rolled back, so ${survived}. Cause: ${reason}`,
-            { cause }
-        );
-        this.name = 'AppendError';
-    }
-}
-
-/** A frame's own account of itself, for investigating one you were handed. */
-export interface FrameInfo {
-    /** The backing table's name. Absent for a relation, which has no table. */
-    name?: string;
-    kind: 'table' | 'relation';
-    isMaterialized: boolean;
-    /** True when the rows come out in a defined order - see `orderBy`. */
-    isOrdered: boolean;
-    /** Which database it lives in; frames in different databases cannot see each other. */
-    database: string;
-    columns: readonly string[];
-    /** Row count. This runs `count(*)`, which is why `info()` is async. */
-    rows: number;
-    /** The SQL this frame resolves to in a FROM clause - a relation's real identity. */
-    sql: string;
-    /** Ingest bookkeeping: successful appends, and the rows they added. */
-    appends: { count: number; rows: number };
-}
-
-/**
- * What to add to a frame. Records on the api-server, Parquet on the worker - two shapes of the
- * same act, which is why `append` is one method and not two.
-*/
-export type AppendSource
-    /** Parsed JS objects, as an Elasticsearch response yields them. Coerced on the way in. */
-    = | { records: readonly Record<string, unknown>[]; parquet?: never }
-    /** One path, a list of paths, or a glob. Already typed and validated, so not re-coerced. */
-        | { parquet: string | readonly string[]; records?: never };
-
-export interface AppendOptions {
-    /** Defaults to `strict`. Applies to records; Parquet is not coerced. */
-    mode?: CoercionMode;
-}
-
-/**
- * Turns a value read out of DuckDB into the plain JS shape the response path expects.
- *
- * `rows()` is the OUTPUT path - the QPL engine hands these records straight to the response -
- * so anything DuckDB-shaped leaking through would reach users. Found by the FieldType sweep in
- * `type-sweep-spec.ts`; nothing had covered arrays, structs or dates through `rows()` before,
- * because the older specs read them via `query()` with explicit casts, which bypasses all of
- * this. Three separate leaks:
- *
- * - **LIST** -> `DuckDBListValue`, not an array. Would serialize as `{"items":[...]}`.
- * - **TIMESTAMP** -> `DuckDBTimestampValue`, not a date. Rendered via `toISO8601`, which is
- *   what `DateVector.toJSONCompatibleValue` uses, so the two frames agree.
- * - **BIGINT / HUGEINT** -> a JS `bigint`, and **`JSON.stringify` THROWS on bigint**
- *   ("Do not know how to serialize a BigInt"), so every Integer or Long column broke the
- *   response. Converted with `bigIntToJSON` - the same helper `DataFrame`'s own JSON paths use
- *   (`data-frame/metadata-utils.ts`, `function-configs/json/toJSON.ts`), giving a number when
- *   it fits and a string above `MAX_SAFE_INTEGER`.
- *
- * NOTE `bigIntToJSON` carries the documented `Long`-loses-1 defect above `MAX_SAFE_INTEGER`.
- * Reproducing it here is deliberate: matching `DataFrame` is the contract, and that defect is
- * on the shelved list to be recorded as a known divergence rather than silently fixed on one
- * side only.
-*/
-function toPlainValue(value: unknown): unknown {
-    if (value == null) return value;
-
-    if (typeof value === 'bigint') return bigIntToJSON(value);
-
-    if (typeof value !== 'object') return value;
-
-    if (value instanceof DuckDBTimestampValue) {
-        return toISO8601(Number(value.micros / 1000n));
-    }
-
-    const items = (value as { items?: unknown }).items;
-    if (Array.isArray(items)) return items.map(toPlainValue);
-
-    const entries = (value as { entries?: unknown }).entries;
-    if (entries != null && typeof entries === 'object') {
-        return Object.fromEntries(
-            Object.entries(entries as Record<string, unknown>)
-                .map(([key, val]) => [key, toPlainValue(val)])
-        );
-    }
-
-    return value;
-}
-
-let tableCounter = 0;
-
-/** Table names come from us, never from user data, so a counter suffices. */
-function nextTableName(name?: string): string {
-    tableCounter += 1;
-    const base = (name ?? 'duck_frame').replace(/[^A-Za-z0-9_]/g, '_');
-    return `${base}_${tableCounter}`;
-}
-
-interface FieldPlan {
-    name: string;
-    fieldType: string;
-    coerce: (value: unknown) => unknown;
-    convert: ValueConverter;
-}
-
-/**
- * Resolves each top-level field to its coercion and its DuckDB value conversion.
- *
- * Dot-notation children are folded into their parent, so the plan matches the table's
- * real column set.
-*/
-function buildPlan(config: DataTypeConfig | ReadonlyDataTypeConfig): FieldPlan[] {
-    const fields = config.fields ?? {};
-    return Object.entries(fields)
-        .filter(([name]) => !name.includes('.'))
-        .map(([name, fieldConfig]) => {
-            const children = getChildDataTypeConfig(
-                fields, name, fieldConfig.type as FieldType
-            ) as DataTypeFields | undefined;
-            return {
-                name,
-                fieldType: String(fieldConfig.type),
-                coerce: coerceToType(fieldConfig as DataTypeFieldConfig, children),
-                convert: makeValueConverter(fieldConfig as DataTypeFieldConfig, children),
-            };
-        });
-}
-
-/** How to join two frames. Expressions are raw SQL written against the two aliases. */
-export interface JoinOptions {
-    /** Join predicate, e.g. `'a.user_id = b.id'`. */
-    on: string;
-    /** Output expressions, `{ outputName: sqlExpression }`, same shape as `select`. */
-    select: Readonly<Record<string, string>>;
-    /** The result's declared field types. The caller knows what its expressions produce. */
-    config: DataTypeConfig | ReadonlyDataTypeConfig;
-    /** Defaults to `inner`. */
-    type?: 'inner' | 'left' | 'right' | 'full' | 'cross';
-    /** Alias for this frame. Defaults to `a`. */
-    as?: string;
-    /** Alias for the other frame. Defaults to `b`. */
-    otherAs?: string;
-    /** Group the joined rows, so join-then-aggregate is a single statement. */
-    groupBy?: readonly string[];
-}
-
-/**
- * `read_parquet(...)` over one path or many.
- *
- * A LIST of files reads as ONE relation - verified - which is what the worker needs: a search
- * result arrives as several Parquet payloads and has to become one table.
-*/
-function readParquetSource(paths: string | readonly string[]): string {
-    if (typeof paths === 'string') return `read_parquet(${quoteLiteral(paths)})`;
-    if (paths.length === 0) {
-        throw new TypeError('at least one Parquet path is required');
-    }
-    return `read_parquet([${paths.map(quoteLiteral).join(', ')}])`;
-}
-
-/** `GROUP BY` clause for a list of raw SQL grouping expressions, or nothing. */
-function groupByClause(groupBy?: readonly string[]): string {
-    if (!groupBy?.length) return '';
-    return ` GROUP BY ${groupBy.join(', ')}`;
-}
-
-/**
- * One `ORDER BY` term. The expression is raw SQL, exactly like `groupBy`'s, so
- * `date_trunc('day', created)` is a valid sort key.
- *
- * A bare string is the common case and supplies the EXPRESSION ONLY - direction and null
- * placement are always emitted by us (see `orderByClause`), so writing `'bytes DESC'` as a
- * string produces invalid SQL rather than a quietly different sort. Use the object form.
-*/
-export interface OrderBySpec {
-    /** Raw SQL - a column name, or any expression. Not a direction; use `direction`. */
-    expression: string;
-    /** Defaults to `asc`. */
-    direction?: 'asc' | 'desc';
-    /**
-     * Defaults to **`DataFrame`'s rule, not DuckDB's** - `first` ascending, `last`
-     * descending. See `orderByClause`.
-    */
-    nulls?: 'first' | 'last';
-}
-
-const DIRECTIONS = new Set(['asc', 'desc']);
-const NULL_ORDERS = new Set(['first', 'last']);
-
-/**
- * `ORDER BY` clause for a list of sort terms, or nothing.
- *
- * **Null placement follows `DataFrame`, not DuckDB.** `Vector.compare` sorts a nil as the
- * SMALLEST value - nulls FIRST ascending, LAST descending - while DuckDB's
- * `default_null_order` is `NULLS_LAST` for BOTH directions (both verified). Since QPL's
- * `TableOrderByNode` carries only field names and no null control, an ascending sort would
- * silently move every null from one end of the page to the other. So direction and null
- * placement are ALWAYS emitted explicitly here; nothing is left to a DuckDB default.
- *
- * That is also why a bare string supplies the expression only: appending our keywords to a
- * caller's `'bytes DESC'` yields a parser error, which is loud, rather than a sort that
- * disagrees with the object form.
- *
- * `direction` and `nulls` are checked against a fixed set rather than interpolated. Every
- * other expression here is deliberately raw SQL, but these two are keywords with exactly two
- * legal values each, and a caller arriving from plain JS has no types to stop it.
-*/
-function orderByClause(specs: readonly (string | OrderBySpec)[]): string {
-    if (!specs.length) return '';
-
-    const terms = specs.map((spec) => {
-        const { expression, direction = 'asc', nulls } = typeof spec === 'string'
-            ? { expression: spec, nulls: undefined } as OrderBySpec
-            : spec;
-
-        if (!expression) {
-            throw new TypeError('orderBy requires an expression for every sort term');
-        }
-        if (!DIRECTIONS.has(direction)) {
-            throw new TypeError(
-                `orderBy direction must be 'asc' or 'desc', received ${direction}`
-            );
-        }
-        if (nulls != null && !NULL_ORDERS.has(nulls)) {
-            throw new TypeError(`orderBy nulls must be 'first' or 'last', received ${nulls}`);
-        }
-
-        // A nil is the smallest value, which is DataFrame's rule.
-        const nullOrder = nulls ?? (direction === 'asc' ? 'first' : 'last');
-
-        return `${expression} ${direction.toUpperCase()} NULLS ${nullOrder.toUpperCase()}`;
-    });
-
-    return ` ORDER BY ${terms.join(', ')}`;
-}
-
-/**
- * One of `LIMIT` / `OFFSET`, or nothing.
- *
- * The value is interpolated, so it is checked first: a non-negative safe integer is the only
- * thing that can appear in the SQL. `LIMIT 0` is legal and means no rows.
-*/
-function limitBound(keyword: 'LIMIT' | 'OFFSET', name: 'count' | 'offset', value?: number): string {
-    if (value == null) return '';
-    if (!Number.isSafeInteger(value) || value < 0) {
-        throw new TypeError(
-            `limit's ${name} must be a non-negative integer, received ${value}`
-        );
-    }
-    return ` ${keyword} ${value}`;
-}
-
-interface CreatedTable {
-    table: string;
-    columns: string[];
-}
-
-/**
- * Creates the table for a config, and reports the column set it declared.
- *
- * Shared by `fromRecords` (which then appends records) and `empty` (which is then filled by
- * `appendParquet`), so one DDL path serves both ingest tiers.
-*/
-async function createTable(
-    context: DuckContext,
-    config: DataTypeConfig | ReadonlyDataTypeConfig,
-    name?: string
-): Promise<CreatedTable> {
-    const plan = buildPlan(config);
-    if (plan.length === 0) {
-        throw new TypeError('A DataType config must declare at least one field');
-    }
-
-    const table = nextTableName(name);
-    const columnTypes = new DataType(config as DataTypeConfig).toDuckDB();
-    const ddl = plan
-        .map(({ name: column }) => `${quoteIdentifier(column)} ${columnTypes[column]}`)
-        .join(', ');
-
-    await context.run(`CREATE OR REPLACE TABLE ${quoteIdentifier(table)} (${ddl})`);
-
-    return { table, columns: plan.map(({ name: column }) => column) };
-}
-
-/** Names what was being appended, for an error message. */
-function describeSource(source: AppendSource): string {
-    if (source.records !== undefined) return `${source.records.length} record(s)`;
-    const { parquet } = source;
-    if (typeof parquet === 'string') return `Parquet "${parquet}"`;
-    return `${parquet.length} Parquet path(s)`;
-}
-
 export class DuckFrame {
     private constructor(
         private readonly ctx: DuckContext,
-        readonly config: DataTypeConfig | ReadonlyDataTypeConfig,
+        readonly config: FrameConfig,
         /**
          * NOT readonly: `append` may promote a relation to a table, because a frame is a
          * HANDLE to the data it represents and is in charge of its own storage. Every other
@@ -716,10 +93,6 @@ export class DuckFrame {
         private source: Source,
         readonly columns: readonly string[]
     ) {}
-
-    /** Successful appends, and the rows they added. Reported by `info()`. */
-    private appendCount = 0;
-    private appendedRows = 0;
 
     /** In-flight relation->table promotion, so concurrent appends share one. */
     private promotion?: Promise<void>;
@@ -786,20 +159,92 @@ export class DuckFrame {
     }
 
     /**
-     * Runs SQL against this frame's database and returns raw rows.
+     * **Runs a complete SQL statement and returns a frame over its rows.**
      *
-     * For data-mate's own tooling (schema checks) and tests, which need to assert on the
-     * STORAGE representation - `total::VARCHAR`, `loc.lat`, `DESCRIBE` - that `rows()`
-     * cannot express. Deliberately narrow: it hands out neither the connection nor the
-     * instance, so it cannot be used to route frames between databases, which is what the
-     * removed `get context()` allowed.
+     * This is how a statement from `QueryAccess.restrictSQLQuery` is executed. That method
+     * returns a finished `SELECT ... FROM ... WHERE ... ORDER BY ... LIMIT`, already carrying
+     * the field restrictions, and spaces drives every query and execution plan through it -
+     * so the frame's job is to RUN one, not to rebuild it from parts.
      *
-     * **Values are JSON-rendered, not native:** a BIGINT comes back as the string `'2'`, not
-     * `2n`. `rows()` is the path that yields native values. That difference is why this is
-     * for tooling and assertions rather than for reading data.
+     * ```ts
+     * const sql = await access.restrictSQLQuery(query, { params: frame.searchParams(size) });
+     * for await (const row of frame.query(sql).rows()) { ... }
+     * ```
+     *
+     * Lazy, like every other operator: the statement becomes this frame's relation and runs
+     * when something asks for rows. It therefore composes - `frame.query(sql).limit(10)` is
+     * one statement - though a statement that already says what it wants rarely needs to.
+     *
+     * `config` defaults to this frame's, which is right when the statement projects the same
+     * fields and wrong when it does not; a statement whose `SELECT` list changes the shape
+     * must declare what it produces, exactly as `select` must.
+     *
+     * **A statement that names its source more than once wants a TABLE, not a subquery** -
+     * see `searchParams`.
     */
-    query(sql: string): Promise<unknown[][]> {
+    query(sql: string, config: FrameConfig = this.config, columns?: readonly string[]): DuckFrame {
+        if (!sql.trim()) {
+            throw new TypeError('query requires a SQL statement');
+        }
+
+        return new DuckFrame(
+            this.ctx,
+            config,
+            { kind: 'relation', sql },
+            columns ?? Object.keys(new DataType(config as DataTypeConfig).toDuckDB())
+        );
+    }
+
+    /**
+     * **INSPECTION, not a way to read data.** Runs SQL and returns positional rows, with the
+     * values as DuckDB's own JSON rendering rather than as this package's output shape.
+     *
+     * Two things it can do that `query(sql).rows()` cannot:
+     *
+     * - **It needs no `DataTypeConfig`.** `query` requires one to build a frame, so a catalog
+     *   query like `DESCRIBE` - six columns of DuckDB's own shape, nothing to do with the
+     *   frame's fields - would have to invent one. `schema-check.ts` is the only caller in
+     *   `src/` and this is why.
+     * - **It does not go through `toPlainValue`**, so it reports what DuckDB actually holds.
+     *   That matters while DEF-BIGINT is open: `toPlainValue` calls `bigIntToJSON`, which
+     *   subtracts 1 from every value above `MAX_SAFE_INTEGER`, so `rows()` currently
+     *   misreports a `Long` and `rawRows` does not. **That is a bug to FIX, not a contract**
+     *   - see `docs/known-defects.md` - and this method must not become the reason to keep it.
+     *
+     * **To READ data, use `query(sql).rows()`.** Deliberately narrow otherwise: it hands out
+     * neither the connection nor the instance, so it cannot route frames between databases,
+     * which is what the removed `get context()` allowed.
+     *
+     * @internal
+    */
+    rawRows(sql: string): Promise<unknown[][]> {
         return this.ctx.rows(sql);
+    }
+
+    /**
+     * **How this frame names itself to `QueryAccess`**, as the source half of a
+     * `SQLSearchParams`.
+     *
+     * A materialized frame reports `table`, which `buildSQLStatement` quotes as an
+     * identifier. A relation-backed one reports `relation`, its SQL used verbatim.
+     *
+     * **Prefer the table, and that is not a style point.** A generated statement may name its
+     * source MORE THAN ONCE - a self-join, a correlated subquery, a `UNION` over the same
+     * rows - and a relation is textual, so each mention re-executes the whole subquery. A
+     * table name is evaluated once however often it appears. `materialize()` first whenever
+     * the statement might reference the source twice; a relation referenced four times
+     * measured 2.59x against the table.
+    */
+    searchParams(size?: number, from?: number): SQLSearchParams {
+        const source = this.source.kind === 'table'
+            ? { table: this.source.table }
+            : { relation: this.from };
+
+        return {
+            ...source,
+            ...(size != null && { size }),
+            ...(from != null && { from }),
+        };
     }
 
     /** The backing table name, when this frame is materialized. */
@@ -814,7 +259,7 @@ export class DuckFrame {
      * `fromParquet` are just this plus one `append`.
     */
     static async create(
-        config: DataTypeConfig | ReadonlyDataTypeConfig,
+        config: FrameConfig,
         options: FrameOptions = {}
     ): Promise<DuckFrame> {
         const context = await getContext(options.database);
@@ -866,12 +311,12 @@ export class DuckFrame {
             await connection.run('BEGIN TRANSACTION');
             try {
                 const added = source.records === undefined
-                    ? await this.appendParquet(connection, table, source.parquet)
-                    : await this.appendRecords(connection, table, source.records, options);
+                    ? await appendParquet(connection, table, source.parquet)
+                    : await appendRecords(
+                        connection, this.config, table, source.records, options
+                    );
 
                 await connection.run('COMMIT');
-                this.appendCount += 1;
-                this.appendedRows += added;
                 return added;
             } catch (err) {
                 await connection.run('ROLLBACK');
@@ -882,51 +327,12 @@ export class DuckFrame {
                     describedSource: describeSource(source),
                     // counted AFTER the rollback, so it reports what actually survived - and
                     // only here, so a successful append never pays for it
-                    rowsRemaining: await this.countQuietly(connection, table),
+                    rowsRemaining: await countQuietly(connection, table),
                 }, err);
             }
         } finally {
             connection.disconnectSync();
         }
-    }
-
-    /** Row count that never throws: used while reporting a failure, where throwing again
-     * would replace the real error with a worse one. */
-    private async countQuietly(
-        connection: DuckDBConnection, table: string
-    ): Promise<number | undefined> {
-        try {
-            const result = await connection.run(
-                `SELECT count(*) FROM ${quoteIdentifier(table)}`
-            );
-            const rows = await result.getRowsJson();
-            return Number(rows[0]?.[0] ?? 0);
-        } catch {
-            return undefined;
-        }
-    }
-
-    /**
-     * **What this frame is and what state it is in.** For investigating a frame you were
-     * handed: which table (or relation SQL) it is responsible for, where it lives, how big it
-     * is, and what has been appended to it.
-     *
-     * For the STORAGE types DuckDB actually gave each column, use `describeColumns(frame)` /
-     * `diffSchema(frame)` in `schema-check.ts` - that is a different question, and it is
-     * answered against DuckDB rather than against the declared config.
-    */
-    async info(): Promise<FrameInfo> {
-        return {
-            ...(this.source.kind === 'table' ? { name: this.source.table } : {}),
-            kind: this.source.kind,
-            isMaterialized: this.isMaterialized,
-            isOrdered: this.isOrdered,
-            database: this.ctx.path,
-            columns: this.columns,
-            rows: await this.size(),
-            sql: this.from,
-            appends: { count: this.appendCount, rows: this.appendedRows },
-        };
     }
 
     /**
@@ -951,100 +357,6 @@ export class DuckFrame {
     }
 
     /**
-     * `INSERT ... BY NAME`, **not positional** - measured: a plain `INSERT ... SELECT *` fails
-     * outright when a payload's column order differs from the table's (`Could not convert
-     * string 'z' to INT32`), and separate api-server responses are not worth trusting to agree
-     * on column order.
-     *
-     * No coercion: Parquet is typed and schema-carrying, and these values were already
-     * validated by `fromRecords` on the producer side.
-    */
-    private async appendParquet(
-        connection: DuckDBConnection, table: string, paths: string | readonly string[]
-    ): Promise<number> {
-        const result = await connection.run(
-            `INSERT INTO ${quoteIdentifier(table)} BY NAME`
-            + ` SELECT * FROM ${readParquetSource(paths)}`
-        );
-        const rows = await result.getRowsJson();
-        return Number(rows[0]?.[0] ?? 0);
-    }
-
-    /**
-     * Coerces with `coerceToType` - the SAME function the regular builder uses, so parity is by
-     * construction - and appends the values through a typed DuckDB appender.
-     *
-     * `strict` (the default) fails on the FIRST bad value, matching `DataFrame`, whose Builder
-     * throws out of `valueFrom` with nothing catching it. `lenient` nulls the value and collects
-     * every failing field with counts and an example.
-    */
-    private async appendRecords(
-        connection: DuckDBConnection,
-        table: string,
-        records: readonly Record<string, unknown>[],
-        options: AppendOptions
-    ): Promise<number> {
-        const plan = buildPlan(this.config);
-        const lenient = (options.mode ?? 'strict') === 'lenient';
-        const failures = new Map<string, CoercionFailure>();
-
-        /** Records one failure. In strict mode this throws immediately - see above. */
-        const recordFailure = (name: string, fieldType: string, value: unknown): null => {
-            const existing = failures.get(name);
-            if (existing) {
-                existing.failedCount += 1;
-            } else {
-                failures.set(name, {
-                    field: name,
-                    fieldType,
-                    failedCount: 1,
-                    exampleValue: String(value),
-                });
-            }
-
-            if (!lenient) {
-                throw new CoercionFailureError(
-                    `coercion failed for field ${name} (${fieldType}):`
-                    + ` ${JSON.stringify(String(value))}`,
-                    [...failures.values()]
-                );
-            }
-            return null;
-        };
-
-        const appender = await connection.createAppender(table);
-        const chunkTypes = (
-            await connection.run(`SELECT * FROM ${quoteIdentifier(table)} LIMIT 0`)
-        ).columnTypes();
-
-        try {
-            for (let offset = 0; offset < records.length; offset += MAX_CHUNK_ROWS) {
-                const window = records.slice(offset, offset + MAX_CHUNK_ROWS);
-                const chunk = DuckDBDataChunk.create(chunkTypes, window.length);
-
-                chunk.setColumns(plan.map(({ name, fieldType, coerce, convert }) => (
-                    window.map((record) => {
-                        try {
-                            return convert(coerce(record[name]));
-                        } catch {
-                            return recordFailure(name, fieldType, record[name]);
-                        }
-                    })
-                )) as never[][]);
-
-                appender.appendDataChunk(chunk);
-            }
-
-            appender.flushSync();
-        } finally {
-            // closed even on the failure path, so the rollback is not racing an open appender
-            appender.closeSync();
-        }
-
-        return records.length;
-    }
-
-    /**
      * Builds a frame from JS records - the shape callers actually hold, since the
      * Elasticsearch client returns parsed objects.
      *
@@ -1059,7 +371,7 @@ export class DuckFrame {
      * section of docs/ingest-findings.md.
     */
     static async fromRecords(
-        config: DataTypeConfig | ReadonlyDataTypeConfig,
+        config: FrameConfig,
         records: readonly Record<string, unknown>[],
         options: FromRecordsOptions = {}
     ): Promise<DuckFrame> {
@@ -1094,7 +406,7 @@ export class DuckFrame {
      * the format; only semantic validity relies on the upstream pass.
     */
     static async fromParquet(
-        config: DataTypeConfig | ReadonlyDataTypeConfig,
+        config: FrameConfig,
         path: string | readonly string[],
         options: FrameOptions = {}
     ): Promise<DuckFrame> {
@@ -1103,6 +415,45 @@ export class DuckFrame {
         // copied until something asks for the rows. A LIST of paths, or a glob in one path,
         // reads as ONE relation - `materialize()` then makes it one table.
         const sql = `SELECT * FROM ${readParquetSource(path)}`;
+        return new DuckFrame(
+            context,
+            config,
+            { kind: 'relation', sql },
+            Object.keys(new DataType(config as DataTypeConfig).toDuckDB())
+        );
+    }
+
+    /**
+     * **A frame over a complete SQL statement** - the entry point for a statement that was
+     * generated before any frame existed.
+     *
+     * The instance `query()` is the same thing for a statement built AGAINST a frame, and is
+     * the common case, because a generated statement needs a source and the frame is it.
+     * This one is for a statement whose source is named in the SQL itself -
+     * `read_parquet([...])`, an already-known table, a join of two.
+     *
+     * ```ts
+     * const sql = await access.restrictSQLQuery(query, {
+     *     params: { relation: `read_parquet(${...})`, size: 100 }
+     * });
+     * const frame = await DuckFrame.fromSQL(sql, config);
+     * ```
+     *
+     * Relation-backed, so nothing runs until something asks for rows. **Nothing validates the
+     * statement** - it is the caller's own SQL, exactly as `filter`'s predicate and `select`'s
+     * expressions are, and the error arrives from DuckDB when it executes.
+    */
+    static async fromSQL(
+        sql: string,
+        config: FrameConfig,
+        options: FrameOptions = {}
+    ): Promise<DuckFrame> {
+        if (!sql.trim()) {
+            throw new TypeError('fromSQL requires a SQL statement');
+        }
+
+        const context = await getContext(options.database);
+
         return new DuckFrame(
             context,
             config,
@@ -1132,7 +483,11 @@ export class DuckFrame {
     }
 
     /**
-     * Projection - **the mechanism for column mutation and validation.**
+     * The `SELECT` list - **the mechanism for column mutation and validation.**
+     *
+     * **A clause builder**, the sibling of `filter`; see the class note. Its caller is the
+     * directive path: `duckFrameAdapter` hands back one expression for one function on one
+     * column, and those accumulate here. A ready-made statement goes to `query` instead.
      *
      * Every column-level operation is a projection: applying a transform, validating,
      * renaming, dropping, adding a derived column. `SELECT expr AS name` covers all of
@@ -1146,22 +501,16 @@ export class DuckFrame {
      *
      * Returns a new relation-backed frame; the original is untouched.
     */
-    select(
-        expressions: Readonly<Record<string, string>>,
-        config: DataTypeConfig | ReadonlyDataTypeConfig = this.config,
-        groupBy?: readonly string[]
-    ): DuckFrame {
-        const names = Object.keys(expressions);
-        if (names.length === 0) {
-            throw new TypeError('select requires at least one expression');
-        }
-        const list = names
-            .map((name) => `${expressions[name]} AS ${quoteIdentifier(name)}`)
-            .join(', ');
+    select(expressions: SelectList, options: SelectOptions = {}): DuckFrame {
+        const { config = this.config, groupBy } = options;
+        const { list, names } = selectList(expressions, options.columns);
 
         if (groupBy?.length) this.assertOrderSafe('select with groupBy');
 
-        const sql = `SELECT ${list} FROM ${this.from}${groupByClause(groupBy)}`;
+        const sql = joinSQL(
+            `SELECT ${list} FROM ${this.from}`,
+            groupByClause(groupBy)
+        );
 
         return new DuckFrame(
             this.ctx, config, { kind: 'relation', sql, ordered: this.isOrdered }, names
@@ -1193,30 +542,34 @@ export class DuckFrame {
 
         this.assertOrderSafe('join', other);
 
-        const names = Object.keys(options.select);
-        if (names.length === 0) {
-            throw new TypeError('join requires at least one expression to select');
-        }
+        const { list, names } = selectList(options.select, options.columns);
 
         const as = options.as ?? 'a';
         const otherAs = options.otherAs ?? 'b';
         const type = (options.type ?? 'inner').toUpperCase();
 
-        const list = names
-            .map((name) => `${options.select[name]} AS ${quoteIdentifier(name)}`)
-            .join(', ');
-
-        const sql = `SELECT ${list}`
+        const sql = joinSQL(
+            `SELECT ${list}`
             + ` FROM ${this.from} AS ${quoteIdentifier(as)}`
             + ` ${type} JOIN ${other.from} AS ${quoteIdentifier(otherAs)}`
-            + ` ON ${options.on}`
-            + groupByClause(options.groupBy);
+            + ` ON ${options.on}`,
+            groupByClause(options.groupBy)
+        );
 
         return new DuckFrame(this.ctx, options.config, { kind: 'relation', sql }, names);
     }
 
     /**
-     * Row filter. Returns a new relation-backed frame.
+     * The `WHERE` clause. Returns a new relation-backed frame.
+     *
+     * **A clause builder** - one of six, beside `select`, `orderBy`, `limit`, `distinct` and
+     * `join`. It builds a statement up a clause at a time, for the path where the query is
+     * assembled rather than given. A statement that ALREADY exists - anything from
+     * `QueryAccess` - goes to `query`, whole; splitting one into a predicate here loses
+     * whatever its `SELECT` list was enforcing.
+     *
+     * The predicate is raw SQL, so identifiers the caller writes are the caller's to quote:
+     * a field named `group` needs `filter('"group" = \'y\'')`.
      *
      * A filter preserves ordering (measured: 0 of 1.6M rows out of order), so a sorted frame
      * stays sorted through it.
@@ -1297,17 +650,19 @@ export class DuckFrame {
      * ties keep their input order. **A caller that pages MUST append a unique field to
      * `specs`.** This cannot add one, because it cannot know which field is unique.
     */
-    orderBy(specs: readonly (string | OrderBySpec)[]): DuckFrame {
-        if (specs.length === 0) {
+    orderBy(sort: readonly SQLSortInput[]): DuckFrame {
+        if (sort.length === 0) {
             throw new TypeError('orderBy requires at least one sort term');
         }
+
+        const terms = dialect.orderBy(sort.map(toSQLSort));
 
         return new DuckFrame(
             this.ctx,
             this.config,
             {
                 kind: 'relation',
-                sql: `SELECT * FROM ${this.from}${orderByClause(specs)}`,
+                sql: `SELECT * FROM ${this.from} ORDER BY ${terms}`,
                 ordered: true,
             },
             this.columns
@@ -1339,15 +694,21 @@ export class DuckFrame {
     limit(count?: number, offset?: number): DuckFrame {
         if (count == null && offset == null) return this;
 
-        const bounds = limitBound('LIMIT', 'count', count)
-            + limitBound('OFFSET', 'offset', offset);
+        // checked HERE, under this method's own parameter names: the dialect renders
+        // `LIMIT`/`OFFSET` for a statement whose bounds are called `size` and `from`, and an
+        // error naming those would be about arguments this caller never passed
+        if (count != null) wholeNumber(count, 'limit\'s count');
+        if (offset != null) wholeNumber(offset, 'limit\'s offset');
 
         return new DuckFrame(
             this.ctx,
             this.config,
             {
                 kind: 'relation',
-                sql: `SELECT * FROM ${this.from}${bounds}`,
+                sql: joinSQL(
+                    `SELECT * FROM ${this.from}`,
+                    dialect.limitOffset(count, offset)
+                ),
                 ordered: this.isOrdered,
             },
             this.columns

@@ -34,7 +34,7 @@ export interface SchemaMismatch {
  * else; this exists because a config can only be checked against what DuckDB really made.
 */
 export async function describeColumns(frame: DuckFrame): Promise<Record<string, string>> {
-    const rows = await frame.query(`DESCRIBE SELECT * FROM ${frame.from}`);
+    const rows = await frame.rawRows(`DESCRIBE SELECT * FROM ${frame.from}`);
     return Object.fromEntries(
         rows.map((row) => [String(row[0]), String(row[1])])
     );

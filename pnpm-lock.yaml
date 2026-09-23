@@ -842,6 +842,9 @@ importers:
       '@terascope/ip-utils':
         specifier: workspace:~
         version: link:../ip-utils
+      '@terascope/sql-builder':
+        specifier: workspace:~
+        version: link:../sql-builder
       '@terascope/types':
         specifier: workspace:~
         version: link:../types
@@ -906,6 +909,9 @@ importers:
       jest-extended:
         specifier: 'catalog:'
         version: 7.0.0(jest@30.5.2(@types/node@26.6.4)(node-notifier@10.0.1)(supports-color@8.1.1))(typescript@6.0.3)
+      xlucene-translator:
+        specifier: workspace:~
+        version: link:../xlucene-translator
 
   packages/data-types:
     dependencies:
