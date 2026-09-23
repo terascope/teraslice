@@ -258,6 +258,9 @@ teraslice:
 prometheus_stack:
   # If enabled, the prom dashboard will be available on http://localhost:9090
   enabled: false
+  # How often prometheus scrapes targets (cpu/mem etc). Default 30s; lower for more
+  # frequent grafana dashboard updates. scrapeTimeout tracks this same value.
+  scrapeInterval: 30s
   grafana:
     # If enabled, the grafana dashboard will be available on http://localhost:8050
     enabled: true
