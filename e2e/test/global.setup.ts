@@ -59,7 +59,12 @@ export default async () => {
     await Promise.all([setupTerasliceConfig(), downloadAssets()]);
 
     if (TEST_PLATFORM === 'kubernetesV2') {
-        await helmfileCommand('sync', TEST_PLATFORM, undefined, STERN_LOGS);
+        // The services (opensearch, ceph, kafka...) are already deployed by the
+        // test runner; teardown() above only destroys the teraslice release. So
+        // re-sync just teraslice. Re-applying the whole stack would re-apply the
+        // Rook CephCluster CR, which the operator now co-owns -> server-side-apply
+        // conflict. Scoping to teraslice avoids that (and is faster).
+        await helmfileCommand('sync', TEST_PLATFORM, undefined, STERN_LOGS, true, 'app=teraslice');
         await teraslice.waitForTeraslice();
         await setAlias(TERASLICE_PORT);
     } else {

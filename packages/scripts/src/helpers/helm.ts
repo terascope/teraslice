@@ -32,16 +32,24 @@ export async function helmfileCommand(
     clusteringType: 'kubernetesV2',
     devMode = false,
     logs = false,
-    e2e = true
+    e2e = true,
+    selector?: string
 ) {
     const helmfilePath = path.join(getRootDir(), 'packages/scripts/helm/helmfile.yaml.gotmpl');
     const { valuesPath, valuesDir } = generateHelmValuesFromServices(
         clusteringType, devMode, logs, e2e
     );
 
+    // Optionally limit the command to matching releases (e.g. 'app=teraslice' to
+    // redeploy only teraslice). Releases their `needs` point at that aren't
+    // selected are assumed already deployed, so ceph/opensearch aren't re-applied.
+    const selectorArgs = selector ? ['--selector', selector] : [];
+
     let subprocess;
     try {
-        subprocess = await execa`helmfile --state-values-file ${valuesPath} ${command} -f ${helmfilePath}`;
+        subprocess = await execa('helmfile', [
+            '--state-values-file', valuesPath, ...selectorArgs, command, '-f', helmfilePath
+        ]);
     } catch (err) {
         // TSError truncates to 3000 characters which is an issue here
         throw new Error(`Helmfile ${command} command failed:\n${err}`);
