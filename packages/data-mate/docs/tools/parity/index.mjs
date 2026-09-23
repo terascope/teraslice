@@ -1,6 +1,7 @@
 // Assembles packages/data-mate/docs/duckdb-parity.md.
 // Deterministic: TZ pinned to UTC, fixed fuzz seeds, no Date.now() anywhere.
-// Run:  TZ=UTC node gen/index.mjs > /path/to/duckdb-parity.md
+// Run, from packages/data-mate and after `npx tsc -b`:
+//   TZ=UTC node docs/tools/parity/index.mjs > docs/duckdb-parity.md
 import { loadedExtensions, mate } from './lib/runners.mjs';
 import { table, h } from './lib/render.mjs';
 import * as sec1 from './sec1-coercion.mjs';
@@ -79,7 +80,7 @@ parts.push(`# DataFrame → DuckDB semantic parity
 
 **Generated**, not hand-written. Every cell below is the result of running the same input through
 data-mate's built \`dist\` and through DuckDB and diffing. Regenerate with
-\`TZ=UTC node gen/index.mjs\`.
+\`TZ=UTC node docs/tools/parity/index.mjs > docs/duckdb-parity.md\`.
 
 > ## SUPERSEDED AS A GAP ANALYSIS (2026-08-21) — read this before citing anything below
 >

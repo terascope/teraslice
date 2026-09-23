@@ -2,7 +2,7 @@
 
 **Generated**, not hand-written. Every cell below is the result of running the same input through
 data-mate's built `dist` and through DuckDB and diffing. Regenerate with
-`TZ=UTC node gen/index.mjs`.
+`TZ=UTC node docs/tools/parity/index.mjs > docs/duckdb-parity.md`.
 
 > ## SUPERSEDED AS A GAP ANALYSIS (2026-08-21) — read this before citing anything below
 >

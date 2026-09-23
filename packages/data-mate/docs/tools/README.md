@@ -184,7 +184,7 @@ They resolve only against a **stale `dist`**, so they measure code that is gone.
 they now fail outright (`Cannot find package '@terascope/data-mate'`), which is the honest
 outcome.
 
-That includes `measure-parquet.mjs`, the source of the transport table in `HANDOFF.md` Part 8.
+That includes `measure-parquet.mjs`, the source of the transport table in `ingest-findings.md` §The transport measurement.
 Its **conclusion** (Parquet + zstd, never JSON, never gzip) is settled and was re-confirmed
 independently by `bench/append-ingest.mjs`; the script itself is not re-runnable.
 
