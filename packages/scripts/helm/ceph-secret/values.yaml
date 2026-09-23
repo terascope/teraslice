@@ -1,0 +1,6 @@
+# Values are supplied inline by the ceph-secret release in helmfile.yaml.gotmpl
+# (pulled from ceph.tls.*). These are just fallbacks.
+secretName: tls-ssl-ceph
+namespace: rook-ceph
+# The RGW keypair (private key + cert concatenated).
+keypair: ""

@@ -19,8 +19,14 @@ spec:
     - name: s3
       protocol: TCP
       port: {{ .Values.rgwPort }}
-      # Rook runs the RGW daemon on container port 8080 (its own ClusterIP service
-      # maps port 80 -> targetPort 8080). targetPort must be that container port,
-      # NOT the service port, or the NodePort routes to nothing.
+      # targetPort must be the RGW container port, NOT the service port, or the
+      # NodePort routes to nothing. Rook maps these asymmetrically: the plain port
+      # (gateway.port 80) lands on container 8080, but the secure port is served on
+      # gateway.securePort itself (443 -> 443, see Rook's generateService). When TLS
+      # is on the host-facing S3 client (and the e2e assets-spec) connect over https.
+      {{- if .Values.tlsEnabled }}
+      targetPort: 443
+      {{- else }}
       targetPort: 8080
+      {{- end }}
       nodePort: {{ .Values.nodePort }}

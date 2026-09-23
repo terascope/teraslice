@@ -233,11 +233,30 @@ terafoundation:
         s3:
             default:
                 # Ceph RGW (S3). Path-style addressing: in-cluster DNS has no
-                # wildcard for virtual-hosted-style bucket subdomains. TLS is
-                # deferred, so this is plain http. The static S3 user with these
-                # keys is created post-sync by the runner (setupCephObjectUser).
+                # wildcard for virtual-hosted-style bucket subdomains. The static
+                # S3 user with these keys is created declaratively (ceph-extras).
+                {{- if eq (.Values | get "ceph.tls.enabled" false) true }}
+
+                # In-cluster teraslice talks to the RGW over https on securePort.
+                endpoint: "https://rook-ceph-rgw-{{ .Values | get "ceph.storeName" "teraslice-store" }}.{{ .Values | get "ceph.namespace" "rook-ceph" }}.svc.cluster.local:443"
+                sslEnabled: true
+                caCertificate: "{{- if .Values.ceph.tls.caCert -}}
+
+                {{ .Values.ceph.tls.caCert }}
+
+                {{- else -}}
+
+                {{ fail "ceph.tls.caCert MUST be provided so teraslice can get the rootCA" }}
+
+                {{- end }}"
+
+                {{- else }}
+
                 endpoint: "http://rook-ceph-rgw-{{ .Values | get "ceph.storeName" "teraslice-store" }}.{{ .Values | get "ceph.namespace" "rook-ceph" }}.svc.cluster.local:{{ .Values | get "ceph.rgwPort" 80 }}"
                 sslEnabled: false
+
+                {{- end }}
+
                 accessKeyId: {{ .Values | get "ceph.accessKey" "cephtestaccesskey" }}
                 secretAccessKey: {{ .Values | get "ceph.secretKey" "cephtestsecretkey" }}
                 forcePathStyle: true

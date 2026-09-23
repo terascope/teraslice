@@ -5,7 +5,7 @@ import {
     debugLogger, chunk, TSError,
     isCI, pMap
 } from '@terascope/core-utils';
-import { TestEnv } from '@terascope/types';
+import { TestEnv, Service } from '@terascope/types';
 import fs from 'fs-extra';
 import {
     writePkgHeader, writeHeader, getRootDir,
@@ -47,7 +47,7 @@ function getModule(module: any) {
 const {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E,
     K8S_VERSION, NODE_VERSION, ATTACH_JEST_DEBUGGER, CERT_PATH,
-    KIND_VERSION, TERASLICE_IMAGE
+    KIND_VERSION, TERASLICE_IMAGE, ENV_SERVICES
 } = config;
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -349,6 +349,12 @@ async function runE2ETest(
                     await loadThenDeleteImageFromCache(kindImageTag, options.skipImageDeletion);
                 }
                 await kind.createCluster();
+
+                // Ceph needs a raw block device for its OSD; prep the node's loop
+                // device before the Rook cluster reconciles (mirrors launchK8sEnv).
+                if (ENV_SERVICES.includes(Service.Ceph)) {
+                    await kind.prepNodeForCeph();
+                }
             } catch (err) {
                 signale.error(err);
                 await kind.destroyCluster();

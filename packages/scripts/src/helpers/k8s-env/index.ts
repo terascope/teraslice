@@ -10,7 +10,7 @@ import {
 import {
     launchTerasliceWithHelmfile, helmfileDestroy, launchTerasliceWithCustomHelmfile
 } from '../helm.js';
-import { generateTestCaCerts } from '../certs.js';
+import { generateTestCaCerts, generateCephCertsForConfigFile } from '../certs.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions, CephRuntimeInfo } from './interfaces.js';
 import signale from '../signale.js';
@@ -35,7 +35,9 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     if (options.configFile) {
         signale.pending('Starting k8s environment with a config file..');
 
-        // Encryption is not yet supported when launching with a custom config file
+        // Encryption is not yet supported when launching with a custom config file,
+        // except ceph (its certs are bootstrapped below, since the config-file path
+        // bypasses generateHelmValuesFromServices where the other services inject).
         const encryptionValuePaths = [
             'opensearch2.ssl.enabled',
             'opensearch3.ssl.enabled',
@@ -90,6 +92,8 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 
     if (!options.configFile) {
         await generateTestCaCerts();
+    } else {
+        await bootstrapConfigFileCephCerts(options.configFile, cephInfo);
     }
 
     signale.pending('Creating kind cluster');
@@ -222,6 +226,36 @@ async function resolveCephInfo(configFile?: string): Promise<CephRuntimeInfo> {
         secretKey: config.CEPH_SECRET_KEY,
         dashboardEnabled: false,
     };
+}
+
+/**
+ * Config-file path: when ceph TLS is on but the certs are null/empty, mkcert a
+ * keypair + CA and write them into the config file's ceph.tls.caCert/keypair.
+ *
+ * The env-var path injects these in generateHelmValuesFromServices, which a
+ * custom config file bypasses (it's passed straight to helmfile). User-supplied
+ * certs are left untouched. No-op unless ceph + ceph.tls are enabled.
+ */
+async function bootstrapConfigFileCephCerts(
+    configFile: string, cephInfo: CephRuntimeInfo
+): Promise<void> {
+    if (!cephInfo.enabled) return;
+
+    const tlsEnabled = Boolean(await getConfigValueFromCustomYaml(configFile, 'ceph.tls.enabled'));
+    if (!tlsEnabled) return;
+
+    const caCert = await getConfigValueFromCustomYaml(configFile, 'ceph.tls.caCert');
+    const keypair = await getConfigValueFromCustomYaml(configFile, 'ceph.tls.keypair');
+    if (caCert && keypair) {
+        signale.info('Ceph TLS certs already present in config file; skipping generation');
+        return;
+    }
+
+    signale.pending('Generating Ceph TLS certs for the config-file path...');
+    const certs = await generateCephCertsForConfigFile(cephInfo.storeName, cephInfo.namespace);
+    await setConfigValuesForCustomYaml(configFile, 'ceph.tls.caCert', certs.caCert);
+    await setConfigValuesForCustomYaml(configFile, 'ceph.tls.keypair', certs.keypair);
+    signale.success('Generated Ceph TLS certs and wrote them to the config file');
 }
 
 function buildNextStepsMessage(

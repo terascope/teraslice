@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { X509Certificate } from 'node:crypto';
 import { execa } from 'execa';
@@ -290,11 +291,7 @@ export async function generateTestCaCerts(): Promise<void> {
 
     if (config.ENCRYPT_CEPH) {
         encryptedServices.push('ceph');
-        hostNames.push(
-            'rgw',
-            'ceph-rgw',
-            config.CEPH_HOSTNAME
-        );
+        hostNames.push(...getCephCertHostNames(config.CEPH_STORE_NAME, config.CEPH_NAMESPACE));
     }
 
     if (config.ENCRYPT_KAFKA) {
@@ -325,4 +322,48 @@ export async function generateTestCaCerts(): Promise<void> {
             throw new Error(`Error generating ca-certificates for ${serviceList}: ${err.message}`);
         }
     }
+}
+
+/**
+ * The DNS names a Ceph RGW cert must be valid for: the docker aliases plus the
+ * in-cluster RGW service DNS, so teraslice's TLS client validates the cert in
+ * either path. Must match the endpoint rendered in teraslice.yaml.gotmpl. Shared
+ * by the env-var (generateTestCaCerts) and config-file k8s flows.
+ */
+export function getCephCertHostNames(storeName: string, namespace: string): string[] {
+    const rgwService = `rook-ceph-rgw-${storeName}.${namespace}`;
+    return [
+        'rgw',
+        'ceph-rgw',
+        config.CEPH_HOSTNAME,
+        `${rgwService}.svc.cluster.local`,
+        `${rgwService}.svc`,
+        rgwService,
+    ];
+}
+
+/**
+ * Config-file k8s path: mkcert a Ceph RGW keypair + CA into a fresh temp dir and
+ * return them as single-line (`\n`-escaped) PEMs, ready to write into
+ * ceph.tls.caCert / ceph.tls.keypair. The env-var path does the equivalent via
+ * generateTestCaCerts + generateHelmValuesFromServices, which a custom config
+ * file bypasses -- so the certs have to be bootstrapped here instead.
+ *
+ * @param storeName - CephObjectStore name (drives the RGW service DNS SAN)
+ * @param namespace - namespace the RGW runs in (drives the RGW service DNS SAN)
+ * @returns single-line PEMs for the rootCA and the key+cert keypair
+ */
+export async function generateCephCertsForConfigFile(
+    storeName: string,
+    namespace: string
+): Promise<{ caCert: string; keypair: string }> {
+    // config.CERT_PATH is relative in the config-file path (encryption isn't env
+    // driven), and generateCerts requires an absolute dir, so use a fresh temp dir.
+    const certDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ts-ceph-CAs'));
+    const hostNames = ['localhost', ...getCephCertHostNames(storeName, namespace)];
+    await generateCerts(['ceph'], certDir, hostNames);
+
+    const caCert = readCertFromPath(path.join(certDir, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
+    const keypair = readCertFromPath(path.join(certDir, 'ceph-keypair.pem')).replace(/\n/g, '\\n');
+    return { caCert, keypair };
 }

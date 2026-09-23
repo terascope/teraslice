@@ -20,6 +20,13 @@ toolbox:
   # Handy for `ceph status` / `radosgw-admin`. Also how the runner creates the
   # static S3 user post-sync (mirrors docker mode). Inherits cephImage above.
   enabled: true
+  # Mostly idle; the chart defaults it to a 1Gi limit. Cap it down.
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "128Mi"
+    limits:
+      memory: "256Mi"
 
 # ceph-mgr dashboard is not needed for tests; skip it to save a pod.
 monitoring:
@@ -53,23 +60,36 @@ cephClusterSpec:
     enabled: false
 
   # Shrunk so the whole cluster schedules on one resource-constrained kind node.
+  # We cap memory LIMITS too (the chart defaults are huge -- osd 4Gi, mon 2Gi,
+  # mgr 1Gi -- which nearly maxes the node's "limits commitment"). Only memory is
+  # limited, never cpu: a cpu limit throttles ceph and causes mon election / OSD
+  # heartbeat flapping. Rook derives osd_memory_target from the osd limit, so the
+  # OSD trims its cache to fit. Test-appropriate; bump if a daemon OOMs.
   resources:
     mgr:
       requests:
         cpu: "100m"
         memory: "256Mi"
+      limits:
+        memory: "768Mi"
     mon:
       requests:
         cpu: "100m"
         memory: "256Mi"
+      limits:
+        memory: "512Mi"
     osd:
       requests:
         cpu: "250m"
         memory: "1Gi"
+      limits:
+        memory: "2Gi"
     prepareosd:
       requests:
         cpu: "100m"
         memory: "50Mi"
+      limits:
+        memory: "256Mi"
 
   storage:
     useAllNodes: true
@@ -101,7 +121,14 @@ cephObjectStores:
           requireSafeReplicaSize: false
       preservePoolsOnDelete: false
       gateway:
+        # Serve plain http on rgwPort always (host NodePort debugging), and add
+        # https on securePort when TLS is on. sslCertificateRef names the opaque
+        # secret (ceph-secret chart) whose "cert" key holds the key+cert PEM.
         port: {{ .Values.ceph.rgwPort }}
+        {{- if .Values | get "ceph.tls.enabled" false }}
+        securePort: 443
+        sslCertificateRef: {{ .Values | get "ceph.tls.certSecret" "tls-ssl-ceph" }}
+        {{- end }}
         instances: 1
         resources:
           requests:

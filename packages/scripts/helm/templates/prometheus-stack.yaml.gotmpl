@@ -6,6 +6,13 @@ grafana:
         type: NodePort
         nodePort: 30222
 prometheus:
+    prometheusSpec:
+        # Global scrape interval for all targets (cadvisor/kubelet, node-exporter,
+        # kube-state-metrics) that feed the grafana cpu/mem dashboards. Chart default
+        # is 30s; lower it so pod cpu/mem refreshes more often. scrapeTimeout must be
+        # <= scrapeInterval, so both track the same value.
+        scrapeInterval: {{ .Values | get "prometheus_stack.scrapeInterval" "30s" }}
+        scrapeTimeout: {{ .Values | get "prometheus_stack.scrapeInterval" "30s" }}
     service:
         type: NodePort
         nodePort: 30223

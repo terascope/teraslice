@@ -51,6 +51,20 @@ releases:
     values:
       - ./templates/minio-secret.yaml.gotmpl
 
+  # Holds the RGW TLS keypair (opaque secret, "cert" key). Rook's CephObjectStore
+  # sslCertificateRef points at it. Gated on ceph TLS; values inlined from ceph.tls.
+  - name: ceph-secret
+    namespace: rook-ceph
+    chart: ./ceph-secret
+    version: 0.1.0
+    needs:
+      - default/namespaces
+    installed: {{ and (.Values | get "ceph.enabled" false) (.Values | get "ceph.tls.enabled" false) }}
+    values:
+      - secretName: {{ .Values | get "ceph.tls.certSecret" "tls-ssl-ceph" }}
+        namespace: {{ .Values | get "ceph.namespace" "rook-ceph" }}
+        keypair: {{ .Values | get "ceph.tls.keypair" "" | quote }}
+
   - name: opensearch1
     namespace: services-dev1
     chart: opensearch/opensearch
@@ -138,6 +152,11 @@ releases:
     needs:
       - default/namespaces
       - rook-ceph/rook-ceph
+    {{- if .Values | get "ceph.tls.enabled" false }}
+      # The CephObjectStore's sslCertificateRef points at this secret, so it must
+      # exist before the cluster reconciles.
+      - rook-ceph/ceph-secret
+    {{- end }}
 
   # RGW NodePort (host access) + a static-keyed S3 user (Secret +
   # CephObjectStoreUser). Values inlined from the shared ceph.* config.
@@ -151,6 +170,7 @@ releases:
         storeName: {{ .Values | get "ceph.storeName" "teraslice-store" }}
         rgwPort: {{ .Values | get "ceph.rgwPort" 80 }}
         nodePort: {{ .Values | get "ceph.nodePort" 30902 }}
+        tlsEnabled: {{ .Values | get "ceph.tls.enabled" false }}
         user: {{ .Values | get "ceph.user" "test" }}
         accessKey: {{ .Values | get "ceph.accessKey" "cephtestaccesskey" }}
         secretKey: {{ .Values | get "ceph.secretKey" "cephtestsecretkey" }}

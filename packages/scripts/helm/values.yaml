@@ -165,8 +165,21 @@ ceph:
   # host CEPH_PORT via a kind extraPortMapping in kind.ts.
   nodePort: 30902
   tls:
-    # TLS is deferred for now (mirrors #4547 which disabled encrypted-S3 tests)
+    # If true, "caCert" and "keypair" need to be set. Flipped on by helm.ts when
+    # ENCRYPT_CEPH=true (env-var path, mirroring minio.tls).
     enabled: false
+    # Name of the k8s secret (in the ceph namespace) holding the RGW keypair.
+    # Rook's CephObjectStore sslCertificateRef points at this secret.
+    certSecret: tls-ssl-ceph
+    # The ca-certificate used by teraslice to trust the RGW.
+    # CA certificate in a single-line string format with "\\n" as line breaks
+    # Use the following command to convert a rootCA PEM file to the correct format:
+    # awk '{printf "%s\\\\n", $0}' <path-to-pem-file> | pbcopy
+    caCert: null
+    # The RGW keypair (private key + cert concatenated, i.e. ceph-keypair.pem) in
+    # single-line string format with "\\n" as line breaks. Stored under the "cert"
+    # key of the secret, which is what Rook's beast frontend reads.
+    keypair: null
 
 kafka:
   # If false, kafka will be excluded on helmfile sync
@@ -245,6 +258,9 @@ teraslice:
 prometheus_stack:
   # If enabled, the prom dashboard will be available on http://localhost:9090
   enabled: false
+  # How often prometheus scrapes targets (cpu/mem etc). Default 30s; lower for more
+  # frequent grafana dashboard updates. scrapeTimeout tracks this same value.
+  scrapeInterval: 30s
   grafana:
     # If enabled, the grafana dashboard will be available on http://localhost:8050
     enabled: true
