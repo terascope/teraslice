@@ -133,6 +133,31 @@ describe('cluster api', () => {
         expect(response[0]).toHaveProperty('version');
     });
 
+    it('api end point /cluster/connectors should return the configured connectors', async () => {
+        const response = await terasliceHarness.teraslice.cluster.get('/cluster/connectors');
+
+        expect(response).toHaveProperty('connectors');
+        expect(response.connectors).toBeArray();
+        response.connectors.forEach((connector: any) => {
+            expect(connector).toHaveProperty('type');
+            expect(connector).toHaveProperty('name');
+        });
+
+        const pairs = response.connectors.map((c: any) => `${c.type}:${c.name}`);
+        expect(pairs).toContain('elasticsearch-next:default');
+        expect(pairs).toContain('kafka:default');
+        expect(pairs).toContain('s3:default');
+    });
+
+    it('api end point /cluster/connectors?groupBy=type should return connectors grouped by type', async () => {
+        const response = await terasliceHarness.teraslice.cluster.get('/cluster/connectors?groupBy=type');
+
+        expect(response).toHaveProperty('connectors');
+        expect(response.connectors['elasticsearch-next']).toContain('default');
+        expect(response.connectors.kafka).toContain('default');
+        expect(response.connectors.s3).toContain('default');
+    });
+
     it('api end point /txt/assets should return a text table', async () => {
         const response = await terasliceHarness.teraslice.cluster.txt('assets');
         expect(response).toBeString();
