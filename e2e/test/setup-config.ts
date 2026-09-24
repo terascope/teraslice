@@ -13,7 +13,7 @@ const {
     ENCRYPT_KAFKA, DEBUG_LOG_LEVEL, ENCRYPT_OPENSEARCH
 } = config;
 
-const baseConfig = {
+export const baseConfig = {
     terafoundation: {
         log_level: [
             { console: 'warn' },

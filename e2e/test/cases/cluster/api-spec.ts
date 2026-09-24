@@ -3,6 +3,7 @@ import { cloneDeep, pDelay } from '@terascope/core-utils';
 import { JobConfig } from '@terascope/types';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { config } from '../../config.js';
+import { baseConfig } from '../../setup-config.js';
 import { Ex, Job } from 'teraslice-client-js';
 
 const { TEST_PLATFORM } = config;
@@ -134,6 +135,10 @@ describe('cluster api', () => {
     });
 
     it('api end point /cluster/connectors should return the configured connectors', async () => {
+        // derive the expected type:name pairs from the same config the cluster is deployed with
+        const expectedPairs = Object.entries(baseConfig.terafoundation.connectors)
+            .flatMap(([type, connections]) => Object.keys(connections).map((name) => `${type}:${name}`));
+
         const response = await terasliceHarness.teraslice.cluster.get('/cluster/connectors');
 
         expect(response).toHaveProperty('connectors');
@@ -144,18 +149,16 @@ describe('cluster api', () => {
         });
 
         const pairs = response.connectors.map((c: any) => `${c.type}:${c.name}`);
-        expect(pairs).toContain('elasticsearch-next:default');
-        expect(pairs).toContain('kafka:default');
-        expect(pairs).toContain('s3:default');
+        expect(pairs.sort()).toEqual(expectedPairs.sort());
     });
 
     it('api end point /cluster/connectors?groupBy=type should return connectors grouped by type', async () => {
         const response = await terasliceHarness.teraslice.cluster.get('/cluster/connectors?groupBy=type');
 
         expect(response).toHaveProperty('connectors');
-        expect(response.connectors['elasticsearch-next']).toContain('default');
-        expect(response.connectors.kafka).toContain('default');
-        expect(response.connectors.s3).toContain('default');
+        Object.entries(baseConfig.terafoundation.connectors).forEach(([type, connections]) => {
+            expect(response.connectors[type].sort()).toEqual(Object.keys(connections).sort());
+        });
     });
 
     it('api end point /txt/assets should return a text table', async () => {
