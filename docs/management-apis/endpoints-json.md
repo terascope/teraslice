@@ -53,6 +53,44 @@ $ curl 'localhost:5678/v1/cluster/state'
 }
 ```
 
+## GET /v1/cluster/connectors
+
+Returns the connectors configured in the cluster's `terafoundation.yaml`. Each entry
+exposes the connector `type` and connection `name`. The connection used for Teraslice
+state is tagged with `is_state_cluster`, and the connection used for asset storage is
+tagged with `is_asset_store`.
+
+**Query Options:**
+
+- `type: string` - only return connectors of this type (e.g. `kafka`)
+- `name: string` - only return connectors with this connection name (e.g. `default`)
+- `groupBy: string` - set to `type` to return the connectors grouped by type instead of a flat array
+
+**Usage:**
+
+```sh
+$ curl 'localhost:5678/v1/cluster/connectors'
+{
+    "connectors": [
+        { "type": "elasticsearch-next", "name": "default", "is_state_cluster": true },
+        { "type": "elasticsearch-next", "name": "secondary", "is_state_cluster": false },
+        { "type": "kafka", "name": "default" },
+        { "type": "s3", "name": "default", "is_asset_store": true }
+    ]
+}
+```
+
+```sh
+$ curl 'localhost:5678/v1/cluster/connectors?groupBy=type'
+{
+    "connectors": {
+        "elasticsearch-next": ["default", "secondary"],
+        "kafka": ["default"],
+        "s3": ["default"]
+    }
+}
+```
+
 ## GET /v1/cluster/controllers
 
 Returns an array of all active execution controllers and their associated statistics.
