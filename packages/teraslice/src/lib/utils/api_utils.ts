@@ -4,6 +4,7 @@ import {
     isString, get, toInteger, Logger,
     TSError
 } from '@terascope/core-utils';
+import { ConnectorInfo, GroupedConnectors, Teraslice } from '@terascope/types';
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
 
 export function makeTable(
@@ -161,4 +162,61 @@ export function addDeletedToQuery(deleted: string, query: string) {
  */
 export function addFilterToQuery(query: string, filter: string): string {
     return filter ? `(${query}) AND (${filter})` : query;
+}
+
+interface ConnectorQueryOptions {
+    type?: string;
+    name?: string;
+    groupBy?: string;
+}
+
+/**
+ * Builds the list of configured connectors from terafoundation.connectors, tagging the
+ * state cluster and asset store connections. Optionally filters by type/name and, when
+ * groupBy is "type", returns the grouped-by-type view instead of the flat array.
+ */
+export function buildConnectorList(
+    sysconfig: Teraslice.SysConfig,
+    { type, name, groupBy }: ConnectorQueryOptions = {}
+): ConnectorInfo[] | GroupedConnectors {
+    const { connectors } = sysconfig.terafoundation;
+    const {
+        state,
+        asset_storage_connection: assetConnection,
+        asset_storage_connection_type: assetType
+    } = sysconfig.teraslice;
+
+    // the connector type that holds the state connection (state is always an es/os cluster)
+    const stateType = state?.connection
+        ? Object.keys(connectors).find((t) => Object.hasOwn(connectors[t], state.connection))
+        : undefined;
+
+    let list: ConnectorInfo[] = [];
+
+    for (const [connectorType, connections] of Object.entries(connectors)) {
+        for (const connectionName of Object.keys(connections)) {
+            const info: ConnectorInfo = { type: connectorType, name: connectionName };
+
+            if (connectorType === stateType) {
+                info.is_state_cluster = connectionName === state.connection;
+            }
+            if (assetType && connectorType === assetType) {
+                info.is_asset_store = connectionName === assetConnection;
+            }
+
+            list.push(info);
+        }
+    }
+
+    if (type) list = list.filter((connector) => connector.type === type);
+    if (name) list = list.filter((connector) => connector.name === name);
+
+    if (groupBy === 'type') {
+        return list.reduce<GroupedConnectors>((grouped, connector) => {
+            (grouped[connector.type] ??= []).push(connector.name);
+            return grouped;
+        }, {});
+    }
+
+    return list;
 }

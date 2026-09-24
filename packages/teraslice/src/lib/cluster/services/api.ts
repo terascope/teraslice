@@ -16,7 +16,7 @@ import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/
 import {
     makeTable, sendError, handleTerasliceRequest,
     getSearchOptions, createJobActiveQuery, addDeletedToQuery,
-    addFilterToQuery
+    addFilterToQuery, buildConnectorList
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
@@ -244,6 +244,18 @@ export class ApiService {
         v1routes.get('/cluster/state', (req, res) => {
             const requestHandler = handleTerasliceRequest(req, res);
             requestHandler(() => this.clusterService.getClusterState());
+        });
+
+        v1routes.get('/cluster/connectors', (req, res) => {
+            const { type, name, groupBy } = req.query;
+            const requestHandler = handleTerasliceRequest(req, res);
+            requestHandler(() => ({
+                connectors: buildConnectorList(this.context.sysconfig, {
+                    type: type as string,
+                    name: name as string,
+                    groupBy: groupBy as string
+                })
+            }));
         });
 
         v1routes.route('/assets{*splat}')
