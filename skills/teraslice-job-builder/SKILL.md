@@ -61,6 +61,14 @@ over guessing.
    - **Which asset bundles their cluster actually has installed** — this
      constrains the operations available. If unknown, note it; the job can't
      use an op from an uninstalled asset.
+   - **Which connectors/connections the cluster has configured** — reader and
+     sender ops reference a `connection` (e.g. `"connection": "default"`) that
+     must exist in the cluster's `terafoundation.yaml`. If the cluster is
+     reachable, list them with `curl '<cluster>:5678/v1/cluster/connectors'`
+     (`?type=<type>` to filter, `?groupBy=type` for the grouped view) instead of
+     guessing. If unknown, note it; a reader/sender pointed at a missing
+     connection will fail at registration. **Note any connection tagged
+     `is_state_cluster` / `is_asset_store` — see [Connection guardrails](#connection-guardrails).**
 
 2. **Pick operations.** Reader first, processors in the middle, sender last.
    Consult `references/operations.md` and `references/builtin-operations.md`;
@@ -97,6 +105,26 @@ over guessing.
    # add --start to register and start in one step
    ```
    This skill has no cluster credentials and does not register jobs.
+
+## Connection guardrails
+
+`/v1/cluster/connectors` tags connections with `is_state_cluster: true` (the
+Opensearch/Elasticsearch connection where Teraslice stores its own job state,
+analytics and logs) or `is_asset_store: true` (the connection used for asset
+storage). **If a reader — and especially a sender — targets a connection with
+either flag set to `true`, STOP and warn the user before continuing.** Writing job
+data into Teraslice's own state or asset store can corrupt or pollute the cluster's
+internal storage. Surface this every time it happens, get explicit confirmation
+that they really intend to read from / write to that connection, and recommend a
+separate data connection instead. Only proceed once they've confirmed.
+
+**Warn even when it's unavoidable.** Dev environments commonly have a single
+connection of a given type — one Opensearch/Elasticsearch connection (which
+therefore *must* be the state cluster) or one S3 connection (which *must* be the
+asset store) — so any ES or S3 reader/sender will land on it. Warn the user anyway,
+even though it's obvious and there's no alternative connection. Never silently skip
+the warning just because the flagged connection is the only option; still make sure
+they know they're sharing the state cluster or asset store and have them confirm.
 
 ## Reference index
 
