@@ -96,7 +96,7 @@ describe('WorkerExecutionContext', () => {
         it('should have the registered APIs', () => {
             const registeredAPIs = Object.keys(executionContext.apis);
             // this test is order specific to ensure everything is loaded correctly
-            expect(registeredAPIs).toEqual(['job-observer', 'example-observer', 'example-api', 'example-reader']);
+            expect(registeredAPIs).toEqual(['job-observer', 'trace-observer', 'example-observer', 'example-api', 'example-reader']);
         });
 
         it('should be able to get the example-api', async () => {

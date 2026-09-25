@@ -197,6 +197,13 @@ export default class Job extends Client {
         return this.get(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
     }
 
+    async trace(
+        query: { size?: number | 'all' } = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<Teraslice.SliceTraceResults> {
+        return this.get(`/jobs/${this._jobId}/trace`, this.makeOptions(query, searchOptions));
+    }
+
     async workers(requestOptions: RequestOptions = {}): Promise<Teraslice.WorkerNode[]> {
         const state: Teraslice.ClusterState = await this.get('/cluster/state', requestOptions);
         return filterProcesses<Teraslice.WorkerNode>(state, this._jobId, 'worker');

@@ -1,4 +1,6 @@
-import { isNumber, get, Queue } from '@terascope/core-utils';
+import {
+    isNumber, get, pWhile, Queue
+} from '@terascope/core-utils';
 import {
     EnqueuedWorker, Slice, SliceCompletePayload, SliceTraceResults
 } from '@terascope/types';
@@ -8,8 +10,13 @@ import * as i from './interfaces.js';
 
 const { Available, Unavailable } = core.ClientState;
 
+// the least time worth giving a worker to trace a slice
+// after waiting for it to become available
+const MIN_TRACE_TIMEOUT = 1000;
+
 export class Server extends core.Server {
     private _activeWorkers: i.ActiveWorkers;
+    private _tracingWorkers = new Set<string>();
     queue: Queue<EnqueuedWorker>;
     executionReady: boolean;
 
@@ -112,33 +119,70 @@ export class Server extends core.Server {
         return dispatched;
     }
 
+    /**
+     * Send a slice trace request to the next worker in line for a slice,
+     * waiting for one to be enqueued if necessary.
+     */
     async sendSliceTraceRequest(
         size: number,
         sendTimeout: number,
         traceTimeout: number
     ): Promise<SliceTraceResults> {
-        const targetId = this._selectWorker();
+        const start = Date.now();
+        let targetId: string | undefined;
 
-        this.logger.debug('slice trace request sent to worker: ', targetId);
+        try {
+            targetId = this._selectWorker();
 
-        const message = await this.send(
-            targetId,
-            'execution:slice:trace',
-            { size, traceTimeout },
-            { response: true, timeout: sendTimeout }
-        );
+            if (targetId == null) {
+                this.logger.debug('no worker is available for the slice trace, waiting for one to be enqueued');
 
-        if (!message) {
-            throw new Error(`Cannot complete the slice trace for worker ${targetId}, the execution controller is finished or shutting down`);
+                await pWhile(async () => {
+                    if (this.closed || this.isShuttingDown) {
+                        throw new Error('Cannot complete the slice trace, the execution controller is finished or shutting down');
+                    }
+
+                    targetId = this._selectWorker();
+                    return targetId != null;
+                }, {
+                    timeoutMs: traceTimeout,
+                    name: 'Slice trace',
+                    enabledJitter: true,
+                    minJitter: 100,
+                    error: 'no worker became available'
+                });
+            }
+
+            const elapsed = Date.now() - start;
+            const remainingTraceTimeout = traceTimeout - elapsed;
+
+            if (remainingTraceTimeout < MIN_TRACE_TIMEOUT) {
+                throw new Error(`Slice trace timeout after waiting ${elapsed}ms for a worker to become available`);
+            }
+
+            this.logger.debug(`slice trace request sent to worker: ${targetId}`);
+
+            const message = await this.send(
+                targetId!,
+                'execution:slice:trace',
+                { size, traceTimeout: remainingTraceTimeout },
+                { response: true, timeout: sendTimeout - elapsed }
+            );
+
+            if (!message) {
+                throw new Error(`Cannot complete the slice trace for worker ${targetId}, the execution controller is finished or shutting down`);
+            }
+
+            const { sliceId, records } = message.payload;
+
+            return {
+                workerId: targetId!,
+                sliceId,
+                records
+            };
+        } finally {
+            if (targetId != null) this._tracingWorkers.delete(targetId);
         }
-
-        const { sliceId, records } = message.payload;
-
-        return {
-            workerId: targetId,
-            sliceId,
-            records
-        };
     }
 
     onSliceSuccess(fn: (workerId: string, payload: SliceCompletePayload) => void): void {
@@ -196,22 +240,21 @@ export class Server extends core.Server {
     }
 
     /**
-     * Select a random worker from availableClients, or
-     * onlineClients if none are currently available.
+     * Select the queued worker closest to the head (the next to receive
+     * a slice) that is not already tracing, and mark it as tracing.
      */
-    private _selectWorker(): string {
-        // FixMe: It may be faster to wait for the next available client
-        // instead of choosing a random online client.
-        // If 2 API calls come in should we be tracking the size
-        // and if equal returning the result to both?
-        // We should at least track which workers are doing a trace and exclude them from the list.
-        const pool = this.availableClients.length ? this.availableClients : this.onlineClients;
+    private _selectWorker(): string | undefined {
+        let selected: string | undefined;
 
-        if (!pool.length) {
-            throw new Error('No workers are connected to this execution');
-        }
+        this.queue.each(({ workerId }) => {
+            if (selected == null && !this._tracingWorkers.has(workerId)) {
+                selected = workerId;
+            }
+        });
 
-        return pool[Math.floor(Math.random() * pool.length)].clientId;
+        if (selected != null) this._tracingWorkers.add(selected);
+
+        return selected;
     }
 
     private _workerEnqueue(workerId: string): boolean {

@@ -142,6 +142,41 @@ describe('Teraslice Ex', () => {
         });
     });
 
+    describe('->trace', () => {
+        const traceResults = {
+            workerId: 'some-worker',
+            sliceId: 'some-slice',
+            records: [[{ record: { id: 1 }, metadata: { _key: '1' } }]]
+        };
+
+        describe('when called with nothing', () => {
+            beforeEach(() => {
+                scope.get('/ex/some-ex-id/trace')
+                    .reply(200, traceResults);
+            });
+
+            it('should resolve json results from Teraslice', async () => {
+                const ex = new Ex({ baseUrl }, 'some-ex-id');
+                const results = await ex.trace();
+                expect(results).toEqual(traceResults);
+            });
+        });
+
+        describe('when called with a size', () => {
+            beforeEach(() => {
+                scope.get('/ex/some-ex-id/trace')
+                    .query({ size: 5 })
+                    .reply(200, traceResults);
+            });
+
+            it('should pass the size as a query param', async () => {
+                const ex = new Ex({ baseUrl }, 'some-ex-id');
+                const results = await ex.trace({ size: 5 });
+                expect(results).toEqual(traceResults);
+            });
+        });
+    });
+
     const methodTestCases = [
         'stop',
         'pause',

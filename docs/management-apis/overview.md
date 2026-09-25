@@ -107,6 +107,27 @@ in monitoring and optimizing the execution of the job.
 curl "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/controller"
 ```
 
+### Tracing a slice
+
+This captures the records each operation produces for the next slice a worker
+processes, which can be useful when debugging a job's operations. `size` limits
+the records returned per operation (default `10`, `all` for every record).
+
+```sh
+curl "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/trace?size=5"
+```
+
+If you have the execution id rather than the job id, you can trace the running
+execution directly:
+
+```sh
+curl "$YOUR_MASTER_IP:5678/v1/ex/${ex_id}/trace?size=5"
+```
+
+The request waits for a new slice to finish, so it can take a while on slow
+jobs. See the [JSON API docs](./endpoints-json.md#get-v1jobsjobidtrace) for
+the response format and errors.
+
 ### Viewing cluster state
 
 This will show you all the connected workers and the tasks that are currently assigned to them.
