@@ -36,6 +36,16 @@ export interface ActiveWorkers {
 export interface SliceResponseMessage {
     willProcess?: boolean;
 }
+
+export interface SliceTraceRequestMessage {
+    size: number;
+    traceTimeout: number;
+}
+
+export interface SliceTraceHandler {
+    (request: SliceTraceRequestMessage): Promise<Record<string, any>> | Record<string, any>;
+}
+
 export interface WorkerShutdownFn {
     (error?: null): void;
 }

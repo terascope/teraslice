@@ -3,3 +3,7 @@ export interface StopExecutionOptions {
     excludeNode?: string;
     force?: boolean;
 }
+
+export interface SliceTraceOptions {
+    size: number;
+}

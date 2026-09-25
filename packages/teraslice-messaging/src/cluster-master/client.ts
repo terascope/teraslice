@@ -92,4 +92,8 @@ export class Client extends core.Client {
     onExecutionLogLevel(fn: core.MessageHandler) {
         this.handleResponse(this.socket, 'execution:loglevel', fn);
     }
+
+    onExecutionSliceTrace(fn: core.MessageHandler) {
+        this.handleResponse(this.socket, 'execution:slice:trace', fn);
+    }
 }

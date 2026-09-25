@@ -7,15 +7,17 @@ import {
 } from '@terascope/core-utils';
 import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
-import { ExecutionConfig, JobConfig } from '@terascope/types';
+import {
+    ExecutionConfig, JobConfig, NodeState,
+    SliceTraceRequest, SliceTraceResults
+} from '@terascope/types';
 import type { ExecutionStorage, StateStorage } from '../../storage/index.js';
 import type {
-    ClusterMasterContext, NodeState, ExecutionNodeWorker,
-    ControllerStats
+    ClusterMasterContext, ExecutionNodeWorker, ControllerStats
 } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';
-import { StopExecutionOptions } from './interfaces.js';
+import { SliceTraceOptions, StopExecutionOptions } from './interfaces.js';
 /**
  * New execution result
  * @typedef NewExecutionResult
@@ -111,6 +113,52 @@ export class ExecutionService {
 
     getClusterAnalytics() {
         return this.clusterMasterServer.getClusterAnalytics();
+    }
+
+    /**
+     * Stage the deadlines for a slice trace so each layer of the chain expires
+     * strictly before the one outside it.
+     *
+     * FIXME: this definitely needs more thought
+     */
+    private _sliceTraceDeadlines(): {
+        sendTimeout: number;
+        request: Omit<SliceTraceRequest, 'size'>;
+    } {
+        const {
+            api_response_timeout: apiTimeout,
+            network_latency_buffer: latencyBuffer
+        } = this.context.sysconfig.teraslice;
+
+        // reserved for serializing the payload and carrying it back over three
+        // hops once the trace itself has completed
+        const returnBudget = 15 * 1000;
+
+        const sendTimeout = apiTimeout - (latencyBuffer * 2);
+        const workerSendTimeout = sendTimeout - latencyBuffer;
+        const traceTimeout = workerSendTimeout - returnBudget;
+
+        return {
+            sendTimeout,
+            request: { sendTimeout: workerSendTimeout, traceTimeout }
+        };
+    }
+
+    async getSliceTrace(exId: string, options: SliceTraceOptions): Promise<SliceTraceResults> {
+        const { size } = options;
+        const { sendTimeout, request } = this._sliceTraceDeadlines();
+
+        function formatResponse(msg: any) {
+            if (!msg) {
+                throw new Error(`Cannot complete the slice trace for execution ${exId}, teraslice is shutting down`);
+            }
+
+            return msg.payload as SliceTraceResults;
+        }
+
+        return this.clusterMasterServer
+            .sendSliceTraceRequest(exId, { size, ...request }, sendTimeout)
+            .then(formatResponse);
     }
 
     async waitForExecutionStatus(exId: string, _status?: string) {

@@ -3,12 +3,12 @@ import {
     TSError, getFullErrorStack, debounce,
     pDelay, cloneDeep, Logger,
     pMap, orderBy, isInteger, get,
-    Queue
+    Queue, isNumber
 } from '@terascope/core-utils';
 import type { EventEmitter } from 'node:events';
-import { ExecutionConfig } from '@terascope/types';
+import { ClusterState, ExecutionConfig, NodeState } from '@terascope/types';
 import { Dispatch } from './dispatch.js';
-import type { ClusterMasterContext, NodeState } from '../../../../../../interfaces.js';
+import type { ClusterMasterContext } from '../../../../../../interfaces.js';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
 import { findWorkersByExecutionID } from '../state-utils.js';
 import { Messaging } from './messaging.js';
@@ -37,7 +37,7 @@ interface CheckNodeState {
     slicerExecutions: Record<string, string>;
     workerExecutions: Record<string, number>;
     numOfWorkers: number;
-    available: number;
+    available: number | 'N/A';
 }
 
 type Message = StateMessage;
@@ -50,7 +50,7 @@ export class NativeClustering {
     pendingWorkerRequests = new Queue<any>();
     nodeStateInterval: number;
     slicerAllocationAttempts: number;
-    clusterState: Record<string, NodeState> = {};
+    clusterState: ClusterState = {};
     clusterStateInterval!: NodeJS.Timeout | undefined;
     messaging: Messaging;
     droppedNodes: Record<string, any> = {};
@@ -241,7 +241,11 @@ export class NativeClustering {
         let slicerNode = null;
 
         for (let i = 0; i < stateArray.length; i += 1) {
-            if (stateArray[i].state === 'connected' && stateArray[i].available > 0 && !errorNodes[stateArray[i].node_id]) {
+            if (stateArray[i].state === 'connected'
+                && isNumber(stateArray[i].available)
+                && Number(stateArray[i].available) > 0
+                && !errorNodes[stateArray[i].node_id]
+            ) {
                 const node = this._checkNode(stateArray[i]);
 
                 if (!node.hasSlicer) {
@@ -294,7 +298,7 @@ export class NativeClustering {
             const key = all ? 'total' : 'available';
 
             for (const [,node] of Object.entries(this.clusterState)) {
-                if (node.state === 'connected') {
+                if (node.state === 'connected' && isNumber(node[key])) {
                     num += node[key];
                 }
             }
@@ -327,7 +331,10 @@ export class NativeClustering {
             for (let i = 0; i < sortedNodes.length; i += 1) {
                 // each iteration check if it can allocate
                 if (workersRequested > 0 && availWorkers > 0) {
-                    if (sortedNodes[i].available >= 1) {
+                    if (
+                        isNumber(sortedNodes[i].available)
+                        && Number(sortedNodes[i].available) >= 1
+                    ) {
                         dispatch.set(sortedNodes[i].node_id, 1);
                         availWorkers -= 1;
                         workersRequested -= 1;

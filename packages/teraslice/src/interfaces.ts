@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Logger } from '@terascope/core-utils';
 import { Context } from '@terascope/job-components';
-import { ExecutionAnalytics } from '@terascope/types';
+import { ExecutionAnalytics, NodeState } from '@terascope/types';
 import type { ExecutionStorage, StateStorage, JobsStorage } from './lib/storage/index.js';
 import type {
     ExecutionService, JobsService, ApiService,
@@ -57,60 +57,6 @@ export enum ProcessAssignment {
 
 export function isProcessAssignment(value: string): value is ProcessAssignment {
     return value in ProcessAssignment;
-}
-
-interface BaseWorkerNode {
-    worker_id: number;
-    pid: number;
-}
-
-export interface ClusterNode extends BaseWorkerNode {
-    assignment: ProcessAssignment.cluster_master;
-}
-
-export interface AssetNode extends BaseWorkerNode {
-    assignment: ProcessAssignment.assets_service;
-}
-
-export interface ExecutionNode extends BaseWorkerNode {
-    assignment: ProcessAssignment.execution_controller;
-    ex_id: string;
-    job_id: string;
-}
-export interface WorkerNode extends BaseWorkerNode {
-    assignment: ProcessAssignment.worker;
-    ex_id: string;
-    job_id: string;
-}
-
-export type ProcessNode = ClusterNode
-    | AssetNode
-    | ExecutionNode
-    | WorkerNode;
-
-// TODO: find out about state
-export interface NodeState {
-    node_id: string;
-    hostname: string;
-    pid: number;
-    node_version: string;
-    teraslice_version: string;
-    total: number;
-    state: string; // ??
-    available: number;
-    active: ProcessNode[];
-}
-
-export interface WorkProcessNode extends BaseWorkerNode {
-    assignment: ProcessAssignment.execution_controller | ProcessAssignment.worker;
-    ex_id: string;
-    job_id: string;
-    node_id: string;
-    hostname: string;
-}
-
-export interface ClusterState {
-    [nodeId: string]: NodeState;
 }
 
 export interface ExecutionNodeWorker extends NodeState {

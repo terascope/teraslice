@@ -113,6 +113,18 @@ export interface AnalyticsRecord {
     '@timestamp': string | Date;
 }
 
+export interface SliceTraceResults {
+    workerId?: string;
+    sliceId: string;
+    records: Record<string, any>[][];
+}
+
+export interface SliceTraceRequest {
+    size: number;
+    sendTimeout: number;
+    traceTimeout: number;
+}
+
 // TODO: make type for valid states
 // TODO: fix types here
 export interface JobConfig extends ValidatedJobConfig {
@@ -640,6 +652,14 @@ export interface NodeState {
     state: string;
     available: number | 'N/A';
     active: ProcessNode[];
+}
+
+export interface WorkProcessNode extends BaseWorkerNode {
+    assignment: ProcessAssignment.execution_controller | ProcessAssignment.worker;
+    ex_id: string;
+    job_id: string;
+    node_id: string;
+    hostname: string;
 }
 
 export interface ClusterState {

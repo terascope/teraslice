@@ -70,3 +70,11 @@ export interface ReaderModule extends OperationModule {
 export interface ProcessorModule extends OperationModule {
     Processor: ProcessorConstructor;
 }
+
+export interface PendingTrace {
+    size: number;
+    sliceId: string | null;
+    records: Record<string, any>[][];
+    done: boolean;
+    failure: string | null;
+}
