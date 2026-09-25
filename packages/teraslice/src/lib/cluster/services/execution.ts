@@ -18,6 +18,8 @@ import type {
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';
 import { SliceTraceOptions, StopExecutionOptions } from './interfaces.js';
+
+const MIN_SLICE_TRACE_TIMEOUT = 30 * 1000;
 /**
  * New execution result
  * @typedef NewExecutionResult
@@ -117,9 +119,13 @@ export class ExecutionService {
 
     /**
      * Stage the deadlines for a slice trace so each layer of the chain expires
-     * strictly before the one outside it.
+     * one network_latency_buffer before the one outside it, leaving that
+     * buffer for its response to travel back up the chain.
      *
-     * FIXME: this definitely needs more thought
+     * When api_response_timeout is too short, the trace timeout is raised to
+     * a minimum rather than failing every trace. The layers inside the cluster
+     * master stay in order, but the HTTP request may close before the trace
+     * responds.
      */
     private _sliceTraceDeadlines(): {
         sendTimeout: number;
@@ -130,17 +136,31 @@ export class ExecutionService {
             network_latency_buffer: latencyBuffer
         } = this.context.sysconfig.teraslice;
 
-        // reserved for serializing the payload and carrying it back over three
-        // hops once the trace itself has completed
-        const returnBudget = 15 * 1000;
+        // Messenger.send() waits timeout + 2 * latencyBuffer before giving up
+        // (respondBy adds one buffer, onceWithTimeout adds another), so convert
+        // each deadline into the send timeout that expires at that deadline
+        const toSendTimeout = (deadline: number) => deadline - (latencyBuffer * 2);
 
-        const sendTimeout = apiTimeout - (latencyBuffer * 2);
-        const workerSendTimeout = sendTimeout - latencyBuffer;
-        const traceTimeout = workerSendTimeout - returnBudget;
+        // the execution controller's send timeout is traceTimeout - latencyBuffer,
+        // so the minimum must stay above the buffer to keep it positive
+        const minTraceTimeout = Math.max(MIN_SLICE_TRACE_TIMEOUT, latencyBuffer + 1000);
+
+        // work outward from the trace so each layer gives up one buffer after
+        // the layer below it, even when the trace timeout is raised to the minimum
+        const traceTimeout = Math.max(apiTimeout - (latencyBuffer * 3), minTraceTimeout);
+        const executionControllerDeadline = traceTimeout + latencyBuffer;
+        const clusterMasterDeadline = executionControllerDeadline + latencyBuffer;
+
+        if (clusterMasterDeadline > apiTimeout - latencyBuffer) {
+            this.logger.warn(`api_response_timeout (${apiTimeout}ms) is too short for a ${traceTimeout}ms slice trace, the request may close before the trace responds`);
+        }
 
         return {
-            sendTimeout,
-            request: { sendTimeout: workerSendTimeout, traceTimeout }
+            sendTimeout: toSendTimeout(clusterMasterDeadline),
+            request: {
+                sendTimeout: toSendTimeout(executionControllerDeadline),
+                traceTimeout
+            }
         };
     }
 
