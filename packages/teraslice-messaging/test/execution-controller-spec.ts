@@ -2,6 +2,7 @@ import 'jest-extended';
 import { jest } from '@jest/globals';
 import { pDelay, findPort } from './helpers/index.js';
 import { formatURL, newMsgId, ExecutionController } from '../src/index.js';
+import type * as i from '../src/execution-controller/interfaces.js';
 
 describe('ExecutionController', () => {
     describe('->Client', () => {
@@ -334,6 +335,219 @@ describe('ExecutionController', () => {
                         expect(id).toBeNull();
                     });
                 });
+            });
+
+            describe('when sending execution:slice:trace', () => {
+                const traceResults = {
+                    sliceId: 'traced-slice',
+                    records: [
+                        [{ record: { id: 1 }, metadata: { _key: '1' } }],
+                        []
+                    ]
+                };
+
+                // only queued workers are traced
+                beforeAll(async () => {
+                    await client.sendAvailable();
+                    await pDelay(100);
+                });
+
+                it('should reject when the worker has no trace handler registered', async () => {
+                    await expect(server.sendSliceTraceRequest(10, 3000, 2000))
+                        .rejects.toThrow(`Worker ${workerId} has no slice trace handler registered`);
+                });
+
+                it('should pass the request to the worker and return its trace', async () => {
+                    const handler = jest.fn<i.SliceTraceHandler>(() => traceResults);
+                    client.onSliceTraceRequest(handler);
+
+                    const result = await server.sendSliceTraceRequest(10, 3000, 2000);
+
+                    expect(handler).toHaveBeenCalledWith({
+                        size: 10,
+                        traceTimeout: expect.toBeWithin(1000, 2001)
+                    });
+                    expect(result).toEqual({ workerId, ...traceResults });
+                });
+
+                it('should support an async trace handler', async () => {
+                    client.onSliceTraceRequest(async () => {
+                        await pDelay(100);
+                        return traceResults;
+                    });
+
+                    await expect(server.sendSliceTraceRequest(0, 3000, 2000))
+                        .resolves.toEqual({ workerId, ...traceResults });
+                });
+
+                it('should reject with the worker error when the trace fails', async () => {
+                    client.onSliceTraceRequest(async () => {
+                        throw new Error('slice slice-1 failed before completing');
+                    });
+
+                    await expect(server.sendSliceTraceRequest(10, 3000, 2000))
+                        .rejects.toThrow('slice slice-1 failed before completing');
+                });
+
+                it('should reject when the worker does not respond before the send timeout', async () => {
+                    let handlerDone!: Promise<void>;
+                    client.onSliceTraceRequest(async () => {
+                        handlerDone = pDelay(600);
+                        await handlerDone;
+                        return traceResults;
+                    });
+
+                    await expect(server.sendSliceTraceRequest(10, 300, 2000))
+                        .rejects.toThrow();
+
+                    // let the late response land before teardown
+                    await handlerDone;
+                    await pDelay(100);
+                });
+
+                it('should wait for the worker to be enqueued', async () => {
+                    client.onSliceTraceRequest(() => traceResults);
+
+                    await client.sendUnavailable();
+                    await pDelay(100);
+
+                    const result = server.sendSliceTraceRequest(10, 3000, 2000);
+
+                    await pDelay(300);
+                    await client.sendAvailable();
+
+                    await expect(result).resolves.toEqual({ workerId, ...traceResults });
+                });
+
+                it('should reject when no worker is enqueued before the timeout', async () => {
+                    await client.sendUnavailable();
+                    await pDelay(100);
+
+                    await expect(server.sendSliceTraceRequest(10, 3000, 1500))
+                        .rejects.toThrow(/Slice trace timeout/);
+                });
+            });
+        });
+    });
+
+    describe('Server with multiple workers tracing slices', () => {
+        let server: ExecutionController.Server;
+        let executionControllerUrl: string;
+        const clients: ExecutionController.Client[] = [];
+
+        async function addWorker(workerId: string) {
+            const client = new ExecutionController.Client({
+                workerId,
+                executionControllerUrl,
+                networkLatencyBuffer: 0,
+                workerDisconnectTimeout: 1000,
+                actionTimeout: 1000,
+                connectTimeout: 1000,
+                socketOptions: {
+                    reconnection: false,
+                },
+            });
+
+            client.onSliceTraceRequest(async () => {
+                await pDelay(300);
+                return { sliceId: `${workerId}-slice`, records: [] };
+            });
+
+            await client.start();
+            clients.push(client);
+            return client;
+        }
+
+        beforeAll(async () => {
+            const slicerPort = await findPort();
+            executionControllerUrl = formatURL('localhost', slicerPort);
+            server = new ExecutionController.Server({
+                port: slicerPort,
+                networkLatencyBuffer: 0,
+                actionTimeout: 1000,
+                workerDisconnectTimeout: 3000,
+            });
+
+            await server.start();
+        });
+
+        afterAll(async () => {
+            await server.shutdown();
+            await Promise.all(clients.map((client) => client.shutdown()));
+        });
+
+        it('should reject when no workers connect before the timeout', async () => {
+            await expect(server.sendSliceTraceRequest(10, 3000, 1500))
+                .rejects.toThrow(/Slice trace timeout/);
+        });
+
+        describe('when one worker is enqueued', () => {
+            let first: ExecutionController.Client;
+
+            beforeAll(async () => {
+                first = await addWorker('worker-1');
+                await first.sendAvailable();
+                await pDelay(100);
+            });
+
+            it('should not send a second trace to a worker that is already tracing', async () => {
+                const handler = jest.fn<i.SliceTraceHandler>(async () => {
+                    await pDelay(1500);
+                    return { sliceId: 'worker-1-slice', records: [] };
+                });
+                first.onSliceTraceRequest(handler);
+
+                const trace = server.sendSliceTraceRequest(10, 3000, 2000);
+                await pDelay(100);
+
+                await expect(server.sendSliceTraceRequest(10, 3000, 1200))
+                    .rejects.toThrow(/Slice trace timeout/);
+
+                await expect(trace).resolves.toMatchObject({ workerId: 'worker-1' });
+                expect(handler).toHaveBeenCalledTimes(1);
+            });
+        });
+
+        describe('when two workers are enqueued', () => {
+            beforeAll(async () => {
+                // worker-1 is still at the head of the queue, restore its default handler
+                clients[0].onSliceTraceRequest(async () => {
+                    await pDelay(300);
+                    return { sliceId: 'worker-1-slice', records: [] };
+                });
+
+                const second = await addWorker('worker-2');
+                await second.sendAvailable();
+                await pDelay(100);
+            });
+
+            it('should trace the worker at the head of the queue', async () => {
+                await expect(server.sendSliceTraceRequest(10, 3000, 2000))
+                    .resolves.toMatchObject({ workerId: 'worker-1', sliceId: 'worker-1-slice' });
+            });
+
+            it('should send concurrent traces to different workers', async () => {
+                const results = await Promise.all([
+                    server.sendSliceTraceRequest(10, 3000, 2000),
+                    server.sendSliceTraceRequest(10, 3000, 2000),
+                ]);
+
+                expect(results.map((r) => r.workerId)).toEqual(['worker-1', 'worker-2']);
+            });
+
+            it('should wait for a worker to finish tracing when all are busy', async () => {
+                const start = Date.now();
+                const results = await Promise.all([
+                    server.sendSliceTraceRequest(10, 3000, 2000),
+                    server.sendSliceTraceRequest(10, 3000, 2000),
+                    server.sendSliceTraceRequest(10, 3000, 2000),
+                ]);
+
+                expect(results.map((r) => r.workerId)).toIncludeSameMembers([
+                    'worker-1', 'worker-2', expect.stringMatching(/^worker-[12]$/)
+                ]);
+                // the third trace can only start after one of the first two finishes
+                expect(Date.now() - start).toBeGreaterThanOrEqual(600);
             });
         });
     });
