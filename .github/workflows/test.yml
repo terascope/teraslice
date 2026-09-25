@@ -236,6 +236,19 @@ jobs:
       - name: Install and build packages
         run: pnpm install && pnpm run setup
 
+      # data-mate's DuckFrame loads these at open. The runner could download them
+      # during the tests, but a CDN hiccup would then fail an unrelated suite, so
+      # fetch them in their own step and cache them. The directory is keyed by
+      # DuckDB version inside, so a stale cache entry is never loaded.
+      - name: Restore DuckDB extension cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.duckdb/extensions
+          key: duckdb-extensions-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('packages/data-mate/package.json') }}
+
+      - name: Install DuckDB extensions
+        run: node packages/data-mate/bin/duckdb-extensions.js install
+
       - name: Test
         env:
           REPORT_COVERAGE: true

@@ -12,6 +12,8 @@ export * from './DuckFrame.js';
 export * from './duck-values.js';
 export * from './errors.js';
 export * from './export-json.js';
+export * from './extension-tools.js';
+export * from './extensions.js';
 export * from './interfaces.js';
 export * from './scalar-function.js';
 export * from './schema-check.js';

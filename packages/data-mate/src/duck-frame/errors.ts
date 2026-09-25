@@ -1,4 +1,4 @@
-import { AppendFailure, CoercionFailure } from './interfaces.js';
+import { AppendFailure, CoercionFailure, ExtensionFailure } from './interfaces.js';
 
 /**
  * What the DuckDB frame throws.
@@ -40,5 +40,30 @@ export class AppendError extends Error {
             { cause }
         );
         this.name = 'AppendError';
+    }
+}
+
+/**
+ * Required DuckDB extensions that could not be loaded when the database opened.
+ *
+ * Raised at startup on purpose: without it the same failure arrives later, from whichever
+ * query first needs the extension, as a DuckDB autoload error that says nothing about images.
+*/
+export class DuckExtensionError extends Error {
+    constructor(readonly failure: ExtensionFailure) {
+        const names = failure.missing.map(({ name }) => name).join(', ');
+        const details = failure.missing
+            .map(({ name, reason, error }) => `  ${name} (${reason}): ${error}`)
+            .join('\n');
+        const fix = failure.autoinstall
+            ? 'the download failed, so this machine cannot reach the extension repository'
+            : 'autoinstall is off, so they must be installed when the image is built:'
+                + ` \`duckdb-extensions install --dir ${failure.directory}\``;
+
+        super(
+            `DuckDB extension(s) ${names} could not be loaded (duckdb ${failure.version},`
+            + ` ${failure.platform}, directory ${failure.directory}) - ${fix}\n${details}`
+        );
+        this.name = 'DuckExtensionError';
     }
 }

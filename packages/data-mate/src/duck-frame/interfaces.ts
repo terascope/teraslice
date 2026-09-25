@@ -39,6 +39,17 @@ export interface DuckDatabaseSettings {
     /** e.g. `'48GB'`. **Set this BELOW the container's cap** - see `applySettings`. */
     memoryLimit?: string;
     threads?: number;
+    /**
+     * Where DuckDB looks for extensions. Defaults to `DUCKDB_EXTENSION_DIRECTORY`, then
+     * DuckDB's own `~/.duckdb/extensions`. **Fixed once the database opens** - see
+     * `extensions.ts` for why the environment is the normal way to set it.
+    */
+    extensionDirectory?: string;
+    /**
+     * Whether a missing extension may be downloaded. Defaults to
+     * `DUCKDB_AUTOINSTALL_EXTENSIONS`, then true. An image sets it false.
+    */
+    autoinstallExtensions?: boolean;
 }
 
 export interface DuckDatabaseOptions extends DuckDatabaseSettings {
@@ -172,4 +183,20 @@ export interface JoinOptions {
     otherAs?: string;
     /** Group the joined rows, so join-then-aggregate is a single statement. */
     groupBy?: readonly string[];
+}
+
+/** A required extension that could not be loaded, and DuckDB's reason. */
+export interface MissingExtension {
+    name: string;
+    reason: string;
+    error: string;
+}
+
+/** What `DuckExtensionError` reports: every missing extension, and where it looked. */
+export interface ExtensionFailure {
+    missing: readonly MissingExtension[];
+    version: string;
+    platform: string;
+    directory: string;
+    autoinstall: boolean;
 }

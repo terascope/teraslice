@@ -1,6 +1,6 @@
 import { DuckContext } from './DuckContext.js';
 import { ScalarFunctionSpec } from './scalar-function.js';
-import { DuckDatabaseOptions } from './interfaces.js';
+import { DuckDatabaseOptions, DuckDatabaseSettings } from './interfaces.js';
 
 const contexts = new Map<string, Promise<DuckContext>>();
 
@@ -11,12 +11,29 @@ const contexts = new Map<string, Promise<DuckContext>>();
  * is also how a test gets an isolated catalogue.
 */
 export function getContext(database = ':memory:'): Promise<DuckContext> {
-    let context = contexts.get(database);
-    if (!context) {
-        context = DuckContext.create(database);
-        contexts.set(database, context);
-    }
-    return context;
+    return contexts.get(database) ?? openContext(database);
+}
+
+/**
+ * Opens and caches a context, and FORGETS it if opening fails.
+ *
+ * Without the eviction a failed open is cached forever: MEASURED, one bad `memoryLimit` made
+ * every later frame, every `configureDuckDatabase` and `closeDuckDatabase` rethrow that same
+ * error for the life of the process. A missing extension fails the same way, and must be
+ * retryable once the directory is fixed.
+*/
+function openContext(
+    database: string,
+    settings: DuckDatabaseSettings = {}
+): Promise<DuckContext> {
+    const created = DuckContext.create(database, settings);
+    contexts.set(database, created);
+
+    // A handled branch only: every caller awaiting `created` still receives the rejection.
+    created.catch(() => {
+        if (contexts.get(database) === created) contexts.delete(database);
+    });
+    return created;
 }
 
 /**
@@ -37,9 +54,7 @@ export async function configureDuckDatabase(
         return;
     }
 
-    const created = DuckContext.create(database ?? ':memory:', settings);
-    contexts.set(database ?? ':memory:', created);
-    await created;
+    await openContext(database ?? ':memory:', settings);
 }
 
 /**
@@ -70,5 +85,14 @@ export async function closeDuckDatabase(database = ':memory:'): Promise<void> {
     const context = contexts.get(database);
     if (!context) return;
     contexts.delete(database);
-    (await context).disconnect();
+
+    let opened: DuckContext;
+    try {
+        opened = await context;
+    } catch {
+        // The open failed: its error went to whoever opened it, and `create` already closed
+        // the instance, so there is nothing left to close.
+        return;
+    }
+    opened.disconnect();
 }
