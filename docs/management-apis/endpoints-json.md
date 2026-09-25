@@ -688,7 +688,7 @@ The response contains:
 
 - `400` - `size` is not `"all"` or a non-negative integer
 - `404` - the job has no executions
-- `500` - the trace could not be completed. For example: the execution is not running, the traced slice failed, or the worker shut down before the slice completed. It is also returned when no worker becomes available or no slice completes before the timeout, which is derived from [`api_response_timeout`](../configuration/overview.md) and is about 4 minutes with the default settings.
+- `500` - the trace could not be completed. For example: the execution is not running, the traced slice failed, or the worker shut down before the slice completed. It is also returned when no worker becomes available or no slice completes before the timeout, which is derived from [`api_response_timeout`](../configuration/overview.md) and [`network_latency_buffer`](../configuration/overview.md). It is 4 minutes 15 seconds with the default settings and never less than 30 seconds.
 
 **Warning:**
 
