@@ -4,8 +4,8 @@ import {
     getFullErrorStack, debounce, isEmpty, has
 } from '@terascope/core-utils';
 import {
-    AssetsServiceEnv, ClusterMasterEnv, Terafoundation,
-    TSExecutionControllerEnv, TSWorkerEnv
+    AssetsServiceEnv, ClusterMasterEnv, NodeState, Terafoundation,
+    TSExecutionControllerEnv, TSWorkerEnv, WorkerNode
 } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { Messaging } from './services/cluster/backends/native/messaging.js';
@@ -13,7 +13,7 @@ import { spawnAssetLoader } from '../workers/assets/spawn.js';
 import { safeEncode } from '../utils/encoding_utils.js';
 import { findPort, getPorts } from '../utils/port_utils.js';
 import { getPackageJSON } from '../utils/file_utils.js';
-import { ClusterMasterContext, NodeState, WorkerNode } from '../../interfaces.js';
+import { ClusterMasterContext } from '../../interfaces.js';
 
 const nodeVersion = process.version;
 const terasliceVersion = getPackageJSON().version;

@@ -6,7 +6,7 @@ import { RecoveryCleanupType, TerasliceConfig } from '@terascope/job-components'
 import {
     parseErrorInfo, parseList, logError,
     TSError, startsWith, Logger, pWhile,
-    isKey
+    isKey, isNumber
 } from '@terascope/core-utils';
 import { ExecutionStatusEnum } from '@terascope/types';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
@@ -19,6 +19,7 @@ import {
     addFilterToQuery
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
+import { SliceTraceOptions } from './interfaces.js';
 
 const terasliceVersion = getPackageJSON().version;
 
@@ -172,6 +173,22 @@ export class ApiService {
 
     private async _controllerStats(exId?: string) {
         return this.executionService.getControllerStats(exId);
+    }
+
+    async validateSliceTraceOptions(
+        exId: string, sizeStr: any
+    ): Promise<SliceTraceOptions> {
+        const size = sizeStr === 'all' ? 0 : Number(sizeStr);
+
+        if (!isNumber(size) || size < 0) {
+            const error = new TSError(`Argument "size" must be "all", 0, or a positive number, received ${size}`);
+            error.statusCode = 400;
+            throw error;
+        }
+
+        return {
+            size
+        };
     }
 
     async shutdown() {
@@ -426,6 +443,19 @@ export class ApiService {
             });
         });
 
+        v1routes.get('/jobs/:jobId/trace', (req, res) => {
+            const { size = 10 } = req.query;
+
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get slice trace');
+            requestHandler(async () => {
+                const exId = await this._getExIdFromRequest(req);
+                const options = await this.validateSliceTraceOptions(
+                    exId, size
+                );
+                return this.executionService.getSliceTrace(exId, options);
+            });
+        });
+
         v1routes.get([
             '/jobs/:jobId/slicer',
             '/jobs/:jobId/controller',
@@ -495,6 +525,7 @@ export class ApiService {
                 return { ...stats, slicer: stats.controllers };
             });
         });
+
         v1routes.get(['/cluster/slicers', '/cluster/controllers'], (req, res) => {
             const requestHandler = handleTerasliceRequest(req, res, 'Could not get execution statistics');
             requestHandler(() => this._controllerStats());

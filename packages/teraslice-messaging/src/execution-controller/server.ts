@@ -1,5 +1,7 @@
 import { isNumber, get, Queue } from '@terascope/core-utils';
-import { SliceCompletePayload, EnqueuedWorker, Slice } from '@terascope/types';
+import {
+    EnqueuedWorker, Slice, SliceCompletePayload, SliceTraceResults
+} from '@terascope/types';
 import type { Socket } from 'socket.io';
 import * as core from '../messenger/index.js';
 import * as i from './interfaces.js';
@@ -110,6 +112,35 @@ export class Server extends core.Server {
         return dispatched;
     }
 
+    async sendSliceTraceRequest(
+        size: number,
+        sendTimeout: number,
+        traceTimeout: number
+    ): Promise<SliceTraceResults> {
+        const targetId = this._selectWorker();
+
+        this.logger.debug('slice trace request sent to worker: ', targetId);
+
+        const message = await this.send(
+            targetId,
+            'execution:slice:trace',
+            { size, traceTimeout },
+            { response: true, timeout: sendTimeout }
+        );
+
+        if (!message) {
+            throw new Error(`Cannot complete the slice trace for worker ${targetId}, the execution controller is finished or shutting down`);
+        }
+
+        const { sliceId, records } = message.payload;
+
+        return {
+            workerId: targetId,
+            sliceId,
+            records
+        };
+    }
+
     onSliceSuccess(fn: (workerId: string, payload: SliceCompletePayload) => void): void {
         this.on('slice:success', (msg) => {
             fn(msg.scope, msg.payload);
@@ -162,6 +193,25 @@ export class Server extends core.Server {
                 slice_id: sliceId,
             };
         });
+    }
+
+    /**
+     * Select a random worker from availableClients, or
+     * onlineClients if none are currently available.
+     */
+    private _selectWorker(): string {
+        // FixMe: It may be faster to wait for the next available client
+        // instead of choosing a random online client.
+        // If 2 API calls come in should we be tracking the size
+        // and if equal returning the result to both?
+        // We should at least track which workers are doing a trace and exclude them from the list.
+        const pool = this.availableClients.length ? this.availableClients : this.onlineClients;
+
+        if (!pool.length) {
+            throw new Error('No workers are connected to this execution');
+        }
+
+        return pool[Math.floor(Math.random() * pool.length)].clientId;
     }
 
     private _workerEnqueue(workerId: string): boolean {

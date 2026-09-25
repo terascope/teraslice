@@ -127,6 +127,11 @@ export class Worker {
             this.shouldShutdown = true;
         });
 
+        this.client.onSliceTraceRequest(async ({ size, traceTimeout }) => {
+            this.logger.debug(`slice trace requested, size ${size}, timeout ${traceTimeout}ms`);
+            return this.slice.executionContext.traceObserver.getTrace(size, traceTimeout);
+        });
+
         await this.client.start();
 
         // initialize the execution context next
@@ -281,7 +286,7 @@ export class Worker {
         }
 
         const start = Date.now();
-        // We modify the shutdown timeout so an error occurs 1 second before shutdownWithTimeout()
+        // We modify the shutdown timeout so an error occurs 3 seconds before shutdownWithTimeout()
         // in ../helpers/worker-shutdown.ts, which calls process.exit()
         const shutdownSignalDelayEst = 3000;
         const end = start + this.shutdownTimeout - shutdownSignalDelayEst;
