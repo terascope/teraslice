@@ -4,7 +4,9 @@ import {
     isString, get, toInteger, Logger,
     TSError
 } from '@terascope/core-utils';
-import { ConnectorInfo, GroupedConnectors, Teraslice } from '@terascope/types';
+import {
+    ConnectorInfo, GroupedConnectors, ConnectorQueryOptions, Teraslice
+} from '@terascope/types';
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
 
 export function makeTable(
@@ -162,12 +164,6 @@ export function addDeletedToQuery(deleted: string, query: string) {
  */
 export function addFilterToQuery(query: string, filter: string): string {
     return filter ? `(${query}) AND (${filter})` : query;
-}
-
-interface ConnectorQueryOptions {
-    type?: string;
-    name?: string;
-    groupBy?: string;
 }
 
 /**

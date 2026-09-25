@@ -661,6 +661,12 @@ export interface ConnectorInfo {
 
 export type GroupedConnectors = Record<string, string[]>;
 
+export interface ConnectorQueryOptions {
+    type?: string;
+    name?: string;
+    groupBy?: string;
+}
+
 export interface ConnectorListResponse {
     connectors: ConnectorInfo[] | GroupedConnectors;
 }

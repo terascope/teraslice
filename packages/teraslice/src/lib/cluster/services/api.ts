@@ -8,7 +8,7 @@ import {
     TSError, startsWith, Logger, pWhile,
     isKey
 } from '@terascope/core-utils';
-import { ExecutionStatusEnum } from '@terascope/types';
+import { ExecutionStatusEnum, ConnectorListResponse } from '@terascope/types';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
@@ -249,7 +249,7 @@ export class ApiService {
         v1routes.get('/cluster/connectors', (req, res) => {
             const { type, name, groupBy } = req.query;
             const requestHandler = handleTerasliceRequest(req, res);
-            requestHandler(() => ({
+            requestHandler((): ConnectorListResponse => ({
                 connectors: buildConnectorList(this.context.sysconfig, {
                     type: type as string,
                     name: name as string,

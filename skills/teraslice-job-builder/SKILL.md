@@ -64,7 +64,7 @@ over guessing.
    - **Which connectors/connections the cluster has configured** — reader and
      sender ops reference a `connection` (e.g. `"connection": "default"`) that
      must exist in the cluster's `terafoundation.yaml`. If the cluster is
-     reachable, list them with `curl '<cluster>:5678/v1/cluster/connectors'`
+     reachable, list them with `curl '<cluster>:<port>/v1/cluster/connectors'`
      (`?type=<type>` to filter, `?groupBy=type` for the grouped view) instead of
      guessing. If unknown, note it; a reader/sender pointed at a missing
      connection will fail at registration. **Note any connection tagged
