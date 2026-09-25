@@ -100,9 +100,7 @@ export class Client extends core.Client {
         return this.send('worker:slice:complete', withoutNil(payload), {
             response: true,
             volatile: false,
-            // let the worker shut down instead of waiting out the deadline for
-            // analytics the execution controller will never send back
-            signal: this.serverShutdownSignal
+            sendAbortSignal: true
         });
     }
 
