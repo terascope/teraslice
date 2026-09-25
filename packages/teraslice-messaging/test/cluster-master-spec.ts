@@ -190,5 +190,42 @@ describe('ClusterMaster', () => {
 
             expect(onExecutionResume).toHaveBeenCalled();
         });
+
+        describe('when sending execution:slice:trace', () => {
+            const request = { size: 10, sendTimeout: 800, traceTimeout: 500 };
+            const traceResults = {
+                workerId: 'some-worker',
+                sliceId: 'traced-slice',
+                records: [[{ record: { id: 1 }, metadata: { _key: '1' } }]]
+            };
+
+            // each onExecutionSliceTrace call adds a socket listener,
+            // so register once and swap the implementation per test
+            const handler = jest.fn<(msg: any) => any>();
+
+            beforeAll(() => {
+                client.onExecutionSliceTrace(handler);
+            });
+
+            it('should pass the request to the execution and return its trace', async () => {
+                handler.mockImplementation(() => traceResults);
+
+                const msg = await server.sendSliceTraceRequest(exId, request, 1000);
+
+                expect(handler).toHaveBeenCalledWith(
+                    expect.objectContaining({ payload: request })
+                );
+                expect(msg).toHaveProperty('payload', traceResults);
+            });
+
+            it('should reject with the execution error when the trace fails', async () => {
+                handler.mockImplementation(async () => {
+                    throw new Error('Slice trace timeout after 1s; no worker became available');
+                });
+
+                await expect(server.sendSliceTraceRequest(exId, request, 1000))
+                    .rejects.toThrow('Slice trace timeout after 1s; no worker became available');
+            });
+        });
     });
 });

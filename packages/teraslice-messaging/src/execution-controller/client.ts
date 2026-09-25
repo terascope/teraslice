@@ -7,6 +7,7 @@ const ONE_MIN = 60 * 1000;
 
 export class Client extends core.Client {
     public workerId: string;
+    private _sliceTraceHandler?: i.SliceTraceHandler;
 
     constructor(opts: i.ClientOptions) {
         const {
@@ -75,10 +76,24 @@ export class Client extends core.Client {
                 payload: msg.payload,
             });
         });
+
+        this.handleResponse(this.socket, 'execution:slice:trace', (msg: core.Message) => {
+            const { size, traceTimeout } = msg.payload as i.SliceTraceRequestMessage;
+
+            if (this._sliceTraceHandler == null) {
+                throw new Error(`Worker ${this.workerId} has no slice trace handler registered`);
+            }
+
+            return this._sliceTraceHandler({ size, traceTimeout });
+        });
     }
 
     onExecutionFinished(fn: () => void) {
         this.on('execution:finished', fn);
+    }
+
+    onSliceTraceRequest(fn: i.SliceTraceHandler): void {
+        this._sliceTraceHandler = fn;
     }
 
     sendSliceComplete(payload: SliceCompletePayload) {

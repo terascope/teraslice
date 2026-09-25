@@ -7,15 +7,19 @@ import {
 } from '@terascope/core-utils';
 import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
-import { ExecutionConfig, JobConfig } from '@terascope/types';
+import {
+    ExecutionConfig, JobConfig, NodeState,
+    SliceTraceRequest, SliceTraceResults
+} from '@terascope/types';
 import type { ExecutionStorage, StateStorage } from '../../storage/index.js';
 import type {
-    ClusterMasterContext, NodeState, ExecutionNodeWorker,
-    ControllerStats
+    ClusterMasterContext, ExecutionNodeWorker, ControllerStats
 } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';
-import { StopExecutionOptions } from './interfaces.js';
+import { SliceTraceOptions, StopExecutionOptions } from './interfaces.js';
+
+const MIN_SLICE_TRACE_TIMEOUT = 30 * 1000;
 /**
  * New execution result
  * @typedef NewExecutionResult
@@ -111,6 +115,70 @@ export class ExecutionService {
 
     getClusterAnalytics() {
         return this.clusterMasterServer.getClusterAnalytics();
+    }
+
+    /**
+     * Stage the deadlines for a slice trace so each layer of the chain expires
+     * one network_latency_buffer before the one outside it, leaving that
+     * buffer for its response to travel back up the chain.
+     *
+     * When api_response_timeout is too short, the trace timeout is raised to
+     * a minimum rather than failing every trace. The layers inside the cluster
+     * master stay in order, but the HTTP request may close before the trace
+     * responds.
+     */
+    private _sliceTraceDeadlines(): {
+        sendTimeout: number;
+        request: Omit<SliceTraceRequest, 'size'>;
+    } {
+        const {
+            api_response_timeout: apiTimeout,
+            network_latency_buffer: latencyBuffer
+        } = this.context.sysconfig.teraslice;
+
+        // Messenger.send() waits timeout + 2 * latencyBuffer before giving up
+        // (respondBy adds one buffer, onceWithTimeout adds another), so convert
+        // each deadline into the send timeout that expires at that deadline
+        const toSendTimeout = (deadline: number) => deadline - (latencyBuffer * 2);
+
+        // the execution controller's send timeout is traceTimeout - latencyBuffer,
+        // so the minimum must stay above the buffer to keep it positive
+        const minTraceTimeout = Math.max(MIN_SLICE_TRACE_TIMEOUT, latencyBuffer + 1000);
+
+        // work outward from the trace so each layer gives up one buffer after
+        // the layer below it, even when the trace timeout is raised to the minimum
+        const traceTimeout = Math.max(apiTimeout - (latencyBuffer * 3), minTraceTimeout);
+        const executionControllerDeadline = traceTimeout + latencyBuffer;
+        const clusterMasterDeadline = executionControllerDeadline + latencyBuffer;
+
+        if (clusterMasterDeadline > apiTimeout - latencyBuffer) {
+            this.logger.warn(`api_response_timeout (${apiTimeout}ms) is too short for a ${traceTimeout}ms slice trace, the request may close before the trace responds`);
+        }
+
+        return {
+            sendTimeout: toSendTimeout(clusterMasterDeadline),
+            request: {
+                sendTimeout: toSendTimeout(executionControllerDeadline),
+                traceTimeout
+            }
+        };
+    }
+
+    async getSliceTrace(exId: string, options: SliceTraceOptions): Promise<SliceTraceResults> {
+        const { size } = options;
+        const { sendTimeout, request } = this._sliceTraceDeadlines();
+
+        function formatResponse(msg: any) {
+            if (!msg) {
+                throw new Error(`Cannot complete the slice trace for execution ${exId}, teraslice is shutting down`);
+            }
+
+            return msg.payload as SliceTraceResults;
+        }
+
+        return this.clusterMasterServer
+            .sendSliceTraceRequest(exId, { size, ...request }, sendTimeout)
+            .then(formatResponse);
     }
 
     async waitForExecutionStatus(exId: string, _status?: string) {

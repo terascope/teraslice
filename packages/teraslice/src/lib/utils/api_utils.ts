@@ -2,9 +2,10 @@ import Table from 'easy-table';
 import {
     parseErrorInfo, parseList, logError,
     isString, get, toInteger, Logger,
-    TSError
+    TSError, isNumber
 } from '@terascope/core-utils';
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
+import type { SliceTraceOptions } from '../cluster/services/interfaces.js';
 
 export function makeTable(
     req: TerasliceRequest,
@@ -125,6 +126,26 @@ export function getSearchOptions(req: TerasliceRequest, defaultSort = '_updated:
     const from = parseQueryInt(req, 'from', 0);
     const filter = req.query.filter || '';
     return { size, from, sort, filter };
+}
+
+/**
+ * Validate the slice trace query options.
+ * `size` defaults to 10, and "all" or 0 means every record.
+ */
+export function getSliceTraceOptions(query: TerasliceRequest['query']): SliceTraceOptions {
+    const { size: input = 10 } = query as { size?: unknown };
+
+    const isValidInput = isNumber(input)
+        || (typeof input === 'string' && input.trim() !== '');
+    const size = input === 'all' ? 0 : Number(input);
+
+    if (!isValidInput || !Number.isInteger(size) || size < 0) {
+        throw new TSError(`Argument "size" must be "all", 0, or a positive integer, received ${JSON.stringify(input)}`, {
+            statusCode: 400
+        });
+    }
+
+    return { size };
 }
 
 export function logTerasliceRequest(req: TerasliceRequest) {

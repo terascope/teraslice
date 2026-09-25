@@ -1,13 +1,22 @@
-import { isNumber, get, Queue } from '@terascope/core-utils';
-import { SliceCompletePayload, EnqueuedWorker, Slice } from '@terascope/types';
+import {
+    isNumber, get, pWhile, Queue
+} from '@terascope/core-utils';
+import {
+    EnqueuedWorker, Slice, SliceCompletePayload, SliceTraceResults
+} from '@terascope/types';
 import type { Socket } from 'socket.io';
 import * as core from '../messenger/index.js';
 import * as i from './interfaces.js';
 
 const { Available, Unavailable } = core.ClientState;
 
+// the least time worth giving a worker to trace a slice
+// after waiting for it to become available
+const MIN_TRACE_TIMEOUT = 1000;
+
 export class Server extends core.Server {
     private _activeWorkers: i.ActiveWorkers;
+    private _tracingWorkers = new Set<string>();
     queue: Queue<EnqueuedWorker>;
     executionReady: boolean;
 
@@ -110,6 +119,72 @@ export class Server extends core.Server {
         return dispatched;
     }
 
+    /**
+     * Send a slice trace request to the next worker in line for a slice,
+     * waiting for one to be enqueued if necessary.
+     */
+    async sendSliceTraceRequest(
+        size: number,
+        sendTimeout: number,
+        traceTimeout: number
+    ): Promise<SliceTraceResults> {
+        const start = Date.now();
+        let targetId: string | undefined;
+
+        try {
+            targetId = this._selectWorker();
+
+            if (targetId == null) {
+                this.logger.debug('no worker is available for the slice trace, waiting for one to be enqueued');
+
+                await pWhile(async () => {
+                    if (this.closed || this.isShuttingDown) {
+                        throw new Error('Cannot complete the slice trace, the execution controller is finished or shutting down');
+                    }
+
+                    targetId = this._selectWorker();
+                    return targetId != null;
+                }, {
+                    timeoutMs: traceTimeout,
+                    name: 'Slice trace',
+                    enabledJitter: true,
+                    minJitter: 100,
+                    error: 'no worker became available'
+                });
+            }
+
+            const elapsed = Date.now() - start;
+            const remainingTraceTimeout = traceTimeout - elapsed;
+
+            if (remainingTraceTimeout < MIN_TRACE_TIMEOUT) {
+                throw new Error(`Slice trace timeout after waiting ${elapsed}ms for a worker to become available`);
+            }
+
+            this.logger.debug(`slice trace request sent to worker: ${targetId}`);
+
+            const message = await this.send(
+                targetId!,
+                'execution:slice:trace',
+                { size, traceTimeout: remainingTraceTimeout },
+                { response: true, timeout: sendTimeout - elapsed }
+            );
+
+            if (!message) {
+                throw new Error(`Cannot complete the slice trace for worker ${targetId}, the execution controller is finished or shutting down`);
+            }
+
+            const { sliceId, records } = message.payload;
+
+            return {
+                workerId: targetId!,
+                sliceId,
+                records
+            };
+        } finally {
+            if (targetId != null) this._tracingWorkers.delete(targetId);
+        }
+    }
+
     onSliceSuccess(fn: (workerId: string, payload: SliceCompletePayload) => void): void {
         this.on('slice:success', (msg) => {
             fn(msg.scope, msg.payload);
@@ -162,6 +237,24 @@ export class Server extends core.Server {
                 slice_id: sliceId,
             };
         });
+    }
+
+    /**
+     * Select the queued worker closest to the head (the next to receive
+     * a slice) that is not already tracing, and mark it as tracing.
+     */
+    private _selectWorker(): string | undefined {
+        let selected: string | undefined;
+
+        this.queue.each(({ workerId }) => {
+            if (selected == null && !this._tracingWorkers.has(workerId)) {
+                selected = workerId;
+            }
+        });
+
+        if (selected != null) this._tracingWorkers.add(selected);
+
+        return selected;
     }
 
     private _workerEnqueue(workerId: string): boolean {

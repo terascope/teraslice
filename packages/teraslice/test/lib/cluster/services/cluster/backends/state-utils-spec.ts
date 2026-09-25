@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as stateUtils from '../../../../../../src/lib/cluster/services/cluster/backends/state-utils.js';
-import type { ClusterState } from '../../../../../../src/interfaces.js';
+import type { ClusterState } from '@terascope/types';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
