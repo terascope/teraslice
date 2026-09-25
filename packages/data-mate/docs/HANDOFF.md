@@ -100,8 +100,11 @@ array; Arrow IPC is out (2.1x at 100k rising to 8.1x at 1M, 3.9x the disk), CSV/
 
 **Still not built:** `deepSelect`/`_skip_if_empty`, stacked `expand_values` (`UNION ALL`), the
 date/timezone offset column (unblocked — `icu` is loaded and the idiom is verified), and the
-remaining 17 functions. **`spatial` must be packaged** before the 13 geo emissions run anywhere but
-a dev box — they have **no UDF fallback** (DF7), so those queries fail outright without it.
+remaining 17 functions. **Extensions are now loaded at open and baked into the teraslice image
+(2026-09-25)** — `DuckContext.create` LOADs httpfs/aws/inet/spatial and throws `DuckExtensionError`
+naming every missing one; `bin/duckdb-extensions.js install|verify` runs at image build, and the
+Dockerfile verifies offline as uid 10001 (130 MB on linux_arm64_musl). **Spaces is NOT done:** it
+installs the same way in ITS app Dockerfile, pending a devops allowlist of `extensions.duckdb.org`.
 
 **Traps that cause silent wrong answers:** `ST_Distance_Sphere` takes (lat, lon); a CHECKPOINT during
 concurrent appends does nothing; a macro can shadow a built-in; TIMESTAMPTZ renders in the driver's
@@ -1122,8 +1125,13 @@ autoload, though `icu` and `inet` do.
    a worker holding thousands of files for hours is where it could degrade.
 5. **The remaining 17 functions** — 4 walls, 1 mechanical, 2 low-value, 5 on DF7, 5 on the timezone
    offset design.
-6. **Package `inet` and `spatial` into the worker image**, and add extension loading at bootstrap to
-   `DuckFrame` (today `LOAD spatial` happens only in `sql-emission-spec.ts`'s `beforeAll`).
+6. ~~**Package `inet` and `spatial` into the worker image**~~ DONE for teraslice (2026-09-25). Left:
+   **Spaces**, decided 2026-09-25: install in the Spaces APP Dockerfile after `pnpm install` (so the
+   DuckDB version always comes from the lockfile and nobody bumps it by hand), `verify` in its runtime
+   stage. Blocked on a devops ticket to let the `verify_docker` build reach `extensions.duckdb.org`
+   (fallback: a mirror, via `install --repository`). NOT the base image — that couples the extension
+   version to a separately built image. DuckDB's own nested `v1.5.5/<platform>/` layout under the one
+   directory is left as is: nobody touches it, so flattening it bought nothing.
 7. **Measure the residue before writing any native code.** Instrument real queries for which of the 205
    they use and the cardinality of the columns they touch; if the residue is hot the answer is a Rust
    or C++ DuckDB extension in the existing Node process — **not** a rewrite in Go

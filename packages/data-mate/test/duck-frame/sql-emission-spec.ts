@@ -1362,28 +1362,6 @@ async function run(
 }
 
 describe('sql emissions on the function configs', () => {
-    /**
-     * `LOAD spatial` is TEST SETUP, not the production path.
-     *
-     * The geo emissions need `ST_*`, and unlike `inet` the `spatial` extension does NOT autoload -
-     * a bare `ST_Point` is `Catalog Error: Scalar Function with name "st_point" is not in the
-     * catalog`. `DuckFrame` has no extension bootstrap yet, and building one is a separate
-     * packaging decision (57 MB, pinned to the DuckDB version AND platform) recorded in
-     * `docs/HANDOFF.md`. Loading it here lets the SQL be verified now without pre-empting that.
-    */
-    beforeAll(async () => {
-        const frame = await DuckFrame.fromRecords(
-            { version: 1, fields: { a: { type: FieldType.Byte } } },
-            [{ a: 1 }],
-            { name: 'emit_load_spatial' }
-        );
-        try {
-            await frame.rawRows('LOAD spatial');
-        } finally {
-            await frame.destroy();
-        }
-    }, 60_000);
-
     afterAll(async () => {
         await closeDuckDatabase();
     });

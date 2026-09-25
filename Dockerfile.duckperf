@@ -92,20 +92,18 @@ RUN node -e "import('./packages/data-mate/dist/src/duck-frame/DuckFrame.js').the
       if (typeof m.DuckFrame !== 'function') { throw new Error('dist has no DuckFrame export'); } \
       console.log('dist ok: DuckFrame present'); })"
 
-# --- bake the DuckDB extensions -------------------------------------------
+# --- install the DuckDB extensions -----------------------------------------
 #
-# Uses the repo's OWN @duckdb/node-api, so the extension version can never
-# drift from the binding version. Extensions are keyed by DuckDB version AND
-# platform, so this must happen inside a container of the target platform.
+# data-mate's own tool, the same step the teraslice image runs; see
+# packages/data-mate/src/duck-frame/extension-tools.ts. It must run inside a
+# container of the target platform, since extensions are keyed by DuckDB
+# version AND platform.
 #
-# Only httpfs/aws/inet/spatial are installed. icu, json and parquet are
-# STATICALLY LINKED into the binary — installing them would download a copy
-# that SHADOWS the built-in one, costing ~72 MB for nothing.
-# Installed to DuckDB's DEFAULT directory ($HOME/.duckdb/extensions/...), so
-# every DuckDB instance in the container finds them with no configuration —
-# including the one DuckFrame creates internally, which never sees this
-# harness's settings.
-RUN node packages/data-mate/docs/s3-perf/image/bake-extensions.mjs
+# Installed to DuckDB's DEFAULT directory, not /app/duckdb-extensions like the
+# teraslice image: the harness's own `open()` (lib/duck.mjs) creates a second
+# DuckDB instance that passes no extension_directory, so only the default path
+# reaches both it and DuckFrame.
+RUN node packages/data-mate/bin/duckdb-extensions.js install --dir /root/.duckdb/extensions
 
 # -----------------------------------------------------------------------------
 # 2) runtime
@@ -118,6 +116,8 @@ ARG GITHUB_SHA
 
 ENV NODE_ENV=production \
     NPM_CONFIG_LOGLEVEL=error \
+    DUCKDB_EXTENSION_DIRECTORY=/root/.duckdb/extensions \
+    DUCKDB_AUTOINSTALL_EXTENSIONS=false \
     S3_PERF_HOME=/app/source/packages/data-mate/docs/s3-perf \
     S3_PERF_ENV_FILE=/app/config/s3.env \
     S3_PERF_RESULTS=/app/results
@@ -139,9 +139,9 @@ RUN mkdir -p /app/config /app/results && \
     cp /app/source/packages/data-mate/docs/s3-perf/s3.env.example /app/config/s3.env
 
 # --- verify the image is genuinely self-contained ---------------------------
-# This runs with autoinstall/autoload forced OFF, so a network fallback cannot
-# hide a missing extension file. If this line passes, the image works offline.
-RUN node /app/source/packages/data-mate/docs/s3-perf/image/verify-offline.mjs
+# Autoinstall is OFF (the ENV above), so a network fallback cannot hide a
+# missing extension file. If this line passes, the image works offline.
+RUN node /app/source/packages/data-mate/bin/duckdb-extensions.js verify
 
 # --- verify the harness itself loads ---------------------------------------
 # A stale identifier passed both `node --check` and eslint, then died at runtime

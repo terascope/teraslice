@@ -1,10 +1,12 @@
 import {
     DuckDBInstance, DuckDBConnection, DuckDBScalarFunction
 } from '@duckdb/node-api';
+import { resolve } from 'node:path';
 import { quoteLiteral } from '@terascope/sql-builder';
 import { createScalarFunction, ScalarFunctionSpec } from './scalar-function.js';
 import { toPlainValue } from './plain-values.js';
 import { DuckDatabaseSettings } from './interfaces.js';
+import { extensionSettingsFromEnv, ExtensionSettings, loadExtensions } from './extensions.js';
 
 /** DuckDB's hard per-chunk row limit. Appending more in one chunk throws. */
 export const MAX_CHUNK_ROWS = 2048;
@@ -33,7 +35,9 @@ export class DuckContext {
         readonly instance: DuckDBInstance,
         readonly connection: DuckDBConnection,
         /** The database path, so a frame can report where it lives. */
-        readonly path: string
+        readonly path: string,
+        /** Fixed for the instance's life - DuckDB resolves extensions from it at LOAD. */
+        readonly extensionDirectory: string | undefined
     ) {}
 
     /**
@@ -56,14 +60,35 @@ export class DuckContext {
         return this.functions.has(name);
     }
 
+    /**
+     * Opens the database and LOADs the required extensions, so a missing one fails HERE, at
+     * startup, instead of at the first query that needs it (see `extensions.ts`).
+     *
+     * Explicit settings win over the environment. On any failure the instance is closed -
+     * nothing else holds it, so it would otherwise leak.
+    */
     static async create(
         path = ':memory:',
         settings: DuckDatabaseSettings = {}
     ): Promise<DuckContext> {
-        const instance = await DuckDBInstance.create(path);
-        const context = new DuckContext(instance, await instance.connect(), path);
-        await context.applySettings(settings);
-        return context;
+        const extensions = resolveExtensionSettings(settings);
+        const instance = await DuckDBInstance.create(path, instanceOptions(extensions));
+
+        let connection: DuckDBConnection | undefined;
+        try {
+            connection = await instance.connect();
+            const context = new DuckContext(
+                instance, connection, path, extensions.extensionDirectory
+            );
+            await context.applySettings(settings);
+            await loadExtensions(connection, extensions.autoinstallExtensions ?? true);
+            return context;
+        } catch (err) {
+            // Both, as in `disconnect()`: a live connection keeps a closed instance usable
+            connection?.disconnectSync();
+            instance.closeSync();
+            throw err;
+        }
     }
 
     /**
@@ -78,6 +103,22 @@ export class DuckContext {
      * exactly what produced the bogus "OOMs and does not spill" finding in docs/HANDOFF.md.
     */
     async applySettings(settings: DuckDatabaseSettings): Promise<void> {
+        // Refused rather than applied: extensions already loaded from the old directory stay
+        // loaded, so the new value would be reported and never used.
+        // Compared resolved: DuckDB keeps the string verbatim, so `/ext/` and `/ext` would
+        // otherwise be refused as different directories.
+        if (settings.extensionDirectory != null
+            && !sameDirectory(settings.extensionDirectory, this.extensionDirectory)) {
+            throw new Error(
+                `extensionDirectory is fixed once the database opens - "${this.path}" opened`
+                + ` with ${this.extensionDirectory ?? 'the default'}, so`
+                + ` "${settings.extensionDirectory}" cannot take effect. Set`
+                + ` DUCKDB_EXTENSION_DIRECTORY, or configure before the first frame.`
+            );
+        }
+        if (settings.autoinstallExtensions != null) {
+            await this.run(`SET autoinstall_known_extensions = ${settings.autoinstallExtensions}`);
+        }
         if (settings.tempDirectory != null) {
             await this.run(`SET temp_directory = ${quoteLiteral(settings.tempDirectory)}`);
         }
@@ -192,4 +233,28 @@ export class DuckContext {
         this.connection.disconnectSync();
         this.instance.closeSync();
     }
+}
+
+function resolveExtensionSettings(settings: DuckDatabaseSettings): ExtensionSettings {
+    const env = extensionSettingsFromEnv();
+    return {
+        extensionDirectory: settings.extensionDirectory ?? env.extensionDirectory,
+        autoinstallExtensions: settings.autoinstallExtensions ?? env.autoinstallExtensions,
+    };
+}
+
+/** Set at open, not by a later `SET`, so nothing can load from the wrong place first. */
+function instanceOptions(extensions: ExtensionSettings): Record<string, string> {
+    return {
+        ...(extensions.extensionDirectory != null && {
+            extension_directory: extensions.extensionDirectory,
+        }),
+        ...(extensions.autoinstallExtensions != null && {
+            autoinstall_known_extensions: String(extensions.autoinstallExtensions),
+        }),
+    };
+}
+
+function sameDirectory(a: string, b: string | undefined): boolean {
+    return b != null && resolve(a) === resolve(b);
 }

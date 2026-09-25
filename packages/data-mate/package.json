@@ -18,8 +18,12 @@
         "lib": "dist/src",
         "test": "test"
     },
+    "bin": {
+        "duckdb-extensions": "./bin/duckdb-extensions.js"
+    },
     "files": [
-        "dist/src/**/*"
+        "dist/src/**/*",
+        "bin/*"
     ],
     "scripts": {
         "benchmark": "pnpm build && node bench/index.js",

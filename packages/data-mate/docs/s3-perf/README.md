@@ -272,8 +272,8 @@ s3-perf/
              credentials, cache profiles, HTTP stats), queries.mjs (the battery),
              data-type.mjs (schema -> field config), report.mjs (timing, output)
   scripts/   00-doctor.mjs … 07-sql.mjs — one per step
-  image/     build-time only: bake-extensions, build-data-mate, verify-offline,
-             verify-harness
+  image/     build-time only: build-data-mate, verify-harness. Extensions are
+             installed and verified by data-mate's bin/duckdb-extensions.js
   fixtures/  the corpora — see fixtures/README.md. schema.mjs (the 30-column
              corpus as one SQL SELECT), generate-fixture.mjs, upload-fixture.mjs,
              inspect-fixture.mjs, extract-noaa.mjs (the real 691M NOAA corpus)

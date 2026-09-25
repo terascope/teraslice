@@ -45,6 +45,13 @@ RUN pnpm --version && node --version && npm --version && \
 # verify teraslice is installed right
 RUN node -e "import('teraslice')"
 
+# DuckDB downloads its extensions at RUNTIME, on the first query that needs one,
+# which fails on an air-gapped box. Fetch them now, the way the kafka client
+# fetches its native binary during `pnpm install`: inside this container, so
+# DuckDB picks this platform (linux_amd64_musl / linux_arm64_musl), and with
+# data-mate's own @duckdb/node-api, so the version matches the binding.
+RUN node packages/data-mate/bin/duckdb-extensions.js install --dir /app/duckdb-extensions
+
 
 ########################
 # 2) Runtime
@@ -57,7 +64,9 @@ ARG GITHUB_SHA
 
 ENV NODE_ENV=production \
     NODE_OPTIONS="--max-old-space-size=2048" \
-    NPM_CONFIG_LOGLEVEL=error
+    NPM_CONFIG_LOGLEVEL=error \
+    DUCKDB_EXTENSION_DIRECTORY=/app/duckdb-extensions \
+    DUCKDB_AUTOINSTALL_EXTENSIONS=false
 
 # Minimal for runtime: tini for PID1, certs for HTTPS; and bash for exec
 RUN apk --no-cache add tini ca-certificates bash curl
@@ -77,6 +86,7 @@ RUN addgroup -S -g 10001 apps && adduser -S -u 10001 -G apps teraslice && \
 # Bring over the built app + production deps. Left root-owned (the default) so
 # the running teraslice user has read/execute but cannot modify the code.
 COPY --from=builder /app/source /app/source
+COPY --from=builder /app/duckdb-extensions /app/duckdb-extensions
 
 COPY service.js /app/source/
 
@@ -85,6 +95,10 @@ USER 10001
 
 # Check if it still works
 RUN node -e "import('teraslice')"
+
+# Prove DuckDB's extensions load and work with NO network, as the unprivileged
+# user, from the files that ship. Fails the build if any is missing.
+RUN node packages/data-mate/bin/duckdb-extensions.js verify
 
 # verify what version of librdkafka is installed
 # pnpm stores packages in node_modules/.pnpm, so we find the actual path
