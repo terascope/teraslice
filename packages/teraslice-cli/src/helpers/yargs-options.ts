@@ -243,7 +243,11 @@ export default class Options {
             describe: 'List deleted records',
             default: false,
             type: 'boolean'
-        })
+        }),
+        'trace-size': () => ({
+            describe: 'number of records to return for each operation of a slice trace, or "all"',
+            type: 'string'
+        }),
     };
 
     private positionals: Record<string, (...args: any[]) => PositionalOptions> = {

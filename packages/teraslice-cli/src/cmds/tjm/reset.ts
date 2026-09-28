@@ -7,7 +7,7 @@ const yargsOptions = new YargsOptions();
 
 export default {
     command: 'reset <job-file...>',
-    describe: 'Removes cli metadata so job can be registerd on another cluster',
+    describe: 'Removes cli metadata so job can be registered on another cluster',
     builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));

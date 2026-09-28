@@ -198,7 +198,7 @@ export default class Job extends Client {
     }
 
     async trace(
-        query: { size?: number | 'all' } = {},
+        query: { size?: string | 'all' } = {},
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.SliceTraceResults> {
         return this.get(`/jobs/${this._jobId}/trace`, this.makeOptions(query, searchOptions));

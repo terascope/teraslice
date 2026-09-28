@@ -246,6 +246,20 @@ Stops a job.
 teraslice-cli tjm stop JOB.JSON
 ```
 
+### tjm trace
+
+Captures the records produced by each operation of the next slice processed by a running job and prints them as JSON. Only one job file can be traced at a time. See [GET /v1/jobs/\{jobId\}/trace](../../management-apis/endpoints-json.md#get-v1jobsjobidtrace) for details on the response.
+
+- `--size` The maximum number of records to return for each operation
+  - defaults to 10
+  - use `0` or `all` to return every record. This can produce a very large response for jobs with large slices.
+
+```sh
+teraslice-cli tjm trace JOB.JSON
+teraslice-cli tjm trace JOB.JSON --size 1
+teraslice-cli tjm trace JOB.JSON --size all
+```
+
 ### tjm await
 
 Waits for job to reach specified status
@@ -398,6 +412,20 @@ teraslice-cli jobs view <cluster> <job_id>
 teraslice-cli jobs view local 99999999-9999-9999-9999-999999999999
 ```
 
+### jobs trace
+
+Captures the records produced by each operation of the next slice processed by a running job and prints them as JSON. See [GET /v1/jobs/\{jobId\}/trace](../../management-apis/endpoints-json.md#get-v1jobsjobidtrace) for details on the response.
+
+- `--size` The maximum number of records to return for each operation, default is `10`. Use `0` or `all` to return every record. This can produce a very large response for jobs with large slices.
+
+```sh
+teraslice-cli jobs trace <cluster> <job_id>
+# trace a job
+teraslice-cli jobs trace local 99999999-9999-9999-9999-999999999999
+# return at most 1 record per operation
+teraslice-cli jobs trace local 99999999-9999-9999-9999-999999999999 --size 1
+```
+
 ### jobs export
 
 Export job on a cluster to a json file. By default the file is saved to the current working directory as \<job.name\>.json
@@ -454,6 +482,18 @@ List errors for a given execution id.
 ```sh
 teraslice-cli ex errors <cluster> <ex_id>
 teraslice-cli ex errors local 99999999-9999-9999-9999-999999999999
+```
+
+### ex trace
+
+Captures the records produced by each operation of the next slice processed by a running execution and prints them as JSON. See [GET /v1/ex/\{exId\}/trace](../../management-apis/endpoints-json.md#get-v1exexidtrace) for details on the response.
+
+- `--size` The maximum number of records to return for each operation, default is `10`. Use `0` or `all` to return every record. This can produce a very large response for jobs with large slices.
+
+```sh
+teraslice-cli ex trace <cluster> <ex_id>
+teraslice-cli ex trace local 99999999-9999-9999-9999-999999999999
+teraslice-cli ex trace local 99999999-9999-9999-9999-999999999999 --size 1
 ```
 
 ### ex status

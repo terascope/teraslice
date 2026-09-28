@@ -1170,4 +1170,119 @@ describe('Job helper class', () => {
             process.chdir(originalDirectory);
         });
     });
+
+    describe('trace', () => {
+        const action = 'trace';
+        const traceResponse = {
+            workerId: 'worker-1',
+            sliceId: 'slice-1',
+            records: [[{ record: { foo: 'bar' }, metadata: {} }], []]
+        };
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+            nock.cleanAll();
+        });
+
+        async function initJob(jobId: string, status: string, args = {}) {
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: status })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, testJobConfig(jobId));
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': [jobId],
+                    jobId: [jobId],
+                    ...args
+                }
+            );
+
+            const job = new Jobs(config);
+            await job.initialize();
+            return job;
+        }
+
+        it('should send the size option as a query param', async () => {
+            const info = jest.spyOn(reply, 'info').mockImplementation(() => {});
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running', { size: '5' });
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/trace`)
+                .query({ size: '5' })
+                .reply(200, traceResponse);
+
+            await job.trace();
+
+            expect(scope.isDone()).toBeTrue();
+            expect(info).toHaveBeenCalledWith(JSON.stringify(traceResponse));
+        });
+
+        it('should send size=all', async () => {
+            jest.spyOn(reply, 'info').mockImplementation(() => {});
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running', { size: 'all' });
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/trace`)
+                .query({ size: 'all' })
+                .reply(200, traceResponse);
+
+            await job.trace();
+
+            expect(scope.isDone()).toBeTrue();
+        });
+
+        it('should not send a size query param if size is not specified', async () => {
+            jest.spyOn(reply, 'info').mockImplementation(() => {});
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running');
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/trace`)
+                .query((query) => !('size' in query))
+                .reply(200, traceResponse);
+
+            await job.trace();
+
+            expect(scope.isDone()).toBeTrue();
+        });
+
+        it('should not request a trace if the job is in a terminal status', async () => {
+            const yellow = jest.spyOn(reply, 'yellow').mockImplementation(() => {});
+            jest.spyOn(reply, 'green').mockImplementation(() => {});
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'stopped');
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/trace`)
+                .query(true)
+                .reply(200, traceResponse);
+
+            await job.trace();
+
+            expect(scope.isDone()).toBeFalse();
+            expect(yellow).toHaveBeenCalledWith(expect.stringContaining('Cannot trace slice. Job in terminal status stopped'));
+        });
+
+        it('should throw if the trace request fails', async () => {
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running');
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/trace`)
+                .query(true)
+                .reply(500, { error: 500, message: 'Worker shut down before slice completed' });
+
+            await expect(job.trace()).rejects.toThrow('Worker shut down before slice completed');
+        });
+    });
 });

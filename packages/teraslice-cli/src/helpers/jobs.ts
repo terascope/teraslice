@@ -877,6 +877,25 @@ export default class Jobs {
         return uniquePath;
     }
 
+    async trace() {
+        // Response can be very large, limit to one job at a time
+        const job = this.jobs[0];
+        const { status } = this.getJobIdentifiers(job);
+
+        if (this.terminalStatuses.includes(status)) {
+            this.logUpdate({ action: 'trace_terminal', job });
+            return;
+        }
+
+        try {
+            const response = await job.api.trace({ size: this.config.args.size });
+
+            reply.info(JSON.stringify(response));
+        } catch (e) {
+            this.commandFailed(e.message, job);
+        }
+    }
+
     /**
      * @param args action and final property, final indicates if it is part of a series of commands
      * @param job job metadata
@@ -1005,6 +1024,10 @@ export default class Jobs {
             resumed: {
                 message: `${display.setAction('resume', 'past')}, ${name}, ${id}`,
                 final: false
+            },
+            trace_terminal: {
+                message: `Cannot trace slice. Job in terminal status ${status}`,
+                final: true
             }
         };
 

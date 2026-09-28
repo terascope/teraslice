@@ -56,7 +56,8 @@ export type Messages = {
 export type UpdateActions = 'running' | 'stopping' | 'status' | 'adjust_workers_terminal'
     | 'recover_not_failed' | 'check_for_errors' | 'quick_completed' | 'resuming'
     | 'starting' | 'start_watching' | 'pausing' | 'paused' | 'stopped'
-    | 'view' | 'cannot_pause' | 'cannot_stop' | 'deleted' | 'started' | 'restarted' | 'restarting' | 'resumed';
+    | 'view' | 'cannot_pause' | 'cannot_stop' | 'deleted' | 'started' | 'restarted'
+    | 'restarting' | 'resumed' | 'trace_terminal';
 
 export type Action = 'start' | 'stop' | 'pause' | 'restart' | 'resume';
 
