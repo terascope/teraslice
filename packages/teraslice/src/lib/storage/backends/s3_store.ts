@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import { pipeline } from 'node:stream/promises';
 import {
     Logger, TSError, isTest,
     logError, pDelay, pWhile, random
@@ -131,6 +133,60 @@ export class S3Store {
                 });
             }
             throw new TSError(`Retrieval of recordId ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket failed: `, err);
+        }
+    }
+
+    /**
+     * Stream a record from S3 straight to a file on disk instead of buffering
+     * the whole object in memory. Used when loading large assets so the ex
+     * controller doesn't OOM under its memory limit.
+     */
+    async getToFile(recordId: string, destPath: string): Promise<void> {
+        const command = {
+            Bucket: this.bucket,
+            Key: `${recordId}.zip`
+        };
+        try {
+            this.logger.debug(`streaming record with id: ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket to ${destPath}.`);
+            const response = await s3RequestWithRetry({
+                client: this.api,
+                func: getS3Object,
+                params: command
+            });
+            const s3Stream = response.Body as NodeJS.ReadableStream;
+            await pipeline(s3Stream, fs.createWriteStream(destPath));
+        } catch (err) {
+            if (err instanceof S3ClientResponse.NoSuchKey) {
+                throw new TSError(`recordId ${recordId} does not exist in s3 ${this.connection} connection, ${this.bucket} bucket.`, {
+                    statusCode: 404
+                });
+            }
+            throw new TSError(`Retrieval of recordId ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket failed: `, err);
+        }
+    }
+
+    /**
+     * Check that a record exists without downloading it. Requests a single byte
+     * so the whole object is never buffered into memory.
+     */
+    async exists(recordId: string): Promise<boolean> {
+        const command = {
+            Bucket: this.bucket,
+            Key: `${recordId}.zip`,
+            Range: 'bytes=0-0'
+        };
+        try {
+            await s3RequestWithRetry({
+                client: this.api,
+                func: getS3Object,
+                params: command
+            });
+            return true;
+        } catch (err) {
+            if (err instanceof S3ClientResponse.NoSuchKey) {
+                return false;
+            }
+            throw new TSError(`Checking existence of recordId ${recordId} in s3 ${this.connection} connection, ${this.bucket} bucket failed: `, err);
         }
     }
 
