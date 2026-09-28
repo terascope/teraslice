@@ -4,7 +4,7 @@ import { get, isEmpty, Logger } from '@terascope/core-utils';
 import type { Context } from '@terascope/job-components';
 import { AssetsStorage } from '../../storage/index.js';
 import { makeLogger } from '../helpers/terafoundation.js';
-import { saveAsset } from '../../utils/file_utils.js';
+import { saveAsset, saveAssetFromFile } from '../../utils/file_utils.js';
 import { getBackendConfig } from '../../storage/assets.js';
 
 export class AssetLoader {
@@ -52,24 +52,38 @@ export class AssetLoader {
                 // need to return the id to the assets array sent back
                 if (downloaded) return assetIdentifier;
 
-                const assetRecord = await this.assetsStorage.get(assetIdentifier);
                 this.logger.info(`loading assets: ${assetIdentifier}`);
-                let buff: Buffer;
 
                 const { context, logger } = this;
                 const connectionType = getBackendConfig(context, logger).assetConnectionType;
 
                 if (connectionType === 's3') {
-                    buff = assetRecord.blob as Buffer;
-                } else {
-                    if (!assetRecord.blob) {
-                        throw new Error(`No asset blob found in opensearch index for asset identifier: ${assetIdentifier}.\n`
-                            + `Confirm that "teraslice.ASSET_STORAGE_CONNECTION_TYPE" should be ${connectionType}.\n`
-                            + 'Then try deleting and redeploying the asset.'
+                    // Stream the asset from S3 to a temp file and extract from
+                    // disk so we never buffer the whole asset in memory (which
+                    // OOMs the ex controller under its memory limit).
+                    const tmpZipPath = path.join(this.assetsDirectory, `${assetIdentifier}.download.tmp.zip`);
+                    try {
+                        await this.assetsStorage.getToFile(assetIdentifier, tmpZipPath);
+                        const saveResult = await saveAssetFromFile(
+                            this.logger,
+                            this.assetsDirectory,
+                            assetIdentifier,
+                            tmpZipPath
                         );
+                        return saveResult.id;
+                    } finally {
+                        await fs.promises.rm(tmpZipPath, { force: true });
                     }
-                    buff = Buffer.from(assetRecord.blob as string, 'base64');
                 }
+
+                const assetRecord = await this.assetsStorage.get(assetIdentifier);
+                if (!assetRecord.blob) {
+                    throw new Error(`No asset blob found in opensearch index for asset identifier: ${assetIdentifier}.\n`
+                        + `Confirm that "teraslice.ASSET_STORAGE_CONNECTION_TYPE" should be ${connectionType}.\n`
+                        + 'Then try deleting and redeploying the asset.'
+                    );
+                }
+                const buff = Buffer.from(assetRecord.blob as string, 'base64');
 
                 const saveResult = await saveAsset(
                     this.logger,
