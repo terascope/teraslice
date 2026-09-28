@@ -10,6 +10,7 @@ import ex from './cmds/ex/index.js';
 import nodes from './cmds/nodes/index.js';
 import workers from './cmds/workers/index.js';
 import controllers from './cmds/controllers/index.js';
+import connectors from './cmds/connectors/index.js';
 import tjm from './cmds/tjm/index.js';
 
 /// Grab package.json version for yargs
@@ -32,6 +33,7 @@ yargsInstance.command(aliases)
     .command(nodes)
     .command(workers)
     .command(controllers)
+    .command(connectors)
     .command(tjm)
     .demandCommand(1, 'A command is required. Pass --help to see all available commands and options.')
     .recommendCommands()
