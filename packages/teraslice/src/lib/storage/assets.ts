@@ -125,8 +125,8 @@ export class AssetsStorage {
         try {
             const inES = await this.esBackend.get(id, undefined, ['id', 'name']);
             if (this.s3Backend) {
-                const inS3 = await this.s3Backend.get(id);
-                return inES != null && inS3 != null;
+                const inS3 = await this.s3Backend.exists(id);
+                return inES != null && inS3;
             }
             return inES != null;
         } catch (err) {
@@ -312,6 +312,18 @@ export class AssetsStorage {
             record = this.esBackend.get(id);
         }
         return record;
+    }
+
+    /**
+     * Stream an asset's blob from the S3 backend straight to a file on disk,
+     * avoiding buffering the whole asset in memory. Only valid when an S3
+     * backend is configured.
+     */
+    async getToFile(id: string, destPath: string): Promise<void> {
+        if (!this.s3Backend) {
+            throw new TSError('getToFile is only supported when an S3 asset backend is configured');
+        }
+        await this.s3Backend.getToFile(id, destPath);
     }
 
     private async _getAssetId(assetIdentifier: string) {
