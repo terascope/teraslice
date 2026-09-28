@@ -514,3 +514,21 @@ Shows stats for controllers in a cluster
 teraslice-cli controllers stats <cluster>
 teraslice-cli controllers stats local
 ```
+
+## Connectors
+
+### connectors list
+
+List the connectors configured on a cluster. The connection used for Teraslice
+state is tagged with `is_state_cluster` and the connection used for asset storage
+is tagged with `is_asset_store`. Results can be filtered by connector `type` or
+connection `name`.
+
+```bash
+teraslice-cli connectors list <cluster>
+teraslice-cli connectors list local
+# only list kafka connectors
+teraslice-cli connectors list local --type kafka
+# only list connectors with the connection name "default"
+teraslice-cli connectors list local --name default
+```

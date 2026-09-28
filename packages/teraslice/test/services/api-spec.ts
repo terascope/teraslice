@@ -25,6 +25,15 @@ describe('HTTP API', () => {
         jobsService: {},
     };
 
+    context.sysconfig.terafoundation.connectors = {
+        'elasticsearch-next': { os2: {}, os3: {} },
+        kafka: { 'kafka-dev': {} },
+        s3: { minio: {}, ceph: {} },
+    };
+    context.sysconfig.teraslice.state = { connection: 'os2' };
+    context.sysconfig.teraslice.asset_storage_connection = 'ceph';
+    context.sysconfig.teraslice.asset_storage_connection_type = 's3';
+
     let api: ApiService;
     let port: number;
     let baseUrl: string;
@@ -79,6 +88,93 @@ describe('HTTP API', () => {
                     node_version: process.version,
                     platform: context.platform,
                     teraslice_version: `v${version}`
+                });
+            } catch (err) {
+                expect(err.stack).toBeNil();
+            }
+        });
+    });
+
+    describe('GET /cluster/connectors', () => {
+        it('should return a flat array of connectors tagged with state cluster and asset store', async () => {
+            let response: Record<string, any>;
+
+            try {
+                response = await got(`${baseUrl}/cluster/connectors`, {
+                    responseType: 'json',
+                    throwHttpErrors: true
+                });
+
+                expect(response.body).toEqual({
+                    connectors: [
+                        { type: 'elasticsearch-next', name: 'os2', is_state_cluster: true },
+                        { type: 'elasticsearch-next', name: 'os3', is_state_cluster: false },
+                        { type: 'kafka', name: 'kafka-dev' },
+                        { type: 's3', name: 'minio', is_asset_store: false },
+                        { type: 's3', name: 'ceph', is_asset_store: true },
+                    ]
+                });
+            } catch (err) {
+                expect(err.stack).toBeNil();
+            }
+        });
+
+        it('should filter by type', async () => {
+            let response: Record<string, any>;
+
+            try {
+                response = await got(`${baseUrl}/cluster/connectors`, {
+                    searchParams: { type: 'kafka' },
+                    responseType: 'json',
+                    throwHttpErrors: true
+                });
+
+                expect(response.body).toEqual({
+                    connectors: [
+                        { type: 'kafka', name: 'kafka-dev' },
+                    ]
+                });
+            } catch (err) {
+                expect(err.stack).toBeNil();
+            }
+        });
+
+        it('should filter by name', async () => {
+            let response: Record<string, any>;
+
+            try {
+                response = await got(`${baseUrl}/cluster/connectors`, {
+                    searchParams: { name: 'os2' },
+                    responseType: 'json',
+                    throwHttpErrors: true
+                });
+
+                expect(response.body).toEqual({
+                    connectors: [
+                        { type: 'elasticsearch-next', name: 'os2', is_state_cluster: true },
+                    ]
+                });
+            } catch (err) {
+                expect(err.stack).toBeNil();
+            }
+        });
+
+        it('should return the grouped-by-type view when groupBy=type', async () => {
+            let response: Record<string, any>;
+
+            try {
+                response = await got(`${baseUrl}/cluster/connectors`, {
+                    searchParams: { groupBy: 'type' },
+                    responseType: 'json',
+                    throwHttpErrors: true
+                });
+
+                expect(response.body).toEqual({
+                    connectors: {
+                        'elasticsearch-next': ['os2', 'os3'],
+                        kafka: ['kafka-dev'],
+                        s3: ['minio', 'ceph'],
+                    }
                 });
             } catch (err) {
                 expect(err.stack).toBeNil();

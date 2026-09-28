@@ -651,3 +651,22 @@ export type ChangeWorkerQueryParams = 'add' | 'remove' | 'total';
 export interface ChangeWorkerResponse {
     message: string;
 }
+
+export interface ConnectorInfo {
+    type: string;
+    name: string;
+    is_state_cluster?: boolean;
+    is_asset_store?: boolean;
+}
+
+export type GroupedConnectors = Record<string, string[]>;
+
+export interface ConnectorQueryOptions {
+    type?: string;
+    name?: string;
+    groupBy?: string;
+}
+
+export interface ConnectorListResponse {
+    connectors: ConnectorInfo[] | GroupedConnectors;
+}

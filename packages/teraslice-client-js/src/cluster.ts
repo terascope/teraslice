@@ -3,6 +3,7 @@ import { Teraslice } from '@terascope/types';
 import util from 'node:util';
 import autoBind from 'auto-bind';
 import Client from './client.js';
+import { RequestOptions } from './interfaces.js';
 
 function _deprecateSlicerName(fn: () => Promise<Teraslice.ExecutionList>) {
     const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';
@@ -34,6 +35,14 @@ export default class Cluster extends Client {
 
     async controllers(): Promise<Teraslice.ExecutionList> {
         return this.get('/cluster/controllers');
+    }
+
+    async connectors(
+        query: Teraslice.ConnectorQueryOptions = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<Teraslice.ConnectorListResponse> {
+        const options = { ...searchOptions, searchParams: query as Record<string, any> };
+        return this.get('/cluster/connectors', options);
     }
 
     async txt(type: string): Promise<string> {

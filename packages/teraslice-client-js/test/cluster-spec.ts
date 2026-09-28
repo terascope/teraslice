@@ -58,6 +58,74 @@ describe('Teraslice Cluster', () => {
         });
     });
 
+    describe('->connectors', () => {
+        describe('when called with nothing', () => {
+            beforeEach(() => {
+                scope.get('/cluster/connectors')
+                    .reply(200, {
+                        connectors: [
+                            { type: 'elasticsearch-next', name: 'default', is_state_cluster: true },
+                            { type: 'kafka', name: 'default' }
+                        ]
+                    });
+            });
+
+            it('should resolve the json results from Teraslice', async () => {
+                const results = await cluster.connectors();
+                expect(results).toEqual({
+                    connectors: [
+                        { type: 'elasticsearch-next', name: 'default', is_state_cluster: true },
+                        { type: 'kafka', name: 'default' }
+                    ]
+                });
+            });
+        });
+
+        describe('when called with a type filter', () => {
+            beforeEach(() => {
+                scope.get('/cluster/connectors')
+                    .query({ type: 'kafka' })
+                    .reply(200, {
+                        connectors: [
+                            { type: 'kafka', name: 'default' }
+                        ]
+                    });
+            });
+
+            it('should pass the type as a query param', async () => {
+                const results = await cluster.connectors({ type: 'kafka' });
+                expect(results).toEqual({
+                    connectors: [
+                        { type: 'kafka', name: 'default' }
+                    ]
+                });
+            });
+        });
+
+        describe('when called with groupBy=type', () => {
+            beforeEach(() => {
+                scope.get('/cluster/connectors')
+                    .query({ groupBy: 'type' })
+                    .reply(200, {
+                        connectors: {
+                            'elasticsearch-next': ['default'],
+                            kafka: ['default']
+                        }
+                    });
+            });
+
+            it('should pass groupBy as a query param', async () => {
+                const results = await cluster.connectors({ groupBy: 'type' });
+                expect(results).toEqual({
+                    connectors: {
+                        'elasticsearch-next': ['default'],
+                        kafka: ['default']
+                    }
+                });
+            });
+        });
+    });
+
     describe('->txt', () => {
         beforeEach(() => {
             scope = nock('http://teraslice.example.dev/');

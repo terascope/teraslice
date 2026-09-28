@@ -3,6 +3,7 @@ import { cloneDeep, pDelay } from '@terascope/core-utils';
 import { JobConfig } from '@terascope/types';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { config } from '../../config.js';
+import { baseConfig } from '../../setup-config.js';
 import { Ex, Job } from 'teraslice-client-js';
 
 const { TEST_PLATFORM } = config;
@@ -131,6 +132,33 @@ describe('cluster api', () => {
         expect(response[0]).toHaveProperty('name');
         expect(response[0]).toHaveProperty('id');
         expect(response[0]).toHaveProperty('version');
+    });
+
+    it('api end point /cluster/connectors should return the configured connectors', async () => {
+        // derive the expected type:name pairs from the same config the cluster is deployed with
+        const expectedPairs = Object.entries(baseConfig.terafoundation.connectors)
+            .flatMap(([type, connections]) => Object.keys(connections).map((name) => `${type}:${name}`));
+
+        const response = await terasliceHarness.teraslice.cluster.get('/cluster/connectors');
+
+        expect(response).toHaveProperty('connectors');
+        expect(response.connectors).toBeArray();
+        response.connectors.forEach((connector: any) => {
+            expect(connector).toHaveProperty('type');
+            expect(connector).toHaveProperty('name');
+        });
+
+        const pairs = response.connectors.map((c: any) => `${c.type}:${c.name}`);
+        expect(pairs.sort()).toEqual(expectedPairs.sort());
+    });
+
+    it('api end point /cluster/connectors?groupBy=type should return connectors grouped by type', async () => {
+        const response = await terasliceHarness.teraslice.cluster.get('/cluster/connectors?groupBy=type');
+
+        expect(response).toHaveProperty('connectors');
+        Object.entries(baseConfig.terafoundation.connectors).forEach(([type, connections]) => {
+            expect(response.connectors[type].sort()).toEqual(Object.keys(connections).sort());
+        });
     });
 
     it('api end point /txt/assets should return a text table', async () => {
