@@ -1,5 +1,5 @@
 import {
-    isNumber, get, pWhile, Queue
+    isNumber, get, Queue
 } from '@terascope/core-utils';
 import {
     EnqueuedWorker, Slice, SliceCompletePayload, SliceTraceResults
@@ -136,21 +136,7 @@ export class Server extends core.Server {
 
             if (targetId == null) {
                 this.logger.debug('no worker is available for the slice trace, waiting for one to be enqueued');
-
-                await pWhile(async () => {
-                    if (this.closed || this.isShuttingDown) {
-                        throw new Error('Cannot complete the slice trace, the execution controller is finished or shutting down');
-                    }
-
-                    targetId = this._selectWorker();
-                    return targetId != null;
-                }, {
-                    timeoutMs: traceTimeout,
-                    name: 'Slice trace',
-                    enabledJitter: true,
-                    minJitter: 100,
-                    error: 'no worker became available'
-                });
+                targetId = await this._waitForWorker(traceTimeout);
             }
 
             const elapsed = Date.now() - start;
@@ -181,7 +167,7 @@ export class Server extends core.Server {
                 records
             };
         } finally {
-            if (targetId != null) this._tracingWorkers.delete(targetId);
+            if (targetId != null) this._releaseTracingWorker(targetId);
         }
     }
 
@@ -257,6 +243,56 @@ export class Server extends core.Server {
         return selected;
     }
 
+    /**
+     * Wait for a worker to be enqueued and claim it for tracing. The claim
+     * happens synchronously in the enqueue event so the trace request is
+     * sent before the worker can be dequeued and dispatched a slice.
+     */
+    private _waitForWorker(timeoutMs: number): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const removeListeners = () => {
+                this.removeListener('worker:enqueue', onEnqueue);
+                this.removeListener('worker:trace:released', onEnqueue);
+            };
+
+            const timer = setTimeout(() => {
+                removeListeners();
+                reject(new Error(`Slice trace timeout, no worker became available within ${timeoutMs}ms`));
+            }, timeoutMs);
+
+            function onEnqueue(this: Server, { scope: workerId }: core.EventMessage) {
+                if (this.closed || this.isShuttingDown) {
+                    removeListeners();
+                    clearTimeout(timer);
+                    reject(new Error('Cannot complete the slice trace, the execution controller is finished or shutting down'));
+                    return;
+                }
+
+                if (this._tracingWorkers.has(workerId)) return;
+
+                this._tracingWorkers.add(workerId);
+                removeListeners();
+                clearTimeout(timer);
+                resolve(workerId);
+            }
+
+            this.on('worker:enqueue', onEnqueue);
+            this.on('worker:trace:released', onEnqueue);
+        });
+    }
+
+    /**
+     * Mark a worker as no longer tracing and, if it is still queued (like
+     * after a trace timeout), let any waiting trace request claim it.
+     */
+    private _releaseTracingWorker(workerId: string): void {
+        this._tracingWorkers.delete(workerId);
+
+        if (this.queue.exists('workerId', workerId)) {
+            this.emit('worker:trace:released', { scope: workerId, payload: {} });
+        }
+    }
+
     private _workerEnqueue(workerId: string): boolean {
         if (!workerId) {
             throw new Error('Failed to enqueue invalid worker');
@@ -267,7 +303,7 @@ export class Server extends core.Server {
             this.queue.enqueue({ workerId });
         }
 
-        this.emit('worker:enqueue', { scope: '', payload: {} });
+        this.emit('worker:enqueue', { scope: workerId, payload: {} });
         return exists;
     }
 

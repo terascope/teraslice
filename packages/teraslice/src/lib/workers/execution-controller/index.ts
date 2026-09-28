@@ -249,7 +249,7 @@ export class ExecutionController {
             this.logger.debug(`log level updated to ${level}`);
         });
         this.client.onExecutionSliceTrace((msg) => {
-            this.logger.debug(`slice trace request received: ${msg.payload}`);
+            this.logger.debug(`slice trace request received: ${JSON.stringify(msg.payload)}`);
 
             const { size, sendTimeout, traceTimeout } = msg.payload;
             return this.server.sendSliceTraceRequest(size, sendTimeout, traceTimeout);
