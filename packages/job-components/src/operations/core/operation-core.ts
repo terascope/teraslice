@@ -1,3 +1,4 @@
+import { Logger } from '@terascope/core-utils';
 import Core from './core.js';
 import {
     ExecutionConfig, WorkerOperationLifeCycle, OpAPI,
@@ -23,6 +24,9 @@ export default class OperationCore<T = OpConfig>
 
     constructor(context: Context, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({ module: 'operation', opName: opConfig._op });
+        if (executionConfig.log_level) {
+            logger.level(executionConfig.log_level as Logger.LogLevel);
+        }
         super(context, executionConfig, logger);
 
         this.deadLetterAction = opConfig._dead_letter_action || 'throw';

@@ -77,7 +77,7 @@ export default class Ex extends Client {
     }
 
     async trace(
-        query: { size?: number | 'all' } = {},
+        query: { size?: string | 'all' } = {},
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.SliceTraceResults> {
         return this.get(`/ex/${this._exId}/trace`, this.makeOptions(query, searchOptions));

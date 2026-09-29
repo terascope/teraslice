@@ -61,7 +61,7 @@ export default class TraceObserver extends Observer {
             throw new Error('A slice trace is already in progress for this worker');
         }
 
-        this.logger.debug('Slice trace initialized');
+        this.logger.debug('Slice trace pending');
 
         const pending: PendingTrace = {
             size: size === 0 ? Number.POSITIVE_INFINITY : size, // 0 means all records

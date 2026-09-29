@@ -1,6 +1,4 @@
-import {
-    isNumber, get, Queue
-} from '@terascope/core-utils';
+import { isNumber, get, Queue } from '@terascope/core-utils';
 import {
     EnqueuedWorker, Slice, SliceCompletePayload, SliceTraceResults
 } from '@terascope/types';

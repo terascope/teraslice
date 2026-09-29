@@ -24,7 +24,7 @@ describe('ExecutionService', () => {
         }
 
         it.each([
-            // api timeout, cm send, ec send, trace
+            // api timeout, master send, exc send, trace
             [5 * 60_000, 255_000, 240_000, 255_000],
             [10 * 60_000, 555_000, 540_000, 555_000],
         ])('should stage the deadlines one buffer apart when api_response_timeout is %dms', async (

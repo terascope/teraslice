@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Queue } from '@terascope/core-utils';
+import { Logger, Queue } from '@terascope/core-utils';
 import {
     OpConfig, ExecutionConfig, Slice,
     SliceRequest, SlicerOperationLifeCycle,
@@ -28,6 +28,9 @@ export default abstract class SlicerCore<T = OpConfig>
 
     constructor(context: Context, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({ module: 'slicer', opName: opConfig._op });
+        if (executionConfig.log_level) {
+            logger.level(executionConfig.log_level as Logger.LogLevel);
+        }
 
         super(context, executionConfig, logger);
         this.opConfig = opConfig;

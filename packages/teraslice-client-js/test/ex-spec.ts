@@ -171,7 +171,7 @@ describe('Teraslice Ex', () => {
 
             it('should pass the size as a query param', async () => {
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
-                const results = await ex.trace({ size: 5 });
+                const results = await ex.trace({ size: '5' });
                 expect(results).toEqual(traceResults);
             });
         });
