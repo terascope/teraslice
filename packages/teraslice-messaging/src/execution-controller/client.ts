@@ -77,7 +77,7 @@ export class Client extends core.Client {
             });
         });
 
-        this.handleResponse(this.socket, 'execution:slice:trace', (msg: core.Message) => {
+        this.handleResponse(this.socket, 'worker:slice:trace', (msg: core.Message) => {
             const { size, traceTimeout } = msg.payload as i.SliceTraceRequestMessage;
 
             if (this._sliceTraceHandler == null) {

@@ -148,7 +148,7 @@ export class Server extends core.Server {
 
             const message = await this.send(
                 targetId!,
-                'execution:slice:trace',
+                'worker:slice:trace',
                 { size, traceTimeout: remainingTraceTimeout },
                 { response: true, timeout: sendTimeout - elapsed }
             );
