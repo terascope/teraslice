@@ -250,6 +250,10 @@ teraslice-cli tjm stop JOB.JSON
 
 Captures the records produced by each operation of the next slice processed by a running job and prints them as JSON. Only one job file can be traced at a time. See [GET /v1/jobs/\{jobId\}/trace](../../management-apis/endpoints-json.md#get-v1jobsjobidtrace) for details on the response.
 
+#### **Warning**
+
+Records are captured when each operation completes, so a job with large slices and several operations can produce a very large response. This response will consume memory on the worker, execution controller and the master, possibly causing any or all of them to run out of memory. Use the `size` query option with extreme caution.
+
 - `--size` The maximum number of records to return for each operation
   - defaults to 10
   - use `0` or `all` to return every record. This can produce a very large response for jobs with large slices.
@@ -416,6 +420,10 @@ teraslice-cli jobs view local 99999999-9999-9999-9999-999999999999
 
 Captures the records produced by each operation of the next slice processed by a running job and prints them as JSON. See [GET /v1/jobs/\{jobId\}/trace](../../management-apis/endpoints-json.md#get-v1jobsjobidtrace) for details on the response.
 
+#### **Warning**
+
+Records are captured when each operation completes, so a job with large slices and several operations can produce a very large response. This response will consume memory on the worker, execution controller and the master, possibly causing any or all of them to run out of memory. Use the `size` query option with extreme caution.
+
 - `--size` The maximum number of records to return for each operation, default is `10`. Use `0` or `all` to return every record. This can produce a very large response for jobs with large slices.
 
 ```sh
@@ -487,6 +495,10 @@ teraslice-cli ex errors local 99999999-9999-9999-9999-999999999999
 ### ex trace
 
 Captures the records produced by each operation of the next slice processed by a running execution and prints them as JSON. See [GET /v1/ex/\{exId\}/trace](../../management-apis/endpoints-json.md#get-v1exexidtrace) for details on the response.
+
+#### **Warning**
+
+Records are captured when each operation completes, so a job with large slices and several operations can produce a very large response. This response will consume memory on the worker, execution controller and the master, possibly causing any or all of them to run out of memory. Use the `size` query option with extreme caution.
 
 - `--size` The maximum number of records to return for each operation, default is `10`. Use `0` or `all` to return every record. This can produce a very large response for jobs with large slices.
 

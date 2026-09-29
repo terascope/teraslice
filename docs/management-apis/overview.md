@@ -113,6 +113,10 @@ This captures the records each operation produces for the next slice a worker
 processes, which can be useful when debugging a job's operations. `size` limits
 the records returned per operation (default `10`, `all` for every record).
 
+#### **Warning**
+
+Records are captured when each operation completes, so a job with large slices and several operations can produce a very large response. This response will consume memory on the worker, execution controller and the master, possibly causing any or all of them to run out of memory. Use the `size` query option with extreme caution.
+
 ```sh
 curl "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/trace?size=5"
 ```

@@ -718,6 +718,10 @@ The response contains:
 - `sliceId` - the id of the traced slice
 - `records` - an array with one entry per operation, in job order (`records[0]` is the reader, `records[1]` is the first processor, and so on). Each entry is an array of at most `size` objects with the record's data (`record`) and its [DataEntity](../jobs/data-entities.md) metadata (`metadata`). An operation that returned no records has an empty array.
 
+### **Warning**
+
+Records are captured when each operation completes, so a job with large slices and several operations can produce a very large response. This response will consume memory on the worker, execution controller and the master, possibly causing any or all of them to run out of memory. Use the `size` query option with extreme caution.
+
 **Query Options:**
 
 - `size: number | "all" = 10` - the maximum number of records to return for each operation. Use `0` or `"all"` to return every record. Otherwise it must be a positive integer.
@@ -727,10 +731,6 @@ The response contains:
 - `400` - `size` is not `"all"` or a non-negative integer
 - `404` - the job has no executions
 - `500` - the trace could not be completed. For example: the execution is not running, the traced slice failed, or the worker shut down before the slice completed. It is also returned when no worker becomes available or no slice completes before the timeout, which is derived from [`api_response_timeout`](../configuration/overview.md) and [`network_latency_buffer`](../configuration/overview.md). It is 4 minutes 15 seconds with the default settings and never less than 30 seconds.
-
-**Warning:**
-
-- Records are captured when each operation completes, so a job using `size=all` with large slices can produce a very large response, possibly causing a worker or execution controller to run out of memory.
 
 **Usage:**
 
@@ -1225,6 +1225,10 @@ $ curl 'localhost:5678/v1/ex/1cb20d4c-520a-44fe-a802-313f41dd5b05/controller'
 ## GET /v1/ex/\{exId\}/trace
 
 Same as [GET /v1/jobs/\{jobId\}/trace](#get-v1jobsjobidtrace), for when you have the execution id rather than the job id. Only a running execution can be traced. The query options, response, and errors are the same, except there is no `404`: an execution that is not running returns a `500`.
+
+### **Warning**
+
+Records are captured when each operation completes, so a job with large slices and several operations can produce a very large response. This response will consume memory on the worker, execution controller and the master, possibly causing any or all of them to run out of memory. Use the `size` query option with extreme caution.
 
 **Usage:**
 
