@@ -170,7 +170,7 @@ export class ExecutionService {
 
         function formatResponse(msg: any) {
             if (!msg) {
-                throw new Error(`Cannot complete the slice tap for execution ${exId}, teraslice is shutting down`);
+                throw new Error(`Slice tap for execution ${exId} cannot be completed, teraslice is shutting down`);
             }
 
             return msg.payload as SliceTapResults;

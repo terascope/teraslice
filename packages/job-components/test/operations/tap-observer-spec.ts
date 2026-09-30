@@ -199,7 +199,7 @@ describe('TapObserver', () => {
         const first = startTap(10);
 
         await expect(observer.getTap(10, 2000)).rejects.toThrow(
-            'A slice tap is already in progress for this worker'
+            'Slice tap already in progress for this worker'
         );
 
         observer.onSliceInitialized('slice-1');

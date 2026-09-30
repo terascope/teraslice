@@ -187,7 +187,7 @@ export class WorkerExecutionContext
 
     get tapObserver(): TapObserver {
         const tapObserver = this.api.getObserver<TapObserver>('tap-observer');
-        if (tapObserver == null) throw new Error('Tap Observer has not been initialized');
+        if (tapObserver == null) throw new Error('Slice tap Observer has not been initialized');
         return tapObserver;
     }
 

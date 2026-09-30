@@ -133,7 +133,7 @@ export class Server extends core.Server {
             targetId = this._selectWorker();
 
             if (targetId == null) {
-                this.logger.debug('no worker is available for the slice tap, waiting for one to be enqueued');
+                this.logger.debug('Slice tap: no worker is available, waiting for one to be enqueued');
                 targetId = await this._waitForWorker(tapTimeout);
             }
 
@@ -144,7 +144,7 @@ export class Server extends core.Server {
                 throw new Error(`Slice tap timeout after waiting ${elapsed}ms for a worker to become available`);
             }
 
-            this.logger.debug(`slice tap request sent to worker: ${targetId}`);
+            this.logger.debug(`Slice tap request sent to worker: ${targetId}`);
 
             const message = await this.send(
                 targetId!,

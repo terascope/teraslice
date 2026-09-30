@@ -37,7 +37,7 @@ export default class TapObserver extends Observer {
                     metadata: cloneDeep(record.getMetadata())
                 }));
         } catch (err) {
-            this.logger.warn(err, `Slice tap: failed to collect records for operation ${index}, slice ${sliceId}`);
+            this.logger.warn(err, `Slice tap failed to collect records for operation ${index}, slice ${sliceId}`);
             pending.failure = `failed to collect records for operation ${index}: ${err instanceof Error ? err.message : String(err)}`;
         }
     }
@@ -69,7 +69,7 @@ export default class TapObserver extends Observer {
      */
     async getTap(size: number, timeoutMs: number): Promise<SliceTapResults> {
         if (this.pending != null) {
-            throw new Error('A slice tap is already in progress for this worker');
+            throw new Error('Slice tap already in progress for this worker');
         }
 
         this.logger.debug('Slice tap pending');
