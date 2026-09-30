@@ -1171,9 +1171,9 @@ describe('Job helper class', () => {
         });
     });
 
-    describe('trace', () => {
-        const action = 'trace';
-        const traceResponse = {
+    describe('tap', () => {
+        const action = 'tap';
+        const tapResponse = {
             workerId: 'worker-1',
             sliceId: 'slice-1',
             records: [[{ record: { foo: 'bar' }, metadata: {} }], []]
@@ -1212,14 +1212,14 @@ describe('Job helper class', () => {
             const job = await initJob(jobId, 'running', { size: '5' });
 
             const scope = nock(tsHost)
-                .get(`/v1/jobs/${jobId}/trace`)
+                .get(`/v1/jobs/${jobId}/tap`)
                 .query({ size: '5' })
-                .reply(200, traceResponse);
+                .reply(200, tapResponse);
 
-            await job.trace();
+            await job.tap();
 
             expect(scope.isDone()).toBeTrue();
-            expect(info).toHaveBeenCalledWith(JSON.stringify(traceResponse));
+            expect(info).toHaveBeenCalledWith(JSON.stringify(tapResponse));
         });
 
         it('should send size=all', async () => {
@@ -1229,11 +1229,11 @@ describe('Job helper class', () => {
             const job = await initJob(jobId, 'running', { size: 'all' });
 
             const scope = nock(tsHost)
-                .get(`/v1/jobs/${jobId}/trace`)
+                .get(`/v1/jobs/${jobId}/tap`)
                 .query({ size: 'all' })
-                .reply(200, traceResponse);
+                .reply(200, tapResponse);
 
-            await job.trace();
+            await job.tap();
 
             expect(scope.isDone()).toBeTrue();
         });
@@ -1245,16 +1245,16 @@ describe('Job helper class', () => {
             const job = await initJob(jobId, 'running');
 
             const scope = nock(tsHost)
-                .get(`/v1/jobs/${jobId}/trace`)
+                .get(`/v1/jobs/${jobId}/tap`)
                 .query((query) => !('size' in query))
-                .reply(200, traceResponse);
+                .reply(200, tapResponse);
 
-            await job.trace();
+            await job.tap();
 
             expect(scope.isDone()).toBeTrue();
         });
 
-        it('should not request a trace if the job is in a terminal status', async () => {
+        it('should not request a tap if the job is in a terminal status', async () => {
             const yellow = jest.spyOn(reply, 'yellow').mockImplementation(() => {});
             jest.spyOn(reply, 'green').mockImplementation(() => {});
             const [jobId] = makeJobIds(1);
@@ -1262,27 +1262,27 @@ describe('Job helper class', () => {
             const job = await initJob(jobId, 'stopped');
 
             const scope = nock(tsHost)
-                .get(`/v1/jobs/${jobId}/trace`)
+                .get(`/v1/jobs/${jobId}/tap`)
                 .query(true)
-                .reply(200, traceResponse);
+                .reply(200, tapResponse);
 
-            await job.trace();
+            await job.tap();
 
             expect(scope.isDone()).toBeFalse();
-            expect(yellow).toHaveBeenCalledWith(expect.stringContaining('Cannot trace slice. Job in terminal status stopped'));
+            expect(yellow).toHaveBeenCalledWith(expect.stringContaining('Cannot tap slice. Job in terminal status stopped'));
         });
 
-        it('should throw if the trace request fails', async () => {
+        it('should throw if the tap request fails', async () => {
             const [jobId] = makeJobIds(1);
 
             const job = await initJob(jobId, 'running');
 
             tsClient
-                .get(`/v1/jobs/${jobId}/trace`)
+                .get(`/v1/jobs/${jobId}/tap`)
                 .query(true)
                 .reply(500, { error: 500, message: 'Worker shut down before slice completed' });
 
-            await expect(job.trace()).rejects.toThrow('Worker shut down before slice completed');
+            await expect(job.tap()).rejects.toThrow('Worker shut down before slice completed');
         });
     });
 });

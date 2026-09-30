@@ -9,7 +9,7 @@ import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import {
     ExecutionConfig, JobConfig, NodeState,
-    SliceTraceRequest, SliceTraceResults
+    SliceTapRequest, SliceTapResults
 } from '@terascope/types';
 import type { ExecutionStorage, StateStorage } from '../../storage/index.js';
 import type {
@@ -17,9 +17,9 @@ import type {
 } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';
-import { SliceTraceOptions, StopExecutionOptions } from './interfaces.js';
+import { SliceTapOptions, StopExecutionOptions } from './interfaces.js';
 
-const MIN_SLICE_TRACE_TIMEOUT = 30 * 1000;
+const MIN_SLICE_TAP_TIMEOUT = 30 * 1000;
 /**
  * New execution result
  * @typedef NewExecutionResult
@@ -33,7 +33,7 @@ const MIN_SLICE_TRACE_TIMEOUT = 30 * 1000;
  Exceptions
  rejected - when a execution is rejected prior to scheduling
  failed - when there is an error while the execution is running
- aborted - when a execution was running at the point when the cluster shutsdown
+ aborted - when a execution was running at the point when the cluster shuts down
  */
 
 export class ExecutionService {
@@ -118,18 +118,18 @@ export class ExecutionService {
     }
 
     /**
-     * Stage the deadlines for a slice trace so each layer of the chain expires
+     * Stage the deadlines for a slice tap so each layer of the chain expires
      * one network_latency_buffer before the one outside it, leaving that
      * buffer for its response to travel back up the chain.
      *
-     * When api_response_timeout is too short, the trace timeout is raised to
-     * a minimum rather than failing every trace. The layers inside the cluster
-     * master stay in order, but the HTTP request may close before the trace
+     * When api_response_timeout is too short, the tap timeout is raised to
+     * a minimum rather than failing every tap. The layers inside the cluster
+     * master stay in order, but the HTTP request may close before the tap
      * responds.
      */
-    private _sliceTraceDeadlines(): {
+    private _sliceTapDeadlines(): {
         sendTimeout: number;
-        request: Omit<SliceTraceRequest, 'size'>;
+        request: Omit<SliceTapRequest, 'size'>;
     } {
         const {
             api_response_timeout: apiTimeout,
@@ -141,43 +141,43 @@ export class ExecutionService {
         // each deadline into the send timeout that expires at that deadline
         const toSendTimeout = (deadline: number) => deadline - (latencyBuffer * 2);
 
-        // the execution controller's send timeout is traceTimeout - latencyBuffer,
+        // the execution controller's send timeout is tapTimeout - latencyBuffer,
         // so the minimum must stay above the buffer to keep it positive
-        const minTraceTimeout = Math.max(MIN_SLICE_TRACE_TIMEOUT, latencyBuffer + 1000);
+        const minTapTimeout = Math.max(MIN_SLICE_TAP_TIMEOUT, latencyBuffer + 1000);
 
-        // work outward from the trace so each layer gives up one buffer after
-        // the layer below it, even when the trace timeout is raised to the minimum
-        const traceTimeout = Math.max(apiTimeout - (latencyBuffer * 3), minTraceTimeout);
-        const executionControllerDeadline = traceTimeout + latencyBuffer;
+        // work outward from the tap so each layer gives up one buffer after
+        // the layer below it, even when the tap timeout is raised to the minimum
+        const tapTimeout = Math.max(apiTimeout - (latencyBuffer * 3), minTapTimeout);
+        const executionControllerDeadline = tapTimeout + latencyBuffer;
         const clusterMasterDeadline = executionControllerDeadline + latencyBuffer;
 
         if (clusterMasterDeadline > apiTimeout - latencyBuffer) {
-            this.logger.warn(`api_response_timeout (${apiTimeout}ms) is too short for a ${traceTimeout}ms slice trace, the request may close before the trace responds`);
+            this.logger.warn(`api_response_timeout (${apiTimeout}ms) is too short for a ${tapTimeout}ms slice tap, the request may close before the tap responds`);
         }
 
         return {
             sendTimeout: toSendTimeout(clusterMasterDeadline),
             request: {
                 sendTimeout: toSendTimeout(executionControllerDeadline),
-                traceTimeout
+                tapTimeout
             }
         };
     }
 
-    async getSliceTrace(exId: string, options: SliceTraceOptions): Promise<SliceTraceResults> {
+    async getSliceTap(exId: string, options: SliceTapOptions): Promise<SliceTapResults> {
         const { size } = options;
-        const { sendTimeout, request } = this._sliceTraceDeadlines();
+        const { sendTimeout, request } = this._sliceTapDeadlines();
 
         function formatResponse(msg: any) {
             if (!msg) {
-                throw new Error(`Cannot complete the slice trace for execution ${exId}, teraslice is shutting down`);
+                throw new Error(`Cannot complete the slice tap for execution ${exId}, teraslice is shutting down`);
             }
 
-            return msg.payload as SliceTraceResults;
+            return msg.payload as SliceTapResults;
         }
 
         return this.clusterMasterServer
-            .sendSliceTraceRequest(exId, { size, ...request }, sendTimeout)
+            .sendSliceTapRequest(exId, { size, ...request }, sendTimeout)
             .then(formatResponse);
     }
 

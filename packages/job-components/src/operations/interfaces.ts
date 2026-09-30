@@ -71,7 +71,7 @@ export interface ProcessorModule extends OperationModule {
     Processor: ProcessorConstructor;
 }
 
-export interface PendingTrace {
+export interface PendingTap {
     size: number;
     sliceId: string | null;
     records: Record<string, any>[][];

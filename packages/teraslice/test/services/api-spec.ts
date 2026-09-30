@@ -184,19 +184,19 @@ describe('HTTP API', () => {
         });
     });
 
-    describe('GET /jobs/:jobId/trace and /ex/:exId/trace', () => {
+    describe('GET /jobs/:jobId/tap and /ex/:exId/tap', () => {
         const exId = 'some-ex-id';
-        const traceResults = {
+        const tapResults = {
             workerId: 'some-worker',
             sliceId: 'some-slice',
             records: [[{ record: { id: 1 }, metadata: { _key: '1' } }]]
         };
 
-        const getSliceTrace = jest.fn<(...args: any[]) => Promise<any>>();
+        const getSliceTap = jest.fn<(...args: any[]) => Promise<any>>();
         const getLatestExecutionId = jest.fn<(...args: any[]) => Promise<any>>();
 
-        function getTrace(path: string, searchParams: Record<string, string> = {}) {
-            return got(`${baseUrl}/v1/${path}/trace`, {
+        function getTap(path: string, searchParams: Record<string, string> = {}) {
+            return got(`${baseUrl}/v1/${path}/tap`, {
                 searchParams,
                 responseType: 'json',
                 throwHttpErrors: false
@@ -204,63 +204,63 @@ describe('HTTP API', () => {
         }
 
         beforeAll(() => {
-            context.services.executionService.getSliceTrace = getSliceTrace;
+            context.services.executionService.getSliceTap = getSliceTap;
             context.services.jobsService.getLatestExecutionId = getLatestExecutionId;
         });
 
         beforeEach(() => {
-            getSliceTrace.mockReset().mockResolvedValue(traceResults);
+            getSliceTap.mockReset().mockResolvedValue(tapResults);
             getLatestExecutionId.mockReset().mockResolvedValue(exId);
         });
 
-        it('should trace the latest execution of a job with the default size', async () => {
-            const response = await getTrace('jobs/some-job-id');
+        it('should tap the latest execution of a job with the default size', async () => {
+            const response = await getTap('jobs/some-job-id');
 
             expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual(traceResults);
+            expect(response.body).toEqual(tapResults);
             expect(getLatestExecutionId).toHaveBeenCalledWith('some-job-id');
-            expect(getSliceTrace).toHaveBeenCalledWith(exId, { size: 10 });
+            expect(getSliceTap).toHaveBeenCalledWith(exId, { size: 10 });
         });
 
-        it('should trace an execution by id without looking up the job', async () => {
-            const response = await getTrace('ex/other-ex-id');
+        it('should tap an execution by id without looking up the job', async () => {
+            const response = await getTap('ex/other-ex-id');
 
             expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual(traceResults);
+            expect(response.body).toEqual(tapResults);
             expect(getLatestExecutionId).not.toHaveBeenCalled();
-            expect(getSliceTrace).toHaveBeenCalledWith('other-ex-id', { size: 10 });
+            expect(getSliceTap).toHaveBeenCalledWith('other-ex-id', { size: 10 });
         });
 
         it('should pass the validated size to the execution service', async () => {
-            const response = await getTrace('ex/some-ex-id', { size: 'all' });
+            const response = await getTap('ex/some-ex-id', { size: 'all' });
 
             expect(response.statusCode).toEqual(200);
-            expect(getSliceTrace).toHaveBeenCalledWith(exId, { size: 0 });
+            expect(getSliceTap).toHaveBeenCalledWith(exId, { size: 0 });
         });
 
         it('should respond with a 400 for an invalid size', async () => {
-            const response = await getTrace('jobs/some-job-id', { size: '2.5' });
+            const response = await getTap('jobs/some-job-id', { size: '2.5' });
 
             expect(response.statusCode).toEqual(400);
             expect(response.body).toMatchObject({
                 message: expect.stringContaining('Argument "size" must be "all", 0, or a positive integer')
             });
-            expect(getSliceTrace).not.toHaveBeenCalled();
+            expect(getSliceTap).not.toHaveBeenCalled();
         });
 
         it('should respond with a 404 when the job has no executions', async () => {
             getLatestExecutionId.mockResolvedValue(undefined);
 
-            const response = await getTrace('jobs/some-job-id');
+            const response = await getTap('jobs/some-job-id');
 
             expect(response.statusCode).toEqual(404);
-            expect(getSliceTrace).not.toHaveBeenCalled();
+            expect(getSliceTap).not.toHaveBeenCalled();
         });
 
-        it('should respond with a 500 when the trace fails', async () => {
-            getSliceTrace.mockRejectedValue(new Error('No client found by that id "some-ex-id"'));
+        it('should respond with a 500 when the tap fails', async () => {
+            getSliceTap.mockRejectedValue(new Error('No client found by that id "some-ex-id"'));
 
-            const response = await getTrace('ex/some-ex-id');
+            const response = await getTap('ex/some-ex-id');
 
             expect(response.statusCode).toEqual(500);
             expect(response.body).toMatchObject({

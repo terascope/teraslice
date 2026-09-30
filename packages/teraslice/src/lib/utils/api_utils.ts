@@ -8,7 +8,7 @@ import {
     ConnectorInfo, GroupedConnectors, ConnectorQueryOptions, Teraslice
 } from '@terascope/types';
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
-import type { SliceTraceOptions } from '../cluster/services/interfaces.js';
+import type { SliceTapOptions } from '../cluster/services/interfaces.js';
 
 export function makeTable(
     req: TerasliceRequest,
@@ -132,10 +132,10 @@ export function getSearchOptions(req: TerasliceRequest, defaultSort = '_updated:
 }
 
 /**
- * Validate the slice trace query options.
+ * Validate the slice tap query options.
  * `size` defaults to 10, and "all" or 0 means every record.
  */
-export function getSliceTraceOptions(query: TerasliceRequest['query']): SliceTraceOptions {
+export function getSliceTapOptions(query: TerasliceRequest['query']): SliceTapOptions {
     const { size: input = 10 } = query as { size?: unknown };
 
     const isValidInput = isNumber(input)

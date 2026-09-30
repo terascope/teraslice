@@ -13,7 +13,7 @@ import save from './save.js';
 import start from './start.js';
 import status from './status.js';
 import stop from './stop.js';
-import trace from './trace.js';
+import tap from './tap.js';
 import view from './view.js';
 import workers from './workers.js';
 
@@ -32,7 +32,7 @@ const commandList = [
     start,
     status,
     stop,
-    trace,
+    tap,
     view,
     workers
 ];

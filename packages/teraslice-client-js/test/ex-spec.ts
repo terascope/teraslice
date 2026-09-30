@@ -142,8 +142,8 @@ describe('Teraslice Ex', () => {
         });
     });
 
-    describe('->trace', () => {
-        const traceResults = {
+    describe('->tap', () => {
+        const tapResults = {
             workerId: 'some-worker',
             sliceId: 'some-slice',
             records: [[{ record: { id: 1 }, metadata: { _key: '1' } }]]
@@ -151,28 +151,28 @@ describe('Teraslice Ex', () => {
 
         describe('when called with nothing', () => {
             beforeEach(() => {
-                scope.get('/ex/some-ex-id/trace')
-                    .reply(200, traceResults);
+                scope.get('/ex/some-ex-id/tap')
+                    .reply(200, tapResults);
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
-                const results = await ex.trace();
-                expect(results).toEqual(traceResults);
+                const results = await ex.tap();
+                expect(results).toEqual(tapResults);
             });
         });
 
         describe('when called with a size', () => {
             beforeEach(() => {
-                scope.get('/ex/some-ex-id/trace')
+                scope.get('/ex/some-ex-id/tap')
                     .query({ size: 5 })
-                    .reply(200, traceResults);
+                    .reply(200, tapResults);
             });
 
             it('should pass the size as a query param', async () => {
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
-                const results = await ex.trace({ size: '5' });
-                expect(results).toEqual(traceResults);
+                const results = await ex.tap({ size: '5' });
+                expect(results).toEqual(tapResults);
             });
         });
     });

@@ -16,7 +16,7 @@ import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/
 import {
     makeTable, sendError, handleTerasliceRequest,
     getSearchOptions, createJobActiveQuery, addDeletedToQuery,
-    addFilterToQuery, buildConnectorList, getSliceTraceOptions
+    addFilterToQuery, buildConnectorList, getSliceTapOptions
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
@@ -439,14 +439,14 @@ export class ApiService {
         });
 
         v1routes.get([
-            '/jobs/:jobId/trace',
-            '/ex/:exId/trace'
+            '/jobs/:jobId/tap',
+            '/ex/:exId/tap'
         ], (req, res) => {
-            const requestHandler = handleTerasliceRequest(req, res, 'Could not get slice trace');
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get slice tap');
             requestHandler(async () => {
-                const options = getSliceTraceOptions(req.query);
+                const options = getSliceTapOptions(req.query);
                 const exId = await this._getExIdFromRequest(req);
-                return this.executionService.getSliceTrace(exId, options);
+                return this.executionService.getSliceTap(exId, options);
             });
         });
 

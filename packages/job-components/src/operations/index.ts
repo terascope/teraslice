@@ -9,7 +9,7 @@ import Observer from './observer.js';
 import OperationAPI from './operation-api.js';
 import ParallelSlicer from './parallel-slicer.js';
 import Slicer from './slicer.js';
-import TraceObserver from './trace-observer.js';
+import TapObserver from './tap-observer.js';
 import APIFactory from './api-factory.js';
 
 export * from './interfaces.js';
@@ -26,6 +26,6 @@ export {
     OperationAPI,
     ParallelSlicer,
     Slicer,
-    TraceObserver,
+    TapObserver,
     APIFactory
 };

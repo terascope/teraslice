@@ -4,6 +4,6 @@ export interface StopExecutionOptions {
     force?: boolean;
 }
 
-export interface SliceTraceOptions {
+export interface SliceTapOptions {
     size: number;
 }

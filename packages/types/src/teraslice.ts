@@ -113,16 +113,16 @@ export interface AnalyticsRecord {
     '@timestamp': string | Date;
 }
 
-export interface SliceTraceResults {
+export interface SliceTapResults {
     workerId?: string;
     sliceId: string;
     records: Record<string, any>[][];
 }
 
-export interface SliceTraceRequest {
+export interface SliceTapRequest {
     size: number;
     sendTimeout: number;
-    traceTimeout: number;
+    tapTimeout: number;
 }
 
 // TODO: make type for valid states

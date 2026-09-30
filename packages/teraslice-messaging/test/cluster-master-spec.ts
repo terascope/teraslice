@@ -191,40 +191,40 @@ describe('ClusterMaster', () => {
             expect(onExecutionResume).toHaveBeenCalled();
         });
 
-        describe('when sending execution:slice:trace', () => {
-            const request = { size: 10, sendTimeout: 800, traceTimeout: 500 };
-            const traceResults = {
+        describe('when sending execution:slice:tap', () => {
+            const request = { size: 10, sendTimeout: 800, tapTimeout: 500 };
+            const tapResults = {
                 workerId: 'some-worker',
-                sliceId: 'traced-slice',
+                sliceId: 'tapped-slice',
                 records: [[{ record: { id: 1 }, metadata: { _key: '1' } }]]
             };
 
-            // each onExecutionSliceTrace call adds a socket listener,
+            // each onExecutionSliceTap call adds a socket listener,
             // so register once and swap the implementation per test
             const handler = jest.fn<(msg: any) => any>();
 
             beforeAll(() => {
-                client.onExecutionSliceTrace(handler);
+                client.onExecutionSliceTap(handler);
             });
 
-            it('should pass the request to the execution and return its trace', async () => {
-                handler.mockImplementation(() => traceResults);
+            it('should pass the request to the execution and return its tap', async () => {
+                handler.mockImplementation(() => tapResults);
 
-                const msg = await server.sendSliceTraceRequest(exId, request, 1000);
+                const msg = await server.sendSliceTapRequest(exId, request, 1000);
 
                 expect(handler).toHaveBeenCalledWith(
                     expect.objectContaining({ payload: request })
                 );
-                expect(msg).toHaveProperty('payload', traceResults);
+                expect(msg).toHaveProperty('payload', tapResults);
             });
 
-            it('should reject with the execution error when the trace fails', async () => {
+            it('should reject with the execution error when the tap fails', async () => {
                 handler.mockImplementation(async () => {
-                    throw new Error('Slice trace timeout after 1s; no worker became available');
+                    throw new Error('Slice tap timeout after 1s; no worker became available');
                 });
 
-                await expect(server.sendSliceTraceRequest(exId, request, 1000))
-                    .rejects.toThrow('Slice trace timeout after 1s; no worker became available');
+                await expect(server.sendSliceTapRequest(exId, request, 1000))
+                    .rejects.toThrow('Slice tap timeout after 1s; no worker became available');
             });
         });
     });

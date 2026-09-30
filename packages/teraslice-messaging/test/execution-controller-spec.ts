@@ -337,67 +337,67 @@ describe('ExecutionController', () => {
                 });
             });
 
-            describe('when sending execution:slice:trace', () => {
-                const traceResults = {
-                    sliceId: 'traced-slice',
+            describe('when sending execution:slice:tap', () => {
+                const tapResults = {
+                    sliceId: 'tapped-slice',
                     records: [
                         [{ record: { id: 1 }, metadata: { _key: '1' } }],
                         []
                     ]
                 };
 
-                // only queued workers are traced
+                // only queued workers are tapped
                 beforeAll(async () => {
                     await client.sendAvailable();
                     await pDelay(100);
                 });
 
-                it('should reject when the worker has no trace handler registered', async () => {
-                    await expect(server.sendSliceTraceRequest(10, 3000, 2000))
-                        .rejects.toThrow(`Worker ${workerId} has no slice trace handler registered`);
+                it('should reject when the worker has no tap handler registered', async () => {
+                    await expect(server.sendSliceTapRequest(10, 3000, 2000))
+                        .rejects.toThrow(`Worker ${workerId} has no slice tap handler registered`);
                 });
 
-                it('should pass the request to the worker and return its trace', async () => {
-                    const handler = jest.fn<i.SliceTraceHandler>(() => traceResults);
-                    client.onSliceTraceRequest(handler);
+                it('should pass the request to the worker and return its tap', async () => {
+                    const handler = jest.fn<i.SliceTapHandler>(() => tapResults);
+                    client.onSliceTapRequest(handler);
 
-                    const result = await server.sendSliceTraceRequest(10, 3000, 2000);
+                    const result = await server.sendSliceTapRequest(10, 3000, 2000);
 
                     expect(handler).toHaveBeenCalledWith({
                         size: 10,
-                        traceTimeout: expect.toBeWithin(1000, 2001)
+                        tapTimeout: expect.toBeWithin(1000, 2001)
                     });
-                    expect(result).toEqual({ workerId, ...traceResults });
+                    expect(result).toEqual({ workerId, ...tapResults });
                 });
 
-                it('should support an async trace handler', async () => {
-                    client.onSliceTraceRequest(async () => {
+                it('should support an async tap handler', async () => {
+                    client.onSliceTapRequest(async () => {
                         await pDelay(100);
-                        return traceResults;
+                        return tapResults;
                     });
 
-                    await expect(server.sendSliceTraceRequest(0, 3000, 2000))
-                        .resolves.toEqual({ workerId, ...traceResults });
+                    await expect(server.sendSliceTapRequest(0, 3000, 2000))
+                        .resolves.toEqual({ workerId, ...tapResults });
                 });
 
-                it('should reject with the worker error when the trace fails', async () => {
-                    client.onSliceTraceRequest(async () => {
+                it('should reject with the worker error when the tap fails', async () => {
+                    client.onSliceTapRequest(async () => {
                         throw new Error('slice slice-1 failed before completing');
                     });
 
-                    await expect(server.sendSliceTraceRequest(10, 3000, 2000))
+                    await expect(server.sendSliceTapRequest(10, 3000, 2000))
                         .rejects.toThrow('slice slice-1 failed before completing');
                 });
 
                 it('should reject when the worker does not respond before the send timeout', async () => {
                     let handlerDone!: Promise<void>;
-                    client.onSliceTraceRequest(async () => {
+                    client.onSliceTapRequest(async () => {
                         handlerDone = pDelay(600);
                         await handlerDone;
-                        return traceResults;
+                        return tapResults;
                     });
 
-                    await expect(server.sendSliceTraceRequest(10, 300, 2000))
+                    await expect(server.sendSliceTapRequest(10, 300, 2000))
                         .rejects.toThrow();
 
                     // let the late response land before teardown
@@ -406,31 +406,31 @@ describe('ExecutionController', () => {
                 });
 
                 it('should wait for the worker to be enqueued', async () => {
-                    client.onSliceTraceRequest(() => traceResults);
+                    client.onSliceTapRequest(() => tapResults);
 
                     await client.sendUnavailable();
                     await pDelay(100);
 
-                    const result = server.sendSliceTraceRequest(10, 3000, 2000);
+                    const result = server.sendSliceTapRequest(10, 3000, 2000);
 
                     await pDelay(300);
                     await client.sendAvailable();
 
-                    await expect(result).resolves.toEqual({ workerId, ...traceResults });
+                    await expect(result).resolves.toEqual({ workerId, ...tapResults });
                 });
 
                 it('should reject when no worker is enqueued before the timeout', async () => {
                     await client.sendUnavailable();
                     await pDelay(100);
 
-                    await expect(server.sendSliceTraceRequest(10, 3000, 1500))
-                        .rejects.toThrow(/Slice trace timeout/);
+                    await expect(server.sendSliceTapRequest(10, 3000, 1500))
+                        .rejects.toThrow(/Slice tap timeout/);
                 });
             });
         });
     });
 
-    describe('Server with multiple workers tracing slices', () => {
+    describe('Server with multiple workers tapping slices', () => {
         let server: ExecutionController.Server;
         let executionControllerUrl: string;
         const clients: ExecutionController.Client[] = [];
@@ -448,7 +448,7 @@ describe('ExecutionController', () => {
                 },
             });
 
-            client.onSliceTraceRequest(async () => {
+            client.onSliceTapRequest(async () => {
                 await pDelay(300);
                 return { sliceId: `${workerId}-slice`, records: [] };
             });
@@ -477,8 +477,8 @@ describe('ExecutionController', () => {
         });
 
         it('should reject when no workers connect before the timeout', async () => {
-            await expect(server.sendSliceTraceRequest(10, 3000, 1500))
-                .rejects.toThrow(/Slice trace timeout/);
+            await expect(server.sendSliceTapRequest(10, 3000, 1500))
+                .rejects.toThrow(/Slice tap timeout/);
         });
 
         describe('when one worker is enqueued', () => {
@@ -490,20 +490,20 @@ describe('ExecutionController', () => {
                 await pDelay(100);
             });
 
-            it('should not send a second trace to a worker that is already tracing', async () => {
-                const handler = jest.fn<i.SliceTraceHandler>(async () => {
+            it('should not send a second tap to a worker that is already tapping', async () => {
+                const handler = jest.fn<i.SliceTapHandler>(async () => {
                     await pDelay(1500);
                     return { sliceId: 'worker-1-slice', records: [] };
                 });
-                first.onSliceTraceRequest(handler);
+                first.onSliceTapRequest(handler);
 
-                const trace = server.sendSliceTraceRequest(10, 3000, 2000);
+                const tap = server.sendSliceTapRequest(10, 3000, 2000);
                 await pDelay(100);
 
-                await expect(server.sendSliceTraceRequest(10, 3000, 1200))
-                    .rejects.toThrow(/Slice trace timeout/);
+                await expect(server.sendSliceTapRequest(10, 3000, 1200))
+                    .rejects.toThrow(/Slice tap timeout/);
 
-                await expect(trace).resolves.toMatchObject({ workerId: 'worker-1' });
+                await expect(tap).resolves.toMatchObject({ workerId: 'worker-1' });
                 expect(handler).toHaveBeenCalledTimes(1);
             });
         });
@@ -511,7 +511,7 @@ describe('ExecutionController', () => {
         describe('when two workers are enqueued', () => {
             beforeAll(async () => {
                 // worker-1 is still at the head of the queue, restore its default handler
-                clients[0].onSliceTraceRequest(async () => {
+                clients[0].onSliceTapRequest(async () => {
                     await pDelay(300);
                     return { sliceId: 'worker-1-slice', records: [] };
                 });
@@ -521,32 +521,32 @@ describe('ExecutionController', () => {
                 await pDelay(100);
             });
 
-            it('should trace the worker at the head of the queue', async () => {
-                await expect(server.sendSliceTraceRequest(10, 3000, 2000))
+            it('should tap the worker at the head of the queue', async () => {
+                await expect(server.sendSliceTapRequest(10, 3000, 2000))
                     .resolves.toMatchObject({ workerId: 'worker-1', sliceId: 'worker-1-slice' });
             });
 
-            it('should send concurrent traces to different workers', async () => {
+            it('should send concurrent taps to different workers', async () => {
                 const results = await Promise.all([
-                    server.sendSliceTraceRequest(10, 3000, 2000),
-                    server.sendSliceTraceRequest(10, 3000, 2000),
+                    server.sendSliceTapRequest(10, 3000, 2000),
+                    server.sendSliceTapRequest(10, 3000, 2000),
                 ]);
 
                 expect(results.map((r) => r.workerId)).toEqual(['worker-1', 'worker-2']);
             });
 
-            it('should wait for a worker to finish tracing when all are busy', async () => {
+            it('should wait for a worker to finish tapping when all are busy', async () => {
                 const start = Date.now();
                 const results = await Promise.all([
-                    server.sendSliceTraceRequest(10, 3000, 2000),
-                    server.sendSliceTraceRequest(10, 3000, 2000),
-                    server.sendSliceTraceRequest(10, 3000, 2000),
+                    server.sendSliceTapRequest(10, 3000, 2000),
+                    server.sendSliceTapRequest(10, 3000, 2000),
+                    server.sendSliceTapRequest(10, 3000, 2000),
                 ]);
 
                 expect(results.map((r) => r.workerId)).toIncludeSameMembers([
                     'worker-1', 'worker-2', expect.stringMatching(/^worker-[12]$/)
                 ]);
-                // the third trace can only start after one of the first two finishes
+                // the third tap can only start after one of the first two finishes
                 expect(Date.now() - start).toBeGreaterThanOrEqual(600);
             });
         });

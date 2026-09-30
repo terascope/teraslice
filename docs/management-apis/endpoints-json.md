@@ -704,18 +704,18 @@ $ curl 'localhost:5678/v1/jobs/a8e2be53-fe17-4727-9336-c9f09db9485f/controller'
 ]
 ```
 
-## GET /v1/jobs/\{jobId\}/trace
+## GET /v1/jobs/\{jobId\}/tap
 
 Captures the records produced by each operation of a single slice on the job's current execution. Useful for debugging a job's operations without adding logging or writing the data out.
 
-The trace is sent to the worker next in line for a slice (the head of the execution controller's worker queue). If no worker is waiting for a slice, the request waits until one is. That worker traces the **next** slice it starts, so the request waits for a new slice to start and finish. It does not return data from a slice that has already been processed.
+The tap request is sent to the worker next in line for a slice (the head of the execution controller's worker queue). If no worker is waiting for a slice, the request waits until one is. That worker taps the **next** slice it starts, so the request waits for a new slice to start and finish. It does not return data from a slice that has already been processed.
 
-Each worker handles one trace at a time. Concurrent requests go to different workers, and when every waiting worker is already tracing, a request waits for one to finish.
+Each worker handles one tap at a time. Concurrent requests go to different workers, and when every waiting worker is already tapping, a request waits for one to finish.
 
 The response contains:
 
-- `workerId` - the worker that processed the traced slice
-- `sliceId` - the id of the traced slice
+- `workerId` - the worker that processed the tapped slice
+- `sliceId` - the id of the tapped slice
 - `records` - an array with one entry per operation, in job order (`records[0]` is the reader, `records[1]` is the first processor, and so on). Each entry is an array of at most `size` objects with the record's data (`record`) and its [DataEntity](../jobs/data-entities.md) metadata (`metadata`). An operation that returned no records has an empty array.
 
 ### **Warning**
@@ -730,12 +730,12 @@ Records are captured when each operation completes, so a job with large slices a
 
 - `400` - `size` is not `"all"` or a non-negative integer
 - `404` - the job has no executions
-- `500` - the trace could not be completed. For example: the execution is not running, the traced slice failed, or the worker shut down before the slice completed. It is also returned when no worker becomes available or no slice completes before the timeout, which is derived from [`api_response_timeout`](../configuration/overview.md) and [`network_latency_buffer`](../configuration/overview.md). It is 4 minutes 15 seconds with the default settings and never less than 30 seconds.
+- `500` - the tap could not be completed. For example: the execution is not running, the tapped slice failed, or the worker shut down before the slice completed. It is also returned when no worker becomes available or no slice completes before the timeout, which is derived from [`api_response_timeout`](../configuration/overview.md) and [`network_latency_buffer`](../configuration/overview.md). It is 4 minutes 15 seconds with the default settings and never less than 30 seconds.
 
 **Usage:**
 
 ```sh
-$ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/trace?size=1'
+$ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/tap?size=1'
 {
     "workerId": "10.0.0.14__3",
     "sliceId": "f82c0bbd-7ee3-4677-b48e-ca132fad3d73",
@@ -1222,9 +1222,9 @@ $ curl 'localhost:5678/v1/ex/1cb20d4c-520a-44fe-a802-313f41dd5b05/controller'
 ]
 ```
 
-## GET /v1/ex/\{exId\}/trace
+## GET /v1/ex/\{exId\}/tap
 
-Same as [GET /v1/jobs/\{jobId\}/trace](#get-v1jobsjobidtrace), for when you have the execution id rather than the job id. Only a running execution can be traced. The query options, response, and errors are the same, except there is no `404`: an execution that is not running returns a `500`.
+Same as [GET /v1/jobs/\{jobId\}/tap](#get-v1jobsjobidtap), for when you have the execution id rather than the job id. Only a running execution can be tapped. The query options, response, and errors are the same, except there is no `404`: an execution that is not running returns a `500`.
 
 ### **Warning**
 
@@ -1233,7 +1233,7 @@ Records are captured when each operation completes, so a job with large slices a
 **Usage:**
 
 ```sh
-$ curl 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/trace?size=1'
+$ curl 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/tap?size=1'
 {
     "workerId": "10.0.0.14__3",
     "sliceId": "f82c0bbd-7ee3-4677-b48e-ca132fad3d73",

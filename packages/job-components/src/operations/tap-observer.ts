@@ -1,13 +1,13 @@
 import { cloneDeep, DataEntity, pWhile } from '@terascope/core-utils';
-import { SliceTraceResults } from '@terascope/types';
+import { SliceTapResults } from '@terascope/types';
 import Observer from './observer.js';
-import { PendingTrace } from './interfaces.js';
+import { PendingTap } from './interfaces.js';
 
 /**
- * An Observer for collecting a slice trace
+ * An Observer for collecting a slice tap
  */
-export default class TraceObserver extends Observer {
-    private pending: PendingTrace | null = null;
+export default class TapObserver extends Observer {
+    private pending: PendingTap | null = null;
 
     onSliceInitialized(sliceId: string): void {
         if (this.pending && this.pending.sliceId == null) {
@@ -21,7 +21,7 @@ export default class TraceObserver extends Observer {
         const { pending } = this;
         if (pending === null || pending?.sliceId !== sliceId) return;
 
-        this.logger.debug(`Collecting trace: ${pending.size} of ${processed} records, operation ${index}, slice ${sliceId}.`);
+        this.logger.debug(`Slice tap: collecting ${pending.size} of ${processed} records, operation ${index}, slice ${sliceId}.`);
 
         pending.records[index] = records
             .slice(0, pending.size)
@@ -54,16 +54,16 @@ export default class TraceObserver extends Observer {
     }
 
     /**
-     * Collect a trace from the next slice this worker starts.
+     * Collect a tap from the next slice this worker starts.
      */
-    async getTrace(size: number, timeoutMs: number): Promise<SliceTraceResults> {
+    async getTap(size: number, timeoutMs: number): Promise<SliceTapResults> {
         if (this.pending != null) {
-            throw new Error('A slice trace is already in progress for this worker');
+            throw new Error('A slice tap is already in progress for this worker');
         }
 
-        this.logger.debug('Slice trace pending');
+        this.logger.debug('Slice tap pending');
 
-        const pending: PendingTrace = {
+        const pending: PendingTap = {
             size: size === 0 ? Number.POSITIVE_INFINITY : size, // 0 means all records
             sliceId: null,
             records: [],
@@ -76,18 +76,18 @@ export default class TraceObserver extends Observer {
         try {
             await pWhile(async () => pending.done || pending.failure !== null, {
                 timeoutMs,
-                name: 'Slice trace',
+                name: 'Slice tap',
                 enabledJitter: true,
                 minJitter: 100,
                 error: 'no slice completed in time'
             });
 
             if (pending.failure !== null) {
-                this.logger.debug(`Slice trace failed: ${pending.failure}`);
+                this.logger.debug(`Slice tap failed: ${pending.failure}`);
                 throw new Error(pending.failure);
             }
 
-            this.logger.debug('Slice trace complete');
+            this.logger.debug('Slice tap complete');
 
             return {
                 sliceId: pending.sliceId!,

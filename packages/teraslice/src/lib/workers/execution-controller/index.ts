@@ -248,11 +248,11 @@ export class ExecutionController {
             this.context.apis.foundation.setLogLevel(level);
             this.logger.debug(`log level updated to ${level}`);
         });
-        this.client.onExecutionSliceTrace((msg) => {
-            this.logger.debug(`slice trace request received: ${JSON.stringify(msg.payload)}`);
+        this.client.onExecutionSliceTap((msg) => {
+            this.logger.debug(`slice tap request received: ${JSON.stringify(msg.payload)}`);
 
-            const { size, sendTimeout, traceTimeout } = msg.payload;
-            return this.server.sendSliceTraceRequest(size, sendTimeout, traceTimeout);
+            const { size, sendTimeout, tapTimeout } = msg.payload;
+            return this.server.sendSliceTapRequest(size, sendTimeout, tapTimeout);
         });
 
         this.server.onSliceSuccess((workerId, response) => {

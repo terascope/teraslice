@@ -127,9 +127,9 @@ export class Worker {
             this.shouldShutdown = true;
         });
 
-        this.client.onSliceTraceRequest(async ({ size, traceTimeout }) => {
-            this.logger.debug(`slice trace requested, size ${size}, timeout ${traceTimeout}ms`);
-            return this.slice.executionContext.traceObserver.getTrace(size, traceTimeout);
+        this.client.onSliceTapRequest(async ({ size, tapTimeout }) => {
+            this.logger.debug(`slice tap requested, size ${size}, timeout ${tapTimeout}ms`);
+            return this.slice.executionContext.tapObserver.getTap(size, tapTimeout);
         });
 
         await this.client.start();

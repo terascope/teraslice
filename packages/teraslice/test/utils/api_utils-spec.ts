@@ -1,6 +1,6 @@
 import 'jest-extended';
 import {
-    createJobActiveQuery, addDeletedToQuery, getSliceTraceOptions
+    createJobActiveQuery, addDeletedToQuery, getSliceTapOptions
 } from '../../src/lib/utils/api_utils.js';
 
 describe('apiUtils', () => {
@@ -32,9 +32,9 @@ describe('apiUtils', () => {
         expect(query).toBe('job_id:* AND active:false AND (_deleted:false OR (* AND -_deleted:*))');
     });
 
-    describe('getSliceTraceOptions', () => {
+    describe('getSliceTapOptions', () => {
         it('should default size to 10', () => {
-            expect(getSliceTraceOptions({})).toEqual({ size: 10 });
+            expect(getSliceTapOptions({})).toEqual({ size: 10 });
         });
 
         it.each([
@@ -44,7 +44,7 @@ describe('apiUtils', () => {
             ['all', 0],
             [' 5 ', 5],
         ])('should convert size=%j to %d', (size, expected) => {
-            expect(getSliceTraceOptions({ size })).toEqual({ size: expected });
+            expect(getSliceTapOptions({ size })).toEqual({ size: expected });
         });
 
         it.each([
@@ -61,7 +61,7 @@ describe('apiUtils', () => {
         ])('should throw a 400 for size=%j', (size) => {
             let err: any;
             try {
-                getSliceTraceOptions({ size } as any);
+                getSliceTapOptions({ size } as any);
             } catch (_err) {
                 err = _err;
             }

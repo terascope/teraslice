@@ -37,13 +37,13 @@ export interface SliceResponseMessage {
     willProcess?: boolean;
 }
 
-export interface SliceTraceRequestMessage {
+export interface SliceTapRequestMessage {
     size: number;
-    traceTimeout: number;
+    tapTimeout: number;
 }
 
-export interface SliceTraceHandler {
-    (request: SliceTraceRequestMessage): Promise<Record<string, any>> | Record<string, any>;
+export interface SliceTapHandler {
+    (request: SliceTapRequestMessage): Promise<Record<string, any>> | Record<string, any>;
 }
 
 export interface WorkerShutdownFn {

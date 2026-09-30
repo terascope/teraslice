@@ -2,11 +2,11 @@ import 'jest-extended';
 import { DataEntity, times } from '@terascope/core-utils';
 import {
     TestContext, newTestExecutionConfig, Context,
-    TraceObserver
+    TapObserver
 } from '../../src/index.js';
 
-describe('TraceObserver', () => {
-    let observer: TraceObserver;
+describe('TapObserver', () => {
+    let observer: TapObserver;
 
     const context = new TestContext('teraslice-operations') as Context;
     const exConfig = newTestExecutionConfig();
@@ -30,22 +30,22 @@ describe('TraceObserver', () => {
         return (observer as any).pending;
     }
 
-    function startTrace(size: number, timeoutMs = 2000) {
-        return observer.getTrace(size, timeoutMs);
+    function startTap(size: number, timeoutMs = 2000) {
+        return observer.getTap(size, timeoutMs);
     }
 
     beforeEach(() => {
-        observer = new TraceObserver(context, { _name: 'trace-observer' }, exConfig);
+        observer = new TapObserver(context, { _name: 'tap-observer' }, exConfig);
         return observer.initialize();
     });
 
     afterEach(() => observer.shutdown());
 
-    it('should not have a pending trace by default', () => {
+    it('should not have a pending tap by default', () => {
         expect(getPending()).toBeNull();
     });
 
-    it('should ignore slice events when no trace is pending', () => {
+    it('should ignore slice events when no tap is pending', () => {
         observer.onSliceInitialized('slice-1');
         observer.onOperationComplete('slice-1', 0, 5, makeRecords(5));
         observer.onSliceFinalizing('slice-1');
@@ -55,7 +55,7 @@ describe('TraceObserver', () => {
     });
 
     it('should collect the records and metadata for each operation of the next slice', async () => {
-        const promise = startTrace(10);
+        const promise = startTap(10);
 
         const fetched = makeRecords(3);
         const processed = makeRecords(2, 'processed');
@@ -81,7 +81,7 @@ describe('TraceObserver', () => {
     });
 
     it('should return plain copies unaffected by later record mutation', async () => {
-        const promise = startTrace(10);
+        const promise = startTap(10);
 
         const records = makeRecords(1);
 
@@ -101,7 +101,7 @@ describe('TraceObserver', () => {
     });
 
     it('should return exactly size records per operation', async () => {
-        const promise = startTrace(3);
+        const promise = startTap(3);
 
         observer.onSliceInitialized('slice-1');
         observer.onOperationComplete('slice-1', 0, 10, makeRecords(10));
@@ -119,7 +119,7 @@ describe('TraceObserver', () => {
     });
 
     it('should return all records when size is 0', async () => {
-        const promise = startTrace(0);
+        const promise = startTap(0);
 
         observer.onSliceInitialized('slice-1');
         observer.onOperationComplete('slice-1', 0, 250, makeRecords(250));
@@ -131,7 +131,7 @@ describe('TraceObserver', () => {
     });
 
     it('should return an empty array for an operation with no records', async () => {
-        const promise = startTrace(10);
+        const promise = startTap(10);
 
         observer.onSliceInitialized('slice-1');
         observer.onOperationComplete('slice-1', 0, 3, makeRecords(3));
@@ -144,8 +144,8 @@ describe('TraceObserver', () => {
         expect(result.records[1]).toEqual([]);
     });
 
-    it('should reject when the traced slice fails', async () => {
-        const promise = startTrace(10);
+    it('should reject when the tapped slice fails', async () => {
+        const promise = startTap(10);
 
         observer.onSliceInitialized('slice-1');
         observer.onOperationComplete('slice-1', 0, 2, makeRecords(2));
@@ -156,14 +156,14 @@ describe('TraceObserver', () => {
     });
 
     it('should reject when no slice completes before the timeout', async () => {
-        const promise = startTrace(10, 500);
+        const promise = startTap(10, 500);
 
         await expect(promise).rejects.toThrow('no slice completed in time');
         expect(getPending()).toBeNull();
     });
 
     it('should reject when the slice starts but does not finish before the timeout', async () => {
-        const promise = startTrace(10, 500);
+        const promise = startTap(10, 500);
 
         observer.onSliceInitialized('slice-1');
         observer.onOperationComplete('slice-1', 0, 2, makeRecords(2));
@@ -172,8 +172,8 @@ describe('TraceObserver', () => {
         expect(getPending()).toBeNull();
     });
 
-    it('should reject when the worker shuts down mid trace', async () => {
-        const promise = startTrace(10);
+    it('should reject when the worker shuts down mid tap', async () => {
+        const promise = startTap(10);
 
         observer.onSliceInitialized('slice-1');
         await observer.shutdown();
@@ -182,11 +182,11 @@ describe('TraceObserver', () => {
         expect(getPending()).toBeNull();
     });
 
-    it('should reject a second concurrent trace without disturbing the first', async () => {
-        const first = startTrace(10);
+    it('should reject a second concurrent tap without disturbing the first', async () => {
+        const first = startTap(10);
 
-        await expect(observer.getTrace(10, 2000)).rejects.toThrow(
-            'A slice trace is already in progress for this worker'
+        await expect(observer.getTap(10, 2000)).rejects.toThrow(
+            'A slice tap is already in progress for this worker'
         );
 
         observer.onSliceInitialized('slice-1');
@@ -196,11 +196,11 @@ describe('TraceObserver', () => {
         await expect(first).resolves.toHaveProperty('sliceId', 'slice-1');
     });
 
-    it('should allow a new trace after the previous one finishes', async () => {
-        const first = startTrace(10, 500);
+    it('should allow a new tap after the previous one finishes', async () => {
+        const first = startTap(10, 500);
         await expect(first).rejects.toThrow();
 
-        const second = startTrace(10);
+        const second = startTap(10);
 
         observer.onSliceInitialized('slice-2');
         observer.onOperationComplete('slice-2', 0, 1, makeRecords(1));

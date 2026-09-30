@@ -3,28 +3,28 @@ import nock from 'nock';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { jest } from '@jest/globals';
-import trace from '../../../src/cmds/ex/trace.js';
+import tap from '../../../src/cmds/ex/tap.js';
 import reply from '../../../src/helpers/reply.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const configDir = path.join(dirname, '../../fixtures/job_saves');
 const exId = '99999999-9999-9999-9999-999999999999';
 
-describe('ex trace', () => {
+describe('ex tap', () => {
     describe('-> parse', () => {
         function parse(args: string) {
             const yargsCmd = yargs().command(
                 // @ts-expect-error
-                trace.command,
-                trace.describe,
-                trace.builder,
+                tap.command,
+                tap.describe,
+                tap.builder,
                 () => true
             );
             return yargsCmd.parseSync(args, {});
         }
 
         it('should parse properly', () => {
-            const yargsResult = parse(`trace ts-test1 ${exId}`);
+            const yargsResult = parse(`tap ts-test1 ${exId}`);
 
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
             expect(yargsResult.id).toEqual([exId]);
@@ -32,7 +32,7 @@ describe('ex trace', () => {
         });
 
         it('should parse the size option', () => {
-            const yargsResult = parse(`trace ts-test1 ${exId} --size 5`);
+            const yargsResult = parse(`tap ts-test1 ${exId} --size 5`);
 
             expect(yargsResult.size).toEqual('5');
         });
@@ -43,7 +43,7 @@ describe('ex trace', () => {
 
         function makeArgv(id: string[], args = {}) {
             return {
-                _: ['ex', 'trace'],
+                _: ['ex', 'tap'],
                 'config-dir': configDir,
                 configDir,
                 'cluster-alias': 'testerTest',
@@ -60,32 +60,32 @@ describe('ex trace', () => {
         });
 
         it('should throw if more than one ex id is provided', async () => {
-            await expect(trace.handler(makeArgv(['ex1', 'ex2'])))
-                .rejects.toThrow('Trace command only accepts one execution at a time.');
+            await expect(tap.handler(makeArgv(['ex1', 'ex2'])))
+                .rejects.toThrow('Tap command only accepts one execution at a time.');
         });
 
-        it('should request a trace with the size option', async () => {
+        it('should request a tap with the size option', async () => {
             const info = jest.spyOn(reply, 'info').mockImplementation(() => {});
             const response = { workerId: 'worker-1', sliceId: 'slice-1', records: [[]] };
 
             const scope = tsClient
-                .get(`/v1/ex/${exId}/trace`)
+                .get(`/v1/ex/${exId}/tap`)
                 .query({ size: '5' })
                 .reply(200, response);
 
-            await trace.handler(makeArgv([exId], { size: '5' }));
+            await tap.handler(makeArgv([exId], { size: '5' }));
 
             expect(scope.isDone()).toBeTrue();
             expect(info).toHaveBeenCalledWith(JSON.stringify(response));
         });
 
-        it('should throw if the trace request fails', async () => {
+        it('should throw if the tap request fails', async () => {
             tsClient
-                .get(`/v1/ex/${exId}/trace`)
+                .get(`/v1/ex/${exId}/tap`)
                 .query(true)
                 .reply(500, { error: 500, message: 'execution is not running' });
 
-            await expect(trace.handler(makeArgv([exId])))
+            await expect(tap.handler(makeArgv([exId])))
                 .rejects.toThrow('execution is not running');
         });
     });

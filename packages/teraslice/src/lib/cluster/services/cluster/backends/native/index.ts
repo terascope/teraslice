@@ -21,7 +21,7 @@ import { StopExecutionOptions } from '../../../interfaces.js';
  Exceptions
  rejected - when a job is rejected prior to scheduling
  failed - when there is an error while the job is running
- aborted - when a job was running at the point when the cluster shutsdown
+ aborted - when a job was running at the point when the cluster shuts down
  */
 
 interface StateMessage {
@@ -225,7 +225,7 @@ export class NativeClustering {
 
             if (curr.assignment === 'worker') {
                 prev.numOfWorkers += 1;
-                // if not resgistered, set it to one, if so then increment it
+                // if not registered, set it to one, if so then increment it
                 if (!prev.workerExecutions[curr.ex_id]) {
                     prev.workerExecutions[curr.ex_id] = 1;
                 } else {
@@ -386,7 +386,7 @@ export class NativeClustering {
                     return;
                 }
                 if (createdWorkers < workerCount) {
-                    this.logger.warn(`node ${nodeId} was only able to allocate ${createdWorkers} the request worker count of ${workerCount}, enqueing the remainder`);
+                    this.logger.warn(`node ${nodeId} was only able to allocate ${createdWorkers} the request worker count of ${workerCount}, enqueueing the remainder`);
                     const newWorkersRequest = cloneDeep(requestedWorkersData);
                     newWorkersRequest.workers = workerCount - createdWorkers;
                     this.pendingWorkerRequests.enqueue(newWorkersRequest);

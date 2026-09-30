@@ -244,8 +244,8 @@ export default class Options {
             default: false,
             type: 'boolean'
         }),
-        'trace-size': () => ({
-            describe: 'number of records to return for each operation of a slice trace, or "all"',
+        'tap-size': () => ({
+            describe: 'number of records to return for each operation of a slice tap, or "all"',
             type: 'string'
         }),
     };

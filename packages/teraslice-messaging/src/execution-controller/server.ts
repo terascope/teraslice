@@ -1,6 +1,6 @@
 import { isNumber, get, Queue } from '@terascope/core-utils';
 import {
-    EnqueuedWorker, Slice, SliceCompletePayload, SliceTraceResults
+    EnqueuedWorker, Slice, SliceCompletePayload, SliceTapResults
 } from '@terascope/types';
 import type { Socket } from 'socket.io';
 import * as core from '../messenger/index.js';
@@ -8,13 +8,13 @@ import * as i from './interfaces.js';
 
 const { Available, Unavailable } = core.ClientState;
 
-// the least time worth giving a worker to trace a slice
+// the least time worth giving a worker to tap a slice
 // after waiting for it to become available
-const MIN_TRACE_TIMEOUT = 1000;
+const MIN_TAP_TIMEOUT = 1000;
 
 export class Server extends core.Server {
     private _activeWorkers: i.ActiveWorkers;
-    private _tracingWorkers = new Set<string>();
+    private _tappingWorkers = new Set<string>();
     queue: Queue<EnqueuedWorker>;
     executionReady: boolean;
 
@@ -118,14 +118,14 @@ export class Server extends core.Server {
     }
 
     /**
-     * Send a slice trace request to the next worker in line for a slice,
+     * Send a slice tap request to the next worker in line for a slice,
      * waiting for one to be enqueued if necessary.
      */
-    async sendSliceTraceRequest(
+    async sendSliceTapRequest(
         size: number,
         sendTimeout: number,
-        traceTimeout: number
-    ): Promise<SliceTraceResults> {
+        tapTimeout: number
+    ): Promise<SliceTapResults> {
         const start = Date.now();
         let targetId: string | undefined;
 
@@ -133,28 +133,28 @@ export class Server extends core.Server {
             targetId = this._selectWorker();
 
             if (targetId == null) {
-                this.logger.debug('no worker is available for the slice trace, waiting for one to be enqueued');
-                targetId = await this._waitForWorker(traceTimeout);
+                this.logger.debug('no worker is available for the slice tap, waiting for one to be enqueued');
+                targetId = await this._waitForWorker(tapTimeout);
             }
 
             const elapsed = Date.now() - start;
-            const remainingTraceTimeout = traceTimeout - elapsed;
+            const remainingTapTimeout = tapTimeout - elapsed;
 
-            if (remainingTraceTimeout < MIN_TRACE_TIMEOUT) {
-                throw new Error(`Slice trace timeout after waiting ${elapsed}ms for a worker to become available`);
+            if (remainingTapTimeout < MIN_TAP_TIMEOUT) {
+                throw new Error(`Slice tap timeout after waiting ${elapsed}ms for a worker to become available`);
             }
 
-            this.logger.debug(`slice trace request sent to worker: ${targetId}`);
+            this.logger.debug(`slice tap request sent to worker: ${targetId}`);
 
             const message = await this.send(
                 targetId!,
-                'worker:slice:trace',
-                { size, traceTimeout: remainingTraceTimeout },
+                'worker:slice:tap',
+                { size, tapTimeout: remainingTapTimeout },
                 { response: true, timeout: sendTimeout - elapsed }
             );
 
             if (!message) {
-                throw new Error(`Cannot complete the slice trace for worker ${targetId}, the execution controller is finished or shutting down`);
+                throw new Error(`Cannot complete the slice tap for worker ${targetId}, the execution controller is finished or shutting down`);
             }
 
             const { sliceId, records } = message.payload;
@@ -165,7 +165,7 @@ export class Server extends core.Server {
                 records
             };
         } finally {
-            if (targetId != null) this._releaseTracingWorker(targetId);
+            if (targetId != null) this._releaseTappingWorker(targetId);
         }
     }
 
@@ -225,69 +225,69 @@ export class Server extends core.Server {
 
     /**
      * Select the queued worker closest to the head (the next to receive
-     * a slice) that is not already tracing, and mark it as tracing.
+     * a slice) that is not already tapping, and mark it as tapping.
      */
     private _selectWorker(): string | undefined {
         let selected: string | undefined;
 
         this.queue.each(({ workerId }) => {
-            if (selected == null && !this._tracingWorkers.has(workerId)) {
+            if (selected == null && !this._tappingWorkers.has(workerId)) {
                 selected = workerId;
             }
         });
 
-        if (selected != null) this._tracingWorkers.add(selected);
+        if (selected != null) this._tappingWorkers.add(selected);
 
         return selected;
     }
 
     /**
-     * Wait for a worker to be enqueued and claim it for tracing. The claim
-     * happens synchronously in the enqueue event so the trace request is
+     * Wait for a worker to be enqueued and claim it for tapping. The claim
+     * happens synchronously in the enqueue event so the tap request is
      * sent before the worker can be dequeued and dispatched a slice.
      */
     private _waitForWorker(timeoutMs: number): Promise<string> {
         return new Promise((resolve, reject) => {
             const removeListeners = () => {
                 this.removeListener('worker:enqueue', onEnqueue);
-                this.removeListener('worker:trace:released', onEnqueue);
+                this.removeListener('worker:tap:released', onEnqueue);
             };
 
             const timer = setTimeout(() => {
                 removeListeners();
-                reject(new Error(`Slice trace timeout, no worker became available within ${timeoutMs}ms`));
+                reject(new Error(`Slice tap timeout, no worker became available within ${timeoutMs}ms`));
             }, timeoutMs);
 
             function onEnqueue(this: Server, { scope: workerId }: core.EventMessage) {
                 if (this.closed || this.isShuttingDown) {
                     removeListeners();
                     clearTimeout(timer);
-                    reject(new Error('Cannot complete the slice trace, the execution controller is finished or shutting down'));
+                    reject(new Error('Cannot complete the slice tap, the execution controller is finished or shutting down'));
                     return;
                 }
 
-                if (this._tracingWorkers.has(workerId)) return;
+                if (this._tappingWorkers.has(workerId)) return;
 
-                this._tracingWorkers.add(workerId);
+                this._tappingWorkers.add(workerId);
                 removeListeners();
                 clearTimeout(timer);
                 resolve(workerId);
             }
 
             this.on('worker:enqueue', onEnqueue);
-            this.on('worker:trace:released', onEnqueue);
+            this.on('worker:tap:released', onEnqueue);
         });
     }
 
     /**
-     * Mark a worker as no longer tracing and, if it is still queued (like
-     * after a trace timeout), let any waiting trace request claim it.
+     * Mark a worker as no longer tapping and, if it is still queued (like
+     * after a tap timeout), let any waiting tap request claim it.
      */
-    private _releaseTracingWorker(workerId: string): void {
-        this._tracingWorkers.delete(workerId);
+    private _releaseTappingWorker(workerId: string): void {
+        this._tappingWorkers.delete(workerId);
 
         if (this.queue.exists('workerId', workerId)) {
-            this.emit('worker:trace:released', { scope: workerId, payload: {} });
+            this.emit('worker:tap:released', { scope: workerId, payload: {} });
         }
     }
 

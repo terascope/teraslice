@@ -7,16 +7,16 @@ import Jobs from '../../helpers/jobs.js';
 const yargsOptions = new YargsOptions();
 
 export default {
-    command: 'trace <job-file...>',
-    describe: 'Request a slice trace for a job by referencing the job file',
+    command: 'tap <job-file...>',
+    describe: 'Request a slice tap for a job by referencing the job file',
     builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
-        yargs.option('size', yargsOptions.buildOption('trace-size'));
+        yargs.option('size', yargsOptions.buildOption('tap-size'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs
-            .example('$0 tjm trace JOB_FILE.json', 'traces a job');
+            .example('$0 tjm tap JOB_FILE.json', 'taps a job');
 
         return yargs;
     },
@@ -27,11 +27,11 @@ export default {
         const job = new Jobs(cliConfig);
 
         if (job.config.args.jobFile.length > 1) {
-            throw new Error('Trace command only accepts one job at a time.');
+            throw new Error('Tap command only accepts one job at a time.');
         }
 
         await job.initialize();
 
-        await job.trace();
+        await job.tap();
     }
 } as CMD;

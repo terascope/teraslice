@@ -10,7 +10,7 @@ import {
 } from '../interfaces/index.js';
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core/index.js';
 import JobObserver from '../operations/job-observer.js';
-import TraceObserver from '../operations/trace-observer.js';
+import TapObserver from '../operations/tap-observer.js';
 import BaseExecutionContext from './base.js';
 import { getMetric } from './utils.js';
 
@@ -48,7 +48,7 @@ export class WorkerExecutionContext
 
         // register the job-observer first
         this.api.addToRegistry('job-observer', JobObserver);
-        this.api.addToRegistry('trace-observer', TraceObserver);
+        this.api.addToRegistry('tap-observer', TapObserver);
     }
 
     static async createContext(config: ExecutionContextConfig): Promise<WorkerExecutionContext> {
@@ -185,10 +185,10 @@ export class WorkerExecutionContext
         return jobObserver;
     }
 
-    get traceObserver(): TraceObserver {
-        const traceObserver = this.api.getObserver<TraceObserver>('trace-observer');
-        if (traceObserver == null) throw new Error('Trace Observer has not been initialized');
-        return traceObserver;
+    get tapObserver(): TapObserver {
+        const tapObserver = this.api.getObserver<TapObserver>('tap-observer');
+        if (tapObserver == null) throw new Error('Tap Observer has not been initialized');
+        return tapObserver;
     }
 
     async initializeSlice(slice: Slice): Promise<void> {
