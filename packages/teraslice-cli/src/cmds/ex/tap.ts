@@ -3,8 +3,10 @@ import Config from '../../helpers/config.js';
 import TerasliceUtil from '../../helpers/teraslice-util.js';
 import YargsOptions from '../../helpers/yargs-options.js';
 import reply from '../../helpers/reply.js';
+import Display from '../../helpers/display.js';
 
 const yargsOptions = new YargsOptions();
+const display = new Display();
 
 export default {
     command: 'tap <cluster-alias> <id...>',
@@ -12,6 +14,7 @@ export default {
     builder(yargs) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('size', yargsOptions.buildOption('tap-size'));
+        yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.strict()
             .example('$0 ex tap cluster1 99999999-9999-9999-9999-999999999999', '')
             .example('$0 ex tap cluster1 99999999-9999-9999-9999-999999999999 --size 1', '')
@@ -26,6 +29,14 @@ export default {
         }
 
         const [exId] = cliConfig.args.id;
+
+        const confirmed = await display.confirmTap(
+            cliConfig.args.size,
+            `ex ${exId} on ${cliConfig.clusterUrl}`,
+            cliConfig.args.yes
+        );
+        if (!confirmed) return;
+
         const teraslice = new TerasliceUtil(cliConfig);
 
         try {

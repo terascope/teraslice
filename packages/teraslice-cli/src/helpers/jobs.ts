@@ -887,8 +887,16 @@ export default class Jobs {
             return;
         }
 
+        const { size } = this.config.args;
+        const confirmed = await display.confirmTap(
+            size,
+            `job ${job.id} on ${this.config.clusterUrl}`,
+            this.config.args.yes
+        );
+        if (!confirmed) return;
+
         try {
-            const response = await job.api.tap({ size: this.config.args.size });
+            const response = await job.api.tap({ size });
 
             reply.info(JSON.stringify(response));
         } catch (e) {

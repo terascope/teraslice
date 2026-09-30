@@ -12,6 +12,7 @@ export default {
     builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('size', yargsOptions.buildOption('tap-size'));
+        yargs.option('yes', yargsOptions.buildOption('yes'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
@@ -24,14 +25,14 @@ export default {
         const cliConfig = new Config(argv);
         validateAndUpdateCliConfig(cliConfig);
 
-        const job = new Jobs(cliConfig);
+        const jobs = new Jobs(cliConfig);
 
-        if (job.config.args.jobFile.length > 1) {
+        if (jobs.config.args.jobFile.length > 1) {
             throw new Error('Tap command only accepts one job at a time.');
         }
 
-        await job.initialize();
+        await jobs.initialize();
 
-        await job.tap();
+        await jobs.tap();
     }
 } as CMD;

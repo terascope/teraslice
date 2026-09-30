@@ -11,6 +11,7 @@ export default {
     builder(yargs: any) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('size', yargsOptions.buildOption('tap-size'));
+        yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.strict()
             .example('$0 jobs tap CLUSTER_ALIAS JOB_ID')
             .example('$0 jobs tap CLUSTER_ALIAS JOB_ID --size 1', 'return at most 1 record per operation')
