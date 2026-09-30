@@ -12,6 +12,7 @@ import {
     getJobExecution
 } from './helpers.js';
 import reply from '../../src/helpers/reply.js';
+import Display from '../../src/helpers/display.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -1226,7 +1227,7 @@ describe('Job helper class', () => {
             jest.spyOn(reply, 'info').mockImplementation(() => {});
             const [jobId] = makeJobIds(1);
 
-            const job = await initJob(jobId, 'running', { size: 'all' });
+            const job = await initJob(jobId, 'running', { size: 'all', yes: true });
 
             const scope = nock(tsHost)
                 .get(`/v1/jobs/${jobId}/tap`)
@@ -1235,6 +1236,41 @@ describe('Job helper class', () => {
 
             await job.tap();
 
+            expect(scope.isDone()).toBeTrue();
+        });
+
+        it('should prompt and not request a tap if a large size is declined', async () => {
+            const showPrompt = jest.spyOn(Display.prototype, 'showPrompt').mockResolvedValue(false);
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running', { size: '51' });
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/tap`)
+                .query(true)
+                .reply(200, tapResponse);
+
+            await job.tap();
+
+            expect(showPrompt).toHaveBeenCalledTimes(1);
+            expect(scope.isDone()).toBeFalse();
+        });
+
+        it('should prompt and request a tap if a large size is confirmed', async () => {
+            jest.spyOn(reply, 'info').mockImplementation(() => {});
+            const showPrompt = jest.spyOn(Display.prototype, 'showPrompt').mockResolvedValue(true);
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running', { size: '0' });
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/tap`)
+                .query({ size: '0' })
+                .reply(200, tapResponse);
+
+            await job.tap();
+
+            expect(showPrompt).toHaveBeenCalledTimes(1);
             expect(scope.isDone()).toBeTrue();
         });
 
