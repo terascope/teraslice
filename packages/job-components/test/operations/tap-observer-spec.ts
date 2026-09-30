@@ -155,6 +155,19 @@ describe('TapObserver', () => {
         expect(getPending()).toBeNull();
     });
 
+    it('should reject the tap without throwing into the slice when records cannot be collected', async () => {
+        const promise = startTap(10);
+
+        // a plain object has no getMetadata
+        const records = [{ id: 'not-a-data-entity' }] as unknown as DataEntity[];
+
+        observer.onSliceInitialized('slice-1');
+        expect(() => observer.onOperationComplete('slice-1', 0, 1, records)).not.toThrow();
+
+        await expect(promise).rejects.toThrow('failed to collect records for operation 0');
+        expect(getPending()).toBeNull();
+    });
+
     it('should reject when no slice completes before the timeout', async () => {
         const promise = startTap(10, 500);
 

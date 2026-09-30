@@ -23,12 +23,19 @@ export default class TapObserver extends Observer {
 
         this.logger.debug(`Slice tap: collecting ${pending.size} of ${processed} records, operation ${index}, slice ${sliceId}.`);
 
-        pending.records[index] = records
-            .slice(0, pending.size)
-            .map((record) => ({
-                record: cloneDeep({ ...record }),
-                metadata: cloneDeep(record.getMetadata())
-            }));
+        // this runs inside the slice pipeline, so an error
+        // collecting the tap must fail the tap, not the slice
+        try {
+            pending.records[index] = records
+                .slice(0, pending.size)
+                .map((record) => ({
+                    record: cloneDeep({ ...record }),
+                    metadata: cloneDeep(record.getMetadata())
+                }));
+        } catch (err) {
+            this.logger.warn(err, `Slice tap: failed to collect records for operation ${index}, slice ${sliceId}`);
+            pending.failure = `failed to collect records for operation ${index}: ${err instanceof Error ? err.message : String(err)}`;
+        }
     }
 
     onSliceFinalizing(sliceId: string): void {
