@@ -7,7 +7,6 @@ const ONE_MIN = 60 * 1000;
 
 export class Client extends core.Client {
     public workerId: string;
-    private _sliceTapHandler?: i.SliceTapHandler;
 
     constructor(opts: i.ClientOptions) {
         const {
@@ -76,16 +75,6 @@ export class Client extends core.Client {
                 payload: msg.payload,
             });
         });
-
-        this.handleResponse(this.socket, 'worker:slice:tap', (msg: core.Message) => {
-            const { size, tapTimeout } = msg.payload as i.SliceTapRequestMessage;
-
-            if (this._sliceTapHandler == null) {
-                throw new Error(`Worker ${this.workerId} has no slice tap handler registered`);
-            }
-
-            return this._sliceTapHandler({ size, tapTimeout });
-        });
     }
 
     onExecutionFinished(fn: () => void) {
@@ -93,7 +82,10 @@ export class Client extends core.Client {
     }
 
     onSliceTapRequest(fn: i.SliceTapHandler): void {
-        this._sliceTapHandler = fn;
+        this.handleResponse(this.socket, 'worker:slice:tap', (msg: core.Message) => {
+            const { size, tapTimeout } = msg.payload as i.SliceTapRequestMessage;
+            return fn({ size, tapTimeout });
+        });
     }
 
     sendSliceComplete(payload: SliceCompletePayload) {
