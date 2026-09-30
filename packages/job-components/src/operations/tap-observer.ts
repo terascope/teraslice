@@ -4,7 +4,11 @@ import Observer from './observer.js';
 import { PendingTap } from './interfaces.js';
 
 /**
- * An Observer for collecting a slice tap
+ * An Observer for collecting a slice tap.
+ *
+ * The lifecycle methods run inside the slice pipeline and must never throw,
+ * so a failed tap cannot fail the slice. Record the error on `pending.failure`
+ * instead, and let `getTap` reject with it.
  */
 export default class TapObserver extends Observer {
     private pending: PendingTap | null = null;

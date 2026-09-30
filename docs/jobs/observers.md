@@ -122,6 +122,29 @@ onOperationComplete(
 
 The `index` is the position of the operation in the job's `operations` array, so `this.executionConfig.operations[index]._op` gives you its name.
 
+### Lifecycle methods must not throw
+
+Lifecycle methods are called directly from the slice pipeline, without any error handling around them. An error thrown from one, or a rejected promise from an async one, is treated as a failure of the slice itself: the slice is retried and, if it keeps failing, marked as failed. On the Execution Controller, an error is thrown into the controller's own slice handling.
+
+An Observer only watches the job, so a problem in the Observer should never cause the job to fail. Catch any error that could occur in a lifecycle method - such as a record that is not the shape you expect - and log it or record it on the Observer instead:
+
+```ts
+onOperationComplete(
+    sliceId: string,
+    index: number,
+    processed: number,
+    records: DataEntity[]
+): void {
+    try {
+        this.collect(records);
+    } catch (err) {
+        this.logger.warn(err, `failed to collect records for slice ${sliceId}`);
+    }
+}
+```
+
+Methods that are not lifecycle methods, like a method an operation calls on the Observer after `getObserver`, can throw or reject as usual, since their caller handles the error.
+
 ## Adding an Observer to an asset
 
 Within an asset bundle an Observer lives in its own directory, in a file named `observer.js`/`observer.ts`, alongside a `schema.js`/`schema.ts`:
