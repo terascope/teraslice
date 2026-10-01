@@ -70,6 +70,18 @@ export interface ControllerStats extends ExecutionAnalytics {
     name: string;
 }
 
+/**
+ * Slice tap results with the records already serialized to a JSON array by
+ * the worker. socket.io sends the Buffer as a binary attachment, so the
+ * execution controller and cluster master forward the records without
+ * parsing them back into objects.
+ */
+export interface SerializedSliceTapResults {
+    workerId?: string;
+    sliceId: string;
+    records: Buffer;
+}
+
 export type MessagingConfigOptions = {
     [assignment in ProcessAssignment]: {
         networkClient: boolean;

@@ -8,12 +8,13 @@ import {
 import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
 import { type Context, type WorkerExecutionContext, isPromAvailable } from '@terascope/job-components';
-import type { SliceCompletePayload, SliceTapRequest, SliceTapResults } from '@terascope/types';
+import type { SliceCompletePayload, SliceTapRequest } from '@terascope/types';
 import { StateStorage, AnalyticsStorage } from '../../storage/index.js';
 import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
 import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
 import { SliceExecution } from './slice.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
+import type { SerializedSliceTapResults } from '../../../interfaces.js';
 
 export class Worker {
     stateStorage: StateStorage;
@@ -431,10 +432,16 @@ export class Worker {
         return this.slicesProcessed;
     }
 
-    async tap(payload: SliceTapRequest): Promise<SliceTapResults> {
+    async tap(payload: SliceTapRequest): Promise<SerializedSliceTapResults> {
         const { size, tapTimeout } = payload;
         this.logger.debug(`slice tap requested, size ${size}, timeout ${tapTimeout}ms`);
-        return this.slice.executionContext.tapObserver.getTap(size, tapTimeout);
+        const { sliceId, records } = await this.slice.executionContext.tapObserver
+            .getTap(size, tapTimeout);
+
+        return {
+            sliceId,
+            records: Buffer.from(JSON.stringify(records))
+        };
     }
 
     /**

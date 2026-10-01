@@ -218,6 +218,16 @@ describe('ClusterMaster', () => {
                 expect(msg).toHaveProperty('payload', tapResults);
             });
 
+            it('should deliver serialized records as a Buffer', async () => {
+                const records = Buffer.from(JSON.stringify(tapResults.records));
+                handler.mockImplementation(() => ({ ...tapResults, records }));
+
+                const msg = await server.sendSliceTapRequest(exId, request, 1000);
+
+                expect(Buffer.isBuffer(msg?.payload.records)).toBeTrue();
+                expect(msg?.payload.records.equals(records)).toBeTrue();
+            });
+
             it('should reject with the execution error when the tap fails', async () => {
                 handler.mockImplementation(async () => {
                     throw new Error('Slice tap timeout after 1s; no worker became available');

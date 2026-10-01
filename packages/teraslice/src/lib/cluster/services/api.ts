@@ -446,7 +446,10 @@ export class ApiService {
             requestHandler(async () => {
                 const options = getSliceTapOptions(req.query);
                 const exId = await this._getExIdFromRequest(req);
-                return this.executionService.getSliceTap(exId, options);
+                const body = await this.executionService.getSliceTap(exId, options);
+                // set Content-Type to JSON so body is properly converted from buffer
+                res.type('json');
+                return body;
             });
         });
 

@@ -5,7 +5,11 @@ import { ExecutionService } from '../../src/lib/cluster/services/execution.js';
 
 describe('ExecutionService', () => {
     describe('getSliceTap', () => {
-        const tapResults = { workerId: 'some-worker', sliceId: 'some-slice', records: [] };
+        const tapResults = {
+            workerId: 'some-worker',
+            sliceId: 'some-slice',
+            records: [[{ id: 1, name: 'quote " and \\ backslash' }], []]
+        };
 
         function setup(apiTimeout: number, latencyBuffer: number) {
             const context = new TestContext('execution-service') as any;
@@ -13,7 +17,13 @@ describe('ExecutionService', () => {
             context.sysconfig.teraslice.network_latency_buffer = latencyBuffer;
 
             const sendSliceTapRequest = jest.fn<(...args: any[]) => Promise<any>>()
-                .mockResolvedValue({ payload: tapResults });
+                .mockResolvedValue({
+                    payload: {
+                        workerId: tapResults.workerId,
+                        sliceId: tapResults.sliceId,
+                        records: Buffer.from(JSON.stringify(tapResults.records))
+                    }
+                });
 
             const service = new ExecutionService(context, {
                 clusterMasterServer: { sendSliceTapRequest } as any
@@ -32,9 +42,9 @@ describe('ExecutionService', () => {
         ) => {
             const { service, sendSliceTapRequest, warn } = setup(apiTimeout, 15_000);
 
-            const results = await service.getSliceTap('some-ex-id', { size: 10 });
+            const body = await service.getSliceTap('some-ex-id', { size: 10 });
 
-            expect(results).toEqual(tapResults);
+            expect(JSON.parse(body.toString())).toEqual(tapResults);
             expect(sendSliceTapRequest).toHaveBeenCalledWith(
                 'some-ex-id',
                 { size: 10, sendTimeout: ecSendTimeout, tapTimeout },

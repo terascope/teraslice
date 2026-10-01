@@ -209,7 +209,7 @@ describe('HTTP API', () => {
         });
 
         beforeEach(() => {
-            getSliceTap.mockReset().mockResolvedValue(tapResults);
+            getSliceTap.mockReset().mockResolvedValue(Buffer.from(JSON.stringify(tapResults)));
             getLatestExecutionId.mockReset().mockResolvedValue(exId);
         });
 
@@ -217,6 +217,7 @@ describe('HTTP API', () => {
             const response = await getTap('jobs/some-job-id');
 
             expect(response.statusCode).toEqual(200);
+            expect(response.headers['content-type']).toStartWith('application/json');
             expect(response.body).toEqual(tapResults);
             expect(getLatestExecutionId).toHaveBeenCalledWith('some-job-id');
             expect(getSliceTap).toHaveBeenCalledWith(exId, { size: 10 });

@@ -8,12 +8,12 @@ import {
 import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import {
-    ExecutionConfig, JobConfig, NodeState,
-    SliceTapRequest, SliceTapResults
+    ExecutionConfig, JobConfig, NodeState, SliceTapRequest
 } from '@terascope/types';
 import type { ExecutionStorage, StateStorage } from '../../storage/index.js';
 import type {
-    ClusterMasterContext, ExecutionNodeWorker, ControllerStats
+    ClusterMasterContext, ExecutionNodeWorker, ControllerStats,
+    SerializedSliceTapResults
 } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';
@@ -164,7 +164,12 @@ export class ExecutionService {
         };
     }
 
-    async getSliceTap(exId: string, options: SliceTapOptions): Promise<SliceTapResults> {
+    /**
+     * Tap a slice from an execution. Resolves with the JSON response
+     * body (a serialized SliceTapResults) so the records the worker
+     * serialized are never parsed by the cluster master.
+     */
+    async getSliceTap(exId: string, options: SliceTapOptions): Promise<Buffer> {
         const { size } = options;
         const { sendTimeout, request } = this._sliceTapDeadlines();
 
@@ -173,7 +178,15 @@ export class ExecutionService {
                 throw new Error(`Slice tap for execution ${exId} cannot be completed, teraslice is shutting down`);
             }
 
-            return msg.payload as SliceTapResults;
+            const { workerId, sliceId, records } = msg.payload as SerializedSliceTapResults;
+            // remove closing angle bracket
+            const head = JSON.stringify({ workerId, sliceId }).slice(0, -1);
+
+            return Buffer.concat([
+                Buffer.from(`${head},"records":`),
+                records,
+                Buffer.from('}')
+            ]);
         }
 
         return this.clusterMasterServer

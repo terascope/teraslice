@@ -1,6 +1,7 @@
 import type { Logger } from '@terascope/core-utils';
 import type { ExecutionController } from '@terascope/teraslice-messaging';
-import type { SliceTapRequest, SliceTapResults } from '@terascope/types';
+import type { SliceTapRequest } from '@terascope/types';
+import type { SerializedSliceTapResults } from '../../../interfaces.js';
 
 // the least time worth giving a worker to tap a slice
 // after waiting for it to become available
@@ -43,7 +44,9 @@ export class SliceTap {
      * Send a slice tap request to the next worker in line for a slice,
      * waiting for one to be enqueued if necessary.
      */
-    async tap({ size, sendTimeout, tapTimeout }: SliceTapRequest): Promise<SliceTapResults> {
+    async tap(
+        { size, sendTimeout, tapTimeout }: SliceTapRequest
+    ): Promise<SerializedSliceTapResults> {
         const start = Date.now();
         let targetId: string | undefined;
 

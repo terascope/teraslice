@@ -386,6 +386,16 @@ describe('ExecutionController', () => {
                         expect(msg?.payload).toEqual(tapResults);
                     });
 
+                    it('should deliver serialized records as a Buffer', async () => {
+                        const records = Buffer.from(JSON.stringify(tapResults.records));
+                        handler.mockImplementation(() => ({ sliceId: 'tapped-slice', records }));
+
+                        const msg = await server.sendSliceTapRequest(workerId, request, 3000);
+
+                        expect(Buffer.isBuffer(msg?.payload.records)).toBeTrue();
+                        expect(msg?.payload.records.equals(records)).toBeTrue();
+                    });
+
                     it('should reject with the worker error when the tap fails', async () => {
                         handler.mockImplementation(async () => {
                             throw new Error('slice slice-1 failed before completing');

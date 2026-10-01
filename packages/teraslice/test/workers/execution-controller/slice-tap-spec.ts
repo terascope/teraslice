@@ -24,7 +24,7 @@ describe('SliceTap', () => {
                 eventName: 'worker:slice:tap',
                 from: 'ExecutionController',
                 to: workerId,
-                payload: { sliceId: `${workerId}-slice`, records: [] },
+                payload: { sliceId: `${workerId}-slice`, records: Buffer.from('[]') },
             }) as any),
             enqueue(workerId: string) {
                 if (!this.queue.exists('workerId', workerId)) {
@@ -62,7 +62,9 @@ describe('SliceTap', () => {
 
         const result = await sliceTap.tap({ size: 10, sendTimeout: 3000, tapTimeout: 2000 });
 
-        expect(result).toEqual({ workerId: 'worker-1', sliceId: 'worker-1-slice', records: [] });
+        expect(result).toEqual({
+            workerId: 'worker-1', sliceId: 'worker-1-slice', records: Buffer.from('[]')
+        });
         expect(server.sendSliceTapRequest).toHaveBeenCalledWith(
             'worker-1',
             { size: 10, tapTimeout: expect.toBeWithin(1900, 2001) },
