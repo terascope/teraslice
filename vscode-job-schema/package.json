@@ -1,0 +1,33 @@
+{
+  "name": "teraslice-job-schema",
+  "displayName": "Teraslice Job Schema",
+  "description": "Autocomplete, validation, and hover docs for Teraslice job files (*.job.json) via JSON Schema.",
+  "version": "0.1.0",
+  "publisher": "terascope",
+  "license": "Apache-2.0",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "teraslice",
+    "terascope",
+    "json",
+    "schema"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/terascope/teraslice.git"
+  },
+  "contributes": {
+    "jsonValidation": [
+      {
+        "fileMatch": "*.tsjob.json",
+        "url": "./schemas/teraslice-job.schema.json"
+      }
+    ]
+  }
+}
