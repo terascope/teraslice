@@ -81,11 +81,8 @@ export class Client extends core.Client {
         this.on('execution:finished', fn);
     }
 
-    onSliceTapRequest(fn: i.SliceTapHandler): void {
-        this.handleResponse(this.socket, 'worker:slice:tap', (msg: core.Message) => {
-            const { size, tapTimeout } = msg.payload as i.SliceTapRequestMessage;
-            return fn({ size, tapTimeout });
-        });
+    onSliceTapRequest(fn: core.MessageHandler): void {
+        this.handleResponse(this.socket, 'worker:slice:tap', fn);
     }
 
     sendSliceComplete(payload: SliceCompletePayload) {

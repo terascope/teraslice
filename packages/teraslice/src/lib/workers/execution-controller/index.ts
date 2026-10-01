@@ -1053,7 +1053,7 @@ export class ExecutionController {
 
             if (paused) {
                 this.logger.info(
-                    'opensearch stores are now in a valid state, resumming scheduler...'
+                    'opensearch stores are now in a valid state, resuming scheduler...'
                 );
                 paused = false;
                 this.scheduler.start();

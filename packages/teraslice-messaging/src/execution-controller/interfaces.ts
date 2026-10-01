@@ -33,19 +33,6 @@ export interface ActiveWorkers {
     [workerId: string]: boolean;
 }
 
-export interface SliceResponseMessage {
-    willProcess?: boolean;
-}
-
-export interface SliceTapRequestMessage {
-    size: number;
-    tapTimeout: number;
-}
-
-export interface SliceTapHandler {
-    (request: SliceTapRequestMessage): Promise<Record<string, any>> | Record<string, any>;
-}
-
 export interface WorkerShutdownFn {
     (error?: null): void;
 }

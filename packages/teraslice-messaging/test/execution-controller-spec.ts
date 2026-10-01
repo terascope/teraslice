@@ -2,7 +2,7 @@ import 'jest-extended';
 import { jest } from '@jest/globals';
 import { pDelay, findPort } from './helpers/index.js';
 import { formatURL, newMsgId, ExecutionController } from '../src/index.js';
-import type * as i from '../src/execution-controller/interfaces.js';
+import { MessageHandler } from '../src/messenger/index.js';
 
 describe('ExecutionController', () => {
     describe('->Client', () => {
@@ -358,7 +358,7 @@ describe('ExecutionController', () => {
                 });
 
                 describe('when the worker has a tap handler registered', () => {
-                    const handler = jest.fn<i.SliceTapHandler>();
+                    const handler = jest.fn<MessageHandler>();
 
                     beforeAll(() => {
                         client.onSliceTapRequest(handler);
@@ -372,10 +372,13 @@ describe('ExecutionController', () => {
                     it('should pass the request to the worker and return its tap', async () => {
                         const result = await server.sendSliceTapRequest(10, 3000, 2000);
 
-                        expect(handler).toHaveBeenCalledWith({
-                            size: 10,
-                            tapTimeout: expect.toBeWithin(1000, 2001)
-                        });
+                        expect(handler).toHaveBeenCalledWith(expect.objectContaining({
+                            eventName: 'worker:slice:tap',
+                            payload: {
+                                size: 10,
+                                tapTimeout: expect.toBeWithin(1000, 2001)
+                            }
+                        }));
                         expect(result).toEqual({ workerId, ...tapResults });
                     });
 
@@ -442,7 +445,7 @@ describe('ExecutionController', () => {
         let server: ExecutionController.Server;
         let executionControllerUrl: string;
         const clients: ExecutionController.Client[] = [];
-        const handlers: Record<string, jest.Mock<i.SliceTapHandler>> = {};
+        const handlers: Record<string, jest.Mock<MessageHandler>> = {};
 
         async function addWorker(workerId: string) {
             const client = new ExecutionController.Client({
@@ -457,7 +460,7 @@ describe('ExecutionController', () => {
                 },
             });
 
-            handlers[workerId] = jest.fn<i.SliceTapHandler>(async () => {
+            handlers[workerId] = jest.fn<MessageHandler>(async () => {
                 await pDelay(300);
                 return { sliceId: `${workerId}-slice`, records: [] };
             });

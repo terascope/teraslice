@@ -8,7 +8,7 @@ import {
 import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
 import { type Context, type WorkerExecutionContext, isPromAvailable } from '@terascope/job-components';
-import type { SliceCompletePayload } from '@terascope/types';
+import type { SliceCompletePayload, SliceTapRequest, SliceTapResults } from '@terascope/types';
 import { StateStorage, AnalyticsStorage } from '../../storage/index.js';
 import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
 import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
@@ -127,10 +127,7 @@ export class Worker {
             this.shouldShutdown = true;
         });
 
-        this.client.onSliceTapRequest(async ({ size, tapTimeout }) => {
-            this.logger.debug(`slice tap requested, size ${size}, timeout ${tapTimeout}ms`);
-            return this.slice.executionContext.tapObserver.getTap(size, tapTimeout);
-        });
+        this.client.onSliceTapRequest((msg) => this.tap(msg.payload as SliceTapRequest));
 
         await this.client.start();
 
@@ -432,6 +429,12 @@ export class Worker {
 
     getSlicesProcessed() {
         return this.slicesProcessed;
+    }
+
+    async tap(payload: SliceTapRequest): Promise<SliceTapResults> {
+        const { size, tapTimeout } = payload;
+        this.logger.debug(`slice tap requested, size ${size}, timeout ${tapTimeout}ms`);
+        return this.slice.executionContext.tapObserver.getTap(size, tapTimeout);
     }
 
     /**
