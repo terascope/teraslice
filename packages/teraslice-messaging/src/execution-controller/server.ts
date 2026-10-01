@@ -1,20 +1,13 @@
 import { isNumber, get, Queue } from '@terascope/core-utils';
-import {
-    EnqueuedWorker, Slice, SliceCompletePayload, SliceTapResults
-} from '@terascope/types';
+import { EnqueuedWorker, Slice, SliceCompletePayload } from '@terascope/types';
 import type { Socket } from 'socket.io';
 import * as core from '../messenger/index.js';
 import * as i from './interfaces.js';
 
 const { Available, Unavailable } = core.ClientState;
 
-// the least time worth giving a worker to tap a slice
-// after waiting for it to become available
-const MIN_TAP_TIMEOUT = 1000;
-
 export class Server extends core.Server {
     private _activeWorkers: i.ActiveWorkers;
-    private _tappingWorkers = new Set<string>();
     queue: Queue<EnqueuedWorker>;
     executionReady: boolean;
 
@@ -117,56 +110,22 @@ export class Server extends core.Server {
         return dispatched;
     }
 
+    sendSliceTapRequest(
+        workerId: string,
+        payload: { size: number; tapTimeout: number },
+        timeout: number
+    ): Promise<core.Message | null> {
+        return this.send(workerId, 'worker:slice:tap', payload, { response: true, timeout });
+    }
+
     /**
-     * Send a slice tap request to the next worker in line for a slice,
-     * waiting for one to be enqueued if necessary.
+     * Called synchronously when a worker is enqueued (or re-announces that it
+     * is available), before the worker can be dequeued and dispatched a slice.
      */
-    async sendSliceTapRequest(
-        size: number,
-        sendTimeout: number,
-        tapTimeout: number
-    ): Promise<SliceTapResults> {
-        const start = Date.now();
-        let targetId: string | undefined;
-
-        try {
-            targetId = this._selectWorker();
-
-            if (targetId == null) {
-                this.logger.debug('Slice tap: no worker is available, waiting for one to be enqueued');
-                targetId = await this._waitForWorker(tapTimeout);
-            }
-
-            const elapsed = Date.now() - start;
-            const remainingTapTimeout = tapTimeout - elapsed;
-
-            if (remainingTapTimeout < MIN_TAP_TIMEOUT) {
-                throw new Error(`Slice tap timeout after waiting ${elapsed}ms for a worker to become available`);
-            }
-
-            this.logger.debug(`Slice tap request sent to worker: ${targetId}`);
-
-            const message = await this.send(
-                targetId!,
-                'worker:slice:tap',
-                { size, tapTimeout: remainingTapTimeout },
-                { response: true, timeout: sendTimeout - elapsed }
-            );
-
-            if (!message) {
-                throw new Error(`Cannot complete the slice tap for worker ${targetId}, the execution controller is finished or shutting down`);
-            }
-
-            const { sliceId, records } = message.payload;
-
-            return {
-                workerId: targetId!,
-                sliceId,
-                records
-            };
-        } finally {
-            if (targetId != null) this._releaseTappingWorker(targetId);
-        }
+    onWorkerEnqueue(fn: (workerId: string) => void): void {
+        this.on('worker:enqueue', (msg) => {
+            fn(msg.scope);
+        });
     }
 
     onSliceSuccess(fn: (workerId: string, payload: SliceCompletePayload) => void): void {
@@ -221,74 +180,6 @@ export class Server extends core.Server {
                 slice_id: sliceId,
             };
         });
-    }
-
-    /**
-     * Select the queued worker closest to the head (the next to receive
-     * a slice) that is not already tapping, and mark it as tapping.
-     */
-    private _selectWorker(): string | undefined {
-        let selected: string | undefined;
-
-        this.queue.each(({ workerId }) => {
-            if (selected == null && !this._tappingWorkers.has(workerId)) {
-                selected = workerId;
-            }
-        });
-
-        if (selected != null) this._tappingWorkers.add(selected);
-
-        return selected;
-    }
-
-    /**
-     * Wait for a worker to be enqueued and claim it for tapping. The claim
-     * happens synchronously in the enqueue event so the tap request is
-     * sent before the worker can be dequeued and dispatched a slice.
-     */
-    private _waitForWorker(timeoutMs: number): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const removeListeners = () => {
-                this.removeListener('worker:enqueue', onEnqueue);
-                this.removeListener('worker:tap:released', onEnqueue);
-            };
-
-            const timer = setTimeout(() => {
-                removeListeners();
-                reject(new Error(`Slice tap timeout, no worker became available within ${timeoutMs}ms`));
-            }, timeoutMs);
-
-            function onEnqueue(this: Server, { scope: workerId }: core.EventMessage) {
-                if (this.closed || this.isShuttingDown) {
-                    removeListeners();
-                    clearTimeout(timer);
-                    reject(new Error('Cannot complete the slice tap, the execution controller is finished or shutting down'));
-                    return;
-                }
-
-                if (this._tappingWorkers.has(workerId)) return;
-
-                this._tappingWorkers.add(workerId);
-                removeListeners();
-                clearTimeout(timer);
-                resolve(workerId);
-            }
-
-            this.on('worker:enqueue', onEnqueue);
-            this.on('worker:tap:released', onEnqueue);
-        });
-    }
-
-    /**
-     * Mark a worker as no longer tapping and, if it is still queued (like
-     * after a tap timeout), let any waiting tap request claim it.
-     */
-    private _releaseTappingWorker(workerId: string): void {
-        this._tappingWorkers.delete(workerId);
-
-        if (this.queue.exists('workerId', workerId)) {
-            this.emit('worker:tap:released', { scope: workerId, payload: {} });
-        }
     }
 
     private _workerEnqueue(workerId: string): boolean {

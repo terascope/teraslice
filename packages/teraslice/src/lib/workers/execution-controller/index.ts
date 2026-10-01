@@ -19,6 +19,7 @@ import { makeLogger, generateWorkerId } from '../helpers/terafoundation.js';
 import { ExecutionAnalytics } from './execution-analytics.js';
 import { SliceAnalytics } from './slice-analytics.js';
 import { Scheduler } from './scheduler.js';
+import { SliceTap } from './slice-tap.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
 export class ExecutionController {
@@ -45,6 +46,7 @@ export class ExecutionController {
     private _handlers = new Map<string, ((arg: any) => void) | null>();
     executionAnalytics: ExecutionAnalytics;
     readonly scheduler: Scheduler;
+    private readonly sliceTap: SliceTap;
     readonly workerId: string;
     readonly exId: string;
     private readonly shutdownTimeout: number;
@@ -103,6 +105,7 @@ export class ExecutionController {
         this.executionAnalytics = new ExecutionAnalytics(context, executionContext, this.client);
 
         this.scheduler = new Scheduler(context, executionContext);
+        this.sliceTap = new SliceTap(this.server, logger);
 
         this.exId = executionContext.exId;
         this.workerId = workerId;
@@ -252,7 +255,7 @@ export class ExecutionController {
             this.logger.debug(`slice tap request received: ${JSON.stringify(msg.payload)}`);
 
             const { size, sendTimeout, tapTimeout } = msg.payload;
-            return this.server.sendSliceTapRequest(size, sendTimeout, tapTimeout);
+            return this.sliceTap.tap({ size, sendTimeout, tapTimeout });
         });
 
         this.server.onSliceSuccess((workerId, response) => {
