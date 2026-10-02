@@ -1,4 +1,4 @@
-import { isString, withoutNil, isNumber } from '@terascope/core-utils';
+import { isString, withoutNil } from '@terascope/core-utils';
 import { SliceCompletePayload, Slice } from '@terascope/types';
 import * as core from '../messenger/index.js';
 import * as i from './interfaces.js';
@@ -13,7 +13,6 @@ export class Client extends core.Client {
             executionControllerUrl,
             socketOptions,
             workerId,
-            workerDisconnectTimeout,
             networkLatencyBuffer,
             actionTimeout,
             connectTimeout,
@@ -28,16 +27,11 @@ export class Client extends core.Client {
             throw new Error('ExecutionController.Client requires a valid workerId');
         }
 
-        if (!isNumber(workerDisconnectTimeout)) {
-            throw new Error('ExecutionController.Client requires a valid workerDisconnectTimeout');
-        }
-
         super({
             socketOptions,
             networkLatencyBuffer,
             actionTimeout,
             connectTimeout,
-            clientDisconnectTimeout: workerDisconnectTimeout,
             hostUrl: executionControllerUrl,
             clientId: workerId,
             clientType: 'worker',

@@ -128,20 +128,6 @@ describe('Messenger', () => {
             });
         });
 
-        describe('when constructed without a valid clientDisconnectTimeout', () => {
-            it('should throw an error', () => {
-                expect(() => {
-                    // @ts-expect-error
-                    new Messenger.Server({
-                        actionTimeout: 1,
-                        networkLatencyBuffer: 0,
-                        port: 80,
-                        serverName: 'hello'
-                    });
-                }).toThrow('Messenger.Server requires a valid clientDisconnectTimeout');
-            });
-        });
-
         describe('when constructed without a valid serverName', () => {
             it('should throw an error', () => {
                 expect(() => {
@@ -150,7 +136,6 @@ describe('Messenger', () => {
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
                         port: 80,
-                        clientDisconnectTimeout: 1,
                     });
                 }).toThrow('Messenger.Server requires a valid serverName');
             });
@@ -176,7 +161,6 @@ describe('Messenger', () => {
                     actionTimeout: 1,
                     networkLatencyBuffer: 0,
                     port,
-                    clientDisconnectTimeout: 1,
                     serverName: 'hello'
                 });
                 const error = `Port ${port} is already in-use`;
@@ -216,7 +200,6 @@ describe('Messenger', () => {
                         networkLatencyBuffer: 0,
                         actionTimeout: 1000,
                         serverTimeout: 2000,
-                        clientDisconnectTimeout: 3000,
                         serverName: 'example'
                     });
 
@@ -233,7 +216,6 @@ describe('Messenger', () => {
                         clientId,
                         clientType: 'example',
                         hostUrl,
-                        clientDisconnectTimeout: 1000,
                         networkLatencyBuffer: 0,
                         actionTimeout: 1000,
                         connectTimeout: 5000,

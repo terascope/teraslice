@@ -85,7 +85,6 @@ export class ExecutionController {
             networkLatencyBuffer,
             requestListener: this.requestListener.bind(this),
             actionTimeout,
-            workerDisconnectTimeout,
             logger
         });
 
@@ -94,7 +93,6 @@ export class ExecutionController {
 
         this.client = new ClusterMaster.Client({
             clusterMasterUrl: formatURL(clusterMasterHostname, clusterMasterPort),
-            nodeDisconnectTimeout,
             networkLatencyBuffer,
             actionTimeout,
             exId: executionContext.exId,
@@ -234,7 +232,7 @@ export class ExecutionController {
 
         this.server.onClientReconnect((workerId) => {
             clearTimeout(this.workerDisconnectTimeoutId);
-            this.workerConnectTimeoutId = undefined;
+            this.workerDisconnectTimeoutId = undefined;
 
             this.logger.trace(`worker ${workerId} is reconnected`);
             this.executionAnalytics.increment('workers_reconnected');
@@ -1145,7 +1143,7 @@ export class ExecutionController {
         if (this.isShuttingDown) return;
         if (this.server.onlineClientCount > 0) return;
 
-        const err = new Error(`All workers from workers from ${this.exId} have disconnected`);
+        const err = new Error(`All workers from execution ${this.exId} have disconnected`);
 
         this.workerDisconnectTimeoutId = setTimeout(() => {
             clearTimeout(this.workerDisconnectTimeoutId);
