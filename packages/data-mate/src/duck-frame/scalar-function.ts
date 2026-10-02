@@ -109,7 +109,8 @@ export interface ScalarFunctionSpec {
  */
 export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunction {
     const callWithNull = spec.callWithNull ?? false;
-    const convert = makeValueConverter(spec.returns, spec.returnsChildren);
+    // a result is COMPUTED, so it may be wider than a stored Long - see `wideIntegers`
+    const convert = makeValueConverter(spec.returns, spec.returnsChildren, { wideIntegers: true });
     /**
      * The way IN needs a conversion too, and its absence was a real defect: a `Date` arrived as a
      * `DuckDBTimestampValue` that the date primitives stringified into a zone-less string and

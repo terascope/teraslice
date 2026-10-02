@@ -103,5 +103,8 @@ export async function diffSchema(frame: DuckFrame): Promise<SchemaMismatch[]> {
  */
 function normalize(type: string): string {
     return type.trim().toUpperCase()
-        .replace(/"/g, '');
+        .replace(/"/g, '')
+        // a GEOMETRY read off GeoParquet carries its CRS - `GEOMETRY('OGC:CRS84')` - which is
+        // metadata about the coordinates, not a different type
+        .replace(/GEOMETRY\('[^']*'\)/g, 'GEOMETRY');
 }

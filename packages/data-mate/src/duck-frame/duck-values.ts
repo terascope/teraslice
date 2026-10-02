@@ -1,11 +1,12 @@
 import {
-    structValue, listValue, timestampValue, DuckDBTimestampValue
+    structValue, listValue, timestampValue, geometryValue, DuckDBTimestampValue
 } from '@duckdb/node-api';
 import {
     DataTypeFieldConfig, DataTypeFields, ReadonlyDataTypeFields,
-    FieldType, DeprecatedFieldType
+    FieldType, DeprecatedFieldType, GeoShape
 } from '@terascope/types';
 import { getChildDataTypeConfig } from '../core/utils.js';
+import { geoShapeToWKB } from './wkb.js';
 
 /**
  * `DataTypeFieldConfig.type` is the enum OR the deprecated string union, and real configs
@@ -28,7 +29,7 @@ type FieldTypeLike = FieldType | DeprecatedFieldType;
 
 export type ValueConverter = (value: unknown) => unknown;
 
-/** Field types whose DuckDB column is BIGINT or HUGEINT, so they need a real BigInt. */
+/** Field types whose DuckDB column is a BIGINT, so they need a real BigInt. */
 const BIG_INT_TYPES: ReadonlySet<string> = new Set<string>([
     FieldType.Integer, FieldType.Long,
 ]);
@@ -50,23 +51,98 @@ const GEO_POINT_TYPES: ReadonlySet<string> = new Set<string>([
 /**
  * `core-utils`' `_maxBigInt`, i.e. `BigInt(Number.MAX_SAFE_INTEGER)`.
  *
- * `toBigIntOrThrow` ADDS 1 above this bound and `bigIntToJSON` subtracts it again, so the
- * pair cancels for `DataFrame`. Taking the bigint straight from `coerceToType` gets the
- * `+1` without the `-1`, which stored '9007199254740993' as ...994. The same `-1` is
- * applied here so the value that lands in DuckDB is the value that went in.
+ * `toBigIntOrThrow` ADDS 1 to every value it PARSES above this bound, and `bigIntToJSON`
+ * subtracts it again, so the pair cancels for `DataFrame` (DEF-BIGINT, #4555). The same `-1`
+ * is applied here so the value that lands in DuckDB is the value that went in.
  *
- * (Aside: for a real bigint INPUT data-mate skips the `+1` but still applies the `-1`, so
- * it loses 1 - a genuine defect, recorded in ingest-findings.md. This path is correct in
- * that case rather than bug-compatible.)
+ * That is only exact if EVERY value above the bound took the `+1`, and a bigint INPUT did not:
+ * `toBigIntOrThrow` returns one untouched, so `9007199254740993n` was stored as `...992`.
+ * {@link makeBigIntInputNormaliser} closes that gap by handing such a bigint to coercion as its
+ * decimal string - exact, and parsed on the same path as a string input.
 */
 const MAX_SAFE_BIGINT = 9007199254740991n;
 
-function toBigInt(value: unknown): bigint | null {
+/** The signed 64-bit range of a BIGINT column - and of an Elasticsearch `long`. */
+const MIN_INT64 = -9223372036854775808n;
+const MAX_INT64 = 9223372036854775807n;
+
+function toBigInt(value: unknown, int64: boolean): bigint | null {
     if (typeof value === 'bigint') {
-        return value > MAX_SAFE_BIGINT ? value - 1n : value;
+        const exact = value > MAX_SAFE_BIGINT ? value - 1n : value;
+        // THROWN, so ingest records a coercion failure: a BIGINT vector would otherwise
+        // be handed a value it cannot hold
+        if (int64 && (exact < MIN_INT64 || exact > MAX_INT64)) {
+            throw new RangeError(`${exact} is outside the signed 64-bit range of a Long`);
+        }
+        return exact;
     }
     const num = Number(value);
     return Number.isFinite(num) ? BigInt(Math.trunc(num)) : null;
+}
+
+/** A bigint core-utils would return unparsed, and so without the `+1` the converter undoes. */
+function unparsedBigInt(value: unknown): unknown {
+    return typeof value === 'bigint' && value > MAX_SAFE_BIGINT ? value.toString(10) : value;
+}
+
+/** Turns the RAW input for one field into the form ingest coerces exactly. */
+export type InputNormaliser = (value: unknown) => unknown;
+
+/**
+ * The normaliser for one field, or `undefined` when nothing in it is a `Long` - most fields,
+ * which then pay nothing per row.
+ *
+ * It walks the field's config, not the value, so only `Long` positions are touched: a bigint
+ * handed to an `Any` field stays a bigint. Every result is a new value; the caller's record is
+ * never modified.
+*/
+export function makeBigIntInputNormaliser(
+    fieldConfig: DataTypeFieldConfig,
+    childConfig?: DataTypeFields | ReadonlyDataTypeFields
+): InputNormaliser | undefined {
+    const type = fieldConfig.type as FieldTypeLike;
+    const element = type === FieldType.Long
+        ? unparsedBigInt
+        : childNormaliser(type, childConfig);
+
+    if (element == null) return undefined;
+    if (!fieldConfig.array) return element;
+    return (value) => (Array.isArray(value) ? value.map(element) : element(value));
+}
+
+/** Normalises the `Long` children of an Object or Tuple, by name or by position. */
+function childNormaliser(
+    type: FieldTypeLike,
+    childConfig?: DataTypeFields | ReadonlyDataTypeFields
+): InputNormaliser | undefined {
+    if ((type !== FieldType.Object && type !== FieldType.Tuple) || childConfig == null) {
+        return undefined;
+    }
+    const children = Object.entries(childConfig)
+        .filter(([name]) => !name.includes('.'))
+        .map(([name, config]) => ({
+            name,
+            normalise: makeBigIntInputNormaliser(
+                config,
+                getChildDataTypeConfig(childConfig, name, config.type as FieldType)
+            ),
+        }))
+        .filter((child): child is { name: string; normalise: InputNormaliser } => (
+            child.normalise != null
+        ));
+
+    if (children.length === 0) return undefined;
+
+    return (value) => {
+        if (value == null || typeof value !== 'object') return value;
+        const copy: Record<string, unknown> = Array.isArray(value)
+            ? [...value] as unknown as Record<string, unknown>
+            : { ...value as Record<string, unknown> };
+        for (const { name, normalise } of children) {
+            if (name in copy) copy[name] = normalise(copy[name]);
+        }
+        return copy;
+    };
 }
 
 /**
@@ -84,6 +160,16 @@ function toGeoPoint(value: unknown): unknown {
     return structValue({ lat: Number(point.lat), lon: Number(point.lon) });
 }
 
+export interface ValueConverterOptions {
+    /**
+     * Allow integers beyond the signed 64-bit range. **Off for a stored column** - a `Long` is a
+     * BIGINT, and a value it cannot hold is a coercion failure. **On for a scalar function's
+     * RESULT**, which is a computed value in a wider vector: `ipToInt` on an IPv6 address is a
+     * 128-bit `Long`.
+    */
+    wideIntegers?: boolean;
+}
+
 /**
  * Returns the converter for one field.
  *
@@ -94,12 +180,14 @@ function toGeoPoint(value: unknown): unknown {
 */
 export function makeValueConverter(
     fieldConfig: DataTypeFieldConfig,
-    childConfig?: DataTypeFields | ReadonlyDataTypeFields
+    childConfig?: DataTypeFields | ReadonlyDataTypeFields,
+    options: ValueConverterOptions = {}
 ): ValueConverter {
     const type = fieldConfig.type as FieldTypeLike;
+    const int64 = options.wideIntegers !== true;
 
     if (fieldConfig.array) {
-        const element = makeValueConverter({ ...fieldConfig, array: false }, childConfig);
+        const element = makeValueConverter({ ...fieldConfig, array: false }, childConfig, options);
         return (value) => {
             if (value == null) return null;
             const items = Array.isArray(value) ? value : [value];
@@ -118,7 +206,8 @@ export function makeValueConverter(
                 name,
                 convert: makeValueConverter(
                     config,
-                    getChildDataTypeConfig(childConfig, name, config.type as FieldType)
+                    getChildDataTypeConfig(childConfig, name, config.type as FieldType),
+                    options
                 ),
             }));
         return (value) => {
@@ -140,13 +229,18 @@ export function makeValueConverter(
         };
     }
 
-    if (BIG_INT_TYPES.has(type)) return (value) => (value == null ? null : toBigInt(value));
+    if (BIG_INT_TYPES.has(type)) return (value) => (value == null ? null : toBigInt(value, int64));
     if (SMALL_INT_TYPES.has(type)) return (value) => (value == null ? null : Number(value));
     if (DOUBLE_TYPES.has(type)) return (value) => (value == null ? null : Number(value));
     if (type === FieldType.Date) return (value) => (value == null ? null : toTimestamp(value));
 
-    // GeoJSON and Any are JSON columns; everything else is VARCHAR/BOOLEAN and goes as is
-    if (type === FieldType.GeoJSON || type === FieldType.Any) {
+    // GeoJSON is a GEOMETRY column, and the binding writes one only as WKB through a vector
+    if (type === FieldType.GeoJSON) {
+        return (value) => (value == null ? null : geometryValue(geoShapeToWKB(value as GeoShape)));
+    }
+
+    // Any is a JSON column; everything else is VARCHAR/BOOLEAN and goes as is
+    if (type === FieldType.Any) {
         return (value) => (value == null ? null : JSON.stringify(value));
     }
 

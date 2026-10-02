@@ -50,10 +50,10 @@ export const isGeoShapePolygonConfig: FieldValidateConfig = {
     create() {
         return isGeoShapePolygon;
     },
-    /** `isGeoJSON` plus an exact-case `type`. */
+    /** The stored geometry's type. See `isGeoShapeSql` for where this departs from `DataFrame`. */
     sql: {
         applies: (_args, inputConfig) => isGeoJSONColumn(inputConfig),
-        expression: ({ value }) => isGeoShapeSql(value, 'Polygon', 'polygon'),
+        expression: ({ value }) => isGeoShapeSql(value, 'POLYGON'),
     },
     accepts: [
         FieldType.GeoJSON,

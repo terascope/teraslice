@@ -1,10 +1,11 @@
 import {
-    DuckDBInstance, DuckDBConnection, DuckDBScalarFunction
+    DuckDBInstance, DuckDBConnection, DuckDBScalarFunction, DuckDBType
 } from '@duckdb/node-api';
 import { resolve } from 'node:path';
 import { quoteLiteral } from '@terascope/sql-builder';
 import { createScalarFunction, ScalarFunctionSpec } from './scalar-function.js';
 import { toPlainValue } from './plain-values.js';
+import { ValueShaper } from './row-shape.js';
 import { DuckDatabaseSettings } from './interfaces.js';
 import { extensionSettingsFromEnv, ExtensionSettings, loadExtensions } from './extensions.js';
 
@@ -149,6 +150,19 @@ export class DuckContext {
     }
 
     /**
+     * The columns a query produces, with DuckDB's type OBJECTS - no rows are read.
+     *
+     * Objects, not `DESCRIBE`'s text: that text does not quote a struct member's name, so
+     * `STRUCT(HUGEINT BIGINT)` is a member NAMED `HUGEINT`, and no string match can tell a name
+     * from a type there.
+    */
+    async columnTypes(sql: string): Promise<{ name: string; type: DuckDBType }[]> {
+        const result = await this.connection.run(`SELECT * FROM (${sql}) LIMIT 0`);
+        const types = result.columnTypes();
+        return result.columnNames().map((name, i) => ({ name, type: types[i] }));
+    }
+
+    /**
      * Streams a query's rows as objects, a DuckDB chunk at a time.
      *
      * Uses `stream()` + `fetchChunk()` rather than a materializing read, so a large
@@ -190,7 +204,14 @@ export class DuckContext {
         }
     }
 
-    async* streamRowObjects(sql: string): AsyncIterableIterator<Record<string, unknown>> {
+    /**
+     * `shapers` finish a column's value where the value alone is not enough - a `Tuple` is a
+     * STRUCT that must come out as an array. See `row-shape.ts`.
+    */
+    async* streamRowObjects(
+        sql: string,
+        shapers: ReadonlyMap<string, ValueShaper> = new Map()
+    ): AsyncIterableIterator<Record<string, unknown>> {
         const connection = await this.instance.connect();
 
         try {
@@ -206,10 +227,12 @@ export class DuckContext {
                 if (chunk == null || chunk.rowCount === 0) return;
 
                 const columns = names.map((_name, i) => chunk.getColumnValues(i));
+                const shape = names.map((name) => shapers.get(name));
                 for (let row = 0; row < chunk.rowCount; row++) {
-                    yield Object.fromEntries(
-                        names.map((name, col) => [name, toPlainValue(columns[col][row])])
-                    );
+                    yield Object.fromEntries(names.map((name, col) => {
+                        const value = toPlainValue(columns[col][row]);
+                        return [name, shape[col] ? shape[col](value) : value];
+                    }));
                 }
             }
         } finally {

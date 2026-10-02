@@ -113,9 +113,9 @@ describe('schema-check', () => {
         });
 
         it('is clean once the aggregate is CAST to the declared type', async () => {
-            // Long is HUGEINT, which is what data-mate's rules say sum(Integer) produces
+            // a Long column is a BIGINT, so a sum declared as Long is cast back to one
             const summed = frame.select(
-                { bytes: 'CAST(sum(bytes) AS HUGEINT)' }, { config: only(FieldType.Long) });
+                { bytes: 'CAST(sum(bytes) AS BIGINT)' }, { config: only(FieldType.Long) });
             expect(await diffSchema(summed)).toEqual([]);
         });
 

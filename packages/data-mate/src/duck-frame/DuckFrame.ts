@@ -11,7 +11,13 @@ import { AppendError } from './errors.js';
 import { createTable, nextTableName } from './table.js';
 import { joinSQL, selectList } from './clauses.js';
 import { describeSource, readParquetSource } from './sources.js';
-import { buildJsonExpression, JsonExportOptions } from './export-json.js';
+import {
+    buildJsonExpression, buildJsonListElements, buildJsonRowFilter, JsonExportOptions,
+    resolveRules
+} from './export-json.js';
+import { makeRowShapers } from './row-shape.js';
+import { int64Column } from './parquet-columns.js';
+import { distinctLines, parseLines, writeLines } from './line-stream.js';
 import {
     AppendOptions, AppendSource, FrameConfig, FrameOptions,
     FromRecordsOptions, JoinOptions, SelectList, SelectOptions, Source
@@ -726,9 +732,19 @@ export class DuckFrame {
      * and produces a SMALLER payload than gzipping ndjson or dfjson, which cost ~1.4-1.9 s.
     */
     async writeParquet(path: string): Promise<void> {
+        const columns = await this.ctx.columnTypes(`SELECT * FROM ${this.from}`);
+        const declared = new DataType(this.config as DataTypeConfig).toDuckDB();
+        const list = columns
+            .map(({ name, type }) => int64Column(name, type, declared[name]))
+            .join(', ');
+
+        // GEOPARQUET_VERSION 'BOTH': Parquet's native GEOMETRY logical type, which - unlike the
+        // GeoParquet 1.0 default - survives NESTING, so a GeoJSON array or an object's GeoJSON
+        // member reads back as GEOMETRY rather than as BLOB (and BLOB -> GEOMETRY has no cast).
+        // The 1.0 metadata is still written, for readers that only know it.
         await this.ctx.run(
-            `COPY (SELECT * FROM ${this.from}) TO ${quoteLiteral(path)}`
-            + ' (FORMAT parquet, COMPRESSION zstd)'
+            `COPY (SELECT ${list} FROM ${this.from}) TO ${quoteLiteral(path)}`
+            + ' (FORMAT parquet, COMPRESSION zstd, GEOPARQUET_VERSION \'BOTH\')'
         );
     }
 
@@ -739,21 +755,26 @@ export class DuckFrame {
      * **DuckDB writes it, not JavaScript.** The rows never become JS objects, so this is not
      * bounded by single-threaded value conversion the way `rows()` is.
      *
-     * **The output is byte-identical to `DataFrame`'s**, because the projection corrects the
-     * three things DuckDB renders differently - ISO8601 dates, big integers as strings past
-     * `MAX_SAFE_INTEGER`, and omitted null keys. See `export-json.ts`; the parity is pinned by
-     * `test/duck-frame/export-json-spec.ts` against `DataFrame.toJSON` itself.
+     * **The output is byte-identical to `DataFrame.toJSON` with the same `SerializeOptions`** -
+     * all seven, in every combination (`test/duck-frame/serialize-options-spec.ts`) - plus the
+     * value corrections: ISO8601 dates, big integers as strings past `MAX_SAFE_INTEGER`. See
+     * `export-json.ts`.
      *
-     * `removeNullFields` defaults to **true**, matching spaces' own default; `@preserveNullFields`
-     * is what turns it off.
+     * With no options it is spaces' default (`remove_null_fields` true); `removeNullFields: false`
+     * is `@preserveNullFields`. Any explicit flag means exactly what it means to `DataFrame`.
      *
      * Whole-file: it does not return until the file is complete. Use `ndjson()` when the result
      * is too large to want that, or when it should be uploaded as it is produced.
     */
     async writeNDJSON(path: string, options: JsonExportOptions = {}): Promise<void> {
-        const expression = buildJsonExpression(this.config, options);
+        // row de-duplication keeps the FIRST of each in stream order, which a COPY cannot
+        // express - so that one option writes through the stream instead
+        if (resolveRules(options).skipDuplicateObjects) {
+            await writeLines(path, this.ndjson(options));
+            return;
+        }
         await this.ctx.run(
-            `COPY (SELECT ${expression} AS json FROM ${this.from}) TO ${quoteLiteral(path)}`
+            `COPY (${this.jsonLinesSQL(options)}) TO ${quoteLiteral(path)}`
             + ' (FORMAT CSV, HEADER false, QUOTE \'\', ESCAPE \'\', DELIMITER \'\u0007\')'
         );
     }
@@ -769,10 +790,19 @@ export class DuckFrame {
      * Byte-identical to `writeNDJSON` - both are the same projection.
     */
     ndjson(options: JsonExportOptions = {}): AsyncIterableIterator<string> {
+        const lines = this.ctx.streamColumnStrings(this.jsonLinesSQL(options));
+        return resolveRules(options).skipDuplicateObjects ? distinctLines(lines) : lines;
+    }
+
+    /**
+     * One JSON line per row, as `DataFrame.toJSON` renders it with the same options - minus the
+     * rows `skipEmptyObjects` drops, which render as NULL. See `export-json.ts`.
+    */
+    private jsonLinesSQL(options: JsonExportOptions): string {
         const expression = buildJsonExpression(this.config, options);
-        return this.ctx.streamColumnStrings(
-            `SELECT ${expression} AS json FROM ${this.from}`
-        );
+        const filter = buildJsonRowFilter(this.config, options);
+        return `SELECT ${expression} AS json FROM ${this.from}`
+            + (filter ? ` WHERE ${filter}` : '');
     }
 
     /**
@@ -787,12 +817,82 @@ export class DuckFrame {
      * BIGINT-renders-as-string bug tracked as debt for three increments before anyone
      * asked what used it.
      *
+     * **With `options`, it yields exactly what `DataFrame.rows(true, options)` does** - fields and
+     * nulls per `SerializeOptions`, the engine's call (`run.ts:188`) - by parsing the same lines
+     * `ndjson(options)` writes, so the two cannot disagree. Without, it yields every column, a nil
+     * one as `null`.
+     *
      * ALSO deliberately not a `getColumn()`. All 7 engine uses extract a resident JS
      * `.vector`, or index a single row by position; that is exactly the model that cannot
      * port, because the data lives in DuckDB. Those belong in SQL as projections.
     */
-    rows(): AsyncIterableIterator<Record<string, unknown>> {
-        return this.ctx.streamRowObjects(`SELECT * FROM ${this.from}`);
+    rows(options?: JsonExportOptions): AsyncIterableIterator<Record<string, unknown>> {
+        if (options != null) return parseLines(this.ndjson(options));
+        return this.ctx.streamRowObjects(`SELECT * FROM ${this.from}`, makeRowShapers(this.config));
+    }
+
+    /**
+     * **One row's LIST column, element by element** - as
+     * `ListVector.getRowIterator(0, true, options)` yields it.
+     *
+     * The engine's `serializeObject` answers an object-shaped query from a ONE-row frame by
+     * streaming its `results` list this way. Each element is rendered by the same rules as
+     * `ndjson(options)`; a nil one is yielded as `null` under `useNullForUndefined`, `undefined`
+     * otherwise, or skipped under `skipNilListValues` - or, for object elements,
+     * `skipNilObjectValues`. Like `DataFrame`: nothing under `skipEmptyArrays` when the column
+     * holds no value at all, and `skipDuplicateObjects` is refused. Reads the first row.
+    */
+    async* listValues(
+        column: string,
+        options: JsonExportOptions = {}
+    ): AsyncIterableIterator<unknown> {
+        const rules = resolveRules(options);
+        if (rules.skipDuplicateObjects) {
+            throw new Error('ListVector->getIterator is incompatible with skipDuplicateObjects');
+        }
+        const { sql, isObject } = buildJsonListElements(this.config, column, options);
+        const nilValue = rules.useNullForUndefined ? null : undefined;
+        const skipNil = rules.skipNilListValues || (isObject && rules.skipNilObjectValues);
+
+        if (rules.skipEmptyArrays) {
+            const values = await this.ctx.scalar(
+                `SELECT count(${quoteIdentifier(column)}) FROM ${this.from}`
+            );
+            if (Number(values) === 0) return;
+        }
+
+        const [row] = await this.ctx.rows(`SELECT ${sql} FROM ${this.from} LIMIT 1`);
+        if (row == null) return;
+
+        const elements = row[0] as (string | null)[] | null;
+        if (elements == null) {
+            if (!skipNil) yield nilValue;
+            return;
+        }
+        for (const element of elements) {
+            if (element != null) yield JSON.parse(element);
+            else if (!skipNil) yield nilValue;
+        }
+    }
+
+    /**
+     * Rows where EVERY column is nil - `DataFrame.countEmptyRows`, which the engine reports as a
+     * metric. A row with `{}` or `[]` is NOT empty: `DataFrame` tests the stored value
+     * (`isEmptyRow` -> `vector.has`), not its rendering.
+    */
+    async countEmptyRows(): Promise<number> {
+        return Number(
+            await this.ctx.scalar(`SELECT count(*) FROM ${this.from} WHERE ${this.emptyRow()}`) ?? 0
+        );
+    }
+
+    /** The rows that are not empty, in order - `DataFrame.removeEmptyRows`. */
+    removeEmptyRows(): DuckFrame {
+        return this.filter(`NOT (${this.emptyRow()})`);
+    }
+
+    private emptyRow(): string {
+        return this.columns.map((column) => `${quoteIdentifier(column)} IS NULL`).join(' AND ');
     }
 
     /**

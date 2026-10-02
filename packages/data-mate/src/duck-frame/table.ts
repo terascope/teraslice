@@ -5,7 +5,7 @@ import { DataType } from '@terascope/data-types';
 import { quoteIdentifier } from '@terascope/sql-builder';
 import { getChildDataTypeConfig } from '../core/utils.js';
 import { coerceToType } from '../builder/type-coercion.js';
-import { makeValueConverter } from './duck-values.js';
+import { makeValueConverter, makeBigIntInputNormaliser } from './duck-values.js';
 import { DuckContext } from './DuckContext.js';
 import { CreatedTable, FieldPlan, FrameConfig } from './interfaces.js';
 
@@ -39,10 +39,25 @@ export function buildPlan(config: FrameConfig): FieldPlan[] {
             return {
                 name,
                 fieldType: String(fieldConfig.type),
-                coerce: coerceToType(fieldConfig as DataTypeFieldConfig, children),
+                coerce: exactCoerce(fieldConfig as DataTypeFieldConfig, children),
                 convert: makeValueConverter(fieldConfig as DataTypeFieldConfig, children),
             };
         });
+}
+
+/**
+ * `coerceToType`, fed a value it coerces EXACTLY.
+ *
+ * Coercion itself is shared with `DataFrame` and stays so; the normaliser only changes the FORM
+ * of a large bigint input so it takes the same path as a string. See `makeBigIntInputNormaliser`.
+*/
+function exactCoerce(
+    fieldConfig: DataTypeFieldConfig,
+    children?: DataTypeFields
+): (value: unknown) => unknown {
+    const coerce = coerceToType(fieldConfig, children);
+    const normalise = makeBigIntInputNormaliser(fieldConfig, children);
+    return normalise ? (value) => coerce(normalise(value)) : coerce;
 }
 
 /**

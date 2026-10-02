@@ -6,9 +6,10 @@ import { sqlLiteral } from '../sql-helpers.js';
 /**
  * Helpers shared by the `sql` emissions on the geo function configs.
  *
- * **A `GeoJSON` column is stored as `JSON` and a `GeoPoint` as `STRUCT(lat DOUBLE, lon DOUBLE)`**
- * (`data-types/src/types/v1/`), not as a spatial `GEOMETRY`. So the predicates below need no
- * `spatial` extension at all - they are structural tests on JSON.
+ * **A `GeoJSON` column is stored as a `GEOMETRY`** and a `GeoPoint` as
+ * `STRUCT(lat DOUBLE, lon DOUBLE)` (`data-types/src/types/v1/`). The shape was parsed once, at
+ * ingest, so nothing here parses it again: the predicates below read the geometry's type, and
+ * `asGeometry` IS the column.
  *
  * The `spatial` predicates - `geoContains`, `geoWithin`, `geoIntersects`, `geoDisjoint`,
  * `geoRelation`, `inGeoBoundingBox`, `geoPointWithinRange` - are NOT here, and deliberately. They
@@ -21,32 +22,30 @@ export function isGeoJSONColumn(inputConfig: DataTypeFieldAndChildren | undefine
     return inputConfig?.field_config?.type === FieldType.GeoJSON;
 }
 
+/** The three shapes a `GeoShape` can be, as `ST_GeometryType` names them. */
+const GEO_SHAPE_TYPES = ['POINT', 'POLYGON', 'MULTIPOLYGON'] as const;
+
 /**
- * `isGeoJSON`, structurally: a plain object with an array `coordinates` and a `type` string whose
- * lowercase is one of the three known shapes.
+ * `isGeoJSON` on a `GeoJSON` column: the stored geometry is one of the three shapes.
  *
- * `isArrayLike` is `Array.isArray || isTypedArray`, so a STRING `coordinates` does not qualify -
- * hence `json_type(...) = 'ARRAY'` rather than a presence check.
+ * Ingest only admits those three - `geoShapeToWKB` rejects anything else - so this is true of
+ * every non-null value; it reads the type rather than assuming it, which costs nothing.
 */
 export function isGeoJSONSql(value: string): string {
-    return `(json_type(${value}) = 'OBJECT'`
-        + ` AND json_type(${value}, '$.coordinates') = 'ARRAY'`
-        + ` AND json_type(${value}, '$.type') = 'VARCHAR'`
-        + ` AND lower(json_extract_string(${value}, '$.type'))`
-        + ' IN (\'point\', \'polygon\', \'multipolygon\'))';
+    return `(ST_GeometryType(${value}) IN (${GEO_SHAPE_TYPES.map((t) => `'${t}'`).join(', ')}))`;
 }
 
 /**
  * One specific shape.
  *
- * **The two spellings are matched case-EXACTLY**, which is not the same test `isGeoJSON` makes.
- * `GeoShapeType.Point` is `'Point'` and `ESGeoShapeType.Point` is `'point'`, and the predicate
- * compares against those two values - so `'POINT'` passes `isGeoJSON`, whose check is
- * case-insensitive, and fails `isGeoShapePoint`.
+ * **This is where SQL stops reproducing `DataFrame`, deliberately.** `isGeoShapePoint` compares
+ * the stored `type` string case-EXACTLY against `'Point'` and `'point'`, and `DataFrame` keeps
+ * whatever spelling arrived, so `{ type: 'POINT' }` is a GeoJSON value that is not a point. A
+ * GEOMETRY holds the shape, not the spelling: that value IS a point, and this says so. Recorded
+ * in the gate's `knownDivergences`.
 */
-export function isGeoShapeSql(value: string, titleCase: string, lower: string): string {
-    return `(${isGeoJSONSql(value)}`
-        + ` AND json_extract_string(${value}, '$.type') IN ('${titleCase}', '${lower}'))`;
+export function isGeoShapeSql(value: string, shape: typeof GEO_SHAPE_TYPES[number]): string {
+    return `(ST_GeometryType(${value}) = '${shape}')`;
 }
 
 /**
@@ -109,15 +108,15 @@ export function inBoundingBoxSql(
 /**
  * The column as a spatial `GEOMETRY`.
  *
- * A `GeoJSON` column is `JSON`, which `ST_GeomFromGeoJSON` takes as text; a `GeoPoint` column is
- * `STRUCT(lat, lon)`, which becomes a point. **`ST_Point` takes (x, y) - so LON first**, matching
- * `makeCoordinatesFromGeoPoint`, which returns `[point.lon, point.lat]`.
+ * A `GeoJSON` column already IS one. A `GeoPoint` column is `STRUCT(lat, lon)`, which becomes a
+ * point: **`ST_Point` takes (x, y) - so LON first**, matching `makeCoordinatesFromGeoPoint`, which
+ * returns `[point.lon, point.lat]`.
 */
 export function asGeometry(value: string, inputConfig: DataTypeFieldAndChildren): string {
     if (isGeoPointColumn(inputConfig)) {
         return `ST_Point(${pointPart(value, 'lon')}, ${pointPart(value, 'lat')})`;
     }
-    return `ST_GeomFromGeoJSON(${value}::VARCHAR)`;
+    return value;
 }
 
 /** A constant geo argument as a `GEOMETRY`, resolved at plan time. */

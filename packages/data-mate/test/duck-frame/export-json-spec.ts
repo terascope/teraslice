@@ -65,7 +65,9 @@ const RECORDS = [
         flags: 12,
         age: 44,
         count: 1000,
-        total: 9007199254740993n,
+        // a STRING, which DataFrame coerces exactly; a bigint input it gets wrong by one
+        // (DEF-BIGINT, #4555), which is pinned separately below against the exact value
+        total: '9007199254740993',
         score: 1.5,
         ratio: 0.25,
         active: true,
@@ -180,13 +182,9 @@ describe('DuckFrame JSON export', () => {
         it('should render a Long past MAX_SAFE_INTEGER as a STRING', async () => {
             const [first] = await collectNdjson();
 
-            // A STRING is the point: as a bare number, JSON.parse would round it. That both
-            // engines report ...992 for an input of ...993 is the KNOWN `Long` round-trip
-            // defect on the shelved list - and reproducing it is correct, because the contract
-            // is to match `DataFrame`, not to fix one side and diverge. The parity tests above
-            // are what pin that.
-            expect(first).toInclude('"9007199254740992"');
-            expect(JSON.parse(first).total).toBe('9007199254740992');
+            // A STRING is the point: as a bare number, JSON.parse would round it
+            expect(first).toInclude('"9007199254740993"');
+            expect(JSON.parse(first).total).toBe('9007199254740993');
             expect(typeof JSON.parse(first).total).toBe('string');
         });
 
@@ -440,13 +438,35 @@ describe('DuckFrame JSON export', () => {
         it('should stringify a big Long INSIDE an array, as it does a scalar one', async () => {
             const [line] = await expectBytesToMatch(
                 { version: 1, fields: { v: { type: FieldType.Long, array: true } } },
-                [{ v: [9007199254740993n, 5n] }]
+                [{ v: ['9007199254740993', '5'] }]
             );
 
-            // ...992 for an input of ...993 is the shelved `Long` round-trip defect, reproduced
-            // deliberately: the contract is to match `DataFrame`, not to fix one side
-            expect(line).toBe('{"v":["9007199254740992",5]}');
+            expect(line).toBe('{"v":["9007199254740993",5]}');
         });
+
+        /**
+         * **Deliberately NOT byte-compared against DataFrame.** For a bigint INPUT past the safe
+         * limit `DataFrame` writes one too low - `toBigIntOrThrow` returns the bigint untouched
+         * and `bigIntToJSON` subtracts 1 regardless (DEF-BIGINT, #4555). DuckFrame is exact, and
+         * this pins the exact value rather than the defect.
+        */
+        it('should write a big bigint INPUT exactly, where DataFrame loses one', async () => {
+            const config: DataTypeConfig = {
+                version: 1, fields: { v: { type: FieldType.Long, array: true } },
+            };
+            const records = [{ v: [9007199254740993n, 5n] }];
+            const subject = await DuckFrame.fromRecords(config, records, {});
+
+            const lines: string[] = [];
+            for await (const value of subject.ndjson()) lines.push(value);
+            await subject.destroy();
+
+            expect(lines).toEqual(['{"v":["9007199254740993",5]}']);
+            expect(DataFrame.fromJSON(config, records).toJSON(SPACES_DEFAULT))
+                .toEqual([{ v: ['9007199254740992', 5] }]);
+        });
+
+        const NON_FINITE = [{ v: Infinity }, { v: -Infinity }, { v: Number.NaN }];
 
         it('should never write a bare Infinity or NaN, which is not valid JSON', async () => {
             const config: DataTypeConfig = {
@@ -468,13 +488,16 @@ describe('DuckFrame JSON export', () => {
                 // all three - a single infinite value made an exported line unreadable.
                 for (const value of lines) expect(() => JSON.parse(value)).not.toThrow();
 
-                // KNOWN DIVERGENCE, and the only one left in the default mode: a non-finite
-                // number becomes SQL NULL, and null-stripping then removes the key, where
-                // `DataFrame` keeps it as `"v":null`. It cannot be helped while null stripping is
-                // `json_merge_patch` - RFC 7396 uses null as the delete sentinel, so there is no
-                // way to emit a null that survives it. Both outputs are valid JSON and mean the
-                // same thing; only `@preserveNullFields` mode matches byte for byte.
-                expect(lines).toEqual(['{}', '{}', '{}']);
+                // and it matches DataFrame in the default mode too: a non-finite number is NOT nil
+                // to DataFrame (`FloatVector` has no `toJSONCompatibleValue`), so the key survives
+                // null removal and is written as null. This was a pinned divergence while null
+                // stripping was `json_merge_patch`, which deletes every null key; the renderer now
+                // follows DataFrame's rules instead (`serialize-options-spec.ts`).
+                expect(lines).toEqual(['{"v":null}', '{"v":null}', '{"v":null}']);
+                expect(lines).toEqual(
+                    DataFrame.fromJSON(config, NON_FINITE).toJSON(SPACES_DEFAULT)
+                        .map((row) => JSON.stringify(row))
+                );
             } finally {
                 await subject.destroy();
             }
@@ -505,33 +528,50 @@ describe('DuckFrame JSON export', () => {
         });
 
         /**
-         * **KNOWN DIVERGENCE, pinned: the exponential form loses its `+`.**
+         * **Every double renders as `JSON.stringify` renders it** - fixed 2026-09-30, both halves:
          *
-         * At `abs(x) >= 1e21` both engines switch to exponential notation, but `JSON.stringify`
-         * writes `1e+21` and DuckDB writes `1e21`. It cannot be corrected through the JSON type,
-         * which re-normalises every number handed to it - `CAST('1e+21' AS JSON)` renders back as
-         * `1e21` - and correcting it would mean assembling the object as raw text and giving up
-         * `json_merge_patch` for null stripping. Negative exponents already agree, because they
-         * carry their sign: `1e-7` is identical on both sides.
+         * - past `1e21` the exponent lost its `+` (`1e21` for `1e+21`) - a pinned divergence while
+         *   rows were JSON-typed, which re-normalises numbers; rows are text now.
+         * - an INTEGRAL double between 2^53 and 1e21 was written as its exact binary value
+         *   through a HUGEINT cast, where JavaScript writes the SHORTEST digits that round-trip:
+         *   `99999999999999980000`, not `99999999999999991611392`.
+         *
+         * `docs/tools/probe/double-exponent-format.mjs` measured the whole boundary.
         */
-        it('should still diverge on the exponent sign past 1e21', async () => {
-            const config: DataTypeConfig = {
-                version: 1,
-                fields: { v: { type: FieldType.Double } },
-            };
-            const subject = await DuckFrame.fromRecords(config, [{ v: 1e21 }], {});
+        const DOUBLES = [
+            1e21,
+            1.5e21,
+            -3e22,
+            1.2345678901234566e25,
+            9.99e300,
+            1.7976931348623157e308,
+            1e20,
+            99999999999999980000,
+            123456789012345680000,
+            -123456789012345680000,
+            9007199254740994,
+            5,
+            -0,
+            0.1,
+            1e-7,
+            5e-324,
+            -2.5e-8,
+        ];
 
-            try {
-                const lines: string[] = [];
-                for await (const value of subject.ndjson()) lines.push(value);
+        it.each(DOUBLES)('should write %p byte-equal to DataFrame', async (v) => {
+            const [line] = await expectBytesToMatch(
+                { version: 1, fields: { v: { type: FieldType.Double } } },
+                [{ v }]
+            );
+            expect(line).toEqual(JSON.stringify({ v }));
+        });
 
-                expect(lines[0]).toBe('{"v":1e21}');
-                expect(JSON.stringify({ v: 1e21 })).toBe('{"v":1e+21}');
-                // the VALUES still agree, which is why this is tolerable
-                expect(JSON.parse(lines[0]).v).toBe(1e21);
-            } finally {
-                await subject.destroy();
-            }
+        it('should write large doubles in an array byte-equal to DataFrame', async () => {
+            const [line] = await expectBytesToMatch(
+                { version: 1, fields: { v: { type: FieldType.Double, array: true } } },
+                [{ v: DOUBLES }]
+            );
+            expect(line).toEqual(JSON.stringify({ v: DOUBLES }));
         });
 
         it('should agree with DataFrame on a negative exponent', async () => {

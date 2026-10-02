@@ -1,5 +1,6 @@
-import { DuckDBTimestampValue } from '@duckdb/node-api';
+import { DuckDBTimestampValue, DuckDBGeometryValue } from '@duckdb/node-api';
 import { toISO8601 } from '@terascope/core-utils';
+import { wkbToGeoShape } from './wkb.js';
 
 /**
  * Turns a value read out of DuckDB into the plain JS shape the response path expects.
@@ -8,11 +9,13 @@ import { toISO8601 } from '@terascope/core-utils';
  * so anything DuckDB-shaped leaking through would reach users. Found by the FieldType sweep in
  * `type-sweep-spec.ts`; nothing had covered arrays, structs or dates through `rows()` before,
  * because the older specs read them via `query()` with explicit casts, which bypasses all of
- * this. Three separate leaks:
+ * this. The leaks:
  *
  * - **LIST** -> `DuckDBListValue`, not an array. Would serialize as `{"items":[...]}`.
  * - **TIMESTAMP** -> `DuckDBTimestampValue`, not a date. Rendered via `toISO8601`, which is
  *   what `DateVector.toJSONCompatibleValue` uses, so the two frames agree.
+ * - **GEOMETRY** -> `DuckDBGeometryValue`, WKB bytes. Decoded back to the GeoShape a `GeoJSON`
+ *   field holds.
  * - **BIGINT / HUGEINT** -> a JS `bigint`, and **`JSON.stringify` THROWS on bigint**
  *   ("Do not know how to serialize a BigInt"), so every Integer or Long column broke the
  *   response. Converted by `bigIntToPlain` below, giving a number when it fits exactly and an
@@ -59,6 +62,9 @@ export function toPlainValue(value: unknown): unknown {
     if (value instanceof DuckDBTimestampValue) {
         return toISO8601(Number(value.micros / 1000n));
     }
+
+    // a GeoJSON column is a GEOMETRY, which the binding hands over as WKB
+    if (value instanceof DuckDBGeometryValue) return wkbToGeoShape(value.bytes);
 
     const items = (value as { items?: unknown }).items;
     if (Array.isArray(items)) return items.map(toPlainValue);

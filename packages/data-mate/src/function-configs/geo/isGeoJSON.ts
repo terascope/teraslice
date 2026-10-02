@@ -81,10 +81,7 @@ export const isGeoJSONConfig: FieldValidateConfig = {
     create() {
         return isGeoJSON;
     },
-    /**
-     * A structural test on the stored JSON - no `spatial` extension involved, because a `GeoJSON`
-     * column is a `JSON` column.
-    */
+    /** The stored geometry's type - a `GeoJSON` column is a `GEOMETRY`. See `isGeoJSONSql`. */
     sql: {
         applies: (_args, inputConfig) => isGeoJSONColumn(inputConfig),
         expression: ({ value }) => isGeoJSONSql(value),

@@ -169,6 +169,15 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
 };
 
 /**
+ * **The one input where a GEOMETRY and `DataFrame` must disagree.** `DataFrame` stores a `GeoJSON`
+ * value as the object that arrived, so `{ type: 'POINT' }` keeps a spelling `geo-utils` compares
+ * case-exactly: the same point is "disjoint" spelled `'Point'` or `'point'` and NOT disjoint
+ * spelled `'POINT'` (`docs/tools/probe/point-spelling.mjs`). A GEOMETRY stores the shape, not the
+ * spelling, so SQL answers for the point - consistently, whatever it was called.
+*/
+const POINT_SPELLING = 'a GEOMETRY stores the shape, not the type spelling; JS answers differently for POINT than for Point';
+
+/**
  * The IP battery, fed through a **Keyword** column rather than an `IP` one.
  *
  * The IP functions accept `String` as well as `IP`, and a `String` column is the only one that can
@@ -525,6 +534,12 @@ const CASES: Record<string, {
         args: [
             { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
         ],
+        knownDivergences: [{
+            args: { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
+            input: { type: 'POINT', coordinates: [10, 20] },
+            sql: true,
+            why: POINT_SPELLING,
+        }],
     },
     geoContains: {
         type: FieldType.GeoJSON,
@@ -573,6 +588,15 @@ const CASES: Record<string, {
                 relation: 'disjoint',
             },
         ],
+        knownDivergences: [{
+            args: {
+                value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] },
+                relation: 'disjoint',
+            },
+            input: { type: 'POINT', coordinates: [10, 20] },
+            sql: true,
+            why: POINT_SPELLING,
+        }],
     },
     geoContainsPoint: {
         type: FieldType.GeoJSON,
@@ -600,7 +624,13 @@ const CASES: Record<string, {
             { top_left: '1,0', bottom_right: '0,1' },
         ],
     },
-    isGeoShapePoint: { type: FieldType.GeoJSON, noUdfPath: true },
+    isGeoShapePoint: {
+        type: FieldType.GeoJSON,
+        noUdfPath: true,
+        knownDivergences: [{
+            args: {}, input: { type: 'POINT', coordinates: [10, 20] }, sql: true, why: POINT_SPELLING,
+        }],
+    },
     isGeoShapePolygon: { type: FieldType.GeoJSON, noUdfPath: true },
     isGeoShapeMultiPolygon: { type: FieldType.GeoJSON, noUdfPath: true },
     /**
