@@ -179,16 +179,16 @@ function buildStruct(children: [name: string, type: BaseType][]): string {
         nested.set(head, group);
     }
 
-    const members: string[] = [];
-
-    for (const [name, type] of direct) {
-        if (nested.has(name)) continue; // the group wins over the bare parent entry
-        members.push(`${quoteDuckDBIdentifier(name)} ${type.toDuckDB()[type.field]}`);
-    }
-
-    for (const [name, group] of nested) {
-        members.push(`${quoteDuckDBIdentifier(name)} ${buildStruct(group)}`);
-    }
+    // members in the order the config first names them - `DataFrame`'s key order - rather than
+    // plain members first and groups after. A STRUCT cast maps members BY NAME, so a payload
+    // written with the other order still loads into this one.
+    const order = [...new Set(children.map(([name]) => name.split('.', 1)[0]))];
+    const members = order.map((name) => {
+        const group = nested.get(name); // the group wins over the bare parent entry
+        if (group) return `${quoteDuckDBIdentifier(name)} ${buildStruct(group)}`;
+        const type = direct.get(name)!;
+        return `${quoteDuckDBIdentifier(name)} ${type.toDuckDB()[type.field]}`;
+    });
 
     return `STRUCT(${members.join(', ')})`;
 }

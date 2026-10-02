@@ -24,7 +24,7 @@ describe('DataType -> DuckDB', () => {
             [FieldType.Byte, 'TINYINT'],
             [FieldType.Short, 'SMALLINT'],
             [FieldType.Integer, 'BIGINT'],
-            [FieldType.Long, 'HUGEINT'],
+            [FieldType.Long, 'BIGINT'],
             [FieldType.Float, 'DOUBLE'],
             [FieldType.Double, 'DOUBLE'],
             [FieldType.Number, 'DOUBLE'],
@@ -46,7 +46,7 @@ describe('DataType -> DuckDB', () => {
             [FieldType.GeoPoint, 'STRUCT(lat DOUBLE, lon DOUBLE)'],
             [FieldType.Geo, 'STRUCT(lat DOUBLE, lon DOUBLE)'],
             [FieldType.Boundary, 'STRUCT(lat DOUBLE, lon DOUBLE)[]'],
-            [FieldType.GeoJSON, 'JSON'],
+            [FieldType.GeoJSON, 'GEOMETRY'],
             [FieldType.Any, 'JSON'],
         ];
 
@@ -90,6 +90,16 @@ describe('DataType -> DuckDB', () => {
                 'field.inner': { type: FieldType.Object },
                 'field.inner.leaf': { type: FieldType.Keyword },
             })).toEqual('STRUCT("inner" STRUCT("leaf" VARCHAR))');
+        });
+
+        // DataFrame writes an object's keys in config order, and rows() follows the STRUCT's
+        // member order - so the members are in config order, a group where it is first named
+        it('orders members as the config names them, groups included', () => {
+            expect(duckTypeOf(FieldType.Object, {}, {
+                'field.inner': { type: FieldType.Object },
+                'field.inner.leaf': { type: FieldType.Keyword },
+                'field.after': { type: FieldType.Keyword },
+            })).toEqual('STRUCT("inner" STRUCT("leaf" VARCHAR), "after" VARCHAR)');
         });
 
         it('stays JSON with no children, because the shape is unknowable', () => {

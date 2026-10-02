@@ -28,7 +28,7 @@ const RELATION_FUNCTIONS: Readonly<Record<GeoShapeRelation, string>> = Object.fr
  * | xLucene type | DuckDB column |
  * |---|---|
  * | `geo-point`, `geo` | `STRUCT(lat DOUBLE, lon DOUBLE)` |
- * | `geo-json` | `JSON` |
+ * | `geo-json` | `GEOMETRY` |
  * | `ip`, `ip_range` | `VARCHAR` |
  * | `date` | `TIMESTAMP` |
  *
@@ -199,13 +199,17 @@ export class DuckDBDialect extends BaseSQLDialect {
         return `regexp_full_match(${expr}, ${this.stringLiteral(value)})`;
     }
 
-    /** The column as a spatial `GEOMETRY`. **`ST_Point` takes (x, y), so LON comes first.** */
+    /**
+     * The column as a spatial `GEOMETRY`. A `geo-json` column already IS one - it was parsed once,
+     * at ingest - so it is used as it stands; re-parsing text on every row is what it replaced.
+     * A `geo-point` is a `STRUCT(lat, lon)`: **`ST_Point` takes (x, y), so LON comes first.**
+    */
     private asGeometry(fieldExpr: string, isPointColumn: boolean): string {
         if (isPointColumn) {
             const { lat, lon } = this.geoPointParts(fieldExpr);
             return `ST_Point(${lon}, ${lat})`;
         }
-        return `ST_GeomFromGeoJSON(CAST(${fieldExpr} AS VARCHAR))`;
+        return fieldExpr;
     }
 
     /**

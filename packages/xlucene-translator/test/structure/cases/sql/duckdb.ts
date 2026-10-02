@@ -118,8 +118,8 @@ const cases: Record<string, SQLTestCase[]> = {
     geo: [
         ['location:geoDistance(point:"20,20" distance:5000m)', '(ST_Distance_Sphere(ST_Point(struct_extract("location", \'lat\'), struct_extract("location", \'lon\')), ST_Point(20, 20)) <= 5000)'],
         ['location:geoBox(top_left:"40,0", bottom_right:"0,40")', '(struct_extract("location", \'lat\') BETWEEN 0 AND 40 AND struct_extract("location", \'lon\') BETWEEN 0 AND 40)'],
-        ['geoShape:geoContainsPoint(point:"20,20")', 'try(ST_Intersects(ST_GeomFromGeoJSON(CAST("geoShape" AS VARCHAR)), ST_Point(20, 20)))'],
-        ['geoShape:geoPolygon(points:["10,10","10,50","50,50","50,10"] relation:"within")', 'try(ST_Within(ST_GeomFromGeoJSON(CAST("geoShape" AS VARCHAR)), ST_GeomFromGeoJSON(\'{"type":"Polygon","coordinates":[[[10,10],[50,10],[50,50],[10,50],[10,10]]]}\')))'],
+        ['geoShape:geoContainsPoint(point:"20,20")', 'try(ST_Intersects("geoShape", ST_Point(20, 20)))'],
+        ['geoShape:geoPolygon(points:["10,10","10,50","50,50","50,10"] relation:"within")', 'try(ST_Within("geoShape", ST_GeomFromGeoJSON(\'{"type":"Polygon","coordinates":[[[10,10],[50,10],[50,50],[10,50],[10,10]]]}\')))'],
     ],
     /**
      * A variable is a VALUE bound late: the structure comes from the query text and stays put,

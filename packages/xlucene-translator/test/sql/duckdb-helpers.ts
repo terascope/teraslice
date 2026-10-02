@@ -47,10 +47,13 @@ export class DuckTestDB {
 
         await this.connection.run(`CREATE TABLE ${quoteIdentifier(table)} (${columns})`);
 
-        const fields = Object.keys(dataType.toDuckDB());
+        const types = dataType.toDuckDB();
+        const fields = Object.keys(types);
 
         for (const record of records) {
-            const values = fields.map((field) => toSQLValue(record[field])).join(', ');
+            const values = fields
+                .map((field) => columnValue(types[field], record[field]))
+                .join(', ');
             await this.connection.run(
                 `INSERT INTO ${quoteIdentifier(table)} VALUES (${values})`
             );
@@ -116,6 +119,16 @@ export class DuckTestDB {
 
 function quoteIdentifier(name: string): string {
     return `"${name.replace(/"/g, '""')}"`;
+}
+
+/**
+ * A literal for one column. A `geo-json` column is a `GEOMETRY`, and DuckDB casts TEXT to one
+ * only from WKT, so a GeoJSON document is converted with `ST_GeomFromGeoJSON` - what DuckFrame's
+ * ingest produces, from the same shape.
+*/
+function columnValue(type: string, value: unknown): string {
+    if (value != null && type === 'GEOMETRY') return `ST_GeomFromGeoJSON(${toSQLValue(value)})`;
+    return toSQLValue(value);
 }
 
 /**

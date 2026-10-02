@@ -48,11 +48,19 @@ export default class Long extends BaseType {
     }
 
     /**
-     * The DuckDB column type for this field.
-     * HUGEINT (128-bit) rather than BIGINT (64-bit), because Long is a JS bigint and
-     * so arbitrary precision - values above 2^63 must survive the round trip.
+     * The DuckDB column type for this field: BIGINT, a signed 64-bit integer - exactly an
+     * Elasticsearch `long`, which is where a stored Long comes from.
+     *
+     * **Not HUGEINT, which this was, and which corrupted data.** Parquet has no 128-bit
+     * integer, so DuckDB writes a HUGEINT column as a DOUBLE: every value past 2^53 changed
+     * on the wire between the producer and the worker, and `9223372036854775807` came back as
+     * a value that no longer fits in 64 bits. BIGINT is INT64 in Parquet, exact at every value.
+     *
+     * A value outside the 64-bit range is rejected at ingest rather than stored wrong. A Long
+     * COMPUTED in a query - `ipToInt` on an IPv6 address is 128 bits - keeps a wider SQL type
+     * inside that query; it is not stored data.
      */
     toDuckDB(): DuckDBTypeConfig {
-        return this._formatDuckDB('HUGEINT');
+        return this._formatDuckDB('BIGINT');
     }
 }

@@ -46,11 +46,14 @@ export default class GeoJSON extends BaseType {
     }
 
     /**
-     * The DuckDB column type for this field.
-     * Shape-dependent (Point/Polygon/MultiPolygon), so JSON until the spatial extension
-     * earns its place.
+     * The DuckDB column type for this field: GEOMETRY, a shape stored as a shape.
+     *
+     * **Not JSON, which this was.** As text every spatial query re-parsed every row
+     * (`ST_GeomFromGeoJSON(col::VARCHAR)`); as a GEOMETRY the shape is parsed once, at ingest,
+     * and crosses the Parquet wire as GeoParquet (WKB). GEOMETRY is a core DuckDB type - storing
+     * one needs no extension; the spatial functions over it need `spatial`.
      */
     toDuckDB(): DuckDBTypeConfig {
-        return this._formatDuckDB('JSON');
+        return this._formatDuckDB('GEOMETRY');
     }
 }
