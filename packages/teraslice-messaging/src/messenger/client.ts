@@ -34,7 +34,6 @@ export class Client extends Core {
             serverName,
             socketOptions = {},
             connectTimeout,
-            clientDisconnectTimeout,
             logger,
             ...coreOpts
         } = opts;

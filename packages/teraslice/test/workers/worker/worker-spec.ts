@@ -25,7 +25,6 @@ describe('Worker', () => {
             port: slicerPort,
             networkLatencyBuffer: 0,
             actionTimeout: 1000,
-            workerDisconnectTimeout: 3000
         });
 
         testContext.attachCleanup(() => server.shutdown());

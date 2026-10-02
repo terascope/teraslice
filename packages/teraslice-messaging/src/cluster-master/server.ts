@@ -1,4 +1,4 @@
-import { cloneDeep, isKey, isNumber } from '@terascope/core-utils';
+import { cloneDeep, isKey } from '@terascope/core-utils';
 import type { SliceTapRequest } from '@terascope/types';
 import type { Socket } from 'socket.io';
 import {
@@ -15,21 +15,15 @@ export class Server extends _Server {
             port,
             actionTimeout,
             networkLatencyBuffer,
-            nodeDisconnectTimeout,
             requestListener,
             serverTimeout,
             logger,
         } = opts;
 
-        if (!isNumber(nodeDisconnectTimeout)) {
-            throw new Error('ClusterMaster.Server requires a valid nodeDisconnectTimeout');
-        }
-
         super({
             port,
             actionTimeout,
             networkLatencyBuffer,
-            clientDisconnectTimeout: nodeDisconnectTimeout,
             requestListener,
             serverTimeout,
             serverName: 'ClusterMaster',

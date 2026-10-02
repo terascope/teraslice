@@ -13,7 +13,6 @@ export interface ClientOptions extends CoreOptions {
     clientId: string;
     clientType: string;
     serverName: string;
-    clientDisconnectTimeout: number;
     connectTimeout: number;
     socketOptions?: Partial<ManagerOptions & SocketOptions>;
 }
@@ -21,7 +20,6 @@ export interface ClientOptions extends CoreOptions {
 export interface ServerOptions extends CoreOptions {
     port: number;
     serverName: string;
-    clientDisconnectTimeout: number;
     serverTimeout?: number;
     requestListener?: RequestListener;
 }

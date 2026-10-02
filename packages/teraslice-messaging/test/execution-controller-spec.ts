@@ -45,7 +45,6 @@ describe('ExecutionController', () => {
                 client = new ExecutionController.Client({
                     executionControllerUrl: 'http://idk.example.com',
                     workerId: 'hello',
-                    workerDisconnectTimeout: 1000,
                     actionTimeout: 1000,
                     connectTimeout: 1000,
                     socketOptions: {
@@ -90,7 +89,6 @@ describe('ExecutionController', () => {
                 port: slicerPort,
                 networkLatencyBuffer: 0,
                 actionTimeout: 1000,
-                workerDisconnectTimeout: 3000,
             });
 
             await server.start();
@@ -99,7 +97,6 @@ describe('ExecutionController', () => {
                 workerId,
                 executionControllerUrl,
                 networkLatencyBuffer: 0,
-                workerDisconnectTimeout: 1000,
                 actionTimeout: 1000,
                 connectTimeout: 1000,
                 socketOptions: {

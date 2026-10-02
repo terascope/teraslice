@@ -5,8 +5,7 @@ import http from 'node:http';
 export interface ClientOptions {
     executionControllerUrl: string;
     workerId: string;
-    socketOptions: Partial<ManagerOptions & SocketOptions>;
-    workerDisconnectTimeout: number;
+    socketOptions?: Partial<ManagerOptions & SocketOptions>;
     networkLatencyBuffer?: number;
     actionTimeout: number;
     connectTimeout: number;
@@ -15,7 +14,6 @@ export interface ClientOptions {
 
 export interface ServerOptions {
     port: number;
-    workerDisconnectTimeout: number;
     networkLatencyBuffer?: number;
     actionTimeout: number;
     requestListener?: RequestListener;

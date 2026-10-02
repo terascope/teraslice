@@ -27,7 +27,6 @@ export class Server extends Core {
     readonly server: SocketIOServer<i.ClientToServerEvents, i.ServerToClientEvents>;
     readonly httpServer: http.Server;
     readonly serverName: string;
-    readonly clientDisconnectTimeout: number;
     private _cleanupClients: any;
     protected _clients: i.ConnectedClients;
 
@@ -36,7 +35,6 @@ export class Server extends Core {
             port,
             serverName,
             serverTimeout,
-            clientDisconnectTimeout,
             requestListener = defaultRequestListener,
             logger = _logger,
             ...coreOpts
@@ -59,13 +57,9 @@ export class Server extends Core {
             throw new Error('Messenger.Server requires a valid serverName');
         }
 
-        if (!isNumber(clientDisconnectTimeout)) {
-            throw new Error('Messenger.Server requires a valid clientDisconnectTimeout');
-        }
-
         this.port = port;
         this.serverName = serverName;
-        this.clientDisconnectTimeout = clientDisconnectTimeout;
+
         const pingTimeout = this.actionTimeout;
         const pingInterval = this.actionTimeout + this.networkLatencyBuffer;
 

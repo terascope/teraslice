@@ -1,4 +1,4 @@
-import { isNumber, get, Queue } from '@terascope/core-utils';
+import { get, Queue } from '@terascope/core-utils';
 import { EnqueuedWorker, Slice, SliceCompletePayload } from '@terascope/types';
 import type { Socket } from 'socket.io';
 import * as core from '../messenger/index.js';
@@ -14,19 +14,14 @@ export class Server extends core.Server {
     constructor(opts: i.ServerOptions) {
         const {
             port, actionTimeout, networkLatencyBuffer,
-            workerDisconnectTimeout, logger, requestListener
+            logger, requestListener
         } = opts;
-
-        if (!isNumber(workerDisconnectTimeout)) {
-            throw new Error('ExecutionController.Server requires a valid workerDisconnectTimeout');
-        }
 
         super({
             port,
             actionTimeout,
             requestListener,
             networkLatencyBuffer,
-            clientDisconnectTimeout: workerDisconnectTimeout,
             serverName: 'ExecutionController',
             logger
         });
