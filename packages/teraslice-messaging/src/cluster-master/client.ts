@@ -1,4 +1,4 @@
-import { isString, isNumber } from '@terascope/core-utils';
+import { isString } from '@terascope/core-utils';
 import { AggregatedExecutionAnalytics } from '@terascope/types';
 import * as i from './interfaces.js';
 import * as core from '../messenger/index.js';
@@ -10,7 +10,6 @@ export class Client extends core.Client {
         const {
             clusterMasterUrl,
             socketOptions,
-            nodeDisconnectTimeout,
             networkLatencyBuffer,
             actionTimeout,
             exId,
@@ -26,16 +25,11 @@ export class Client extends core.Client {
             throw new Error('ClusterMaster.Client requires a valid exId');
         }
 
-        if (!isNumber(nodeDisconnectTimeout)) {
-            throw new Error('ClusterMaster.Client requires a valid nodeDisconnectTimeout');
-        }
-
         super({
             socketOptions,
             networkLatencyBuffer,
             actionTimeout,
             connectTimeout,
-            clientDisconnectTimeout: nodeDisconnectTimeout,
             hostUrl: clusterMasterUrl,
             clientType: 'execution-controller',
             clientId: exId,

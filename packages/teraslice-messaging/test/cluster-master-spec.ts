@@ -44,7 +44,6 @@ describe('ClusterMaster', () => {
                 client = new ClusterMaster.Client({
                     clusterMasterUrl: 'http://idk.example.com',
                     exId: 'hello',
-                    nodeDisconnectTimeout: 1000,
                     actionTimeout: 1000,
                     connectTimeout: 1000,
                     socketOptions: {
@@ -87,7 +86,6 @@ describe('ClusterMaster', () => {
                 port: slicerPort,
                 networkLatencyBuffer: 0,
                 actionTimeout: 1000,
-                nodeDisconnectTimeout: 3000,
             });
 
             await server.start();
@@ -96,7 +94,6 @@ describe('ClusterMaster', () => {
                 exId,
                 clusterMasterUrl,
                 networkLatencyBuffer: 0,
-                nodeDisconnectTimeout: 1000,
                 actionTimeout: 1000,
                 connectTimeout: 1000,
                 socketOptions: {

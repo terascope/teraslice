@@ -434,7 +434,6 @@ describe('ExecutionController Special Tests', () => {
                     executionControllerUrl: `http://localhost:${port}`,
                     workerId,
                     networkLatencyBuffer,
-                    workerDisconnectTimeout: 5000,
                     actionTimeout,
                     connectTimeout: 1000,
                     socketOptions
