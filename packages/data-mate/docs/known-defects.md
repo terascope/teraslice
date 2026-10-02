@@ -1,8 +1,8 @@
-# data-mate known defects — `DataFrame` (D1–D6) and `DuckFrame` (DF1–DF13)
+# data-mate known defects — `DataFrame` (D1–D6) and `DuckFrame` (DF1–DF19)
 
 > **THERE IS NO DF3.** The number was skipped when these were first written up, and `sql-emission.md`
 > once cited "known-defects DF3" for the leading-U+FEFF round trip, which had no entry anywhere — that
-> finding is now **DF12**. The DuckFrame set is **DF1, DF2, DF4–DF13**: twelve entries.
+> finding is now **DF12**. The DuckFrame set is **DF1, DF2, DF4–DF19**: eighteen entries.
 
 Every status below was re-checked against `../src/` on 2026-09-15.
 
@@ -26,6 +26,12 @@ Every status below was re-checked against `../src/` on 2026-09-15.
 | [DF11](#df11) | `toJSON` cannot run as a UDF on an integer column | open |
 | [DF12](#df12) | a leading U+FEFF is stripped on DuckFrame ingest; `DataFrame` keeps it | divergence, pinned |
 | [DF13](#df13) | over TLS with a private CA every `rows()` fails while `size()` succeeds | open |
+| [DF14](#df14) | every `Long` past 2^53 changed value on the Parquet wire (HUGEINT was written as DOUBLE) | **fixed** 2026-09-28 |
+| [DF15](#df15) | a `Long` given as a JS bigint past 2^53 was stored one too low | **fixed** 2026-09-28 |
+| [DF16](#df16) | a `GeoJSON` field was stored as JSON TEXT, so every spatial query re-parsed every row | **fixed** 2026-09-28 |
+| [DF17](#df17) | a `Tuple` was output as an object `{"0":..,"1":..}`, not an array | **fixed** 2026-09-29 |
+| [DF18](#df18) | JSON output followed ONE flag, not `DataFrame`'s seven `SerializeOptions`; the default diverged four ways | **fixed** 2026-09-29 |
+| [DF19](#df19) | a double past 1e21 lost its exponent `+`; an integral double in 2^53..1e21 was written as its exact binary value | **fixed** 2026-09-30 |
 
 Tests live with the feature they cover, not in the deleted `known-defects-spec.ts`. Full DuckDB
 behavioural comparison: [`duckdb-parity.md`](./duckdb-parity.md).
@@ -38,6 +44,11 @@ behavioural comparison: [`duckdb-parity.md`](./duckdb-parity.md).
 | D4 | `packages/core-utils/test/numbers-spec.ts` (root cause), `test/type-coercion-spec.ts` (boundary) |
 | D5 | `test/type-coercion-spec.ts`, commented out at the foot — they assert the **correct** behaviour, so they fail today, and a permanently red suite trains people to ignore it |
 | DF1–DF13 | `test/duck-frame/sql-emission-spec.ts` — the SQL-vs-UDF parity gate that found most of them |
+| DF14, DF15 | `test/duck-frame/long-exact-spec.ts` |
+| DF16 | `test/duck-frame/geojson-geometry-spec.ts`, `test/duck-frame/wkb-spec.ts` |
+| DF17 | `test/duck-frame/tuple-output-spec.ts` |
+| DF18 | `test/duck-frame/serialize-options-spec.ts` - all 128 option sets; `engine-output-spec.ts` |
+| DF19 | `test/duck-frame/export-json-spec.ts` -> number rendering |
 | **DEF-BIGINT** | **`core-utils` UNFIXED ([#4555](https://github.com/terascope/teraslice/issues/4555)). duck-frame works around it locally — `test/duck-frame/duck-frame-spec.ts` → 'should read large integers back exactly, and agree with ndjson'** |
 
 ```
@@ -229,6 +240,13 @@ is the right call — accepting VARCHAR would produce a column whose type contra
 `Tuple` or `GeoPoint`. So the SQL emission is the only way they can run, the four promoted so far are
 proved against `config.create()` in JavaScript (`noUdfPath`), and fixing it means building DuckDB type
 objects at runtime rather than looking up constants.
+
+**Update 2026-09-28 — half the stated cause is gone.** A `GeoJSON` field is no longer JSON; it is a
+`GEOMETRY` (DF16), for which the binding HAS a type (`DuckDBGeometryType`). What is left of DF7 is the
+type-object mapping itself — GEOMETRY, and the runtime-built STRUCT/LIST types for `GeoPoint`, `Object`,
+`Tuple` — plus an input converter that unwraps `DuckDBGeometryValue` (via `wkbToGeoShape`) and
+`DuckDBStructValue`. **A UDF must never need `JSON.parse` for a GeoJSON value**: that would be undoing our
+own serialization, which is what DF16 removed.
 
 <a name="df8"></a>
 ### DF8. `geo-utils` reports a shape as NOT contained when it merely TOUCHES a hole — TICKET
@@ -504,3 +522,190 @@ independently know that `ca_cert_file` needs `SET GLOBAL` while `CREATE SECRET` 
 extend `configureDuckDatabase` to carry the remote-storage settings and apply them with `SET GLOBAL`, or
 as create-time instance options — plain HTTP and public TLS endpoints chaining to the system CA store
 are unaffected, which is why local minio over plain HTTP never showed it.
+
+---
+
+<a name="df14"></a>
+### DF14. Every `Long` past 2^53 changed value on the Parquet wire — FIXED 2026-09-28
+
+**Found 2026-09-28** by the first end-to-end probe of typed objects (`docs/tools/probe/typed-objects.mjs`,
+`long-over-parquet.mjs`). `Long.toDuckDB()` was `HUGEINT`, and **Parquet has no 128-bit integer, so DuckDB
+writes a HUGEINT column as a DOUBLE** — silently. In memory every value was exact; after `writeParquet` →
+`fromParquet` (the producer → worker path) it was not:
+
+| in | after the wire |
+|---|---|
+| `9007199254740993` | `9007199254740992` |
+| `9223372036854775807` | `9223372036854775808` — no longer fits in 64 bits |
+| `-9223372036854775808` | `-9.223372036854776e18` |
+
+Top-level and nested (`STRUCT(n HUGEINT)`) alike. `docs/tools/probe/wide-int-parquet.mjs` measured every
+candidate: `HUGEINT` and `UHUGEINT` → DOUBLE; `DECIMAL(38,0)` exact but capped at 10^38 − 1; `BIGNUM` exact
+on the wire but its `*`, `//`, `/`, `%` and `abs` silently return DOUBLE (`bignum-arith.mjs`) — so it trades a
+wrong wire for wrong arithmetic. **`BIGINT` → Parquet INT64 is exact.**
+
+**The fix:** a stored `Long` is a `BIGINT` — exactly an Elasticsearch `long`, which is where one comes from.
+A value outside the signed 64-bit range is a coercion failure at ingest (strict throws, lenient nulls the
+field value), never a wrong number. A **computed** `Long` can be wider — `ipToInt` on IPv6 is 128 bits — and
+keeps a wide type inside the query (UDF results are converted with `wideIntegers`); `writeParquet` finds any
+128-bit integer by walking DuckDB's type OBJECTS and casts that column to its DECLARED type, so one that fits
+is written exactly as INT64, one that does not fails the write loudly, and an undeclared one is refused.
+**Not a text substitution on `DESCRIBE`'s output** — the first version did that, and review found DuckDB
+does not quote struct member names there, so a member NAMED `HUGEINT` was renamed and silently nulled.
+
+A consequence found by the suite: `export-json.ts` tested `abs(x) > MAX_SAFE`, and `abs` of the int64 minimum
+overflows a BIGINT — it is now two comparisons.
+
+<a name="df15"></a>
+### DF15. A `Long` given as a JS bigint past 2^53 was stored one too low — FIXED 2026-09-28
+
+DEF-BIGINT's `+1`/`-1` pair (below) cancels only for a value that took BOTH. `toBigIntOrThrow` adds 1 to a
+value it PARSES and returns a bigint input untouched, but `duck-values.ts` subtracted 1 from every value past
+the bound — so `9007199254740993n` was stored as `...992` and `9223372036854775807n` as `...806`, while the
+same values as strings were exact (`docs/tools/probe/long-input-forms.mjs`).
+
+**The fix is on the DuckFrame side only**, because `core-utils` is shared with `DataFrame`, which is frozen:
+`makeBigIntInputNormaliser` hands a bigint past the bound to coercion as its decimal string, walking the
+config so only `Long` positions — nested objects, tuples and arrays included — are touched. Coercion itself
+is unchanged.
+
+**DuckFrame and DataFrame now DIVERGE here, deliberately.** `DataFrame` still writes `...992` for a bigint
+input of `...993`; `export-json-spec.ts` used to assert that value "to match DataFrame", which pinned the
+defect as a contract. Its parity fixture now feeds the value as a string (both engines exact), and a separate
+test asserts DuckFrame's exact output beside DataFrame's wrong one.
+
+<a name="df16"></a>
+### DF16. A `GeoJSON` field was stored as JSON text — FIXED 2026-09-28
+
+**Our own choice, not a constraint.** `GeoJSON.toDuckDB()` returned `JSON` from the commit that introduced
+`toDuckDB()` (`2a22b653f76`, 2026-08-14, this branch), with the reason "JSON until the spatial extension
+earns its place". Everything after was built on it and paid for it: ingest `JSON.stringify`d each shape,
+every geo emission and every translator geo query ran `ST_GeomFromGeoJSON(col::VARCHAR)` — a full parse of
+every row, on every query — and the DF7 plan would have added a `JSON.parse` to the UDF path.
+
+**Now a `GEOMETRY`.** The node binding cannot create a GEOMETRY *value* (`createValue` throws "not yet
+supported"; DuckDB's C API has no geometry constructor), but its **vector** writer can — and ingest writes
+vectors. So `src/duck-frame/wkb.ts` encodes GeoJSON to WKB, proved byte-for-byte against DuckDB's own
+`ST_AsWKB` (`wkb-spec.ts`), and decodes it again for `rows()`. `ndjson()` renders with `ST_AsGeoJSON`.
+`writeParquet` passes `GEOPARQUET_VERSION 'BOTH'`: the GeoParquet 1.0 default types only a TOP-LEVEL
+geometry, so a `GeoJSON` array or an object's `GeoJSON` member came back as `BLOB`, and `BLOB -> GEOMETRY`
+has no cast (`docs/tools/probe/geometry-list-parquet.mjs`).
+
+**What a GEOMETRY does not keep** — pinned in `geojson-geometry-spec.ts`, and deliberate:
+
+| input | `DataFrame` | `DuckFrame` |
+|---|---|---|
+| `{ type: 'POLYGON', ... }` (non-canonical spelling) | keeps `'POLYGON'` | `'Polygon'` |
+| extra keys (`bbox`, `properties`) | keeps them | geometry only |
+| an integral coordinate `1` | `1` | `1.0` — the same number (accepted) |
+| a 3D position | stored | **rejected** at ingest (a `GeoShape` is 2D) |
+
+The first row flips three geo predicates on exactly one battery input — `{ type: 'POINT' }`, which JS
+calls not-a-point and not-disjoint while calling the identical `'Point'` both — recorded as
+`knownDivergences` in `sql-emission-spec.ts` (`docs/tools/probe/point-spelling.mjs`).
+
+**Why not `VARIANT` for `Any` / untyped objects, which are still JSON text** — measured 2026-09-28,
+`docs/tools/probe/variant-cost.mjs`, 100k-1M rows, queries on the Parquet file: VARIANT is **~9x slower on
+every query** (filter, group-by, render: 220 ms vs 25 ms at 100k), **~3.5x slower to produce**, and has **no
+break-even** — it costs more at ingest AND per query. Its only gain is 3.1x smaller Parquet. It also
+**sorts object keys alphabetically** on output (5 of 12 cases not byte-equal), needs
+`storage_compatibility_version 'v1.5.0'`, and **cannot be written from node at all**: `setItem` throws and a
+data chunk with a VARIANT column segfaults even when every value is null (`variant-chunk-nulls.mjs`). JSON
+text stays for `Any` — which, unlike a shape, has no structure to parse ahead of time.
+
+<a name="df17"></a>
+### DF17. A `Tuple` was output as an object, not an array — FIXED 2026-09-29
+
+A `Tuple` is stored as `STRUCT("0" ..., "1" ...)` — a DuckDB LIST cannot hold positions of different
+types — and both output paths handed the struct back as it was: `{"0":1.5,"1":"a"}` where `DataFrame` writes
+`[1.5,"a"]`. Every Tuple, single or in an array, in `rows()` and in both `ndjson()` modes
+(`docs/tools/probe/object-output-parity.mjs`).
+
+- **`ndjson()`**: `export-json.ts` renders a Tuple as `json_array(...)` of its positions in position order,
+  each through the same corrections as any field (a big Long becomes a string, a Date ISO-8601). A missing
+  position stays `null` INSIDE the array in both modes — merge-patch replaces an array whole — which is
+  `DataFrame`'s behaviour too (`[2,null]` with null fields removed).
+- **`rows()`**: `toPlainValue` cannot tell a Tuple's struct from an Object's without the config, so
+  `row-shape.ts` builds a per-column shaper from it — only for columns with a Tuple somewhere inside, so
+  every other column costs nothing per row.
+
+**Not a defect, recorded because it was once reported as one:** `@preserveNullFields` output is correct for
+objects. `typed-objects.mjs` passed `DataFrame`'s `toJSON` options to `DuckFrame.ndjson()`, which takes
+`{ removeNullFields }`, so its "preserve" runs were the default and "found" nulls missing.
+
+<a name="df18"></a>
+### DF18. JSON output followed one flag, not `DataFrame`'s `SerializeOptions` — FIXED 2026-09-29
+
+`DataFrame.toJSON` / `rows(true, options)` take seven flags — `useNullForUndefined`, `skipNilValues`,
+`skipEmptyArrays`, `skipNilListValues`, `skipNilObjectValues`, `skipEmptyObjects`, `skipDuplicateObjects`
+(`src/vector/interfaces.ts`). spaces sets two combinations of them from `remove_null_fields`
+(`qpl-engine/src/v3/execute/run.ts:174`). DuckFrame took only that flag and approximated the default with
+`json_merge_patch('{}', ...)`, which strips EVERY null key recursively. So in the default preset
+(`docs/tools/probe/object-output-parity.mjs`, `dataframe-nonfinite.mjs`):
+
+| | `DataFrame` | DuckFrame before |
+|---|---|---|
+| an object left with no non-nil field | field omitted (`skipEmptyObjects`) | `"obj":{}` |
+| a nil field inside an element of an ARRAY of objects | omitted | `"qty":null` — merge-patch does not enter arrays |
+| a `NaN` / `Infinity` | `"d":null` — NOT nil, `FloatVector` has no `toJSONCompatibleValue` | key removed |
+| an undeclared object `{"a":null}` | copied verbatim | the null stripped |
+
+(`@preserveNullFields` was already right for objects; that "bug" was a probe that passed the wrong options.)
+
+**The renderer now implements the seven rules** where `DataFrame` does (`export-json.ts`, `Renderer`):
+each value renders to JSON text or to SQL NULL for nil; a member is `'"k":' || v`, which `||` makes NULL
+exactly when `v` is nil, so `concat_ws` includes or omits it in ONE evaluation. `ndjson`, `writeNDJSON` and
+`rows(options)` take `SerializeOptions`; `removeNullFields` stays as the shorthand for spaces' presets, and
+no options at all means spaces' default. `rows(options)` parses the same lines, so it cannot disagree.
+Row-level `skipDuplicateObjects` is done on the stream in order, as `rowsWithoutDuplicates` does.
+
+**Performance, measured** (`docs/tools/probe/ndjson-export-cost.mjs`, 1M rows, 16 fields, writeNDJSON):
+
+| | before | first cut | final |
+|---|---|---|---|
+| default | 307 ms | 614 ms | **229 ms** |
+| `@preserveNullFields` | 211 ms | 472 ms | **201 ms** |
+
+Two causes of the first cut's 2x, both removed: testing `v IS NOT NULL` before `'"k":' || v` rendered each
+value twice, compounding with nesting; and `WHERE json IS NOT NULL` on the rendered row made DuckDB inline
+the alias and render every row twice (`json-render-parts.mjs` showed the renderer itself was FASTER than
+the old one). Dropped rows are now decided from the columns' NULL structure (`buildJsonRowFilter`), and only
+under `skipEmptyObjects`.
+
+**Field order:** there is no ordering option. `ndjson` and `rows(options)` follow config order, as
+`DataFrame` does; `rows()` with no options follows the STRUCT's member order, which `data-types` now emits
+in config order too (a STRUCT cast maps members by name, so older payloads still load). Free per row.
+
+**The engine's other two output paths, added 2026-09-30** (`engine-output-spec.ts`):
+
+- `serializeObject` streams a one-row frame's `results` list with `ListVector.getRowIterator(0, true,
+  options)` -> **`DuckFrame.listValues(column, options)`**, same rules per element, a nil one yielded as
+  `null`/`undefined` or skipped as `DataFrame` does; `skipDuplicateObjects` refused with its message.
+  Compared across all 64 combinations it accepts, on three one-row shapes, for an object and a scalar list.
+- `finish-scope` calls `removeEmptyRows()` / `countEmptyRows()` for its metric ->
+  **`DuckFrame.removeEmptyRows()`** (a relation, order kept) and **`countEmptyRows()`**. Empty means EVERY
+  column's stored value is nil (`isEmptyRow` -> `vector.has`): `{}` and `[]` are values.
+- The metadata half of `serializeObject` is `getRow(0, true, options)`, which is the first row of
+  `rows(options)` on the frame without `results`.
+
+**Not reproduced, deliberately:** under `skipEmptyArrays`, `TupleVector` treats a position as nil unless
+its vector has `toJSONCompatibleValue`, so it drops `[1.5, "a"]` as empty. DuckFrame drops a tuple only
+when every position is nil. No spaces preset sets `skipEmptyArrays`.
+
+<a name="df19"></a>
+### DF19. Doubles past 1e21, and integral doubles past 2^53, rendered differently — FIXED 2026-09-30
+
+Measured across both ends of the exponential range (`docs/tools/probe/double-exponent-format.mjs`):
+DuckDB's `to_json` prints the same SHORTEST round-trip digits as `JSON.stringify` everywhere, and differs in
+text only in two ways — it writes `1e21` for `1e+21`, and `5.0` for `5`. Small magnitudes (`1e-7`,
+`5e-324`) already agreed.
+
+- **The exponent sign** was a pinned divergence while rows were JSON-typed (the JSON type re-normalises
+  every number). Rows are text since DF18, so `replace(t, 'e', 'e+')` above `1e21` fixes it.
+- **Found while doing so, and worse:** the integral branch cast through `HUGEINT`, which prints a double's
+  EXACT binary value. Below 2^53 that equals the shortest form; between 2^53 and 1e21 it does not — the
+  double `JSON.stringify` writes as `99999999999999980000` came out as `99999999999999991611392`. Now the
+  integral branch strips `.0` from DuckDB's own shortest rendering, and `-0` is written as `0`.
+
+Byte-equal to `DataFrame` for 17 values across both ranges, scalar and in an array. Export cost unchanged
+within noise (`ndjson-export-cost.mjs`: 238 / 207 ms against 229 / 201).

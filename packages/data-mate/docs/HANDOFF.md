@@ -41,8 +41,35 @@ If you read nothing else, read this and §0.
 `fromSQL`, `searchParams`)**, query
 (`select`/`filter`/`join`/`orderBy`/`limit`/`distinct`/`materialize`/`size`), output (`rows`,
 `ndjson`, `writeNDJSON`, `writeParquet`), and `duckFrameAdapter` driving the same
-`FunctionDefinitionConfig`s as `dataFrameAdapter`. **43 data-mate suites / 3,630 tests passing,
-verified 2026-09-21** (plus 2 suites / 66 tests in the new `sql-builder`).
+`FunctionDefinitionConfig`s as `dataFrameAdapter`. **47 data-mate suites / 3,687 tests passing,
+verified 2026-09-28** (plus `data-types` 32 / 198 and `sql-builder` 2 / 66; `xlucene-translator`'s
+174 failures are all OpenSearch-only suites with no cluster configured, identical with and without
+the 2026-09-28 changes).
+
+**STORAGE TYPES CHANGED 2026-09-28 — read `known-defects.md` DF14-DF16 before touching a type mapping.**
+- **`Long` is `BIGINT`, not `HUGEINT`.** Parquet has no 128-bit integer, so HUGEINT crossed the wire as
+  a DOUBLE and every value past 2^53 changed (DF14). A value outside int64 is now a coercion failure; a
+  COMPUTED wide Long (`ipToInt` on IPv6) keeps a wide type in the query, and `writeParquet` narrows it or
+  fails loudly. A bigint INPUT past 2^53 was also stored one too low (DF15) — fixed DuckFrame-side only;
+  DuckFrame and `DataFrame` now deliberately differ there.
+- **`GeoJSON` is `GEOMETRY`, not JSON text** (DF16). Encoded to WKB at ingest (`src/duck-frame/wkb.ts`),
+  used directly by every geo emission and by `sql-builder`'s DuckDB dialect — nothing re-parses a shape per
+  row any more. `writeParquet` uses `GEOPARQUET_VERSION 'BOTH'` so NESTED geometry survives the wire.
+- **`Any` / untyped `Object` stay JSON text.** `VARIANT` was measured and rejected: ~9x slower per query,
+  no break-even, sorts keys, and unwritable from node (DF16).
+- Typed objects (declared children) were already `STRUCT`s. Probed end to end with
+  `docs/tools/probe/object-output-parity.mjs` (NOT `typed-objects.mjs`, whose "preserve" runs passed
+  the wrong options and reported a `@preserveNullFields` bug that does not exist):
+  - **`Tuple` output FIXED 2026-09-29 (DF17)** - it rendered as `{"0":..,"1":..}`; now an array in
+    `rows()` and both `ndjson()` modes, byte-equal to `DataFrame`.
+  - **`@preserveNullFields` is CORRECT** for objects, nested objects and arrays of objects.
+  - **Fields and nulls FIXED 2026-09-29 (DF18):** JSON output now follows all seven of `DataFrame`'s
+    `SerializeOptions`, byte-equal across all 128 combinations, and `rows(options)` matches
+    `rows(true, options)`. Faster than before: 229 ms vs 307 ms default at 1M rows. Struct members
+    are in config order, so `rows()` key order matches too.
+  - **The engine's other output paths, 2026-09-30:** `listValues(column, options)` is
+    `ListVector.getRowIterator` for `serializeObject`; `countEmptyRows()` / `removeEmptyRows()` are
+    `finish-scope`'s. Doubles now match `JSON.stringify` exactly past 1e21 and past 2^53 (DF19).
 
 **THE INPUT IS A `QueryAccess` STATEMENT (2026-09-21).** Spaces drives every query and execution plan
 through `QueryAccess`, so `restrictSQLQuery` output — a complete statement with the field restrictions
@@ -1110,6 +1137,26 @@ autoload, though `icu` and `inet` do.
 ---
 
 ## NEXT STEPS — what to run next, in priority order
+
+**START HERE (2026-09-30).** The storage-type and output work of 2026-09-28..30 (DF14-DF19 in
+`known-defects.md`) is done, tested and **UNCOMMITTED** - commit it first, in logical pieces: `Long` ->
+BIGINT; GeoJSON -> GEOMETRY; Tuple output; `SerializeOptions` renderer + engine output paths + numbers.
+Then, in order:
+
+1. **DF7, the UDF type layer.** Build DuckDB type objects from the field config (GEOMETRY, runtime
+   STRUCT/LIST, JSON for `Any`) and unwrap `DuckDBGeometryValue` (`wkbToGeoShape`) / `DuckDBStructValue`
+   inputs. **Never a `JSON.parse`** for GeoJSON - it is a GEOMETRY now. Unblocks `parseJSON`, `lookup`,
+   `toGeoPoint`, `toGeoJSON`; `cast` is `ProcessMode.NONE` and needs a CAST emission instead. Then drop
+   `noUdfPath` / `arrayOnly` from the gate so every geo/list emission is proved against a real UDF.
+2. **IP -> INET storage** - the same kind of choice GeoJSON was: VARCHAR today, `TRY_CAST(... AS INET)`
+   on every row of every IP query. Measure, then decide.
+3. **The timezone offset-column design** - unblocks the last 5 date functions.
+4. **Stacked `expand_values`** (`UNION ALL`, row survives when all lists are empty), then `deepSelect`.
+5. **Never emit `SELECT *`** from the planner (the one Parquet memory cliff).
+6. `isPostalCode`, then `expm1`/`log1p`.
+
+Housekeeping: `DuckFrame.ts` is 908 lines (over the 800 rule; it was 809 before) - split the class.
+VARIANT is REJECTED for `Any` (DF16); do not revisit without a node binding that can write it.
 
 1. **CONCURRENCY — several jobs against ONE `memory_limit`. The highest-value unrun measurement.**
    Every number in the storage report is one job on an idle machine, and the Parquet scan reservation
