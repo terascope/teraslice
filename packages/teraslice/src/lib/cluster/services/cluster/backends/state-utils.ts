@@ -1,5 +1,5 @@
 import { cloneDeep } from '@terascope/core-utils';
-import type { ClusterState, WorkProcessNode } from '../../../../../interfaces.js';
+import type { ClusterState, WorkProcessNode } from '@terascope/types';
 
 export function iterateState(
     clusterState: ClusterState,

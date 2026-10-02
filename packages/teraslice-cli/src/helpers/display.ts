@@ -246,6 +246,24 @@ export default class Display {
         return response.continue;
     }
 
+    /**
+     * Prompts for confirmation before a tap that could return a large response
+     * (size of 'all', 0 or more than 50 records). Resolves true when no prompt
+     * is needed or the user confirms.
+     */
+    async confirmTap(size: string | undefined, target: string, yes?: boolean): Promise<boolean> {
+        if (yes === true || size == null) return true;
+
+        const all = size === 'all' || Number(size) === 0;
+        if (!all && !(Number(size) > 50)) return true;
+
+        return this.showPrompt(
+            'tap',
+            `${all ? 'all records' : `${size} records`} per operation for ${target}? `
+            + 'Large responses can be memory intensive, causing workers or execution controllers to crash'
+        );
+    }
+
     setAction(action: Action, tense: Tense): UpdateActions {
         if (action === 'stop' && tense === 'past') {
             return 'stopped';

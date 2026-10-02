@@ -595,6 +595,41 @@ describe('Teraslice Job', () => {
         });
     });
 
+    describe('->tap', () => {
+        const tapResults = {
+            workerId: 'some-worker',
+            sliceId: 'some-slice',
+            records: [[{ record: { id: 1 }, metadata: { _key: '1' } }]]
+        };
+
+        describe('when called with nothing', () => {
+            beforeEach(() => {
+                scope.get('/jobs/some-job-id/tap')
+                    .reply(200, tapResults);
+            });
+
+            it('should resolve json results from Teraslice', async () => {
+                const job = new Job({ baseUrl }, 'some-job-id');
+                const results = await job.tap();
+                expect(results).toEqual(tapResults);
+            });
+        });
+
+        describe('when called with a size', () => {
+            beforeEach(() => {
+                scope.get('/jobs/some-job-id/tap')
+                    .query({ size: 'all' })
+                    .reply(200, tapResults);
+            });
+
+            it('should pass the size as a query param', async () => {
+                const job = new Job({ baseUrl }, 'some-job-id');
+                const results = await job.tap({ size: 'all' });
+                expect(results).toEqual(tapResults);
+            });
+        });
+    });
+
     describe('->workers', () => {
         const workerData: Teraslice.WorkerNode[] = [];
 

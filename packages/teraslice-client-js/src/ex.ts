@@ -76,6 +76,13 @@ export default class Ex extends Client {
         return this.get(`/ex/${this._exId}/controller`, requestOptions);
     }
 
+    async tap(
+        query: { size?: string | 'all' } = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<Teraslice.SliceTapResults> {
+        return this.get(`/ex/${this._exId}/tap`, this.makeOptions(query, searchOptions));
+    }
+
     async config(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionConfig> {
         return this.get(`/ex/${this._exId}`, requestOptions);
     }

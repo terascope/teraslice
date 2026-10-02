@@ -8,12 +8,13 @@ import {
 import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
 import { type Context, type WorkerExecutionContext, isPromAvailable } from '@terascope/job-components';
-import type { SliceCompletePayload } from '@terascope/types';
+import type { SliceCompletePayload, SliceTapRequest } from '@terascope/types';
 import { StateStorage, AnalyticsStorage } from '../../storage/index.js';
 import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
 import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
 import { SliceExecution } from './slice.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
+import type { SerializedSliceTapResults } from '../../../interfaces.js';
 
 export class Worker {
     stateStorage: StateStorage;
@@ -126,6 +127,8 @@ export class Worker {
             this.logger.warn('Execution Controller shutdown, exiting...');
             this.shouldShutdown = true;
         });
+
+        this.client.onSliceTapRequest((msg) => this.tap(msg.payload as SliceTapRequest));
 
         await this.client.start();
 
@@ -281,7 +284,7 @@ export class Worker {
         }
 
         const start = Date.now();
-        // We modify the shutdown timeout so an error occurs 1 second before shutdownWithTimeout()
+        // We modify the shutdown timeout so an error occurs 3 seconds before shutdownWithTimeout()
         // in ../helpers/worker-shutdown.ts, which calls process.exit()
         const shutdownSignalDelayEst = 3000;
         const end = start + this.shutdownTimeout - shutdownSignalDelayEst;
@@ -427,6 +430,18 @@ export class Worker {
 
     getSlicesProcessed() {
         return this.slicesProcessed;
+    }
+
+    async tap(payload: SliceTapRequest): Promise<SerializedSliceTapResults> {
+        const { size, tapTimeout } = payload;
+        this.logger.debug(`slice tap requested, size ${size}, timeout ${tapTimeout}ms`);
+        const { sliceId, records } = await this.slice.executionContext.tapObserver
+            .getTap(size, tapTimeout);
+
+        return {
+            sliceId,
+            records: Buffer.from(JSON.stringify(records))
+        };
     }
 
     /**

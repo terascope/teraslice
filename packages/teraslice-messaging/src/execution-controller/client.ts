@@ -81,6 +81,10 @@ export class Client extends core.Client {
         this.on('execution:finished', fn);
     }
 
+    onSliceTapRequest(fn: core.MessageHandler): void {
+        this.handleResponse(this.socket, 'worker:slice:tap', fn);
+    }
+
     sendSliceComplete(payload: SliceCompletePayload) {
         return this.send('worker:slice:complete', withoutNil(payload), {
             response: true,

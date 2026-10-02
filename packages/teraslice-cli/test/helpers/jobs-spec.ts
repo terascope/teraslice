@@ -12,6 +12,7 @@ import {
     getJobExecution
 } from './helpers.js';
 import reply from '../../src/helpers/reply.js';
+import Display from '../../src/helpers/display.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -1168,6 +1169,156 @@ describe('Job helper class', () => {
 
             expect(jobFile.__metadata.cli.job_id).toBe(jobId);
             process.chdir(originalDirectory);
+        });
+    });
+
+    describe('tap', () => {
+        const action = 'tap';
+        const tapResponse = {
+            workerId: 'worker-1',
+            sliceId: 'slice-1',
+            records: [[{ record: { foo: 'bar' }, metadata: {} }], []]
+        };
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+            nock.cleanAll();
+        });
+
+        async function initJob(jobId: string, status: string, args = {}) {
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: status })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, testJobConfig(jobId));
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': [jobId],
+                    jobId: [jobId],
+                    ...args
+                }
+            );
+
+            const job = new Jobs(config);
+            await job.initialize();
+            return job;
+        }
+
+        it('should send the size option as a query param', async () => {
+            const info = jest.spyOn(reply, 'info').mockImplementation(() => {});
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running', { size: '5' });
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/tap`)
+                .query({ size: '5' })
+                .reply(200, tapResponse);
+
+            await job.tap();
+
+            expect(scope.isDone()).toBeTrue();
+            expect(info).toHaveBeenCalledWith(JSON.stringify(tapResponse));
+        });
+
+        it('should send size=all', async () => {
+            jest.spyOn(reply, 'info').mockImplementation(() => {});
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running', { size: 'all', yes: true });
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/tap`)
+                .query({ size: 'all' })
+                .reply(200, tapResponse);
+
+            await job.tap();
+
+            expect(scope.isDone()).toBeTrue();
+        });
+
+        it('should prompt and not request a tap if a large size is declined', async () => {
+            const showPrompt = jest.spyOn(Display.prototype, 'showPrompt').mockResolvedValue(false);
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running', { size: '51' });
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/tap`)
+                .query(true)
+                .reply(200, tapResponse);
+
+            await job.tap();
+
+            expect(showPrompt).toHaveBeenCalledTimes(1);
+            expect(scope.isDone()).toBeFalse();
+        });
+
+        it('should prompt and request a tap if a large size is confirmed', async () => {
+            jest.spyOn(reply, 'info').mockImplementation(() => {});
+            const showPrompt = jest.spyOn(Display.prototype, 'showPrompt').mockResolvedValue(true);
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running', { size: '0' });
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/tap`)
+                .query({ size: '0' })
+                .reply(200, tapResponse);
+
+            await job.tap();
+
+            expect(showPrompt).toHaveBeenCalledTimes(1);
+            expect(scope.isDone()).toBeTrue();
+        });
+
+        it('should not send a size query param if size is not specified', async () => {
+            jest.spyOn(reply, 'info').mockImplementation(() => {});
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running');
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/tap`)
+                .query((query) => !('size' in query))
+                .reply(200, tapResponse);
+
+            await job.tap();
+
+            expect(scope.isDone()).toBeTrue();
+        });
+
+        it('should not request a tap if the job is in a terminal status', async () => {
+            const yellow = jest.spyOn(reply, 'yellow').mockImplementation(() => {});
+            jest.spyOn(reply, 'green').mockImplementation(() => {});
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'stopped');
+
+            const scope = nock(tsHost)
+                .get(`/v1/jobs/${jobId}/tap`)
+                .query(true)
+                .reply(200, tapResponse);
+
+            await job.tap();
+
+            expect(scope.isDone()).toBeFalse();
+            expect(yellow).toHaveBeenCalledWith(expect.stringContaining('Cannot tap slice. Job in terminal status stopped'));
+        });
+
+        it('should throw if the tap request fails', async () => {
+            const [jobId] = makeJobIds(1);
+
+            const job = await initJob(jobId, 'running');
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/tap`)
+                .query(true)
+                .reply(500, { error: 500, message: 'Worker shut down before slice completed' });
+
+            await expect(job.tap()).rejects.toThrow('Worker shut down before slice completed');
         });
     });
 });

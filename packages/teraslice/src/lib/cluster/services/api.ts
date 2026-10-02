@@ -16,7 +16,7 @@ import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/
 import {
     makeTable, sendError, handleTerasliceRequest,
     getSearchOptions, createJobActiveQuery, addDeletedToQuery,
-    addFilterToQuery, buildConnectorList
+    addFilterToQuery, buildConnectorList, getSliceTapOptions
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 
@@ -439,6 +439,21 @@ export class ApiService {
         });
 
         v1routes.get([
+            '/jobs/:jobId/tap',
+            '/ex/:exId/tap'
+        ], (req, res) => {
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not get slice tap');
+            requestHandler(async () => {
+                const options = getSliceTapOptions(req.query);
+                const exId = await this._getExIdFromRequest(req);
+                const body = await this.executionService.getSliceTap(exId, options);
+                // set Content-Type to JSON so body is properly converted from buffer
+                res.type('json');
+                return body;
+            });
+        });
+
+        v1routes.get([
             '/jobs/:jobId/slicer',
             '/jobs/:jobId/controller',
             '/ex/:exId/slicer',
@@ -507,6 +522,7 @@ export class ApiService {
                 return { ...stats, slicer: stats.controllers };
             });
         });
+
         v1routes.get(['/cluster/slicers', '/cluster/controllers'], (req, res) => {
             const requestHandler = handleTerasliceRequest(req, res, 'Could not get execution statistics');
             requestHandler(() => this._controllerStats());

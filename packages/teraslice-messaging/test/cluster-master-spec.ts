@@ -190,5 +190,52 @@ describe('ClusterMaster', () => {
 
             expect(onExecutionResume).toHaveBeenCalled();
         });
+
+        describe('when sending execution:slice:tap', () => {
+            const request = { size: 10, sendTimeout: 800, tapTimeout: 500 };
+            const tapResults = {
+                workerId: 'some-worker',
+                sliceId: 'tapped-slice',
+                records: [[{ record: { id: 1 }, metadata: { _key: '1' } }]]
+            };
+
+            // each onExecutionSliceTap call adds a socket listener,
+            // so register once and swap the implementation per test
+            const handler = jest.fn<(msg: any) => any>();
+
+            beforeAll(() => {
+                client.onExecutionSliceTap(handler);
+            });
+
+            it('should pass the request to the execution and return its tap', async () => {
+                handler.mockImplementation(() => tapResults);
+
+                const msg = await server.sendSliceTapRequest(exId, request, 1000);
+
+                expect(handler).toHaveBeenCalledWith(
+                    expect.objectContaining({ payload: request })
+                );
+                expect(msg).toHaveProperty('payload', tapResults);
+            });
+
+            it('should deliver serialized records as a Buffer', async () => {
+                const records = Buffer.from(JSON.stringify(tapResults.records));
+                handler.mockImplementation(() => ({ ...tapResults, records }));
+
+                const msg = await server.sendSliceTapRequest(exId, request, 1000);
+
+                expect(Buffer.isBuffer(msg?.payload.records)).toBeTrue();
+                expect(msg?.payload.records.equals(records)).toBeTrue();
+            });
+
+            it('should reject with the execution error when the tap fails', async () => {
+                handler.mockImplementation(async () => {
+                    throw new Error('Slice tap timeout after 1s; no worker became available');
+                });
+
+                await expect(server.sendSliceTapRequest(exId, request, 1000))
+                    .rejects.toThrow('Slice tap timeout after 1s; no worker became available');
+            });
+        });
     });
 });

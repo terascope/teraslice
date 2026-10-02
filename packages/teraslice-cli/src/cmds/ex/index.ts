@@ -4,12 +4,13 @@ import list from './list.js';
 import recover from './recover.js';
 import status from './status.js';
 import stop from './stop.js';
+import tap from './tap.js';
 
 export default {
     command: 'ex <command>',
     describe: 'commands to manage execution ids',
     builder(yargs) {
-        return yargs.command([errors, list, recover, status, stop])
+        return yargs.command([errors, list, recover, status, stop, tap])
             .demandCommand(2);
     },
     handler: () => {}

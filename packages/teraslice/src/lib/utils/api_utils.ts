@@ -2,12 +2,13 @@ import Table from 'easy-table';
 import {
     parseErrorInfo, parseList, logError,
     isString, get, toInteger, Logger,
-    TSError
+    TSError, isNumber
 } from '@terascope/core-utils';
 import {
     ConnectorInfo, GroupedConnectors, ConnectorQueryOptions, Teraslice
 } from '@terascope/types';
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
+import type { SliceTapOptions } from '../cluster/services/interfaces.js';
 
 export function makeTable(
     req: TerasliceRequest,
@@ -58,15 +59,15 @@ export function handleTerasliceRequest(
     { errorCode = 500, successCode = 200 } = {}
 ) {
     logTerasliceRequest(req);
-    // `fn` returns whatever should be serialized as the response body: a string is
-    // sent as-is, anything else is sent as JSON. The value is intentionally `unknown`
+    // `fn` returns whatever should be serialized as the response body: a string or
+    // Buffer is sent as-is, anything else is sent as JSON. The value is intentionally `unknown`
     // because callers return a wide range of endpoint payloads (objects, arrays,
     // cluster state, etc.); the response shape is narrowed below.
     return async (fn: () => unknown) => {
         try {
             const result = await fn();
 
-            if (isString(result)) {
+            if (isString(result) || Buffer.isBuffer(result)) {
                 res.status(successCode).send(result);
             } else {
                 res.status(successCode).json(result);
@@ -128,6 +129,26 @@ export function getSearchOptions(req: TerasliceRequest, defaultSort = '_updated:
     const from = parseQueryInt(req, 'from', 0);
     const filter = req.query.filter || '';
     return { size, from, sort, filter };
+}
+
+/**
+ * Validate the slice tap query options.
+ * `size` defaults to 10, and "all" or 0 means every record.
+ */
+export function getSliceTapOptions(query: TerasliceRequest['query']): SliceTapOptions {
+    const { size: input = 10 } = query as { size?: unknown };
+
+    const isValidInput = isNumber(input)
+        || (typeof input === 'string' && input.trim() !== '');
+    const size = input === 'all' ? 0 : Number(input);
+
+    if (!isValidInput || !Number.isInteger(size) || size < 0) {
+        throw new TSError(`Argument "size" must be "all", 0, or a positive integer, received ${JSON.stringify(input)}`, {
+            statusCode: 400
+        });
+    }
+
+    return { size };
 }
 
 export function logTerasliceRequest(req: TerasliceRequest) {

@@ -231,7 +231,7 @@ export class ClusterMaster {
         if (isPromAvailable(this.context)) {
             this.logger.info(`adding ${this.context.assignment} prom metrics...`);
             /*
-                TODO: After reviewing these metrics, I've conluded that all of these
+                TODO: After reviewing these metrics, I've concluded that all of these
                 can be handled by th execution controller. We might move these into the execution
                 controller metrics down the line. The master can maybe keep track of how many ex
                 controllers there are? Some sort of overview of everything and leave the specifics

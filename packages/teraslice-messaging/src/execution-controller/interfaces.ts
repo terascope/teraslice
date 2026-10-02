@@ -33,9 +33,6 @@ export interface ActiveWorkers {
     [workerId: string]: boolean;
 }
 
-export interface SliceResponseMessage {
-    willProcess?: boolean;
-}
 export interface WorkerShutdownFn {
     (error?: null): void;
 }

@@ -877,6 +877,33 @@ export default class Jobs {
         return uniquePath;
     }
 
+    async tap() {
+        // Response can be very large, limit to one job at a time
+        const job = this.jobs[0];
+        const { status } = this.getJobIdentifiers(job);
+
+        if (this.terminalStatuses.includes(status)) {
+            this.logUpdate({ action: 'tap_terminal', job });
+            return;
+        }
+
+        const { size } = this.config.args;
+        const confirmed = await display.confirmTap(
+            size,
+            `job ${job.id} on ${this.config.clusterUrl}`,
+            this.config.args.yes
+        );
+        if (!confirmed) return;
+
+        try {
+            const response = await job.api.tap({ size });
+
+            reply.info(JSON.stringify(response));
+        } catch (e) {
+            this.commandFailed(e.message, job);
+        }
+    }
+
     /**
      * @param args action and final property, final indicates if it is part of a series of commands
      * @param job job metadata
@@ -1005,6 +1032,10 @@ export default class Jobs {
             resumed: {
                 message: `${display.setAction('resume', 'past')}, ${name}, ${id}`,
                 final: false
+            },
+            tap_terminal: {
+                message: `Cannot tap slice. Job in terminal status ${status}`,
+                final: true
             }
         };
 

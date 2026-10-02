@@ -1,5 +1,5 @@
 import { isNumber, get, Queue } from '@terascope/core-utils';
-import { SliceCompletePayload, EnqueuedWorker, Slice } from '@terascope/types';
+import { EnqueuedWorker, Slice, SliceCompletePayload } from '@terascope/types';
 import type { Socket } from 'socket.io';
 import * as core from '../messenger/index.js';
 import * as i from './interfaces.js';
@@ -110,6 +110,24 @@ export class Server extends core.Server {
         return dispatched;
     }
 
+    sendSliceTapRequest(
+        workerId: string,
+        payload: { size: number; tapTimeout: number },
+        timeout: number
+    ): Promise<core.Message | null> {
+        return this.send(workerId, 'worker:slice:tap', payload, { response: true, timeout });
+    }
+
+    /**
+     * Called synchronously when a worker is enqueued (or re-announces that it
+     * is available), before the worker can be dequeued and dispatched a slice.
+     */
+    onWorkerEnqueue(fn: (workerId: string) => void): void {
+        this.on('worker:enqueue', (msg) => {
+            fn(msg.scope);
+        });
+    }
+
     onSliceSuccess(fn: (workerId: string, payload: SliceCompletePayload) => void): void {
         this.on('slice:success', (msg) => {
             fn(msg.scope, msg.payload);
@@ -174,7 +192,7 @@ export class Server extends core.Server {
             this.queue.enqueue({ workerId });
         }
 
-        this.emit('worker:enqueue', { scope: '', payload: {} });
+        this.emit('worker:enqueue', { scope: workerId, payload: {} });
         return exists;
     }
 

@@ -7,15 +7,19 @@ import {
 } from '@terascope/core-utils';
 import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
-import { ExecutionConfig, JobConfig } from '@terascope/types';
+import {
+    ExecutionConfig, JobConfig, NodeState, SliceTapRequest
+} from '@terascope/types';
 import type { ExecutionStorage, StateStorage } from '../../storage/index.js';
 import type {
-    ClusterMasterContext, NodeState, ExecutionNodeWorker,
-    ControllerStats
+    ClusterMasterContext, ExecutionNodeWorker, ControllerStats,
+    SerializedSliceTapResults
 } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';
-import { StopExecutionOptions } from './interfaces.js';
+import { SliceTapOptions, StopExecutionOptions } from './interfaces.js';
+
+const MIN_SLICE_TAP_TIMEOUT = 30 * 1000;
 /**
  * New execution result
  * @typedef NewExecutionResult
@@ -29,7 +33,7 @@ import { StopExecutionOptions } from './interfaces.js';
  Exceptions
  rejected - when a execution is rejected prior to scheduling
  failed - when there is an error while the execution is running
- aborted - when a execution was running at the point when the cluster shutsdown
+ aborted - when a execution was running at the point when the cluster shuts down
  */
 
 export class ExecutionService {
@@ -111,6 +115,83 @@ export class ExecutionService {
 
     getClusterAnalytics() {
         return this.clusterMasterServer.getClusterAnalytics();
+    }
+
+    /**
+     * Stage the deadlines for a slice tap so each layer of the chain expires
+     * one network_latency_buffer before the one outside it, leaving that
+     * buffer for its response to travel back up the chain.
+     *
+     * When api_response_timeout is too short, the tap timeout is raised to
+     * a minimum rather than failing every tap. The layers inside the cluster
+     * master stay in order, but the HTTP request may close before the tap
+     * responds.
+     */
+    private _sliceTapDeadlines(): {
+        sendTimeout: number;
+        request: Omit<SliceTapRequest, 'size'>;
+    } {
+        const {
+            api_response_timeout: apiTimeout,
+            network_latency_buffer: latencyBuffer
+        } = this.context.sysconfig.teraslice;
+
+        // Messenger.send() waits timeout + 2 * latencyBuffer before giving up
+        // (respondBy adds one buffer, onceWithTimeout adds another), so convert
+        // each deadline into the send timeout that expires at that deadline
+        const toSendTimeout = (deadline: number) => deadline - (latencyBuffer * 2);
+
+        // the execution controller's send timeout is tapTimeout - latencyBuffer,
+        // so the minimum must stay above the buffer to keep it positive
+        const minTapTimeout = Math.max(MIN_SLICE_TAP_TIMEOUT, latencyBuffer + 1000);
+
+        // work outward from the tap so each layer gives up one buffer after
+        // the layer below it, even when the tap timeout is raised to the minimum
+        const tapTimeout = Math.max(apiTimeout - (latencyBuffer * 3), minTapTimeout);
+        const executionControllerDeadline = tapTimeout + latencyBuffer;
+        const clusterMasterDeadline = executionControllerDeadline + latencyBuffer;
+
+        if (clusterMasterDeadline > apiTimeout - latencyBuffer) {
+            this.logger.warn(`api_response_timeout (${apiTimeout}ms) is too short for a ${tapTimeout}ms slice tap, the request may close before the tap responds`);
+        }
+
+        return {
+            sendTimeout: toSendTimeout(clusterMasterDeadline),
+            request: {
+                sendTimeout: toSendTimeout(executionControllerDeadline),
+                tapTimeout
+            }
+        };
+    }
+
+    /**
+     * Tap a slice from an execution. Resolves with the JSON response
+     * body (a serialized SliceTapResults) so the records the worker
+     * serialized are never parsed by the cluster master.
+     */
+    async getSliceTap(exId: string, options: SliceTapOptions): Promise<Buffer> {
+        const { size } = options;
+        const { sendTimeout, request } = this._sliceTapDeadlines();
+
+        function formatResponse(msg: any) {
+            if (!msg) {
+                throw new Error(`Slice tap for execution ${exId} cannot be completed, teraslice is shutting down`);
+            }
+
+            const { workerId, sliceId, records } = msg.payload as SerializedSliceTapResults;
+            // remove closing angle bracket
+            const head = JSON.stringify({ workerId, sliceId }).slice(0, -1);
+
+            return Buffer.concat([
+                Buffer.from(`${head},"records":`),
+                records,
+                Buffer.from('}')
+            ]);
+        }
+
+        return this.clusterMasterServer
+            .sendSliceTapRequest(exId, { size, ...request }, sendTimeout)
+            .then(formatResponse);
     }
 
     async waitForExecutionStatus(exId: string, _status?: string) {

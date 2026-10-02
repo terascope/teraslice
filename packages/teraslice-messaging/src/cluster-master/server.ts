@@ -1,4 +1,5 @@
 import { cloneDeep, isKey, isNumber } from '@terascope/core-utils';
+import type { SliceTapRequest } from '@terascope/types';
 import type { Socket } from 'socket.io';
 import {
     ClientToServerEvents, Message, ResponseError,
@@ -73,6 +74,14 @@ export class Server extends _Server {
 
     sendExecutionAnalyticsRequest(exId: string): Promise<Message | null> {
         return this.send(exId, 'execution:analytics');
+    }
+
+    sendSliceTapRequest(
+        exId: string,
+        payload: SliceTapRequest,
+        timeout: number
+    ): Promise<Message | null> {
+        return this.send(exId, 'execution:slice:tap', payload, { response: true, timeout });
     }
 
     getClusterAnalytics(): ClusterAnalytics {

@@ -243,7 +243,11 @@ export default class Options {
             describe: 'List deleted records',
             default: false,
             type: 'boolean'
-        })
+        }),
+        'tap-size': () => ({
+            describe: 'number of records to return for each operation of a slice tap, or "all"',
+            type: 'string'
+        }),
     };
 
     private positionals: Record<string, (...args: any[]) => PositionalOptions> = {

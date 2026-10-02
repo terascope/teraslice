@@ -49,6 +49,8 @@ See [SlicerOperationLifeCycle](../packages/job-components/api/interfaces/operati
 
 ## Worker Lifecycle Events
 
+**NOTE:** These events are called directly from the slice pipeline. An error thrown from any of them, or a rejected promise from an async one, fails the slice, which is then retried. An operation can throw on purpose, like stopping a retry in [onSliceRetry](#-onsliceretry), but an [Observer](./observers.md#lifecycle-methods-must-not-throw) should never throw from these events.
+
 ### `->onSliceInitialized`
 
 Called after a slice is initialized, but before the slice has been handed to any operation.

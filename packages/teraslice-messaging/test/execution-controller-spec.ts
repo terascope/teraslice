@@ -2,6 +2,7 @@ import 'jest-extended';
 import { jest } from '@jest/globals';
 import { pDelay, findPort } from './helpers/index.js';
 import { formatURL, newMsgId, ExecutionController } from '../src/index.js';
+import { MessageHandler } from '../src/messenger/index.js';
 
 describe('ExecutionController', () => {
     describe('->Client', () => {
@@ -332,6 +333,92 @@ describe('ExecutionController', () => {
 
                         const id = server.dequeueWorker(newSlice);
                         expect(id).toBeNull();
+                    });
+                });
+            });
+
+            describe('when sending worker:slice:tap', () => {
+                const tapResults = {
+                    sliceId: 'tapped-slice',
+                    records: [
+                        [{ record: { id: 1 }, metadata: { _key: '1' } }],
+                        []
+                    ]
+                };
+                const request = { size: 10, tapTimeout: 2000 };
+
+                it('should reject when the worker has no tap handler registered', async () => {
+                    await expect(server.sendSliceTapRequest(workerId, request, 500))
+                        .rejects.toThrow();
+                });
+
+                describe('when the worker has a tap handler registered', () => {
+                    const handler = jest.fn<MessageHandler>();
+
+                    beforeAll(() => {
+                        client.onSliceTapRequest(handler);
+                    });
+
+                    beforeEach(() => {
+                        handler.mockReset();
+                        handler.mockImplementation(() => tapResults);
+                    });
+
+                    it('should pass the request to the worker and respond with its tap', async () => {
+                        const msg = await server.sendSliceTapRequest(workerId, request, 3000);
+
+                        expect(handler).toHaveBeenCalledWith(expect.objectContaining({
+                            eventName: 'worker:slice:tap',
+                            payload: request
+                        }));
+                        expect(msg?.payload).toEqual(tapResults);
+                    });
+
+                    it('should support an async tap handler', async () => {
+                        handler.mockImplementation(async () => {
+                            await pDelay(100);
+                            return tapResults;
+                        });
+
+                        const msg = await server.sendSliceTapRequest(
+                            workerId, { ...request, size: 0 }, 3000
+                        );
+                        expect(msg?.payload).toEqual(tapResults);
+                    });
+
+                    it('should deliver serialized records as a Buffer', async () => {
+                        const records = Buffer.from(JSON.stringify(tapResults.records));
+                        handler.mockImplementation(() => ({ sliceId: 'tapped-slice', records }));
+
+                        const msg = await server.sendSliceTapRequest(workerId, request, 3000);
+
+                        expect(Buffer.isBuffer(msg?.payload.records)).toBeTrue();
+                        expect(msg?.payload.records.equals(records)).toBeTrue();
+                    });
+
+                    it('should reject with the worker error when the tap fails', async () => {
+                        handler.mockImplementation(async () => {
+                            throw new Error('slice slice-1 failed before completing');
+                        });
+
+                        await expect(server.sendSliceTapRequest(workerId, request, 3000))
+                            .rejects.toThrow('slice slice-1 failed before completing');
+                    });
+
+                    it('should reject when the worker does not respond before the timeout', async () => {
+                        let handlerDone!: Promise<void>;
+                        handler.mockImplementation(async () => {
+                            handlerDone = pDelay(600);
+                            await handlerDone;
+                            return tapResults;
+                        });
+
+                        await expect(server.sendSliceTapRequest(workerId, request, 300))
+                            .rejects.toThrow();
+
+                        // let the late response land before teardown
+                        await handlerDone;
+                        await pDelay(100);
                     });
                 });
             });

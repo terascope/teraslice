@@ -246,6 +246,28 @@ Stops a job.
 teraslice-cli tjm stop JOB.JSON
 ```
 
+### tjm tap
+
+Captures the records produced by each operation of the next slice processed by a running job and prints them as JSON. Only one job file can be tapped at a time. See [GET /v1/jobs/\{jobId\}/tap](../../management-apis/endpoints-json.md#get-v1jobsjobidtap) for details on the response.
+
+#### **Warning**
+
+Records are captured when each operation completes, so a job with large slices and several operations can produce a very large response. This response will consume memory on the worker, execution controller and the master, possibly causing any or all of them to run out of memory. Use the `size` query option with extreme caution.
+
+- `--size` The maximum number of records to return for each operation
+  - defaults to 10
+  - use `0` or `all` to return every record. This can produce a very large response for jobs with large slices.
+  - a `size` of `0`, `all`, or greater than `50` prompts for confirmation before the tap is requested
+- `--yes` or `-y` skips the confirmation prompt
+
+```sh
+teraslice-cli tjm tap JOB.JSON
+teraslice-cli tjm tap JOB.JSON --size 1
+teraslice-cli tjm tap JOB.JSON --size all
+# return every record, no prompt
+teraslice-cli tjm tap JOB.JSON --size all --yes
+```
+
 ### tjm await
 
 Waits for job to reach specified status
@@ -398,6 +420,27 @@ teraslice-cli jobs view <cluster> <job_id>
 teraslice-cli jobs view local 99999999-9999-9999-9999-999999999999
 ```
 
+### jobs tap
+
+Captures the records produced by each operation of the next slice processed by a running job and prints them as JSON. See [GET /v1/jobs/\{jobId\}/tap](../../management-apis/endpoints-json.md#get-v1jobsjobidtap) for details on the response.
+
+#### **Warning**
+
+Records are captured when each operation completes, so a job with large slices and several operations can produce a very large response. This response will consume memory on the worker, execution controller and the master, possibly causing any or all of them to run out of memory. Use the `size` query option with extreme caution.
+
+- `--size` The maximum number of records to return for each operation, default is `10`. Use `0` or `all` to return every record. This can produce a very large response for jobs with large slices. A `size` of `0`, `all`, or greater than `50` prompts for confirmation before the tap is requested.
+- `--yes` or `-y` skips the confirmation prompt
+
+```sh
+teraslice-cli jobs tap <cluster> <job_id>
+# tap a job
+teraslice-cli jobs tap local 99999999-9999-9999-9999-999999999999
+# return at most 1 record per operation
+teraslice-cli jobs tap local 99999999-9999-9999-9999-999999999999 --size 1
+# return every record, no prompt
+teraslice-cli jobs tap local 99999999-9999-9999-9999-999999999999 --size all --yes
+```
+
 ### jobs export
 
 Export job on a cluster to a json file. By default the file is saved to the current working directory as \<job.name\>.json
@@ -454,6 +497,25 @@ List errors for a given execution id.
 ```sh
 teraslice-cli ex errors <cluster> <ex_id>
 teraslice-cli ex errors local 99999999-9999-9999-9999-999999999999
+```
+
+### ex tap
+
+Captures the records produced by each operation of the next slice processed by a running execution and prints them as JSON. See [GET /v1/ex/\{exId\}/tap](../../management-apis/endpoints-json.md#get-v1exexidtap) for details on the response.
+
+#### **Warning**
+
+Records are captured when each operation completes, so a job with large slices and several operations can produce a very large response. This response will consume memory on the worker, execution controller and the master, possibly causing any or all of them to run out of memory. Use the `size` query option with extreme caution.
+
+- `--size` The maximum number of records to return for each operation, default is `10`. Use `0` or `all` to return every record. This can produce a very large response for jobs with large slices. A `size` of `0`, `all`, or greater than `50` prompts for confirmation before the tap is requested.
+- `--yes` or `-y` skips the confirmation prompt
+
+```sh
+teraslice-cli ex tap <cluster> <ex_id>
+teraslice-cli ex tap local 99999999-9999-9999-9999-999999999999
+teraslice-cli ex tap local 99999999-9999-9999-9999-999999999999 --size 1
+# return every record, no prompt
+teraslice-cli ex tap local 99999999-9999-9999-9999-999999999999 --size all --yes
 ```
 
 ### ex status

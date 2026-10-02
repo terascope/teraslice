@@ -1,3 +1,4 @@
+import { Logger } from '@terascope/core-utils';
 import Core from './core.js';
 import {
     ExecutionConfig,
@@ -25,6 +26,9 @@ export default abstract class APICore<T = APIConfig>
         executionConfig: ExecutionConfig
     ) {
         const logger = context.apis.foundation.makeLogger({ module: 'operation-api', apiName: apiConfig._name });
+        if (executionConfig.log_level) {
+            logger.level(executionConfig.log_level as Logger.LogLevel);
+        }
 
         super(context, executionConfig, logger);
         this.apiConfig = apiConfig;
