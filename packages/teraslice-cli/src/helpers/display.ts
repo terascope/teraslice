@@ -1,22 +1,23 @@
 /* eslint-disable no-console */
 
-import ttyTable from 'tty-table';
+import ttyTableModule, { type Header, type Table } from 'tty-table';
 import CliTable from 'cli-table3';
 import easyTable from 'easy-table';
 import prompts from 'prompts';
 import { toTitleCase } from '@terascope/core-utils';
 import { Action, Tense, UpdateActions } from '../interfaces.js';
 
+// tty-table v7's "types" export condition points at its CJS typings, so TS treats the
+// default import as the module namespace. At runtime the ESM default is the factory function.
+const ttyTable = ttyTableModule as unknown as typeof Table;
+
 function pretty(headerValues: string[], rows: string[]) {
-    const header = headerValues.map((item): ttyTable.Header => ({
+    const header = headerValues.map((item): Header => ({
         value: String(item),
         width: 'auto',
         paddingTop: 0,
         paddingBottom: 0,
         align: 'left',
-        formatter() {
-            return String(item);
-        },
     }));
 
     const table = ttyTable(header, rows, {
