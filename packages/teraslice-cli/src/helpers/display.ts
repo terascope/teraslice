@@ -19,7 +19,7 @@ function pretty(headerValues: string[], rows: string[]) {
         },
     }));
 
-    const table = ttyTable(header, rows, {
+    const table = ttyTable.Table(header, rows, {
         borderStyle: 'solid',
         defaultValue: '',
     });
