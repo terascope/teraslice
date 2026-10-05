@@ -690,3 +690,8 @@ export interface ConnectorQueryOptions {
 export interface ConnectorListResponse {
     connectors: ConnectorInfo[] | GroupedConnectors;
 }
+
+export interface JobSchemaResponse {
+    version: string;
+    job_schema: Record<string, any>;
+}
