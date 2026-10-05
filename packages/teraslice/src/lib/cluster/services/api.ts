@@ -2,13 +2,13 @@ import { Router, Express, ErrorRequestHandler } from 'express';
 import bodyParser from 'body-parser';
 import { pipeline as streamPipeline } from 'node:stream/promises';
 import got, { OptionsInit } from 'got';
-import { RecoveryCleanupType, TerasliceConfig } from '@terascope/job-components';
+import { RecoveryCleanupType, TerasliceConfig, generateJobJSONSchema } from '@terascope/job-components';
 import {
     parseErrorInfo, parseList, logError,
     TSError, startsWith, Logger, pWhile,
     isKey
 } from '@terascope/core-utils';
-import { ExecutionStatusEnum, ConnectorListResponse } from '@terascope/types';
+import { ExecutionStatusEnum, ConnectorListResponse, JobSchemaResponse } from '@terascope/types';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
@@ -255,6 +255,14 @@ export class ApiService {
                     name: name as string,
                     groupBy: groupBy as string
                 })
+            }));
+        });
+
+        v1routes.get('/cluster/job-schema', (req, res) => {
+            const requestHandler = handleTerasliceRequest(req, res);
+            requestHandler((): JobSchemaResponse => ({
+                version: terasliceVersion,
+                job_schema: generateJobJSONSchema(this.context)
             }));
         });
 
