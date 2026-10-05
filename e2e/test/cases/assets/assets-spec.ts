@@ -288,7 +288,7 @@ describe('s3 asset storage', () => {
                 writer.write(stringChunk, writerCB);
             }
 
-            /// Once the previous chunk is proccesed,
+            /// Once the previous chunk is processed,
             /// write another chunk until the bytes written is >= 60mb
             /// This is so we don't hold all 60mb in memory
             function writerCB(error: Error | null | void) {
