@@ -45,6 +45,10 @@ export default class Cluster extends Client {
         return this.get('/cluster/connectors', options);
     }
 
+    async jobSchema(searchOptions: RequestOptions = {}): Promise<Teraslice.JobSchemaResponse> {
+        return this.get('/cluster/job-schema', searchOptions);
+    }
+
     async txt(type: string): Promise<string> {
         const validTypes = ['assets', 'slicers', 'ex', 'jobs', 'nodes', 'workers'];
         const isValid = validTypes.some((validType) => startsWith(type, validType));
