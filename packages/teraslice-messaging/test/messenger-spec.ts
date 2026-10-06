@@ -430,6 +430,70 @@ describe('Messenger', () => {
             });
         });
 
+        describe('when the client sends a non-volatile message and the server is not ready', () => {
+            afterEach(() => {
+                client.ready = true;
+                (client as any).serverShutdown = false;
+            });
+
+            it('should send the message once the ready event is emitted', async () => {
+                client.ready = false;
+
+                // @ts-expect-error
+                const sent = client.send('hello:ready', {}, {
+                    response: false,
+                    volatile: false,
+                    timeout: 500
+                });
+
+                await pDelay(100);
+                client.ready = true;
+                client.emit('ready');
+
+                await expect(sent).resolves.toBeNull();
+            });
+
+            it('should throw a retryable timeout error if the ready event never comes', async () => {
+                expect.hasAssertions();
+                client.ready = false;
+
+                try {
+                    // @ts-expect-error
+                    await client.send('hello:timeout', {}, {
+                        response: true,
+                        volatile: false,
+                        timeout: 100
+                    });
+                } catch (err) {
+                    expect(err.message).toEqual('Timed out after 100ms waiting for server example to be ready before sending "hello:timeout" message');
+                    expect(err.retryable).not.toBeFalse();
+                }
+            });
+
+            it('should throw a non-retryable error if the server shuts down while waiting', async () => {
+                expect.hasAssertions();
+                client.ready = false;
+
+                try {
+                    // @ts-expect-error
+                    const sent = client.send('hello:shutdown', {}, {
+                        response: true,
+                        volatile: false,
+                        timeout: 200
+                    });
+
+                    // simulate the server's shutdown event arriving during the ready wait
+                    await pDelay(50);
+                    (client as any).serverShutdown = true;
+
+                    await sent;
+                } catch (err) {
+                    expect(err.message).toEqual('Server example shut down before sending "hello:shutdown" message');
+                    expect(err.retryable).toBeFalse();
+                }
+            });
+        });
+
         describe('when testing reconnect', () => {
             it('should call server.onClientReconnect', () => {
                 loggerSpy = jest.spyOn((client as any).logger, 'info');

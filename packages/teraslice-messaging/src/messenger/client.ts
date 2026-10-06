@@ -6,7 +6,8 @@ import {
     Socket, SocketOptions
 } from 'socket.io-client';
 import {
-    isString, isInteger, debugLogger, toString
+    isString, isInteger, debugLogger,
+    toString, TSError
 } from '@terascope/core-utils';
 import * as i from './interfaces.js';
 import { Core } from './core.js';
@@ -272,9 +273,13 @@ export class Client extends Core {
         if (!this.ready && !options.volatile) {
             const connected = this.socket.connected ? 'connected' : 'not-connected';
             this.logger.info(`server is not ready and ${connected}, waiting for the ready event before sending ${eventName} message`);
-            await this.onceWithTimeout(`ready:${this.serverName}`);
-            // TODO: In the case where the timeout is reached, should we really continue with
-            // sending the message to a server that is not ready?
+            const result = await this.onceWithTimeout(`ready:${this.serverName}`, options.timeout);
+            if (!result) {
+                if (this.serverShutdown) {
+                    throw new TSError(`Server ${this.serverName} shut down before sending "${eventName}" message`, { retryable: false });
+                }
+                throw new TSError(`Timed out after ${ms(this.getTimeout(options.timeout))} waiting for server ${this.serverName} to be ready before sending "${eventName}" message`);
+            }
         }
 
         const response = options.response != null ? options.response : true;
