@@ -14,7 +14,6 @@ export class K8s {
     logger: Logger;
     apiPollDelay: number;
     defaultNamespace: string;
-    shutdownTimeout: number;
     kc: k8s.KubeConfig;
     k8sAppsV1Api: k8s.AppsV1Api;
     k8sBatchV1Api: k8s.BatchV1Api;
@@ -24,13 +23,11 @@ export class K8s {
         logger: Logger,
         clientConfig: i.KubeConfigOptions | null,
         defaultNamespace: string | null,
-        apiPollDelay: number,
-        shutdownTimeout: number
+        apiPollDelay: number
     ) {
         this.apiPollDelay = apiPollDelay;
         this.defaultNamespace = defaultNamespace || 'default';
         this.logger = logger;
-        this.shutdownTimeout = shutdownTimeout; // this is in milliseconds
 
         this.kc = new k8s.KubeConfig();
 

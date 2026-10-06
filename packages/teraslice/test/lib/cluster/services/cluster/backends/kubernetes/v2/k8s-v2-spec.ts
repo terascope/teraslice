@@ -169,7 +169,7 @@ describe('k8s', () => {
             currentContext: 'context'
         };
 
-        k8s = new K8s(logger, clientConfig, null, 1, 1);
+        k8s = new K8s(logger, clientConfig, null, 1);
     });
 
     afterEach(() => {
