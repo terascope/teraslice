@@ -300,7 +300,7 @@ export class Server extends Core {
         }
 
         const response = options.response != null ? options.response : true;
-        const respondBy = Date.now() + this.getTimeout(options.timeout);
+        const respondBy = Date.now() + (options.timeout || this.actionTimeout);
 
         const message: i.Message = {
             id: await newMsgId(),
