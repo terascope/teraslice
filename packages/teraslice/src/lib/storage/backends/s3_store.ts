@@ -10,6 +10,7 @@ import {
     createS3Bucket,
     deleteS3Object,
     doesBucketExist,
+    doesObjectExist,
     getS3Object,
     listS3Objects,
     putS3Object,
@@ -166,26 +167,21 @@ export class S3Store {
     }
 
     /**
-     * Check that a record exists without downloading it. Requests a single byte
-     * so the whole object is never buffered into memory.
+     * Check that a record exists without downloading it, using a HeadObject
+     * request so the whole object is never buffered into memory.
      */
     async exists(recordId: string): Promise<boolean> {
         const command = {
             Bucket: this.bucket,
-            Key: `${recordId}.zip`,
-            Range: 'bytes=0-0'
+            Key: `${recordId}.zip`
         };
         try {
-            await s3RequestWithRetry({
+            return await s3RequestWithRetry({
                 client: this.api,
-                func: getS3Object,
+                func: doesObjectExist,
                 params: command
             });
-            return true;
         } catch (err) {
-            if (err instanceof S3ClientResponse.NoSuchKey) {
-                return false;
-            }
             throw new TSError(`Checking existence of recordId ${recordId} in s3 ${this.connection} connection, ${this.bucket} bucket failed: `, err);
         }
     }
