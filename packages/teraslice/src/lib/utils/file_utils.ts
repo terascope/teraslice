@@ -4,7 +4,7 @@ import fse from 'fs-extra';
 import semver from 'semver';
 import { Mutex } from 'async-mutex';
 import { TSError, Logger } from '@terascope/core-utils';
-import decompress from 'decompress';
+import extract from 'extract-zip';
 import { getMajorVersion } from './asset_utils.js';
 
 const mutex = new Mutex();
@@ -131,11 +131,16 @@ export async function verifyAssetJSON(id: string, newPath: string): Promise<Asse
     return metadata;
 }
 
-async function _saveAsset(
+/**
+ * Extract a zip file already on disk into the asset directory and verify it.
+ * Streaming the archive entry-by-entry to disk keeps memory bounded, unlike
+ * buffering the whole archive plus its decompressed contents in memory.
+ */
+async function _extractAssetFromFile(
     logger: Logger,
     assetsPath: string,
     id: string,
-    binaryData: Buffer,
+    zipFilePath: string,
     metaCheck?: MetaCheckFN
 ): Promise<AssetMetadata> {
     const newPath = path.join(assetsPath, id);
@@ -148,7 +153,9 @@ async function _saveAsset(
         }
 
         logger.info(`decompressing and saving asset ${id} to ${newPath}`);
-        await decompress(binaryData, newPath);
+        // extract-zip streams each entry straight to disk, so peak memory is
+        // one entry rather than the entire archive plus its expanded contents.
+        await extract(zipFilePath, { dir: newPath });
         logger.info(`decompressed asset ${id} to ${newPath}`);
 
         const metadata = await verifyAssetJSON(id, newPath);
@@ -166,6 +173,26 @@ async function _saveAsset(
     }
 }
 
+/**
+ * Save an asset from a zip file already written to disk. Preferred for large
+ * assets (e.g. streamed down from S3) since nothing is held in memory.
+ */
+export async function saveAssetFromFile(
+    logger: Logger,
+    assetsPath: string,
+    id: string,
+    zipFilePath: string,
+    metaCheck?: MetaCheckFN
+) {
+    return mutex.runExclusive(() => _extractAssetFromFile(
+        logger, assetsPath, id, zipFilePath, metaCheck
+    ));
+}
+
+/**
+ * Save an asset from an in-memory zip buffer. The buffer is written to a temp
+ * file next to the asset dir (same volume) and then extracted via streaming.
+ */
 export async function saveAsset(
     logger: Logger,
     assetsPath: string,
@@ -173,9 +200,17 @@ export async function saveAsset(
     binaryData: Buffer,
     metaCheck?: MetaCheckFN
 ) {
-    return mutex.runExclusive(() => _saveAsset(
-        logger, assetsPath, id, binaryData, metaCheck
-    ));
+    return mutex.runExclusive(async () => {
+        const tmpZipPath = path.join(assetsPath, `${id}.tmp.zip`);
+        try {
+            await fse.writeFile(tmpZipPath, binaryData);
+            return await _extractAssetFromFile(
+                logger, assetsPath, id, tmpZipPath, metaCheck
+            );
+        } finally {
+            await fse.remove(tmpZipPath).catch(() => { /* best-effort cleanup */ });
+        }
+    });
 }
 
 /**
