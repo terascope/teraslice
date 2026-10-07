@@ -146,11 +146,28 @@ function convictSchemaToJSONSchema(
 export function generateJobJSONSchema(context: Context): JSONSchemaNode {
     const job = jobSchema(context);
 
+    // _connection is the union of every connection across all connector types.
+    // TODO: scope it to the op/api's connector type once asset schemas are used.
+    // https://github.com/terascope/teraslice/issues/4570
+    const connectorsObject = context.sysconfig.terafoundation?.connectors ?? {};
+    const connections = [...new Set(
+        Object.values(connectorsObject).flatMap((conn) => Object.keys(conn ?? {}))
+    )];
+    const connectionNode: JSONSchemaNode = {
+        type: 'string',
+        description: 'Name of a connection configured on this cluster.',
+    };
+    if (connections.length > 0) {
+        connectionNode.enum = connections;
+    }
+
     const operationDefinition = convictSchemaToJSONSchema(opSchema, { additionalProperties: true });
     operationDefinition.description = 'A single operation (reader, processor, or sender). Options beyond these common fields depend on _op and are provided by the asset.';
+    operationDefinition.properties._connection = connectionNode;
 
     const apiDefinition = convictSchemaToJSONSchema(apiSchema, { additionalProperties: true });
     apiDefinition.description = 'A single API or Observer. Options beyond these common fields depend on _name and are provided by the asset.';
+    apiDefinition.properties._connection = connectionNode;
 
     // Overrides for fields whose convict format is a validator function and so
     // cannot be introspected into a type.

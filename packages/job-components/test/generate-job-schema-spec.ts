@@ -58,6 +58,17 @@ describe('generateJobJSONSchema', () => {
         });
     });
 
+    it('constrains _connection to the cluster configured connections', () => {
+        expect(schema.definitions.operation.properties._connection).toMatchObject({
+            type: 'string',
+            enum: ['default'],
+        });
+        expect(schema.definitions.api.properties._connection).toMatchObject({
+            type: 'string',
+            enum: ['default'],
+        });
+    });
+
     it('includes kubernetes fields only on kubernetes clusters', () => {
         expect(schema.properties.resources_requests_cpu).toBeUndefined();
 
