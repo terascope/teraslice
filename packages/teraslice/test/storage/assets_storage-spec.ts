@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { jest } from '@jest/globals';
 import { TestContext, TestContextOptions } from '@terascope/job-components';
 import { Logger } from '@terascope/core-utils';
 import { createClient } from '@terascope/opensearch-client';
@@ -93,5 +94,65 @@ describe('AssetsStorage using S3 backend', () => {
         await storage.remove('caf0e5ce7cf1edc864f306b1d9edbad0f7060545');
         const list = await storage.grabS3Info();
         expect(list).toBeEmpty();
+    });
+
+    describe('when removing a partially deleted asset', () => {
+        const assetId = 'caf0e5ce7cf1edc864f306b1d9edbad0f7060545';
+        const filePath = 'e2e/test/fixtures/assets/example_asset_1.zip';
+
+        beforeEach(async () => {
+            await storage.save(fs.readFileSync(filePath));
+        });
+
+        afterEach(async () => {
+            jest.restoreAllMocks();
+            context.sysconfig.teraslice.api_response_timeout = 30000;
+            await storage.remove(assetId).catch(() => {});
+        });
+
+        it('removes the S3 object when the ES record is already gone', async () => {
+            await (storage as any).esBackend.remove(assetId);
+
+            await storage.remove(assetId);
+
+            expect(await storage.grabS3Info()).toBeEmpty();
+        });
+
+        it('retries a failed S3 delete and keeps the ES record until it succeeds', async () => {
+            const s3Backend = (storage as any).s3Backend;
+            const esRemove = jest.spyOn((storage as any).esBackend, 'remove');
+            const s3Remove = jest.spyOn(s3Backend, 'remove')
+                .mockRejectedValueOnce(new Error('S3 unavailable'));
+
+            await storage.remove(assetId);
+
+            expect(s3Remove).toHaveBeenCalledTimes(2);
+            expect(esRemove).toHaveBeenCalledTimes(1);
+            expect(await storage.grabS3Info()).toBeEmpty();
+        });
+
+        it('throws a 504 at api_response_timeout and leaves the asset retryable', async () => {
+            context.sysconfig.teraslice.api_response_timeout = 1000;
+            jest.spyOn((storage as any).s3Backend, 'remove')
+                .mockRejectedValue(new Error('S3 unavailable'));
+
+            await expect(storage.remove(assetId)).rejects.toMatchObject({
+                statusCode: 504,
+                message: expect.stringContaining(`Timeout deleting asset ${assetId}`)
+            });
+
+            // the ES record is kept, so the asset is still listed and found by a retry
+            const record = await storage.get(assetId);
+            expect(record.name).toBe('ex1');
+        });
+
+        it('throws a 404 when the asset is in no store', async () => {
+            await storage.remove(assetId);
+
+            await expect(storage.remove(assetId)).rejects.toMatchObject({
+                statusCode: 404,
+                message: expect.stringContaining(`Unable to find asset ${assetId}`)
+            });
+        });
     });
 });
