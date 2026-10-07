@@ -91,6 +91,50 @@ $ curl 'localhost:5678/v1/cluster/connectors?groupBy=type'
 }
 ```
 
+## GET /v1/cluster/job-schema
+
+Returns the JSON Schema (draft-07) for a Teraslice job, generated from this cluster's
+`jobSchema`, `opSchema`, and `apiSchema`, along with the Teraslice `version` that produced it.
+The schema reflects the running cluster, so kubernetes-only fields are included only on
+kubernetes clusters. It can be used by editors to validate and autocomplete job files; see
+[Validating your job config in an editor](../jobs/configuration.md#validating-your-job-config-in-an-editor)
+for how to wire it up.
+
+Operation- and API-specific options (what each asset adds) are not described; `operations`
+and `apis` entries allow additional properties.
+
+**Usage:**
+
+```sh
+$ curl 'localhost:5678/v1/cluster/job-schema'
+{
+    "version": "3.18.1",
+    "job_schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Teraslice Job",
+        "type": "object",
+        "required": ["name", "operations"],
+        "additionalProperties": false,
+        "properties": {
+            "name": { "type": "string", "minLength": 1, "default": "Custom Job" },
+            "lifecycle": {
+                "enum": ["once", "persistent"],
+                "default": "once",
+                "description": "Job lifecycle behavior, determines if it should exit on completion or remain active"
+            },
+            "operations": {
+                "type": "array",
+                "minItems": 2,
+                "items": { "$ref": "#/definitions/operation" }
+            }
+        }
+    }
+}
+```
+
+> The response above is truncated; the real `job_schema` lists every job field plus the
+> `operation` and `api` definitions.
+
 ## GET /v1/cluster/controllers
 
 Returns an array of all active execution controllers and their associated statistics.

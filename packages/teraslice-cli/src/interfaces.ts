@@ -25,16 +25,7 @@ export interface StatusUpdate {
     errorMessage?: string;
 }
 
-export interface JobConfigFile extends Teraslice.JobConfigParams {
-    __metadata: {
-        cli: {
-            cluster: string;
-            version: string;
-            job_id: string;
-            updated: string;
-        };
-    };
-}
+export type JobConfigFile = Teraslice.JobConfigFile;
 
 export enum RegisteredStatusEnum {
     no_execution = 'no_execution'

@@ -6,6 +6,7 @@ export * from './operation-loader/index.js';
 export * from './operations/index.js';
 export * from './job-validator.js';
 export * from './job-schemas.js';
+export * from './generate-job-schema.js';
 export * from './interfaces/index.js';
 export * from './register-apis.js';
 export * from './test-helpers.js';

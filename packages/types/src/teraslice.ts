@@ -280,6 +280,26 @@ export interface JobConfigParams extends Partial<ValidatedJobConfig> {
 }
 
 /**
+ * Metadata written into a job file by the teraslice-cli (tjm).
+ * Not part of the job definition itself.
+ */
+export interface JobConfigMetadata {
+    cli: {
+        cluster: string;
+        version: string;
+        job_id: string;
+        updated: string;
+    };
+}
+
+/**
+ * A job config as it lives on disk, including the teraslice-cli (tjm) metadata.
+ */
+export interface JobConfigFile extends JobConfigParams {
+    __metadata: JobConfigMetadata;
+}
+
+/**
  * Available data encoding types for a DataEntity
  */
 export enum DataEncoding {
@@ -689,4 +709,9 @@ export interface ConnectorQueryOptions {
 
 export interface ConnectorListResponse {
     connectors: ConnectorInfo[] | GroupedConnectors;
+}
+
+export interface JobSchemaResponse {
+    version: string;
+    job_schema: Record<string, any>;
 }

@@ -246,3 +246,68 @@ In this example job, we are using two assets that both have an operation with th
 }
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
+
+## Validating your job config in an editor
+
+Teraslice can hand your editor a JSON Schema for the job config, so you get autocomplete,
+inline error checking, and field documentation as you write a job file — before you ever
+submit it to the cluster.
+
+The schema is served by the cluster you are targeting through the
+[`GET /v1/cluster/job-schema`](../management-apis/endpoints-json.md#get-v1clusterjob-schema)
+endpoint. Because it comes from the cluster, it always matches that cluster's Teraslice
+version, so what your editor flags as valid is what that cluster will accept.
+
+### 1. Get the schema from your cluster
+
+Fetch the schema and save the `job_schema` field to a file next to your jobs:
+
+```sh
+curl 'http://<TERASLICE_MASTER>/v1/cluster/job-schema' | jq '.job_schema' > teraslice-job.schema.json
+```
+
+Replace `<TERASLICE_MASTER>` with the host and port of your Teraslice master. The response
+also includes the `version` of Teraslice that produced the schema, which is useful to record
+alongside it.
+
+### 2. Point your editor at the schema
+
+In VSCode there are two common ways to apply it.
+
+Add a `$schema` key to an individual job file:
+
+```json
+{
+    "$schema": "./teraslice-job.schema.json",
+    "name": "my-job",
+    "operations": [ ]
+}
+```
+
+Or associate it by filename for every matching file in `.vscode/settings.json`, so you do
+not need a `$schema` key in each one:
+
+```json
+{
+    "json.schemas": [
+        {
+            "fileMatch": ["*.job.json"],
+            "url": "./teraslice-job.schema.json"
+        }
+    ]
+}
+```
+
+### What this gives you
+
+- Autocomplete on job fields and on enum values — typing `lifecycle` offers `once` and `persistent`.
+- Red underlines on invalid values, wrong types, and missing required fields such as `name` and `operations`.
+- Hover documentation pulled from each field's description.
+
+### What is not validated
+
+Operation- and API-specific options — the settings a particular `_op` or `_name` accepts —
+are provided by assets and are not part of this schema. Entries in `operations` and `apis`
+therefore allow any additional properties; only the common fields (`_op`, `_name`,
+`_encoding`, and so on) and the top-level job fields are checked. When you change clusters or
+upgrade Teraslice, re-fetch the schema so your editor stays in sync.

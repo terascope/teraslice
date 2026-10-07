@@ -152,6 +152,18 @@ describe('cluster api', () => {
         expect(pairs.sort()).toEqual(expectedPairs.sort());
     });
 
+    it('api end point /cluster/job-schema should return the generated job schema', async () => {
+        const response = await terasliceHarness.teraslice.cluster.get('/cluster/job-schema');
+
+        expect(response).toHaveProperty('version');
+        expect(response).toHaveProperty('job_schema');
+
+        const { job_schema: jobSchemaResponse } = response;
+        expect(jobSchemaResponse.title).toEqual('Teraslice Job');
+        expect(jobSchemaResponse.properties.lifecycle.enum).toEqual(['once', 'persistent']);
+        expect(jobSchemaResponse.required).toContain('operations');
+    });
+
     it('api end point /cluster/connectors?groupBy=type should return connectors grouped by type', async () => {
         const response = await terasliceHarness.teraslice.cluster.get('/cluster/connectors?groupBy=type');
 
