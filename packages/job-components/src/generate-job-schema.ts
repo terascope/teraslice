@@ -235,6 +235,22 @@ export function generateJobJSONSchema(context: Context): JSONSchemaNode {
         description: 'Optional pointer to this JSON Schema.',
     };
 
+    root.properties.__metadata = {
+        type: 'object',
+        description: 'Metadata written by the teraslice-cli (tjm); not part of the job definition.',
+        properties: {
+            cli: {
+                type: 'object',
+                properties: {
+                    cluster: { type: 'string' },
+                    version: { type: 'string' },
+                    job_id: { type: 'string' },
+                    updated: { type: 'string' },
+                },
+            },
+        },
+    };
+
     return {
         $schema: JSON_SCHEMA_DRAFT,
         $id: JOB_SCHEMA_ID,

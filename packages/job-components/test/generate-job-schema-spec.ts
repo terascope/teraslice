@@ -41,6 +41,23 @@ describe('generateJobJSONSchema', () => {
         expect(schema.properties.$schema).toMatchObject({ type: 'string' });
     });
 
+    it('allows the teraslice-cli __metadata field', () => {
+        expect(schema.properties.__metadata).toMatchObject({
+            type: 'object',
+            properties: {
+                cli: {
+                    type: 'object',
+                    properties: {
+                        cluster: { type: 'string' },
+                        version: { type: 'string' },
+                        job_id: { type: 'string' },
+                        updated: { type: 'string' },
+                    },
+                },
+            },
+        });
+    });
+
     it('includes kubernetes fields only on kubernetes clusters', () => {
         expect(schema.properties.resources_requests_cpu).toBeUndefined();
 
