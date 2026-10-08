@@ -1,63 +1,9 @@
+import { DuckDBScalarFunction } from '@duckdb/node-api';
 import {
-    DuckDBScalarFunction, DuckDBType,
-    BOOLEAN, TINYINT, SMALLINT, BIGINT, HUGEINT, DOUBLE, VARCHAR, TIMESTAMP,
-} from '@duckdb/node-api';
-import { FieldType, DataTypeFieldConfig, DataTypeFields } from '@terascope/types';
-import { makeValueConverter, makeInputConverter } from './duck-values.js';
-
-/**
- * The `DuckDBType` OBJECT for each field type, for registering a scalar function.
- *
- * Deliberately separate from `DataType.toDuckDB()`, which yields type *strings* for DDL:
- * registration needs the binding's type objects, and `@terascope/data-types` neither depends
- * on `@duckdb/node-api` nor should - it is a pure types package. So the string mapping is the
- * shared, portable one and this is the binding-specific companion. **They must agree**; a
- * mismatch shows up as a wrong column type, which is what `diffSchema` exists to catch.
- */
-const PARAMETER_TYPES: Partial<Record<FieldType, DuckDBType>> = {
-    [FieldType.Boolean]: BOOLEAN,
-    [FieldType.Byte]: TINYINT,
-    [FieldType.Short]: SMALLINT,
-    [FieldType.Integer]: BIGINT,
-    [FieldType.Long]: HUGEINT,
-    [FieldType.Float]: DOUBLE,
-    [FieldType.Double]: DOUBLE,
-    [FieldType.Number]: DOUBLE,
-    [FieldType.Vector]: DOUBLE,
-    [FieldType.Keyword]: VARCHAR,
-    [FieldType.KeywordCaseInsensitive]: VARCHAR,
-    [FieldType.KeywordTokens]: VARCHAR,
-    [FieldType.KeywordTokensCaseInsensitive]: VARCHAR,
-    [FieldType.KeywordPathAnalyzer]: VARCHAR,
-    [FieldType.NgramTokens]: VARCHAR,
-    [FieldType.Text]: VARCHAR,
-    [FieldType.String]: VARCHAR,
-    [FieldType.Domain]: VARCHAR,
-    [FieldType.Hostname]: VARCHAR,
-    [FieldType.IP]: VARCHAR,
-    [FieldType.IPRange]: VARCHAR,
-    [FieldType.Binary]: VARCHAR,
-    [FieldType.Date]: TIMESTAMP,
-
-    // NOT mapped, on purpose:
-    // - GeoJSON / Any are JSON, and the binding exports no JSON type constant.
-    // - GeoPoint / Geo / Boundary / Object / Tuple are STRUCTs, which need a type built at
-    //   runtime rather than a constant.
-    // duckDBTypeObject throws for these, which is better than silently accepting VARCHAR and
-    // producing a column whose type contradicts the DataType config.
-};
-
-/** The DuckDB type object for a field type, or a clear error naming the gap. */
-export function duckDBTypeObject(type: FieldType): DuckDBType {
-    const mapped = PARAMETER_TYPES[type];
-    if (mapped == null) {
-        throw new TypeError(
-            `Field type "${type}" cannot be a scalar function parameter or result yet`
-            + ' - it has no DuckDB type object mapping'
-        );
-    }
-    return mapped;
-}
+    FieldType, DataTypeFieldConfig, DataTypeFields, ReadonlyDataTypeFields
+} from '@terascope/types';
+import { makeValueConverter } from './duck-values.js';
+import { makeInputConverter, udfTypeFor } from './udf-types.js';
 
 /**
  * A per-value implementation, matching what `FieldTransformConfig.create` /
@@ -68,8 +14,13 @@ export type ScalarFunctionImpl = (value: unknown, index: number) => unknown;
 export interface ScalarFunctionSpec {
     /** The name it is called by in SQL. */
     name: string;
-    /** Field type of the single value argument. */
-    parameter: FieldType;
+    /**
+     * The single value argument: a bare field type, or the full field config when it is a list,
+     * a struct or JSON - which a bare type cannot express. See `udfTypeFor`.
+    */
+    parameter: FieldType | DataTypeFieldConfig;
+    /** Children of the parameter, for an Object/Tuple parameter. */
+    parameterChildren?: DataTypeFields | ReadonlyDataTypeFields;
     /**
      * The result's FIELD CONFIG, not just its type.
      *
@@ -80,7 +31,7 @@ export interface ScalarFunctionSpec {
      */
     returns: DataTypeFieldConfig;
     /** Children of the result type, for Object/Tuple results. */
-    returnsChildren?: DataTypeFields;
+    returnsChildren?: DataTypeFields | ReadonlyDataTypeFields;
     /**
      * The implementation, called once per row.
      *
@@ -111,18 +62,21 @@ export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunc
     const callWithNull = spec.callWithNull ?? false;
     // a result is COMPUTED, so it may be wider than a stored Long - see `wideIntegers`
     const convert = makeValueConverter(spec.returns, spec.returnsChildren, { wideIntegers: true });
+    const parameter: DataTypeFieldConfig = typeof spec.parameter === 'string'
+        ? { type: spec.parameter }
+        : spec.parameter;
     /**
      * The way IN needs a conversion too, and its absence was a real defect: a `Date` arrived as a
      * `DuckDBTimestampValue` that the date primitives stringified into a zone-less string and
      * re-parsed as machine-local, drifting every date function by the host's UTC offset. See
      * `makeInputConverter`.
     */
-    const toInput = makeInputConverter(spec.parameter);
+    const toInput = makeInputConverter(parameter, spec.parameterChildren);
 
     return DuckDBScalarFunction.create({
         name: spec.name,
-        parameterTypes: [duckDBTypeObject(spec.parameter)],
-        returnType: duckDBTypeObject(spec.returns.type as FieldType),
+        parameterTypes: [udfTypeFor(parameter, spec.parameterChildren)],
+        returnType: udfTypeFor(spec.returns, spec.returnsChildren, { wide: true }),
         mainFunction: (_info, chunk, output) => {
             const values = chunk.getColumnValues(0) as unknown[];
 

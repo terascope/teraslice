@@ -6,7 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
-import { isGeoPointColumn } from './sql-utils.js';
+import { isGeoPointColumn, isScalarColumn } from './sql-utils.js';
 
 export const isGeoPointConfig: FieldValidateConfig = {
     name: 'isGeoPoint',
@@ -63,7 +63,8 @@ export const isGeoPointConfig: FieldValidateConfig = {
      * the function runs at all.
     */
     sql: {
-        applies: (_args, inputConfig) => isGeoPointColumn(inputConfig),
+        applies: (_args, inputConfig) => isScalarColumn(inputConfig)
+            && isGeoPointColumn(inputConfig),
         expression: () => 'TRUE',
     },
     accepts: [],

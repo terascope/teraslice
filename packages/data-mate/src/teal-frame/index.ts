@@ -16,4 +16,5 @@ export * from './extension-tools.js';
 export * from './extensions.js';
 export * from './interfaces.js';
 export * from './scalar-function.js';
+export * from './udf-types.js';
 export * from './schema-check.js';

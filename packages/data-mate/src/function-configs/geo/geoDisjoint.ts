@@ -8,7 +8,7 @@ import {
     FunctionDefinitionExample
 } from '../interfaces.js';
 import {
-    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate,
+    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate, isScalarColumn
 } from './sql-utils.js';
 
 export interface GeoDisjointArgs {
@@ -87,7 +87,8 @@ export const geoDisjointConfig: FieldValidateConfig<GeoDisjointArgs> = {
     },
     /** `ST_Disjoint` - likewise identical on all 324 pairs. */
     sql: {
-        applies: (args, inputConfig) => isGeoColumn(inputConfig) && isGeoArg(args.value),
+        applies: (args, inputConfig) => isScalarColumn(inputConfig)
+            && isGeoColumn(inputConfig) && isGeoArg(args.value),
         expression: ({ value, args, inputConfig }) => tryPredicate(
             `ST_Disjoint(${asGeometry(value, inputConfig)}, ${constantGeometry(args.value)})`
         ),

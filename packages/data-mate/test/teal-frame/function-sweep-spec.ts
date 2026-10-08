@@ -135,7 +135,7 @@ async function trySweep(
         }
         // the function's own validation, or an argument requirement it declares by hand
         // rather than through `required_arguments`
-        if (/must be a valid|was expected|Invalid geo point|must either specify|Expected an expr|Invalid arguments|standard date format|to be a valid date|Could not convert|Expected \(x, y\)|mapped to an IPv6|Could not determine/
+        if (/must be a valid|was expected|Invalid geo point|must either specify|Expected an expr|Invalid arguments|standard date format|to be a valid date|Could not convert|Expected \(x, y\)|mapped to an IPv6|Could not determine|is not valid JSON/
             .test(message)) {
             return { kind: 'rejected_input', message };
         }
@@ -183,15 +183,11 @@ describe('every field function through tealFrameAdapter', () => {
         // moving them down is a regression.
         expect(byKind).toEqual({
             // ran end-to-end: adapter -> UDF -> SQL -> rows(), with a real value out
-            ran: 140,
+            ran: 148,
             // declare required_arguments a sweep cannot invent (a regex, format, timezone...)
             needs_args: 48,
             // the FUNCTION rejected the sample this harness chose - see `rejected_input`
             rejected_input: 9,
-            // result type is a STRUCT (GeoPoint/Object) or JSON, which cannot yet be a UDF
-            // return type: the binding exports no JSON constant and STRUCTs need a
-            // runtime-built type. See `duckDBTypeObject`.
-            unmapped_type: 8,
         });
 
         // **ZERO adapter failures across all 205 field functions.** Every non-`ran` outcome is

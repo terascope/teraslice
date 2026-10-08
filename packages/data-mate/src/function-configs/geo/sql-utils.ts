@@ -153,6 +153,15 @@ export function isGeoColumn(inputConfig: DataTypeFieldAndChildren | undefined): 
     return isGeoJSONColumn(inputConfig) || isGeoPointColumn(inputConfig);
 }
 
+/**
+ * A column holding ONE value per row. The `FULL_VALUES` predicates are handed the whole value, so
+ * on an array column their emission would see a `GEOMETRY[]` - which no `ST_*` function takes -
+ * and must decline it; the UDF then runs the function on the list exactly as `DataFrame` does.
+*/
+export function isScalarColumn(inputConfig: DataTypeFieldAndChildren | undefined): boolean {
+    return inputConfig?.field_config?.array !== true;
+}
+
 /** `GeoShapeRelation` to its `ST_*` counterpart. */
 const RELATION_FUNCTIONS: Record<string, string> = {
     intersects: 'ST_Intersects',

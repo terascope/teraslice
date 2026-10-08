@@ -5,7 +5,7 @@ import {
     FunctionDefinitionCategory, FunctionDefinitionExample,
 } from '../interfaces.js';
 import {
-    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate,
+    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate, isScalarColumn
 } from './sql-utils.js';
 
 export interface GeoContainsArgs {
@@ -118,7 +118,8 @@ export const geoContainsConfig: FieldValidateConfig<GeoContainsArgs> = {
      * right where `geo-utils` is wrong. See `sql-utils.ts` and known-defects DF8.
     */
     sql: {
-        applies: (args, inputConfig) => isGeoColumn(inputConfig) && isGeoArg(args.value),
+        applies: (args, inputConfig) => isScalarColumn(inputConfig)
+            && isGeoColumn(inputConfig) && isGeoArg(args.value),
         expression: ({ value, args, inputConfig }) => tryPredicate(
             `ST_Contains(${asGeometry(value, inputConfig)}, ${constantGeometry(args.value)})`
         ),

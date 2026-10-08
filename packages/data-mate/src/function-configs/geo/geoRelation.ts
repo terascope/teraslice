@@ -9,6 +9,7 @@ import {
 } from '../interfaces.js';
 import {
     isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate, relationFunction,
+    isScalarColumn
 } from './sql-utils.js';
 
 export interface GeoRelationArgs {
@@ -110,7 +111,8 @@ export const geoRelationConfig: FieldValidateConfig<GeoRelationArgs> = {
      * `contains` differ on hole-touching cases and are right to. See known-defects DF8.
     */
     sql: {
-        applies: (args, inputConfig) => isGeoColumn(inputConfig)
+        applies: (args, inputConfig) => isScalarColumn(inputConfig)
+            && isGeoColumn(inputConfig)
             && isGeoArg(args.value)
             && relationFunction(args.relation) != null,
         expression: ({ value, args, inputConfig }) => tryPredicate(

@@ -1,5 +1,5 @@
 import { isNil } from '@terascope/core-utils';
-import { DataTypeFieldConfig, FieldType } from '@terascope/types';
+import { DataTypeFieldConfig, DataTypeFields, FieldType } from '@terascope/types';
 import { validateFunctionArgs } from '../argument-validator/index.js';
 import { validateAccepts, getFieldTypesFromFieldConfigAndChildConfig } from '../../column/index.js';
 import {
@@ -9,7 +9,8 @@ import {
 } from '../../function-configs/interfaces.js';
 import { quoteIdentifier } from '@terascope/sql-builder';
 import { ScalarFunctionImpl } from '../../teal-frame/scalar-function.js';
-import { registerScalarFunction } from '../../teal-frame/index.js';
+import { registerScalarFunction, makeBigIntInputNormaliser } from '../../teal-frame/index.js';
+import { coerceToType } from '../../builder/type-coercion.js';
 
 export interface TealFrameAdapterOptions<T extends Record<string, any>> {
     /** The column the function applies to. */
@@ -110,10 +111,8 @@ async function adaptTransform<T extends Record<string, any>>(
 
     const column = quoteIdentifier(field);
 
-    // ProcessMode.NONE is a metadata/type change only - the JS adapter copies the vector
-    // unchanged (`copyVectorToBuilder`), so there is nothing to run in SQL either.
     if (fnDef.process_mode === ProcessMode.NONE) {
-        return { expression: column, outputConfig, dispatch: 'none' };
+        return adaptTypeChange(fnDef, options, args, outputConfig);
     }
 
     const fullValues = fnDef.process_mode === ProcessMode.FULL_VALUES;
@@ -139,13 +138,15 @@ async function adaptTransform<T extends Record<string, any>>(
     const impl = fnDef.create({
         args, inputConfig, outputConfig,
     } as any) as ScalarFunctionImpl;
+    const resultConfig = udfResult(fnDef, args, inputConfig, outputConfig, fullValues);
 
     const functionName = await registerScalarFunction({
-        name: udfName(fnDef.name, field, fieldTypeOf(inputConfig), args),
-        parameter: fieldTypeOf(inputConfig),
-        returns: scalarResultConfig(outputConfig),
-        returnsChildren: outputConfig.child_config as any,
-        fn: impl,
+        name: udfName(fnDef.name, field, inputConfig, args),
+        parameter: udfParameter(inputConfig, fullValues),
+        parameterChildren: inputConfig.child_config,
+        returns: resultConfig.field_config as DataTypeFieldConfig,
+        returnsChildren: resultConfig.child_config,
+        fn: coercingResult(impl, resultConfig),
         callWithNull: fullValues,
         database: options.database,
     });
@@ -163,6 +164,94 @@ async function adaptTransform<T extends Record<string, any>>(
         functionName,
         dispatch: emission ? 'sql+udf' : 'udf',
     };
+}
+
+/**
+ * `ProcessMode.NONE` - `cast`, the only one - changes the field's CONFIG, and the values follow.
+ *
+ * The JS adapter runs it as `copyVectorToBuilder`, copying each value into a Builder for the NEW
+ * config, and the Builder coerces: `cast` to Integer turns `'21.223'` into `21`, to an array wraps
+ * it as `[21]`, and to an invalid IP throws. So where the shape changes this is a UDF over the
+ * SAME `coerceToType` - one implementation of the semantics, as `fromRecords` does it. Returning
+ * the column untouched left `'21.223'` in a column whose config said Integer.
+ *
+ * Where only metadata changes (`description`, `locale`...) the values are already right, so the
+ * column is copied as before and no UDF is registered.
+*/
+async function adaptTypeChange<T extends Record<string, any>>(
+    fnDef: FieldTransformConfig<T>,
+    options: TealFrameAdapterOptions<T>,
+    args: T,
+    outputConfig: DataTypeFieldAndChildren
+): Promise<TealFrameAdapterResult> {
+    const { field, inputConfig } = options;
+    const column = quoteIdentifier(field);
+
+    if (typeShape(inputConfig) === typeShape(outputConfig)) {
+        return { expression: column, outputConfig, dispatch: 'none' };
+    }
+
+    const coerce = resultCoercion(outputConfig);
+    const functionName = await registerScalarFunction({
+        name: udfName(fnDef.name, field, inputConfig, args),
+        parameter: inputConfig.field_config as DataTypeFieldConfig,
+        parameterChildren: inputConfig.child_config,
+        returns: outputConfig.field_config as DataTypeFieldConfig,
+        returnsChildren: outputConfig.child_config,
+        fn: (value) => coerce(value),
+        database: options.database,
+    });
+
+    return {
+        expression: `${functionName}(${column})`,
+        outputConfig,
+        functionName,
+        dispatch: 'udf',
+    };
+}
+
+/**
+ * Coerces a value into a config exactly as a `DataFrame` Builder does - every Builder's
+ * `_valueFrom` is `coerceToType(config)` - so a result that disagrees with its `output_type` is
+ * converted, or throws, the same way: `setDefault`/`toJSON` on an Integer column give `"5"`, and
+ * `ceil(1e21)` into an Integer throws. Without it DuckDB was handed the raw result and failed with
+ * `A string was expected` (DF2, DF5, DF11).
+ *
+ * The bigint normaliser goes first for the reason it exists on ingest (DF15): `toBigIntOrThrow`
+ * adds 1 to a value it PARSES past 2^53 and returns a bigint untouched, and the value converter
+ * undoes the `+1` - so a bigint result has to be handed over as its decimal string to stay exact.
+*/
+function resultCoercion(config: DataTypeFieldAndChildren): (value: unknown) => unknown {
+    const fieldConfig = config.field_config as DataTypeFieldConfig;
+    const childConfig = config.child_config as DataTypeFields | undefined;
+    const coerce = coerceToType(fieldConfig, childConfig);
+    const normalise = makeBigIntInputNormaliser(fieldConfig, childConfig);
+
+    return (value) => {
+        if (value == null) return value;
+        return coerce(normalise ? normalise(value) : value);
+    };
+}
+
+function coercingResult(
+    impl: ScalarFunctionImpl,
+    config: DataTypeFieldAndChildren
+): ScalarFunctionImpl {
+    const coerce = resultCoercion(config);
+    return (value, index) => coerce(impl(value, index));
+}
+
+/** What decides the stored values: type, array-ness and children, and nothing else. */
+function typeShape({ field_config, child_config }: DataTypeFieldAndChildren): string {
+    const shape = (config: Pick<DataTypeFieldConfig, 'type' | 'array'>) => [
+        config.type, config.array === true,
+    ];
+    return JSON.stringify([
+        shape(field_config as DataTypeFieldConfig),
+        Object.entries(child_config ?? {})
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([name, config]) => [name, shape(config)]),
+    ]);
 }
 
 async function adaptValidation<T extends Record<string, any>>(
@@ -186,24 +275,15 @@ async function adaptValidation<T extends Record<string, any>>(
     const fullValues = fnDef.process_mode === ProcessMode.FULL_VALUES;
     const emission = emissionFor(fnDef, inputConfig, options.preferSql, args);
 
-    /**
-     * Failing validation NULLS the value and keeps the row - `validatorTransformFN`:
-     * `if (fn(value)) return value; return null`. Expressed in SQL so the nulling is visible
-     * rather than hidden inside a UDF, and identical on both dispatch paths - the emission
-     * replaces only the PREDICATE, never the shape around it.
-    */
-    const nullUnless = (check: string) => `CASE WHEN ${check} THEN ${column} ELSE NULL END`;
-
     if (emission && !emission.needs_udf_fallback) {
         return {
-            expression: nullUnless(applyToValues(
+            expression: nullUnlessValid(
                 (value) => emission.expression(emissionContext(
                     value, args, inputConfig, inputConfig, noUdf(fnDef.name)
                 )),
                 column,
-                inputConfig,
-                fullValues
-            )),
+                perElement(inputConfig, fullValues)
+            ),
             outputConfig,
             dispatch: 'sql',
         };
@@ -212,8 +292,9 @@ async function adaptValidation<T extends Record<string, any>>(
     const predicate = fnDef.create({ args, inputConfig } as any) as ScalarFunctionImpl;
 
     const functionName = await registerScalarFunction({
-        name: udfName(fnDef.name, field, fieldTypeOf(inputConfig), args),
-        parameter: fieldTypeOf(inputConfig),
+        name: udfName(fnDef.name, field, inputConfig, args),
+        parameter: udfParameter(inputConfig, fullValues),
+        parameterChildren: inputConfig.child_config,
         returns: { type: FieldType.Boolean },
         fn: predicate,
         callWithNull: fullValues,
@@ -228,11 +309,33 @@ async function adaptValidation<T extends Record<string, any>>(
         : callUdf;
 
     return {
-        expression: nullUnless(applyToValues(build, column, inputConfig, fullValues)),
+        expression: nullUnlessValid(build, column, perElement(inputConfig, fullValues)),
         outputConfig,
         functionName,
         dispatch: emission ? 'sql+udf' : 'udf',
     };
+}
+
+/**
+ * Failing validation NULLS the value and keeps the row - `validatorTransformFN`:
+ * `if (fn(value)) return value; return null`. Expressed in SQL so the nulling is visible rather
+ * than hidden inside a UDF, and identical on both dispatch paths - the emission replaces only the
+ * PREDICATE, never the shape around it.
+ *
+ * Where SQL maps over a list, the nulling is per ELEMENT and the list is kept, as `DataFrame`
+ * does it: `contains('e')` over `['hello', 'sky']` is `['hello', null]`, an empty list stays empty.
+ * Wrapping the mapped predicate - a `BOOLEAN[]` - in one `CASE WHEN` was DF1, `Unimplemented type
+ * for cast (BOOLEAN[] -> BOOLEAN)` on every validation of an array field.
+*/
+function nullUnlessValid(
+    predicate: (value: string) => string,
+    column: string,
+    elementWise: boolean
+): string {
+    if (elementWise) {
+        return `list_transform(${column}, lambda x : CASE WHEN ${predicate('x')} THEN x ELSE NULL END)`;
+    }
+    return `CASE WHEN ${predicate(column)} THEN ${column} ELSE NULL END`;
 }
 
 /**
@@ -350,20 +453,58 @@ function typesError(
     );
 }
 
-function fieldTypeOf(config: DataTypeFieldAndChildren): FieldType {
-    return config.field_config.type as FieldType;
+/** The field config without `array`. */
+function elementOf(config: DataTypeFieldAndChildren): DataTypeFieldConfig {
+    const { array, ...rest } = config.field_config as DataTypeFieldConfig;
+    return rest as DataTypeFieldConfig;
 }
 
 /**
- * The UDF's result config.
+ * Whether SQL maps the function over the column's elements, so the UDF sees ONE element at a
+ * time - an array column under `INDIVIDUAL_VALUES`, which `applyToValues` wraps in
+ * `list_transform`.
+*/
+function perElement(inputConfig: DataTypeFieldAndChildren, fullValues: boolean): boolean {
+    return inputConfig.field_config.array === true && !fullValues;
+}
+
+/**
+ * The UDF's parameter config: the element when SQL maps over the list, otherwise the whole
+ * column - which for a `FULL_VALUES` function over an array column is the LIST it folds.
+ * Registering the element type there was DF4: `dm_addvalues(DOUBLE)` for a `DOUBLE[]` column.
+*/
+function udfParameter(
+    inputConfig: DataTypeFieldAndChildren,
+    fullValues: boolean
+): DataTypeFieldConfig {
+    return perElement(inputConfig, fullValues)
+        ? elementOf(inputConfig)
+        : inputConfig.field_config as DataTypeFieldConfig;
+}
+
+/**
+ * The UDF's result config: what ONE call returns.
  *
- * `array` is dropped: under `INDIVIDUAL_VALUES` the UDF is called per ELEMENT (SQL does the
- * mapping with `list_transform`), so its own result is a single value even when the column is
- * an array.
- */
-function scalarResultConfig(config: DataTypeFieldAndChildren): DataTypeFieldConfig {
-    const { array, ...rest } = config.field_config as DataTypeFieldConfig;
-    return rest as DataTypeFieldConfig;
+ * Where SQL maps over the list, one call sees one element, so the result is the function's own
+ * `output_type` applied to the ELEMENT - not the column's output with `array` dropped, which is
+ * wrong for any function whose per-element result is itself an array (`split` on a `Keyword[]`).
+ * Everywhere else one call sees the whole value, so its result is the column's output. Dropping
+ * `array` unconditionally was DF4: `split` promised VARCHAR and returned a list.
+*/
+function udfResult<T extends Record<string, any>>(
+    fnDef: FieldTransformConfig<T>,
+    args: T,
+    inputConfig: DataTypeFieldAndChildren,
+    outputConfig: DataTypeFieldAndChildren,
+    fullValues: boolean
+): DataTypeFieldAndChildren {
+    if (!perElement(inputConfig, fullValues)) return outputConfig;
+
+    const element: DataTypeFieldAndChildren = {
+        field_config: elementOf(inputConfig),
+        child_config: inputConfig.child_config,
+    };
+    return fnDef.output_type ? fnDef.output_type(element, args) : element;
 }
 
 /**
@@ -378,16 +519,19 @@ function scalarResultConfig(config: DataTypeFieldAndChildren): DataTypeFieldConf
  * `Keyword` column are two different DuckDB functions; sharing a name meant the first one
  * registered won and the second query failed to bind -
  * `No function matches ... 'dm_isboolean_hk1m0p(VARCHAR)'`. The field name alone hid this whenever
- * two frames used the same column name for different types.
+ * two frames used the same column name for different types. The WHOLE config is hashed, not just
+ * the type, because `Number` and `Number[]`, or two Objects with different members, are different
+ * parameter types too.
  */
 function udfName(
     name: string,
     field: string,
-    type: FieldType,
+    inputConfig: DataTypeFieldAndChildren,
     args: Record<string, unknown>
 ): string {
     const argPart = Object.keys(args).length ? JSON.stringify(args) : '';
-    return `dm_${name}_${hash(`${name}|${field}|${type}|${argPart}`)}`.toLowerCase();
+    const typePart = JSON.stringify([inputConfig.field_config, inputConfig.child_config ?? null]);
+    return `dm_${name}_${hash(`${name}|${field}|${typePart}|${argPart}`)}`.toLowerCase();
 }
 
 /** Small stable string hash - only needs to avoid collisions between arg sets. */

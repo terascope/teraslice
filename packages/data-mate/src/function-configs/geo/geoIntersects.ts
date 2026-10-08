@@ -8,7 +8,7 @@ import {
     FunctionDefinitionExample
 } from '../interfaces.js';
 import {
-    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate,
+    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate, isScalarColumn
 } from './sql-utils.js';
 
 export interface GeoIntersectsArgs {
@@ -91,7 +91,8 @@ export const geoIntersectsConfig: FieldValidateConfig<GeoIntersectsArgs> = {
      * holed MultiPolygons included. No divergence to accept here.
     */
     sql: {
-        applies: (args, inputConfig) => isGeoColumn(inputConfig) && isGeoArg(args.value),
+        applies: (args, inputConfig) => isScalarColumn(inputConfig)
+            && isGeoColumn(inputConfig) && isGeoArg(args.value),
         expression: ({ value, args, inputConfig }) => tryPredicate(
             `ST_Intersects(${asGeometry(value, inputConfig)}, ${constantGeometry(args.value)})`
         ),

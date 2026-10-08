@@ -8,7 +8,7 @@ import {
     FunctionDefinitionExample
 } from '../interfaces.js';
 import {
-    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate,
+    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate, isScalarColumn
 } from './sql-utils.js';
 
 export interface GeoWithinArgs {
@@ -141,7 +141,8 @@ export const geoWithinConfig: FieldValidateConfig<GeoWithinArgs> = {
     },
     /** `ST_Within`, the mirror of `geoContains` including the hole divergence. */
     sql: {
-        applies: (args, inputConfig) => isGeoColumn(inputConfig) && isGeoArg(args.value),
+        applies: (args, inputConfig) => isScalarColumn(inputConfig)
+            && isGeoColumn(inputConfig) && isGeoArg(args.value),
         expression: ({ value, args, inputConfig }) => tryPredicate(
             `ST_Within(${asGeometry(value, inputConfig)}, ${constantGeometry(args.value)})`
         ),

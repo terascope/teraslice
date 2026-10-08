@@ -368,32 +368,18 @@ const CASES: Record<string, {
     type?: FieldType | readonly FieldType[];
     battery?: readonly unknown[];
     /**
-     * The emission only exists for an ARRAY column, and its parity is proved against the
-     * JAVASCRIPT IMPLEMENTATION rather than against the UDF path.
+     * The emission only exists for an ARRAY column, so the case runs on one.
      *
      * `addValues` and its five siblings are `FULL_VALUES` reducers: on a scalar column they return
      * the value unchanged, and `list_sum` of a scalar is not an expression - so their emission
      * declines via `applies` and the scalar column keeps the UDF, correctly.
      *
-     * The UDF path cannot be the comparison here, because **it does not work at all for these
-     * six**: `registerScalarFunction` takes a bare `FieldType` and the adapter registers
-     * `dm_addvalues(DOUBLE)` for a `DOUBLE[]` column, so the query fails to bind. That is a
-     * pre-existing gap in the UDF layer, not something the emission introduced - see
-     * `docs/known-defects.md`. Comparing against `config.create()` called directly proves the same
-     * thing with the broken layer taken out of the loop, which is if anything the stronger check.
+     * Until 2026-10-07 these, every geo function, `split` and `extract` were compared against
+     * `config.create()` called directly, because their UDF could not bind a LIST, STRUCT, JSON or
+     * GEOMETRY type (known-defects DF4, DF7). The UDF layer now builds those types, so every case
+     * is compared against its real UDF.
     */
     arrayOnly?: boolean;
-    /**
-     * The UDF path cannot bind for this column type, so parity is proved against the JavaScript
-     * implementation directly - same reasoning as `arrayOnly`, different cause.
-     *
-     * `scalar-function.ts` maps no DuckDB type object for JSON or STRUCT field types, deliberately:
-     * "GeoJSON / Any are JSON, and the binding exports no JSON type constant. GeoPoint / Geo /
-     * Boundary / Object / Tuple are STRUCTs, which need a type built at runtime". So **every geo
-     * function is unusable as a UDF today** and the emission is the only way one can run at all.
-     * See `docs/known-defects.md` DF7.
-    */
-    noUdfPath?: boolean;
     /**
      * An input this TRANSFORM rejects, so the throw contract can be asserted rather than assumed.
      *
@@ -406,10 +392,8 @@ const CASES: Record<string, {
     /**
      * Argument sets the emission must DECLINE, asserted through `applies` rather than by running.
      *
-     * A declined set cannot be run and compared: under `noUdfPath` there is no working UDF to
-     * compare against, and the gate's `dispatch` assertion would fail for the right reason while
-     * telling you nothing. Calling `applies` directly proves the guard without a query, which is
-     * what a decline actually is.
+     * A declined set runs the UDF on both sides, so comparing them proves nothing about the guard.
+     * Calling `applies` directly proves it without a query, which is what a decline actually is.
     */
     declines?: readonly Record<string, unknown>[];
     /**
@@ -509,12 +493,10 @@ const CASES: Record<string, {
      * integer one is there for `isnan`, which would have been a plausible place to find no
      * overload - it has one, but only the test says so.
     */
-    isGeoJSON: { type: FieldType.GeoJSON, noUdfPath: true },
-    isGeoPoint: { type: FieldType.GeoPoint, noUdfPath: true },
+    isGeoJSON: { type: FieldType.GeoJSON },
+    isGeoPoint: { type: FieldType.GeoPoint },
     /**
-     * The spatial predicates. `noUdfPath` because a `GeoJSON` column is JSON, which cannot be a
-     * UDF parameter (DF7) - so SQL is the only path, and the comparison is against
-     * `config.create()` in JavaScript.
+     * The spatial predicates.
      *
      * `geoIntersects` and `geoDisjoint` agree with `geo-utils` everywhere. `geoContains`,
      * `geoWithin`, `geoRelation` and `geoContainsPoint` do NOT, on hole-touching inputs, and those
@@ -522,7 +504,6 @@ const CASES: Record<string, {
     */
     geoIntersects: {
         type: FieldType.GeoJSON,
-        noUdfPath: true,
         args: [
             { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
             { value: { type: 'Point', coordinates: [5, 5] } },
@@ -530,7 +511,6 @@ const CASES: Record<string, {
     },
     geoDisjoint: {
         type: FieldType.GeoJSON,
-        noUdfPath: true,
         args: [
             { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
         ],
@@ -543,7 +523,6 @@ const CASES: Record<string, {
     },
     geoContains: {
         type: FieldType.GeoJSON,
-        noUdfPath: true,
         args: [
             { value: { type: 'Polygon', coordinates: [[[2, 2], [2, 8], [8, 8], [8, 2], [2, 2]]] } },
             { value: { type: 'Point', coordinates: [5, 5] } },
@@ -570,14 +549,12 @@ const CASES: Record<string, {
     },
     geoWithin: {
         type: FieldType.GeoJSON,
-        noUdfPath: true,
         args: [
             { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
         ],
     },
     geoRelation: {
         type: FieldType.GeoJSON,
-        noUdfPath: true,
         args: [
             {
                 value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] },
@@ -600,7 +577,6 @@ const CASES: Record<string, {
     },
     geoContainsPoint: {
         type: FieldType.GeoJSON,
-        noUdfPath: true,
         args: [{ point: { lat: 5, lon: 5 } }, { point: { lat: 0, lon: 5 } }],
     },
     /**
@@ -609,16 +585,10 @@ const CASES: Record<string, {
     */
     geoPointWithinRange: {
         type: FieldType.GeoPoint,
-        noUdfPath: true,
         args: [{ point: { lat: 0, lon: 0 }, distance: '1000km' }],
     },
-    /**
-     * `noUdfPath` because a `GeoPoint` column is a STRUCT, which cannot be a UDF parameter (DF7) -
-     * so like the shape predicates, SQL is the only way this runs at all.
-    */
     inGeoBoundingBox: {
         type: FieldType.GeoPoint,
-        noUdfPath: true,
         args: [
             { top_left: { lat: 1, lon: 0 }, bottom_right: { lat: 0, lon: 1 } },
             { top_left: '1,0', bottom_right: '0,1' },
@@ -626,22 +596,16 @@ const CASES: Record<string, {
     },
     isGeoShapePoint: {
         type: FieldType.GeoJSON,
-        noUdfPath: true,
         knownDivergences: [{
             args: {}, input: { type: 'POINT', coordinates: [10, 20] }, sql: true, why: POINT_SPELLING,
         }],
     },
-    isGeoShapePolygon: { type: FieldType.GeoJSON, noUdfPath: true },
-    isGeoShapeMultiPolygon: { type: FieldType.GeoJSON, noUdfPath: true },
+    isGeoShapePolygon: { type: FieldType.GeoJSON },
+    isGeoShapeMultiPolygon: { type: FieldType.GeoJSON },
     /**
      * A non-empty delimiter only - the default `''` splits into UTF-16 code units.
-     *
-     * `noUdfPath` because `split` RETURNS AN ARRAY and `scalarResultConfig` strips `array` from the
-     * UDF's result type, so the registered function promises a VARCHAR and hands back a list:
-     * `Invalid Input Error: A string was expected`. Broken before any emission - known-defects DF4.
     */
     split: {
-        noUdfPath: true,
         args: [{ delimiter: '-' }, { delimiter: 'l' }, { delimiter: ' ' }, {}],
     },
     // the emission claims a String column; `accepts` also lists Number, which keeps the UDF
@@ -975,14 +939,8 @@ const CASES: Record<string, {
     },
     /**
      * `extract` - both modes, both `global` settings, and every guard.
-     *
-     * `noUdfPath` because `global: true` returns an ARRAY and `scalarResultConfig` strips `array`
-     * from the UDF's return type, so the registered function promises a VARCHAR and hands back a
-     * list - the same pre-existing break `split` has (known-defects DF4). With one arg set in this
-     * list returning a list, the whole case is proved against `config.create()` directly.
     */
     extract: {
-        noUdfPath: true,
         type: FieldType.Keyword,
         battery: [
             '<hello>',
@@ -1321,6 +1279,11 @@ const ULP_TOLERANCE = Number.EPSILON * 4;
  * finite numbers. Everything else - nulls, strings, booleans, a null against a number - still
  * has to match exactly, so `approximate` cannot hide a structural difference, only a last-bit one.
 */
+/** Which entries of a validated list survived - a validation's whole contract. */
+function expectSurvivors(values: readonly unknown[], expected: readonly boolean[]) {
+    expect(values.map((value) => value != null)).toEqual(expected);
+}
+
 function expectSame(sql: unknown[], udf: unknown[], approximate: boolean | undefined) {
     if (!approximate) {
         expect(sql).toEqual(udf);
@@ -1406,8 +1369,6 @@ describe('sql emissions on the function configs', () => {
     describe.each(PROMOTED)('%s', (name, config) => {
         const argSets = CASES[name]?.args ?? [{}];
         const arrayOnly = CASES[name]?.arrayOnly === true;
-        // either way there is no UDF to compare with - see `arrayOnly` and `noUdfPath`
-        const againstJs = arrayOnly || CASES[name]?.noUdfPath === true;
         const onArray = { array: arrayOnly };
 
         /**
@@ -1431,77 +1392,6 @@ describe('sql emissions on the function configs', () => {
         };
 
         /**
-         * The array reducers, against the JavaScript implementation itself. See `arrayOnly`.
-         *
-         * The battery is fed as ONE array - which is what a `FULL_VALUES` function folds - so this
-         * compares one value, not one per battery entry.
-        */
-        if (againstJs) {
-            // every argument set the emission CLAIMS - a declined one has no SQL path to check
-            const claimed = argSets.filter(
-                (args) => claims(args as Record<string, unknown>,
-                    inputTypeFor(name, config),
-                    arrayOnly)
-            );
-
-            it.each(claimed.map((args) => [JSON.stringify(args), args]))(
-                'is byte-equal to its own JavaScript implementation over the battery, args=%s',
-                async (_label, argsIn) => {
-                    const args = argsIn as Record<string, unknown>;
-                    const sql = await run(name, config, args, true, onArray);
-                    const type = inputTypeFor(name, config);
-                    const battery = (
-                        CASES[name]?.battery ?? BATTERIES[type] ?? []
-                    ) as readonly unknown[];
-                    // the union does not carry `create`; every promoted config is a field function
-                    const fieldConfig = { type, ...(arrayOnly ? { array: true } : {}) };
-                    const impl = (config as any).create({
-                        args,
-                        inputConfig: { field_config: fieldConfig },
-                    }) as (input: unknown) => unknown;
-
-                    if (isFieldValidation(config)) {
-                    /**
-                     * A validation projects `CASE WHEN pred THEN col ELSE NULL END`, so what comes
-                     * back is the VALUE or null - not the predicate. Comparing which entries
-                     * survived is the whole of a validation's contract, and it does not require
-                     * knowing what coercion did to the value on the way in.
-                     *
-                     * Where SQL is deliberately MORE CORRECT than the JavaScript, the expected
-                     * value comes from `knownDivergences` instead - so the gate still asserts an
-                     * exact answer for every input, and an UNLISTED divergence still fails.
-                    */
-                        const divergences = (CASES[name]?.knownDivergences ?? []).filter(
-                            (d) => JSON.stringify(d.args) === JSON.stringify(args)
-                        );
-                        const expected = battery.map((value) => {
-                            if (value == null) return false;
-                            const known = divergences.find(
-                                (d) => JSON.stringify(d.input) === JSON.stringify(value)
-                            );
-                            if (known) return known.sql === true;
-                            return impl(value) === true;
-                        });
-
-                        expect(sql.values.map((value) => value != null)).toEqual(expected);
-                        return;
-                    }
-
-                    /**
-                 * An `arrayOnly` function folds the WHOLE battery into one value; a `noUdfPath`
-                 * one is still per-row, so it maps.
-                */
-                    const expected = arrayOnly
-                        ? [impl(battery.filter((value) => value != null))]
-                        : battery.map((value) => (value == null ? null : impl(value)));
-
-                    expectSame(sql.values, expected, config.sql?.approximate);
-                    expect(sql.dispatch).toEqual('sql');
-                },
-                60_000);
-        }
-
-        /**
          * The guards, as refusals.
          *
          * `applies` is a pure function of the arguments and the column, so this needs no query -
@@ -1519,8 +1409,7 @@ describe('sql emissions on the function configs', () => {
             );
         }
 
-        // skipped whenever there is no UDF path to compare against
-        if (!againstJs) {
+        {
             const types = inputTypesFor(name, config);
             const matrix = types.flatMap(
                 (type) => argSets
@@ -1585,22 +1474,13 @@ describe('sql emissions on the function configs', () => {
             );
         }
 
+        // a reducer folds the list into ONE value - the matrix above runs it on an array column
         /**
-         * **Skipped for validations, because the adapter cannot express one on an array column at
-         * all** - on EITHER path. `applyToValues` maps per element, so the predicate becomes a
-         * `BOOLEAN[]`, and the surrounding `CASE WHEN <pred> THEN col ELSE NULL END` then fails
-         * with `Unimplemented type for cast (BOOLEAN[] -> BOOLEAN)`. That predates the sql
-         * emissions - the UDF path builds the same shape - and is recorded in
-         * `docs/known-defects.md`. Promoting a function must not be blocked on it, so the array
-         * case is asserted for transforms only.
+         * Skipped when the emission does not CLAIM an array column: `setDefault` and `join` both
+         * decline one, so SQL and the UDF would be the same path. Validations run here too since
+         * DF1 was fixed - each element is nulled or kept, on both paths.
         */
-        /**
-         * Also skipped when the emission does not CLAIM an array column: `setDefault` and `join`
-         * both decline one, so SQL and the UDF would be the same path - and for a `FULL_VALUES`
-         * function that path cannot even bind (known-defects DF4).
-        */
-        const skipArray = isFieldValidation(config)
-            || againstJs
+        const skipArray = arrayOnly
             || !claims(argSets[0] as Record<string, unknown>, inputTypeFor(name, config), true);
         const arrayCase = skipArray ? it.skip : it;
 
@@ -1610,11 +1490,30 @@ describe('sql emissions on the function configs', () => {
             const udf = await run(name, config, args, false, { array: true });
 
             // one row whose value is the whole battery as a list, so compare element-wise
-            expectSame(
-                (sql.values[0] ?? []) as unknown[],
-                (udf.values[0] ?? []) as unknown[],
-                config.sql?.approximate
+            const sqlList = (sql.values[0] ?? []) as unknown[];
+            const udfList = (udf.values[0] ?? []) as unknown[];
+            const accepted = (CASES[name]?.knownDivergences ?? []).filter(
+                (d) => JSON.stringify(d.args) === JSON.stringify(args)
             );
+
+            if (accepted.length) {
+                // per element, the same override the scalar matrix applies - `knownDivergences`.
+                // `run` builds the list from the battery's non-null entries, so this does too
+                const battery = (
+                    (CASES[name]?.battery ?? BATTERIES[inputTypeFor(name, config)] ?? []) as
+                        readonly unknown[]
+                ).filter((value) => value != null);
+                expectSurvivors(sqlList, battery.map((value, index) => {
+                    const known = accepted.find(
+                        (d) => JSON.stringify(d.input) === JSON.stringify(value)
+                    );
+                    if (known) return known.sql === true;
+                    return udfList[index] != null;
+                }));
+                return;
+            }
+
+            expectSame(sqlList, udfList, config.sql?.approximate);
         }, 60_000);
 
         /**
@@ -1664,9 +1563,6 @@ describe('sql emissions on the function configs', () => {
             }
             expect(dispatches.some((d) => d === 'sql' || d === 'sql+udf')).toBeTrue();
         }, 30_000);
-
-        // the remaining dispatch checks build a UDF, which for these types cannot be registered
-        if (againstJs && !arrayOnly) return;
 
         it('registers a udf only when the emission needs one', async () => {
             const type = inputTypeFor(name, config);
