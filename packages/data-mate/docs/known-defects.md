@@ -138,7 +138,14 @@ Found mostly by `test/teal-frame/sql-emission-spec.ts`, which runs a function th
 simply exercised paths nothing else did.
 
 <a name="df1"></a>
-### DF1. A FIELD_VALIDATION on an ARRAY column cannot be expressed at all
+### DF1. A FIELD_VALIDATION on an ARRAY column cannot be expressed at all — FIXED 2026-10-07
+
+**FIXED 2026-10-07.** `DataFrame` nulls each failing ELEMENT and keeps the list (`contains('e')` over
+`['hello', 'sky', 'tree']` is `['hello', null, 'tree']`; `[]` stays `[]`), so `nullUnlessValid` now emits
+`list_transform(col, lambda x : CASE WHEN pred(x) THEN x ELSE NULL END)` where SQL maps over a list, on
+both paths. The gate's array check now runs for validations too; it found that the six `FULL_VALUES` geo
+predicates' emissions accepted an array column and handed `ST_*` a `GEOMETRY[]`, so they now decline one
+(`isScalarColumn`) and the UDF runs them as `DataFrame` does. History below as found.
 
 `tealFrameAdapter` maps per element under `INDIVIDUAL_VALUES`, so the predicate becomes a `BOOLEAN[]`
 and the `CASE WHEN <pred> THEN col ELSE NULL END` wrapper fails. Not SQL-specific — the UDF path builds
@@ -156,7 +163,15 @@ The answer has to come from `DataFrame` — per-element nulling
 asserting a shape that is wrong on both sides.
 
 <a name="df2"></a>
-### DF2. `ceil`/`floor`/`round` return a wrapped BIGINT as a STRING past their output type
+### DF2. `ceil`/`floor`/`round` return a wrapped BIGINT as a STRING past their output type — FIXED 2026-10-07
+
+**FIXED 2026-10-07, with DF5 and DF11, by one change.** Every `DataFrame` Builder's `_valueFrom` is
+`coerceToType(outputConfig)`, so a transform's result is coerced into its declared output type - and the
+UDF handed DuckDB the raw result instead. The adapter now coerces every UDF result the same way
+(`resultCoercion`), behind the same bigint normaliser ingest uses. `DataFrame` THROWS for `ceil(1e21)`
+into an Integer, so TealFrame now does too (the emission's `withinIntegerRange` guard hands those values
+to the UDF). It also fixed a silent off-by-one: a UDF's bigint result past 2^53 (`ipToInt` on IPv6) came
+out one too LOW. History below as found.
 
 `output_type` is `Integer`; given `1e21` the UDF path produced `"3875820019684212735"` (a wrapped BIGINT
 rendered as a string) and `-3875820019684212700` for `-1e21`, where the plain SQL expression returns the
@@ -169,7 +184,12 @@ whether the fix is in the converter or in the declared `output_type`. The emissi
 `withinIntegerRange` and keep the UDF above it.
 
 <a name="df4"></a>
-### DF4. A `FULL_VALUES` function on an ARRAY column cannot be registered as a UDF
+### DF4. A `FULL_VALUES` function on an ARRAY column cannot be registered as a UDF — FIXED 2026-10-07
+
+**FIXED 2026-10-07** with DF7: the UDF layer now registers the full field config (`udf-types.ts`), so a
+`FULL_VALUES` function over `DOUBLE[]` is `dm_addvalues(DOUBLE[])`, and a result is typed from the
+function's `output_type` applied to ONE call's input - so `split` returns `VARCHAR[]`, and on an array
+column `VARCHAR[][]`. Pinned by `test/teal-frame/udf-types-spec.ts`; the history below is as found.
 
 `registerScalarFunction` takes `parameter: FieldType`, a bare scalar type with no list form, so
 `tealFrameAdapter` registers `dm_addvalues(DOUBLE)` for a `DOUBLE[]` column and the query fails to bind.
@@ -188,7 +208,11 @@ the two order-dependent ones), proved against `config.create()` called directly 
 parameter type in `scalar-function.ts` plus an input converter that unwraps a list vector.
 
 <a name="df5"></a>
-### DF5. `setDefault`'s `output_type` is always `Keyword`, whatever the input was
+### DF5. `setDefault`'s `output_type` is always `Keyword`, whatever the input was — FIXED 2026-10-07
+
+**FIXED 2026-10-07** by result coercion (see DF2): `DataFrame` coerces the default into the declared
+`Keyword`, so `setDefault({ value: 0 })` on an Integer column gives `"5"`, `"-12"`, `"0"`, and TealFrame
+now gives the same. The `output_type` itself is unchanged - it is the published behaviour.
 
 ```ts
 output_type(inputConfig) { return { field_config: { ..., type: FieldType.Keyword } }; }
@@ -225,7 +249,17 @@ timezone-dependent answer, and reproducing one is not obviously the goal — the
 differently on two workers in different regions.
 
 <a name="df7"></a>
-### DF7. No geo function can run as a UDF — JSON and STRUCT types have no parameter mapping
+### DF7. No geo function can run as a UDF — JSON and STRUCT types have no parameter mapping — FIXED 2026-10-07
+
+**FIXED 2026-10-07.** `udfTypeFor` (`src/teal-frame/udf-types.ts`) builds the type object from the
+FULL field config, mirroring `toDuckDB()`: `LIST(...)`, `STRUCT(...)` for GeoPoint and declared
+Object/Tuple children, `GEOMETRY` for GeoJSON, and JSON (a VARCHAR aliased `JSON`) for `Any` and untyped
+Object. `makeInputConverter` undoes each encoding on the way in (a GEOMETRY through `wkbToGeoShape`,
+never a `JSON.parse`). Every geo function, the reducers, `split`, `extract`, `parseJSON`, `lookup`,
+`toGeoPoint` and `toGeoJSON` now run as UDFs, byte-equal to `DataFrame` (`udf-types-spec.ts`), and the
+emission gate compares every case against its real UDF - `noUdfPath` and the compare-to-`create()`
+branch are gone. The function sweep runs **148** of 205 end to end, up from 140, with no `unmapped_type`
+left. The history below is as found.
 
 ```
 // scalar-function.ts PARAMETER_TYPES
@@ -436,7 +470,11 @@ exact at any size; no arithmetic is applied.
 belongs with the `core-utils` fix and has a blast radius across every package that depends on it.
 
 <a name="df11"></a>
-### DF11. `toJSON` cannot run as a UDF on an integer column — `bigIntToJSON` returns a NUMBER
+### DF11. `toJSON` cannot run as a UDF on an integer column — `bigIntToJSON` returns a NUMBER — FIXED 2026-10-07
+
+**FIXED 2026-10-07 on the TealFrame side** by result coercion (see DF2): the number is coerced into the
+declared String, as `DataFrame`'s Builder does. The `core-utils` oddity (`bigIntToJSON` returning a
+number, and its `-1`) is still worth a ticket, but no longer breaks a query.
 
 **For a `core-utils` ticket, and it blocks a promotion.** `toJSON`'s `output_type` declares the result a
 `String` unconditionally, but the implementation routes `isBigInt` input to `bigIntToJSON`
@@ -709,3 +747,29 @@ text only in two ways — it writes `1e21` for `1e+21`, and `5.0` for `5`. Small
 
 Byte-equal to `DataFrame` for 17 values across both ranges, scalar and in an array. Export cost unchanged
 within noise (`ndjson-export-cost.mjs`: 238 / 207 ms against 229 / 201).
+
+### DF20. `rows()` returned `Any` and untyped `Object` columns as their JSON TEXT — FIXED 2026-10-07
+
+`{x: 1}` came out of `rows()` as `'{"x":1}'`, `5` as `'5'`, and `'str'` as `'"str"'`. `ndjson()` was right
+all along (DuckDB splices a JSON value in unquoted), and so was `DataFrame`; only the row-object path,
+which the QPL engine hands straight to the response, was wrong. **The type sweep passed it**, because it
+asserted only that the value was non-null and PLAIN - and a string is both. Found by running
+`parseJSON` as a UDF for the first time (DF7).
+
+Fixed in `row-shape.ts`: a JSON column (`isJSONColumn` - `Any`, or an Object/Tuple with no declared
+children) gets a shaper that parses the text, at any depth. `type-sweep-spec.ts` now requires every
+type, scalar and array, to EQUAL what `DataFrame` yields; `Any` was the only one that failed.
+
+### DF21. `cast` changed the field's type but not its values — FIXED 2026-10-07
+
+`cast` is `ProcessMode.NONE`, and `tealFrameAdapter` returned the column untouched for it - so a cast to
+`Integer` left `'21.223'` in a column whose config now said Integer, a cast to an array left a scalar,
+and a cast to `IP` never validated. `DataFrame` runs NONE as `copyVectorToBuilder`, copying each value
+into a Builder for the NEW config, and the Builder coerces.
+
+Fixed by `adaptTypeChange`: where the type, array-ness or children change, a UDF runs the SAME
+`coerceToType` the Builder and `fromRecords` use; where only metadata changes (`description`,
+`locale`...) the column is still copied with no UDF. Pinned against `DataFrame` for Integer, Integer[],
+Number and an Object with typed children in `udf-types-spec.ts`. Needed DF7 first, since `cast` to or
+from an Object, Any or GeoPoint has a STRUCT or JSON on one side.
+

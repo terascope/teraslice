@@ -26,7 +26,7 @@ decide deliberately whether `docs/` ships to master or is dropped from the final
 | how Jared works | §3 |
 
 Also here: `duckdb-parity.md` (generated; read its top banner first), `known-defects.md` (D1-D6 and
-DF1, DF2, DF4-DF13 — **there is no DF3**), `ingest-findings.md` (read its VALIDITY INDEX first),
+DF1, DF2, DF4-DF21 — **there is no DF3**), `ingest-findings.md` (read its VALIDITY INDEX first),
 `research/`, `tools/` (see `tools/README.md`).
 
 ---
@@ -41,10 +41,25 @@ If you read nothing else, read this and §0.
 `fromSQL`, `searchParams`)**, query
 (`select`/`filter`/`join`/`orderBy`/`limit`/`distinct`/`materialize`/`size`), output (`rows`,
 `ndjson`, `writeNDJSON`, `writeParquet`), and `tealFrameAdapter` driving the same
-`FunctionDefinitionConfig`s as `dataFrameAdapter`. **47 data-mate suites / 3,687 tests passing,
-verified 2026-09-28** (plus `data-types` 32 / 198 and `sql-builder` 2 / 66; `xlucene-translator`'s
-174 failures are all OpenSearch-only suites with no cluster configured, identical with and without
-the 2026-09-28 changes).
+`FunctionDefinitionConfig`s as `dataFrameAdapter`. **51 data-mate suites / 4,400 tests passing,
+verified 2026-10-07** (plus `data-types` 32 / 198 and `sql-builder` 2 / 66 as of 2026-09-28;
+`xlucene-translator`'s 174 failures are all OpenSearch-only suites with no cluster configured).
+
+**RENAMED: DuckFrame is now `TealFrame`** (`src/teal-frame/`, `tealFrameAdapter`), over trademark
+concerns - briefly `QueryFrame` on 2026-10-07, settled as TealFrame on 2026-10-08. Engine-specific
+internals keep the engine's name (`DuckContext`, `configureDuckDatabase`). **A Postgres backend is
+NOT being built** (decided 2026-10-08) - a possible future feature; the analysis is
+`research/postgres-backend.md`.
+
+**THE UDF LAYER IS COMPLETE (2026-10-07).** Every field type can be a UDF parameter or result -
+`udf-types.ts` builds LIST/STRUCT/GEOMETRY/JSON type objects from the full field config, mirroring
+`toDuckDB()` - and every UDF result is COERCED into its `output_type` exactly as a `DataFrame` Builder
+does. That closed DF1, DF2, DF4, DF5, DF7, DF11 and found two more, both fixed: **DF20** (`rows()`
+returned `Any`/untyped `Object` as JSON TEXT - the response path) and **DF21** (`cast` changed the type
+but not the values). The emission gate now compares EVERY case against its real UDF, arrays and
+validations included (`noUdfPath` and the compare-to-`create()` branch are gone); the function sweep
+runs 148 of 205 end to end with zero adapter failures. Pinned against `DataFrame` in
+`test/teal-frame/udf-types-spec.ts`; `type-sweep-spec.ts` now requires every type to EQUAL `DataFrame`.
 
 **STORAGE TYPES CHANGED 2026-09-28 — read `known-defects.md` DF14-DF16 before touching a type mapping.**
 - **`Long` is `BIGINT`, not `HUGEINT`.** Parquet has no 128-bit integer, so HUGEINT crossed the wire as
@@ -138,7 +153,7 @@ concurrent appends does nothing; a macro can shadow a built-in; TIMESTAMPTZ rend
 zone; RE2 has no lookaround; **`memory_limit` does not bound process RSS** (Parquet's RSS was ~5 GB
 under a 1 GiB limit).
 
-**Defects in `known-defects.md`** (DF1, DF2, DF4-DF13). Three deserve tickets: **DF8** (geo-utils
+**Defects in `known-defects.md`** (DF1, DF2, DF4-DF21; open: DF6, DF8, DF9, DF12, DF13). Three deserve tickets: **DF8** (geo-utils
 calls a shape not-contained when it merely TOUCHES a hole), **DF9** (`isBase64` rejects 99.3% of
 valid base64), **DF6** (`addToDate` answers differently per server timezone).
 
@@ -558,7 +573,7 @@ date UDF's INPUT drifted by the host's UTC offset (0 under UTC, +4 h New York, �
 corrupted **13 of 16** date functions whatever they returned, and `isAfter`/`isBefore`/`isBetween`
 **flipped** between `TZ=UTC` and `TZ=America/New_York` on identical data and an identical query.
 
-**The fix:** `makeInputConverter(type)` in `duck-values.ts` — the mirror of `makeValueConverter` —
+**The fix:** `makeInputConverter` (now in `udf-types.ts`, config-driven since 2026-10-07) — the mirror of `makeValueConverter` —
 applied by `createScalarFunction` keyed off `spec.parameter`, handing a `FieldType.Date` function
 `Number(value.micros / 1000n)` (epoch millis, what `DateVector` itself holds, no parse per row). The
 structural hole was that the output side had a converter and the input side had none; blast radius
@@ -853,7 +868,7 @@ for ONE branch of a four-branch function (`formatDate`, `toDate`).
 | | `random` | non-deterministic; `floor(random() * (max - min + 1)) + min` is behaviour-equivalent but the gate compares VALUES, so it needs a spec change, not an emission |
 | **B. mechanical but large (1)** | `isPostalCode` | ~60 per-country patterns with `'any'` trying all. A question of size, not risk |
 | **C. possible, low value (2)** | `expm1`, `log1p` | `exp(x)-1` is wrong by 8 significant digits at `1e-12` and by ~1e-11 relative at 1e-5..1e-3, so a real emission needs a wide Taylor window and `approximate: true` |
-| **D. blocked on the UDF type mapping (5)** | `cast`, `parseJSON`, `lookup`, `toGeoPoint`, `toGeoJSON` | all output `Any`/JSON or STRUCT, so they **do not run at all today** (DF7); they need the `noUdfPath` gate mode and ideally runtime-built type objects in `scalar-function.ts`. The same blocker keeps `toJSON` off integer (DF11) and STRUCT columns |
+| **D. ~~blocked on the UDF type mapping~~ RUN AS UDFs (5)** | `cast`, `parseJSON`, `lookup`, `toGeoPoint`, `toGeoJSON` | **unblocked 2026-10-07** (DF7, DF21): all five run as UDFs, equal to `DataFrame`. An emission is now an optimisation, not a prerequisite - and `cast` needs none for parity, since it runs the Builder's own `coerceToType` |
 | **E. blocked on a design decision (5)** | `setTimezone`, `toTimeZone`, `toTimeZoneUsingLocation`, `lookupTimezone`, `timezoneToOffset` | blocked on the OFFSET-COLUMN DESIGN and **nothing else** — `icu` is already loaded (638 zones, DST-correct `AT TIME ZONE`, per-row offset idiom verified). `timezoneToOffset` also takes no date, so it means "right now" and is non-deterministic |
 
 **Also open: the date-fns format vocabulary** for `formatDate`/`toDate`'s custom-format branch — a
@@ -1138,24 +1153,27 @@ autoload, though `icu` and `inet` do.
 
 ## NEXT STEPS — what to run next, in priority order
 
-**START HERE (2026-09-30).** The storage-type and output work of 2026-09-28..30 (DF14-DF19 in
-`known-defects.md`) is done, tested and **UNCOMMITTED** - commit it first, in logical pieces: `Long` ->
-BIGINT; GeoJSON -> GEOMETRY; Tuple output; `SerializeOptions` renderer + engine output paths + numbers.
-Then, in order:
+**START HERE (2026-10-07).** Everything up to the UDF layer is committed or in the working tree and
+green. The UDF work of 2026-10-07 (DF1/2/4/5/7/11/20/21) is **UNCOMMITTED**; commit it as: the rename;
+`udf-types.ts` + adapter (types, result coercion, `cast`, array validations); `rows()` JSON fix; the gate
+and sweep changes; docs. What is left, in order - **items 1-3 are what Spaces will hit first**:
 
-1. **DF7, the UDF type layer.** Build DuckDB type objects from the field config (GEOMETRY, runtime
-   STRUCT/LIST, JSON for `Any`) and unwrap `DuckDBGeometryValue` (`wkbToGeoShape`) / `DuckDBStructValue`
-   inputs. **Never a `JSON.parse`** for GeoJSON - it is a GEOMETRY now. Unblocks `parseJSON`, `lookup`,
-   `toGeoPoint`, `toGeoJSON`; `cast` is `ProcessMode.NONE` and needs a CAST emission instead. Then drop
-   `noUdfPath` / `arrayOnly` from the gate so every geo/list emission is proved against a real UDF.
-2. **IP -> INET storage** - the same kind of choice GeoJSON was: VARCHAR today, `TRY_CAST(... AS INET)`
-   on every row of every IP query. Measure, then decide.
-3. **The timezone offset-column design** - unblocks the last 5 date functions.
-4. **Stacked `expand_values`** (`UNION ALL`, row survives when all lists are empty), then `deepSelect`.
-5. **Never emit `SELECT *`** from the planner (the one Parquet memory cliff).
-6. `isPostalCode`, then `expm1`/`log1p`.
+1. **Stacked `expand_values`** (`UNION ALL`, the row survives when every list is empty), then
+   `deepSelect`/`_skip_if_empty` - the two remaining CORE gaps (§THE REMAINING CORE GAPS).
+2. **Never emit `SELECT *`** from the planner - the one Parquet memory cliff. `rows()` itself still
+   selects `*` from the frame, so the planner must hand it a frame that already projects only the
+   referenced fields.
+3. **The timezone offset design** - `setTimezone`/`toTimeZone`/`toTimeZoneUsingLocation` run as UDFs
+   and keep the right INSTANT, but drop the display offset a `DateTuple` carries (`...01:02Z` where
+   `DataFrame` gives `...03:02+02:00`); §DATE + TIMEZONE has the five options. Decide before Spaces
+   exposes those directives.
+4. **IP -> INET storage** - VARCHAR today, `TRY_CAST(... AS INET)` per row per IP query. Measure, then
+   decide.
+5. **Concurrency under one `memory_limit`** (NEXT STEPS item 1 below) - still the highest-value unrun
+   measurement.
+6. `isPostalCode`, then `expm1`/`log1p`, then emissions for group D.
 
-Housekeeping: `TealFrame.ts` is 908 lines (over the 800 rule; it was 809 before) - split the class.
+Housekeeping: `TealFrame.ts` is 909 lines (over the 800 rule) - split the class.
 VARIANT is REJECTED for `Any` (DF16); do not revisit without a node binding that can write it.
 
 1. **CONCURRENCY — several jobs against ONE `memory_limit`. The highest-value unrun measurement.**
@@ -1282,9 +1300,9 @@ normally, and `no-console` should be disabled at file level with a reason rather
 | `PERFORMANCE.md` | **the measurement record.** §THE 2026-08-25 REPORT MEASUREMENTS is at the top and is the current one; it retires four earlier claims, each marked at its original site, and the older 1k-5M `DataFrame` comparison below it carries its own staleness warnings |
 | `sql-emission.md` | **the authority on what runs as SQL.** Read it before adding an emission |
 | `duckdb-parity.md` | **generated** — regenerate with `tools/parity/` (deterministic; needs data-mate's built `dist`), never hand-edit. Its divergences were measured against DuckDB's DEFAULT CASTS and must not be cited as "SQL cannot express our semantics"; §1 (type/coercion) and §3 (frame semantics) are unaffected |
-| `known-defects.md` | **CURRENT.** D1-D4 fixed and merged (PR #4515), D5 open by design; TealFrame defects are DF1, DF2, DF4-DF13 — **there is no DF3** |
+| `known-defects.md` | **CURRENT.** D1-D4 fixed and merged (PR #4515), D5 open by design; TealFrame defects are DF1, DF2, DF4-DF21 — **there is no DF3** |
 | `ingest-findings.md` | The transport measurement (Parquet vs ndjson vs dfjson on the wire) plus two lessons. 63 lines; the abandoned `read_json` design and its dangling validity index were removed |
-| `research/` | primary-source write-ups with URLs and quotes: `quack-protocol.md`, `client-udf-parallelism.md`, `macros.md`, `sql-function-coverage.md` |
+| `research/` | primary-source write-ups with URLs and quotes: `quack-protocol.md`, `client-udf-parallelism.md`, `macros.md`, `sql-function-coverage.md`; plus `postgres-backend.md`, the analysis of a second engine (not planned; a possible future feature) |
 | `s3-perf/` | the air-gapped S3 harness and the query fixtures; read `s3-perf/README.md` and `s3-perf/fixtures/README.md` |
 | `tools/` | **read `tools/README.md`**, which leads with the five `report-*` benches, the three memory probes, the latency proxy and the report generator. Everything runs with plain `node` |
 
