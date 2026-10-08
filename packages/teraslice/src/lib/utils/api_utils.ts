@@ -10,6 +10,10 @@ import {
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
 import type { SliceTapOptions } from '../cluster/services/interfaces.js';
 
+// Used to reduce request timeout length so timeout errors return
+// before api_response_timeout closes Teraslice API server socket
+export const HTTP_RESPONSE_MARGIN = 1000;
+
 export function makeTable(
     req: TerasliceRequest,
     defaults: string[],

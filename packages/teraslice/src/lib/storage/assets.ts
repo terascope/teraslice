@@ -15,9 +15,7 @@ import {
     findMatchingAsset, findSimilarAssets, toVersionQuery,
     getInCompatibilityReason
 } from '../utils/asset_utils.js';
-
-// Used to reduce API response timeouts so they return before the api server times outs
-const HTTP_RESPONSE_MARGIN = 1000;
+import { HTTP_RESPONSE_MARGIN } from '../utils/api_utils.js';
 
 function _metaIsUnique(backend: TerasliceElasticsearchStorage) {
     return async function checkMeta(meta: AssetMetadata): Promise<AssetMetadata> {
@@ -154,16 +152,31 @@ export class AssetsStorage {
      * Used by remove() so a partially deleted asset can still be found and cleaned up.
     */
     private async _assetExistsAnywhere(id: string): Promise<boolean> {
-        const notFoundIsFalse = (err: any) => {
-            if (err.statusCode === 404) return false;
-            throw err;
+        const NOT_FOUND = new Error('asset not found');
+
+        const requireTrue = async (check: Promise<boolean>) => {
+            if (!(await check)) throw NOT_FOUND;
+            return true;
         };
-        const [inFS, inES, inS3] = await Promise.all([
+
+        const checks = [
             this._assetExistsInFS(id),
-            this.esBackend.get(id, undefined, ['id']).then(() => true, notFoundIsFalse),
-            this.s3Backend?.exists(id) ?? false
-        ]);
-        return inFS || inES || inS3;
+            this.esBackend.get(id, undefined, ['id']).then(() => true),
+            this.s3Backend?.exists(id) ?? Promise.resolve(false)
+        ];
+
+        try {
+            // resolves on the first check that finds the asset
+            return await Promise.any(checks.map(requireTrue));
+        } catch (err) {
+            // every check rejected. A 404 or NOT_FOUND mean the check
+            // was false. Throw all other errors.
+            const realError = (err as AggregateError).errors.find(
+                (e) => e !== NOT_FOUND && e.statusCode !== 404
+            );
+            if (realError) throw realError;
+            return false;
+        }
     }
 
     /**
@@ -429,9 +442,11 @@ export class AssetsStorage {
                 await fse.remove(path.join(this.assetsPath, assetId));
                 // ES record is removed last so a failed delete leaves the asset
                 // listed in the API and a retry can find it
-                await this.esBackend.remove(assetId).catch((err) => {
+                try {
+                    await this.esBackend.remove(assetId);
+                } catch (err) {
                     if (err.statusCode !== 404) throw err;
-                });
+                }
 
                 if (!await this._assetExistsAnywhere(assetId)) return;
             } catch (err) {

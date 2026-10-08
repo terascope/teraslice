@@ -18,11 +18,10 @@ import type {
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';
 import { SliceTapOptions, StopExecutionOptions } from './interfaces.js';
+import { HTTP_RESPONSE_MARGIN } from '../../utils/api_utils.js';
 
 const MIN_SLICE_TAP_TIMEOUT = 30 * 1000;
-// the cluster master answers the HTTP request in-process, so it only
-// needs a small margin before api_response_timeout closes the socket
-const HTTP_RESPONSE_MARGIN = 1000;
+
 /**
  * New execution result
  * @typedef NewExecutionResult
