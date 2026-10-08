@@ -7,6 +7,7 @@ import {
 } from '@terascope/types';
 import { getChildDataTypeConfig } from '../core/utils.js';
 import { geoShapeToWKB } from './wkb.js';
+import { toDateOffsetValue } from './date-offset.js';
 
 /**
  * `DataTypeFieldConfig.type` is the enum OR the deprecated string union, and real configs
@@ -168,6 +169,11 @@ export interface ValueConverterOptions {
      * 128-bit `Long`.
     */
     wideIntegers?: boolean;
+    /**
+     * A `Date` result carries a display offset, so it goes into `STRUCT(ts, tz_offset)` with the
+     * `DateTuple`'s offset kept - see `date-offset.ts`.
+    */
+    dateOffset?: boolean;
 }
 
 /**
@@ -232,6 +238,7 @@ export function makeValueConverter(
     if (BIG_INT_TYPES.has(type)) return (value) => (value == null ? null : toBigInt(value, int64));
     if (SMALL_INT_TYPES.has(type)) return (value) => (value == null ? null : Number(value));
     if (DOUBLE_TYPES.has(type)) return (value) => (value == null ? null : Number(value));
+    if (type === FieldType.Date && options.dateOffset) return toDateOffsetValue;
     if (type === FieldType.Date) return (value) => (value == null ? null : toTimestamp(value));
 
     // GeoJSON is a GEOMETRY column, and the binding writes one only as WKB through a vector

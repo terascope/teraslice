@@ -4,6 +4,7 @@ import {
 } from '@terascope/types';
 import { getChildDataTypeConfig } from '../core/utils.js';
 import { parseJSONText } from './plain-values.js';
+import { renderPlainDateOffset } from './date-offset.js';
 
 /**
  * The output shape `rows()` cannot get from a value alone, because it depends on the CONFIG.
@@ -11,6 +12,9 @@ import { parseJSONText } from './plain-values.js';
  * `toPlainValue` turns every STRUCT into an object - right for an `Object`, wrong for a `Tuple`,
  * which is stored as `STRUCT("0" ..., "1" ...)` (a DuckDB LIST cannot hold positions of different
  * types) and which `DataFrame` yields as an ARRAY. Only the config says which STRUCT is which.
+ *
+ * A `Date` that carries a display offset is `STRUCT(ts, tz_offset)` and is rendered as
+ * `toISO8601` renders the `DateTuple` - see `date-offset.ts`.
  *
  * Likewise a JSON column - `Any`, or an `Object`/`Tuple` with no declared children - reaches JS as
  * its TEXT, and `DataFrame` yields the value. Without this `{x: 1}` came out as `'{"x":1}'` and
@@ -67,6 +71,8 @@ function elementShaper(
     childConfig?: DataTypeFields | ReadonlyDataTypeFields
 ): ValueShaper | undefined {
     if (isJSONColumn(type, childConfig)) return parseJSONText;
+    // a Date that carries an offset is a STRUCT; a plain one is already a string and passes
+    if (type === FieldType.Date) return renderPlainDateOffset;
     if (type === FieldType.Tuple) return tupleShaper(childConfig);
     return objectShaper(type, childConfig);
 }

@@ -10,6 +10,7 @@ import { getChildDataTypeConfig } from '../core/utils.js';
 import { wkbToGeoShape } from './wkb.js';
 import { parseJSONText } from './plain-values.js';
 import { isJSONColumn } from './row-shape.js';
+import { DATE_OFFSET_TYPE, fromDateOffsetValue } from './date-offset.js';
 
 /**
  * The DuckDB type OBJECTS a scalar function is registered with, and the conversion of what DuckDB
@@ -80,6 +81,11 @@ export interface UdfTypeOptions {
      * a stored column, which is a BIGINT.
     */
     wide?: boolean;
+    /**
+     * The `Date` carries a display offset, so it is `STRUCT(ts, tz_offset)` rather than a
+     * TIMESTAMP - see `date-offset.ts`. Applies to the field and its array elements.
+    */
+    dateOffset?: boolean;
 }
 
 /** The members of an Object or Tuple, by name; dotted descendants are folded into their parent. */
@@ -114,6 +120,7 @@ export function udfTypeFor(
     }
 
     if (options.wide && (type === FieldType.Long || type === FieldType.Integer)) return HUGEINT;
+    if (options.dateOffset && type === FieldType.Date) return DATE_OFFSET_TYPE;
 
     const mapped = SCALAR_TYPES[type];
     if (mapped == null) {
@@ -194,7 +201,8 @@ function structConverter(
 */
 export function makeInputConverter(
     field: FieldTypeLike | DataTypeFieldConfig,
-    childConfig?: Children
+    childConfig?: Children,
+    options: Pick<UdfTypeOptions, 'dateOffset'> = {}
 ): InputConverter {
     const fieldConfig: DataTypeFieldConfig = typeof field === 'string'
         ? { type: field as FieldType }
@@ -202,13 +210,16 @@ export function makeInputConverter(
     const type = fieldConfig.type as FieldTypeLike;
 
     if (fieldConfig.array) {
-        const element = makeInputConverter({ ...fieldConfig, array: false }, childConfig);
+        const element = makeInputConverter({ ...fieldConfig, array: false }, childConfig, options);
         return (value) => {
             const items = listItems(value);
             if (items == null) return value;
             return items.map((item) => (item == null ? item : element(item)));
         };
     }
+
+    // the `DateTuple` itself, so the date primitives read the offset as they do in `DataFrame`
+    if (type === FieldType.Date && options.dateOffset) return fromDateOffsetValue;
 
     if (type === FieldType.Date) {
         return (value) => (value instanceof DuckDBTimestampValue

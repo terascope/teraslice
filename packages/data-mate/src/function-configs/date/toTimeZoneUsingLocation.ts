@@ -23,6 +23,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig<TimeZoneUsingLo
     name: 'toTimeZoneUsingLocation',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    produces_date_offset: true,
     category: FunctionDefinitionCategory.DATE,
     description: 'Converts a value to local time',
     examples: [

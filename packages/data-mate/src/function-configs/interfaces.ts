@@ -289,6 +289,13 @@ export interface FieldTransformConfig<
         args: T
     ) => DataTypeFieldAndChildren;
     readonly create: (config: FunctionContext<T>) => (value: unknown, index: number) => unknown;
+    /**
+     * Set when the function returns a `DateTuple` - `[epochMillis, offsetMinutes]` - rather than
+     * plain epoch millis: `setTimezone`, `toTimeZone`, `toTimeZoneUsingLocation`. `DataFrame` keeps
+     * the offset in the vector; TealFrame has to know in advance, because the column it writes is
+     * then `STRUCT(ts, tz_offset)` instead of a TIMESTAMP. See `teal-frame/date-offset.ts`.
+    */
+    readonly produces_date_offset?: boolean;
 }
 
 export interface FieldMetaTransform<
@@ -334,6 +341,13 @@ export interface OutputType<T> {
 export interface DataTypeFieldAndChildren {
     readonly field_config: Readonly<DataTypeFieldConfig>;
     readonly child_config?: ReadonlyDataTypeFields;
+    /**
+     * TealFrame only: the `Date` column's values carry a display offset, so it is stored as
+     * `STRUCT(ts, tz_offset)` - see `teal-frame/date-offset.ts`. `tealFrameAdapter` sets it on the
+     * config it returns, and the caller passes that config on as the next step's input, as it
+     * already does. `DataFrame` needs no flag: its vector holds the `DateTuple` itself.
+    */
+    readonly date_offset?: boolean;
 }
 
 // TODO: verify this type

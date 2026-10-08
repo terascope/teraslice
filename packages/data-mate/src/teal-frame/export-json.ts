@@ -1,6 +1,7 @@
 import { DataTypeConfig, ReadonlyDataTypeConfig, DataTypeFields, FieldType } from '@terascope/types';
 import { quoteIdentifier, quoteLiteral } from '@terascope/sql-builder';
 import { SerializeOptions } from '../vector/interfaces.js';
+import { dateOffsetJson } from './date-offset.js';
 
 /**
  * Builds the SQL that renders a frame's rows as JSON **byte-identical to what `DataFrame`
@@ -89,6 +90,8 @@ interface FieldNode {
     name: string;
     type: string;
     isArray: boolean;
+    /** A `Date` stored as `STRUCT(ts, tz_offset)` - see `date-offset.ts`. */
+    dateOffset?: boolean;
     children?: Record<string, FieldNode>;
 }
 
@@ -99,7 +102,10 @@ interface FieldNode {
  * nested, and needs to recurse - a `Date` three levels down is still rendered SQL-shaped by
  * `to_json` and still has to be corrected.
 */
-function buildTree(fields: DataTypeFields): Record<string, FieldNode> {
+function buildTree(
+    fields: DataTypeFields,
+    dateOffsetColumns: ReadonlySet<string> = new Set()
+): Record<string, FieldNode> {
     const tree: Record<string, FieldNode> = {};
 
     for (const [path, config] of Object.entries(fields)) {
@@ -116,6 +122,7 @@ function buildTree(fields: DataTypeFields): Record<string, FieldNode> {
         if (node) {
             node.type = String(config.type);
             node.isArray = config.array === true;
+            node.dateOffset = parts.length === 1 && dateOffsetColumns.has(path);
         }
     }
 
@@ -423,6 +430,7 @@ class Renderer {
 
     /** One scalar - or an undeclared object, `Any` or shape, written as it is stored. */
     private leaf(node: FieldNode, accessor: string): string {
+        if (node.type === FieldType.Date && node.dateOffset) return dateOffsetJson(accessor);
         if (node.type === FieldType.Date) {
             // toISO8601, not DuckDB's SQL rendering; strftime of NULL is NULL
             return `to_json(strftime(${accessor}, ${quoteLiteral(ISO8601)}))::VARCHAR`;
@@ -464,9 +472,10 @@ class Renderer {
 export function buildJsonListElements(
     config: DataTypeConfig | ReadonlyDataTypeConfig,
     column: string,
-    options: JsonExportOptions = {}
+    options: JsonExportOptions = {},
+    dateOffsetColumns?: ReadonlySet<string>
 ): { sql: string; isObject: boolean } {
-    const node = buildTree((config.fields ?? {}) as DataTypeFields)[column];
+    const node = buildTree((config.fields ?? {}) as DataTypeFields, dateOffsetColumns)[column];
     if (node == null || !node.isArray) {
         throw new TypeError(`Column "${column}" is not a list in this frame's config`);
     }
@@ -490,9 +499,10 @@ export function buildJsonRowFilter(
 
 export function buildJsonExpression(
     config: DataTypeConfig | ReadonlyDataTypeConfig,
-    options: JsonExportOptions = {}
+    options: JsonExportOptions = {},
+    dateOffsetColumns?: ReadonlySet<string>
 ): string {
-    const tree = buildTree((config.fields ?? {}) as DataTypeFields);
+    const tree = buildTree((config.fields ?? {}) as DataTypeFields, dateOffsetColumns);
     if (Object.keys(tree).length === 0) {
         throw new TypeError('A DataType config must declare at least one field');
     }

@@ -7,6 +7,7 @@
  * `registerScalarFunction` and `closeDuckDatabase` instead.
 */
 export * from './clauses.js';
+export * from './date-offset.js';
 export * from './database.js';
 export * from './TealFrame.js';
 export * from './duck-values.js';

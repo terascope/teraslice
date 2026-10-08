@@ -1,4 +1,6 @@
-import { DataTypeConfig, SQLDialectName, SQLSearchParams } from '@terascope/types';
+import {
+    DataTypeConfig, FieldType, SQLDialectName, SQLSearchParams
+} from '@terascope/types';
 import { DataType } from '@terascope/data-types';
 import {
     getSQLDialect, groupByClause, quoteIdentifier,
@@ -16,6 +18,7 @@ import {
     resolveRules
 } from './export-json.js';
 import { makeRowShapers } from './row-shape.js';
+import { isDateOffsetType } from './date-offset.js';
 import { int64Column } from './parquet-columns.js';
 import { distinctLines, parseLines, writeLines } from './line-stream.js';
 import {
@@ -774,7 +777,7 @@ export class TealFrame {
             return;
         }
         await this.ctx.run(
-            `COPY (${this.jsonLinesSQL(options)}) TO ${quoteLiteral(path)}`
+            `COPY (${await this.jsonLinesSQL(options)}) TO ${quoteLiteral(path)}`
             + ' (FORMAT CSV, HEADER false, QUOTE \'\', ESCAPE \'\', DELIMITER \'\u0007\')'
         );
     }
@@ -790,19 +793,44 @@ export class TealFrame {
      * Byte-identical to `writeNDJSON` - both are the same projection.
     */
     ndjson(options: JsonExportOptions = {}): AsyncIterableIterator<string> {
-        const lines = this.ctx.streamColumnStrings(this.jsonLinesSQL(options));
+        const lines = this.jsonLines(options);
         return resolveRules(options).skipDuplicateObjects ? distinctLines(lines) : lines;
+    }
+
+    private async* jsonLines(options: JsonExportOptions): AsyncIterableIterator<string> {
+        yield* this.ctx.streamColumnStrings(await this.jsonLinesSQL(options));
     }
 
     /**
      * One JSON line per row, as `DataFrame.toJSON` renders it with the same options - minus the
      * rows `skipEmptyObjects` drops, which render as NULL. See `export-json.ts`.
     */
-    private jsonLinesSQL(options: JsonExportOptions): string {
-        const expression = buildJsonExpression(this.config, options);
+    private async jsonLinesSQL(options: JsonExportOptions): Promise<string> {
+        const expression = buildJsonExpression(
+            this.config, options, await this.dateOffsetColumns()
+        );
         const filter = buildJsonRowFilter(this.config, options);
         return `SELECT ${expression} AS json FROM ${this.from}`
             + (filter ? ` WHERE ${filter}` : '');
+    }
+
+    /**
+     * The `Date` columns that carry a display offset, and so are `STRUCT(ts, tz_offset)` rather
+     * than a TIMESTAMP - see `date-offset.ts`. Read from the column TYPES, because the frame's
+     * config says `Date` either way; asked only when the config has a top-level `Date` at all, so
+     * every other export pays nothing.
+    */
+    private async dateOffsetColumns(): Promise<ReadonlySet<string>> {
+        const fields = Object.entries(this.config.fields ?? {});
+        const hasDate = fields.some(([name, field]) => (
+            !name.includes('.') && field.type === FieldType.Date
+        ));
+        if (!hasDate) return new Set();
+
+        const columns = await this.ctx.columnTypes(`SELECT * FROM ${this.from}`);
+        return new Set(columns
+            .filter(({ type }) => isDateOffsetType(type))
+            .map(({ name }) => name));
     }
 
     /**
@@ -850,7 +878,9 @@ export class TealFrame {
         if (rules.skipDuplicateObjects) {
             throw new Error('ListVector->getIterator is incompatible with skipDuplicateObjects');
         }
-        const { sql, isObject } = buildJsonListElements(this.config, column, options);
+        const { sql, isObject } = buildJsonListElements(
+            this.config, column, options, await this.dateOffsetColumns()
+        );
         const nilValue = rules.useNullForUndefined ? null : undefined;
         const skipNil = rules.skipNilListValues || (isObject && rules.skipNilObjectValues);
 
