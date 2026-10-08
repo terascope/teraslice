@@ -26,7 +26,7 @@ decide deliberately whether `docs/` ships to master or is dropped from the final
 | how Jared works | §3 |
 
 Also here: `duckdb-parity.md` (generated; read its top banner first), `known-defects.md` (D1-D6 and
-DF1, DF2, DF4-DF21 — **there is no DF3**), `ingest-findings.md` (read its VALIDITY INDEX first),
+DF1, DF2, DF4-DF22 — **there is no DF3**), `ingest-findings.md` (read its VALIDITY INDEX first),
 `research/`, `tools/` (see `tools/README.md`).
 
 ---
@@ -41,8 +41,8 @@ If you read nothing else, read this and §0.
 `fromSQL`, `searchParams`)**, query
 (`select`/`filter`/`join`/`orderBy`/`limit`/`distinct`/`materialize`/`size`), output (`rows`,
 `ndjson`, `writeNDJSON`, `writeParquet`), and `tealFrameAdapter` driving the same
-`FunctionDefinitionConfig`s as `dataFrameAdapter`. **51 data-mate suites / 4,400 tests passing,
-verified 2026-10-07** (plus `data-types` 32 / 198 and `sql-builder` 2 / 66 as of 2026-09-28;
+`FunctionDefinitionConfig`s as `dataFrameAdapter`. **52 data-mate suites / 4,716 tests passing,
+verified 2026-10-08** (plus `data-types` 32 / 198 and `sql-builder` 2 / 66 as of 2026-09-28;
 `xlucene-translator`'s 174 failures are all OpenSearch-only suites with no cluster configured).
 
 **RENAMED: DuckFrame is now `TealFrame`** (`src/teal-frame/`, `tealFrameAdapter`), over trademark
@@ -153,7 +153,7 @@ concurrent appends does nothing; a macro can shadow a built-in; TIMESTAMPTZ rend
 zone; RE2 has no lookaround; **`memory_limit` does not bound process RSS** (Parquet's RSS was ~5 GB
 under a 1 GiB limit).
 
-**Defects in `known-defects.md`** (DF1, DF2, DF4-DF21; open: DF6, DF8, DF9, DF12, DF13). Three deserve tickets: **DF8** (geo-utils
+**Defects in `known-defects.md`** (DF1, DF2, DF4-DF22; open: DF6, DF8, DF9, DF12, DF13). Three deserve tickets: **DF8** (geo-utils
 calls a shape not-contained when it merely TOUCHES a hole), **DF9** (`isBase64` rejects 99.3% of
 valid base64), **DF6** (`addToDate` answers differently per server timezone).
 
@@ -595,7 +595,15 @@ went 13-of-16 to 2, and those 2 are the offset-display question below.
   `maxTempDirectorySize`, `memoryLimit`, `threads` only), so `SET TimeZone='UTC'` becomes mandatory the
   moment timezone work moves into SQL.
 
-**STILL OPEN: the offset question, separate from the defect.** `setTimezone`/`toTimeZone`/
+**RESOLVED 2026-10-08 - the offset now travels with the column (DF22).** An offset-carrying `Date`
+is stored as `STRUCT(ts TIMESTAMP, tz_offset SMALLINT)` - option 4 below, but ONLY for a column one
+of the three producers wrote, flagged `date_offset` on the adapter's `DataTypeFieldAndChildren`, so
+every other `Date` stays a TIMESTAMP and none of 4's objections apply to it. Date UDFs receive the
+real `DateTuple`, date emissions step aside for the UDF, and `rows()`/`ndjson()` render `+HH:MM`.
+Pinned against `DataFrame` for 6 producers x every date function in `timezone-offset-spec.ts`
+(316 tests; 121 of 250 chains differed before). The analysis below is kept as the record.
+
+**WAS OPEN: the offset question, separate from the defect.** `setTimezone`/`toTimeZone`/
 `toTimeZoneUsingLocation` return a `DateTuple [millis, offsetMinutes]` and `toTimestamp` keeps only
 the millis, so `setTimezone({timezone: 120})` gives `2026-08-14T01:02:03.456Z` where `DataFrame` gives
 `2026-08-14T03:02:03.456+02:00` — **the same INSTANT**, losing only the user's display directive.
@@ -869,7 +877,7 @@ for ONE branch of a four-branch function (`formatDate`, `toDate`).
 | **B. mechanical but large (1)** | `isPostalCode` | ~60 per-country patterns with `'any'` trying all. A question of size, not risk |
 | **C. possible, low value (2)** | `expm1`, `log1p` | `exp(x)-1` is wrong by 8 significant digits at `1e-12` and by ~1e-11 relative at 1e-5..1e-3, so a real emission needs a wide Taylor window and `approximate: true` |
 | **D. ~~blocked on the UDF type mapping~~ RUN AS UDFs (5)** | `cast`, `parseJSON`, `lookup`, `toGeoPoint`, `toGeoJSON` | **unblocked 2026-10-07** (DF7, DF21): all five run as UDFs, equal to `DataFrame`. An emission is now an optimisation, not a prerequisite - and `cast` needs none for parity, since it runs the Builder's own `coerceToType` |
-| **E. blocked on a design decision (5)** | `setTimezone`, `toTimeZone`, `toTimeZoneUsingLocation`, `lookupTimezone`, `timezoneToOffset` | blocked on the OFFSET-COLUMN DESIGN and **nothing else** — `icu` is already loaded (638 zones, DST-correct `AT TIME ZONE`, per-row offset idiom verified). `timezoneToOffset` also takes no date, so it means "right now" and is non-deterministic |
+| **E. ~~blocked on a design decision~~ RUN AS UDFs (5)** | `setTimezone`, `toTimeZone`, `toTimeZoneUsingLocation`, `lookupTimezone`, `timezoneToOffset` | **the offset design is DONE (DF22, 2026-10-08)**: the three producers write `STRUCT(ts, tz_offset)` through their UDF, equal to `DataFrame`. An emission would have to build that struct; `lookupTimezone` returns a name and `timezoneToOffset` takes no date ("right now", non-deterministic), so neither has an offset question |
 
 **Also open: the date-fns format vocabulary** for `formatDate`/`toDate`'s custom-format branch — a
 token-translation TABLE with an `applies` that declines unknown tokens, not an open-ended parser
@@ -1163,10 +1171,10 @@ and sweep changes; docs. What is left, in order - **items 1-3 are what Spaces wi
 2. **Never emit `SELECT *`** from the planner - the one Parquet memory cliff. `rows()` itself still
    selects `*` from the frame, so the planner must hand it a frame that already projects only the
    referenced fields.
-3. **The timezone offset design** - `setTimezone`/`toTimeZone`/`toTimeZoneUsingLocation` run as UDFs
-   and keep the right INSTANT, but drop the display offset a `DateTuple` carries (`...01:02Z` where
-   `DataFrame` gives `...03:02+02:00`); §DATE + TIMEZONE has the five options. Decide before Spaces
-   exposes those directives.
+3. ~~**The timezone offset design**~~ **DONE 2026-10-08 (DF22).** The planner must thread the
+   adapter's `outputConfig` - which now carries `date_offset` - into the next step, as it already
+   does for the type; after a Parquet hand-off it re-derives the flag with `isDateOffsetType` on the
+   column's type. See DF22 for what an offset column does NOT support (a SQL predicate on it).
 4. **IP -> INET storage** - VARCHAR today, `TRY_CAST(... AS INET)` per row per IP query. Measure, then
    decide.
 5. **Concurrency under one `memory_limit`** (NEXT STEPS item 1 below) - still the highest-value unrun
@@ -1300,7 +1308,7 @@ normally, and `no-console` should be disabled at file level with a reason rather
 | `PERFORMANCE.md` | **the measurement record.** §THE 2026-08-25 REPORT MEASUREMENTS is at the top and is the current one; it retires four earlier claims, each marked at its original site, and the older 1k-5M `DataFrame` comparison below it carries its own staleness warnings |
 | `sql-emission.md` | **the authority on what runs as SQL.** Read it before adding an emission |
 | `duckdb-parity.md` | **generated** — regenerate with `tools/parity/` (deterministic; needs data-mate's built `dist`), never hand-edit. Its divergences were measured against DuckDB's DEFAULT CASTS and must not be cited as "SQL cannot express our semantics"; §1 (type/coercion) and §3 (frame semantics) are unaffected |
-| `known-defects.md` | **CURRENT.** D1-D4 fixed and merged (PR #4515), D5 open by design; TealFrame defects are DF1, DF2, DF4-DF21 — **there is no DF3** |
+| `known-defects.md` | **CURRENT.** D1-D4 fixed and merged (PR #4515), D5 open by design; TealFrame defects are DF1, DF2, DF4-DF22 — **there is no DF3** |
 | `ingest-findings.md` | The transport measurement (Parquet vs ndjson vs dfjson on the wire) plus two lessons. 63 lines; the abandoned `read_json` design and its dangling validity index were removed |
 | `research/` | primary-source write-ups with URLs and quotes: `quack-protocol.md`, `client-udf-parallelism.md`, `macros.md`, `sql-function-coverage.md`; plus `postgres-backend.md`, the analysis of a second engine (not planned; a possible future feature) |
 | `s3-perf/` | the air-gapped S3 harness and the query fixtures; read `s3-perf/README.md` and `s3-perf/fixtures/README.md` |

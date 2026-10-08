@@ -773,3 +773,30 @@ Fixed by `adaptTypeChange`: where the type, array-ness or children change, a UDF
 Number and an Object with typed children in `udf-types-spec.ts`. Needed DF7 first, since `cast` to or
 from an Object, Any or GeoPoint has a STRUCT or JSON on one side.
 
+### DF22. A `DateTuple`'s display offset was dropped — FIXED 2026-10-08
+
+`setTimezone`, `toTimeZone` and `toTimeZoneUsingLocation` return `[epochMillis, offsetMinutes]`, and
+`DataFrame` keeps the offset in the vector: the output renders in local time
+(`2023-08-22T17:41:50.172+02:00`), and every later date function reads it - `getHours` answers in local
+hours, `isWednesday` decides by the local day, `formatDate` prints the local date, `addToDate` works on
+local wall time. TealFrame stored a TIMESTAMP, kept the instant and dropped the offset: **121 of 250**
+producer -> date-function chains differed; that sweep is now `test/teal-frame/timezone-offset-spec.ts`.
+
+**The fix (`src/teal-frame/date-offset.ts`):** a column one of the three wrote is stored as
+`STRUCT(ts TIMESTAMP, tz_offset SMALLINT)`; every other `Date` stays a TIMESTAMP. The three configs
+declare `produces_date_offset`, and `tealFrameAdapter` sets `date_offset` on the
+`DataTypeFieldAndChildren` it returns - kept by a validation (which passes the column through) and by a
+`cast` that stays a Date, cleared by any function returning a plain date. On a flagged column every date
+SQL emission declines and the UDF runs, handed the real `DateTuple`; `rows()`, `ndjson()`,
+`writeNDJSON()` and `listValues()` render it exactly as `toISO8601` does (`Z` for an offset of 0). The
+struct survives `writeParquet` -> `fromParquet` and still renders, since output reads the column TYPE.
+All 316 checks equal `DataFrame`, including `Date[]` columns and a chain through a validation.
+
+**What an offset column does NOT do**, deliberately left alone:
+- **A SQL predicate on it** - an xLucene filter or `filter('d > ...')` - fails to bind (`STRUCT` vs
+  `TIMESTAMP`). Filters run before directives in Spaces, so none is expected; if one is needed, compare
+  `d.ts`.
+- **The flag is not in the frame's config.** The adapter's caller threads it; after a Parquet hand-off
+  it is re-derived from the column type with `isDateOffsetType`.
+- **`ORDER BY` on it** orders by the instant, then the offset.
+
