@@ -1,14 +1,14 @@
 /**
  * What a CHECKPOINT buys, per operation: two comparison sweeps, differenced.
  *
- * The comparison harness measures DuckFrame with its tables `Uncompressed` (the state an in-memory
+ * The comparison harness measures TealFrame with its tables `Uncompressed` (the state an in-memory
  * DuckDB table is in until a checkpoint) or compressed (`CHECKPOINT=1`). Neither run alone answers
  * "should the worker checkpoint" - the answer is per OPERATION, and it is the ratio between them:
  *
  *     cd packages/data-mate && pnpm build
- *     RESULTS=bench/comparison/.plain.json ENGINES=duckframe \
+ *     RESULTS=bench/comparison/.plain.json ENGINES=tealframe \
  *         SCALES=100000,1000000,5000000 node bench/comparison/sweep.js
- *     RESULTS=bench/comparison/.ckpt.json  ENGINES=duckframe CHECKPOINT=1 \
+ *     RESULTS=bench/comparison/.ckpt.json  ENGINES=tealframe CHECKPOINT=1 \
  *         SCALES=100000,1000000,5000000 node bench/comparison/sweep.js
  *     node docs/tools/bench/checkpoint-payback.mjs
  *

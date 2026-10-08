@@ -34,7 +34,7 @@
 import { rm, mkdir, stat, writeFile, readdir, copyFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { duckdb, duckFrame, heading, note } from '../lib/duck.mjs';
+import { duckdb, tealFrame, heading, note } from '../lib/duck.mjs';
 
 const SCALES = (process.env.SCALES || '1000000,10000000,100000000').split(',').map(Number);
 /** Payload-size sweep, run at this scale only - it is the axis that decides everything. */
@@ -47,7 +47,7 @@ const ROOT = process.env.ROOT || '/tmp/duck-ingest';
 const OUT = process.env.OUT || new URL('../results/ingest.json', import.meta.url).pathname;
 
 const { DuckDBInstance } = await duckdb();
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
@@ -142,7 +142,7 @@ async function producePayloads(dir, rows, payloadRows) {
     const start = performance.now();
     while (made < rows) {
         const take = Math.min(payloadRows, rows - made);
-        const frame = await DuckFrame.create(CONFIG, { name: `p${n}`, database: db });
+        const frame = await TealFrame.create(CONFIG, { name: `p${n}`, database: db });
         await frame.append({ records: makeRecords(take, made + 1) });
         await frame.writeParquet(join(dir, `part-${String(n).padStart(5, '0')}.parquet`));
         await frame.destroy();
@@ -159,7 +159,7 @@ async function producePayloads(dir, rows, payloadRows) {
 /** A. append each payload into ONE table, then checkpoint at quiesce. */
 async function pathAppend(payloadDir, files, dbPath) {
     for (const p of [dbPath, `${dbPath}.wal`]) if (existsSync(p)) await rm(p, { force: true });
-    const frame = await DuckFrame.create(CONFIG, { name: 'assembled', database: dbPath });
+    const frame = await TealFrame.create(CONFIG, { name: 'assembled', database: dbPath });
     await frame.query(`SET memory_limit = '${MEMORY_LIMIT}'`);
     // Suppress automatic checkpointing DURING ingest: it charges compression to ingest and leaves
     // the table half-compressed, so the final checkpoint pays to finish a mixed table. Measured at

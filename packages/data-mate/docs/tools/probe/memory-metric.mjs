@@ -22,7 +22,7 @@ import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { duckdb, duckFrame, heading, note } from '../lib/duck.mjs';
+import { duckdb, tealFrame, heading, note } from '../lib/duck.mjs';
 
 const run = promisify(execFile);
 const ROWS = Number(process.env.ROWS || 10_000_000);
@@ -83,7 +83,7 @@ if (MODE) {
     try {
         if (kind === 'native') {
             await connection.run(`ATTACH '${DB}' AS nat (READ_ONLY)`);
-            // DuckFrame.create uniquifies the table name, so ask the catalogue rather than assume
+            // TealFrame.create uniquifies the table name, so ask the catalogue rather than assume
             const tbl = (await (await connection.run(
                 "SELECT table_name FROM duckdb_tables() WHERE database_name = 'nat' LIMIT 1"
             )).getRowsJson())[0][0];
@@ -118,12 +118,12 @@ heading(`WHAT duckdb_memory() MEASURES — ${ROWS.toLocaleString()} rows`);
 
 await mkdir(ROOT, { recursive: true });
 if (!existsSync(DB) || !existsSync(PQ)) {
-    const { DuckFrame, closeDuckDatabase } = await duckFrame();
+    const { TealFrame, closeDuckDatabase } = await tealFrame();
     const { CONFIG, makeRecords } = await import(
         new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
     );
     for (const p of [DB, `${DB}.wal`, PQ]) if (existsSync(p)) await rm(p, { force: true });
-    const frame = await DuckFrame.create(CONFIG, { name: 'corpus', database: DB });
+    const frame = await TealFrame.create(CONFIG, { name: 'corpus', database: DB });
     let built = 0;
     while (built < ROWS) {
         const take = Math.min(100_000, ROWS - built);

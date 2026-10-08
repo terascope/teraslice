@@ -7,7 +7,7 @@
  * error rather than a slow path. See `docs/sql-emission.md`.
  *
  * Every expression here was differenced against `@terascope/ip-utils` over a 78-input battery by
- * `docs/tools/probe/ip-semantics.mjs`, and `test/duck-frame/sql-emission-spec.ts` is the gate. The
+ * `docs/tools/probe/ip-semantics.mjs`, and `test/teal-frame/sql-emission-spec.ts` is the gate. The
  * three places the two disagree, and what each guard does about it, are stated on the guard itself.
 */
 

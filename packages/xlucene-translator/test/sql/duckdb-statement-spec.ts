@@ -96,7 +96,7 @@ describe('sql statements (duckdb)', () => {
 
     describe('the relation', () => {
         /**
-         * **The duck-frame case.** The rows live in Parquet files rather than a table, and no
+         * **The teal-frame case.** The rows live in Parquet files rather than a table, and no
          * identifier can name them - so the source is an expression the caller writes and this
          * uses verbatim.
         */

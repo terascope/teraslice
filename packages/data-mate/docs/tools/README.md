@@ -14,7 +14,7 @@ given up and hardcoded an absolute path into the pnpm store. They now go through
 **`lib/duck.mjs`**, which resolves the binding — and the built `dist` — out of the repo's own
 install.
 
-**Anything touching the real `DuckFrame` needs the build first:**
+**Anything touching the real `TealFrame` needs the build first:**
 
 ```bash
 cd packages/data-mate && npx tsc -b
@@ -24,7 +24,7 @@ cd packages/data-mate && npx tsc -b
 
 | | what is in it |
 |---|---|
-| `lib/duck.mjs` | the shared harness: `duckdb()`, `open()`, `duckFrame()`, `dataMate()`, timing helpers, and the **envelope** constants |
+| `lib/duck.mjs` | the shared harness: `duckdb()`, `open()`, `tealFrame()`, `dataMate()`, timing helpers, and the **envelope** constants |
 | `bench/` | performance. The things to re-run when something changes |
 | `probe/` | behaviour questions, each already answered — the script is the evidence |
 | `parity/` | the generator behind `docs/duckdb-parity.md`. Deterministic; do not hand-edit its output |

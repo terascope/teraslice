@@ -9,7 +9,7 @@ import { DuckDBInstance } from '@duckdb/node-api';
 import { DataFrame } from '@terascope/data-mate';
 import {
     buildIngestSql, buildFailureCountSql, buildFailureDiagnosisSql, buildDropFailureColumnSql
-} from '@terascope/data-mate/dist/src/duck-frame/ingest-sql.js';
+} from '@terascope/data-mate/dist/src/teal-frame/ingest-sql.js';
 
 const ROWS = Number(process.argv[2] ?? 1_000_000);
 const REPS = Number(process.argv[3] ?? 3);

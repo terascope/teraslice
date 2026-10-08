@@ -12,8 +12,8 @@ import { writeFileSync, statSync, readFileSync } from 'node:fs';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import { DuckDBInstance } from '@duckdb/node-api';
 import { DataFrame } from '@terascope/data-mate';
-import { prepareObjectIngest, serializeRecords } from '@terascope/data-mate/dist/src/duck-frame/object-ingest.js';
-import { buildFailureCountSql } from '@terascope/data-mate/dist/src/duck-frame/ingest-sql.js';
+import { prepareObjectIngest, serializeRecords } from '@terascope/data-mate/dist/src/teal-frame/object-ingest.js';
+import { buildFailureCountSql } from '@terascope/data-mate/dist/src/teal-frame/ingest-sql.js';
 
 const ROWS = Number(process.argv[2] ?? 1_000_000);
 const REPS = Number(process.argv[3] ?? 3);

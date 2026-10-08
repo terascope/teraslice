@@ -1,5 +1,5 @@
 /**
- * The spaces query lifecycle, end to end, as it runs today versus on DuckFrame.
+ * The spaces query lifecycle, end to end, as it runs today versus on TealFrame.
  *
  * This is the only section that measures the SYSTEM rather than an operation, and it is the one
  * that answers "what would change if we switched". The flow is docs/HANDOFF.md §0.0:
@@ -9,7 +9,7 @@
  *
  * **Today** the api-server builds a `DataFrame` and `serialize()`s it to dfjson; the worker
  * `deserialize`s each payload, `appendAll`s them, and runs the query in JS.
- * **On DuckFrame** the api-server writes Parquet+zstd; the worker `append`s the payloads into one
+ * **On TealFrame** the api-server writes Parquet+zstd; the worker `append`s the payloads into one
  * table and the whole query is one SQL statement.
  *
  * Both legs do the same five things and are checked against each other's row counts. The fetch
@@ -22,7 +22,7 @@ const PAYLOADS = Number(process.env.PAYLOADS || 5);
 
 export async function lifecycle(ctx) {
     const {
-        DataFrame, DuckFrame, config, makeRecords, SCALES, tmp, measure, label, line, heading,
+        DataFrame, TealFrame, config, makeRecords, SCALES, tmp, measure, label, line, heading,
         runsFor,
     } = ctx;
 
@@ -35,9 +35,9 @@ export async function lifecycle(ctx) {
     */
     const samples = (scale) => ({ runs: runsFor(scale) });
 
-    heading(`Spaces lifecycle: today (DataFrame + dfjson) vs DuckFrame + Parquet`);
+    heading(`Spaces lifecycle: today (DataFrame + dfjson) vs TealFrame + Parquet`);
     line(`  ${PAYLOADS} payloads per query, assembled then queried\n`);
-    line(`  ${'scale'.padEnd(8)}${'stage'.padEnd(30)}${'today'.padStart(12)}${'DuckFrame'.padStart(12)}`);
+    line(`  ${'scale'.padEnd(8)}${'stage'.padEnd(30)}${'today'.padStart(12)}${'TealFrame'.padStart(12)}`);
 
     const results = [];
 
@@ -60,7 +60,7 @@ export async function lifecycle(ctx) {
         const producerDuck = await measure(async () => {
             payloads = [];
             for (const [n, batch] of batches.entries()) {
-                const frame = await DuckFrame.fromRecords(config, batch, {});
+                const frame = await TealFrame.fromRecords(config, batch, {});
                 const file = tmp(`lc-${scale}-${n}`);
                 await frame.writeParquet(file);
                 await frame.destroy();
@@ -70,7 +70,7 @@ export async function lifecycle(ctx) {
         }, samples(scale));
 
         // ---------------------------------------------------- WORKER: assemble
-        // Today the worker must deserialize every payload and append them; on DuckFrame it
+        // Today the worker must deserialize every payload and append them; on TealFrame it
         // inserts Parquet into one table with no coercion at all.
         const wire = batches.map((batch) => DataFrame.fromJSON(config, batch).serialize());
 
@@ -80,7 +80,7 @@ export async function lifecycle(ctx) {
         }, samples(scale));
 
         const assembleDuck = await measure(async () => {
-            const frame = await DuckFrame.create(config, {});
+            const frame = await TealFrame.create(config, {});
             await Promise.all(payloads.map((file) => frame.append({ parquet: file })));
             const rows = await frame.size();
             await frame.destroy();
@@ -88,7 +88,7 @@ export async function lifecycle(ctx) {
         }, samples(scale));
 
         // ---------------------------------------------------- WORKER: query
-        // filter -> aggregate -> sort, then read the answer. On DuckFrame that is ONE statement;
+        // filter -> aggregate -> sort, then read the answer. On TealFrame that is ONE statement;
         // on DataFrame it is three passes, each materialising a new frame.
         const assembledToday = await (async () => {
             try {
@@ -112,7 +112,7 @@ export async function lifecycle(ctx) {
         }, samples(scale));
 
         const assembledDuck = await (async () => {
-            const frame = await DuckFrame.create(config, {});
+            const frame = await TealFrame.create(config, {});
             for (const file of payloads) await frame.append({ parquet: file });
             return frame;
         })();

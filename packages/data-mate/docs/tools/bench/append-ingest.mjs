@@ -1,5 +1,5 @@
 /**
- * INGEST, end to end, through the real `DuckFrame` - both tiers.
+ * INGEST, end to end, through the real `TealFrame` - both tiers.
  *
  * The flow being measured (docs/HANDOFF.md §0.0):
  *
@@ -29,9 +29,9 @@
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { unlinkSync, existsSync, statSync } from 'node:fs';
-import { duckFrame, since, rate, heading, note } from '../lib/duck.mjs';
+import { tealFrame, since, rate, heading, note } from '../lib/duck.mjs';
 
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 
 /**
  * `DB=/tmp/x.db` measures the FILE-backed path instead of in-memory.
@@ -63,7 +63,7 @@ const MODES = (process.env.MODES || 'default,auto-off').split(',').map((s) => s.
  * worth ~3x when all payloads go into ONE append. That reads as an interaction: 40 separate
  * statements each order 50k rows, which is cheap, while one statement must establish a total order
  * across every file. But that ~3x came from a cell that ALSO dropped BEGIN/COMMIT, so it is an
- * inference, not a measurement. This cross isolates it - `DuckFrame.append` always wraps its work in
+ * inference, not a measurement. This cross isolates it - `TealFrame.append` always wraps its work in
  * a transaction, so running through it holds that constant at what ships.
  *
  * **Why it is a legitimate thing to turn off.** The worker's fetches land in whatever order they
@@ -108,7 +108,7 @@ try {
     let mark = process.hrtime.bigint();
     for (let n = 0; n < PAYLOADS; n++) {
         const path = join(tmpdir(), `bench-ingest-${n}-${process.pid}.parquet`);
-        const producer = await DuckFrame.fromRecords(CONFIG, records(`p${n}`, PER), {});
+        const producer = await TealFrame.fromRecords(CONFIG, records(`p${n}`, PER), {});
         await producer.writeParquet(path);
         await producer.destroy();
         files.push(path);
@@ -130,7 +130,7 @@ try {
      * time compressing, so its ingest figure is not comparable with one where it is zero.
     */
     const run = async (mode, order, label, fn) => {
-        const frame = await DuckFrame.create(CONFIG, { name: 'bench', database: DB });
+        const frame = await TealFrame.create(CONFIG, { name: 'bench', database: DB });
         if (mode === 'auto-off') await frame.query("SET checkpoint_threshold = '1TB'");
         // GLOBAL, not session: `append` uses its own connection per call
         await frame.query(`SET GLOBAL preserve_insertion_order = ${order === 'on'}`);
@@ -207,7 +207,7 @@ try {
     // ------------------------------------------------- records append, for contrast
     heading('RECORDS append (the api-server path, coercion included)');
     const batch = records('r', PER);
-    const frame = await DuckFrame.create(CONFIG, { name: 'bench_records' });
+    const frame = await TealFrame.create(CONFIG, { name: 'bench_records' });
     mark = process.hrtime.bigint();
     for (let n = 0; n < 4; n++) await frame.append({ records: batch });
     line('append({ records }) x4', since(mark), PER * 4);

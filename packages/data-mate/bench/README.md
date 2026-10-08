@@ -97,12 +97,12 @@ suite.add('an async case', {
 });
 ```
 
-Anything measuring `DuckFrame` needs this, since every one of its operations is async — and note
+Anything measuring `TealFrame` needs this, since every one of its operations is async — and note
 that its query operations are **lazy relations**, so a benchmark must force execution (drain
 `rows()`, or `size()`) or it measures SQL string building.
 
-Import `DuckFrame` from `../../../dist/src/duck-frame/DuckFrame.js`, **not** from
-`dist/src/index.js`: `duck-frame` is deliberately not re-exported there, so the package-root
+Import `TealFrame` from `../../../dist/src/teal-frame/TealFrame.js`, **not** from
+`dist/src/index.js`: `teal-frame` is deliberately not re-exported there, so the package-root
 import yields `undefined` rather than an error.
 
 ## Two traps worth knowing

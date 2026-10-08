@@ -18,7 +18,7 @@ export function writeReport({
     const out = [];
     const push = (text = '') => out.push(text);
 
-    push('# DataFrame vs DuckFrame — performance comparison');
+    push('# DataFrame vs TealFrame — performance comparison');
     push();
     push('Both engines are given **identical records** from a seeded generator, and every case is'
         + ' checked to have produced the same number of rows on both sides, so "faster" cannot'
@@ -33,11 +33,11 @@ export function writeReport({
     push(`| timing | median of ${meta.runs} runs, after a discarded warm-up |`);
     push(`| machine | node ${meta.node}, ${meta.cores} cores, ${meta.memory} RAM,`
         + ` JS heap limit ${meta.heap} |`);
-    push(`| DuckFrame tables | ${meta.checkpoint
+    push(`| TealFrame tables | ${meta.checkpoint
         ? '**checkpointed** before each case, so segments are compressed'
         : 'uncompressed - an in-memory DuckDB table is not compressed until a `CHECKPOINT`'} |`);
     push();
-    push('**How to read the timings.** `DuckFrame` operations are lazy — they build SQL and'
+    push('**How to read the timings.** `TealFrame` operations are lazy — they build SQL and'
         + ' execute nothing — so every case below ends in an explicit force: `count(*)` for a'
         + ' filter or join, `materialize()` for anything that must yield a usable frame, and a'
         + ' full row drain where the `DataFrame` side also produces JS values. A sort is *never*'
@@ -68,7 +68,7 @@ export function writeReport({
                 push();
             }
 
-            push('| records | DataFrame | DuckFrame | difference | DuckFrame throughput |');
+            push('| records | DataFrame | TealFrame | difference | TealFrame throughput |');
             push('|---|---|---|---|---|');
             for (const row of caseRows) {
                 const throughput = row.duck.ms != null && row.duck.rows
@@ -99,7 +99,7 @@ export function writeReport({
         push('The only section that measures the system rather than an operation. **Today** the'
             + ' api-server builds a `DataFrame` and serializes it to dfjson, and the worker'
             + ' deserializes every payload, appends them, and runs the query in JS. **On'
-            + ' DuckFrame** the api-server writes Parquet+zstd, the worker inserts the payloads'
+            + ' TealFrame** the api-server writes Parquet+zstd, the worker inserts the payloads'
             + ' into one table with no coercion at all, and the whole query is one SQL statement.');
         push();
         push('The fetch itself is not simulated — that cost is identical either way.');
@@ -109,7 +109,7 @@ export function writeReport({
         for (const stage of stages) {
             push(`### ${stage}`);
             push();
-            push('| records | today | DuckFrame | difference |');
+            push('| records | today | TealFrame | difference |');
             push('|---|---|---|---|');
             for (const row of lifecycleRows.filter((entry) => entry.stage === stage)) {
                 const diff = row.today.note || row.duck.note

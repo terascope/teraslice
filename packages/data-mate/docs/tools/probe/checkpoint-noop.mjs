@@ -11,7 +11,7 @@
  *
  * Two hypotheses, and the probe separates them:
  *
- *  1. **A connection-per-write hypothesis.** `DuckFrame.append` takes its OWN connection per
+ *  1. **A connection-per-write hypothesis.** `TealFrame.append` takes its OWN connection per
  *     payload, for transaction-isolation reasons. If a just-disconnected connection's transaction
  *     is still visible to the storage manager, DuckDB has rows it cannot compress and skips.
  *  2. **A "checkpoint not needed" flag hypothesis.** DuckDB checkpoints automatically, and after
@@ -22,7 +22,7 @@
  * So: 20 batches inserted three ways - all on ONE connection, on a NEW connection per batch (what
  * `append` does), and **from PARQUET on a new connection per batch** (what the worker really does) -
  * then either `CHECKPOINT` or `FORCE CHECKPOINT`, at three sizes, twice each; and after every call,
- * whether the segments actually changed. Raw SQL against the binding throughout, no `DuckFrame`, so
+ * whether the segments actually changed. Raw SQL against the binding throughout, no `TealFrame`, so
  * nothing of ours can be the cause. Parquet is a separate source because it is the one thing the
  * failing runs had that a plain `INSERT ... SELECT` does not.
  *
@@ -105,7 +105,7 @@ async function trial({
             continue;
         }
 
-        // exactly what `DuckFrame.append` does: its own connection, its own transaction
+        // exactly what `TealFrame.append` does: its own connection, its own transaction
         const own = await instance.connect();
         try {
             await own.run('BEGIN TRANSACTION');

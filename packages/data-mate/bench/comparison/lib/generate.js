@@ -1,5 +1,5 @@
 /**
- * The corpus for the DataFrame-vs-DuckFrame comparison: 30 fields, deterministic.
+ * The corpus for the DataFrame-vs-TealFrame comparison: 30 fields, deterministic.
  *
  * **Deterministic on purpose.** A seeded LCG, not `Math.random()`, so every run of every scale
  * gets byte-identical records. Two engines being compared must be given the same data, and a

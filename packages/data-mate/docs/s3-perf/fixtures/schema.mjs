@@ -69,7 +69,7 @@ const H = (offset) => `((hash(i + ${offset}) >> 1)::BIGINT)`;
  * The 30-column SELECT. `i` is the row index from `range(n)`.
  *
  * Column ORDER matches the schema `DataType.toDuckDB()` produces, so the Parquet file and a
- * `DuckFrame` built from `CONFIG` agree without reordering.
+ * `TealFrame` built from `CONFIG` agree without reordering.
  */
 export const FIXTURE_SELECT = `
 SELECT

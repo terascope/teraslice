@@ -48,7 +48,7 @@
  */
 import { rm, mkdir, stat, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { duckdb, duckFrame, heading, note } from '../lib/duck.mjs';
+import { duckdb, tealFrame, heading, note } from '../lib/duck.mjs';
 
 const TOTAL = Number(process.env.TOTAL || 20_000_000);
 const PERS = (process.env.PER || '10000,50000,100000').split(',').map(Number);
@@ -58,7 +58,7 @@ const SPOOL = process.env.SPOOL || '/tmp/duck-slice-spool';
 const ROW_GROUP = 122_880;
 
 const { DuckDBInstance } = await duckdb();
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
@@ -101,7 +101,7 @@ const finestPaths = [];
 let written = 0;
 while (written < TOTAL) {
     const take = Math.min(finest, TOTAL - written);
-    const frame = await DuckFrame.fromRecords(CONFIG, makeRecords(take, written + 1), {
+    const frame = await TealFrame.fromRecords(CONFIG, makeRecords(take, written + 1), {
         name: `g${finestPaths.length}`,
     });
     const path = join(rawDir, `p${String(finestPaths.length).padStart(6, '0')}.parquet`);

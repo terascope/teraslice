@@ -2,8 +2,8 @@
 // Imports the dist modules directly, not the data-mate barrel.
 import { writeFileSync } from 'node:fs';
 import { DuckDBInstance } from '@duckdb/node-api';
-import { coerceExpr } from '@terascope/data-mate/dist/src/duck-frame/coercion-sql.js';
-import { registerParseGeoPoint, PARSE_GEO_POINT_UDF } from '@terascope/data-mate/dist/src/duck-frame/udf/geo-point.js';
+import { coerceExpr } from '@terascope/data-mate/dist/src/teal-frame/coercion-sql.js';
+import { registerParseGeoPoint, PARSE_GEO_POINT_UDF } from '@terascope/data-mate/dist/src/teal-frame/udf/geo-point.js';
 
 const N = Number(process.argv[2] ?? 200000);
 const REPS = Number(process.argv[3] ?? 3);

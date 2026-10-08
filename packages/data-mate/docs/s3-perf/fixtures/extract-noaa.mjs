@@ -6,7 +6,7 @@
  *   slicer   walks one index's date range and bisects it until each piece holds
  *            at most FETCH_SIZE docs, emitting slice descriptors onto a queue
  *   fetcher  takes a slice, reads it in ONE request, and writes ONE Parquet
- *            part through the real DuckFrame
+ *            part through the real TealFrame
  *   merge    one COPY over the parts produces the single file
  *
  *   node extract-noaa.mjs                 # slice + fetch
@@ -299,8 +299,8 @@ function withUtcDate(source) {
 // ----------------------------------------------------------- the fetchers ---
 
 if (!isMainThread) {
-    const { DuckFrame, configureDuckDatabase } = await import(
-        new URL('../../../dist/src/duck-frame/DuckFrame.js', import.meta.url).href
+    const { TealFrame, configureDuckDatabase } = await import(
+        new URL('../../../dist/src/teal-frame/TealFrame.js', import.meta.url).href
     );
 
     // Each worker owns its own DuckDB. Without this it runs on DuckDB's defaults
@@ -322,7 +322,7 @@ if (!isMainThread) {
 
             if (records.length) {
                 file = join(workerData.partsDir, `${slice.id}.parquet`);
-                const frame = await DuckFrame.fromRecords(NOAA_CONFIG, records, {});
+                const frame = await TealFrame.fromRecords(NOAA_CONFIG, records, {});
                 await frame.writeParquet(file);
                 await frame.destroy();
             }

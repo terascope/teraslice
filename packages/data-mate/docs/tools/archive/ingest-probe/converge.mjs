@@ -5,7 +5,7 @@
 import { writeFileSync } from 'node:fs';
 import { DuckDBInstance } from '@duckdb/node-api';
 import { DataFrame } from '@terascope/data-mate';
-import { coerceExpr } from '@terascope/data-mate/dist/src/duck-frame/coercion-sql.js';
+import { coerceExpr } from '@terascope/data-mate/dist/src/teal-frame/coercion-sql.js';
 
 const DIR = new URL('.', import.meta.url).pathname;
 const FILE = `${DIR}conv.json`;

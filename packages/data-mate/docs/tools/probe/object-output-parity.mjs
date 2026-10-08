@@ -1,9 +1,9 @@
 /* eslint-disable no-console -- a probe's output IS its result */
-// Object and Tuple output, DuckFrame vs DataFrame, with the RIGHT options on each side.
-// (typed-objects.mjs passed DataFrame's toJSON options to DuckFrame.ndjson(), which takes
+// Object and Tuple output, TealFrame vs DataFrame, with the RIGHT options on each side.
+// (typed-objects.mjs passed DataFrame's toJSON options to TealFrame.ndjson(), which takes
 // { removeNullFields } - so its "PRESERVE" runs were really the default. This replaces them.)
 import { DataFrame } from '../../../dist/src/index.js';
-import { DuckFrame } from '../../../dist/src/duck-frame/index.js';
+import { TealFrame } from '../../../dist/src/teal-frame/index.js';
 import { FieldType as T } from '@terascope/types';
 
 const MODES = {
@@ -104,7 +104,7 @@ const collect = async (it) => {
 for (const [label, { fields, records }] of Object.entries(CASES)) {
     console.log(`\n## ${label}`);
     const config = { version: 1, fields };
-    const duck = await DuckFrame.fromRecords(config, records);
+    const duck = await TealFrame.fromRecords(config, records);
     const df = DataFrame.fromJSON(config, records);
 
     const rows = JSON.stringify(await collect(duck.rows()));

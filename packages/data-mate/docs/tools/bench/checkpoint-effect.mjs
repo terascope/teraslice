@@ -3,7 +3,7 @@
  *
  * `tools/bench/udf-cardinality.mjs` found that a UDF is called once per DISTINCT value rather than
  * once per row - but only after a CHECKPOINT, which is what compresses the column. That was measured
- * on a `CREATE TABLE AS`. This measures the shape the worker actually builds: `DuckFrame.create` plus
+ * on a `CREATE TABLE AS`. This measures the shape the worker actually builds: `TealFrame.create` plus
  * many `append({ parquet })` calls, then the whole query suite before and after a checkpoint.
  *
  * Four things it answers:
@@ -24,8 +24,8 @@ import { pathToFileURL } from 'node:url';
 
 const require = createRequire(new URL('../../../package.json', import.meta.url));
 const dist = (rel) => pathToFileURL(require.resolve(`./dist/src/${rel}`)).href;
-const { DuckFrame, closeDuckDatabase, registerScalarFunction } = await import(
-    dist('duck-frame/DuckFrame.js')
+const { TealFrame, closeDuckDatabase, registerScalarFunction } = await import(
+    dist('teal-frame/TealFrame.js')
 );
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url).href
@@ -58,7 +58,7 @@ log(`\nbuilding ${PAYLOADS} Parquet payloads, ${ROWS.toLocaleString()} rows tota
 const perPayload = Math.floor(ROWS / PAYLOADS);
 const payloads = [];
 for (let n = 0; n < PAYLOADS; n++) {
-    const producer = await DuckFrame.fromRecords(
+    const producer = await TealFrame.fromRecords(
         CONFIG, makeRecords(perPayload, n + 1), { name: `p${n}` }
     );
     const file = path.join(scratch, `payload-${n}.parquet`);
@@ -114,7 +114,7 @@ async function memoryMB(frame) {
 async function scenario(label, options) {
     log(`\n${'='.repeat(92)}\n${label}\n${'='.repeat(92)}`);
 
-    const frame = await DuckFrame.create(CONFIG, { name: 'master', ...options });
+    const frame = await TealFrame.create(CONFIG, { name: 'master', ...options });
     countingUdf(options.database);
 
     const ingestStart = performance.now();

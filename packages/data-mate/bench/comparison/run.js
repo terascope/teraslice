@@ -1,5 +1,5 @@
 /**
- * Runs the DataFrame-vs-DuckFrame comparison and writes the report.
+ * Runs the DataFrame-vs-TealFrame comparison and writes the report.
  *
  *     cd packages/data-mate && pnpm build
  *     node --max-old-space-size=16384 bench/comparison/run.js
@@ -9,7 +9,7 @@
  *     OUT=docs/PERFORMANCE.md node ...                       # where the report goes
  *
  * The heap flag is not optional at the larger scales: `DataFrame` holds every value in JS, and
- * with Node's default heap it will OOM well before `DuckFrame` breaks a sweat. Giving it room is
+ * with Node's default heap it will OOM well before `TealFrame` breaks a sweat. Giving it room is
  * what makes the comparison fair - and where it OOMs anyway, that is reported as a result.
  *
  * **For a full sweep use `sweep.js`, not this file directly.** A `DataFrame` case can abort the
@@ -40,8 +40,8 @@ const dist = (rel) => pathToFileURL(require.resolve(`../../dist/src/${rel}`)).hr
 
 const { DataFrame } = await import(dist('index.js'));
 const { dataFrameAdapter } = await import(dist('adapters/data-frame-adapter/index.js'));
-const { DuckFrame, closeDuckDatabase } = await import(dist('duck-frame/DuckFrame.js'));
-const { duckFrameAdapter } = await import(dist('adapters/duck-frame-adapter/index.js'));
+const { TealFrame, closeDuckDatabase } = await import(dist('teal-frame/TealFrame.js'));
+const { tealFrameAdapter } = await import(dist('adapters/teal-frame-adapter/index.js'));
 const { functionConfigRepository } = await import(dist('function-configs/index.js'));
 
 const OUT = process.env.OUT || 'docs/PERFORMANCE.md';
@@ -53,17 +53,17 @@ const OUT = process.env.OUT || 'docs/PERFORMANCE.md';
  * exhausts the heap in a way V8 cannot report as an exception - it prints `Ineffective
  * mark-compacts near heap limit` and aborts the process (exit 134). Nothing in-process can catch
  * that, so it took out the 12 cases that came after it, at 3M and again at 5M. Running
- * `ENGINE=duckframe` in its own process means DataFrame cannot do that to DuckFrame's numbers,
+ * `ENGINE=tealframe` in its own process means DataFrame cannot do that to TealFrame's numbers,
  * and `ENGINE=dataframe` afterwards records whatever DataFrame manages before it dies.
  *
- *     ENGINE=duckframe SCALES=5000000 node --max-old-space-size=24576 bench/comparison/run.js
+ *     ENGINE=tealframe SCALES=5000000 node --max-old-space-size=24576 bench/comparison/run.js
  *     ENGINE=dataframe SCALES=5000000 node --max-old-space-size=24576 bench/comparison/run.js
 */
 const ENGINE = process.env.ENGINE;
-if (ENGINE && !['dataframe', 'duckframe'].includes(ENGINE)) {
-    throw new Error(`ENGINE must be 'dataframe' or 'duckframe', got ${JSON.stringify(ENGINE)}`);
+if (ENGINE && !['dataframe', 'tealframe'].includes(ENGINE)) {
+    throw new Error(`ENGINE must be 'dataframe' or 'tealframe', got ${JSON.stringify(ENGINE)}`);
 }
-const RUN_DF = ENGINE !== 'duckframe';
+const RUN_DF = ENGINE !== 'tealframe';
 const RUN_DUCK = ENGINE !== 'dataframe';
 
 /**
@@ -105,13 +105,13 @@ for (const scale of SCALES) {
  *
  * **The halves are independent so that a failure is attributed to the engine that had it.** When
  * setup built both engines' prerequisites together, a `DataFrame` that could not even be
- * constructed at 5M skipped the case for BOTH sides - so the report lost DuckFrame's number
+ * constructed at 5M skipped the case for BOTH sides - so the report lost TealFrame's number
  * instead of reporting DataFrame's ceiling, which is the finding.
 */
 async function runHalf(half, testCase, ctx) {
-    const setup = half === 'df' ? testCase.setupDataFrame : testCase.setupDuckFrame;
-    const teardown = half === 'df' ? testCase.teardownDataFrame : testCase.teardownDuckFrame;
-    const run = half === 'df' ? testCase.dataFrame : testCase.duckFrame;
+    const setup = half === 'df' ? testCase.setupDataFrame : testCase.setupTealFrame;
+    const teardown = half === 'df' ? testCase.teardownDataFrame : testCase.teardownTealFrame;
+    const run = half === 'df' ? testCase.dataFrame : testCase.tealFrame;
 
     let prepared;
     try {
@@ -150,14 +150,14 @@ async function runHalf(half, testCase, ctx) {
     return result;
 }
 
-heading('DataFrame vs DuckFrame');
+heading('DataFrame vs TealFrame');
 line(`${COLUMNS.length} columns, ${Object.keys(CONFIG.fields).length} declared field paths`);
 line(`scales: ${SCALES.map(label).join(', ')}   runs per case: ${process.env.RUNS || '3 / 2 / 1 by scale'}`
     + ' (median, after a discarded warm-up)');
 line(`node ${process.version} | ${os.cpus().length} cores | ${(os.totalmem() / 1024 ** 3).toFixed(0)} GB RAM`
     + ` | heap limit ${heapLimitMB() ? `${heapLimitMB()} MB` : 'default'}`);
 line(`engine: ${ENGINE ?? 'both (single process)'}   results: ${RESULTS_FILE}`);
-line('DuckFrame tables: '
+line('TealFrame tables: '
     + (CHECKPOINT ? 'CHECKPOINTED in setup (compressed)' : 'uncompressed (no checkpoint)'));
 if (SKIP.size) line(`skipping ${SKIP.size} case(s) that killed an earlier process`);
 
@@ -167,11 +167,11 @@ for (const scale of SCALES) {
     const records = makeRecords(scale);
 
     // the Parquet payload every "from Parquet" case reads, produced once and not timed. Only
-    // DuckFrame reads it, so an ENGINE=dataframe process must not spend the memory building it.
+    // TealFrame reads it, so an ENGINE=dataframe process must not spend the memory building it.
     let parquet;
     if (RUN_DUCK) {
         try {
-            const producer = await DuckFrame.fromRecords(CONFIG, records, {});
+            const producer = await TealFrame.fromRecords(CONFIG, records, {});
             parquet = tmp(`corpus-${scale}`);
             await producer.writeParquet(parquet);
             await producer.destroy();
@@ -182,14 +182,14 @@ for (const scale of SCALES) {
 
     const ctx = {
         DataFrame,
-        DuckFrame,
+        TealFrame,
         dfAdapter: dataFrameAdapter,
         /**
          * Wrapped rather than passed through, so `PREFER_SQL` reaches every case without any of
          * them opting in. A case that set `preferSql` itself would still win, which is the right
          * precedence: the flag is a default for the run, not an override of a case's intent.
         */
-        duckAdapter: (fnDef, options) => duckFrameAdapter(
+        duckAdapter: (fnDef, options) => tealFrameAdapter(
             fnDef,
             PREFER_SQL === undefined ? options : { preferSql: PREFER_SQL, ...options }
         ),
@@ -245,7 +245,7 @@ const lifecycleRows = ENGINE
     : [
         ...state.lifecycleRows,
         ...await lifecycle({
-            DataFrame, DuckFrame, config: CONFIG, makeRecords, SCALES, tmp, measure, label, line,
+            DataFrame, TealFrame, config: CONFIG, makeRecords, SCALES, tmp, measure, label, line,
             heading, runsFor,
         }),
     ];

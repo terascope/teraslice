@@ -30,8 +30,8 @@ import { pathToFileURL } from 'node:url';
 
 const require = createRequire(new URL('../../../package.json', import.meta.url));
 const dist = (rel) => pathToFileURL(require.resolve(`./dist/src/${rel}`)).href;
-const { DuckFrame, closeDuckDatabase, registerScalarFunction } = await import(
-    dist('duck-frame/DuckFrame.js')
+const { TealFrame, closeDuckDatabase, registerScalarFunction } = await import(
+    dist('teal-frame/TealFrame.js')
 );
 
 const ROWS = Number(process.env.ROWS || 1_000_000);
@@ -179,7 +179,7 @@ log(`\n${ROWS.toLocaleString()} rows, ${TYPES.length} types x ${CARDINALITIES.le
 log(`node ${process.version}, ${os.cpus().length} cores\n`);
 
 await registerAll();
-const frame = await DuckFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'matrix' });
+const frame = await TealFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'matrix' });
 const table = frame.table;
 
 const results = [];

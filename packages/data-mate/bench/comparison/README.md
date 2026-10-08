@@ -1,4 +1,4 @@
-# `bench/comparison/` — DataFrame vs DuckFrame
+# `bench/comparison/` — DataFrame vs TealFrame
 
 Produces `docs/PERFORMANCE.md`: the same work asked of both engines, across nine scales.
 
@@ -11,14 +11,14 @@ OUT=/tmp/report.md node bench/comparison/run.js          # write it elsewhere
 node bench/comparison/render.js                          # re-render what is measured
 ```
 
-**`CHECKPOINT=1` compresses the DuckFrame side before each case is timed**, which is a dimension of
+**`CHECKPOINT=1` compresses the TealFrame side before each case is timed**, which is a dimension of
 the comparison rather than a tweak: an in-memory DuckDB table stays `Uncompressed` until a
 checkpoint, and compressing it changes what a scan reads and how often a UDF is called. Measure the
 payback by sweeping twice into separate result files:
 
 ```bash
-RESULTS=bench/comparison/.plain.json  ENGINES=duckframe node bench/comparison/sweep.js
-RESULTS=bench/comparison/.ckpt.json   ENGINES=duckframe CHECKPOINT=1 node bench/comparison/sweep.js
+RESULTS=bench/comparison/.plain.json  ENGINES=tealframe node bench/comparison/sweep.js
+RESULTS=bench/comparison/.ckpt.json   ENGINES=tealframe CHECKPOINT=1 node bench/comparison/sweep.js
 ```
 
 The checkpoint is taken in each case's SETUP, so it is never inside a timing - what it COSTS is a
@@ -53,13 +53,13 @@ Every one of these exists because getting it wrong changes the result:
 - **Median of `RUNS` after a discarded warm-up.** The first call pays for DuckDB instance
   creation and V8 warm-up; at 1k rows a single timing is mostly that.
 - **Setup is per engine, and not timed.** A case that measures sorting starts from a frame that
-  already exists - and `setupDataFrame`/`setupDuckFrame` build only their own side's. A shared
+  already exists - and `setupDataFrame`/`setupTealFrame` build only their own side's. A shared
   setup hid each engine behind the other's failure: when `DataFrame.fromJSON` could not be built at
-  5M, the case was skipped for BOTH, so the report lost DuckFrame's number rather than reporting
-  DataFrame's ceiling. It also had `ENGINE=duckframe` building a `DataFrame` it never measured.
+  5M, the case was skipped for BOTH, so the report lost TealFrame's number rather than reporting
+  DataFrame's ceiling. It also had `ENGINE=tealframe` building a `DataFrame` it never measured.
 - **Row counts are compared.** Each case returns how many rows it produced; a mismatch is printed
   in the report as a warning. "Faster" must never mean "did less".
-- **`DuckFrame` is lazy, so every case forces execution** — and the forcing method is chosen per
+- **`TealFrame` is lazy, so every case forces execution** — and the forcing method is chosen per
   case. `count(*)` for a filter or join (how fast are the rows found), `materialize()` for
   anything that must yield a usable frame, a full row drain where the `DataFrame` side also
   produces JS values. **A sort is never forced with a count**, because the optimiser would drop
@@ -96,7 +96,7 @@ where the other does not.
 | `lib/cases.js` | the cases themselves, grouped by feature |
 | `lib/report.js` | markdown rendering |
 | `lib/results.js` | the result file, per-half merging, and the in-flight marker |
-| `lifecycle/spaces.js` | the end-to-end spaces flow, today vs DuckFrame |
+| `lifecycle/spaces.js` | the end-to-end spaces flow, today vs TealFrame |
 
 ## Adding a case
 
@@ -105,10 +105,10 @@ where the other does not.
     name: 'what it does',
     note: 'what the reader needs to know to trust the number',
     setupDataFrame: dfFrame,          // untimed, DataFrame's prerequisites only
-    setupDuckFrame: duckTable,        // untimed, DuckFrame's only
+    setupTealFrame: duckTable,        // untimed, TealFrame's only
     async dataFrame(ctx, state) { /* return rows produced, or SKIPPED */ },
-    async duckFrame(ctx, state) { /* MUST end in force(...) */ },
-    teardownDuckFrame: destroyDuck,   // and teardownDataFrame, where one is needed
+    async tealFrame(ctx, state) { /* MUST end in force(...) */ },
+    teardownTealFrame: destroyDuck,   // and teardownDataFrame, where one is needed
 }
 ```
 

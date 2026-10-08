@@ -4,13 +4,13 @@
  * **Each case states what it encapsulates**, because that is the part a benchmark gets wrong.
  * The rules applied throughout:
  *
- * - **Setup is PER ENGINE, and never timed.** `setupDataFrame` and `setupDuckFrame` build only
+ * - **Setup is PER ENGINE, and never timed.** `setupDataFrame` and `setupTealFrame` build only
  *   their own side's prerequisites - a built frame, a written Parquet payload - so the measurement
  *   covers only the operation named, and one engine failing to set up cannot delete the other
- *   engine's number. `teardownDataFrame`/`teardownDuckFrame` are the matching halves.
+ *   engine's number. `teardownDataFrame`/`teardownTealFrame` are the matching halves.
  * - A case returns the row count it produced. The runner compares the two engines' counts and
  *   flags a mismatch, so "faster" can never mean "did less".
- * - `DuckFrame` is lazy, so every DuckFrame case ends in `force(...)`, and the forcing method is
+ * - `TealFrame` is lazy, so every TealFrame case ends in `force(...)`, and the forcing method is
  *   chosen per case: `count` for a filter (find the rows), `table` for anything that must yield a
  *   usable frame, `rows` where the DataFrame side also hands back materialised JS values.
  * - Where an engine genuinely has no equivalent, the case returns `SKIPPED` rather than being
@@ -25,7 +25,7 @@ import { COLUMNS } from './generate.js';
  *
  * `remove_null_fields` defaults to TRUE (`create-execution-plan.ts:94`, off only via
  * `@preserveNullFields`), so the default output OMITS null keys - which is also what
- * `DuckFrame`'s export does. Using anything else here would compare two different formats.
+ * `TealFrame`'s export does. Using anything else here would compare two different formats.
 */
 const TO_JSON_OPTIONS = {
     useNullForUndefined: false,
@@ -59,7 +59,7 @@ function writeLdjsonFromJS(file, rows) {
     return lines;
 }
 
-/** Column list for a DuckFrame projection: every column passes through unchanged. */
+/** Column list for a TealFrame projection: every column passes through unchanged. */
 function passthrough(overrides = {}) {
     const select = {};
     for (const name of COLUMNS) select[name] = `"${name}"`;
@@ -89,18 +89,18 @@ function childRecords(records) {
  *
  * **Each engine's setup is its OWN.** A shared one hid each engine behind the other's failure: at
  * 5M `DataFrame.fromJSON` can exhaust the heap, and while setup built both frames together that
- * took DuckFrame's number with it - the report then showed a hole where DataFrame's ceiling
- * belonged. It also meant `ENGINE=duckframe` still built a `DataFrame`, spending exactly the heap
+ * took TealFrame's number with it - the report then showed a hole where DataFrame's ceiling
+ * belonged. It also meant `ENGINE=tealframe` still built a `DataFrame`, spending exactly the heap
  * that the per-engine split exists to protect.
 */
 const dfFrame = ({ DataFrame, config, records }) => ({ df: DataFrame.fromJSON(config, records) });
 
-/** The DuckFrame half of the same: one table, dropped in teardown. */
-const duckTable = async ({ DuckFrame, config, records }) => ({
-    duck: await DuckFrame.fromRecords(config, records, {}),
+/** The TealFrame half of the same: one table, dropped in teardown. */
+const duckTable = async ({ TealFrame, config, records }) => ({
+    duck: await TealFrame.fromRecords(config, records, {}),
 });
 
-/** Every DuckFrame half that owns a table drops it; DataFrame's frames are just GC'd. */
+/** Every TealFrame half that owns a table drops it; DataFrame's frames are just GC'd. */
 const destroyDuck = async (ctx, { duck }) => {
     await duck.destroy();
 };
@@ -121,10 +121,10 @@ function batchesOf(records, count = 5) {
 }
 
 /** Each batch as its own Parquet payload: what the api-server hands the worker, once per fetch. */
-async function writePayloads({ DuckFrame, config, records, tmp }, prefix) {
+async function writePayloads({ TealFrame, config, records, tmp }, prefix) {
     const payloads = [];
     for (const [n, batch] of batchesOf(records).entries()) {
-        const producer = await DuckFrame.fromRecords(config, batch, {});
+        const producer = await TealFrame.fromRecords(config, batch, {});
         const file = tmp(`${prefix}-${n}`);
         await producer.writeParquet(file);
         await producer.destroy();
@@ -145,8 +145,8 @@ export const GROUPS = [
                 async dataFrame({ DataFrame, config, records }) {
                     return DataFrame.fromJSON(config, records).size;
                 },
-                async duckFrame({ DuckFrame, config, records }) {
-                    const frame = await DuckFrame.fromRecords(config, records, {});
+                async tealFrame({ TealFrame, config, records }) {
+                    const frame = await TealFrame.fromRecords(config, records, {});
                     const rows = await frame.size();
                     await frame.destroy();
                     return rows;
@@ -157,7 +157,7 @@ export const GROUPS = [
                 note: 'The **worker\'s** ingest leg, and the other half of `serialize for the'
                     + ' wire`: `DataFrame.deserialize` of a dfjson payload against `fromParquet`'
                     + ' of a Parquet+zstd one. Each side reads its OWN wire format, because'
-                    + ' `DataFrame` cannot read Parquet at all and `DuckFrame` has no dfjson -'
+                    + ' `DataFrame` cannot read Parquet at all and `TealFrame` has no dfjson -'
                     + ' which is precisely the choice being compared. Parquet is typed and'
                     + ' schema-carrying, so this leg does **zero coercion**.'
                     + '\n\n**Forced with `materialize()`, and that is not optional.**'
@@ -179,8 +179,8 @@ export const GROUPS = [
                     const frame = await DataFrame.deserializeIterator(wire);
                     return frame.size;
                 },
-                async duckFrame({ DuckFrame, config, parquet }) {
-                    const frame = await DuckFrame.fromParquet(config, parquet);
+                async tealFrame({ TealFrame, config, parquet }) {
+                    const frame = await TealFrame.fromParquet(config, parquet);
                     return force(frame, 'table');
                 },
             },
@@ -193,7 +193,7 @@ export const GROUPS = [
                     + ' ceiling rather than the engine. The iterator yields one string per column'
                     + ' (1 GB each) and is fully consumed here, so the same bytes are produced.',
                 setupDataFrame: dfFrame,
-                setupDuckFrame: duckTable,
+                setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
                     let bytes = 0;
 
@@ -202,11 +202,11 @@ export const GROUPS = [
                     for (const chunk of df.serializeIterator()) bytes += chunk.length;
                     return bytes > 0 ? df.size : 0;
                 },
-                async duckFrame({ tmp }, { duck }) {
+                async tealFrame({ tmp }, { duck }) {
                     await duck.writeParquet(tmp('serialize'));
                     return duck.size();
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
         ],
     },
@@ -215,31 +215,31 @@ export const GROUPS = [
         title: 'Transforms and validations',
         blurb: 'The 205 QPL functions. Both engines drive the SAME `FunctionDefinitionConfig`'
             + ' through their own adapter - `dataFrameAdapter` builds a new column, '
-            + '`duckFrameAdapter` returns a SQL expression backed by a vectorized UDF.',
+            + '`tealFrameAdapter` returns a SQL expression backed by a vectorized UDF.',
         cases: [
             {
                 name: 'transform (toUpperCase)',
                 note: 'One Keyword column uppercased, all 30 columns projected through. '
                     + '**`DataFrame` shares data structurally.** It is immutable and columnar, so this'
                     + ' returns a new frame REFERENCING the existing column vectors -'
-                    + ' almost no data moves, while `DuckFrame` physically'
+                    + ' almost no data moves, while `TealFrame` physically'
                     + ' materialises a new result. The two do different amounts of'
                     + ' work: the comparison is of semantics, not equal labour, and'
                     + ' the deferred cost reappears when the data is read.'
                     + ' Here `DataFrame` swaps ONE column and reuses the other 29, while'
-                    + ' `DuckFrame` writes all 30 - see the composed pipeline case for'
+                    + ' `TealFrame` writes all 30 - see the composed pipeline case for'
                     + ' where that stops being an advantage.',
                 setupDataFrame: dfFrame,
-                async setupDuckFrame(ctx) {
+                async setupTealFrame(ctx) {
                     const {
-                        DuckFrame, config, records, repo, duckAdapter
+                        TealFrame, config, records, repo, duckAdapter
                     } = ctx;
                     const adapted = await duckAdapter(repo.toUpperCase, {
                         field: 'category',
                         inputConfig: { field_config: config.fields.category },
                     });
                     return {
-                        duck: await DuckFrame.fromRecords(config, records, {}),
+                        duck: await TealFrame.fromRecords(config, records, {}),
                         expression: adapted.expression,
                         output: adapted.outputConfig.field_config,
                     };
@@ -247,7 +247,7 @@ export const GROUPS = [
                 async dataFrame({ repo, dfAdapter }, { df }) {
                     return dfAdapter(repo.toUpperCase, { field: 'category' }).frame(df).size;
                 },
-                async duckFrame({ config }, { duck, expression, output }) {
+                async tealFrame({ config }, { duck, expression, output }) {
                     return force(
                         duck.select(
                             passthrough({ category: expression }),
@@ -256,22 +256,22 @@ export const GROUPS = [
                         'table'
                     );
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
             {
                 name: 'validation (isIP)',
                 note: 'A failing value is NULLed and the row kept, on both sides.',
                 setupDataFrame: dfFrame,
-                async setupDuckFrame(ctx) {
+                async setupTealFrame(ctx) {
                     const {
-                        DuckFrame, config, records, repo, duckAdapter
+                        TealFrame, config, records, repo, duckAdapter
                     } = ctx;
                     const adapted = await duckAdapter(repo.isIP, {
                         field: 'ip',
                         inputConfig: { field_config: config.fields.ip },
                     });
                     return {
-                        duck: await DuckFrame.fromRecords(config, records, {}),
+                        duck: await TealFrame.fromRecords(config, records, {}),
                         expression: adapted.expression,
                         output: adapted.outputConfig.field_config,
                     };
@@ -279,7 +279,7 @@ export const GROUPS = [
                 async dataFrame({ repo, dfAdapter }, { df }) {
                     return dfAdapter(repo.isIP, { field: 'ip' }).frame(df).size;
                 },
-                async duckFrame({ config }, { duck, expression, output }) {
+                async tealFrame({ config }, { duck, expression, output }) {
                     return force(
                         duck.select(
                             passthrough({ ip: expression }),
@@ -288,26 +288,26 @@ export const GROUPS = [
                         'table'
                     );
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
             {
                 name: 'transform (array column)',
                 note: 'The same `toUpperCase`, but over `tags` - a Keyword **array**. Both'
                     + ' adapters take a separate path for `ProcessMode.INDIVIDUAL_VALUES`:'
-                    + ' `DataFrame` walks the list inside each row, `duckFrameAdapter` emits'
+                    + ' `DataFrame` walks the list inside each row, `tealFrameAdapter` emits'
                     + ' `list_transform(col, x -> udf(x))`. Seven of the 30 columns are arrays'
                     + ' and no other case exercised that path.',
                 setupDataFrame: dfFrame,
-                async setupDuckFrame(ctx) {
+                async setupTealFrame(ctx) {
                     const {
-                        DuckFrame, config, records, repo, duckAdapter
+                        TealFrame, config, records, repo, duckAdapter
                     } = ctx;
                     const adapted = await duckAdapter(repo.toUpperCase, {
                         field: 'tags',
                         inputConfig: { field_config: config.fields.tags },
                     });
                     return {
-                        duck: await DuckFrame.fromRecords(config, records, {}),
+                        duck: await TealFrame.fromRecords(config, records, {}),
                         expression: adapted.expression,
                         output: adapted.outputConfig.field_config,
                     };
@@ -315,7 +315,7 @@ export const GROUPS = [
                 async dataFrame({ repo, dfAdapter }, { df }) {
                     return dfAdapter(repo.toUpperCase, { field: 'tags' }).frame(df).size;
                 },
-                async duckFrame({ config }, { duck, expression, output }) {
+                async tealFrame({ config }, { duck, expression, output }) {
                     return force(
                         duck.select(
                             passthrough({ tags: expression }),
@@ -324,7 +324,7 @@ export const GROUPS = [
                         'table'
                     );
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
         ],
     },
@@ -333,18 +333,18 @@ export const GROUPS = [
         title: 'Composed pipelines',
         blurb: 'The case that separates the two models. A QPL query applies SEVERAL functions and'
             + ' then filters. `DataFrame` makes one materialising pass per function, because each'
-            + ' adapter returns a new frame. `DuckFrame` composes them into ONE statement that'
+            + ' adapter returns a new frame. `TealFrame` composes them into ONE statement that'
             + ' DuckDB evaluates in a single pass - which is the whole argument for the change.',
         cases: [
             {
                 name: '5 transforms + filter',
                 note: 'Five field transforms chained, then a filter. `DataFrame`: five passes,'
-                    + ' each building a new column, then a search. `DuckFrame`: one `SELECT` with'
+                    + ' each building a new column, then a search. `TealFrame`: one `SELECT` with'
                     + ' five expressions and a `WHERE`, evaluated once.',
                 setupDataFrame: dfFrame,
-                async setupDuckFrame(ctx) {
+                async setupTealFrame(ctx) {
                     const {
-                        DuckFrame, config, records, repo, duckAdapter
+                        TealFrame, config, records, repo, duckAdapter
                     } = ctx;
                     const expressions = {};
                     const fields = { ...config.fields };
@@ -360,7 +360,7 @@ export const GROUPS = [
                     return {
                         expressions,
                         outConfig: { version: 1, fields },
-                        duck: await DuckFrame.fromRecords(config, records, {}),
+                        duck: await TealFrame.fromRecords(config, records, {}),
                     };
                 },
                 async dataFrame({ repo, dfAdapter }, { df }) {
@@ -370,14 +370,14 @@ export const GROUPS = [
                     }
                     return frame.search('active:true').size;
                 },
-                async duckFrame(ctx, { duck, expressions, outConfig }) {
+                async tealFrame(ctx, { duck, expressions, outConfig }) {
                     return force(
                         duck.select(passthrough(expressions), outConfig)
                             .filter('"active" = true'),
                         'table'
                     );
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
         ],
     },
@@ -390,34 +390,34 @@ export const GROUPS = [
             {
                 name: 'filter (1 of 5 matches)',
                 note: 'Each engine uses its own predicate language: xLucene for `DataFrame`,'
-                    + ' SQL for `DuckFrame`. Forced with `count(*)` - the question is how fast'
+                    + ' SQL for `TealFrame`. Forced with `count(*)` - the question is how fast'
                     + ' the rows are found.',
                 setupDataFrame: dfFrame,
-                setupDuckFrame: duckTable,
+                setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
                     return df.search('category:alpha').size;
                 },
-                async duckFrame(ctx, { duck }) {
+                async tealFrame(ctx, { duck }) {
                     return force(duck.filter('"category" = \'alpha\''), 'count');
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
             {
                 name: 'sort (2 keys)',
                 note: 'Forced with `materialize()`, never `count(*)` - a count lets the'
                     + ' optimiser drop the ORDER BY and would measure nothing.',
                 setupDataFrame: dfFrame,
-                setupDuckFrame: duckTable,
+                setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
                     return df.orderBy('category:asc', 'count:desc').size;
                 },
-                async duckFrame(ctx, { duck }) {
+                async tealFrame(ctx, { duck }) {
                     return force(
                         duck.orderBy(['"category"', { expression: '"count"', direction: 'desc' }]),
                         'table'
                     );
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
             {
                 name: 'sort + limit (top 1,000)',
@@ -428,66 +428,66 @@ export const GROUPS = [
                     + ' filter that skips row groups - so the gap should widen with scale.'
                     + ' Forced with `materialize()`, never a count.',
                 setupDataFrame: dfFrame,
-                setupDuckFrame: duckTable,
+                setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
                     return df.orderBy('category:asc', 'count:desc').limit(1000).size;
                 },
-                async duckFrame(ctx, { duck }) {
+                async tealFrame(ctx, { duck }) {
                     return force(
                         duck.orderBy(['"category"', { expression: '"count"', direction: 'desc' }])
                             .limit(1000),
                         'table'
                     );
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
             {
                 name: 'dedup (all columns)',
                 note: '`DataFrame.unique(every field)` vs `SELECT DISTINCT *`.',
                 setupDataFrame: dfFrame,
-                setupDuckFrame: duckTable,
+                setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
                     return df.unique(df.fields).size;
                 },
-                async duckFrame(ctx, { duck }) {
+                async tealFrame(ctx, { duck }) {
                     return force(duck.distinct(), 'table');
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
             {
                 name: 'page (limit 1,000)',
                 note: '**`DataFrame` shares data structurally.** It is immutable and columnar, so this'
                     + ' returns a new frame REFERENCING the existing column vectors -'
-                    + ' almost no data moves, while `DuckFrame` physically'
+                    + ' almost no data moves, while `TealFrame` physically'
                     + ' materialises a new result. The two do different amounts of'
                     + ' work: the comparison is of semantics, not equal labour, and'
                     + ' the deferred cost reappears when the data is read.'
                     + ' `DataFrame.limit` is a `slice` view over the same vectors.',
                 setupDataFrame: dfFrame,
-                setupDuckFrame: duckTable,
+                setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
                     return df.limit(1000).size;
                 },
-                async duckFrame(ctx, { duck }) {
+                async tealFrame(ctx, { duck }) {
                     return force(duck.limit(1000), 'table');
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
             {
                 name: 'output all rows to JS',
                 note: 'The response path: every row converted back to plain JS objects.',
                 setupDataFrame: dfFrame,
-                setupDuckFrame: duckTable,
+                setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
                     let seen = 0;
 
                     for (const _row of df.toJSON()) seen++;
                     return seen;
                 },
-                async duckFrame(ctx, { duck }) {
+                async tealFrame(ctx, { duck }) {
                     return force(duck, 'rows');
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
         ],
     },
@@ -496,7 +496,7 @@ export const GROUPS = [
         title: 'Output to ldjson',
         blurb: 'What production actually does with a finished result: write **ldjson** to S3, one'
             + ' JSON object per line. `DataFrame` has to build every row as a JS object and'
-            + ' `JSON.stringify` it; `DuckFrame` renders each line in C++ inside the query, so'
+            + ' `JSON.stringify` it; `TealFrame` renders each line in C++ inside the query, so'
             + ' the rows never become JS values at all.'
             + '\n\n**The bytes are identical** - all 500 sampled lines of this corpus, checked'
             + ' against `DataFrame` itself. DuckDB\'s native JSON is not `DataFrame`\'s: it'
@@ -504,7 +504,7 @@ export const GROUPS = [
             + ' `MAX_SAFE_INTEGER` that `JSON.parse` rounds, `"f": null` where `DataFrame` omits'
             + ' the key, `5.0` for an integral float, and a bare `Infinity` that is not valid'
             + ' JSON at all. The export projection corrects every one of them in SQL before'
-            + ' anything is written, pinned in `test/duck-frame/export-json-spec.ts`. That'
+            + ' anything is written, pinned in `test/teal-frame/export-json-spec.ts`. That'
             + ' correction is measured: it costs 7% of the projection.'
             + '\n\nBoth sides use spaces\' own `remove_null_fields: true` default.',
         cases: [
@@ -524,22 +524,22 @@ export const GROUPS = [
                         dfFile: tmp('ldjson-df', 'ldjson'),
                     };
                 },
-                async setupDuckFrame({
-                    DuckFrame, config, records, tmp
+                async setupTealFrame({
+                    TealFrame, config, records, tmp
                 }) {
                     return {
-                        duck: await DuckFrame.fromRecords(config, records, {}),
+                        duck: await TealFrame.fromRecords(config, records, {}),
                         duckFile: tmp('ldjson-duck', 'ldjson'),
                     };
                 },
                 async dataFrame(ctx, { df, dfFile }) {
                     return writeLdjsonFromJS(dfFile, df.toJSON(TO_JSON_OPTIONS));
                 },
-                async duckFrame(ctx, { duck, duckFile }) {
+                async tealFrame(ctx, { duck, duckFile }) {
                     await duck.writeNDJSON(duckFile);
                     return duck.size();
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
             {
                 name: 'ldjson streamed',
@@ -548,7 +548,7 @@ export const GROUPS = [
                     + ' at a time, so JavaScript only moves bytes. Byte-identical to the file'
                     + ' path; the only question is throughput.',
                 setupDataFrame: dfFrame,
-                setupDuckFrame: duckTable,
+                setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
                     let lines = 0;
                     let bytes = 0;
@@ -561,7 +561,7 @@ export const GROUPS = [
                     // compares, so returning it only once bytes exist keeps both honest
                     return bytes > 0 ? lines : 0;
                 },
-                async duckFrame(ctx, { duck }) {
+                async tealFrame(ctx, { duck }) {
                     let lines = 0;
                     let bytes = 0;
 
@@ -571,26 +571,26 @@ export const GROUPS = [
                     }
                     return bytes > 0 ? lines : 0;
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
             {
                 name: 'transform + filter -> ldjson',
                 note: 'The whole response path in one case, which is the argument the other'
                     + ' cases only make in pieces: transform a field, filter, and emit ldjson.'
                     + ' `DataFrame` makes a pass per step and then converts every surviving row'
-                    + ' to JS; for `DuckFrame` the transform, the filter and the JSON rendering'
+                    + ' to JS; for `TealFrame` the transform, the filter and the JSON rendering'
                     + ' are ONE statement, so no intermediate result is ever built.',
                 setupDataFrame: dfFrame,
-                async setupDuckFrame(ctx) {
+                async setupTealFrame(ctx) {
                     const {
-                        DuckFrame, config, records, repo, duckAdapter
+                        TealFrame, config, records, repo, duckAdapter
                     } = ctx;
                     const adapted = await duckAdapter(repo.toUpperCase, {
                         field: 'category',
                         inputConfig: { field_config: config.fields.category },
                     });
                     return {
-                        duck: await DuckFrame.fromRecords(config, records, {}),
+                        duck: await TealFrame.fromRecords(config, records, {}),
                         expression: adapted.expression,
                         output: adapted.outputConfig.field_config,
                     };
@@ -609,7 +609,7 @@ export const GROUPS = [
                     }
                     return bytes > 0 ? lines : 0;
                 },
-                async duckFrame({ config }, { duck, expression, output }) {
+                async tealFrame({ config }, { duck, expression, output }) {
                     const projected = duck
                         .select(
                             passthrough({ category: expression }),
@@ -626,14 +626,14 @@ export const GROUPS = [
                     }
                     return bytes > 0 ? lines : 0;
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
         ],
     },
 
     {
         title: 'Aggregations',
-        blurb: 'Grouped and global aggregation. For `DuckFrame` this is just a projection with a'
+        blurb: 'Grouped and global aggregation. For `TealFrame` this is just a projection with a'
             + ' `GROUP BY`, so it composes with everything else in one statement.',
         cases: [
             {
@@ -641,14 +641,14 @@ export const GROUPS = [
                 note: '5 groups out. Forced with `rows` on both sides, since both produce a small'
                     + ' materialised result.',
                 setupDataFrame: dfFrame,
-                setupDuckFrame: duckTable,
+                setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
                     const out = await df.aggregate().groupBy('category')
                         .sum('count')
                         .run();
                     return out.size;
                 },
-                async duckFrame(ctx, { duck }) {
+                async tealFrame(ctx, { duck }) {
                     return force(duck.select(
                         { category: '"category"', total: 'sum("count")' },
                         {
@@ -658,13 +658,13 @@ export const GROUPS = [
                         ['"category"']
                     ), 'rows');
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
             {
                 name: 'group by 2 keys + 3 aggs',
                 note: '20 groups, three aggregate functions at once.',
                 setupDataFrame: dfFrame,
-                setupDuckFrame: duckTable,
+                setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
                     const out = await df.aggregate()
                         .groupBy('category', 'status')
@@ -674,7 +674,7 @@ export const GROUPS = [
                         .run();
                     return out.size;
                 },
-                async duckFrame(ctx, { duck }) {
+                async tealFrame(ctx, { duck }) {
                     return force(duck.select(
                         {
                             category: '"category"',
@@ -696,7 +696,7 @@ export const GROUPS = [
                         ['"category"', '"status"']
                     ), 'rows');
                 },
-                teardownDuckFrame: destroyDuck,
+                teardownTealFrame: destroyDuck,
             },
         ],
     },
@@ -712,12 +712,12 @@ export const GROUPS = [
                     + ' `append({ parquet })` calls into one table. '
                     + '**`DataFrame` shares data structurally.** It is immutable and columnar, so this'
                     + ' returns a new frame REFERENCING the existing column vectors -'
-                    + ' almost no data moves, while `DuckFrame` physically'
+                    + ' almost no data moves, while `TealFrame` physically'
                     + ' materialises a new result. The two do different amounts of'
                     + ' work: the comparison is of semantics, not equal labour, and'
                     + ' the deferred cost reappears when the data is read.'
                     + ' `appendAll` only recomputes offsets - its own doc says the cost is'
-                    + ' relatively low - whereas `DuckFrame` inserts the rows into a real'
+                    + ' relatively low - whereas `TealFrame` inserts the rows into a real'
                     + ' table that is queryable with no further cost.',
                 async setupDataFrame({ DataFrame, config, records }) {
                     return {
@@ -726,12 +726,12 @@ export const GROUPS = [
                         )),
                     };
                 },
-                setupDuckFrame: (ctx) => writePayloads(ctx, 'batch'),
+                setupTealFrame: (ctx) => writePayloads(ctx, 'batch'),
                 async dataFrame({ DataFrame, config }, { frames }) {
                     return DataFrame.fromJSON(config, []).appendAll(frames).size;
                 },
-                async duckFrame({ DuckFrame, config }, { payloads }) {
-                    const frame = await DuckFrame.create(config, {});
+                async tealFrame({ TealFrame, config }, { payloads }) {
+                    const frame = await TealFrame.create(config, {});
                     for (const path of payloads) await frame.append({ parquet: path });
                     const rows = await frame.size();
                     await frame.destroy();
@@ -740,14 +740,14 @@ export const GROUPS = [
             },
             {
                 name: 'combine 5 batches, concurrent',
-                note: 'DuckFrame only: the fetches land at once. `DataFrame` has no concurrent'
+                note: 'TealFrame only: the fetches land at once. `DataFrame` has no concurrent'
                     + ' append - `appendAll` is one synchronous pass.',
-                setupDuckFrame: (ctx) => writePayloads(ctx, 'cbatch'),
+                setupTealFrame: (ctx) => writePayloads(ctx, 'cbatch'),
                 async dataFrame() {
                     return SKIPPED;
                 },
-                async duckFrame({ DuckFrame, config }, { payloads }) {
-                    const frame = await DuckFrame.create(config, {});
+                async tealFrame({ TealFrame, config }, { payloads }) {
+                    const frame = await TealFrame.create(config, {});
                     await Promise.all(payloads.map((path) => frame.append({ parquet: path })));
                     const rows = await frame.size();
                     await frame.destroy();
@@ -756,7 +756,7 @@ export const GROUPS = [
             },
             {
                 name: 'combine 5 batches, one append',
-                note: 'DuckFrame only, and the fastest of the three. `append({ parquet })` takes'
+                note: 'TealFrame only, and the fastest of the three. `append({ parquet })` takes'
                     + ' a LIST of paths, which `read_parquet` reads as ONE relation - so all five'
                     + ' payloads land in a single `INSERT ... BY NAME` rather than five.'
                     + ' `tools/bench/append-ingest.mjs` measures this at ~4x a sequential loop'
@@ -764,12 +764,12 @@ export const GROUPS = [
                     + '\n\nThe trade is real rather than free: it needs every payload to have'
                     + ' ARRIVED, so it suits a worker that batches what has landed, while the'
                     + ' concurrent case above suits one ingesting each fetch as it completes.',
-                setupDuckFrame: (ctx) => writePayloads(ctx, 'obatch'),
+                setupTealFrame: (ctx) => writePayloads(ctx, 'obatch'),
                 async dataFrame() {
                     return SKIPPED;
                 },
-                async duckFrame({ DuckFrame, config }, { payloads }) {
-                    const frame = await DuckFrame.create(config, {});
+                async tealFrame({ TealFrame, config }, { payloads }) {
+                    const frame = await TealFrame.create(config, {});
                     await frame.append({ parquet: payloads });
                     const rows = await frame.size();
                     await frame.destroy();
@@ -783,23 +783,23 @@ export const GROUPS = [
         title: 'Join',
         blurb: '**`DataFrame` has no join primitive at all** - which is the reason this project'
             + ' exists. Today spaces emulates one by issuing a child search per parent row,'
-            + ' cached in a 10,000-entry LRU that high cardinality defeats. For `DuckFrame` a'
+            + ' cached in a 10,000-entry LRU that high cardinality defeats. For `TealFrame` a'
             + ' join is ordinary SQL over two tables.',
         cases: [
             {
                 name: 'inner join, 5 children per parent',
                 note: 'A child table keyed so each parent matches **5** children - the fan-out'
                     + ' a real join has. Forced with `count(*)`.',
-                async setupDuckFrame({ DuckFrame, config, records }) {
+                async setupTealFrame({ TealFrame, config, records }) {
                     return {
-                        parent: await DuckFrame.fromRecords(config, records, {}),
-                        child: await DuckFrame.fromRecords(config, childRecords(records), {}),
+                        parent: await TealFrame.fromRecords(config, records, {}),
+                        child: await TealFrame.fromRecords(config, childRecords(records), {}),
                     };
                 },
                 async dataFrame() {
                     return SKIPPED;
                 },
-                async duckFrame(ctx, { parent, child }) {
+                async tealFrame(ctx, { parent, child }) {
                     return force(parent.join(child, {
                         on: 'a."_key" = b."_key"',
                         select: {
@@ -817,7 +817,7 @@ export const GROUPS = [
                         },
                     }), 'count');
                 },
-                async teardownDuckFrame(ctx, { parent, child }) {
+                async teardownTealFrame(ctx, { parent, child }) {
                     await parent.destroy();
                     await child.destroy();
                 },
@@ -828,16 +828,16 @@ export const GROUPS = [
                     + ' faking today. Grouped by the parent key, NOT by a low-cardinality field:'
                     + ' joining two 100k tables on a 5-value column is a 2-billion-row cartesian'
                     + ' product, which measures an explosion rather than a join.',
-                async setupDuckFrame({ DuckFrame, config, records }) {
+                async setupTealFrame({ TealFrame, config, records }) {
                     return {
-                        parent: await DuckFrame.fromRecords(config, records, {}),
-                        child: await DuckFrame.fromRecords(config, childRecords(records), {}),
+                        parent: await TealFrame.fromRecords(config, records, {}),
+                        child: await TealFrame.fromRecords(config, childRecords(records), {}),
                     };
                 },
                 async dataFrame() {
                     return SKIPPED;
                 },
-                async duckFrame(ctx, { parent, child }) {
+                async tealFrame(ctx, { parent, child }) {
                     return force(parent.join(child, {
                         type: 'left',
                         on: 'a."_key" = b."_key"',
@@ -849,7 +849,7 @@ export const GROUPS = [
                         groupBy: ['a."_key"'],
                     }), 'count');
                 },
-                async teardownDuckFrame(ctx, { parent, child }) {
+                async teardownTealFrame(ctx, { parent, child }) {
                     await parent.destroy();
                     await child.destroy();
                 },

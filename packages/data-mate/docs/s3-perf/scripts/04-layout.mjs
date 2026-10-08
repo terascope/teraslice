@@ -165,7 +165,7 @@ try {
     });
 
     heading('NEXT');
-    note('./run.sh duckframe   — the DuckFrame API itself against these objects');
+    note('./run.sh tealframe   — the TealFrame API itself against these objects');
 } catch (err) {
     explain(err);
     process.exit(1);

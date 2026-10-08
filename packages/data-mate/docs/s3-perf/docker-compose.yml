@@ -1,4 +1,4 @@
-# Real Ceph RGW, on this machine, to bench the duck-frame against.
+# Real Ceph RGW, on this machine, to bench the teal-frame against.
 #
 #   docker compose up -d      plain HTTP on :8080 — no certificate involved
 #   docker compose logs -f    watch the bootstrap (~30 s)

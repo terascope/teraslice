@@ -11,7 +11,7 @@ data-mate's built `dist` and through DuckDB and diffing. Regenerate with
 > built and gated, and:
 >
 > - **41 of the 53 functions this document calls "no DuckDB equivalent" now run as SQL**, verified
->   byte-equal to their own UDF over an adversarial battery by `test/duck-frame/sql-emission-spec.ts`.
+>   byte-equal to their own UDF over an adversarial battery by `test/teal-frame/sql-emission-spec.ts`.
 > - **13 of the 17 marked "APPROXIMATION" are promoted with EXACT emissions**, including `isEmail`,
 >   `isMACAddress`, `formatDate` and `toDate`.
 > - §4.2's own claim that "**None of these are guesses** — a candidate was only omitted where none

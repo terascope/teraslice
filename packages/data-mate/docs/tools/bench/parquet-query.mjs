@@ -40,7 +40,7 @@
 import { rm, mkdir, stat, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { duckdb, duckFrame, heading, note } from '../lib/duck.mjs';
+import { duckdb, tealFrame, heading, note } from '../lib/duck.mjs';
 
 const SCALES = (process.env.SCALES
     || '50000,100000,500000,1000000,5000000,25000000,100000000')
@@ -68,7 +68,7 @@ const SPOOL = process.env.SPOOL || '/tmp/duck-pq-spool';
 const DB = process.env.DB || '/tmp/duck-pq.db';
 
 const { DuckDBInstance } = await duckdb();
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
@@ -101,7 +101,7 @@ async function generate(scale, finest, dir) {
         for (let done = 0; done < take; done += GEN_CHUNK) {
             pieces.push(...makeRecords(Math.min(GEN_CHUNK, take - done), seed++));
         }
-        const frame = await DuckFrame.fromRecords(CONFIG, pieces, { name: `gen_${paths.length}` });
+        const frame = await TealFrame.fromRecords(CONFIG, pieces, { name: `gen_${paths.length}` });
         const path = join(dir, `p${String(paths.length).padStart(5, '0')}.parquet`);
         await frame.writeParquet(path);
         await frame.destroy();

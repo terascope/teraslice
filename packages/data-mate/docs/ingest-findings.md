@@ -6,9 +6,9 @@ was measured, abandoned, and the code deleted — `coercion-sql.ts`, `ingest-sql
 `udf/*`, `type-map.ts` and `util-parity-spec.ts` are all gone from `src`, verified 2026-09-15.
 
 **There is NO JSON in the lifecycle.** The Elasticsearch client returns already-parsed JS objects; ingest is
-`coerceToType` in JS plus a typed appender (`DuckFrame.fromRecords`), and the wire carries **Parquet + zstd**.
+`coerceToType` in JS plus a typed appender (`TealFrame.fromRecords`), and the wire carries **Parquet + zstd**.
 `read_parquet` is **27 ms/1M** against `read_json` + coercion at **263 ms/1M**, and Parquet is typed and
-schema-carrying so the worker does no coercion at all. Current ingest timings are on `DuckFrame.ts`'s class
+schema-carrying so the worker does no coercion at all. Current ingest timings are on `TealFrame.ts`'s class
 doc comment, not here.
 
 ## The transport measurement

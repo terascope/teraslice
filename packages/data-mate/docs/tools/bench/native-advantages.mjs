@@ -43,7 +43,7 @@
 import { rm, mkdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { duckFrame, heading, note } from '../lib/duck.mjs';
+import { tealFrame, heading, note } from '../lib/duck.mjs';
 
 const ROWS = Number(process.env.ROWS || 5_000_000);
 const GEN_CHUNK = Number(process.env.GEN_CHUNK || 100_000);
@@ -51,7 +51,7 @@ const REPEATS = Number(process.env.REPEATS || 4);
 const SPOOL = process.env.SPOOL || '/tmp/duck-nat-spool';
 const DB = process.env.DB || '/tmp/duck-nat.db';
 
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
@@ -112,7 +112,7 @@ await mkdir(SPOOL, { recursive: true });
 
 heading(`NATIVE AT ITS BEST — ${num(ROWS)} rows, 30-column corpus`);
 
-const frame = await DuckFrame.create(CONFIG, { name: 'base', database: DB });
+const frame = await TealFrame.create(CONFIG, { name: 'base', database: DB });
 const BASE = frame.table ?? 'base';
 let built = 0;
 while (built < ROWS) {

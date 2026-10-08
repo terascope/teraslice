@@ -1,7 +1,7 @@
 /**
  * Build a `DataTypeConfig` from a Parquet corpus.
  *
- * **Why this is needed.** `DuckFrame.fromParquet(config, path)` takes the
+ * **Why this is needed.** `TealFrame.fromParquet(config, path)` takes the
  * DataTypeConfig FIRST — the frame is told what the data IS, it does not infer
  * it. That is the right design for the real flow, where `qpl-worker` already
  * knows the config from the search query. But this harness is pointed at

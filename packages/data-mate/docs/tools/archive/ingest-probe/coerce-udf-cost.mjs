@@ -2,8 +2,8 @@
 import { writeFileSync } from 'node:fs';
 import { DuckDBInstance, BIGINT, DOUBLE, VARCHAR, BOOLEAN, TIMESTAMP } from '@duckdb/node-api';
 import { DataFrame } from '@terascope/data-mate';
-import { coerceExpr } from '@terascope/data-mate/dist/src/duck-frame/coercion-sql.js';
-import { registerFieldCoercion } from '@terascope/data-mate/dist/src/duck-frame/udf/coerce-field.js';
+import { coerceExpr } from '@terascope/data-mate/dist/src/teal-frame/coercion-sql.js';
+import { registerFieldCoercion } from '@terascope/data-mate/dist/src/teal-frame/udf/coerce-field.js';
 
 const N = Number(process.argv[2] ?? 1000000), REPS = Number(process.argv[3] ?? 3);
 const hr = () => Number(process.hrtime.bigint())/1e6;

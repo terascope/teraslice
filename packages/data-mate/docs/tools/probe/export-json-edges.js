@@ -11,8 +11,8 @@
 import { dataMate, heading, note } from '../lib/duck.mjs';
 
 const { DataFrame } = await dataMate();
-const { DuckFrame, closeDuckDatabase } = await import(
-    new URL('../../../dist/src/duck-frame/DuckFrame.js', import.meta.url).href
+const { TealFrame, closeDuckDatabase } = await import(
+    new URL('../../../dist/src/teal-frame/TealFrame.js', import.meta.url).href
 );
 
 // ---------------------------------------------------------------- 1. big integers
@@ -38,7 +38,7 @@ const BIG_RECORDS = [{
 const dfBig = DataFrame.fromJSON(BIG_CONFIG, BIG_RECORDS);
 const dfJson = JSON.parse(JSON.stringify(dfBig.toJSON()[0]));
 
-const duckBig = await DuckFrame.fromRecords(BIG_CONFIG, BIG_RECORDS, {});
+const duckBig = await TealFrame.fromRecords(BIG_CONFIG, BIG_RECORDS, {});
 const [[nativeBig]] = await duckBig.query(
     `SELECT to_json(t)::VARCHAR FROM ${duckBig.from} AS t`
 );
@@ -86,7 +86,7 @@ const NULL_RECORDS = [{
 const dfNull = DataFrame.fromJSON(NULL_CONFIG, NULL_RECORDS);
 const dfRow = JSON.parse(JSON.stringify(dfNull.toJSON()[0]));
 
-const duckNull = await DuckFrame.fromRecords(NULL_CONFIG, NULL_RECORDS, {});
+const duckNull = await TealFrame.fromRecords(NULL_CONFIG, NULL_RECORDS, {});
 const [[nativeNull]] = await duckNull.query(
     `SELECT to_json(t)::VARCHAR FROM ${duckNull.from} AS t`
 );

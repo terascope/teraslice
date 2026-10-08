@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { DuckDBInstance } from '@duckdb/node-api';
 import { DataFrame } from '@terascope/data-mate';
-import { prepareObjectIngest } from '@terascope/data-mate/dist/src/duck-frame/object-ingest.js';
+import { prepareObjectIngest } from '@terascope/data-mate/dist/src/teal-frame/object-ingest.js';
 const conn = await (await DuckDBInstance.create(':memory:')).connect();
 const F='./vn.json';
 const norm = (v) => JSON.stringify(v === undefined ? null : v);

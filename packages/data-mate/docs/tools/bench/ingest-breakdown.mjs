@@ -7,7 +7,7 @@
  *
  *   coerce          `coerceToType`, identical on both sides - the shared floor
  *   convert         `makeValueConverter` - build DuckDB's representation (BigInt, timestampValue,
- *                   structValue, listValue). DuckFrame ONLY.
+ *                   structValue, listValue). TealFrame ONLY.
  *   append          hand the typed values across the JS/C++ boundary, 2048 rows per chunk.
  *
  * Part 1 splits those three phases on the real corpus. Part 2 measures cost PER FIELD TYPE against
@@ -25,7 +25,7 @@ import { heading, note } from '../lib/duck.mjs';
 const require = createRequire(new URL('../../../package.json', import.meta.url));
 const dist = (rel) => pathToFileURL(require.resolve(`./dist/src/${rel}`)).href;
 
-const { DuckFrame, closeDuckDatabase } = await import(dist('duck-frame/DuckFrame.js'));
+const { TealFrame, closeDuckDatabase } = await import(dist('teal-frame/TealFrame.js'));
 const { DataFrame } = await import(dist('index.js'));
 const { coerceToType } = await import(dist('builder/type-coercion.js'));
 
@@ -93,14 +93,14 @@ const dataFrameCreate = await median(async () => {
 show('DataFrame.fromJSON (coerce + vectors)', dataFrameCreate);
 
 const duckCreate = await median(async () => {
-    const frame = await DuckFrame.fromRecords(CONFIG, records, {});
+    const frame = await TealFrame.fromRecords(CONFIG, records, {});
     sink += await frame.size();
     await frame.destroy();
 });
-show('DuckFrame.fromRecords (all three)', duckCreate);
+show('TealFrame.fromRecords (all three)', duckCreate);
 
 note('');
-note(`the shared coercion floor is ${((coerceOnly / duckCreate) * 100).toFixed(0)}% of DuckFrame's`
+note(`the shared coercion floor is ${((coerceOnly / duckCreate) * 100).toFixed(0)}% of TealFrame's`
     + ` total and ${((coerceOnly / dataFrameCreate) * 100).toFixed(0)}% of DataFrame's`);
 note(`so the ADDRESSABLE difference is ${(duckCreate - dataFrameCreate).toFixed(0)} ms`
     + ` - convert + append minus DataFrame's vector writes`);
@@ -131,8 +131,8 @@ const SAMPLES = {
     },
 };
 
-note(`${'type'.padEnd(20)}${'DataFrame'.padStart(10)}${'DuckFrame'.padStart(11)}`
-    + `${'ratio'.padStart(9)}   ns/value (DuckFrame)`);
+note(`${'type'.padEnd(20)}${'DataFrame'.padStart(10)}${'TealFrame'.padStart(11)}`
+    + `${'ratio'.padStart(9)}   ns/value (TealFrame)`);
 note('-'.repeat(74));
 
 const rows = [];
@@ -144,7 +144,7 @@ for (const [label, { config, value }] of Object.entries(SAMPLES)) {
         sink += DataFrame.fromJSON(single, data).size;
     });
     const duck = await median(async () => {
-        const frame = await DuckFrame.fromRecords(single, data, {});
+        const frame = await TealFrame.fromRecords(single, data, {});
         sink += await frame.size();
         await frame.destroy();
     });
@@ -154,7 +154,7 @@ for (const [label, { config, value }] of Object.entries(SAMPLES)) {
     note(`${label.padEnd(20)}${`${df.toFixed(0)} ms`.padStart(10)}`
         + `${`${duck.toFixed(0)} ms`.padStart(11)}`
         + `${`${ratio.toFixed(2)}x`.padStart(9)}   ${((duck * 1e6) / ROWS).toFixed(0)}`
-        + `${ratio > 1.5 ? '   <- DuckFrame loses' : ''}`);
+        + `${ratio > 1.5 ? '   <- TealFrame loses' : ''}`);
 }
 
 heading('Where to look first');

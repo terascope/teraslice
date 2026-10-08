@@ -17,17 +17,17 @@
  * same query text runs against any fixture scale by changing `FIXTURE`, and you
  * never paste an s3:// URL into a query.
  *
- * **It runs through DuckFrame, not the raw binding.** The other steps query the
+ * **It runs through TealFrame, not the raw binding.** The other steps query the
  * binding directly; this one goes through `frame.query()`, because that is what
  * spaces will call. Two consequences worth knowing:
  *
  *   - The frame owns its OWN database, so the settings are pushed in with
  *     `configureDuckDatabase()` and the credentials through `frame.query()`.
- *     Nothing is inherited from the environment. See `05-duckframe.mjs`.
+ *     Nothing is inherited from the environment. See `05-tealframe.mjs`.
  *   - **There is no streaming JS mode**, because `frame.rows()` hard-codes
- *     `SELECT * FROM <the frame>` and DuckFrame has no "frame from arbitrary
+ *     `SELECT * FROM <the frame>` and TealFrame has no "frame from arbitrary
  *     SQL" factory. `--rows json` is the JS path that IS reachable. Adding a
- *     `queryStream(sql)` to DuckFrame would unlock it — a one-method change,
+ *     `queryStream(sql)` to TealFrame would unlock it — a one-method change,
  *     deliberately not made from a harness.
  *
  * **One statement only.** Use the flags for `SET`s rather than prefixing them to
@@ -176,7 +176,7 @@ for (const [flag, envVar] of Object.entries(ENV_FOR)) {
 }
 
 const { config, s3Glob } = await import('../lib/env.mjs');
-const { open, duckFrame, applyEndpointSettings } = await import('../lib/duck.mjs');
+const { open, tealFrame, applyEndpointSettings } = await import('../lib/duck.mjs');
 const { configFromSchema } = await import('../lib/data-type.mjs');
 const {
     heading, note, table, ms, num, bytes, save, explain, measure, time, median,
@@ -298,12 +298,12 @@ function printOperatorTree(nodes, depth = 0) {
 /**
  * Open the frame, configured and credentialed.
  *
- * Mirrors `05-duckframe.mjs` exactly, and for the reasons documented there: the
+ * Mirrors `05-tealframe.mjs` exactly, and for the reasons documented there: the
  * frame's database is its own, so it gets the engine settings from
  * `configureDuckDatabase` and the S3 credentials through the `frame.query()`
  * escape hatch. Neither is inherited from this process's environment.
  */
-async function openFrame({ DuckFrame, configureDuckDatabase }) {
+async function openFrame({ TealFrame, configureDuckDatabase }) {
     const glob = s3Glob();
 
     // The raw binding, used ONLY to read the schema — `fromParquet` is told
@@ -323,7 +323,7 @@ async function openFrame({ DuckFrame, configureDuckDatabase }) {
         ...(config.threads ? { threads: Number(config.threads) } : {}),
     });
 
-    const frame = await DuckFrame.fromParquet(dataTypeConfig, glob);
+    const frame = await TealFrame.fromParquet(dataTypeConfig, glob);
 
     /*
      * THE SAME settings the harness applies to its own connection, from the same
@@ -734,14 +734,14 @@ function sweep(axes) {
 // ----------------------------------------------------------------- dispatch -
 
 try {
-    const { DuckFrame, configureDuckDatabase, closeDuckDatabase } = await duckFrame();
+    const { TealFrame, configureDuckDatabase, closeDuckDatabase } = await tealFrame();
 
     if (values.sweep.length && !process.env[SWEEP_CHILD]) {
         const results = sweep(values.sweep);
         save(values.tag ? `sql-${values.tag}` : 'sql-sweep', { sql: sqlText, sweeps: results });
         await closeDuckDatabase();
     } else {
-        const payload = await runOnce({ DuckFrame, configureDuckDatabase });
+        const payload = await runOnce({ TealFrame, configureDuckDatabase });
         await closeDuckDatabase();
 
         if (process.env[SWEEP_CHILD]) {

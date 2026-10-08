@@ -30,8 +30,8 @@ import { heading, note } from '../lib/duck.mjs';
 const require = createRequire(new URL('../../../package.json', import.meta.url));
 const dist = (rel) => pathToFileURL(require.resolve(`./dist/src/${rel}`)).href;
 
-const { DuckFrame, closeDuckDatabase } = await import(dist('duck-frame/DuckFrame.js'));
-const { duckFrameAdapter } = await import(dist('adapters/duck-frame-adapter/index.js'));
+const { TealFrame, closeDuckDatabase } = await import(dist('teal-frame/TealFrame.js'));
+const { tealFrameAdapter } = await import(dist('adapters/teal-frame-adapter/index.js'));
 const { functionConfigRepository: repo } = await import(dist('function-configs/index.js'));
 
 const { CONFIG, COLUMNS, makeRecords } = await import(
@@ -52,13 +52,13 @@ const STEPS = [
 
 heading(`Transform: evaluate vs update-in-place vs materialize - ${ROWS.toLocaleString()} rows`);
 
-const frame = await DuckFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'base' });
+const frame = await TealFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'base' });
 const base = frame.table;
 const ctx = frame;
 
 /** The UDF expression for one step, through the real adapter. */
 async function expressionFor(fnName, field) {
-    const adapted = await duckFrameAdapter(repo[fnName], {
+    const adapted = await tealFrameAdapter(repo[fnName], {
         field,
         inputConfig: { field_config: CONFIG.fields[field] },
     });

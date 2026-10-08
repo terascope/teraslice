@@ -1,8 +1,8 @@
-# data-mate known defects — `DataFrame` (D1–D6) and `DuckFrame` (DF1–DF19)
+# data-mate known defects — `DataFrame` (D1–D6) and `TealFrame` (DF1–DF19)
 
 > **THERE IS NO DF3.** The number was skipped when these were first written up, and `sql-emission.md`
 > once cited "known-defects DF3" for the leading-U+FEFF round trip, which had no entry anywhere — that
-> finding is now **DF12**. The DuckFrame set is **DF1, DF2, DF4–DF19**: eighteen entries.
+> finding is now **DF12**. The TealFrame set is **DF1, DF2, DF4–DF19**: eighteen entries.
 
 Every status below was re-checked against `../src/` on 2026-09-15.
 
@@ -24,7 +24,7 @@ Every status below was re-checked against `../src/` on 2026-09-15.
 | [DF9](#df9) | `isBase64` rejects 99.3% of valid base64 | open — **ticket** |
 | [DF10](#df10) | `replaceRegex`'s SQL emission returned different text for `.`, `\s`, `\S`, `[^` | **fixed** |
 | [DF11](#df11) | `toJSON` cannot run as a UDF on an integer column | open |
-| [DF12](#df12) | a leading U+FEFF is stripped on DuckFrame ingest; `DataFrame` keeps it | divergence, pinned |
+| [DF12](#df12) | a leading U+FEFF is stripped on TealFrame ingest; `DataFrame` keeps it | divergence, pinned |
 | [DF13](#df13) | over TLS with a private CA every `rows()` fails while `size()` succeeds | open |
 | [DF14](#df14) | every `Long` past 2^53 changed value on the Parquet wire (HUGEINT was written as DOUBLE) | **fixed** 2026-09-28 |
 | [DF15](#df15) | a `Long` given as a JS bigint past 2^53 was stored one too low | **fixed** 2026-09-28 |
@@ -43,13 +43,13 @@ behavioural comparison: [`duckdb-parity.md`](./duckdb-parity.md).
 | D3 | `test/function-configs/string/reverse-spec.ts` |
 | D4 | `packages/core-utils/test/numbers-spec.ts` (root cause), `test/type-coercion-spec.ts` (boundary) |
 | D5 | `test/type-coercion-spec.ts`, commented out at the foot — they assert the **correct** behaviour, so they fail today, and a permanently red suite trains people to ignore it |
-| DF1–DF13 | `test/duck-frame/sql-emission-spec.ts` — the SQL-vs-UDF parity gate that found most of them |
-| DF14, DF15 | `test/duck-frame/long-exact-spec.ts` |
-| DF16 | `test/duck-frame/geojson-geometry-spec.ts`, `test/duck-frame/wkb-spec.ts` |
-| DF17 | `test/duck-frame/tuple-output-spec.ts` |
-| DF18 | `test/duck-frame/serialize-options-spec.ts` - all 128 option sets; `engine-output-spec.ts` |
-| DF19 | `test/duck-frame/export-json-spec.ts` -> number rendering |
-| **DEF-BIGINT** | **`core-utils` UNFIXED ([#4555](https://github.com/terascope/teraslice/issues/4555)). duck-frame works around it locally — `test/duck-frame/duck-frame-spec.ts` → 'should read large integers back exactly, and agree with ndjson'** |
+| DF1–DF13 | `test/teal-frame/sql-emission-spec.ts` — the SQL-vs-UDF parity gate that found most of them |
+| DF14, DF15 | `test/teal-frame/long-exact-spec.ts` |
+| DF16 | `test/teal-frame/geojson-geometry-spec.ts`, `test/teal-frame/wkb-spec.ts` |
+| DF17 | `test/teal-frame/tuple-output-spec.ts` |
+| DF18 | `test/teal-frame/serialize-options-spec.ts` - all 128 option sets; `engine-output-spec.ts` |
+| DF19 | `test/teal-frame/export-json-spec.ts` -> number rendering |
+| **DEF-BIGINT** | **`core-utils` UNFIXED ([#4555](https://github.com/terascope/teraslice/issues/4555)). teal-frame works around it locally — `test/teal-frame/teal-frame-spec.ts` → 'should read large integers back exactly, and agree with ndjson'** |
 
 ```
 # whole data-mate suite (2026-08-14): 40 suites, 2728 passed, 0 failed
@@ -131,16 +131,16 @@ pass untouched, including `orderBy('age')`, whose nil placement is a convention 
 
 ---
 
-## `DuckFrame`
+## `TealFrame`
 
-Found mostly by `test/duck-frame/sql-emission-spec.ts`, which runs a function through the adapter twice
+Found mostly by `test/teal-frame/sql-emission-spec.ts`, which runs a function through the adapter twice
 — as SQL and as its own UDF — and requires the two to agree. None is caused by the emissions; the gate
 simply exercised paths nothing else did.
 
 <a name="df1"></a>
 ### DF1. A FIELD_VALIDATION on an ARRAY column cannot be expressed at all
 
-`duckFrameAdapter` maps per element under `INDIVIDUAL_VALUES`, so the predicate becomes a `BOOLEAN[]`
+`tealFrameAdapter` maps per element under `INDIVIDUAL_VALUES`, so the predicate becomes a `BOOLEAN[]`
 and the `CASE WHEN <pred> THEN col ELSE NULL END` wrapper fails. Not SQL-specific — the UDF path builds
 the identical shape, so `@contains` on any array field is broken on both paths today.
 
@@ -172,9 +172,9 @@ whether the fix is in the converter or in the declared `output_type`. The emissi
 ### DF4. A `FULL_VALUES` function on an ARRAY column cannot be registered as a UDF
 
 `registerScalarFunction` takes `parameter: FieldType`, a bare scalar type with no list form, so
-`duckFrameAdapter` registers `dm_addvalues(DOUBLE)` for a `DOUBLE[]` column and the query fails to bind.
+`tealFrameAdapter` registers `dm_addvalues(DOUBLE)` for a `DOUBLE[]` column and the query fails to bind.
 That is every `*Values` reducer — `addValues`, `subtractValues`, `multiplyValues`, `divideValues`,
-`maxValues`, `minValues` — so **they have never worked on the DuckFrame UDF path at all**.
+`maxValues`, `minValues` — so **they have never worked on the TealFrame UDF path at all**.
 
 ```
 Binder Error: No function matches the given name and argument types 'dm_addvalues_ebqori(DOUBLE[])'.
@@ -253,7 +253,7 @@ own serialization, which is what DF16 removed.
 
 **For the turf/geo-utils ticket.** Measured on `@turf/*` **7.4.0** (the repo's `package.json` said
 `~7.4.0` while `node_modules` held 7.3.5 until `pnpm install` was run); the SQL emissions use `ST_*`,
-which is geometrically correct, so these are the inputs where DuckFrame deliberately differs.
+which is geometrically correct, so these are the inputs where TealFrame deliberately differs.
 
 ```js
 import { geoContains } from '@terascope/geo-utils';
@@ -402,8 +402,8 @@ Measured, for the input `'9007199254740993'`:
 | `DataFrame.toJSON()` | `9007199254740993` | correct |
 | `DataFrame.rows()` | `9007199254740994` | **wrong, +1** |
 | what DuckDB stores | `9007199254740993` | correct |
-| **`DuckFrame.rows()`** | **`9007199254740992`** | **wrong, −1** |
-| `DuckFrame.ndjson()` | `9007199254740993` | correct — `export-json.ts` renders in SQL |
+| **`TealFrame.rows()`** | **`9007199254740992`** | **wrong, −1** |
+| `TealFrame.ndjson()` | `9007199254740993` | correct — `export-json.ts` renders in SQL |
 
 **Two different wrong answers for one input, and `rows()` disagrees with `ndjson()` inside a single
 frame.** No parity argument covers that, and `rows()` is the path the QPL engine uses to build a
@@ -424,7 +424,7 @@ every negative value takes the `Number.parseInt` branch with no string fallback:
 asserting `rows()` returns `...992` would make the bug a contract, and the next person would have to
 argue with a green suite to fix it.
 
-### Status: duck-frame works around it; `core-utils` is a separate ticket
+### Status: teal-frame works around it; `core-utils` is a separate ticket
 
 `plain-values.ts` converts bigints itself (`bigIntToPlain`) instead of calling `bigIntToJSON`, using
 `export-json.ts`' rule — `abs(value) > 9007199254740991` becomes an exact decimal string, anything
@@ -461,7 +461,7 @@ prove parity against, and turning a dying query into a silently succeeding one i
 the open (`JSON_SQL_TYPES` records that next to the type list).
 
 <a name="df12"></a>
-### DF12. A LEADING U+FEFF is stripped on the DuckFrame ingest path; `DataFrame` preserves it
+### DF12. A LEADING U+FEFF is stripped on the TealFrame ingest path; `DataFrame` preserves it
 
 Measured 2026-08-26 against the built `dist`; it is the "U+FEFF cannot round-trip" trap in
 `sql-emission.md`, which used to cite a non-existent DF3.
@@ -471,12 +471,12 @@ const cfg  = { version: 1, fields: { s: { type: 'Keyword' } } };
 const recs = [{ s: '﻿abc' }, { s: 'a﻿b' }, { s: 'abc' }];
 
 DataFrame.fromJSON(cfg, recs)    ->  ['<BOM>abc', 'a<BOM>b', 'abc']   // both preserved
-DuckFrame.fromRecords(cfg, recs) ->  ['abc',      'a<BOM>b', 'abc']   // LEADING one gone
+TealFrame.fromRecords(cfg, recs) ->  ['abc',      'a<BOM>b', 'abc']   // LEADING one gone
 ```
 
 **Only a LEADING U+FEFF is affected**, so this is a byte-order-mark strip at the start of a string value,
 not "DuckDB drops the BOM". **Recorded as a divergence rather than fixed** — such a value is close to
-always an artifact of bad upstream decoding and the DuckFrame behaviour is arguably better, so pin it in
+always an artifact of bad upstream decoding and the TealFrame behaviour is arguably better, so pin it in
 a parity test rather than changing one engine to match the other without a decision. It is an
 ingest-path difference, not an emission one; a function that *returns* a leading U+FEFF would hit the
 same strip through a UDF result, but none promoted so far does.
@@ -492,7 +492,7 @@ same strip through a UDF result, but none promoted so far does.
 
 Found 2026-08-27 against minio serving HTTPS with a private CA (a stand-in for Ceph RGW) using the
 `s3-perf` harness. **The symptom is misleading** — it looks like a credentials problem specific to
-streaming, but the split is exactly "does this operation open a NEW connection", and `DuckFrame.rows()`
+streaming, but the split is exactly "does this operation open a NEW connection", and `TealFrame.rows()`
 and `append()` each take their own by design.
 
 | operation | result |
@@ -564,15 +564,15 @@ value it PARSES and returns a bigint input untouched, but `duck-values.ts` subtr
 the bound — so `9007199254740993n` was stored as `...992` and `9223372036854775807n` as `...806`, while the
 same values as strings were exact (`docs/tools/probe/long-input-forms.mjs`).
 
-**The fix is on the DuckFrame side only**, because `core-utils` is shared with `DataFrame`, which is frozen:
+**The fix is on the TealFrame side only**, because `core-utils` is shared with `DataFrame`, which is frozen:
 `makeBigIntInputNormaliser` hands a bigint past the bound to coercion as its decimal string, walking the
 config so only `Long` positions — nested objects, tuples and arrays included — are touched. Coercion itself
 is unchanged.
 
-**DuckFrame and DataFrame now DIVERGE here, deliberately.** `DataFrame` still writes `...992` for a bigint
+**TealFrame and DataFrame now DIVERGE here, deliberately.** `DataFrame` still writes `...992` for a bigint
 input of `...993`; `export-json-spec.ts` used to assert that value "to match DataFrame", which pinned the
 defect as a contract. Its parity fixture now feeds the value as a string (both engines exact), and a separate
-test asserts DuckFrame's exact output beside DataFrame's wrong one.
+test asserts TealFrame's exact output beside DataFrame's wrong one.
 
 <a name="df16"></a>
 ### DF16. A `GeoJSON` field was stored as JSON text — FIXED 2026-09-28
@@ -585,7 +585,7 @@ every row, on every query — and the DF7 plan would have added a `JSON.parse` t
 
 **Now a `GEOMETRY`.** The node binding cannot create a GEOMETRY *value* (`createValue` throws "not yet
 supported"; DuckDB's C API has no geometry constructor), but its **vector** writer can — and ingest writes
-vectors. So `src/duck-frame/wkb.ts` encodes GeoJSON to WKB, proved byte-for-byte against DuckDB's own
+vectors. So `src/teal-frame/wkb.ts` encodes GeoJSON to WKB, proved byte-for-byte against DuckDB's own
 `ST_AsWKB` (`wkb-spec.ts`), and decodes it again for `rows()`. `ndjson()` renders with `ST_AsGeoJSON`.
 `writeParquet` passes `GEOPARQUET_VERSION 'BOTH'`: the GeoParquet 1.0 default types only a TOP-LEVEL
 geometry, so a `GeoJSON` array or an object's `GeoJSON` member came back as `BLOB`, and `BLOB -> GEOMETRY`
@@ -593,7 +593,7 @@ has no cast (`docs/tools/probe/geometry-list-parquet.mjs`).
 
 **What a GEOMETRY does not keep** — pinned in `geojson-geometry-spec.ts`, and deliberate:
 
-| input | `DataFrame` | `DuckFrame` |
+| input | `DataFrame` | `TealFrame` |
 |---|---|---|
 | `{ type: 'POLYGON', ... }` (non-canonical spelling) | keeps `'POLYGON'` | `'Polygon'` |
 | extra keys (`bbox`, `properties`) | keeps them | geometry only |
@@ -630,7 +630,7 @@ types — and both output paths handed the struct back as it was: `{"0":1.5,"1":
   every other column costs nothing per row.
 
 **Not a defect, recorded because it was once reported as one:** `@preserveNullFields` output is correct for
-objects. `typed-objects.mjs` passed `DataFrame`'s `toJSON` options to `DuckFrame.ndjson()`, which takes
+objects. `typed-objects.mjs` passed `DataFrame`'s `toJSON` options to `TealFrame.ndjson()`, which takes
 `{ removeNullFields }`, so its "preserve" runs were the default and "found" nulls missing.
 
 <a name="df18"></a>
@@ -639,11 +639,11 @@ objects. `typed-objects.mjs` passed `DataFrame`'s `toJSON` options to `DuckFrame
 `DataFrame.toJSON` / `rows(true, options)` take seven flags — `useNullForUndefined`, `skipNilValues`,
 `skipEmptyArrays`, `skipNilListValues`, `skipNilObjectValues`, `skipEmptyObjects`, `skipDuplicateObjects`
 (`src/vector/interfaces.ts`). spaces sets two combinations of them from `remove_null_fields`
-(`qpl-engine/src/v3/execute/run.ts:174`). DuckFrame took only that flag and approximated the default with
+(`qpl-engine/src/v3/execute/run.ts:174`). TealFrame took only that flag and approximated the default with
 `json_merge_patch('{}', ...)`, which strips EVERY null key recursively. So in the default preset
 (`docs/tools/probe/object-output-parity.mjs`, `dataframe-nonfinite.mjs`):
 
-| | `DataFrame` | DuckFrame before |
+| | `DataFrame` | TealFrame before |
 |---|---|---|
 | an object left with no non-nil field | field omitted (`skipEmptyObjects`) | `"obj":{}` |
 | a nil field inside an element of an ARRAY of objects | omitted | `"qty":null` — merge-patch does not enter arrays |
@@ -679,17 +679,17 @@ in config order too (a STRUCT cast maps members by name, so older payloads still
 **The engine's other two output paths, added 2026-09-30** (`engine-output-spec.ts`):
 
 - `serializeObject` streams a one-row frame's `results` list with `ListVector.getRowIterator(0, true,
-  options)` -> **`DuckFrame.listValues(column, options)`**, same rules per element, a nil one yielded as
+  options)` -> **`TealFrame.listValues(column, options)`**, same rules per element, a nil one yielded as
   `null`/`undefined` or skipped as `DataFrame` does; `skipDuplicateObjects` refused with its message.
   Compared across all 64 combinations it accepts, on three one-row shapes, for an object and a scalar list.
 - `finish-scope` calls `removeEmptyRows()` / `countEmptyRows()` for its metric ->
-  **`DuckFrame.removeEmptyRows()`** (a relation, order kept) and **`countEmptyRows()`**. Empty means EVERY
+  **`TealFrame.removeEmptyRows()`** (a relation, order kept) and **`countEmptyRows()`**. Empty means EVERY
   column's stored value is nil (`isEmptyRow` -> `vector.has`): `{}` and `[]` are values.
 - The metadata half of `serializeObject` is `getRow(0, true, options)`, which is the first row of
   `rows(options)` on the frame without `results`.
 
 **Not reproduced, deliberately:** under `skipEmptyArrays`, `TupleVector` treats a position as nil unless
-its vector has `toJSONCompatibleValue`, so it drops `[1.5, "a"]` as empty. DuckFrame drops a tuple only
+its vector has `toJSONCompatibleValue`, so it drops `[1.5, "a"]` as empty. TealFrame drops a tuple only
 when every position is nil. No spaces preset sets `skipEmptyArrays`.
 
 <a name="df19"></a>

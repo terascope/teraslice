@@ -1,18 +1,18 @@
 /**
- * The measuring rig for the DataFrame-vs-DuckFrame comparison.
+ * The measuring rig for the DataFrame-vs-TealFrame comparison.
  *
  * **Every rule here exists because it changes the number.**
  *
  * 1. **Warm up, then take the MEDIAN of several runs.** The first call pays for DuckDB instance
  *    creation and V8 warm-up; a single timing at 1k rows is mostly that. The warm-up run is
  *    discarded and never reported.
- * 2. **`DuckFrame` is LAZY.** `select`/`filter`/`orderBy` only build SQL, so timing them measures
- *    string concatenation - microseconds, and meaningless. Every DuckFrame case here ends in
+ * 2. **`TealFrame` is LAZY.** `select`/`filter`/`orderBy` only build SQL, so timing them measures
+ *    string concatenation - microseconds, and meaningless. Every TealFrame case here ends in
  *    something that forces execution, and `force()` is the only sanctioned way to do it.
  * 3. **Verify the two engines did the same work.** Each case returns a row count (or a value),
  *    and mismatches are reported as a warning in the output. A benchmark where one side quietly
  *    did less is worse than no benchmark.
- * 4. **`DataFrame` will run out of memory before `DuckFrame` does.** That is a RESULT, not a
+ * 4. **`DataFrame` will run out of memory before `TealFrame` does.** That is a RESULT, not a
  *    crash: an OOM or a throw is caught, recorded as such, and the scale continues with the
  *    other engine. Run with a big heap so the limit found is the real one, not an artificial
  *    2 GB default: `node --max-old-space-size=16384`.
@@ -94,7 +94,7 @@ export async function measure(fn, { warmup = true, runs = RUNS } = {}) {
 }
 
 /**
- * Drains a `DuckFrame` so the work is actually done.
+ * Drains a `TealFrame` so the work is actually done.
  *
  * **Which forcing method is correct depends on what is being measured**, and getting it wrong
  * silently measures nothing:
@@ -129,7 +129,7 @@ export async function force(frame, how = 'table') {
 // ---------------------------------------------------------------- checkpointing
 
 /**
- * `CHECKPOINT=1` compresses the DuckFrame side's tables before a case is timed.
+ * `CHECKPOINT=1` compresses the TealFrame side's tables before a case is timed.
  *
  * **A measured DIMENSION of the comparison, not a tweak.** An in-memory DuckDB table stays
  * `Uncompressed` until a checkpoint, and every number in `docs/PERFORMANCE.md` was taken in that
@@ -145,10 +145,10 @@ export async function force(frame, how = 'table') {
 export const CHECKPOINT = ['1', 'true', 'yes'].includes(String(process.env.CHECKPOINT));
 
 /**
- * `PREFER_SQL` chooses which EXECUTION PATH the DuckFrame side's transforms take.
+ * `PREFER_SQL` chooses which EXECUTION PATH the TealFrame side's transforms take.
  *
  * **The second measured dimension of this comparison, and the one this document was missing.**
- * 188 of the 205 function configs now carry a `sql` emission, so `duckFrameAdapter` returns native
+ * 188 of the 205 function configs now carry a `sql` emission, so `tealFrameAdapter` returns native
  * SQL and registers no UDF at all; before that work every function ran as a vectorized JavaScript
  * UDF at a measured ~171 ns per value, single-threaded, because the node binding blocks DuckDB's
  * worker thread until JS returns. Every transform number in `docs/PERFORMANCE.md` was taken on the
@@ -262,10 +262,10 @@ export function rate(rows, ms) {
     return `${Math.round(rows / (ms / 1000)).toLocaleString()}/s`;
 }
 
-/** `2.4x faster` / `1.8x slower`, from DuckFrame's point of view. */
-export function speedup(dataFrameMs, duckFrameMs) {
-    if (dataFrameMs == null || duckFrameMs == null) return '-';
-    const factor = dataFrameMs / duckFrameMs;
+/** `2.4x faster` / `1.8x slower`, from TealFrame's point of view. */
+export function speedup(dataFrameMs, tealFrameMs) {
+    if (dataFrameMs == null || tealFrameMs == null) return '-';
+    const factor = dataFrameMs / tealFrameMs;
     return factor >= 1 ? `**${factor.toFixed(1)}x faster**` : `${(1 / factor).toFixed(1)}x slower`;
 }
 
@@ -278,5 +278,5 @@ export function progress(scale, name, df, duck) {
 
 export function progressHeader() {
     line(`  ${'scale'.padEnd(8)}${'case'.padEnd(PAD)}${'DataFrame'.padStart(12)}`
-        + `${'DuckFrame'.padStart(12)}   ratio`);
+        + `${'TealFrame'.padStart(12)}   ratio`);
 }

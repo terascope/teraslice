@@ -10,12 +10,12 @@
  * `FATAL ERROR: Ineffective mark-compacts near heap limit` and aborts the process (exit 134).
  * Nothing inside the runner can catch that, so a single-process sweep lost the 12 cases that came
  * after it, at 3M and again at 5M - including every ldjson case, both joins and all the
- * aggregations, which are the most compelling DuckFrame wins at exactly the scales that matter.
+ * aggregations, which are the most compelling TealFrame wins at exactly the scales that matter.
  *
  * So this process owns the loop instead:
  *
  * 1. Run `run.js` as a child, one scale and one ENGINE at a time. The engine split means a
- *    DataFrame abort cannot take DuckFrame's numbers with it.
+ *    DataFrame abort cannot take TealFrame's numbers with it.
  * 2. The child writes an in-flight marker naming the case it is about to measure.
  * 3. On a non-zero exit, read the marker, record THAT case's cell as an OOM for that engine, add
  *    it to the child's skip list, and restart from the next case.
@@ -38,7 +38,7 @@ import { SCALES, label } from './lib/generate.js';
 
 const HEAP = Number(process.env.HEAP || 24576);
 const CASE_TIMEOUT = Number(process.env.CASE_TIMEOUT || 1800) * 1000;
-const ENGINES = (process.env.ENGINES || 'duckframe,dataframe').split(',');
+const ENGINES = (process.env.ENGINES || 'tealframe,dataframe').split(',');
 const OUT = process.env.OUT || 'docs/PERFORMANCE.md';
 
 /**
@@ -49,12 +49,12 @@ const OUT = process.env.OUT || 'docs/PERFORMANCE.md';
 const RUNNER = process.env.RUNNER || 'bench/comparison/run.js';
 
 /**
- * DuckFrame first, deliberately: its numbers are the ones a DataFrame abort used to destroy, so
+ * TealFrame first, deliberately: its numbers are the ones a DataFrame abort used to destroy, so
  * they are banked before the engine that dies is asked to run at all.
 */
 for (const engine of ENGINES) {
-    if (!['dataframe', 'duckframe'].includes(engine)) {
-        throw new Error(`ENGINES must list 'dataframe' and/or 'duckframe', got ${engine}`);
+    if (!['dataframe', 'tealframe'].includes(engine)) {
+        throw new Error(`ENGINES must list 'dataframe' and/or 'tealframe', got ${engine}`);
     }
 }
 

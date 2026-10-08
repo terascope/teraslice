@@ -1,12 +1,12 @@
 /* eslint-disable no-console -- a probe's output IS its result */
 // SUPERSEDED for OUTPUT parity by object-output-parity.mjs. This passes DataFrame's toJSON
-// options to DuckFrame.ndjson(), which takes { removeNullFields } - so every "PRESERVE" line here
+// options to TealFrame.ndjson(), which takes { removeNullFields } - so every "PRESERVE" line here
 // is really the default, and the "@preserveNullFields drops nulls" it reports is not real.
 // Its storage, schema, bigint and Parquet checks are unaffected.
-// Typed objects (declared children) through DuckFrame, end to end, against DataFrame.
+// Typed objects (declared children) through TealFrame, end to end, against DataFrame.
 import { DataFrame } from '../../../dist/src/index.js';
-import { DuckFrame } from '../../../dist/src/duck-frame/index.js';
-import { diffSchema, describeColumns } from '../../../dist/src/duck-frame/schema-check.js';
+import { TealFrame } from '../../../dist/src/teal-frame/index.js';
+import { diffSchema, describeColumns } from '../../../dist/src/teal-frame/schema-check.js';
 import { FieldType as T } from '@terascope/types';
 
 const S = process.argv[2];
@@ -91,9 +91,9 @@ for (const [label, { fields, records }] of Object.entries(CASES)) {
     }
     let duck;
     try {
-        duck = await DuckFrame.fromRecords(config, records);
+        duck = await TealFrame.fromRecords(config, records);
     } catch (e) {
-        console.log(`\n## ${label}\n  DuckFrame.fromRecords THREW: ${e.message.split('\n')[0]}${dfErr ? `\n  (DataFrame threw too: ${dfErr})` : ''}`);
+        console.log(`\n## ${label}\n  TealFrame.fromRecords THREW: ${e.message.split('\n')[0]}${dfErr ? `\n  (DataFrame threw too: ${dfErr})` : ''}`);
         continue;
     }
     if (dfErr) lines.push(`  DataFrame.fromJSON THREW: ${dfErr}`);
@@ -117,9 +117,9 @@ for (const [label, { fields, records }] of Object.entries(CASES)) {
     // the wire: writeParquet -> fromParquet, and -> create + append({parquet})
     const file = `${S}/typed-${Object.keys(CASES).indexOf(label)}.parquet`;
     await duck.writeParquet(file);
-    const back = await DuckFrame.fromParquet(config, file);
+    const back = await TealFrame.fromParquet(config, file);
     note('parquet -> fromParquet rows() unchanged', norm(await collect(back.rows())) === norm(rows), norm(await collect(back.rows())));
-    const acc = await DuckFrame.create(config);
+    const acc = await TealFrame.create(config);
     await acc.append({ parquet: file });
     await acc.append({ parquet: file });
     const accRows = await collect(acc.rows());

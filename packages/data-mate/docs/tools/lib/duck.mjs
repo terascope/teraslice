@@ -49,14 +49,14 @@ export async function open(path = ':memory:') {
 }
 
 /**
- * The real `DuckFrame`, from the built dist.
+ * The real `TealFrame`, from the built dist.
  *
- * Imported by PATH, not by package name: `duck-frame` is deliberately not re-exported from
- * data-mate's `src/index.ts`, so `import { DuckFrame } from '@terascope/data-mate'` gives
+ * Imported by PATH, not by package name: `teal-frame` is deliberately not re-exported from
+ * data-mate's `src/index.ts`, so `import { TealFrame } from '@terascope/data-mate'` gives
  * `undefined` rather than an error - which silently turns a benchmark into a crash later.
 */
-export async function duckFrame() {
-    const dist = new URL('../../../dist/src/duck-frame/DuckFrame.js', import.meta.url);
+export async function tealFrame() {
+    const dist = new URL('../../../dist/src/teal-frame/TealFrame.js', import.meta.url);
     if (!existsSync(dist)) {
         throw new Error(
             'packages/data-mate/dist is missing - run `npx tsc -b` in packages/data-mate first'
@@ -64,8 +64,8 @@ export async function duckFrame() {
     }
 
     const loaded = await import(dist.href);
-    if (typeof loaded.DuckFrame !== 'function') {
-        throw new Error('dist has no DuckFrame export - the build is stale, run `npx tsc -b`');
+    if (typeof loaded.TealFrame !== 'function') {
+        throw new Error('dist has no TealFrame export - the build is stale, run `npx tsc -b`');
     }
     return loaded;
 }

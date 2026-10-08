@@ -1,6 +1,6 @@
-# DuckFrame / DuckDB — S3 performance harness
+# TealFrame / DuckDB — S3 performance harness
 
-Measures DuckDB and DuckFrame query performance against Parquet objects in an
+Measures DuckDB and TealFrame query performance against Parquet objects in an
 S3-compatible store (Ceph RGW in the test environment, minio locally).
 
 **This manual is the interface.** The target environment is offline and AI-free,
@@ -37,7 +37,7 @@ every script reads objects already in the bucket.
 
 Extensions are baked into DuckDB's **default** lookup path
 (`$HOME/.duckdb/extensions/<version>/<platform>/`), so every instance finds them
-without configuration — including the one `DuckFrame` creates internally.
+without configuration — including the one `TealFrame` creates internally.
 
 ---
 
@@ -114,7 +114,7 @@ failure. Each is independent and safe to re-run.
 | `battery` | up to 10 query shapes, **built from the corpus** (it profiles types and cardinality first) | Shapes run from `count(*)` (footer only, touches no data) to a wide `SELECT * … ORDER BY … LIMIT` (the memory cliff) and disagree by orders of magnitude |
 | `caches` | three profiles — all OFF (DuckDB's default), `parquet_metadata_cache` only, all ON — in **bytes moved** | Locally, all ON took a two-predicate search from 40.7 MB to 5 KB. Bytes, because timing cannot separate a cache hit from a warm OS page cache |
 | `layout` | fits the per-row-group cost law by timing subsets; flags layout pathologies | Reported raggedness is **expected** for as-received slice payloads, not a fault |
-| `duckframe` | the real `DuckFrame` from `dist`: `fromParquet`, `size`, `select`, `limit`, `orderBy`, `rows`, `distinct` | Ingest is deliberately untested — `qpl-worker` never calls `fromRecords`. If frames lag the equivalent SQL, compare `battery.json` against `duckframe.json` |
+| `tealframe` | the real `TealFrame` from `dist`: `fromParquet`, `size`, `select`, `limit`, `orderBy`, `rows`, `distinct` | Ingest is deliberately untested — `qpl-worker` never calls `fromRecords`. If frames lag the equivalent SQL, compare `battery.json` against `tealframe.json` |
 | `memory` | sweeps `memory_limit` (`LIMITS`) to find the shape that **fails rather than degrading** | The law: a wide top-N needs `threads × row_group_size × columns_projected`, **independent of dataset size**. Fourteen of fifteen shapes are fine down to 128 MiB |
 | `sql` | **your** query, every engine setting as a flag, plus DuckDB's per-operator profile | Not part of `all`. `{{T}}` expands to the corpus, so a query is portable across `FIXTURE` values |
 

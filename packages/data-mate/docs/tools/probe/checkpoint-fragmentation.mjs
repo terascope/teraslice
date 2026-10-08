@@ -37,7 +37,7 @@ import { pathToFileURL } from 'node:url';
 
 const require = createRequire(new URL('../../../package.json', import.meta.url));
 const dist = (rel) => pathToFileURL(require.resolve(`./dist/src/${rel}`)).href;
-const { DuckFrame, closeDuckDatabase } = await import(dist('duck-frame/DuckFrame.js'));
+const { TealFrame, closeDuckDatabase } = await import(dist('teal-frame/TealFrame.js'));
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url).href
 );
@@ -101,7 +101,7 @@ async function trial(rows, payloadCount, mode) {
     // payloads first, in their own database, so nothing of the producer is alive during the measure
     const files = [];
     for (let n = 0; n < payloadCount; n++) {
-        const producer = await DuckFrame.fromRecords(
+        const producer = await TealFrame.fromRecords(
             CONFIG, makeRecords(perPayload, n + 1), { name: `p${n}` }
         );
         const file = path.join(scratch, `r${rows}-c${payloadCount}-${n}.parquet`);
@@ -111,7 +111,7 @@ async function trial(rows, payloadCount, mode) {
     }
     await closeDuckDatabase();
 
-    const frame = await DuckFrame.create(CONFIG, { name: 'master' });
+    const frame = await TealFrame.create(CONFIG, { name: 'master' });
     const table = frame.table;
     if (mode === 'auto-off') await frame.query("SET checkpoint_threshold = '1TB'");
 

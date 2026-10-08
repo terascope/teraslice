@@ -2,8 +2,8 @@
 import { writeFileSync } from 'node:fs';
 import { DuckDBInstance } from '@duckdb/node-api';
 import { DataFrame } from '@terascope/data-mate';
-import { prepareObjectIngest } from '@terascope/data-mate/dist/src/duck-frame/object-ingest.js';
-import { buildFailureCountSql } from '@terascope/data-mate/dist/src/duck-frame/ingest-sql.js';
+import { prepareObjectIngest } from '@terascope/data-mate/dist/src/teal-frame/object-ingest.js';
+import { buildFailureCountSql } from '@terascope/data-mate/dist/src/teal-frame/ingest-sql.js';
 
 const conn = await (await DuckDBInstance.create(':memory:')).connect();
 const FILE = './vo.json';

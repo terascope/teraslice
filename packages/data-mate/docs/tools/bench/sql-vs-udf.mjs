@@ -31,8 +31,8 @@ import { pathToFileURL } from 'node:url';
 
 const require = createRequire(new URL('../../../package.json', import.meta.url));
 const dist = (rel) => pathToFileURL(require.resolve(`./dist/src/${rel}`)).href;
-const { DuckFrame, closeDuckDatabase } = await import(dist('duck-frame/DuckFrame.js'));
-const { duckFrameAdapter } = await import(dist('adapters/duck-frame-adapter/index.js'));
+const { TealFrame, closeDuckDatabase } = await import(dist('teal-frame/TealFrame.js'));
+const { tealFrameAdapter } = await import(dist('adapters/teal-frame-adapter/index.js'));
 const { functionConfigRepository } = await import(dist('function-configs/index.js'));
 
 const ROWS = Number(process.env.ROWS || 2_000_000);
@@ -111,7 +111,7 @@ async function checkpoint(frame, table) {
  * 2M rows, which buries the difference being measured. The checksum touches every value.
 */
 async function time(frame, table, config, args, preferSql) {
-    const adapted = await duckFrameAdapter(config, {
+    const adapted = await tealFrameAdapter(config, {
         field: 'field',
         inputConfig: { field_config: { type: 'Keyword' } },
         args,
@@ -141,7 +141,7 @@ async function time(frame, table, config, args, preferSql) {
 const results = [];
 
 async function measure(name, config, nonAsciiFraction) {
-    const frame = await DuckFrame.fromRecords(
+    const frame = await TealFrame.fromRecords(
         CONFIG, makeRecords(ROWS, nonAsciiFraction), { name: 'corpus' }
     );
     const table = frame.table;

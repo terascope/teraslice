@@ -35,12 +35,12 @@ DF1, DF2, DF4-DF13 — **there is no DF3**), `ingest-findings.md` (read its VALI
 
 If you read nothing else, read this and §0.
 
-**What exists.** `DuckFrame` in `src/duck-frame/` on `dataframe-duckdb-refactor` (commit count:
+**What exists.** `TealFrame` in `src/teal-frame/` on `dataframe-duckdb-refactor` (commit count:
 `git log --oneline master..HEAD | wc -l` — do not maintain it by hand): ingest (`create` +
 `append({records|parquet})`, atomic, own connection), **statements (`query(sql)` → a frame,
 `fromSQL`, `searchParams`)**, query
 (`select`/`filter`/`join`/`orderBy`/`limit`/`distinct`/`materialize`/`size`), output (`rows`,
-`ndjson`, `writeNDJSON`, `writeParquet`), and `duckFrameAdapter` driving the same
+`ndjson`, `writeNDJSON`, `writeParquet`), and `tealFrameAdapter` driving the same
 `FunctionDefinitionConfig`s as `dataFrameAdapter`. **47 data-mate suites / 3,687 tests passing,
 verified 2026-09-28** (plus `data-types` 32 / 198 and `sql-builder` 2 / 66; `xlucene-translator`'s
 174 failures are all OpenSearch-only suites with no cluster configured, identical with and without
@@ -50,9 +50,9 @@ the 2026-09-28 changes).
 - **`Long` is `BIGINT`, not `HUGEINT`.** Parquet has no 128-bit integer, so HUGEINT crossed the wire as
   a DOUBLE and every value past 2^53 changed (DF14). A value outside int64 is now a coercion failure; a
   COMPUTED wide Long (`ipToInt` on IPv6) keeps a wide type in the query, and `writeParquet` narrows it or
-  fails loudly. A bigint INPUT past 2^53 was also stored one too low (DF15) — fixed DuckFrame-side only;
-  DuckFrame and `DataFrame` now deliberately differ there.
-- **`GeoJSON` is `GEOMETRY`, not JSON text** (DF16). Encoded to WKB at ingest (`src/duck-frame/wkb.ts`),
+  fails loudly. A bigint INPUT past 2^53 was also stored one too low (DF15) — fixed TealFrame-side only;
+  TealFrame and `DataFrame` now deliberately differ there.
+- **`GeoJSON` is `GEOMETRY`, not JSON text** (DF16). Encoded to WKB at ingest (`src/teal-frame/wkb.ts`),
   used directly by every geo emission and by `sql-builder`'s DuckDB dialect — nothing re-parses a shape per
   row any more. `writeParquet` uses `GEOPARQUET_VERSION 'BOTH'` so NESTED geometry survives the wire.
 - **`Any` / untyped `Object` stay JSON text.** `VARIANT` was measured and rejected: ~9x slower per query,
@@ -77,7 +77,7 @@ already applied — is 80%+ of what a frame is handed. `frame.query(sql)` runs o
 `frame.searchParams()` is how the frame names itself as that statement's source. **Prefer a table over
 a relation there:** a generated statement may name its source more than once (a self-join, a correlated
 subquery), and a relation is textual so each mention re-executes the whole subquery. Pinned end to end
-by `test/duck-frame/query-access-spec.ts`.
+by `test/teal-frame/query-access-spec.ts`.
 
 **`@terascope/sql-builder` is a NEW package (2026-09-21).** The dialects, quoting, clause building and
 statement assembly moved out of `xlucene-translator` into it, and `data-mate` consumes it, so the
@@ -152,7 +152,7 @@ Each was gotten wrong at least once, several three or four times, and every one 
 
 ```
 qpl-search-api   queries Elasticsearch -> RECORDS. The ONLY place records become a frame
-                 (DuckFrame.fromRecords). Sends PARQUET back over the wire.
+                 (TealFrame.fromRecords). Sends PARQUET back over the wire.
 qpl-worker       WHERE THE TABLE LIVES. Its slicers/fetches query qpl-search-api, each
                  returning a Parquet payload; it ingests the MANY payloads into ONE table
                  representing the entire search query result.
@@ -169,7 +169,7 @@ needs no PEM at all; believing otherwise cost most of a session and misdiagnosed
 default is not a limitation.**
 
 **0c. A FRAME OWNS A SECOND DATABASE, AND `open()` DOES NOT CONFIGURE IT.** `lib/duck.mjs`'s `open()`
-and a `DuckFrame` are two DuckDB instances sharing nothing; a script that hand-copied "the settings
+and a `TealFrame` are two DuckDB instances sharing nothing; a script that hand-copied "the settings
 that looked relevant" omitted `LOAD aws/parquet/json`, the autoload switches and the HTTP
 timeout/retries, and read as broken when it was a config divergence. Fixed by making
 `applyEndpointSettings(run, overrides)` the single definition — **anything that opens a second
@@ -194,7 +194,7 @@ the deployment envelope.
 **4. Use the function configs. Do NOT invent a parallel vocabulary.** A `FunctionDefinitionConfig`
 already defines name, aliases, `argument_schema`, `accepts`, `output_type`, the implementation and
 `process_mode`, and spaces turns them into **GraphQL directives**, so they are the public surface.
-`duckFrameAdapter` exists for exactly this; a hand-rolled spec type was built once and deleted.
+`tealFrameAdapter` exists for exactly this; a hand-rolled spec type was built once and deleted.
 
 **5. Explore a package's structure before adding to it.** The DuckDB type mapping was first dropped
 in as a one-off `data-types/src/duckdb.ts`, when the package defines each FieldType as a class in
@@ -276,7 +276,7 @@ on a monotonic axis means the harness, not the world** — those numbers were ex
         v
   ===== qpl-search-api ==========================  the PRODUCER
   spaces' reader / fetch code    SPACES OWNS: auth, POST bodies, slicing, retries, backpressure
-  DuckFrame.fromRecords          coerceToType + typed appender. VALIDATION HAPPENS ONCE, HERE.
+  TealFrame.fromRecords          coerceToType + typed appender. VALIDATION HAPPENS ONCE, HERE.
   COPY ... (FORMAT PARQUET, COMPRESSION zstd)
   ===============================================
         |   *** THE WIRE CARRIES PARQUET + zstd. ***
@@ -284,7 +284,7 @@ on a monotonic axis means the harness, not the world** — those numbers were ex
         v
   ===== qpl-worker (~64 GB) =====================  the CONSUMER
   MANY payloads, one per fetch   its slicers/fetches each query qpl-search-api
-  DuckFrame.create(config)       ONE table for the whole search result
+  TealFrame.create(config)       ONE table for the whole search result
   + append({parquet}) x N        read_parquet: 31 ms/1M, ZERO COERCION
   SQL: join / filter / project / agg    <== JOINS HAPPEN HERE
   ===============================================
@@ -367,24 +367,24 @@ packages/sql-builder/   NEW, 2026-09-21. SQL TEXT for every engine, shared by th
                         dialects/ (base, duckdb, postgres)  clauses.ts (ORDER BY + NULLS,
                         GROUP BY)  quoting.ts  patterns.ts  field-types.ts  statement.ts
 core-utils/src/sql.ts   quoteIdentifier + quoteLiteral, the ONE definition. data-types,
-                        sql-builder and duck-frame each carried their own copy of the same BUG
+                        sql-builder and teal-frame each carried their own copy of the same BUG
 
-src/duck-frame/   index.ts      the barrel. DuckContext is deliberately NOT in it
-                  DuckFrame.ts  the class, and nothing else
+src/teal-frame/   index.ts      the barrel. DuckContext is deliberately NOT in it
+                  TealFrame.ts  the class, and nothing else
                   DuckContext.ts  database.ts (configureDuckDatabase, closeDuckDatabase,
                   registerScalarFunction, getContext)  errors.ts (CoercionFailureError,
                   AppendError)  interfaces.ts  table.ts  sources.ts  plain-values.ts
                   export-json.ts  duck-values.ts  scalar-function.ts  schema-check.ts
-src/adapters/duck-frame-adapter/index.ts
-test/duck-frame/  duck-frame, join, database, schema-check, duck-frame-adapter, type-sweep,
+src/adapters/teal-frame-adapter/index.ts
+test/teal-frame/  teal-frame, join, database, schema-check, teal-frame-adapter, type-sweep,
                   function-sweep, order-limit, distinct, multi-parquet, export-json,
                   date-udf, sql-emission, query-access
 ```
 
 **The layout follows the other modules now** — `column/`, `vector/`, `core/` and `builder/` all have
-`index.ts` + `interfaces.ts` + one class per `<Name>.ts`, and `duck-frame/` had none of it: no barrel,
+`index.ts` + `interfaces.ts` + one class per `<Name>.ts`, and `teal-frame/` had none of it: no barrel,
 no interfaces file, four classes in a 1,448-line file, and every consumer deep-importing
-`duck-frame/DuckFrame.js`.
+`teal-frame/TealFrame.js`.
 
 | | |
 |---|---|
@@ -404,7 +404,7 @@ field restriction. A verbatim list must be given `columns` — which `restrictSQ
 raised 2026-09-22, because four methods looked like four ways to search:
 
 1. **Compose a statement** — `filter` `select` `orderBy` `limit` `distinct` `join`. Six methods of
-   ONE kind, each appending a clause. Their caller is the DIRECTIVE path: `duckFrameAdapter`
+   ONE kind, each appending a clause. Their caller is the DIRECTIVE path: `tealFrameAdapter`
    returns one expression for one function on one column, so a transform chain is
    `select`→`select`→`select` and there is no finished statement to hand over.
 2. **Be handed a statement** — `query` (instance) / `fromSQL` (static), the same pairing as
@@ -418,7 +418,7 @@ puts every value through `toPlainValue`, whose `bigIntToJSON` drops to the neare
 `Long`: stored `9007199254740993`, `rawRows` reports `9007199254740993`, **`rows()` reports
 `9007199254740992`**. So `rows()` cannot be used to check `rows()` — an assertion about storage
 made through the output path agrees with itself while the stored value is wrong, which is the
-exact class of bug the storage checks exist to catch. Pinned by `duck-frame-spec.ts`
+exact class of bug the storage checks exist to catch. Pinned by `teal-frame-spec.ts`
 ("should disagree with rows() above MAX_SAFE_INTEGER"); if that test ever goes green with both
 paths equal, the divergence was fixed and `rawRows` has lost its main reason to exist. Secondary:
 it needs no `DataTypeConfig`, so `DESCRIBE` need not invent one. Marked `@internal`; one caller in
@@ -492,7 +492,7 @@ Since it matches nothing it can never be left to a default, so `NULLS FIRST`/`NU
 on **every** term. **This was a live divergence, fixed 2026-09-21:** `xlucene-translator`'s `toOrderBy`
 emitted `x ASC` and let DuckDB's `NULLS_LAST` stand while the frame emitted `x ASC NULLS FIRST`, so the
 same user query put nulls at opposite ends of an ascending page depending on which built the statement.
-Both now call `dialect.orderBy`, and `test/duck-frame/query-access-spec.ts` pins the agreement by
+Both now call `dialect.orderBy`, and `test/teal-frame/query-access-spec.ts` pins the agreement by
 running a translated statement and `frame.orderBy` over the same rows. A caller who wants the
 Elasticsearch answer passes `nulls: 'last'` on the `SQLSort`.
 
@@ -524,7 +524,7 @@ for the caller, but raw SQL the caller writes is theirs to quote (a `group` fiel
 
 The final result goes to S3 as **ldjson**, and DuckDB renders the JSON in C++ rather than through JS
 objects. **Its native output is NOT `DataFrame`'s**, so five divergences are corrected **in SQL before
-anything is written** (`src/duck-frame/export-json.ts`), generated from the frame's config:
+anything is written** (`src/teal-frame/export-json.ts`), generated from the frame's config:
 
 | | `DataFrame` | DuckDB raw | fix |
 |---|---|---|---|
@@ -540,7 +540,7 @@ anything is written** (`src/duck-frame/export-json.ts`), generated from the fram
 - DuckDB's own uncorrected `to_json(row)` is 167 ms, so the corrected projection is 3.2x raw and still
   ~6x faster end to end than `DataFrame` + `JSON.stringify`; the number fixes added 37 ms (7.3%).
 - **500/500 lines byte-identical** on the benchmark corpus, pinned against `DataFrame` itself in
-  `test/duck-frame/export-json-spec.ts`. `writeNDJSON(path)` and `ndjson()` (streamed, so a caller can
+  `test/teal-frame/export-json-spec.ts`. `writeNDJSON(path)` and `ndjson()` (streamed, so a caller can
   flush to S3 as it goes) share one projection and produce identical bytes.
 - **Two residues, both narrow, both pinned as tests:** `abs(x) >= 1e21` writes `1e21` where JS writes
   `1e+21` (unfixable through the JSON type, which re-normalises any number given to it); and a
@@ -564,7 +564,7 @@ applied by `createScalarFunction` keyed off `spec.parameter`, handing a `FieldTy
 structural hole was that the output side had a converter and the input side had none; blast radius
 went 13-of-16 to 2, and those 2 are the offset-display question below.
 
-- **Regression-guarded** in `test/duck-frame/date-udf-spec.ts` (11 tests) by asserting the JS **type
+- **Regression-guarded** in `test/teal-frame/date-udf-spec.ts` (11 tests) by asserting the JS **type
   and value** the function receives, because jest caches `TZ` at VM startup and under UTC the drift is
   zero. Reverting the one-line wiring fails 2 tests under UTC, checked.
 - **Date is the ONLY type this hurts:** `Long`→`BigInt`, `IP`/`Keyword`/`Text`→`String`,
@@ -603,7 +603,7 @@ makes it a case for the SQL-vs-UDF dispatch descriptor.
 ### INGEST — multi-slice, concurrency, and the failure contract
 
 Accumulation is **worker-side, from Parquet** (§0.0). Jared rejected the first API
-(`DuckFrame.empty()` + `appendParquet()`) on all three counts — a new frame is already empty, two
+(`TealFrame.empty()` + `appendParquet()`) on all three counts — a new frame is already empty, two
 methods to add data is one too many, and the frame should own its storage.
 
 - **`frame.append(source, opts?)` is ONE method** — `{records}` on the api-server, `{parquet}` on the
@@ -646,7 +646,7 @@ single `append({ parquet: [...] })` is worth more than the checkpoint is.
 > ~850k.
 
 **INGEST COST, 500k × 30 columns** (`tools/bench/ingest-breakdown.mjs`): `coerceToType` alone is
-1,232 ms and **both engines pay it**; `DataFrame.fromJSON` is 2,140 ms and `DuckFrame.fromRecords`
+1,232 ms and **both engines pay it**; `DataFrame.fromJSON` is 2,140 ms and `TealFrame.fromRecords`
 2,931 ms. So the addressable gap is **791 ms** and a perfect ingest could not beat 1,232 ms.
 
 | at parity or better | ~1.2x | **the losses** |
@@ -881,7 +881,7 @@ create-time option — so `INSTALL` at image build into a baked directory, or `C
 its 13 geo functions have no UDF fallback (DF7).
 
 - **Load at bootstrap, not on first use**, so a missing extension fails at startup rather than
-  mid-query; `DuckFrame` has no extension handling today, and that is the work.
+  mid-query; `TealFrame` has no extension handling today, and that is the work.
 - Both are keyed by DuckDB version AND platform (`v1.5.5/osx_arm64` here, `linux_amd64` in prod), so a
   `@duckdb/node-api` bump silently invalidates a baked file and `LOAD` falls back to the network.
   `INSTALL <name> FROM '<local-dir>'` works offline, verified.
@@ -889,7 +889,7 @@ its 13 geo functions have no UDF fallback (DF7).
 ### THE AIR-GAPPED S3 PERFORMANCE IMAGE, AND THE QUERY FIXTURES
 
 **`Dockerfile.duckperf` at the repo root; harness in `docs/s3-perf/` — read its README.** It measures
-DuckDB and DuckFrame against Parquet objects in an S3 store in a dev environment with no internet and
+DuckDB and TealFrame against Parquet objects in an S3 store in a dev environment with no internet and
 no AI assistance, so every script diagnoses its own failures; built and run end to end on both
 `linux/arm64` and `linux/amd64`, all seven steps passing, against a pre-uploaded corpus.
 
@@ -898,7 +898,7 @@ no AI assistance, so every script diagnoses its own failures; built and run end 
 | **alpine/musl is FINE** | `PRAGMA platform` = `linux_amd64_musl`; httpfs, aws, inet, spatial all have musl builds |
 | **the air-gap works** | baked at build time, then `docker run --network none` with autoinstall/autoload OFF |
 | **bake only 4** | `icu`/`json`/`parquet` really are statically linked, and **`INSTALL` on a static extension downloads a copy that SHADOWS the built-in one**. Installing them wastes ~72 MB |
-| **bake to the DEFAULT path** | `$HOME/.duckdb/extensions/<version>/<platform>/`. **`DuckFrame` creates its own DuckDB and never sees an `extension_directory` you pass**, so a custom path works for the harness and silently breaks the frame |
+| **bake to the DEFAULT path** | `$HOME/.duckdb/extensions/<version>/<platform>/`. **`TealFrame` creates its own DuckDB and never sees an `extension_directory` you pass**, so a custom path works for the harness and silently breaks the frame |
 | size | ~896 MB uncompressed, **~264 MB compressed** |
 
 Build with `-f` or docker builds the ordinary teraslice image:
@@ -909,7 +909,7 @@ Build with `-f` or docker builds the ordinary teraslice image:
 exist** — bytes moved come from the profiler's `total_bytes_read`, with `profiling_output` set to a
 FILE or the profile tree floods stdout.
 
-**Three DuckFrame API facts the harness had to discover, which the worker will hit too:**
+**Three TealFrame API facts the harness had to discover, which the worker will hit too:**
 
 1. **`fromParquet(config, path)` takes the `DataTypeConfig` FIRST**, so anything pointed at unseen
    objects must reconstruct one — and `toDuckDB()` is not injective (an IP column comes back as
@@ -1041,7 +1041,7 @@ Column(vector, configA)
 ```
 
 1. **`output_type` changes the field config mid-plan**, and the Builder for the NEW config coerces the
-   result — which is why `duckFrameAdapter` returns `outputConfig`; thread it into the next step.
+   result — which is why `tealFrameAdapter` returns `outputConfig`; thread it into the next step.
 2. **Validations NULL the value and keep the row; transforms THROW**, aborting the query.
 3. **A transform sees non-nil values only** unless the function opts into nulls, which is the source of
    the UDF null-skipping rule.
@@ -1062,7 +1062,7 @@ must go through `makeValueConverter` (a `number` into a BIGINT vector throws), a
 DuckDB value wrappers — fixed with `toPlainValue`, since `rows()` is the OUTPUT path.
 
 **All emitted lambdas use `lambda x : …`, never `x -> …`** (verified 2026-08-24 across
-`duck-frame-adapter/index.ts`, `export-json.ts` and `function-configs/numeric/sql-utils.ts`), because
+`teal-frame-adapter/index.ts`, `export-json.ts` and `function-configs/numeric/sql-utils.ts`), because
 DuckDB v2.0 disables the single-arrow syntax by default and v2.1 removes the `lambda_syntax` flag.
 
 ### `DuckContext` AND DATABASE CONFIGURATION
@@ -1155,7 +1155,7 @@ Then, in order:
 5. **Never emit `SELECT *`** from the planner (the one Parquet memory cliff).
 6. `isPostalCode`, then `expm1`/`log1p`.
 
-Housekeeping: `DuckFrame.ts` is 908 lines (over the 800 rule; it was 809 before) - split the class.
+Housekeeping: `TealFrame.ts` is 908 lines (over the 800 rule; it was 809 before) - split the class.
 VARIANT is REJECTED for `Any` (DF16); do not revisit without a node binding that can write it.
 
 1. **CONCURRENCY — several jobs against ONE `memory_limit`. The highest-value unrun measurement.**
@@ -1282,7 +1282,7 @@ normally, and `no-console` should be disabled at file level with a reason rather
 | `PERFORMANCE.md` | **the measurement record.** §THE 2026-08-25 REPORT MEASUREMENTS is at the top and is the current one; it retires four earlier claims, each marked at its original site, and the older 1k-5M `DataFrame` comparison below it carries its own staleness warnings |
 | `sql-emission.md` | **the authority on what runs as SQL.** Read it before adding an emission |
 | `duckdb-parity.md` | **generated** — regenerate with `tools/parity/` (deterministic; needs data-mate's built `dist`), never hand-edit. Its divergences were measured against DuckDB's DEFAULT CASTS and must not be cited as "SQL cannot express our semantics"; §1 (type/coercion) and §3 (frame semantics) are unaffected |
-| `known-defects.md` | **CURRENT.** D1-D4 fixed and merged (PR #4515), D5 open by design; DuckFrame defects are DF1, DF2, DF4-DF13 — **there is no DF3** |
+| `known-defects.md` | **CURRENT.** D1-D4 fixed and merged (PR #4515), D5 open by design; TealFrame defects are DF1, DF2, DF4-DF13 — **there is no DF3** |
 | `ingest-findings.md` | The transport measurement (Parquet vs ndjson vs dfjson on the wire) plus two lessons. 63 lines; the abandoned `read_json` design and its dangling validity index were removed |
 | `research/` | primary-source write-ups with URLs and quotes: `quack-protocol.md`, `client-udf-parallelism.md`, `macros.md`, `sql-function-coverage.md` |
 | `s3-perf/` | the air-gapped S3 harness and the query fixtures; read `s3-perf/README.md` and `s3-perf/fixtures/README.md` |

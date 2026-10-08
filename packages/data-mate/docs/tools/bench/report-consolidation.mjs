@@ -30,7 +30,7 @@
 import { rm, mkdir, stat, writeFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { duckdb, duckFrame, heading, note } from '../lib/duck.mjs';
+import { duckdb, tealFrame, heading, note } from '../lib/duck.mjs';
 
 const ROWS = Number(process.env.ROWS || 10_000_000);
 const REPEATS = Number(process.env.REPEATS || 3);
@@ -39,7 +39,7 @@ const ROOT = process.env.ROOT || '/tmp/duck-consol';
 const OUT = process.env.OUT || new URL('../results/consolidation.json', import.meta.url).pathname;
 
 const { DuckDBInstance } = await duckdb();
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
@@ -107,7 +107,7 @@ async function produce(dir, rows, sizeFor) {
     const start = performance.now();
     while (made < rows) {
         const take = Math.min(sizeFor(n), rows - made);
-        const frame = await DuckFrame.create(CONFIG, { name: `p${n}`, database: db });
+        const frame = await TealFrame.create(CONFIG, { name: `p${n}`, database: db });
         await frame.append({ records: makeRecords(take, made + 1) });
         await frame.writeParquet(join(dir, `part-${String(n).padStart(5, '0')}.parquet`));
         await frame.destroy();

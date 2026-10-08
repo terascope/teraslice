@@ -23,12 +23,12 @@ export async function duckdb() {
     return import(pathToFileURL(require_.resolve('@duckdb/node-api')).href);
 }
 
-/** data-mate's built `dist` — the real DuckFrame, not a reimplementation. */
-export async function duckFrame() {
-    const dist = new URL('../../../dist/src/duck-frame/DuckFrame.js', import.meta.url);
+/** data-mate's built `dist` — the real TealFrame, not a reimplementation. */
+export async function tealFrame() {
+    const dist = new URL('../../../dist/src/teal-frame/TealFrame.js', import.meta.url);
     const loaded = await import(dist.href);
-    if (typeof loaded.DuckFrame !== 'function') {
-        throw new Error('data-mate dist has no DuckFrame export — the image build is broken');
+    if (typeof loaded.TealFrame !== 'function') {
+        throw new Error('data-mate dist has no TealFrame export — the image build is broken');
     }
     return loaded;
 }
@@ -60,7 +60,7 @@ async function applyCredentials(run) {
  * supplied `run`.
  *
  * **Why this is a function and not a copied block.** `07-sql.mjs` drives a
- * DuckFrame, and a frame owns its OWN DuckDB instance — a second database that
+ * TealFrame, and a frame owns its OWN DuckDB instance — a second database that
  * shares nothing with the one `open()` returns. It has to be configured
  * separately, and the first version of that script hand-copied only the subset
  * that looked relevant: `LOAD httpfs`, the secret, the CA and the caches. It
@@ -114,7 +114,7 @@ export async function applyEndpointSettings(run, overrides = {}) {
      * SET GLOBAL, not SET. `ca_cert_file` is CONNECTION-scoped: a plain `SET`
      * leaves any connection opened later seeing `""`, and its first HTTPS read
      * fails with "SSL peer certificate ... was not OK". That is not theoretical
-     * — it is exactly how `DuckFrame.rows()` broke against a private-CA
+     * — it is exactly how `TealFrame.rows()` broke against a private-CA
      * endpoint, because `rows()` takes its own connection by design.
      *
      * `CREATE SECRET` above is instance-scoped and needs no such treatment,
@@ -175,7 +175,7 @@ export async function applyEndpointSettings(run, overrides = {}) {
 export async function open(overrides = {}) {
     const { DuckDBInstance } = await duckdb();
     // No extension_directory. The image bakes extensions into DuckDB's DEFAULT
-    // location, so the lookup path here is the same one DuckFrame's internal
+    // location, so the lookup path here is the same one TealFrame's internal
     // instance uses — if it works here it works there.
     const instance = await DuckDBInstance.create(':memory:');
     const connection = await instance.connect();

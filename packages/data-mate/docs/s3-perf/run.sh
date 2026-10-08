@@ -2,7 +2,7 @@
 #
 # The single entry point. Every script is independent and safe to re-run.
 #
-#   ./run.sh doctor|discover|battery|caches|layout|duckframe|memory|all
+#   ./run.sh doctor|discover|battery|caches|layout|tealframe|memory|all
 #
 # Environment overrides pass straight through, so a one-off change needs no
 # edit to the env file:
@@ -15,7 +15,7 @@ set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS="$HERE/scripts"
 
-declare -a ORDER=(doctor discover battery caches layout duckframe memory)
+declare -a ORDER=(doctor discover battery caches layout tealframe memory)
 
 script_for() {
     case "$1" in
@@ -24,7 +24,7 @@ script_for() {
         battery)   echo "$SCRIPTS/02-battery.mjs" ;;
         caches)    echo "$SCRIPTS/03-caches.mjs" ;;
         layout)    echo "$SCRIPTS/04-layout.mjs" ;;
-        duckframe) echo "$SCRIPTS/05-duckframe.mjs" ;;
+        tealframe) echo "$SCRIPTS/05-tealframe.mjs" ;;
         memory)    echo "$SCRIPTS/06-memory.mjs" ;;
         sql)       echo "$SCRIPTS/07-sql.mjs" ;;
         *)         echo "" ;;
@@ -42,7 +42,7 @@ Steps, in the order to run them:
   battery     the timed query battery (up to 10 shapes)
   caches      the three httpfs caches ON vs OFF, with bytes moved
   layout      query cost against the row-group and object census
-  duckframe   the DuckFrame API itself against S3
+  tealframe   the TealFrame API itself against S3
   memory      the memory-limit sweep and the wide top-N cliff
 
   all         every step above, in order, stopping at the first failure

@@ -2,7 +2,7 @@
 // What writeNDJSON costs, 1M rows, both spaces presets. Run before and after a change to the
 // JSON renderer; the file is rewritten each run so the timing includes DuckDB writing it.
 import { rmSync, statSync } from 'node:fs';
-import { DuckFrame } from '../../../dist/src/duck-frame/index.js';
+import { TealFrame } from '../../../dist/src/teal-frame/index.js';
 import { FieldType as T } from '@terascope/types';
 
 const dir = process.argv[2];
@@ -28,7 +28,7 @@ const config = {
         'items.qty': { type: T.Integer },
     },
 };
-const frame = await DuckFrame.create(config);
+const frame = await TealFrame.create(config);
 // build the rows in SQL so ingest time is not what is measured; every 3rd row is sparse
 await frame.rawRows(`INSERT INTO ${frame.from} SELECT
     'k' || i, i % 1000, i * 7919, CASE WHEN i % 3 = 0 THEN NULL ELSE i / 7.0 END, i % 2 = 0,

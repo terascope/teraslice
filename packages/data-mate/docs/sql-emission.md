@@ -1,6 +1,6 @@
 # SQL emission — what is promoted, what is guarded, and why
 
-**Read this before adding a `sql` emission to a function config.** `test/duck-frame/sql-emission-spec.ts`
+**Read this before adding a `sql` emission to a function config.** `test/teal-frame/sql-emission-spec.ts`
 is the gate: nothing is promoted by inspection, only by proving byte-equality against the function's own UDF.
 
 ## Why
@@ -43,7 +43,7 @@ rather than once per row, and the gap narrows ~25% and survives. 5 chained trans
    date-fns vocabulary — true of ONE of `formatDateValue`'s four branches, the others being `epoch_ms(v)`,
    `floor(epoch_ms(v) / 1000)` and a single `strftime`.
 3. Write the emission on the config, next to `create`. **It must be NULL-safe: null in, null out.**
-4. `npx ts-scripts test --suite unit -- duck-frame/sql-emission-spec`
+4. `npx ts-scripts test --suite unit -- teal-frame/sql-emission-spec`
 5. If it fails: fix the emission, guard it, or **withdraw it and write down why** here or in
    `docs/known-defects.md`.
 
@@ -105,7 +105,7 @@ ACCEPTS, and `throwsOn` names one it rejects, run both ways and required to fail
 | **JS counts UTF-16 code units, SQL counts characters** | `truncate`, `isLength`, `reverse`. Guard with `HAS_ASTRAL` and let the UDF have astral input |
 | **JS applies full Unicode case mapping, DuckDB simple** | `'ß'` uppercases to `SS` in JS and `ẞ` in SQL. Guard with `isAsciiSql` |
 | **`Math.round` breaks ties toward +∞, SQL's `round` away from zero** | `Math.round(-2.5)` is `-2`, `round(-2.5)` is `-3`. Emit `floor(x + 0.5)` |
-| **A leading U+FEFF cannot round-trip** | Stripped on the DuckFrame ingest path (an INTERIOR one survives; `DataFrame` keeps both). Not an emission problem — **DF12**. There is no DF3 |
+| **A leading U+FEFF cannot round-trip** | Stripped on the TealFrame ingest path (an INTERIOR one survives; `DataFrame` keeps both). Not an emission problem — **DF12**. There is no DF3 |
 | **Transcendentals differ in the last bit** | DuckDB's libm vs V8. IEEE 754 permits it; `approximate` covers it |
 
 ## RE2 is not JavaScript's regex engine — and compiling is only half of it

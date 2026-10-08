@@ -34,7 +34,7 @@ if (!isMainThread) {
         // its own instance, read-only: several instances may read one file, only one may write it
         instance = await DuckDBInstance.create(database, { access_mode: 'read_only', threads: '1' });
         const connection = await instance.connect();
-        const { createScalarFunction } = await import(dist('duck-frame/scalar-function.js'));
+        const { createScalarFunction } = await import(dist('teal-frame/scalar-function.js'));
         connection.registerScalarFunction(createScalarFunction({
             name: 'udf_upper',
             parameter: 'Keyword',
@@ -61,7 +61,7 @@ if (!isMainThread) {
     process.exit(0);
 }
 
-const { DuckFrame, closeDuckDatabase } = await import(dist('duck-frame/DuckFrame.js'));
+const { TealFrame, closeDuckDatabase } = await import(dist('teal-frame/TealFrame.js'));
 const { CONFIG, makeRecords } = await import(generate);
 
 const ROWS = Number(process.env.ROWS || 2_000_000);
@@ -77,7 +77,7 @@ const log = (text) => {
 log(`\n=== UDF across isolates - ${ROWS.toLocaleString()} rows, ${os.cpus().length} cores\n`);
 
 // build the file-backed table once, then release it so the workers can open it read-only
-const frame = await DuckFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'corpus', database });
+const frame = await TealFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'corpus', database });
 await frame.query('CHECKPOINT');
 const TABLE = frame.table;
 log(`  built ${database} (table "${TABLE}")`);

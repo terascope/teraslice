@@ -36,7 +36,7 @@
  */
 import { rm, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { duckdb, duckFrame, heading, note } from '../lib/duck.mjs';
+import { duckdb, tealFrame, heading, note } from '../lib/duck.mjs';
 
 const ROWS = Number(process.env.ROWS || 2_000_000);
 const FILES = (process.env.FILES || '10,500').split(',').map(Number);
@@ -44,7 +44,7 @@ const REPEATS = Number(process.env.REPEATS || 5);
 const SPOOL = process.env.SPOOL || '/tmp/duck-vvi-spool';
 
 const { DuckDBInstance } = await duckdb();
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
@@ -67,7 +67,7 @@ async function generate(rows, files, dir) {
     let written = 0;
     while (written < rows) {
         const take = Math.min(perFile, rows - written);
-        const frame = await DuckFrame.fromRecords(
+        const frame = await TealFrame.fromRecords(
             CONFIG, makeRecords(take, written + 1), { name: `g${paths.length}` }
         );
         const path = join(dir, `p${String(paths.length).padStart(5, '0')}.parquet`);

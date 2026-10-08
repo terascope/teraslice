@@ -60,7 +60,7 @@
 import { rm, mkdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { duckdb, duckFrame, heading, note } from '../lib/duck.mjs';
+import { duckdb, tealFrame, heading, note } from '../lib/duck.mjs';
 
 const ROWS = Number(process.env.ROWS || 5_000_000);
 const GEN_CHUNK = Number(process.env.GEN_CHUNK || 100_000);
@@ -72,7 +72,7 @@ const SPOOL = process.env.SPOOL || '/tmp/duck-fmt-spool';
 const DB = process.env.DB || '/tmp/duck-fmt.db';
 
 const { DuckDBInstance } = await duckdb();
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
@@ -167,7 +167,7 @@ heading(`STORAGE FORMATS — ${num(ROWS)} rows, 30-column corpus`);
 
 /* ---- phase 1: the corpus, into the native format ---- */
 
-const frame = await DuckFrame.create(CONFIG, { name: 'corpus', database: DB });
+const frame = await TealFrame.create(CONFIG, { name: 'corpus', database: DB });
 /** `create` uniquifies the name, so ask the frame rather than assuming `corpus`. */
 const TABLE = frame.table ?? 'corpus';
 let built = 0;

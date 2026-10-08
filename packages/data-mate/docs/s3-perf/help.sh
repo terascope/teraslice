@@ -7,7 +7,7 @@ ENV_FILE="${S3_PERF_ENV_FILE:-/app/config/s3.env}"
 
 cat <<BANNER
 
-  DuckFrame / DuckDB  —  S3 performance harness
+  TealFrame / DuckDB  —  S3 performance harness
   =============================================
 
   Config : ${ENV_FILE}          <- edit this first
@@ -22,7 +22,7 @@ cat <<BANNER
     ./run.sh battery     the timed query battery (8 shapes)
     ./run.sh caches      the three httpfs caches ON vs OFF, with bytes moved
     ./run.sh layout      query cost vs row-group and object count
-    ./run.sh duckframe   the DuckFrame API itself against S3
+    ./run.sh tealframe   the TealFrame API itself against S3
     ./run.sh memory      the memory-limit sweep and the wide top-N cliff
 
     ./run.sh all         everything above, in order

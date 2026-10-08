@@ -33,7 +33,7 @@
 import { rm, mkdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { duckFrame, heading, note } from '../lib/duck.mjs';
+import { tealFrame, heading, note } from '../lib/duck.mjs';
 
 const SCALES = (process.env.SCALES || '1000000,10000000').split(',').map(Number);
 const GEN_CHUNK = Number(process.env.GEN_CHUNK || 100_000);
@@ -42,12 +42,12 @@ const MEMORY_LIMIT = process.env.MEMORY_LIMIT || '24GiB';
 const ROOT = process.env.ROOT || '/tmp/duck-transforms';
 const OUT = process.env.OUT || new URL('../results/transforms.json', import.meta.url).pathname;
 
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
-const { duckFrameAdapter } = await import(
-    new URL('../../../dist/src/adapters/duck-frame-adapter/index.js', import.meta.url)
+const { tealFrameAdapter } = await import(
+    new URL('../../../dist/src/adapters/teal-frame-adapter/index.js', import.meta.url)
 );
 const { functionConfigRepository } = await import(
     new URL('../../../dist/src/function-configs/index.js', import.meta.url)
@@ -75,14 +75,14 @@ const PIPELINES = [
 /**
  * Build the five expressions for one pipeline.
  *
- * `duckFrameAdapter` REGISTERS the UDF as a side effect when it returns one, keyed to `database`,
+ * `tealFrameAdapter` REGISTERS the UDF as a side effect when it returns one, keyed to `database`,
  * so the database has to be the one the query will run on. Registration is instance-wide, which is
  * what makes a UDF visible to the private connection a stream opens.
  */
 async function expressionsFor(database, udfIndexes) {
     const out = [];
     for (const [index, [fn, field]] of STEPS.entries()) {
-        const adapted = await duckFrameAdapter(functionConfigRepository[fn], {
+        const adapted = await tealFrameAdapter(functionConfigRepository[fn], {
             field,
             inputConfig: { field_config: CONFIG.fields[field] },
             database,
@@ -138,7 +138,7 @@ for (const ROWS of SCALES) {
     const PQ = join(ROOT, `t-${ROWS}.parquet`);
     for (const p of [DB, `${DB}.wal`, PQ]) if (existsSync(p)) await rm(p, { force: true });
 
-    const frame = await DuckFrame.create(CONFIG, { name: 'corpus', database: DB });
+    const frame = await TealFrame.create(CONFIG, { name: 'corpus', database: DB });
     const TABLE = frame.table ?? 'corpus';
     await frame.query(`SET memory_limit = '${MEMORY_LIMIT}'`);
     // keep the table UNCOMPRESSED for the first half of the matrix: DuckDB auto-checkpoints at the

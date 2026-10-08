@@ -56,11 +56,11 @@ const reference = frame.toJSON(SPACES_DEFAULTS).map((row) => JSON.parse(JSON.str
 const preserved = frame.toJSON(PRESERVE_NULLS).map((row) => JSON.parse(JSON.stringify(row)));
 
 // ------------------------------------------------ what DuckDB emits on its own
-const { DuckFrame, closeDuckDatabase } = await import(
-    new URL('../../../dist/src/duck-frame/DuckFrame.js', import.meta.url).href
+const { TealFrame, closeDuckDatabase } = await import(
+    new URL('../../../dist/src/teal-frame/TealFrame.js', import.meta.url).href
 );
 
-const duck = await DuckFrame.fromRecords(CONFIG, RECORDS, {});
+const duck = await TealFrame.fromRecords(CONFIG, RECORDS, {});
 const rows = await duck.query(`SELECT to_json(t)::VARCHAR FROM ${duck.from} AS t`);
 const native = rows.map(([json]) => JSON.parse(String(json)));
 

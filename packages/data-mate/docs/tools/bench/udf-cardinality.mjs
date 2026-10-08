@@ -20,10 +20,10 @@ import { pathToFileURL } from 'node:url';
 
 const require = createRequire(new URL('../../../package.json', import.meta.url));
 const dist = (rel) => pathToFileURL(require.resolve(`./dist/src/${rel}`)).href;
-const { DuckFrame, closeDuckDatabase, registerScalarFunction } = await import(
-    dist('duck-frame/DuckFrame.js')
+const { TealFrame, closeDuckDatabase, registerScalarFunction } = await import(
+    dist('teal-frame/TealFrame.js')
 );
-const { createScalarFunction } = await import(dist('duck-frame/scalar-function.js'));
+const { createScalarFunction } = await import(dist('teal-frame/scalar-function.js'));
 const { DuckDBInstance } = await import(pathToFileURL(require.resolve('@duckdb/node-api')).href);
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url).href
@@ -69,7 +69,7 @@ async function measure(label, run, table, column) {
 }
 
 // ---------------------------------------------------------------- in memory, freshly appended
-const memFrame = await DuckFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'corpus' });
+const memFrame = await TealFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'corpus' });
 await registerScalarFunction({
     name: 'udf_upper',
     parameter: 'Keyword',
@@ -83,7 +83,7 @@ const memRun = (sql) => memFrame.query(sql);
 for (const column of COLUMNS) await measure('in-memory (appended)', memRun, memFrame.table, column);
 
 // ---------------------------------------------------------------- same rows, checkpointed to a file
-const fileFrame = await DuckFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'corpus', database });
+const fileFrame = await TealFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'corpus', database });
 const table = fileFrame.table;
 await fileFrame.query('CHECKPOINT');
 await closeDuckDatabase(database);

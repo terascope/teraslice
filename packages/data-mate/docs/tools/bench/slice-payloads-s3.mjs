@@ -37,7 +37,7 @@ import { rm, mkdir, stat, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { duckdb, duckFrame, heading, note } from '../lib/duck.mjs';
+import { duckdb, tealFrame, heading, note } from '../lib/duck.mjs';
 
 const run_ = promisify(execFile);
 
@@ -53,7 +53,7 @@ const CONTAINER = process.env.CONTAINER || 'duck-bench-minio';
 const ROW_GROUP = 122_880;
 
 const { DuckDBInstance } = await duckdb();
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
@@ -103,7 +103,7 @@ let written = 0;
 const genStart = performance.now();
 while (written < TOTAL) {
     const take = Math.min(PER, TOTAL - written);
-    const frame = await DuckFrame.fromRecords(CONFIG, makeRecords(take, written + 1), { name: `g${paths.length}` });
+    const frame = await TealFrame.fromRecords(CONFIG, makeRecords(take, written + 1), { name: `g${paths.length}` });
     const p = join(rawDir, `p${String(paths.length).padStart(6, '0')}.parquet`);
     await frame.writeParquet(p);
     await frame.destroy();

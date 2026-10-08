@@ -38,7 +38,7 @@ import { createServer } from 'node:http';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { rm, mkdir } from 'node:fs/promises';
 import { join, basename } from 'node:path';
-import { duckdb, duckFrame, heading, note } from '../lib/duck.mjs';
+import { duckdb, tealFrame, heading, note } from '../lib/duck.mjs';
 
 const SCALE = Number(process.env.SCALE || 1_000_000);
 const FILES = (process.env.FILES || '10,100,1000').split(',').map(Number);
@@ -97,7 +97,7 @@ const S3_SECRET = process.env.MINIO_SECRET_KEY || 'minioadmin';
 const BUCKET = process.env.S3_BUCKET || 'duck-bench';
 
 const { DuckDBInstance } = await duckdb();
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
@@ -165,7 +165,7 @@ async function generate(scale, count, dir) {
         for (let done = 0; done < take; done += GEN_CHUNK) {
             pieces.push(...makeRecords(Math.min(GEN_CHUNK, take - done), seed++));
         }
-        const frame = await DuckFrame.fromRecords(CONFIG, pieces, { name: `rgen_${paths.length}` });
+        const frame = await TealFrame.fromRecords(CONFIG, pieces, { name: `rgen_${paths.length}` });
         const path = join(dir, `p${String(paths.length).padStart(5, '0')}.parquet`);
         await frame.writeParquet(path);
         await frame.destroy();

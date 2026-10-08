@@ -1,6 +1,6 @@
 # QPL fixtures — generation, layout, and what the sizes actually are
 
-Deterministic Parquet fixtures for the DuckFrame / DuckDB query battery, plus the
+Deterministic Parquet fixtures for the TealFrame / DuckDB query battery, plus the
 real NOAA corpus. **One file per scale**, zstd-compressed.
 
 ## THE REAL DEPLOYMENT (verified 2026-09-09)

@@ -26,17 +26,17 @@
  *     node docs/tools/bench/transform-mix.mjs
  *     ROWS=5000000 COLUMN=email node docs/tools/bench/transform-mix.mjs
  */
-import { duckFrame, dataMate, heading, note } from '../lib/duck.mjs';
+import { tealFrame, dataMate, heading, note } from '../lib/duck.mjs';
 
 const ROWS = Number(process.env.ROWS || 2_000_000);
 /** `name` is 100k distinct over 2M rows - enough work to matter, low enough to compress. */
 const COLUMN = process.env.COLUMN || 'name';
 const STEPS = Number(process.env.STEPS || 6);
 
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { functionConfigRepository: repo } = await dataMate();
-const { duckFrameAdapter } = await import(
-    new URL('../../../dist/src/adapters/duck-frame-adapter/index.js', import.meta.url).href
+const { tealFrameAdapter } = await import(
+    new URL('../../../dist/src/adapters/teal-frame-adapter/index.js', import.meta.url).href
 );
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
@@ -45,14 +45,14 @@ const { CONFIG, makeRecords } = await import(
 /** Distinct search characters, so every step is a DIFFERENT UDF doing the SAME amount of work. */
 const SEARCHES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-const frame = await DuckFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'mix' });
+const frame = await TealFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'mix' });
 const TABLE = frame.table;
 
 async function build(udfCount) {
     const parts = [];
     const dispatches = [];
     for (let i = 0; i < STEPS; i++) {
-        const adapted = await duckFrameAdapter(repo.replaceLiteral, {
+        const adapted = await tealFrameAdapter(repo.replaceLiteral, {
             field: COLUMN,
             inputConfig: { field_config: CONFIG.fields[COLUMN] },
             args: { search: SEARCHES[i], replace: SEARCHES[i].toUpperCase() },

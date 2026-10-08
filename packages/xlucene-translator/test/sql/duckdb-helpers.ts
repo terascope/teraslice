@@ -123,7 +123,7 @@ function quoteIdentifier(name: string): string {
 
 /**
  * A literal for one column. A `geo-json` column is a `GEOMETRY`, and DuckDB casts TEXT to one
- * only from WKT, so a GeoJSON document is converted with `ST_GeomFromGeoJSON` - what DuckFrame's
+ * only from WKT, so a GeoJSON document is converted with `ST_GeomFromGeoJSON` - what TealFrame's
  * ingest produces, from the same shape.
 */
 function columnValue(type: string, value: unknown): string {

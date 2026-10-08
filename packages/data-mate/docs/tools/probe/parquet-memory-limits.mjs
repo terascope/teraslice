@@ -28,7 +28,7 @@ import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { duckdb, duckFrame, heading, note } from '../lib/duck.mjs';
+import { duckdb, tealFrame, heading, note } from '../lib/duck.mjs';
 
 const run = promisify(execFile);
 const ROWS = Number(process.env.ROWS || 10_000_000);
@@ -109,12 +109,12 @@ if (CELL) {
 heading(`PARQUET MEMORY LIMITS — ${ROWS.toLocaleString()} rows`);
 await mkdir(ROOT, { recursive: true });
 if (!existsSync(DB) || !existsSync(PQ)) {
-    const { DuckFrame, closeDuckDatabase } = await duckFrame();
+    const { TealFrame, closeDuckDatabase } = await tealFrame();
     const { CONFIG, makeRecords } = await import(
         new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
     );
     for (const p of [DB, `${DB}.wal`, PQ]) if (existsSync(p)) await rm(p, { force: true });
-    const frame = await DuckFrame.create(CONFIG, { name: 'corpus', database: DB });
+    const frame = await TealFrame.create(CONFIG, { name: 'corpus', database: DB });
     let built = 0;
     while (built < ROWS) {
         const take = Math.min(100_000, ROWS - built);

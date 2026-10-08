@@ -46,7 +46,7 @@ import { pathToFileURL } from 'node:url';
 
 const require = createRequire(new URL('../../../package.json', import.meta.url));
 const dist = (rel) => pathToFileURL(require.resolve(`./dist/src/${rel}`)).href;
-const { DuckFrame, closeDuckDatabase } = await import(dist('duck-frame/DuckFrame.js'));
+const { TealFrame, closeDuckDatabase } = await import(dist('teal-frame/TealFrame.js'));
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url).href
 );
@@ -155,7 +155,7 @@ async function buildPayloads(rows, count, prefix) {
     const perPayload = Math.floor(rows / count);
     const files = [];
     for (let n = 0; n < count; n++) {
-        const producer = await DuckFrame.fromRecords(
+        const producer = await TealFrame.fromRecords(
             CONFIG, makeRecords(perPayload, n + 1), { name: `${prefix}_p${n}` }
         );
         const file = path.join(scratch, `${prefix}-${n}.parquet`);
@@ -176,7 +176,7 @@ async function measureScale(rows, repeat) {
     const extra = payloads[0]; // one more payload, to dirty the table again after a checkpoint
     await closeDuckDatabase();
 
-    const frame = await DuckFrame.create(CONFIG, { name: 'master' });
+    const frame = await TealFrame.create(CONFIG, { name: 'master' });
     const table = frame.table;
     if (AUTO === 'off') await frame.query("SET checkpoint_threshold = '1TB'");
 

@@ -239,7 +239,7 @@ jobs:
       - name: Install and build packages
         run: pnpm install && pnpm run setup
 
-      # data-mate's DuckFrame loads these at open. The runner could download them
+      # data-mate's TealFrame loads these at open. The runner could download them
       # during the tests, but a CDN hiccup would then fail an unrelated suite, so
       # fetch them in their own step and cache them. The directory is keyed by
       # DuckDB version inside, so a stale cache entry is never loaded.

@@ -68,7 +68,7 @@ async function streamRowObjects(sql) {
             if (chunk == null || chunk.rowCount === 0) break;
             const columns = names.map((_n, i) => chunk.getColumnValues(i));
             for (let row = 0; row < chunk.rowCount; row++) {
-                // the shape DuckFrame.streamRowObjects uses today
+                // the shape TealFrame.streamRowObjects uses today
                 const record = Object.fromEntries(
                     names.map((name, col) => [name, plain(columns[col][row])])
                 );

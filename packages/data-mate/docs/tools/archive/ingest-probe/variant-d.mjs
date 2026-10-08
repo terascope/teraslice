@@ -4,7 +4,7 @@
 // coercion layer. String(v) per value is far cheaper than JSON.stringify per record.
 import { DuckDBInstance, DuckDBDataChunk } from '@duckdb/node-api';
 import { DataFrame } from '@terascope/data-mate';
-import { coerceExpr } from '@terascope/data-mate/dist/src/duck-frame/coercion-sql.js';
+import { coerceExpr } from '@terascope/data-mate/dist/src/teal-frame/coercion-sql.js';
 
 const ROWS = Number(process.argv[2] ?? 1_000_000);
 const REPS = Number(process.argv[3] ?? 3);

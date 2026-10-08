@@ -29,8 +29,8 @@ import { pathToFileURL } from 'node:url';
 
 const require = createRequire(new URL('../../../package.json', import.meta.url));
 const dist = (rel) => pathToFileURL(require.resolve(`./dist/src/${rel}`)).href;
-const { DuckFrame, closeDuckDatabase, registerScalarFunction } = await import(
-    dist('duck-frame/DuckFrame.js')
+const { TealFrame, closeDuckDatabase, registerScalarFunction } = await import(
+    dist('teal-frame/TealFrame.js')
 );
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url).href
@@ -60,7 +60,7 @@ log(`\nbuilding ${PAYLOADS} payloads, ${ROWS.toLocaleString()} rows total`);
 const perPayload = Math.floor(ROWS / PAYLOADS);
 const payloads = [];
 for (let n = 0; n < PAYLOADS; n++) {
-    const producer = await DuckFrame.fromRecords(
+    const producer = await TealFrame.fromRecords(
         CONFIG, makeRecords(perPayload, n + 1), { name: `p${n}` }
     );
     const file = path.join(scratch, `p-${n}.parquet`);
@@ -77,7 +77,7 @@ async function strategy({
     label, database, everyN, disableAuto, checkpointAtEnd
 }) {
     const options = database ? { database } : {};
-    const frame = await DuckFrame.create(CONFIG, { name: 'master', ...options });
+    const frame = await TealFrame.create(CONFIG, { name: 'master', ...options });
     registerCounter(database);
     if (disableAuto) await frame.query("SET checkpoint_threshold = '1TB'");
 

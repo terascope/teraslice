@@ -33,7 +33,7 @@ const generate = new URL('../../../bench/comparison/lib/generate.js', import.met
 
 // ------------------------------------------------------------------ the worker
 if (!isMainThread) {
-    const { DuckFrame, closeDuckDatabase } = await import(dist('duck-frame/DuckFrame.js'));
+    const { TealFrame, closeDuckDatabase } = await import(dist('teal-frame/TealFrame.js'));
     const { CONFIG, makeRecords } = await import(generate);
 
     const { rows, seed, file } = workerData;
@@ -44,7 +44,7 @@ if (!isMainThread) {
     await new Promise((resolve) => parentPort.once('message', resolve));
 
     const start = performance.now();
-    const frame = await DuckFrame.fromRecords(CONFIG, records, { name: `shard${seed}` });
+    const frame = await TealFrame.fromRecords(CONFIG, records, { name: `shard${seed}` });
     await frame.writeParquet(file);
     const ms = performance.now() - start;
 
@@ -55,7 +55,7 @@ if (!isMainThread) {
 }
 
 // ------------------------------------------------------------------ the parent
-const { DuckFrame, closeDuckDatabase } = await import(dist('duck-frame/DuckFrame.js'));
+const { TealFrame, closeDuckDatabase } = await import(dist('teal-frame/TealFrame.js'));
 const { CONFIG } = await import(generate);
 const { heading } = await import('../lib/duck.mjs');
 
@@ -124,7 +124,7 @@ for (const shards of SHARD_COUNTS) {
     const wall = performance.now() - start;
 
     // the worker tier: all N payloads in ONE append, the form read_parquet takes as one relation
-    const table = await DuckFrame.create(CONFIG, { name: `assembled${shards}` });
+    const table = await TealFrame.create(CONFIG, { name: `assembled${shards}` });
     const appendStart = performance.now();
     await table.append({ parquet: files });
     const appendMs = performance.now() - appendStart;

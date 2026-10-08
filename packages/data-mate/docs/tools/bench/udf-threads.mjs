@@ -1,7 +1,7 @@
 /**
  * Does a transform get FASTER with more cores - and does a JS UDF get any of that?
  *
- * The transform cases are the ones DuckFrame loses at small scale, and every QPL function runs
+ * The transform cases are the ones TealFrame loses at small scale, and every QPL function runs
  * today as a **vectorized scalar UDF**: DuckDB hands a chunk of 2048 values to a JavaScript
  * callback. JavaScript is single-threaded, so the open question is whether DuckDB can still run
  * that projection across cores or whether the UDF serializes the whole pipeline. The answer
@@ -27,10 +27,10 @@ import { heading } from '../lib/duck.mjs';
 const require = createRequire(new URL('../../../package.json', import.meta.url));
 const dist = (rel) => pathToFileURL(require.resolve(`./dist/src/${rel}`)).href;
 
-const { DuckFrame, configureDuckDatabase, closeDuckDatabase } = await import(
-    dist('duck-frame/DuckFrame.js')
+const { TealFrame, configureDuckDatabase, closeDuckDatabase } = await import(
+    dist('teal-frame/TealFrame.js')
 );
-const { duckFrameAdapter } = await import(dist('adapters/duck-frame-adapter/index.js'));
+const { tealFrameAdapter } = await import(dist('adapters/teal-frame-adapter/index.js'));
 const { functionConfigRepository: repo } = await import(dist('function-configs/index.js'));
 
 const { CONFIG, COLUMNS, makeRecords } = await import(
@@ -53,19 +53,19 @@ const STEPS = [
 
 heading(`UDF vs SQL vs threads - ${ROWS.toLocaleString()} rows, ${COLUMNS.length} columns`);
 
-const frame = await DuckFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'base' });
+const frame = await TealFrame.fromRecords(CONFIG, makeRecords(ROWS), { name: 'base' });
 
 /**
  * The UDF expressions, built ONCE.
  *
- * `duckFrameAdapter` registers the scalar function as a side effect, so building them inside the
+ * `tealFrameAdapter` registers the scalar function as a side effect, so building them inside the
  * timing loop would measure registration - and re-registering the same name per run is not what a
  * query does either.
 */
 const udf = {};
 const fields = { ...CONFIG.fields };
 for (const [fn, field] of STEPS) {
-    const adapted = await duckFrameAdapter(repo[fn], {
+    const adapted = await tealFrameAdapter(repo[fn], {
         field,
         inputConfig: { field_config: CONFIG.fields[field] },
     });

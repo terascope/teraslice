@@ -1,6 +1,6 @@
-# DuckFrame performance — the measurement record
+# TealFrame performance — the measurement record
 
-The system of record for every DuckFrame/DataFrame measurement; other docs point here rather than copy
+The system of record for every TealFrame/DataFrame measurement; other docs point here rather than copy
 numbers. Where both engines appear they were given **identical records** from a seeded generator and
 every case was checked to produce the same row count, so "faster" cannot mean "did less".
 
@@ -11,7 +11,7 @@ every case was checked to produce the same row count, so "faster" cannot mean "d
 
 | caveat | effect |
 |---|---|
-| **Every DataFrame-vs-DuckFrame transform/validation number was taken with all 205 functions on the JS UDF path**; 188 of 205 now emit native SQL (`docs/sql-emission.md`) | those rows are a **lower bound** on the DuckFrame side. Margin in §What the SQL promotions bought: 3-9x single-function at 1M, 2.98x on the five-function pipeline, flat at 100k |
+| **Every DataFrame-vs-TealFrame transform/validation number was taken with all 205 functions on the JS UDF path**; 188 of 205 now emit native SQL (`docs/sql-emission.md`) | those rows are a **lower bound** on the TealFrame side. Margin in §What the SQL promotions bought: 3-9x single-function at 1M, 2.98x on the five-function pipeline, flat at 100k |
 | **Measured on an UNCOMPRESSED in-memory master table** — DuckDB compresses only at `CHECKPOINT`, and that harness never checkpoints | worst case for repetitive columns: a checkpointed table runs a UDF once per *distinct* value (104x on a low-cardinality column, 3.9x on a 30-column transform) and uses 5.4x less memory |
 | **The 28 MB/million figure is a GENERATOR ARTEFACT** — `bench/comparison/lib/generate.js` builds values with `i % N`; the 2026-08-27 query fixtures measure **~106 MB/million** | every SIZE, disk and bytes-on-the-wire figure here is **optimistic by ~4x**; ratios BETWEEN formats on one corpus stay valid. See `s3-perf/fixtures/README.md` |
 
@@ -29,7 +29,7 @@ group-bys and joins involve no UDF.
 | timing | median of 3 / 2 / 1 by scale, after a discarded warm-up |
 | machine | node v24.15.0, 14 cores, 36 GB RAM, JS heap limit 24576 MB |
 
-**Forcing.** DuckFrame is lazy, so every case ends in an explicit force — `count(*)` for a filter or
+**Forcing.** TealFrame is lazy, so every case ends in an explicit force — `count(*)` for a filter or
 join, `materialize()` for anything yielding a usable frame, a full drain where DataFrame also produces
 JS values; a sort is *never* forced with a count, which would let the optimiser drop the `ORDER BY`.
 `OOM` means the JS heap was exhausted: a result, not a crash.
@@ -310,7 +310,7 @@ expensive one.** Materialising heals it at 1.44x the build cost (9,239 → 13,30
 
 > **The design rule: size payloads to hold at least one full row group (~123k rows), and never lower
 > `ROW_GROUP_SIZE` on the producer** — a large payload written with a small row group is exactly as slow
-> as a swarm of tiny ones. `DuckFrame.writeParquet` sets only `FORMAT parquet, COMPRESSION zstd` and so
+> as a swarm of tiny ones. `TealFrame.writeParquet` sets only `FORMAT parquet, COMPRESSION zstd` and so
 > inherits 122,880: correct today, and silently load-bearing.
 
 **The first half is unreachable for the real producer**: `qpl-search-api` cannot return more than
@@ -493,7 +493,7 @@ the transaction removes 1-5%, so the fixed cost lives inside `INSERT … SELECT 
 
 ### `preserve_insertion_order` × shape × storage — and the winner inverts
 
-40 × 50k payloads, **5-column** corpus, through the real `DuckFrame.append`, checkpointing suppressed.
+40 × 50k payloads, **5-column** corpus, through the real `TealFrame.append`, checkpointing suppressed.
 
 | shape | memory, order ON | memory, order OFF | file, order ON | file, order OFF |
 |---|---|---|---|---|
@@ -517,7 +517,7 @@ file 3,181 ms / 0.57x, WORSE than baseline; the right file recipe is pool + no t
 
 ### Per-append cost, and the arithmetic for a long-running job
 
-`DuckFrame.append` through the real code path, 50k-row payloads, transactions and connections as shipped.
+`TealFrame.append` through the real code path, 50k-row payloads, transactions and connections as shipped.
 
 | shape | 5-col, memory | 5-col, file | 30-col, memory | 30-col, file |
 |---|---|---|---|---|
@@ -525,7 +525,7 @@ file 3,181 ms / 0.57x, WORSE than baseline; the right file recipe is pool + no t
 | one payload per append, concurrent | 5.7 ms | 9.9 ms | — | — |
 | all payloads in ONE append | (31 ms total for 40) | (444 ms total) | — | — |
 
-`DataFrame.appendAll` is **~0.2 ms, flat at any size** (structural sharing) against **DuckFrame's
+`DataFrame.appendAll` is **~0.2 ms, flat at any size** (structural sharing) against **TealFrame's
 ~790 ms group-by advantage at 1M** (792.1 ms vs 1.7 ms) — so at 15-45 ms per append, **17 to 52 appends
 consume one aggregation's worth of advantage**. What survives for append-dominated work: **joins** with
 both sides co-located, **query cost** (100-400x on aggregations, only if the job aggregates), and **not
@@ -547,7 +547,7 @@ the peak footprint fits**, otherwise the coarsest cadence that stays inside the 
 
 ## What the SQL promotions bought — MEASURED 2026-08-21
 
-`PREFER_SQL` (`bench/comparison/lib/harness.js`) runs the same cases both ways, `RUNS=3`, DuckFrame only.
+`PREFER_SQL` (`bench/comparison/lib/harness.js`) runs the same cases both ways, `RUNS=3`, TealFrame only.
 
 | case | UDF @1M | SQL @1M | gain | UDF @100k | SQL @100k | gain |
 |---|---|---|---|---|---|---|
@@ -568,9 +568,9 @@ the peak footprint fits**, otherwise the coarsest cadence that stays inside the 
 
 ---
 
-## DataFrame vs DuckFrame — the operation-by-operation comparison
+## DataFrame vs TealFrame — the operation-by-operation comparison
 
-All cells are **`DataFrame / DuckFrame`**, milliseconds unless suffixed `s`; the transform rows are the
+All cells are **`DataFrame / TealFrame`**, milliseconds unless suffixed `s`; the transform rows are the
 UDF path on an uncompressed table (see READ FIRST).
 
 | case | 1k | 5k | 10k | 50k | 100k | 500k | 1M | 3M | 5M |
@@ -604,7 +604,7 @@ UDF path on an uncompressed table (see READ FIRST).
   **DataFrame's `limit` is a `slice` view over the same vectors** (why `page` favours it).
 
 > ⚠ **The DataFrame column jumps 10-20x between 3M and 5M on every transform row** (and on sort and
-> filter) while DuckFrame scales smoothly; nothing in the record explains it and it is consistent with
+> filter) while TealFrame scales smoothly; nothing in the record explains it and it is consistent with
 > GC pressure near the 24 GB heap limit. **The 5M "faster" ratios rest on that discontinuity — do not
 > quote them without re-measuring.**
 
@@ -628,7 +628,7 @@ UDF path on an uncompressed table (see READ FIRST).
 - **The ldjson bytes are identical** (all 500 sampled lines checked against DataFrame) even though
   DuckDB's native JSON is not — Dates, a `Long` past `MAX_SAFE_INTEGER`, `"f": null` where DataFrame
   omits the key, `5.0` for an integral float and a bare `Infinity` are each corrected in SQL by the
-  export projection, pinned in `test/duck-frame/export-json-spec.ts`, at **7% of the projection**.
+  export projection, pinned in `test/teal-frame/export-json-spec.ts`, at **7% of the projection**.
 - On the file path DataFrame's `toJSON` builds an array of every row first (why it runs out of heap
   there) against a single `COPY`, its lines batched into 1 MB writes so this is not one syscall per row.
 - **DataFrame has no join primitive at all**, which is the reason this project exists — spaces emulates
@@ -722,7 +722,7 @@ if native is ever chosen, sort deliberately and index narrowly.
 
 ## Scale — one table at 100M, 244M and 1B rows
 
-DuckFrame only, measured 2026-08-20 on darwin / 14 cores / 36 GB with `tools/bench/scale-ingest.mjs` (the
+TealFrame only, measured 2026-08-20 on darwin / 14 cores / 36 GB with `tools/bench/scale-ingest.mjs` (the
 real worker ingest path) and `tools/bench/billion.mjs`. **The engine comparison caps at 5M because that
 is the harness's configured ceiling**, not because DataFrame stops there — exactly one case OOMs
 (`serialize for the wire`, at 1M/3M/5M) while every other completed at 3M and 5M: a dfjson

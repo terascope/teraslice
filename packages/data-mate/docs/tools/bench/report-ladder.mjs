@@ -39,7 +39,7 @@
 import { rm, mkdir, stat, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { duckdb, duckFrame, heading, note } from '../lib/duck.mjs';
+import { duckdb, tealFrame, heading, note } from '../lib/duck.mjs';
 
 const SCALES = (process.env.SCALES || '100000,500000,1000000,10000000,100000000')
     .split(',').map(Number);
@@ -55,7 +55,7 @@ const OUT = process.env.OUT
     || new URL('../results/ladder.json', import.meta.url).pathname;
 
 const { DuckDBInstance } = await duckdb();
-const { DuckFrame, closeDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
@@ -162,7 +162,7 @@ for (const ROWS of SCALES) {
 
     /* ---- phase 1: the corpus, into a FILE-BACKED native table ---- */
 
-    const frame = await DuckFrame.create(CONFIG, { name: 'corpus', database: DB });
+    const frame = await TealFrame.create(CONFIG, { name: 'corpus', database: DB });
     const TABLE = frame.table ?? 'corpus';
     await frame.query(`SET memory_limit = '${MEMORY_LIMIT}'`);
     let built = 0;

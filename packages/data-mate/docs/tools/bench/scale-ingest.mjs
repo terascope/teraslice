@@ -29,7 +29,7 @@
 import { rm, mkdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { duckFrame, since, heading, note } from '../lib/duck.mjs';
+import { tealFrame, since, heading, note } from '../lib/duck.mjs';
 
 const TARGET = Number(process.env.TARGET || 5_000_000);
 const PER = Number(process.env.PER || 100_000);
@@ -52,7 +52,7 @@ const SPOOL = process.env.SPOOL || '/tmp/duck-scale-spool';
 /** Unset = let DuckDB use as much as it likes, which is the default and is not a number. */
 const MEMORY_LIMIT = process.env.MEMORY_LIMIT || '';
 
-const { DuckFrame, closeDuckDatabase, configureDuckDatabase } = await duckFrame();
+const { TealFrame, closeDuckDatabase, configureDuckDatabase } = await tealFrame();
 const { CONFIG, makeRecords } = await import(
     new URL('../../../bench/comparison/lib/generate.js', import.meta.url)
 );
@@ -114,7 +114,7 @@ async function main() {
         note(`memory_limit ${MEMORY_LIMIT}, spilling to ${SPOOL}`);
     }
 
-    const frame = await DuckFrame.create(CONFIG, { name: 'scale', database: DB });
+    const frame = await TealFrame.create(CONFIG, { name: 'scale', database: DB });
     const table = frame.table ?? 'scale';
 
     if (AUTO_CHECKPOINT === 'off') {
@@ -148,7 +148,7 @@ async function main() {
         mark = process.hrtime.bigint();
         await Promise.all(batches.map(async (records, n) => {
             const path = join(SPOOL, `p${done}-${n}.parquet`);
-            const payload = await DuckFrame.fromRecords(CONFIG, records, { name: `p_${done}_${n}` });
+            const payload = await TealFrame.fromRecords(CONFIG, records, { name: `p_${done}_${n}` });
             try {
                 await payload.writeParquet(path);
             } finally {

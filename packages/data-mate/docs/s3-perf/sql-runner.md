@@ -31,7 +31,7 @@ FIXTURE=noaa   ->  {{T}} = (SELECT * FROM read_parquet('s3://duckdb/v1/noaa/**/*
 FIXTURE=1b     ->  {{T}} = (SELECT * FROM read_parquet('s3://duckdb/v1/1b/**/*.parquet'))
 ```
 
-## It runs through DuckFrame, not the raw binding
+## It runs through TealFrame, not the raw binding
 
 The other steps query the binding directly; this one goes through
 `frame.query()`, because that is what spaces will call.
@@ -40,9 +40,9 @@ The other steps query the binding directly; this one goes through
   `configureDuckDatabase()` and credentials through `frame.query()`. Nothing is
   inherited from the environment.
 - **There is no streaming JS mode.** `frame.rows()` hard-codes
-  `SELECT * FROM <the frame>` and DuckFrame has no "frame from arbitrary SQL"
+  `SELECT * FROM <the frame>` and TealFrame has no "frame from arbitrary SQL"
   factory, so `--rows json` is the JS path that is reachable. A `queryStream(sql)`
-  on DuckFrame would unlock it.
+  on TealFrame would unlock it.
 - **One statement only.** Use the flags for `SET`s: a second statement cannot be
   wrapped for `--rows none`, and a `SET` inside the timed region would measure
   itself.
@@ -235,7 +235,7 @@ Cold is slow *every* time because **nothing that makes a run warm survives the
 process** — the httpfs connection pool (with DNS and the TLS handshake),
 `parquet_metadata_cache`, `http_metadata_cache` and the external file cache all
 live in the DuckDB *instance*, and `openFrame()` even discards one instance
-(`DESCRIBE` for the schema) before `DuckFrame.fromParquet()` builds a second.
+(`DESCRIBE` for the schema) before `TealFrame.fromParquet()` builds a second.
 `--repeats` measures warm-within-a-process; running the script twice measures
 cold-per-process — different questions, both numbers right.
 
